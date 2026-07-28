@@ -25,6 +25,7 @@ def _print_report(payload: dict[str, Any]) -> None:
     section_filter = str(payload.get("section_filter") or "")
     filter_keys = (
         "backlog_lane_filter",
+        "research_pipeline_filter",
         "research_command_lane_filter",
         "research_command_input_class_filter",
         "operator_proof_category_filter",
@@ -105,6 +106,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--backlog-lane", default=None, help="Forward a lane filter to backlog lane status")
     parser.add_argument(
+        "--research-pipeline",
+        default=None,
+        help="Forward a pipeline_id filter to research pipeline status",
+    )
+    parser.add_argument(
         "--research-command-lane",
         default=None,
         help="Forward a lane filter to research command status",
@@ -125,6 +131,7 @@ def main(argv: list[str] | None = None) -> int:
         repo_root=ROOT,
         section=args.section,
         backlog_lane=args.backlog_lane,
+        research_pipeline=args.research_pipeline,
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,
         operator_proof_category=args.operator_proof_category,

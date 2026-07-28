@@ -143,6 +143,27 @@ def test_operator_status_bundle_forwards_research_command_filters(tmp_path: Path
     assert all(row["input_class"] == "artifact_input" for row in report["commands"])
 
 
+def test_operator_status_bundle_forwards_research_pipeline_filter(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="research_pipeline",
+        research_pipeline="price_action",
+    )
+
+    report = out["reports"]["research_pipeline_status"]
+    assert out["ok"] is True
+    assert out["section_filter"] == "research_pipeline"
+    assert out["research_pipeline_filter"] == "price_action"
+    assert report["pipeline_filter"] == "price_action"
+    assert out["summary"]["research_pipelines_wired"] == report["pipeline_count"]
+    assert out["shown_sections"] == ["research_pipeline"]
+    assert all(row["pipeline_id"] == "price_action" for row in report["pipelines"])
+
+
 def test_operator_status_bundle_forwards_proof_category(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 
@@ -190,6 +211,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "ok": True,
             "section_filter": section,
             "backlog_lane_filter": filters.get("backlog_lane"),
+            "research_pipeline_filter": filters.get("research_pipeline"),
             "research_command_lane_filter": filters.get("research_command_lane"),
             "research_command_input_class_filter": filters.get("research_command_input_class"),
             "operator_proof_category_filter": filters.get("operator_proof_category"),
