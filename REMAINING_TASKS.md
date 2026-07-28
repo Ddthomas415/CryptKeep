@@ -2699,6 +2699,13 @@ substrate work, but they are concrete enough to keep visible.
     This remains presentation/JSON status only and does not run pipelines or
     campaigns, fetch market data, close proof, authorize implementation, or
     mutate runtime state.
+    2026-07-28: operator status research-pipeline filter pass-through is ready
+    for independent review. The bundle, CLI, and Make targets can now forward
+    the accepted research pipeline `pipeline_id` filter as well, so focused
+    operator-status views can select one research pipeline without running it
+    or changing underlying status sources. This remains presentation/JSON
+    status only and does not run pipelines or campaigns, fetch market data,
+    close proof, authorize implementation, or mutate runtime state.
     2026-07-28: compact operator next-actions report is ready for independent
     review. `services.analytics.operator_next_actions` and
     `scripts/report_operator_next_actions.py` derive a bounded action list from

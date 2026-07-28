@@ -26405,6 +26405,54 @@ Remaining risk:
   routing, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-28T18:59:13Z - Operator Status Research Pipeline Filter Pass-Through
+
+Active role: ENGINEER
+
+Objective:
+- Let the read-only operator status bundle forward the accepted research
+  pipeline `pipeline_id` filter.
+
+What was found:
+- SHOWN: the research pipeline status report now supports `pipeline`, and the
+  operator status bundle already forwards other accepted underlying filters.
+  The research pipeline filter was the only missing pass-through.
+
+What changed:
+- `build_operator_status_bundle()` accepts `research_pipeline`.
+- The CLI exposes `--research-pipeline`.
+- `Makefile` exposes `OPERATOR_STATUS_RESEARCH_PIPELINE` for text and JSON
+  targets.
+- Text/JSON output surfaces `research_pipeline_filter`.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests.
+
+Why this change was chosen:
+- It is a same-surface extension over an already accepted read-only report
+  filter. It does not run research pipelines, campaigns, market-data fetches,
+  proof closure, authorization changes, or runtime mutation.
+
+Expected outcome:
+- Operators can run focused bundle checks such as
+  `make operator-status OPERATOR_STATUS_SECTION=research_pipeline OPERATOR_STATUS_RESEARCH_PIPELINE=price_action`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `15 passed in 0.28s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py scripts/report_operator_status_bundle.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `make operator-status OPERATOR_STATUS_SECTION=research_pipeline OPERATOR_STATUS_RESEARCH_PIPELINE=price_action`
+  - SHOWN: `ok=True`, `section_filter=research_pipeline`,
+    `research_pipeline_filter=price_action`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=research_pipeline OPERATOR_STATUS_RESEARCH_PIPELINE=funding_threshold`
+  - SHOWN: JSON reports `research_pipeline_filter=funding_threshold`,
+    `research_pipelines_wired=1`, and `research_pipelines_latest_ok=1`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  research execution, market-data fetch, proof closure, gate, ingestion, live
+  routing, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-28T18:21:02Z - Backlog Lane Status Filter
 
 Active role: ENGINEER
