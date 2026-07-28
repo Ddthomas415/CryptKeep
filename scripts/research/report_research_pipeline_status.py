@@ -24,6 +24,8 @@ from services.analytics.research_pipeline_status import build_research_pipeline_
 def _print_report(payload: dict[str, Any]) -> None:
     print("=== Research Pipeline Status ===")
     print(f"ok={payload.get('ok')} pipelines={payload.get('pipeline_count')}")
+    if payload.get("pipeline_filter"):
+        print(f"pipeline_filter={payload.get('pipeline_filter')}")
     summary = dict(payload.get("summary") or {})
     print(
         "summary: "
@@ -55,9 +57,10 @@ def main(argv: list[str] | None = None) -> int:
         description="Read-only status report for accepted research pipeline wrappers"
     )
     parser.add_argument("--json", action="store_true", help="Output JSON")
+    parser.add_argument("--pipeline", default=None, help="Limit output to one pipeline_id")
     args = parser.parse_args(argv)
 
-    payload = build_research_pipeline_status(repo_root=ROOT)
+    payload = build_research_pipeline_status(repo_root=ROOT, pipeline=args.pipeline)
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:

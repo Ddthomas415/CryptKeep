@@ -26616,3 +26616,54 @@ Remaining risk:
   market-data fetch, proof closure, gate, ingestion, live routing, execution,
   authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T18:08:11Z - Research Pipeline Status Pipeline Filter
+
+Active role: ENGINEER
+
+Objective:
+- Add focused filtering by `pipeline_id` to the read-only research pipeline
+  status report.
+
+What was found:
+- SHOWN: `services.analytics.research_pipeline_status` already emits stable
+  `pipeline_id` values for `price_action` and `funding_threshold`, but the
+  report always returned both pipelines together.
+
+What changed:
+- `build_research_pipeline_status()` now accepts optional `pipeline` and
+  narrows returned pipeline rows to that id.
+- Filtered reports include `pipeline_filter`, `source_pipeline_count`, and
+  source summary counts so one-pipeline views remain auditable against the full
+  accepted pipeline set.
+- `scripts/research/report_research_pipeline_status.py` exposes `--pipeline`.
+- `Makefile` exposes `RESEARCH_PIPELINE_STATUS_PIPELINE` for text and JSON
+  targets.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and tests.
+
+Why this change was chosen:
+- It is an additive report filter over existing status rows and does not run
+  research, fetch market data, generate artifacts, or mutate runtime state.
+
+Expected outcome:
+- Operators can inspect one research pipeline at a time while retaining source
+  totals that show how the filtered view relates to the full accepted set.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_pipeline_status.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `14 passed in 0.30s`.
+- `./.venv/bin/python -m py_compile services/analytics/research_pipeline_status.py scripts/research/report_research_pipeline_status.py tests/test_research_pipeline_status.py`
+  - SHOWN: exit 0.
+- `make research-pipeline-status RESEARCH_PIPELINE_STATUS_PIPELINE=price_action`
+  - SHOWN: `ok=True pipelines=1`, `pipeline_filter=price_action`,
+    `latest_ok=1`.
+- `make research-pipeline-status-json RESEARCH_PIPELINE_STATUS_PIPELINE=funding_threshold`
+  - SHOWN: `pipeline_count=1`, `source_pipeline_count=2`,
+    `summary.source_latest_ok=2`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No research
+  execution, market-data fetch, artifact generation, campaign, strategy config,
+  gate, ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

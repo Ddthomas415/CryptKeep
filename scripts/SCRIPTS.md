@@ -315,7 +315,8 @@ decision makes them authoritative.
   present and `ok=true`, with `blocking_reason`/`next_action` fields for
   missing artifacts or wiring drift; it does not run pipelines, fetch data, or mutate
   research, strategy, campaign, gate, or execution state. Use
-  `make research-pipeline-status` or `make research-pipeline-status-json`.
+  `make research-pipeline-status` or `make research-pipeline-status-json`;
+  supports `RESEARCH_PIPELINE_STATUS_PIPELINE` for one-pipeline views.
 - `research/report_research_command_status.py` — read-only status report over
   accepted research command wiring and input classes. It checks script,
   Makefile target, and SCRIPTS registration for archive, funding, price-action,

@@ -2511,6 +2511,14 @@ substrate work, but they are concrete enough to keep visible.
     run pipelines, fetch data, or change research artifacts, strategy config,
     campaigns, gates, data ingestion, live routing, execution, or promotion
     evidence.
+    2026-07-28: research pipeline status filtering is ready for independent
+    review. The report now supports `--pipeline <pipeline_id>` and the Make
+    override `RESEARCH_PIPELINE_STATUS_PIPELINE`; filtered JSON keeps
+    `source_pipeline_count` and source summary counts so one-pipeline views
+    remain auditable against the full accepted pipeline set. This remains
+    status/observability only; it does not run pipelines, fetch data, or change
+    research artifacts, strategy config, campaigns, gates, data ingestion, live
+    routing, execution, or promotion evidence.
     2026-07-28: research pipeline status action hints are ready for independent
     review. Each pipeline row now includes `action_required`,
     `blocking_reason`, and `next_action`, distinguishing wiring drift from
