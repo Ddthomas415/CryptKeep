@@ -27162,3 +27162,66 @@ Remaining risk:
   market-data fetch, proof closure, gate, ingestion, live routing, execution,
   authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T23:10:14Z - Research Command Action Hints
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk research/operator reporting lane by making research
+  command wiring drift actionable in the same compact operator report used for
+  research pipelines and proof markers.
+
+What was found:
+- SHOWN: `research_command_status` verified accepted research command script,
+  SCRIPTS, and Makefile wiring and already supported lane/input filters.
+- SHOWN: research command rows carried `reasons` on wiring drift but did not
+  expose `action_required`, `blocking_reason`, or `next_action`.
+- SHOWN: `operator_status_bundle` and `operator_next_actions` had action lanes
+  for research pipelines, passive operator evidence, and operator proof
+  markers, but not research-command wiring drift.
+
+What changed:
+- `research_command_status` rows now include `action_required`,
+  `blocking_reason`, and `next_action`; healthy rows report `next_action=none`.
+- `operator_status_bundle` exposes `actions.research_commands`, adds
+  `research_command_actions_required`, and includes research-command actions
+  when the `research_command` section is selected.
+- `operator_next_actions` converts those rows into a `research_command` action
+  lane and automatically narrows to that lane when research-command source
+  filters are used.
+- `report_operator_next_actions.py`, `report_operator_status_bundle.py`,
+  `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests were
+  updated.
+
+Why this change was chosen:
+- It keeps the research/reporting status stack consistent: every status source
+  with a detected repair condition can now feed a compact next-action row
+  without running research jobs or changing any campaign/gate/execution state.
+
+Expected outcome:
+- Operators can run `make operator-next-actions
+  OPERATOR_NEXT_ACTIONS_LANE=research_command` and immediately see any
+  research command wiring repair instead of opening the full command inventory.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `33 passed in 0.43s`.
+- `./.venv/bin/python -m py_compile services/analytics/research_command_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/research/report_research_command_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_research_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make research-command-status-json`
+  - SHOWN: `ok=true`, `command_count=19`, all rows
+    `action_required=false`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=research_command`
+  - SHOWN: `actions.research_commands=[]` and
+    `research_command_actions_required=0`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=research_command OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: `ok=true`, `action_count_total=0`, `actions=[]`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

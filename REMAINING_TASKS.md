@@ -2549,6 +2549,16 @@ substrate work, but they are concrete enough to keep visible.
     jobs, fetch data, generate artifacts, or change research artifacts,
     strategy config, campaigns, gates, data ingestion, live routing,
     execution, or promotion evidence.
+    2026-07-28: research command status action hints are ready for
+    independent review. Each command row now includes `action_required`,
+    `blocking_reason`, and `next_action` for script/SCRIPTS/Makefile wiring
+    drift; `operator_status_bundle` and `operator_next_actions` surface those
+    rows as a `research_command` action lane. Current repo output shows all
+    19 accepted research commands wired and zero research-command actions
+    required. This remains read-only status/reporting only and does not run
+    research jobs, fetch data, generate artifacts, or change research
+    artifacts, strategy config, campaigns, gates, data ingestion, live
+    routing, execution, or promotion evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,

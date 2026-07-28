@@ -22,6 +22,9 @@ def test_research_command_status_reports_all_commands_on_current_repo() -> None:
     rows = {row["command_id"]: row for row in out["commands"]}
     assert rows["research_command_status"]["script_index_exists"] is True
     assert rows["research_command_status"]["make_target"] == "research-command-status"
+    assert rows["research_command_status"]["action_required"] is False
+    assert rows["research_command_status"]["blocking_reason"] is None
+    assert rows["research_command_status"]["next_action"] == "none"
     assert rows["funding_threshold_pipeline"]["make_target"] == "funding-threshold-research-pipeline"
 
 
@@ -55,6 +58,9 @@ def test_research_command_status_fails_closed_on_wiring_drift(tmp_path) -> None:
     assert any("script_missing" in row["reasons"] for row in out["commands"])
     assert any("script_index_missing" in row["reasons"] for row in out["commands"])
     assert any("make_target_missing" in row["reasons"] for row in out["commands"])
+    assert all(row["action_required"] is True for row in out["commands"])
+    assert all(row["blocking_reason"] in row["reasons"] for row in out["commands"])
+    assert all(row["next_action"].startswith("repair research command wiring") for row in out["commands"])
 
 
 def test_report_research_command_status_cli(monkeypatch, capsys) -> None:

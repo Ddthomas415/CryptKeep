@@ -12,6 +12,7 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
             "report_type": "operator_status_bundle",
             "summary": {
                 "research_pipeline_actions_required": 1,
+                "research_command_actions_required": 1,
                 "passive_operator_evidence_actions_required": 2,
                 "operator_proof_actions_required": 69,
             },
@@ -21,6 +22,13 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
                         "pipeline_id": "price_action",
                         "blocking_reason": "latest_summary_missing",
                         "next_action": "run make price-action-research-pipeline",
+                    }
+                ],
+                "research_commands": [
+                    {
+                        "command_id": "funding_threshold_pipeline",
+                        "blocking_reason": "script_missing",
+                        "next_action": "repair research command wiring",
                     }
                 ],
                 "passive_operator_evidence": [
@@ -49,28 +57,32 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
     assert out["does_not_run_campaigns"] is True
     assert out["does_not_fetch_market_data"] is True
     assert out["does_not_mutate_state"] is True
-    assert out["action_count_total"] == 72
-    assert out["action_count_available"] == 3
-    assert out["action_count_returned"] == 3
+    assert out["action_count_total"] == 73
+    assert out["action_count_available"] == 4
+    assert out["action_count_returned"] == 4
     assert out["summary"]["available_by_lane"] == {
         "operator_proof": 1,
         "passive_operator_evidence": 1,
+        "research_command": 1,
         "research_pipeline": 1,
     }
     assert out["summary"]["available_by_reason"] == {
         "latest_summary_missing": 1,
         "passive_operator_evidence": 1,
         "remaining_proof": 1,
+        "script_missing": 1,
     }
     assert [row["lane"] for row in out["actions"]] == [
         "research_pipeline",
+        "research_command",
         "passive_operator_evidence",
         "operator_proof",
     ]
     assert out["actions"][0]["source"] == "price_action"
-    assert out["actions"][1]["source"] == "passive_operator_evidence"
-    assert out["actions"][1]["ordinal"] == 1
-    assert out["actions"][2]["line"] == 12
+    assert out["actions"][1]["source"] == "funding_threshold_pipeline"
+    assert out["actions"][2]["source"] == "passive_operator_evidence"
+    assert out["actions"][2]["ordinal"] == 1
+    assert out["actions"][3]["line"] == 12
 
 
 def test_operator_next_actions_respects_limit(monkeypatch) -> None:
@@ -175,6 +187,56 @@ def test_operator_next_actions_filters_by_passive_lane(monkeypatch) -> None:
     assert out["action_count_returned"] == 2
     assert [row["lane"] for row in out["actions"]] == ["passive_operator_evidence", "passive_operator_evidence"]
     assert [row["ordinal"] for row in out["actions"]] == [1, 2]
+
+
+def test_operator_next_actions_filters_by_research_command_lane(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    monkeypatch.setattr(
+        mod,
+        "build_operator_status_bundle",
+        lambda repo_root=None, **_filters: {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "research_pipeline_actions_required": 1,
+                "research_command_actions_required": 4,
+                "operator_proof_actions_required": 2,
+            },
+            "actions": {
+                "research_pipelines": [
+                    {"pipeline_id": "price_action", "blocking_reason": "missing", "next_action": "run research"}
+                ],
+                "research_commands": [
+                    {
+                        "command_id": "funding_threshold_pipeline",
+                        "blocking_reason": "script_missing",
+                        "next_action": "repair research command wiring",
+                    },
+                    {
+                        "command_id": "price_action_pipeline",
+                        "blocking_reason": "make_target_missing",
+                        "next_action": "repair price action command wiring",
+                    },
+                ],
+                "operator_proofs": [
+                    {"line": 7, "category": "remaining_proof", "next_action": "produce proof"}
+                ],
+            },
+        },
+    )
+
+    out = mod.build_operator_next_actions(repo_root=".", lane="research_command", max_actions=20)
+
+    assert out["lane_filter"] == "research_command"
+    assert out["action_count_total"] == 4
+    assert out["action_count_available"] == 2
+    assert out["action_count_returned"] == 2
+    assert [row["lane"] for row in out["actions"]] == ["research_command", "research_command"]
+    assert [row["source"] for row in out["actions"]] == [
+        "funding_threshold_pipeline",
+        "price_action_pipeline",
+    ]
 
 
 def test_operator_next_actions_filters_by_reason(monkeypatch) -> None:
@@ -347,6 +409,66 @@ def test_operator_next_actions_source_filter_implies_matching_action_lane(monkey
             "line": None,
             "blocking_reason": "latest_summary_missing",
             "next_action": "run research",
+        }
+    ]
+
+
+def test_operator_next_actions_research_command_filter_implies_matching_action_lane(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    captured = {}
+
+    def fake_bundle(repo_root=None, **filters):
+        captured.update(filters)
+        return {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "research_pipeline_actions_required": 1,
+                "research_command_actions_required": 2,
+                "operator_proof_actions_required": 9,
+            },
+            "actions": {
+                "research_pipelines": [
+                    {
+                        "pipeline_id": "price_action",
+                        "blocking_reason": "latest_summary_missing",
+                        "next_action": "run research",
+                    }
+                ],
+                "research_commands": [
+                    {
+                        "command_id": "funding_threshold_pipeline",
+                        "blocking_reason": "script_missing",
+                        "next_action": "repair research command wiring",
+                    }
+                ],
+                "operator_proofs": [
+                    {
+                        "line": 7,
+                        "category": "host_side_reference",
+                        "next_action": "run host proof",
+                    }
+                ],
+            },
+        }
+
+    monkeypatch.setattr(mod, "build_operator_status_bundle", fake_bundle)
+
+    out = mod.build_operator_next_actions(repo_root=".", research_command_lane="funding", max_actions=20)
+
+    assert captured["research_command_lane"] == "funding"
+    assert out["research_command_lane_filter"] == "funding"
+    assert out["lane_filter"] is None
+    assert out["action_count_total"] == 2
+    assert out["action_count_available"] == 1
+    assert out["actions"] == [
+        {
+            "lane": "research_command",
+            "source": "funding_threshold_pipeline",
+            "line": None,
+            "blocking_reason": "script_missing",
+            "next_action": "repair research command wiring",
         }
     ]
 

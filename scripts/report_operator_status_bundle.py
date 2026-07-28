@@ -74,7 +74,18 @@ def _print_report(payload: dict[str, Any]) -> None:
         print(
             "research_commands: "
             f"wired={summary.get('research_commands_wired', 0)} "
-            f"not_wired={summary.get('research_commands_not_wired', 0)}"
+            f"not_wired={summary.get('research_commands_not_wired', 0)} "
+            f"actions_required={summary.get('research_command_actions_required', 0)}"
+        )
+    for row in list(actions_payload.get("research_commands") or [])[:5]:
+        if not isinstance(row, dict):
+            continue
+        print(
+            "research_command_action: "
+            f"{row.get('command_id')} "
+            f"lane={row.get('lane')} "
+            f"reason={row.get('blocking_reason')} "
+            f"action={row.get('next_action')}"
         )
     if "operator_proof_status" in reports:
         print(

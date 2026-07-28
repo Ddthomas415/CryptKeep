@@ -320,8 +320,9 @@ decision makes them authoritative.
 - `research/report_research_command_status.py` — read-only status report over
   accepted research command wiring and input classes. It checks script,
   Makefile target, and SCRIPTS registration for archive, funding, price-action,
-  and status research commands; it does not run research jobs, fetch data,
-  generate artifacts, or mutate strategy, campaign, gate, or execution state.
+  and status research commands, with `blocking_reason`/`next_action` fields for
+  wiring drift; it does not run research jobs, fetch data, generate artifacts,
+  or mutate strategy, campaign, gate, or execution state.
   Use `make research-command-status` or `make research-command-status-json`;
   supports `RESEARCH_COMMAND_STATUS_LANE` and
   `RESEARCH_COMMAND_STATUS_INPUT_CLASS` for focused views.

@@ -75,6 +75,7 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert all(row["blocking_reason"] == "latest_summary_missing" for row in out["actions"]["research_pipelines"])
     assert out["summary"]["research_commands_wired"] >= 19
     assert out["summary"]["research_commands_not_wired"] == 0
+    assert out["summary"]["research_command_actions_required"] == 0
     assert out["summary"]["remaining_proof_or_coverage_markers"] == 1
     assert out["summary"]["host_side_markers"] == 1
     assert out["summary"]["operator_proof_actions_required"] >= 1
@@ -143,6 +144,39 @@ def test_operator_status_bundle_forwards_research_command_filters(tmp_path: Path
     assert out["shown_sections"] == ["research_command"]
     assert all(row["lane"] == "funding" for row in report["commands"])
     assert all(row["input_class"] == "artifact_input" for row in report["commands"])
+    assert out["actions"]["research_commands"] == []
+
+
+def test_operator_status_bundle_surfaces_research_command_actions(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+    from services.analytics.research_command_status import RESEARCH_COMMANDS
+
+    _write_minimal_repo(tmp_path)
+    missing = next(spec for spec in RESEARCH_COMMANDS if spec.command_id == "funding_threshold_pipeline")
+    (tmp_path / missing.script).unlink()
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="research_command",
+        research_command_lane="funding",
+    )
+
+    assert out["ok"] is False
+    assert out["summary"]["research_commands_not_wired"] == 1
+    assert out["summary"]["research_command_actions_required"] == 1
+    assert out["shown_sections"] == ["research_command"]
+    assert set(out["actions"]) == {"research_commands"}
+    assert out["shown_action_count"] == 1
+    assert out["actions"]["research_commands"] == [
+        {
+            "command_id": "funding_threshold_pipeline",
+            "lane": "funding",
+            "input_class": "state_input",
+            "make_target": "funding-threshold-research-pipeline",
+            "blocking_reason": "script_missing",
+            "next_action": "repair research command wiring for funding_threshold_pipeline: script_missing",
+        }
+    ]
 
 
 def test_operator_status_bundle_forwards_research_pipeline_filter(tmp_path: Path) -> None:
@@ -253,6 +287,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "research_pipeline_actions_required": 1,
                 "research_commands_wired": 19,
                 "research_commands_not_wired": 0,
+                "research_command_actions_required": 1,
                 "remaining_proof_or_coverage_markers": 27,
                 "host_side_markers": 17,
                 "proof_ready_markers": 25,
@@ -271,6 +306,14 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                         "latest_status": "not_run",
                         "blocking_reason": "latest_summary_missing",
                         "next_action": "run make price-action-research-pipeline with the required research inputs",
+                    }
+                ],
+                "research_commands": [
+                    {
+                        "command_id": "funding_threshold_pipeline",
+                        "lane": "funding",
+                        "blocking_reason": "script_missing",
+                        "next_action": "repair research command wiring for funding_threshold_pipeline: script_missing",
                     }
                 ],
                 "passive_operator_evidence": [
@@ -311,6 +354,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "research_action: price_action" in out
     assert "latest_summary_missing" in out
     assert "research_commands: wired=19" in out
+    assert "actions_required=1" in out
+    assert "research_command_action: funding_threshold_pipeline" in out
     assert "remaining=27" in out
     assert "passive_action: #1" in out
     assert "collect or record operator evidence" in out

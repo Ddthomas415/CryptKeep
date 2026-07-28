@@ -68,7 +68,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-actions", type=int, default=20, help="Maximum actions to print or return")
     parser.add_argument(
         "--lane",
-        choices=("research_pipeline", "passive_operator_evidence", "operator_proof"),
+        choices=("research_pipeline", "research_command", "passive_operator_evidence", "operator_proof"),
         default=None,
         help="Limit output to one action lane",
     )

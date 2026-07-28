@@ -19,6 +19,7 @@ _SECTION_REPORT_KEYS = {
 
 _SECTION_ACTION_KEYS = {
     "research_pipeline": ("research_pipelines",),
+    "research_command": ("research_commands",),
     "operator_proof": ("passive_operator_evidence", "operator_proofs"),
 }
 
@@ -74,6 +75,18 @@ def build_operator_status_bundle(
         for row in list(research.get("pipelines") or [])
         if isinstance(row, dict) and bool(row.get("action_required"))
     ]
+    research_command_actions = [
+        {
+            "command_id": str(row.get("command_id") or ""),
+            "lane": str(row.get("lane") or ""),
+            "input_class": str(row.get("input_class") or ""),
+            "make_target": str(row.get("make_target") or ""),
+            "blocking_reason": row.get("blocking_reason"),
+            "next_action": str(row.get("next_action") or ""),
+        }
+        for row in list(research_commands.get("commands") or [])
+        if isinstance(row, dict) and bool(row.get("action_required"))
+    ]
     proof_actions = [
         {
             "line": row.get("line"),
@@ -124,6 +137,7 @@ def build_operator_status_bundle(
         },
         "actions": {
             "research_pipelines": research_actions,
+            "research_commands": research_command_actions,
             "passive_operator_evidence": passive_actions,
             "operator_proofs": proof_actions[:10],
         },
@@ -138,6 +152,7 @@ def build_operator_status_bundle(
             "research_pipeline_actions_required": len(research_actions),
             "research_commands_wired": int(research_command_summary.get("wired") or 0),
             "research_commands_not_wired": int(research_command_summary.get("not_wired") or 0),
+            "research_command_actions_required": len(research_command_actions),
             "remaining_proof_or_coverage_markers": int(
                 proof_summary.get("remaining_proof_or_coverage_markers") or 0
             ),
