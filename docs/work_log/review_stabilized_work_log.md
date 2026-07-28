@@ -26405,6 +26405,59 @@ Remaining risk:
   routing, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-28T18:21:02Z - Backlog Lane Status Filter
+
+Active role: ENGINEER
+
+Objective:
+- Add focused canonical-lane filtering to the read-only backlog lane status
+  report.
+
+What was found:
+- SHOWN: `services.analytics.backlog_lane_status` already summarized all four
+  execution lanes and source hashes, but it could not return a single lane
+  such as `low_risk_docs_tests` or `high_risk_gate_execution_deploy`.
+
+What changed:
+- `build_backlog_lane_status()` accepts optional `lane`.
+- Supported lane keys are `passive_operator_evidence`,
+  `low_risk_docs_tests`, `medium_risk_runtime_read_only`, and
+  `high_risk_gate_execution_deploy`.
+- Filtered output preserves `source_lane_count`, `source_total_item_count`,
+  and `source_summary` so focused views remain auditable against the full
+  source lane map.
+- Invalid lane names fail closed with `reason=invalid_lane` and no displayed
+  lanes.
+- `scripts/report_backlog_lane_status.py` exposes `--lane`; Make exposes
+  `BACKLOG_LANE_STATUS_LANE` for text and JSON targets.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests.
+
+Why this change was chosen:
+- It is a same-surface additive selector over already-derived planning/status
+  rows. It does not decide backlog items, authorize implementation, run
+  campaigns, fetch market data, close proof, or mutate runtime state.
+
+Expected outcome:
+- Operators can run focused lane checks such as
+  `make backlog-lane-status BACKLOG_LANE_STATUS_LANE=low_risk_docs_tests`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backlog_lane_status.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `13 passed in 0.20s`.
+- `./.venv/bin/python -m py_compile services/analytics/backlog_lane_status.py scripts/report_backlog_lane_status.py tests/test_backlog_lane_status.py`
+  - SHOWN: exit 0.
+- `make backlog-lane-status BACKLOG_LANE_STATUS_LANE=low_risk_docs_tests`
+  - SHOWN: `ok=True lanes=1 items=13`; `source_lanes=4 source_items=42`.
+- `make backlog-lane-status-json BACKLOG_LANE_STATUS_LANE=high_risk_gate_execution_deploy`
+  - SHOWN: JSON reports `lane_count=1`, `total_item_count=7`, and
+    `source_total_item_count=42`.
+
+Remaining risk:
+- LOW: read-only planning/status filtering only. No campaign, research
+  execution, market-data fetch, proof closure, gate, ingestion, live routing,
+  or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-28T18:16:09Z - Operator Status Section Filter
 
 Active role: ENGINEER
