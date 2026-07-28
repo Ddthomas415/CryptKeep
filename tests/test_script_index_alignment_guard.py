@@ -39,6 +39,7 @@ def test_make_script_index_points_to_maintained_docs():
     assert "make status-paper-all" in target
     assert "make recover-paper-campaigns" in target
     assert "make funding-stage0-readiness" in target
+    assert "make backlog-lane-status" in target
     assert "make funding-threshold-candidate-triage" in target
     assert "make funding-threshold-stability-triage" in target
     assert "make funding-threshold-research-pipeline" in target
