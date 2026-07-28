@@ -2641,6 +2641,13 @@ substrate work, but they are concrete enough to keep visible.
     proof actions required. This is still status-only and does not run
     campaigns, fetch market data, close proof, authorize implementation, or
     mutate runtime state.
+    2026-07-28: compact operator next-actions report is ready for independent
+    review. `services.analytics.operator_next_actions` and
+    `scripts/report_operator_next_actions.py` derive a bounded action list from
+    the existing operator status bundle, exposed as `make operator-next-actions`
+    and `make operator-next-actions-json`. This is read-only planning/status
+    only; it does not run research pipelines or campaigns, fetch market data,
+    close proof, authorize implementation, or mutate runtime state.
     2026-07-28: JSON Make targets for read-only operator/status reports are
     ready for independent review: `backlog-lane-status-json`,
     `operator-proof-status-json`, `operator-status-json`,
