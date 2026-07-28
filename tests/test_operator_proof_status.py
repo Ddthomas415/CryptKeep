@@ -59,12 +59,16 @@ def test_operator_proof_status_reports_passive_items_and_markers(tmp_path: Path)
     assert out["lane_doc_sha256"]
     assert out["backlog_sha256"]
     assert any("continues with detail" in row["text"] for row in out["passive_operator_items"])
+    assert all(row["action_required"] is True for row in out["passive_operator_items"])
+    assert all("collect or record operator evidence" in row["next_action"] for row in out["passive_operator_items"])
     assert out["summary"]["remaining_proof_or_coverage_markers"] == 3
     assert out["summary"]["host_side_markers"] == 1
     assert out["summary"]["proof_ready_markers"] == 1
     categories = {row["category"] for row in out["proof_markers"]}
     assert "remaining_capped_live_proof" in categories
     assert "remaining_coverage" in categories
+    assert all(row["action_required"] is True for row in out["proof_markers"])
+    assert all("REMAINING_TASKS.md:L" in row["next_action"] for row in out["proof_markers"])
 
 
 def test_operator_proof_status_fails_closed_without_passive_lane(tmp_path: Path) -> None:
@@ -95,7 +99,14 @@ def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:
                 "proof_ready_markers": 0,
             },
             "passive_operator_items": [{"ordinal": 1, "text": "Run host proof"}],
-            "proof_markers": [{"line": 7, "category": "remaining_proof", "text": "Remaining proof: run it"}],
+            "proof_markers": [
+                {
+                    "line": 7,
+                    "category": "remaining_proof",
+                    "text": "Remaining proof: run it",
+                    "next_action": "produce or record the remaining proof referenced at REMAINING_TASKS.md:L7",
+                }
+            ],
         },
     )
 
@@ -105,3 +116,4 @@ def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:
     assert "passive_items=1" in out
     assert "Run host proof" in out
     assert "L7 remaining_proof" in out
+    assert "next_action=produce or record" in out

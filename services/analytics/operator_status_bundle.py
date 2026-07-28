@@ -31,6 +31,15 @@ def build_operator_status_bundle(*, repo_root: str | Path | None = None) -> dict
         for row in list(research.get("pipelines") or [])
         if isinstance(row, dict) and bool(row.get("action_required"))
     ]
+    proof_actions = [
+        {
+            "line": row.get("line"),
+            "category": str(row.get("category") or ""),
+            "next_action": str(row.get("next_action") or ""),
+        }
+        for row in list(proofs.get("proof_markers") or [])
+        if isinstance(row, dict) and bool(row.get("action_required"))
+    ]
 
     return {
         "schema_version": 1,
@@ -57,6 +66,7 @@ def build_operator_status_bundle(*, repo_root: str | Path | None = None) -> dict
         },
         "actions": {
             "research_pipelines": research_actions,
+            "operator_proofs": proof_actions[:10],
         },
         "summary": {
             "passive_operator_items": int(backlog_summary.get("passive_operator_evidence") or 0),
@@ -74,5 +84,6 @@ def build_operator_status_bundle(*, repo_root: str | Path | None = None) -> dict
             ),
             "host_side_markers": int(proof_summary.get("host_side_markers") or 0),
             "proof_ready_markers": int(proof_summary.get("proof_ready_markers") or 0),
+            "operator_proof_actions_required": len(proof_actions),
         },
     }

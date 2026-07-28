@@ -2617,6 +2617,12 @@ substrate work, but they are concrete enough to keep visible.
     `make operator-proof-status` and is planning/status only: it does not run
     campaigns, fetch market data, close proof, authorize implementation, or
     mutate runtime state.
+    2026-07-28: operator proof status action hints are ready for independent
+    review. Passive lane rows and proof/coverage markers now carry
+    `action_required`/`next_action`, and text output prints the action next to
+    the passive item or backlog line reference. This is presentation/JSON
+    status only and does not run campaigns, fetch market data, close proof,
+    authorize implementation, or mutate runtime state.
     2026-07-28: read-only operator status bundle is ready for independent
     review. `services.analytics.operator_status_bundle` and
     `scripts/report_operator_status_bundle.py` combine backlog lane status,
@@ -2630,6 +2636,11 @@ substrate work, but they are concrete enough to keep visible.
     JSON-status wiring only; it does not run pipelines or campaigns, fetch
     market data, close proof, authorize implementation, or mutate runtime
     state.
+    2026-07-28: operator status now also carries a bounded operator-proof
+    action list from the underlying proof-status report and summarizes total
+    proof actions required. This is still status-only and does not run
+    campaigns, fetch market data, close proof, authorize implementation, or
+    mutate runtime state.
     2026-07-28: JSON Make targets for read-only operator/status reports are
     ready for independent review: `backlog-lane-status-json`,
     `operator-proof-status-json`, `operator-status-json`,

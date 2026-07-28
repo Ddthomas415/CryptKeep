@@ -107,6 +107,17 @@ def _category_counts(markers: tuple[ProofMarker, ...]) -> dict[str, int]:
     return out
 
 
+def _marker_next_action(marker: ProofMarker) -> str:
+    if marker.category == "proof_ready_implementation":
+        return (
+            "review, merge, or record acceptance for the proof-ready "
+            f"implementation at REMAINING_TASKS.md:L{marker.line}"
+        )
+    if marker.category == "host_side_reference":
+        return f"run or attach the host-side evidence referenced at REMAINING_TASKS.md:L{marker.line}"
+    return f"produce or record the remaining proof referenced at REMAINING_TASKS.md:L{marker.line}"
+
+
 def build_operator_proof_status(*, repo_root: str | Path | None = None) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     lane_doc = root / "docs" / "BACKLOG_EXECUTION_LANES.md"
@@ -144,6 +155,8 @@ def build_operator_proof_status(*, repo_root: str | Path | None = None) -> dict[
             {
                 "ordinal": idx,
                 "text": item,
+                "action_required": True,
+                "next_action": f"collect or record operator evidence: {item}",
             }
             for idx, item in enumerate(passive_items, start=1)
         ],
@@ -154,6 +167,8 @@ def build_operator_proof_status(*, repo_root: str | Path | None = None) -> dict[
                 "category": marker.category,
                 "marker": marker.marker,
                 "text": marker.text,
+                "action_required": True,
+                "next_action": _marker_next_action(marker),
             }
             for marker in proof_markers
         ],
