@@ -2541,6 +2541,14 @@ substrate work, but they are concrete enough to keep visible.
     still status-only: it does not run research jobs, fetch data, generate
     artifacts, or change research artifacts, strategy config, campaigns,
     gates, data ingestion, live routing, execution, or promotion evidence.
+    2026-07-28: research command status lane/input filters are ready for
+    independent review. `build_research_command_status`, the CLI, and Make
+    targets now support focused views by command `lane` and `input_class`
+    while preserving source-count summaries over the full command registry.
+    This remains read-only status/reporting only and does not run research
+    jobs, fetch data, generate artifacts, or change research artifacts,
+    strategy config, campaigns, gates, data ingestion, live routing,
+    execution, or promotion evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,

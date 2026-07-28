@@ -457,11 +457,13 @@ research-pipeline-status:
 research-pipeline-status-json:
 	@$(PYTHON) scripts/research/report_research_pipeline_status.py --json $(if $(RESEARCH_PIPELINE_STATUS_PIPELINE),--pipeline $(RESEARCH_PIPELINE_STATUS_PIPELINE),)
 
+RESEARCH_COMMAND_STATUS_LANE ?=
+RESEARCH_COMMAND_STATUS_INPUT_CLASS ?=
 research-command-status:
-	$(PYTHON) scripts/research/report_research_command_status.py
+	$(PYTHON) scripts/research/report_research_command_status.py $(if $(RESEARCH_COMMAND_STATUS_LANE),--lane $(RESEARCH_COMMAND_STATUS_LANE),) $(if $(RESEARCH_COMMAND_STATUS_INPUT_CLASS),--input-class $(RESEARCH_COMMAND_STATUS_INPUT_CLASS),)
 
 research-command-status-json:
-	@$(PYTHON) scripts/research/report_research_command_status.py --json
+	@$(PYTHON) scripts/research/report_research_command_status.py --json $(if $(RESEARCH_COMMAND_STATUS_LANE),--lane $(RESEARCH_COMMAND_STATUS_LANE),) $(if $(RESEARCH_COMMAND_STATUS_INPUT_CLASS),--input-class $(RESEARCH_COMMAND_STATUS_INPUT_CLASS),)
 
 CRYPTO_EDGE_STRATEGY_READINESS_ARGS ?=
 crypto-edge-strategy-readiness:
