@@ -25,6 +25,22 @@ def test_research_command_status_reports_all_commands_on_current_repo() -> None:
     assert rows["funding_threshold_pipeline"]["make_target"] == "funding-threshold-research-pipeline"
 
 
+def test_research_command_status_filters_by_lane_and_input_class() -> None:
+    from services.analytics.research_command_status import build_research_command_status
+
+    out = build_research_command_status(lane="funding", input_class="artifact_input")
+
+    assert out["lane_filter"] == "funding"
+    assert out["input_class_filter"] == "artifact_input"
+    assert out["command_count"] >= 4
+    assert out["source_command_count"] >= out["command_count"]
+    assert out["summary"]["by_lane"] == {"funding": out["command_count"]}
+    assert out["summary"]["by_input_class"] == {"artifact_input": out["command_count"]}
+    assert out["summary"]["source_by_lane"]["price_action"] >= 5
+    assert all(row["lane"] == "funding" for row in out["commands"])
+    assert all(row["input_class"] == "artifact_input" for row in out["commands"])
+
+
 def test_research_command_status_fails_closed_on_wiring_drift(tmp_path) -> None:
     from services.analytics.research_command_status import build_research_command_status
 
@@ -47,8 +63,10 @@ def test_report_research_command_status_cli(monkeypatch, capsys) -> None:
     monkeypatch.setattr(
         script,
         "build_research_command_status",
-        lambda repo_root=None: {
+        lambda repo_root=None, lane=None, input_class=None: {
             "ok": True,
+            "lane_filter": lane,
+            "input_class_filter": input_class,
             "command_count": 2,
             "summary": {
                 "wired": 2,
@@ -69,8 +87,10 @@ def test_report_research_command_status_cli(monkeypatch, capsys) -> None:
         },
     )
 
-    assert script.main([]) == 0
+    assert script.main(["--lane", "funding", "--input-class", "state_input"]) == 0
     out = capsys.readouterr().out
     assert "Research Command Status" in out
+    assert "lane_filter=funding" in out
+    assert "input_class_filter=state_input" in out
     assert "wired=2" in out
     assert "funding_threshold_pipeline" in out

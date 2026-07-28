@@ -10,8 +10,31 @@ from services.analytics.research_command_status import build_research_command_st
 from services.analytics.research_pipeline_status import build_research_pipeline_status
 
 
-def build_operator_status_bundle(*, repo_root: str | Path | None = None) -> dict[str, Any]:
+_SECTION_REPORT_KEYS = {
+    "backlog": ("backlog_lane_status",),
+    "research_pipeline": ("research_pipeline_status",),
+    "research_command": ("research_command_status",),
+    "operator_proof": ("operator_proof_status",),
+}
+
+_SECTION_ACTION_KEYS = {
+    "research_pipeline": ("research_pipelines",),
+    "operator_proof": ("operator_proofs",),
+}
+
+
+def _select_keys(payload: dict[str, Any], keys: tuple[str, ...]) -> dict[str, Any]:
+    return {key: payload[key] for key in keys if key in payload}
+
+
+def build_operator_status_bundle(
+    *,
+    repo_root: str | Path | None = None,
+    section: str | None = None,
+) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
+    section_filter = str(section or "").strip()
+    available_sections = tuple(_SECTION_REPORT_KEYS)
     backlog = build_backlog_lane_status(repo_root=root)
     research = build_research_pipeline_status(repo_root=root)
     research_commands = build_research_command_status(repo_root=root)
@@ -41,7 +64,7 @@ def build_operator_status_bundle(*, repo_root: str | Path | None = None) -> dict
         if isinstance(row, dict) and bool(row.get("action_required"))
     ]
 
-    return {
+    payload = {
         "schema_version": 1,
         "report_type": "operator_status_bundle",
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -87,3 +110,36 @@ def build_operator_status_bundle(*, repo_root: str | Path | None = None) -> dict
             "operator_proof_actions_required": len(proof_actions),
         },
     }
+    full_reports = dict(payload["reports"])
+    full_actions = dict(payload["actions"])
+    payload["available_sections"] = list(available_sections)
+    payload["section_filter"] = section_filter or None
+    payload["source_report_count"] = len(full_reports)
+    payload["shown_report_count"] = len(full_reports)
+    payload["source_action_count"] = sum(
+        len(value) for value in full_actions.values() if isinstance(value, list)
+    )
+    payload["shown_action_count"] = payload["source_action_count"]
+
+    if not section_filter:
+        payload["shown_sections"] = list(available_sections)
+        return payload
+
+    if section_filter not in _SECTION_REPORT_KEYS:
+        payload["ok"] = False
+        payload["reason"] = "invalid_section"
+        payload["shown_sections"] = []
+        payload["reports"] = {}
+        payload["actions"] = {}
+        payload["shown_report_count"] = 0
+        payload["shown_action_count"] = 0
+        return payload
+
+    payload["shown_sections"] = [section_filter]
+    payload["reports"] = _select_keys(full_reports, _SECTION_REPORT_KEYS[section_filter])
+    payload["actions"] = _select_keys(full_actions, _SECTION_ACTION_KEYS.get(section_filter, ()))
+    payload["shown_report_count"] = len(payload["reports"])
+    payload["shown_action_count"] = sum(
+        len(value) for value in payload["actions"].values() if isinstance(value, list)
+    )
+    return payload

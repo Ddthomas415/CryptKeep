@@ -2541,6 +2541,14 @@ substrate work, but they are concrete enough to keep visible.
     still status-only: it does not run research jobs, fetch data, generate
     artifacts, or change research artifacts, strategy config, campaigns,
     gates, data ingestion, live routing, execution, or promotion evidence.
+    2026-07-28: research command status lane/input filters are ready for
+    independent review. `build_research_command_status`, the CLI, and Make
+    targets now support focused views by command `lane` and `input_class`
+    while preserving source-count summaries over the full command registry.
+    This remains read-only status/reporting only and does not run research
+    jobs, fetch data, generate artifacts, or change research artifacts,
+    strategy config, campaigns, gates, data ingestion, live routing,
+    execution, or promotion evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
@@ -2628,6 +2636,13 @@ substrate work, but they are concrete enough to keep visible.
     expose `make backlog-lane-status`. The report is planning/status only: it
     does not decide backlog items, authorize implementation, or change runtime
     behavior.
+    2026-07-28: backlog lane status filtering is ready for independent review.
+    `build_backlog_lane_status`, the CLI, and Make targets now support focused
+    views by canonical lane key while preserving full source lane/item counts
+    and source summaries. Invalid lane names fail closed as `invalid_lane`.
+    This remains planning/status only and does not decide backlog items,
+    authorize implementation, run campaigns, fetch market data, close proof, or
+    mutate runtime state.
     2026-07-28: read-only operator proof status report is ready for
     independent review. `services.analytics.operator_proof_status` and
     `scripts/report_operator_proof_status.py` summarize the
@@ -2667,6 +2682,14 @@ substrate work, but they are concrete enough to keep visible.
     2026-07-28: operator status now also carries a bounded operator-proof
     action list from the underlying proof-status report and summarizes total
     proof actions required. This is still status-only and does not run
+    campaigns, fetch market data, close proof, authorize implementation, or
+    mutate runtime state.
+    2026-07-28: operator status section filtering is ready for independent
+    review. `build_operator_status_bundle`, the CLI, and Make targets now
+    support `backlog`, `research_pipeline`, `research_command`, and
+    `operator_proof` focused views while still deriving all underlying status
+    reports read-only. Invalid section names fail closed as `invalid_section`.
+    This remains presentation/JSON status only and does not run pipelines or
     campaigns, fetch market data, close proof, authorize implementation, or
     mutate runtime state.
     2026-07-28: compact operator next-actions report is ready for independent

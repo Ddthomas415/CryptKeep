@@ -23,6 +23,10 @@ from services.analytics.research_command_status import build_research_command_st
 def _print_report(payload: dict[str, Any]) -> None:
     print("=== Research Command Status ===")
     print(f"ok={bool(payload.get('ok'))} commands={payload.get('command_count')}")
+    if payload.get("lane_filter"):
+        print(f"lane_filter={payload.get('lane_filter')}")
+    if payload.get("input_class_filter"):
+        print(f"input_class_filter={payload.get('input_class_filter')}")
     summary = dict(payload.get("summary") or {})
     print(f"summary: wired={summary.get('wired', 0)} not_wired={summary.get('not_wired', 0)}")
     by_lane = dict(summary.get("by_lane") or {})
@@ -63,9 +67,15 @@ def main(argv: list[str] | None = None) -> int:
         description="Read-only status report for accepted research command wiring and input classes."
     )
     parser.add_argument("--json", action="store_true", help="Output JSON")
+    parser.add_argument("--lane", default=None, help="Limit output to one command lane")
+    parser.add_argument("--input-class", default=None, help="Limit output to one input_class")
     args = parser.parse_args(argv)
 
-    payload = build_research_command_status(repo_root=ROOT)
+    payload = build_research_command_status(
+        repo_root=ROOT,
+        lane=args.lane,
+        input_class=args.input_class,
+    )
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:

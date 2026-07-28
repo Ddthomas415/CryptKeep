@@ -71,11 +71,12 @@ pre-release-sanity-json-fast:
 remaining-tasks:
 	$(PYTHON) scripts/rebuild_remaining_tasks.py
 
+BACKLOG_LANE_STATUS_LANE ?=
 backlog-lane-status:
-	$(PYTHON) scripts/report_backlog_lane_status.py
+	$(PYTHON) scripts/report_backlog_lane_status.py $(if $(BACKLOG_LANE_STATUS_LANE),--lane $(BACKLOG_LANE_STATUS_LANE),)
 
 backlog-lane-status-json:
-	@$(PYTHON) scripts/report_backlog_lane_status.py --json
+	@$(PYTHON) scripts/report_backlog_lane_status.py --json $(if $(BACKLOG_LANE_STATUS_LANE),--lane $(BACKLOG_LANE_STATUS_LANE),)
 
 operator-proof-status:
 	$(PYTHON) scripts/report_operator_proof_status.py $(if $(OPERATOR_PROOF_STATUS_CATEGORY),--category $(OPERATOR_PROOF_STATUS_CATEGORY),)
@@ -83,11 +84,12 @@ operator-proof-status:
 operator-proof-status-json:
 	@$(PYTHON) scripts/report_operator_proof_status.py --json $(if $(OPERATOR_PROOF_STATUS_CATEGORY),--category $(OPERATOR_PROOF_STATUS_CATEGORY),)
 
+OPERATOR_STATUS_SECTION ?=
 operator-status:
-	$(PYTHON) scripts/report_operator_status_bundle.py
+	$(PYTHON) scripts/report_operator_status_bundle.py $(if $(OPERATOR_STATUS_SECTION),--section $(OPERATOR_STATUS_SECTION),)
 
 operator-status-json:
-	@$(PYTHON) scripts/report_operator_status_bundle.py --json
+	@$(PYTHON) scripts/report_operator_status_bundle.py --json $(if $(OPERATOR_STATUS_SECTION),--section $(OPERATOR_STATUS_SECTION),)
 
 operator-next-actions:
 	$(PYTHON) scripts/report_operator_next_actions.py --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) $(if $(OPERATOR_NEXT_ACTIONS_LANE),--lane $(OPERATOR_NEXT_ACTIONS_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_REASON),--reason $(OPERATOR_NEXT_ACTIONS_REASON),)
@@ -457,11 +459,13 @@ research-pipeline-status:
 research-pipeline-status-json:
 	@$(PYTHON) scripts/research/report_research_pipeline_status.py --json $(if $(RESEARCH_PIPELINE_STATUS_PIPELINE),--pipeline $(RESEARCH_PIPELINE_STATUS_PIPELINE),)
 
+RESEARCH_COMMAND_STATUS_LANE ?=
+RESEARCH_COMMAND_STATUS_INPUT_CLASS ?=
 research-command-status:
-	$(PYTHON) scripts/research/report_research_command_status.py
+	$(PYTHON) scripts/research/report_research_command_status.py $(if $(RESEARCH_COMMAND_STATUS_LANE),--lane $(RESEARCH_COMMAND_STATUS_LANE),) $(if $(RESEARCH_COMMAND_STATUS_INPUT_CLASS),--input-class $(RESEARCH_COMMAND_STATUS_INPUT_CLASS),)
 
 research-command-status-json:
-	@$(PYTHON) scripts/research/report_research_command_status.py --json
+	@$(PYTHON) scripts/research/report_research_command_status.py --json $(if $(RESEARCH_COMMAND_STATUS_LANE),--lane $(RESEARCH_COMMAND_STATUS_LANE),) $(if $(RESEARCH_COMMAND_STATUS_INPUT_CLASS),--input-class $(RESEARCH_COMMAND_STATUS_INPUT_CLASS),)
 
 CRYPTO_EDGE_STRATEGY_READINESS_ARGS ?=
 crypto-edge-strategy-readiness:
