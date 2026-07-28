@@ -25,9 +25,11 @@ def _print_report(payload: dict[str, Any]) -> None:
     section_filter = str(payload.get("section_filter") or "")
     filter_keys = (
         "backlog_lane_filter",
+        "research_pipeline_filter",
         "research_command_lane_filter",
         "research_command_input_class_filter",
         "operator_proof_category_filter",
+        "operator_proof_line_filter",
     )
     print("=== Operator Status Bundle ===")
     print(f"ok={bool(payload.get('ok'))}")
@@ -105,6 +107,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--backlog-lane", default=None, help="Forward a lane filter to backlog lane status")
     parser.add_argument(
+        "--research-pipeline",
+        default=None,
+        help="Forward a pipeline_id filter to research pipeline status",
+    )
+    parser.add_argument(
         "--research-command-lane",
         default=None,
         help="Forward a lane filter to research command status",
@@ -119,15 +126,22 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Forward a category filter to operator proof status",
     )
+    parser.add_argument(
+        "--operator-proof-line",
+        default=None,
+        help="Forward a REMAINING_TASKS.md line filter to operator proof status",
+    )
     args = parser.parse_args(argv)
 
     payload = build_operator_status_bundle(
         repo_root=ROOT,
         section=args.section,
         backlog_lane=args.backlog_lane,
+        research_pipeline=args.research_pipeline,
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,
         operator_proof_category=args.operator_proof_category,
+        operator_proof_line=args.operator_proof_line,
     )
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))

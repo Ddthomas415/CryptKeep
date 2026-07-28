@@ -26405,6 +26405,54 @@ Remaining risk:
   routing, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-28T18:59:13Z - Operator Status Research Pipeline Filter Pass-Through
+
+Active role: ENGINEER
+
+Objective:
+- Let the read-only operator status bundle forward the accepted research
+  pipeline `pipeline_id` filter.
+
+What was found:
+- SHOWN: the research pipeline status report now supports `pipeline`, and the
+  operator status bundle already forwards other accepted underlying filters.
+  The research pipeline filter was the only missing pass-through.
+
+What changed:
+- `build_operator_status_bundle()` accepts `research_pipeline`.
+- The CLI exposes `--research-pipeline`.
+- `Makefile` exposes `OPERATOR_STATUS_RESEARCH_PIPELINE` for text and JSON
+  targets.
+- Text/JSON output surfaces `research_pipeline_filter`.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests.
+
+Why this change was chosen:
+- It is a same-surface extension over an already accepted read-only report
+  filter. It does not run research pipelines, campaigns, market-data fetches,
+  proof closure, authorization changes, or runtime mutation.
+
+Expected outcome:
+- Operators can run focused bundle checks such as
+  `make operator-status OPERATOR_STATUS_SECTION=research_pipeline OPERATOR_STATUS_RESEARCH_PIPELINE=price_action`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `15 passed in 0.28s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py scripts/report_operator_status_bundle.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `make operator-status OPERATOR_STATUS_SECTION=research_pipeline OPERATOR_STATUS_RESEARCH_PIPELINE=price_action`
+  - SHOWN: `ok=True`, `section_filter=research_pipeline`,
+    `research_pipeline_filter=price_action`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=research_pipeline OPERATOR_STATUS_RESEARCH_PIPELINE=funding_threshold`
+  - SHOWN: JSON reports `research_pipeline_filter=funding_threshold`,
+    `research_pipelines_wired=1`, and `research_pipelines_latest_ok=1`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  research execution, market-data fetch, proof closure, gate, ingestion, live
+  routing, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-28T18:21:02Z - Backlog Lane Status Filter
 
 Active role: ENGINEER
@@ -26876,4 +26924,181 @@ Remaining risk:
   execution, market-data fetch, artifact generation, campaign, strategy config,
   gate, ingestion, live routing, execution, authorization, or runtime mutation
   changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T19:02:41Z - Operator Next-Actions Source Filter Pass-Through
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by forwarding accepted
+  source-report filters through the compact operator next-actions report.
+
+What was found:
+- SHOWN: `services.analytics.operator_status_bundle` can already forward
+  filters for backlog lane, research pipeline, research command lane/input
+  class, and operator proof category.
+- SHOWN: `services.analytics.operator_next_actions` only exposed its own
+  `lane` and `reason` filters, so the compact action report could not reuse
+  the accepted source-report focus controls.
+
+What changed:
+- `build_operator_next_actions()` now accepts `backlog_lane`,
+  `research_pipeline`, `research_command_lane`,
+  `research_command_input_class`, and `operator_proof_category`, forwards
+  them to `build_operator_status_bundle()`, and records the active filters in
+  the JSON payload.
+- Action-producing source filters (`research_pipeline`,
+  `operator_proof_category`) now narrow the compact action list to their
+  matching action lane unless an explicit lane filter is set, so a
+  one-pipeline query does not display unrelated proof actions.
+- `scripts/report_operator_next_actions.py` exposes matching CLI options and
+  prints active source filters in text output.
+- `Makefile` exposes matching `OPERATOR_NEXT_ACTIONS_*` overrides for text and
+  JSON targets.
+- `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and tests were updated.
+
+Why this change was chosen:
+- It is the smallest same-surface continuation of the accepted reporting
+  filter batches: no new classifier, no new status source, only pass-through
+  to existing read-only reports.
+
+Expected outcome:
+- Operators can ask the compact next-action report for focused views such as
+  one research pipeline or one proof category without reading the full bundle
+  and without running any research, campaigns, market-data fetches, proof
+  closure, authorization, or runtime mutation.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `22 passed in 0.39s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make operator-next-actions OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE=price_action OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `ok=True`, prints `research_pipeline_filter=price_action` and
+    `actions=0 shown=0` for a latest-ok pipeline with no pending action.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY=host_side_reference OPERATOR_NEXT_ACTIONS_MAX=2`
+  - SHOWN: `ok=true`, JSON includes
+    `operator_proof_category_filter=host_side_reference`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T19:43:04Z - Operator Proof Line Filter
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by allowing proof
+  status and compact next-action reports to focus on one exact
+  `REMAINING_TASKS.md` proof-marker line.
+
+What was found:
+- SHOWN: `operator_proof_status` could filter proof markers by category, but
+  not by exact backlog line.
+- SHOWN: `operator_status_bundle` and `operator_next_actions` could forward
+  category filters only, so line-level check-ins still required scanning a
+  category or full report.
+
+What changed:
+- `build_operator_proof_status()` now accepts a `line` filter, returns
+  `line_filter`, and fails closed with `reason=invalid_line` for non-positive
+  or non-integer line filters.
+- `build_operator_status_bundle()` forwards `operator_proof_line` to proof
+  status and records `operator_proof_line_filter` in the bundle payload.
+- `build_operator_next_actions()` forwards `operator_proof_line`, records it
+  in the compact payload, and treats it as an action-producing source filter
+  for the operator-proof lane.
+- `scripts/report_operator_proof_status.py`,
+  `scripts/report_operator_status_bundle.py`, `scripts/report_operator_next_actions.py`,
+  `Makefile`, `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and tests were
+  updated.
+
+Why this change was chosen:
+- It is a same-surface read-only reporting improvement that reduces operator
+  scan time without changing proof state, evidence, campaigns, or runtime
+  behavior.
+
+Expected outcome:
+- Operators can run focused checks such as
+  `make operator-next-actions OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE=172`
+  and see only the action tied to that proof marker.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `30 passed in 0.44s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_proof_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make operator-proof-status OPERATOR_PROOF_STATUS_LINE=172`
+  - SHOWN: `ok=True`, `proof_markers=1`, `line_filter=172`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE=172 OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `ok=true`, `action_count_total=1`, and
+    `operator_proof_line_filter=172`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T19:46:33Z - Operator Next-Actions Final Source Filter
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by adding a final
+  action-row source filter to the compact next-actions report.
+
+What was found:
+- SHOWN: `operator_next_actions` already normalizes each final action row with
+  a `source` field, but only exposed lane/reason filters and source-report
+  pass-through filters.
+- SHOWN: source-report pass-through and final-row filtering are different:
+  pass-through changes the underlying report input, while final-row filtering
+  narrows the compact action list after source reports are built.
+
+What changed:
+- `build_operator_next_actions()` now accepts `action_source`, filters final
+  action rows by `source`, records `action_source_filter`, and reports action
+  counts from the filtered row set.
+- `scripts/report_operator_next_actions.py` exposes `--action-source` and
+  prints the active filter in text output.
+- `Makefile` exposes `OPERATOR_NEXT_ACTIONS_SOURCE` for text and JSON targets.
+- `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and tests were updated.
+
+Why this change was chosen:
+- It is a small same-surface presentation filter that reduces operator scan
+  time without changing any source report, proof state, evidence, campaign, or
+  runtime behavior.
+
+Expected outcome:
+- Operators can focus the compact action report directly on a final action
+  source such as `host_side_reference`, while keeping source-report
+  pass-through filters available for upstream narrowing.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `16 passed in 0.19s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make operator-next-actions OPERATOR_NEXT_ACTIONS_SOURCE=host_side_reference OPERATOR_NEXT_ACTIONS_MAX=2`
+  - SHOWN: `ok=True`, `actions=7`, `shown=2`, and
+    `action_source_filter=host_side_reference`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_SOURCE=remaining_proof OPERATOR_NEXT_ACTIONS_MAX=2`
+  - SHOWN: `ok=true`, `action_count_total=3`, and
+    `action_source_filter=remaining_proof`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

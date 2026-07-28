@@ -32,25 +32,33 @@ def build_operator_status_bundle(
     repo_root: str | Path | None = None,
     section: str | None = None,
     backlog_lane: str | None = None,
+    research_pipeline: str | None = None,
     research_command_lane: str | None = None,
     research_command_input_class: str | None = None,
     operator_proof_category: str | None = None,
+    operator_proof_line: int | str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     section_filter = str(section or "").strip()
     available_sections = tuple(_SECTION_REPORT_KEYS)
     backlog_lane_filter = str(backlog_lane or "").strip()
+    research_pipeline_filter = str(research_pipeline or "").strip()
     research_command_lane_filter = str(research_command_lane or "").strip()
     research_command_input_filter = str(research_command_input_class or "").strip()
     proof_category_filter = str(operator_proof_category or "").strip()
+    proof_line_filter = str(operator_proof_line or "").strip()
     backlog = build_backlog_lane_status(repo_root=root, lane=backlog_lane_filter or None)
-    research = build_research_pipeline_status(repo_root=root)
+    research = build_research_pipeline_status(repo_root=root, pipeline=research_pipeline_filter or None)
     research_commands = build_research_command_status(
         repo_root=root,
         lane=research_command_lane_filter or None,
         input_class=research_command_input_filter or None,
     )
-    proofs = build_operator_proof_status(repo_root=root, category=proof_category_filter or None)
+    proofs = build_operator_proof_status(
+        repo_root=root,
+        category=proof_category_filter or None,
+        line=proof_line_filter or None,
+    )
     backlog_summary = dict(backlog.get("summary") or {})
     research_summary = dict(research.get("summary") or {})
     research_command_summary = dict(research_commands.get("summary") or {})
@@ -94,9 +102,11 @@ def build_operator_status_bundle(
         "does_not_mutate_state": True,
         "repo_root": str(root),
         "backlog_lane_filter": backlog_lane_filter or None,
+        "research_pipeline_filter": research_pipeline_filter or None,
         "research_command_lane_filter": research_command_lane_filter or None,
         "research_command_input_class_filter": research_command_input_filter or None,
         "operator_proof_category_filter": proof_category_filter or None,
+        "operator_proof_line_filter": int(proof_line_filter) if proof_line_filter.isdigit() else None,
         "reports": {
             "backlog_lane_status": backlog,
             "research_pipeline_status": research,
