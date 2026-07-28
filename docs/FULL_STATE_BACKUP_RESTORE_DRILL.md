@@ -104,3 +104,11 @@ The drill passes only if:
 
 Before capped live, the launch packet must include one successful full-state
 restore drill or an explicit accepted exception with expiry.
+
+## Executable Guard
+
+`tests/test_full_state_restore_drill_contract.py` pins the drill boundary,
+state-family coverage, tooling guarantees, deliberately excluded drill-time
+steps, pass criteria, capped-live gate, and `docs/LAUNCH_CHECKLIST.md` link.
+The guard does not prove a host drill ran; it prevents the required proof
+contract from silently shrinking.

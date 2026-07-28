@@ -20,6 +20,9 @@ and provenance-qualified paper paths.
 ## Price-Action Context Feature Pack
 
 Status: research-only label tooling added; strategy use remains deferred.
+The implemented slices include an OHLCV-only research label extractor,
+label-conditioned forward-return report, multi-window stability report, and
+manual-review candidate triage report; strategy/campaign use remains deferred.
 
 Purpose:
 
@@ -45,38 +48,6 @@ Candidate OHLCV-derived labels:
 - `opening_range_state`: first-session range, break, retest, acceptance, and
   rejection labels for intraday data.
 
-Tooling:
-
-- `services.analytics.price_action_context_labels` and
-  `scripts/research/run_price_action_context_labels.py` build dataset-hashed
-  OHLCV-only context label artifacts from the accepted market archive.
-- The artifact is explicitly `research_only`, `not_strategy_config`,
-  `not_campaign_evidence`, `not_promotion_evidence`, and
-  `not_profitability_evidence`.
-- Current labels cover `engulfing_candle`, `rejection_wick`, `swing_failure`,
-  `break_and_retest`, `fair_value_gap`, `displacement_bar`,
-  `manipulation_candidate`, and `opening_range_state`.
-- Use `make price-action-context-labels` with explicit archive parameters.
-  This command does not fetch from external sources; the archive must already
-  contain the requested OHLCV rows.
-- `services.analytics.price_action_forward_return_join` and
-  `scripts/research/run_price_action_forward_return_join.py` consume a saved
-  label artifact and compute label-conditioned forward returns after explicit
-  fee/slippage assumptions. The report computes both long and short forward
-  returns for every label instead of treating label names as trade signals.
-  Use `make price-action-forward-returns` with an explicit `--labels` path.
-- `services.analytics.price_action_stability_report` and
-  `scripts/research/run_price_action_stability_report.py` consume a saved
-  forward-return artifact and split it into chronological windows to report
-  whether label deltas persist across windows. This is descriptive stability
-  evidence only, not a strategy-selection or confirmation-filter authority.
-- `services.analytics.price_action_research_pipeline` and
-  `scripts/research/run_price_action_research_pipeline.py` run the three
-  research steps together from archived OHLCV and write labels, forward-return,
-  stability, and pipeline summary artifacts to an explicit output directory.
-  This is orchestration only; the component artifacts retain the same
-  non-authority flags and review requirements.
-
 Candidate labels requiring stronger data:
 
 - `volume_profile_acceptance`: price acceptance/rejection relative to volume
@@ -94,6 +65,7 @@ Data-source boundary:
   for high-quality historical/live market data schemas such as MBO, MBP, TBBO,
   trades, and OHLCV, but adopting it adds API-key, cost, dataset/schema,
   symbology, and non-crypto/futures/equities data-governance decisions.
+  The starting RFC is `docs/research/databento_data_source_rfc.md`.
 
 Required artifact shape:
 
@@ -107,12 +79,62 @@ Required artifact shape:
   - `not_promotion_evidence`
   - `not_profitability_evidence`
 
+Implemented first slice:
+
+- `services/backtest/price_action_context.py`
+- `services/analytics/price_action_forward_returns.py`
+- `services/analytics/price_action_window_stability.py`
+- `services/analytics/price_action_candidate_triage.py`
+- `scripts/research/run_price_action_context_labels.py`
+- `scripts/research/run_price_action_forward_returns.py`
+- `scripts/research/run_price_action_window_stability.py`
+- `scripts/research/run_price_action_candidate_triage.py`
+- `scripts/research/run_price_action_research_pipeline.py`
+- `make price-action-context-labels`
+- `make price-action-forward-returns`
+- `make price-action-window-stability`
+- `make price-action-candidate-triage`
+- `make price-action-research-pipeline`
+
+The first slice reads only the existing OHLCV archive and refuses unavailable
+archive data rather than fetching live data. It emits deterministic per-bar
+labels for engulfing candles, rejection wicks, swing failures,
+break-and-retest, fair-value gaps, displacement bars, opening-range state,
+acceptance/rejection context, and manipulation-candidate descriptions. These
+labels are descriptive research context only and do not imply intent,
+profitability, or promotion eligibility.
+
+The second slice joins the labels to unit-size long/short forward returns after
+explicit fee/slippage assumptions and emits per-label bucket summaries. It is
+still descriptive research output only: no position state, portfolio PnL,
+campaign evidence, promotion evidence, or strategy config change is produced.
+
+The third slice repeats that comparison across fixed archive windows and
+summarizes each label bucket's average delta versus the unconditioned baseline,
+including outperformance and underperformance window ratios. It is descriptive
+stability evidence only, not a strategy-selection or confirmation-filter
+authority. It does not make an activation or profitability claim.
+
+The fourth slice applies explicit review thresholds to the stability artifact
+and emits candidate label/side pairs for manual review. It is still triage only:
+a candidate is not strategy config, campaign evidence, promotion evidence, a
+profitability claim, or an activation decision.
+
+The read-only pipeline wrapper runs those four accepted reports in sequence,
+writes each artifact plus a summary manifest, and stops fail-closed when a
+step cannot produce an `ok=true` artifact. The wrapper is operator convenience,
+not strategy config, campaign evidence, promotion evidence, or execution.
+
 Research acceptance before use:
 
 - Join labels to forward returns after fees/slippage.
 - Compare label-conditioned returns against unconditioned baseline.
 - Show out-of-sample stability across multiple windows.
-- Show false-positive rate and sample size.
+- Run real archive reports over multiple symbols/timeframes.
+- Review label-conditioned returns against unconditioned baseline.
+- Review out-of-sample stability, sample size, and underperformance rate.
+- Review candidate-triage thresholds separately before accepting any label as a
+  confirmation-filter candidate.
 - Review separately before using any label as a confirmation filter for
   `pullback_recovery`, `funding_extreme`, or another strategy.
 
@@ -142,3 +164,11 @@ Do not promote a new pattern strategy from idea to campaign without:
 Do not promote a price-action label directly to execution authority. The first
 eligible use is as a research-only context feature, then as a separately
 reviewed confirmation filter if evidence supports it.
+
+## Executable Guard
+
+`tests/test_price_action_research_boundary_guard.py` pins the research-only
+status, core OHLCV label scope, non-authority artifact flags, data-source
+deferrals, acceptance-before-use requirements, and backlog link so price-action
+labels cannot silently become strategy, campaign, promotion, or execution
+authority.
