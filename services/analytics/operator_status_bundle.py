@@ -19,7 +19,7 @@ _SECTION_REPORT_KEYS = {
 
 _SECTION_ACTION_KEYS = {
     "research_pipeline": ("research_pipelines",),
-    "operator_proof": ("operator_proofs",),
+    "operator_proof": ("passive_operator_evidence", "operator_proofs"),
 }
 
 
@@ -83,6 +83,15 @@ def build_operator_status_bundle(
         for row in list(proofs.get("proof_markers") or [])
         if isinstance(row, dict) and bool(row.get("action_required"))
     ]
+    passive_actions = [
+        {
+            "ordinal": row.get("ordinal"),
+            "text": str(row.get("text") or ""),
+            "next_action": str(row.get("next_action") or ""),
+        }
+        for row in list(proofs.get("passive_operator_items") or [])
+        if isinstance(row, dict) and bool(row.get("action_required"))
+    ]
 
     payload = {
         "schema_version": 1,
@@ -115,6 +124,7 @@ def build_operator_status_bundle(
         },
         "actions": {
             "research_pipelines": research_actions,
+            "passive_operator_evidence": passive_actions,
             "operator_proofs": proof_actions[:10],
         },
         "summary": {
@@ -134,6 +144,7 @@ def build_operator_status_bundle(
             "host_side_markers": int(proof_summary.get("host_side_markers") or 0),
             "proof_ready_markers": int(proof_summary.get("proof_ready_markers") or 0),
             "operator_proof_actions_required": len(proof_actions),
+            "passive_operator_evidence_actions_required": len(passive_actions),
         },
     }
     full_reports = dict(payload["reports"])

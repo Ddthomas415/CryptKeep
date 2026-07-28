@@ -2760,6 +2760,13 @@ substrate work, but they are concrete enough to keep visible.
     read-only planning/status only and does not change underlying status
     sources, run research/campaigns, fetch market data, close proof, authorize
     implementation, or mutate runtime state.
+    2026-07-28: passive operator-evidence next actions are ready for
+    independent review. The operator status bundle now exposes
+    `passive_operator_evidence` action rows from the passive evidence lane, and
+    the compact `operator-next-actions` report includes/filter-supports that
+    lane alongside research pipeline and proof-marker actions. This remains
+    read-only planning/status only and does not run research, campaigns,
+    market-data fetches, proof closure, authorization, or runtime mutation.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

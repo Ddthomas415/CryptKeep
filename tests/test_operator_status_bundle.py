@@ -67,6 +67,7 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
         "operator_proof_status",
     }
     assert out["summary"]["passive_operator_items"] == 1
+    assert out["summary"]["passive_operator_evidence_actions_required"] == 1
     assert out["summary"]["research_pipelines_wired"] == 2
     assert out["summary"]["research_pipelines_not_run"] == 2
     assert out["summary"]["research_pipeline_actions_required"] == 2
@@ -77,6 +78,7 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["summary"]["remaining_proof_or_coverage_markers"] == 1
     assert out["summary"]["host_side_markers"] == 1
     assert out["summary"]["operator_proof_actions_required"] >= 1
+    assert out["actions"]["passive_operator_evidence"]
     assert out["actions"]["operator_proofs"]
 
 
@@ -181,6 +183,7 @@ def test_operator_status_bundle_forwards_proof_category(tmp_path: Path) -> None:
     assert out["operator_proof_category_filter"] == "host_side_reference"
     assert report["category_filter"] == "host_side_reference"
     assert out["shown_sections"] == ["operator_proof"]
+    assert "passive_operator_evidence" in out["actions"]
     assert all(row["category"] == "host_side_reference" for row in report["proof_markers"])
     assert all(row["category"] == "host_side_reference" for row in out["actions"]["operator_proofs"])
 
@@ -202,6 +205,7 @@ def test_operator_status_bundle_forwards_proof_line(tmp_path: Path) -> None:
     assert out["operator_proof_line_filter"] == 3
     assert report["line_filter"] == 3
     assert out["shown_sections"] == ["operator_proof"]
+    assert "passive_operator_evidence" in out["actions"]
     assert all(row["line"] == 3 for row in report["proof_markers"])
     assert all(row["line"] == 3 for row in out["actions"]["operator_proofs"])
 
@@ -269,6 +273,12 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                         "next_action": "run make price-action-research-pipeline with the required research inputs",
                     }
                 ],
+                "passive_operator_evidence": [
+                    {
+                        "ordinal": 1,
+                        "next_action": "collect or record operator evidence: Run host proof",
+                    }
+                ],
                 "operator_proofs": [
                     {
                         "line": 7,
@@ -302,4 +312,6 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "latest_summary_missing" in out
     assert "research_commands: wired=19" in out
     assert "remaining=27" in out
+    assert "passive_action: #1" in out
+    assert "collect or record operator evidence" in out
     assert "proof_action: L7 remaining_proof" in out

@@ -84,6 +84,14 @@ def _print_report(payload: dict[str, Any]) -> None:
             f"proof_ready={summary.get('proof_ready_markers', 0)} "
             f"actions_required={summary.get('operator_proof_actions_required', 0)}"
         )
+    for row in list(actions_payload.get("passive_operator_evidence") or [])[:5]:
+        if not isinstance(row, dict):
+            continue
+        print(
+            "passive_action: "
+            f"#{row.get('ordinal')} "
+            f"action={row.get('next_action')}"
+        )
     for row in list(actions_payload.get("operator_proofs") or [])[:5]:
         if not isinstance(row, dict):
             continue

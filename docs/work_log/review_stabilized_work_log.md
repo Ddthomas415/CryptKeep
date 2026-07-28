@@ -27102,3 +27102,63 @@ Remaining risk:
   market-data fetch, proof closure, gate, ingestion, live routing, execution,
   authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T23:04:21Z - Passive Operator-Evidence Next Actions
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by surfacing passive
+  operator-evidence backlog items in the compact next-action report.
+
+What was found:
+- SHOWN: `operator_proof_status` emits `passive_operator_items` with
+  `action_required=true` and `next_action` text.
+- SHOWN: `operator_status_bundle` summarized `passive_operator_items` but did
+  not expose them under `actions`.
+- SHOWN: `operator_next_actions` only converted research-pipeline and
+  proof-marker actions, so the compact action report could hide the passive
+  evidence lane even while reporting its count.
+
+What changed:
+- `operator_status_bundle` now exposes `actions.passive_operator_evidence`
+  from `operator_proof_status.passive_operator_items` and includes
+  `passive_operator_evidence_actions_required` in the summary.
+- `operator_next_actions` now converts passive evidence rows into a
+  `passive_operator_evidence` action lane with ordinal references and includes
+  them in totals, lane filtering, source filtering, and reason buckets.
+- `report_operator_next_actions.py` accepts `--lane passive_operator_evidence`
+  and prints passive ordinal references as `#<ordinal>`.
+- `report_operator_status_bundle.py` prints the first passive evidence actions
+  when operator-proof status is shown.
+- `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and tests were updated.
+
+Why this change was chosen:
+- It makes the compact operator check-in report match the lane map already
+  shown by source status reports, without changing any source classification
+  or runtime behavior.
+
+Expected outcome:
+- Operators can run `make operator-next-actions
+  OPERATOR_NEXT_ACTIONS_LANE=passive_operator_evidence` and see passive
+  evidence obligations directly instead of inferring them from summary counts.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `26 passed in 0.37s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make operator-next-actions OPERATOR_NEXT_ACTIONS_LANE=passive_operator_evidence OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `ok=True`, `actions=15`, `shown=3`, and
+    `lane_filter=passive_operator_evidence`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_SOURCE=passive_operator_evidence OPERATOR_NEXT_ACTIONS_MAX=2`
+  - SHOWN: `ok=true`, `action_count_total=15`, and
+    `action_source_filter=passive_operator_evidence`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and Make/docs/tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

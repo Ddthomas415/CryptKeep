@@ -10,13 +10,24 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
         lambda repo_root=None, **_filters: {
             "ok": True,
             "report_type": "operator_status_bundle",
-            "summary": {"research_pipeline_actions_required": 1, "operator_proof_actions_required": 69},
+            "summary": {
+                "research_pipeline_actions_required": 1,
+                "passive_operator_evidence_actions_required": 2,
+                "operator_proof_actions_required": 69,
+            },
             "actions": {
                 "research_pipelines": [
                     {
                         "pipeline_id": "price_action",
                         "blocking_reason": "latest_summary_missing",
                         "next_action": "run make price-action-research-pipeline",
+                    }
+                ],
+                "passive_operator_evidence": [
+                    {
+                        "ordinal": 1,
+                        "text": "Run host proof",
+                        "next_action": "collect or record operator evidence",
                     }
                 ],
                 "operator_proofs": [
@@ -38,17 +49,28 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
     assert out["does_not_run_campaigns"] is True
     assert out["does_not_fetch_market_data"] is True
     assert out["does_not_mutate_state"] is True
-    assert out["action_count_total"] == 70
-    assert out["action_count_available"] == 2
-    assert out["action_count_returned"] == 2
-    assert out["summary"]["available_by_lane"] == {"operator_proof": 1, "research_pipeline": 1}
+    assert out["action_count_total"] == 72
+    assert out["action_count_available"] == 3
+    assert out["action_count_returned"] == 3
+    assert out["summary"]["available_by_lane"] == {
+        "operator_proof": 1,
+        "passive_operator_evidence": 1,
+        "research_pipeline": 1,
+    }
     assert out["summary"]["available_by_reason"] == {
         "latest_summary_missing": 1,
+        "passive_operator_evidence": 1,
         "remaining_proof": 1,
     }
-    assert [row["lane"] for row in out["actions"]] == ["research_pipeline", "operator_proof"]
+    assert [row["lane"] for row in out["actions"]] == [
+        "research_pipeline",
+        "passive_operator_evidence",
+        "operator_proof",
+    ]
     assert out["actions"][0]["source"] == "price_action"
-    assert out["actions"][1]["line"] == 12
+    assert out["actions"][1]["source"] == "passive_operator_evidence"
+    assert out["actions"][1]["ordinal"] == 1
+    assert out["actions"][2]["line"] == 12
 
 
 def test_operator_next_actions_respects_limit(monkeypatch) -> None:
@@ -88,10 +110,17 @@ def test_operator_next_actions_filters_by_lane(monkeypatch) -> None:
         lambda repo_root=None, **_filters: {
             "ok": True,
             "report_type": "operator_status_bundle",
-            "summary": {"research_pipeline_actions_required": 2, "operator_proof_actions_required": 69},
+            "summary": {
+                "research_pipeline_actions_required": 2,
+                "passive_operator_evidence_actions_required": 3,
+                "operator_proof_actions_required": 69,
+            },
             "actions": {
                 "research_pipelines": [
                     {"pipeline_id": "price_action", "blocking_reason": "missing", "next_action": "run research"}
+                ],
+                "passive_operator_evidence": [
+                    {"ordinal": 1, "text": "Evidence", "next_action": "collect evidence"}
                 ],
                 "operator_proofs": [
                     {"line": 7, "category": "remaining_proof", "next_action": "produce proof"}
@@ -107,6 +136,45 @@ def test_operator_next_actions_filters_by_lane(monkeypatch) -> None:
     assert out["action_count_available"] == 1
     assert out["action_count_returned"] == 1
     assert [row["lane"] for row in out["actions"]] == ["operator_proof"]
+
+
+def test_operator_next_actions_filters_by_passive_lane(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    monkeypatch.setattr(
+        mod,
+        "build_operator_status_bundle",
+        lambda repo_root=None, **_filters: {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "research_pipeline_actions_required": 1,
+                "passive_operator_evidence_actions_required": 3,
+                "operator_proof_actions_required": 2,
+            },
+            "actions": {
+                "research_pipelines": [
+                    {"pipeline_id": "price_action", "blocking_reason": "missing", "next_action": "run research"}
+                ],
+                "passive_operator_evidence": [
+                    {"ordinal": 1, "text": "Evidence A", "next_action": "collect evidence A"},
+                    {"ordinal": 2, "text": "Evidence B", "next_action": "collect evidence B"},
+                ],
+                "operator_proofs": [
+                    {"line": 7, "category": "remaining_proof", "next_action": "produce proof"}
+                ],
+            },
+        },
+    )
+
+    out = mod.build_operator_next_actions(repo_root=".", lane="passive_operator_evidence", max_actions=20)
+
+    assert out["lane_filter"] == "passive_operator_evidence"
+    assert out["action_count_total"] == 3
+    assert out["action_count_available"] == 2
+    assert out["action_count_returned"] == 2
+    assert [row["lane"] for row in out["actions"]] == ["passive_operator_evidence", "passive_operator_evidence"]
+    assert [row["ordinal"] for row in out["actions"]] == [1, 2]
 
 
 def test_operator_next_actions_filters_by_reason(monkeypatch) -> None:
@@ -341,16 +409,17 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "operator_proof_category_filter": filters.get("operator_proof_category"),
             "operator_proof_line_filter": int(filters.get("operator_proof_line") or 0) or None,
             "summary": {
-                "available_by_lane": {"operator_proof": 1},
-                "available_by_reason": {"remaining_proof": 1},
+                "available_by_lane": {"passive_operator_evidence": 1},
+                "available_by_reason": {"passive_operator_evidence": 1},
             },
             "actions": [
                 {
-                    "lane": "operator_proof",
-                    "source": "remaining_proof",
-                    "line": 7,
-                    "blocking_reason": "remaining_proof",
-                    "next_action": "produce or record proof",
+                    "lane": "passive_operator_evidence",
+                    "source": "passive_operator_evidence",
+                    "line": None,
+                    "ordinal": 1,
+                    "blocking_reason": "passive_operator_evidence",
+                    "next_action": "collect or record operator evidence",
                 }
             ],
         },
@@ -361,11 +430,11 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "--max-actions",
             "1",
             "--lane",
-            "operator_proof",
+            "passive_operator_evidence",
             "--reason",
-            "remaining_proof",
+            "passive_operator_evidence",
             "--action-source",
-            "remaining_proof",
+            "passive_operator_evidence",
             "--research-pipeline",
             "price_action",
             "--operator-proof-category",
@@ -377,11 +446,11 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     out = capsys.readouterr().out
     assert "Operator Next Actions" in out
     assert "actions=1 shown=1" in out
-    assert "action_source_filter=remaining_proof" in out
+    assert "action_source_filter=passive_operator_evidence" in out
     assert "research_pipeline_filter=price_action" in out
     assert "operator_proof_category_filter=host_side_reference" in out
     assert "operator_proof_line_filter=7" in out
-    assert "by_lane: operator_proof=1" in out
-    assert "by_reason: remaining_proof=1" in out
-    assert "operator_proof:remaining_proof" in out
-    assert "produce or record proof" in out
+    assert "by_lane: passive_operator_evidence=1" in out
+    assert "by_reason: passive_operator_evidence=1" in out
+    assert "passive_operator_evidence:passive_operator_evidence" in out
+    assert "collect or record operator evidence" in out
