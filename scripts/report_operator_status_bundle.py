@@ -20,24 +20,36 @@ from services.analytics.operator_status_bundle import build_operator_status_bund
 
 def _print_report(payload: dict[str, Any]) -> None:
     summary = dict(payload.get("summary") or {})
+    reports = dict(payload.get("reports") or {})
+    actions_payload = dict(payload.get("actions") or {})
+    section_filter = str(payload.get("section_filter") or "")
     print("=== Operator Status Bundle ===")
     print(f"ok={bool(payload.get('ok'))}")
-    print(
-        "backlog: "
-        f"passive={summary.get('passive_operator_items', 0)} "
-        f"low={summary.get('low_risk_docs_tests', 0)} "
-        f"medium={summary.get('medium_risk_runtime_read_only', 0)} "
-        f"high={summary.get('high_risk_gate_execution_deploy', 0)}"
-    )
-    print(
-        "research: "
-        f"wired={summary.get('research_pipelines_wired', 0)} "
-        f"latest_ok={summary.get('research_pipelines_latest_ok', 0)} "
-        f"not_run={summary.get('research_pipelines_not_run', 0)} "
-        f"actions_required={summary.get('research_pipeline_actions_required', 0)}"
-    )
-    actions = list(dict(payload.get("actions") or {}).get("research_pipelines") or [])
-    for row in actions:
+    if payload.get("reason"):
+        print(f"reason={payload.get('reason')}")
+    if section_filter:
+        print(f"section_filter={section_filter}")
+    shown = payload.get("shown_sections") or []
+    if shown:
+        print("shown_sections=" + ",".join(str(value) for value in shown))
+    if "backlog_lane_status" in reports:
+        print(
+            "backlog: "
+            f"passive={summary.get('passive_operator_items', 0)} "
+            f"low={summary.get('low_risk_docs_tests', 0)} "
+            f"medium={summary.get('medium_risk_runtime_read_only', 0)} "
+            f"high={summary.get('high_risk_gate_execution_deploy', 0)}"
+        )
+    if "research_pipeline_status" in reports:
+        print(
+            "research: "
+            f"wired={summary.get('research_pipelines_wired', 0)} "
+            f"latest_ok={summary.get('research_pipelines_latest_ok', 0)} "
+            f"not_run={summary.get('research_pipelines_not_run', 0)} "
+            f"actions_required={summary.get('research_pipeline_actions_required', 0)}"
+        )
+    research_actions = list(actions_payload.get("research_pipelines") or [])
+    for row in research_actions:
         if not isinstance(row, dict):
             continue
         print(
@@ -47,19 +59,21 @@ def _print_report(payload: dict[str, Any]) -> None:
             f"reason={row.get('blocking_reason')} "
             f"action={row.get('next_action')}"
         )
-    print(
-        "research_commands: "
-        f"wired={summary.get('research_commands_wired', 0)} "
-        f"not_wired={summary.get('research_commands_not_wired', 0)}"
-    )
-    print(
-        "proofs: "
-        f"remaining={summary.get('remaining_proof_or_coverage_markers', 0)} "
-        f"host_side={summary.get('host_side_markers', 0)} "
-        f"proof_ready={summary.get('proof_ready_markers', 0)} "
-        f"actions_required={summary.get('operator_proof_actions_required', 0)}"
-    )
-    for row in list(dict(payload.get("actions") or {}).get("operator_proofs") or [])[:5]:
+    if "research_command_status" in reports:
+        print(
+            "research_commands: "
+            f"wired={summary.get('research_commands_wired', 0)} "
+            f"not_wired={summary.get('research_commands_not_wired', 0)}"
+        )
+    if "operator_proof_status" in reports:
+        print(
+            "proofs: "
+            f"remaining={summary.get('remaining_proof_or_coverage_markers', 0)} "
+            f"host_side={summary.get('host_side_markers', 0)} "
+            f"proof_ready={summary.get('proof_ready_markers', 0)} "
+            f"actions_required={summary.get('operator_proof_actions_required', 0)}"
+        )
+    for row in list(actions_payload.get("operator_proofs") or [])[:5]:
         if not isinstance(row, dict):
             continue
         print(
@@ -75,9 +89,14 @@ def main(argv: list[str] | None = None) -> int:
         description="Read-only bundle of operator backlog, research, and proof status reports."
     )
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON only")
+    parser.add_argument(
+        "--section",
+        default=None,
+        help="Limit output to one section: backlog, research_pipeline, research_command, or operator_proof",
+    )
     args = parser.parse_args(argv)
 
-    payload = build_operator_status_bundle(repo_root=ROOT)
+    payload = build_operator_status_bundle(repo_root=ROOT, section=args.section)
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:

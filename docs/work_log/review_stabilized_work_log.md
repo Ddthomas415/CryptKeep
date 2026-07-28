@@ -26405,6 +26405,59 @@ Remaining risk:
   routing, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-28T18:16:09Z - Operator Status Section Filter
+
+Active role: ENGINEER
+
+Objective:
+- Add focused section filtering to the read-only operator status bundle.
+
+What was found:
+- SHOWN: the operator status bundle already combines backlog, research
+  pipeline, research command, and operator-proof status, but text/JSON output
+  always emitted all sections. There was no direct operator check for a single
+  section such as only `research_pipeline` or only `operator_proof`.
+
+What changed:
+- `services.analytics.operator_status_bundle.build_operator_status_bundle()`
+  accepts optional `section`.
+- Supported sections are `backlog`, `research_pipeline`, `research_command`,
+  and `operator_proof`.
+- JSON output now includes `available_sections`, `section_filter`,
+  `shown_sections`, and source/shown report/action counts.
+- Invalid section names fail closed with `reason=invalid_section` and no shown
+  reports/actions.
+- `scripts/report_operator_status_bundle.py` exposes `--section`, and Make
+  exposes `OPERATOR_STATUS_SECTION` for text and JSON targets.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests.
+
+Why this change was chosen:
+- It is a same-surface additive selector over already-derived read-only status
+  reports. The bundle still does not run pipelines, campaigns, market-data
+  fetches, proof closure, authorization changes, or runtime mutation.
+
+Expected outcome:
+- Operators can run focused checks such as
+  `make operator-status OPERATOR_STATUS_SECTION=research_pipeline` or
+  `make operator-status-json OPERATOR_STATUS_SECTION=operator_proof`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `11 passed in 0.20s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py scripts/report_operator_status_bundle.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `make operator-status OPERATOR_STATUS_SECTION=research_pipeline`
+  - SHOWN: `ok=True`; `section_filter=research_pipeline`; `shown_sections=research_pipeline`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=operator_proof`
+  - SHOWN: JSON reports `section_filter=operator_proof`, `shown_report_count=1`,
+    and `shown_action_count=10`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  research execution, market-data fetch, proof closure, gate, ingestion, live
+  routing, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-28T18:12:09Z - Research Command Status Lane/Input Filters
 
 Active role: ENGINEER
