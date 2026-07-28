@@ -72,6 +72,10 @@ def _add_optional(cmd: list[str], flag: str, value: Any) -> None:
         cmd.extend([flag, str(value)])
 
 
+def _flag_value(flag: str, value: Any) -> str:
+    return f"{flag}={value}"
+
+
 def _price_join_cmd(args: argparse.Namespace, output: Path) -> list[str]:
     cmd = [
         sys.executable,
@@ -118,10 +122,8 @@ def _sensitivity_cmd(args: argparse.Namespace, input_path: Path, output: Path) -
         str(input_path),
         "--output",
         str(output),
-        "--long-thresholds-pct",
-        str(args.long_thresholds_pct),
-        "--short-thresholds-pct",
-        str(args.short_thresholds_pct),
+        _flag_value("--long-thresholds-pct", str(args.long_thresholds_pct)),
+        _flag_value("--short-thresholds-pct", str(args.short_thresholds_pct)),
         "--fee-bps",
         str(float(args.fee_bps)),
         "--slippage-bps",
@@ -160,10 +162,8 @@ def _window_stability_cmd(args: argparse.Namespace, input_path: Path, output: Pa
         str(input_path),
         "--output",
         str(output),
-        "--long-thresholds-pct",
-        str(args.long_thresholds_pct),
-        "--short-thresholds-pct",
-        str(args.short_thresholds_pct),
+        _flag_value("--long-thresholds-pct", str(args.long_thresholds_pct)),
+        _flag_value("--short-thresholds-pct", str(args.short_thresholds_pct)),
         "--window-rows",
         str(int(args.window_rows)),
         "--min-windows",

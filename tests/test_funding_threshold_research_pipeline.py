@@ -75,6 +75,8 @@ def test_funding_threshold_pipeline_runs_reports_in_dependency_order(monkeypatch
     assert calls[1][calls[1].index("--input") + 1].endswith("funding_context_price_join.json")
     assert calls[2][calls[2].index("--input") + 1].endswith("funding_threshold_sensitivity.json")
     assert calls[4][calls[4].index("--input") + 1].endswith("funding_threshold_window_stability.json")
+    assert "--short-thresholds-pct=-0.005,-0.01,-0.02,-0.05" in calls[1]
+    assert "--short-thresholds-pct=-0.005,-0.01,-0.02,-0.05" in calls[3]
     assert calls[1][calls[1].index("--fee-bps") + 1] == "11.0"
     assert calls[1][calls[1].index("--slippage-bps") + 1] == "3.5"
     assert Path(summary["summary_path"]).is_file()
