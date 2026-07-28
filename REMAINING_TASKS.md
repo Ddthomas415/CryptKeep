@@ -2753,6 +2753,13 @@ substrate work, but they are concrete enough to keep visible.
     line filters fail closed as `invalid_line`. This remains read-only
     planning/status only and does not run research, campaigns, market-data
     fetches, proof closure, authorization, or runtime mutation.
+    2026-07-28: operator next-actions final source filtering is ready for
+    independent review. The compact report now supports `--action-source` and
+    `OPERATOR_NEXT_ACTIONS_SOURCE`, filtering final action rows by their
+    normalized `source` field after source reports are built. This remains
+    read-only planning/status only and does not change underlying status
+    sources, run research/campaigns, fetch market data, close proof, authorize
+    implementation, or mutate runtime state.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,
