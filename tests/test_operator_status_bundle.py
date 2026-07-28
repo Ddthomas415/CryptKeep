@@ -52,6 +52,14 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["does_not_run_campaigns"] is True
     assert out["does_not_fetch_market_data"] is True
     assert out["does_not_mutate_state"] is True
+    assert out["section_filter"] is None
+    assert out["shown_report_count"] == 4
+    assert set(out["shown_sections"]) == {
+        "backlog",
+        "research_pipeline",
+        "research_command",
+        "operator_proof",
+    }
     assert set(out["reports"]) == {
         "backlog_lane_status",
         "research_pipeline_status",
@@ -72,14 +80,50 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["actions"]["operator_proofs"]
 
 
+def test_operator_status_bundle_filters_by_section(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(repo_root=tmp_path, section="research_pipeline")
+
+    assert out["ok"] is True
+    assert out["section_filter"] == "research_pipeline"
+    assert out["shown_sections"] == ["research_pipeline"]
+    assert out["source_report_count"] == 4
+    assert out["shown_report_count"] == 1
+    assert set(out["reports"]) == {"research_pipeline_status"}
+    assert set(out["actions"]) == {"research_pipelines"}
+    assert out["summary"]["research_pipelines_wired"] == 2
+    assert out["shown_action_count"] == len(out["actions"]["research_pipelines"])
+
+
+def test_operator_status_bundle_rejects_unknown_section(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(repo_root=tmp_path, section="execution")
+
+    assert out["ok"] is False
+    assert out["reason"] == "invalid_section"
+    assert out["section_filter"] == "execution"
+    assert out["shown_sections"] == []
+    assert out["reports"] == {}
+    assert out["actions"] == {}
+    assert "research_pipeline" in out["available_sections"]
+
+
 def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     from scripts import report_operator_status_bundle as script
 
     monkeypatch.setattr(
         script,
         "build_operator_status_bundle",
-        lambda repo_root=None: {
+        lambda repo_root=None, section=None: {
             "ok": True,
+            "section_filter": section,
+            "shown_sections": [section] if section else ["backlog", "research_pipeline", "operator_proof"],
             "summary": {
                 "passive_operator_items": 15,
                 "low_risk_docs_tests": 13,
@@ -95,6 +139,12 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "host_side_markers": 17,
                 "proof_ready_markers": 25,
                 "operator_proof_actions_required": 2,
+            },
+            "reports": {
+                "backlog_lane_status": {},
+                "research_pipeline_status": {},
+                "research_command_status": {},
+                "operator_proof_status": {},
             },
             "actions": {
                 "research_pipelines": [
@@ -116,9 +166,10 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
         },
     )
 
-    assert script.main([]) == 0
+    assert script.main(["--section", "operator_proof"]) == 0
     out = capsys.readouterr().out
     assert "Operator Status Bundle" in out
+    assert "section_filter=operator_proof" in out
     assert "passive=15" in out
     assert "wired=2" in out
     assert "actions_required=1" in out

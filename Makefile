@@ -82,11 +82,12 @@ operator-proof-status:
 operator-proof-status-json:
 	@$(PYTHON) scripts/report_operator_proof_status.py --json
 
+OPERATOR_STATUS_SECTION ?=
 operator-status:
-	$(PYTHON) scripts/report_operator_status_bundle.py
+	$(PYTHON) scripts/report_operator_status_bundle.py $(if $(OPERATOR_STATUS_SECTION),--section $(OPERATOR_STATUS_SECTION),)
 
 operator-status-json:
-	@$(PYTHON) scripts/report_operator_status_bundle.py --json
+	@$(PYTHON) scripts/report_operator_status_bundle.py --json $(if $(OPERATOR_STATUS_SECTION),--section $(OPERATOR_STATUS_SECTION),)
 
 operator-next-actions:
 	$(PYTHON) scripts/report_operator_next_actions.py --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) $(if $(OPERATOR_NEXT_ACTIONS_LANE),--lane $(OPERATOR_NEXT_ACTIONS_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_REASON),--reason $(OPERATOR_NEXT_ACTIONS_REASON),)

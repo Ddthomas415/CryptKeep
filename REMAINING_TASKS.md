@@ -2649,6 +2649,14 @@ substrate work, but they are concrete enough to keep visible.
     proof actions required. This is still status-only and does not run
     campaigns, fetch market data, close proof, authorize implementation, or
     mutate runtime state.
+    2026-07-28: operator status section filtering is ready for independent
+    review. `build_operator_status_bundle`, the CLI, and Make targets now
+    support `backlog`, `research_pipeline`, `research_command`, and
+    `operator_proof` focused views while still deriving all underlying status
+    reports read-only. Invalid section names fail closed as `invalid_section`.
+    This remains presentation/JSON status only and does not run pipelines or
+    campaigns, fetch market data, close proof, authorize implementation, or
+    mutate runtime state.
     2026-07-28: compact operator next-actions report is ready for independent
     review. `services.analytics.operator_next_actions` and
     `scripts/report_operator_next_actions.py` derive a bounded action list from
