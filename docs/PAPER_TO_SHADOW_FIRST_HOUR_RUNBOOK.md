@@ -92,3 +92,10 @@ checkpoint must show:
 - shadow evidence path
 - zero venue orders
 - rollback evidence or successful one-hour completion
+
+## Executable Guard
+
+`tests/test_operator_runbook_policy_guards.py` pins the preconditions,
+first-hour safety checks, abort conditions, rollback proof, and not-rehearsed
+status so the paper-to-shadow checklist cannot silently become an automatic or
+live-routing path.
