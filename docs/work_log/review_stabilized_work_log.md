@@ -26405,6 +26405,58 @@ Remaining risk:
   routing, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-28T18:12:09Z - Research Command Status Lane/Input Filters
+
+Active role: ENGINEER
+
+Objective:
+- Add focused lane and input-class filters to the accepted read-only research
+  command status report.
+
+What was found:
+- SHOWN: the report already categorized commands by `lane` and `input_class`
+  but only emitted the full registry. Operators had to inspect the full report
+  to isolate funding, price-action, archive, or artifact-input commands.
+
+What changed:
+- `services.analytics.research_command_status.build_research_command_status()`
+  accepts optional `lane` and `input_class` filters.
+- The report preserves filtered command rows plus source-count summaries over
+  the full command registry.
+- `scripts/research/report_research_command_status.py` exposes `--lane` and
+  `--input-class`.
+- `Makefile` exposes `RESEARCH_COMMAND_STATUS_LANE` and
+  `RESEARCH_COMMAND_STATUS_INPUT_CLASS` for text and JSON targets.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests.
+
+Why this change was chosen:
+- It is a same-surface additive selector over already-derived status rows. It
+  improves operator triage without executing research, fetching data, changing
+  artifacts, or touching strategy, campaign, gate, ingestion, live routing, or
+  execution code.
+
+Expected outcome:
+- Operators can run focused checks such as
+  `make research-command-status RESEARCH_COMMAND_STATUS_LANE=funding` or
+  `make research-command-status-json RESEARCH_COMMAND_STATUS_INPUT_CLASS=artifact_input`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_command_status.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `11 passed in 0.20s`.
+- `./.venv/bin/python -m py_compile services/analytics/research_command_status.py scripts/research/report_research_command_status.py tests/test_research_command_status.py`
+  - SHOWN: exit 0.
+- `make research-command-status RESEARCH_COMMAND_STATUS_LANE=funding`
+  - SHOWN: `ok=True commands=8`; `lane_filter=funding`.
+- `make research-command-status-json RESEARCH_COMMAND_STATUS_INPUT_CLASS=artifact_input`
+  - SHOWN: JSON reports `command_count=7`, `input_class_filter=artifact_input`,
+    and `source_command_count=19`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  research execution, market-data fetch, proof closure, gate, ingestion, live
+  routing, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-28T12:38:29Z - Operator Next-Actions Summary Buckets
 
 Active role: ENGINEER

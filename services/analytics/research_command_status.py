@@ -213,15 +213,28 @@ def _count_by(rows: list[dict[str, Any]], key: str) -> dict[str, int]:
     return out
 
 
-def build_research_command_status(*, repo_root: str | Path | None = None) -> dict[str, Any]:
+def build_research_command_status(
+    *,
+    repo_root: str | Path | None = None,
+    lane: str | None = None,
+    input_class: str | None = None,
+) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
+    lane_filter = str(lane or "").strip()
+    input_filter = str(input_class or "").strip()
     makefile_text = _read_text(root / "Makefile")
     scripts_text = _read_text(root / "scripts" / "SCRIPTS.md")
-    rows = [
+    all_rows = [
         _row(root, spec, makefile_text=makefile_text, scripts_text=scripts_text)
         for spec in RESEARCH_COMMANDS
     ]
+    rows = all_rows
+    if lane_filter:
+        rows = [row for row in rows if row.get("lane") == lane_filter]
+    if input_filter:
+        rows = [row for row in rows if row.get("input_class") == input_filter]
     wired = sum(1 for row in rows if bool(row.get("wiring_ok")))
+    source_wired = sum(1 for row in all_rows if bool(row.get("wiring_ok")))
     return {
         "schema_version": 1,
         "report_type": "research_command_status",
@@ -233,14 +246,21 @@ def build_research_command_status(*, repo_root: str | Path | None = None) -> dic
         "not_promotion_evidence": True,
         "not_execution_input": True,
         "repo_root": str(root),
+        "lane_filter": lane_filter or None,
+        "input_class_filter": input_filter or None,
         "makefile_sha256": _sha256(root / "Makefile"),
         "script_index_sha256": _sha256(root / "scripts" / "SCRIPTS.md"),
         "command_count": len(rows),
+        "source_command_count": len(all_rows),
         "commands": rows,
         "summary": {
             "wired": wired,
             "not_wired": len(rows) - wired,
             "by_lane": _count_by(rows, "lane"),
             "by_input_class": _count_by(rows, "input_class"),
+            "source_wired": source_wired,
+            "source_not_wired": len(all_rows) - source_wired,
+            "source_by_lane": _count_by(all_rows, "lane"),
+            "source_by_input_class": _count_by(all_rows, "input_class"),
         },
     }
