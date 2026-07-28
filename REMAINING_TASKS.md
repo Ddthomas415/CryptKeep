@@ -102,6 +102,13 @@ deployment work still needs independent review.
    `intraday_single_symbol_v1`, and `context_edge_v1`. No current strategy
    config is changed in this patch; adopting a non-legacy policy still requires
    a reviewed config change and fresh gate output.
+   2026-07-22: executable paper-promotion gate policy RFC guard is ready for
+   independent review. `tests/test_paper_promotion_gate_policy_rfc_guard.py`
+   pins the RFC scope, policy classes/defaults, qualified-bar definition,
+   cohort/migration boundaries, OHLCV reliability separation, and backlog link.
+   This is docs/test only and does not change promotion policy loading, current
+   ES config, gate thresholds, campaign evidence, OHLCV retry behavior, or
+   execution behavior.
    SEPARATE WORK ITEM - OHLCV source outage blocked-state and retry-budget
    protection: campaign validation must not depend on repeatedly exhausting
    daily attempts when the configured upstream market-data source is
@@ -111,6 +118,12 @@ deployment work still needs independent review.
    outages, alerts only on state transitions, and automatically recovers when
    the same configured source preflight succeeds. This item is independent of
    promotion-gate policy; gate redesign must not mask infrastructure failures.
+   2026-07-25: read-only paper-gate velocity report is ready for independent
+   review. `scripts/report_paper_gate_velocity.py` / `make
+   status-paper-gate-velocity` now estimates completion from completed
+   provenance-qualified round-trip close timestamps, refuses projections with
+   fewer than two closes, surfaces legacy/all-history exclusions as diagnostic
+   only, and leaves gate policy/evidence unchanged.
    2026-07-18: guarded paper campaign restore is ready for independent review.
    `restore_paper_campaigns.py --restore --preflight-ohlcv` uses the existing
    public-OHLCV preflight before starting a dead collector, reports
@@ -184,6 +197,19 @@ deployment work still needs independent review.
    provenance-qualified paper history, keeps JSONL per-fill PnL out of
    paper-promotion expectancy, and computes qualified expectancy net of fees
    per closed trade.
+   2026-07-22: executable canonical-expectancy decision guard is ready for
+   independent review. `tests/test_canonical_expectancy_decision_guard.py`
+   pins the authoritative paper-history source, JSONL fallback boundary,
+   legacy helper boundary, authority rationale, and backlog link. This is
+   docs/test only and does not change promotion gates, metric calculations,
+   paper history, or fallback behavior.
+   2026-07-22: executable promotion-stage authority decision guard is ready
+   for independent review.
+   `tests/test_promotion_stage_authority_decision_guard.py` pins the
+   gate-enforced operator entrypoint, implemented boundary, strategy scope
+   boundary, authority rationale, and backlog link. This is docs/test only
+   and does not change promotion gates, stage mutation logic, strategy support,
+   deployment, or execution behavior.
 3. Build the shadow would-be-fill recorder before treating shadow slippage
    gates as actionable. The shadow gate asks for fill/slippage evidence, but
    observe-only shadow submit currently blocks real submissions and does not
@@ -249,6 +275,13 @@ deployment work still needs independent review.
    persistent paper campaign until archive-backed baseline expectations,
    positive net-fee research evidence, no-trade filter review, and a separately
    reviewed campaign manifest exist.
+   2026-07-22: executable pullback Stage 0 decision guard is ready for
+   independent review. `tests/test_pullback_stage0_decision_guard.py` pins
+   the isolated research candidate decision, Stage 0 evidence boundary,
+   required-before-promotion list, allowed/not-allowed uses, and disabled
+   governance config. This is docs/test only and does not change strategy
+   config values, campaign manifests, paper gates, promotion status, or
+   execution behavior.
 8. Keep composite/hybrid paper advancement blocked. The long-window variant
    proof is accepted and now shows three realized synthetic windows, but the
    candidate still has synthetic-only, low-confidence evidence and no persisted
@@ -334,11 +367,51 @@ deployment work still needs independent review.
    item #11 work after acceptance is operational, not code plumbing: run real
    multi-year archive sweeps and require separate review before any strategy
    config or campaign changes use the results. 2026-07-14: market OHLCV archive
+   2026-07-22: archive parameter-sweep triage is ready for independent review.
+   `services.analytics.archive_parameter_sweep_triage` and
+   `scripts/research/run_archive_parameter_sweep_triage.py` consume an existing
+   `archive_backed_parameter_sweep_v1` artifact and rank variants for manual
+   review using explicit window/trade/non-negative-window/return/drawdown
+   thresholds. It does not rerun backtests, change strategy config, start
+   campaigns, or produce campaign/promotion/profitability evidence; it consumes
+   the source sweep metrics as-is and does not verify the sweep's cost
+   assumptions. Remaining item #11 work is still operational: run real
+   multi-year archive sweeps and require separate review before any strategy
+   config or campaign changes use the results. 2026-07-14: market OHLCV archive
    numeric-ingestion proof is ready for independent review. `MarketStore` now
    rejects non-positive or non-finite OHLCV timestamps/prices, invalid high/low
    envelopes, and non-finite/negative volume before writing `market_ohlcv`,
    while preserving missing-volume rows. This protects dataset hashes and
-   archive-backed walk-forward inputs from malformed bars. 2026-07-14:
+   archive-backed walk-forward inputs from malformed bars. 2026-07-22:
+   executable walk-forward research doc guard is ready for independent review.
+   `docs/research/walk_forward_validation.md` now reflects the accepted
+   archive-backed walk-forward and bounded parameter-sweep tooling while
+   preserving research-only, fail-closed archive, hash-stamped artifact,
+   non-authority, and review-before-use boundaries.
+   `tests/test_walk_forward_research_doc_guard.py` pins those boundaries. This
+   is docs/test only and does not change backtest math, sweep ranking,
+   promotion gates, strategy configs, campaigns, or execution behavior.
+   2026-07-22: executable strategy-feedback ledger doc guard is ready for
+   review. `docs/research/strategy_feedback_ledger.md` now names the ledger as
+   descriptive persisted-paper-fill metadata that may only adjust research
+   leaderboard scores; it is not promotion, strategy-config, position-sizing,
+   campaign, live-routing, or execution authority. Any use beyond research
+   ranking requires a separate reviewed config, campaign, gate, or execution
+   change with its own proof.
+   `tests/test_strategy_feedback_ledger_doc_guard.py` pins those boundaries
+   and the strategy-expansion roadmap link. This is docs/test only and does not
+   change feedback math, leaderboard ranking, strategy configs, campaigns,
+   promotion gates, or execution behavior.
+   2026-07-22: executable strategy-expansion roadmap guard is ready for
+   review. `docs/research/strategy_expansion_roadmap.md` now reflects the
+   accepted archive-backed walk-forward, bounded parameter-sweep, and
+   strategy-feedback ledger tooling while preserving the roadmap as sequencing
+   guidance only. `tests/test_strategy_expansion_roadmap_guard.py` pins the
+   conservative build order, research-only status, non-authority boundaries,
+   and no-implementation-approval rule. This is docs/test only and does not
+   change research tooling, leaderboard logic, strategy configs, campaigns,
+   promotion gates, or execution behavior.
+   2026-07-14:
    market ticker ingestion proof is ready for independent review.
    `MarketStore.upsert_ticker()` now rejects non-positive or non-finite
    present prices, crossed bid/ask pairs, non-finite or negative present
@@ -464,6 +537,13 @@ deployment work still needs independent review.
     replacing the prior manual copy/seeding workaround. No live routing,
     persistent campaign, strategy promotion, or canonical paper-campaign
     behavior is authorized by this wiring.
+    2026-07-22: executable funding Stage 0 decision guard is ready for
+    independent review. `tests/test_funding_stage0_decision_guard.py` pins
+    the non-promotion status, proof contract, confirmed/unconfirmed boundaries,
+    next conditions, backlog link, and required Stage 0 tooling presence. This
+    is docs/test only and does not change context plumbing, research reports,
+    promotion qualification, campaign manifests, paper gates, or execution
+    behavior.
     2026-07-18: research-only funding context replay is ready for independent
     review. `services.analytics.funding_context_replay` and
     `scripts/research/run_funding_context_replay.py` replay stored
@@ -521,6 +601,44 @@ deployment work still needs independent review.
     explicit `long_threshold_pct` / `short_threshold_pct` grids. This is a
     report consumer only: it does not fetch data, change strategy config,
     start campaigns, compute portfolio PnL, or produce promotion evidence.
+    2026-07-22: research-only funding-threshold window stability is ready for
+    independent review. `services.analytics.funding_threshold_window_stability`
+    and `scripts/research/run_funding_threshold_window_stability.py` consume
+    an existing `funding_context_price_join_v1` artifact, split its rows into
+    fixed complete windows, and summarize threshold-pair behavior across
+    windows using the source artifact's cost assumptions. It fails closed if
+    the source artifact lacks fee/slippage assumptions and remains
+    research-only: no data fetch, strategy config change, campaign, gate,
+    portfolio PnL, or promotion evidence.
+    2026-07-22: research-only funding-threshold candidate triage is ready for
+    independent review. `services.analytics.funding_threshold_candidate_triage`
+    and `scripts/research/run_funding_threshold_candidate_triage.py` consume
+    an existing `funding_threshold_sensitivity_v1` artifact and rank threshold
+    pairs for manual review using explicit minimum input rows, actionable rows,
+    actionable share, positive ratio, and average net forward-return
+    thresholds. This is still triage only: it does not fetch data, change
+    strategy config, start campaigns, compute portfolio PnL, or produce
+    campaign/promotion/profitability evidence.
+    2026-07-22: research-only funding-threshold stability triage is ready for
+    independent review. `services.analytics.funding_threshold_stability_triage`
+    and `scripts/research/run_funding_threshold_stability_triage.py` consume
+    an existing `funding_threshold_window_stability_v1` artifact and rank
+    threshold pairs for manual review using window count, actionable-window
+    ratio, positive-window ratio, average modeled forward return, and worst
+    window average return thresholds. This remains a report consumer only and
+    is not strategy config, campaign evidence, promotion evidence, profitability
+    evidence, or an activation decision.
+    2026-07-25: read-only funding-threshold research pipeline wrapper is ready
+    for independent review.
+    `scripts/research/run_funding_threshold_research_pipeline.py` runs the
+    accepted funding/price join, threshold sensitivity, direct candidate
+    triage, window-stability, and stability-triage reports in sequence, writes
+    each report plus a summary manifest, and stops fail-closed when any step
+    cannot produce an `ok=true` artifact. `make
+    funding-threshold-research-pipeline` and `scripts/SCRIPTS.md` expose the
+    wrapper. This is research orchestration only; it does not change
+    collectors, thresholds, scoring logic, strategy config, campaigns, gates,
+    data ingestion, live routing, execution, or promotion evidence.
     2026-07-22: research-only crypto-edge strategy readiness matrix is ready
     for independent review. `services.analytics.crypto_edge_strategy_readiness`
     and `scripts/research/run_crypto_edge_strategy_readiness.py` classify the
@@ -531,15 +649,6 @@ deployment work still needs independent review.
     `order_book_imbalance` is `signal_module_unregistered`. This is source-tree
     readiness evidence only, not campaign, promotion, or profitability
     evidence.
-    2026-07-22: research-only crypto-edge pipeline wrapper is ready for
-    independent review. `services.analytics.crypto_edge_research_pipeline` and
-    `scripts/research/run_crypto_edge_research_pipeline.py` orchestrate the
-    existing stored-data reports in one reproducible lane: funding-context
-    replay, archived OHLCV price join, and threshold sensitivity. It writes
-    artifacts under an explicit output directory, carries component hashes, and
-    remains report-only: no live fetches, strategy-config changes, campaign
-    starts, gate changes, portfolio PnL, promotion evidence, or profitability
-    claim.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
@@ -599,6 +708,12 @@ deployment work still needs independent review.
     arming tokens, and mirror the existing dead-man hardening pattern. Remaining
     proof is host-side: install/enable the timer, verify the collector's actual
     schedule, and show recent OKX snapshot timestamps.
+    2026-07-22: executable OKX source-decision guard is ready for independent
+    review. `tests/test_crypto_edge_source_decision_guard.py` pins the
+    read-only research scope, evidence basis, unresolved host/data unknowns,
+    hard boundaries, default collector-plan venues, and backlog/structural-doc
+    links. This is docs/test only and does not change collectors, strategy
+    context, promotion qualification, live routing, or execution behavior.
     2026-07-18 read-only Hetzner check recorded in
     `docs/checkpoints/hetzner_crypto_edge_runtime_gap_2026_07_18.md`:
     paper campaign status is healthy, but repo-local crypto-edge collection is
@@ -677,6 +792,16 @@ deployment work still needs independent review.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
+   2026-07-25: executable derivatives/intraday roadmap guard is ready for
+   independent review. `docs/research/derivatives_intraday_roadmap.md`
+   records the read-only/replay boundary, blocked execution surfaces, required
+   proof packet, and links to crypto-edge source, price-action, Databento, and
+   websocket boundary docs. `tests/test_derivatives_intraday_roadmap_guard.py`
+   pins that no derivatives execution, shorting, margin/leverage, live
+   intraday routing, strategy promotion, Databento ingestion, or campaign/gate
+   behavior is authorized by the roadmap. This is docs/test only and does not
+   change collectors, campaigns, gates, data ingestion, live routing, or
+   execution behavior.
 16. Complete Hetzner host follow-through before any canonical `.cbp_state`
     migration: reviewed Hetzner canonical campaign manifest, reviewed
     stop-copy-verify-start procedure, fresh current-host runtime payload
@@ -697,6 +822,15 @@ deployment work still needs independent review.
     commands from server commands.
 17. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
+    2026-07-22: LOW-risk alignment guard accepted for the script/operator map.
+    `make archive-walk-forward` and `make archive-parameter-sweep` now wrap the
+    existing research-only archive runners, `scripts/SCRIPTS.md` lists both
+    wrappers and points to `tests/test_script_index_alignment_guard.py`, and the
+    Makefile `script-index` target points operators to `docs/GOLDEN_PATH.md`
+    plus `scripts/SCRIPTS.md` instead of the stale `ls scripts/*.py` hint. The
+    new guard pins the daily-path/full-map boundary, item #17 backlog link,
+    root paper-collector authority, accepted research wrapper links, and key
+    canonical paper commands.
 18. Maintain the retired-family regression guard. `services/paper`,
     `services/marketdata`, `services/strategy`, `services/strategy_runner`, and
     `services/storage` are retired. Do not reintroduce those packages without a
@@ -1479,6 +1613,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    capped-live work: caller/migration audit for unwired stores, crash-consistency
    tests, backup/restore drill, and either transactional migration proof or an
    explicit accepted split-store risk decision.
+   2026-07-22: executable state-store consolidation decision guard is ready
+   for independent review. `tests/test_state_store_consolidation_decision_guard.py`
+   pins the no-migration boundary, current store authorities, long-term
+   transactional target, implementation consequences, capped-live accepted-risk
+   boundary, and follow-up requirements. This is docs/test only and does not
+   change storage schemas, migrations, runtime stores, or execution behavior.
    2026-07-13: position-truth resolution authority decision record is written
    in `docs/decisions/position_truth_resolution_authority.md`. It separates
    order truth (`_executor_reconcile`: what happened to an order) from
@@ -1512,6 +1652,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    families outside `data_dir()`, the secrets scan, and
    resume/idempotence proofs stay drill-time operator steps by design.
    Remaining: execute the drill on the host and file the evidence.
+   2026-07-22: executable full-state restore-drill contract guard is ready for
+   review. `tests/test_full_state_restore_drill_contract.py` pins that
+   `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` does not claim an executed host
+   drill, preserves required state-family coverage, documents
+   `backup_state.py` tooling guarantees, keeps secrets scan and
+   resume/idempotence as drill-time steps, preserves pass criteria, and links
+   the capped-live gate to `docs/LAUNCH_CHECKLIST.md`. This is docs/test only
+   and does not run backup/restore, mutate state, change tooling, or close the
+   required host drill evidence.
 9. Surface evidence-write failures in session status. If signal/fill evidence
    writes fail repeatedly while a campaign keeps running, operators should see a
    failure counter and the session should refuse after a bounded threshold
@@ -1573,6 +1722,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     per-venue skew, verdict; exit codes 0/1/2) as the launch-evidence
     artifact tool. Host-side NTP enforcement remains an operator/server
     task per `docs/CLOCK_VENUE_TIME_SANITY_POLICY.md`.
+    2026-07-22: executable clock/venue-time policy guard is ready for
+    independent review. `tests/test_clock_venue_time_policy_guard.py` pins
+    timestamp-sensitive evidence scope, required shadow cost-evidence checks,
+    capped-live launch-packet checks, and launch-checklist linkage. This is
+    docs/test only and does not change clock checking, live gating, status
+    output, or runtime behavior.
 12. Define the server secrets and rotation model before capped live. Current
     keyring/env handling is adequate for desktop/paper, but server operation
     needs a documented injection path, rotation procedure, and proof that
@@ -1599,6 +1754,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     Git SHA, dirty flag, requirement-file hashes, and verdicts. The policy doc
     is updated; hash-locked installs, SBOMs, and CI-gate decisions remain
     operator decisions.
+    2026-07-22: executable supply-chain release-policy guard is ready for
+    independent review. `tests/test_supply_chain_release_policy_guard.py` pins
+    the current paper/research boundary, capped-live launch-packet
+    requirements, accepted waiver fields, future gate options, and launch/CI
+    policy links. This is docs/test only and does not change CI, dependency
+    installation, release workflows, or branch protection.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
@@ -2035,6 +2196,13 @@ substrate work, but they are concrete enough to keep visible.
    both TODO-only placeholder modules after source import scan found no active
    importers; disposition is documented in
    `docs/architecture/runtime_stub_disposition.md`.
+   2026-07-25: executable runtime-stub disposition guard is ready for
+   independent review. `tests/test_runtime_stub_disposition_guard.py` pins that
+   `services/runtime/run_mode.py` and `services/runtime/bot_process.py` remain
+   absent, that production source under `services/` and `scripts/` does not
+   import those deleted module names, and that `services/runtime/README.md`
+   points future work at the disposition record instead of stale placeholders.
+   This is docs/test only; no runtime/process behavior changed.
 2. Reduce duplicate/twin modules that obscure which code guards money:
    `live_trader_fleet` versus `live_trader_multi`,
    `client_oid.py` versus `client_order_id.py`, and duplicate kill-switch /
@@ -2055,6 +2223,15 @@ substrate work, but they are concrete enough to keep visible.
    governed client-order-id builder, `client_oid.py` remains legacy/compat,
    and `live_trader_multi` / `live_trader_fleet` are duplicate dry-run legacy
    stubs that should not receive new live-execution features.
+   2026-07-25: executable safety-surface classification guard is ready for
+   independent review. `tests/test_safety_surface_classification_guard.py`
+   pins the backlog-linked classification doc, canonical client-order-id use
+   on governed live paths, legacy-only `client_oid.py` import boundaries,
+   dry-run/no-real-routing constraints for `live_trader_multi` and
+   `live_trader_fleet`, and the separate authority roles for operator
+   kill-switch, live-order safety probe, strategy cooldown, and canonical live
+   risk gates. This is docs/test only; no live, order, gate, strategy, or
+   runtime behavior changed.
 3. [DONE - folded into Active #11] Extend archive-first backtesting proof to
    include one walk-forward run over the archive producing enough
    out-of-sample windows to demonstrate research depth, not only
@@ -2169,6 +2346,14 @@ substrate work, but they are concrete enough to keep visible.
    candidate-advisor runtime bridge remains explicitly env-gated, and
    `open_interest_shift` is enforced as config-only/trade-disabled until it is
    registry-executable.
+   2026-07-22: executable strategy-selection authority decision guard is ready
+   for independent review.
+   `tests/test_strategy_selection_authority_decision_guard.py` pins configured
+   strategy identity as the only execution authority, advisory selector
+   boundaries, synthetic evidence-label boundaries, invariants, and the backlog
+   link to `docs/decisions/strategy_selection_authority_decision.md`. This is
+   docs/test only and does not change strategy selection, registry behavior,
+   campaign logic, or execution behavior.
 10. Classify storage orphan modules before more reconciliation work.
     Prior audits flagged unused SQLite stores such as fill reconciler,
     idempotency, and order-tracker variants. Confirm whether each is truly
@@ -2233,43 +2418,78 @@ substrate work, but they are concrete enough to keep visible.
     campaign, or promotion-gate use. Databento is explicitly deferred to a
     separate read-only data-source RFC because it adds API-key, metered-cost,
     dataset/schema, symbology, and futures/equities-style governance decisions.
-    2026-07-22: first research-only label tooling slice is ready for
-    independent review. `services.analytics.price_action_context_labels` and
-    `scripts/research/run_price_action_context_labels.py` build
-    dataset-hashed OHLCV-only price-action context artifacts from the accepted
-    market archive. Current labels cover engulfing candles, rejection wicks,
-    swing failures, break/retest, fair-value gaps, displacement bars,
-    manipulation-candidate labels, and opening-range state. The artifact is
-    explicitly `research_only`, `not_strategy_config`, `not_campaign_evidence`,
-    `not_promotion_evidence`, and `not_profitability_evidence`; volume profile
-    and Databento-backed labels remain deferred. Remaining before strategy use:
-    join labels to forward returns after costs, compare against an
-    unconditioned baseline, and review out-of-sample stability separately.
-    2026-07-22: price-action forward-return join slice is ready for
-    independent review. `services.analytics.price_action_forward_return_join`
-    and `scripts/research/run_price_action_forward_return_join.py` consume a
-    saved price-action label artifact and compute label-conditioned long and
-    short forward returns after explicit fee/slippage assumptions, compared
-    against the unconditioned baseline. This remains research-only: it does
-    not infer trade direction from labels, select/rank strategies, change
-    configs, start campaigns, or produce promotion evidence. Remaining before
-    strategy use: run on accepted archive artifacts, require sufficient
-    label counts, and review out-of-sample stability.
-    2026-07-22: price-action stability report slice is ready for independent
-    review. `services.analytics.price_action_stability_report` and
-    `scripts/research/run_price_action_stability_report.py` consume a saved
-    `price_action_forward_return_join_v1` artifact, split rows into
-    chronological windows, and report whether label-conditioned deltas persist
-    across windows. This remains descriptive research evidence only: it does
-    not select strategies, authorize confirmation filters, change configs,
-    start campaigns, or create promotion evidence.
-    2026-07-22: price-action research pipeline slice is ready for independent
-    review. `services.analytics.price_action_research_pipeline` and
-    `scripts/research/run_price_action_research_pipeline.py` orchestrate the
-    existing archive-label, forward-return, and stability report steps into one
-    read-only artifact set under an explicit output directory. This adds no new
-    analytics authority: it does not select strategies, authorize confirmation
-    filters, change configs, start campaigns, or create promotion evidence.
+    2026-07-22: first OHLCV-only price-action context extractor slice is ready
+    for review. `services/backtest/price_action_context.py` and
+    `scripts/research/run_price_action_context_labels.py` read only the
+    existing market OHLCV archive, refuse unavailable/incomplete archive data
+    instead of fetching live, and emit dataset-hashed research artifacts with
+    per-bar labels for engulfing candles, rejection wicks, swing failures,
+    break/retest, fair-value gaps, displacement bars, opening-range state,
+    acceptance/rejection context, and manipulation-candidate descriptions.
+    The artifact carries explicit limitation flags:
+    `research_only`, `not_strategy_config`, `not_campaign_evidence`,
+    `not_promotion_evidence`, and `not_profitability_evidence`. No strategy
+    config, campaign, gate, execution, or Databento path is changed. Remaining:
+    join labels to forward returns after modeled costs, measure stability
+    against unconditioned baselines, and require separate review before any
+    label becomes a confirmation filter.
+    2026-07-22: second research-only slice is ready for review.
+    `services/analytics/price_action_forward_returns.py` and
+    `scripts/research/run_price_action_forward_returns.py` join the archived
+    OHLCV labels to unit-size long/short forward returns after explicit
+    fee/slippage assumptions, produce unconditioned and per-label bucket
+    summaries, and include the cost assumptions in the artifact hash. This is
+    descriptive research output only: no position state, portfolio PnL,
+    strategy config, campaign evidence, promotion evidence, gate, execution, or
+    Databento path is changed. Remaining: run real archive reports across
+    multiple windows, compare label-conditioned returns against unconditioned
+    baselines for stability/sample size/false-positive rate, and require
+    separate review before any label becomes a confirmation filter.
+    2026-07-22: third research-only slice is ready for review.
+    `services/analytics/price_action_window_stability.py` and
+    `scripts/research/run_price_action_window_stability.py` compare
+    label-conditioned forward returns against unconditioned baselines across
+    fixed archive windows and summarize each label bucket's average delta plus
+    outperform/underperform window ratios. This remains stability triage only:
+    no activation, profitability, campaign, promotion, gate, execution, or
+    Databento claim is made. Remaining: run the reports on real multi-window
+    archives across relevant symbols/timeframes and require separate review
+    before any label influences a strategy confirmation filter.
+    2026-07-22: fourth research-only slice is ready for review.
+    `services/analytics/price_action_candidate_triage.py` and
+    `scripts/research/run_price_action_candidate_triage.py` consume the
+    multi-window stability artifact and apply explicit thresholds for windows,
+    sample size, average delta, outperform ratio, and underperform ratio. The
+    output ranks label/side pairs as `candidate_for_manual_review` or
+    `not_candidate`, carries false-positive proxy metadata, and keeps the hard
+    boundary: no activation, profitability, campaign, promotion, gate,
+    execution, strategy config, or Databento claim is made. Remaining: run real
+    archive triage across relevant symbols/timeframes and review thresholds
+    separately before any label becomes a confirmation-filter candidate.
+    2026-07-22: executable price-action research-boundary guard is ready for
+    independent review. `tests/test_price_action_research_boundary_guard.py`
+    pins research-only status, core OHLCV label scope, non-authority artifact
+    flags, data-source deferrals, acceptance-before-use requirements, and the
+    backlog link to `docs/research/pattern_strategy_backlog.md`. This is
+    docs/test only and does not change label generation, forward-return joins,
+    stability reports, strategy configs, campaigns, promotion gates, or
+    execution behavior.
+    2026-07-22: Databento read-only data-source RFC is ready for independent
+    review in `docs/research/databento_data_source_rfc.md`.
+    `tests/test_databento_data_source_rfc.py` pins the no-implementation
+    authorization, research-only scope, required decisions, hard boundaries,
+    acceptance criteria, and pattern/backlog links. This is docs/test only and
+    does not add credentials, dependencies, data fetches, campaign inputs,
+    promotion evidence, or execution behavior.
+    2026-07-25: read-only price-action research pipeline wrapper is ready for
+    independent review. `scripts/research/run_price_action_research_pipeline.py`
+    runs the accepted labels, forward-returns, window-stability, and
+    candidate-triage reports in sequence, writes each report plus a summary
+    manifest, and stops fail-closed when any step cannot produce an `ok=true`
+    artifact. `make price-action-research-pipeline` and `scripts/SCRIPTS.md`
+    expose the wrapper. This is research orchestration only; it does not change
+    labels, scoring, strategy config, campaigns, gates, data ingestion, live
+    routing, execution, or promotion evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
@@ -2343,6 +2563,13 @@ substrate work, but they are concrete enough to keep visible.
     completed/proof-ready implementation text from remaining operator evidence,
     read-only research/reporting, and the small set of genuinely high-risk
     capped-live coding objectives.
+    2026-07-22: executable backlog execution-lanes guard is ready for review.
+    `tests/test_backlog_execution_lanes_guard.py` pins
+    `REMAINING_TASKS.md` as the backlog source of truth, the four lane
+    definitions, the warning not to rebuild completed/proof-ready work,
+    high-risk no-mixed-batch boundaries, the same-lane batching rule, and the
+    current practical order. This is docs/test only and does not decide any
+    backlog item, authorize implementation, or change runtime behavior.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

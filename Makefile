@@ -122,6 +122,13 @@ status-paper-gate-qualification:
 status-paper-gate-qualification-json:
 	@$(PYTHON) scripts/report_paper_gate_qualification.py --json
 
+.PHONY: status-paper-gate-velocity status-paper-gate-velocity-json
+status-paper-gate-velocity:
+	$(PYTHON) scripts/report_paper_gate_velocity.py
+
+status-paper-gate-velocity-json:
+	@$(PYTHON) scripts/report_paper_gate_velocity.py --json
+
 status-paper-hetzner:
 	$(PYTHON) scripts/report_hetzner_paper_campaign_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --app-dir $(HETZNER_APP_DIR) --config $(HETZNER_PAPER_CAMPAIGN_CONFIG) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC)
 
@@ -218,7 +225,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill funding-context-price-join funding-threshold-sensitivity crypto-edge-strategy-readiness crypto-edge-research-pipeline price-action-context-labels price-action-forward-returns price-action-stability check-short-context-readiness
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill archive-walk-forward archive-parameter-sweep funding-context-price-join funding-threshold-sensitivity funding-threshold-window-stability funding-threshold-candidate-triage funding-threshold-stability-triage funding-threshold-research-pipeline archive-parameter-sweep-triage crypto-edge-strategy-readiness price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage price-action-research-pipeline check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
@@ -359,6 +366,14 @@ OHLCV_ARCHIVE_BACKFILL_ARGS ?=
 ohlcv-archive-backfill:
 	$(PYTHON) scripts/research/run_ohlcv_archive_backfill.py $(OHLCV_ARCHIVE_BACKFILL_ARGS)
 
+ARCHIVE_WALK_FORWARD_ARGS ?=
+archive-walk-forward:
+	$(PYTHON) scripts/research/run_archive_walk_forward.py $(ARCHIVE_WALK_FORWARD_ARGS)
+
+ARCHIVE_PARAMETER_SWEEP_ARGS ?=
+archive-parameter-sweep:
+	$(PYTHON) scripts/research/run_archive_parameter_sweep.py $(ARCHIVE_PARAMETER_SWEEP_ARGS)
+
 FUNDING_CONTEXT_PRICE_JOIN_ARGS ?=
 funding-context-price-join:
 	$(PYTHON) scripts/research/run_funding_context_price_join.py $(FUNDING_CONTEXT_PRICE_JOIN_ARGS)
@@ -367,13 +382,25 @@ FUNDING_THRESHOLD_SENSITIVITY_ARGS ?=
 funding-threshold-sensitivity:
 	$(PYTHON) scripts/research/run_funding_threshold_sensitivity.py $(FUNDING_THRESHOLD_SENSITIVITY_ARGS)
 
-CRYPTO_EDGE_STRATEGY_READINESS_ARGS ?=
-crypto-edge-strategy-readiness:
-	$(PYTHON) scripts/research/run_crypto_edge_strategy_readiness.py $(CRYPTO_EDGE_STRATEGY_READINESS_ARGS)
+FUNDING_THRESHOLD_WINDOW_STABILITY_ARGS ?=
+funding-threshold-window-stability:
+	$(PYTHON) scripts/research/run_funding_threshold_window_stability.py $(FUNDING_THRESHOLD_WINDOW_STABILITY_ARGS)
 
-CRYPTO_EDGE_RESEARCH_PIPELINE_ARGS ?=
-crypto-edge-research-pipeline:
-	$(PYTHON) scripts/research/run_crypto_edge_research_pipeline.py $(CRYPTO_EDGE_RESEARCH_PIPELINE_ARGS)
+FUNDING_THRESHOLD_CANDIDATE_TRIAGE_ARGS ?=
+funding-threshold-candidate-triage:
+	$(PYTHON) scripts/research/run_funding_threshold_candidate_triage.py $(FUNDING_THRESHOLD_CANDIDATE_TRIAGE_ARGS)
+
+FUNDING_THRESHOLD_STABILITY_TRIAGE_ARGS ?=
+funding-threshold-stability-triage:
+	$(PYTHON) scripts/research/run_funding_threshold_stability_triage.py $(FUNDING_THRESHOLD_STABILITY_TRIAGE_ARGS)
+
+FUNDING_THRESHOLD_RESEARCH_PIPELINE_ARGS ?=
+funding-threshold-research-pipeline:
+	$(PYTHON) scripts/research/run_funding_threshold_research_pipeline.py $(FUNDING_THRESHOLD_RESEARCH_PIPELINE_ARGS)
+
+ARCHIVE_PARAMETER_SWEEP_TRIAGE_ARGS ?=
+archive-parameter-sweep-triage:
+	$(PYTHON) scripts/research/run_archive_parameter_sweep_triage.py $(ARCHIVE_PARAMETER_SWEEP_TRIAGE_ARGS)
 
 PRICE_ACTION_CONTEXT_LABELS_ARGS ?=
 price-action-context-labels:
@@ -381,15 +408,23 @@ price-action-context-labels:
 
 PRICE_ACTION_FORWARD_RETURNS_ARGS ?=
 price-action-forward-returns:
-	$(PYTHON) scripts/research/run_price_action_forward_return_join.py $(PRICE_ACTION_FORWARD_RETURNS_ARGS)
+	$(PYTHON) scripts/research/run_price_action_forward_returns.py $(PRICE_ACTION_FORWARD_RETURNS_ARGS)
 
-PRICE_ACTION_STABILITY_ARGS ?=
-price-action-stability:
-	$(PYTHON) scripts/research/run_price_action_stability_report.py $(PRICE_ACTION_STABILITY_ARGS)
+PRICE_ACTION_WINDOW_STABILITY_ARGS ?=
+price-action-window-stability:
+	$(PYTHON) scripts/research/run_price_action_window_stability.py $(PRICE_ACTION_WINDOW_STABILITY_ARGS)
 
-PRICE_ACTION_PIPELINE_ARGS ?=
-price-action-pipeline:
-	$(PYTHON) scripts/research/run_price_action_research_pipeline.py $(PRICE_ACTION_PIPELINE_ARGS)
+PRICE_ACTION_CANDIDATE_TRIAGE_ARGS ?=
+price-action-candidate-triage:
+	$(PYTHON) scripts/research/run_price_action_candidate_triage.py $(PRICE_ACTION_CANDIDATE_TRIAGE_ARGS)
+
+PRICE_ACTION_RESEARCH_PIPELINE_ARGS ?=
+price-action-research-pipeline:
+	$(PYTHON) scripts/research/run_price_action_research_pipeline.py $(PRICE_ACTION_RESEARCH_PIPELINE_ARGS)
+
+CRYPTO_EDGE_STRATEGY_READINESS_ARGS ?=
+crypto-edge-strategy-readiness:
+	$(PYTHON) scripts/research/run_crypto_edge_strategy_readiness.py $(CRYPTO_EDGE_STRATEGY_READINESS_ARGS)
 
 # Live reconciliation (shadow/live stages)
 live-reconcile:
@@ -406,6 +441,7 @@ script-index:
 	@echo "=== Operational Scripts ==="
 	@echo "  make status-paper-all   — daily paper campaign check-in"
 	@echo "  make recover-paper-campaigns — guarded paper campaign recovery"
+	@echo "  make status-paper-gate-velocity — estimate paper gate completion velocity"
 	@echo "  make paper-run          — run paper campaign"
 	@echo "  make check-gates        — promotion gate status"
 	@echo "  make kill-switch-on/off — arm/disarm kill switch"
@@ -426,19 +462,27 @@ script-index:
 	@echo "  make funding-stage0-verify     — verify funding_extreme Stage 0 after proof"
 	@echo "  make funding-context-replay    — replay stored funding_extreme context signals"
 	@echo "  make ohlcv-archive-backfill    — backfill archived OHLCV for research"
+	@echo "  make archive-walk-forward      — run one archive-backed walk-forward"
+	@echo "  make archive-parameter-sweep   — run archive-backed parameter sweep"
 	@echo "  make funding-context-price-join — join funding context to archived OHLCV"
-	@echo "  make funding-threshold-sensitivity — run funding threshold sensitivity"
+	@echo "  make funding-threshold-sensitivity — test funding_extreme threshold grids"
+	@echo "  make funding-threshold-window-stability — compare funding threshold pairs across row windows"
+	@echo "  make funding-threshold-candidate-triage — rank funding threshold pairs for manual review"
+	@echo "  make funding-threshold-stability-triage — rank stability-tested funding threshold pairs"
+	@echo "  make funding-threshold-research-pipeline — run the funding threshold research report sequence"
+	@echo "  make archive-parameter-sweep-triage — rank sweep variants for manual review"
 	@echo "  make crypto-edge-strategy-readiness — report crypto-edge strategy wiring status"
-	@echo "  make crypto-edge-research-pipeline — run crypto-edge replay, price join, and sensitivity"
-	@echo "  make price-action-context-labels — build research-only OHLCV price-action labels"
+	@echo "  make price-action-context-labels — label archived OHLCV price-action context"
 	@echo "  make price-action-forward-returns — join price-action labels to forward returns"
-	@echo "  make price-action-stability — check price-action label stability by window"
-	@echo "  make price-action-pipeline — run labels, forward returns, and stability together"
+	@echo "  make price-action-window-stability — compare price-action labels across windows"
+	@echo "  make price-action-candidate-triage — rank price-action labels for manual review"
+	@echo "  make price-action-research-pipeline — run the price-action research report sequence"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"
 	@echo ""
-	@echo "Full script list: ls scripts/*.py"
+	@echo "Daily path: docs/GOLDEN_PATH.md"
+	@echo "Full script map: scripts/SCRIPTS.md"
 
 # Short paper run for development/testing (60s instead of 3600s)
 paper-run-short:
