@@ -25,6 +25,16 @@ def _print_report(payload: dict[str, Any]) -> None:
         f"actions={payload.get('action_count_total', 0)} "
         f"shown={payload.get('action_count_returned', 0)}"
     )
+    if payload.get("reason"):
+        print(f"reason={payload.get('reason')}")
+    if payload.get("reason") == "invalid_action_lane":
+        lanes = ",".join(str(item) for item in list(payload.get("available_action_lanes") or []))
+        print(f"available_action_lanes={lanes}")
+    if payload.get("source_reason"):
+        print(f"source_reason={payload.get('source_reason')}")
+    source_reasons = dict(payload.get("source_reasons") or {})
+    for key, value in sorted(source_reasons.items()):
+        print(f"source_reason:{key}={value}")
     for key in (
         "lane_filter",
         "reason_filter",
@@ -33,6 +43,7 @@ def _print_report(payload: dict[str, Any]) -> None:
         "research_pipeline_filter",
         "research_command_lane_filter",
         "research_command_input_class_filter",
+        "research_command_id_filter",
         "operator_proof_category_filter",
         "operator_proof_line_filter",
     ):
@@ -68,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-actions", type=int, default=20, help="Maximum actions to print or return")
     parser.add_argument(
         "--lane",
-        choices=("research_pipeline", "passive_operator_evidence", "operator_proof"),
+        choices=("backlog_lane", "research_pipeline", "research_command", "passive_operator_evidence", "operator_proof"),
         default=None,
         help="Limit output to one action lane",
     )
@@ -85,6 +96,11 @@ def main(argv: list[str] | None = None) -> int:
         "--research-command-input-class",
         default=None,
         help="Forward a research command input-class filter to the source bundle",
+    )
+    parser.add_argument(
+        "--research-command-id",
+        default=None,
+        help="Forward a research command_id filter to the source bundle",
     )
     parser.add_argument(
         "--operator-proof-category",
@@ -108,6 +124,7 @@ def main(argv: list[str] | None = None) -> int:
         research_pipeline=args.research_pipeline,
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,
+        research_command_id=args.research_command_id,
         operator_proof_category=args.operator_proof_category,
         operator_proof_line=args.operator_proof_line,
     )

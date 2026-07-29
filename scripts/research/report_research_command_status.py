@@ -27,6 +27,10 @@ def _print_report(payload: dict[str, Any]) -> None:
         print(f"lane_filter={payload.get('lane_filter')}")
     if payload.get("input_class_filter"):
         print(f"input_class_filter={payload.get('input_class_filter')}")
+    if payload.get("command_id_filter"):
+        print(f"command_id_filter={payload.get('command_id_filter')}")
+    if payload.get("reason"):
+        print(f"reason={payload.get('reason')}")
     summary = dict(payload.get("summary") or {})
     print(f"summary: wired={summary.get('wired', 0)} not_wired={summary.get('not_wired', 0)}")
     by_lane = dict(summary.get("by_lane") or {})
@@ -69,12 +73,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true", help="Output JSON")
     parser.add_argument("--lane", default=None, help="Limit output to one command lane")
     parser.add_argument("--input-class", default=None, help="Limit output to one input_class")
+    parser.add_argument("--command-id", default=None, help="Limit output to one command_id")
     args = parser.parse_args(argv)
 
     payload = build_research_command_status(
         repo_root=ROOT,
         lane=args.lane,
         input_class=args.input_class,
+        command_id=args.command_id,
     )
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))

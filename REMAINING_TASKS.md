@@ -2527,6 +2527,17 @@ substrate work, but they are concrete enough to keep visible.
     generate artifacts, or change research artifacts, strategy config,
     campaigns, gates, data ingestion, live routing, execution, or promotion
     evidence.
+    2026-07-29: research pipeline filter fail-closed behavior is ready for
+    independent review. Unknown `--pipeline` /
+    `RESEARCH_PIPELINE_STATUS_PIPELINE` values now return `ok=false`,
+    `reason=invalid_pipeline`, zero rows, and the accepted
+    `available_pipeline_ids`; operator-status and operator-next-actions
+    propagate the source reason when the same bad filter is forwarded. Valid
+    one-pipeline views still preserve source counts and latest artifact hashes.
+    This remains read-only status/reporting only and does not run research
+    jobs, fetch data, generate artifacts, or change research artifacts,
+    strategy config, campaigns, gates, data ingestion, live routing,
+    execution, or promotion evidence.
     2026-07-28: read-only research command status report is ready for
     independent review. `services.analytics.research_command_status` and
     `scripts/research/report_research_command_status.py` inventory accepted
@@ -2549,6 +2560,25 @@ substrate work, but they are concrete enough to keep visible.
     jobs, fetch data, generate artifacts, or change research artifacts,
     strategy config, campaigns, gates, data ingestion, live routing,
     execution, or promotion evidence.
+    2026-07-28: research command status action hints are ready for
+    independent review. Each command row now includes `action_required`,
+    `blocking_reason`, and `next_action` for script/SCRIPTS/Makefile wiring
+    drift; `operator_status_bundle` and `operator_next_actions` surface those
+    rows as a `research_command` action lane. Current repo output shows all
+    19 accepted research commands wired and zero research-command actions
+    required. This remains read-only status/reporting only and does not run
+    research jobs, fetch data, generate artifacts, or change research
+    artifacts, strategy config, campaigns, gates, data ingestion, live
+    routing, execution, or promotion evidence.
+    2026-07-29: research command exact-ID filtering is ready for independent
+    review. `research-command-status`, `operator-status`, and
+    `operator-next-actions` now accept a `command_id`/Make override to focus a
+    single accepted research command while preserving source counts and
+    fail-closing unknown command IDs as `invalid_command_id`. This remains
+    read-only status/reporting only and does not run research jobs, fetch data,
+    generate artifacts, or change research artifacts, strategy config,
+    campaigns, gates, data ingestion, live routing, execution, or promotion
+    evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
@@ -2767,6 +2797,34 @@ substrate work, but they are concrete enough to keep visible.
     lane alongside research pipeline and proof-marker actions. This remains
     read-only planning/status only and does not run research, campaigns,
     market-data fetches, proof closure, authorization, or runtime mutation.
+    2026-07-28: backlog-lane action hints are ready for independent review.
+    When a backlog lane filter is supplied, the operator status bundle exposes
+    each lane-map item as a `backlog_lanes` action row and
+    `operator-next-actions` surfaces them through the `backlog_lane` action
+    lane. Unfiltered default next-actions do not emit backlog-lane rows, so the
+    compact report is not flooded with all lane-map categories. This remains
+    read-only planning/status only; it does not decide backlog items, run
+    research/campaigns, fetch market data, close proof, authorize
+    implementation, or mutate runtime state.
+    2026-07-29: backlog-lane actionable item parsing is ready for independent
+    review. `backlog_lane_status` now separates `Recent examples:` bullets
+    from actionable lane items, reports example counts separately, and keeps
+    `operator-next-actions` from presenting already-completed examples (for
+    example backtest-to-paper parity) as next work. Current low-risk lane
+    output now shows 7 actionable items and 6 examples instead of 13 action
+    rows. This remains read-only planning/status only; it does not decide
+    backlog items, run research/campaigns, fetch market data, close proof,
+    authorize implementation, or mutate runtime state.
+    2026-07-29: operator next-actions function-level lane validation is ready
+    for independent review. The CLI already restricted `--lane`, but direct
+    Python callers could pass an unknown lane and receive an empty `ok=true`
+    result. `build_operator_next_actions()` now exposes
+    `available_action_lanes` and returns `ok=false`,
+    `reason=invalid_action_lane`, zero rows, and zero total actions for
+    unknown lane filters; valid lane filters are unchanged. This remains
+    read-only planning/status only and does not decide backlog items, run
+    research/campaigns, fetch market data, close proof, authorize
+    implementation, or mutate runtime state.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

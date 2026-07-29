@@ -28,6 +28,7 @@ def _print_report(payload: dict[str, Any]) -> None:
         "research_pipeline_filter",
         "research_command_lane_filter",
         "research_command_input_class_filter",
+        "research_command_id_filter",
         "operator_proof_category_filter",
         "operator_proof_line_filter",
     )
@@ -35,6 +36,9 @@ def _print_report(payload: dict[str, Any]) -> None:
     print(f"ok={bool(payload.get('ok'))}")
     if payload.get("reason"):
         print(f"reason={payload.get('reason')}")
+    source_reasons = dict(payload.get("source_reasons") or {})
+    for key, value in sorted(source_reasons.items()):
+        print(f"source_reason:{key}={value}")
     if section_filter:
         print(f"section_filter={section_filter}")
     for key in filter_keys:
@@ -49,7 +53,17 @@ def _print_report(payload: dict[str, Any]) -> None:
             f"passive={summary.get('passive_operator_items', 0)} "
             f"low={summary.get('low_risk_docs_tests', 0)} "
             f"medium={summary.get('medium_risk_runtime_read_only', 0)} "
-            f"high={summary.get('high_risk_gate_execution_deploy', 0)}"
+            f"high={summary.get('high_risk_gate_execution_deploy', 0)} "
+            f"actions_required={summary.get('backlog_lane_actions_required', 0)}"
+        )
+    for row in list(actions_payload.get("backlog_lanes") or [])[:5]:
+        if not isinstance(row, dict):
+            continue
+        print(
+            "backlog_action: "
+            f"#{row.get('ordinal')} "
+            f"{row.get('lane_key')} "
+            f"action={row.get('next_action')}"
         )
     if "research_pipeline_status" in reports:
         print(
@@ -74,7 +88,18 @@ def _print_report(payload: dict[str, Any]) -> None:
         print(
             "research_commands: "
             f"wired={summary.get('research_commands_wired', 0)} "
-            f"not_wired={summary.get('research_commands_not_wired', 0)}"
+            f"not_wired={summary.get('research_commands_not_wired', 0)} "
+            f"actions_required={summary.get('research_command_actions_required', 0)}"
+        )
+    for row in list(actions_payload.get("research_commands") or [])[:5]:
+        if not isinstance(row, dict):
+            continue
+        print(
+            "research_command_action: "
+            f"{row.get('command_id')} "
+            f"lane={row.get('lane')} "
+            f"reason={row.get('blocking_reason')} "
+            f"action={row.get('next_action')}"
         )
     if "operator_proof_status" in reports:
         print(
@@ -130,6 +155,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Forward an input_class filter to research command status",
     )
     parser.add_argument(
+        "--research-command-id",
+        default=None,
+        help="Forward a command_id filter to research command status",
+    )
+    parser.add_argument(
         "--operator-proof-category",
         default=None,
         help="Forward a category filter to operator proof status",
@@ -148,6 +178,7 @@ def main(argv: list[str] | None = None) -> int:
         research_pipeline=args.research_pipeline,
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,
+        research_command_id=args.research_command_id,
         operator_proof_category=args.operator_proof_category,
         operator_proof_line=args.operator_proof_line,
     )

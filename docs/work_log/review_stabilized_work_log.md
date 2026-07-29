@@ -27162,3 +27162,368 @@ Remaining risk:
   market-data fetch, proof closure, gate, ingestion, live routing, execution,
   authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T23:10:14Z - Research Command Action Hints
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk research/operator reporting lane by making research
+  command wiring drift actionable in the same compact operator report used for
+  research pipelines and proof markers.
+
+What was found:
+- SHOWN: `research_command_status` verified accepted research command script,
+  SCRIPTS, and Makefile wiring and already supported lane/input filters.
+- SHOWN: research command rows carried `reasons` on wiring drift but did not
+  expose `action_required`, `blocking_reason`, or `next_action`.
+- SHOWN: `operator_status_bundle` and `operator_next_actions` had action lanes
+  for research pipelines, passive operator evidence, and operator proof
+  markers, but not research-command wiring drift.
+
+What changed:
+- `research_command_status` rows now include `action_required`,
+  `blocking_reason`, and `next_action`; healthy rows report `next_action=none`.
+- `operator_status_bundle` exposes `actions.research_commands`, adds
+  `research_command_actions_required`, and includes research-command actions
+  when the `research_command` section is selected.
+- `operator_next_actions` converts those rows into a `research_command` action
+  lane and automatically narrows to that lane when research-command source
+  filters are used.
+- `report_operator_next_actions.py`, `report_operator_status_bundle.py`,
+  `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests were
+  updated.
+
+Why this change was chosen:
+- It keeps the research/reporting status stack consistent: every status source
+  with a detected repair condition can now feed a compact next-action row
+  without running research jobs or changing any campaign/gate/execution state.
+
+Expected outcome:
+- Operators can run `make operator-next-actions
+  OPERATOR_NEXT_ACTIONS_LANE=research_command` and immediately see any
+  research command wiring repair instead of opening the full command inventory.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `33 passed in 0.43s`.
+- `./.venv/bin/python -m py_compile services/analytics/research_command_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/research/report_research_command_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_research_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make research-command-status-json`
+  - SHOWN: `ok=true`, `command_count=19`, all rows
+    `action_required=false`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=research_command`
+  - SHOWN: `actions.research_commands=[]` and
+    `research_command_actions_required=0`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=research_command OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: `ok=true`, `action_count_total=0`, `actions=[]`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T23:15:06Z - Backlog Lane Action Hints
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by exposing filtered
+  backlog lane-map items as compact next-action rows without flooding default
+  check-ins.
+
+What was found:
+- SHOWN: `backlog_lane_status` reported lane-map counts and item text from
+  `docs/BACKLOG_EXECUTION_LANES.md`.
+- SHOWN: `operator_status_bundle` summarized backlog lane counts but had no
+  action rows for lane-map items.
+- SHOWN: default `operator-next-actions` already has high-signal action lanes;
+  emitting all 42 backlog lane-map items by default would be noisy.
+
+What changed:
+- `operator_status_bundle` now emits `actions.backlog_lanes` only when a
+  backlog lane filter is supplied, with lane key, ordinal, text, and
+  `next_action`.
+- `operator_next_actions` converts those rows into a `backlog_lane` action
+  lane and automatically narrows to it when `backlog_lane` source filtering is
+  used.
+- `report_operator_next_actions.py`, `report_operator_status_bundle.py`,
+  `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests were
+  updated.
+
+Why this change was chosen:
+- It lets the operator ask for the next safe batch in a specific lane and get
+  actionable rows, while preserving the compact default report for active
+  proofs and research repair work.
+
+Expected outcome:
+- Operators can run `make operator-next-actions
+  OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests` and get scoped
+  lane-map action rows without changing backlog classification or closing any
+  item.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backlog_lane_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `36 passed in 0.44s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make operator-status-json OPERATOR_STATUS_SECTION=backlog OPERATOR_STATUS_BACKLOG_LANE=low_risk_docs_tests`
+  - SHOWN: `actions.backlog_lanes` contains 13 low-risk lane items and
+    `backlog_lane_actions_required=13`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `action_count_total=13`, `action_count_returned=3`, and all shown
+    rows use lane `backlog_lane`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=backlog_lane OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `action_count_total=0`; unfiltered defaults do not flood the compact
+    report with backlog lane-map rows.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-29T20:34:53Z - Operator Next-Actions Function-Level Lane Guard
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by making direct
+  `build_operator_next_actions()` callers fail closed on unknown action-lane
+  filters.
+
+What was found:
+- SHOWN: `scripts/report_operator_next_actions.py` constrains `--lane` with
+  argparse choices.
+- SHOWN: direct Python callers can pass any lane string to
+  `build_operator_next_actions()`.
+- SHOWN: an unknown direct lane filter previously returned no rows while the
+  source bundle could still be healthy, creating an empty successful report.
+
+What changed:
+- `build_operator_next_actions()` now defines the accepted action lane set,
+  exposes it as `available_action_lanes`, and returns `ok=false`,
+  `reason=invalid_action_lane`, zero rows, and zero total actions for unknown
+  lane filters.
+- Text output prints the invalid reason and accepted lane set if this condition
+  is ever reached.
+- `REMAINING_TASKS.md` and regression tests were updated.
+
+Why this change was chosen:
+- The service layer should enforce the same input contract as the CLI so future
+  direct callers cannot mistake a typo for "no work remains."
+
+Expected outcome:
+- Invalid action-lane filters are explicit failures everywhere, while valid
+  CLI/Make usage remains unchanged.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `34 passed in 0.35s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -c "from services.analytics.operator_next_actions import build_operator_next_actions; import json; out=build_operator_next_actions(lane='research'); print(json.dumps({k: out.get(k) for k in ('ok','reason','available_action_lanes','lane_filter','action_count_total','actions')}, sort_keys=True))"`
+  - SHOWN: `ok=false`, `reason=invalid_action_lane`,
+    `action_count_total=0`, and no actions.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=research_pipeline OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `ok=true`, `lane_filter=research_pipeline`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-29T20:23:14Z - Research Command Exact-ID Filter
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk research/operator reporting lane by allowing exact
+  inspection of one accepted research command without scanning all 19 command
+  rows.
+
+What was found:
+- SHOWN: `research_command_status` already supported lane and input-class
+  filters and emitted source-count summaries.
+- SHOWN: no exact `command_id` filter existed for direct command inspection.
+- SHOWN: `operator_status_bundle` and `operator_next_actions` could forward
+  research command lane/input filters but not a single command identifier.
+
+What changed:
+- `research_command_status` now accepts `command_id`, returns
+  `command_id_filter`, exposes `available_command_ids`, and fails closed with
+  `reason=invalid_command_id` for unknown IDs.
+- `report_research_command_status.py`, `operator_status_bundle`,
+  `operator_next_actions`, and their CLIs/Make overrides now forward the
+  exact command-id filter.
+- `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests were
+  updated.
+
+Why this change was chosen:
+- It makes command-level research wiring checks cheap and unambiguous while
+  preserving the read-only/no-execution boundary.
+
+Expected outcome:
+- Operators can run `make research-command-status-json
+  RESEARCH_COMMAND_STATUS_COMMAND_ID=funding_threshold_pipeline` or pass the
+  same command through operator status/next-actions filters to inspect exactly
+  one accepted research command.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `37 passed in 0.43s`.
+- `./.venv/bin/python -m py_compile services/analytics/research_command_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/research/report_research_command_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_research_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `make research-command-status-json RESEARCH_COMMAND_STATUS_COMMAND_ID=funding_threshold_pipeline`
+  - SHOWN: `ok=true`, `command_count=1`, command
+    `funding_threshold_pipeline`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=research_command OPERATOR_STATUS_RESEARCH_COMMAND_ID=funding_threshold_pipeline`
+  - SHOWN: `ok=true`, `research_command_id_filter=funding_threshold_pipeline`,
+    and `research_commands_wired=1`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID=funding_threshold_pipeline OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `ok=true`, `research_command_id_filter=funding_threshold_pipeline`,
+    and no repair action for the healthy command.
+- `make research-command-status-json RESEARCH_COMMAND_STATUS_COMMAND_ID=missing_command`
+  - SHOWN: exit 2, `ok=false`, `reason=invalid_command_id`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No research job,
+  campaign, market-data fetch, artifact generation, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-29T20:32:41Z - Backlog Lane Actionable Items vs Examples
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by preventing completed
+  lane-map examples from being emitted as actionable next work.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` includes actionable lane bullets and
+  a separate `Recent examples:` list.
+- SHOWN: `backlog_lane_status` parsed all bullets in a lane section the same
+  way, so completed examples such as backtest-to-paper fill parity appeared in
+  `operator-next-actions` as next work.
+- SHOWN: the real low-risk next-actions output returned 13 rows before the
+  fix, mixing 7 actionable lane items with 6 examples.
+
+What changed:
+- `backlog_lane_status` now separates actionable lane bullets from `Recent
+  examples:` bullets.
+- The JSON report exposes `example_count`/`examples` per lane plus total/source
+  example counts.
+- `report_backlog_lane_status.py` prints example counts.
+- `operator-next-actions` automatically benefits because it already builds
+  backlog-lane action rows from `lane.items`, not examples.
+- `REMAINING_TASKS.md` and regression tests were updated.
+
+Why this change was chosen:
+- The lane map is used to choose batches. Presenting already-completed examples
+  as actions caused duplicate-work risk and wasted review/coding effort.
+
+Expected outcome:
+- Filtered backlog-lane next-actions list only actionable lane categories, while
+  completed examples remain visible as examples in the source lane report.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backlog_lane_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `40 passed in 0.40s`.
+- `./.venv/bin/python -m py_compile services/analytics/backlog_lane_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_backlog_lane_status.py tests/test_backlog_lane_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make backlog-lane-status-json BACKLOG_LANE_STATUS_LANE=low_risk_docs_tests`
+  - SHOWN: `total_item_count=7`, `total_example_count=6`, and examples include
+    completed parity/source-decision items.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: `action_count_total=7`; completed examples are not emitted as
+    action rows.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-29T20:29:05Z - Research Pipeline Filter Fail-Closed Status
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk research/operator reporting lane by making unknown
+  research pipeline filters explicit failures instead of empty successful
+  reports.
+
+What was found:
+- SHOWN: `research_pipeline_status` accepted a `pipeline` filter.
+- SHOWN: an unknown pipeline ID filtered the accepted pipeline list to zero
+  rows, and `all([])` made `ok=true`.
+- SHOWN: `operator_status_bundle` and `operator_next_actions` already forwarded
+  research pipeline filters, so the same ambiguous empty-success result could
+  surface in check-in tooling.
+
+What changed:
+- `research_pipeline_status` now exposes `available_pipeline_ids` and returns
+  `ok=false`, `reason=invalid_pipeline`, and zero rows for unknown pipeline
+  IDs.
+- `report_research_pipeline_status.py` prints the invalid reason and accepted
+  pipeline IDs.
+- `operator_status_bundle` now exposes nested source-report reasons, and
+  `operator_next_actions` carries them through as `source_reasons`.
+- `scripts/SCRIPTS.md` now lists the existing
+  `OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID` override that the previous batch
+  had added to Makefile/CLI behavior.
+- `REMAINING_TASKS.md` and regression tests were updated.
+
+Why this change was chosen:
+- A focused status command should not report success for an identifier outside
+  the accepted pipeline registry. Failing closed keeps operator check-ins
+  unambiguous without running research or changing pipeline artifacts.
+
+Expected outcome:
+- Operators can use valid one-pipeline views normally, while typoed or unknown
+  pipeline IDs exit 2 with `reason=invalid_pipeline` at the source, bundle, and
+  next-actions layers.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_pipeline_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `40 passed in 0.49s`.
+- `./.venv/bin/python -m py_compile services/analytics/research_pipeline_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/research/report_research_pipeline_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_research_pipeline_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make research-pipeline-status-json RESEARCH_PIPELINE_STATUS_PIPELINE=price_action`
+  - SHOWN: `ok=true`, `pipeline_count=1`, pipeline `price_action`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=research_pipeline OPERATOR_STATUS_RESEARCH_PIPELINE=price_action`
+  - SHOWN: `ok=true`, `research_pipeline_filter=price_action`, and
+    `research_pipelines_wired=1`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE=price_action OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `ok=true`, `research_pipeline_filter=price_action`, and no actions
+    for the healthy pipeline.
+- `make research-pipeline-status-json RESEARCH_PIPELINE_STATUS_PIPELINE=missing_pipeline`
+  - SHOWN: exit 2, `ok=false`, `reason=invalid_pipeline`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=research_pipeline OPERATOR_STATUS_RESEARCH_PIPELINE=missing_pipeline`
+  - SHOWN: exit 2, `source_reasons.research_pipeline_status=invalid_pipeline`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE=missing_pipeline OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: exit 2, `source_reasons.research_pipeline_status=invalid_pipeline`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No research job,
+  campaign, market-data fetch, artifact generation, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

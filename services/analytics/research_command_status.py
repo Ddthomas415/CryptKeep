@@ -190,6 +190,13 @@ def _row(
         reasons.append("script_index_missing")
     if not make_target_exists:
         reasons.append("make_target_missing")
+    blocking_reason = reasons[0] if reasons else None
+    next_action = (
+        f"repair research command wiring for {spec.command_id}: "
+        + ", ".join(reasons)
+        if reasons
+        else "none"
+    )
     return {
         "command_id": spec.command_id,
         "script": spec.script,
@@ -202,6 +209,9 @@ def _row(
         "make_target_exists": make_target_exists,
         "wiring_ok": wiring_ok,
         "reasons": reasons,
+        "blocking_reason": blocking_reason,
+        "next_action": next_action,
+        "action_required": blocking_reason is not None,
     }
 
 
@@ -218,28 +228,35 @@ def build_research_command_status(
     repo_root: str | Path | None = None,
     lane: str | None = None,
     input_class: str | None = None,
+    command_id: str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     lane_filter = str(lane or "").strip()
     input_filter = str(input_class or "").strip()
+    command_filter = str(command_id or "").strip()
     makefile_text = _read_text(root / "Makefile")
     scripts_text = _read_text(root / "scripts" / "SCRIPTS.md")
     all_rows = [
         _row(root, spec, makefile_text=makefile_text, scripts_text=scripts_text)
         for spec in RESEARCH_COMMANDS
     ]
+    valid_command_filter = not command_filter or any(
+        row.get("command_id") == command_filter for row in all_rows
+    )
     rows = all_rows
     if lane_filter:
         rows = [row for row in rows if row.get("lane") == lane_filter]
     if input_filter:
         rows = [row for row in rows if row.get("input_class") == input_filter]
+    if command_filter:
+        rows = [row for row in rows if row.get("command_id") == command_filter]
     wired = sum(1 for row in rows if bool(row.get("wiring_ok")))
     source_wired = sum(1 for row in all_rows if bool(row.get("wiring_ok")))
     return {
         "schema_version": 1,
         "report_type": "research_command_status",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "ok": wired == len(rows),
+        "ok": valid_command_filter and wired == len(rows),
         "read_only": True,
         "not_research_execution": True,
         "not_campaign_evidence": True,
@@ -248,6 +265,9 @@ def build_research_command_status(
         "repo_root": str(root),
         "lane_filter": lane_filter or None,
         "input_class_filter": input_filter or None,
+        "command_id_filter": command_filter or None,
+        "available_command_ids": [str(row.get("command_id") or "") for row in all_rows],
+        "reason": None if valid_command_filter else "invalid_command_id",
         "makefile_sha256": _sha256(root / "Makefile"),
         "script_index_sha256": _sha256(root / "scripts" / "SCRIPTS.md"),
         "command_count": len(rows),
