@@ -27349,6 +27349,62 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T20:32:41Z - Backlog Lane Actionable Items vs Examples
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by preventing completed
+  lane-map examples from being emitted as actionable next work.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` includes actionable lane bullets and
+  a separate `Recent examples:` list.
+- SHOWN: `backlog_lane_status` parsed all bullets in a lane section the same
+  way, so completed examples such as backtest-to-paper fill parity appeared in
+  `operator-next-actions` as next work.
+- SHOWN: the real low-risk next-actions output returned 13 rows before the
+  fix, mixing 7 actionable lane items with 6 examples.
+
+What changed:
+- `backlog_lane_status` now separates actionable lane bullets from `Recent
+  examples:` bullets.
+- The JSON report exposes `example_count`/`examples` per lane plus total/source
+  example counts.
+- `report_backlog_lane_status.py` prints example counts.
+- `operator-next-actions` automatically benefits because it already builds
+  backlog-lane action rows from `lane.items`, not examples.
+- `REMAINING_TASKS.md` and regression tests were updated.
+
+Why this change was chosen:
+- The lane map is used to choose batches. Presenting already-completed examples
+  as actions caused duplicate-work risk and wasted review/coding effort.
+
+Expected outcome:
+- Filtered backlog-lane next-actions list only actionable lane categories, while
+  completed examples remain visible as examples in the source lane report.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backlog_lane_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `40 passed in 0.40s`.
+- `./.venv/bin/python -m py_compile services/analytics/backlog_lane_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_backlog_lane_status.py tests/test_backlog_lane_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make backlog-lane-status-json BACKLOG_LANE_STATUS_LANE=low_risk_docs_tests`
+  - SHOWN: `total_item_count=7`, `total_example_count=6`, and examples include
+    completed parity/source-decision items.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: `action_count_total=7`; completed examples are not emitted as
+    action rows.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T20:29:05Z - Research Pipeline Filter Fail-Closed Status
 
 Active role: ENGINEER

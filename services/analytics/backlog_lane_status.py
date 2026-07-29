@@ -29,6 +29,8 @@ class LaneSummary:
     name: str
     item_count: int
     items: tuple[str, ...]
+    example_count: int = 0
+    examples: tuple[str, ...] = ()
 
 
 def _read_text(path: Path) -> str:
@@ -81,9 +83,26 @@ def _bullet_items(section: str) -> tuple[str, ...]:
     return tuple(item for item in items if item)
 
 
+def _split_examples(section: str) -> tuple[str, str]:
+    marker = "\nRecent examples:"
+    if marker not in section:
+        return section, ""
+    action_items, examples = section.split(marker, 1)
+    return action_items, examples
+
+
 def _lane_summary(text: str, heading: str) -> LaneSummary:
-    items = _bullet_items(_section(text, heading))
-    return LaneSummary(name=heading, item_count=len(items), items=items)
+    section = _section(text, heading)
+    action_section, example_section = _split_examples(section)
+    items = _bullet_items(action_section)
+    examples = _bullet_items(example_section)
+    return LaneSummary(
+        name=heading,
+        item_count=len(items),
+        items=items,
+        example_count=len(examples),
+        examples=examples,
+    )
 
 
 def build_backlog_lane_status(
@@ -142,8 +161,10 @@ def build_backlog_lane_status(
         "backlog_links_lane_doc": backlog_links_lane_doc,
         "lane_count": len(lanes),
         "total_item_count": sum(lane.item_count for lane in lanes),
+        "total_example_count": sum(lane.example_count for lane in lanes),
         "source_lane_count": len(source_lanes),
         "source_total_item_count": sum(lane.item_count for lane in source_lanes),
+        "source_total_example_count": sum(lane.example_count for lane in source_lanes),
         "missing_lanes": missing_lanes,
         "reason": None if valid_lane_filter else "invalid_lane",
         "lanes": [
@@ -151,6 +172,8 @@ def build_backlog_lane_status(
                 "name": lane.name,
                 "item_count": lane.item_count,
                 "items": list(lane.items),
+                "example_count": lane.example_count,
+                "examples": list(lane.examples),
             }
             for lane in lanes
         ],
