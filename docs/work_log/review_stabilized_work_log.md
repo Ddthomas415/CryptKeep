@@ -27434,6 +27434,52 @@ Remaining risk:
   routing, execution, authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T22:29:58Z - Explicit Single-Symbol Paper-Gate Policy Documentation
+
+Active role: ENGINEER
+
+Objective:
+- Execute the selected low-risk docs/tests lane item: explicit single-symbol or
+  multi-symbol policy documentation when no gate code is changed.
+
+What was found:
+- SHOWN: `docs/strategies/paper_universe_widening_decision_2026-07-04.md`
+  already blocks widening the canonical `es_daily_trend_v1` paper universe.
+- SHOWN: the doc required symbol-aware counting or explicit single-symbol-only
+  policy before cross-symbol fills count, but did not state the current policy
+  as a direct sentence.
+
+What changed:
+- Added the explicit current policy: canonical promotion evidence is
+  single-symbol-only until a reviewed reconsideration packet changes it.
+- Clarified that multi-symbol paper runs may be separate research/challenger
+  evidence but must not contribute round trips to the canonical
+  `es_daily_trend_v1` promotion gate.
+- Updated `tests/test_paper_universe_widening_decision.py` to pin the policy.
+- Added the matching backlog note.
+
+Why this change was chosen:
+- This resolves the policy ambiguity without touching promotion-gate code or
+  changing any campaign behavior.
+
+Expected outcome:
+- Operators can run separate multi-symbol research/challenger work without
+  accidentally treating those round trips as canonical promotion evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_universe_widening_decision.py tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: `11 passed in 0.16s`.
+- `./.venv/bin/python -m py_compile tests/test_paper_universe_widening_decision.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/tests only. No runtime code changed; no backlog item is decided or
+  closed; no campaign, market-data fetch, proof closure, gate, ingestion, live
+  routing, execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T21:52:19Z - Operator Reporting Backlog/Work-Log Synchronization Guard
 
 Active role: ENGINEER
