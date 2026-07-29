@@ -27685,6 +27685,44 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T22:53:53Z - Operator Event Journal CI Assertion Stabilization
+
+Active role: ENGINEER
+
+Objective:
+- Stabilize the operator event journal redaction test that failed in GitHub CI
+  for PR #468.
+
+What was found:
+- SHOWN: CI failed
+  `tests/test_operator_event_journal.py::test_operator_event_journal_redacts_sensitive_payload_fields`
+  because the assertion searched the whole serialized event for `"abc"`.
+- SHOWN: the failing CI event UUID contained `abc`, so the assertion was
+  checking randomized metadata instead of only the sensitive payload values.
+
+What changed:
+- The test now supplies a deterministic event id and checks that the exact
+  sensitive values are absent after redaction.
+
+Why this change was chosen:
+- The test should verify redaction semantics without depending on random UUID
+  contents.
+
+Expected outcome:
+- PR #468 CI validates the redaction contract deterministically.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_event_journal.py`
+  - SHOWN: `5 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_reporting_read_only_contract.py tests/test_operator_reporting_backlog_worklog_sync.py tests/test_operator_event_journal.py`
+  - SHOWN: `8 passed`.
+
+Remaining risk:
+- LOW: test-only stabilization plus work-log note. No runtime code, campaign,
+  market-data fetch, gate, execution, authorization, or storage behavior
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T21:18:54Z - Operator Backlog-Lane Ordinal Action Filter
 
 Active role: ENGINEER

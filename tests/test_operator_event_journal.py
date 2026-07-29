@@ -44,9 +44,10 @@ def test_operator_event_journal_redacts_sensitive_payload_fields():
         action="rotate_secret",
         target="coinbase_key",
         result="success",
-        pre_state={"api_key": "old", "nested": {"token": "abc", "safe": "ok"}},
-        post_state={"secret": "new"},
+        pre_state={"api_key": "old-api-value", "nested": {"token": "old-token-value", "safe": "ok"}},
+        post_state={"secret": "new-secret-value"},
         extra={"password_hint": "bad", "public_note": "kept"},
+        event_id="redaction-test-event",
     )
 
     assert event["pre_state"]["api_key"] == "<redacted>"
@@ -55,8 +56,10 @@ def test_operator_event_journal_redacts_sensitive_payload_fields():
     assert event["post_state"]["secret"] == "<redacted>"
     assert event["extra"]["password_hint"] == "<redacted>"
     assert event["extra"]["public_note"] == "kept"
-    assert "old" not in json.dumps(event)
-    assert "abc" not in json.dumps(event)
+    encoded = json.dumps(event)
+    assert "old-api-value" not in encoded
+    assert "old-token-value" not in encoded
+    assert "new-secret-value" not in encoded
 
 
 def test_operator_event_journal_rejects_missing_required_identity():
