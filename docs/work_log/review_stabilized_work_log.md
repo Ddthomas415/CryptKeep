@@ -27339,6 +27339,99 @@ Remaining risk:
   authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T21:49:22Z - Operator Reporting Read-Only Contract Regression Guard
+
+Active role: ENGINEER
+
+Objective:
+- Execute the selected low-risk docs/tests lane item: regression tests that
+  lock existing behavior without changing runtime code.
+
+What was found:
+- SHOWN: operator planning reports already expose read-only/planning-only and
+  non-mutating contract fields.
+- SHOWN: research status reports already expose fields declaring they are not
+  campaign evidence, execution inputs, or promotion evidence.
+- SHOWN: those contracts were covered piecemeal, but not by one cross-report
+  regression guard.
+
+What changed:
+- Added `tests/test_operator_reporting_read_only_contract.py`.
+- The guard pins that backlog, proof, status-bundle, and next-actions reports
+  remain read-only/planning-only/non-mutating planning surfaces.
+- The guard pins that research pipeline/command status reports remain
+  read-only and not campaign evidence, execution inputs, or promotion evidence.
+- Added the matching backlog note.
+
+Why this change was chosen:
+- The next-action tooling is being used to drive fast batch selection. A
+  cross-report contract test keeps those planning reports from silently gaining
+  runtime authority.
+
+Expected outcome:
+- Future changes that turn operator status/reporting into a mutating or
+  evidence-bearing surface fail in a focused test before review.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_reporting_read_only_contract.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_research_pipeline_status.py tests/test_research_command_status.py tests/test_backlog_lane_status.py tests/test_operator_proof_status.py`
+  - SHOWN: `58 passed in 0.71s`.
+- `./.venv/bin/python -m py_compile tests/test_operator_reporting_read_only_contract.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: tests/backlog/work-log only. No runtime code changed; no backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-29T21:52:19Z - Operator Reporting Backlog/Work-Log Synchronization Guard
+
+Active role: ENGINEER
+
+Objective:
+- Execute the selected low-risk docs/tests lane item: work-log/backlog
+  synchronization.
+
+What was found:
+- SHOWN: the recent operator-reporting batches each added backlog and work-log
+  entries.
+- SHOWN: there was no focused regression guard tying those paired entries
+  together for future cleanup.
+
+What changed:
+- Added `tests/test_operator_reporting_backlog_worklog_sync.py`.
+- The guard pins that the operator-reporting backlog notes have matching
+  work-log entries for the ordinal filter, exact selector refresh, read-only
+  checklist, read-only contract guard, and this synchronization guard.
+- Added the matching backlog note.
+
+Why this change was chosen:
+- The current low-risk workflow uses backlog and work-log notes as the audit
+  trail for fast batches. A small sync guard prevents one side from being
+  edited without the other during later cleanup.
+
+Expected outcome:
+- Future edits that accidentally drop the backlog note or work-log entry for
+  these operator-reporting batches fail in a focused docs/test guard.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_reporting_backlog_worklog_sync.py tests/test_operator_reporting_read_only_contract.py tests/test_operator_governance_lanes.py tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: `14 passed in 0.39s`.
+- `./.venv/bin/python -m py_compile tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: tests/backlog/work-log only. No runtime code changed; no backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T21:23:53Z - Read-Only Batch Checklist Refinement
 
 Active role: ENGINEER
@@ -27553,6 +27646,44 @@ Remaining risk:
   is read-only/planning-only and does not run commands, campaigns,
   market-data fetches, proof closure, authorization, gates, execution, or
   runtime mutation.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-29T22:53:53Z - Operator Event Journal CI Assertion Stabilization
+
+Active role: ENGINEER
+
+Objective:
+- Stabilize the operator event journal redaction test that failed in GitHub CI
+  for PR #468.
+
+What was found:
+- SHOWN: CI failed
+  `tests/test_operator_event_journal.py::test_operator_event_journal_redacts_sensitive_payload_fields`
+  because the assertion searched the whole serialized event for `"abc"`.
+- SHOWN: the failing CI event UUID contained `abc`, so the assertion was
+  checking randomized metadata instead of only the sensitive payload values.
+
+What changed:
+- The test now supplies a deterministic event id and checks that the exact
+  sensitive values are absent after redaction.
+
+Why this change was chosen:
+- The test should verify redaction semantics without depending on random UUID
+  contents.
+
+Expected outcome:
+- PR #468 CI validates the redaction contract deterministically.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_event_journal.py`
+  - SHOWN: `5 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_reporting_read_only_contract.py tests/test_operator_reporting_backlog_worklog_sync.py tests/test_operator_event_journal.py`
+  - SHOWN: `8 passed`.
+
+Remaining risk:
+- LOW: test-only stabilization plus work-log note. No runtime code, campaign,
+  market-data fetch, gate, execution, authorization, or storage behavior
+  changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## 2026-07-29T21:18:54Z - Operator Backlog-Lane Ordinal Action Filter
