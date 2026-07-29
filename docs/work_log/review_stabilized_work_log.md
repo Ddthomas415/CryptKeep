@@ -27339,6 +27339,52 @@ Remaining risk:
   authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T21:23:53Z - Read-Only Batch Checklist Refinement
+
+Active role: ENGINEER
+
+Objective:
+- Execute the selected low-risk docs/tests lane item: read-only checklist
+  refinements.
+
+What was found:
+- SHOWN: `docs/OPERATOR_GOVERNANCE_LANES.md` defined low/medium/high risk
+  lanes and the operator attention cap.
+- SHOWN: the doc did not yet provide a compact pre-batch checklist for
+  verifying that a proposed low-risk or read-only batch stays out of runtime,
+  gate, execution, auth, secrets, migration, and background-job surfaces.
+
+What changed:
+- Added a `Read-Only Batch Checklist` to `docs/OPERATOR_GOVERNANCE_LANES.md`.
+- The checklist requires naming the exact backlog item/report, confirming the
+  diff avoids high-risk surfaces, confirming read-only/planning-only behavior,
+  running narrow tests plus `git diff --check`, and recording the work log.
+- Added `tests/test_operator_governance_lanes.py` coverage so the checklist and
+  stricter AGENTS.md fallback do not silently disappear.
+- Added the matching backlog note.
+
+Why this change was chosen:
+- It turns the existing lane policy into a concrete preflight for fast local
+  batches without relaxing high-risk review requirements.
+
+Expected outcome:
+- Low-risk/read-only batch work can proceed faster while still stopping or
+  splitting when a proposed change crosses into high-risk surfaces.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_governance_lanes.py tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: `11 passed in 0.17s`.
+- `./.venv/bin/python -m py_compile tests/test_operator_governance_lanes.py tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/tests only. No backlog item is decided or closed; no campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T20:34:53Z - Operator Next-Actions Function-Level Lane Guard
 
 Active role: ENGINEER
