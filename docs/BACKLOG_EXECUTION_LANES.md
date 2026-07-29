@@ -40,6 +40,14 @@ their remaining text in `REMAINING_TASKS.md` as either operational proof,
 review/merge follow-through, or deferred capped-live work according to the
 specific item note.
 
+Refresh note, 2026-07-29:
+
+Operator reporting now supports a deterministic selector for low-risk lane
+work: `make operator-next-actions-json` with `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE`
+and `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL`. Use that selector to name the
+exact lane item before opening another implementation batch. Invalid selectors
+fail closed instead of returning an empty successful plan.
+
 ### Passive / Operator Evidence
 
 These tasks cannot be completed by local code changes alone:
@@ -153,7 +161,9 @@ Safe batching order:
 
 Recommended next action:
 
-- If coding locally: pick one low-risk docs/tests cleanup or one read-only
+- If coding locally: select one exact low-risk lane item with
+  `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=<lane>
+  OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL=<n>` or select one read-only
   research report, then verify narrowly.
 - If advancing production readiness: run the operator proofs instead of opening
   another code batch.

@@ -27289,6 +27289,56 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T21:22:00Z - Backlog Lane Map Exact Selector Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Keep the lane-map governance doc aligned with the exact backlog-lane selector
+  workflow now available in operator next-actions reporting.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` already says to pick one low-risk
+  docs/tests cleanup or read-only report for local code work.
+- SHOWN: after the ordinal-filter batch, the repo has a machine-checkable way
+  to select one exact backlog lane item with
+  `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE` and
+  `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL`.
+- SHOWN: the lane-map did not yet name that selector in the practical next-step
+  instructions.
+
+What changed:
+- Added a 2026-07-29 refresh note to `docs/BACKLOG_EXECUTION_LANES.md`
+  documenting the exact selector and the fail-closed invalid-selector behavior.
+- Updated the recommended local coding step to select one exact low-risk lane
+  item with the operator next-actions selector before opening another batch.
+- Added `tests/test_backlog_execution_lanes_guard.py` coverage so the selector
+  command variables and fail-closed wording do not silently disappear.
+- Added the matching backlog note.
+
+Why this change was chosen:
+- This keeps batch selection concrete and prevents broad "next batch" work from
+  drifting into mixed-risk scope. It is documentation/test-only and consumes no
+  runtime authority.
+
+Expected outcome:
+- Future low-risk batches can be selected by exact lane ordinal, while invalid
+  selectors are treated as planning failures rather than successful empty work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backlog_execution_lanes_guard.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `14 passed in 0.17s`.
+- `./.venv/bin/python -m py_compile tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/tests only. No backlog item is decided or closed; no campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T20:34:53Z - Operator Next-Actions Function-Level Lane Guard
 
 Active role: ENGINEER
