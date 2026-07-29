@@ -27225,3 +27225,66 @@ Remaining risk:
   market-data fetch, proof closure, gate, ingestion, live routing, execution,
   authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T23:15:06Z - Backlog Lane Action Hints
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by exposing filtered
+  backlog lane-map items as compact next-action rows without flooding default
+  check-ins.
+
+What was found:
+- SHOWN: `backlog_lane_status` reported lane-map counts and item text from
+  `docs/BACKLOG_EXECUTION_LANES.md`.
+- SHOWN: `operator_status_bundle` summarized backlog lane counts but had no
+  action rows for lane-map items.
+- SHOWN: default `operator-next-actions` already has high-signal action lanes;
+  emitting all 42 backlog lane-map items by default would be noisy.
+
+What changed:
+- `operator_status_bundle` now emits `actions.backlog_lanes` only when a
+  backlog lane filter is supplied, with lane key, ordinal, text, and
+  `next_action`.
+- `operator_next_actions` converts those rows into a `backlog_lane` action
+  lane and automatically narrows to it when `backlog_lane` source filtering is
+  used.
+- `report_operator_next_actions.py`, `report_operator_status_bundle.py`,
+  `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests were
+  updated.
+
+Why this change was chosen:
+- It lets the operator ask for the next safe batch in a specific lane and get
+  actionable rows, while preserving the compact default report for active
+  proofs and research repair work.
+
+Expected outcome:
+- Operators can run `make operator-next-actions
+  OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests` and get scoped
+  lane-map action rows without changing backlog classification or closing any
+  item.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backlog_lane_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `36 passed in 0.44s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make operator-status-json OPERATOR_STATUS_SECTION=backlog OPERATOR_STATUS_BACKLOG_LANE=low_risk_docs_tests`
+  - SHOWN: `actions.backlog_lanes` contains 13 low-risk lane items and
+    `backlog_lane_actions_required=13`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `action_count_total=13`, `action_count_returned=3`, and all shown
+    rows use lane `backlog_lane`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=backlog_lane OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `action_count_total=0`; unfiltered defaults do not flood the compact
+    report with backlog lane-map rows.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -67,6 +67,7 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
         "operator_proof_status",
     }
     assert out["summary"]["passive_operator_items"] == 1
+    assert out["summary"]["backlog_lane_actions_required"] == 0
     assert out["summary"]["passive_operator_evidence_actions_required"] == 1
     assert out["summary"]["research_pipelines_wired"] == 2
     assert out["summary"]["research_pipelines_not_run"] == 2
@@ -119,6 +120,17 @@ def test_operator_status_bundle_forwards_backlog_filter(tmp_path: Path) -> None:
     assert out["summary"]["low_risk_docs_tests"] == 1
     assert out["summary"]["high_risk_gate_execution_deploy"] == 0
     assert out["shown_sections"] == ["backlog"]
+    assert out["summary"]["backlog_lane_actions_required"] == 1
+    assert set(out["actions"]) == {"backlog_lanes"}
+    assert out["actions"]["backlog_lanes"] == [
+        {
+            "lane_key": "low_risk_docs_tests",
+            "lane_name": "Low-Risk Docs / Tests",
+            "ordinal": 1,
+            "text": "Item for Low-Risk Docs / Tests",
+            "next_action": "select or execute a scoped batch for Item for Low-Risk Docs / Tests",
+        }
+    ]
 
 
 def test_operator_status_bundle_forwards_research_command_filters(tmp_path: Path) -> None:
@@ -278,6 +290,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "shown_sections": [section] if section else ["backlog", "research_pipeline", "operator_proof"],
             "summary": {
                 "passive_operator_items": 15,
+                "backlog_lane_actions_required": 1,
                 "low_risk_docs_tests": 13,
                 "medium_risk_runtime_read_only": 7,
                 "high_risk_gate_execution_deploy": 7,
@@ -300,6 +313,13 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "operator_proof_status": {},
             },
             "actions": {
+                "backlog_lanes": [
+                    {
+                        "ordinal": 1,
+                        "lane_key": "low_risk_docs_tests",
+                        "next_action": "select or execute a scoped batch",
+                    }
+                ],
                 "research_pipelines": [
                     {
                         "pipeline_id": "price_action",
@@ -349,6 +369,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "operator_proof_category_filter=host_side_reference" in out
     assert "operator_proof_line_filter=7" in out
     assert "passive=15" in out
+    assert "backlog_action: #1 low_risk_docs_tests" in out
     assert "wired=2" in out
     assert "actions_required=1" in out
     assert "research_action: price_action" in out
