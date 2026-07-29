@@ -40,6 +40,7 @@ def _print_report(payload: dict[str, Any]) -> None:
         "reason_filter",
         "action_source_filter",
         "backlog_lane_filter",
+        "backlog_lane_ordinal_filter",
         "research_pipeline_filter",
         "research_command_lane_filter",
         "research_command_input_class_filter",
@@ -86,6 +87,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--reason", default=None, help="Limit output to one blocking_reason value")
     parser.add_argument("--action-source", default=None, help="Limit output to one final action source value")
     parser.add_argument("--backlog-lane", default=None, help="Forward a backlog lane filter to the source bundle")
+    parser.add_argument(
+        "--backlog-lane-ordinal",
+        default=None,
+        help="Forward a 1-based backlog lane actionable-item ordinal to the source bundle; requires --backlog-lane",
+    )
     parser.add_argument("--research-pipeline", default=None, help="Forward a research pipeline filter to the source bundle")
     parser.add_argument(
         "--research-command-lane",
@@ -121,6 +127,7 @@ def main(argv: list[str] | None = None) -> int:
         reason=args.reason,
         action_source=args.action_source,
         backlog_lane=args.backlog_lane,
+        backlog_lane_ordinal=args.backlog_lane_ordinal,
         research_pipeline=args.research_pipeline,
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,

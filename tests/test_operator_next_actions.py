@@ -362,6 +362,66 @@ def test_operator_next_actions_backlog_lane_filter_implies_matching_action_lane(
     ]
 
 
+def test_operator_next_actions_forwards_backlog_lane_ordinal(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    captured = {}
+
+    def fake_bundle(repo_root=None, **filters):
+        captured.update(filters)
+        return {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "backlog_lane_actions_required": 1,
+                "source_backlog_lane_actions_required": 3,
+                "operator_proof_actions_required": 9,
+            },
+            "actions": {
+                "backlog_lanes": [
+                    {
+                        "lane_key": "low_risk_docs_tests",
+                        "ordinal": 2,
+                        "next_action": "select or execute a scoped batch for item two",
+                    }
+                ],
+                "operator_proofs": [
+                    {
+                        "line": 7,
+                        "category": "host_side_reference",
+                        "next_action": "run host proof",
+                    }
+                ],
+            },
+        }
+
+    monkeypatch.setattr(mod, "build_operator_status_bundle", fake_bundle)
+
+    out = mod.build_operator_next_actions(
+        repo_root=".",
+        backlog_lane="low_risk_docs_tests",
+        backlog_lane_ordinal=2,
+        max_actions=20,
+    )
+
+    assert captured["backlog_lane"] == "low_risk_docs_tests"
+    assert captured["backlog_lane_ordinal"] == "2"
+    assert out["backlog_lane_filter"] == "low_risk_docs_tests"
+    assert out["backlog_lane_ordinal_filter"] == 2
+    assert out["action_count_total"] == 1
+    assert out["action_count_available"] == 1
+    assert out["actions"] == [
+        {
+            "lane": "backlog_lane",
+            "source": "low_risk_docs_tests",
+            "line": None,
+            "ordinal": 2,
+            "blocking_reason": "backlog_lane_item",
+            "next_action": "select or execute a scoped batch for item two",
+        }
+    ]
+
+
 def test_operator_next_actions_filters_by_reason(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
 
@@ -467,6 +527,7 @@ def test_operator_next_actions_forwards_source_filters(monkeypatch) -> None:
     out = mod.build_operator_next_actions(
         repo_root=".",
         backlog_lane="low_risk_docs_tests",
+        backlog_lane_ordinal=2,
         research_pipeline="price_action",
         research_command_lane="funding",
         research_command_input_class="artifact_input",
@@ -476,6 +537,7 @@ def test_operator_next_actions_forwards_source_filters(monkeypatch) -> None:
 
     assert captured == {
         "backlog_lane": "low_risk_docs_tests",
+        "backlog_lane_ordinal": "2",
         "research_pipeline": "price_action",
         "research_command_lane": "funding",
         "research_command_input_class": "artifact_input",
@@ -484,6 +546,7 @@ def test_operator_next_actions_forwards_source_filters(monkeypatch) -> None:
         "operator_proof_line": "7",
     }
     assert out["backlog_lane_filter"] == "low_risk_docs_tests"
+    assert out["backlog_lane_ordinal_filter"] == 2
     assert out["research_pipeline_filter"] == "price_action"
     assert out["research_command_lane_filter"] == "funding"
     assert out["research_command_input_class_filter"] == "artifact_input"
@@ -753,6 +816,7 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "reason_filter": reason,
             "action_source_filter": action_source,
             "backlog_lane_filter": filters.get("backlog_lane"),
+            "backlog_lane_ordinal_filter": int(filters.get("backlog_lane_ordinal") or 0) or None,
             "research_pipeline_filter": filters.get("research_pipeline"),
             "research_command_lane_filter": filters.get("research_command_lane"),
             "research_command_input_class_filter": filters.get("research_command_input_class"),
@@ -786,6 +850,10 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "backlog_lane_item",
             "--action-source",
             "low_risk_docs_tests",
+            "--backlog-lane",
+            "low_risk_docs_tests",
+            "--backlog-lane-ordinal",
+            "1",
             "--research-pipeline",
             "price_action",
             "--operator-proof-category",
@@ -801,6 +869,8 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     assert "actions=1 shown=1" in out
     assert "lane_filter=backlog_lane" in out
     assert "action_source_filter=low_risk_docs_tests" in out
+    assert "backlog_lane_filter=low_risk_docs_tests" in out
+    assert "backlog_lane_ordinal_filter=1" in out
     assert "research_pipeline_filter=price_action" in out
     assert "research_command_id_filter=funding_threshold_pipeline" in out
     assert "operator_proof_category_filter=host_side_reference" in out

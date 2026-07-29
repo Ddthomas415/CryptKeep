@@ -27403,6 +27403,71 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T21:18:54Z - Operator Backlog-Lane Ordinal Action Filter
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by allowing the existing
+  backlog-lane action reports to target one exact actionable item by ordinal.
+
+What was found:
+- SHOWN: `operator-status` and `operator-next-actions` already support
+  filtering to a backlog lane and surface each actionable lane item with a
+  1-based ordinal.
+- SHOWN: there was no way to ask those reports for exactly one ordinal from
+  that lane without post-processing the full lane output.
+
+What changed:
+- `build_operator_status_bundle()` accepts `backlog_lane_ordinal`, filters
+  `backlog_lanes` action rows to the exact ordinal, and records both source
+  lane-action count and filtered lane-action count.
+- Invalid ordinal requests fail closed with
+  `reason=invalid_backlog_lane_ordinal`: no lane supplied, non-positive or
+  non-numeric ordinal, or no actionable item at that ordinal.
+- `build_operator_next_actions()` forwards the ordinal to the source bundle and
+  surfaces `backlog_lane_ordinal_filter` in compact reports.
+- `scripts/report_operator_status_bundle.py`,
+  `scripts/report_operator_next_actions.py`, `Makefile`, `scripts/SCRIPTS.md`,
+  tests, and `REMAINING_TASKS.md` are aligned with
+  `OPERATOR_STATUS_BACKLOG_LANE_ORDINAL` and
+  `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL`.
+
+Why this change was chosen:
+- This keeps the operator "next batch" workflow exact and machine-checkable:
+  select a lane, select one actionable ordinal, and receive either exactly that
+  item or a fail-closed reason.
+
+Expected outcome:
+- Operators can request a single backlog-lane item for implementation planning
+  without dumping the whole lane or accepting ambiguous empty-success output.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `37 passed in 0.41s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make operator-status-json OPERATOR_STATUS_SECTION=backlog OPERATOR_STATUS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_STATUS_BACKLOG_LANE_ORDINAL=2`
+  - SHOWN: `ok=true`, `backlog_lane_ordinal_filter=2`, and exactly one
+    `backlog_lanes` action for ordinal 2.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL=2 OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: `ok=true`, `action_count_total=1`, and exactly one
+    `backlog_lane` action for ordinal 2.
+- `make operator-status-json OPERATOR_STATUS_BACKLOG_LANE_ORDINAL=2`
+  - SHOWN: exit 2 with `reason=invalid_backlog_lane_ordinal`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL=2 OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 2 with zero actions and
+    `source_reason=invalid_backlog_lane_ordinal`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T20:32:41Z - Backlog Lane Actionable Items vs Examples
 
 Active role: ENGINEER

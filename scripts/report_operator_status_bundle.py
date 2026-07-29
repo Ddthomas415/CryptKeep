@@ -25,6 +25,7 @@ def _print_report(payload: dict[str, Any]) -> None:
     section_filter = str(payload.get("section_filter") or "")
     filter_keys = (
         "backlog_lane_filter",
+        "backlog_lane_ordinal_filter",
         "research_pipeline_filter",
         "research_command_lane_filter",
         "research_command_input_class_filter",
@@ -140,6 +141,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--backlog-lane", default=None, help="Forward a lane filter to backlog lane status")
     parser.add_argument(
+        "--backlog-lane-ordinal",
+        default=None,
+        help="Limit backlog lane actions to one 1-based actionable item ordinal; requires --backlog-lane",
+    )
+    parser.add_argument(
         "--research-pipeline",
         default=None,
         help="Forward a pipeline_id filter to research pipeline status",
@@ -175,6 +181,7 @@ def main(argv: list[str] | None = None) -> int:
         repo_root=ROOT,
         section=args.section,
         backlog_lane=args.backlog_lane,
+        backlog_lane_ordinal=args.backlog_lane_ordinal,
         research_pipeline=args.research_pipeline,
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,
