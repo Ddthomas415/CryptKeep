@@ -25,6 +25,11 @@ def _print_report(payload: dict[str, Any]) -> None:
         f"actions={payload.get('action_count_total', 0)} "
         f"shown={payload.get('action_count_returned', 0)}"
     )
+    if payload.get("reason"):
+        print(f"reason={payload.get('reason')}")
+    if payload.get("reason") == "invalid_action_lane":
+        lanes = ",".join(str(item) for item in list(payload.get("available_action_lanes") or []))
+        print(f"available_action_lanes={lanes}")
     if payload.get("source_reason"):
         print(f"source_reason={payload.get('source_reason')}")
     source_reasons = dict(payload.get("source_reasons") or {})

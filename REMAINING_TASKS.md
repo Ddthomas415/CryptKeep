@@ -2815,6 +2815,16 @@ substrate work, but they are concrete enough to keep visible.
     rows. This remains read-only planning/status only; it does not decide
     backlog items, run research/campaigns, fetch market data, close proof,
     authorize implementation, or mutate runtime state.
+    2026-07-29: operator next-actions function-level lane validation is ready
+    for independent review. The CLI already restricted `--lane`, but direct
+    Python callers could pass an unknown lane and receive an empty `ok=true`
+    result. `build_operator_next_actions()` now exposes
+    `available_action_lanes` and returns `ok=false`,
+    `reason=invalid_action_lane`, zero rows, and zero total actions for
+    unknown lane filters; valid lane filters are unchanged. This remains
+    read-only planning/status only and does not decide backlog items, run
+    research/campaigns, fetch market data, close proof, authorize
+    implementation, or mutate runtime state.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,
