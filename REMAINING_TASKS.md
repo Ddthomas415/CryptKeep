@@ -2825,6 +2825,33 @@ substrate work, but they are concrete enough to keep visible.
     read-only planning/status only and does not decide backlog items, run
     research/campaigns, fetch market data, close proof, authorize
     implementation, or mutate runtime state.
+    2026-07-29: exact backlog-lane actionable item filtering is ready for
+    independent review. `operator-status` and `operator-next-actions` now
+    accept a 1-based backlog lane ordinal (`OPERATOR_STATUS_BACKLOG_LANE_ORDINAL`
+    / `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL`) to return exactly one
+    actionable item from a filtered lane. The filter fails closed with
+    `reason=invalid_backlog_lane_ordinal` when no lane is provided, the ordinal
+    is non-positive/non-numeric, or the item does not exist; valid lane-only
+    behavior is unchanged. This remains read-only planning/status only and
+    does not decide backlog items, run research/campaigns, fetch market data,
+    close proof, authorize implementation, or mutate runtime state.
+    2026-07-29: backlog lane-map selector refresh is ready for independent
+    review. `docs/BACKLOG_EXECUTION_LANES.md` now instructs local coding passes
+    to name an exact lane item with `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE` plus
+    `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL` before opening another batch,
+    and records that invalid selectors fail closed instead of returning an
+    empty successful plan. This is docs/test only and does not decide backlog
+    items, run research/campaigns, fetch market data, close proof, authorize
+    implementation, or mutate runtime state.
+    2026-07-29: read-only batch checklist refinement is ready for independent
+    review. `docs/OPERATOR_GOVERNANCE_LANES.md` now includes a concise
+    read-only batch checklist: name the exact backlog item/report, verify the
+    diff avoids campaigns/gates/execution/auth/secrets/migrations/background
+    jobs, confirm read-only/planning-only behavior, run narrow tests plus
+    `git diff --check`, and record the work-log entry. The guard test pins the
+    checklist and the stricter AGENTS.md fallback. This is docs/test only and
+    does not decide backlog items, run research/campaigns, fetch market data,
+    close proof, authorize implementation, or mutate runtime state.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

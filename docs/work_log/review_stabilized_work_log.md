@@ -27289,6 +27289,102 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T21:22:00Z - Backlog Lane Map Exact Selector Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Keep the lane-map governance doc aligned with the exact backlog-lane selector
+  workflow now available in operator next-actions reporting.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` already says to pick one low-risk
+  docs/tests cleanup or read-only report for local code work.
+- SHOWN: after the ordinal-filter batch, the repo has a machine-checkable way
+  to select one exact backlog lane item with
+  `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE` and
+  `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL`.
+- SHOWN: the lane-map did not yet name that selector in the practical next-step
+  instructions.
+
+What changed:
+- Added a 2026-07-29 refresh note to `docs/BACKLOG_EXECUTION_LANES.md`
+  documenting the exact selector and the fail-closed invalid-selector behavior.
+- Updated the recommended local coding step to select one exact low-risk lane
+  item with the operator next-actions selector before opening another batch.
+- Added `tests/test_backlog_execution_lanes_guard.py` coverage so the selector
+  command variables and fail-closed wording do not silently disappear.
+- Added the matching backlog note.
+
+Why this change was chosen:
+- This keeps batch selection concrete and prevents broad "next batch" work from
+  drifting into mixed-risk scope. It is documentation/test-only and consumes no
+  runtime authority.
+
+Expected outcome:
+- Future low-risk batches can be selected by exact lane ordinal, while invalid
+  selectors are treated as planning failures rather than successful empty work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backlog_execution_lanes_guard.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `14 passed in 0.17s`.
+- `./.venv/bin/python -m py_compile tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/tests only. No backlog item is decided or closed; no campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-29T21:23:53Z - Read-Only Batch Checklist Refinement
+
+Active role: ENGINEER
+
+Objective:
+- Execute the selected low-risk docs/tests lane item: read-only checklist
+  refinements.
+
+What was found:
+- SHOWN: `docs/OPERATOR_GOVERNANCE_LANES.md` defined low/medium/high risk
+  lanes and the operator attention cap.
+- SHOWN: the doc did not yet provide a compact pre-batch checklist for
+  verifying that a proposed low-risk or read-only batch stays out of runtime,
+  gate, execution, auth, secrets, migration, and background-job surfaces.
+
+What changed:
+- Added a `Read-Only Batch Checklist` to `docs/OPERATOR_GOVERNANCE_LANES.md`.
+- The checklist requires naming the exact backlog item/report, confirming the
+  diff avoids high-risk surfaces, confirming read-only/planning-only behavior,
+  running narrow tests plus `git diff --check`, and recording the work log.
+- Added `tests/test_operator_governance_lanes.py` coverage so the checklist and
+  stricter AGENTS.md fallback do not silently disappear.
+- Added the matching backlog note.
+
+Why this change was chosen:
+- It turns the existing lane policy into a concrete preflight for fast local
+  batches without relaxing high-risk review requirements.
+
+Expected outcome:
+- Low-risk/read-only batch work can proceed faster while still stopping or
+  splitting when a proposed change crosses into high-risk surfaces.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_governance_lanes.py tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: `11 passed in 0.17s`.
+- `./.venv/bin/python -m py_compile tests/test_operator_governance_lanes.py tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/tests only. No backlog item is decided or closed; no campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T20:34:53Z - Operator Next-Actions Function-Level Lane Guard
 
 Active role: ENGINEER
@@ -27399,6 +27495,71 @@ Verification:
 Remaining risk:
 - LOW: read-only reporting/presentation and docs/tests only. No research job,
   campaign, market-data fetch, artifact generation, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-29T21:18:54Z - Operator Backlog-Lane Ordinal Action Filter
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by allowing the existing
+  backlog-lane action reports to target one exact actionable item by ordinal.
+
+What was found:
+- SHOWN: `operator-status` and `operator-next-actions` already support
+  filtering to a backlog lane and surface each actionable lane item with a
+  1-based ordinal.
+- SHOWN: there was no way to ask those reports for exactly one ordinal from
+  that lane without post-processing the full lane output.
+
+What changed:
+- `build_operator_status_bundle()` accepts `backlog_lane_ordinal`, filters
+  `backlog_lanes` action rows to the exact ordinal, and records both source
+  lane-action count and filtered lane-action count.
+- Invalid ordinal requests fail closed with
+  `reason=invalid_backlog_lane_ordinal`: no lane supplied, non-positive or
+  non-numeric ordinal, or no actionable item at that ordinal.
+- `build_operator_next_actions()` forwards the ordinal to the source bundle and
+  surfaces `backlog_lane_ordinal_filter` in compact reports.
+- `scripts/report_operator_status_bundle.py`,
+  `scripts/report_operator_next_actions.py`, `Makefile`, `scripts/SCRIPTS.md`,
+  tests, and `REMAINING_TASKS.md` are aligned with
+  `OPERATOR_STATUS_BACKLOG_LANE_ORDINAL` and
+  `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL`.
+
+Why this change was chosen:
+- This keeps the operator "next batch" workflow exact and machine-checkable:
+  select a lane, select one actionable ordinal, and receive either exactly that
+  item or a fail-closed reason.
+
+Expected outcome:
+- Operators can request a single backlog-lane item for implementation planning
+  without dumping the whole lane or accepting ambiguous empty-success output.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `37 passed in 0.41s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make operator-status-json OPERATOR_STATUS_SECTION=backlog OPERATOR_STATUS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_STATUS_BACKLOG_LANE_ORDINAL=2`
+  - SHOWN: `ok=true`, `backlog_lane_ordinal_filter=2`, and exactly one
+    `backlog_lanes` action for ordinal 2.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL=2 OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: `ok=true`, `action_count_total=1`, and exactly one
+    `backlog_lane` action for ordinal 2.
+- `make operator-status-json OPERATOR_STATUS_BACKLOG_LANE_ORDINAL=2`
+  - SHOWN: exit 2 with `reason=invalid_backlog_lane_ordinal`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL=2 OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 2 with zero actions and
+    `source_reason=invalid_backlog_lane_ordinal`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
   ingestion, live routing, execution, authorization, or runtime mutation
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

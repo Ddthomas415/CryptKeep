@@ -60,6 +60,16 @@ def test_backlog_execution_lanes_preserves_completed_item_warning() -> None:
     assert "operational proof, review/merge follow-through, or deferred capped-live work" in text
 
 
+def test_backlog_execution_lanes_preserves_exact_operator_selector() -> None:
+    text = _normalized(DOC)
+
+    assert "Operator reporting now supports a deterministic selector for low-risk lane work" in text
+    assert "OPERATOR_NEXT_ACTIONS_BACKLOG_LANE" in text
+    assert "OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL" in text
+    assert "Use that selector to name the exact lane item before opening another implementation batch." in text
+    assert "Invalid selectors fail closed instead of returning an empty successful plan." in text
+
+
 def test_backlog_execution_lanes_preserves_high_risk_boundaries() -> None:
     text = _text(DOC)
     normalized = _normalized(DOC)

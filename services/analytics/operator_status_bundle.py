@@ -34,6 +34,7 @@ def build_operator_status_bundle(
     repo_root: str | Path | None = None,
     section: str | None = None,
     backlog_lane: str | None = None,
+    backlog_lane_ordinal: int | str | None = None,
     research_pipeline: str | None = None,
     research_command_lane: str | None = None,
     research_command_input_class: str | None = None,
@@ -45,6 +46,7 @@ def build_operator_status_bundle(
     section_filter = str(section or "").strip()
     available_sections = tuple(_SECTION_REPORT_KEYS)
     backlog_lane_filter = str(backlog_lane or "").strip()
+    backlog_lane_ordinal_filter = str(backlog_lane_ordinal or "").strip()
     research_pipeline_filter = str(research_pipeline or "").strip()
     research_command_lane_filter = str(research_command_lane or "").strip()
     research_command_input_filter = str(research_command_input_class or "").strip()
@@ -69,7 +71,7 @@ def build_operator_status_bundle(
     research_command_summary = dict(research_commands.get("summary") or {})
     proof_summary = dict(proofs.get("summary") or {})
     heading_to_key = {heading: key for key, heading in LANE_KEY_TO_HEADING.items()}
-    backlog_actions = [
+    source_backlog_actions = [
         {
             "lane_key": heading_to_key.get(str(lane_row.get("name") or ""), ""),
             "lane_name": str(lane_row.get("name") or ""),
@@ -82,6 +84,19 @@ def build_operator_status_bundle(
         for index, item in enumerate(list(lane_row.get("items") or []), start=1)
         if backlog_lane_filter and str(item).strip()
     ]
+    ordinal_value: int | None = None
+    invalid_backlog_ordinal = False
+    if backlog_lane_ordinal_filter:
+        if not backlog_lane_filter or not backlog_lane_ordinal_filter.isdigit():
+            invalid_backlog_ordinal = True
+        else:
+            ordinal_value = int(backlog_lane_ordinal_filter)
+            invalid_backlog_ordinal = ordinal_value <= 0
+    backlog_actions = list(source_backlog_actions)
+    if ordinal_value is not None and not invalid_backlog_ordinal:
+        backlog_actions = [row for row in backlog_actions if int(row.get("ordinal") or 0) == ordinal_value]
+        if not backlog_actions:
+            invalid_backlog_ordinal = True
     research_actions = [
         {
             "pipeline_id": str(row.get("pipeline_id") or ""),
@@ -133,6 +148,7 @@ def build_operator_status_bundle(
             and bool(research.get("ok"))
             and bool(research_commands.get("ok"))
             and bool(proofs.get("ok"))
+            and not invalid_backlog_ordinal
         ),
         "read_only": True,
         "planning_only": True,
@@ -142,6 +158,7 @@ def build_operator_status_bundle(
         "does_not_mutate_state": True,
         "repo_root": str(root),
         "backlog_lane_filter": backlog_lane_filter or None,
+        "backlog_lane_ordinal_filter": ordinal_value,
         "research_pipeline_filter": research_pipeline_filter or None,
         "research_command_lane_filter": research_command_lane_filter or None,
         "research_command_input_class_filter": research_command_input_filter or None,
@@ -166,6 +183,7 @@ def build_operator_status_bundle(
             "low_risk_docs_tests": int(backlog_summary.get("low_risk_docs_tests") or 0),
             "medium_risk_runtime_read_only": int(backlog_summary.get("medium_risk_runtime_read_only") or 0),
             "high_risk_gate_execution_deploy": int(backlog_summary.get("high_risk_gate_execution_deploy") or 0),
+            "source_backlog_lane_actions_required": len(source_backlog_actions),
             "backlog_lane_actions_required": len(backlog_actions),
             "research_pipelines_wired": int(research_summary.get("wired") or 0),
             "research_pipelines_not_run": int(research_summary.get("not_run") or 0),
@@ -183,6 +201,8 @@ def build_operator_status_bundle(
             "passive_operator_evidence_actions_required": len(passive_actions),
         },
     }
+    if invalid_backlog_ordinal:
+        payload["reason"] = "invalid_backlog_lane_ordinal"
     full_reports = dict(payload["reports"])
     full_actions = dict(payload["actions"])
     source_reasons = {
