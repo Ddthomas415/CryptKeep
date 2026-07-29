@@ -58,6 +58,11 @@ def _print_report(payload: dict[str, Any]) -> None:
         )
         if bool(row.get("action_required")):
             print(f"  reason={row.get('blocking_reason')}")
+            plan = dict(row.get("producer_plan") or {})
+            if plan:
+                required = ",".join(str(item) for item in list(plan.get("required_inputs") or [])) or "-"
+                print(f"  producer={plan.get('command_hint') or '-'}")
+                print(f"  required_inputs={required}")
             print(f"  next_action={row.get('next_action')}")
 
 

@@ -320,9 +320,10 @@ decision makes them authoritative.
   supports `RESEARCH_PIPELINE_STATUS_PIPELINE` for one-pipeline views.
 - `research/report_research_artifact_inventory.py` — read-only inventory over
   accepted archive, funding-threshold, and price-action research artifacts. It
-  reports latest artifact path, hash, marker, status, and next action for
-  missing or malformed artifacts; it does not run research jobs, fetch data,
-  write artifacts, or mutate strategy, campaign, gate, or execution state. Use
+  reports latest artifact path, hash, marker, status, producer-plan metadata,
+  and next action for missing or malformed artifacts; it does not run research
+  jobs, fetch data, write artifacts, choose producer inputs, or mutate
+  strategy, campaign, gate, or execution state. Use
   `make research-artifact-inventory` or
   `make research-artifact-inventory-json`; supports
   `RESEARCH_ARTIFACT_INVENTORY_LANE` and

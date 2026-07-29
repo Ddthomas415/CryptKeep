@@ -344,8 +344,25 @@ def test_operator_status_bundle_forwards_research_artifact_filters(tmp_path: Pat
             "latest_path": None,
             "latest_sha256": None,
             "producer_make_target": "archive-parameter-sweep",
+            "producer_plan": {
+                "make_target": "archive-parameter-sweep",
+                "make_args_variable": "ARCHIVE_PARAMETER_SWEEP_ARGS",
+                "required_inputs": [
+                    "base strategy config",
+                    "parameter grid",
+                    "venue/symbol/timeframe",
+                    "archive row window",
+                    "output path",
+                ],
+                "requires_accepted_inputs": True,
+                "command_hint": 'make archive-parameter-sweep ARCHIVE_PARAMETER_SWEEP_ARGS="<accepted inputs>"',
+            },
             "blocking_reason": "latest_artifact_missing",
-            "next_action": "run make archive-parameter-sweep with accepted research inputs",
+            "next_action": (
+                "select accepted inputs (base strategy config, parameter grid, "
+                "venue/symbol/timeframe, archive row window, output path), then run "
+                'make archive-parameter-sweep ARCHIVE_PARAMETER_SWEEP_ARGS="<accepted inputs>"'
+            ),
         }
     ]
 
