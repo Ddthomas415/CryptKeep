@@ -27387,6 +27387,51 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T21:52:19Z - Operator Reporting Backlog/Work-Log Synchronization Guard
+
+Active role: ENGINEER
+
+Objective:
+- Execute the selected low-risk docs/tests lane item: work-log/backlog
+  synchronization.
+
+What was found:
+- SHOWN: the recent operator-reporting batches each added backlog and work-log
+  entries.
+- SHOWN: there was no focused regression guard tying those paired entries
+  together for future cleanup.
+
+What changed:
+- Added `tests/test_operator_reporting_backlog_worklog_sync.py`.
+- The guard pins that the operator-reporting backlog notes have matching
+  work-log entries for the ordinal filter, exact selector refresh, read-only
+  checklist, read-only contract guard, and this synchronization guard.
+- Added the matching backlog note.
+
+Why this change was chosen:
+- The current low-risk workflow uses backlog and work-log notes as the audit
+  trail for fast batches. A small sync guard prevents one side from being
+  edited without the other during later cleanup.
+
+Expected outcome:
+- Future edits that accidentally drop the backlog note or work-log entry for
+  these operator-reporting batches fail in a focused docs/test guard.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_reporting_backlog_worklog_sync.py tests/test_operator_reporting_read_only_contract.py tests/test_operator_governance_lanes.py tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: `14 passed in 0.39s`.
+- `./.venv/bin/python -m py_compile tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: tests/backlog/work-log only. No runtime code changed; no backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T21:23:53Z - Read-Only Batch Checklist Refinement
 
 Active role: ENGINEER
