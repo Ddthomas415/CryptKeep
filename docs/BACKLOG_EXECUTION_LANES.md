@@ -48,6 +48,11 @@ and `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL`. Use that selector to name the
 exact lane item before opening another implementation batch. Invalid selectors
 fail closed instead of returning an empty successful plan.
 
+The operator-reporting selector stack is already covered by dedicated
+read-only contract and backlog/work-log synchronization guards. Do not rebuild
+that stack as a fresh backlog item; use the existing reports and guards unless
+the current source code lacks them.
+
 ### Passive / Operator Evidence
 
 These tasks cannot be completed by local code changes alone:

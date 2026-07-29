@@ -50,6 +50,7 @@ def test_make_script_index_points_to_maintained_docs():
     assert "make price-action-research-pipeline" in target
     assert "make research-pipeline-status[-json]" in target
     assert "make research-command-status[-json]" in target
+    assert "make operator-read-only-command-status[-json]" in target
     assert "make operator-proof-status[-json]" in target
     assert "make operator-status[-json]" in target
     assert "docs/GOLDEN_PATH.md" in target
@@ -105,6 +106,7 @@ def test_read_only_status_reports_have_json_make_targets():
     expected = {
         "backlog-lane-status-json": "scripts/report_backlog_lane_status.py --json",
         "operator-proof-status-json": "scripts/report_operator_proof_status.py --json",
+        "operator-read-only-command-status-json": "scripts/report_operator_read_only_command_status.py --json",
         "operator-status-json": "scripts/report_operator_status_bundle.py --json",
         "operator-next-actions-json": "scripts/report_operator_next_actions.py --json",
         "research-pipeline-status-json": "scripts/research/report_research_pipeline_status.py --json",

@@ -68,6 +68,9 @@ def test_backlog_execution_lanes_preserves_exact_operator_selector() -> None:
     assert "OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL" in text
     assert "Use that selector to name the exact lane item before opening another implementation batch." in text
     assert "Invalid selectors fail closed instead of returning an empty successful plan." in text
+    assert "The operator-reporting selector stack is already covered by dedicated read-only contract" in text
+    assert "backlog/work-log synchronization guards" in text
+    assert "Do not rebuild that stack as a fresh backlog item" in text
 
 
 def test_backlog_execution_lanes_preserves_high_risk_boundaries() -> None:
