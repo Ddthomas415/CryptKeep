@@ -2852,6 +2852,16 @@ substrate work, but they are concrete enough to keep visible.
     checklist and the stricter AGENTS.md fallback. This is docs/test only and
     does not decide backlog items, run research/campaigns, fetch market data,
     close proof, authorize implementation, or mutate runtime state.
+    2026-07-29: medium-lane read-only command status is ready for independent
+    review. `services.analytics.operator_read_only_command_status` and
+    `scripts/report_operator_read_only_command_status.py` inventory the
+    existing campaign planners, gate diagnostics, optional operator reports,
+    host diagnostics, and host status wrappers without running them. The report
+    is wired into `operator-status` and `operator-next-actions` through a new
+    `operator_read_only` section / `operator_read_only_command` action lane,
+    with focused filters for medium-lane item and command id. This remains
+    planning/status only: it does not run commands, campaigns, market-data
+    fetches, proof closure, authorization, or runtime mutation.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

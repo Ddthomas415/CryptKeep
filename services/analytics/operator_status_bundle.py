@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from services.analytics.backlog_lane_status import LANE_KEY_TO_HEADING, build_backlog_lane_status
+from services.analytics.operator_read_only_command_status import build_operator_read_only_command_status
 from services.analytics.operator_proof_status import build_operator_proof_status
 from services.analytics.research_command_status import build_research_command_status
 from services.analytics.research_pipeline_status import build_research_pipeline_status
@@ -14,6 +15,7 @@ _SECTION_REPORT_KEYS = {
     "backlog": ("backlog_lane_status",),
     "research_pipeline": ("research_pipeline_status",),
     "research_command": ("research_command_status",),
+    "operator_read_only": ("operator_read_only_command_status",),
     "operator_proof": ("operator_proof_status",),
 }
 
@@ -21,6 +23,7 @@ _SECTION_ACTION_KEYS = {
     "backlog": ("backlog_lanes",),
     "research_pipeline": ("research_pipelines",),
     "research_command": ("research_commands",),
+    "operator_read_only": ("operator_read_only_commands",),
     "operator_proof": ("passive_operator_evidence", "operator_proofs"),
 }
 
@@ -39,6 +42,8 @@ def build_operator_status_bundle(
     research_command_lane: str | None = None,
     research_command_input_class: str | None = None,
     research_command_id: str | None = None,
+    operator_read_only_medium_lane_item: str | None = None,
+    operator_read_only_command_id: str | None = None,
     operator_proof_category: str | None = None,
     operator_proof_line: int | str | None = None,
 ) -> dict[str, Any]:
@@ -51,6 +56,8 @@ def build_operator_status_bundle(
     research_command_lane_filter = str(research_command_lane or "").strip()
     research_command_input_filter = str(research_command_input_class or "").strip()
     research_command_id_filter = str(research_command_id or "").strip()
+    operator_read_only_lane_item_filter = str(operator_read_only_medium_lane_item or "").strip()
+    operator_read_only_command_filter = str(operator_read_only_command_id or "").strip()
     proof_category_filter = str(operator_proof_category or "").strip()
     proof_line_filter = str(operator_proof_line or "").strip()
     backlog = build_backlog_lane_status(repo_root=root, lane=backlog_lane_filter or None)
@@ -61,6 +68,11 @@ def build_operator_status_bundle(
         input_class=research_command_input_filter or None,
         command_id=research_command_id_filter or None,
     )
+    read_only_commands = build_operator_read_only_command_status(
+        repo_root=root,
+        medium_lane_item=operator_read_only_lane_item_filter or None,
+        command_id=operator_read_only_command_filter or None,
+    )
     proofs = build_operator_proof_status(
         repo_root=root,
         category=proof_category_filter or None,
@@ -69,6 +81,7 @@ def build_operator_status_bundle(
     backlog_summary = dict(backlog.get("summary") or {})
     research_summary = dict(research.get("summary") or {})
     research_command_summary = dict(research_commands.get("summary") or {})
+    read_only_command_summary = dict(read_only_commands.get("summary") or {})
     proof_summary = dict(proofs.get("summary") or {})
     heading_to_key = {heading: key for key, heading in LANE_KEY_TO_HEADING.items()}
     source_backlog_actions = [
@@ -120,6 +133,18 @@ def build_operator_status_bundle(
         for row in list(research_commands.get("commands") or [])
         if isinstance(row, dict) and bool(row.get("action_required"))
     ]
+    read_only_command_actions = [
+        {
+            "command_id": str(row.get("command_id") or ""),
+            "medium_lane_item": str(row.get("medium_lane_item") or ""),
+            "input_class": str(row.get("input_class") or ""),
+            "make_target": row.get("make_target"),
+            "blocking_reason": row.get("blocking_reason"),
+            "next_action": str(row.get("next_action") or ""),
+        }
+        for row in list(read_only_commands.get("commands") or [])
+        if isinstance(row, dict) and bool(row.get("action_required"))
+    ]
     proof_actions = [
         {
             "line": row.get("line"),
@@ -147,6 +172,7 @@ def build_operator_status_bundle(
             bool(backlog.get("ok"))
             and bool(research.get("ok"))
             and bool(research_commands.get("ok"))
+            and bool(read_only_commands.get("ok"))
             and bool(proofs.get("ok"))
             and not invalid_backlog_ordinal
         ),
@@ -163,18 +189,22 @@ def build_operator_status_bundle(
         "research_command_lane_filter": research_command_lane_filter or None,
         "research_command_input_class_filter": research_command_input_filter or None,
         "research_command_id_filter": research_command_id_filter or None,
+        "operator_read_only_medium_lane_item_filter": operator_read_only_lane_item_filter or None,
+        "operator_read_only_command_id_filter": operator_read_only_command_filter or None,
         "operator_proof_category_filter": proof_category_filter or None,
         "operator_proof_line_filter": int(proof_line_filter) if proof_line_filter.isdigit() else None,
         "reports": {
             "backlog_lane_status": backlog,
             "research_pipeline_status": research,
             "research_command_status": research_commands,
+            "operator_read_only_command_status": read_only_commands,
             "operator_proof_status": proofs,
         },
         "actions": {
             "backlog_lanes": backlog_actions,
             "research_pipelines": research_actions,
             "research_commands": research_command_actions,
+            "operator_read_only_commands": read_only_command_actions,
             "passive_operator_evidence": passive_actions,
             "operator_proofs": proof_actions[:10],
         },
@@ -192,6 +222,9 @@ def build_operator_status_bundle(
             "research_commands_wired": int(research_command_summary.get("wired") or 0),
             "research_commands_not_wired": int(research_command_summary.get("not_wired") or 0),
             "research_command_actions_required": len(research_command_actions),
+            "operator_read_only_commands_wired": int(read_only_command_summary.get("wired") or 0),
+            "operator_read_only_commands_not_wired": int(read_only_command_summary.get("not_wired") or 0),
+            "operator_read_only_command_actions_required": len(read_only_command_actions),
             "remaining_proof_or_coverage_markers": int(
                 proof_summary.get("remaining_proof_or_coverage_markers") or 0
             ),
