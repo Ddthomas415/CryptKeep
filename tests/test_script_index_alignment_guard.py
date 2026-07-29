@@ -87,6 +87,7 @@ def test_accepted_research_tools_have_script_index_and_makefile_links():
         "research/run_price_action_candidate_triage.py": "make price-action-candidate-triage",
         "research/run_price_action_research_pipeline.py": "make price-action-research-pipeline",
         "research/report_research_pipeline_status.py": "make research-pipeline-status",
+        "research/report_research_artifact_inventory.py": "make research-artifact-inventory",
         "research/report_research_command_status.py": "make research-command-status",
         "report_execution_cost_stack.py": None,
     }
@@ -107,6 +108,7 @@ def test_read_only_status_reports_have_json_make_targets():
         "operator-status-json": "scripts/report_operator_status_bundle.py --json",
         "operator-next-actions-json": "scripts/report_operator_next_actions.py --json",
         "research-pipeline-status-json": "scripts/research/report_research_pipeline_status.py --json",
+        "research-artifact-inventory-json": "scripts/research/report_research_artifact_inventory.py --json",
         "research-command-status-json": "scripts/research/report_research_command_status.py --json",
     }
     for target, command in expected.items():

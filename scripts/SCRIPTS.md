@@ -317,6 +317,15 @@ decision makes them authoritative.
   research, strategy, campaign, gate, or execution state. Use
   `make research-pipeline-status` or `make research-pipeline-status-json`;
   supports `RESEARCH_PIPELINE_STATUS_PIPELINE` for one-pipeline views.
+- `research/report_research_artifact_inventory.py` — read-only inventory over
+  accepted archive, funding-threshold, and price-action research artifacts. It
+  reports latest artifact path, hash, marker, status, and next action for
+  missing or malformed artifacts; it does not run research jobs, fetch data,
+  write artifacts, or mutate strategy, campaign, gate, or execution state. Use
+  `make research-artifact-inventory` or
+  `make research-artifact-inventory-json`; supports
+  `RESEARCH_ARTIFACT_INVENTORY_LANE` and
+  `RESEARCH_ARTIFACT_INVENTORY_ARTIFACT_ID` for focused views.
 - `research/report_research_command_status.py` — read-only status report over
   accepted research command wiring and input classes. It checks script,
   Makefile target, and SCRIPTS registration for archive, funding, price-action,

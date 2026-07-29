@@ -27592,6 +27592,65 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T23:17:30Z - Research Artifact Inventory Status Report
+
+Active role: ENGINEER
+
+Objective:
+- Continue the research-only Batch 2 lane by adding a read-only inventory over
+  accepted archive, funding-threshold, and price-action research artifacts.
+
+What was found:
+- SHOWN: accepted research pipeline and command status reports existed, but no
+  single report listed latest artifact paths, hashes, marker types, or missing
+  artifact next actions across the archive/funding/price-action research lanes.
+- SHOWN: local `.cbp_state/data/research` contains funding-threshold and
+  price-action pipeline artifacts, while archive walk-forward/sweep/triage
+  artifacts are not present under the accepted research output roots.
+
+What changed:
+- Added `services.analytics.research_artifact_inventory` and
+  `scripts/research/report_research_artifact_inventory.py`.
+- Added `make research-artifact-inventory` and
+  `make research-artifact-inventory-json`, with lane and exact artifact-id
+  filters.
+- Registered the report in `research_command_status` as a status command.
+- Updated `scripts/SCRIPTS.md`, script-index alignment tests, and the backlog
+  note under the price-action/research item.
+
+Why this change was chosen:
+- The next research tasks are operational runs over existing archive/funding/
+  price-action tooling. A read-only artifact inventory removes manual artifact
+  hunting and gives the operator exact Make targets for missing research
+  outputs without running research or changing evidence.
+
+Expected outcome:
+- Operators can see which accepted research artifacts exist, their latest
+  hashes, and which archive artifacts still need real runs. Missing artifacts
+  are action rows, while unreadable or marker-mismatched artifacts fail closed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_artifact_inventory.py tests/test_research_command_status.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `19 passed in 0.33s`.
+- `./.venv/bin/python -m py_compile services/analytics/research_artifact_inventory.py services/analytics/research_command_status.py scripts/research/report_research_artifact_inventory.py scripts/research/report_research_command_status.py`
+  - SHOWN: exit 0.
+- `make research-artifact-inventory-json`
+  - SHOWN: `ok=true`, `artifact_count=14`, `latest_ok=11`,
+    `missing=3`, `action_required=3`.
+- `make research-command-status-json RESEARCH_COMMAND_STATUS_COMMAND_ID=research_artifact_inventory`
+  - SHOWN: `ok=true`, one wired status command.
+- `make research-artifact-inventory-json RESEARCH_ARTIFACT_INVENTORY_LANE=archive`
+  - SHOWN: three archive artifacts missing with next actions for
+    `archive-walk-forward`, `archive-parameter-sweep`, and
+    `archive-parameter-sweep-triage`.
+
+Remaining risk:
+- LOW: read-only status/reporting and docs/tests only. No research job,
+  campaign, market-data fetch, artifact generation, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T22:53:53Z - Operator Event Journal CI Assertion Stabilization
 
 Active role: ENGINEER

@@ -272,7 +272,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill archive-walk-forward archive-parameter-sweep funding-context-price-join funding-threshold-sensitivity funding-threshold-window-stability funding-threshold-candidate-triage funding-threshold-stability-triage funding-threshold-research-pipeline archive-parameter-sweep-triage crypto-edge-strategy-readiness price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage price-action-research-pipeline research-pipeline-status check-short-context-readiness
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill archive-walk-forward archive-parameter-sweep funding-context-price-join funding-threshold-sensitivity funding-threshold-window-stability funding-threshold-candidate-triage funding-threshold-stability-triage funding-threshold-research-pipeline archive-parameter-sweep-triage crypto-edge-strategy-readiness price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage price-action-research-pipeline research-pipeline-status research-artifact-inventory check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
@@ -476,6 +476,14 @@ research-pipeline-status:
 research-pipeline-status-json:
 	@$(PYTHON) scripts/research/report_research_pipeline_status.py --json $(if $(RESEARCH_PIPELINE_STATUS_PIPELINE),--pipeline $(RESEARCH_PIPELINE_STATUS_PIPELINE),)
 
+RESEARCH_ARTIFACT_INVENTORY_LANE ?=
+RESEARCH_ARTIFACT_INVENTORY_ARTIFACT_ID ?=
+research-artifact-inventory:
+	$(PYTHON) scripts/research/report_research_artifact_inventory.py $(if $(RESEARCH_ARTIFACT_INVENTORY_LANE),--lane $(RESEARCH_ARTIFACT_INVENTORY_LANE),) $(if $(RESEARCH_ARTIFACT_INVENTORY_ARTIFACT_ID),--artifact-id $(RESEARCH_ARTIFACT_INVENTORY_ARTIFACT_ID),)
+
+research-artifact-inventory-json:
+	@$(PYTHON) scripts/research/report_research_artifact_inventory.py --json $(if $(RESEARCH_ARTIFACT_INVENTORY_LANE),--lane $(RESEARCH_ARTIFACT_INVENTORY_LANE),) $(if $(RESEARCH_ARTIFACT_INVENTORY_ARTIFACT_ID),--artifact-id $(RESEARCH_ARTIFACT_INVENTORY_ARTIFACT_ID),)
+
 RESEARCH_COMMAND_STATUS_LANE ?=
 RESEARCH_COMMAND_STATUS_INPUT_CLASS ?=
 RESEARCH_COMMAND_STATUS_COMMAND_ID ?=
@@ -542,6 +550,7 @@ script-index:
 	@echo "  make price-action-candidate-triage — rank price-action labels for manual review"
 	@echo "  make price-action-research-pipeline — run the price-action research report sequence"
 	@echo "  make research-pipeline-status[-json] — report accepted research pipeline wiring/artifacts"
+	@echo "  make research-artifact-inventory[-json] — report accepted research artifact hashes"
 	@echo "  make research-command-status[-json] — report accepted research command wiring/input classes"
 	@echo "  make operator-proof-status[-json] — report operator-side proof/evidence backlog markers"
 	@echo "  make operator-status[-json] — bundle backlog lane, research pipeline, and proof status"
