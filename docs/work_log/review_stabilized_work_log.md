@@ -27339,6 +27339,54 @@ Remaining risk:
   authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T21:49:22Z - Operator Reporting Read-Only Contract Regression Guard
+
+Active role: ENGINEER
+
+Objective:
+- Execute the selected low-risk docs/tests lane item: regression tests that
+  lock existing behavior without changing runtime code.
+
+What was found:
+- SHOWN: operator planning reports already expose read-only/planning-only and
+  non-mutating contract fields.
+- SHOWN: research status reports already expose fields declaring they are not
+  campaign evidence, execution inputs, or promotion evidence.
+- SHOWN: those contracts were covered piecemeal, but not by one cross-report
+  regression guard.
+
+What changed:
+- Added `tests/test_operator_reporting_read_only_contract.py`.
+- The guard pins that backlog, proof, status-bundle, and next-actions reports
+  remain read-only/planning-only/non-mutating planning surfaces.
+- The guard pins that research pipeline/command status reports remain
+  read-only and not campaign evidence, execution inputs, or promotion evidence.
+- Added the matching backlog note.
+
+Why this change was chosen:
+- The next-action tooling is being used to drive fast batch selection. A
+  cross-report contract test keeps those planning reports from silently gaining
+  runtime authority.
+
+Expected outcome:
+- Future changes that turn operator status/reporting into a mutating or
+  evidence-bearing surface fail in a focused test before review.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_reporting_read_only_contract.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_research_pipeline_status.py tests/test_research_command_status.py tests/test_backlog_lane_status.py tests/test_operator_proof_status.py`
+  - SHOWN: `58 passed in 0.71s`.
+- `./.venv/bin/python -m py_compile tests/test_operator_reporting_read_only_contract.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: tests/backlog/work-log only. No runtime code changed; no backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T21:23:53Z - Read-Only Batch Checklist Refinement
 
 Active role: ENGINEER
