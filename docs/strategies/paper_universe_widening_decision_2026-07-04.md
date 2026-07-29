@@ -9,6 +9,11 @@ Status: Do not widen canonical paper universe yet
 Do not widen the canonical `es_daily_trend_v1` paper universe during the active
 promotion campaign.
 
+Current gate policy: canonical promotion evidence is single-symbol-only until a
+reviewed reconsideration packet changes that policy. Multi-symbol paper runs
+may be used as separate research or challenger evidence, but they must not
+contribute round trips to the canonical `es_daily_trend_v1` promotion gate.
+
 Widening can be reconsidered only after:
 
 - the current canonical gate state is recorded from live operator output;
