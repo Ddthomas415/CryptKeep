@@ -11,6 +11,7 @@ _ACTION_LANES: tuple[str, ...] = (
     "backlog_lane",
     "research_pipeline",
     "research_command",
+    "operator_read_only_command",
     "passive_operator_evidence",
     "operator_proof",
 )
@@ -59,6 +60,23 @@ def _research_command_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
         rows.append(
             {
                 "lane": "research_command",
+                "source": str(row.get("command_id") or ""),
+                "line": None,
+                "blocking_reason": row.get("blocking_reason"),
+                "next_action": str(row.get("next_action") or ""),
+            }
+        )
+    return rows
+
+
+def _operator_read_only_command_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for row in list(dict(bundle.get("actions") or {}).get("operator_read_only_commands") or []):
+        if not isinstance(row, dict):
+            continue
+        rows.append(
+            {
+                "lane": "operator_read_only_command",
                 "source": str(row.get("command_id") or ""),
                 "line": None,
                 "blocking_reason": row.get("blocking_reason"),
@@ -124,6 +142,8 @@ def build_operator_next_actions(
     research_command_lane: str | None = None,
     research_command_input_class: str | None = None,
     research_command_id: str | None = None,
+    operator_read_only_medium_lane_item: str | None = None,
+    operator_read_only_command_id: str | None = None,
     operator_proof_category: str | None = None,
     operator_proof_line: int | str | None = None,
 ) -> dict[str, Any]:
@@ -138,6 +158,8 @@ def build_operator_next_actions(
     research_command_lane_filter = str(research_command_lane or "").strip()
     research_command_input_filter = str(research_command_input_class or "").strip()
     research_command_id_filter = str(research_command_id or "").strip()
+    operator_read_only_lane_item_filter = str(operator_read_only_medium_lane_item or "").strip()
+    operator_read_only_command_filter = str(operator_read_only_command_id or "").strip()
     proof_category_filter = str(operator_proof_category or "").strip()
     proof_line_filter = str(operator_proof_line or "").strip()
     invalid_lane_filter = bool(lane_filter) and lane_filter not in _ACTION_LANES
@@ -149,6 +171,8 @@ def build_operator_next_actions(
         research_command_lane=research_command_lane_filter or None,
         research_command_input_class=research_command_input_filter or None,
         research_command_id=research_command_id_filter or None,
+        operator_read_only_medium_lane_item=operator_read_only_lane_item_filter or None,
+        operator_read_only_command_id=operator_read_only_command_filter or None,
         operator_proof_category=proof_category_filter or None,
         operator_proof_line=proof_line_filter or None,
     )
@@ -157,6 +181,7 @@ def build_operator_next_actions(
         *_backlog_actions(bundle),
         *_research_actions(bundle),
         *_research_command_actions(bundle),
+        *_operator_read_only_command_actions(bundle),
         *_passive_operator_actions(bundle),
         *_proof_actions(bundle),
     ]
@@ -167,6 +192,8 @@ def build_operator_next_actions(
         source_action_lanes.add("research_pipeline")
     if research_command_lane_filter or research_command_input_filter or research_command_id_filter:
         source_action_lanes.add("research_command")
+    if operator_read_only_lane_item_filter or operator_read_only_command_filter:
+        source_action_lanes.add("operator_read_only_command")
     if proof_category_filter or proof_line_filter:
         source_action_lanes.add("operator_proof")
     if source_action_lanes and not lane_filter:
@@ -183,6 +210,7 @@ def build_operator_next_actions(
         int(summary.get("backlog_lane_actions_required") or 0)
         + int(summary.get("research_pipeline_actions_required") or 0)
         + int(summary.get("research_command_actions_required") or 0)
+        + int(summary.get("operator_read_only_command_actions_required") or 0)
         + int(summary.get("passive_operator_evidence_actions_required") or 0)
         + int(summary.get("operator_proof_actions_required") or 0)
     )
@@ -192,6 +220,8 @@ def build_operator_next_actions(
         required_total = int(summary.get("research_pipeline_actions_required") or 0)
     elif lane_filter == "research_command":
         required_total = int(summary.get("research_command_actions_required") or 0)
+    elif lane_filter == "operator_read_only_command":
+        required_total = int(summary.get("operator_read_only_command_actions_required") or 0)
     elif lane_filter == "operator_proof":
         required_total = int(summary.get("operator_proof_actions_required") or 0)
     elif lane_filter == "passive_operator_evidence":
@@ -204,6 +234,8 @@ def build_operator_next_actions(
             required_total += int(summary.get("research_pipeline_actions_required") or 0)
         if "research_command" in source_action_lanes:
             required_total += int(summary.get("research_command_actions_required") or 0)
+        if "operator_read_only_command" in source_action_lanes:
+            required_total += int(summary.get("operator_read_only_command_actions_required") or 0)
         if "operator_proof" in source_action_lanes:
             required_total += int(summary.get("operator_proof_actions_required") or 0)
     if reason_filter:
@@ -244,6 +276,8 @@ def build_operator_next_actions(
         "research_command_lane_filter": research_command_lane_filter or None,
         "research_command_input_class_filter": research_command_input_filter or None,
         "research_command_id_filter": research_command_id_filter or None,
+        "operator_read_only_medium_lane_item_filter": operator_read_only_lane_item_filter or None,
+        "operator_read_only_command_id_filter": operator_read_only_command_filter or None,
         "operator_proof_category_filter": proof_category_filter or None,
         "operator_proof_line_filter": int(proof_line_filter) if proof_line_filter.isdigit() else None,
         "source_reason": bundle.get("reason"),

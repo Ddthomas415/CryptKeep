@@ -27685,6 +27685,62 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T23:04:57Z - Medium-Lane Read-Only Command Status
+
+Active role: ENGINEER
+
+Objective:
+- Continue the medium-risk runtime/read-only lane by making existing
+  medium-lane operator command wiring concrete and machine-checkable.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` lists broad medium-lane categories
+  such as campaign planners, startup/host/gate diagnostics, optional
+  operator-run reports, research tooling, and host status wrappers.
+- SHOWN: many corresponding read-only tools already exist and are listed in
+  `scripts/SCRIPTS.md`, but `operator-status` did not expose a concrete
+  command-wiring inventory for the non-research medium-lane tools.
+
+What changed:
+- Added `services.analytics.operator_read_only_command_status`, a read-only
+  status report over 11 accepted medium-lane operator commands.
+- Added `scripts/report_operator_read_only_command_status.py` and Make targets
+  `operator-read-only-command-status` /
+  `operator-read-only-command-status-json`.
+- Wired the report into `operator-status` as section `operator_read_only` and
+  into `operator-next-actions` as lane `operator_read_only_command`.
+- Added focused filters for medium-lane item and command id.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests.
+
+Why this change was chosen:
+- The next-actions flow should point at concrete command wiring before another
+  medium-lane batch starts. This prevents rebuilding existing tools while
+  preserving the read-only boundary.
+
+Expected outcome:
+- Operators can verify medium-lane read-only report/wrapper wiring without
+  running those reports, running campaigns, fetching market data, closing
+  proof, or mutating runtime state.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py`
+  - SHOWN: `5 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py tests/test_operator_read_only_command_status.py`
+  - SHOWN: `44 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_read_only_command_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `make operator-read-only-command-status-json`
+  - SHOWN: `ok=true`, `command_count=11`, `summary.not_wired=0`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=operator_read_only_command OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: `ok=true`, `action_count_total=0`, `operator_read_only_commands_wired=11`.
+
+Remaining risk:
+- MEDIUM: reporting touches runtime-adjacent operator command inventory, but it
+  is read-only/planning-only and does not run commands, campaigns,
+  market-data fetches, proof closure, authorization, gates, execution, or
+  runtime mutation.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T22:53:53Z - Operator Event Journal CI Assertion Stabilization
 
 Active role: ENGINEER

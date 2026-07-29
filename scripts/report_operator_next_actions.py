@@ -45,6 +45,8 @@ def _print_report(payload: dict[str, Any]) -> None:
         "research_command_lane_filter",
         "research_command_input_class_filter",
         "research_command_id_filter",
+        "operator_read_only_medium_lane_item_filter",
+        "operator_read_only_command_id_filter",
         "operator_proof_category_filter",
         "operator_proof_line_filter",
     ):
@@ -80,7 +82,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-actions", type=int, default=20, help="Maximum actions to print or return")
     parser.add_argument(
         "--lane",
-        choices=("backlog_lane", "research_pipeline", "research_command", "passive_operator_evidence", "operator_proof"),
+        choices=(
+            "backlog_lane",
+            "research_pipeline",
+            "research_command",
+            "operator_read_only_command",
+            "passive_operator_evidence",
+            "operator_proof",
+        ),
         default=None,
         help="Limit output to one action lane",
     )
@@ -109,6 +118,16 @@ def main(argv: list[str] | None = None) -> int:
         help="Forward a research command_id filter to the source bundle",
     )
     parser.add_argument(
+        "--operator-read-only-medium-lane-item",
+        default=None,
+        help="Forward a medium-lane-item filter to the source bundle",
+    )
+    parser.add_argument(
+        "--operator-read-only-command-id",
+        default=None,
+        help="Forward a read-only command_id filter to the source bundle",
+    )
+    parser.add_argument(
         "--operator-proof-category",
         default=None,
         help="Forward an operator proof category filter to the source bundle",
@@ -132,6 +151,8 @@ def main(argv: list[str] | None = None) -> int:
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,
         research_command_id=args.research_command_id,
+        operator_read_only_medium_lane_item=args.operator_read_only_medium_lane_item,
+        operator_read_only_command_id=args.operator_read_only_command_id,
         operator_proof_category=args.operator_proof_category,
         operator_proof_line=args.operator_proof_line,
     )

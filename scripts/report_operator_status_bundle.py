@@ -30,6 +30,8 @@ def _print_report(payload: dict[str, Any]) -> None:
         "research_command_lane_filter",
         "research_command_input_class_filter",
         "research_command_id_filter",
+        "operator_read_only_medium_lane_item_filter",
+        "operator_read_only_command_id_filter",
         "operator_proof_category_filter",
         "operator_proof_line_filter",
     )
@@ -102,6 +104,23 @@ def _print_report(payload: dict[str, Any]) -> None:
             f"reason={row.get('blocking_reason')} "
             f"action={row.get('next_action')}"
         )
+    if "operator_read_only_command_status" in reports:
+        print(
+            "operator_read_only_commands: "
+            f"wired={summary.get('operator_read_only_commands_wired', 0)} "
+            f"not_wired={summary.get('operator_read_only_commands_not_wired', 0)} "
+            f"actions_required={summary.get('operator_read_only_command_actions_required', 0)}"
+        )
+    for row in list(actions_payload.get("operator_read_only_commands") or [])[:5]:
+        if not isinstance(row, dict):
+            continue
+        print(
+            "operator_read_only_command_action: "
+            f"{row.get('command_id')} "
+            f"lane_item={row.get('medium_lane_item')} "
+            f"reason={row.get('blocking_reason')} "
+            f"action={row.get('next_action')}"
+        )
     if "operator_proof_status" in reports:
         print(
             "proofs: "
@@ -166,6 +185,16 @@ def main(argv: list[str] | None = None) -> int:
         help="Forward a command_id filter to research command status",
     )
     parser.add_argument(
+        "--operator-read-only-medium-lane-item",
+        default=None,
+        help="Forward a medium-lane-item filter to operator read-only command status",
+    )
+    parser.add_argument(
+        "--operator-read-only-command-id",
+        default=None,
+        help="Forward a command_id filter to operator read-only command status",
+    )
+    parser.add_argument(
         "--operator-proof-category",
         default=None,
         help="Forward a category filter to operator proof status",
@@ -186,6 +215,8 @@ def main(argv: list[str] | None = None) -> int:
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,
         research_command_id=args.research_command_id,
+        operator_read_only_medium_lane_item=args.operator_read_only_medium_lane_item,
+        operator_read_only_command_id=args.operator_read_only_command_id,
         operator_proof_category=args.operator_proof_category,
         operator_proof_line=args.operator_proof_line,
     )
