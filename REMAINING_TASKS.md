@@ -2852,6 +2852,21 @@ substrate work, but they are concrete enough to keep visible.
     checklist and the stricter AGENTS.md fallback. This is docs/test only and
     does not decide backlog items, run research/campaigns, fetch market data,
     close proof, authorize implementation, or mutate runtime state.
+    2026-07-29: operator reporting read-only contract regression guard is ready
+    for independent review. `tests/test_operator_reporting_read_only_contract.py`
+    pins that backlog/proof/bundle/next-action planning reports remain
+    read-only/planning-only/non-mutating, and that research status reports are
+    not campaign evidence, execution inputs, or promotion evidence. This is
+    tests-only and does not change runtime code, decide backlog items, run
+    research/campaigns, fetch market data, close proof, authorize
+    implementation, or mutate runtime state.
+    2026-07-29: operator reporting backlog/work-log synchronization guard is
+    ready for independent review. `tests/test_operator_reporting_backlog_worklog_sync.py`
+    now pins that the recent operator-reporting backlog notes have matching
+    work-log entries, including this synchronization guard itself. This is
+    tests-only plus backlog/work-log text and does not change runtime code,
+    decide backlog items, run research/campaigns, fetch market data, close
+    proof, authorize implementation, or mutate runtime state.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,
