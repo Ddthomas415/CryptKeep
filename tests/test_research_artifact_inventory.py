@@ -104,6 +104,18 @@ def test_research_artifact_inventory_fails_closed_on_unknown_artifact_id(tmp_pat
     assert "price_action_pipeline_summary" in out["available_artifact_ids"]
 
 
+def test_research_artifact_inventory_fails_closed_on_unknown_lane(tmp_path: Path) -> None:
+    from services.analytics.research_artifact_inventory import build_research_artifact_inventory
+
+    out = build_research_artifact_inventory(repo_root=tmp_path, lane="missing_lane")
+
+    assert out["ok"] is False
+    assert out["reason"] == "invalid_lane"
+    assert out["lane_filter"] == "missing_lane"
+    assert out["artifacts"] == []
+    assert out["available_lanes"] == ["archive", "funding", "price_action"]
+
+
 def test_research_artifact_inventory_cli_prints_next_action(monkeypatch, capsys) -> None:
     from scripts.research import report_research_artifact_inventory as script
 
@@ -144,6 +156,37 @@ def test_research_artifact_inventory_cli_prints_next_action(monkeypatch, capsys)
     assert "lane_filter=price_action" in out
     assert "artifact_id_filter=price_action_forward_returns" in out
     assert "next_action=run make price-action-research-pipeline" in out
+
+
+def test_research_artifact_inventory_cli_prints_available_lanes(monkeypatch, capsys) -> None:
+    from scripts.research import report_research_artifact_inventory as script
+
+    monkeypatch.setattr(
+        script,
+        "build_research_artifact_inventory",
+        lambda repo_root=None, lane=None, artifact_id=None: {
+            "ok": False,
+            "reason": "invalid_lane",
+            "lane_filter": lane,
+            "artifact_id_filter": artifact_id,
+            "available_lanes": ["archive", "funding", "price_action"],
+            "artifact_count": 0,
+            "summary": {
+                "found": 0,
+                "missing": 0,
+                "latest_ok": 0,
+                "latest_not_ok": 0,
+                "unreadable": 0,
+                "action_required": 0,
+            },
+            "artifacts": [],
+        },
+    )
+
+    assert script.main(["--lane", "typo"]) == 2
+    out = capsys.readouterr().out
+    assert "reason=invalid_lane" in out
+    assert "available_lanes=archive,funding,price_action" in out
 
 
 def test_research_command_status_registers_artifact_inventory() -> None:

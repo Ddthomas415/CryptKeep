@@ -247,9 +247,15 @@ def build_research_command_status(
         _row(root, spec, makefile_text=makefile_text, scripts_text=scripts_text)
         for spec in RESEARCH_COMMANDS
     ]
+    available_lanes = sorted({str(row.get("lane") or "") for row in all_rows if str(row.get("lane") or "")})
+    available_input_classes = sorted(
+        {str(row.get("input_class") or "") for row in all_rows if str(row.get("input_class") or "")}
+    )
     valid_command_filter = not command_filter or any(
         row.get("command_id") == command_filter for row in all_rows
     )
+    valid_lane_filter = not lane_filter or lane_filter in available_lanes
+    valid_input_filter = not input_filter or input_filter in available_input_classes
     rows = all_rows
     if lane_filter:
         rows = [row for row in rows if row.get("lane") == lane_filter]
@@ -259,11 +265,20 @@ def build_research_command_status(
         rows = [row for row in rows if row.get("command_id") == command_filter]
     wired = sum(1 for row in rows if bool(row.get("wiring_ok")))
     source_wired = sum(1 for row in all_rows if bool(row.get("wiring_ok")))
+    reason = (
+        "invalid_lane"
+        if not valid_lane_filter
+        else "invalid_input_class"
+        if not valid_input_filter
+        else "invalid_command_id"
+        if not valid_command_filter
+        else None
+    )
     return {
         "schema_version": 1,
         "report_type": "research_command_status",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "ok": valid_command_filter and wired == len(rows),
+        "ok": bool(valid_lane_filter and valid_input_filter and valid_command_filter and wired == len(rows)),
         "read_only": True,
         "not_research_execution": True,
         "not_campaign_evidence": True,
@@ -273,8 +288,10 @@ def build_research_command_status(
         "lane_filter": lane_filter or None,
         "input_class_filter": input_filter or None,
         "command_id_filter": command_filter or None,
+        "available_lanes": available_lanes,
+        "available_input_classes": available_input_classes,
         "available_command_ids": [str(row.get("command_id") or "") for row in all_rows],
-        "reason": None if valid_command_filter else "invalid_command_id",
+        "reason": reason,
         "makefile_sha256": _sha256(root / "Makefile"),
         "script_index_sha256": _sha256(root / "scripts" / "SCRIPTS.md"),
         "command_count": len(rows),

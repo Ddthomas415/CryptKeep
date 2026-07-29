@@ -2595,6 +2595,16 @@ substrate work, but they are concrete enough to keep visible.
     status/reporting only and does not run research jobs, fetch data, generate
     artifacts, or change research artifacts, strategy config, campaigns,
     gates, data ingestion, live routing, execution, or promotion evidence.
+    2026-07-29: research status filter hardening is ready for independent
+    review. `research_artifact_inventory` now fail-closes unknown lane filters
+    as `invalid_lane` with accepted `available_lanes`; `research_command_status`
+    now fail-closes unknown `lane` and `input_class` filters as
+    `invalid_lane` / `invalid_input_class` with accepted filter values. Exact
+    command/artifact ID fail-closed behavior remains intact. This is
+    read-only status/reporting only and does not run research jobs, fetch
+    data, generate artifacts, or change research artifacts, strategy config,
+    campaigns, gates, data ingestion, live routing, execution, or promotion
+    evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
