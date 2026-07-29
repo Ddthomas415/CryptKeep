@@ -2579,6 +2579,22 @@ substrate work, but they are concrete enough to keep visible.
     generate artifacts, or change research artifacts, strategy config,
     campaigns, gates, data ingestion, live routing, execution, or promotion
     evidence.
+    2026-07-29: research artifact inventory is ready for independent review.
+    `services.analytics.research_artifact_inventory` and
+    `scripts/research/report_research_artifact_inventory.py` inventory accepted
+    archive, funding-threshold, and price-action research artifacts by lane,
+    latest path, marker, hash, status, and next action. Missing artifacts are
+    action rows, unreadable or marker-mismatched artifacts fail closed, and
+    unknown artifact IDs return `invalid_artifact_id`. `make
+    research-artifact-inventory[-json]` exposes the report and
+    `research_command_status` registers it as a status command. Local output
+    shows existing funding/price-action artifacts present and three archive
+    research artifacts missing (`archive_walk_forward`,
+    `archive_parameter_sweep`, `archive_parameter_sweep_triage`) with Make
+    targets named for the next operator runs. This remains read-only
+    status/reporting only and does not run research jobs, fetch data, generate
+    artifacts, or change research artifacts, strategy config, campaigns,
+    gates, data ingestion, live routing, execution, or promotion evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
