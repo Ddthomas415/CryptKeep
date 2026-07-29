@@ -2825,6 +2825,16 @@ substrate work, but they are concrete enough to keep visible.
     read-only planning/status only and does not decide backlog items, run
     research/campaigns, fetch market data, close proof, authorize
     implementation, or mutate runtime state.
+    2026-07-29: exact backlog-lane actionable item filtering is ready for
+    independent review. `operator-status` and `operator-next-actions` now
+    accept a 1-based backlog lane ordinal (`OPERATOR_STATUS_BACKLOG_LANE_ORDINAL`
+    / `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL`) to return exactly one
+    actionable item from a filtered lane. The filter fails closed with
+    `reason=invalid_backlog_lane_ordinal` when no lane is provided, the ordinal
+    is non-positive/non-numeric, or the item does not exist; valid lane-only
+    behavior is unchanged. This remains read-only planning/status only and
+    does not decide backlog items, run research/campaigns, fetch market data,
+    close proof, authorize implementation, or mutate runtime state.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

@@ -119,6 +119,7 @@ def build_operator_next_actions(
     reason: str | None = None,
     action_source: str | None = None,
     backlog_lane: str | None = None,
+    backlog_lane_ordinal: int | str | None = None,
     research_pipeline: str | None = None,
     research_command_lane: str | None = None,
     research_command_input_class: str | None = None,
@@ -132,6 +133,7 @@ def build_operator_next_actions(
     reason_filter = str(reason or "").strip()
     source_filter = str(action_source or "").strip()
     backlog_lane_filter = str(backlog_lane or "").strip()
+    backlog_lane_ordinal_filter = str(backlog_lane_ordinal or "").strip()
     research_pipeline_filter = str(research_pipeline or "").strip()
     research_command_lane_filter = str(research_command_lane or "").strip()
     research_command_input_filter = str(research_command_input_class or "").strip()
@@ -142,6 +144,7 @@ def build_operator_next_actions(
     bundle = build_operator_status_bundle(
         repo_root=root,
         backlog_lane=backlog_lane_filter or None,
+        backlog_lane_ordinal=backlog_lane_ordinal_filter or None,
         research_pipeline=research_pipeline_filter or None,
         research_command_lane=research_command_lane_filter or None,
         research_command_input_class=research_command_input_filter or None,
@@ -158,7 +161,7 @@ def build_operator_next_actions(
         *_proof_actions(bundle),
     ]
     source_action_lanes: set[str] = set()
-    if backlog_lane_filter:
+    if backlog_lane_filter or backlog_lane_ordinal_filter:
         source_action_lanes.add("backlog_lane")
     if research_pipeline_filter:
         source_action_lanes.add("research_pipeline")
@@ -234,6 +237,9 @@ def build_operator_next_actions(
         "reason_filter": reason_filter or None,
         "action_source_filter": source_filter or None,
         "backlog_lane_filter": backlog_lane_filter or None,
+        "backlog_lane_ordinal_filter": (
+            int(backlog_lane_ordinal_filter) if backlog_lane_ordinal_filter.isdigit() else None
+        ),
         "research_pipeline_filter": research_pipeline_filter or None,
         "research_command_lane_filter": research_command_lane_filter or None,
         "research_command_input_class_filter": research_command_input_filter or None,

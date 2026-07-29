@@ -133,6 +133,50 @@ def test_operator_status_bundle_forwards_backlog_filter(tmp_path: Path) -> None:
     ]
 
 
+def test_operator_status_bundle_filters_backlog_lane_by_ordinal(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="backlog",
+        backlog_lane="low_risk_docs_tests",
+        backlog_lane_ordinal=1,
+    )
+
+    assert out["ok"] is True
+    assert out["backlog_lane_filter"] == "low_risk_docs_tests"
+    assert out["backlog_lane_ordinal_filter"] == 1
+    assert out["summary"]["source_backlog_lane_actions_required"] == 1
+    assert out["summary"]["backlog_lane_actions_required"] == 1
+    assert [row["ordinal"] for row in out["actions"]["backlog_lanes"]] == [1]
+
+
+def test_operator_status_bundle_rejects_invalid_backlog_lane_ordinal(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    no_lane = build_operator_status_bundle(repo_root=tmp_path, backlog_lane_ordinal=1)
+
+    assert no_lane["ok"] is False
+    assert no_lane["reason"] == "invalid_backlog_lane_ordinal"
+    assert no_lane["summary"]["backlog_lane_actions_required"] == 0
+
+    out_of_range = build_operator_status_bundle(
+        repo_root=tmp_path,
+        backlog_lane="low_risk_docs_tests",
+        backlog_lane_ordinal=2,
+    )
+
+    assert out_of_range["ok"] is False
+    assert out_of_range["reason"] == "invalid_backlog_lane_ordinal"
+    assert out_of_range["summary"]["source_backlog_lane_actions_required"] == 1
+    assert out_of_range["summary"]["backlog_lane_actions_required"] == 0
+    assert out_of_range["actions"]["backlog_lanes"] == []
+
+
 def test_operator_status_bundle_forwards_research_command_filters(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 
@@ -310,6 +354,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "ok": True,
             "section_filter": section,
             "backlog_lane_filter": filters.get("backlog_lane"),
+            "backlog_lane_ordinal_filter": int(filters.get("backlog_lane_ordinal") or 0) or None,
             "research_pipeline_filter": filters.get("research_pipeline"),
             "research_command_lane_filter": filters.get("research_command_lane"),
             "research_command_input_class_filter": filters.get("research_command_input_class"),
@@ -388,6 +433,10 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "operator_proof",
             "--operator-proof-category",
             "host_side_reference",
+            "--backlog-lane",
+            "low_risk_docs_tests",
+            "--backlog-lane-ordinal",
+            "1",
             "--research-command-id",
             "funding_threshold_pipeline",
             "--operator-proof-line",
@@ -397,6 +446,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     out = capsys.readouterr().out
     assert "Operator Status Bundle" in out
     assert "section_filter=operator_proof" in out
+    assert "backlog_lane_filter=low_risk_docs_tests" in out
+    assert "backlog_lane_ordinal_filter=1" in out
     assert "operator_proof_category_filter=host_side_reference" in out
     assert "research_command_id_filter=funding_threshold_pipeline" in out
     assert "operator_proof_line_filter=7" in out
