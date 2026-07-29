@@ -224,6 +224,8 @@ def build_operator_next_actions(
         "research_command_id_filter": research_command_id_filter or None,
         "operator_proof_category_filter": proof_category_filter or None,
         "operator_proof_line_filter": int(proof_line_filter) if proof_line_filter.isdigit() else None,
+        "source_reason": bundle.get("reason"),
+        "source_reasons": dict(bundle.get("source_reasons") or {}),
         "source_report_type": bundle.get("report_type"),
         "source_summary": summary,
         "summary": {

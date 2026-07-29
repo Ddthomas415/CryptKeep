@@ -217,6 +217,29 @@ def test_operator_status_bundle_forwards_research_pipeline_filter(tmp_path: Path
     assert all(row["pipeline_id"] == "price_action" for row in report["pipelines"])
 
 
+def test_operator_status_bundle_surfaces_invalid_research_pipeline_filter(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="research_pipeline",
+        research_pipeline="missing_pipeline",
+    )
+
+    report = out["reports"]["research_pipeline_status"]
+    assert out["ok"] is False
+    assert out["research_pipeline_filter"] == "missing_pipeline"
+    assert out["source_reasons"] == {"research_pipeline_status": "invalid_pipeline"}
+    assert report["ok"] is False
+    assert report["reason"] == "invalid_pipeline"
+    assert report["pipeline_count"] == 0
+    assert out["summary"]["research_pipeline_actions_required"] == 0
+    assert out["actions"]["research_pipelines"] == []
+    assert out["shown_sections"] == ["research_pipeline"]
+
+
 def test_operator_status_bundle_forwards_proof_category(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 

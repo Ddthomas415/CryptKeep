@@ -27348,3 +27348,72 @@ Remaining risk:
   ingestion, live routing, execution, authorization, or runtime mutation
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-29T20:29:05Z - Research Pipeline Filter Fail-Closed Status
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk research/operator reporting lane by making unknown
+  research pipeline filters explicit failures instead of empty successful
+  reports.
+
+What was found:
+- SHOWN: `research_pipeline_status` accepted a `pipeline` filter.
+- SHOWN: an unknown pipeline ID filtered the accepted pipeline list to zero
+  rows, and `all([])` made `ok=true`.
+- SHOWN: `operator_status_bundle` and `operator_next_actions` already forwarded
+  research pipeline filters, so the same ambiguous empty-success result could
+  surface in check-in tooling.
+
+What changed:
+- `research_pipeline_status` now exposes `available_pipeline_ids` and returns
+  `ok=false`, `reason=invalid_pipeline`, and zero rows for unknown pipeline
+  IDs.
+- `report_research_pipeline_status.py` prints the invalid reason and accepted
+  pipeline IDs.
+- `operator_status_bundle` now exposes nested source-report reasons, and
+  `operator_next_actions` carries them through as `source_reasons`.
+- `scripts/SCRIPTS.md` now lists the existing
+  `OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID` override that the previous batch
+  had added to Makefile/CLI behavior.
+- `REMAINING_TASKS.md` and regression tests were updated.
+
+Why this change was chosen:
+- A focused status command should not report success for an identifier outside
+  the accepted pipeline registry. Failing closed keeps operator check-ins
+  unambiguous without running research or changing pipeline artifacts.
+
+Expected outcome:
+- Operators can use valid one-pipeline views normally, while typoed or unknown
+  pipeline IDs exit 2 with `reason=invalid_pipeline` at the source, bundle, and
+  next-actions layers.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_pipeline_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `40 passed in 0.49s`.
+- `./.venv/bin/python -m py_compile services/analytics/research_pipeline_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/research/report_research_pipeline_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_research_pipeline_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make research-pipeline-status-json RESEARCH_PIPELINE_STATUS_PIPELINE=price_action`
+  - SHOWN: `ok=true`, `pipeline_count=1`, pipeline `price_action`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=research_pipeline OPERATOR_STATUS_RESEARCH_PIPELINE=price_action`
+  - SHOWN: `ok=true`, `research_pipeline_filter=price_action`, and
+    `research_pipelines_wired=1`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE=price_action OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `ok=true`, `research_pipeline_filter=price_action`, and no actions
+    for the healthy pipeline.
+- `make research-pipeline-status-json RESEARCH_PIPELINE_STATUS_PIPELINE=missing_pipeline`
+  - SHOWN: exit 2, `ok=false`, `reason=invalid_pipeline`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=research_pipeline OPERATOR_STATUS_RESEARCH_PIPELINE=missing_pipeline`
+  - SHOWN: exit 2, `source_reasons.research_pipeline_status=invalid_pipeline`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE=missing_pipeline OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: exit 2, `source_reasons.research_pipeline_status=invalid_pipeline`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No research job,
+  campaign, market-data fetch, artifact generation, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

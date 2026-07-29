@@ -24,8 +24,13 @@ from services.analytics.research_pipeline_status import build_research_pipeline_
 def _print_report(payload: dict[str, Any]) -> None:
     print("=== Research Pipeline Status ===")
     print(f"ok={payload.get('ok')} pipelines={payload.get('pipeline_count')}")
+    if payload.get("reason"):
+        print(f"reason={payload.get('reason')}")
     if payload.get("pipeline_filter"):
         print(f"pipeline_filter={payload.get('pipeline_filter')}")
+    if payload.get("reason") == "invalid_pipeline":
+        available = ",".join(str(item) for item in list(payload.get("available_pipeline_ids") or []))
+        print(f"available_pipeline_ids={available}")
     summary = dict(payload.get("summary") or {})
     print(
         "summary: "

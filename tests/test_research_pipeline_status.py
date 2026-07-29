@@ -122,6 +122,40 @@ def test_research_pipeline_status_filters_by_pipeline(tmp_path) -> None:
     assert [row["pipeline_id"] for row in out["pipelines"]] == ["funding_threshold"]
 
 
+def test_research_pipeline_status_fails_closed_on_unknown_pipeline(tmp_path) -> None:
+    from services.analytics.research_pipeline_status import build_research_pipeline_status
+
+    (tmp_path / "scripts" / "research").mkdir(parents=True)
+    (tmp_path / "scripts" / "SCRIPTS.md").write_text(
+        "\n".join(
+            [
+                "research/run_price_action_research_pipeline.py make price-action-research-pipeline",
+                "research/run_funding_threshold_research_pipeline.py make funding-threshold-research-pipeline",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    for name in (
+        "run_price_action_research_pipeline.py",
+        "run_funding_threshold_research_pipeline.py",
+    ):
+        (tmp_path / "scripts" / "research" / name).write_text("", encoding="utf-8")
+    (tmp_path / "Makefile").write_text(
+        "price-action-research-pipeline:\n\ttrue\nfunding-threshold-research-pipeline:\n\ttrue\n",
+        encoding="utf-8",
+    )
+
+    out = build_research_pipeline_status(repo_root=tmp_path, pipeline="missing_pipeline")
+
+    assert out["ok"] is False
+    assert out["reason"] == "invalid_pipeline"
+    assert out["pipeline_filter"] == "missing_pipeline"
+    assert out["available_pipeline_ids"] == ["funding_threshold", "price_action"]
+    assert out["pipeline_count"] == 0
+    assert out["source_pipeline_count"] == 2
+    assert out["pipelines"] == []
+
+
 def test_research_pipeline_status_fails_on_wiring_drift(tmp_path) -> None:
     from services.analytics.research_pipeline_status import build_research_pipeline_status
 
@@ -170,3 +204,27 @@ def test_report_research_pipeline_status_cli_prints_next_action(monkeypatch, cap
     assert "pipeline_filter=price_action" in out
     assert "reasons=latest_summary_missing" in out
     assert "next_action=run make price-action-research-pipeline" in out
+
+
+def test_report_research_pipeline_status_cli_fails_on_unknown_pipeline(monkeypatch, capsys) -> None:
+    from scripts.research import report_research_pipeline_status as script
+
+    monkeypatch.setattr(
+        script,
+        "build_research_pipeline_status",
+        lambda repo_root=None, pipeline=None: {
+            "ok": False,
+            "reason": "invalid_pipeline",
+            "pipeline_filter": pipeline,
+            "available_pipeline_ids": ["funding_threshold", "price_action"],
+            "pipeline_count": 0,
+            "summary": {"wired": 0, "latest_ok": 0, "not_run": 0, "latest_not_ok": 0},
+            "pipelines": [],
+        },
+    )
+
+    assert script.main(["--pipeline", "missing_pipeline"]) == 2
+    out = capsys.readouterr().out
+    assert "reason=invalid_pipeline" in out
+    assert "pipeline_filter=missing_pipeline" in out
+    assert "available_pipeline_ids=funding_threshold,price_action" in out
