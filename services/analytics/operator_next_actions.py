@@ -7,6 +7,15 @@ from typing import Any
 from services.analytics.operator_status_bundle import build_operator_status_bundle
 
 
+_ACTION_LANES: tuple[str, ...] = (
+    "backlog_lane",
+    "research_pipeline",
+    "research_command",
+    "passive_operator_evidence",
+    "operator_proof",
+)
+
+
 def _backlog_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for row in list(dict(bundle.get("actions") or {}).get("backlog_lanes") or []):
@@ -129,6 +138,7 @@ def build_operator_next_actions(
     research_command_id_filter = str(research_command_id or "").strip()
     proof_category_filter = str(operator_proof_category or "").strip()
     proof_line_filter = str(operator_proof_line or "").strip()
+    invalid_lane_filter = bool(lane_filter) and lane_filter not in _ACTION_LANES
     bundle = build_operator_status_bundle(
         repo_root=root,
         backlog_lane=backlog_lane_filter or None,
@@ -158,7 +168,9 @@ def build_operator_next_actions(
         source_action_lanes.add("operator_proof")
     if source_action_lanes and not lane_filter:
         actions = [row for row in actions if row.get("lane") in source_action_lanes]
-    if lane_filter:
+    if invalid_lane_filter:
+        actions = []
+    elif lane_filter:
         actions = [row for row in actions if row.get("lane") == lane_filter]
     if reason_filter:
         actions = [row for row in actions if row.get("blocking_reason") == reason_filter]
@@ -201,12 +213,15 @@ def build_operator_next_actions(
         required_total = len(actions)
     if required_total <= 0:
         required_total = len(actions)
+    if invalid_lane_filter:
+        required_total = 0
 
     return {
         "schema_version": 1,
         "report_type": "operator_next_actions",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "ok": bool(bundle.get("ok")),
+        "ok": bool(bundle.get("ok")) and not invalid_lane_filter,
+        "reason": "invalid_action_lane" if invalid_lane_filter else None,
         "read_only": True,
         "planning_only": True,
         "does_not_close_proof": True,
@@ -214,6 +229,7 @@ def build_operator_next_actions(
         "does_not_fetch_market_data": True,
         "does_not_mutate_state": True,
         "repo_root": str(root),
+        "available_action_lanes": list(_ACTION_LANES),
         "lane_filter": lane_filter or None,
         "reason_filter": reason_filter or None,
         "action_source_filter": source_filter or None,

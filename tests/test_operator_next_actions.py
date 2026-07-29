@@ -150,6 +150,55 @@ def test_operator_next_actions_filters_by_lane(monkeypatch) -> None:
     assert [row["lane"] for row in out["actions"]] == ["operator_proof"]
 
 
+def test_operator_next_actions_fails_closed_on_invalid_lane(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    monkeypatch.setattr(
+        mod,
+        "build_operator_status_bundle",
+        lambda repo_root=None, **_filters: {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "research_pipeline_actions_required": 1,
+                "operator_proof_actions_required": 1,
+            },
+            "actions": {
+                "research_pipelines": [
+                    {
+                        "pipeline_id": "price_action",
+                        "blocking_reason": "latest_summary_missing",
+                        "next_action": "run research",
+                    }
+                ],
+                "operator_proofs": [
+                    {
+                        "line": 7,
+                        "category": "remaining_proof",
+                        "next_action": "produce proof",
+                    }
+                ],
+            },
+        },
+    )
+
+    out = mod.build_operator_next_actions(repo_root=".", lane="research")
+
+    assert out["ok"] is False
+    assert out["reason"] == "invalid_action_lane"
+    assert out["available_action_lanes"] == [
+        "backlog_lane",
+        "research_pipeline",
+        "research_command",
+        "passive_operator_evidence",
+        "operator_proof",
+    ]
+    assert out["lane_filter"] == "research"
+    assert out["action_count_total"] == 0
+    assert out["action_count_available"] == 0
+    assert out["actions"] == []
+
+
 def test_operator_next_actions_filters_by_passive_lane(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
 
@@ -692,6 +741,14 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "ok": True,
             "action_count_total": 1,
             "action_count_returned": 1,
+            "reason": None,
+            "available_action_lanes": [
+                "backlog_lane",
+                "research_pipeline",
+                "research_command",
+                "passive_operator_evidence",
+                "operator_proof",
+            ],
             "lane_filter": lane,
             "reason_filter": reason,
             "action_source_filter": action_source,

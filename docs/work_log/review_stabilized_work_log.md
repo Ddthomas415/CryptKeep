@@ -27289,6 +27289,60 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T20:34:53Z - Operator Next-Actions Function-Level Lane Guard
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by making direct
+  `build_operator_next_actions()` callers fail closed on unknown action-lane
+  filters.
+
+What was found:
+- SHOWN: `scripts/report_operator_next_actions.py` constrains `--lane` with
+  argparse choices.
+- SHOWN: direct Python callers can pass any lane string to
+  `build_operator_next_actions()`.
+- SHOWN: an unknown direct lane filter previously returned no rows while the
+  source bundle could still be healthy, creating an empty successful report.
+
+What changed:
+- `build_operator_next_actions()` now defines the accepted action lane set,
+  exposes it as `available_action_lanes`, and returns `ok=false`,
+  `reason=invalid_action_lane`, zero rows, and zero total actions for unknown
+  lane filters.
+- Text output prints the invalid reason and accepted lane set if this condition
+  is ever reached.
+- `REMAINING_TASKS.md` and regression tests were updated.
+
+Why this change was chosen:
+- The service layer should enforce the same input contract as the CLI so future
+  direct callers cannot mistake a typo for "no work remains."
+
+Expected outcome:
+- Invalid action-lane filters are explicit failures everywhere, while valid
+  CLI/Make usage remains unchanged.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `34 passed in 0.35s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -c "from services.analytics.operator_next_actions import build_operator_next_actions; import json; out=build_operator_next_actions(lane='research'); print(json.dumps({k: out.get(k) for k in ('ok','reason','available_action_lanes','lane_filter','action_count_total','actions')}, sort_keys=True))"`
+  - SHOWN: `ok=false`, `reason=invalid_action_lane`,
+    `action_count_total=0`, and no actions.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=research_pipeline OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `ok=true`, `lane_filter=research_pipeline`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T20:23:14Z - Research Command Exact-ID Filter
 
 Active role: ENGINEER
