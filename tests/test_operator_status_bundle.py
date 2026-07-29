@@ -4,23 +4,36 @@ from pathlib import Path
 
 
 def _write_minimal_repo(root: Path) -> None:
+    from services.analytics.operator_read_only_command_status import OPERATOR_READ_ONLY_COMMANDS
     from services.analytics.research_command_status import RESEARCH_COMMANDS
 
     (root / "docs").mkdir()
     (root / "scripts" / "research").mkdir(parents=True)
     (root / "scripts" / "SCRIPTS.md").write_text(
         "\n".join(
-            f"{spec.script.removeprefix('scripts/')} make {spec.make_target or '-'}"
-            for spec in RESEARCH_COMMANDS
+            [
+                *(
+                    f"{spec.script.removeprefix('scripts/')} make {spec.make_target or '-'}"
+                    for spec in RESEARCH_COMMANDS
+                ),
+                *(
+                    f"{spec.script.removeprefix('scripts/')} make {spec.make_target or '-'}"
+                    for spec in OPERATOR_READ_ONLY_COMMANDS
+                ),
+            ]
         ),
         encoding="utf-8",
     )
-    for spec in RESEARCH_COMMANDS:
+    for spec in (*RESEARCH_COMMANDS, *OPERATOR_READ_ONLY_COMMANDS):
         path = root / spec.script
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("", encoding="utf-8")
     (root / "Makefile").write_text(
-        "\n".join(f"{spec.make_target}:\n\ttrue" for spec in RESEARCH_COMMANDS if spec.make_target),
+        "\n".join(
+            f"{spec.make_target}:\n\ttrue"
+            for spec in (*RESEARCH_COMMANDS, *OPERATOR_READ_ONLY_COMMANDS)
+            if spec.make_target
+        ),
         encoding="utf-8",
     )
     lanes = (
@@ -53,17 +66,19 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["does_not_fetch_market_data"] is True
     assert out["does_not_mutate_state"] is True
     assert out["section_filter"] is None
-    assert out["shown_report_count"] == 4
+    assert out["shown_report_count"] == 5
     assert set(out["shown_sections"]) == {
         "backlog",
         "research_pipeline",
         "research_command",
+        "operator_read_only",
         "operator_proof",
     }
     assert set(out["reports"]) == {
         "backlog_lane_status",
         "research_pipeline_status",
         "research_command_status",
+        "operator_read_only_command_status",
         "operator_proof_status",
     }
     assert out["summary"]["passive_operator_items"] == 1
@@ -77,6 +92,9 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["summary"]["research_commands_wired"] >= 19
     assert out["summary"]["research_commands_not_wired"] == 0
     assert out["summary"]["research_command_actions_required"] == 0
+    assert out["summary"]["operator_read_only_commands_wired"] >= 11
+    assert out["summary"]["operator_read_only_commands_not_wired"] == 0
+    assert out["summary"]["operator_read_only_command_actions_required"] == 0
     assert out["summary"]["remaining_proof_or_coverage_markers"] == 1
     assert out["summary"]["host_side_markers"] == 1
     assert out["summary"]["operator_proof_actions_required"] >= 1
@@ -94,7 +112,7 @@ def test_operator_status_bundle_filters_by_section(tmp_path: Path) -> None:
     assert out["ok"] is True
     assert out["section_filter"] == "research_pipeline"
     assert out["shown_sections"] == ["research_pipeline"]
-    assert out["source_report_count"] == 4
+    assert out["source_report_count"] == 5
     assert out["shown_report_count"] == 1
     assert set(out["reports"]) == {"research_pipeline_status"}
     assert set(out["actions"]) == {"research_pipelines"}
@@ -240,6 +258,31 @@ def test_operator_status_bundle_surfaces_research_command_actions(tmp_path: Path
     ]
 
 
+def test_operator_status_bundle_forwards_operator_read_only_filters(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="operator_read_only",
+        operator_read_only_medium_lane_item="gate_diagnostic",
+        operator_read_only_command_id="paper_gate_velocity",
+    )
+
+    report = out["reports"]["operator_read_only_command_status"]
+    assert out["ok"] is True
+    assert out["section_filter"] == "operator_read_only"
+    assert out["operator_read_only_medium_lane_item_filter"] == "gate_diagnostic"
+    assert out["operator_read_only_command_id_filter"] == "paper_gate_velocity"
+    assert report["medium_lane_item_filter"] == "gate_diagnostic"
+    assert report["command_id_filter"] == "paper_gate_velocity"
+    assert report["command_count"] == 1
+    assert out["summary"]["operator_read_only_commands_wired"] == 1
+    assert out["shown_sections"] == ["operator_read_only"]
+    assert out["actions"]["operator_read_only_commands"] == []
+
+
 def test_operator_status_bundle_forwards_research_pipeline_filter(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 
@@ -359,9 +402,11 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "research_command_lane_filter": filters.get("research_command_lane"),
             "research_command_input_class_filter": filters.get("research_command_input_class"),
             "research_command_id_filter": filters.get("research_command_id"),
+            "operator_read_only_medium_lane_item_filter": filters.get("operator_read_only_medium_lane_item"),
+            "operator_read_only_command_id_filter": filters.get("operator_read_only_command_id"),
             "operator_proof_category_filter": filters.get("operator_proof_category"),
             "operator_proof_line_filter": int(filters.get("operator_proof_line") or 0) or None,
-            "shown_sections": [section] if section else ["backlog", "research_pipeline", "operator_proof"],
+            "shown_sections": [section] if section else ["backlog", "research_pipeline", "operator_read_only", "operator_proof"],
             "summary": {
                 "passive_operator_items": 15,
                 "backlog_lane_actions_required": 1,
@@ -375,6 +420,9 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "research_commands_wired": 19,
                 "research_commands_not_wired": 0,
                 "research_command_actions_required": 1,
+                "operator_read_only_commands_wired": 11,
+                "operator_read_only_commands_not_wired": 0,
+                "operator_read_only_command_actions_required": 1,
                 "remaining_proof_or_coverage_markers": 27,
                 "host_side_markers": 17,
                 "proof_ready_markers": 25,
@@ -384,6 +432,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "backlog_lane_status": {},
                 "research_pipeline_status": {},
                 "research_command_status": {},
+                "operator_read_only_command_status": {},
                 "operator_proof_status": {},
             },
             "actions": {
@@ -408,6 +457,14 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                         "lane": "funding",
                         "blocking_reason": "script_missing",
                         "next_action": "repair research command wiring for funding_threshold_pipeline: script_missing",
+                    }
+                ],
+                "operator_read_only_commands": [
+                    {
+                        "command_id": "paper_gate_velocity",
+                        "medium_lane_item": "gate_diagnostic",
+                        "blocking_reason": "script_missing",
+                        "next_action": "repair read-only command wiring for paper_gate_velocity: script_missing",
                     }
                 ],
                 "passive_operator_evidence": [
@@ -439,6 +496,10 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "1",
             "--research-command-id",
             "funding_threshold_pipeline",
+            "--operator-read-only-medium-lane-item",
+            "gate_diagnostic",
+            "--operator-read-only-command-id",
+            "paper_gate_velocity",
             "--operator-proof-line",
             "7",
         ]
@@ -450,6 +511,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "backlog_lane_ordinal_filter=1" in out
     assert "operator_proof_category_filter=host_side_reference" in out
     assert "research_command_id_filter=funding_threshold_pipeline" in out
+    assert "operator_read_only_medium_lane_item_filter=gate_diagnostic" in out
+    assert "operator_read_only_command_id_filter=paper_gate_velocity" in out
     assert "operator_proof_line_filter=7" in out
     assert "passive=15" in out
     assert "backlog_action: #1 low_risk_docs_tests" in out
@@ -460,6 +523,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "research_commands: wired=19" in out
     assert "actions_required=1" in out
     assert "research_command_action: funding_threshold_pipeline" in out
+    assert "operator_read_only_commands: wired=11" in out
+    assert "operator_read_only_command_action: paper_gate_velocity" in out
     assert "remaining=27" in out
     assert "passive_action: #1" in out
     assert "collect or record operator evidence" in out

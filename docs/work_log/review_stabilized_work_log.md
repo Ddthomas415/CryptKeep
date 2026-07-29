@@ -27387,6 +27387,99 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T22:28:04Z - Operator Reporting Lane-Map Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Execute the selected low-risk docs/tests lane item: backlog lane-map
+  refreshes that prevent rebuilding already accepted or proof-ready work.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` already named the exact
+  `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE` plus
+  `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL` selector workflow.
+- SHOWN: the follow-up operator-reporting read-only contract and backlog/work-log
+  sync guards now exist in the current stacked source, but the lane-map refresh
+  note did not yet say not to rebuild that stack.
+
+What changed:
+- Updated `docs/BACKLOG_EXECUTION_LANES.md` to record that the
+  operator-reporting selector stack is already covered by dedicated read-only
+  contract and backlog/work-log synchronization guards.
+- Added guard assertions to `tests/test_backlog_execution_lanes_guard.py` so
+  that no-rebuild instruction remains visible.
+- Added the matching backlog note.
+
+Why this change was chosen:
+- This keeps the lane-map aligned with the work already completed in the
+  operator-reporting stack and prevents future batches from redoing it as fresh
+  backlog work.
+
+Expected outcome:
+- Future local coding passes will use the existing operator reporting selector
+  and guards instead of rebuilding the same low-risk reporting infrastructure.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backlog_execution_lanes_guard.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `8 passed in 0.17s`.
+- `./.venv/bin/python -m py_compile tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/tests only. No runtime code changed; no backlog item is decided or
+  closed; no campaign, market-data fetch, proof closure, gate, ingestion, live
+  routing, execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-29T22:29:58Z - Explicit Single-Symbol Paper-Gate Policy Documentation
+
+Active role: ENGINEER
+
+Objective:
+- Execute the selected low-risk docs/tests lane item: explicit single-symbol or
+  multi-symbol policy documentation when no gate code is changed.
+
+What was found:
+- SHOWN: `docs/strategies/paper_universe_widening_decision_2026-07-04.md`
+  already blocks widening the canonical `es_daily_trend_v1` paper universe.
+- SHOWN: the doc required symbol-aware counting or explicit single-symbol-only
+  policy before cross-symbol fills count, but did not state the current policy
+  as a direct sentence.
+
+What changed:
+- Added the explicit current policy: canonical promotion evidence is
+  single-symbol-only until a reviewed reconsideration packet changes it.
+- Clarified that multi-symbol paper runs may be separate research/challenger
+  evidence but must not contribute round trips to the canonical
+  `es_daily_trend_v1` promotion gate.
+- Updated `tests/test_paper_universe_widening_decision.py` to pin the policy.
+- Added the matching backlog note.
+
+Why this change was chosen:
+- This resolves the policy ambiguity without touching promotion-gate code or
+  changing any campaign behavior.
+
+Expected outcome:
+- Operators can run separate multi-symbol research/challenger work without
+  accidentally treating those round trips as canonical promotion evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_universe_widening_decision.py tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: `11 passed in 0.16s`.
+- `./.venv/bin/python -m py_compile tests/test_paper_universe_widening_decision.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/tests only. No runtime code changed; no backlog item is decided or
+  closed; no campaign, market-data fetch, proof closure, gate, ingestion, live
+  routing, execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T21:52:19Z - Operator Reporting Backlog/Work-Log Synchronization Guard
 
 Active role: ENGINEER
@@ -27699,6 +27792,62 @@ Remaining risk:
   campaign, market-data fetch, artifact generation, proof closure, gate,
   ingestion, live routing, execution, authorization, or runtime mutation
   changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-29T23:04:57Z - Medium-Lane Read-Only Command Status
+
+Active role: ENGINEER
+
+Objective:
+- Continue the medium-risk runtime/read-only lane by making existing
+  medium-lane operator command wiring concrete and machine-checkable.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` lists broad medium-lane categories
+  such as campaign planners, startup/host/gate diagnostics, optional
+  operator-run reports, research tooling, and host status wrappers.
+- SHOWN: many corresponding read-only tools already exist and are listed in
+  `scripts/SCRIPTS.md`, but `operator-status` did not expose a concrete
+  command-wiring inventory for the non-research medium-lane tools.
+
+What changed:
+- Added `services.analytics.operator_read_only_command_status`, a read-only
+  status report over 11 accepted medium-lane operator commands.
+- Added `scripts/report_operator_read_only_command_status.py` and Make targets
+  `operator-read-only-command-status` /
+  `operator-read-only-command-status-json`.
+- Wired the report into `operator-status` as section `operator_read_only` and
+  into `operator-next-actions` as lane `operator_read_only_command`.
+- Added focused filters for medium-lane item and command id.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests.
+
+Why this change was chosen:
+- The next-actions flow should point at concrete command wiring before another
+  medium-lane batch starts. This prevents rebuilding existing tools while
+  preserving the read-only boundary.
+
+Expected outcome:
+- Operators can verify medium-lane read-only report/wrapper wiring without
+  running those reports, running campaigns, fetching market data, closing
+  proof, or mutating runtime state.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py`
+  - SHOWN: `5 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py tests/test_operator_read_only_command_status.py`
+  - SHOWN: `44 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_read_only_command_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `make operator-read-only-command-status-json`
+  - SHOWN: `ok=true`, `command_count=11`, `summary.not_wired=0`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=operator_read_only_command OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: `ok=true`, `action_count_total=0`, `operator_read_only_commands_wired=11`.
+
+Remaining risk:
+- MEDIUM: reporting touches runtime-adjacent operator command inventory, but it
+  is read-only/planning-only and does not run commands, campaigns,
+  market-data fetches, proof closure, authorization, gates, execution, or
+  runtime mutation.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## 2026-07-29T22:53:53Z - Operator Event Journal CI Assertion Stabilization

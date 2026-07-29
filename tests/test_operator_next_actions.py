@@ -190,6 +190,7 @@ def test_operator_next_actions_fails_closed_on_invalid_lane(monkeypatch) -> None
         "backlog_lane",
         "research_pipeline",
         "research_command",
+        "operator_read_only_command",
         "passive_operator_evidence",
         "operator_proof",
     ]
@@ -542,6 +543,8 @@ def test_operator_next_actions_forwards_source_filters(monkeypatch) -> None:
         "research_command_lane": "funding",
         "research_command_input_class": "artifact_input",
         "research_command_id": None,
+        "operator_read_only_medium_lane_item": None,
+        "operator_read_only_command_id": None,
         "operator_proof_category": "host_side_reference",
         "operator_proof_line": "7",
     }
@@ -756,6 +759,70 @@ def test_operator_next_actions_research_command_id_filter_implies_matching_actio
     assert [row["source"] for row in out["actions"]] == ["funding_threshold_pipeline"]
 
 
+def test_operator_next_actions_operator_read_only_filter_implies_matching_action_lane(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    captured = {}
+
+    def fake_bundle(repo_root=None, **filters):
+        captured.update(filters)
+        return {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "research_pipeline_actions_required": 1,
+                "operator_read_only_command_actions_required": 1,
+                "operator_proof_actions_required": 9,
+            },
+            "actions": {
+                "research_pipelines": [
+                    {
+                        "pipeline_id": "price_action",
+                        "blocking_reason": "latest_summary_missing",
+                        "next_action": "run research",
+                    }
+                ],
+                "operator_read_only_commands": [
+                    {
+                        "command_id": "paper_gate_velocity",
+                        "blocking_reason": "script_missing",
+                        "next_action": "repair read-only command wiring",
+                    }
+                ],
+                "operator_proofs": [
+                    {
+                        "line": 7,
+                        "category": "host_side_reference",
+                        "next_action": "run host proof",
+                    }
+                ],
+            },
+        }
+
+    monkeypatch.setattr(mod, "build_operator_status_bundle", fake_bundle)
+
+    out = mod.build_operator_next_actions(
+        repo_root=".",
+        operator_read_only_command_id="paper_gate_velocity",
+        max_actions=20,
+    )
+
+    assert captured["operator_read_only_command_id"] == "paper_gate_velocity"
+    assert out["operator_read_only_command_id_filter"] == "paper_gate_velocity"
+    assert out["lane_filter"] is None
+    assert out["action_count_total"] == 1
+    assert out["action_count_available"] == 1
+    assert out["actions"] == [
+        {
+            "lane": "operator_read_only_command",
+            "source": "paper_gate_velocity",
+            "line": None,
+            "blocking_reason": "script_missing",
+            "next_action": "repair read-only command wiring",
+        }
+    ]
+
+
 def test_operator_next_actions_proof_line_filter_implies_proof_lane(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
 
@@ -809,6 +876,7 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
                 "backlog_lane",
                 "research_pipeline",
                 "research_command",
+                "operator_read_only_command",
                 "passive_operator_evidence",
                 "operator_proof",
             ],
@@ -821,6 +889,8 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "research_command_lane_filter": filters.get("research_command_lane"),
             "research_command_input_class_filter": filters.get("research_command_input_class"),
             "research_command_id_filter": filters.get("research_command_id"),
+            "operator_read_only_medium_lane_item_filter": filters.get("operator_read_only_medium_lane_item"),
+            "operator_read_only_command_id_filter": filters.get("operator_read_only_command_id"),
             "operator_proof_category_filter": filters.get("operator_proof_category"),
             "operator_proof_line_filter": int(filters.get("operator_proof_line") or 0) or None,
             "summary": {
@@ -860,6 +930,10 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "host_side_reference",
             "--research-command-id",
             "funding_threshold_pipeline",
+            "--operator-read-only-medium-lane-item",
+            "gate_diagnostic",
+            "--operator-read-only-command-id",
+            "paper_gate_velocity",
             "--operator-proof-line",
             "7",
         ]
@@ -873,6 +947,8 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     assert "backlog_lane_ordinal_filter=1" in out
     assert "research_pipeline_filter=price_action" in out
     assert "research_command_id_filter=funding_threshold_pipeline" in out
+    assert "operator_read_only_medium_lane_item_filter=gate_diagnostic" in out
+    assert "operator_read_only_command_id_filter=paper_gate_velocity" in out
     assert "operator_proof_category_filter=host_side_reference" in out
     assert "operator_proof_line_filter=7" in out
     assert "by_lane: backlog_lane=1" in out
