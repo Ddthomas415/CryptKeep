@@ -430,6 +430,7 @@ def test_operator_next_actions_forwards_source_filters(monkeypatch) -> None:
         "research_pipeline": "price_action",
         "research_command_lane": "funding",
         "research_command_input_class": "artifact_input",
+        "research_command_id": None,
         "operator_proof_category": "host_side_reference",
         "operator_proof_line": "7",
     }
@@ -547,6 +548,62 @@ def test_operator_next_actions_research_command_filter_implies_matching_action_l
     ]
 
 
+def test_operator_next_actions_research_command_id_filter_implies_matching_action_lane(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    captured = {}
+
+    def fake_bundle(repo_root=None, **filters):
+        captured.update(filters)
+        return {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "research_pipeline_actions_required": 1,
+                "research_command_actions_required": 1,
+                "operator_proof_actions_required": 9,
+            },
+            "actions": {
+                "research_pipelines": [
+                    {
+                        "pipeline_id": "price_action",
+                        "blocking_reason": "latest_summary_missing",
+                        "next_action": "run research",
+                    }
+                ],
+                "research_commands": [
+                    {
+                        "command_id": "funding_threshold_pipeline",
+                        "blocking_reason": "script_missing",
+                        "next_action": "repair research command wiring",
+                    }
+                ],
+                "operator_proofs": [
+                    {
+                        "line": 7,
+                        "category": "host_side_reference",
+                        "next_action": "run host proof",
+                    }
+                ],
+            },
+        }
+
+    monkeypatch.setattr(mod, "build_operator_status_bundle", fake_bundle)
+
+    out = mod.build_operator_next_actions(
+        repo_root=".",
+        research_command_id="funding_threshold_pipeline",
+        max_actions=20,
+    )
+
+    assert captured["research_command_id"] == "funding_threshold_pipeline"
+    assert out["research_command_id_filter"] == "funding_threshold_pipeline"
+    assert out["action_count_total"] == 1
+    assert out["action_count_available"] == 1
+    assert [row["lane"] for row in out["actions"]] == ["research_command"]
+    assert [row["source"] for row in out["actions"]] == ["funding_threshold_pipeline"]
+
+
 def test_operator_next_actions_proof_line_filter_implies_proof_lane(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
 
@@ -602,6 +659,7 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "research_pipeline_filter": filters.get("research_pipeline"),
             "research_command_lane_filter": filters.get("research_command_lane"),
             "research_command_input_class_filter": filters.get("research_command_input_class"),
+            "research_command_id_filter": filters.get("research_command_id"),
             "operator_proof_category_filter": filters.get("operator_proof_category"),
             "operator_proof_line_filter": int(filters.get("operator_proof_line") or 0) or None,
             "summary": {
@@ -635,6 +693,8 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "price_action",
             "--operator-proof-category",
             "host_side_reference",
+            "--research-command-id",
+            "funding_threshold_pipeline",
             "--operator-proof-line",
             "7",
         ]
@@ -645,6 +705,7 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     assert "lane_filter=backlog_lane" in out
     assert "action_source_filter=low_risk_docs_tests" in out
     assert "research_pipeline_filter=price_action" in out
+    assert "research_command_id_filter=funding_threshold_pipeline" in out
     assert "operator_proof_category_filter=host_side_reference" in out
     assert "operator_proof_line_filter=7" in out
     assert "by_lane: backlog_lane=1" in out

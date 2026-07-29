@@ -113,6 +113,7 @@ def build_operator_next_actions(
     research_pipeline: str | None = None,
     research_command_lane: str | None = None,
     research_command_input_class: str | None = None,
+    research_command_id: str | None = None,
     operator_proof_category: str | None = None,
     operator_proof_line: int | str | None = None,
 ) -> dict[str, Any]:
@@ -125,6 +126,7 @@ def build_operator_next_actions(
     research_pipeline_filter = str(research_pipeline or "").strip()
     research_command_lane_filter = str(research_command_lane or "").strip()
     research_command_input_filter = str(research_command_input_class or "").strip()
+    research_command_id_filter = str(research_command_id or "").strip()
     proof_category_filter = str(operator_proof_category or "").strip()
     proof_line_filter = str(operator_proof_line or "").strip()
     bundle = build_operator_status_bundle(
@@ -133,6 +135,7 @@ def build_operator_next_actions(
         research_pipeline=research_pipeline_filter or None,
         research_command_lane=research_command_lane_filter or None,
         research_command_input_class=research_command_input_filter or None,
+        research_command_id=research_command_id_filter or None,
         operator_proof_category=proof_category_filter or None,
         operator_proof_line=proof_line_filter or None,
     )
@@ -149,7 +152,7 @@ def build_operator_next_actions(
         source_action_lanes.add("backlog_lane")
     if research_pipeline_filter:
         source_action_lanes.add("research_pipeline")
-    if research_command_lane_filter or research_command_input_filter:
+    if research_command_lane_filter or research_command_input_filter or research_command_id_filter:
         source_action_lanes.add("research_command")
     if proof_category_filter or proof_line_filter:
         source_action_lanes.add("operator_proof")
@@ -218,6 +221,7 @@ def build_operator_next_actions(
         "research_pipeline_filter": research_pipeline_filter or None,
         "research_command_lane_filter": research_command_lane_filter or None,
         "research_command_input_class_filter": research_command_input_filter or None,
+        "research_command_id_filter": research_command_id_filter or None,
         "operator_proof_category_filter": proof_category_filter or None,
         "operator_proof_line_filter": int(proof_line_filter) if proof_line_filter.isdigit() else None,
         "source_report_type": bundle.get("report_type"),

@@ -325,7 +325,8 @@ decision makes them authoritative.
   or mutate strategy, campaign, gate, or execution state.
   Use `make research-command-status` or `make research-command-status-json`;
   supports `RESEARCH_COMMAND_STATUS_LANE` and
-  `RESEARCH_COMMAND_STATUS_INPUT_CLASS` for focused views.
+  `RESEARCH_COMMAND_STATUS_INPUT_CLASS` /
+  `RESEARCH_COMMAND_STATUS_COMMAND_ID` for focused views.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.

@@ -44,6 +44,32 @@ def test_research_command_status_filters_by_lane_and_input_class() -> None:
     assert all(row["input_class"] == "artifact_input" for row in out["commands"])
 
 
+def test_research_command_status_filters_by_command_id() -> None:
+    from services.analytics.research_command_status import build_research_command_status
+
+    out = build_research_command_status(command_id="funding_threshold_pipeline")
+
+    assert out["ok"] is True
+    assert out["command_id_filter"] == "funding_threshold_pipeline"
+    assert out["command_count"] == 1
+    assert out["source_command_count"] >= out["command_count"]
+    assert "funding_threshold_pipeline" in out["available_command_ids"]
+    assert out["commands"][0]["command_id"] == "funding_threshold_pipeline"
+    assert out["commands"][0]["lane"] == "funding"
+
+
+def test_research_command_status_rejects_unknown_command_id() -> None:
+    from services.analytics.research_command_status import build_research_command_status
+
+    out = build_research_command_status(command_id="missing_command")
+
+    assert out["ok"] is False
+    assert out["reason"] == "invalid_command_id"
+    assert out["command_id_filter"] == "missing_command"
+    assert out["commands"] == []
+    assert "funding_threshold_pipeline" in out["available_command_ids"]
+
+
 def test_research_command_status_fails_closed_on_wiring_drift(tmp_path) -> None:
     from services.analytics.research_command_status import build_research_command_status
 
@@ -69,10 +95,11 @@ def test_report_research_command_status_cli(monkeypatch, capsys) -> None:
     monkeypatch.setattr(
         script,
         "build_research_command_status",
-        lambda repo_root=None, lane=None, input_class=None: {
+        lambda repo_root=None, lane=None, input_class=None, command_id=None: {
             "ok": True,
             "lane_filter": lane,
             "input_class_filter": input_class,
+            "command_id_filter": command_id,
             "command_count": 2,
             "summary": {
                 "wired": 2,
@@ -93,10 +120,13 @@ def test_report_research_command_status_cli(monkeypatch, capsys) -> None:
         },
     )
 
-    assert script.main(["--lane", "funding", "--input-class", "state_input"]) == 0
+    assert script.main(
+        ["--lane", "funding", "--input-class", "state_input", "--command-id", "funding_threshold_pipeline"]
+    ) == 0
     out = capsys.readouterr().out
     assert "Research Command Status" in out
     assert "lane_filter=funding" in out
     assert "input_class_filter=state_input" in out
+    assert "command_id_filter=funding_threshold_pipeline" in out
     assert "wired=2" in out
     assert "funding_threshold_pipeline" in out

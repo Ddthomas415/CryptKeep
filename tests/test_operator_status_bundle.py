@@ -143,6 +143,7 @@ def test_operator_status_bundle_forwards_research_command_filters(tmp_path: Path
         section="research_command",
         research_command_lane="funding",
         research_command_input_class="artifact_input",
+        research_command_id="funding_threshold_sensitivity",
     )
 
     report = out["reports"]["research_command_status"]
@@ -150,12 +151,16 @@ def test_operator_status_bundle_forwards_research_command_filters(tmp_path: Path
     assert out["section_filter"] == "research_command"
     assert out["research_command_lane_filter"] == "funding"
     assert out["research_command_input_class_filter"] == "artifact_input"
+    assert out["research_command_id_filter"] == "funding_threshold_sensitivity"
     assert report["lane_filter"] == "funding"
     assert report["input_class_filter"] == "artifact_input"
+    assert report["command_id_filter"] == "funding_threshold_sensitivity"
+    assert report["command_count"] == 1
     assert out["summary"]["research_commands_wired"] == report["command_count"]
     assert out["shown_sections"] == ["research_command"]
     assert all(row["lane"] == "funding" for row in report["commands"])
     assert all(row["input_class"] == "artifact_input" for row in report["commands"])
+    assert [row["command_id"] for row in report["commands"]] == ["funding_threshold_sensitivity"]
     assert out["actions"]["research_commands"] == []
 
 
@@ -285,6 +290,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "research_pipeline_filter": filters.get("research_pipeline"),
             "research_command_lane_filter": filters.get("research_command_lane"),
             "research_command_input_class_filter": filters.get("research_command_input_class"),
+            "research_command_id_filter": filters.get("research_command_id"),
             "operator_proof_category_filter": filters.get("operator_proof_category"),
             "operator_proof_line_filter": int(filters.get("operator_proof_line") or 0) or None,
             "shown_sections": [section] if section else ["backlog", "research_pipeline", "operator_proof"],
@@ -359,6 +365,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "operator_proof",
             "--operator-proof-category",
             "host_side_reference",
+            "--research-command-id",
+            "funding_threshold_pipeline",
             "--operator-proof-line",
             "7",
         ]
@@ -367,6 +375,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "Operator Status Bundle" in out
     assert "section_filter=operator_proof" in out
     assert "operator_proof_category_filter=host_side_reference" in out
+    assert "research_command_id_filter=funding_threshold_pipeline" in out
     assert "operator_proof_line_filter=7" in out
     assert "passive=15" in out
     assert "backlog_action: #1 low_risk_docs_tests" in out

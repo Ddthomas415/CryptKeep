@@ -37,6 +37,7 @@ def build_operator_status_bundle(
     research_pipeline: str | None = None,
     research_command_lane: str | None = None,
     research_command_input_class: str | None = None,
+    research_command_id: str | None = None,
     operator_proof_category: str | None = None,
     operator_proof_line: int | str | None = None,
 ) -> dict[str, Any]:
@@ -47,6 +48,7 @@ def build_operator_status_bundle(
     research_pipeline_filter = str(research_pipeline or "").strip()
     research_command_lane_filter = str(research_command_lane or "").strip()
     research_command_input_filter = str(research_command_input_class or "").strip()
+    research_command_id_filter = str(research_command_id or "").strip()
     proof_category_filter = str(operator_proof_category or "").strip()
     proof_line_filter = str(operator_proof_line or "").strip()
     backlog = build_backlog_lane_status(repo_root=root, lane=backlog_lane_filter or None)
@@ -55,6 +57,7 @@ def build_operator_status_bundle(
         repo_root=root,
         lane=research_command_lane_filter or None,
         input_class=research_command_input_filter or None,
+        command_id=research_command_id_filter or None,
     )
     proofs = build_operator_proof_status(
         repo_root=root,
@@ -142,6 +145,7 @@ def build_operator_status_bundle(
         "research_pipeline_filter": research_pipeline_filter or None,
         "research_command_lane_filter": research_command_lane_filter or None,
         "research_command_input_class_filter": research_command_input_filter or None,
+        "research_command_id_filter": research_command_id_filter or None,
         "operator_proof_category_filter": proof_category_filter or None,
         "operator_proof_line_filter": int(proof_line_filter) if proof_line_filter.isdigit() else None,
         "reports": {

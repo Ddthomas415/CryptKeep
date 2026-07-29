@@ -2559,6 +2559,15 @@ substrate work, but they are concrete enough to keep visible.
     research jobs, fetch data, generate artifacts, or change research
     artifacts, strategy config, campaigns, gates, data ingestion, live
     routing, execution, or promotion evidence.
+    2026-07-29: research command exact-ID filtering is ready for independent
+    review. `research-command-status`, `operator-status`, and
+    `operator-next-actions` now accept a `command_id`/Make override to focus a
+    single accepted research command while preserving source counts and
+    fail-closing unknown command IDs as `invalid_command_id`. This remains
+    read-only status/reporting only and does not run research jobs, fetch data,
+    generate artifacts, or change research artifacts, strategy config,
+    campaigns, gates, data ingestion, live routing, execution, or promotion
+    evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
