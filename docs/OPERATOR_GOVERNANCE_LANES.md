@@ -94,6 +94,22 @@ Every proactive task must tie to at least one of:
 
 If a task does not tie to one of those, defer it.
 
+## Read-Only Batch Checklist
+
+Use this checklist before opening a low-risk or medium-risk read-only batch:
+
+1. Name the exact backlog lane item or read-only report being worked.
+2. Confirm the diff does not touch campaigns, promotion gates, execution,
+   authorization, secrets, migrations, or background jobs.
+3. Confirm the command or report is read-only, planning-only, and does not
+   fetch market data unless the selected item explicitly permits a research
+   fetch.
+4. Run the narrowest relevant tests plus `git diff --check`.
+5. Record the work-log entry with the risk lane and remaining unverified risk.
+
+If any checklist item fails, split the work into a separate higher-risk batch
+and apply the stricter AGENTS.md review rule.
+
 ## PR Labeling Convention
 
 Use the risk class in PR title or body:

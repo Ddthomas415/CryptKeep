@@ -71,6 +71,19 @@ def test_governance_lanes_preserve_operator_attention_cap() -> None:
     assert "If a task does not tie to one of those, defer it." in text
 
 
+def test_governance_lanes_preserve_read_only_batch_checklist() -> None:
+    text = _normalized("docs/OPERATOR_GOVERNANCE_LANES.md")
+
+    assert "Read-Only Batch Checklist" in text
+    assert "Name the exact backlog lane item or read-only report being worked." in text
+    assert "Confirm the diff does not touch campaigns, promotion gates, execution" in text
+    assert "read-only, planning-only" in text
+    assert "does not fetch market data unless the selected item explicitly permits a research fetch" in text
+    assert "Run the narrowest relevant tests plus `git diff --check`." in text
+    assert "split the work into a separate higher-risk batch" in text
+    assert "apply the stricter AGENTS.md review rule" in text
+
+
 def test_agents_high_risk_rules_remain_stricter_than_lane_labels() -> None:
     agents = _text("AGENTS.md")
     lanes = _normalized("docs/OPERATOR_GOVERNANCE_LANES.md")
