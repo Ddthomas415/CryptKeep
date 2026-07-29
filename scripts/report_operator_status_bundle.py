@@ -36,6 +36,9 @@ def _print_report(payload: dict[str, Any]) -> None:
     print(f"ok={bool(payload.get('ok'))}")
     if payload.get("reason"):
         print(f"reason={payload.get('reason')}")
+    source_reasons = dict(payload.get("source_reasons") or {})
+    for key, value in sorted(source_reasons.items()):
+        print(f"source_reason:{key}={value}")
     if section_filter:
         print(f"section_filter={section_filter}")
     for key in filter_keys:

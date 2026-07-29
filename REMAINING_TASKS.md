@@ -2527,6 +2527,17 @@ substrate work, but they are concrete enough to keep visible.
     generate artifacts, or change research artifacts, strategy config,
     campaigns, gates, data ingestion, live routing, execution, or promotion
     evidence.
+    2026-07-29: research pipeline filter fail-closed behavior is ready for
+    independent review. Unknown `--pipeline` /
+    `RESEARCH_PIPELINE_STATUS_PIPELINE` values now return `ok=false`,
+    `reason=invalid_pipeline`, zero rows, and the accepted
+    `available_pipeline_ids`; operator-status and operator-next-actions
+    propagate the source reason when the same bad filter is forwarded. Valid
+    one-pipeline views still preserve source counts and latest artifact hashes.
+    This remains read-only status/reporting only and does not run research
+    jobs, fetch data, generate artifacts, or change research artifacts,
+    strategy config, campaigns, gates, data ingestion, live routing,
+    execution, or promotion evidence.
     2026-07-28: read-only research command status report is ready for
     independent review. `services.analytics.research_command_status` and
     `scripts/research/report_research_command_status.py` inventory accepted

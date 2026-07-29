@@ -488,6 +488,46 @@ def test_operator_next_actions_source_filter_implies_matching_action_lane(monkey
     ]
 
 
+def test_operator_next_actions_surfaces_invalid_research_pipeline_filter(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    captured = {}
+
+    def fake_bundle(repo_root=None, **filters):
+        captured.update(filters)
+        return {
+            "ok": False,
+            "report_type": "operator_status_bundle",
+            "source_reasons": {"research_pipeline_status": "invalid_pipeline"},
+            "summary": {
+                "research_pipeline_actions_required": 0,
+                "operator_proof_actions_required": 9,
+            },
+            "actions": {
+                "research_pipelines": [],
+                "operator_proofs": [
+                    {
+                        "line": 7,
+                        "category": "host_side_reference",
+                        "next_action": "run host proof",
+                    }
+                ],
+            },
+        }
+
+    monkeypatch.setattr(mod, "build_operator_status_bundle", fake_bundle)
+
+    out = mod.build_operator_next_actions(repo_root=".", research_pipeline="missing_pipeline", max_actions=20)
+
+    assert captured["research_pipeline"] == "missing_pipeline"
+    assert out["ok"] is False
+    assert out["research_pipeline_filter"] == "missing_pipeline"
+    assert out["source_reasons"] == {"research_pipeline_status": "invalid_pipeline"}
+    assert out["action_count_total"] == 0
+    assert out["action_count_available"] == 0
+    assert out["actions"] == []
+
+
 def test_operator_next_actions_research_command_filter_implies_matching_action_lane(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
 

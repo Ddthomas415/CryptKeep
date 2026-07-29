@@ -185,6 +185,12 @@ def build_operator_status_bundle(
     }
     full_reports = dict(payload["reports"])
     full_actions = dict(payload["actions"])
+    source_reasons = {
+        key: value.get("reason")
+        for key, value in full_reports.items()
+        if isinstance(value, dict) and value.get("reason")
+    }
+    payload["source_reasons"] = source_reasons
     payload["available_sections"] = list(available_sections)
     payload["section_filter"] = section_filter or None
     payload["source_report_count"] = len(full_reports)

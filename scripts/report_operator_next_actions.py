@@ -25,6 +25,11 @@ def _print_report(payload: dict[str, Any]) -> None:
         f"actions={payload.get('action_count_total', 0)} "
         f"shown={payload.get('action_count_returned', 0)}"
     )
+    if payload.get("source_reason"):
+        print(f"source_reason={payload.get('source_reason')}")
+    source_reasons = dict(payload.get("source_reasons") or {})
+    for key, value in sorted(source_reasons.items()):
+        print(f"source_reason:{key}={value}")
     for key in (
         "lane_filter",
         "reason_filter",

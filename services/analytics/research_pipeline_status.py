@@ -210,15 +210,18 @@ def build_research_pipeline_status(
         )
         for spec in PIPELINES
     ]
+    available_pipeline_ids = sorted(str(spec.pipeline_id) for spec in PIPELINES)
     pipelines = all_pipelines
     if pipeline_filter:
         pipelines = [row for row in all_pipelines if row.get("pipeline_id") == pipeline_filter]
+    invalid_pipeline = bool(pipeline_filter) and pipeline_filter not in available_pipeline_ids
     wiring_ok = all(bool(item.get("wiring_ok")) for item in pipelines)
     return {
         "schema_version": 1,
         "report_type": "research_pipeline_status",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "ok": wiring_ok,
+        "ok": bool(wiring_ok and not invalid_pipeline),
+        "reason": "invalid_pipeline" if invalid_pipeline else None,
         "read_only": True,
         "not_strategy_config": True,
         "not_campaign_evidence": True,
@@ -226,6 +229,7 @@ def build_research_pipeline_status(
         "not_execution_input": True,
         "repo_root": str(root),
         "pipeline_filter": pipeline_filter or None,
+        "available_pipeline_ids": available_pipeline_ids,
         "pipeline_count": len(pipelines),
         "source_pipeline_count": len(all_pipelines),
         "pipelines": pipelines,
