@@ -2806,6 +2806,15 @@ substrate work, but they are concrete enough to keep visible.
     read-only planning/status only; it does not decide backlog items, run
     research/campaigns, fetch market data, close proof, authorize
     implementation, or mutate runtime state.
+    2026-07-29: backlog-lane actionable item parsing is ready for independent
+    review. `backlog_lane_status` now separates `Recent examples:` bullets
+    from actionable lane items, reports example counts separately, and keeps
+    `operator-next-actions` from presenting already-completed examples (for
+    example backtest-to-paper parity) as next work. Current low-risk lane
+    output now shows 7 actionable items and 6 examples instead of 13 action
+    rows. This remains read-only planning/status only; it does not decide
+    backlog items, run research/campaigns, fetch market data, close proof,
+    authorize implementation, or mutate runtime state.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

@@ -36,12 +36,21 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(out, indent=2, sort_keys=True))
     else:
         print("=== Backlog Lane Status ===")
-        print(f"ok={bool(out.get('ok'))} lanes={out.get('lane_count')} items={out.get('total_item_count')}")
+        print(
+            f"ok={bool(out.get('ok'))} "
+            f"lanes={out.get('lane_count')} "
+            f"items={out.get('total_item_count')} "
+            f"examples={out.get('total_example_count', 0)}"
+        )
         if out.get("reason"):
             print(f"reason={out.get('reason')}")
         if out.get("lane_filter"):
             print(f"lane_filter={out.get('lane_filter')}")
-        print(f"source_lanes={out.get('source_lane_count')} source_items={out.get('source_total_item_count')}")
+        print(
+            f"source_lanes={out.get('source_lane_count')} "
+            f"source_items={out.get('source_total_item_count')} "
+            f"source_examples={out.get('source_total_example_count', 0)}"
+        )
         summary = dict(out.get("summary") or {})
         print(
             "summary: "
@@ -51,7 +60,7 @@ def main(argv: list[str] | None = None) -> int:
             f"high={summary.get('high_risk_gate_execution_deploy')}"
         )
         for lane in list(out.get("lanes") or []):
-            print(f"- {lane.get('name')}: {lane.get('item_count')}")
+            print(f"- {lane.get('name')}: {lane.get('item_count')} examples={lane.get('example_count', 0)}")
         missing = list(out.get("missing_lanes") or [])
         if missing:
             print("missing_lanes=" + ",".join(str(item) for item in missing))
