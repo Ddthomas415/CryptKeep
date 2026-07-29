@@ -2867,6 +2867,14 @@ substrate work, but they are concrete enough to keep visible.
     tests-only plus backlog/work-log text and does not change runtime code,
     decide backlog items, run research/campaigns, fetch market data, close
     proof, authorize implementation, or mutate runtime state.
+    2026-07-29: operator-reporting lane-map refresh is ready for independent
+    review. `docs/BACKLOG_EXECUTION_LANES.md` now records that the
+    operator-reporting selector stack is already covered by dedicated
+    read-only contract and backlog/work-log synchronization guards, and tells
+    future batches not to rebuild that stack unless current source lacks it.
+    This is docs/test only and does not change runtime code, decide backlog
+    items, run research/campaigns, fetch market data, close proof, authorize
+    implementation, or mutate runtime state.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,
