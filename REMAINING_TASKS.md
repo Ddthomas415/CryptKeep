@@ -2875,6 +2875,15 @@ substrate work, but they are concrete enough to keep visible.
     This is docs/test only and does not change runtime code, decide backlog
     items, run research/campaigns, fetch market data, close proof, authorize
     implementation, or mutate runtime state.
+    2026-07-29: explicit single-symbol paper-gate policy documentation is
+    ready for independent review. `docs/strategies/paper_universe_widening_decision_2026-07-04.md`
+    now states that canonical promotion evidence is single-symbol-only until a
+    reviewed reconsideration packet changes that policy; multi-symbol paper
+    runs may be separate research/challenger evidence, but must not contribute
+    round trips to the canonical `es_daily_trend_v1` promotion gate. This is
+    docs/test only and does not change runtime code, decide backlog items, run
+    research/campaigns, fetch market data, close proof, authorize
+    implementation, or mutate runtime state.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

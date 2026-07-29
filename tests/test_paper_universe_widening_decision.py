@@ -39,6 +39,9 @@ def test_paper_universe_decision_preserves_do_not_widen_status() -> None:
     assert "Status: Do not widen canonical paper universe yet" in text
     assert "Do not widen the canonical `es_daily_trend_v1` paper universe" in text
     assert "active promotion campaign" in text
+    assert "canonical promotion evidence is single-symbol-only until a reviewed reconsideration packet" in text
+    assert "Multi-symbol paper runs may be used as separate research or challenger evidence" in text
+    assert "must not contribute round trips to the canonical `es_daily_trend_v1` promotion gate" in text
     assert "must not use raw or cross-symbol fills to bypass" in text
 
 
