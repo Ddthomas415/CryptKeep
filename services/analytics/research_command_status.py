@@ -190,6 +190,13 @@ def _row(
         reasons.append("script_index_missing")
     if not make_target_exists:
         reasons.append("make_target_missing")
+    blocking_reason = reasons[0] if reasons else None
+    next_action = (
+        f"repair research command wiring for {spec.command_id}: "
+        + ", ".join(reasons)
+        if reasons
+        else "none"
+    )
     return {
         "command_id": spec.command_id,
         "script": spec.script,
@@ -202,6 +209,9 @@ def _row(
         "make_target_exists": make_target_exists,
         "wiring_ok": wiring_ok,
         "reasons": reasons,
+        "blocking_reason": blocking_reason,
+        "next_action": next_action,
+        "action_required": blocking_reason is not None,
     }
 
 

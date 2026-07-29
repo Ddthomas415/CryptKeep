@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from services.analytics.backlog_lane_status import build_backlog_lane_status
+from services.analytics.backlog_lane_status import LANE_KEY_TO_HEADING, build_backlog_lane_status
 from services.analytics.operator_proof_status import build_operator_proof_status
 from services.analytics.research_command_status import build_research_command_status
 from services.analytics.research_pipeline_status import build_research_pipeline_status
@@ -18,7 +18,9 @@ _SECTION_REPORT_KEYS = {
 }
 
 _SECTION_ACTION_KEYS = {
+    "backlog": ("backlog_lanes",),
     "research_pipeline": ("research_pipelines",),
+    "research_command": ("research_commands",),
     "operator_proof": ("passive_operator_evidence", "operator_proofs"),
 }
 
@@ -63,6 +65,20 @@ def build_operator_status_bundle(
     research_summary = dict(research.get("summary") or {})
     research_command_summary = dict(research_commands.get("summary") or {})
     proof_summary = dict(proofs.get("summary") or {})
+    heading_to_key = {heading: key for key, heading in LANE_KEY_TO_HEADING.items()}
+    backlog_actions = [
+        {
+            "lane_key": heading_to_key.get(str(lane_row.get("name") or ""), ""),
+            "lane_name": str(lane_row.get("name") or ""),
+            "ordinal": index,
+            "text": str(item),
+            "next_action": f"select or execute a scoped batch for {str(item)}",
+        }
+        for lane_row in list(backlog.get("lanes") or [])
+        if isinstance(lane_row, dict)
+        for index, item in enumerate(list(lane_row.get("items") or []), start=1)
+        if backlog_lane_filter and str(item).strip()
+    ]
     research_actions = [
         {
             "pipeline_id": str(row.get("pipeline_id") or ""),
@@ -72,6 +88,18 @@ def build_operator_status_bundle(
             "next_action": str(row.get("next_action") or ""),
         }
         for row in list(research.get("pipelines") or [])
+        if isinstance(row, dict) and bool(row.get("action_required"))
+    ]
+    research_command_actions = [
+        {
+            "command_id": str(row.get("command_id") or ""),
+            "lane": str(row.get("lane") or ""),
+            "input_class": str(row.get("input_class") or ""),
+            "make_target": str(row.get("make_target") or ""),
+            "blocking_reason": row.get("blocking_reason"),
+            "next_action": str(row.get("next_action") or ""),
+        }
+        for row in list(research_commands.get("commands") or [])
         if isinstance(row, dict) and bool(row.get("action_required"))
     ]
     proof_actions = [
@@ -123,7 +151,9 @@ def build_operator_status_bundle(
             "operator_proof_status": proofs,
         },
         "actions": {
+            "backlog_lanes": backlog_actions,
             "research_pipelines": research_actions,
+            "research_commands": research_command_actions,
             "passive_operator_evidence": passive_actions,
             "operator_proofs": proof_actions[:10],
         },
@@ -132,12 +162,14 @@ def build_operator_status_bundle(
             "low_risk_docs_tests": int(backlog_summary.get("low_risk_docs_tests") or 0),
             "medium_risk_runtime_read_only": int(backlog_summary.get("medium_risk_runtime_read_only") or 0),
             "high_risk_gate_execution_deploy": int(backlog_summary.get("high_risk_gate_execution_deploy") or 0),
+            "backlog_lane_actions_required": len(backlog_actions),
             "research_pipelines_wired": int(research_summary.get("wired") or 0),
             "research_pipelines_not_run": int(research_summary.get("not_run") or 0),
             "research_pipelines_latest_ok": int(research_summary.get("latest_ok") or 0),
             "research_pipeline_actions_required": len(research_actions),
             "research_commands_wired": int(research_command_summary.get("wired") or 0),
             "research_commands_not_wired": int(research_command_summary.get("not_wired") or 0),
+            "research_command_actions_required": len(research_command_actions),
             "remaining_proof_or_coverage_markers": int(
                 proof_summary.get("remaining_proof_or_coverage_markers") or 0
             ),

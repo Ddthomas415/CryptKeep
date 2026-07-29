@@ -7,6 +7,24 @@ from typing import Any
 from services.analytics.operator_status_bundle import build_operator_status_bundle
 
 
+def _backlog_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for row in list(dict(bundle.get("actions") or {}).get("backlog_lanes") or []):
+        if not isinstance(row, dict):
+            continue
+        rows.append(
+            {
+                "lane": "backlog_lane",
+                "source": str(row.get("lane_key") or ""),
+                "line": None,
+                "ordinal": row.get("ordinal"),
+                "blocking_reason": "backlog_lane_item",
+                "next_action": str(row.get("next_action") or ""),
+            }
+        )
+    return rows
+
+
 def _research_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for row in list(dict(bundle.get("actions") or {}).get("research_pipelines") or []):
@@ -16,6 +34,23 @@ def _research_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
             {
                 "lane": "research_pipeline",
                 "source": str(row.get("pipeline_id") or ""),
+                "line": None,
+                "blocking_reason": row.get("blocking_reason"),
+                "next_action": str(row.get("next_action") or ""),
+            }
+        )
+    return rows
+
+
+def _research_command_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for row in list(dict(bundle.get("actions") or {}).get("research_commands") or []):
+        if not isinstance(row, dict):
+            continue
+        rows.append(
+            {
+                "lane": "research_command",
+                "source": str(row.get("command_id") or ""),
                 "line": None,
                 "blocking_reason": row.get("blocking_reason"),
                 "next_action": str(row.get("next_action") or ""),
@@ -102,10 +137,20 @@ def build_operator_next_actions(
         operator_proof_line=proof_line_filter or None,
     )
     summary = dict(bundle.get("summary") or {})
-    actions = [*_research_actions(bundle), *_passive_operator_actions(bundle), *_proof_actions(bundle)]
+    actions = [
+        *_backlog_actions(bundle),
+        *_research_actions(bundle),
+        *_research_command_actions(bundle),
+        *_passive_operator_actions(bundle),
+        *_proof_actions(bundle),
+    ]
     source_action_lanes: set[str] = set()
+    if backlog_lane_filter:
+        source_action_lanes.add("backlog_lane")
     if research_pipeline_filter:
         source_action_lanes.add("research_pipeline")
+    if research_command_lane_filter or research_command_input_filter:
+        source_action_lanes.add("research_command")
     if proof_category_filter or proof_line_filter:
         source_action_lanes.add("operator_proof")
     if source_action_lanes and not lane_filter:
@@ -117,20 +162,30 @@ def build_operator_next_actions(
     if source_filter:
         actions = [row for row in actions if row.get("source") == source_filter]
     required_total = (
-        int(summary.get("research_pipeline_actions_required") or 0)
+        int(summary.get("backlog_lane_actions_required") or 0)
+        + int(summary.get("research_pipeline_actions_required") or 0)
+        + int(summary.get("research_command_actions_required") or 0)
         + int(summary.get("passive_operator_evidence_actions_required") or 0)
         + int(summary.get("operator_proof_actions_required") or 0)
     )
-    if lane_filter == "research_pipeline":
+    if lane_filter == "backlog_lane":
+        required_total = int(summary.get("backlog_lane_actions_required") or 0)
+    elif lane_filter == "research_pipeline":
         required_total = int(summary.get("research_pipeline_actions_required") or 0)
+    elif lane_filter == "research_command":
+        required_total = int(summary.get("research_command_actions_required") or 0)
     elif lane_filter == "operator_proof":
         required_total = int(summary.get("operator_proof_actions_required") or 0)
     elif lane_filter == "passive_operator_evidence":
         required_total = int(summary.get("passive_operator_evidence_actions_required") or 0)
     elif source_action_lanes:
         required_total = 0
+        if "backlog_lane" in source_action_lanes:
+            required_total += int(summary.get("backlog_lane_actions_required") or 0)
         if "research_pipeline" in source_action_lanes:
             required_total += int(summary.get("research_pipeline_actions_required") or 0)
+        if "research_command" in source_action_lanes:
+            required_total += int(summary.get("research_command_actions_required") or 0)
         if "operator_proof" in source_action_lanes:
             required_total += int(summary.get("operator_proof_actions_required") or 0)
     if reason_filter:
