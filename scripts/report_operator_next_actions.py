@@ -42,6 +42,8 @@ def _print_report(payload: dict[str, Any]) -> None:
         "backlog_lane_filter",
         "backlog_lane_ordinal_filter",
         "research_pipeline_filter",
+        "research_artifact_lane_filter",
+        "research_artifact_id_filter",
         "research_command_lane_filter",
         "research_command_input_class_filter",
         "research_command_id_filter",
@@ -85,6 +87,7 @@ def main(argv: list[str] | None = None) -> int:
         choices=(
             "backlog_lane",
             "research_pipeline",
+            "research_artifact",
             "research_command",
             "operator_read_only_command",
             "passive_operator_evidence",
@@ -102,6 +105,16 @@ def main(argv: list[str] | None = None) -> int:
         help="Forward a 1-based backlog lane actionable-item ordinal to the source bundle; requires --backlog-lane",
     )
     parser.add_argument("--research-pipeline", default=None, help="Forward a research pipeline filter to the source bundle")
+    parser.add_argument(
+        "--research-artifact-lane",
+        default=None,
+        help="Forward a research artifact lane filter to the source bundle",
+    )
+    parser.add_argument(
+        "--research-artifact-id",
+        default=None,
+        help="Forward a research artifact_id filter to the source bundle",
+    )
     parser.add_argument(
         "--research-command-lane",
         default=None,
@@ -148,6 +161,8 @@ def main(argv: list[str] | None = None) -> int:
         backlog_lane=args.backlog_lane,
         backlog_lane_ordinal=args.backlog_lane_ordinal,
         research_pipeline=args.research_pipeline,
+        research_artifact_lane=args.research_artifact_lane,
+        research_artifact_id=args.research_artifact_id,
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,
         research_command_id=args.research_command_id,

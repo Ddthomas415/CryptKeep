@@ -10,6 +10,7 @@ from services.analytics.operator_status_bundle import build_operator_status_bund
 _ACTION_LANES: tuple[str, ...] = (
     "backlog_lane",
     "research_pipeline",
+    "research_artifact",
     "research_command",
     "operator_read_only_command",
     "passive_operator_evidence",
@@ -44,6 +45,23 @@ def _research_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
             {
                 "lane": "research_pipeline",
                 "source": str(row.get("pipeline_id") or ""),
+                "line": None,
+                "blocking_reason": row.get("blocking_reason"),
+                "next_action": str(row.get("next_action") or ""),
+            }
+        )
+    return rows
+
+
+def _research_artifact_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for row in list(dict(bundle.get("actions") or {}).get("research_artifacts") or []):
+        if not isinstance(row, dict):
+            continue
+        rows.append(
+            {
+                "lane": "research_artifact",
+                "source": str(row.get("artifact_id") or ""),
                 "line": None,
                 "blocking_reason": row.get("blocking_reason"),
                 "next_action": str(row.get("next_action") or ""),
@@ -139,6 +157,8 @@ def build_operator_next_actions(
     backlog_lane: str | None = None,
     backlog_lane_ordinal: int | str | None = None,
     research_pipeline: str | None = None,
+    research_artifact_lane: str | None = None,
+    research_artifact_id: str | None = None,
     research_command_lane: str | None = None,
     research_command_input_class: str | None = None,
     research_command_id: str | None = None,
@@ -155,6 +175,8 @@ def build_operator_next_actions(
     backlog_lane_filter = str(backlog_lane or "").strip()
     backlog_lane_ordinal_filter = str(backlog_lane_ordinal or "").strip()
     research_pipeline_filter = str(research_pipeline or "").strip()
+    research_artifact_lane_filter = str(research_artifact_lane or "").strip()
+    research_artifact_id_filter = str(research_artifact_id or "").strip()
     research_command_lane_filter = str(research_command_lane or "").strip()
     research_command_input_filter = str(research_command_input_class or "").strip()
     research_command_id_filter = str(research_command_id or "").strip()
@@ -168,6 +190,8 @@ def build_operator_next_actions(
         backlog_lane=backlog_lane_filter or None,
         backlog_lane_ordinal=backlog_lane_ordinal_filter or None,
         research_pipeline=research_pipeline_filter or None,
+        research_artifact_lane=research_artifact_lane_filter or None,
+        research_artifact_id=research_artifact_id_filter or None,
         research_command_lane=research_command_lane_filter or None,
         research_command_input_class=research_command_input_filter or None,
         research_command_id=research_command_id_filter or None,
@@ -180,6 +204,7 @@ def build_operator_next_actions(
     actions = [
         *_backlog_actions(bundle),
         *_research_actions(bundle),
+        *_research_artifact_actions(bundle),
         *_research_command_actions(bundle),
         *_operator_read_only_command_actions(bundle),
         *_passive_operator_actions(bundle),
@@ -190,6 +215,8 @@ def build_operator_next_actions(
         source_action_lanes.add("backlog_lane")
     if research_pipeline_filter:
         source_action_lanes.add("research_pipeline")
+    if research_artifact_lane_filter or research_artifact_id_filter:
+        source_action_lanes.add("research_artifact")
     if research_command_lane_filter or research_command_input_filter or research_command_id_filter:
         source_action_lanes.add("research_command")
     if operator_read_only_lane_item_filter or operator_read_only_command_filter:
@@ -209,6 +236,7 @@ def build_operator_next_actions(
     required_total = (
         int(summary.get("backlog_lane_actions_required") or 0)
         + int(summary.get("research_pipeline_actions_required") or 0)
+        + int(summary.get("research_artifact_actions_required") or 0)
         + int(summary.get("research_command_actions_required") or 0)
         + int(summary.get("operator_read_only_command_actions_required") or 0)
         + int(summary.get("passive_operator_evidence_actions_required") or 0)
@@ -218,6 +246,8 @@ def build_operator_next_actions(
         required_total = int(summary.get("backlog_lane_actions_required") or 0)
     elif lane_filter == "research_pipeline":
         required_total = int(summary.get("research_pipeline_actions_required") or 0)
+    elif lane_filter == "research_artifact":
+        required_total = int(summary.get("research_artifact_actions_required") or 0)
     elif lane_filter == "research_command":
         required_total = int(summary.get("research_command_actions_required") or 0)
     elif lane_filter == "operator_read_only_command":
@@ -232,6 +262,8 @@ def build_operator_next_actions(
             required_total += int(summary.get("backlog_lane_actions_required") or 0)
         if "research_pipeline" in source_action_lanes:
             required_total += int(summary.get("research_pipeline_actions_required") or 0)
+        if "research_artifact" in source_action_lanes:
+            required_total += int(summary.get("research_artifact_actions_required") or 0)
         if "research_command" in source_action_lanes:
             required_total += int(summary.get("research_command_actions_required") or 0)
         if "operator_read_only_command" in source_action_lanes:
@@ -273,6 +305,8 @@ def build_operator_next_actions(
             int(backlog_lane_ordinal_filter) if backlog_lane_ordinal_filter.isdigit() else None
         ),
         "research_pipeline_filter": research_pipeline_filter or None,
+        "research_artifact_lane_filter": research_artifact_lane_filter or None,
+        "research_artifact_id_filter": research_artifact_id_filter or None,
         "research_command_lane_filter": research_command_lane_filter or None,
         "research_command_input_class_filter": research_command_input_filter or None,
         "research_command_id_filter": research_command_id_filter or None,
