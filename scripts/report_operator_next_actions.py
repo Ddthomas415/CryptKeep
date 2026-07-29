@@ -33,6 +33,7 @@ def _print_report(payload: dict[str, Any]) -> None:
         "research_pipeline_filter",
         "research_command_lane_filter",
         "research_command_input_class_filter",
+        "research_command_id_filter",
         "operator_proof_category_filter",
         "operator_proof_line_filter",
     ):
@@ -87,6 +88,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Forward a research command input-class filter to the source bundle",
     )
     parser.add_argument(
+        "--research-command-id",
+        default=None,
+        help="Forward a research command_id filter to the source bundle",
+    )
+    parser.add_argument(
         "--operator-proof-category",
         default=None,
         help="Forward an operator proof category filter to the source bundle",
@@ -108,6 +114,7 @@ def main(argv: list[str] | None = None) -> int:
         research_pipeline=args.research_pipeline,
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,
+        research_command_id=args.research_command_id,
         operator_proof_category=args.operator_proof_category,
         operator_proof_line=args.operator_proof_line,
     )

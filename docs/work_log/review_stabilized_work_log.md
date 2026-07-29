@@ -27288,3 +27288,63 @@ Remaining risk:
   ingestion, live routing, execution, authorization, or runtime mutation
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-29T20:23:14Z - Research Command Exact-ID Filter
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk research/operator reporting lane by allowing exact
+  inspection of one accepted research command without scanning all 19 command
+  rows.
+
+What was found:
+- SHOWN: `research_command_status` already supported lane and input-class
+  filters and emitted source-count summaries.
+- SHOWN: no exact `command_id` filter existed for direct command inspection.
+- SHOWN: `operator_status_bundle` and `operator_next_actions` could forward
+  research command lane/input filters but not a single command identifier.
+
+What changed:
+- `research_command_status` now accepts `command_id`, returns
+  `command_id_filter`, exposes `available_command_ids`, and fails closed with
+  `reason=invalid_command_id` for unknown IDs.
+- `report_research_command_status.py`, `operator_status_bundle`,
+  `operator_next_actions`, and their CLIs/Make overrides now forward the
+  exact command-id filter.
+- `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests were
+  updated.
+
+Why this change was chosen:
+- It makes command-level research wiring checks cheap and unambiguous while
+  preserving the read-only/no-execution boundary.
+
+Expected outcome:
+- Operators can run `make research-command-status-json
+  RESEARCH_COMMAND_STATUS_COMMAND_ID=funding_threshold_pipeline` or pass the
+  same command through operator status/next-actions filters to inspect exactly
+  one accepted research command.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `37 passed in 0.43s`.
+- `./.venv/bin/python -m py_compile services/analytics/research_command_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/research/report_research_command_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_research_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `make research-command-status-json RESEARCH_COMMAND_STATUS_COMMAND_ID=funding_threshold_pipeline`
+  - SHOWN: `ok=true`, `command_count=1`, command
+    `funding_threshold_pipeline`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=research_command OPERATOR_STATUS_RESEARCH_COMMAND_ID=funding_threshold_pipeline`
+  - SHOWN: `ok=true`, `research_command_id_filter=funding_threshold_pipeline`,
+    and `research_commands_wired=1`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID=funding_threshold_pipeline OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `ok=true`, `research_command_id_filter=funding_threshold_pipeline`,
+    and no repair action for the healthy command.
+- `make research-command-status-json RESEARCH_COMMAND_STATUS_COMMAND_ID=missing_command`
+  - SHOWN: exit 2, `ok=false`, `reason=invalid_command_id`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No research job,
+  campaign, market-data fetch, artifact generation, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
