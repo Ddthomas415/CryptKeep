@@ -27387,6 +27387,53 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T22:28:04Z - Operator Reporting Lane-Map Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Execute the selected low-risk docs/tests lane item: backlog lane-map
+  refreshes that prevent rebuilding already accepted or proof-ready work.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` already named the exact
+  `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE` plus
+  `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL` selector workflow.
+- SHOWN: the follow-up operator-reporting read-only contract and backlog/work-log
+  sync guards now exist in the current stacked source, but the lane-map refresh
+  note did not yet say not to rebuild that stack.
+
+What changed:
+- Updated `docs/BACKLOG_EXECUTION_LANES.md` to record that the
+  operator-reporting selector stack is already covered by dedicated read-only
+  contract and backlog/work-log synchronization guards.
+- Added guard assertions to `tests/test_backlog_execution_lanes_guard.py` so
+  that no-rebuild instruction remains visible.
+- Added the matching backlog note.
+
+Why this change was chosen:
+- This keeps the lane-map aligned with the work already completed in the
+  operator-reporting stack and prevents future batches from redoing it as fresh
+  backlog work.
+
+Expected outcome:
+- Future local coding passes will use the existing operator reporting selector
+  and guards instead of rebuilding the same low-risk reporting infrastructure.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backlog_execution_lanes_guard.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `8 passed in 0.17s`.
+- `./.venv/bin/python -m py_compile tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/tests only. No runtime code changed; no backlog item is decided or
+  closed; no campaign, market-data fetch, proof closure, gate, ingestion, live
+  routing, execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T21:52:19Z - Operator Reporting Backlog/Work-Log Synchronization Guard
 
 Active role: ENGINEER
