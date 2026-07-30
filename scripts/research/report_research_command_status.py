@@ -31,6 +31,15 @@ def _print_report(payload: dict[str, Any]) -> None:
         print(f"command_id_filter={payload.get('command_id_filter')}")
     if payload.get("reason"):
         print(f"reason={payload.get('reason')}")
+    if payload.get("reason") == "invalid_lane":
+        available = ",".join(str(item) for item in list(payload.get("available_lanes") or []))
+        print(f"available_lanes={available}")
+    if payload.get("reason") == "invalid_input_class":
+        available = ",".join(str(item) for item in list(payload.get("available_input_classes") or []))
+        print(f"available_input_classes={available}")
+    if payload.get("reason") == "invalid_command_id":
+        available = ",".join(str(item) for item in list(payload.get("available_command_ids") or []))
+        print(f"available_command_ids={available}")
     summary = dict(payload.get("summary") or {})
     print(f"summary: wired={summary.get('wired', 0)} not_wired={summary.get('not_wired', 0)}")
     by_lane = dict(summary.get("by_lane") or {})

@@ -299,7 +299,9 @@ def build_research_artifact_inventory(
     artifact_filter = str(artifact_id or "").strip()
     all_rows = [_row(root, spec) for spec in ARTIFACTS]
     available_artifact_ids = [str(row.get("artifact_id") or "") for row in all_rows]
+    available_lanes = sorted({str(row.get("lane") or "") for row in all_rows if str(row.get("lane") or "")})
     valid_artifact_filter = not artifact_filter or artifact_filter in available_artifact_ids
+    valid_lane_filter = not lane_filter or lane_filter in available_lanes
     rows = all_rows
     if lane_filter:
         rows = [row for row in rows if row.get("lane") == lane_filter]
@@ -313,8 +315,18 @@ def build_research_artifact_inventory(
         "schema_version": 1,
         "report_type": "research_artifact_inventory",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "ok": bool(valid_artifact_filter and not any(row.get("latest_status") in hard_failures for row in rows)),
-        "reason": None if valid_artifact_filter else "invalid_artifact_id",
+        "ok": bool(
+            valid_lane_filter
+            and valid_artifact_filter
+            and not any(row.get("latest_status") in hard_failures for row in rows)
+        ),
+        "reason": (
+            "invalid_lane"
+            if not valid_lane_filter
+            else "invalid_artifact_id"
+            if not valid_artifact_filter
+            else None
+        ),
         "read_only": True,
         "does_not_run_research": True,
         "does_not_fetch_market_data": True,
@@ -326,6 +338,7 @@ def build_research_artifact_inventory(
         "repo_root": str(root),
         "lane_filter": lane_filter or None,
         "artifact_id_filter": artifact_filter or None,
+        "available_lanes": available_lanes,
         "available_artifact_ids": available_artifact_ids,
         "artifact_count": len(rows),
         "source_artifact_count": len(all_rows),

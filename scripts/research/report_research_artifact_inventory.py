@@ -32,6 +32,9 @@ def _print_report(payload: dict[str, Any]) -> None:
     if payload.get("reason") == "invalid_artifact_id":
         available = ",".join(str(item) for item in list(payload.get("available_artifact_ids") or []))
         print(f"available_artifact_ids={available}")
+    if payload.get("reason") == "invalid_lane":
+        available = ",".join(str(item) for item in list(payload.get("available_lanes") or []))
+        print(f"available_lanes={available}")
     summary = dict(payload.get("summary") or {})
     print(
         "summary: "

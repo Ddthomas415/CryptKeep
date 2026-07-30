@@ -70,6 +70,30 @@ def test_research_command_status_rejects_unknown_command_id() -> None:
     assert "funding_threshold_pipeline" in out["available_command_ids"]
 
 
+def test_research_command_status_rejects_unknown_lane() -> None:
+    from services.analytics.research_command_status import build_research_command_status
+
+    out = build_research_command_status(lane="missing_lane")
+
+    assert out["ok"] is False
+    assert out["reason"] == "invalid_lane"
+    assert out["lane_filter"] == "missing_lane"
+    assert out["commands"] == []
+    assert "price_action" in out["available_lanes"]
+
+
+def test_research_command_status_rejects_unknown_input_class() -> None:
+    from services.analytics.research_command_status import build_research_command_status
+
+    out = build_research_command_status(input_class="missing_input")
+
+    assert out["ok"] is False
+    assert out["reason"] == "invalid_input_class"
+    assert out["input_class_filter"] == "missing_input"
+    assert out["commands"] == []
+    assert "artifact_input" in out["available_input_classes"]
+
+
 def test_research_command_status_fails_closed_on_wiring_drift(tmp_path) -> None:
     from services.analytics.research_command_status import build_research_command_status
 
@@ -130,3 +154,33 @@ def test_report_research_command_status_cli(monkeypatch, capsys) -> None:
     assert "command_id_filter=funding_threshold_pipeline" in out
     assert "wired=2" in out
     assert "funding_threshold_pipeline" in out
+
+
+def test_report_research_command_status_cli_prints_available_filters(monkeypatch, capsys) -> None:
+    from scripts.research import report_research_command_status as script
+
+    monkeypatch.setattr(
+        script,
+        "build_research_command_status",
+        lambda repo_root=None, lane=None, input_class=None, command_id=None: {
+            "ok": False,
+            "reason": "invalid_input_class",
+            "lane_filter": lane,
+            "input_class_filter": input_class,
+            "command_id_filter": command_id,
+            "available_input_classes": ["archive_input", "artifact_input", "none"],
+            "command_count": 0,
+            "summary": {
+                "wired": 0,
+                "not_wired": 0,
+                "by_lane": {},
+                "by_input_class": {},
+            },
+            "commands": [],
+        },
+    )
+
+    assert script.main(["--input-class", "typo"]) == 2
+    out = capsys.readouterr().out
+    assert "reason=invalid_input_class" in out
+    assert "available_input_classes=archive_input,artifact_input,none" in out

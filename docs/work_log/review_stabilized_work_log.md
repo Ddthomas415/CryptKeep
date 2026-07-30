@@ -27744,6 +27744,56 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T23:20:55Z - Research Status Filter Fail-Closed Hardening
+
+Active role: ENGINEER
+
+Objective:
+- Harden the research-only status reports so unknown lane/input filters cannot
+  return empty successful reports.
+
+What was found:
+- SHOWN: the new `research_artifact_inventory` report accepted a lane filter.
+- SHOWN: `research_command_status` accepted lane and input-class filters.
+- SHOWN: without explicit validation, an unknown filter can produce zero rows
+  and look like a successful empty focused report.
+
+What changed:
+- `research_artifact_inventory` now exposes `available_lanes` and returns
+  `ok=false`, `reason=invalid_lane`, and zero rows for unknown lane filters.
+- `research_command_status` now exposes `available_lanes` and
+  `available_input_classes`, and returns `ok=false` with
+  `invalid_lane`/`invalid_input_class` for unknown filter values.
+- Both CLIs print accepted values for invalid filters, and regression tests pin
+  the fail-closed behavior.
+
+Why this change was chosen:
+- Focused operator reports must distinguish "accepted filter with no action
+  rows" from "typoed or unsupported filter." This preserves read-only behavior
+  while preventing false clean check-ins.
+
+Expected outcome:
+- Operators get explicit exit-2 failures and accepted filter values for bad
+  research status filters, while valid lane/input/artifact/command views remain
+  unchanged.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_artifact_inventory.py tests/test_research_command_status.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `24 passed in 0.31s`.
+- `make research-artifact-inventory-json RESEARCH_ARTIFACT_INVENTORY_LANE=missing_lane`
+  - SHOWN: exit 2, `ok=false`, `reason=invalid_lane`,
+    `available_lanes=["archive","funding","price_action"]`.
+- `make research-command-status-json RESEARCH_COMMAND_STATUS_INPUT_CLASS=missing_input`
+  - SHOWN: exit 2, `ok=false`, `reason=invalid_input_class`, accepted input
+    classes listed.
+
+Remaining risk:
+- LOW: read-only status/reporting and docs/tests only. No research job,
+  campaign, market-data fetch, artifact generation, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T23:04:57Z - Medium-Lane Read-Only Command Status
 
 Active role: ENGINEER
