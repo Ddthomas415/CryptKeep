@@ -51,6 +51,7 @@ def build_operator_status_bundle(
     operator_read_only_command_id: str | None = None,
     operator_proof_category: str | None = None,
     operator_proof_line: int | str | None = None,
+    operator_proof_passive_ordinal: int | str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     section_filter = str(section or "").strip()
@@ -67,6 +68,7 @@ def build_operator_status_bundle(
     operator_read_only_command_filter = str(operator_read_only_command_id or "").strip()
     proof_category_filter = str(operator_proof_category or "").strip()
     proof_line_filter = str(operator_proof_line or "").strip()
+    proof_passive_ordinal_filter = str(operator_proof_passive_ordinal or "").strip()
     backlog = build_backlog_lane_status(repo_root=root, lane=backlog_lane_filter or None)
     research = build_research_pipeline_status(repo_root=root, pipeline=research_pipeline_filter or None)
     research_artifacts = build_research_artifact_inventory(
@@ -89,6 +91,7 @@ def build_operator_status_bundle(
         repo_root=root,
         category=proof_category_filter or None,
         line=proof_line_filter or None,
+        passive_ordinal=proof_passive_ordinal_filter or None,
     )
     backlog_summary = dict(backlog.get("summary") or {})
     research_summary = dict(research.get("summary") or {})
@@ -224,6 +227,9 @@ def build_operator_status_bundle(
         "operator_read_only_command_id_filter": operator_read_only_command_filter or None,
         "operator_proof_category_filter": proof_category_filter or None,
         "operator_proof_line_filter": int(proof_line_filter) if proof_line_filter.isdigit() else None,
+        "operator_proof_passive_ordinal_filter": (
+            int(proof_passive_ordinal_filter) if proof_passive_ordinal_filter.isdigit() else None
+        ),
         "reports": {
             "backlog_lane_status": backlog,
             "research_pipeline_status": research,
@@ -242,7 +248,8 @@ def build_operator_status_bundle(
             "operator_proofs": proof_actions[:10],
         },
         "summary": {
-            "passive_operator_items": int(backlog_summary.get("passive_operator_evidence") or 0),
+            "passive_operator_items": int(proof_summary.get("passive_operator_items") or 0),
+            "source_passive_operator_items": int(proof_summary.get("source_passive_operator_items") or 0),
             "low_risk_docs_tests": int(backlog_summary.get("low_risk_docs_tests") or 0),
             "medium_risk_runtime_read_only": int(backlog_summary.get("medium_risk_runtime_read_only") or 0),
             "high_risk_gate_execution_deploy": int(backlog_summary.get("high_risk_gate_execution_deploy") or 0),

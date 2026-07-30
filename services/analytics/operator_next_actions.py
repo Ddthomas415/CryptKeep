@@ -166,6 +166,7 @@ def build_operator_next_actions(
     operator_read_only_command_id: str | None = None,
     operator_proof_category: str | None = None,
     operator_proof_line: int | str | None = None,
+    operator_proof_passive_ordinal: int | str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     limit = max(1, int(max_actions))
@@ -184,6 +185,7 @@ def build_operator_next_actions(
     operator_read_only_command_filter = str(operator_read_only_command_id or "").strip()
     proof_category_filter = str(operator_proof_category or "").strip()
     proof_line_filter = str(operator_proof_line or "").strip()
+    proof_passive_ordinal_filter = str(operator_proof_passive_ordinal or "").strip()
     invalid_lane_filter = bool(lane_filter) and lane_filter not in _ACTION_LANES
     bundle = build_operator_status_bundle(
         repo_root=root,
@@ -199,6 +201,7 @@ def build_operator_next_actions(
         operator_read_only_command_id=operator_read_only_command_filter or None,
         operator_proof_category=proof_category_filter or None,
         operator_proof_line=proof_line_filter or None,
+        operator_proof_passive_ordinal=proof_passive_ordinal_filter or None,
     )
     summary = dict(bundle.get("summary") or {})
     actions = [
@@ -223,6 +226,8 @@ def build_operator_next_actions(
         source_action_lanes.add("operator_read_only_command")
     if proof_category_filter or proof_line_filter:
         source_action_lanes.add("operator_proof")
+    if proof_passive_ordinal_filter:
+        source_action_lanes.add("passive_operator_evidence")
     if source_action_lanes and not lane_filter:
         actions = [row for row in actions if row.get("lane") in source_action_lanes]
     if invalid_lane_filter:
@@ -314,6 +319,9 @@ def build_operator_next_actions(
         "operator_read_only_command_id_filter": operator_read_only_command_filter or None,
         "operator_proof_category_filter": proof_category_filter or None,
         "operator_proof_line_filter": int(proof_line_filter) if proof_line_filter.isdigit() else None,
+        "operator_proof_passive_ordinal_filter": (
+            int(proof_passive_ordinal_filter) if proof_passive_ordinal_filter.isdigit() else None
+        ),
         "source_reason": bundle.get("reason"),
         "source_reasons": dict(bundle.get("source_reasons") or {}),
         "source_report_type": bundle.get("report_type"),
