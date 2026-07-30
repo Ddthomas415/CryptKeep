@@ -2750,6 +2750,13 @@ substrate work, but they are concrete enough to keep visible.
     passive counts while returning one passive action row. This remains
     presentation/JSON status only and does not run campaigns, fetch market
     data, close proof, authorize implementation, or mutate runtime state.
+    2026-07-30: operator proof status category filtering now fails closed for
+    unknown categories and reports `available_categories`. Previously an
+    unknown category returned an empty successful report; now the source report
+    returns `ok=false`, `reason=invalid_category`, and the operator-status
+    bundle propagates that source reason. This remains presentation/JSON
+    status only and does not run campaigns, fetch market data, close proof,
+    authorize implementation, or mutate runtime state.
     2026-07-28: read-only operator status bundle is ready for independent
     review. `services.analytics.operator_status_bundle` and
     `scripts/report_operator_status_bundle.py` combine backlog lane status,

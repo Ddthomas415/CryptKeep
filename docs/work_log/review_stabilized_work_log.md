@@ -27792,6 +27792,57 @@ Remaining risk:
   execution, authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-30T00:45:51Z - Operator Proof Category Filter Fail-Closed Hardening
+
+Active role: ENGINEER
+
+Objective:
+- Continue the medium-risk read-only reporting lane by making unknown operator
+  proof category filters fail closed instead of returning empty successful
+  reports.
+
+What was found:
+- SHOWN: `operator_proof_status` accepted a proof-marker `category` filter.
+- SHOWN: unknown category values filtered the proof markers to zero rows while
+  leaving `ok=true`, making typos indistinguishable from a valid empty result.
+
+What changed:
+- `build_operator_proof_status()` now exposes `available_categories`.
+- Unknown proof categories return `ok=false`, `reason=invalid_category`, and
+  zero proof-marker rows.
+- `report_operator_proof_status.py` prints accepted categories for invalid
+  category filters.
+- `operator_status_bundle` source-reason propagation covers the new invalid
+  category state.
+- Regression tests cover direct proof-status rejection, CLI text output, and
+  bundle propagation.
+
+Why this change was chosen:
+- Focused status filters should not produce empty successful reports for values
+  outside the accepted proof-category registry. Failing closed keeps operator
+  check-ins unambiguous without closing proof or running any host action.
+
+Expected outcome:
+- Typoed or stale proof category filters now exit non-zero with accepted values,
+  while valid category filters continue to work unchanged.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `54 passed in 0.54s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py scripts/report_operator_proof_status.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `make operator-proof-status-json OPERATOR_PROOF_STATUS_CATEGORY=missing_category`
+  - SHOWN: exit 2, `ok=false`, `reason=invalid_category`, accepted
+    `available_categories` present.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: read-only reporting/filter plumbing only. No campaign, market-data
+  fetch, artifact generation, proof closure, gate, ingestion, live routing,
+  execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T23:57:54Z - Research Artifact Producer-Plan Metadata
 
 Active role: ENGINEER
