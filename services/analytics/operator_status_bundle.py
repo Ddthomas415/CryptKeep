@@ -142,6 +142,7 @@ def build_operator_status_bundle(
             "latest_path": row.get("latest_path"),
             "latest_sha256": row.get("latest_sha256"),
             "producer_make_target": str(row.get("producer_make_target") or ""),
+            "producer_plan": dict(row.get("producer_plan") or {}),
             "blocking_reason": row.get("blocking_reason"),
             "next_action": str(row.get("next_action") or ""),
         }

@@ -2595,6 +2595,16 @@ substrate work, but they are concrete enough to keep visible.
     status/reporting only and does not run research jobs, fetch data, generate
     artifacts, or change research artifacts, strategy config, campaigns,
     gates, data ingestion, live routing, execution, or promotion evidence.
+    2026-07-29: research artifact producer-plan metadata is ready for
+    independent review. `research_artifact_inventory` now includes a
+    `producer_plan` for each accepted artifact with the Make target, Make args
+    variable, required accepted inputs, and a command hint. Missing artifact
+    `next_action` text now distinguishes a bare Make target from an artifact
+    that first needs accepted input selection (for example strategy config,
+    grid, archive row window, and output path). The report remains read-only:
+    it does not run producer commands, create artifacts, fetch market data,
+    choose research inputs, change strategy/campaign/gate state, or mutate
+    runtime state.
     2026-07-29: research status filter hardening is ready for independent
     review. `research_artifact_inventory` now fail-closes unknown lane filters
     as `invalid_lane` with accepted `available_lanes`; `research_command_status`

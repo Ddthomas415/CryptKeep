@@ -17,6 +17,8 @@ class ResearchArtifactSpec:
     marker_key: str
     marker_value: str
     producer_make_target: str
+    producer_args_variable: str | None = None
+    required_inputs: tuple[str, ...] = ()
 
 
 ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
@@ -28,6 +30,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "artifact_type",
         "archive_backed_walk_forward_v1",
         "archive-walk-forward",
+        "ARCHIVE_WALK_FORWARD_ARGS",
+        ("strategy config", "venue/symbol/timeframe", "archive row window", "output path"),
     ),
     ResearchArtifactSpec(
         "archive_parameter_sweep",
@@ -37,6 +41,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "artifact_type",
         "archive_backed_parameter_sweep_v1",
         "archive-parameter-sweep",
+        "ARCHIVE_PARAMETER_SWEEP_ARGS",
+        ("base strategy config", "parameter grid", "venue/symbol/timeframe", "archive row window", "output path"),
     ),
     ResearchArtifactSpec(
         "archive_parameter_sweep_triage",
@@ -46,6 +52,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "artifact_type",
         "archive_parameter_sweep_triage_v1",
         "archive-parameter-sweep-triage",
+        "ARCHIVE_PARAMETER_SWEEP_TRIAGE_ARGS",
+        ("input archive_parameter_sweep artifact", "output path"),
     ),
     ResearchArtifactSpec(
         "funding_threshold_pipeline_summary",
@@ -55,6 +63,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "report_type",
         "funding_threshold_research_pipeline",
         "funding-threshold-research-pipeline",
+        "FUNDING_THRESHOLD_RESEARCH_PIPELINE_ARGS",
+        ("accepted funding/context input state", "output path"),
     ),
     ResearchArtifactSpec(
         "funding_context_price_join",
@@ -64,6 +74,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "artifact_type",
         "funding_context_price_join_v1",
         "funding-threshold-research-pipeline",
+        "FUNDING_THRESHOLD_RESEARCH_PIPELINE_ARGS",
+        ("accepted funding/context input state", "output path"),
     ),
     ResearchArtifactSpec(
         "funding_threshold_sensitivity",
@@ -73,6 +85,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "artifact_type",
         "funding_threshold_sensitivity_v1",
         "funding-threshold-research-pipeline",
+        "FUNDING_THRESHOLD_RESEARCH_PIPELINE_ARGS",
+        ("accepted funding/context input state", "output path"),
     ),
     ResearchArtifactSpec(
         "funding_threshold_window_stability",
@@ -82,6 +96,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "artifact_type",
         "funding_threshold_window_stability_v1",
         "funding-threshold-research-pipeline",
+        "FUNDING_THRESHOLD_RESEARCH_PIPELINE_ARGS",
+        ("accepted funding/context input state", "output path"),
     ),
     ResearchArtifactSpec(
         "funding_threshold_candidate_triage",
@@ -91,6 +107,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "artifact_type",
         "funding_threshold_candidate_triage_v1",
         "funding-threshold-research-pipeline",
+        "FUNDING_THRESHOLD_RESEARCH_PIPELINE_ARGS",
+        ("accepted funding/context input state", "output path"),
     ),
     ResearchArtifactSpec(
         "funding_threshold_stability_triage",
@@ -100,6 +118,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "artifact_type",
         "funding_threshold_stability_triage_v1",
         "funding-threshold-research-pipeline",
+        "FUNDING_THRESHOLD_RESEARCH_PIPELINE_ARGS",
+        ("accepted funding/context input state", "output path"),
     ),
     ResearchArtifactSpec(
         "price_action_pipeline_summary",
@@ -109,6 +129,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "report_type",
         "price_action_research_pipeline",
         "price-action-research-pipeline",
+        "PRICE_ACTION_RESEARCH_PIPELINE_ARGS",
+        ("accepted OHLCV archive input", "output path"),
     ),
     ResearchArtifactSpec(
         "price_action_context_labels",
@@ -118,6 +140,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "artifact_type",
         "price_action_context_labels_v1",
         "price-action-research-pipeline",
+        "PRICE_ACTION_RESEARCH_PIPELINE_ARGS",
+        ("accepted OHLCV archive input", "output path"),
     ),
     ResearchArtifactSpec(
         "price_action_forward_returns",
@@ -127,6 +151,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "artifact_type",
         "price_action_forward_returns_v1",
         "price-action-research-pipeline",
+        "PRICE_ACTION_RESEARCH_PIPELINE_ARGS",
+        ("accepted OHLCV archive input", "output path"),
     ),
     ResearchArtifactSpec(
         "price_action_window_stability",
@@ -136,6 +162,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "artifact_type",
         "price_action_window_stability_v1",
         "price-action-research-pipeline",
+        "PRICE_ACTION_RESEARCH_PIPELINE_ARGS",
+        ("accepted OHLCV archive input", "output path"),
     ),
     ResearchArtifactSpec(
         "price_action_candidate_triage",
@@ -145,6 +173,8 @@ ARTIFACTS: tuple[ResearchArtifactSpec, ...] = (
         "artifact_type",
         "price_action_candidate_triage_v1",
         "price-action-research-pipeline",
+        "PRICE_ACTION_RESEARCH_PIPELINE_ARGS",
+        ("accepted OHLCV archive input", "output path"),
     ),
 )
 
@@ -205,6 +235,29 @@ def _boundary_flags(payload: dict[str, Any]) -> dict[str, bool | None]:
     return {key: (bool(payload[key]) if key in payload else None) for key in keys}
 
 
+def _producer_plan(spec: ResearchArtifactSpec) -> dict[str, Any]:
+    required_inputs = list(spec.required_inputs)
+    args_variable = str(spec.producer_args_variable or "")
+    command_hint = f"make {spec.producer_make_target}"
+    if args_variable:
+        command_hint += f' {args_variable}="<accepted inputs>"'
+    return {
+        "make_target": spec.producer_make_target,
+        "make_args_variable": args_variable or None,
+        "required_inputs": required_inputs,
+        "requires_accepted_inputs": bool(required_inputs),
+        "command_hint": command_hint,
+    }
+
+
+def _missing_next_action(spec: ResearchArtifactSpec) -> str:
+    plan = _producer_plan(spec)
+    if plan["requires_accepted_inputs"]:
+        inputs = ", ".join(str(item) for item in plan["required_inputs"])
+        return f"select accepted inputs ({inputs}), then run {plan['command_hint']}"
+    return f"run make {spec.producer_make_target}"
+
+
 def _row(repo_root: Path, spec: ResearchArtifactSpec) -> dict[str, Any]:
     paths = [path for path in repo_root.glob(spec.glob_pattern) if path.is_file()]
     latest = _latest(paths)
@@ -224,9 +277,10 @@ def _row(repo_root: Path, spec: ResearchArtifactSpec) -> dict[str, Any]:
             "marker_key": spec.marker_key,
             "expected_marker": spec.marker_value,
             "observed_marker": None,
+            "producer_plan": _producer_plan(spec),
             "boundary_flags": {},
             "blocking_reason": "latest_artifact_missing",
-            "next_action": f"run make {spec.producer_make_target} with accepted research inputs",
+            "next_action": _missing_next_action(spec),
             "action_required": True,
         }
 
@@ -247,6 +301,7 @@ def _row(repo_root: Path, spec: ResearchArtifactSpec) -> dict[str, Any]:
             "marker_key": spec.marker_key,
             "expected_marker": spec.marker_value,
             "observed_marker": None,
+            "producer_plan": _producer_plan(spec),
             "boundary_flags": {},
             "blocking_reason": "latest_artifact_unreadable",
             "next_action": f"inspect or regenerate {latest}",
@@ -281,6 +336,7 @@ def _row(repo_root: Path, spec: ResearchArtifactSpec) -> dict[str, Any]:
         "marker_key": spec.marker_key,
         "expected_marker": spec.marker_value,
         "observed_marker": marker,
+        "producer_plan": _producer_plan(spec),
         "boundary_flags": _boundary_flags(payload),
         "blocking_reason": blocking_reason,
         "next_action": next_action,

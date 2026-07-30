@@ -53,6 +53,13 @@ def test_research_artifact_inventory_reports_latest_hash_and_missing_actions(tmp
     assert rows["price_action_forward_returns"]["latest_status"] == "missing"
     assert rows["price_action_forward_returns"]["blocking_reason"] == "latest_artifact_missing"
     assert "make price-action-research-pipeline" in rows["price_action_forward_returns"]["next_action"]
+    assert rows["price_action_forward_returns"]["producer_plan"] == {
+        "make_target": "price-action-research-pipeline",
+        "make_args_variable": "PRICE_ACTION_RESEARCH_PIPELINE_ARGS",
+        "required_inputs": ["accepted OHLCV archive input", "output path"],
+        "requires_accepted_inputs": True,
+        "command_hint": 'make price-action-research-pipeline PRICE_ACTION_RESEARCH_PIPELINE_ARGS="<accepted inputs>"',
+    }
     assert out["summary"]["found"] == 2
     assert out["summary"]["missing"] >= 1
 
@@ -144,6 +151,13 @@ def test_research_artifact_inventory_cli_prints_next_action(monkeypatch, capsys)
                     "latest_path": None,
                     "action_required": True,
                     "blocking_reason": "latest_artifact_missing",
+                    "producer_plan": {
+                        "command_hint": (
+                            'make price-action-research-pipeline '
+                            'PRICE_ACTION_RESEARCH_PIPELINE_ARGS="<accepted inputs>"'
+                        ),
+                        "required_inputs": ["accepted OHLCV archive input", "output path"],
+                    },
                     "next_action": "run make price-action-research-pipeline with accepted research inputs",
                 }
             ],
@@ -155,6 +169,8 @@ def test_research_artifact_inventory_cli_prints_next_action(monkeypatch, capsys)
     assert "Research Artifact Inventory" in out
     assert "lane_filter=price_action" in out
     assert "artifact_id_filter=price_action_forward_returns" in out
+    assert 'producer=make price-action-research-pipeline PRICE_ACTION_RESEARCH_PIPELINE_ARGS="<accepted inputs>"' in out
+    assert "required_inputs=accepted OHLCV archive input,output path" in out
     assert "next_action=run make price-action-research-pipeline" in out
 
 
