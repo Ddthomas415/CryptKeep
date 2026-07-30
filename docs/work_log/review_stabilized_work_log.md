@@ -27685,6 +27685,56 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk docs/tests lane by making the accepted-input contract
+  for missing archive research artifacts explicit and test-guarded.
+
+What was found:
+- SHOWN: `operator-next-actions` reports three missing archive artifacts:
+  `archive_walk_forward`, `archive_parameter_sweep`, and
+  `archive_parameter_sweep_triage`.
+- SHOWN: `research_artifact_inventory` exposes each artifact producer Make
+  target, Make args variable, and required input labels.
+- SHOWN: the repo has no accepted default archive recipe, parameter grid, or
+  archive row window for these three artifacts.
+
+What changed:
+- Added `docs/research/archive_artifact_input_recipes.md`, an operator-facing
+  contract that names the required accepted inputs for each archive artifact
+  producer and states that bare Make targets are not accepted recipes.
+- Added `tests/test_archive_artifact_input_recipes_doc.py`, which pins the doc
+  against the accepted archive artifact registry and preserves the non-authority
+  scope.
+- Added the corresponding note to `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The next actionable archive artifacts require operator-selected inputs. A
+  docs/test guard prevents future reports from implying that a bare Make target
+  or invented default recipe is enough to produce accepted research evidence.
+
+Expected outcome:
+- Operators can see the exact accepted-input decisions needed before running
+  archive walk-forward, archive parameter sweep, or sweep triage, without
+  confusing planning output for executable research authority.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_archive_artifact_input_recipes_doc.py tests/test_research_artifact_inventory.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `46 passed in 0.47s`.
+- `./.venv/bin/python -m py_compile services/analytics/research_artifact_inventory.py tests/test_archive_artifact_input_recipes_doc.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/tests only. No research job, campaign, market-data fetch, artifact
+  generation, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T23:57:54Z - Research Artifact Producer-Plan Metadata
 
 Active role: ENGINEER

@@ -2615,6 +2615,16 @@ substrate work, but they are concrete enough to keep visible.
     data, generate artifacts, or change research artifacts, strategy config,
     campaigns, gates, data ingestion, live routing, execution, or promotion
     evidence.
+    2026-07-30: archive artifact input recipe documentation is ready for
+    independent review. `docs/research/archive_artifact_input_recipes.md`
+    records the accepted-input contract for `archive_walk_forward`,
+    `archive_parameter_sweep`, and `archive_parameter_sweep_triage`: each
+    producer requires explicit args via its Make args variable and has no
+    accepted checked-in default recipe, grid, or archive window. The guard test
+    pins the doc against the accepted archive artifact registry. This is
+    docs/tests only; it does not run research jobs, fetch market data,
+    generate artifacts, choose research inputs, change strategy/campaign/gate
+    state, or mutate runtime state.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
