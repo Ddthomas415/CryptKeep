@@ -111,6 +111,32 @@ def test_operator_proof_status_filters_proof_markers_by_category(tmp_path: Path)
     assert [row["category"] for row in out["proof_markers"]] == ["host_side_reference"]
 
 
+def test_operator_proof_status_rejects_unknown_category_filter(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+            [
+                "1. Item.",
+                "   Remaining proof: run the host drill.",
+                "   host-side status still required.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path, category="missing_category")
+
+    assert out["ok"] is False
+    assert out["reason"] == "invalid_category"
+    assert out["category_filter"] == "missing_category"
+    assert out["proof_marker_count"] == 0
+    assert out["source_proof_marker_count"] == 2
+    assert out["proof_markers"] == []
+    assert out["available_categories"] == ["host_side_reference", "remaining_proof"]
+
+
 def test_operator_proof_status_filters_proof_markers_by_line(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 
@@ -189,7 +215,9 @@ def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:
         "build_operator_proof_status",
         lambda repo_root=None, category=None, line=None, passive_ordinal=None: {
             "ok": True,
+            "reason": None,
             "category_filter": category,
+            "available_categories": ["remaining_proof"],
             "line_filter": int(line) if line else None,
             "passive_operator_ordinal_filter": int(passive_ordinal) if passive_ordinal else None,
             "passive_operator_item_count": 1,
@@ -221,3 +249,30 @@ def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:
     assert "Run host proof" in out
     assert "L7 remaining_proof" in out
     assert "next_action=produce or record" in out
+
+
+def test_report_operator_proof_status_cli_prints_invalid_category(capsys, monkeypatch) -> None:
+    from scripts import report_operator_proof_status as script
+
+    monkeypatch.setattr(
+        script,
+        "build_operator_proof_status",
+        lambda repo_root=None, category=None, line=None, passive_ordinal=None: {
+            "ok": False,
+            "reason": "invalid_category",
+            "category_filter": category,
+            "available_categories": ["host_side_reference", "remaining_proof"],
+            "line_filter": None,
+            "passive_operator_ordinal_filter": None,
+            "passive_operator_item_count": 0,
+            "proof_marker_count": 0,
+            "summary": {},
+            "passive_operator_items": [],
+            "proof_markers": [],
+        },
+    )
+
+    assert script.main(["--category", "missing_category"]) == 2
+    out = capsys.readouterr().out
+    assert "reason=invalid_category" in out
+    assert "available_categories=host_side_reference,remaining_proof" in out

@@ -33,6 +33,8 @@ def _print_report(payload: dict[str, Any]) -> None:
         print(f"passive_operator_ordinal_filter={payload.get('passive_operator_ordinal_filter')}")
     if payload.get("reason"):
         print(f"reason={payload.get('reason')}")
+    if payload.get("reason") == "invalid_category":
+        print("available_categories=" + ",".join(str(item) for item in list(payload.get("available_categories") or [])))
     summary = dict(payload.get("summary") or {})
     print(
         "summary: "

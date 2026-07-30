@@ -412,6 +412,25 @@ def test_operator_status_bundle_forwards_proof_category(tmp_path: Path) -> None:
     assert all(row["category"] == "host_side_reference" for row in out["actions"]["operator_proofs"])
 
 
+def test_operator_status_bundle_propagates_invalid_proof_category(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="operator_proof",
+        operator_proof_category="missing_category",
+    )
+
+    report = out["reports"]["operator_proof_status"]
+    assert out["ok"] is False
+    assert out["source_reasons"] == {"operator_proof_status": "invalid_category"}
+    assert report["reason"] == "invalid_category"
+    assert report["available_categories"]
+    assert out["actions"]["operator_proofs"] == []
+
+
 def test_operator_status_bundle_forwards_proof_line(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 

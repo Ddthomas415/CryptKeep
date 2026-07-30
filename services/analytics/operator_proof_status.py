@@ -169,9 +169,13 @@ def build_operator_proof_status(
             valid_passive_ordinal_filter = False
     all_proof_markers = _proof_markers(backlog_text)
     source_category_counts = _category_counts(all_proof_markers)
+    available_categories = tuple(sorted(source_category_counts))
+    valid_category_filter = not category_filter or category_filter in source_category_counts
     proof_markers = all_proof_markers
-    if category_filter:
+    if category_filter and valid_category_filter:
         proof_markers = tuple(marker for marker in all_proof_markers if marker.category == category_filter)
+    elif category_filter:
+        proof_markers = ()
     if valid_line_filter and line_filter is not None:
         proof_markers = tuple(marker for marker in proof_markers if marker.line == line_filter)
     category_counts = _category_counts(proof_markers)
@@ -180,9 +184,18 @@ def build_operator_proof_status(
         for category, count in category_counts.items()
         if category.startswith("remaining_")
     )
-    ok = bool(lane_text and backlog_text and all_passive_items and valid_line_filter and valid_passive_ordinal_filter)
+    ok = bool(
+        lane_text
+        and backlog_text
+        and all_passive_items
+        and valid_category_filter
+        and valid_line_filter
+        and valid_passive_ordinal_filter
+    )
     reason: str | None = None
-    if not valid_line_filter:
+    if not valid_category_filter:
+        reason = "invalid_category"
+    elif not valid_line_filter:
         reason = "invalid_line"
     elif not valid_passive_ordinal_filter:
         reason = "invalid_passive_operator_ordinal"
@@ -200,6 +213,7 @@ def build_operator_proof_status(
         "does_not_mutate_state": True,
         "repo_root": str(root),
         "category_filter": category_filter or None,
+        "available_categories": list(available_categories),
         "line_filter": line_filter if valid_line_filter else None,
         "passive_operator_ordinal_filter": passive_ordinal_filter if valid_passive_ordinal_filter else None,
         "lane_doc": str(lane_doc),
