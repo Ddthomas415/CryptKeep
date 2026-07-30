@@ -66,10 +66,11 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["does_not_fetch_market_data"] is True
     assert out["does_not_mutate_state"] is True
     assert out["section_filter"] is None
-    assert out["shown_report_count"] == 5
+    assert out["shown_report_count"] == 6
     assert set(out["shown_sections"]) == {
         "backlog",
         "research_pipeline",
+        "research_artifact",
         "research_command",
         "operator_read_only",
         "operator_proof",
@@ -77,6 +78,7 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert set(out["reports"]) == {
         "backlog_lane_status",
         "research_pipeline_status",
+        "research_artifact_inventory",
         "research_command_status",
         "operator_read_only_command_status",
         "operator_proof_status",
@@ -89,6 +91,12 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["summary"]["research_pipeline_actions_required"] == 2
     assert len(out["actions"]["research_pipelines"]) == 2
     assert all(row["blocking_reason"] == "latest_summary_missing" for row in out["actions"]["research_pipelines"])
+    assert out["summary"]["research_artifacts_found"] == 0
+    assert out["summary"]["research_artifacts_missing"] == 14
+    assert out["summary"]["research_artifacts_latest_ok"] == 0
+    assert out["summary"]["research_artifact_actions_required"] == 14
+    assert len(out["actions"]["research_artifacts"]) == 14
+    assert all(row["blocking_reason"] == "latest_artifact_missing" for row in out["actions"]["research_artifacts"])
     assert out["summary"]["research_commands_wired"] >= 19
     assert out["summary"]["research_commands_not_wired"] == 0
     assert out["summary"]["research_command_actions_required"] == 0
@@ -112,7 +120,7 @@ def test_operator_status_bundle_filters_by_section(tmp_path: Path) -> None:
     assert out["ok"] is True
     assert out["section_filter"] == "research_pipeline"
     assert out["shown_sections"] == ["research_pipeline"]
-    assert out["source_report_count"] == 5
+    assert out["source_report_count"] == 6
     assert out["shown_report_count"] == 1
     assert set(out["reports"]) == {"research_pipeline_status"}
     assert set(out["actions"]) == {"research_pipelines"}
@@ -304,6 +312,44 @@ def test_operator_status_bundle_forwards_research_pipeline_filter(tmp_path: Path
     assert all(row["pipeline_id"] == "price_action" for row in report["pipelines"])
 
 
+def test_operator_status_bundle_forwards_research_artifact_filters(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="research_artifact",
+        research_artifact_lane="archive",
+        research_artifact_id="archive_parameter_sweep",
+    )
+
+    report = out["reports"]["research_artifact_inventory"]
+    assert out["ok"] is True
+    assert out["section_filter"] == "research_artifact"
+    assert out["research_artifact_lane_filter"] == "archive"
+    assert out["research_artifact_id_filter"] == "archive_parameter_sweep"
+    assert report["lane_filter"] == "archive"
+    assert report["artifact_id_filter"] == "archive_parameter_sweep"
+    assert report["artifact_count"] == 1
+    assert out["summary"]["research_artifacts_missing"] == 1
+    assert out["summary"]["research_artifact_actions_required"] == 1
+    assert out["shown_sections"] == ["research_artifact"]
+    assert set(out["actions"]) == {"research_artifacts"}
+    assert out["actions"]["research_artifacts"] == [
+        {
+            "artifact_id": "archive_parameter_sweep",
+            "lane": "archive",
+            "latest_status": "missing",
+            "latest_path": None,
+            "latest_sha256": None,
+            "producer_make_target": "archive-parameter-sweep",
+            "blocking_reason": "latest_artifact_missing",
+            "next_action": "run make archive-parameter-sweep with accepted research inputs",
+        }
+    ]
+
+
 def test_operator_status_bundle_surfaces_invalid_research_pipeline_filter(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 
@@ -399,6 +445,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "backlog_lane_filter": filters.get("backlog_lane"),
             "backlog_lane_ordinal_filter": int(filters.get("backlog_lane_ordinal") or 0) or None,
             "research_pipeline_filter": filters.get("research_pipeline"),
+            "research_artifact_lane_filter": filters.get("research_artifact_lane"),
+            "research_artifact_id_filter": filters.get("research_artifact_id"),
             "research_command_lane_filter": filters.get("research_command_lane"),
             "research_command_input_class_filter": filters.get("research_command_input_class"),
             "research_command_id_filter": filters.get("research_command_id"),
@@ -406,7 +454,9 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "operator_read_only_command_id_filter": filters.get("operator_read_only_command_id"),
             "operator_proof_category_filter": filters.get("operator_proof_category"),
             "operator_proof_line_filter": int(filters.get("operator_proof_line") or 0) or None,
-            "shown_sections": [section] if section else ["backlog", "research_pipeline", "operator_read_only", "operator_proof"],
+            "shown_sections": [section]
+            if section
+            else ["backlog", "research_pipeline", "research_artifact", "operator_read_only", "operator_proof"],
             "summary": {
                 "passive_operator_items": 15,
                 "backlog_lane_actions_required": 1,
@@ -417,6 +467,10 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "research_pipelines_latest_ok": 0,
                 "research_pipelines_not_run": 2,
                 "research_pipeline_actions_required": 1,
+                "research_artifacts_found": 0,
+                "research_artifacts_latest_ok": 0,
+                "research_artifacts_missing": 1,
+                "research_artifact_actions_required": 1,
                 "research_commands_wired": 19,
                 "research_commands_not_wired": 0,
                 "research_command_actions_required": 1,
@@ -431,6 +485,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "reports": {
                 "backlog_lane_status": {},
                 "research_pipeline_status": {},
+                "research_artifact_inventory": {},
                 "research_command_status": {},
                 "operator_read_only_command_status": {},
                 "operator_proof_status": {},
@@ -449,6 +504,15 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                         "latest_status": "not_run",
                         "blocking_reason": "latest_summary_missing",
                         "next_action": "run make price-action-research-pipeline with the required research inputs",
+                    }
+                ],
+                "research_artifacts": [
+                    {
+                        "artifact_id": "archive_parameter_sweep",
+                        "lane": "archive",
+                        "latest_status": "missing",
+                        "blocking_reason": "latest_artifact_missing",
+                        "next_action": "run make archive-parameter-sweep with accepted research inputs",
                     }
                 ],
                 "research_commands": [
@@ -496,6 +560,10 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "1",
             "--research-command-id",
             "funding_threshold_pipeline",
+            "--research-artifact-lane",
+            "archive",
+            "--research-artifact-id",
+            "archive_parameter_sweep",
             "--operator-read-only-medium-lane-item",
             "gate_diagnostic",
             "--operator-read-only-command-id",
@@ -510,6 +578,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "backlog_lane_filter=low_risk_docs_tests" in out
     assert "backlog_lane_ordinal_filter=1" in out
     assert "operator_proof_category_filter=host_side_reference" in out
+    assert "research_artifact_lane_filter=archive" in out
+    assert "research_artifact_id_filter=archive_parameter_sweep" in out
     assert "research_command_id_filter=funding_threshold_pipeline" in out
     assert "operator_read_only_medium_lane_item_filter=gate_diagnostic" in out
     assert "operator_read_only_command_id_filter=paper_gate_velocity" in out
@@ -520,6 +590,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "actions_required=1" in out
     assert "research_action: price_action" in out
     assert "latest_summary_missing" in out
+    assert "research_artifacts: found=0" in out
+    assert "research_artifact_action: archive_parameter_sweep" in out
     assert "research_commands: wired=19" in out
     assert "actions_required=1" in out
     assert "research_command_action: funding_threshold_pipeline" in out

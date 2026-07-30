@@ -2911,6 +2911,19 @@ substrate work, but they are concrete enough to keep visible.
     This is docs/test only and does not change runtime code, decide backlog
     items, run research/campaigns, fetch market data, close proof, authorize
     implementation, or mutate runtime state.
+    2026-07-29: operator research-artifact action surfacing is ready for
+    independent review. `operator-status` now includes a
+    `research_artifact` section backed by the accepted research artifact
+    inventory, and `operator-next-actions` exposes missing/malformed research
+    artifacts through a `research_artifact` action lane. Make/CLI filters
+    allow focused views by artifact lane or artifact id
+    (`OPERATOR_STATUS_RESEARCH_ARTIFACT_LANE`,
+    `OPERATOR_STATUS_RESEARCH_ARTIFACT_ID`,
+    `OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE`,
+    `OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID`). This remains read-only
+    planning/status only: it does not run research jobs, generate artifacts,
+    fetch market data, change strategy/campaign/gate state, close proof,
+    authorize implementation, or mutate runtime state.
     2026-07-29: explicit single-symbol paper-gate policy documentation is
     ready for independent review. `docs/strategies/paper_universe_widening_decision_2026-07-04.md`
     now states that canonical promotion evidence is single-symbol-only until a

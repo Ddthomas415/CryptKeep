@@ -27685,6 +27685,74 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-29T23:53:43Z - Operator Research Artifact Action Surfacing
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/reporting lane by surfacing accepted research
+  artifact inventory status inside the operator status bundle and compact
+  next-action report.
+
+What was found:
+- SHOWN: `research_artifact_inventory` already reports accepted archive,
+  funding-threshold, and price-action artifacts with latest path/hash/status,
+  `blocking_reason`, and `next_action`.
+- SHOWN: `operator-status` and `operator-next-actions` already consumed
+  research pipeline, research command, read-only command, backlog, and proof
+  reports, but did not surface artifact-level missing/malformed actions.
+- SHOWN: Make/CLI filters existed for nearby source reports, so adding focused
+  artifact lane/id filters followed the existing operator-reporting pattern.
+
+What changed:
+- `operator_status_bundle` now includes a `research_artifact` section backed
+  by `build_research_artifact_inventory`.
+- `operator_next_actions` now emits a `research_artifact` action lane for
+  artifact rows requiring action.
+- `report_operator_status_bundle.py`,
+  `report_operator_next_actions.py`, and Make overrides now support
+  research-artifact lane/id filters.
+- `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests were
+  updated.
+
+Why this change was chosen:
+- The current operator bottleneck is choosing the next concrete proof or
+  research artifact without scanning multiple reports manually. This keeps the
+  existing artifact inventory as the authority and only presents its rows in
+  the existing operator check-in surface.
+
+Expected outcome:
+- Operators can run focused commands such as
+  `make operator-status-json OPERATOR_STATUS_SECTION=research_artifact
+  OPERATOR_STATUS_RESEARCH_ARTIFACT_LANE=archive` or
+  `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=research_artifact`
+  to see the missing artifact and producer command directly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `34 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_research_artifact_inventory.py tests/test_research_command_status.py tests/test_research_pipeline_status.py tests/test_script_index_alignment_guard.py tests/test_operator_doc_make_targets.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `68 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `make operator-status-json OPERATOR_STATUS_SECTION=research_artifact OPERATOR_STATUS_RESEARCH_ARTIFACT_LANE=archive`
+  - SHOWN: `ok=true`, `shown_sections=["research_artifact"]`, and three
+    archive artifact actions.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=research_artifact OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: `ok=true`, `action_count_total=3`, and three
+    `research_artifact` action rows.
+- `make check-alignment-json-fast`
+  - SHOWN: `ok=true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No research job,
+  campaign, market-data fetch, artifact generation, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T23:17:30Z - Research Artifact Inventory Status Report
 
 Active role: ENGINEER

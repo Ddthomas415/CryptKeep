@@ -12,6 +12,7 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
             "report_type": "operator_status_bundle",
             "summary": {
                 "research_pipeline_actions_required": 1,
+                "research_artifact_actions_required": 1,
                 "research_command_actions_required": 1,
                 "passive_operator_evidence_actions_required": 2,
                 "operator_proof_actions_required": 69,
@@ -22,6 +23,13 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
                         "pipeline_id": "price_action",
                         "blocking_reason": "latest_summary_missing",
                         "next_action": "run make price-action-research-pipeline",
+                    }
+                ],
+                "research_artifacts": [
+                    {
+                        "artifact_id": "archive_parameter_sweep",
+                        "blocking_reason": "latest_artifact_missing",
+                        "next_action": "run make archive-parameter-sweep with accepted research inputs",
                     }
                 ],
                 "research_commands": [
@@ -57,16 +65,18 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
     assert out["does_not_run_campaigns"] is True
     assert out["does_not_fetch_market_data"] is True
     assert out["does_not_mutate_state"] is True
-    assert out["action_count_total"] == 73
-    assert out["action_count_available"] == 4
-    assert out["action_count_returned"] == 4
+    assert out["action_count_total"] == 74
+    assert out["action_count_available"] == 5
+    assert out["action_count_returned"] == 5
     assert out["summary"]["available_by_lane"] == {
         "operator_proof": 1,
         "passive_operator_evidence": 1,
+        "research_artifact": 1,
         "research_command": 1,
         "research_pipeline": 1,
     }
     assert out["summary"]["available_by_reason"] == {
+        "latest_artifact_missing": 1,
         "latest_summary_missing": 1,
         "passive_operator_evidence": 1,
         "remaining_proof": 1,
@@ -74,15 +84,17 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
     }
     assert [row["lane"] for row in out["actions"]] == [
         "research_pipeline",
+        "research_artifact",
         "research_command",
         "passive_operator_evidence",
         "operator_proof",
     ]
     assert out["actions"][0]["source"] == "price_action"
-    assert out["actions"][1]["source"] == "funding_threshold_pipeline"
-    assert out["actions"][2]["source"] == "passive_operator_evidence"
-    assert out["actions"][2]["ordinal"] == 1
-    assert out["actions"][3]["line"] == 12
+    assert out["actions"][1]["source"] == "archive_parameter_sweep"
+    assert out["actions"][2]["source"] == "funding_threshold_pipeline"
+    assert out["actions"][3]["source"] == "passive_operator_evidence"
+    assert out["actions"][3]["ordinal"] == 1
+    assert out["actions"][4]["line"] == 12
 
 
 def test_operator_next_actions_respects_limit(monkeypatch) -> None:
@@ -189,6 +201,7 @@ def test_operator_next_actions_fails_closed_on_invalid_lane(monkeypatch) -> None
     assert out["available_action_lanes"] == [
         "backlog_lane",
         "research_pipeline",
+        "research_artifact",
         "research_command",
         "operator_read_only_command",
         "passive_operator_evidence",
@@ -250,12 +263,20 @@ def test_operator_next_actions_filters_by_research_command_lane(monkeypatch) -> 
             "report_type": "operator_status_bundle",
             "summary": {
                 "research_pipeline_actions_required": 1,
+                "research_artifact_actions_required": 2,
                 "research_command_actions_required": 4,
                 "operator_proof_actions_required": 2,
             },
             "actions": {
                 "research_pipelines": [
                     {"pipeline_id": "price_action", "blocking_reason": "missing", "next_action": "run research"}
+                ],
+                "research_artifacts": [
+                    {
+                        "artifact_id": "archive_parameter_sweep",
+                        "blocking_reason": "latest_artifact_missing",
+                        "next_action": "run archive sweep",
+                    }
                 ],
                 "research_commands": [
                     {
@@ -530,6 +551,8 @@ def test_operator_next_actions_forwards_source_filters(monkeypatch) -> None:
         backlog_lane="low_risk_docs_tests",
         backlog_lane_ordinal=2,
         research_pipeline="price_action",
+        research_artifact_lane="archive",
+        research_artifact_id="archive_parameter_sweep",
         research_command_lane="funding",
         research_command_input_class="artifact_input",
         operator_proof_category="host_side_reference",
@@ -540,6 +563,8 @@ def test_operator_next_actions_forwards_source_filters(monkeypatch) -> None:
         "backlog_lane": "low_risk_docs_tests",
         "backlog_lane_ordinal": "2",
         "research_pipeline": "price_action",
+        "research_artifact_lane": "archive",
+        "research_artifact_id": "archive_parameter_sweep",
         "research_command_lane": "funding",
         "research_command_input_class": "artifact_input",
         "research_command_id": None,
@@ -551,6 +576,8 @@ def test_operator_next_actions_forwards_source_filters(monkeypatch) -> None:
     assert out["backlog_lane_filter"] == "low_risk_docs_tests"
     assert out["backlog_lane_ordinal_filter"] == 2
     assert out["research_pipeline_filter"] == "price_action"
+    assert out["research_artifact_lane_filter"] == "archive"
+    assert out["research_artifact_id_filter"] == "archive_parameter_sweep"
     assert out["research_command_lane_filter"] == "funding"
     assert out["research_command_input_class_filter"] == "artifact_input"
     assert out["operator_proof_category_filter"] == "host_side_reference"
@@ -599,6 +626,66 @@ def test_operator_next_actions_source_filter_implies_matching_action_lane(monkey
             "line": None,
             "blocking_reason": "latest_summary_missing",
             "next_action": "run research",
+        }
+    ]
+
+
+def test_operator_next_actions_research_artifact_filter_implies_matching_action_lane(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    captured = {}
+
+    def fake_bundle(repo_root=None, **filters):
+        captured.update(filters)
+        return {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "research_pipeline_actions_required": 1,
+                "research_artifact_actions_required": 2,
+                "operator_proof_actions_required": 9,
+            },
+            "actions": {
+                "research_pipelines": [
+                    {
+                        "pipeline_id": "price_action",
+                        "blocking_reason": "latest_summary_missing",
+                        "next_action": "run research",
+                    }
+                ],
+                "research_artifacts": [
+                    {
+                        "artifact_id": "archive_parameter_sweep",
+                        "blocking_reason": "latest_artifact_missing",
+                        "next_action": "run archive sweep",
+                    }
+                ],
+                "operator_proofs": [
+                    {
+                        "line": 7,
+                        "category": "host_side_reference",
+                        "next_action": "run host proof",
+                    }
+                ],
+            },
+        }
+
+    monkeypatch.setattr(mod, "build_operator_status_bundle", fake_bundle)
+
+    out = mod.build_operator_next_actions(repo_root=".", research_artifact_lane="archive", max_actions=20)
+
+    assert captured["research_artifact_lane"] == "archive"
+    assert out["research_artifact_lane_filter"] == "archive"
+    assert out["lane_filter"] is None
+    assert out["action_count_total"] == 2
+    assert out["action_count_available"] == 1
+    assert out["actions"] == [
+        {
+            "lane": "research_artifact",
+            "source": "archive_parameter_sweep",
+            "line": None,
+            "blocking_reason": "latest_artifact_missing",
+            "next_action": "run archive sweep",
         }
     ]
 
@@ -875,6 +962,7 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "available_action_lanes": [
                 "backlog_lane",
                 "research_pipeline",
+                "research_artifact",
                 "research_command",
                 "operator_read_only_command",
                 "passive_operator_evidence",
@@ -886,6 +974,8 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "backlog_lane_filter": filters.get("backlog_lane"),
             "backlog_lane_ordinal_filter": int(filters.get("backlog_lane_ordinal") or 0) or None,
             "research_pipeline_filter": filters.get("research_pipeline"),
+            "research_artifact_lane_filter": filters.get("research_artifact_lane"),
+            "research_artifact_id_filter": filters.get("research_artifact_id"),
             "research_command_lane_filter": filters.get("research_command_lane"),
             "research_command_input_class_filter": filters.get("research_command_input_class"),
             "research_command_id_filter": filters.get("research_command_id"),
@@ -926,6 +1016,10 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "1",
             "--research-pipeline",
             "price_action",
+            "--research-artifact-lane",
+            "archive",
+            "--research-artifact-id",
+            "archive_parameter_sweep",
             "--operator-proof-category",
             "host_side_reference",
             "--research-command-id",
@@ -946,6 +1040,8 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     assert "backlog_lane_filter=low_risk_docs_tests" in out
     assert "backlog_lane_ordinal_filter=1" in out
     assert "research_pipeline_filter=price_action" in out
+    assert "research_artifact_lane_filter=archive" in out
+    assert "research_artifact_id_filter=archive_parameter_sweep" in out
     assert "research_command_id_filter=funding_threshold_pipeline" in out
     assert "operator_read_only_medium_lane_item_filter=gate_diagnostic" in out
     assert "operator_read_only_command_id_filter=paper_gate_velocity" in out

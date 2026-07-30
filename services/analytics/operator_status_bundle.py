@@ -7,6 +7,7 @@ from typing import Any
 from services.analytics.backlog_lane_status import LANE_KEY_TO_HEADING, build_backlog_lane_status
 from services.analytics.operator_read_only_command_status import build_operator_read_only_command_status
 from services.analytics.operator_proof_status import build_operator_proof_status
+from services.analytics.research_artifact_inventory import build_research_artifact_inventory
 from services.analytics.research_command_status import build_research_command_status
 from services.analytics.research_pipeline_status import build_research_pipeline_status
 
@@ -14,6 +15,7 @@ from services.analytics.research_pipeline_status import build_research_pipeline_
 _SECTION_REPORT_KEYS = {
     "backlog": ("backlog_lane_status",),
     "research_pipeline": ("research_pipeline_status",),
+    "research_artifact": ("research_artifact_inventory",),
     "research_command": ("research_command_status",),
     "operator_read_only": ("operator_read_only_command_status",),
     "operator_proof": ("operator_proof_status",),
@@ -22,6 +24,7 @@ _SECTION_REPORT_KEYS = {
 _SECTION_ACTION_KEYS = {
     "backlog": ("backlog_lanes",),
     "research_pipeline": ("research_pipelines",),
+    "research_artifact": ("research_artifacts",),
     "research_command": ("research_commands",),
     "operator_read_only": ("operator_read_only_commands",),
     "operator_proof": ("passive_operator_evidence", "operator_proofs"),
@@ -39,6 +42,8 @@ def build_operator_status_bundle(
     backlog_lane: str | None = None,
     backlog_lane_ordinal: int | str | None = None,
     research_pipeline: str | None = None,
+    research_artifact_lane: str | None = None,
+    research_artifact_id: str | None = None,
     research_command_lane: str | None = None,
     research_command_input_class: str | None = None,
     research_command_id: str | None = None,
@@ -53,6 +58,8 @@ def build_operator_status_bundle(
     backlog_lane_filter = str(backlog_lane or "").strip()
     backlog_lane_ordinal_filter = str(backlog_lane_ordinal or "").strip()
     research_pipeline_filter = str(research_pipeline or "").strip()
+    research_artifact_lane_filter = str(research_artifact_lane or "").strip()
+    research_artifact_id_filter = str(research_artifact_id or "").strip()
     research_command_lane_filter = str(research_command_lane or "").strip()
     research_command_input_filter = str(research_command_input_class or "").strip()
     research_command_id_filter = str(research_command_id or "").strip()
@@ -62,6 +69,11 @@ def build_operator_status_bundle(
     proof_line_filter = str(operator_proof_line or "").strip()
     backlog = build_backlog_lane_status(repo_root=root, lane=backlog_lane_filter or None)
     research = build_research_pipeline_status(repo_root=root, pipeline=research_pipeline_filter or None)
+    research_artifacts = build_research_artifact_inventory(
+        repo_root=root,
+        lane=research_artifact_lane_filter or None,
+        artifact_id=research_artifact_id_filter or None,
+    )
     research_commands = build_research_command_status(
         repo_root=root,
         lane=research_command_lane_filter or None,
@@ -80,6 +92,7 @@ def build_operator_status_bundle(
     )
     backlog_summary = dict(backlog.get("summary") or {})
     research_summary = dict(research.get("summary") or {})
+    research_artifact_summary = dict(research_artifacts.get("summary") or {})
     research_command_summary = dict(research_commands.get("summary") or {})
     read_only_command_summary = dict(read_only_commands.get("summary") or {})
     proof_summary = dict(proofs.get("summary") or {})
@@ -119,6 +132,20 @@ def build_operator_status_bundle(
             "next_action": str(row.get("next_action") or ""),
         }
         for row in list(research.get("pipelines") or [])
+        if isinstance(row, dict) and bool(row.get("action_required"))
+    ]
+    research_artifact_actions = [
+        {
+            "artifact_id": str(row.get("artifact_id") or ""),
+            "lane": str(row.get("lane") or ""),
+            "latest_status": str(row.get("latest_status") or ""),
+            "latest_path": row.get("latest_path"),
+            "latest_sha256": row.get("latest_sha256"),
+            "producer_make_target": str(row.get("producer_make_target") or ""),
+            "blocking_reason": row.get("blocking_reason"),
+            "next_action": str(row.get("next_action") or ""),
+        }
+        for row in list(research_artifacts.get("artifacts") or [])
         if isinstance(row, dict) and bool(row.get("action_required"))
     ]
     research_command_actions = [
@@ -171,6 +198,7 @@ def build_operator_status_bundle(
         "ok": (
             bool(backlog.get("ok"))
             and bool(research.get("ok"))
+            and bool(research_artifacts.get("ok"))
             and bool(research_commands.get("ok"))
             and bool(read_only_commands.get("ok"))
             and bool(proofs.get("ok"))
@@ -186,6 +214,8 @@ def build_operator_status_bundle(
         "backlog_lane_filter": backlog_lane_filter or None,
         "backlog_lane_ordinal_filter": ordinal_value,
         "research_pipeline_filter": research_pipeline_filter or None,
+        "research_artifact_lane_filter": research_artifact_lane_filter or None,
+        "research_artifact_id_filter": research_artifact_id_filter or None,
         "research_command_lane_filter": research_command_lane_filter or None,
         "research_command_input_class_filter": research_command_input_filter or None,
         "research_command_id_filter": research_command_id_filter or None,
@@ -196,6 +226,7 @@ def build_operator_status_bundle(
         "reports": {
             "backlog_lane_status": backlog,
             "research_pipeline_status": research,
+            "research_artifact_inventory": research_artifacts,
             "research_command_status": research_commands,
             "operator_read_only_command_status": read_only_commands,
             "operator_proof_status": proofs,
@@ -203,6 +234,7 @@ def build_operator_status_bundle(
         "actions": {
             "backlog_lanes": backlog_actions,
             "research_pipelines": research_actions,
+            "research_artifacts": research_artifact_actions,
             "research_commands": research_command_actions,
             "operator_read_only_commands": read_only_command_actions,
             "passive_operator_evidence": passive_actions,
@@ -219,6 +251,10 @@ def build_operator_status_bundle(
             "research_pipelines_not_run": int(research_summary.get("not_run") or 0),
             "research_pipelines_latest_ok": int(research_summary.get("latest_ok") or 0),
             "research_pipeline_actions_required": len(research_actions),
+            "research_artifacts_found": int(research_artifact_summary.get("found") or 0),
+            "research_artifacts_missing": int(research_artifact_summary.get("missing") or 0),
+            "research_artifacts_latest_ok": int(research_artifact_summary.get("latest_ok") or 0),
+            "research_artifact_actions_required": len(research_artifact_actions),
             "research_commands_wired": int(research_command_summary.get("wired") or 0),
             "research_commands_not_wired": int(research_command_summary.get("not_wired") or 0),
             "research_command_actions_required": len(research_command_actions),

@@ -27,6 +27,8 @@ def _print_report(payload: dict[str, Any]) -> None:
         "backlog_lane_filter",
         "backlog_lane_ordinal_filter",
         "research_pipeline_filter",
+        "research_artifact_lane_filter",
+        "research_artifact_id_filter",
         "research_command_lane_filter",
         "research_command_input_class_filter",
         "research_command_id_filter",
@@ -75,6 +77,25 @@ def _print_report(payload: dict[str, Any]) -> None:
             f"latest_ok={summary.get('research_pipelines_latest_ok', 0)} "
             f"not_run={summary.get('research_pipelines_not_run', 0)} "
             f"actions_required={summary.get('research_pipeline_actions_required', 0)}"
+        )
+    if "research_artifact_inventory" in reports:
+        print(
+            "research_artifacts: "
+            f"found={summary.get('research_artifacts_found', 0)} "
+            f"latest_ok={summary.get('research_artifacts_latest_ok', 0)} "
+            f"missing={summary.get('research_artifacts_missing', 0)} "
+            f"actions_required={summary.get('research_artifact_actions_required', 0)}"
+        )
+    for row in list(actions_payload.get("research_artifacts") or [])[:5]:
+        if not isinstance(row, dict):
+            continue
+        print(
+            "research_artifact_action: "
+            f"{row.get('artifact_id')} "
+            f"lane={row.get('lane')} "
+            f"status={row.get('latest_status')} "
+            f"reason={row.get('blocking_reason')} "
+            f"action={row.get('next_action')}"
         )
     research_actions = list(actions_payload.get("research_pipelines") or [])
     for row in research_actions:
@@ -156,7 +177,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--section",
         default=None,
-        help="Limit output to one section: backlog, research_pipeline, research_command, or operator_proof",
+        help=(
+            "Limit output to one section: backlog, research_pipeline, research_artifact, "
+            "research_command, operator_read_only, or operator_proof"
+        ),
     )
     parser.add_argument("--backlog-lane", default=None, help="Forward a lane filter to backlog lane status")
     parser.add_argument(
@@ -168,6 +192,16 @@ def main(argv: list[str] | None = None) -> int:
         "--research-pipeline",
         default=None,
         help="Forward a pipeline_id filter to research pipeline status",
+    )
+    parser.add_argument(
+        "--research-artifact-lane",
+        default=None,
+        help="Forward a lane filter to research artifact inventory",
+    )
+    parser.add_argument(
+        "--research-artifact-id",
+        default=None,
+        help="Forward an artifact_id filter to research artifact inventory",
     )
     parser.add_argument(
         "--research-command-lane",
@@ -212,6 +246,8 @@ def main(argv: list[str] | None = None) -> int:
         backlog_lane=args.backlog_lane,
         backlog_lane_ordinal=args.backlog_lane_ordinal,
         research_pipeline=args.research_pipeline,
+        research_artifact_lane=args.research_artifact_lane,
+        research_artifact_id=args.research_artifact_id,
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,
         research_command_id=args.research_command_id,
