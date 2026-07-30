@@ -36,6 +36,7 @@ def _print_report(payload: dict[str, Any]) -> None:
         "operator_read_only_command_id_filter",
         "operator_proof_category_filter",
         "operator_proof_line_filter",
+        "operator_proof_passive_ordinal_filter",
     )
     print("=== Operator Status Bundle ===")
     print(f"ok={bool(payload.get('ok'))}")
@@ -238,6 +239,11 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Forward a REMAINING_TASKS.md line filter to operator proof status",
     )
+    parser.add_argument(
+        "--operator-proof-passive-ordinal",
+        default=None,
+        help="Forward a passive operator-evidence 1-based ordinal filter to operator proof status",
+    )
     args = parser.parse_args(argv)
 
     payload = build_operator_status_bundle(
@@ -255,6 +261,7 @@ def main(argv: list[str] | None = None) -> int:
         operator_read_only_command_id=args.operator_read_only_command_id,
         operator_proof_category=args.operator_proof_category,
         operator_proof_line=args.operator_proof_line,
+        operator_proof_passive_ordinal=args.operator_proof_passive_ordinal,
     )
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))

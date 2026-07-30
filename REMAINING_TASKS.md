@@ -2742,6 +2742,14 @@ substrate work, but they are concrete enough to keep visible.
     requested category. This is presentation/JSON status only and does not run
     campaigns, fetch market data, close proof, authorize implementation, or
     mutate runtime state.
+    2026-07-30: operator proof status passive-ordinal filtering is ready for
+    independent review. `build_operator_proof_status()`, the CLI, Make targets,
+    `operator-status`, and `operator-next-actions` now support a 1-based
+    passive operator-evidence ordinal filter. Invalid passive ordinals fail
+    closed as `invalid_passive_operator_ordinal`; valid filters preserve source
+    passive counts while returning one passive action row. This remains
+    presentation/JSON status only and does not run campaigns, fetch market
+    data, close proof, authorize implementation, or mutate runtime state.
     2026-07-28: read-only operator status bundle is ready for independent
     review. `services.analytics.operator_status_bundle` and
     `scripts/report_operator_status_bundle.py` combine backlog lane status,

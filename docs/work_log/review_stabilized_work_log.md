@@ -27735,6 +27735,63 @@ Remaining risk:
   authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-30T00:35:08Z - Passive Operator Evidence Ordinal Filter
+
+Active role: ENGINEER
+
+Objective:
+- Continue the medium-risk read-only reporting lane by making passive operator
+  evidence actions focusable by exact ordinal.
+
+What was found:
+- SHOWN: `operator-next-actions` reports 15 passive operator-evidence actions.
+- SHOWN: proof markers already support category and line filters.
+- SHOWN: passive operator-evidence rows did not have an exact ordinal filter,
+  so a check-in focused on one passive evidence task still returned the whole
+  passive list.
+
+What changed:
+- `build_operator_proof_status()` now accepts `passive_ordinal`.
+- `report_operator_proof_status.py`, `operator-status`, `operator-next-actions`,
+  and Make overrides forward the new passive ordinal filter.
+- Invalid passive ordinals fail closed as `invalid_passive_operator_ordinal`.
+- Regression tests cover direct report filtering, invalid ordinal handling,
+  bundle forwarding, next-actions lane narrowing, and CLI output.
+
+Why this change was chosen:
+- The operator proof surface already reports passive evidence as actionable
+  rows. Exact filtering lets check-ins target one evidence task without
+  scrolling unrelated passive items and without running any host command or
+  closing proof.
+
+Expected outcome:
+- Operators can run focused read-only checks for a single passive evidence item
+  while preserving source counts and keeping proof closure/manual evidence
+  separate.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `51 passed in 0.56s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_proof_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `make operator-proof-status-json OPERATOR_PROOF_STATUS_PASSIVE_ORDINAL=1`
+  - SHOWN: `ok=true`, `passive_operator_ordinal_filter=1`,
+    `passive_operator_item_count=1`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=operator_proof OPERATOR_STATUS_OPERATOR_PROOF_PASSIVE_ORDINAL=1`
+  - SHOWN: `ok=true`, `operator_proof_passive_ordinal_filter=1`,
+    `passive_operator_evidence_actions_required=1`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL=1 OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: `ok=true`, `action_count_available=1`, action lane
+    `passive_operator_evidence`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: read-only reporting/filter plumbing only. No campaign, market-data
+  fetch, artifact generation, proof closure, gate, ingestion, live routing,
+  execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T23:57:54Z - Research Artifact Producer-Plan Metadata
 
 Active role: ENGINEER

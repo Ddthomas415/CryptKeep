@@ -149,16 +149,49 @@ def test_operator_proof_status_rejects_invalid_line_filter(tmp_path: Path) -> No
     assert out["line_filter"] is None
 
 
+def test_operator_proof_status_filters_passive_items_by_ordinal(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+
+    out = build_operator_proof_status(repo_root=tmp_path, passive_ordinal=2)
+
+    assert out["ok"] is True
+    assert out["passive_operator_ordinal_filter"] == 2
+    assert out["source_passive_operator_item_count"] == 2
+    assert out["passive_operator_item_count"] == 1
+    assert out["summary"]["passive_operator_items"] == 1
+    assert out["summary"]["source_passive_operator_items"] == 2
+    assert [row["ordinal"] for row in out["passive_operator_items"]] == [2]
+    assert "continues with detail" in out["passive_operator_items"][0]["text"]
+
+
+def test_operator_proof_status_rejects_invalid_passive_ordinal(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+
+    out = build_operator_proof_status(repo_root=tmp_path, passive_ordinal=99)
+
+    assert out["ok"] is False
+    assert out["reason"] == "invalid_passive_operator_ordinal"
+    assert out["passive_operator_ordinal_filter"] is None
+    assert out["passive_operator_items"] == []
+
+
 def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:
     from scripts import report_operator_proof_status as script
 
     monkeypatch.setattr(
         script,
         "build_operator_proof_status",
-        lambda repo_root=None, category=None, line=None: {
+        lambda repo_root=None, category=None, line=None, passive_ordinal=None: {
             "ok": True,
             "category_filter": category,
             "line_filter": int(line) if line else None,
+            "passive_operator_ordinal_filter": int(passive_ordinal) if passive_ordinal else None,
             "passive_operator_item_count": 1,
             "proof_marker_count": 1,
             "summary": {
@@ -178,11 +211,12 @@ def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:
         },
     )
 
-    assert script.main(["--category", "remaining_proof", "--line", "7"]) == 0
+    assert script.main(["--category", "remaining_proof", "--line", "7", "--passive-ordinal", "1"]) == 0
     out = capsys.readouterr().out
     assert "Operator Proof Status" in out
     assert "category_filter=remaining_proof" in out
     assert "line_filter=7" in out
+    assert "passive_operator_ordinal_filter=1" in out
     assert "passive_items=1" in out
     assert "Run host proof" in out
     assert "L7 remaining_proof" in out

@@ -434,6 +434,28 @@ def test_operator_status_bundle_forwards_proof_line(tmp_path: Path) -> None:
     assert all(row["line"] == 3 for row in out["actions"]["operator_proofs"])
 
 
+def test_operator_status_bundle_forwards_passive_operator_ordinal(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="operator_proof",
+        operator_proof_passive_ordinal=1,
+    )
+
+    report = out["reports"]["operator_proof_status"]
+    assert out["ok"] is True
+    assert out["section_filter"] == "operator_proof"
+    assert out["operator_proof_passive_ordinal_filter"] == 1
+    assert report["passive_operator_ordinal_filter"] == 1
+    assert report["source_passive_operator_item_count"] == 1
+    assert out["summary"]["passive_operator_items"] == 1
+    assert out["summary"]["source_passive_operator_items"] == 1
+    assert [row["ordinal"] for row in out["actions"]["passive_operator_evidence"]] == [1]
+
+
 def test_operator_status_bundle_rejects_unknown_section(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 
@@ -471,6 +493,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "operator_read_only_command_id_filter": filters.get("operator_read_only_command_id"),
             "operator_proof_category_filter": filters.get("operator_proof_category"),
             "operator_proof_line_filter": int(filters.get("operator_proof_line") or 0) or None,
+            "operator_proof_passive_ordinal_filter": int(filters.get("operator_proof_passive_ordinal") or 0)
+            or None,
             "shown_sections": [section]
             if section
             else ["backlog", "research_pipeline", "research_artifact", "operator_read_only", "operator_proof"],
@@ -587,6 +611,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "paper_gate_velocity",
             "--operator-proof-line",
             "7",
+            "--operator-proof-passive-ordinal",
+            "1",
         ]
     ) == 0
     out = capsys.readouterr().out
@@ -601,6 +627,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "operator_read_only_medium_lane_item_filter=gate_diagnostic" in out
     assert "operator_read_only_command_id_filter=paper_gate_velocity" in out
     assert "operator_proof_line_filter=7" in out
+    assert "operator_proof_passive_ordinal_filter=1" in out
     assert "passive=15" in out
     assert "backlog_action: #1 low_risk_docs_tests" in out
     assert "wired=2" in out

@@ -123,6 +123,7 @@ def build_operator_proof_status(
     repo_root: str | Path | None = None,
     category: str | None = None,
     line: int | str | None = None,
+    passive_ordinal: int | str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     category_filter = str(category or "").strip()
@@ -137,11 +138,35 @@ def build_operator_proof_status(
         else:
             if line_filter <= 0:
                 valid_line_filter = False
+    passive_ordinal_filter: int | None = None
+    passive_ordinal_raw = str(passive_ordinal or "").strip()
+    valid_passive_ordinal_filter = True
+    if passive_ordinal_raw:
+        try:
+            passive_ordinal_filter = int(passive_ordinal_raw)
+        except Exception:
+            valid_passive_ordinal_filter = False
+        else:
+            if passive_ordinal_filter <= 0:
+                valid_passive_ordinal_filter = False
     lane_doc = root / "docs" / "BACKLOG_EXECUTION_LANES.md"
     backlog = root / "REMAINING_TASKS.md"
     lane_text = _read_text(lane_doc)
     backlog_text = _read_text(backlog)
-    passive_items = _bullet_items(_section(lane_text, PASSIVE_HEADING))
+    all_passive_items = _bullet_items(_section(lane_text, PASSIVE_HEADING))
+    passive_rows = [
+        {
+            "ordinal": idx,
+            "text": item,
+            "action_required": True,
+            "next_action": f"collect or record operator evidence: {item}",
+        }
+        for idx, item in enumerate(all_passive_items, start=1)
+    ]
+    if valid_passive_ordinal_filter and passive_ordinal_filter is not None:
+        passive_rows = [row for row in passive_rows if int(row.get("ordinal") or 0) == passive_ordinal_filter]
+        if not passive_rows:
+            valid_passive_ordinal_filter = False
     all_proof_markers = _proof_markers(backlog_text)
     source_category_counts = _category_counts(all_proof_markers)
     proof_markers = all_proof_markers
@@ -155,7 +180,12 @@ def build_operator_proof_status(
         for category, count in category_counts.items()
         if category.startswith("remaining_")
     )
-    ok = bool(lane_text and backlog_text and passive_items and valid_line_filter)
+    ok = bool(lane_text and backlog_text and all_passive_items and valid_line_filter and valid_passive_ordinal_filter)
+    reason: str | None = None
+    if not valid_line_filter:
+        reason = "invalid_line"
+    elif not valid_passive_ordinal_filter:
+        reason = "invalid_passive_operator_ordinal"
 
     return {
         "schema_version": 1,
@@ -171,20 +201,14 @@ def build_operator_proof_status(
         "repo_root": str(root),
         "category_filter": category_filter or None,
         "line_filter": line_filter if valid_line_filter else None,
+        "passive_operator_ordinal_filter": passive_ordinal_filter if valid_passive_ordinal_filter else None,
         "lane_doc": str(lane_doc),
         "lane_doc_sha256": _sha256(lane_doc),
         "backlog": str(backlog),
         "backlog_sha256": _sha256(backlog),
-        "passive_operator_item_count": len(passive_items),
-        "passive_operator_items": [
-            {
-                "ordinal": idx,
-                "text": item,
-                "action_required": True,
-                "next_action": f"collect or record operator evidence: {item}",
-            }
-            for idx, item in enumerate(passive_items, start=1)
-        ],
+        "passive_operator_item_count": len(passive_rows),
+        "source_passive_operator_item_count": len(all_passive_items),
+        "passive_operator_items": passive_rows,
         "proof_marker_count": len(proof_markers),
         "source_proof_marker_count": len(all_proof_markers),
         "proof_markers": [
@@ -199,12 +223,13 @@ def build_operator_proof_status(
             for marker in proof_markers
         ],
         "summary": {
-            "passive_operator_items": len(passive_items),
+            "passive_operator_items": len(passive_rows),
+            "source_passive_operator_items": len(all_passive_items),
             "remaining_proof_or_coverage_markers": remaining_marker_count,
             "host_side_markers": category_counts.get("host_side_reference", 0),
             "proof_ready_markers": category_counts.get("proof_ready_implementation", 0),
             "category_counts": category_counts,
             "source_category_counts": source_category_counts,
         },
-        "reason": None if valid_line_filter else "invalid_line",
+        "reason": reason,
     }
