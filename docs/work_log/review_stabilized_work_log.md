@@ -27685,6 +27685,82 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T21:10:15Z - Archive Sweep No-Candidate Terminal Inventory Status
+
+Active role: ENGINEER
+
+Objective:
+- Continue the read-only research/reporting lane by producing the missing
+  archive parameter-sweep artifacts and fixing inventory semantics for a
+  completed triage that finds no acceptable candidates.
+
+What was found:
+- SHOWN: `make research-artifact-inventory-json` reported two missing archive
+  artifacts before the run: `archive_parameter_sweep` and
+  `archive_parameter_sweep_triage`.
+- SHOWN: an accepted archive-backed walk-forward artifact exists for
+  `breakout_donchian` on `BTC/USDT` / `5m` with 1500 archive bars and 4
+  walk-forward windows.
+- SHOWN: the bounded 12-variant archive parameter sweep completed successfully:
+  all variants ran, but the best variant was still negative after modeled costs
+  (`avg_test_return_pct=-0.6034372113526504`,
+  `non_negative_test_window_ratio=0.25`).
+- SHOWN: archive sweep triage correctly returned
+  `reason=insufficient_review_candidates` with zero review candidates; the
+  prior inventory treated that completed negative result as an action-required
+  failed artifact.
+
+What changed:
+- `research_artifact_inventory` now classifies only
+  `archive_parameter_sweep_triage` artifacts with
+  `reason=insufficient_review_candidates`, a correct artifact marker, and
+  candidate/review-candidate arrays as
+  `latest_terminal_no_candidates`.
+- Terminal no-candidate artifacts remain visible with `latest_ok=false`, but
+  they no longer require rerun action and no longer make the overall inventory
+  fail.
+- Other `ok=false` artifacts still fail closed as `latest_not_ok`.
+- Added regression tests for terminal no-candidate classification and the
+  still-fail-closed boundary for other not-ok triage artifacts.
+
+Why this change was chosen:
+- "No candidate passed the accepted triage thresholds" is a completed research
+  finding, not a broken artifact. The operator should see that result without
+  being told to rerun the same triage.
+
+Expected outcome:
+- Research artifact inventory distinguishes missing/broken artifacts from
+  completed negative triage results. After the local archive sweep/triage run,
+  inventory reports `missing=0`, `action_required=0`, and
+  `terminal_no_candidates=1`.
+
+Verification:
+- `make archive-parameter-sweep ARCHIVE_PARAMETER_SWEEP_ARGS="--config .cbp_state/data/research/configs/breakout_default_research_enabled.yaml --grid .cbp_state/data/research/configs/breakout_default_btcusdt_5m_sweep_grid.json --venue coinbase --symbol BTC/USDT --timeframe 5m --limit 1500 --warmup-bars 50 --min-train-bars 500 --test-bars 250 --step-bars 250 --max-windows 4 --fee-bps 10 --slippage-bps 5 --max-variants 12 --output .cbp_state/data/research/archive_parameter_sweep/breakout_default_btcusdt_5m_sweep.latest.json --fail-if-not-ok"`
+  - SHOWN: exit 0; `ok=true`; `variant_count=12`;
+    `successful_variant_count=12`; top variant still negative after modeled
+    costs.
+- `make archive-parameter-sweep-triage ARCHIVE_PARAMETER_SWEEP_TRIAGE_ARGS="--input .cbp_state/data/research/archive_parameter_sweep/breakout_default_btcusdt_5m_sweep.latest.json --output .cbp_state/data/research/archive_parameter_sweep_triage/breakout_default_btcusdt_5m_sweep_triage.latest.json --min-successful-variants 1 --min-window-count 4 --min-closed-trades 10 --min-non-negative-window-ratio 0.5 --min-avg-test-return-pct 0 --max-avg-test-drawdown-pct 5 --fail-if-not-ok"`
+  - SHOWN: exit 2 by design; artifact written with
+    `reason=insufficient_review_candidates`, `candidate_count=0`, and no review
+    candidates.
+- `./.venv/bin/python -m pytest -q tests/test_research_artifact_inventory.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_research_command_status.py`
+  - SHOWN: `56 passed in 0.61s`.
+- `./.venv/bin/python -m py_compile services/analytics/research_artifact_inventory.py tests/test_research_artifact_inventory.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make research-artifact-inventory-json`
+  - SHOWN: exit 0; `missing=0`, `latest_ok=13`,
+    `terminal_no_candidates=1`, `latest_not_ok=0`, and `action_required=0`.
+
+Remaining risk:
+- LOW/MEDIUM: read-only status/reporting semantics plus generated local
+  research artifacts. No strategy config, campaign manifest, gate, live/shadow
+  execution, order routing, risk control, or market-data ingestion behavior
+  changed. The negative sweep/triage result is research-only and is not
+  promotion evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER

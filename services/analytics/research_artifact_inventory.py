@@ -235,6 +235,23 @@ def _boundary_flags(payload: dict[str, Any]) -> dict[str, bool | None]:
     return {key: (bool(payload[key]) if key in payload else None) for key in keys}
 
 
+def _terminal_research_result(spec: ResearchArtifactSpec, payload: dict[str, Any]) -> str | None:
+    """Classify completed negative research findings that should not be rerun.
+
+    Some research artifacts use ok=false to mean "the triage found no accepted
+    candidate", not "the artifact failed to run." Keep this narrow so malformed
+    or unsupported artifacts still fail closed.
+    """
+    if (
+        spec.artifact_id == "archive_parameter_sweep_triage"
+        and str(payload.get("reason") or "") == "insufficient_review_candidates"
+        and isinstance(payload.get("candidates"), list)
+        and isinstance(payload.get("review_candidates"), list)
+    ):
+        return "latest_terminal_no_candidates"
+    return None
+
+
 def _producer_plan(spec: ResearchArtifactSpec) -> dict[str, Any]:
     required_inputs = list(spec.required_inputs)
     args_variable = str(spec.producer_args_variable or "")
@@ -312,9 +329,10 @@ def _row(repo_root: Path, spec: ResearchArtifactSpec) -> dict[str, Any]:
     reasons: list[str] = []
     if marker != spec.marker_value:
         reasons.append("unexpected_artifact_marker")
-    if payload.get("ok") is False:
+    terminal_status = _terminal_research_result(spec, payload) if not reasons else None
+    if payload.get("ok") is False and terminal_status is None:
         reasons.append("latest_artifact_not_ok")
-    status = "latest_ok" if not reasons else "latest_not_ok"
+    status = terminal_status or ("latest_ok" if not reasons else "latest_not_ok")
     blocking_reason = reasons[0] if reasons else None
     next_action = (
         f"inspect latest {spec.artifact_id} artifact, then rerun make {spec.producer_make_target}"
@@ -403,6 +421,9 @@ def build_research_artifact_inventory(
             "found": sum(1 for row in rows if row.get("latest_path")),
             "missing": sum(1 for row in rows if row.get("latest_status") == "missing"),
             "latest_ok": sum(1 for row in rows if row.get("latest_status") == "latest_ok"),
+            "terminal_no_candidates": sum(
+                1 for row in rows if row.get("latest_status") == "latest_terminal_no_candidates"
+            ),
             "latest_not_ok": sum(1 for row in rows if row.get("latest_status") == "latest_not_ok"),
             "unreadable": sum(1 for row in rows if row.get("latest_status") == "unreadable"),
             "action_required": sum(1 for row in rows if bool(row.get("action_required"))),

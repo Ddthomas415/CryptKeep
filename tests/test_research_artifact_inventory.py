@@ -99,6 +99,59 @@ def test_research_artifact_inventory_reports_marker_mismatch(tmp_path: Path) -> 
     assert row["observed_marker"] == "wrong_report"
 
 
+def test_research_artifact_inventory_treats_archive_triage_no_candidates_as_terminal(tmp_path: Path) -> None:
+    from services.analytics.research_artifact_inventory import build_research_artifact_inventory
+
+    _write_artifact(
+        tmp_path,
+        ".cbp_state/data/research/archive_parameter_sweep_triage/run1/triage.json",
+        {
+            "artifact_type": "archive_parameter_sweep_triage_v1",
+            "ok": False,
+            "reason": "insufficient_review_candidates",
+            "candidates": [{"variant_id": "variant_001", "status": "not_candidate"}],
+            "review_candidates": [],
+        },
+    )
+
+    out = build_research_artifact_inventory(repo_root=tmp_path, artifact_id="archive_parameter_sweep_triage")
+    row = out["artifacts"][0]
+
+    assert out["ok"] is True
+    assert row["latest_status"] == "latest_terminal_no_candidates"
+    assert row["latest_ok"] is False
+    assert row["blocking_reason"] is None
+    assert row["action_required"] is False
+    assert row["next_action"] == "none"
+    assert out["summary"]["terminal_no_candidates"] == 1
+    assert out["summary"]["latest_not_ok"] == 0
+    assert out["summary"]["action_required"] == 0
+
+
+def test_research_artifact_inventory_still_fails_other_not_ok_artifacts(tmp_path: Path) -> None:
+    from services.analytics.research_artifact_inventory import build_research_artifact_inventory
+
+    _write_artifact(
+        tmp_path,
+        ".cbp_state/data/research/archive_parameter_sweep_triage/run1/triage.json",
+        {
+            "artifact_type": "archive_parameter_sweep_triage_v1",
+            "ok": False,
+            "reason": "source_artifact_missing",
+            "candidates": [],
+            "review_candidates": [],
+        },
+    )
+
+    out = build_research_artifact_inventory(repo_root=tmp_path, artifact_id="archive_parameter_sweep_triage")
+    row = out["artifacts"][0]
+
+    assert out["ok"] is False
+    assert row["latest_status"] == "latest_not_ok"
+    assert row["blocking_reason"] == "latest_artifact_not_ok"
+    assert row["action_required"] is True
+
+
 def test_research_artifact_inventory_fails_closed_on_unknown_artifact_id(tmp_path: Path) -> None:
     from services.analytics.research_artifact_inventory import build_research_artifact_inventory
 
