@@ -27748,6 +27748,60 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T22:49:07Z - Evidence Logger Platform Event Producer
+
+Active role: ENGINEER
+
+Objective:
+- Add the first concrete platform-event producer without changing campaigns,
+  promotion gates, risk decisions, or execution authority.
+
+What was found:
+- SHOWN: `EvidenceLogger._append` is the single shared evidence JSONL write path
+  for signal/order/fill/session/drawdown records.
+- SHOWN: existing evidence status and alert hooks are best-effort around the
+  evidence write and must not become authoritative over evidence persistence.
+
+What changed:
+- `EvidenceLogger._append` now emits an `EvidenceArtifactGenerated` platform
+  event after a successful evidence JSONL write.
+- The event records artifact metadata only: record type/subtype, artifact file
+  name, record timestamp, stage, market-data source, sample-mode marker, and
+  strategy/config/data/run provenance when present.
+- Platform-event write failures are caught and logged; they do not roll back or
+  block evidence writes.
+- `docs/PLATFORM_EVENT_JOURNAL.md` now names the initial producer and its
+  non-authoritative failure behavior.
+- Added tests proving successful evidence writes emit one platform event and
+  proving platform-event failure does not break the evidence write.
+
+Why this change was chosen:
+- The minimal journal from the prior batch needed one real producer to become
+  useful. The evidence logger is the lowest-risk seam because it already
+  produces artifact rows and the hook can run strictly after successful
+  persistence.
+
+Expected outcome:
+- Paper/shadow evidence artifacts now leave a lightweight platform-event trail
+  that the read-only report command can summarize, without changing how
+  evidence, gates, campaigns, risk, or execution behave.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_evidence_logger.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py`
+  - SHOWN: `32 passed in 1.07s`.
+- `./.venv/bin/python -m py_compile services/strategies/evidence_logger.py services/events/platform_event_journal.py scripts/report_platform_event_journal.py tests/test_evidence_logger.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_paper_gate_event_alerts.py tests/test_sample_mode_provenance.py`
+  - SHOWN: `76 passed in 1.04s`.
+
+Remaining risk:
+- MEDIUM: this adds best-effort I/O to an existing evidence-writing path, but it
+  is post-write, never-raise, and does not affect trading authority or promotion
+  gate calculations.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER

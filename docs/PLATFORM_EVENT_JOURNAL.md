@@ -53,8 +53,18 @@ Use the read-only report command:
 Use `--require-events` when a launch packet or research packet requires at least
 one platform event row.
 
+## Initial Producer
+
+`services.strategies.evidence_logger` emits `EvidenceArtifactGenerated` after a
+successful evidence JSONL write. The event carries metadata about the artifact,
+including record type, artifact name, strategy identity, commit SHA when known,
+and optional config/data/run provenance.
+
+The producer is best-effort and never authoritative. If the platform event
+journal cannot be written, the evidence record remains the source of truth and
+the evidence write is not rolled back.
+
 ## Scope Rule
 
 Add runtime producers only when a concrete consumer will use the event. Do not
 prebuild a broad event catalog.
-

@@ -25,6 +25,7 @@ from typing import Any
 from services.os.app_paths import data_dir, runtime_dir
 from services.os.file_utils import atomic_write
 from services.logging.app_logger import get_logger
+from services.events.platform_event_journal import append_platform_event
 
 _LOG = get_logger("strategy.evidence_logger")
 
@@ -173,6 +174,44 @@ def _record_evidence_write_failure(
         pass
 
 
+def _emit_platform_evidence_event(
+    *,
+    strategy_id: str,
+    record_type: str,
+    path: Path,
+    record: dict[str, Any],
+) -> None:
+    try:
+        append_platform_event(
+            event_type="EvidenceArtifactGenerated",
+            producer="services.strategies.evidence_logger",
+            source="evidence_logger",
+            strategy_id=strategy_id,
+            strategy_version=str(record.get("_strategy_version") or record.get("strategy_version") or ""),
+            config_hash=str(record.get("config_hash") or record.get("_config_hash") or ""),
+            dataset_id=str(record.get("dataset_id") or record.get("archive_dataset_id") or ""),
+            evidence_artifact_id=f"{strategy_id}:{record_type}:{path.name}",
+            run_id=str(record.get("run_id") or record.get("session_id") or ""),
+            commit_sha=str(record.get("_commit") or ""),
+            payload={
+                "record_type": record_type,
+                "record_subtype": record.get("record_subtype") or "",
+                "path_name": path.name,
+                "record_timestamp": record.get("timestamp") or record.get("_logged_at") or "",
+                "stage": record.get("_stage") or "",
+                "market_data_source": record.get("market_data_source") or "",
+                "ohlcv_sample_mode": record.get("ohlcv_sample_mode"),
+            },
+        )
+    except Exception as exc:
+        _LOG.warning(
+            "platform evidence event append failed strategy_id=%s record_type=%s err=%s",
+            strategy_id,
+            record_type,
+            exc,
+        )
+
+
 def _trace_enabled() -> bool:
     raw = str(os.environ.get("CBP_DEBUG_CHILD_IO") or "").strip().lower()
     return raw in {"1", "true", "yes", "on"}
@@ -243,6 +282,12 @@ class EvidenceLogger:
             existing = path.read_text(encoding="utf-8") if path.exists() else ""
             atomic_write(path, existing + json.dumps(record) + "\n")
             _record_evidence_write_success(self.strategy_id, record_type, path)
+            _emit_platform_evidence_event(
+                strategy_id=self.strategy_id,
+                record_type=record_type,
+                path=path,
+                record=record,
+            )
             if record_type == "signal" and _trace_enabled():
                 _LOG.debug("evidence_logger signal write path=%s", path)
         except Exception as e:

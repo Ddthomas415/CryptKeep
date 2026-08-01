@@ -176,6 +176,44 @@ class TestEvidenceLogger:
         assert status["last_record_type"] == "signal"
         assert status["last_strategy_id"] == "test_strat"
 
+    def test_successful_write_emits_platform_evidence_event(self, tmp_path):
+        from services.events.platform_event_journal import load_platform_events
+        from services.strategies.evidence_logger import EvidenceLogger
+
+        logger = EvidenceLogger("test_strat", log_dir=tmp_path / "ev")
+        logger.log_signal(
+            timestamp=_now(), price=5000.0, sma_200=4800.0,
+            atr_ratio=1.0, signal_direction="flat", regime_flag="chop",
+        )
+
+        events = load_platform_events()
+        assert len(events) == 1
+        event = events[0]
+        assert event["event_type"] == "EvidenceArtifactGenerated"
+        assert event["producer"] == "services.strategies.evidence_logger"
+        assert event["provenance"]["strategy_id"] == "test_strat"
+        assert event["provenance"]["evidence_artifact_id"].startswith("test_strat:signal:signal_")
+        assert event["payload"]["record_type"] == "signal"
+        assert event["payload"]["path_name"].startswith("signal_")
+
+    def test_platform_event_failure_does_not_break_evidence_write(self, tmp_path, monkeypatch):
+        from services.strategies import evidence_logger as module
+
+        def fail_platform_event(**_kwargs):
+            raise RuntimeError("journal unavailable")
+
+        monkeypatch.setattr(module, "append_platform_event", fail_platform_event)
+        logger = module.EvidenceLogger("test_strat", log_dir=tmp_path / "ev")
+        logger.log_signal(
+            timestamp=_now(), price=5000.0, sma_200=4800.0,
+            atr_ratio=1.0, signal_direction="flat", regime_flag="chop",
+        )
+
+        files = list((tmp_path / "ev").glob("signal_*.jsonl"))
+        assert len(files) == 1
+        rec = json.loads(files[0].read_text().strip())
+        assert rec["strategy_id"] == "test_strat"
+
     def test_repeated_write_failures_mark_writer_refusing(
         self,
         tmp_path,
