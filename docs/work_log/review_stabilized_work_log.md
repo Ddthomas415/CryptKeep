@@ -27802,6 +27802,59 @@ Remaining risk:
   gate calculations.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T22:52:10Z - Strategy Signal Platform Event Producer
+
+Active role: ENGINEER
+
+Objective:
+- Add the next narrow platform-event producer for strategy-signal observability
+  without changing signal decisions, paper evidence semantics, gates, risk, or
+  execution.
+
+What was found:
+- SHOWN: `EvidenceLogger.log_signal` builds the signal record, then routes
+  through the shared `_append` persistence path.
+- SHOWN: the prior platform-event producer emitted artifact events for all
+  evidence records, but did not emit a domain-level `StrategySignalProduced`
+  event.
+
+What changed:
+- Signal evidence writes now emit a `StrategySignalProduced` platform event
+  after the evidence JSONL row is successfully persisted.
+- The signal event records metadata only: signal direction, kernel action,
+  entry-allowed marker, regime flag, price/context fields, market-data source,
+  artifact file name, and strategy/config/data/run provenance when present.
+- Event append failure is caught and logged separately from the artifact event;
+  the evidence write remains successful.
+- Tests now assert artifact and signal events by event type so the two domains
+  stay distinct.
+
+Why this change was chosen:
+- The signal event is one of the four near-term event types in the directional
+  plan and the evidence logger is already the lowest-risk producer seam because
+  it runs after evidence persistence.
+
+Expected outcome:
+- Operators and research tooling can summarize which strategy signals were
+  produced from the platform event journal without reading full evidence payload
+  files and without changing any trading decision path.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_evidence_logger.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py`
+  - SHOWN: `33 passed in 1.11s`.
+- `./.venv/bin/python -m py_compile services/strategies/evidence_logger.py services/events/platform_event_journal.py tests/test_evidence_logger.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_paper_gate_event_alerts.py tests/test_sample_mode_provenance.py`
+  - SHOWN: `76 passed in 1.04s`.
+
+Remaining risk:
+- MEDIUM: this adds one additional best-effort event write after signal evidence
+  persistence. It does not change campaign behavior, evidence rows, promotion
+  calculations, risk decisions, routing, execution, authorization, or deployment.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER

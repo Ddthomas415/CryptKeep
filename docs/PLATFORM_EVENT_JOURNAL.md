@@ -60,7 +60,11 @@ successful evidence JSONL write. The event carries metadata about the artifact,
 including record type, artifact name, strategy identity, commit SHA when known,
 and optional config/data/run provenance.
 
-The producer is best-effort and never authoritative. If the platform event
+Signal records also emit `StrategySignalProduced` with signal direction, kernel
+action, entry-allowed marker, regime flag, price/context fields, and the same
+strategy/config/data/run provenance.
+
+These producers are best-effort and never authoritative. If the platform event
 journal cannot be written, the evidence record remains the source of truth and
 the evidence write is not rolled back.
 

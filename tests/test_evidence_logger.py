@@ -186,7 +186,7 @@ class TestEvidenceLogger:
             atr_ratio=1.0, signal_direction="flat", regime_flag="chop",
         )
 
-        events = load_platform_events()
+        events = load_platform_events(event_type="EvidenceArtifactGenerated")
         assert len(events) == 1
         event = events[0]
         assert event["event_type"] == "EvidenceArtifactGenerated"
@@ -195,6 +195,35 @@ class TestEvidenceLogger:
         assert event["provenance"]["evidence_artifact_id"].startswith("test_strat:signal:signal_")
         assert event["payload"]["record_type"] == "signal"
         assert event["payload"]["path_name"].startswith("signal_")
+
+    def test_signal_write_emits_strategy_signal_platform_event(self, tmp_path):
+        from services.events.platform_event_journal import load_platform_events
+        from services.strategies.evidence_logger import EvidenceLogger
+
+        logger = EvidenceLogger("test_strat", log_dir=tmp_path / "ev")
+        logger.log_signal(
+            timestamp="2026-01-01T00:00:00+00:00",
+            price=5000.0,
+            sma_200=4800.0,
+            atr_ratio=1.2,
+            signal_direction="long",
+            regime_flag="trending",
+            kernel_action="buy",
+            entry_allowed=True,
+            extra={"market_data_source": "public_ohlcv", "dataset_id": "archive:btc"},
+        )
+
+        events = load_platform_events(event_type="StrategySignalProduced")
+        assert len(events) == 1
+        event = events[0]
+        assert event["event_type"] == "StrategySignalProduced"
+        assert event["provenance"]["strategy_id"] == "test_strat"
+        assert event["provenance"]["dataset_id"] == "archive:btc"
+        assert event["payload"]["signal_direction"] == "long"
+        assert event["payload"]["kernel_action"] == "buy"
+        assert event["payload"]["entry_allowed"] is True
+        assert event["payload"]["regime_flag"] == "trending"
+        assert event["payload"]["market_data_source"] == "public_ohlcv"
 
     def test_platform_event_failure_does_not_break_evidence_write(self, tmp_path, monkeypatch):
         from services.strategies import evidence_logger as module
