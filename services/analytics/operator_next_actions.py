@@ -17,6 +17,16 @@ _ACTION_LANES: tuple[str, ...] = (
     "operator_proof",
 )
 
+_SOURCE_ACTION_LANE_TO_SECTION = {
+    "backlog_lane": "backlog",
+    "research_pipeline": "research_pipeline",
+    "research_artifact": "research_artifact",
+    "research_command": "research_command",
+    "operator_read_only_command": "operator_read_only",
+    "passive_operator_evidence": "operator_proof",
+    "operator_proof": "operator_proof",
+}
+
 
 def _backlog_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
@@ -187,32 +197,6 @@ def build_operator_next_actions(
     proof_line_filter = str(operator_proof_line or "").strip()
     proof_passive_ordinal_filter = str(operator_proof_passive_ordinal or "").strip()
     invalid_lane_filter = bool(lane_filter) and lane_filter not in _ACTION_LANES
-    bundle = build_operator_status_bundle(
-        repo_root=root,
-        backlog_lane=backlog_lane_filter or None,
-        backlog_lane_ordinal=backlog_lane_ordinal_filter or None,
-        research_pipeline=research_pipeline_filter or None,
-        research_artifact_lane=research_artifact_lane_filter or None,
-        research_artifact_id=research_artifact_id_filter or None,
-        research_command_lane=research_command_lane_filter or None,
-        research_command_input_class=research_command_input_filter or None,
-        research_command_id=research_command_id_filter or None,
-        operator_read_only_medium_lane_item=operator_read_only_lane_item_filter or None,
-        operator_read_only_command_id=operator_read_only_command_filter or None,
-        operator_proof_category=proof_category_filter or None,
-        operator_proof_line=proof_line_filter or None,
-        operator_proof_passive_ordinal=proof_passive_ordinal_filter or None,
-    )
-    summary = dict(bundle.get("summary") or {})
-    actions = [
-        *_backlog_actions(bundle),
-        *_research_actions(bundle),
-        *_research_artifact_actions(bundle),
-        *_research_command_actions(bundle),
-        *_operator_read_only_command_actions(bundle),
-        *_passive_operator_actions(bundle),
-        *_proof_actions(bundle),
-    ]
     source_action_lanes: set[str] = set()
     if backlog_lane_filter or backlog_lane_ordinal_filter:
         source_action_lanes.add("backlog_lane")
@@ -228,6 +212,35 @@ def build_operator_next_actions(
         source_action_lanes.add("operator_proof")
     if proof_passive_ordinal_filter:
         source_action_lanes.add("passive_operator_evidence")
+    bundle_kwargs: dict[str, Any] = {
+        "repo_root": root,
+        "backlog_lane": backlog_lane_filter or None,
+        "backlog_lane_ordinal": backlog_lane_ordinal_filter or None,
+        "research_pipeline": research_pipeline_filter or None,
+        "research_artifact_lane": research_artifact_lane_filter or None,
+        "research_artifact_id": research_artifact_id_filter or None,
+        "research_command_lane": research_command_lane_filter or None,
+        "research_command_input_class": research_command_input_filter or None,
+        "research_command_id": research_command_id_filter or None,
+        "operator_read_only_medium_lane_item": operator_read_only_lane_item_filter or None,
+        "operator_read_only_command_id": operator_read_only_command_filter or None,
+        "operator_proof_category": proof_category_filter or None,
+        "operator_proof_line": proof_line_filter or None,
+        "operator_proof_passive_ordinal": proof_passive_ordinal_filter or None,
+    }
+    if not lane_filter and len(source_action_lanes) == 1:
+        bundle_kwargs["section"] = _SOURCE_ACTION_LANE_TO_SECTION[next(iter(source_action_lanes))]
+    bundle = build_operator_status_bundle(**bundle_kwargs)
+    summary = dict(bundle.get("summary") or {})
+    actions = [
+        *_backlog_actions(bundle),
+        *_research_actions(bundle),
+        *_research_artifact_actions(bundle),
+        *_research_command_actions(bundle),
+        *_operator_read_only_command_actions(bundle),
+        *_passive_operator_actions(bundle),
+        *_proof_actions(bundle),
+    ]
     if source_action_lanes and not lane_filter:
         actions = [row for row in actions if row.get("lane") in source_action_lanes]
     if invalid_lane_filter:

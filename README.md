@@ -11,6 +11,8 @@ surfaces; see [docs/CURRENT_RUNTIME_TRUTH.md](docs/CURRENT_RUNTIME_TRUTH.md).
 
 Crypto Bot Pro is a crypto-first operator platform for market-data collection, paper trading, guarded live execution, reconciliation, and dashboard-based operations. Until live expectancy is proven, operate CryptKeep as a profit-measurement and evidence-generation lab, not as a proven profitable trading bot. The current repo includes both research/evaluation workflows and execution surfaces, so it should be treated as a safety-aware trading system under active hardening, not as a read-only market-data bundle. See [docs/PROJECT_IDENTITY_AND_SCOPE.md](docs/PROJECT_IDENTITY_AND_SCOPE.md) for the current scope boundary.
 
+Directional plan: see [docs/PROJECT_DIRECTIONAL_PLAN.md](docs/PROJECT_DIRECTIONAL_PLAN.md). The project direction is an event-driven trading intelligence platform built as a modular monolith: LLM/research layers investigate and explain, while deterministic risk/execution layers remain the only authority allowed to move capital.
+
 Supported production surface for current hardening:
 - root repo Python platform only
 - supported baseline commands in this README cover the root install/run/test path
