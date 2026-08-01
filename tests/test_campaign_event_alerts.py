@@ -30,10 +30,32 @@ def _capture(monkeypatch):
 
 
 def test_first_observation_is_silent_baseline(monkeypatch):
+    from services.events.platform_event_journal import load_platform_events
+
     sent = _capture(monkeypatch)
     # No previous status -> nothing to transition from.
     assert ce.alert_campaign_status_transition("", "failed") is False
     assert sent == []
+    assert load_platform_events(event_type="CampaignStarted") == []
+
+
+def test_first_running_observation_emits_campaign_started_event(monkeypatch):
+    from services.events.platform_event_journal import load_platform_events
+
+    sent = _capture(monkeypatch)
+    payload = {"symbol": "BTC/USD", "strategy_id": "es_daily_trend_v1", "run_id": "run-1"}
+
+    assert ce.alert_campaign_status_transition("", "running", payload) is False
+
+    assert sent == []
+    events = load_platform_events(event_type="CampaignStarted")
+    assert len(events) == 1
+    event = events[0]
+    assert event["provenance"]["strategy_id"] == "es_daily_trend_v1"
+    assert event["provenance"]["run_id"] == "run-1"
+    assert event["payload"]["prev_status"] == ""
+    assert event["payload"]["new_status"] == "running"
+    assert event["payload"]["symbol"] == "BTC/USD"
 
 
 def test_transition_into_failed_is_critical(monkeypatch):

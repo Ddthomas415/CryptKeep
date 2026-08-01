@@ -48,10 +48,33 @@ Use the read-only report command:
 
 ```bash
 ./.venv/bin/python scripts/report_platform_event_journal.py
+make platform-event-journal
 ```
 
 Use `--require-events` when a launch packet or research packet requires at least
 one platform event row.
+
+Use the read-only secret scan before attaching platform events to a launch or
+research evidence packet:
+
+```bash
+./.venv/bin/python scripts/check_platform_event_secrets.py --require-events
+make platform-event-secrets PLATFORM_EVENT_REQUIRE_EVENTS=1
+```
+
+Use the read-only integrity check to validate event envelope shape:
+
+```bash
+./.venv/bin/python scripts/check_platform_event_integrity.py --require-events
+make platform-event-integrity PLATFORM_EVENT_REQUIRE_EVENTS=1
+```
+
+Use the packet report to run summary, integrity, and secret checks together:
+
+```bash
+./.venv/bin/python scripts/report_platform_event_packet.py --require-events
+make platform-event-packet PLATFORM_EVENT_REQUIRE_EVENTS=1
+```
 
 ## Initial Producer
 
@@ -73,6 +96,9 @@ known prior status into `completed`, `stopped`, `failed`, `error`, or `aborted`.
 `blocked` remains an operator-action state, not a campaign end. The campaign
 status file remains authoritative; the journal event is emitted only after the
 caller has persisted status.
+
+The same seam emits `CampaignStarted` only for the first observed `running`
+status. Restart/resume semantics are intentionally not inferred here.
 
 ## Scope Rule
 

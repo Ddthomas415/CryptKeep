@@ -34,6 +34,12 @@ def test_write_status_fires_alert_on_stop_transition(monkeypatch, tmp_path):
     svc._write_status({"status": "running", "symbol": "BTC/USDT"})
     assert sent == []
 
+    from services.events.platform_event_journal import load_platform_events
+    started = load_platform_events(event_type="CampaignStarted")
+    assert len(started) == 1
+    assert started[0]["payload"]["new_status"] == "running"
+    assert started[0]["payload"]["symbol"] == "BTC/USDT"
+
     # Transition running -> stopped fires exactly one warning-level alert.
     svc._write_status({"status": "stopped", "reason": "stop_requested", "symbol": "BTC/USDT"})
     assert len(sent) == 1
@@ -47,7 +53,6 @@ def test_write_status_fires_alert_on_stop_transition(monkeypatch, tmp_path):
     written = json.loads(svc.status_file().read_text(encoding="utf-8"))
     assert written["status"] == "stopped"
 
-    from services.events.platform_event_journal import load_platform_events
     events = load_platform_events(event_type="CampaignEnded")
     assert len(events) == 1
     assert events[0]["payload"]["new_status"] == "stopped"
