@@ -28063,6 +28063,258 @@ Remaining risk:
   deployment behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T23:18:03Z - Platform Event Packet Report
+
+Active role: ENGINEER
+
+Objective:
+- Add one read-only operator command that combines platform-event summary,
+  integrity, and secret-scan checks for evidence packet use.
+
+What was found:
+- SHOWN: platform-event summary, integrity, and secret-scan checks are separate
+  commands.
+- SHOWN: launch/research evidence packet use benefits from one command that
+  reports all three checks without changing event producers.
+
+What changed:
+- Added `services.events.platform_event_packet` to aggregate summary,
+  integrity, and secret-scan reports.
+- Added `scripts/report_platform_event_packet.py` with `--require-events`,
+  `--json`, and `--evidence-dest`.
+- Added tests for all-checks-pass, missing required events, secret-scan failure,
+  and CLI evidence output.
+- Indexed the new script in `scripts/SCRIPTS.md` and documented it in
+  `docs/PLATFORM_EVENT_JOURNAL.md`.
+
+Why this change was chosen:
+- The packet report reduces operator steps without creating new validation
+  semantics. It is a consumer over already-tested checks.
+
+Expected outcome:
+- Operators can attach one platform-event packet report to research/launch
+  evidence instead of running three separate commands.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_platform_event_packet.py tests/test_platform_event_integrity.py tests/test_platform_event_secret_scan.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `31 passed in 0.58s`.
+- `./.venv/bin/python -m py_compile services/events/platform_event_packet.py scripts/report_platform_event_packet.py tests/test_platform_event_packet.py services/events/platform_event_integrity.py services/events/platform_event_secret_scan.py services/events/platform_event_journal.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only report aggregation only. No event producer, campaign, gate,
+  evidence-write authority, risk decision, routing, execution, authorization, or
+  deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T23:34:01Z - Platform Event Make Targets
+
+Active role: ENGINEER
+
+Objective:
+- Make the platform-event journal/report/check commands available as standard
+  Makefile operator targets.
+
+What was found:
+- SHOWN: platform-event summary, secret-scan, integrity, and packet report
+  scripts existed in the stacked event-journal series.
+- SHOWN: the commands were indexed in `scripts/SCRIPTS.md`, but did not yet
+  have Makefile wrappers.
+
+What changed:
+- Added Makefile targets:
+  `platform-event-journal`, `platform-event-journal-json`,
+  `platform-event-secrets`, `platform-event-secrets-json`,
+  `platform-event-integrity`, `platform-event-integrity-json`,
+  `platform-event-packet`, and `platform-event-packet-json`.
+- Added pass-through variables:
+  `PLATFORM_EVENT_PATH`, `PLATFORM_EVENT_TYPE`,
+  `PLATFORM_EVENT_REQUIRE_EVENTS`, and `PLATFORM_EVENT_EVIDENCE_DEST`.
+- Updated `scripts/SCRIPTS.md` and `docs/PLATFORM_EVENT_JOURNAL.md` with the
+  Make targets.
+- Added a regression test that asserts the platform-event Make targets and docs
+  stay aligned.
+- Fixed `scripts/report_platform_event_journal.py` bootstrap behavior when run
+  as a file; the Make target surfaced that the script imported
+  `scripts._bootstrap` before the repo root was on `sys.path`.
+
+Why this change was chosen:
+- The prior stacked batches added useful read-only commands. Make wrappers make
+  them one-command operator tools without adding new event semantics.
+
+Expected outcome:
+- Operators can run platform-event journal, integrity, secret, and packet checks
+  through `make` with consistent env-variable overrides.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_platform_event_packet.py tests/test_platform_event_integrity.py tests/test_platform_event_secret_scan.py tests/test_script_index_alignment_guard.py tests/test_operator_doc_make_targets.py`
+  - SHOWN: initially failed because `scripts/SCRIPTS.md` line-wrapped
+    `make platform-event-journal[-json]`; docs were corrected.
+- `make platform-event-journal-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: initially failed with `ModuleNotFoundError: No module named
+    'scripts'`; `report_platform_event_journal.py` bootstrap was fixed and a
+    regression test was added.
+- `make platform-event-journal-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: exit 0, `ok=true`, `event_count=0`.
+- `make platform-event-secrets-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: exit 0, `ok=true`, `event_count=0`.
+- `make platform-event-integrity-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: exit 0, `ok=true`, `event_count=0`.
+- `make platform-event-packet-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: exit 0, `ok=true`, `checks.summary=true`,
+    `checks.integrity=true`, `checks.secrets=true`.
+- `./.venv/bin/python -m pytest -q tests/test_report_platform_event_journal.py tests/test_platform_event_packet.py tests/test_platform_event_integrity.py tests/test_platform_event_secret_scan.py tests/test_script_index_alignment_guard.py tests/test_operator_doc_make_targets.py`
+  - SHOWN: `28 passed in 0.57s`.
+- `./.venv/bin/python -m py_compile scripts/report_platform_event_journal.py tests/test_report_platform_event_journal.py tests/test_platform_event_packet.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/tests only. No event producer, campaign, gate,
+  evidence-write authority, risk decision, routing, execution, authorization, or
+  deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T23:37:31Z - Platform Event Read-Only Command Inventory
+
+Active role: ENGINEER
+
+Objective:
+- Register platform-event commands in the existing read-only operator command
+  inventory so check-in tooling can see whether those commands are wired.
+
+What was found:
+- SHOWN: `services.analytics.operator_read_only_command_status` inventories
+  read-only operator command wiring by checking script existence, Makefile
+  target existence, and `scripts/SCRIPTS.md` entries.
+- SHOWN: platform-event journal, secret, integrity, and packet commands were
+  added in the stacked event-journal series but were not yet present in that
+  inventory.
+
+What changed:
+- Added four read-only command specs:
+  `platform_event_journal`, `platform_event_secrets`,
+  `platform_event_integrity`, and `platform_event_packet`.
+- Grouped them under `medium_lane_item=platform_event_packet` with
+  `input_class=local_state`.
+- Added tests for current-repo wiring, direct lane filtering, and
+  `operator_status_bundle` propagation.
+- Updated `scripts/SCRIPTS.md` to include platform-event packet checks in the
+  read-only command inventory description.
+
+Why this change was chosen:
+- This makes platform-event commands visible to existing status and
+  next-actions tooling without reading runtime event state or running the
+  commands.
+
+Expected outcome:
+- `operator-read-only-command-status`,
+  `operator-status OPERATOR_STATUS_SECTION=operator_read_only`, and
+  `operator-next-actions` can report platform-event command wiring drift.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `51 passed in 0.54s`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_MEDIUM_LANE_ITEM=platform_event_packet`
+  - SHOWN: exit 0, `command_count=4`, `summary.wired=4`,
+    `summary.not_wired=0`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=platform_event_packet`
+  - SHOWN: exit 0, `command_count=1`, `summary.wired=1`,
+    `summary.not_wired=0`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+- Out-of-scope observation: `make operator-status-json
+  OPERATOR_STATUS_SECTION=operator_read_only
+  OPERATOR_STATUS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM=platform_event_packet`
+  prints the filtered platform-event wiring correctly but exits 2 because the
+  current checkout has unrelated source-report actions outside the shown
+  section. This batch does not change existing bundle exit-code semantics.
+
+Remaining risk:
+- LOW: read-only inventory metadata and tests only. No platform-event producer,
+  campaign, gate, evidence-write authority, risk decision, routing, execution,
+  authorization, or deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T23:43:36Z - Operator Status Filter OK Semantics
+
+Active role: ENGINEER
+
+Objective:
+- Close the follow-up exposed by platform-event read-only inventory: a filtered
+  `operator-status`/`operator-next-actions` command should return based on the
+  shown section, while still preserving full-source health diagnostics.
+
+What was found:
+- SHOWN: `build_operator_status_bundle()` computed one global `ok` before
+  applying `section`, so
+  `OPERATOR_STATUS_SECTION=operator_read_only
+  OPERATOR_STATUS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM=platform_event_packet`
+  printed the healthy platform-event wiring but exited 2 due unrelated hidden
+  source actions.
+- SHOWN: `build_operator_next_actions()` inherited the same global bundle
+  status when a single source filter was supplied.
+
+What changed:
+- `operator_status_bundle` now exposes `source_ok` for the full source bundle
+  and `shown_ok` for the displayed section. Unfiltered reports keep the prior
+  full-source behavior; filtered reports set top-level `ok` from the shown
+  section.
+- `operator_status_bundle` also exposes `shown_reasons` alongside
+  `source_reasons`, so hidden diagnostics are not lost.
+- `operator_next_actions` now routes a single source filter to the matching
+  bundle section before flattening actions.
+- Regression tests pin both contracts, including a hidden source failure with a
+  healthy filtered `operator_read_only` section.
+
+Why this change was chosen:
+- A section-filtered operator command is a scoped inspection command. Its exit
+  status should answer whether the visible scope is healthy, not whether the
+  entire hidden source universe has unrelated work. Full-source health remains
+  available through `source_ok`, `source_reasons`, and the unfiltered command.
+
+Expected outcome:
+- Platform-event packet wiring can be checked through existing operator status
+  commands without false nonzero exits, while unfiltered operator status still
+  exits nonzero when the whole source bundle has unresolved work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `40 passed in 0.40s`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=operator_read_only OPERATOR_STATUS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM=platform_event_packet`
+  - SHOWN: exit 0, `ok=true`, `shown_ok=true`, `source_ok=false`, and
+    `summary.operator_read_only_commands_wired=4`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM=platform_event_packet OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: exit 0, `ok=true`, `action_count_total=0`,
+    `action_count_available=0`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_MEDIUM_LANE_ITEM=platform_event_packet`
+  - SHOWN: exit 0, `command_count=4`.
+- `make operator-status-json`
+  - SHOWN: exit 2 remains unchanged for the unfiltered full-source bundle.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only operator reporting semantics and tests only. No campaign,
+  market-data fetch, artifact generation, proof closure, gate, ingestion, live
+  routing, execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER

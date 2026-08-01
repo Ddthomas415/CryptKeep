@@ -48,6 +48,7 @@ Use the read-only report command:
 
 ```bash
 ./.venv/bin/python scripts/report_platform_event_journal.py
+make platform-event-journal
 ```
 
 Use `--require-events` when a launch packet or research packet requires at least
@@ -58,12 +59,21 @@ research evidence packet:
 
 ```bash
 ./.venv/bin/python scripts/check_platform_event_secrets.py --require-events
+make platform-event-secrets PLATFORM_EVENT_REQUIRE_EVENTS=1
 ```
 
 Use the read-only integrity check to validate event envelope shape:
 
 ```bash
 ./.venv/bin/python scripts/check_platform_event_integrity.py --require-events
+make platform-event-integrity PLATFORM_EVENT_REQUIRE_EVENTS=1
+```
+
+Use the packet report to run summary, integrity, and secret checks together:
+
+```bash
+./.venv/bin/python scripts/report_platform_event_packet.py --require-events
+make platform-event-packet PLATFORM_EVENT_REQUIRE_EVENTS=1
 ```
 
 ## Initial Producer
