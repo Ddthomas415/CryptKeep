@@ -212,6 +212,46 @@ def _emit_platform_evidence_event(
         )
 
 
+def _emit_platform_signal_event(
+    *,
+    strategy_id: str,
+    path: Path,
+    record: dict[str, Any],
+) -> None:
+    try:
+        append_platform_event(
+            event_type="StrategySignalProduced",
+            producer="services.strategies.evidence_logger",
+            source="evidence_logger",
+            strategy_id=strategy_id,
+            strategy_version=str(record.get("_strategy_version") or record.get("strategy_version") or ""),
+            config_hash=str(record.get("config_hash") or record.get("_config_hash") or ""),
+            dataset_id=str(record.get("dataset_id") or record.get("archive_dataset_id") or ""),
+            evidence_artifact_id=f"{strategy_id}:signal:{path.name}",
+            run_id=str(record.get("run_id") or record.get("session_id") or ""),
+            commit_sha=str(record.get("_commit") or ""),
+            payload={
+                "timestamp": record.get("timestamp") or "",
+                "signal_direction": record.get("signal_direction") or "",
+                "kernel_action": record.get("kernel_action") or "",
+                "entry_allowed": record.get("entry_allowed"),
+                "regime_flag": record.get("regime_flag") or "",
+                "price": record.get("price"),
+                "sma_200": record.get("sma_200"),
+                "atr_ratio": record.get("atr_ratio"),
+                "market_data_source": record.get("market_data_source") or "",
+                "ohlcv_sample_mode": record.get("ohlcv_sample_mode"),
+                "path_name": path.name,
+            },
+        )
+    except Exception as exc:
+        _LOG.warning(
+            "platform signal event append failed strategy_id=%s err=%s",
+            strategy_id,
+            exc,
+        )
+
+
 def _trace_enabled() -> bool:
     raw = str(os.environ.get("CBP_DEBUG_CHILD_IO") or "").strip().lower()
     return raw in {"1", "true", "yes", "on"}
@@ -288,6 +328,12 @@ class EvidenceLogger:
                 path=path,
                 record=record,
             )
+            if record_type == "signal":
+                _emit_platform_signal_event(
+                    strategy_id=self.strategy_id,
+                    path=path,
+                    record=record,
+                )
             if record_type == "signal" and _trace_enabled():
                 _LOG.debug("evidence_logger signal write path=%s", path)
         except Exception as e:

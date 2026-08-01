@@ -35,6 +35,18 @@ def _select_keys(payload: dict[str, Any], keys: tuple[str, ...]) -> dict[str, An
     return {key: payload[key] for key in keys if key in payload}
 
 
+def _reports_ok(reports: dict[str, Any]) -> bool:
+    return all(bool(value.get("ok")) for value in reports.values() if isinstance(value, dict))
+
+
+def _report_reasons(reports: dict[str, Any]) -> dict[str, Any]:
+    return {
+        key: value.get("reason")
+        for key, value in reports.items()
+        if isinstance(value, dict) and value.get("reason")
+    }
+
+
 def build_operator_status_bundle(
     *,
     repo_root: str | Path | None = None,
@@ -195,19 +207,23 @@ def build_operator_status_bundle(
         if isinstance(row, dict) and bool(row.get("action_required"))
     ]
 
+    source_ok = (
+        bool(backlog.get("ok"))
+        and bool(research.get("ok"))
+        and bool(research_artifacts.get("ok"))
+        and bool(research_commands.get("ok"))
+        and bool(read_only_commands.get("ok"))
+        and bool(proofs.get("ok"))
+        and not invalid_backlog_ordinal
+    )
+
     payload = {
         "schema_version": 1,
         "report_type": "operator_status_bundle",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "ok": (
-            bool(backlog.get("ok"))
-            and bool(research.get("ok"))
-            and bool(research_artifacts.get("ok"))
-            and bool(research_commands.get("ok"))
-            and bool(read_only_commands.get("ok"))
-            and bool(proofs.get("ok"))
-            and not invalid_backlog_ordinal
-        ),
+        "ok": source_ok,
+        "source_ok": source_ok,
+        "shown_ok": source_ok,
         "read_only": True,
         "planning_only": True,
         "does_not_close_proof": True,
@@ -279,14 +295,10 @@ def build_operator_status_bundle(
         },
     }
     if invalid_backlog_ordinal:
-        payload["reason"] = "invalid_backlog_lane_ordinal"
+        payload["source_reason"] = "invalid_backlog_lane_ordinal"
     full_reports = dict(payload["reports"])
     full_actions = dict(payload["actions"])
-    source_reasons = {
-        key: value.get("reason")
-        for key, value in full_reports.items()
-        if isinstance(value, dict) and value.get("reason")
-    }
+    source_reasons = _report_reasons(full_reports)
     payload["source_reasons"] = source_reasons
     payload["available_sections"] = list(available_sections)
     payload["section_filter"] = section_filter or None
@@ -298,12 +310,17 @@ def build_operator_status_bundle(
     payload["shown_action_count"] = payload["source_action_count"]
 
     if not section_filter:
+        if invalid_backlog_ordinal:
+            payload["reason"] = "invalid_backlog_lane_ordinal"
+        payload["shown_reasons"] = source_reasons
         payload["shown_sections"] = list(available_sections)
         return payload
 
     if section_filter not in _SECTION_REPORT_KEYS:
         payload["ok"] = False
+        payload["shown_ok"] = False
         payload["reason"] = "invalid_section"
+        payload["shown_reasons"] = {}
         payload["shown_sections"] = []
         payload["reports"] = {}
         payload["actions"] = {}
@@ -314,6 +331,13 @@ def build_operator_status_bundle(
     payload["shown_sections"] = [section_filter]
     payload["reports"] = _select_keys(full_reports, _SECTION_REPORT_KEYS[section_filter])
     payload["actions"] = _select_keys(full_actions, _SECTION_ACTION_KEYS.get(section_filter, ()))
+    payload["shown_ok"] = _reports_ok(dict(payload["reports"])) and not (
+        section_filter == "backlog" and invalid_backlog_ordinal
+    )
+    payload["ok"] = bool(payload["shown_ok"])
+    payload["shown_reasons"] = _report_reasons(dict(payload["reports"]))
+    if section_filter == "backlog" and invalid_backlog_ordinal:
+        payload["reason"] = "invalid_backlog_lane_ordinal"
     payload["shown_report_count"] = len(payload["reports"])
     payload["shown_action_count"] = sum(
         len(value) for value in payload["actions"].values() if isinstance(value, list)
