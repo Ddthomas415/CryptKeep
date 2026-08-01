@@ -29,6 +29,7 @@ _STOP_FAILURE_LEVELS: dict[str, str] = {
 }
 
 _CAMPAIGN_ENDED_STATUSES = {"completed", "stopped", "failed", "error", "aborted"}
+_CAMPAIGN_STARTED_STATUSES = {"running"}
 
 
 def _send(level: str, message: str, payload: dict | None) -> None:
@@ -73,6 +74,32 @@ def _emit_campaign_ended_event(prev: str, new: str, payload: dict[str, Any] | No
         return
 
 
+def _emit_campaign_started_event(new: str, payload: dict[str, Any] | None) -> None:
+    if new not in _CAMPAIGN_STARTED_STATUSES:
+        return
+    try:
+        from services.events.platform_event_journal import append_platform_event
+
+        event_payload = dict(payload or {})
+        event_payload.update(
+            {
+                "prev_status": "",
+                "new_status": new,
+                "reason": event_payload.get("reason") or "",
+            }
+        )
+        append_platform_event(
+            event_type="CampaignStarted",
+            producer="services.alerts.campaign_events",
+            source="campaign_status_transition",
+            strategy_id=str(event_payload.get("strategy_id") or ""),
+            run_id=str(event_payload.get("run_id") or event_payload.get("session_id") or ""),
+            payload=event_payload,
+        )
+    except Exception:
+        return
+
+
 def alert_campaign_status_transition(
     prev_status: str,
     new_status: str,
@@ -97,6 +124,7 @@ def alert_campaign_status_transition(
         # First-run baseline: no previous status means nothing to transition
         # FROM, so stay silent (mirrors gate-events baseline behavior).
         if not prev:
+            _emit_campaign_started_event(new, payload)
             return False
         if prev == new:
             return False

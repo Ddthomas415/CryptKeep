@@ -74,6 +74,9 @@ known prior status into `completed`, `stopped`, `failed`, `error`, or `aborted`.
 status file remains authoritative; the journal event is emitted only after the
 caller has persisted status.
 
+The same seam emits `CampaignStarted` only for the first observed `running`
+status. Restart/resume semantics are intentionally not inferred here.
+
 ## Scope Rule
 
 Add runtime producers only when a concrete consumer will use the event. Do not

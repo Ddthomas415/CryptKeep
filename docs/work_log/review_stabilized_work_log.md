@@ -27907,6 +27907,55 @@ Remaining risk:
   gate behavior, evidence semantics, risk decisions, routing, or execution.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T22:57:10Z - Campaign Started Platform Event Producer
+
+Active role: ENGINEER
+
+Objective:
+- Complete the narrow campaign event pair by emitting `CampaignStarted` for
+  first observed campaign start status without defining restart/resume policy.
+
+What was found:
+- SHOWN: `alert_campaign_status_transition` already treats an empty previous
+  status as the silent first-observation baseline.
+- SHOWN: the same helper receives the compact campaign payload after status
+  persistence.
+
+What changed:
+- First observation of `running` now emits a `CampaignStarted` platform event.
+- First observation of `failed` or other non-running states remains a silent
+  baseline and does not emit a start event.
+- The event carries status, reason, symbol, strategy, and run/session
+  provenance when present.
+- Direct and integration tests pin the first-running behavior and keep alert
+  behavior unchanged.
+
+Why this change was chosen:
+- `CampaignStarted` is one of the near-term event types, and first observed
+  `running` is the only start semantic available at this seam without inventing
+  restart/resume policy.
+
+Expected outcome:
+- The platform event journal can now summarize campaign starts and ends from the
+  existing post-status seam while campaign status files remain authoritative.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py`
+  - SHOWN: `26 passed in 0.48s`.
+- `./.venv/bin/python -m py_compile services/alerts/campaign_events.py services/events/platform_event_journal.py tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py tests/test_paper_strategy_evidence_service.py tests/test_campaign_summary.py tests/test_strategy_evidence_runtime.py`
+  - SHOWN: `68 passed in 0.87s`.
+
+Remaining risk:
+- MEDIUM: this adds one additional best-effort event write after the first
+  campaign status persistence. It does not change campaign transition
+  validation, status writes, alert levels, gate behavior, evidence semantics,
+  risk decisions, routing, or execution.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER
