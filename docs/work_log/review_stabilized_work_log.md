@@ -27685,6 +27685,121 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-31T23:54:48Z - ES Slow-Daily Gate Activation And Stock-Options Requirements Backlog
+
+Active role: ENGINEER
+
+Objective:
+- Apply the already-implemented strategy-class paper promotion policy to the
+  current slow daily ES proxy campaign, keep challenger campaigns running, and
+  add a stock-options requirements backlog item before any stock/options work.
+
+What was found:
+- SHOWN: `services/control/paper_promotion_policy.py` already implements
+  `slow_daily_single_symbol_v1` with floors of 45 calendar days, 60 qualified
+  bars, and 5 qualified round trips.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` still had no
+  `promotion.paper.policy`, so gate output remained `legacy_round_trip_v1`.
+- SHOWN: `configs/paper_evidence_campaigns.json` has enabled
+  `es_daily_trend_v1`, `ema_cross_default`, and `breakout_default`.
+- SHOWN: the stock-options-specific requirements surface was not represented
+  as a dedicated backlog item; existing docs only covered Databento,
+  derivatives/intraday, and price-action research boundaries.
+- SHOWN: local sandbox DNS failed resolving `api.coinbase.com`; rerunning the
+  same read-only OHLCV backfill outside the sandbox reached Coinbase.
+- SHOWN: Coinbase `BTC/USDT` daily OHLCV backfill from 2018 wrote 0 rows, while
+  Coinbase `BTC/USD` daily OHLCV from the same start wrote 3134 rows. This
+  matches the ES config's existing baseline note that `BTC/USDT` is the paper
+  comparison symbol but daily historical data basis is Coinbase `BTC/USD`.
+- SHOWN: archive-backed walk-forward over the checked-in challenger configs
+  initially produced zero trades because `strategy.trade_enabled=false`; sampled
+  signals all returned `trade_disabled`. Research-only override configs were
+  written under `.cbp_state/data/research/configs/` for artifact generation
+  without changing source governance configs.
+
+What changed:
+- Added `promotion.paper.policy` to `configs/strategies/es_daily_trend_v1.yaml`
+  using `slow_daily_single_symbol_v1`, `cohort_start=2026-06-16T00:00:00Z`,
+  45 calendar days, 60 qualified bars, 5 qualified round trips, archive
+  walk-forward required, manual review required, and diagnostic-only legacy
+  evidence.
+- Added Deferred Structure/Research Hygiene item 24 for stock-options
+  requirements: options approval/disclosure, OPRA/vendor data entitlement,
+  OSI/symbology, contract metadata, chain selection, Greeks/IV, assignment and
+  exercise, corporate actions, margin/buying power, liquidity/cost filters,
+  sandbox proof, retention/cost caps, provenance, and strict read-only-first
+  boundaries.
+- Added `tests/test_stock_options_requirements_backlog.py` to pin the
+  stock-options backlog boundary.
+- Updated paper-promotion tests to expect the active slow-daily ES policy and
+  to place provenance-qualification fixtures after the configured cohort start.
+
+Why this change was chosen:
+- The policy loader and qualified-bar counter already exist; a reviewed config
+  activation is the smallest way to use the approved strategy-class gate
+  without changing gate code or counting legacy fills.
+- Stock/options support is a new asset-class and broker/compliance surface; it
+  needs a requirements item before any data, campaign, gate, or execution work.
+
+Expected outcome:
+- ES paper gate reports the slow-daily policy and qualified-bar threshold
+  explicitly while preserving provenance requirements and manual review.
+- Stock/options work remains visible but cannot silently become campaign,
+  promotion, or execution authority.
+
+Verification:
+- `./.venv/bin/python scripts/restore_paper_campaigns.py --config configs/paper_evidence_campaigns.json --restore --preflight-ohlcv --ohlcv-preflight-probe-limit 400 --ohlcv-preflight-attempts 3 --ohlcv-preflight-attempt-delay-sec 2`
+  - SHOWN: `all_running=true`, `running_count=3`; `ema_cross_default` was
+    started and OHLCV preflight returned `public_ohlcv_reachable`.
+- `./.venv/bin/python scripts/restore_paper_campaigns.py --config configs/paper_evidence_campaigns.json --status`
+  - SHOWN: `all_running=true`, `campaign_count=3`, `running_count=3`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: policy `slow_daily_single_symbol_v1`; days `87/45` pass; round trips
+    `3/5` fail; qualified bars `40/60` fail; manual review remains required.
+- `./.venv/bin/python scripts/check_ohlcv_preflight.py --venue coinbase --symbol BTC/USDT --signal-source public_ohlcv_1d --probe-limit 400 --attempts 3 --attempt-delay-sec 2 --json`
+  - SHOWN: current configured ES session source is reachable with `row_count=300`
+    on the first attempt.
+- `./.venv/bin/python scripts/report_paper_gate_velocity.py`
+  - SHOWN: projected remaining time under current velocity is about 21 days,
+    with qualified bars still the listed blocker.
+- `./.venv/bin/python scripts/research/run_ohlcv_archive_backfill.py --venue coinbase --symbol BTC/USD --timeframe 1d --since 2018-01-01 --max-bars 4000 --output .cbp_state/data/research/ohlcv_archive_backfill/es_daily_trend_v1_btcusd_1d_backfill.latest.json --fail-if-not-ok`
+  - SHOWN: `ok=true`, `rows_written=3134`, dataset hash
+    `fc7aeb19aab747b33b9ea5b6daa3e0f47023ae19db2f5e37b3d1bb45a0908951`.
+- `./.venv/bin/python scripts/research/run_archive_walk_forward.py --config configs/strategies/es_daily_trend_v1.yaml --venue coinbase --symbol BTC/USD --timeframe 1d --since 2018-01-01 --limit 3000 --warmup-bars 210 --min-train-bars 365 --test-bars 90 --step-bars 90 --max-windows 8 --fee-bps 10 --slippage-bps 5 --output .cbp_state/data/research/archive_walk_forward/es_daily_trend_v1_btcusd_1d_walk_forward.latest.json --fail-if-not-ok`
+  - SHOWN: `ok=true`, archive-backed 8 windows, dataset hash
+    `83fa49cc4dccfecc7b35edd890177a47b85c0f0c38cdd8d1441bb0f2c6ed61ca`;
+    zero test trades, so this artifact is provenance proof, not edge proof.
+- `./.venv/bin/python scripts/research/run_ohlcv_archive_backfill.py --venue coinbase --symbol BTC/USDT --timeframe 5m --since 2026-06-01 --max-bars 12000 --output .cbp_state/data/research/ohlcv_archive_backfill/challengers_btcusdt_5m_backfill.latest.json --fail-if-not-ok`
+  - SHOWN: `ok=true`, `rows_written=12000`, dataset hash
+    `79cad09e54b7375f93833ad13c34014b0c43dc8e1d9a30956e845f376347b685`.
+- `ema_cross_default` research-only override archive walk-forward:
+  - SHOWN: `ok=true`, 6 windows, 104 closed test trades,
+    `avg_test_return_pct=-5.701245399177716`, all test windows negative after
+    10 bps fee and 5 bps slippage.
+- `breakout_default` research-only override archive walk-forward:
+  - SHOWN: `ok=true`, 4 bounded windows, 13 closed test trades,
+    `avg_test_return_pct=-2.847715434696463`, all test windows negative after
+    10 bps fee and 5 bps slippage. The larger 8000-row pass was interrupted
+    after the Donchian indicator recomputation path proved too slow for an
+    interactive batch.
+- `./.venv/bin/python -m pytest -q tests/test_stock_options_requirements_backlog.py tests/test_paper_promotion_policy.py tests/test_paper_promotion_progress.py tests/test_check_promotion_gates.py tests/test_paper_gate_qualification_report.py tests/test_paper_promotion_gate_policy_rfc_guard.py`
+  - SHOWN: `68 passed`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: changes the ES paper-gate policy configuration, not the gate code.
+  Requires operator review of fresh gate output before treating the new policy
+  state as accepted.
+- UNVERIFIED: Hetzner campaign status was not verified in this branch because
+  Tailscale SSH required re-authentication.
+- Remaining research issue: current-session Coinbase `BTC/USDT` daily fetch is
+  reachable, but Coinbase `BTC/USDT` is not usable for the ES daily historical
+  backfill from 2018; daily archive/walk-forward research should use the
+  explicitly documented `BTC/USD` data basis or add a reviewed symbol/data
+  mapping policy.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER

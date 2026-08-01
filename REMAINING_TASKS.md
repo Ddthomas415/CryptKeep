@@ -3105,6 +3105,26 @@ substrate work, but they are concrete enough to keep visible.
     advisory-only boundary, RUNBOOKS link, and existing dated artifact. This
     is docs/test only and does not change runtime behavior; future review
     cadence remains an operator action.
+24. Define stock-options requirements before any equities/options data,
+    campaign, gate, or execution work. This is a separate research/governance
+    surface from the current crypto paper gate. Required scope: broker/options
+    account approval level, OCC/ODD disclosure boundary, OPRA or vendor market
+    data entitlement and redistribution limits, option symbology/OSI mapping,
+    contract multiplier, expiration/strike/right, option-chain selection,
+    bid/ask/spread/liquidity filters, Greeks/IV source and timestamping,
+    assignment/exercise/early-exercise handling, corporate actions, trading
+    calendar/session rules, margin/buying-power model, max contract/notional
+    caps, multi-leg strategy representation, sandbox lifecycle proof, data
+    retention/cost caps, and provenance flags. First eligible implementation is
+    read-only research artifact generation. Hard boundaries: no stock/options
+    order routing, no broker credentials, no paper/shadow/live campaign, no
+    promotion evidence, and no shared risk budget with crypto until a separate
+    reviewed policy proves account-level isolation and portfolio exposure caps.
+    Stock/options research can run in parallel with crypto only as an isolated
+    read-only lane with separate state roots, symbols, calendars, data-source
+    provenance, cost caps, and operator status; any executable trading path
+    must remain separate until broker/account permissions, margin, assignment,
+    exercise, and liquidation/close controls are accepted.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:

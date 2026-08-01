@@ -584,21 +584,19 @@ class TestGateLogic:
         assert result["paper_history"]["all_history_fills"] == 14
         assert result["paper_history"]["all_history_closed_trades"] == 7
         assert result["paper_history"]["qualification"]["qualified_evidence_fills"] == 0
-        assert result["paper_progress"] == {
-            "source": "jsonl_provenance+trade_journal_sqlite",
-            "round_trips_recorded": 0,
-            "round_trips_required": 10,
-            "round_trips_remaining": 10,
-            "round_trips_ready": False,
-            "all_history_round_trips": 7,
-        }
+        assert result["paper_progress"]["source"] == "jsonl_provenance+trade_journal_sqlite"
+        assert result["paper_progress"]["round_trips_recorded"] == 0
+        assert result["paper_progress"]["round_trips_required"] == 5
+        assert result["paper_progress"]["round_trips_remaining"] == 5
+        assert result["paper_progress"]["round_trips_ready"] is False
+        assert result["paper_progress"]["all_history_round_trips"] == 7
         assert "0 round trips recorded" in round_trip_gate["detail"]
         assert "7 diagnostic-only all-history round trips" in round_trip_gate["detail"]
         assert (
             "no JSONL fills available for provenance qualification"
             in round_trip_gate["detail"]
         )
-        assert "(0/10, 10 remaining)" in round_trip_gate["detail"]
+        assert "(0/5, 5 remaining)" in round_trip_gate["detail"]
         assert expectancy_gate["passed"] is None
         assert result["retirement"]["source"] == "jsonl_provenance+trade_journal_sqlite"
         assert result["retirement"]["triggers_fired"] == []
@@ -658,7 +656,7 @@ class TestGateLogic:
         for idx, side in enumerate(("buy", "sell")):
             fills.append({
                 "record_type": "fill",
-                "timestamp": f"2026-05-01T0{idx}:00:00+00:00",
+                "timestamp": f"2026-06-17T0{idx}:00:00+00:00",
                 "side": side,
                 "size": 1.0,
                 "order_id": f"order-{side}",
@@ -668,7 +666,7 @@ class TestGateLogic:
                 "ohlcv_venue": "coinbase",
                 "ohlcv_symbol": "BTC/USDT",
             })
-        (ev_dir / "fill_2026-05-01.jsonl").write_text(
+        (ev_dir / "fill_2026-06-17.jsonl").write_text(
             "\n".join(json.dumps(row) for row in fills) + "\n",
             encoding="utf-8",
         )
@@ -713,25 +711,25 @@ class TestGateLogic:
         assert result["paper_history"]["all_history_closed_trades"] == 1
         assert result["paper_history"]["qualification"]["unqualified_evidence_fills"] == 0
         assert result["paper_progress"]["round_trips_recorded"] == 1
-        assert result["paper_progress"]["round_trips_required"] == 10
-        assert result["paper_progress"]["round_trips_remaining"] == 9
+        assert result["paper_progress"]["round_trips_required"] == 5
+        assert result["paper_progress"]["round_trips_remaining"] == 4
         assert result["paper_progress"]["round_trips_ready"] is False
         assert (
             result["paper_history"]["qualification"]["first_provenance_qualified_fill_ts"]
-            == "2026-05-01T00:00:00+00:00"
+            == "2026-06-17T00:00:00+00:00"
         )
         assert (
             result["paper_history"]["qualification"]["latest_provenance_qualified_fill_ts"]
-            == "2026-05-01T01:00:00+00:00"
+            == "2026-06-17T01:00:00+00:00"
         )
         assert (
             result["paper_history"]["qualification"][
                 "first_completed_qualified_round_trip_close_ts"
             ]
-            == "2026-05-01T01:00:00+00:00"
+            == "2026-06-17T01:00:00+00:00"
         )
         assert result["paper_history"]["qualification"]["unqualified_date_counts"] == {}
-        assert "(1/10, 9 remaining)" in round_trip_gate["detail"]
+        assert "(1/5, 4 remaining)" in round_trip_gate["detail"]
 
     def test_paper_gate_rejects_round_trip_with_wrong_timeframe(self, tmp_path):
         from services.control.paper_evidence_qualification import qualify_paper_history
@@ -760,8 +758,8 @@ class TestGateLogic:
             con.executemany(
                 "INSERT INTO journal_fills VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                 [
-                    ("fill-buy", "2026-05-01T00:00:00+00:00", "order-buy", "2026-05-01T00:00:00+00:00", "coinbase", "BTC/USDT", "buy", 1.0, 100.0, 0.1, "USD"),
-                    ("fill-sell", "2026-05-01T01:00:00+00:00", "order-sell", "2026-05-01T01:00:00+00:00", "coinbase", "BTC/USDT", "sell", 1.0, 110.0, 0.1, "USD"),
+                    ("fill-buy", "2026-06-17T00:00:00+00:00", "order-buy", "2026-06-17T00:00:00+00:00", "coinbase", "BTC/USDT", "buy", 1.0, 100.0, 0.1, "USD"),
+                    ("fill-sell", "2026-06-17T01:00:00+00:00", "order-sell", "2026-06-17T01:00:00+00:00", "coinbase", "BTC/USDT", "sell", 1.0, 110.0, 0.1, "USD"),
                 ],
             )
             con.commit()
@@ -770,7 +768,7 @@ class TestGateLogic:
 
         fills = [
             {
-                "timestamp": f"2026-05-01T0{idx}:00:00+00:00",
+                "timestamp": f"2026-06-17T0{idx}:00:00+00:00",
                 "side": side,
                 "size": 1.0,
                 "order_id": f"order-{side}",
@@ -978,7 +976,7 @@ class TestGateLogic:
             con.executemany(
                 "INSERT INTO journal_fills VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                 [
-                    (f"fill-{idx}", f"2026-05-01T0{idx}:00:00+00:00", f"order-{idx}", f"2026-05-01T0{idx}:00:00+00:00", "coinbase", "BTC/USDT", side, 1.0, price, 0.1, "USD")
+                    (f"fill-{idx}", f"2026-06-17T0{idx}:00:00+00:00", f"order-{idx}", f"2026-06-17T0{idx}:00:00+00:00", "coinbase", "BTC/USDT", side, 1.0, price, 0.1, "USD")
                     for idx, (side, price) in enumerate(
                         (("buy", 100.0), ("sell", 101.0), ("buy", 102.0), ("sell", 103.0))
                     )
@@ -991,7 +989,7 @@ class TestGateLogic:
         fills = []
         for idx, side in enumerate(("buy", "sell", "buy", "sell")):
             fill = {
-                "timestamp": f"2026-05-01T0{idx}:00:00+00:00",
+                "timestamp": f"2026-06-17T0{idx}:00:00+00:00",
                 "side": side,
                 "size": 1.0,
                 "order_id": f"order-{idx}",
@@ -1131,11 +1129,11 @@ class TestGateLogic:
         }
 
         gates = evaluate_paper_gates(evidence, sessions, evidence["signal"], evidence["fill"], paper_history)
-        day_gate = next(g for g in gates if g["label"] == "30 calendar days of operation")
-        round_trip_gate = next(g for g in gates if g["label"] == "10+ completed round trips")
+        day_gate = next(g for g in gates if g["label"] == "45 calendar days of operation")
+        round_trip_gate = next(g for g in gates if g["label"] == "5+ completed round trips")
 
-        assert day_gate["detail"] == "22/30 days recorded (8 remaining)"
-        assert "(7/10, 3 remaining)" in round_trip_gate["detail"]
+        assert day_gate["detail"] == "22/45 days recorded (23 remaining)"
+        assert "(7/5, 0 remaining)" in round_trip_gate["detail"]
 
 
 class TestEvidenceProvenance:
