@@ -94,6 +94,34 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "optional_operator_report",
         "local_state",
     ),
+    OperatorReadOnlyCommandSpec(
+        "platform_event_journal",
+        "scripts/report_platform_event_journal.py",
+        "platform-event-journal",
+        "platform_event_packet",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
+        "platform_event_secrets",
+        "scripts/check_platform_event_secrets.py",
+        "platform-event-secrets",
+        "platform_event_packet",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
+        "platform_event_integrity",
+        "scripts/check_platform_event_integrity.py",
+        "platform-event-integrity",
+        "platform_event_packet",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
+        "platform_event_packet",
+        "scripts/report_platform_event_packet.py",
+        "platform-event-packet",
+        "platform_event_packet",
+        "local_state",
+    ),
 )
 
 
