@@ -291,6 +291,28 @@ def test_operator_status_bundle_forwards_operator_read_only_filters(tmp_path: Pa
     assert out["actions"]["operator_read_only_commands"] == []
 
 
+def test_operator_status_bundle_filters_platform_event_read_only_lane(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="operator_read_only",
+        operator_read_only_medium_lane_item="platform_event_packet",
+    )
+
+    report = out["reports"]["operator_read_only_command_status"]
+    assert out["ok"] is True
+    assert out["section_filter"] == "operator_read_only"
+    assert out["operator_read_only_medium_lane_item_filter"] == "platform_event_packet"
+    assert report["medium_lane_item_filter"] == "platform_event_packet"
+    assert report["command_count"] == 4
+    assert out["summary"]["operator_read_only_commands_wired"] == 4
+    assert out["shown_sections"] == ["operator_read_only"]
+    assert out["actions"]["operator_read_only_commands"] == []
+
+
 def test_operator_status_bundle_forwards_research_pipeline_filter(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 

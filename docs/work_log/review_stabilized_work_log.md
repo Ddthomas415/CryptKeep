@@ -28182,6 +28182,71 @@ Remaining risk:
   deployment behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T23:37:31Z - Platform Event Read-Only Command Inventory
+
+Active role: ENGINEER
+
+Objective:
+- Register platform-event commands in the existing read-only operator command
+  inventory so check-in tooling can see whether those commands are wired.
+
+What was found:
+- SHOWN: `services.analytics.operator_read_only_command_status` inventories
+  read-only operator command wiring by checking script existence, Makefile
+  target existence, and `scripts/SCRIPTS.md` entries.
+- SHOWN: platform-event journal, secret, integrity, and packet commands were
+  added in the stacked event-journal series but were not yet present in that
+  inventory.
+
+What changed:
+- Added four read-only command specs:
+  `platform_event_journal`, `platform_event_secrets`,
+  `platform_event_integrity`, and `platform_event_packet`.
+- Grouped them under `medium_lane_item=platform_event_packet` with
+  `input_class=local_state`.
+- Added tests for current-repo wiring, direct lane filtering, and
+  `operator_status_bundle` propagation.
+- Updated `scripts/SCRIPTS.md` to include platform-event packet checks in the
+  read-only command inventory description.
+
+Why this change was chosen:
+- This makes platform-event commands visible to existing status and
+  next-actions tooling without reading runtime event state or running the
+  commands.
+
+Expected outcome:
+- `operator-read-only-command-status`,
+  `operator-status OPERATOR_STATUS_SECTION=operator_read_only`, and
+  `operator-next-actions` can report platform-event command wiring drift.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `51 passed in 0.54s`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_MEDIUM_LANE_ITEM=platform_event_packet`
+  - SHOWN: exit 0, `command_count=4`, `summary.wired=4`,
+    `summary.not_wired=0`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=platform_event_packet`
+  - SHOWN: exit 0, `command_count=1`, `summary.wired=1`,
+    `summary.not_wired=0`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+- Out-of-scope observation: `make operator-status-json
+  OPERATOR_STATUS_SECTION=operator_read_only
+  OPERATOR_STATUS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM=platform_event_packet`
+  prints the filtered platform-event wiring correctly but exits 2 because the
+  current checkout has unrelated source-report actions outside the shown
+  section. This batch does not change existing bundle exit-code semantics.
+
+Remaining risk:
+- LOW: read-only inventory metadata and tests only. No platform-event producer,
+  campaign, gate, evidence-write authority, risk decision, routing, execution,
+  authorization, or deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER
