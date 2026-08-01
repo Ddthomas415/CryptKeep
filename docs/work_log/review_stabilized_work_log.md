@@ -27685,6 +27685,636 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T22:45:32Z - Minimal Platform Event Journal Substrate
+
+Active role: ENGINEER
+
+Objective:
+- Implement the smallest event-journal substrate that supports the directional
+  plan without adding a broker, service mesh, strategy runtime changes, risk
+  authority, or live-execution hooks.
+
+What was found:
+- SHOWN: `services.audit.operator_event_journal` already records operator/admin
+  action audit events and is used by auth, config, dashboard/admin, stage, and
+  credential surfaces.
+- SHOWN: `services.execution.event_log` already records order/execution
+  lifecycle events in SQLite.
+- SHOWN: no separate research/campaign/evidence platform event envelope existed
+  on `origin/master`.
+
+What changed:
+- Added `services.events.platform_event_journal`, an append-only JSONL event
+  envelope with the deliberately narrow event vocabulary:
+  `CampaignStarted`, `CampaignEnded`, `StrategySignalProduced`,
+  `RiskDecisionMade`, and `EvidenceArtifactGenerated`.
+- Added `scripts/report_platform_event_journal.py`, a read-only summary command
+  with `--require-events` fail-closed behavior for launch/research packet
+  checks.
+- Added `docs/PLATFORM_EVENT_JOURNAL.md` documenting scope boundaries,
+  envelope fields, supported event types, and the "do not prebuild broad event
+  catalogs" rule.
+- Added tests for append/load/summarize behavior, event-type validation,
+  redaction, corrupt-row failure, require-events failure, and CLI exit codes.
+- Indexed the new script in `scripts/SCRIPTS.md`.
+
+Why this change was chosen:
+- The implementation gives future research/campaign/evidence producers a shared
+  envelope and gives operators a consumer now, while avoiding premature
+  distributed-event architecture and avoiding duplicate use of the existing
+  operator-action and execution-lifecycle journals.
+
+Expected outcome:
+- Future producers can emit a small governed event row with provenance, and
+  operators can inspect whether any platform events exist without touching
+  campaigns, gates, market data, risk, or execution.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `16 passed in 0.29s`.
+- `./.venv/bin/python -m py_compile services/events/platform_event_journal.py scripts/report_platform_event_journal.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_event_journal.py tests/test_operator_audit_coverage.py`
+  - SHOWN: `12 passed in 0.42s`.
+
+Remaining risk:
+- LOW: new substrate plus read-only reporter only. No existing runtime producer
+  is wired yet; no campaign, market-data fetch, gate, promotion policy, risk
+  decision, live routing, execution, authorization, or deployment behavior
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T22:49:07Z - Evidence Logger Platform Event Producer
+
+Active role: ENGINEER
+
+Objective:
+- Add the first concrete platform-event producer without changing campaigns,
+  promotion gates, risk decisions, or execution authority.
+
+What was found:
+- SHOWN: `EvidenceLogger._append` is the single shared evidence JSONL write path
+  for signal/order/fill/session/drawdown records.
+- SHOWN: existing evidence status and alert hooks are best-effort around the
+  evidence write and must not become authoritative over evidence persistence.
+
+What changed:
+- `EvidenceLogger._append` now emits an `EvidenceArtifactGenerated` platform
+  event after a successful evidence JSONL write.
+- The event records artifact metadata only: record type/subtype, artifact file
+  name, record timestamp, stage, market-data source, sample-mode marker, and
+  strategy/config/data/run provenance when present.
+- Platform-event write failures are caught and logged; they do not roll back or
+  block evidence writes.
+- `docs/PLATFORM_EVENT_JOURNAL.md` now names the initial producer and its
+  non-authoritative failure behavior.
+- Added tests proving successful evidence writes emit one platform event and
+  proving platform-event failure does not break the evidence write.
+
+Why this change was chosen:
+- The minimal journal from the prior batch needed one real producer to become
+  useful. The evidence logger is the lowest-risk seam because it already
+  produces artifact rows and the hook can run strictly after successful
+  persistence.
+
+Expected outcome:
+- Paper/shadow evidence artifacts now leave a lightweight platform-event trail
+  that the read-only report command can summarize, without changing how
+  evidence, gates, campaigns, risk, or execution behave.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_evidence_logger.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py`
+  - SHOWN: `32 passed in 1.07s`.
+- `./.venv/bin/python -m py_compile services/strategies/evidence_logger.py services/events/platform_event_journal.py scripts/report_platform_event_journal.py tests/test_evidence_logger.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_paper_gate_event_alerts.py tests/test_sample_mode_provenance.py`
+  - SHOWN: `76 passed in 1.04s`.
+
+Remaining risk:
+- MEDIUM: this adds best-effort I/O to an existing evidence-writing path, but it
+  is post-write, never-raise, and does not affect trading authority or promotion
+  gate calculations.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T22:52:10Z - Strategy Signal Platform Event Producer
+
+Active role: ENGINEER
+
+Objective:
+- Add the next narrow platform-event producer for strategy-signal observability
+  without changing signal decisions, paper evidence semantics, gates, risk, or
+  execution.
+
+What was found:
+- SHOWN: `EvidenceLogger.log_signal` builds the signal record, then routes
+  through the shared `_append` persistence path.
+- SHOWN: the prior platform-event producer emitted artifact events for all
+  evidence records, but did not emit a domain-level `StrategySignalProduced`
+  event.
+
+What changed:
+- Signal evidence writes now emit a `StrategySignalProduced` platform event
+  after the evidence JSONL row is successfully persisted.
+- The signal event records metadata only: signal direction, kernel action,
+  entry-allowed marker, regime flag, price/context fields, market-data source,
+  artifact file name, and strategy/config/data/run provenance when present.
+- Event append failure is caught and logged separately from the artifact event;
+  the evidence write remains successful.
+- Tests now assert artifact and signal events by event type so the two domains
+  stay distinct.
+
+Why this change was chosen:
+- The signal event is one of the four near-term event types in the directional
+  plan and the evidence logger is already the lowest-risk producer seam because
+  it runs after evidence persistence.
+
+Expected outcome:
+- Operators and research tooling can summarize which strategy signals were
+  produced from the platform event journal without reading full evidence payload
+  files and without changing any trading decision path.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_evidence_logger.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py`
+  - SHOWN: `33 passed in 1.11s`.
+- `./.venv/bin/python -m py_compile services/strategies/evidence_logger.py services/events/platform_event_journal.py tests/test_evidence_logger.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_paper_gate_event_alerts.py tests/test_sample_mode_provenance.py`
+  - SHOWN: `76 passed in 1.04s`.
+
+Remaining risk:
+- MEDIUM: this adds one additional best-effort event write after signal evidence
+  persistence. It does not change campaign behavior, evidence rows, promotion
+  calculations, risk decisions, routing, execution, authorization, or deployment.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T22:55:04Z - Campaign Ended Platform Event Producer
+
+Active role: ENGINEER
+
+Objective:
+- Add a campaign-end platform event producer at the existing post-status
+  notification seam without changing campaign state authority or alert policy.
+
+What was found:
+- SHOWN: `paper_strategy_evidence_service._write_status` persists campaign
+  status first, then invokes `alert_campaign_status_transition` best-effort.
+- SHOWN: `alert_campaign_status_transition` already receives previous status,
+  new status, and a compact status payload.
+- SHOWN: `blocked` is an operator-action state in the alert helper; it is not
+  necessarily a campaign end.
+
+What changed:
+- `services.alerts.campaign_events` now emits `CampaignEnded` platform events
+  for transitions from a known prior status into `completed`, `stopped`,
+  `failed`, `error`, or `aborted`.
+- `blocked` remains alertable but does not emit `CampaignEnded`.
+- Alert dispatch and journal emission are isolated: a raising alert channel does
+  not prevent the campaign-ended journal row, and a failing journal write does
+  not affect alert/status behavior.
+- Direct and integration tests pin failed/stopped/completed behavior, blocked
+  non-end behavior, and alert-channel failure behavior.
+
+Why this change was chosen:
+- Campaign end is one of the near-term platform event types, and the existing
+  post-status alert seam is the lowest-risk producer because the status file has
+  already advanced before it runs.
+
+Expected outcome:
+- Operators and research tooling can summarize campaign endings from the
+  platform event journal while campaign status files remain the source of truth.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py`
+  - SHOWN: `25 passed in 0.47s`.
+- `./.venv/bin/python -m py_compile services/alerts/campaign_events.py services/events/platform_event_journal.py tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py tests/test_paper_strategy_evidence_service.py tests/test_campaign_summary.py tests/test_strategy_evidence_runtime.py`
+  - SHOWN: `67 passed in 1.02s`.
+
+Remaining risk:
+- MEDIUM: this adds best-effort I/O to the existing campaign notification seam.
+  It does not change campaign transition validation, status writes, alert levels,
+  gate behavior, evidence semantics, risk decisions, routing, or execution.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T22:57:10Z - Campaign Started Platform Event Producer
+
+Active role: ENGINEER
+
+Objective:
+- Complete the narrow campaign event pair by emitting `CampaignStarted` for
+  first observed campaign start status without defining restart/resume policy.
+
+What was found:
+- SHOWN: `alert_campaign_status_transition` already treats an empty previous
+  status as the silent first-observation baseline.
+- SHOWN: the same helper receives the compact campaign payload after status
+  persistence.
+
+What changed:
+- First observation of `running` now emits a `CampaignStarted` platform event.
+- First observation of `failed` or other non-running states remains a silent
+  baseline and does not emit a start event.
+- The event carries status, reason, symbol, strategy, and run/session
+  provenance when present.
+- Direct and integration tests pin the first-running behavior and keep alert
+  behavior unchanged.
+
+Why this change was chosen:
+- `CampaignStarted` is one of the near-term event types, and first observed
+  `running` is the only start semantic available at this seam without inventing
+  restart/resume policy.
+
+Expected outcome:
+- The platform event journal can now summarize campaign starts and ends from the
+  existing post-status seam while campaign status files remain authoritative.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py`
+  - SHOWN: `26 passed in 0.48s`.
+- `./.venv/bin/python -m py_compile services/alerts/campaign_events.py services/events/platform_event_journal.py tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py tests/test_paper_strategy_evidence_service.py tests/test_campaign_summary.py tests/test_strategy_evidence_runtime.py`
+  - SHOWN: `68 passed in 0.87s`.
+
+Remaining risk:
+- MEDIUM: this adds one additional best-effort event write after the first
+  campaign status persistence. It does not change campaign transition
+  validation, status writes, alert levels, gate behavior, evidence semantics,
+  risk decisions, routing, or execution.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T23:12:05Z - Platform Event Secret Scan
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only no-secret scan for the new platform event journal without
+  duplicating the existing operator-event scanner logic.
+
+What was found:
+- SHOWN: `operator_event_secret_scan` already had tested recursive JSONL
+  scanning for unredacted sensitive-key payloads.
+- SHOWN: the new platform event journal can carry producer payloads and should
+  have the same launch/research packet hygiene check as operator events.
+
+What changed:
+- Added `services.audit.jsonl_secret_scan` as the shared recursive JSONL
+  sensitive-key scanner.
+- Refactored `services.audit.operator_event_secret_scan` to delegate to the
+  shared scanner while preserving existing operator-specific reason strings.
+- Added `services.events.platform_event_secret_scan` with platform-specific
+  missing/empty/unparseable reason strings.
+- Added `scripts/check_platform_event_secrets.py`, a read-only CLI supporting
+  `--require-events`, `--json`, and `--evidence-dest`.
+- Added platform-event scanner tests and kept the existing operator scanner
+  tests as regression coverage for the refactor.
+- Indexed the new script in `scripts/SCRIPTS.md` and documented the command in
+  `docs/PLATFORM_EVENT_JOURNAL.md`.
+
+Why this change was chosen:
+- Platform events should be safe to attach to evidence packets. Reusing a shared
+  scanner avoids drifting logic between operator and platform event journals.
+
+Expected outcome:
+- Operators can prove platform event payloads contain no unredacted secret-like
+  fields before packaging evidence, while the scanner remains read-only and
+  does not affect event producers or trading behavior.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_platform_event_secret_scan.py tests/test_operator_event_secret_scan.py tests/test_platform_event_journal.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `24 passed in 0.46s`.
+- `./.venv/bin/python -m py_compile services/audit/jsonl_secret_scan.py services/audit/operator_event_secret_scan.py services/events/platform_event_secret_scan.py scripts/check_platform_event_secrets.py tests/test_platform_event_secret_scan.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_operator_event_journal.py tests/test_operator_audit_coverage.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `17 passed in 0.44s`.
+
+Remaining risk:
+- LOW: read-only scan tooling plus a shared helper refactor. No event producer,
+  campaign, gate, evidence-write authority, risk decision, routing, execution,
+  authorization, or deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T23:15:58Z - Platform Event Integrity Check
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only schema/integrity check for the platform event journal so
+  evidence packets can prove event rows are well-formed.
+
+What was found:
+- SHOWN: `platform_event_journal` validates events at build time, but nothing
+  read existing JSONL rows and reported malformed/corrupt rows as a packet-level
+  integrity check.
+- SHOWN: the report and secret-scan commands are read-only consumers and do not
+  validate the full event envelope.
+
+What changed:
+- Added `services.events.platform_event_integrity` to validate required
+  platform-event envelope fields, schema version, parseable timestamp,
+  supported event type, text identity fields, provenance object, and payload
+  object.
+- Added `scripts/check_platform_event_integrity.py`, a read-only CLI supporting
+  `--require-events`, `--json`, and `--evidence-dest`.
+- Added tests for valid rows, missing fields, bad schema values,
+  missing/empty journals, unparseable JSON, and CLI evidence output.
+- Indexed the new script in `scripts/SCRIPTS.md` and documented it in
+  `docs/PLATFORM_EVENT_JOURNAL.md`.
+
+Why this change was chosen:
+- Secret scanning and summarization are not enough for an evidence packet. The
+  platform event journal needs a cheap, deterministic integrity check before its
+  rows are treated as usable observability evidence.
+
+Expected outcome:
+- Operators can validate platform-event envelope integrity without mutating
+  state, running campaigns, fetching market data, or touching risk/execution.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_platform_event_integrity.py tests/test_platform_event_secret_scan.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `27 passed in 0.46s`.
+- `./.venv/bin/python -m py_compile services/events/platform_event_integrity.py scripts/check_platform_event_integrity.py tests/test_platform_event_integrity.py services/events/platform_event_journal.py services/events/platform_event_secret_scan.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only validation tooling only. No event producer, campaign, gate,
+  evidence-write authority, risk decision, routing, execution, authorization, or
+  deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T23:18:03Z - Platform Event Packet Report
+
+Active role: ENGINEER
+
+Objective:
+- Add one read-only operator command that combines platform-event summary,
+  integrity, and secret-scan checks for evidence packet use.
+
+What was found:
+- SHOWN: platform-event summary, integrity, and secret-scan checks are separate
+  commands.
+- SHOWN: launch/research evidence packet use benefits from one command that
+  reports all three checks without changing event producers.
+
+What changed:
+- Added `services.events.platform_event_packet` to aggregate summary,
+  integrity, and secret-scan reports.
+- Added `scripts/report_platform_event_packet.py` with `--require-events`,
+  `--json`, and `--evidence-dest`.
+- Added tests for all-checks-pass, missing required events, secret-scan failure,
+  and CLI evidence output.
+- Indexed the new script in `scripts/SCRIPTS.md` and documented it in
+  `docs/PLATFORM_EVENT_JOURNAL.md`.
+
+Why this change was chosen:
+- The packet report reduces operator steps without creating new validation
+  semantics. It is a consumer over already-tested checks.
+
+Expected outcome:
+- Operators can attach one platform-event packet report to research/launch
+  evidence instead of running three separate commands.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_platform_event_packet.py tests/test_platform_event_integrity.py tests/test_platform_event_secret_scan.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `31 passed in 0.58s`.
+- `./.venv/bin/python -m py_compile services/events/platform_event_packet.py scripts/report_platform_event_packet.py tests/test_platform_event_packet.py services/events/platform_event_integrity.py services/events/platform_event_secret_scan.py services/events/platform_event_journal.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only report aggregation only. No event producer, campaign, gate,
+  evidence-write authority, risk decision, routing, execution, authorization, or
+  deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T23:34:01Z - Platform Event Make Targets
+
+Active role: ENGINEER
+
+Objective:
+- Make the platform-event journal/report/check commands available as standard
+  Makefile operator targets.
+
+What was found:
+- SHOWN: platform-event summary, secret-scan, integrity, and packet report
+  scripts existed in the stacked event-journal series.
+- SHOWN: the commands were indexed in `scripts/SCRIPTS.md`, but did not yet
+  have Makefile wrappers.
+
+What changed:
+- Added Makefile targets:
+  `platform-event-journal`, `platform-event-journal-json`,
+  `platform-event-secrets`, `platform-event-secrets-json`,
+  `platform-event-integrity`, `platform-event-integrity-json`,
+  `platform-event-packet`, and `platform-event-packet-json`.
+- Added pass-through variables:
+  `PLATFORM_EVENT_PATH`, `PLATFORM_EVENT_TYPE`,
+  `PLATFORM_EVENT_REQUIRE_EVENTS`, and `PLATFORM_EVENT_EVIDENCE_DEST`.
+- Updated `scripts/SCRIPTS.md` and `docs/PLATFORM_EVENT_JOURNAL.md` with the
+  Make targets.
+- Added a regression test that asserts the platform-event Make targets and docs
+  stay aligned.
+- Fixed `scripts/report_platform_event_journal.py` bootstrap behavior when run
+  as a file; the Make target surfaced that the script imported
+  `scripts._bootstrap` before the repo root was on `sys.path`.
+
+Why this change was chosen:
+- The prior stacked batches added useful read-only commands. Make wrappers make
+  them one-command operator tools without adding new event semantics.
+
+Expected outcome:
+- Operators can run platform-event journal, integrity, secret, and packet checks
+  through `make` with consistent env-variable overrides.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_platform_event_packet.py tests/test_platform_event_integrity.py tests/test_platform_event_secret_scan.py tests/test_script_index_alignment_guard.py tests/test_operator_doc_make_targets.py`
+  - SHOWN: initially failed because `scripts/SCRIPTS.md` line-wrapped
+    `make platform-event-journal[-json]`; docs were corrected.
+- `make platform-event-journal-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: initially failed with `ModuleNotFoundError: No module named
+    'scripts'`; `report_platform_event_journal.py` bootstrap was fixed and a
+    regression test was added.
+- `make platform-event-journal-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: exit 0, `ok=true`, `event_count=0`.
+- `make platform-event-secrets-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: exit 0, `ok=true`, `event_count=0`.
+- `make platform-event-integrity-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: exit 0, `ok=true`, `event_count=0`.
+- `make platform-event-packet-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: exit 0, `ok=true`, `checks.summary=true`,
+    `checks.integrity=true`, `checks.secrets=true`.
+- `./.venv/bin/python -m pytest -q tests/test_report_platform_event_journal.py tests/test_platform_event_packet.py tests/test_platform_event_integrity.py tests/test_platform_event_secret_scan.py tests/test_script_index_alignment_guard.py tests/test_operator_doc_make_targets.py`
+  - SHOWN: `28 passed in 0.57s`.
+- `./.venv/bin/python -m py_compile scripts/report_platform_event_journal.py tests/test_report_platform_event_journal.py tests/test_platform_event_packet.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/tests only. No event producer, campaign, gate,
+  evidence-write authority, risk decision, routing, execution, authorization, or
+  deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T23:37:31Z - Platform Event Read-Only Command Inventory
+
+Active role: ENGINEER
+
+Objective:
+- Register platform-event commands in the existing read-only operator command
+  inventory so check-in tooling can see whether those commands are wired.
+
+What was found:
+- SHOWN: `services.analytics.operator_read_only_command_status` inventories
+  read-only operator command wiring by checking script existence, Makefile
+  target existence, and `scripts/SCRIPTS.md` entries.
+- SHOWN: platform-event journal, secret, integrity, and packet commands were
+  added in the stacked event-journal series but were not yet present in that
+  inventory.
+
+What changed:
+- Added four read-only command specs:
+  `platform_event_journal`, `platform_event_secrets`,
+  `platform_event_integrity`, and `platform_event_packet`.
+- Grouped them under `medium_lane_item=platform_event_packet` with
+  `input_class=local_state`.
+- Added tests for current-repo wiring, direct lane filtering, and
+  `operator_status_bundle` propagation.
+- Updated `scripts/SCRIPTS.md` to include platform-event packet checks in the
+  read-only command inventory description.
+
+Why this change was chosen:
+- This makes platform-event commands visible to existing status and
+  next-actions tooling without reading runtime event state or running the
+  commands.
+
+Expected outcome:
+- `operator-read-only-command-status`,
+  `operator-status OPERATOR_STATUS_SECTION=operator_read_only`, and
+  `operator-next-actions` can report platform-event command wiring drift.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `51 passed in 0.54s`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_MEDIUM_LANE_ITEM=platform_event_packet`
+  - SHOWN: exit 0, `command_count=4`, `summary.wired=4`,
+    `summary.not_wired=0`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=platform_event_packet`
+  - SHOWN: exit 0, `command_count=1`, `summary.wired=1`,
+    `summary.not_wired=0`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+- Out-of-scope observation: `make operator-status-json
+  OPERATOR_STATUS_SECTION=operator_read_only
+  OPERATOR_STATUS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM=platform_event_packet`
+  prints the filtered platform-event wiring correctly but exits 2 because the
+  current checkout has unrelated source-report actions outside the shown
+  section. This batch does not change existing bundle exit-code semantics.
+
+Remaining risk:
+- LOW: read-only inventory metadata and tests only. No platform-event producer,
+  campaign, gate, evidence-write authority, risk decision, routing, execution,
+  authorization, or deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-01T23:43:36Z - Operator Status Filter OK Semantics
+
+Active role: ENGINEER
+
+Objective:
+- Close the follow-up exposed by platform-event read-only inventory: a filtered
+  `operator-status`/`operator-next-actions` command should return based on the
+  shown section, while still preserving full-source health diagnostics.
+
+What was found:
+- SHOWN: `build_operator_status_bundle()` computed one global `ok` before
+  applying `section`, so
+  `OPERATOR_STATUS_SECTION=operator_read_only
+  OPERATOR_STATUS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM=platform_event_packet`
+  printed the healthy platform-event wiring but exited 2 due unrelated hidden
+  source actions.
+- SHOWN: `build_operator_next_actions()` inherited the same global bundle
+  status when a single source filter was supplied.
+
+What changed:
+- `operator_status_bundle` now exposes `source_ok` for the full source bundle
+  and `shown_ok` for the displayed section. Unfiltered reports keep the prior
+  full-source behavior; filtered reports set top-level `ok` from the shown
+  section.
+- `operator_status_bundle` also exposes `shown_reasons` alongside
+  `source_reasons`, so hidden diagnostics are not lost.
+- `operator_next_actions` now routes a single source filter to the matching
+  bundle section before flattening actions.
+- Regression tests pin both contracts, including a hidden source failure with a
+  healthy filtered `operator_read_only` section.
+
+Why this change was chosen:
+- A section-filtered operator command is a scoped inspection command. Its exit
+  status should answer whether the visible scope is healthy, not whether the
+  entire hidden source universe has unrelated work. Full-source health remains
+  available through `source_ok`, `source_reasons`, and the unfiltered command.
+
+Expected outcome:
+- Platform-event packet wiring can be checked through existing operator status
+  commands without false nonzero exits, while unfiltered operator status still
+  exits nonzero when the whole source bundle has unresolved work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `40 passed in 0.40s`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=operator_read_only OPERATOR_STATUS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM=platform_event_packet`
+  - SHOWN: exit 0, `ok=true`, `shown_ok=true`, `source_ok=false`, and
+    `summary.operator_read_only_commands_wired=4`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM=platform_event_packet OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: exit 0, `ok=true`, `action_count_total=0`,
+    `action_count_available=0`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_MEDIUM_LANE_ITEM=platform_event_packet`
+  - SHOWN: exit 0, `command_count=4`.
+- `make operator-status-json`
+  - SHOWN: exit 2 remains unchanged for the unfiltered full-source bundle.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only operator reporting semantics and tests only. No campaign,
+  market-data fetch, artifact generation, proof closure, gate, ingestion, live
+  routing, execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER

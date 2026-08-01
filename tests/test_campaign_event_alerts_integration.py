@@ -34,6 +34,12 @@ def test_write_status_fires_alert_on_stop_transition(monkeypatch, tmp_path):
     svc._write_status({"status": "running", "symbol": "BTC/USDT"})
     assert sent == []
 
+    from services.events.platform_event_journal import load_platform_events
+    started = load_platform_events(event_type="CampaignStarted")
+    assert len(started) == 1
+    assert started[0]["payload"]["new_status"] == "running"
+    assert started[0]["payload"]["symbol"] == "BTC/USDT"
+
     # Transition running -> stopped fires exactly one warning-level alert.
     svc._write_status({"status": "stopped", "reason": "stop_requested", "symbol": "BTC/USDT"})
     assert len(sent) == 1
@@ -46,6 +52,11 @@ def test_write_status_fires_alert_on_stop_transition(monkeypatch, tmp_path):
     # Status file advanced to stopped regardless.
     written = json.loads(svc.status_file().read_text(encoding="utf-8"))
     assert written["status"] == "stopped"
+
+    events = load_platform_events(event_type="CampaignEnded")
+    assert len(events) == 1
+    assert events[0]["payload"]["new_status"] == "stopped"
+    assert events[0]["payload"]["reason"] == "stop_requested"
 
 
 def test_write_status_fires_alert_once_on_blocked_transition(monkeypatch, tmp_path):
@@ -65,6 +76,9 @@ def test_write_status_fires_alert_once_on_blocked_transition(monkeypatch, tmp_pa
     assert payload["reason"] == "ohlcv_source_unreachable"
     assert payload["symbol"] == "BTC/USD"
 
+    from services.events.platform_event_journal import load_platform_events
+    assert load_platform_events(event_type="CampaignEnded") == []
+
 
 def test_raising_channel_does_not_block_status_write(monkeypatch, tmp_path):
     svc = _reload(monkeypatch, tmp_path)
@@ -80,3 +94,8 @@ def test_raising_channel_does_not_block_status_write(monkeypatch, tmp_path):
     svc._write_status({"status": "failed", "reason": "boom"})
     written = json.loads(svc.status_file().read_text(encoding="utf-8"))
     assert written["status"] == "failed"
+
+    from services.events.platform_event_journal import load_platform_events
+    events = load_platform_events(event_type="CampaignEnded")
+    assert len(events) == 1
+    assert events[0]["payload"]["new_status"] == "failed"
