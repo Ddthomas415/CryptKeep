@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
+from pathlib import Path
 
 from services.events.platform_event_journal import append_platform_event
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_report_platform_event_journal_cli_reports_summary(tmp_path, capsys):
@@ -39,3 +43,23 @@ def test_report_platform_event_journal_cli_returns_2_when_required_empty(tmp_pat
     assert out["ok"] is False
     assert out["reason"] == "platform_event_journal_empty"
 
+
+def test_report_platform_event_journal_script_bootstraps_when_run_as_file(tmp_path):
+    path = tmp_path / "platform_events.jsonl"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "report_platform_event_journal.py"),
+            "--path",
+            str(path),
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0
+    out = json.loads(result.stdout)
+    assert out["ok"] is True
+    assert out["path"] == str(path)

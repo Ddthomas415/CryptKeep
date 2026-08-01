@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 
 from services.events.platform_event_journal import append_platform_event
 from services.events.platform_event_packet import build_platform_event_packet_report
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_platform_event_packet_report_passes_when_all_checks_pass(tmp_path):
@@ -90,3 +93,28 @@ def test_report_platform_event_packet_cli_writes_evidence(tmp_path, capsys):
     assert out["evidence_path"].startswith(str(evidence))
     assert len(list(evidence.glob("platform-event-packet-*.json"))) == 1
 
+
+def test_platform_event_operator_make_targets_are_documented():
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    scripts = (ROOT / "scripts" / "SCRIPTS.md").read_text(encoding="utf-8")
+    doc = (ROOT / "docs" / "PLATFORM_EVENT_JOURNAL.md").read_text(encoding="utf-8")
+
+    for target in (
+        "platform-event-journal",
+        "platform-event-journal-json",
+        "platform-event-secrets",
+        "platform-event-secrets-json",
+        "platform-event-integrity",
+        "platform-event-integrity-json",
+        "platform-event-packet",
+        "platform-event-packet-json",
+    ):
+        assert f"{target}:" in makefile
+    for command in (
+        "make platform-event-journal",
+        "make platform-event-secrets",
+        "make platform-event-integrity",
+        "make platform-event-packet",
+    ):
+        assert command in scripts
+        assert command in doc

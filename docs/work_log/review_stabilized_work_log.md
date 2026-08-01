@@ -28111,6 +28111,77 @@ Remaining risk:
   deployment behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T23:34:01Z - Platform Event Make Targets
+
+Active role: ENGINEER
+
+Objective:
+- Make the platform-event journal/report/check commands available as standard
+  Makefile operator targets.
+
+What was found:
+- SHOWN: platform-event summary, secret-scan, integrity, and packet report
+  scripts existed in the stacked event-journal series.
+- SHOWN: the commands were indexed in `scripts/SCRIPTS.md`, but did not yet
+  have Makefile wrappers.
+
+What changed:
+- Added Makefile targets:
+  `platform-event-journal`, `platform-event-journal-json`,
+  `platform-event-secrets`, `platform-event-secrets-json`,
+  `platform-event-integrity`, `platform-event-integrity-json`,
+  `platform-event-packet`, and `platform-event-packet-json`.
+- Added pass-through variables:
+  `PLATFORM_EVENT_PATH`, `PLATFORM_EVENT_TYPE`,
+  `PLATFORM_EVENT_REQUIRE_EVENTS`, and `PLATFORM_EVENT_EVIDENCE_DEST`.
+- Updated `scripts/SCRIPTS.md` and `docs/PLATFORM_EVENT_JOURNAL.md` with the
+  Make targets.
+- Added a regression test that asserts the platform-event Make targets and docs
+  stay aligned.
+- Fixed `scripts/report_platform_event_journal.py` bootstrap behavior when run
+  as a file; the Make target surfaced that the script imported
+  `scripts._bootstrap` before the repo root was on `sys.path`.
+
+Why this change was chosen:
+- The prior stacked batches added useful read-only commands. Make wrappers make
+  them one-command operator tools without adding new event semantics.
+
+Expected outcome:
+- Operators can run platform-event journal, integrity, secret, and packet checks
+  through `make` with consistent env-variable overrides.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_platform_event_packet.py tests/test_platform_event_integrity.py tests/test_platform_event_secret_scan.py tests/test_script_index_alignment_guard.py tests/test_operator_doc_make_targets.py`
+  - SHOWN: initially failed because `scripts/SCRIPTS.md` line-wrapped
+    `make platform-event-journal[-json]`; docs were corrected.
+- `make platform-event-journal-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: initially failed with `ModuleNotFoundError: No module named
+    'scripts'`; `report_platform_event_journal.py` bootstrap was fixed and a
+    regression test was added.
+- `make platform-event-journal-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: exit 0, `ok=true`, `event_count=0`.
+- `make platform-event-secrets-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: exit 0, `ok=true`, `event_count=0`.
+- `make platform-event-integrity-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: exit 0, `ok=true`, `event_count=0`.
+- `make platform-event-packet-json PLATFORM_EVENT_PATH=/tmp/cbp-platform-events-missing.jsonl`
+  - SHOWN: exit 0, `ok=true`, `checks.summary=true`,
+    `checks.integrity=true`, `checks.secrets=true`.
+- `./.venv/bin/python -m pytest -q tests/test_report_platform_event_journal.py tests/test_platform_event_packet.py tests/test_platform_event_integrity.py tests/test_platform_event_secret_scan.py tests/test_script_index_alignment_guard.py tests/test_operator_doc_make_targets.py`
+  - SHOWN: `28 passed in 0.57s`.
+- `./.venv/bin/python -m py_compile scripts/report_platform_event_journal.py tests/test_report_platform_event_journal.py tests/test_platform_event_packet.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/tests only. No event producer, campaign, gate,
+  evidence-write authority, risk decision, routing, execution, authorization, or
+  deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER
