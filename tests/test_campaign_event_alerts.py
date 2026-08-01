@@ -10,7 +10,14 @@ Notification-only contract pinned here (mirrors test_paper_gate_event_alerts):
 """
 from __future__ import annotations
 
+import pytest
+
 import services.alerts.campaign_events as ce
+
+
+@pytest.fixture(autouse=True)
+def isolate_state(tmp_path, monkeypatch):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
 
 
 def _capture(monkeypatch):
@@ -89,3 +96,50 @@ def test_never_raises_when_send_fails(monkeypatch):
     monkeypatch.setattr(ce, "_send", _boom)
     # A raising channel must be swallowed; returns False, does not propagate.
     assert ce.alert_campaign_status_transition("running", "failed") is False
+
+
+def test_failed_transition_emits_campaign_ended_event(monkeypatch):
+    from services.events.platform_event_journal import load_platform_events
+
+    sent = _capture(monkeypatch)
+    payload = {"reason": "boom", "symbol": "BTC/USD", "strategy_id": "es_daily_trend_v1"}
+
+    assert ce.alert_campaign_status_transition("running", "failed", payload) is True
+
+    assert sent == [("critical", "campaign:failed", payload)]
+    events = load_platform_events(event_type="CampaignEnded")
+    assert len(events) == 1
+    event = events[0]
+    assert event["provenance"]["strategy_id"] == "es_daily_trend_v1"
+    assert event["payload"]["prev_status"] == "running"
+    assert event["payload"]["new_status"] == "failed"
+    assert event["payload"]["reason"] == "boom"
+    assert event["payload"]["symbol"] == "BTC/USD"
+
+
+def test_completed_transition_emits_campaign_ended_event_without_alert(monkeypatch):
+    from services.events.platform_event_journal import load_platform_events
+
+    sent = _capture(monkeypatch)
+
+    assert ce.alert_campaign_status_transition("running", "completed", {"reason": "normal"}) is False
+
+    assert sent == []
+    events = load_platform_events(event_type="CampaignEnded")
+    assert len(events) == 1
+    assert events[0]["payload"]["new_status"] == "completed"
+    assert events[0]["payload"]["reason"] == "normal"
+
+
+def test_alert_failure_does_not_block_campaign_ended_event(monkeypatch):
+    from services.events.platform_event_journal import load_platform_events
+
+    def _boom(level, message, payload):
+        raise RuntimeError("dispatcher down")
+
+    monkeypatch.setattr(ce, "_send", _boom)
+
+    assert ce.alert_campaign_status_transition("running", "failed", {"reason": "boom"}) is False
+    events = load_platform_events(event_type="CampaignEnded")
+    assert len(events) == 1
+    assert events[0]["payload"]["new_status"] == "failed"

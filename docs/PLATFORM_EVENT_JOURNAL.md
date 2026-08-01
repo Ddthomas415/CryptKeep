@@ -68,6 +68,12 @@ These producers are best-effort and never authoritative. If the platform event
 journal cannot be written, the evidence record remains the source of truth and
 the evidence write is not rolled back.
 
+`services.alerts.campaign_events` emits `CampaignEnded` for transitions from a
+known prior status into `completed`, `stopped`, `failed`, `error`, or `aborted`.
+`blocked` remains an operator-action state, not a campaign end. The campaign
+status file remains authoritative; the journal event is emitted only after the
+caller has persisted status.
+
 ## Scope Rule
 
 Add runtime producers only when a concrete consumer will use the event. Do not

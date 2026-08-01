@@ -27855,6 +27855,58 @@ Remaining risk:
   calculations, risk decisions, routing, execution, authorization, or deployment.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T22:55:04Z - Campaign Ended Platform Event Producer
+
+Active role: ENGINEER
+
+Objective:
+- Add a campaign-end platform event producer at the existing post-status
+  notification seam without changing campaign state authority or alert policy.
+
+What was found:
+- SHOWN: `paper_strategy_evidence_service._write_status` persists campaign
+  status first, then invokes `alert_campaign_status_transition` best-effort.
+- SHOWN: `alert_campaign_status_transition` already receives previous status,
+  new status, and a compact status payload.
+- SHOWN: `blocked` is an operator-action state in the alert helper; it is not
+  necessarily a campaign end.
+
+What changed:
+- `services.alerts.campaign_events` now emits `CampaignEnded` platform events
+  for transitions from a known prior status into `completed`, `stopped`,
+  `failed`, `error`, or `aborted`.
+- `blocked` remains alertable but does not emit `CampaignEnded`.
+- Alert dispatch and journal emission are isolated: a raising alert channel does
+  not prevent the campaign-ended journal row, and a failing journal write does
+  not affect alert/status behavior.
+- Direct and integration tests pin failed/stopped/completed behavior, blocked
+  non-end behavior, and alert-channel failure behavior.
+
+Why this change was chosen:
+- Campaign end is one of the near-term platform event types, and the existing
+  post-status alert seam is the lowest-risk producer because the status file has
+  already advanced before it runs.
+
+Expected outcome:
+- Operators and research tooling can summarize campaign endings from the
+  platform event journal while campaign status files remain the source of truth.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py`
+  - SHOWN: `25 passed in 0.47s`.
+- `./.venv/bin/python -m py_compile services/alerts/campaign_events.py services/events/platform_event_journal.py tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py tests/test_paper_strategy_evidence_service.py tests/test_campaign_summary.py tests/test_strategy_evidence_runtime.py`
+  - SHOWN: `67 passed in 1.02s`.
+
+Remaining risk:
+- MEDIUM: this adds best-effort I/O to the existing campaign notification seam.
+  It does not change campaign transition validation, status writes, alert levels,
+  gate behavior, evidence semantics, risk decisions, routing, or execution.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER
