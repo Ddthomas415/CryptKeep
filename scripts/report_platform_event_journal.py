@@ -3,9 +3,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
-from scripts._bootstrap import add_repo_root_to_syspath
+try:
+    from scripts._bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from scripts._bootstrap import add_repo_root_to_syspath
 
 add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
@@ -32,4 +37,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -51,7 +51,7 @@ listed below.
 | `report_hetzner_crypto_edge_runtime_status.py` | `make status-hetzner-edge-runtime` | Read-only Tailscale SSH wrapper for Hetzner crypto-edge runtime readiness; checks accepted checkout/tooling, OKX collector plan, collector status under the deployed `CBP_STATE_DIR`, and collector/cadence scheduling without deploying or starting collectors |
 | `report_backlog_lane_status.py` | `make backlog-lane-status` / `make backlog-lane-status-json` | Read-only planning report over `docs/BACKLOG_EXECUTION_LANES.md`; supports `BACKLOG_LANE_STATUS_LANE`; summarizes backlog lane counts and source hashes without deciding backlog items or changing runtime state |
 | `report_operator_proof_status.py` | `make operator-proof-status` / `make operator-proof-status-json` | Read-only report over passive/operator-evidence lane items and proof/coverage markers in `REMAINING_TASKS.md`; supports `OPERATOR_PROOF_STATUS_CATEGORY`, `OPERATOR_PROOF_STATUS_LINE`, and `OPERATOR_PROOF_STATUS_PASSIVE_ORDINAL`; includes proof next actions without running campaigns, fetching market data, closing proof, or mutating state |
-| `report_operator_read_only_command_status.py` | `make operator-read-only-command-status` / `make operator-read-only-command-status-json` | Read-only wiring inventory for medium-lane operator command surfaces: campaign planners, gate diagnostics, optional reports, host diagnostics, and host status wrappers; supports `OPERATOR_READ_ONLY_COMMAND_STATUS_MEDIUM_LANE_ITEM` and `OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID`; does not run commands, campaigns, market-data fetches, proof closure, or runtime mutation |
+| `report_operator_read_only_command_status.py` | `make operator-read-only-command-status` / `make operator-read-only-command-status-json` | Read-only wiring inventory for medium-lane operator command surfaces: campaign planners, gate diagnostics, optional reports, host diagnostics, host status wrappers, and platform-event packet checks; supports `OPERATOR_READ_ONLY_COMMAND_STATUS_MEDIUM_LANE_ITEM` and `OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID`; does not run commands, campaigns, market-data fetches, proof closure, or runtime mutation |
 | `report_operator_status_bundle.py` | `make operator-status` / `make operator-status-json` | Read-only bundle of backlog lane, research pipeline, research artifact inventory, research command, operator read-only command, and operator proof status reports for check-ins; supports `OPERATOR_STATUS_SECTION` and underlying backlog/research-pipeline/research-artifact/research-command/operator-read-only/proof filters, including `OPERATOR_STATUS_BACKLOG_LANE_ORDINAL`, `OPERATOR_STATUS_RESEARCH_ARTIFACT_LANE`, `OPERATOR_STATUS_RESEARCH_ARTIFACT_ID`, `OPERATOR_STATUS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM`, proof category/line, and `OPERATOR_STATUS_OPERATOR_PROOF_PASSIVE_ORDINAL`; surfaces next actions without running pipelines/campaigns/commands, fetching market data, closing proof, deciding backlog items, or mutating state |
 | `report_operator_next_actions.py` | `make operator-next-actions` / `make operator-next-actions-json` | Read-only compact next-action report derived from operator status; includes research pipeline, research artifact, research command, operator read-only command, passive operator-evidence, and proof-marker action lanes; supports `OPERATOR_NEXT_ACTIONS_MAX`, `OPERATOR_NEXT_ACTIONS_LANE`, `OPERATOR_NEXT_ACTIONS_REASON`, `OPERATOR_NEXT_ACTIONS_SOURCE`, and source-report filters (`OPERATOR_NEXT_ACTIONS_BACKLOG_LANE`, `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL`, `OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE`, `OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE`, `OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID`, `OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE`, `OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS`, `OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID`, `OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM`, `OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID`, `OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY`, `OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE`, `OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL`); does not run research, campaigns, commands, market-data fetches, proof closure, or runtime mutation |
 | `report_paper_campaign_status.py` | — | Read-only campaign-health formatter for configured campaign status payloads without promotion-gate coupling |
@@ -391,11 +391,20 @@ are not paper-campaign controls.
   dormant lookup, and backtest cost surfaces without mutating config or trading
   state.
 - `report_platform_event_journal.py` — read-only summary of the append-only
-  platform event journal for research/campaign/evidence observability; returns
-  exit 2 with `--require-events` when no event rows exist.
+  platform event journal for research/campaign/evidence observability; supports
+  `make platform-event-journal[-json]`; returns exit 2 with
+  `--require-events` when no event rows exist.
 - `check_platform_event_secrets.py` — scan platform event journal payloads for
   unredacted secret-like fields without printing leaked values; supports
-  `--require-events` and `--evidence-dest`.
+  `make platform-event-secrets[-json]`, `--require-events`, and
+  `--evidence-dest`.
+- `check_platform_event_integrity.py` — validate platform event journal envelope
+  shape and supported event types; supports `make platform-event-integrity[-json]`,
+  `--require-events`, and `--evidence-dest`.
+- `report_platform_event_packet.py` — read-only platform event evidence-packet
+  report combining summary, integrity, and secret-scan checks; supports
+  `make platform-event-packet[-json]`, `--require-events`, and
+  `--evidence-dest`.
 - `set_hetzner_api_token.py` — interactively store/status/delete the Hetzner token in the OS keyring; never accepts a token argument.
 - `maintenance.py` — maintenance task runner.
 - `pre_release_sanity.py` — pre-release sanity checks.
