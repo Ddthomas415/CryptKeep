@@ -52,6 +52,8 @@ def test_operator_read_only_command_status_reports_current_repo_wiring() -> None
     assert rows["managed_paper_campaign_planner"]["script_index_exists"] is True
     assert rows["paper_gate_velocity"]["make_target"] == "status-paper-gate-velocity"
     assert rows["ai_operator_oversight"]["make_target"] == "ai-operator-oversight"
+    assert rows["platform_event_packet"]["make_target"] == "platform-event-packet"
+    assert rows["platform_event_integrity"]["medium_lane_item"] == "platform_event_packet"
 
 
 def test_operator_read_only_command_status_filters() -> None:
@@ -69,6 +71,23 @@ def test_operator_read_only_command_status_filters() -> None:
     assert by_command["command_id_filter"] == "system_diagnostics"
     assert by_command["command_count"] == 1
     assert by_command["commands"][0]["script"] == "scripts/run_system_diagnostics.py"
+
+
+def test_operator_read_only_command_status_filters_platform_event_packet_lane() -> None:
+    from services.analytics.operator_read_only_command_status import build_operator_read_only_command_status
+
+    out = build_operator_read_only_command_status(medium_lane_item="platform_event_packet")
+
+    assert out["ok"] is True
+    assert out["command_count"] == 4
+    assert out["summary"]["by_medium_lane_item"] == {"platform_event_packet": 4}
+    assert {row["command_id"] for row in out["commands"]} == {
+        "platform_event_journal",
+        "platform_event_secrets",
+        "platform_event_integrity",
+        "platform_event_packet",
+    }
+    assert all(row["wiring_ok"] is True for row in out["commands"])
 
 
 def test_operator_read_only_command_status_rejects_unknown_filters() -> None:
