@@ -34,7 +34,7 @@ OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY ?=
 OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE ?=
 OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL ?=
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks backlog-lane-status backlog-lane-status-json operator-proof-status operator-proof-status-json operator-read-only-command-status operator-read-only-command-status-json operator-status operator-status-json operator-next-actions operator-next-actions-json phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-pipeline-status research-pipeline-status-json research-command-status research-command-status-json
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks backlog-lane-status backlog-lane-status-json operator-proof-status operator-proof-status-json operator-read-only-command-status operator-read-only-command-status-json operator-status operator-status-json operator-next-actions operator-next-actions-json platform-event-journal platform-event-journal-json platform-event-secrets platform-event-secrets-json platform-event-integrity platform-event-integrity-json platform-event-packet platform-event-packet-json phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-pipeline-status research-pipeline-status-json research-command-status research-command-status-json
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -133,6 +133,37 @@ operator-next-actions:
 
 operator-next-actions-json:
 	@$(PYTHON) scripts/report_operator_next_actions.py --json --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) $(if $(OPERATOR_NEXT_ACTIONS_LANE),--lane $(OPERATOR_NEXT_ACTIONS_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_REASON),--reason $(OPERATOR_NEXT_ACTIONS_REASON),) $(if $(OPERATOR_NEXT_ACTIONS_SOURCE),--action-source $(OPERATOR_NEXT_ACTIONS_SOURCE),) $(if $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),--backlog-lane $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL),--backlog-lane-ordinal $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),--research-pipeline $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE),--research-artifact-lane $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID),--research-artifact-id $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),--research-command-lane $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),--research-command-input-class $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID),--research-command-id $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM),--operator-read-only-medium-lane-item $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID),--operator-read-only-command-id $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),--operator-proof-category $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE),--operator-proof-line $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL),--operator-proof-passive-ordinal $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL),)
+
+PLATFORM_EVENT_PATH ?=
+PLATFORM_EVENT_TYPE ?=
+PLATFORM_EVENT_REQUIRE_EVENTS ?=
+PLATFORM_EVENT_EVIDENCE_DEST ?=
+PLATFORM_EVENT_BASE_ARGS = $(if $(PLATFORM_EVENT_PATH),--path $(PLATFORM_EVENT_PATH),) $(if $(PLATFORM_EVENT_REQUIRE_EVENTS),--require-events,)
+PLATFORM_EVENT_PACKET_ARGS = $(PLATFORM_EVENT_BASE_ARGS) $(if $(PLATFORM_EVENT_EVIDENCE_DEST),--evidence-dest $(PLATFORM_EVENT_EVIDENCE_DEST),)
+
+platform-event-journal:
+	$(PYTHON) scripts/report_platform_event_journal.py $(PLATFORM_EVENT_BASE_ARGS) $(if $(PLATFORM_EVENT_TYPE),--event-type $(PLATFORM_EVENT_TYPE),)
+
+platform-event-journal-json:
+	@$(PYTHON) scripts/report_platform_event_journal.py $(PLATFORM_EVENT_BASE_ARGS) $(if $(PLATFORM_EVENT_TYPE),--event-type $(PLATFORM_EVENT_TYPE),)
+
+platform-event-secrets:
+	$(PYTHON) scripts/check_platform_event_secrets.py $(PLATFORM_EVENT_PACKET_ARGS)
+
+platform-event-secrets-json:
+	@$(PYTHON) scripts/check_platform_event_secrets.py --json $(PLATFORM_EVENT_PACKET_ARGS)
+
+platform-event-integrity:
+	$(PYTHON) scripts/check_platform_event_integrity.py $(PLATFORM_EVENT_PACKET_ARGS)
+
+platform-event-integrity-json:
+	@$(PYTHON) scripts/check_platform_event_integrity.py --json $(PLATFORM_EVENT_PACKET_ARGS)
+
+platform-event-packet:
+	$(PYTHON) scripts/report_platform_event_packet.py $(PLATFORM_EVENT_PACKET_ARGS)
+
+platform-event-packet-json:
+	@$(PYTHON) scripts/report_platform_event_packet.py --json $(PLATFORM_EVENT_PACKET_ARGS)
 
 phase1-safety:
 	$(PYTHON) scripts/run_phase1_safety.py
@@ -575,6 +606,7 @@ script-index:
 	@echo "  make operator-proof-status[-json] — report operator-side proof/evidence backlog markers"
 	@echo "  make operator-read-only-command-status[-json] — report medium-lane read-only command wiring"
 	@echo "  make operator-status[-json] — bundle backlog lane, research, read-only command, and proof status"
+	@echo "  make platform-event-packet[-json] — summarize and validate platform event journal packet"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"
