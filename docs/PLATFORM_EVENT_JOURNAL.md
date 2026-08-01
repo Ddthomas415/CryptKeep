@@ -53,6 +53,13 @@ Use the read-only report command:
 Use `--require-events` when a launch packet or research packet requires at least
 one platform event row.
 
+Use the read-only secret scan before attaching platform events to a launch or
+research evidence packet:
+
+```bash
+./.venv/bin/python scripts/check_platform_event_secrets.py --require-events
+```
+
 ## Initial Producer
 
 `services.strategies.evidence_logger` emits `EvidenceArtifactGenerated` after a

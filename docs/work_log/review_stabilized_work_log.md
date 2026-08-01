@@ -27956,6 +27956,61 @@ Remaining risk:
   risk decisions, routing, or execution.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T23:12:05Z - Platform Event Secret Scan
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only no-secret scan for the new platform event journal without
+  duplicating the existing operator-event scanner logic.
+
+What was found:
+- SHOWN: `operator_event_secret_scan` already had tested recursive JSONL
+  scanning for unredacted sensitive-key payloads.
+- SHOWN: the new platform event journal can carry producer payloads and should
+  have the same launch/research packet hygiene check as operator events.
+
+What changed:
+- Added `services.audit.jsonl_secret_scan` as the shared recursive JSONL
+  sensitive-key scanner.
+- Refactored `services.audit.operator_event_secret_scan` to delegate to the
+  shared scanner while preserving existing operator-specific reason strings.
+- Added `services.events.platform_event_secret_scan` with platform-specific
+  missing/empty/unparseable reason strings.
+- Added `scripts/check_platform_event_secrets.py`, a read-only CLI supporting
+  `--require-events`, `--json`, and `--evidence-dest`.
+- Added platform-event scanner tests and kept the existing operator scanner
+  tests as regression coverage for the refactor.
+- Indexed the new script in `scripts/SCRIPTS.md` and documented the command in
+  `docs/PLATFORM_EVENT_JOURNAL.md`.
+
+Why this change was chosen:
+- Platform events should be safe to attach to evidence packets. Reusing a shared
+  scanner avoids drifting logic between operator and platform event journals.
+
+Expected outcome:
+- Operators can prove platform event payloads contain no unredacted secret-like
+  fields before packaging evidence, while the scanner remains read-only and
+  does not affect event producers or trading behavior.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_platform_event_secret_scan.py tests/test_operator_event_secret_scan.py tests/test_platform_event_journal.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `24 passed in 0.46s`.
+- `./.venv/bin/python -m py_compile services/audit/jsonl_secret_scan.py services/audit/operator_event_secret_scan.py services/events/platform_event_secret_scan.py scripts/check_platform_event_secrets.py tests/test_platform_event_secret_scan.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_operator_event_journal.py tests/test_operator_audit_coverage.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `17 passed in 0.44s`.
+
+Remaining risk:
+- LOW: read-only scan tooling plus a shared helper refactor. No event producer,
+  campaign, gate, evidence-write authority, risk decision, routing, execution,
+  authorization, or deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER

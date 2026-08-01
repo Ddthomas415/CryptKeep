@@ -393,6 +393,9 @@ are not paper-campaign controls.
 - `report_platform_event_journal.py` — read-only summary of the append-only
   platform event journal for research/campaign/evidence observability; returns
   exit 2 with `--require-events` when no event rows exist.
+- `check_platform_event_secrets.py` — scan platform event journal payloads for
+  unredacted secret-like fields without printing leaked values; supports
+  `--require-events` and `--evidence-dest`.
 - `set_hetzner_api_token.py` — interactively store/status/delete the Hetzner token in the OS keyring; never accepts a token argument.
 - `maintenance.py` — maintenance task runner.
 - `pre_release_sanity.py` — pre-release sanity checks.
