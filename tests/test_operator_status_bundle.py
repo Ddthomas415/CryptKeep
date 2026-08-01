@@ -291,6 +291,66 @@ def test_operator_status_bundle_forwards_operator_read_only_filters(tmp_path: Pa
     assert out["actions"]["operator_read_only_commands"] == []
 
 
+def test_operator_status_bundle_filters_platform_event_read_only_lane(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="operator_read_only",
+        operator_read_only_medium_lane_item="platform_event_packet",
+    )
+
+    report = out["reports"]["operator_read_only_command_status"]
+    assert out["ok"] is True
+    assert out["section_filter"] == "operator_read_only"
+    assert out["operator_read_only_medium_lane_item_filter"] == "platform_event_packet"
+    assert report["medium_lane_item_filter"] == "platform_event_packet"
+    assert report["command_count"] == 4
+    assert out["summary"]["operator_read_only_commands_wired"] == 4
+    assert out["shown_sections"] == ["operator_read_only"]
+    assert out["actions"]["operator_read_only_commands"] == []
+
+
+def test_operator_status_bundle_section_ok_ignores_hidden_source_failures(monkeypatch, tmp_path: Path) -> None:
+    import services.analytics.operator_status_bundle as mod
+
+    _write_minimal_repo(tmp_path)
+
+    monkeypatch.setattr(
+        mod,
+        "build_research_artifact_inventory",
+        lambda **_kwargs: {
+            "ok": False,
+            "reason": "hidden_source_unhealthy",
+            "summary": {},
+            "artifacts": [],
+        },
+    )
+
+    full = mod.build_operator_status_bundle(repo_root=tmp_path)
+
+    assert full["ok"] is False
+    assert full["source_ok"] is False
+    assert full["shown_ok"] is False
+    assert full["source_reasons"] == {"research_artifact_inventory": "hidden_source_unhealthy"}
+
+    filtered = mod.build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="operator_read_only",
+        operator_read_only_medium_lane_item="platform_event_packet",
+    )
+
+    assert filtered["ok"] is True
+    assert filtered["source_ok"] is False
+    assert filtered["shown_ok"] is True
+    assert filtered["source_reasons"] == {"research_artifact_inventory": "hidden_source_unhealthy"}
+    assert filtered["shown_reasons"] == {}
+    assert filtered["shown_sections"] == ["operator_read_only"]
+    assert set(filtered["reports"]) == {"operator_read_only_command_status"}
+
+
 def test_operator_status_bundle_forwards_research_pipeline_filter(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 
