@@ -396,6 +396,9 @@ are not paper-campaign controls.
 - `check_platform_event_secrets.py` — scan platform event journal payloads for
   unredacted secret-like fields without printing leaked values; supports
   `--require-events` and `--evidence-dest`.
+- `check_platform_event_integrity.py` — validate platform event journal envelope
+  shape and supported event types; supports `--require-events` and
+  `--evidence-dest`.
 - `set_hetzner_api_token.py` — interactively store/status/delete the Hetzner token in the OS keyring; never accepts a token argument.
 - `maintenance.py` — maintenance task runner.
 - `pre_release_sanity.py` — pre-release sanity checks.

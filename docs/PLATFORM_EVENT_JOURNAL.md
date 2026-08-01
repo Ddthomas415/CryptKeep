@@ -60,6 +60,12 @@ research evidence packet:
 ./.venv/bin/python scripts/check_platform_event_secrets.py --require-events
 ```
 
+Use the read-only integrity check to validate event envelope shape:
+
+```bash
+./.venv/bin/python scripts/check_platform_event_integrity.py --require-events
+```
+
 ## Initial Producer
 
 `services.strategies.evidence_logger` emits `EvidenceArtifactGenerated` after a

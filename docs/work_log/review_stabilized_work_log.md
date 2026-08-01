@@ -28011,6 +28011,58 @@ Remaining risk:
   authorization, or deployment behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T23:15:58Z - Platform Event Integrity Check
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only schema/integrity check for the platform event journal so
+  evidence packets can prove event rows are well-formed.
+
+What was found:
+- SHOWN: `platform_event_journal` validates events at build time, but nothing
+  read existing JSONL rows and reported malformed/corrupt rows as a packet-level
+  integrity check.
+- SHOWN: the report and secret-scan commands are read-only consumers and do not
+  validate the full event envelope.
+
+What changed:
+- Added `services.events.platform_event_integrity` to validate required
+  platform-event envelope fields, schema version, parseable timestamp,
+  supported event type, text identity fields, provenance object, and payload
+  object.
+- Added `scripts/check_platform_event_integrity.py`, a read-only CLI supporting
+  `--require-events`, `--json`, and `--evidence-dest`.
+- Added tests for valid rows, missing fields, bad schema values,
+  missing/empty journals, unparseable JSON, and CLI evidence output.
+- Indexed the new script in `scripts/SCRIPTS.md` and documented it in
+  `docs/PLATFORM_EVENT_JOURNAL.md`.
+
+Why this change was chosen:
+- Secret scanning and summarization are not enough for an evidence packet. The
+  platform event journal needs a cheap, deterministic integrity check before its
+  rows are treated as usable observability evidence.
+
+Expected outcome:
+- Operators can validate platform-event envelope integrity without mutating
+  state, running campaigns, fetching market data, or touching risk/execution.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_platform_event_integrity.py tests/test_platform_event_secret_scan.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `27 passed in 0.46s`.
+- `./.venv/bin/python -m py_compile services/events/platform_event_integrity.py scripts/check_platform_event_integrity.py tests/test_platform_event_integrity.py services/events/platform_event_journal.py services/events/platform_event_secret_scan.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only validation tooling only. No event producer, campaign, gate,
+  evidence-write authority, risk decision, routing, execution, authorization, or
+  deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER
