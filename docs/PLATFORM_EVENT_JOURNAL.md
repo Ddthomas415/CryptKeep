@@ -66,6 +66,12 @@ Use the read-only integrity check to validate event envelope shape:
 ./.venv/bin/python scripts/check_platform_event_integrity.py --require-events
 ```
 
+Use the packet report to run summary, integrity, and secret checks together:
+
+```bash
+./.venv/bin/python scripts/report_platform_event_packet.py --require-events
+```
+
 ## Initial Producer
 
 `services.strategies.evidence_logger` emits `EvidenceArtifactGenerated` after a

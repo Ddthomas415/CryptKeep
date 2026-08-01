@@ -28063,6 +28063,54 @@ Remaining risk:
   deployment behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T23:18:03Z - Platform Event Packet Report
+
+Active role: ENGINEER
+
+Objective:
+- Add one read-only operator command that combines platform-event summary,
+  integrity, and secret-scan checks for evidence packet use.
+
+What was found:
+- SHOWN: platform-event summary, integrity, and secret-scan checks are separate
+  commands.
+- SHOWN: launch/research evidence packet use benefits from one command that
+  reports all three checks without changing event producers.
+
+What changed:
+- Added `services.events.platform_event_packet` to aggregate summary,
+  integrity, and secret-scan reports.
+- Added `scripts/report_platform_event_packet.py` with `--require-events`,
+  `--json`, and `--evidence-dest`.
+- Added tests for all-checks-pass, missing required events, secret-scan failure,
+  and CLI evidence output.
+- Indexed the new script in `scripts/SCRIPTS.md` and documented it in
+  `docs/PLATFORM_EVENT_JOURNAL.md`.
+
+Why this change was chosen:
+- The packet report reduces operator steps without creating new validation
+  semantics. It is a consumer over already-tested checks.
+
+Expected outcome:
+- Operators can attach one platform-event packet report to research/launch
+  evidence instead of running three separate commands.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_platform_event_packet.py tests/test_platform_event_integrity.py tests/test_platform_event_secret_scan.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `31 passed in 0.58s`.
+- `./.venv/bin/python -m py_compile services/events/platform_event_packet.py scripts/report_platform_event_packet.py tests/test_platform_event_packet.py services/events/platform_event_integrity.py services/events/platform_event_secret_scan.py services/events/platform_event_journal.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only report aggregation only. No event producer, campaign, gate,
+  evidence-write authority, risk decision, routing, execution, authorization, or
+  deployment behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER
