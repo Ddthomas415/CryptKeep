@@ -631,6 +631,41 @@ def test_operator_next_actions_source_filter_implies_matching_action_lane(monkey
     ]
 
 
+def test_operator_next_actions_single_source_filter_passes_matching_bundle_section(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    captured = {}
+
+    def fake_bundle(repo_root=None, **filters):
+        captured.update(filters)
+        return {
+            "ok": True,
+            "source_ok": False,
+            "shown_ok": True,
+            "report_type": "operator_status_bundle",
+            "source_reasons": {"research_artifact_inventory": "hidden_source_unhealthy"},
+            "summary": {"operator_read_only_command_actions_required": 0},
+            "actions": {"operator_read_only_commands": []},
+        }
+
+    monkeypatch.setattr(mod, "build_operator_status_bundle", fake_bundle)
+
+    out = mod.build_operator_next_actions(
+        repo_root=".",
+        operator_read_only_medium_lane_item="platform_event_packet",
+        max_actions=20,
+    )
+
+    assert captured["section"] == "operator_read_only"
+    assert captured["operator_read_only_medium_lane_item"] == "platform_event_packet"
+    assert out["ok"] is True
+    assert out["source_reasons"] == {"research_artifact_inventory": "hidden_source_unhealthy"}
+    assert out["operator_read_only_medium_lane_item_filter"] == "platform_event_packet"
+    assert out["action_count_total"] == 0
+    assert out["action_count_available"] == 0
+    assert out["actions"] == []
+
+
 def test_operator_next_actions_research_artifact_filter_implies_matching_action_lane(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
 

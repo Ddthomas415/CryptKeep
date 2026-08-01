@@ -28247,6 +28247,74 @@ Remaining risk:
   authorization, or deployment behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T23:43:36Z - Operator Status Filter OK Semantics
+
+Active role: ENGINEER
+
+Objective:
+- Close the follow-up exposed by platform-event read-only inventory: a filtered
+  `operator-status`/`operator-next-actions` command should return based on the
+  shown section, while still preserving full-source health diagnostics.
+
+What was found:
+- SHOWN: `build_operator_status_bundle()` computed one global `ok` before
+  applying `section`, so
+  `OPERATOR_STATUS_SECTION=operator_read_only
+  OPERATOR_STATUS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM=platform_event_packet`
+  printed the healthy platform-event wiring but exited 2 due unrelated hidden
+  source actions.
+- SHOWN: `build_operator_next_actions()` inherited the same global bundle
+  status when a single source filter was supplied.
+
+What changed:
+- `operator_status_bundle` now exposes `source_ok` for the full source bundle
+  and `shown_ok` for the displayed section. Unfiltered reports keep the prior
+  full-source behavior; filtered reports set top-level `ok` from the shown
+  section.
+- `operator_status_bundle` also exposes `shown_reasons` alongside
+  `source_reasons`, so hidden diagnostics are not lost.
+- `operator_next_actions` now routes a single source filter to the matching
+  bundle section before flattening actions.
+- Regression tests pin both contracts, including a hidden source failure with a
+  healthy filtered `operator_read_only` section.
+
+Why this change was chosen:
+- A section-filtered operator command is a scoped inspection command. Its exit
+  status should answer whether the visible scope is healthy, not whether the
+  entire hidden source universe has unrelated work. Full-source health remains
+  available through `source_ok`, `source_reasons`, and the unfiltered command.
+
+Expected outcome:
+- Platform-event packet wiring can be checked through existing operator status
+  commands without false nonzero exits, while unfiltered operator status still
+  exits nonzero when the whole source bundle has unresolved work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `40 passed in 0.40s`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=operator_read_only OPERATOR_STATUS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM=platform_event_packet`
+  - SHOWN: exit 0, `ok=true`, `shown_ok=true`, `source_ok=false`, and
+    `summary.operator_read_only_commands_wired=4`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM=platform_event_packet OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: exit 0, `ok=true`, `action_count_total=0`,
+    `action_count_available=0`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_MEDIUM_LANE_ITEM=platform_event_packet`
+  - SHOWN: exit 0, `command_count=4`.
+- `make operator-status-json`
+  - SHOWN: exit 2 remains unchanged for the unfiltered full-source bundle.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only operator reporting semantics and tests only. No campaign,
+  market-data fetch, artifact generation, proof closure, gate, ingestion, live
+  routing, execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER
