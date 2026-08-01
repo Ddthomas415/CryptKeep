@@ -27685,6 +27685,56 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T22:34:55Z - Project Directional Plan Guard
+
+Active role: ENGINEER
+
+Objective:
+- Hard-code the agreed project direction as a pinned repo plan so future work
+  does not drift into repeated architecture review loops or a BTC-only project
+  identity.
+
+What was found:
+- SHOWN: `README.md` and `docs/PROJECT_IDENTITY_AND_SCOPE.md` describe the
+  repo as a crypto-first evidence/profit-measurement system with guarded
+  paper/shadow/live controls.
+- SHOWN: the current architecture docs already keep LLM/copilot authority
+  advisory and deterministic execution/risk paths authoritative for capital.
+- SHOWN: no single directional plan file existed to pin the agreed next build
+  direction: event-driven trading intelligence platform, modular monolith,
+  minimal event journal, and no further broad architecture reviews without a
+  concrete trigger.
+
+What changed:
+- Added `docs/PROJECT_DIRECTIONAL_PLAN.md`.
+- Linked it from `README.md`.
+- Added `tests/test_project_directional_plan.py` to pin the direction,
+  architecture filter, minimal event journal event types, stop rule for broad
+  architecture reviews, and README link.
+
+Why this change was chosen:
+- This records the direction as a small docs/test contract instead of another
+  advisory review. It keeps implementation focused on research velocity,
+  evidence quality, operational safety, and maintainability.
+
+Expected outcome:
+- Future work has a stable directional filter: build the minimal append-only
+  event foundation and use it to answer concrete strategy research questions,
+  without treating BTC paper-gate progress or architecture reviews as the whole
+  project.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_project_directional_plan.py tests/test_project_identity_scope.py`
+  - SHOWN: `8 passed in 0.17s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/tests only. No runtime, campaign, market-data fetch, gate,
+  ingestion, live routing, execution, authorization, or strategy behavior
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-01T22:45:32Z - Minimal Platform Event Journal Substrate
 
 Active role: ENGINEER
