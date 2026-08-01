@@ -27685,6 +27685,69 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T22:45:32Z - Minimal Platform Event Journal Substrate
+
+Active role: ENGINEER
+
+Objective:
+- Implement the smallest event-journal substrate that supports the directional
+  plan without adding a broker, service mesh, strategy runtime changes, risk
+  authority, or live-execution hooks.
+
+What was found:
+- SHOWN: `services.audit.operator_event_journal` already records operator/admin
+  action audit events and is used by auth, config, dashboard/admin, stage, and
+  credential surfaces.
+- SHOWN: `services.execution.event_log` already records order/execution
+  lifecycle events in SQLite.
+- SHOWN: no separate research/campaign/evidence platform event envelope existed
+  on `origin/master`.
+
+What changed:
+- Added `services.events.platform_event_journal`, an append-only JSONL event
+  envelope with the deliberately narrow event vocabulary:
+  `CampaignStarted`, `CampaignEnded`, `StrategySignalProduced`,
+  `RiskDecisionMade`, and `EvidenceArtifactGenerated`.
+- Added `scripts/report_platform_event_journal.py`, a read-only summary command
+  with `--require-events` fail-closed behavior for launch/research packet
+  checks.
+- Added `docs/PLATFORM_EVENT_JOURNAL.md` documenting scope boundaries,
+  envelope fields, supported event types, and the "do not prebuild broad event
+  catalogs" rule.
+- Added tests for append/load/summarize behavior, event-type validation,
+  redaction, corrupt-row failure, require-events failure, and CLI exit codes.
+- Indexed the new script in `scripts/SCRIPTS.md`.
+
+Why this change was chosen:
+- The implementation gives future research/campaign/evidence producers a shared
+  envelope and gives operators a consumer now, while avoiding premature
+  distributed-event architecture and avoiding duplicate use of the existing
+  operator-action and execution-lifecycle journals.
+
+Expected outcome:
+- Future producers can emit a small governed event row with provenance, and
+  operators can inspect whether any platform events exist without touching
+  campaigns, gates, market data, risk, or execution.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `16 passed in 0.29s`.
+- `./.venv/bin/python -m py_compile services/events/platform_event_journal.py scripts/report_platform_event_journal.py tests/test_platform_event_journal.py tests/test_report_platform_event_journal.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_event_journal.py tests/test_operator_audit_coverage.py`
+  - SHOWN: `12 passed in 0.42s`.
+
+Remaining risk:
+- LOW: new substrate plus read-only reporter only. No existing runtime producer
+  is wired yet; no campaign, market-data fetch, gate, promotion policy, risk
+  decision, live routing, execution, authorization, or deployment behavior
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-30T00:31:52Z - Archive Artifact Input Recipe Contract
 
 Active role: ENGINEER
