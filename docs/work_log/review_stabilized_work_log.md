@@ -27685,6 +27685,74 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T20:52:51Z - Multi-Symbol Paper Campaign Proposal Generator
+
+Active role: ENGINEER
+
+Objective:
+- Replace BTC-only manual challenger expansion with a paper-only generator that
+  scans a symbol universe, ranks strategy/symbol candidates, OHLCV-preflights
+  eligible rows, and emits proposed campaign entries with isolated state
+  directories.
+
+What was found:
+- SHOWN: the active laptop/Hetzner paper campaign manifests are currently
+  BTC/USDT-only across ES, breakout, and EMA paper campaigns.
+- SHOWN: the repo already has candidate ranking/mapping and a read-only managed
+  campaign planner, but the existing planner consumes prior candidate artifacts;
+  it does not fetch/score/preflight a symbol universe in one operator command.
+- SHOWN: candidate-advisor output remains advisory/flag-gated; paper execution
+  authority remains explicit manifest rows.
+
+What changed:
+- Added `services/analytics/multi_symbol_paper_campaign_generator.py`.
+  The service fetches read-only OHLCV/ticker data for explicit symbols or the
+  configured universe, ranks candidates through the existing candidate engine,
+  builds manifest-compatible proposed rows through the existing planner
+  helpers, and validates each proposal through the existing OHLCV preflight.
+- Added `scripts/plan_multi_symbol_paper_campaigns.py`.
+  The CLI writes proposal artifacts under
+  `.cbp_state/data/multi_symbol_paper_campaign_plans/` by default and supports
+  `--no-write` for pure inspection.
+- Proposal rows use isolated challenger state directories and are never written
+  into active manifests by this tool.
+- Reports include `market_diagnostics` so a no-proposal result records why
+  symbols were not selected, instead of silently preserving BTC-only behavior.
+- Updated `scripts/SCRIPTS.md` and added regression tests for proposal
+  generation, failed OHLCV preflight rejection, no-candidate diagnostics, and
+  script behavior.
+
+Why this change was chosen:
+- This addresses the multi-symbol paper expansion problem without making the
+  selector authoritative and without starting campaigns automatically. The
+  generator proposes rows; a separate operator action is still required to add
+  a row to a manifest and restore/run it.
+
+Expected outcome:
+- The next supported paper candidates can be selected from a broader crypto
+  universe using repeatable ranking/preflight artifacts rather than manual
+  BTC-only campaign edits.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_candidate_layer.py tests/test_ohlcv_preflight.py tests/test_multi_symbol_paper_campaign_generator.py tests/test_plan_multi_symbol_paper_campaigns_script.py tests/test_managed_paper_campaign_planner.py tests/test_plan_managed_paper_campaigns_script.py tests/test_paper_universe_widening_decision.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `82 passed in 0.89s`.
+- `./.venv/bin/python -m py_compile services/analytics/multi_symbol_paper_campaign_generator.py scripts/plan_multi_symbol_paper_campaigns.py tests/test_multi_symbol_paper_campaign_generator.py tests/test_plan_multi_symbol_paper_campaigns_script.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/plan_multi_symbol_paper_campaigns.py --symbols ETH/USDT SOL/USDT --max-candidates 3 --min-score 0 --ohlcv-limit 120 --preflight-probe-limit 20 --json --no-write`
+  - SHOWN: exit 0; fetched 2/2 symbols; no proposals because both ranked
+    market diagnostics classified as `trade_type=pass` with
+    `trade_type_reason=illiquidity_too_high`; no active manifest mutation.
+
+Remaining risk:
+- LOW/MEDIUM: paper-only proposal surface. The command fetches public market
+  data and writes proposal artifacts only; it does not mutate active manifests,
+  create state directories, restore/start campaigns, route orders, modify gates,
+  or touch live trading. Generated campaign rows still require explicit operator
+  review before use.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-31T23:54:48Z - ES Slow-Daily Gate Activation And Stock-Options Requirements Backlog
 
 Active role: ENGINEER
