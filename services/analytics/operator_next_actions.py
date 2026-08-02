@@ -29,6 +29,13 @@ _SOURCE_ACTION_LANE_TO_SECTION = {
 
 
 def _backlog_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    # Backlog-lane rows are planning selectors, not concrete work. They remain
+    # exposed separately so operators can inspect lanes without inflating the
+    # executable next-action queue.
+    return []
+
+
+def _backlog_planning_rows(bundle: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for row in list(dict(bundle.get("actions") or {}).get("backlog_lanes") or []):
         if not isinstance(row, dict):
@@ -232,6 +239,7 @@ def build_operator_next_actions(
         bundle_kwargs["section"] = _SOURCE_ACTION_LANE_TO_SECTION[next(iter(source_action_lanes))]
     bundle = build_operator_status_bundle(**bundle_kwargs)
     summary = dict(bundle.get("summary") or {})
+    planning_rows = _backlog_planning_rows(bundle)
     actions = [
         *_backlog_actions(bundle),
         *_research_actions(bundle),
@@ -252,8 +260,7 @@ def build_operator_next_actions(
     if source_filter:
         actions = [row for row in actions if row.get("source") == source_filter]
     required_total = (
-        int(summary.get("backlog_lane_actions_required") or 0)
-        + int(summary.get("research_pipeline_actions_required") or 0)
+        int(summary.get("research_pipeline_actions_required") or 0)
         + int(summary.get("research_artifact_actions_required") or 0)
         + int(summary.get("research_command_actions_required") or 0)
         + int(summary.get("operator_read_only_command_actions_required") or 0)
@@ -261,7 +268,7 @@ def build_operator_next_actions(
         + int(summary.get("operator_proof_actions_required") or 0)
     )
     if lane_filter == "backlog_lane":
-        required_total = int(summary.get("backlog_lane_actions_required") or 0)
+        required_total = 0
     elif lane_filter == "research_pipeline":
         required_total = int(summary.get("research_pipeline_actions_required") or 0)
     elif lane_filter == "research_artifact":
@@ -276,8 +283,6 @@ def build_operator_next_actions(
         required_total = int(summary.get("passive_operator_evidence_actions_required") or 0)
     elif source_action_lanes:
         required_total = 0
-        if "backlog_lane" in source_action_lanes:
-            required_total += int(summary.get("backlog_lane_actions_required") or 0)
         if "research_pipeline" in source_action_lanes:
             required_total += int(summary.get("research_pipeline_actions_required") or 0)
         if "research_artifact" in source_action_lanes:
@@ -339,6 +344,8 @@ def build_operator_next_actions(
         "source_reasons": dict(bundle.get("source_reasons") or {}),
         "source_report_type": bundle.get("report_type"),
         "source_summary": summary,
+        "planning_row_count": len(planning_rows),
+        "planning_rows": planning_rows,
         "summary": {
             "available_by_lane": _counts_by_key(actions, "lane"),
             "available_by_reason": _counts_by_key(actions, "blocking_reason"),
