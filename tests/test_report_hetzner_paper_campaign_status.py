@@ -105,6 +105,58 @@ def test_fetch_remote_status_prefers_valid_json_over_tailscale_stderr(monkeypatc
     assert out["campaigns"][0]["name"] == "ema_cross_default"
 
 
+def test_fetch_remote_status_supports_direct_ssh_transport(monkeypatch) -> None:
+    seen: dict[str, object] = {}
+
+    def _run(cmd, *, capture_output, check, text, timeout):
+        seen["cmd"] = cmd
+        return subprocess.CompletedProcess(
+            cmd,
+            0,
+            stdout=json.dumps(
+                {
+                    "ok": True,
+                    "all_running": True,
+                    "campaign_count": 0,
+                    "running_count": 0,
+                    "campaigns": [],
+                }
+            ),
+            stderr="",
+        )
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    out = script.fetch_remote_status(
+        ssh_target="cryptkeep@100.86.128.9",
+        app_dir="/srv/cryptkeep/app",
+        timeout_sec=3.0,
+        transport="ssh",
+    )
+
+    assert seen["cmd"][0:3] == ["ssh", "-o", "BatchMode=yes"]
+    assert seen["cmd"][3] == "cryptkeep@100.86.128.9"
+    assert out["ok"] is True
+
+
+def test_fetch_remote_status_classifies_direct_ssh_host_key_failure(monkeypatch) -> None:
+    def _run(cmd, *, capture_output, check, text, timeout):
+        return subprocess.CompletedProcess(
+            cmd,
+            255,
+            stdout="",
+            stderr="Host key verification failed.",
+        )
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    out = script.fetch_remote_status(timeout_sec=3.0, transport="ssh")
+
+    assert out["ok"] is False
+    assert out["reason"] == "ssh_host_key_verification_failed"
+    assert "Host key verification failed" in out["stderr_preview"]
+
+
 def test_fetch_remote_status_fails_closed_when_tailscale_ssh_fails(monkeypatch) -> None:
     def _run(cmd, *, capture_output, check, text, timeout):
         return subprocess.CompletedProcess(

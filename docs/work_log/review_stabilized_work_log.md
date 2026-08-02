@@ -27813,6 +27813,69 @@ Remaining risk:
   behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T20:12:00-04:00 - Hetzner Status Wrapper Direct-SSH Transport
+
+Active role: ENGINEER
+
+Objective:
+- Continue the medium read-only host-status lane by giving the Hetzner status
+  wrappers an opt-in direct SSH transport when the local Tailscale CLI cannot
+  load preferences.
+
+What was found:
+- SHOWN: `make status-paper-hetzner` and `make status-hetzner-edge-runtime`
+  both failed locally with `tailscale_cli_preferences_unavailable`.
+- SHOWN: direct batch-mode SSH to `cryptkeep@100.86.128.9` reached a different
+  failure class, `Host key verification failed`, proving the wrappers needed a
+  way to distinguish Tailscale CLI failure from SSH trust/auth setup.
+
+What changed:
+- Added `--transport tailscale-ssh|ssh` to both Hetzner read-only status
+  wrappers, defaulting to existing `tailscale-ssh` behavior.
+- Added `HETZNER_STATUS_TRANSPORT ?= tailscale-ssh` to Make and passed it to
+  `status-paper-hetzner` and `status-hetzner-edge-runtime`.
+- Direct SSH transport uses `ssh -o BatchMode=yes` only; it does not accept or
+  write host keys automatically.
+- Direct SSH failures are classified as `ssh_host_key_verification_failed`,
+  `ssh_auth_failed`, `ssh_operation_not_permitted`, `ssh_connect_timeout`, or a
+  generic `ssh_failed:<code>`.
+
+Why this change was chosen:
+- Operator remote checks should not be blocked by the Tailscale CLI when a
+  normal SSH path to the Tailscale IP may be available. The fallback is explicit
+  and read-only, and host-key acceptance remains an operator action.
+
+Expected outcome:
+- Operators can run `make status-paper-hetzner HETZNER_STATUS_TRANSPORT=ssh`
+  or `make status-hetzner-edge-runtime HETZNER_STATUS_TRANSPORT=ssh` to get a
+  structured SSH failure or remote status without relying on `tailscale ssh`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_paper_campaign_status.py tests/test_report_hetzner_crypto_edge_runtime_status.py tests/test_operator_read_only_command_status.py`
+  - SHOWN: `25 passed`.
+- `make -n status-paper-hetzner HETZNER_STATUS_TRANSPORT=ssh`
+  - SHOWN: command includes `--transport ssh`.
+- `make -n status-hetzner-edge-runtime HETZNER_STATUS_TRANSPORT=ssh`
+  - SHOWN: command includes `--transport ssh`.
+- `make status-paper-hetzner HETZNER_STATUS_TRANSPORT=ssh`
+  - SHOWN: exit nonzero under `--strict`; structured reason
+    `ssh_host_key_verification_failed`.
+- `make status-hetzner-edge-runtime HETZNER_STATUS_TRANSPORT=ssh`
+  - SHOWN: exit nonzero under `--strict`; structured reason
+    `ssh_host_key_verification_failed`.
+- `./.venv/bin/python -m py_compile scripts/report_hetzner_paper_campaign_status.py scripts/report_hetzner_crypto_edge_runtime_status.py tests/test_report_hetzner_paper_campaign_status.py tests/test_report_hetzner_crypto_edge_runtime_status.py`
+  - SHOWN: exit `0`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit `0`.
+
+Remaining risk:
+- MEDIUM: read-only remote-status wrapper behavior. No deploy, sync, start,
+  stop, campaign mutation, collector mutation, gate, live routing, or execution
+  behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-01T20:52:51Z - Multi-Symbol Paper Campaign Proposal Generator
 
 Active role: ENGINEER

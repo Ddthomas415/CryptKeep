@@ -215,6 +215,48 @@ def test_fetch_remote_runtime_status_builds_read_only_tailscale_command(monkeypa
     assert seen["timeout"] == 3.0
 
 
+def test_fetch_remote_runtime_status_supports_direct_ssh_transport(monkeypatch) -> None:
+    seen: dict[str, object] = {}
+
+    def _run(cmd, *, capture_output, check, text, timeout):
+        seen["cmd"] = cmd
+        return subprocess.CompletedProcess(cmd, 0, stdout=json.dumps(_remote_payload()), stderr="")
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    report = script.fetch_remote_runtime_status(
+        ssh_target="cryptkeep@100.86.128.9",
+        app_dir="/srv/cryptkeep/app",
+        expected_commit="e8224057f",
+        timeout_sec=3.0,
+        transport="ssh",
+    )
+
+    assert report["ok"] is True
+    assert seen["cmd"][0:3] == ["ssh", "-o", "BatchMode=yes"]
+    assert seen["cmd"][3] == "cryptkeep@100.86.128.9"
+    assert "scripts/check_edge_cadence.py" in seen["cmd"][4]
+
+
+def test_fetch_remote_runtime_status_classifies_direct_ssh_host_key_failure(monkeypatch) -> None:
+    def _run(cmd, *, capture_output, check, text, timeout):
+        return subprocess.CompletedProcess(
+            cmd,
+            255,
+            stdout="",
+            stderr="Host key verification failed.",
+        )
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    report = script.fetch_remote_runtime_status(timeout_sec=3.0, transport="ssh")
+
+    assert report["ok"] is False
+    assert report["reason"] == "ssh_host_key_verification_failed"
+    assert report["blockers"] == ["ssh_host_key_verification_failed"]
+    assert "Host key verification failed" in report["stderr_preview"]
+
+
 def test_fetch_remote_runtime_status_honors_custom_remote_state_dir(monkeypatch) -> None:
     seen: dict[str, object] = {}
 

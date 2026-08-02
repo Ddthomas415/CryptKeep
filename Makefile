@@ -8,6 +8,7 @@ HETZNER_SSH_TARGET ?= cryptkeep@100.86.128.9
 HETZNER_APP_DIR ?= /srv/cryptkeep/app
 HETZNER_PAPER_CAMPAIGN_CONFIG ?= configs/paper_evidence_campaigns.hetzner.example.json
 HETZNER_STATUS_TIMEOUT_SEC ?= 15
+HETZNER_STATUS_TRANSPORT ?= tailscale-ssh
 HETZNER_EDGE_EXPECTED_COMMIT ?=
 HETZNER_EDGE_EXPECTED_BRANCH ?= master
 HETZNER_EDGE_EXPECTED_DERIVATIVES_VENUE ?= okx
@@ -235,10 +236,10 @@ status-paper-gate-velocity-json:
 	@$(PYTHON) scripts/report_paper_gate_velocity.py --json
 
 status-paper-hetzner:
-	$(PYTHON) scripts/report_hetzner_paper_campaign_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --app-dir $(HETZNER_APP_DIR) --config $(HETZNER_PAPER_CAMPAIGN_CONFIG) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC)
+	$(PYTHON) scripts/report_hetzner_paper_campaign_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --transport $(HETZNER_STATUS_TRANSPORT) --app-dir $(HETZNER_APP_DIR) --config $(HETZNER_PAPER_CAMPAIGN_CONFIG) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC)
 
 status-hetzner-edge-runtime:
-	$(PYTHON) scripts/report_hetzner_crypto_edge_runtime_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --app-dir $(HETZNER_APP_DIR) --remote-state-dir $(HETZNER_EDGE_REMOTE_STATE_DIR) --expected-branch $(HETZNER_EDGE_EXPECTED_BRANCH) --expected-derivatives-venue $(HETZNER_EDGE_EXPECTED_DERIVATIVES_VENUE) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC) $(if $(HETZNER_EDGE_EXPECTED_COMMIT),--expected-commit $(HETZNER_EDGE_EXPECTED_COMMIT),)
+	$(PYTHON) scripts/report_hetzner_crypto_edge_runtime_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --transport $(HETZNER_STATUS_TRANSPORT) --app-dir $(HETZNER_APP_DIR) --remote-state-dir $(HETZNER_EDGE_REMOTE_STATE_DIR) --expected-branch $(HETZNER_EDGE_EXPECTED_BRANCH) --expected-derivatives-venue $(HETZNER_EDGE_EXPECTED_DERIVATIVES_VENUE) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC) $(if $(HETZNER_EDGE_EXPECTED_COMMIT),--expected-commit $(HETZNER_EDGE_EXPECTED_COMMIT),)
 
 status-paper-all:
 	@status=0; \
