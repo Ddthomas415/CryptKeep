@@ -192,6 +192,40 @@ def test_operator_proof_status_filters_passive_items_by_ordinal(tmp_path: Path) 
     assert out["summary"]["source_passive_operator_items"] == 2
     assert [row["ordinal"] for row in out["passive_operator_items"]] == [2]
     assert "continues with detail" in out["passive_operator_items"][0]["text"]
+    assert out["proof_marker_scope"] == "suppressed_by_passive_ordinal"
+    assert out["proof_marker_count"] == 0
+    assert out["source_proof_marker_count"] == 1
+    assert out["proof_markers"] == []
+    assert out["summary"]["remaining_proof_or_coverage_markers"] == 0
+    assert out["summary"]["source_category_counts"] == {"remaining_proof": 1}
+
+
+def test_operator_proof_status_passive_ordinal_keeps_explicit_proof_filter(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+            [
+                "Remaining proof: run drill.",
+                "host-side status still required.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(
+        repo_root=tmp_path,
+        passive_ordinal=2,
+        category="host_side_reference",
+    )
+
+    assert out["ok"] is True
+    assert out["passive_operator_item_count"] == 1
+    assert out["proof_marker_scope"] == "category"
+    assert out["proof_marker_count"] == 1
+    assert out["source_proof_marker_count"] == 2
+    assert [row["category"] for row in out["proof_markers"]] == ["host_side_reference"]
 
 
 def test_operator_proof_status_rejects_invalid_passive_ordinal(tmp_path: Path) -> None:
@@ -206,6 +240,10 @@ def test_operator_proof_status_rejects_invalid_passive_ordinal(tmp_path: Path) -
     assert out["reason"] == "invalid_passive_operator_ordinal"
     assert out["passive_operator_ordinal_filter"] is None
     assert out["passive_operator_items"] == []
+    assert out["proof_marker_scope"] == "suppressed_by_passive_ordinal"
+    assert out["proof_marker_count"] == 0
+    assert out["source_proof_marker_count"] == 1
+    assert out["proof_markers"] == []
 
 
 def test_operator_proof_status_marks_pullback_stage0_passive_item_satisfied(tmp_path: Path) -> None:
