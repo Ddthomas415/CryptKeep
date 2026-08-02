@@ -25,6 +25,8 @@ def _print_report(payload: dict[str, Any]) -> None:
         f"passive_items={payload.get('passive_operator_item_count')} "
         f"proof_markers={payload.get('proof_marker_count')}"
     )
+    if payload.get("proof_marker_scope") == "suppressed_by_passive_ordinal":
+        print(f"proof_marker_scope=suppressed_by_passive_ordinal source={payload.get('source_proof_marker_count')}")
     if payload.get("category_filter"):
         print(f"category_filter={payload.get('category_filter')}")
     if payload.get("line_filter"):

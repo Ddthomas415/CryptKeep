@@ -27685,6 +27685,61 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-02T00:21:20Z - Operator Proof Passive Filter Output Tightening
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by removing unrelated backlog
+  proof-marker output from focused passive-ordinal proof reports.
+
+What was found:
+- SHOWN: `build_operator_proof_status(passive_ordinal=5)` could return zero or
+  one focused passive rows while still emitting the full `proof_markers` list
+  from `REMAINING_TASKS.md`.
+- SHOWN: on the current repo, the focused pullback Stage 0 passive report had
+  `passive_operator_item_count=1` but carried 70 source proof markers, creating
+  noisy output for a narrow operator check.
+
+What changed:
+- Passive-ordinal reports now suppress unrelated proof-marker rows unless the
+  caller explicitly requests a proof `category` or `line`.
+- Source counts and source category counts remain present for auditability.
+- The human CLI prints `proof_marker_scope=suppressed_by_passive_ordinal` and
+  the source marker count instead of printing unrelated marker lines.
+- Regression tests pin the focused-output behavior, invalid ordinal behavior,
+  and the explicit proof-filter escape hatch.
+
+Why this change was chosen:
+- A passive-ordinal report is a focused passive-lane check. Returning the entire
+  backlog proof-marker list increases output volume and operator review burden
+  without changing the requested answer.
+
+Expected outcome:
+- `make operator-proof-status OPERATOR_PROOF_STATUS_PASSIVE_ORDINAL=<n>` stays
+  compact while preserving source counts for traceability.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `52 passed in 0.48s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py scripts/report_operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make operator-proof-status-json OPERATOR_PROOF_STATUS_PASSIVE_ORDINAL=5`
+  - SHOWN: `ok=true`, `passive_operator_item_count=1`,
+    `proof_marker_count=0`, `proof_marker_scope=suppressed_by_passive_ordinal`,
+    `source_proof_marker_count=70`.
+- `make operator-proof-status OPERATOR_PROOF_STATUS_PASSIVE_ORDINAL=5`
+  - SHOWN: compact human output with one passive item and no proof-marker
+    lines.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-01T20:02:00-04:00 - Multi-Symbol Planner Make/Operator Command Wiring
 
 Active role: ENGINEER

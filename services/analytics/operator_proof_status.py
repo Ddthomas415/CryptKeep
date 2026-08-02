@@ -219,12 +219,24 @@ def build_operator_proof_status(
     available_categories = tuple(sorted(source_category_counts))
     valid_category_filter = not category_filter or category_filter in source_category_counts
     proof_markers = all_proof_markers
+    proof_marker_scope = "all"
     if category_filter and valid_category_filter:
         proof_markers = tuple(marker for marker in all_proof_markers if marker.category == category_filter)
+        proof_marker_scope = "category"
     elif category_filter:
         proof_markers = ()
+        proof_marker_scope = "category"
     if valid_line_filter and line_filter is not None:
         proof_markers = tuple(marker for marker in proof_markers if marker.line == line_filter)
+        proof_marker_scope = "line" if proof_marker_scope == "all" else f"{proof_marker_scope}+line"
+    passive_ordinal_requested = bool(passive_ordinal_raw)
+    explicit_proof_filter_requested = bool(category_filter) or bool(line_filter_raw)
+    if passive_ordinal_requested and not explicit_proof_filter_requested:
+        # A passive-ordinal query is a focused passive-lane report. Preserve
+        # source counts for auditability, but avoid dumping unrelated backlog
+        # proof markers into the focused operator action output.
+        proof_markers = ()
+        proof_marker_scope = "suppressed_by_passive_ordinal"
     category_counts = _category_counts(proof_markers)
     remaining_marker_count = sum(
         count
@@ -270,6 +282,7 @@ def build_operator_proof_status(
         "passive_operator_item_count": len(passive_rows),
         "source_passive_operator_item_count": len(all_passive_items),
         "passive_operator_items": passive_rows,
+        "proof_marker_scope": proof_marker_scope,
         "proof_marker_count": len(proof_markers),
         "source_proof_marker_count": len(all_proof_markers),
         "proof_markers": [
