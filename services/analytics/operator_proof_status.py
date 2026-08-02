@@ -115,7 +115,7 @@ def _category_counts(markers: tuple[ProofMarker, ...]) -> dict[str, int]:
 
 
 def _marker_next_action(marker: ProofMarker) -> str:
-    if _marker_satisfied(marker):
+    if not _marker_action_required(marker):
         return "none"
     if marker.category == "proof_ready_implementation":
         return (
@@ -127,15 +127,20 @@ def _marker_next_action(marker: ProofMarker) -> str:
     return f"produce or record the remaining proof referenced at REMAINING_TASKS.md:L{marker.line}"
 
 
-def _marker_satisfied(marker: ProofMarker) -> bool:
+def _marker_status(marker: ProofMarker) -> str:
+    if marker.category == "proof_ready_implementation":
+        text = marker.text.lower()
+        if "completed/proof-ready" in text or "not to rebuild completed/proof-ready" in text:
+            return "context_only"
+        return "open"
     if marker.category != "host_side_reference":
-        return False
+        return "open"
     marker_text = marker.text.lower()
     if any(
         phrase in marker_text
         for phrase in ("remaining", "remain open", "remains open", "still required", "does not close")
     ):
-        return False
+        return "open"
     text = f"{marker.text} {marker.context}".lower()
     recorded_phrases = (
         "host proof recorded",
@@ -144,7 +149,17 @@ def _marker_satisfied(marker: ProofMarker) -> bool:
         "read-only refresh recorded",
         "this closes the host-side",
     )
-    return any(phrase in text for phrase in recorded_phrases)
+    if any(phrase in text for phrase in recorded_phrases):
+        return "satisfied_recorded"
+    return "open"
+
+
+def _marker_satisfied(marker: ProofMarker) -> bool:
+    return _marker_status(marker).startswith("satisfied")
+
+
+def _marker_action_required(marker: ProofMarker) -> bool:
+    return _marker_status(marker) == "open"
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -319,8 +334,9 @@ def build_operator_proof_status(
                 "category": marker.category,
                 "marker": marker.marker,
                 "text": marker.text,
+                "status": _marker_status(marker),
                 "satisfied": _marker_satisfied(marker),
-                "action_required": not _marker_satisfied(marker),
+                "action_required": _marker_action_required(marker),
                 "next_action": _marker_next_action(marker),
             }
             for marker in proof_markers
@@ -332,8 +348,9 @@ def build_operator_proof_status(
             "remaining_proof_or_coverage_markers": remaining_marker_count,
             "host_side_markers": category_counts.get("host_side_reference", 0),
             "proof_ready_markers": category_counts.get("proof_ready_implementation", 0),
-            "proof_marker_actions_required": sum(1 for marker in proof_markers if not _marker_satisfied(marker)),
+            "proof_marker_actions_required": sum(1 for marker in proof_markers if _marker_action_required(marker)),
             "proof_markers_satisfied": sum(1 for marker in proof_markers if _marker_satisfied(marker)),
+            "proof_markers_context_only": sum(1 for marker in proof_markers if _marker_status(marker) == "context_only"),
             "category_counts": category_counts,
             "source_category_counts": source_category_counts,
         },

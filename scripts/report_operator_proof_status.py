@@ -44,6 +44,7 @@ def _print_report(payload: dict[str, Any]) -> None:
         f"host_side={summary.get('host_side_markers', 0)} "
         f"proof_ready={summary.get('proof_ready_markers', 0)} "
         f"satisfied={summary.get('proof_markers_satisfied', 0)} "
+        f"context_only={summary.get('proof_markers_context_only', 0)} "
         f"actions_required={summary.get('proof_marker_actions_required', payload.get('proof_marker_count', 0))}"
     )
     print("passive_operator_evidence:")

@@ -282,7 +282,7 @@ def build_operator_status_bundle(
             "research_commands": research_command_actions,
             "operator_read_only_commands": read_only_command_actions,
             "passive_operator_evidence": passive_actions,
-            "operator_proofs": proof_actions[:10],
+            "operator_proofs": proof_actions,
         },
         "summary": {
             "roadmap_tracking_ok": 1 if bool(roadmap.get("ok")) else 0,

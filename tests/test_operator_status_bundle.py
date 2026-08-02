@@ -532,6 +532,28 @@ def test_operator_status_bundle_forwards_proof_category(tmp_path: Path) -> None:
     assert all(row["category"] == "host_side_reference" for row in out["actions"]["operator_proofs"])
 
 
+def test_operator_status_bundle_does_not_truncate_proof_actions_before_filters(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(f"host-side proof item {idx}" for idx in range(1, 13)),
+        encoding="utf-8",
+    )
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="operator_proof",
+        operator_proof_category="host_side_reference",
+    )
+
+    assert out["ok"] is True
+    assert out["summary"]["operator_proof_actions_required"] == 12
+    assert out["shown_action_count"] == 12 + len(out["actions"]["passive_operator_evidence"])
+    assert len(out["actions"]["operator_proofs"]) == 12
+    assert all(row["category"] == "host_side_reference" for row in out["actions"]["operator_proofs"])
+
+
 def test_operator_status_bundle_propagates_invalid_proof_category(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 

@@ -27770,10 +27770,17 @@ What changed:
   `next_action=none`.
 - The satisfied detector is conservative: explicit open/remain wording on the
   marker line wins over nearby recorded-proof context.
+- `proof_ready_implementation` policy-text mentions such as
+  `completed/proof-ready` and `not to rebuild completed/proof-ready` are now
+  `context_only` rather than implementation rows awaiting review.
+- `operator_status_bundle` no longer truncates `operator_proofs` to ten rows
+  before downstream filters, so reason-filtered next-action reports are
+  truthful.
 - `report_operator_proof_status.py` now prints satisfied/actionable marker
   counts and omits `next_action=none` lines in text output.
 - Added regression coverage proving recorded host proof is not reopened while a
-  separate open host-side requirement remains actionable.
+  separate open host-side requirement remains actionable, and proving policy
+  mentions are not treated as proof-ready implementation actions.
 
 Why this change was chosen:
 - The report should not keep asking for proof that is already recorded, but it
@@ -27787,13 +27794,18 @@ Expected outcome:
 
 Verification:
 - `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
-  - SHOWN: `55 passed in 0.61s`.
+  - SHOWN: `57 passed in 0.59s`.
 - `make operator-proof-status OPERATOR_PROOF_STATUS_CATEGORY=host_side_reference`
   - SHOWN: `ok=True`, `host_side=18`, `satisfied=5`,
     `actions_required=13`.
 - `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=host_side_reference OPERATOR_NEXT_ACTIONS_MAX=30`
-  - SHOWN: `ok=true`, `action_count_total=4`, with action rows for the
+  - SHOWN: `ok=true`, `action_count_total=13`, with action rows for the
     remaining open host-side references only.
+- `make operator-proof-status OPERATOR_PROOF_STATUS_CATEGORY=proof_ready_implementation`
+  - SHOWN: `ok=True`, `proof_ready=25`, `context_only=2`,
+    `actions_required=23`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=proof_ready_implementation OPERATOR_NEXT_ACTIONS_MAX=30`
+  - SHOWN: `ok=true`, `action_count_total=23`.
 
 Remaining risk:
 - LOW: read-only reporting/status only. No proof is closed, no backlog text is
