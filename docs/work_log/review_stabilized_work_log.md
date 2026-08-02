@@ -27756,6 +27756,63 @@ Remaining risk:
   routing, or market-data policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T20:08:00-04:00 - Pullback Stage 0 Passive Proof Artifact Status
+
+Active role: ENGINEER
+
+Objective:
+- Continue the operator/status lane by making the Pullback Stage 0 passive
+  evidence item aware of the existing verifier artifact.
+
+What was found:
+- SHOWN: `make pullback-stage0-verify` passes locally with
+  `blocking_checks=0` and writes
+  `.cbp_state/data/pullback_stage0_verification/pullback_stage0_verification.latest.json`.
+- SHOWN: `operator-next-actions` still listed "Pullback Stage 0 long proof" as
+  action-required because passive evidence rows were static text.
+
+What changed:
+- `operator_proof_status` now reads the latest Pullback Stage 0 verification
+  artifact for that one passive item.
+- If the artifact is present, read-only, `status=passed`,
+  `blocking_checks=0`, and matches `pullback_recovery_default`, the passive row
+  reports `action_required=false`, `next_action=none`, and includes artifact
+  status/path/hash metadata.
+- Other passive operator-evidence rows remain unchanged.
+
+Why this change was chosen:
+- The operator checklist should not keep asking for a proof that the local
+  verifier has already captured. This removes status noise without editing the
+  backlog lane text or closing unrelated proof items.
+
+Expected outcome:
+- Focused operator action reports stop surfacing the Pullback Stage 0 proof
+  after a passing verifier artifact exists, while missing/stale artifacts still
+  leave the row actionable.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `51 passed`.
+- `make operator-proof-status-json OPERATOR_PROOF_STATUS_PASSIVE_ORDINAL=5`
+  - SHOWN: exit `0`, Pullback Stage 0 row has
+    `action_required=false`, `next_action=none`, artifact exists,
+    artifact status `passed`, and `satisfied=true`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_SOURCE=passive_operator_evidence OPERATOR_NEXT_ACTIONS_MAX=8`
+  - SHOWN: exit `0`, `action_count_available=14`; ordinal 5 is no longer
+    emitted as an action row.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit `0`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit `0`.
+
+Remaining risk:
+- LOW: read-only status/reporting only. No campaign, market-data fetch,
+  proof-generation command, strategy config, gate, live routing, or execution
+  behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-01T20:52:51Z - Multi-Symbol Paper Campaign Proposal Generator
 
 Active role: ENGINEER
