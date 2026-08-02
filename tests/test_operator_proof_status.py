@@ -112,6 +112,41 @@ def test_operator_proof_status_filters_proof_markers_by_category(tmp_path: Path)
     assert [row["category"] for row in out["proof_markers"]] == ["host_side_reference"]
 
 
+def test_operator_proof_status_does_not_reopen_recorded_host_proof(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+                [
+                    "1. Item.",
+                    "   2026-07-18 host proof recorded in docs/checkpoints/example.md:",
+                    "   host-side checker returned ok=true.",
+                    "   Host-side installation remains open: install the next timer.",
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+    out = build_operator_proof_status(repo_root=tmp_path, category="host_side_reference")
+
+    assert out["ok"] is True
+    assert out["proof_marker_count"] == 3
+    assert out["summary"]["host_side_markers"] == 3
+    assert out["summary"]["proof_markers_satisfied"] == 2
+    assert out["summary"]["proof_marker_actions_required"] == 1
+    rows = {row["line"]: row for row in out["proof_markers"]}
+    assert rows[2]["satisfied"] is True
+    assert rows[2]["action_required"] is False
+    assert rows[2]["next_action"] == "none"
+    assert rows[3]["satisfied"] is True
+    assert rows[3]["action_required"] is False
+    assert rows[3]["next_action"] == "none"
+    assert rows[4]["satisfied"] is False
+    assert rows[4]["action_required"] is True
+    assert "host-side evidence" in rows[4]["next_action"]
+
+
 def test_operator_proof_status_rejects_unknown_category_filter(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 

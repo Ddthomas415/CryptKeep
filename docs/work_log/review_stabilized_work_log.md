@@ -27747,6 +27747,60 @@ Remaining risk:
   runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-02T01:45:05Z - Operator Proof Recorded-Host Marker Hygiene
+
+Active role: ENGINEER
+
+Objective:
+- Reduce repeated operator-proof noise by distinguishing explicit recorded
+  host-proof/check notes from still-open host-side proof requirements.
+
+What was found:
+- SHOWN: `operator_proof_status` emitted every `host proof` / `host-side`
+  marker as `action_required=true`.
+- SHOWN: several current `REMAINING_TASKS.md` lines explicitly record completed
+  host proof/check evidence, for example `host proof recorded`,
+  `final host proof recorded`, and `read-only refresh recorded`.
+- SHOWN: those recorded evidence notes appeared alongside genuinely open
+  host-side proof requirements in `operator-next-actions`.
+
+What changed:
+- `operator_proof_status` now keeps recorded host-proof/check markers visible in
+  marker totals but marks them `satisfied=true`, `action_required=false`, and
+  `next_action=none`.
+- The satisfied detector is conservative: explicit open/remain wording on the
+  marker line wins over nearby recorded-proof context.
+- `report_operator_proof_status.py` now prints satisfied/actionable marker
+  counts and omits `next_action=none` lines in text output.
+- Added regression coverage proving recorded host proof is not reopened while a
+  separate open host-side requirement remains actionable.
+
+Why this change was chosen:
+- The report should not keep asking for proof that is already recorded, but it
+  also must not close proof by implication. Separating marker totals from
+  action-required rows preserves audit visibility while reducing repeated
+  false-positive work.
+
+Expected outcome:
+- `operator-next-actions` focuses on open proof/evidence work instead of
+  resurfacing recorded host-proof checkpoint notes as work to redo.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `55 passed in 0.61s`.
+- `make operator-proof-status OPERATOR_PROOF_STATUS_CATEGORY=host_side_reference`
+  - SHOWN: `ok=True`, `host_side=18`, `satisfied=5`,
+    `actions_required=13`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=host_side_reference OPERATOR_NEXT_ACTIONS_MAX=30`
+  - SHOWN: `ok=true`, `action_count_total=4`, with action rows for the
+    remaining open host-side references only.
+
+Remaining risk:
+- LOW: read-only reporting/status only. No proof is closed, no backlog text is
+  rewritten, and no campaign, market-data fetch, gate, ingestion, live routing,
+  execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-02T01:00:45Z - Roadmap Tracking Checklist
 
 Active role: ENGINEER

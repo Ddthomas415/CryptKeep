@@ -28,6 +28,7 @@ class ProofMarker:
     category: str
     marker: str
     text: str
+    context: str = ""
 
 
 def _read_text(path: Path) -> str:
@@ -82,10 +83,14 @@ def _bullet_items(section: str) -> tuple[str, ...]:
 
 def _proof_markers(backlog_text: str) -> tuple[ProofMarker, ...]:
     markers: list[ProofMarker] = []
-    for line_no, raw in enumerate(backlog_text.splitlines(), start=1):
+    lines = backlog_text.splitlines()
+    for line_no, raw in enumerate(lines, start=1):
         text = raw.strip()
         if not text:
             continue
+        start = max(0, line_no - 5)
+        end = min(len(lines), line_no + 4)
+        context = " ".join(part.strip() for part in lines[start:end] if part.strip())
         lowered = text.lower()
         for category, marker in _MARKERS:
             if marker in lowered:
@@ -95,6 +100,7 @@ def _proof_markers(backlog_text: str) -> tuple[ProofMarker, ...]:
                         category=category,
                         marker=marker,
                         text=text,
+                        context=context,
                     )
                 )
                 break
@@ -109,6 +115,8 @@ def _category_counts(markers: tuple[ProofMarker, ...]) -> dict[str, int]:
 
 
 def _marker_next_action(marker: ProofMarker) -> str:
+    if _marker_satisfied(marker):
+        return "none"
     if marker.category == "proof_ready_implementation":
         return (
             "review, merge, or record acceptance for the proof-ready "
@@ -117,6 +125,26 @@ def _marker_next_action(marker: ProofMarker) -> str:
     if marker.category == "host_side_reference":
         return f"run or attach the host-side evidence referenced at REMAINING_TASKS.md:L{marker.line}"
     return f"produce or record the remaining proof referenced at REMAINING_TASKS.md:L{marker.line}"
+
+
+def _marker_satisfied(marker: ProofMarker) -> bool:
+    if marker.category != "host_side_reference":
+        return False
+    marker_text = marker.text.lower()
+    if any(
+        phrase in marker_text
+        for phrase in ("remaining", "remain open", "remains open", "still required", "does not close")
+    ):
+        return False
+    text = f"{marker.text} {marker.context}".lower()
+    recorded_phrases = (
+        "host proof recorded",
+        "final host proof recorded",
+        "read-only hetzner check recorded",
+        "read-only refresh recorded",
+        "this closes the host-side",
+    )
+    return any(phrase in text for phrase in recorded_phrases)
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -291,7 +319,8 @@ def build_operator_proof_status(
                 "category": marker.category,
                 "marker": marker.marker,
                 "text": marker.text,
-                "action_required": True,
+                "satisfied": _marker_satisfied(marker),
+                "action_required": not _marker_satisfied(marker),
                 "next_action": _marker_next_action(marker),
             }
             for marker in proof_markers
@@ -303,6 +332,8 @@ def build_operator_proof_status(
             "remaining_proof_or_coverage_markers": remaining_marker_count,
             "host_side_markers": category_counts.get("host_side_reference", 0),
             "proof_ready_markers": category_counts.get("proof_ready_implementation", 0),
+            "proof_marker_actions_required": sum(1 for marker in proof_markers if not _marker_satisfied(marker)),
+            "proof_markers_satisfied": sum(1 for marker in proof_markers if _marker_satisfied(marker)),
             "category_counts": category_counts,
             "source_category_counts": source_category_counts,
         },
