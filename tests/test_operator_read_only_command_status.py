@@ -49,6 +49,9 @@ def test_operator_read_only_command_status_reports_current_repo_wiring() -> None
     assert out["summary"]["by_medium_lane_item"]["host_status_wrapper"] >= 2
     rows = {row["command_id"]: row for row in out["commands"]}
     assert rows["managed_paper_campaign_planner"]["make_target"] is None
+    assert rows["multi_symbol_paper_campaign_planner"]["make_target"] == "plan-multi-symbol-paper-campaigns"
+    assert rows["multi_symbol_paper_campaign_planner"]["medium_lane_item"] == "campaign_planner"
+    assert rows["multi_symbol_paper_campaign_planner"]["wiring_ok"] is True
     assert rows["managed_paper_campaign_planner"]["script_index_exists"] is True
     assert rows["paper_gate_velocity"]["make_target"] == "status-paper-gate-velocity"
     assert rows["ai_operator_oversight"]["make_target"] == "ai-operator-oversight"

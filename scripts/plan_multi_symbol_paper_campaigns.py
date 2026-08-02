@@ -60,6 +60,19 @@ def _print_summary(report: dict[str, object]) -> None:
         print(f"artifact_latest_markdown={paths.get('latest_markdown')}")
 
 
+def _exit_code(report: dict[str, object]) -> int:
+    status = str(report.get("status") or "")
+    if status in {"invalid_manifest", "scan_failed"}:
+        return 2
+    preflight = dict(report.get("preflight_summary") or {})
+    checked = int(preflight.get("checked") or 0)
+    passed = int(preflight.get("passed") or 0)
+    failed = int(preflight.get("failed") or 0)
+    if checked > 0 and failed > 0 and passed == 0:
+        return 2
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     report = build_multi_symbol_paper_campaign_plan(
@@ -81,7 +94,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report, indent=2, sort_keys=True, default=str))
     else:
         _print_summary(report)
-    return 0
+    return _exit_code(report)
 
 
 if __name__ == "__main__":
