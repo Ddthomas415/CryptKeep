@@ -8,6 +8,24 @@ from pathlib import Path
 from typing import Any
 
 
+BOUNDARY_KEYS: tuple[str, ...] = (
+    "read_only",
+    "not_strategy_config",
+    "not_campaign_evidence",
+    "not_promotion_evidence",
+    "not_execution_input",
+    "not_profitability_evidence",
+)
+
+RESEARCH_ARTIFACT_BOUNDARY_DEFAULTS: dict[str, bool] = {
+    "read_only": True,
+    "not_strategy_config": True,
+    "not_campaign_evidence": True,
+    "not_promotion_evidence": True,
+    "not_execution_input": True,
+}
+
+
 @dataclass(frozen=True)
 class ResearchArtifactSpec:
     artifact_id: str
@@ -223,16 +241,32 @@ def _generated_at(payload: dict[str, Any]) -> str | None:
     return None
 
 
-def _boundary_flags(payload: dict[str, Any]) -> dict[str, bool | None]:
-    keys = (
-        "read_only",
-        "not_strategy_config",
-        "not_campaign_evidence",
-        "not_promotion_evidence",
-        "not_execution_input",
-        "not_profitability_evidence",
-    )
-    return {key: (bool(payload[key]) if key in payload else None) for key in keys}
+def _boundary_flags(payload: dict[str, Any] | None) -> dict[str, bool | None]:
+    payload = payload or {}
+    return {
+        key: (
+            bool(payload[key])
+            if key in payload
+            else RESEARCH_ARTIFACT_BOUNDARY_DEFAULTS.get(key)
+            if key in RESEARCH_ARTIFACT_BOUNDARY_DEFAULTS
+            else None
+        )
+        for key in BOUNDARY_KEYS
+    }
+
+
+def _boundary_flag_sources(payload: dict[str, Any] | None) -> dict[str, str]:
+    payload = payload or {}
+    return {
+        key: (
+            "payload"
+            if key in payload
+            else "registry_default"
+            if key in RESEARCH_ARTIFACT_BOUNDARY_DEFAULTS
+            else "absent"
+        )
+        for key in BOUNDARY_KEYS
+    }
 
 
 def _terminal_research_result(spec: ResearchArtifactSpec, payload: dict[str, Any]) -> str | None:
@@ -295,7 +329,8 @@ def _row(repo_root: Path, spec: ResearchArtifactSpec) -> dict[str, Any]:
             "expected_marker": spec.marker_value,
             "observed_marker": None,
             "producer_plan": _producer_plan(spec),
-            "boundary_flags": {},
+            "boundary_flags": _boundary_flags(None),
+            "boundary_flag_sources": _boundary_flag_sources(None),
             "blocking_reason": "latest_artifact_missing",
             "next_action": _missing_next_action(spec),
             "action_required": True,
@@ -319,7 +354,8 @@ def _row(repo_root: Path, spec: ResearchArtifactSpec) -> dict[str, Any]:
             "expected_marker": spec.marker_value,
             "observed_marker": None,
             "producer_plan": _producer_plan(spec),
-            "boundary_flags": {},
+            "boundary_flags": _boundary_flags(None),
+            "boundary_flag_sources": _boundary_flag_sources(None),
             "blocking_reason": "latest_artifact_unreadable",
             "next_action": f"inspect or regenerate {latest}",
             "action_required": True,
@@ -356,6 +392,7 @@ def _row(repo_root: Path, spec: ResearchArtifactSpec) -> dict[str, Any]:
         "observed_marker": marker,
         "producer_plan": _producer_plan(spec),
         "boundary_flags": _boundary_flags(payload),
+        "boundary_flag_sources": _boundary_flag_sources(payload),
         "blocking_reason": blocking_reason,
         "next_action": next_action,
         "action_required": blocking_reason is not None,

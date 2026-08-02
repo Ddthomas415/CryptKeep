@@ -49,8 +49,22 @@ def test_research_artifact_inventory_reports_latest_hash_and_missing_actions(tmp
     assert rows["price_action_pipeline_summary"]["latest_status"] == "latest_ok"
     assert rows["price_action_pipeline_summary"]["latest_sha256"]
     assert rows["price_action_pipeline_summary"]["latest_generated_at"] == "2026-07-28T13:04:59+00:00"
+    assert rows["price_action_pipeline_summary"]["boundary_flags"]["read_only"] is True
+    assert rows["price_action_pipeline_summary"]["boundary_flags"]["not_strategy_config"] is True
+    assert rows["price_action_pipeline_summary"]["boundary_flags"]["not_execution_input"] is True
+    assert rows["price_action_pipeline_summary"]["boundary_flag_sources"]["read_only"] == "payload"
+    assert rows["price_action_pipeline_summary"]["boundary_flag_sources"]["not_strategy_config"] == "registry_default"
+    assert rows["price_action_pipeline_summary"]["boundary_flags"]["not_profitability_evidence"] is None
+    assert rows["price_action_pipeline_summary"]["boundary_flag_sources"]["not_profitability_evidence"] == "absent"
     assert rows["price_action_context_labels"]["boundary_flags"]["not_campaign_evidence"] is True
+    assert rows["price_action_context_labels"]["boundary_flag_sources"]["not_campaign_evidence"] == "payload"
+    assert rows["price_action_context_labels"]["boundary_flags"]["not_execution_input"] is True
+    assert rows["price_action_context_labels"]["boundary_flag_sources"]["not_execution_input"] == "registry_default"
     assert rows["price_action_forward_returns"]["latest_status"] == "missing"
+    assert rows["price_action_forward_returns"]["boundary_flags"]["read_only"] is True
+    assert rows["price_action_forward_returns"]["boundary_flag_sources"]["read_only"] == "registry_default"
+    assert rows["price_action_forward_returns"]["boundary_flags"]["not_profitability_evidence"] is None
+    assert rows["price_action_forward_returns"]["boundary_flag_sources"]["not_profitability_evidence"] == "absent"
     assert rows["price_action_forward_returns"]["blocking_reason"] == "latest_artifact_missing"
     assert "make price-action-research-pipeline" in rows["price_action_forward_returns"]["next_action"]
     assert rows["price_action_forward_returns"]["producer_plan"] == {
@@ -79,6 +93,8 @@ def test_research_artifact_inventory_reports_unreadable_as_hard_failure(tmp_path
     assert row["latest_status"] == "unreadable"
     assert row["blocking_reason"] == "latest_artifact_unreadable"
     assert row["latest_sha256"]
+    assert row["boundary_flags"]["read_only"] is True
+    assert row["boundary_flag_sources"]["read_only"] == "registry_default"
 
 
 def test_research_artifact_inventory_reports_marker_mismatch(tmp_path: Path) -> None:

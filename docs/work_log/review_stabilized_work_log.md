@@ -27685,6 +27685,67 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-02T00:24:52Z - Research Artifact Boundary Flag Source Reporting
+
+Active role: ENGINEER
+
+Objective:
+- Continue the medium-risk read-only reporting lane by making research artifact
+  boundary status explicit when older artifacts did not stamp every boundary
+  field themselves.
+
+What was found:
+- SHOWN: `research_artifact_inventory` reports top-level
+  `not_strategy_config`, `not_campaign_evidence`, `not_promotion_evidence`, and
+  `not_execution_input` as true for the inventory report.
+- SHOWN: several row-level artifact `boundary_flags` were `null` because the
+  current latest artifact payloads did not include those keys, even though the
+  registry classifies the known artifact producers as read-only research/status
+  artifacts.
+
+What changed:
+- `research_artifact_inventory` now applies registry-default boundary flags for
+  known research artifact rows: `read_only`, `not_strategy_config`,
+  `not_campaign_evidence`, `not_promotion_evidence`, and
+  `not_execution_input`.
+- Each row now includes `boundary_flag_sources`, with values of `payload`,
+  `registry_default`, or `absent`, so older artifacts are not misrepresented as
+  having stamped fields they did not stamp.
+- `not_profitability_evidence` remains `null`/`absent` unless the payload
+  explicitly proves it.
+- Missing and unreadable artifact rows also expose registry-default boundary
+  flags, keeping filtered reports structurally stable.
+
+Why this change was chosen:
+- Operator and automation reports should not leave known research-artifact
+  boundaries ambiguous, but they also should not blur payload-stamped evidence
+  with registry knowledge. A paired value/source field keeps both facts visible.
+
+Expected outcome:
+- Research artifact inventory consumers can distinguish artifact payload facts
+  from registry classification without treating read-only research artifacts as
+  possible campaign, promotion, or execution inputs.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_artifact_inventory.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_research_command_status.py`
+  - SHOWN: `59 passed in 0.58s`.
+- `./.venv/bin/python -m py_compile services/analytics/research_artifact_inventory.py tests/test_research_artifact_inventory.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make research-artifact-inventory-json RESEARCH_ARTIFACT_INVENTORY_ARTIFACT_ID=archive_walk_forward`
+  - SHOWN: `ok=true`; row boundary flags now show registry-default `true`
+    for read-only/not-campaign/not-promotion/not-execution boundaries and
+    `not_profitability_evidence=null` with source `absent`.
+
+Remaining risk:
+- MEDIUM: read-only reporting over research artifacts only. No campaign,
+  market-data fetch, research execution, proof closure, gate, ingestion, live
+  routing, execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-02T00:21:20Z - Operator Proof Passive Filter Output Tightening
 
 Active role: ENGINEER
