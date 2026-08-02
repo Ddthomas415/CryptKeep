@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 
@@ -205,6 +206,57 @@ def test_operator_proof_status_rejects_invalid_passive_ordinal(tmp_path: Path) -
     assert out["reason"] == "invalid_passive_operator_ordinal"
     assert out["passive_operator_ordinal_filter"] is None
     assert out["passive_operator_items"] == []
+
+
+def test_operator_proof_status_marks_pullback_stage0_passive_item_satisfied(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Pullback Stage 0 long proof if it is not already captured by the latest operator artifact.",
+                "- Another host proof.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    artifact_dir = tmp_path / ".cbp_state" / "data" / "pullback_stage0_verification"
+    artifact_dir.mkdir(parents=True)
+    artifact = artifact_dir / "pullback_stage0_verification.latest.json"
+    artifact.write_text(
+        json.dumps(
+            {
+                "report_type": "pullback_stage0_verification",
+                "status": "passed",
+                "read_only": True,
+                "strategy": "pullback_recovery",
+                "session_strategy_id": "pullback_recovery_default",
+                "blocking_checks": 0,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    assert out["passive_operator_item_count"] == 2
+    assert out["summary"]["passive_operator_items_satisfied"] == 1
+    pullback = out["passive_operator_items"][0]
+    assert pullback["action_required"] is False
+    assert pullback["next_action"] == "none"
+    assert pullback["artifact_status"]["artifact_id"] == "pullback_stage0_verification"
+    assert pullback["artifact_status"]["artifact_exists"] is True
+    assert pullback["artifact_status"]["satisfied"] is True
+    assert out["passive_operator_items"][1]["action_required"] is True
 
 
 def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:

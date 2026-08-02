@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -118,6 +119,48 @@ def _marker_next_action(marker: ProofMarker) -> str:
     return f"produce or record the remaining proof referenced at REMAINING_TASKS.md:L{marker.line}"
 
 
+def _load_json(path: Path) -> dict[str, Any]:
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    return raw if isinstance(raw, dict) else {}
+
+
+def _pullback_stage0_artifact_status(root: Path) -> dict[str, Any]:
+    latest = (
+        root
+        / ".cbp_state"
+        / "data"
+        / "pullback_stage0_verification"
+        / "pullback_stage0_verification.latest.json"
+    )
+    payload = _load_json(latest)
+    passed = (
+        latest.is_file()
+        and str(payload.get("report_type") or "") == "pullback_stage0_verification"
+        and str(payload.get("status") or "") == "passed"
+        and int(payload.get("blocking_checks") or 0) == 0
+        and bool(payload.get("read_only")) is True
+        and str(payload.get("strategy") or "") == "pullback_recovery"
+        and str(payload.get("session_strategy_id") or "") == "pullback_recovery_default"
+    )
+    return {
+        "artifact_id": "pullback_stage0_verification",
+        "artifact_path": str(latest),
+        "artifact_exists": latest.is_file(),
+        "artifact_sha256": _sha256(latest),
+        "artifact_status": str(payload.get("status") or "missing"),
+        "satisfied": bool(passed),
+    }
+
+
+def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
+    if "Pullback Stage 0 long proof" in item:
+        return _pullback_stage0_artifact_status(root)
+    return None
+
+
 def build_operator_proof_status(
     *,
     repo_root: str | Path | None = None,
@@ -154,15 +197,19 @@ def build_operator_proof_status(
     lane_text = _read_text(lane_doc)
     backlog_text = _read_text(backlog)
     all_passive_items = _bullet_items(_section(lane_text, PASSIVE_HEADING))
-    passive_rows = [
-        {
-            "ordinal": idx,
-            "text": item,
-            "action_required": True,
-            "next_action": f"collect or record operator evidence: {item}",
-        }
-        for idx, item in enumerate(all_passive_items, start=1)
-    ]
+    passive_rows: list[dict[str, Any]] = []
+    for idx, item in enumerate(all_passive_items, start=1):
+        artifact_status = _passive_artifact_status(root, item)
+        satisfied = bool((artifact_status or {}).get("satisfied"))
+        passive_rows.append(
+            {
+                "ordinal": idx,
+                "text": item,
+                "action_required": not satisfied,
+                "next_action": "none" if satisfied else f"collect or record operator evidence: {item}",
+                "artifact_status": artifact_status,
+            }
+        )
     if valid_passive_ordinal_filter and passive_ordinal_filter is not None:
         passive_rows = [row for row in passive_rows if int(row.get("ordinal") or 0) == passive_ordinal_filter]
         if not passive_rows:
@@ -239,6 +286,7 @@ def build_operator_proof_status(
         "summary": {
             "passive_operator_items": len(passive_rows),
             "source_passive_operator_items": len(all_passive_items),
+            "passive_operator_items_satisfied": sum(1 for row in passive_rows if not bool(row.get("action_required"))),
             "remaining_proof_or_coverage_markers": remaining_marker_count,
             "host_side_markers": category_counts.get("host_side_reference", 0),
             "proof_ready_markers": category_counts.get("proof_ready_implementation", 0),
