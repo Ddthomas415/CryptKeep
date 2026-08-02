@@ -53,6 +53,23 @@ def _print_report(payload: dict[str, Any]) -> None:
     shown = payload.get("shown_sections") or []
     if shown:
         print("shown_sections=" + ",".join(str(value) for value in shown))
+    if "roadmap_tracking_status" in reports:
+        print(
+            "roadmap: "
+            f"ok={summary.get('roadmap_tracking_ok', 0)} "
+            f"sources={summary.get('roadmap_source_docs_linked', 0)} "
+            f"commands={summary.get('roadmap_commands_listed', 0)} "
+            f"boundaries={summary.get('roadmap_boundaries_present', 0)} "
+            f"actions_required={summary.get('roadmap_tracking_actions_required', 0)}"
+        )
+    for row in list(actions_payload.get("roadmap_tracking") or [])[:5]:
+        if not isinstance(row, dict):
+            continue
+        print(
+            "roadmap_action: "
+            f"reason={row.get('blocking_reason')} "
+            f"action={row.get('next_action')}"
+        )
     if "backlog_lane_status" in reports:
         print(
             "backlog: "
@@ -180,7 +197,7 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help=(
             "Limit output to one section: backlog, research_pipeline, research_artifact, "
-            "research_command, operator_read_only, or operator_proof"
+            "research_command, operator_read_only, operator_proof, or roadmap"
         ),
     )
     parser.add_argument("--backlog-lane", default=None, help="Forward a lane filter to backlog lane status")

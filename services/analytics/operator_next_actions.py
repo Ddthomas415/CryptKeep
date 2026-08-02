@@ -8,6 +8,7 @@ from services.analytics.operator_status_bundle import build_operator_status_bund
 
 
 _ACTION_LANES: tuple[str, ...] = (
+    "roadmap_tracking",
     "backlog_lane",
     "research_pipeline",
     "research_artifact",
@@ -18,6 +19,7 @@ _ACTION_LANES: tuple[str, ...] = (
 )
 
 _SOURCE_ACTION_LANE_TO_SECTION = {
+    "roadmap_tracking": "roadmap",
     "backlog_lane": "backlog",
     "research_pipeline": "research_pipeline",
     "research_artifact": "research_artifact",
@@ -26,6 +28,23 @@ _SOURCE_ACTION_LANE_TO_SECTION = {
     "passive_operator_evidence": "operator_proof",
     "operator_proof": "operator_proof",
 }
+
+
+def _roadmap_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for row in list(dict(bundle.get("actions") or {}).get("roadmap_tracking") or []):
+        if not isinstance(row, dict):
+            continue
+        rows.append(
+            {
+                "lane": "roadmap_tracking",
+                "source": "roadmap_tracking_status",
+                "line": None,
+                "blocking_reason": row.get("blocking_reason"),
+                "next_action": str(row.get("next_action") or ""),
+            }
+        )
+    return rows
 
 
 def _backlog_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
@@ -241,6 +260,7 @@ def build_operator_next_actions(
     summary = dict(bundle.get("summary") or {})
     planning_rows = _backlog_planning_rows(bundle)
     actions = [
+        *_roadmap_actions(bundle),
         *_backlog_actions(bundle),
         *_research_actions(bundle),
         *_research_artifact_actions(bundle),
@@ -260,14 +280,17 @@ def build_operator_next_actions(
     if source_filter:
         actions = [row for row in actions if row.get("source") == source_filter]
     required_total = (
-        int(summary.get("research_pipeline_actions_required") or 0)
+        int(summary.get("roadmap_tracking_actions_required") or 0)
+        + int(summary.get("research_pipeline_actions_required") or 0)
         + int(summary.get("research_artifact_actions_required") or 0)
         + int(summary.get("research_command_actions_required") or 0)
         + int(summary.get("operator_read_only_command_actions_required") or 0)
         + int(summary.get("passive_operator_evidence_actions_required") or 0)
         + int(summary.get("operator_proof_actions_required") or 0)
     )
-    if lane_filter == "backlog_lane":
+    if lane_filter == "roadmap_tracking":
+        required_total = int(summary.get("roadmap_tracking_actions_required") or 0)
+    elif lane_filter == "backlog_lane":
         required_total = 0
     elif lane_filter == "research_pipeline":
         required_total = int(summary.get("research_pipeline_actions_required") or 0)
@@ -283,6 +306,8 @@ def build_operator_next_actions(
         required_total = int(summary.get("passive_operator_evidence_actions_required") or 0)
     elif source_action_lanes:
         required_total = 0
+        if "roadmap_tracking" in source_action_lanes:
+            required_total += int(summary.get("roadmap_tracking_actions_required") or 0)
         if "research_pipeline" in source_action_lanes:
             required_total += int(summary.get("research_pipeline_actions_required") or 0)
         if "research_artifact" in source_action_lanes:

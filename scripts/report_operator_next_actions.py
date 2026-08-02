@@ -88,6 +88,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--lane",
         choices=(
+            "roadmap_tracking",
             "backlog_lane",
             "research_pipeline",
             "research_artifact",

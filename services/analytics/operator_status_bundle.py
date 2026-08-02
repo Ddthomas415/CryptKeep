@@ -10,9 +10,11 @@ from services.analytics.operator_proof_status import build_operator_proof_status
 from services.analytics.research_artifact_inventory import build_research_artifact_inventory
 from services.analytics.research_command_status import build_research_command_status
 from services.analytics.research_pipeline_status import build_research_pipeline_status
+from services.analytics.roadmap_tracking_status import build_roadmap_tracking_status
 
 
 _SECTION_REPORT_KEYS = {
+    "roadmap": ("roadmap_tracking_status",),
     "backlog": ("backlog_lane_status",),
     "research_pipeline": ("research_pipeline_status",),
     "research_artifact": ("research_artifact_inventory",),
@@ -22,6 +24,7 @@ _SECTION_REPORT_KEYS = {
 }
 
 _SECTION_ACTION_KEYS = {
+    "roadmap": ("roadmap_tracking",),
     "backlog": ("backlog_lanes",),
     "research_pipeline": ("research_pipelines",),
     "research_artifact": ("research_artifacts",),
@@ -81,6 +84,7 @@ def build_operator_status_bundle(
     proof_category_filter = str(operator_proof_category or "").strip()
     proof_line_filter = str(operator_proof_line or "").strip()
     proof_passive_ordinal_filter = str(operator_proof_passive_ordinal or "").strip()
+    roadmap = build_roadmap_tracking_status(repo_root=root)
     backlog = build_backlog_lane_status(repo_root=root, lane=backlog_lane_filter or None)
     research = build_research_pipeline_status(repo_root=root, pipeline=research_pipeline_filter or None)
     research_artifacts = build_research_artifact_inventory(
@@ -105,6 +109,7 @@ def build_operator_status_bundle(
         line=proof_line_filter or None,
         passive_ordinal=proof_passive_ordinal_filter or None,
     )
+    roadmap_summary = dict(roadmap.get("summary") or {})
     backlog_summary = dict(backlog.get("summary") or {})
     research_summary = dict(research.get("summary") or {})
     research_artifact_summary = dict(research_artifacts.get("summary") or {})
@@ -206,9 +211,23 @@ def build_operator_status_bundle(
         for row in list(proofs.get("passive_operator_items") or [])
         if isinstance(row, dict) and bool(row.get("action_required"))
     ]
+    roadmap_actions = []
+    if not bool(roadmap.get("ok")):
+        roadmap_actions.append(
+            {
+                "blocking_reason": roadmap.get("reason") or "roadmap_tracking_incomplete",
+                "next_action": "repair roadmap tracking links, commands, or boundaries; then run make roadmap-tracking-status-json",
+                "missing_docs": list(roadmap.get("missing_docs") or []),
+                "unlinked_docs": list(roadmap.get("unlinked_docs") or []),
+                "missing_commands": list(roadmap.get("missing_commands") or []),
+                "missing_make_targets": list(roadmap.get("missing_make_targets") or []),
+                "missing_boundaries": list(roadmap.get("missing_boundaries") or []),
+            }
+        )
 
     source_ok = (
-        bool(backlog.get("ok"))
+        bool(roadmap.get("ok"))
+        and bool(backlog.get("ok"))
         and bool(research.get("ok"))
         and bool(research_artifacts.get("ok"))
         and bool(research_commands.get("ok"))
@@ -247,6 +266,7 @@ def build_operator_status_bundle(
             int(proof_passive_ordinal_filter) if proof_passive_ordinal_filter.isdigit() else None
         ),
         "reports": {
+            "roadmap_tracking_status": roadmap,
             "backlog_lane_status": backlog,
             "research_pipeline_status": research,
             "research_artifact_inventory": research_artifacts,
@@ -255,6 +275,7 @@ def build_operator_status_bundle(
             "operator_proof_status": proofs,
         },
         "actions": {
+            "roadmap_tracking": roadmap_actions,
             "backlog_lanes": backlog_actions,
             "research_pipelines": research_actions,
             "research_artifacts": research_artifact_actions,
@@ -264,6 +285,11 @@ def build_operator_status_bundle(
             "operator_proofs": proof_actions[:10],
         },
         "summary": {
+            "roadmap_tracking_ok": 1 if bool(roadmap.get("ok")) else 0,
+            "roadmap_tracking_actions_required": len(roadmap_actions),
+            "roadmap_source_docs_linked": int(roadmap_summary.get("source_docs_linked") or 0),
+            "roadmap_commands_listed": int(roadmap_summary.get("commands_listed") or 0),
+            "roadmap_boundaries_present": int(roadmap_summary.get("boundaries_present") or 0),
             "passive_operator_items": int(proof_summary.get("passive_operator_items") or 0),
             "source_passive_operator_items": int(proof_summary.get("source_passive_operator_items") or 0),
             "low_risk_docs_tests": int(backlog_summary.get("low_risk_docs_tests") or 0),

@@ -199,6 +199,7 @@ def test_operator_next_actions_fails_closed_on_invalid_lane(monkeypatch) -> None
     assert out["ok"] is False
     assert out["reason"] == "invalid_action_lane"
     assert out["available_action_lanes"] == [
+        "roadmap_tracking",
         "backlog_lane",
         "research_pipeline",
         "research_artifact",
@@ -211,6 +212,52 @@ def test_operator_next_actions_fails_closed_on_invalid_lane(monkeypatch) -> None
     assert out["action_count_total"] == 0
     assert out["action_count_available"] == 0
     assert out["actions"] == []
+
+
+def test_operator_next_actions_surfaces_roadmap_tracking_failure(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    monkeypatch.setattr(
+        mod,
+        "build_operator_status_bundle",
+        lambda repo_root=None, **_filters: {
+            "ok": False,
+            "reason": "roadmap_tracking_incomplete",
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "roadmap_tracking_actions_required": 1,
+                "research_pipeline_actions_required": 0,
+                "operator_proof_actions_required": 0,
+            },
+            "actions": {
+                "roadmap_tracking": [
+                    {
+                        "blocking_reason": "roadmap_tracking_incomplete",
+                        "next_action": "repair roadmap tracking links, commands, or boundaries; then run make roadmap-tracking-status-json",
+                    }
+                ],
+                "operator_proofs": [],
+            },
+        },
+    )
+
+    out = mod.build_operator_next_actions(repo_root=".", lane="roadmap_tracking")
+
+    assert out["ok"] is False
+    assert out["source_reason"] == "roadmap_tracking_incomplete"
+    assert out["lane_filter"] == "roadmap_tracking"
+    assert out["action_count_total"] == 1
+    assert out["action_count_available"] == 1
+    assert out["summary"]["available_by_lane"] == {"roadmap_tracking": 1}
+    assert out["actions"] == [
+        {
+            "lane": "roadmap_tracking",
+            "source": "roadmap_tracking_status",
+            "line": None,
+            "blocking_reason": "roadmap_tracking_incomplete",
+            "next_action": "repair roadmap tracking links, commands, or boundaries; then run make roadmap-tracking-status-json",
+        }
+    ]
 
 
 def test_operator_next_actions_filters_by_passive_lane(monkeypatch) -> None:

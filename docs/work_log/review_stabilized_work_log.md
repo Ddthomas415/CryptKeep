@@ -27786,6 +27786,54 @@ Remaining risk:
   workflow, deployment, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-02T01:15:31Z - Roadmap Health In Operator Status Bundle
+
+Active role: ENGINEER
+
+Objective:
+- Continue repo organization by making roadmap checklist health part of the
+  standard operator check-in path.
+
+What was found:
+- SHOWN: `make roadmap-tracking-status-json` verified the checklist directly,
+  but `operator-status` and `operator-next-actions` did not include roadmap
+  health.
+- SHOWN: a healthy roadmap should not create executable next-action rows; only
+  a broken checklist should generate a low-risk repair action.
+
+What changed:
+- `operator_status_bundle` now includes `roadmap_tracking_status` as the
+  `roadmap` section.
+- `operator-next-actions` now recognizes a `roadmap_tracking` lane and emits a
+  repair action only if roadmap tracking is incomplete.
+- `report_operator_status_bundle.py` prints compact roadmap health.
+- `report_operator_next_actions.py`, `scripts/SCRIPTS.md`, and regression
+  tests were updated.
+
+Why this change was chosen:
+- It keeps the new organizer from becoming another file operators must remember
+  manually. Normal check-in output now shows whether roadmap tracking is aligned.
+
+Expected outcome:
+- `make operator-status OPERATOR_STATUS_SECTION=roadmap` shows roadmap source,
+  command, and boundary health; `make operator-next-actions-json
+  OPERATOR_NEXT_ACTIONS_LANE=roadmap_tracking` returns no actions when healthy
+  and a concrete repair action if the roadmap check fails.
+
+Verification:
+- `make operator-status OPERATOR_STATUS_SECTION=roadmap`
+  - SHOWN: `ok=True`, `roadmap: ok=1 sources=7 commands=8 boundaries=6 actions_required=0`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=roadmap_tracking OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: `ok=true`, `action_count_total=0`, `action_count_available=0`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `58 passed in 0.60s`.
+
+Remaining risk:
+- LOW: read-only operator reporting and docs/tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, workflow, deployment, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-02T00:46:56Z - Operator Next Actions Generic Lane Suppression
 
 Active role: ENGINEER
