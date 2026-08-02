@@ -168,6 +168,27 @@ def test_multi_symbol_generator_keeps_market_diagnostics_when_no_candidates(monk
     assert report["market_diagnostics"][0]["trade_type"] == "pass"
 
 
+def test_fetch_candidate_market_data_returns_structured_factory_error(monkeypatch) -> None:
+    def _raise_factory(*_args, **_kwargs):
+        raise AttributeError("missing venue")
+
+    monkeypatch.setattr(gen, "make_exchange", _raise_factory)
+
+    out = gen.fetch_candidate_market_data(
+        venue="missing_venue",
+        symbols=["BTC/USDT"],
+        timeframe="5m",
+        limit=10,
+    )
+
+    assert out["ok"] is False
+    assert out["source"] == "exchange_factory"
+    assert out["requested"] == 1
+    assert out["fetched"] == 0
+    assert out["rows"] == []
+    assert out["errors"][0]["type"] == "AttributeError"
+
+
 def test_multi_symbol_generator_writes_only_plan_artifacts(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     report = {

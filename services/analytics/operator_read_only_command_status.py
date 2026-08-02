@@ -25,6 +25,13 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "repo_artifacts",
     ),
     OperatorReadOnlyCommandSpec(
+        "multi_symbol_paper_campaign_planner",
+        "scripts/plan_multi_symbol_paper_campaigns.py",
+        "plan-multi-symbol-paper-campaigns",
+        "campaign_planner",
+        "repo_artifacts",
+    ),
+    OperatorReadOnlyCommandSpec(
         "paper_campaign_status_formatter",
         "scripts/report_paper_campaign_status.py",
         None,

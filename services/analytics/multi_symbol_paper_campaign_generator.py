@@ -50,7 +50,26 @@ def fetch_candidate_market_data(
 ) -> dict[str, Any]:
     fetched: list[dict[str, Any]] = []
     errors: list[dict[str, str]] = []
-    ex = make_exchange(str(venue), {"apiKey": None, "secret": None}, enable_rate_limit=True)
+    try:
+        ex = make_exchange(str(venue), {"apiKey": None, "secret": None}, enable_rate_limit=True)
+    except Exception as exc:
+        return {
+            "ok": False,
+            "venue": str(venue),
+            "timeframe": str(timeframe),
+            "limit": int(limit),
+            "requested": len(symbols),
+            "fetched": 0,
+            "rows": [],
+            "errors": [
+                {
+                    "symbol": "",
+                    "type": type(exc).__name__,
+                    "error": str(exc),
+                }
+            ],
+            "source": "exchange_factory",
+        }
     try:
         for symbol in symbols:
             symbol_s = str(symbol or "").strip()

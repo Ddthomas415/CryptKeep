@@ -27685,6 +27685,77 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T20:02:00-04:00 - Multi-Symbol Planner Make/Operator Command Wiring
+
+Active role: ENGINEER
+
+Objective:
+- Continue the paper/research operator-command lane by wiring the accepted
+  multi-symbol paper campaign planner into Make and the read-only command
+  inventory.
+
+What was found:
+- SHOWN: `scripts/plan_multi_symbol_paper_campaigns.py` exists and is listed in
+  `scripts/SCRIPTS.md`, but it had no Make target and no operator command
+  inventory row.
+- SHOWN: a read-only local probe over `BTC/USDT`, `ETH/USDT`, and `SOL/USDT`
+  returned `status=no_ranked_candidates` with safety flags showing no manifest,
+  campaign, gate, live, or state-dir mutation.
+- SHOWN: after adding the Make target, a live no-write probe hit Coinbase
+  `NetworkError` for all requested symbols, returned `status=scan_failed`, but
+  the script still exited `0`. That made an infrastructure failure look
+  successful to Make/automation.
+- SHOWN: an invalid venue could raise from the exchange factory before the
+  planner emitted JSON, so some configuration failures bypassed the structured
+  report entirely.
+
+What changed:
+- Added `plan-multi-symbol-paper-campaigns` and
+  `plan-multi-symbol-paper-campaigns-json` Make targets.
+- The Make targets default `MULTI_SYMBOL_PAPER_CAMPAIGN_PLAN_ARGS` to
+  `--no-write`, so the default operator path is a read-only proposal check.
+- Added `multi_symbol_paper_campaign_planner` to the read-only command
+  inventory with the new Make target.
+- `plan_multi_symbol_paper_campaigns.py` now exits `2` on `invalid_manifest`,
+  `scan_failed`, or all candidate OHLCV preflights failing, while preserving
+  exit `0` for successful empty scans such as `no_ranked_candidates`.
+- `fetch_candidate_market_data()` now converts exchange-factory failures into
+  a structured `scan_failed` report with `source=exchange_factory`.
+- Updated `scripts/SCRIPTS.md` and regression tests.
+
+Why this change was chosen:
+- The multi-symbol planner is the approved path for BTC-only paper-campaign
+  relief without weakening ES provenance or mutating active manifests. Exposing
+  the no-write path through Make/operator status makes it repeatable.
+
+Expected outcome:
+- Operators can run or inspect a focused multi-symbol proposal check through
+  the same Make/status surface as the other accepted read-only commands.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_plan_multi_symbol_paper_campaigns_script.py tests/test_multi_symbol_paper_campaign_generator.py`
+  - SHOWN: `56 passed`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=multi_symbol_paper_campaign_planner`
+  - SHOWN: exit `0`, one command, `wiring_ok=true`, Make target
+    `plan-multi-symbol-paper-campaigns`.
+- `make -n plan-multi-symbol-paper-campaigns-json MULTI_SYMBOL_PAPER_CAMPAIGN_PLAN_ARGS="--no-write --venue coinbase --symbols BTC/USDT ETH/USDT SOL/USDT --timeframe 5m --max-candidates 5 --preflight-attempts 1 --preflight-probe-limit 5"`
+  - SHOWN: expands to the expected no-write planner invocation.
+- `./.venv/bin/python scripts/plan_multi_symbol_paper_campaigns.py --json --no-write --venue missing_venue --symbols BTC/USDT`
+  - SHOWN: exit `2`, structured JSON `status=scan_failed`,
+    `scan.source=exchange_factory`.
+- `./.venv/bin/python -m py_compile services/analytics/multi_symbol_paper_campaign_generator.py services/analytics/operator_read_only_command_status.py scripts/plan_multi_symbol_paper_campaigns.py tests/test_multi_symbol_paper_campaign_generator.py tests/test_operator_read_only_command_status.py tests/test_plan_multi_symbol_paper_campaigns_script.py`
+  - SHOWN: exit `0`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit `0`.
+
+Remaining risk:
+- LOW: Make/docs/status wiring for an existing paper-only proposal script. The
+  default target uses `--no-write`; no campaign, manifest, gate, execution, live
+  routing, or market-data policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-01T20:52:51Z - Multi-Symbol Paper Campaign Proposal Generator
 
 Active role: ENGINEER
