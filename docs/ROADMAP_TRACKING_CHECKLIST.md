@@ -47,6 +47,7 @@ separate reviewed runtime/gate change is accepted.
 
 | Track | Current action | Primary command or artifact | Risk lane |
 |---|---|---|---|
+| Roadmap health | Verify this checklist links the accepted trackers and commands | `make roadmap-tracking-status-json` | Planning/reporting |
 | Paper gate | Track `es_daily_trend_v1` qualified round trips and bars | `make status-paper-gate-velocity-json` | Passive/operator evidence |
 | Paper campaigns | Confirm local campaign health after restarts | `make status-paper-campaigns` | Passive/operator evidence |
 | Operator proofs | Record host/drill/proof packets called out by backlog markers | `make operator-proof-status-json` | Passive/operator evidence |
@@ -101,6 +102,7 @@ Use this loop for each work session:
 ## Fast Commands
 
 ```bash
+make roadmap-tracking-status-json
 make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20
 make operator-proof-status-json
 make backlog-lane-status-json
@@ -109,4 +111,3 @@ make status-paper-campaigns
 make research-pipeline-status-json
 make research-command-status-json
 ```
-

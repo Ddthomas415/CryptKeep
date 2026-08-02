@@ -41,6 +41,7 @@ def test_roadmap_checklist_preserves_active_tracking_commands() -> None:
     text = _text(DOC)
 
     for command in (
+        "make roadmap-tracking-status-json",
         "make status-paper-gate-velocity-json",
         "make status-paper-campaigns",
         "make operator-proof-status-json",
