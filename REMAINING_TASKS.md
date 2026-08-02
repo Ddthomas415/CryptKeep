@@ -72,6 +72,10 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/hetzner_paper_host_health_alerting_proof_2026_07_01.md
 - docs/checkpoints/hetzner_canonical_state_migration_template_2026_07_01.md
 
+Top-level roadmap tracking checklist:
+
+- docs/ROADMAP_TRACKING_CHECKLIST.md
+
 ## Active Backlog
 These are the remaining tasks visible from the accepted checkpoint and planning
 documents. Keep implementation scoped; high-risk runtime, launch, strategy, or

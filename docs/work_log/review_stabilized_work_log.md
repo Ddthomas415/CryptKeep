@@ -27685,6 +27685,55 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-02T01:00:45Z - Roadmap Tracking Checklist
+
+Active role: ENGINEER
+
+Objective:
+- Organize the repo's roadmap/backlog tracking into one operator-facing
+  checklist without moving files or changing runtime behavior.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` is the source of truth for backlog content.
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` defines safe batching lanes.
+- SHOWN: launch, strategy expansion, and derivatives/intraday boundaries are
+  tracked in separate docs, so an operator has to jump across files to see the
+  current execution order.
+
+What changed:
+- Added `docs/ROADMAP_TRACKING_CHECKLIST.md` as the top-level roadmap index.
+- Linked the checklist from `REMAINING_TASKS.md` and
+  `docs/BACKLOG_EXECUTION_LANES.md`.
+- Added `tests/test_roadmap_tracking_checklist.py` to pin the organizer's
+  source-of-truth boundaries, directional plan, commands, and non-authority
+  statements.
+
+Why this change was chosen:
+- The repo already had the underlying trackers. The missing piece was a single
+  low-risk navigation artifact that organizes them without inventing new
+  backlog authority or reopening completed work.
+
+Expected outcome:
+- Operators can start from one checklist, identify the correct source document
+  and command, and avoid mixing passive proof work, read-only research, and
+  high-risk live/gate/deploy changes.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_checklist.py tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: `12 passed in 0.18s`.
+- `./.venv/bin/python -m py_compile tests/test_roadmap_tracking_checklist.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test organization only. No campaign, market-data fetch, proof
+  closure, gate, ingestion, live routing, execution, authorization, workflow,
+  deployment, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-02T00:46:56Z - Operator Next Actions Generic Lane Suppression
 
 Active role: ENGINEER
