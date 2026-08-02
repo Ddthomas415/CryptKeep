@@ -55,6 +55,9 @@ def test_operator_read_only_command_status_reports_current_repo_wiring() -> None
     assert rows["managed_paper_campaign_planner"]["script_index_exists"] is True
     assert rows["paper_gate_velocity"]["make_target"] == "status-paper-gate-velocity"
     assert rows["ai_operator_oversight"]["make_target"] == "ai-operator-oversight"
+    assert rows["roadmap_tracking_status"]["make_target"] == "roadmap-tracking-status"
+    assert rows["roadmap_tracking_status"]["medium_lane_item"] == "optional_operator_report"
+    assert rows["roadmap_tracking_status"]["input_class"] == "repo_artifacts"
     assert rows["platform_event_packet"]["make_target"] == "platform-event-packet"
     assert rows["platform_event_integrity"]["medium_lane_item"] == "platform_event_packet"
 
@@ -74,6 +77,12 @@ def test_operator_read_only_command_status_filters() -> None:
     assert by_command["command_id_filter"] == "system_diagnostics"
     assert by_command["command_count"] == 1
     assert by_command["commands"][0]["script"] == "scripts/run_system_diagnostics.py"
+
+    by_roadmap = build_operator_read_only_command_status(command_id="roadmap_tracking_status")
+    assert by_roadmap["ok"] is True
+    assert by_roadmap["command_count"] == 1
+    assert by_roadmap["commands"][0]["script"] == "scripts/report_roadmap_tracking_status.py"
+    assert by_roadmap["commands"][0]["make_target"] == "roadmap-tracking-status"
 
 
 def test_operator_read_only_command_status_filters_platform_event_packet_lane() -> None:

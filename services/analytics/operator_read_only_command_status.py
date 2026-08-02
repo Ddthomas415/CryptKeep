@@ -102,6 +102,13 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "local_state",
     ),
     OperatorReadOnlyCommandSpec(
+        "roadmap_tracking_status",
+        "scripts/report_roadmap_tracking_status.py",
+        "roadmap-tracking-status",
+        "optional_operator_report",
+        "repo_artifacts",
+    ),
+    OperatorReadOnlyCommandSpec(
         "platform_event_journal",
         "scripts/report_platform_event_journal.py",
         "platform-event-journal",

@@ -667,7 +667,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "research_commands_wired": 19,
                 "research_commands_not_wired": 0,
                 "research_command_actions_required": 1,
-                "operator_read_only_commands_wired": 11,
+                "operator_read_only_commands_wired": 17,
                 "operator_read_only_commands_not_wired": 0,
                 "operator_read_only_command_actions_required": 1,
                 "remaining_proof_or_coverage_markers": 27,
@@ -794,7 +794,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "research_commands: wired=19" in out
     assert "actions_required=1" in out
     assert "research_command_action: funding_threshold_pipeline" in out
-    assert "operator_read_only_commands: wired=11" in out
+    assert "operator_read_only_commands: wired=17" in out
     assert "operator_read_only_command_action: paper_gate_velocity" in out
     assert "remaining=27" in out
     assert "passive_action: #1" in out

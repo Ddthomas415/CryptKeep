@@ -27685,6 +27685,68 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-02T01:40:53Z - Roadmap Status Read-Only Command Registration
+
+Active role: ENGINEER
+
+Objective:
+- Continue the roadmap/operator organization lane by registering the roadmap
+  tracking status report in the operator read-only command inventory.
+
+What was found:
+- SHOWN: `scripts/report_roadmap_tracking_status.py` already existed and was
+  documented in `scripts/SCRIPTS.md`.
+- SHOWN: `Makefile` already exposed `roadmap-tracking-status` and
+  `roadmap-tracking-status-json`.
+- SHOWN: `operator_read_only_command_status` did not list
+  `roadmap_tracking_status`, so `operator-status` and `operator-next-actions`
+  could not filter or verify that roadmap command by command ID.
+
+What changed:
+- Added `roadmap_tracking_status` to
+  `services/analytics/operator_read_only_command_status.py` as an
+  `optional_operator_report` with `repo_artifacts` inputs.
+- Added regression coverage proving the command can be filtered directly and
+  remains wired through script, Make target, and script-index checks.
+- Updated the operator bundle CLI fixture from its stale read-only command count
+  to the current 17-command registry total.
+
+Why this change was chosen:
+- The roadmap checklist should be reachable from the same read-only operator
+  command inventory as other check-in reports. This keeps command discovery
+  executable without running campaigns, fetching market data, closing proof, or
+  mutating state.
+
+Expected outcome:
+- Operators can run or filter the roadmap status command through
+  `operator-read-only-command-status`, `operator-status`, and downstream
+  next-action tooling without separate manual lookup.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_roadmap_tracking_status.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `59 passed in 0.71s`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=roadmap_tracking_status`
+  - SHOWN: `ok=true`, `command_count=1`, `source_command_count=17`, and
+    `summary.source_not_wired=0`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_read_only_command_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py scripts/report_roadmap_tracking_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make operator-status OPERATOR_STATUS_SECTION=operator_read_only OPERATOR_STATUS_OPERATOR_READ_ONLY_COMMAND_ID=roadmap_tracking_status`
+  - SHOWN: `ok=True`, one shown `operator_read_only` section, `wired=1`,
+    `not_wired=0`, `actions_required=0`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=operator_read_only_command OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID=roadmap_tracking_status OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: `ok=true`, `action_count_total=0`, and
+    `operator_read_only_command_id_filter=roadmap_tracking_status`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only registry/docs/tests only. No campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization, or
+  runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-02T01:00:45Z - Roadmap Tracking Checklist
 
 Active role: ENGINEER
