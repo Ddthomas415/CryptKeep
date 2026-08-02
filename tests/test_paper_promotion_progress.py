@@ -81,18 +81,18 @@ def test_load_paper_promotion_progress_reports_remaining_thresholds(tmp_path, mo
 
     assert out["ok"] is True
     assert out["days_recorded"] == 22
-    assert out["days_remaining"] == 8
+    assert out["days_remaining"] == 23
     assert out["round_trips_recorded"] == 0
-    assert out["round_trips_remaining"] == 10
+    assert out["round_trips_remaining"] == 5
     assert out["all_history_round_trips"] == 7
     assert out["qualification"]["qualified_evidence_fills"] == 0
     assert out["qualification_explanation"]["has_excluded_history"] is True
     assert out["qualification_explanation"]["excluded_all_history_round_trips"] == 7
     assert out["qualification_explanation"]["evidence_fills"] == 0
     assert out["thresholds_ready"] is False
-    assert len(out["blocking_thresholds"]) == 2
-    assert "22/30 days recorded (8 remaining)" in out["summary_text"]
-    assert "0/10 qualified round trips recorded (10 remaining)" in out["summary_text"]
+    assert len(out["blocking_thresholds"]) >= 2
+    assert "22/45 days recorded (23 remaining)" in out["summary_text"]
+    assert "0/5 qualified round trips recorded (5 remaining)" in out["summary_text"]
     assert "7 all-history round trips are diagnostic only" in out["summary_text"]
     assert "no JSONL evidence fills are available" in out["summary_text"]
 
@@ -110,7 +110,7 @@ def test_load_paper_promotion_progress_does_not_flag_qualified_history(
     ev_dir = data_dir() / "evidence" / ES_DAILY_TREND_STRATEGY_ID
     ev_dir.mkdir(parents=True, exist_ok=True)
     (ev_dir / "session_progress.jsonl").write_text(
-        json.dumps({"timestamp": "2026-06-01T00:00:00+00:00"}) + "\n",
+        json.dumps({"timestamp": "2026-06-17T00:00:00+00:00"}) + "\n",
         encoding="utf-8",
     )
     provenance = {
@@ -122,14 +122,14 @@ def test_load_paper_promotion_progress_does_not_flag_qualified_history(
     }
     evidence_fills = [
         {
-            "timestamp": "2026-06-01T01:00:00+00:00",
+            "timestamp": "2026-06-17T01:00:00+00:00",
             "order_id": "order-buy",
             "side": "buy",
             "size": 1.0,
             **provenance,
         },
         {
-            "timestamp": "2026-06-02T01:00:00+00:00",
+            "timestamp": "2026-06-18T01:00:00+00:00",
             "order_id": "order-sell",
             "side": "sell",
             "size": 1.0,
@@ -167,10 +167,10 @@ def test_load_paper_promotion_progress_does_not_flag_qualified_history(
             [
                 (
                     "fill-buy",
-                    "2026-06-01T01:00:00+00:00",
+                    "2026-06-17T01:00:00+00:00",
                     "sma_200_trend",
                     "order-buy",
-                    "2026-06-01T01:00:00+00:00",
+                    "2026-06-17T01:00:00+00:00",
                     "coinbase",
                     "BTC/USDT",
                     "buy",
@@ -181,10 +181,10 @@ def test_load_paper_promotion_progress_does_not_flag_qualified_history(
                 ),
                 (
                     "fill-sell",
-                    "2026-06-02T01:00:00+00:00",
+                    "2026-06-18T01:00:00+00:00",
                     "sma_200_trend",
                     "order-sell",
-                    "2026-06-02T01:00:00+00:00",
+                    "2026-06-18T01:00:00+00:00",
                     "coinbase",
                     "BTC/USDT",
                     "sell",
@@ -209,11 +209,11 @@ def test_load_paper_promotion_progress_does_not_flag_qualified_history(
     assert out["qualification_explanation"]["unqualified_evidence_fills"] == 0
     assert (
         out["qualification_explanation"]["first_provenance_qualified_fill_ts"]
-        == "2026-06-01T01:00:00+00:00"
+        == "2026-06-17T01:00:00+00:00"
     )
     assert (
         out["qualification_explanation"]["latest_completed_qualified_round_trip_close_ts"]
-        == "2026-06-02T01:00:00+00:00"
+        == "2026-06-18T01:00:00+00:00"
     )
     assert out["qualification_explanation"]["unqualified_date_counts"] == {}
     assert "diagnostic only" not in out["summary_text"]

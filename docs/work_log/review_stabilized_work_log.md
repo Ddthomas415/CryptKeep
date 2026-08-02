@@ -27685,6 +27685,134 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-01T20:52:51Z - Multi-Symbol Paper Campaign Proposal Generator
+
+Active role: ENGINEER
+
+Objective:
+- Replace BTC-only manual challenger expansion with a paper-only generator that
+  scans a symbol universe, ranks strategy/symbol candidates, OHLCV-preflights
+  eligible rows, and emits proposed campaign entries with isolated state
+  directories.
+
+What was found:
+- SHOWN: active paper campaign manifests were BTC/USDT-only across the current
+  ES, breakout, and EMA paper campaigns.
+- SHOWN: existing planner code consumed prior candidate artifacts; it did not
+  fetch, score, preflight, and propose manifest rows from a broader symbol
+  universe in one operator command.
+- SHOWN: candidate-advisor output remains advisory/flag-gated; paper execution
+  authority remains explicit manifest rows.
+
+What changed:
+- Added `services/analytics/multi_symbol_paper_campaign_generator.py`.
+- Added `scripts/plan_multi_symbol_paper_campaigns.py`.
+- Proposal rows use isolated challenger state directories and are never written
+  into active manifests by this tool.
+- Reports include `market_diagnostics` so no-proposal outcomes explain why
+  symbols were not selected.
+- Updated `scripts/SCRIPTS.md` and tests.
+
+Why this change was chosen:
+- This addresses multi-symbol paper expansion without making selection
+  authoritative and without starting campaigns automatically.
+
+Expected outcome:
+- Supported paper candidates can be selected from a broader crypto universe
+  using repeatable ranking/preflight artifacts rather than manual BTC-only
+  campaign edits.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_candidate_layer.py tests/test_ohlcv_preflight.py tests/test_multi_symbol_paper_campaign_generator.py tests/test_plan_multi_symbol_paper_campaigns_script.py tests/test_managed_paper_campaign_planner.py tests/test_plan_managed_paper_campaigns_script.py tests/test_paper_universe_widening_decision.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `82 passed in 0.89s`.
+- `./.venv/bin/python -m py_compile services/analytics/multi_symbol_paper_campaign_generator.py scripts/plan_multi_symbol_paper_campaigns.py tests/test_multi_symbol_paper_campaign_generator.py tests/test_plan_multi_symbol_paper_campaigns_script.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/plan_multi_symbol_paper_campaigns.py --symbols ETH/USDT SOL/USDT --max-candidates 3 --min-score 0 --ohlcv-limit 120 --preflight-probe-limit 20 --json --no-write`
+  - SHOWN: exit 0; fetched 2/2 symbols; no proposals because both diagnostics
+    classified as `trade_type=pass` / `illiquidity_too_high`; no active
+    manifest mutation.
+
+Remaining risk:
+- LOW/MEDIUM: paper-only proposal surface. The command fetches public market
+  data and writes proposal artifacts only; it does not mutate active manifests,
+  create state directories, restore/start campaigns, route orders, modify
+  gates, or touch live trading.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-31T23:54:48Z - ES Slow-Daily Gate Activation And Stock-Options Requirements Backlog
+
+Active role: ENGINEER
+
+Objective:
+- Apply the already-implemented strategy-class paper promotion policy to the
+  current slow daily ES proxy campaign, keep challenger campaigns running, and
+  add a stock-options requirements backlog item before any stock/options work.
+
+What was found:
+- SHOWN: `services/control/paper_promotion_policy.py` already implements
+  `slow_daily_single_symbol_v1`.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` still had no
+  `promotion.paper.policy`.
+- SHOWN: the stock-options-specific requirements surface was not represented
+  as a dedicated backlog item.
+- SHOWN: archive-backed challenger walk-forward artifacts over research-only
+  overrides were negative after modeled costs.
+
+What changed:
+- Added `promotion.paper.policy` to `configs/strategies/es_daily_trend_v1.yaml`
+  using `slow_daily_single_symbol_v1`, `cohort_start=2026-06-16T00:00:00Z`,
+  45 calendar days, 60 qualified bars, 5 qualified round trips, archive
+  walk-forward required, manual review required, and diagnostic-only legacy
+  evidence.
+- Added Deferred Structure/Research Hygiene item 24 for stock-options
+  requirements.
+- Added `tests/test_stock_options_requirements_backlog.py`.
+- Updated paper-promotion tests to expect the active slow-daily ES policy and
+  to place provenance-qualification fixtures after the configured cohort start.
+
+Why this change was chosen:
+- The policy loader and qualified-bar counter already exist; activating the
+  reviewed config is the smallest way to use the approved strategy-class gate
+  without changing gate code or counting legacy fills.
+- Stock/options support is a new asset-class and broker/compliance surface; it
+  needs requirements before data, campaign, gate, or execution work.
+
+Expected outcome:
+- ES paper gate reports the slow-daily policy and qualified-bar threshold
+  explicitly while preserving provenance requirements and manual review.
+- Stock/options work remains visible but cannot silently become campaign,
+  promotion, or execution authority.
+
+Verification:
+- `./.venv/bin/python scripts/restore_paper_campaigns.py --config configs/paper_evidence_campaigns.json --restore --preflight-ohlcv --ohlcv-preflight-probe-limit 400 --ohlcv-preflight-attempts 3 --ohlcv-preflight-attempt-delay-sec 2`
+  - SHOWN: `all_running=true`, `running_count=3`; `ema_cross_default` started
+    and OHLCV preflight returned `public_ohlcv_reachable`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: policy `slow_daily_single_symbol_v1`; days `87/45` pass; round
+    trips `3/5` fail; qualified bars `40/60` fail; manual review remains
+    required.
+- `./.venv/bin/python scripts/report_paper_gate_velocity.py`
+  - SHOWN: projected remaining time under current velocity about 21 days, with
+    qualified bars still the listed blocker.
+- `./.venv/bin/python -m pytest -q tests/test_stock_options_requirements_backlog.py tests/test_paper_promotion_policy.py tests/test_paper_promotion_progress.py tests/test_check_promotion_gates.py tests/test_paper_gate_qualification_report.py tests/test_paper_promotion_gate_policy_rfc_guard.py`
+  - SHOWN: `68 passed`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: changes the ES paper-gate policy configuration, not gate code.
+  Requires operator review of fresh gate output before treating the new policy
+  state as accepted.
+- UNVERIFIED: Hetzner campaign status was not verified in this branch because
+  Tailscale SSH required re-authentication.
+- Remaining research issue: Coinbase `BTC/USDT` is not usable for the ES daily
+  historical backfill from 2018; daily archive/walk-forward research should use
+  the documented `BTC/USD` data basis or add a reviewed symbol/data mapping
+  policy.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-01T21:10:15Z - Archive Sweep No-Candidate Terminal Inventory Status
 
 Active role: ENGINEER

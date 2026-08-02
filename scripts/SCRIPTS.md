@@ -213,6 +213,10 @@ decision makes them authoritative.
 - `plan_managed_paper_campaigns.py` — read-only managed paper-campaign proposal
   planner; writes proposal artifacts only and does not mutate manifests or
   start campaigns.
+- `plan_multi_symbol_paper_campaigns.py` — paper-only multi-symbol candidate
+  campaign generator; scans a symbol universe, ranks strategy/symbol candidates,
+  OHLCV-preflights proposed rows, and writes proposal artifacts only without
+  mutating active manifests or starting campaigns.
 - `run_candidate_outcome_report.py` — read-only candidate-vs-paper-outcome
   report that writes `.cbp_state/data/candidate_outcomes/` artifacts; use
   `make candidate-outcomes`.

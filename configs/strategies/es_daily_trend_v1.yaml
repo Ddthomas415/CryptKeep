@@ -102,6 +102,21 @@ ops:
 # Source: docs/strategies/es_daily_trend_v1.md §6
 promotion:
   paper:
+    policy:
+      id: slow_daily_single_symbol_v1
+      cohort_start: "2026-06-16T00:00:00Z"
+      min_calendar_days: 45
+      min_qualified_bars: 60
+      min_qualified_round_trips: 5
+      qualified_bar:
+        source: public_ohlcv
+        timeframe: 1d
+        venue: coinbase
+        symbol: BTC/USDT
+        count: unique_source_bar
+      require_archive_walk_forward: true
+      require_manual_review: true
+      legacy_evidence_policy: diagnostic_only
     backtest_expectations:
       # Accepted normalized baseline: 31 closed trades on Coinbase BTC/USD
       # daily OHLCV through 2026-06-04, disclosed as the data basis for the
