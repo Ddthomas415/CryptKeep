@@ -32,6 +32,8 @@ def _print_report(payload: dict[str, Any]) -> None:
         print(f"available_action_lanes={lanes}")
     if payload.get("source_reason"):
         print(f"source_reason={payload.get('source_reason')}")
+    if payload.get("planning_row_count"):
+        print(f"planning_rows={payload.get('planning_row_count')} not_actions=true")
     source_reasons = dict(payload.get("source_reasons") or {})
     for key, value in sorted(source_reasons.items()):
         print(f"source_reason:{key}={value}")

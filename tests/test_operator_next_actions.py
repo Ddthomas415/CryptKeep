@@ -310,7 +310,7 @@ def test_operator_next_actions_filters_by_research_command_lane(monkeypatch) -> 
     ]
 
 
-def test_operator_next_actions_backlog_lane_filter_implies_matching_action_lane(monkeypatch) -> None:
+def test_operator_next_actions_backlog_lane_filter_reports_planning_rows_not_actions(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
 
     captured = {}
@@ -362,9 +362,11 @@ def test_operator_next_actions_backlog_lane_filter_implies_matching_action_lane(
     assert captured["backlog_lane"] == "low_risk_docs_tests"
     assert out["backlog_lane_filter"] == "low_risk_docs_tests"
     assert out["lane_filter"] is None
-    assert out["action_count_total"] == 2
-    assert out["action_count_available"] == 2
-    assert out["actions"] == [
+    assert out["action_count_total"] == 0
+    assert out["action_count_available"] == 0
+    assert out["actions"] == []
+    assert out["planning_row_count"] == 2
+    assert out["planning_rows"] == [
         {
             "lane": "backlog_lane",
             "source": "low_risk_docs_tests",
@@ -430,9 +432,11 @@ def test_operator_next_actions_forwards_backlog_lane_ordinal(monkeypatch) -> Non
     assert captured["backlog_lane_ordinal"] == "2"
     assert out["backlog_lane_filter"] == "low_risk_docs_tests"
     assert out["backlog_lane_ordinal_filter"] == 2
-    assert out["action_count_total"] == 1
-    assert out["action_count_available"] == 1
-    assert out["actions"] == [
+    assert out["action_count_total"] == 0
+    assert out["action_count_available"] == 0
+    assert out["actions"] == []
+    assert out["planning_row_count"] == 1
+    assert out["planning_rows"] == [
         {
             "lane": "backlog_lane",
             "source": "low_risk_docs_tests",

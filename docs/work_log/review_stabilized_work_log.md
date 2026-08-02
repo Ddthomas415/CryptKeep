@@ -27685,6 +27685,63 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-02T00:46:56Z - Operator Next Actions Generic Lane Suppression
+
+Active role: ENGINEER
+
+Objective:
+- Stop generic backlog lane-map buckets from appearing as executable operator
+  next actions.
+
+What was found:
+- SHOWN: `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests`
+  returned seven available actions whose text was generic planning language:
+  `select or execute a scoped batch for ...`.
+- SHOWN: those rows come from `docs/BACKLOG_EXECUTION_LANES.md`; they are lane
+  selectors, not concrete backlog items, proof tasks, campaign steps, or
+  research artifacts.
+- SHOWN: treating those rows as actions creates circular work selection and
+  makes the report look like it still has code tasks after concrete reports are
+  already wired and healthy.
+
+What changed:
+- `operator_next_actions` now converts backlog-lane rows into
+  `planning_rows`, not available executable actions.
+- `action_count_total`, `action_count_available`, and `actions` now exclude
+  generic backlog-lane planning selectors.
+- The human CLI prints `planning_rows=<n> not_actions=true` when those rows are
+  present.
+- Regression tests were updated to pin backlog-lane rows as planning-only while
+  preserving concrete research/proof/operator action behavior.
+
+Why this change was chosen:
+- The lane map is useful for planning and filtering, but it should not create
+  endless self-referential "next actions" after concrete source reports have no
+  actionable rows.
+
+Expected outcome:
+- Operator next-action reports now point at concrete evidence, research,
+  command, or proof blockers. Generic lane categories remain inspectable
+  without driving unnecessary batches.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_backlog_lane_status.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `54 passed in 0.55s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make operator-next-actions OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: `ok=True actions=0 shown=0`, `planning_rows=7 not_actions=true`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=medium_risk_runtime_read_only OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: `action_count_available=0`, `planning_row_count=7`.
+
+Remaining risk:
+- LOW: read-only operator reporting and tests only. No backlog item is decided
+  or closed; no campaign, market-data fetch, proof closure, gate, ingestion,
+  live routing, execution, authorization, workflow, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-02T00:24:52Z - Research Artifact Boundary Flag Source Reporting
 
 Active role: ENGINEER
