@@ -58,10 +58,15 @@ def test_operator_read_only_command_status_reports_current_repo_wiring() -> None
     assert rows["cost_assumptions"]["medium_lane_item"] == "gate_diagnostic"
     assert rows["edge_cadence"]["make_target"] == "check-edge-cadence"
     assert rows["edge_cadence"]["medium_lane_item"] == "startup_host_diagnostic"
+    assert rows["dead_man"]["make_target"] == "check-dead-man"
+    assert rows["dead_man"]["medium_lane_item"] == "startup_host_diagnostic"
     assert rows["ai_operator_oversight"]["make_target"] == "ai-operator-oversight"
     assert rows["roadmap_tracking_status"]["make_target"] == "roadmap-tracking-status"
     assert rows["roadmap_tracking_status"]["medium_lane_item"] == "optional_operator_report"
     assert rows["roadmap_tracking_status"]["input_class"] == "repo_artifacts"
+    assert rows["supply_chain"]["make_target"] == "check-supply-chain"
+    assert rows["supply_chain"]["medium_lane_item"] == "optional_operator_report"
+    assert rows["supply_chain"]["input_class"] == "repo_artifacts"
     assert rows["platform_event_packet"]["make_target"] == "platform-event-packet"
     assert rows["platform_event_integrity"]["medium_lane_item"] == "platform_event_packet"
 
@@ -99,6 +104,18 @@ def test_operator_read_only_command_status_filters() -> None:
     assert by_edge["command_count"] == 1
     assert by_edge["commands"][0]["script"] == "scripts/check_edge_cadence.py"
     assert by_edge["commands"][0]["input_class"] == "local_state"
+
+    by_dead_man = build_operator_read_only_command_status(command_id="dead_man")
+    assert by_dead_man["ok"] is True
+    assert by_dead_man["command_count"] == 1
+    assert by_dead_man["commands"][0]["script"] == "scripts/check_dead_man.py"
+    assert by_dead_man["commands"][0]["input_class"] == "local_state"
+
+    by_supply_chain = build_operator_read_only_command_status(command_id="supply_chain")
+    assert by_supply_chain["ok"] is True
+    assert by_supply_chain["command_count"] == 1
+    assert by_supply_chain["commands"][0]["script"] == "scripts/check_supply_chain.py"
+    assert by_supply_chain["commands"][0]["input_class"] == "repo_artifacts"
 
 
 def test_operator_read_only_command_status_filters_platform_event_packet_lane() -> None:

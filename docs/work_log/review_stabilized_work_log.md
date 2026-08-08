@@ -27402,6 +27402,67 @@ Remaining risk:
   authorization, deployment, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T16:53:31Z - Register Dead-Man and Supply-Chain Read-Only Commands
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator organization lane by registering two existing
+  read-only launch/check helpers in the operator command-status inventory.
+
+What was found:
+- SHOWN: `scripts/check_dead_man.py` exists and defaults to a read-only
+  heartbeat check; it alerts only when `--alert` is supplied.
+- SHOWN: `scripts/check_supply_chain.py` exists and defaults to pin/environment
+  reporting; it writes evidence only when `--evidence-dest` is supplied.
+- SHOWN: both scripts were documented in `scripts/SCRIPTS.md` but were not
+  first-class operator read-only command registry rows.
+
+What changed:
+- Added non-mutating `check-dead-man[-json]` Makefile targets with optional
+  `DEAD_MAN_NAMES` and `DEAD_MAN_MAX_AGE_S`.
+- Added non-mutating `check-supply-chain[-json]` Makefile targets.
+- Registered `dead_man` and `supply_chain` in `OPERATOR_READ_ONLY_COMMANDS`.
+- Updated `scripts/SCRIPTS.md` and regression tests.
+
+Why this change was chosen:
+- These checks already exist and are part of launch/ops readiness. Registering
+  them makes command wiring visible in the same read-only inventory without
+  enabling alerts, writing evidence, running campaigns, fetching market data,
+  or mutating runtime state.
+
+Expected outcome:
+- `make operator-read-only-command-status-json` reports 21 wired commands with
+  no missing command wiring, including `dead_man` and `supply_chain`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py`
+  - SHOWN: `6 passed in 0.19s`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `34 passed in 0.52s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py tests/test_operator_read_only_command_status.py`
+  - SHOWN: exit 0.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=dead_man`
+  - SHOWN: `ok=true`, `make_target=check-dead-man`, `wiring_ok=true`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=supply_chain`
+  - SHOWN: `ok=true`, `make_target=check-supply-chain`, `wiring_ok=true`.
+- `make -n check-dead-man-json`
+  - SHOWN: expands to `./.venv/bin/python scripts/check_dead_man.py --json`.
+- `make -n check-supply-chain-json`
+  - SHOWN: expands to `./.venv/bin/python scripts/check_supply_chain.py --json`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only command registration, docs, and tests only. The newly exposed
+  targets are existing scripts and omit their mutating/side-effect flags. This
+  patch does not run those checks as proof, close proof, fetch market data, run
+  campaigns, mutate state, change gates, deploy, alert, write evidence, or
+  touch live execution.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T16:38:11Z - Next-Actions Exclusion Filter for Code-First Check-Ins
 
 Active role: ENGINEER

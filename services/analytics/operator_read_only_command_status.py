@@ -95,6 +95,13 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "local_state",
     ),
     OperatorReadOnlyCommandSpec(
+        "dead_man",
+        "scripts/check_dead_man.py",
+        "check-dead-man",
+        "startup_host_diagnostic",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
         "paper_campaign_ownership",
         "scripts/check_paper_campaign_ownership.py",
         "check-paper-campaign-ownership",
@@ -119,6 +126,13 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "roadmap_tracking_status",
         "scripts/report_roadmap_tracking_status.py",
         "roadmap-tracking-status",
+        "optional_operator_report",
+        "repo_artifacts",
+    ),
+    OperatorReadOnlyCommandSpec(
+        "supply_chain",
+        "scripts/check_supply_chain.py",
+        "check-supply-chain",
         "optional_operator_report",
         "repo_artifacts",
     ),
