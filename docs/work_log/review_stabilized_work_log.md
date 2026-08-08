@@ -27965,6 +27965,81 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T16:58:59Z - Register Replay and Schema Read-Only Commands
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk repo-organization lane by wiring two existing
+  read-only operator checks into the make/script-index/operator-status
+  inventory: arm-to-halt replay and live-intent history schema status.
+
+What was found:
+- SHOWN: `scripts/check_operator_arm_to_halt_replay.py` is read-only by
+  default and writes launch-packet evidence only when `--evidence-dest` is
+  supplied.
+- SHOWN: `scripts/check_live_intent_history_schema.py` is read-only by default;
+  schema initialization requires explicit `--init`, and evidence writing
+  requires explicit `--evidence-dest`.
+- SHOWN: `Makefile` already had a read-only
+  `live-intent-history-schema` target, but no JSON alias.
+- SHOWN: arm-to-halt replay had script-index documentation but no make target
+  or operator read-only command registry row.
+
+What changed:
+- Added `operator-arm-to-halt-replay` and
+  `operator-arm-to-halt-replay-json` make targets. The optional path override
+  is `OPERATOR_ARM_TO_HALT_REPLAY_PATH`; no evidence destination is wired into
+  the make target.
+- Added `live-intent-history-schema-json` for the existing read-only schema
+  check. The mutating `live-intent-history-schema-init` target remains
+  separate and is not registered as a read-only command.
+- Registered `operator_arm_to_halt_replay` under the
+  `platform_event_packet` read-only lane and `live_intent_history_schema`
+  under `startup_host_diagnostic`.
+- Updated `scripts/SCRIPTS.md` and read-only command/status tests for the new
+  wiring and platform-event lane count.
+
+Why this change was chosen:
+- The checks already existed and matched the operator check-in model, but were
+  partially invisible from the consolidated status/next-action path. Wiring the
+  read-only defaults keeps the roadmap checklist mechanical without running
+  campaigns, fetching market data, or registering mutating variants.
+
+Expected outcome:
+- Operators can discover and run both checks through make and the read-only
+  command status inventory. Mutating schema initialization and launch-packet
+  evidence writes remain explicit direct-script actions.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `34 passed in 0.55s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py tests/test_operator_read_only_command_status.py`
+  - SHOWN: exit 0.
+- `make -n operator-arm-to-halt-replay-json`
+  - SHOWN: expands to
+    `./.venv/bin/python scripts/check_operator_arm_to_halt_replay.py --json`.
+- `make -n live-intent-history-schema-json`
+  - SHOWN: expands to
+    `./.venv/bin/python scripts/check_live_intent_history_schema.py --json`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=operator_arm_to_halt_replay`
+  - SHOWN: `ok=true`, `wiring_ok=true`, lane `platform_event_packet`, input
+    class `local_state`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=live_intent_history_schema`
+  - SHOWN: `ok=true`, `wiring_ok=true`, lane `startup_host_diagnostic`, input
+    class `local_state`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only wiring, docs, and tests only. No campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization,
+  schema initialization, launch-packet evidence write, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T16:33:18Z - Operator Proof Resolution Counts in Status Bundle
 
 Active role: ENGINEER

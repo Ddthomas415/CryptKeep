@@ -137,6 +137,13 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "repo_artifacts",
     ),
     OperatorReadOnlyCommandSpec(
+        "operator_arm_to_halt_replay",
+        "scripts/check_operator_arm_to_halt_replay.py",
+        "operator-arm-to-halt-replay",
+        "platform_event_packet",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
         "platform_event_journal",
         "scripts/report_platform_event_journal.py",
         "platform-event-journal",
@@ -162,6 +169,13 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "scripts/report_platform_event_packet.py",
         "platform-event-packet",
         "platform_event_packet",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
+        "live_intent_history_schema",
+        "scripts/check_live_intent_history_schema.py",
+        "live-intent-history-schema",
+        "startup_host_diagnostic",
         "local_state",
     ),
 )

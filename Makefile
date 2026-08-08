@@ -37,7 +37,7 @@ OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY ?=
 OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE ?=
 OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL ?=
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks roadmap-tracking-status roadmap-tracking-status-json backlog-lane-status backlog-lane-status-json operator-proof-status operator-proof-status-json operator-read-only-command-status operator-read-only-command-status-json operator-status operator-status-json operator-next-actions operator-next-actions-json platform-event-journal platform-event-journal-json platform-event-secrets platform-event-secrets-json platform-event-integrity platform-event-integrity-json platform-event-packet platform-event-packet-json phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness check-edge-cadence check-edge-cadence-json check-dead-man check-dead-man-json check-cost-assumptions check-cost-assumptions-json check-supply-chain check-supply-chain-json collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json plan-multi-symbol-paper-campaigns plan-multi-symbol-paper-campaigns-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-pipeline-status research-pipeline-status-json research-command-status research-command-status-json
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks roadmap-tracking-status roadmap-tracking-status-json backlog-lane-status backlog-lane-status-json operator-proof-status operator-proof-status-json operator-read-only-command-status operator-read-only-command-status-json operator-status operator-status-json operator-next-actions operator-next-actions-json platform-event-journal platform-event-journal-json platform-event-secrets platform-event-secrets-json platform-event-integrity platform-event-integrity-json platform-event-packet platform-event-packet-json operator-arm-to-halt-replay operator-arm-to-halt-replay-json phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness check-edge-cadence check-edge-cadence-json check-dead-man check-dead-man-json check-cost-assumptions check-cost-assumptions-json check-supply-chain check-supply-chain-json collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json plan-multi-symbol-paper-campaigns plan-multi-symbol-paper-campaigns-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-pipeline-status research-pipeline-status-json research-command-status research-command-status-json
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -173,6 +173,13 @@ platform-event-packet:
 
 platform-event-packet-json:
 	@$(PYTHON) scripts/report_platform_event_packet.py --json $(PLATFORM_EVENT_PACKET_ARGS)
+
+OPERATOR_ARM_TO_HALT_REPLAY_PATH ?=
+operator-arm-to-halt-replay:
+	$(PYTHON) scripts/check_operator_arm_to_halt_replay.py $(if $(OPERATOR_ARM_TO_HALT_REPLAY_PATH),--path $(OPERATOR_ARM_TO_HALT_REPLAY_PATH),)
+
+operator-arm-to-halt-replay-json:
+	@$(PYTHON) scripts/check_operator_arm_to_halt_replay.py --json $(if $(OPERATOR_ARM_TO_HALT_REPLAY_PATH),--path $(OPERATOR_ARM_TO_HALT_REPLAY_PATH),)
 
 phase1-safety:
 	$(PYTHON) scripts/run_phase1_safety.py
@@ -366,7 +373,7 @@ governance-smoke:
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
 .PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill archive-walk-forward archive-parameter-sweep funding-context-price-join funding-threshold-sensitivity funding-threshold-window-stability funding-threshold-candidate-triage funding-threshold-stability-triage funding-threshold-research-pipeline archive-parameter-sweep-triage crypto-edge-strategy-readiness price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage price-action-research-pipeline research-pipeline-status research-artifact-inventory check-short-context-readiness
-.PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
+.PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-json live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
 # Use this in CI or when you don't want to wait for loop tests
@@ -597,6 +604,9 @@ live-reconcile:
 live-intent-history-schema:
 	$(PYTHON) scripts/check_live_intent_history_schema.py
 
+live-intent-history-schema-json:
+	@$(PYTHON) scripts/check_live_intent_history_schema.py --json
+
 live-intent-history-schema-init:
 	$(PYTHON) scripts/check_live_intent_history_schema.py --init
 
@@ -617,6 +627,7 @@ script-index:
 	@echo "  make candidate-outcomes — write candidate outcome report artifact"
 	@echo "  make ai-operator-oversight — write read-only AI operator oversight report"
 	@echo "  make live-intent-history-schema — check live intent transition-history schema"
+	@echo "  make operator-arm-to-halt-replay[-json] — replay arm/resume-to-halt event journal path"
 	@echo "  make check-short-context-readiness — check short/context data readiness"
 	@echo "  make check-edge-cadence[-json] — check stored crypto-edge cadence"
 	@echo "  make check-cost-assumptions[-json] — check local paper cost assumptions"

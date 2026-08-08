@@ -371,8 +371,8 @@ def test_operator_status_bundle_filters_platform_event_read_only_lane(tmp_path: 
     assert out["section_filter"] == "operator_read_only"
     assert out["operator_read_only_medium_lane_item_filter"] == "platform_event_packet"
     assert report["medium_lane_item_filter"] == "platform_event_packet"
-    assert report["command_count"] == 4
-    assert out["summary"]["operator_read_only_commands_wired"] == 4
+    assert report["command_count"] == 5
+    assert out["summary"]["operator_read_only_commands_wired"] == 5
     assert out["shown_sections"] == ["operator_read_only"]
     assert out["actions"]["operator_read_only_commands"] == []
 

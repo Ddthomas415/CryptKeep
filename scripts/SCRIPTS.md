@@ -62,7 +62,7 @@ listed below.
 | `restore_paper_campaigns.py` | `make status-paper-campaigns` / `make restore-paper-campaigns` / `make recover-paper-campaigns` | Read-only status by default; explicitly restores only configured paper collectors that are not alive; `--restore --preflight-ohlcv` blocks launches when the configured public-OHLCV source is unreachable; `--restart-unhealthy` is opt-in and preflight-required for alive unhealthy collectors |
 | `run_dashboard.py` | `make dashboard` | Dashboard entrypoint |
 | `install_systemd_units.py` | — | Verify and install rendered systemd units from `packaging/systemd/` (dry-run by default; `--repo-dir` targets non-default checkout paths; never arms live trading) |
-| `check_live_intent_history_schema.py` | `make live-intent-history-schema` / `make live-intent-history-schema-init` | Check whether the current runtime live-intent queue has `live_trade_intent_events`; read-only by default, `--init` explicitly initializes/migrates the existing queue schema |
+| `check_live_intent_history_schema.py` | `make live-intent-history-schema` / `make live-intent-history-schema-json` / `make live-intent-history-schema-init` | Check whether the current runtime live-intent queue has `live_trade_intent_events`; read-only by default, `--init` explicitly initializes/migrates the existing queue schema |
 | `run_paper_sim_monitor.py` | — | Read-only paper simulation monitor, watch management, and local watch-trigger notifications |
 | `backup_state.py` | — | Full-state backup/verify/restore (sqlite-API-consistent; restore refuses over live locks; see `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`) |
 | `run_paper_strategy_evidence_collector.py` | `make collect-paper-strategy-evidence` / `make status-paper-strategy-evidence` / `make stop-paper-strategy-evidence` | Managed paper evidence collector; use `--daily-loop --detach` for a persistent daily process and `--max-daily-attempts` to bound retryable failures |
@@ -385,8 +385,10 @@ are not paper-campaign controls.
 - `record_operator_event.py` — append one manual operator/action audit event to
   the unified JSONL journal; redacts secret-like payload fields.
 - `check_operator_arm_to_halt_replay.py` — replay a live arm/resume event
-  followed by halt/disable from operator-event journal records; writes
-  launch-packet evidence with `--evidence-dest`.
+  followed by halt/disable from operator-event journal records; supports
+  `make operator-arm-to-halt-replay[-json]` and
+  `OPERATOR_ARM_TO_HALT_REPLAY_PATH`; writes launch-packet evidence only when
+  `--evidence-dest` is supplied directly.
 - `check_operator_event_secrets.py` — scan operator event journal payloads for
   unredacted secret-like fields without printing leaked values; `--require-events`
   is the launch-packet posture.

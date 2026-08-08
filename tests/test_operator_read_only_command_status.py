@@ -67,8 +67,12 @@ def test_operator_read_only_command_status_reports_current_repo_wiring() -> None
     assert rows["supply_chain"]["make_target"] == "check-supply-chain"
     assert rows["supply_chain"]["medium_lane_item"] == "optional_operator_report"
     assert rows["supply_chain"]["input_class"] == "repo_artifacts"
+    assert rows["operator_arm_to_halt_replay"]["make_target"] == "operator-arm-to-halt-replay"
+    assert rows["operator_arm_to_halt_replay"]["medium_lane_item"] == "platform_event_packet"
     assert rows["platform_event_packet"]["make_target"] == "platform-event-packet"
     assert rows["platform_event_integrity"]["medium_lane_item"] == "platform_event_packet"
+    assert rows["live_intent_history_schema"]["make_target"] == "live-intent-history-schema"
+    assert rows["live_intent_history_schema"]["medium_lane_item"] == "startup_host_diagnostic"
 
 
 def test_operator_read_only_command_status_filters() -> None:
@@ -117,6 +121,18 @@ def test_operator_read_only_command_status_filters() -> None:
     assert by_supply_chain["commands"][0]["script"] == "scripts/check_supply_chain.py"
     assert by_supply_chain["commands"][0]["input_class"] == "repo_artifacts"
 
+    by_arm_replay = build_operator_read_only_command_status(command_id="operator_arm_to_halt_replay")
+    assert by_arm_replay["ok"] is True
+    assert by_arm_replay["command_count"] == 1
+    assert by_arm_replay["commands"][0]["script"] == "scripts/check_operator_arm_to_halt_replay.py"
+    assert by_arm_replay["commands"][0]["input_class"] == "local_state"
+
+    by_live_schema = build_operator_read_only_command_status(command_id="live_intent_history_schema")
+    assert by_live_schema["ok"] is True
+    assert by_live_schema["command_count"] == 1
+    assert by_live_schema["commands"][0]["script"] == "scripts/check_live_intent_history_schema.py"
+    assert by_live_schema["commands"][0]["input_class"] == "local_state"
+
 
 def test_operator_read_only_command_status_filters_platform_event_packet_lane() -> None:
     from services.analytics.operator_read_only_command_status import build_operator_read_only_command_status
@@ -124,9 +140,10 @@ def test_operator_read_only_command_status_filters_platform_event_packet_lane() 
     out = build_operator_read_only_command_status(medium_lane_item="platform_event_packet")
 
     assert out["ok"] is True
-    assert out["command_count"] == 4
-    assert out["summary"]["by_medium_lane_item"] == {"platform_event_packet": 4}
+    assert out["command_count"] == 5
+    assert out["summary"]["by_medium_lane_item"] == {"platform_event_packet": 5}
     assert {row["command_id"] for row in out["commands"]} == {
+        "operator_arm_to_halt_replay",
         "platform_event_journal",
         "platform_event_secrets",
         "platform_event_integrity",
