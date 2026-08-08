@@ -51,8 +51,11 @@ separate reviewed runtime/gate change is accepted.
 | Paper gate | Track `es_daily_trend_v1` qualified round trips and bars | `make status-paper-gate-velocity-json` | Passive/operator evidence |
 | Paper campaigns | Confirm local campaign health after restarts | `make status-paper-campaigns` | Passive/operator evidence |
 | Operator proofs | Record host/drill/proof packets called out by backlog markers | `make operator-proof-status-json` | Passive/operator evidence |
+| Read-only command inventory | Verify operator helper commands are discoverable and wired | `make operator-read-only-command-status-json` | Planning/reporting |
 | Next actions | Pull concrete executable rows only | `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20` | Planning/reporting |
 | Backlog batching | Select one lane before coding | `make backlog-lane-status-json` | Planning/reporting |
+| Cost assumptions | Check local paper fee/slippage cost assumptions before trusting evidence | `make check-cost-assumptions-json` | Medium-risk read-only |
+| Edge cadence | Check stored crypto-edge cadence before depending on funding/OI history | `make check-edge-cadence-json` | Medium-risk read-only |
 | Research | Run accepted read-only archive/funding/strategy reports | `make research-pipeline-status-json` and `make research-command-status-json` | Medium-risk read-only |
 | Pullback candidate | Keep Stage 0 proof artifact visible; decide only after evidence review | `make pullback-stage0-verify` | Passive/operator evidence |
 | Funding candidate | Keep funding research and price-join artifacts separate from promotion | `make funding-stage0-verify` when preconditions are met | Passive/operator evidence |
@@ -105,9 +108,12 @@ Use this loop for each work session:
 make roadmap-tracking-status-json
 make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20
 make operator-proof-status-json
+make operator-read-only-command-status-json
 make backlog-lane-status-json
 make status-paper-gate-velocity-json
 make status-paper-campaigns
+make check-cost-assumptions-json
+make check-edge-cadence-json
 make research-pipeline-status-json
 make research-command-status-json
 ```

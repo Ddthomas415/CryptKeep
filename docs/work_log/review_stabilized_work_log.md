@@ -27351,6 +27351,57 @@ Remaining risk:
   change gates, or touch live execution.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T16:48:59Z - Roadmap Tracks Command Inventory and Proof Helpers
+
+Active role: ENGINEER
+
+Objective:
+- Keep the operator roadmap checklist aligned with the expanded read-only
+  command inventory and newly registered proof-helper targets.
+
+What was found:
+- SHOWN: `roadmap_tracking_status` still required only 8 command references.
+- SHOWN: after registering `cost_assumptions` and `edge_cadence`, the top-level
+  roadmap checklist did not require `operator-read-only-command-status-json`,
+  `check-cost-assumptions-json`, or `check-edge-cadence-json`.
+
+What changed:
+- `roadmap_tracking_status.REQUIRED_COMMANDS` now includes the operator
+  read-only command inventory plus cost-assumption and edge-cadence checks.
+- `docs/ROADMAP_TRACKING_CHECKLIST.md` now lists those commands in the active
+  checklist and fast-command block.
+- Roadmap tracking tests now pin `command_count=11`.
+
+Why this change was chosen:
+- The roadmap tracker should verify the command inventory and proof-helper
+  commands it relies on. This is alignment-only and preserves the roadmap's
+  no-runtime/no-proof-closure boundary.
+
+Expected outcome:
+- `make roadmap-tracking-status-json` fails if the command inventory, cost
+  assumptions check, or edge cadence check disappears from either the roadmap
+  or Makefile.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `48 passed in 0.54s`.
+- `./.venv/bin/python -m py_compile services/analytics/roadmap_tracking_status.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: exit 0.
+- `make roadmap-tracking-status-json`
+  - SHOWN: `ok=true`, `command_count=11`, `commands_listed=11`,
+    `make_targets_present=11`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: roadmap tracking docs/tests/reporting only. No backlog item is decided
+  or closed; no command is executed by the tracker; no campaign, market-data
+  fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, deployment, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T16:38:11Z - Next-Actions Exclusion Filter for Code-First Check-Ins
 
 Active role: ENGINEER

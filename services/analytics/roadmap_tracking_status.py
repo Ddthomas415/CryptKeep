@@ -22,9 +22,12 @@ REQUIRED_COMMANDS: tuple[str, ...] = (
     "make roadmap-tracking-status-json",
     "make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20",
     "make operator-proof-status-json",
+    "make operator-read-only-command-status-json",
     "make backlog-lane-status-json",
     "make status-paper-gate-velocity-json",
     "make status-paper-campaigns",
+    "make check-cost-assumptions-json",
+    "make check-edge-cadence-json",
     "make research-pipeline-status-json",
     "make research-command-status-json",
 )
