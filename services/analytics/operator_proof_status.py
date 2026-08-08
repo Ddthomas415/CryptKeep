@@ -274,6 +274,17 @@ def _load_operator_events(root: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def _operator_decision_record_command(target: str, *, result: str = "accepted") -> str:
+    return (
+        "./.venv/bin/python scripts/record_operator_event.py "
+        "--actor operator "
+        "--action passive_operator_decision "
+        f"--target {target} "
+        f"--result {result} "
+        "--reason <reason>"
+    )
+
+
 def _operator_decision_event_status(root: Path, *, target: str) -> dict[str, Any]:
     path = _operator_event_journal_path(root)
     accepted_results = {"accepted", "accepted_with_risk", "declined", "no_persistent_campaign", "research_only"}
@@ -293,6 +304,8 @@ def _operator_decision_event_status(root: Path, *, target: str) -> dict[str, Any
             "target": target,
             "artifact_status": "missing",
             "satisfied": False,
+            "accepted_results": sorted(accepted_results),
+            "record_command": _operator_decision_record_command(target),
         }
     latest = matches[-1]
     return {
@@ -302,6 +315,7 @@ def _operator_decision_event_status(root: Path, *, target: str) -> dict[str, Any
         "artifact_sha256": _sha256(path),
         "target": target,
         "artifact_status": "recorded",
+        "accepted_results": sorted(accepted_results),
         "event_id": latest.get("event_id"),
         "timestamp": latest.get("timestamp"),
         "result": latest.get("result"),
@@ -470,9 +484,12 @@ def _funding_research_artifact_status(root: Path) -> dict[str, Any]:
         "next_action": (
             "none"
             if decision_satisfied
-            else "record the funding_extreme persistent-campaign decision against the reviewed artifact"
+            else _operator_decision_record_command("funding_extreme_persistent_campaign_decision")
             if evidence_recorded and actionable_basis
-            else "keep funding_extreme research-only or record an explicit no-persistent-campaign decision"
+            else _operator_decision_record_command(
+                "funding_extreme_persistent_campaign_decision",
+                result="no_persistent_campaign",
+            )
             if evidence_recorded
             else "run or repair the funding threshold research pipeline"
         ),
@@ -494,9 +511,15 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
     if "Pullback Stage 0 long proof" in item:
         return _pullback_stage0_artifact_status(root)
     if "Manual strategy performance decision" in item:
-        return _operator_decision_event_status(root, target="manual_strategy_performance_decision")
+        out = _operator_decision_event_status(root, target="manual_strategy_performance_decision")
+        if not bool(out.get("satisfied")):
+            out["next_action"] = str(out.get("record_command") or "")
+        return out
     if "Composite/hybrid paper advancement decision" in item:
-        return _operator_decision_event_status(root, target="composite_hybrid_paper_advancement_decision")
+        out = _operator_decision_event_status(root, target="composite_hybrid_paper_advancement_decision")
+        if not bool(out.get("satisfied")):
+            out["next_action"] = str(out.get("record_command") or "")
+        return out
     if "Real multi-year archive sweeps" in item:
         return _archive_research_artifact_status(root)
     if "`funding_extreme` persistent-campaign decision" in item:

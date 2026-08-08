@@ -28088,6 +28088,58 @@ Remaining risk:
   runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T20:16:26Z - Passive Operator Decision Command Guidance
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by making passive decision rows
+  directly actionable in `operator_next_actions`.
+
+What was found:
+- SHOWN: after passive decision event recognition, missing decision rows still
+  required the operator to know the exact journal command, target, and result
+  vocabulary.
+- SHOWN: `record_operator_event.py` is already the accepted journal writer, so
+  the status report can safely expose command guidance without creating a new
+  recorder or writing any event.
+
+What changed:
+- Missing passive decision artifact status now includes `accepted_results` and
+  `record_command`.
+- `operator_next_actions` now shows concrete `record_operator_event.py`
+  commands for manual strategy performance, composite/hybrid advancement, and
+  `funding_extreme` no-persistent-campaign decisions.
+- Funding with recorded research and no actionable basis now recommends
+  `--result no_persistent_campaign`.
+- Added a regression test pinning the command guidance.
+
+Why this change was chosen:
+- The next-action queue should be executable without a second lookup step. The
+  report still does not write the event; it only tells the operator how to
+  record the decision explicitly.
+
+Expected outcome:
+- The remaining passive decision rows become one-command operator actions while
+  preserving the separation between status reporting and journal mutation.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `77 passed in 0.67s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 8 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: ordinals 2, 6, and 8 now show concrete
+    `record_operator_event.py --action passive_operator_decision ...`
+    commands; ordinal 8 uses `--result no_persistent_campaign`.
+
+Remaining risk:
+- LOW: read-only status text, docs, and tests only. No operator event is
+  written by this change, and no research job, campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization, or
+  runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T19:44:38Z - Operator Proof Status Recorded Crypto-Edge Closure
 
 Active role: ENGINEER

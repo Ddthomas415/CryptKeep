@@ -613,6 +613,37 @@ def test_operator_proof_status_marks_manual_strategy_decision_event_satisfied(tm
     assert out["passive_operator_items"][1]["action_required"] is True
 
 
+def test_operator_proof_status_shows_manual_strategy_decision_record_command(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Manual strategy performance decision after the paper gate reaches the configured threshold.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    manual = out["passive_operator_items"][0]
+    assert manual["action_required"] is True
+    assert "--action passive_operator_decision" in manual["next_action"]
+    assert "--target manual_strategy_performance_decision" in manual["next_action"]
+    assert manual["artifact_status"]["artifact_status"] == "missing"
+    assert manual["artifact_status"]["record_command"] == manual["next_action"]
+
+
 def test_operator_proof_status_marks_composite_decision_event_satisfied(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 
@@ -769,7 +800,9 @@ def test_operator_proof_status_attaches_funding_research_without_satisfying_deci
     assert out["ok"] is True
     funding = out["passive_operator_items"][0]
     assert funding["action_required"] is True
-    assert "no-persistent-campaign decision" in funding["next_action"]
+    assert "--action passive_operator_decision" in funding["next_action"]
+    assert "--target funding_extreme_persistent_campaign_decision" in funding["next_action"]
+    assert "--result no_persistent_campaign" in funding["next_action"]
     assert funding["artifact_status"]["artifact_id"] == "funding_research_evidence"
     assert funding["artifact_status"]["artifact_status"] == "no_actionable_basis"
     assert funding["artifact_status"]["satisfied"] is False
