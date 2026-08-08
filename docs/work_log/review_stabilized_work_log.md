@@ -28140,6 +28140,63 @@ Remaining risk:
   runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T20:32:07Z - Passive Operator Evidence Command Guidance
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by replacing additional vague
+  passive operator-evidence rows with concrete repo-supported command guidance.
+
+What was found:
+- SHOWN: several passive rows had existing command surfaces documented in
+  `scripts/SCRIPTS.md`, `docs/EXCHANGE_SANDBOX_SMOKE.md`,
+  `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`, and
+  `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`.
+- SHOWN: these commands can guide evidence collection without marking the rows
+  satisfied or changing runtime behavior.
+
+What changed:
+- Added command-guidance artifact status for:
+  - private sandbox/testnet lifecycle smoke:
+    `./.venv/bin/python scripts/smoke_exchange.py --exchange binance --sandbox --orderbook`;
+  - launch-packet replay:
+    `make operator-arm-to-halt-replay-json`;
+  - shadow-derived execution-cost report:
+    `./.venv/bin/python scripts/report_execution_cost_stack.py --write-default-artifact`;
+  - backup/restore drill start:
+    `./.venv/bin/python scripts/backup_state.py backup --dest <backup_dir>`;
+  - supply-chain audit check:
+    `make check-supply-chain-json`.
+- Added a regression test proving these rows stay action-required and are not
+  treated as satisfied by command guidance alone.
+
+Why this change was chosen:
+- The next-action queue should tell the operator what to run when an accepted
+  command exists, while preserving the boundary that proof closes only after
+  the resulting evidence is recorded and reviewed.
+
+Expected outcome:
+- More passive rows are directly actionable from
+  `report_operator_next_actions.py`, but the open-count remains unchanged until
+  actual evidence artifacts or decisions exist.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `71 passed in 0.68s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinals 3, 4, 10, 13, and 15 now show
+    concrete command guidance.
+
+Remaining risk:
+- LOW: read-only status text and tests only. No command is run by this change,
+  no evidence is written, and no research job, campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization, or
+  runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T19:44:38Z - Operator Proof Status Recorded Crypto-Edge Closure
 
 Active role: ENGINEER

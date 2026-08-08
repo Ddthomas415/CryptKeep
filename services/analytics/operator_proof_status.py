@@ -324,6 +324,16 @@ def _operator_decision_event_status(root: Path, *, target: str) -> dict[str, Any
     }
 
 
+def _command_guidance_status(*, artifact_id: str, next_action: str, note: str = "") -> dict[str, Any]:
+    return {
+        "artifact_id": artifact_id,
+        "artifact_status": "command_guidance",
+        "satisfied": False,
+        "next_action": next_action,
+        "note": note,
+    }
+
+
 def _pullback_stage0_artifact_status(root: Path) -> dict[str, Any]:
     latest = (
         root
@@ -510,6 +520,18 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
         return _paper_gate_velocity_artifact_status(root)
     if "Pullback Stage 0 long proof" in item:
         return _pullback_stage0_artifact_status(root)
+    if "Private sandbox/testnet lifecycle proof" in item:
+        return _command_guidance_status(
+            artifact_id="exchange_sandbox_smoke_guidance",
+            next_action="./.venv/bin/python scripts/smoke_exchange.py --exchange binance --sandbox --orderbook",
+            note="Coinbase has no working CCXT sandbox URL in this repo; see docs/EXCHANGE_SANDBOX_SMOKE.md.",
+        )
+    if "Launch evidence packet" in item:
+        return _command_guidance_status(
+            artifact_id="launch_packet_replay_guidance",
+            next_action="make operator-arm-to-halt-replay-json",
+            note="Use --evidence-dest only when writing launch-packet evidence is intended.",
+        )
     if "Manual strategy performance decision" in item:
         out = _operator_decision_event_status(root, target="manual_strategy_performance_decision")
         if not bool(out.get("satisfied")):
@@ -524,6 +546,24 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
         return _archive_research_artifact_status(root)
     if "`funding_extreme` persistent-campaign decision" in item:
         return _funding_research_artifact_status(root)
+    if "Accepted shadow-derived execution-cost report" in item:
+        return _command_guidance_status(
+            artifact_id="execution_cost_stack_report_guidance",
+            next_action="./.venv/bin/python scripts/report_execution_cost_stack.py --write-default-artifact",
+            note="Report is read-only over stored shadow_would_be_fill records; it does not change routing or order type.",
+        )
+    if "Backup/restore drill evidence" in item:
+        return _command_guidance_status(
+            artifact_id="state_backup_restore_drill_guidance",
+            next_action="./.venv/bin/python scripts/backup_state.py backup --dest <backup_dir>",
+            note="Follow with verify/restore steps from docs/FULL_STATE_BACKUP_RESTORE_DRILL.md.",
+        )
+    if "Supply-chain audit/waiver evidence" in item:
+        return _command_guidance_status(
+            artifact_id="supply_chain_audit_guidance",
+            next_action="make check-supply-chain-json",
+            note="Use scripts/check_supply_chain.py --evidence-dest only when writing launch-packet evidence is intended.",
+        )
     return None
 
 

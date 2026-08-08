@@ -886,6 +886,48 @@ def test_operator_proof_status_marks_funding_decision_event_satisfied(
     assert funding["artifact_status"]["decision_event"]["result"] == "no_persistent_campaign"
 
 
+def test_operator_proof_status_shows_command_guidance_without_satisfying_rows(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Private sandbox/testnet lifecycle proof or explicit accepted exception.",
+                "- Launch evidence packet: restart, recovery, kill-switch, reconcile, rollback.",
+                "- Accepted shadow-derived execution-cost report using those records.",
+                "- Backup/restore drill evidence and backup-artifact secrets scan.",
+                "- Supply-chain audit/waiver evidence.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    rows = out["passive_operator_items"]
+    assert all(row["action_required"] is True for row in rows)
+    assert rows[0]["artifact_status"]["artifact_id"] == "exchange_sandbox_smoke_guidance"
+    assert "scripts/smoke_exchange.py --exchange binance --sandbox --orderbook" in rows[0]["next_action"]
+    assert rows[1]["artifact_status"]["artifact_id"] == "launch_packet_replay_guidance"
+    assert rows[1]["next_action"] == "make operator-arm-to-halt-replay-json"
+    assert rows[2]["artifact_status"]["artifact_id"] == "execution_cost_stack_report_guidance"
+    assert "scripts/report_execution_cost_stack.py --write-default-artifact" in rows[2]["next_action"]
+    assert rows[3]["artifact_status"]["artifact_id"] == "state_backup_restore_drill_guidance"
+    assert "scripts/backup_state.py backup --dest <backup_dir>" in rows[3]["next_action"]
+    assert rows[4]["artifact_status"]["artifact_id"] == "supply_chain_audit_guidance"
+    assert rows[4]["next_action"] == "make check-supply-chain-json"
+    assert out["summary"]["passive_operator_items_satisfied"] == 0
+
+
 def test_operator_proof_status_marks_cost_assumption_operational_markers_satisfied(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 
