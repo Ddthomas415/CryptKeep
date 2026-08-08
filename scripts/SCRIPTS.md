@@ -391,10 +391,15 @@ are not paper-campaign controls.
   unredacted secret-like fields without printing leaked values; `--require-events`
   is the launch-packet posture.
 - `check_dead_man.py` — dead-man liveness check over trading-loop heartbeats (exit 0/1/2; `--alert` dispatches via the alert stack; driven by `packaging/systemd/cbp-dead-man.timer`).
-- `check_edge_cadence.py` — read-only crypto-edge collector cadence/dead-man check over stored funding/OI/basis snapshot timestamps (exit 0/1/2; `--alert` best-effort; schedulable by `packaging/systemd/cbp-edge-cadence.timer`).
+- `check_edge_cadence.py` — read-only crypto-edge collector cadence/dead-man
+  check over stored funding/OI/basis snapshot timestamps; supports
+  `make check-edge-cadence[-json]` and `EDGE_CADENCE_STORE_PATH`; exit 0/1/2;
+  `--alert` best-effort; schedulable by
+  `packaging/systemd/cbp-edge-cadence.timer`.
 - `check_supply_chain.py` — pin integrity + environment match + optional pip-audit lane; `--evidence-dest` writes launch-packet provenance JSON (see `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`).
 - `check_cost_assumptions.py` — read-only paper fee/slippage cost-assumption
-  validator for the active `user.yaml`; reports paper-fill, evidence-scoring,
+  validator for the active `user.yaml`; supports
+  `make check-cost-assumptions[-json]`; reports paper-fill, evidence-scoring,
   dormant lookup, and backtest cost surfaces without mutating config or trading
   state.
 - `report_platform_event_journal.py` — read-only summary of the append-only

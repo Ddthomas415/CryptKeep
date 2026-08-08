@@ -53,6 +53,13 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "local_state",
     ),
     OperatorReadOnlyCommandSpec(
+        "cost_assumptions",
+        "scripts/check_cost_assumptions.py",
+        "check-cost-assumptions",
+        "gate_diagnostic",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
         "supervised_soak_status",
         "scripts/report_supervised_soak_status.py",
         "status-paper-soak",
@@ -77,6 +84,13 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "hetzner_paper_host_health",
         "scripts/check_hetzner_paper_host_health.py",
         "check-hetzner-paper-host-health",
+        "startup_host_diagnostic",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
+        "edge_cadence",
+        "scripts/check_edge_cadence.py",
+        "check-edge-cadence",
         "startup_host_diagnostic",
         "local_state",
     ),

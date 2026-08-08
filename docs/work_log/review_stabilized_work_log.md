@@ -27289,6 +27289,68 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T16:45:31Z - Register Cost and Edge Cadence Read-Only Commands
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator organization lane by registering existing
+  read-only proof helpers in the operator command-status registry.
+
+What was found:
+- SHOWN: `scripts/check_cost_assumptions.py` and
+  `scripts/check_edge_cadence.py` already exist and are documented in
+  `scripts/SCRIPTS.md`.
+- SHOWN: both scripts had no first-class `operator_read_only_command_status`
+  registry rows, so the operator command-status check-in could not verify their
+  wiring as part of the normal command inventory.
+
+What changed:
+- Added `check-cost-assumptions[-json]` Makefile targets for the existing
+  cost-assumption validator.
+- Added `check-edge-cadence[-json]` Makefile targets for the existing
+  crypto-edge cadence checker, with optional `EDGE_CADENCE_STORE_PATH`.
+- Registered `cost_assumptions` and `edge_cadence` in
+  `OPERATOR_READ_ONLY_COMMANDS`.
+- Updated `scripts/SCRIPTS.md`, `script-index`, and regression tests.
+
+Why this change was chosen:
+- This is command discovery/wiring only. It makes existing read-only proof
+  helpers visible in the same operator command inventory as paper gate,
+  platform-event, and host-status helpers without executing them or changing
+  their behavior.
+
+Expected outcome:
+- `make operator-read-only-command-status-json` reports 19 wired commands with
+  no missing wiring, including `cost_assumptions` and `edge_cadence`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `34 passed in 0.57s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py tests/test_operator_read_only_command_status.py`
+  - SHOWN: exit 0.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=cost_assumptions`
+  - SHOWN: `ok=true`, `make_target=check-cost-assumptions`, `wiring_ok=true`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=edge_cadence`
+  - SHOWN: `ok=true`, `make_target=check-edge-cadence`, `wiring_ok=true`.
+- `make operator-read-only-command-status-json`
+  - SHOWN: `source_command_count=19`, `source_not_wired=0`, `source_wired=19`.
+- `make -n check-cost-assumptions-json`
+  - SHOWN: expands to `./.venv/bin/python scripts/check_cost_assumptions.py --json`.
+- `make -n check-edge-cadence-json`
+  - SHOWN: expands to `./.venv/bin/python scripts/check_edge_cadence.py --json`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only command registration, docs, and tests only. The newly exposed
+  targets are existing scripts; this patch does not run them, change their
+  behavior, close proof, fetch market data, run campaigns, mutate state,
+  change gates, or touch live execution.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T16:38:11Z - Next-Actions Exclusion Filter for Code-First Check-Ins
 
 Active role: ENGINEER

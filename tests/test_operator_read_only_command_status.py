@@ -54,6 +54,10 @@ def test_operator_read_only_command_status_reports_current_repo_wiring() -> None
     assert rows["multi_symbol_paper_campaign_planner"]["wiring_ok"] is True
     assert rows["managed_paper_campaign_planner"]["script_index_exists"] is True
     assert rows["paper_gate_velocity"]["make_target"] == "status-paper-gate-velocity"
+    assert rows["cost_assumptions"]["make_target"] == "check-cost-assumptions"
+    assert rows["cost_assumptions"]["medium_lane_item"] == "gate_diagnostic"
+    assert rows["edge_cadence"]["make_target"] == "check-edge-cadence"
+    assert rows["edge_cadence"]["medium_lane_item"] == "startup_host_diagnostic"
     assert rows["ai_operator_oversight"]["make_target"] == "ai-operator-oversight"
     assert rows["roadmap_tracking_status"]["make_target"] == "roadmap-tracking-status"
     assert rows["roadmap_tracking_status"]["medium_lane_item"] == "optional_operator_report"
@@ -83,6 +87,18 @@ def test_operator_read_only_command_status_filters() -> None:
     assert by_roadmap["command_count"] == 1
     assert by_roadmap["commands"][0]["script"] == "scripts/report_roadmap_tracking_status.py"
     assert by_roadmap["commands"][0]["make_target"] == "roadmap-tracking-status"
+
+    by_cost = build_operator_read_only_command_status(command_id="cost_assumptions")
+    assert by_cost["ok"] is True
+    assert by_cost["command_count"] == 1
+    assert by_cost["commands"][0]["script"] == "scripts/check_cost_assumptions.py"
+    assert by_cost["commands"][0]["input_class"] == "local_state"
+
+    by_edge = build_operator_read_only_command_status(command_id="edge_cadence")
+    assert by_edge["ok"] is True
+    assert by_edge["command_count"] == 1
+    assert by_edge["commands"][0]["script"] == "scripts/check_edge_cadence.py"
+    assert by_edge["commands"][0]["input_class"] == "local_state"
 
 
 def test_operator_read_only_command_status_filters_platform_event_packet_lane() -> None:
