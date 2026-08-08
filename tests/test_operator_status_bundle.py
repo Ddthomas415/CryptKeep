@@ -146,6 +146,10 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["summary"]["operator_read_only_command_actions_required"] == 0
     assert out["summary"]["remaining_proof_or_coverage_markers"] == 1
     assert out["summary"]["host_side_markers"] == 1
+    assert out["summary"]["proof_marker_actions_required"] >= 1
+    assert out["summary"]["proof_markers_satisfied"] == 0
+    assert out["summary"]["proof_markers_context_only"] == 0
+    assert out["summary"]["passive_operator_items_satisfied"] == 0
     assert out["summary"]["operator_proof_actions_required"] >= 1
     assert out["actions"]["passive_operator_evidence"]
     assert out["actions"]["operator_proofs"]
@@ -695,6 +699,10 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "remaining_proof_or_coverage_markers": 27,
                 "host_side_markers": 17,
                 "proof_ready_markers": 25,
+                "proof_marker_actions_required": 2,
+                "proof_markers_satisfied": 5,
+                "proof_markers_context_only": 2,
+                "passive_operator_items_satisfied": 1,
                 "operator_proof_actions_required": 2,
             },
             "reports": {
@@ -819,6 +827,9 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "operator_read_only_commands: wired=17" in out
     assert "operator_read_only_command_action: paper_gate_velocity" in out
     assert "remaining=27" in out
+    assert "satisfied=5" in out
+    assert "context_only=2" in out
+    assert "passive_satisfied=1" in out
     assert "passive_action: #1" in out
     assert "collect or record operator evidence" in out
     assert "proof_action: L7 remaining_proof" in out

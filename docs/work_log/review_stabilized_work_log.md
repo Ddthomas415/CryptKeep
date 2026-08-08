@@ -27685,6 +27685,65 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T16:33:18Z - Operator Proof Resolution Counts in Status Bundle
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk roadmap/status organization lane by making the
+  operator status bundle preserve proof-marker resolution counts already
+  computed by `operator_proof_status`.
+
+What was found:
+- SHOWN: `operator_proof_status` reports `proof_markers_satisfied`,
+  `proof_markers_context_only`, `passive_operator_items_satisfied`, and
+  `proof_marker_actions_required`.
+- SHOWN: `operator_status_bundle` exposed open/action counts but dropped those
+  resolution counts from its top-level summary, so a check-in could show the
+  remaining queue without showing how many markers had already been resolved or
+  demoted to context-only.
+
+What changed:
+- `operator_status_bundle` now carries the proof-marker satisfied,
+  context-only, passive-satisfied, and source action-required counts into the
+  bundle summary.
+- `report_operator_status_bundle.py` prints those counts in the human
+  `proofs:` line.
+- Regression tests pin both the programmatic summary and CLI output.
+
+Why this change was chosen:
+- This is read-only reporting hygiene that reduces repeated operator noise
+  without changing backlog text, proof closure policy, campaigns, gates, market
+  data, or runtime state.
+
+Expected outcome:
+- `make operator-status OPERATOR_STATUS_SECTION=operator_proof` now shows open
+  proof actions and resolved/context-only counts in one line, making check-ins
+  easier to interpret without reopening already satisfied evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_proof_status.py tests/test_operator_next_actions.py`
+  - SHOWN: `57 passed in 0.64s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py scripts/report_operator_status_bundle.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make operator-status OPERATOR_STATUS_SECTION=operator_proof`
+  - SHOWN: `proofs: remaining=27 host_side=18 proof_ready=25 satisfied=5 context_only=2 passive_satisfied=1 actions_required=63`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=operator_proof`
+  - SHOWN: summary includes `proof_markers_satisfied=5`,
+    `proof_markers_context_only=2`, `passive_operator_items_satisfied=1`, and
+    `proof_marker_actions_required=63`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-02T01:40:53Z - Roadmap Status Read-Only Command Registration
 
 Active role: ENGINEER
