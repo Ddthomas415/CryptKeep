@@ -559,6 +559,121 @@ def test_operator_proof_status_marks_paper_gate_velocity_passive_item_satisfied(
     assert out["passive_operator_items"][1]["action_required"] is True
 
 
+def test_operator_proof_status_marks_archive_research_passive_item_satisfied(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Real multi-year archive sweeps and separate review before any strategy config or campaign uses sweep results.",
+                "- Another proof.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    artifact_root = tmp_path / ".cbp_state" / "data" / "research"
+    (artifact_root / "archive_walk_forward").mkdir(parents=True)
+    (artifact_root / "archive_parameter_sweep").mkdir()
+    (artifact_root / "archive_parameter_sweep_triage").mkdir()
+    (artifact_root / "archive_walk_forward" / "wf.latest.json").write_text(
+        json.dumps({"artifact_type": "archive_backed_walk_forward_v1", "ok": True}),
+        encoding="utf-8",
+    )
+    (artifact_root / "archive_parameter_sweep" / "sweep.latest.json").write_text(
+        json.dumps({"artifact_type": "archive_backed_parameter_sweep_v1", "ok": True}),
+        encoding="utf-8",
+    )
+    (artifact_root / "archive_parameter_sweep_triage" / "triage.latest.json").write_text(
+        json.dumps(
+            {
+                "artifact_type": "archive_parameter_sweep_triage_v1",
+                "ok": False,
+                "reason": "insufficient_review_candidates",
+                "candidates": [],
+                "review_candidates": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    archive = out["passive_operator_items"][0]
+    assert archive["action_required"] is False
+    assert archive["next_action"] == "none"
+    assert archive["artifact_status"]["artifact_id"] == "archive_research_evidence"
+    assert archive["artifact_status"]["artifact_status"] == "recorded"
+    assert archive["artifact_status"]["satisfied"] is True
+    assert len(archive["artifact_status"]["artifacts"]) == 3
+    assert out["passive_operator_items"][1]["action_required"] is True
+
+
+def test_operator_proof_status_attaches_funding_research_without_satisfying_decision(
+    tmp_path: Path,
+) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- `funding_extreme` persistent-campaign decision after reviewed price-joined research shows an actionable basis.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    run_dir = tmp_path / ".cbp_state" / "data" / "research" / "funding_threshold_pipeline" / "run"
+    run_dir.mkdir(parents=True)
+    (run_dir / "pipeline_summary.json").write_text(
+        json.dumps({"report_type": "funding_threshold_research_pipeline", "ok": True, "read_only": True}),
+        encoding="utf-8",
+    )
+    (run_dir / "funding_context_price_join.json").write_text(
+        json.dumps({"artifact_type": "funding_context_price_join_v1", "ok": True}),
+        encoding="utf-8",
+    )
+    (run_dir / "funding_threshold_candidate_triage.json").write_text(
+        json.dumps(
+            {
+                "artifact_type": "funding_threshold_candidate_triage_v1",
+                "ok": True,
+                "candidates": [{"status": "not_candidate"}],
+                "review_candidates": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    funding = out["passive_operator_items"][0]
+    assert funding["action_required"] is True
+    assert "no-persistent-campaign decision" in funding["next_action"]
+    assert funding["artifact_status"]["artifact_id"] == "funding_research_evidence"
+    assert funding["artifact_status"]["artifact_status"] == "no_actionable_basis"
+    assert funding["artifact_status"]["satisfied"] is False
+    assert funding["artifact_status"]["evidence_recorded"] is True
+    assert funding["artifact_status"]["actionable_basis"] is False
+    assert funding["artifact_status"]["candidate_count"] == 0
+
+
 def test_operator_proof_status_marks_cost_assumption_operational_markers_satisfied(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 

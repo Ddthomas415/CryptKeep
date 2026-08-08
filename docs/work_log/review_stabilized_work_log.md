@@ -27965,6 +27965,72 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T20:11:43Z - Operator Proof Status Research Artifact Passive Evidence
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by recognizing already-recorded
+  research artifacts when passive operator-evidence rows ask for archive or
+  funding research proof.
+
+What was found:
+- SHOWN: `scripts/research/report_research_artifact_inventory.py --json`
+  reports 14 research artifacts with zero actions required.
+- SHOWN: the archive research chain has recorded artifacts for
+  `archive_walk_forward`, `archive_parameter_sweep`, and terminal
+  `archive_parameter_sweep_triage`.
+- SHOWN: the funding threshold pipeline artifacts are recorded, but the
+  reviewed candidate triage has zero actionable candidates, so it does not
+  satisfy the separate operator decision to start a persistent
+  `funding_extreme` campaign.
+
+What changed:
+- `operator_proof_status` now attaches research-artifact status to the passive
+  archive-sweep row and marks it satisfied only when walk-forward, sweep, and
+  sweep-triage artifacts are present.
+- `operator_proof_status` now attaches funding research evidence to the
+  `funding_extreme` persistent-campaign decision row without closing it. If
+  artifacts are recorded but no actionable candidate exists, the next action is
+  narrowed to keeping `funding_extreme` research-only or recording an explicit
+  no-persistent-campaign decision.
+- Added regression tests for the archive satisfied path and the funding
+  recorded-but-not-satisfied path.
+
+Why this change was chosen:
+- The next-action queue should not ask the operator to collect proof that is
+  already recorded, but it also must not convert research artifacts into a
+  strategy/campaign decision. This keeps passive evidence tracking precise
+  without closing decisions the artifacts do not support.
+
+Expected outcome:
+- Operator check-ins report one fewer stale passive action. Archive research
+  proof is recognized as recorded, while the funding campaign decision remains
+  explicit and evidence-bound.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_research_artifact_inventory.py`
+  - SHOWN: `76 passed in 0.75s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py services/analytics/research_artifact_inventory.py scripts/report_operator_proof_status.py scripts/report_operator_next_actions.py scripts/research/report_research_artifact_inventory.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 20 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`, with only
+    `passive_operator_evidence` rows remaining.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --json`
+  - SHOWN: passive archive row ordinal 7 is `satisfied=true` with
+    `archive_research_evidence`; funding row ordinal 8 remains
+    `action_required=true` with `funding_research_evidence`,
+    `artifact_status=no_actionable_basis`, and `candidate_count=0`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and tests only. No research job,
+  campaign, market-data fetch, artifact generation, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T19:44:38Z - Operator Proof Status Recorded Crypto-Edge Closure
 
 Active role: ENGINEER

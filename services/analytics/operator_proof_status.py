@@ -327,11 +327,109 @@ def _cost_assumptions_artifact_status(root: Path) -> dict[str, Any]:
     }
 
 
+def _research_inventory_row(root: Path, artifact_id: str) -> dict[str, Any]:
+    try:
+        from services.analytics.research_artifact_inventory import build_research_artifact_inventory
+    except Exception:
+        return {}
+    report = build_research_artifact_inventory(repo_root=root, artifact_id=artifact_id)
+    rows = report.get("artifacts") if isinstance(report.get("artifacts"), list) else []
+    if not rows or not isinstance(rows[0], dict):
+        return {}
+    return rows[0]
+
+
+def _research_row_ok(row: dict[str, Any], *, terminal_ok: bool = False) -> bool:
+    status = str(row.get("latest_status") or "")
+    if status == "latest_ok":
+        return True
+    return bool(terminal_ok and status == "latest_terminal_no_candidates")
+
+
+def _archive_research_artifact_status(root: Path) -> dict[str, Any]:
+    required = {
+        "archive_walk_forward": _research_inventory_row(root, "archive_walk_forward"),
+        "archive_parameter_sweep": _research_inventory_row(root, "archive_parameter_sweep"),
+        "archive_parameter_sweep_triage": _research_inventory_row(root, "archive_parameter_sweep_triage"),
+    }
+    satisfied = (
+        _research_row_ok(required["archive_walk_forward"])
+        and _research_row_ok(required["archive_parameter_sweep"])
+        and _research_row_ok(required["archive_parameter_sweep_triage"], terminal_ok=True)
+    )
+    return {
+        "artifact_id": "archive_research_evidence",
+        "artifact_status": "recorded" if satisfied else "missing_or_incomplete",
+        "satisfied": bool(satisfied),
+        "artifacts": [
+            {
+                "artifact_id": artifact_id,
+                "latest_status": str(row.get("latest_status") or "missing"),
+                "latest_path": row.get("latest_path"),
+                "latest_sha256": row.get("latest_sha256"),
+            }
+            for artifact_id, row in required.items()
+        ],
+    }
+
+
+def _funding_research_artifact_status(root: Path) -> dict[str, Any]:
+    required = {
+        "funding_threshold_pipeline_summary": _research_inventory_row(root, "funding_threshold_pipeline_summary"),
+        "funding_context_price_join": _research_inventory_row(root, "funding_context_price_join"),
+        "funding_threshold_candidate_triage": _research_inventory_row(root, "funding_threshold_candidate_triage"),
+    }
+    candidate_row = required["funding_threshold_candidate_triage"]
+    candidate_payload = _load_json(Path(str(candidate_row.get("latest_path") or "")))
+    candidates = candidate_payload.get("review_candidates")
+    if not isinstance(candidates, list):
+        candidates = candidate_payload.get("candidates") if isinstance(candidate_payload.get("candidates"), list) else []
+    actionable_candidates = [
+        row for row in candidates if isinstance(row, dict) and str(row.get("status") or "") == "candidate"
+    ]
+    evidence_recorded = all(_research_row_ok(row) for row in required.values())
+    actionable_basis = bool(actionable_candidates)
+    return {
+        "artifact_id": "funding_research_evidence",
+        "artifact_status": (
+            "actionable_basis_recorded"
+            if evidence_recorded and actionable_basis
+            else "no_actionable_basis"
+            if evidence_recorded
+            else "missing_or_incomplete"
+        ),
+        "satisfied": False,
+        "evidence_recorded": bool(evidence_recorded),
+        "actionable_basis": bool(actionable_basis),
+        "candidate_count": len(actionable_candidates),
+        "next_action": (
+            "record the funding_extreme persistent-campaign decision against the reviewed artifact"
+            if evidence_recorded and actionable_basis
+            else "keep funding_extreme research-only or record an explicit no-persistent-campaign decision"
+            if evidence_recorded
+            else "run or repair the funding threshold research pipeline"
+        ),
+        "artifacts": [
+            {
+                "artifact_id": artifact_id,
+                "latest_status": str(row.get("latest_status") or "missing"),
+                "latest_path": row.get("latest_path"),
+                "latest_sha256": row.get("latest_sha256"),
+            }
+            for artifact_id, row in required.items()
+        ],
+    }
+
+
 def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
     if "Canonical `es_daily_trend_v1` qualified round-trip collection" in item:
         return _paper_gate_velocity_artifact_status(root)
     if "Pullback Stage 0 long proof" in item:
         return _pullback_stage0_artifact_status(root)
+    if "Real multi-year archive sweeps" in item:
+        return _archive_research_artifact_status(root)
+    if "`funding_extreme` persistent-campaign decision" in item:
+        return _funding_research_artifact_status(root)
     return None
 
 
@@ -402,12 +500,19 @@ def build_operator_proof_status(
     for idx, item in enumerate(all_passive_items, start=1):
         artifact_status = _passive_artifact_status(root, item)
         satisfied = bool((artifact_status or {}).get("satisfied"))
+        artifact_next_action = str((artifact_status or {}).get("next_action") or "")
         passive_rows.append(
             {
                 "ordinal": idx,
                 "text": item,
                 "action_required": not satisfied,
-                "next_action": "none" if satisfied else f"collect or record operator evidence: {item}",
+                "next_action": (
+                    "none"
+                    if satisfied
+                    else artifact_next_action
+                    if artifact_next_action
+                    else f"collect or record operator evidence: {item}"
+                ),
                 "artifact_status": artifact_status,
             }
         )
