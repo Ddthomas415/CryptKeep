@@ -27289,6 +27289,57 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T16:34:37Z - Default Next-Actions Prioritize Concrete Proof Rows
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator check-in cleanup by making the default
+  `operator-next-actions` first page more execution-focused without hiding
+  passive operator evidence.
+
+What was found:
+- SHOWN: default `operator-next-actions` concatenated passive operator evidence
+  before proof-marker rows.
+- SHOWN: the unfiltered first page was dominated by passive evidence rows even
+  though concrete proof actions were available.
+- SHOWN: explicit lane filters already existed for
+  `passive_operator_evidence` and `operator_proof`.
+
+What changed:
+- Default action construction now lists concrete `operator_proof` rows before
+  `passive_operator_evidence` rows.
+- Explicit lane filters, reason filters, counts, and passive-evidence access
+  remain unchanged.
+- Regression tests pin the new default order while preserving lane-filter
+  behavior.
+
+Why this change was chosen:
+- The default check-in should put concrete review/proof work first. Passive
+  operator evidence remains visible and filterable, but it no longer crowds out
+  actionable proof rows in the first page.
+
+Expected outcome:
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=10` starts with
+  `operator_proof` rows while summaries still report both
+  `operator_proof=63` and `passive_operator_evidence=14`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `43 passed in 0.54s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: first 10 returned rows are `operator_proof`; summary still reports
+    `operator_proof=63` and `passive_operator_evidence=14`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T21:22:00Z - Backlog Lane Map Exact Selector Refresh
 
 Active role: ENGINEER

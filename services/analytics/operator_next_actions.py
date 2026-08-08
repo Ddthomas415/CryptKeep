@@ -266,8 +266,8 @@ def build_operator_next_actions(
         *_research_artifact_actions(bundle),
         *_research_command_actions(bundle),
         *_operator_read_only_command_actions(bundle),
-        *_passive_operator_actions(bundle),
         *_proof_actions(bundle),
+        *_passive_operator_actions(bundle),
     ]
     if source_action_lanes and not lane_filter:
         actions = [row for row in actions if row.get("lane") in source_action_lanes]
