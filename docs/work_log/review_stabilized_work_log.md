@@ -28197,6 +28197,56 @@ Remaining risk:
   runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T20:35:36Z - Passive Operator Evidence Runbook Guidance
+
+Active role: ENGINEER
+
+Objective:
+- Finish making the passive operator-evidence next-action queue actionable by
+  replacing the remaining vague rows with explicit runbook or deployment-record
+  guidance.
+
+What was found:
+- SHOWN: the remaining vague passive rows correspond to documented operator
+  runbooks or deployment-record templates, not simple local status commands.
+- SHOWN: `docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md`,
+  `docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md`, and
+  `docs/SERVER_SECRETS_ROTATION_MODEL.md` are the current source documents for
+  those operator proofs.
+
+What changed:
+- Added runbook-guidance artifact status for:
+  - accepted shadow-stage run producing real `shadow_would_be_fill` records;
+  - Hetzner canonical `.cbp_state` migration follow-through;
+  - paper-to-shadow first-hour rehearsal;
+  - server secrets injection/rotation drill.
+- Added a regression test proving these rows remain action-required and are
+  not treated as satisfied by runbook guidance alone.
+
+Why this change was chosen:
+- Operator status should identify the exact source document for manual proof
+  work while preserving the rule that runbook guidance is not proof.
+
+Expected outcome:
+- The passive evidence queue now emits concrete commands or explicit runbook
+  paths for all remaining rows that can be locally classified.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `72 passed in 0.70s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinals 9, 11, 12, and 14 now show
+    explicit runbook/deployment-record guidance.
+
+Remaining risk:
+- LOW: read-only status text and tests only. No command is run by this change,
+  no evidence is written, and no research job, campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization, or
+  runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T19:44:38Z - Operator Proof Status Recorded Crypto-Edge Closure
 
 Active role: ENGINEER

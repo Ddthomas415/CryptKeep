@@ -928,6 +928,46 @@ def test_operator_proof_status_shows_command_guidance_without_satisfying_rows(tm
     assert out["summary"]["passive_operator_items_satisfied"] == 0
 
 
+def test_operator_proof_status_shows_runbook_guidance_without_satisfying_rows(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Accepted shadow-stage run producing real `shadow_would_be_fill` records.",
+                "- Hetzner canonical `.cbp_state` migration follow-through.",
+                "- Paper-to-shadow first-hour rehearsal.",
+                "- Server secrets injection/rotation drill.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    rows = out["passive_operator_items"]
+    assert all(row["action_required"] is True for row in rows)
+    assert rows[0]["artifact_status"]["artifact_id"] == "shadow_would_be_fill_runbook_guidance"
+    assert rows[0]["artifact_status"]["doc_path"] == "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md"
+    assert "shadow_would_be_fill" in rows[0]["next_action"]
+    assert rows[1]["artifact_status"]["artifact_id"] == "hetzner_canonical_state_migration_guidance"
+    assert rows[1]["artifact_status"]["doc_path"] == "docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md"
+    assert rows[2]["artifact_status"]["artifact_id"] == "paper_to_shadow_first_hour_guidance"
+    assert rows[2]["artifact_status"]["doc_path"] == "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md"
+    assert rows[3]["artifact_status"]["artifact_id"] == "server_secrets_rotation_guidance"
+    assert rows[3]["artifact_status"]["doc_path"] == "docs/SERVER_SECRETS_ROTATION_MODEL.md"
+    assert out["summary"]["passive_operator_items_satisfied"] == 0
+
+
 def test_operator_proof_status_marks_cost_assumption_operational_markers_satisfied(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 

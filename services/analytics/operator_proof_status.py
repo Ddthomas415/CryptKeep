@@ -334,6 +334,16 @@ def _command_guidance_status(*, artifact_id: str, next_action: str, note: str = 
     }
 
 
+def _runbook_guidance_status(*, artifact_id: str, next_action: str, doc_path: str) -> dict[str, Any]:
+    return {
+        "artifact_id": artifact_id,
+        "artifact_status": "runbook_guidance",
+        "satisfied": False,
+        "next_action": next_action,
+        "doc_path": doc_path,
+    }
+
+
 def _pullback_stage0_artifact_status(root: Path) -> dict[str, Any]:
     latest = (
         root
@@ -546,17 +556,44 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
         return _archive_research_artifact_status(root)
     if "`funding_extreme` persistent-campaign decision" in item:
         return _funding_research_artifact_status(root)
+    if "Accepted shadow-stage run producing real `shadow_would_be_fill` records" in item:
+        return _runbook_guidance_status(
+            artifact_id="shadow_would_be_fill_runbook_guidance",
+            next_action=(
+                "follow docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md until a shadow session writes "
+                "stored shadow_would_be_fill records"
+            ),
+            doc_path="docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
+        )
     if "Accepted shadow-derived execution-cost report" in item:
         return _command_guidance_status(
             artifact_id="execution_cost_stack_report_guidance",
             next_action="./.venv/bin/python scripts/report_execution_cost_stack.py --write-default-artifact",
             note="Report is read-only over stored shadow_would_be_fill records; it does not change routing or order type.",
         )
+    if "Hetzner canonical `.cbp_state` migration follow-through" in item:
+        return _runbook_guidance_status(
+            artifact_id="hetzner_canonical_state_migration_guidance",
+            next_action="use docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md",
+            doc_path="docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md",
+        )
+    if "Paper-to-shadow first-hour rehearsal" in item:
+        return _runbook_guidance_status(
+            artifact_id="paper_to_shadow_first_hour_guidance",
+            next_action="rehearse docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md and record the checkpoint",
+            doc_path="docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
+        )
     if "Backup/restore drill evidence" in item:
         return _command_guidance_status(
             artifact_id="state_backup_restore_drill_guidance",
             next_action="./.venv/bin/python scripts/backup_state.py backup --dest <backup_dir>",
             note="Follow with verify/restore steps from docs/FULL_STATE_BACKUP_RESTORE_DRILL.md.",
+        )
+    if "Server secrets injection/rotation drill" in item:
+        return _runbook_guidance_status(
+            artifact_id="server_secrets_rotation_guidance",
+            next_action="follow docs/SERVER_SECRETS_ROTATION_MODEL.md and record a redacted proof packet",
+            doc_path="docs/SERVER_SECRETS_ROTATION_MODEL.md",
         )
     if "Supply-chain audit/waiver evidence" in item:
         return _command_guidance_status(
