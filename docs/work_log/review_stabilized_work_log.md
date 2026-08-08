@@ -28024,6 +28024,61 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T19:47:20Z - Operator Proof Status Host-Side Proof Classification
+
+Active role: ENGINEER
+
+Objective:
+- Continue reducing repeated operator-action noise by classifying host-side
+  drill/proof markers as host-side references instead of generic local
+  `remaining_proof` work.
+
+What was found:
+- SHOWN: backlog lines for restore drill, promotion proof, and future
+  server/capped-live backup evidence were surfaced as generic
+  `remaining_proof` actions even when the proof text was explicitly host-side.
+- SHOWN: `report_operator_next_actions.py` already supports
+  `--exclude-reason host_side_reference`, but these rows bypassed that filter
+  because their first textual marker was `Remaining proof`.
+
+What changed:
+- `operator_proof_status` now reclassifies explicit host-side remaining-proof
+  rows as `host_side_reference`.
+- The rule is intentionally narrow: it looks for host-side proof phrases on the
+  marker line or specific host-proof phrases in the numbered item context, and
+  does not reclassify generic/local remaining-proof rows.
+- Regression coverage pins host-side restore/promotion reclassification while
+  preserving a local remaining-proof marker.
+
+Why this change was chosen:
+- Host-only operational proofs should remain visible when requested, but should
+  be removable by the existing host-side exclusion when the operator asks for
+  local/code-ready next actions.
+
+Expected outcome:
+- The filtered next-action queue no longer treats host-side restore,
+  promotion, and future launch-packet proof as generic local work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `63 passed in 0.53s`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 10 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=15`; the generic `remaining_proof` queue now
+    starts with lines 1650 and 2089 only.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --json --line 1918`
+  - SHOWN: line 1918 is now `category=host_side_reference`.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --json --line 2022`
+  - SHOWN: line 2022 is now `category=host_side_reference`.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --json --line 3067`
+  - SHOWN: line 3067 is now `category=host_side_reference`.
+
+Remaining risk:
+- LOW: read-only status categorization and tests only. No backlog proof was
+  closed, no host action was run, and no campaign, market-data fetch, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T16:58:59Z - Register Replay and Schema Read-Only Commands
 
 Active role: ENGINEER

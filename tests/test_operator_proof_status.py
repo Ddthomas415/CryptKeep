@@ -112,6 +112,40 @@ def test_operator_proof_status_filters_proof_markers_by_category(tmp_path: Path)
     assert [row["category"] for row in out["proof_markers"]] == ["host_side_reference"]
 
 
+def test_operator_proof_status_classifies_host_side_remaining_proof_as_host_reference(
+    tmp_path: Path,
+) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+            [
+                "1. Restore.",
+                "   Remaining proof: host-side restore drill and migration packet.",
+                "2. Promotion.",
+                "   Remaining proof: promotion audit-write fail-closed policy and host-side promotion proof.",
+                "3. Local.",
+                "   Remaining proof: execute the local invariant check.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    assert out["proof_marker_count"] == 3
+    assert out["summary"]["category_counts"] == {
+        "host_side_reference": 2,
+        "remaining_proof": 1,
+    }
+    rows = {row["line"]: row for row in out["proof_markers"]}
+    assert rows[2]["category"] == "host_side_reference"
+    assert rows[4]["category"] == "host_side_reference"
+    assert rows[6]["category"] == "remaining_proof"
+
+
 def test_operator_proof_status_does_not_reopen_recorded_host_proof(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 

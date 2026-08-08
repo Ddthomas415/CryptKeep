@@ -93,6 +93,7 @@ def _proof_markers(backlog_text: str) -> tuple[ProofMarker, ...]:
         lowered = text.lower()
         for category, marker in _MARKERS:
             if marker in lowered:
+                category = _effective_marker_category(category, text=text, context=context)
                 markers.append(
                     ProofMarker(
                         line=line_no,
@@ -114,6 +115,36 @@ def _numbered_item_context(lines: list[str], line_no: int) -> str:
     while end < len(lines) and not re.match(r"^\s*\d+\.\s+", lines[end]):
         end += 1
     return " ".join(part.strip() for part in lines[start:end] if part.strip())
+
+
+def _effective_marker_category(category: str, *, text: str, context: str) -> str:
+    if category != "remaining_proof":
+        return category
+    combined = f"{text} {context}".lower()
+    if "crypto-edge" in combined:
+        return category
+    marker_text = text.lower()
+    host_line_phrases = (
+        "host-side",
+        "operator-host",
+        "host proof",
+        "host-specific",
+        "hetzner",
+        "/srv/cryptkeep",
+        "/var/lib/cbp",
+    )
+    host_context_phrases = (
+        "host-side restore drill",
+        "host-side promotion proof",
+        "host-specific storage proof",
+        "hetzner canonical",
+        "future launch-packet host evidence",
+    )
+    if any(phrase in marker_text for phrase in host_line_phrases) or any(
+        phrase in combined for phrase in host_context_phrases
+    ):
+        return "host_side_reference"
+    return category
 
 
 def _category_counts(markers: tuple[ProofMarker, ...]) -> dict[str, int]:
