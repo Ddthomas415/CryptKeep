@@ -920,7 +920,7 @@ def test_operator_proof_status_shows_command_guidance_without_satisfying_rows(tm
     assert rows[1]["artifact_status"]["artifact_id"] == "launch_packet_replay_guidance"
     assert rows[1]["next_action"] == "make operator-arm-to-halt-replay-json"
     assert rows[2]["artifact_status"]["artifact_id"] == "execution_cost_stack_report_guidance"
-    assert "scripts/report_execution_cost_stack.py --write-default-artifact" in rows[2]["next_action"]
+    assert rows[2]["next_action"] == "make record-execution-cost-stack"
     assert rows[3]["artifact_status"]["artifact_id"] == "state_backup_restore_drill_guidance"
     assert "scripts/backup_state.py backup --dest <backup_dir>" in rows[3]["next_action"]
     assert rows[4]["artifact_status"]["artifact_id"] == "supply_chain_audit_guidance"

@@ -227,7 +227,8 @@ decision makes them authoritative.
   `shadow_would_be_fill` records; computes taker cost and quote-only maker
   metrics, requires stored subsequent price path before fill-probability
   conclusions, and never changes routing, order type, or paper campaign
-  behavior.
+  behavior. Use `make record-execution-cost-stack` to write the standard
+  artifact.
 - `research/run_funding_context_replay.py` — read-only `funding_extreme`
   signal-distribution replay over stored crypto-edge funding snapshots; writes
   dataset-hashed JSON artifacts only and does not compute PnL, expectancy, or

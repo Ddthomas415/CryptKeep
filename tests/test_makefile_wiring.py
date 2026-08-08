@@ -38,3 +38,5 @@ def test_makefile_has_alignment_targets():
     assert "scripts/pre_release_sanity.py --json --skip-ruff --skip-mypy --skip-pytest --skip-config --skip-imports" in txt
     assert "CBP_PRE_RELEASE_SKIP_PYTEST=1" in txt
     assert "scripts/pre_release_sanity.py --json --skip-ruff --skip-mypy" in txt
+    assert "record-execution-cost-stack:" in txt
+    assert "scripts/report_execution_cost_stack.py --write-default-artifact" in txt

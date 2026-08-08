@@ -607,7 +607,7 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
     if "Accepted shadow-derived execution-cost report" in item:
         return _command_guidance_status(
             artifact_id="execution_cost_stack_report_guidance",
-            next_action="./.venv/bin/python scripts/report_execution_cost_stack.py --write-default-artifact",
+            next_action="make record-execution-cost-stack",
             note="Report is read-only over stored shadow_would_be_fill records; it does not change routing or order type.",
         )
     if "Hetzner canonical `.cbp_state` migration follow-through" in item:

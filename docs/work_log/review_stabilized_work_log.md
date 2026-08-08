@@ -27965,6 +27965,64 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T23:13:38Z - Execution-Cost Stack Evidence Recording Target
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by standardizing the
+  execution-cost stack evidence recording command behind a Make target.
+
+What was found:
+- SHOWN: operator proof status already emitted a passive guidance item for the
+  accepted shadow-derived execution-cost report, but its next action was the
+  raw `scripts/report_execution_cost_stack.py --write-default-artifact`
+  command rather than a stable operator target.
+- SHOWN: `report_execution_cost_stack.py` was documented as the read-only
+  report producer, but the script index did not name a standard artifact
+  recording target.
+
+What changed:
+- Added `make record-execution-cost-stack`, with optional
+  `EXECUTION_COST_STACK_ARGS`, to run
+  `scripts/report_execution_cost_stack.py --write-default-artifact`.
+- Updated operator proof status so the passive execution-cost guidance row now
+  points to `make record-execution-cost-stack`.
+- Updated `scripts/SCRIPTS.md` and regression tests to keep the Make target,
+  script index, and operator action output aligned.
+
+Why this change was chosen:
+- The operator next-action list should prefer stable Make targets over raw
+  script invocations when a standard evidence artifact command exists. This is
+  command-surface cleanup only; it does not run the report or change report
+  semantics.
+
+Expected outcome:
+- `operator_next_actions` surfaces the execution-cost report as
+  `make record-execution-cost-stack`, matching the other standard passive
+  evidence recording commands.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `81 passed in 0.89s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py scripts/report_execution_cost_stack.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make -n record-execution-cost-stack`
+  - SHOWN:
+    `./.venv/bin/python scripts/report_execution_cost_stack.py --write-default-artifact`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinal 10 next action is
+    `make record-execution-cost-stack`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. This patch does not run the
+  execution-cost report, create artifacts, fetch market data, close proof,
+  change gates, campaigns, live routing, execution, authorization, or runtime
+  behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T20:11:43Z - Operator Proof Status Research Artifact Passive Evidence
 
 Active role: ENGINEER
