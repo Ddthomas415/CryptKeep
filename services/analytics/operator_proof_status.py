@@ -421,6 +421,45 @@ def _cost_assumptions_artifact_status(root: Path) -> dict[str, Any]:
     }
 
 
+def _latest_supply_chain_evidence(root: Path) -> Path | None:
+    evidence_dir = root / ".cbp_state" / "data" / "supply_chain"
+    paths = sorted(evidence_dir.glob("supply-chain-evidence-*.json"))
+    return paths[-1] if paths else None
+
+
+def _supply_chain_artifact_status(root: Path) -> dict[str, Any]:
+    latest = _latest_supply_chain_evidence(root)
+    if latest is None:
+        return _command_guidance_status(
+            artifact_id="supply_chain_audit_guidance",
+            next_action="make record-supply-chain",
+            note="Writes standard supply-chain evidence under .cbp_state/data/supply_chain/.",
+        )
+    payload = _load_json(latest)
+    pin_integrity = payload.get("pin_integrity") if isinstance(payload.get("pin_integrity"), dict) else {}
+    environment = payload.get("environment") if isinstance(payload.get("environment"), dict) else {}
+    passed = (
+        latest.is_file()
+        and bool(pin_integrity.get("ok")) is True
+        and bool(environment.get("ok")) is True
+        and bool(payload.get("git_sha"))
+        and isinstance(payload.get("requirement_file_sha256"), dict)
+    )
+    return {
+        "artifact_id": "supply_chain_evidence",
+        "artifact_path": str(latest),
+        "artifact_exists": latest.is_file(),
+        "artifact_sha256": _sha256(latest),
+        "artifact_status": "recorded" if passed else "invalid_or_failed",
+        "git_sha": payload.get("git_sha"),
+        "git_dirty": bool(payload.get("git_dirty")),
+        "pin_integrity_ok": bool(pin_integrity.get("ok")),
+        "environment_ok": bool(environment.get("ok")),
+        "satisfied": bool(passed),
+        "next_action": "none" if passed else "make record-supply-chain",
+    }
+
+
 def _research_inventory_row(root: Path, artifact_id: str) -> dict[str, Any]:
     try:
         from services.analytics.research_artifact_inventory import build_research_artifact_inventory
@@ -596,11 +635,7 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
             doc_path="docs/SERVER_SECRETS_ROTATION_MODEL.md",
         )
     if "Supply-chain audit/waiver evidence" in item:
-        return _command_guidance_status(
-            artifact_id="supply_chain_audit_guidance",
-            next_action="make check-supply-chain-json",
-            note="Use scripts/check_supply_chain.py --evidence-dest only when writing launch-packet evidence is intended.",
-        )
+        return _supply_chain_artifact_status(root)
     return None
 
 

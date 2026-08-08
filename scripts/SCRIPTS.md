@@ -410,8 +410,9 @@ are not paper-campaign controls.
   `--alert` best-effort; schedulable by
   `packaging/systemd/cbp-edge-cadence.timer`.
 - `check_supply_chain.py` — pin integrity + environment match + optional
-  pip-audit lane; supports `make check-supply-chain[-json]`; `--evidence-dest`
-  writes launch-packet provenance JSON (see
+  pip-audit lane; supports `make check-supply-chain[-json]` and
+  `make record-supply-chain`; `record-supply-chain` writes standard
+  provenance evidence under `.cbp_state/data/supply_chain/` (see
   `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`).
 - `check_cost_assumptions.py` — read-only paper fee/slippage cost-assumption
   validator for the active `user.yaml`; supports

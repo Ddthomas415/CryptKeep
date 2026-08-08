@@ -924,8 +924,58 @@ def test_operator_proof_status_shows_command_guidance_without_satisfying_rows(tm
     assert rows[3]["artifact_status"]["artifact_id"] == "state_backup_restore_drill_guidance"
     assert "scripts/backup_state.py backup --dest <backup_dir>" in rows[3]["next_action"]
     assert rows[4]["artifact_status"]["artifact_id"] == "supply_chain_audit_guidance"
-    assert rows[4]["next_action"] == "make check-supply-chain-json"
+    assert rows[4]["next_action"] == "make record-supply-chain"
     assert out["summary"]["passive_operator_items_satisfied"] == 0
+
+
+def test_operator_proof_status_marks_supply_chain_evidence_satisfied(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Supply-chain audit/waiver evidence.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    evidence_dir = tmp_path / ".cbp_state" / "data" / "supply_chain"
+    evidence_dir.mkdir(parents=True)
+    artifact = evidence_dir / "supply-chain-evidence-20260808T203600Z.json"
+    artifact.write_text(
+        json.dumps(
+            {
+                "created": "2026-08-08T20:36:00Z",
+                "git_sha": "abc123",
+                "git_dirty": False,
+                "requirement_file_sha256": {"requirements-pinned.txt": "sha"},
+                "pin_integrity": {"ok": True, "problems": [], "pin_count": 1},
+                "environment": {"ok": True, "checked": 1, "mismatches": [], "not_installed": []},
+                "vulnerability_audit": {"ran": False, "reason": "not_requested"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    supply = out["passive_operator_items"][0]
+    assert supply["action_required"] is False
+    assert supply["next_action"] == "none"
+    assert supply["artifact_status"]["artifact_id"] == "supply_chain_evidence"
+    assert supply["artifact_status"]["artifact_status"] == "recorded"
+    assert supply["artifact_status"]["pin_integrity_ok"] is True
+    assert supply["artifact_status"]["environment_ok"] is True
+    assert out["summary"]["passive_operator_items_satisfied"] == 1
 
 
 def test_operator_proof_status_shows_runbook_guidance_without_satisfying_rows(tmp_path: Path) -> None:

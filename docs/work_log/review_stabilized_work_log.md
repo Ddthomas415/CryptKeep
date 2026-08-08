@@ -28197,6 +28197,61 @@ Remaining risk:
   runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T20:38:01Z - Supply-Chain Evidence Recording Target
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by giving supply-chain proof a
+  standard evidence-writing target and making proof status consume that
+  evidence once present.
+
+What was found:
+- SHOWN: `scripts/check_supply_chain.py` already supports `--evidence-dest`,
+  but Makefile exposed only non-recording `check-supply-chain[-json]` targets.
+- SHOWN: `operator_proof_status` could only show generic supply-chain command
+  guidance and could not recognize a recorded supply-chain evidence artifact.
+
+What changed:
+- Added `SUPPLY_CHAIN_EVIDENCE_DEST ?= .cbp_state/data/supply_chain`.
+- Added `make record-supply-chain`, which runs
+  `scripts/check_supply_chain.py --json --evidence-dest $(SUPPLY_CHAIN_EVIDENCE_DEST)`.
+- `operator_proof_status` now recognizes the latest
+  `.cbp_state/data/supply_chain/supply-chain-evidence-*.json` artifact and
+  marks the supply-chain passive row satisfied only when pin integrity and
+  environment checks are both ok and provenance fields are present.
+- Updated `scripts/SCRIPTS.md` and regression tests.
+
+Why this change was chosen:
+- Supply-chain proof should have the same standard record/check split as cost
+  assumptions: a fast read-only check target and a deliberate evidence-writing
+  target.
+
+Expected outcome:
+- `operator_next_actions` points the supply-chain row to `make
+  record-supply-chain`; after a valid evidence artifact is recorded, the row
+  closes automatically.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `81 passed in 0.81s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py scripts/check_supply_chain.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make -n record-supply-chain`
+  - SHOWN: expands to
+    `./.venv/bin/python scripts/check_supply_chain.py --json --evidence-dest .cbp_state/data/supply_chain`.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: ordinal 15 now shows `make record-supply-chain`.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. The new target writes supply-chain
+  evidence only when explicitly run; this patch did not run it and did not
+  change campaigns, gates, ingestion, live routing, execution, authorization,
+  or runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T20:35:36Z - Passive Operator Evidence Runbook Guidance
 
 Active role: ENGINEER
