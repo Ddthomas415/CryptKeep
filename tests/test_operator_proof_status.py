@@ -559,6 +559,110 @@ def test_operator_proof_status_marks_paper_gate_velocity_passive_item_satisfied(
     assert out["passive_operator_items"][1]["action_required"] is True
 
 
+def test_operator_proof_status_marks_manual_strategy_decision_event_satisfied(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Manual strategy performance decision after the paper gate reaches the configured threshold.",
+                "- Composite/hybrid paper advancement decision after evidence changes.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    journal = tmp_path / ".cbp_state" / "data" / "operator_events" / "operator_events.jsonl"
+    journal.parent.mkdir(parents=True)
+    journal.write_text(
+        json.dumps(
+            {
+                "event_id": "evt-manual-decision",
+                "timestamp": "2026-08-08T20:20:00Z",
+                "actor": "operator",
+                "action": "passive_operator_decision",
+                "target": "manual_strategy_performance_decision",
+                "result": "accepted",
+                "reason": "paper_gate_review",
+                "pre_state": {},
+                "post_state": {},
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    manual = out["passive_operator_items"][0]
+    assert manual["action_required"] is False
+    assert manual["next_action"] == "none"
+    assert manual["artifact_status"]["artifact_id"] == "operator_decision_event"
+    assert manual["artifact_status"]["artifact_status"] == "recorded"
+    assert manual["artifact_status"]["event_id"] == "evt-manual-decision"
+    assert manual["artifact_status"]["target"] == "manual_strategy_performance_decision"
+    assert out["passive_operator_items"][1]["action_required"] is True
+
+
+def test_operator_proof_status_marks_composite_decision_event_satisfied(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Composite/hybrid paper advancement decision after evidence changes.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    journal = tmp_path / ".cbp_state" / "data" / "operator_events" / "operator_events.jsonl"
+    journal.parent.mkdir(parents=True)
+    journal.write_text(
+        json.dumps(
+            {
+                "event_id": "evt-composite-decision",
+                "timestamp": "2026-08-08T20:20:01Z",
+                "actor": "operator",
+                "action": "passive_operator_decision",
+                "target": "composite_hybrid_paper_advancement_decision",
+                "result": "declined",
+                "reason": "insufficient_edge",
+                "pre_state": {},
+                "post_state": {},
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    composite = out["passive_operator_items"][0]
+    assert composite["action_required"] is False
+    assert composite["next_action"] == "none"
+    assert composite["artifact_status"]["artifact_status"] == "recorded"
+    assert composite["artifact_status"]["result"] == "declined"
+
+
 def test_operator_proof_status_marks_archive_research_passive_item_satisfied(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 
@@ -672,6 +776,81 @@ def test_operator_proof_status_attaches_funding_research_without_satisfying_deci
     assert funding["artifact_status"]["evidence_recorded"] is True
     assert funding["artifact_status"]["actionable_basis"] is False
     assert funding["artifact_status"]["candidate_count"] == 0
+    assert funding["artifact_status"]["decision_event"]["satisfied"] is False
+
+
+def test_operator_proof_status_marks_funding_decision_event_satisfied(
+    tmp_path: Path,
+) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- `funding_extreme` persistent-campaign decision after reviewed price-joined research shows an actionable basis.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    run_dir = tmp_path / ".cbp_state" / "data" / "research" / "funding_threshold_pipeline" / "run"
+    run_dir.mkdir(parents=True)
+    (run_dir / "pipeline_summary.json").write_text(
+        json.dumps({"report_type": "funding_threshold_research_pipeline", "ok": True, "read_only": True}),
+        encoding="utf-8",
+    )
+    (run_dir / "funding_context_price_join.json").write_text(
+        json.dumps({"artifact_type": "funding_context_price_join_v1", "ok": True}),
+        encoding="utf-8",
+    )
+    (run_dir / "funding_threshold_candidate_triage.json").write_text(
+        json.dumps(
+            {
+                "artifact_type": "funding_threshold_candidate_triage_v1",
+                "ok": True,
+                "candidates": [{"status": "not_candidate"}],
+                "review_candidates": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    journal = tmp_path / ".cbp_state" / "data" / "operator_events" / "operator_events.jsonl"
+    journal.parent.mkdir(parents=True, exist_ok=True)
+    journal.write_text(
+        json.dumps(
+            {
+                "event_id": "evt-funding-no-campaign",
+                "timestamp": "2026-08-08T20:20:02Z",
+                "actor": "operator",
+                "action": "passive_operator_decision",
+                "target": "funding_extreme_persistent_campaign_decision",
+                "result": "no_persistent_campaign",
+                "reason": "candidate_count_zero",
+                "pre_state": {},
+                "post_state": {},
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    funding = out["passive_operator_items"][0]
+    assert funding["action_required"] is False
+    assert funding["next_action"] == "none"
+    assert funding["artifact_status"]["artifact_status"] == "decision_recorded"
+    assert funding["artifact_status"]["decision_event"]["event_id"] == "evt-funding-no-campaign"
+    assert funding["artifact_status"]["decision_event"]["result"] == "no_persistent_campaign"
 
 
 def test_operator_proof_status_marks_cost_assumption_operational_markers_satisfied(tmp_path: Path) -> None:

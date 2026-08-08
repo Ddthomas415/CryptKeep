@@ -250,6 +250,66 @@ def _load_json(path: Path) -> dict[str, Any]:
     return raw if isinstance(raw, dict) else {}
 
 
+def _operator_event_journal_path(root: Path) -> Path:
+    return root / ".cbp_state" / "data" / "operator_events" / "operator_events.jsonl"
+
+
+def _load_operator_events(root: Path) -> list[dict[str, Any]]:
+    path = _operator_event_journal_path(root)
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return []
+    rows: list[dict[str, Any]] = []
+    for line in lines:
+        text = line.strip()
+        if not text:
+            continue
+        try:
+            raw = json.loads(text)
+        except Exception:
+            continue
+        if isinstance(raw, dict):
+            rows.append(raw)
+    return rows
+
+
+def _operator_decision_event_status(root: Path, *, target: str) -> dict[str, Any]:
+    path = _operator_event_journal_path(root)
+    accepted_results = {"accepted", "accepted_with_risk", "declined", "no_persistent_campaign", "research_only"}
+    matches = [
+        row
+        for row in _load_operator_events(root)
+        if str(row.get("action") or "") == "passive_operator_decision"
+        and str(row.get("target") or "") == target
+        and str(row.get("result") or "") in accepted_results
+    ]
+    if not matches:
+        return {
+            "artifact_id": "operator_decision_event",
+            "artifact_path": str(path),
+            "artifact_exists": path.is_file(),
+            "artifact_sha256": _sha256(path),
+            "target": target,
+            "artifact_status": "missing",
+            "satisfied": False,
+        }
+    latest = matches[-1]
+    return {
+        "artifact_id": "operator_decision_event",
+        "artifact_path": str(path),
+        "artifact_exists": path.is_file(),
+        "artifact_sha256": _sha256(path),
+        "target": target,
+        "artifact_status": "recorded",
+        "event_id": latest.get("event_id"),
+        "timestamp": latest.get("timestamp"),
+        "result": latest.get("result"),
+        "reason": latest.get("reason"),
+        "satisfied": True,
+    }
+
+
 def _pullback_stage0_artifact_status(root: Path) -> dict[str, Any]:
     latest = (
         root
@@ -389,21 +449,28 @@ def _funding_research_artifact_status(root: Path) -> dict[str, Any]:
     ]
     evidence_recorded = all(_research_row_ok(row) for row in required.values())
     actionable_basis = bool(actionable_candidates)
+    decision_event = _operator_decision_event_status(root, target="funding_extreme_persistent_campaign_decision")
+    decision_satisfied = bool(decision_event.get("satisfied"))
     return {
         "artifact_id": "funding_research_evidence",
         "artifact_status": (
-            "actionable_basis_recorded"
+            "decision_recorded"
+            if decision_satisfied
+            else "actionable_basis_recorded"
             if evidence_recorded and actionable_basis
             else "no_actionable_basis"
             if evidence_recorded
             else "missing_or_incomplete"
         ),
-        "satisfied": False,
+        "satisfied": decision_satisfied,
         "evidence_recorded": bool(evidence_recorded),
         "actionable_basis": bool(actionable_basis),
         "candidate_count": len(actionable_candidates),
+        "decision_event": decision_event,
         "next_action": (
-            "record the funding_extreme persistent-campaign decision against the reviewed artifact"
+            "none"
+            if decision_satisfied
+            else "record the funding_extreme persistent-campaign decision against the reviewed artifact"
             if evidence_recorded and actionable_basis
             else "keep funding_extreme research-only or record an explicit no-persistent-campaign decision"
             if evidence_recorded
@@ -426,6 +493,10 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
         return _paper_gate_velocity_artifact_status(root)
     if "Pullback Stage 0 long proof" in item:
         return _pullback_stage0_artifact_status(root)
+    if "Manual strategy performance decision" in item:
+        return _operator_decision_event_status(root, target="manual_strategy_performance_decision")
+    if "Composite/hybrid paper advancement decision" in item:
+        return _operator_decision_event_status(root, target="composite_hybrid_paper_advancement_decision")
     if "Real multi-year archive sweeps" in item:
         return _archive_research_artifact_status(root)
     if "`funding_extreme` persistent-campaign decision" in item:

@@ -384,6 +384,14 @@ are not paper-campaign controls.
 - `audit_coverage_matrix.py` — operator/action audit coverage matrix (SHOWN/PARTIAL/MISSING per policy family; `--strict` capped-live posture; see `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md`).
 - `record_operator_event.py` — append one manual operator/action audit event to
   the unified JSONL journal; redacts secret-like payload fields.
+  Passive operator-evidence decisions recognized by
+  `report_operator_proof_status.py` use
+  `--action passive_operator_decision` with one of these targets:
+  `manual_strategy_performance_decision`,
+  `composite_hybrid_paper_advancement_decision`, or
+  `funding_extreme_persistent_campaign_decision`. Accepted result values for
+  those passive decisions include `accepted`, `accepted_with_risk`,
+  `declined`, `research_only`, and `no_persistent_campaign`.
 - `check_operator_arm_to_halt_replay.py` — replay a live arm/resume event
   followed by halt/disable from operator-event journal records; supports
   `make operator-arm-to-halt-replay[-json]` and

@@ -28031,6 +28031,63 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T20:14:43Z - Passive Operator Decision Event Recognition
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by allowing existing operator
+  event journal records to satisfy specific passive operator-decision rows.
+
+What was found:
+- SHOWN: `scripts/record_operator_event.py` already appends redacted,
+  fsynced operator/action audit events to the unified JSONL journal.
+- SHOWN: `operator_proof_status` did not read that journal for passive
+  decision rows, so manual strategy, composite/hybrid advancement, and
+  `funding_extreme` campaign/no-campaign decisions could be recorded without
+  affecting the next-action queue.
+
+What changed:
+- `operator_proof_status` now recognizes `action=passive_operator_decision`
+  operator-event records for these targets:
+  `manual_strategy_performance_decision`,
+  `composite_hybrid_paper_advancement_decision`, and
+  `funding_extreme_persistent_campaign_decision`.
+- Accepted passive decision results are `accepted`, `accepted_with_risk`,
+  `declined`, `research_only`, and `no_persistent_campaign`.
+- Funding research evidence still does not close the campaign decision by
+  itself; a matching decision event is required.
+- `scripts/SCRIPTS.md` documents the recognized passive decision targets and
+  accepted result vocabulary.
+
+Why this change was chosen:
+- Reusing the existing operator event journal avoids a duplicate decision
+  recorder while making the remaining decision rows machine-checkable.
+
+Expected outcome:
+- Operators can close supported passive decision rows by recording explicit
+  decision events; status reports remain open until such an event exists.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py`
+  - SHOWN: `25 passed in 0.29s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_operator_event_journal.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `81 passed in 0.84s`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 20 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; unchanged because no matching passive
+    decision events are present yet.
+
+Remaining risk:
+- LOW: read-only status interpretation, docs, and tests only. No journal entry
+  is written by this change, and no research job, campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization, or
+  runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T19:44:38Z - Operator Proof Status Recorded Crypto-Edge Closure
 
 Active role: ENGINEER
