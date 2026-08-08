@@ -530,6 +530,54 @@ def test_operator_next_actions_filters_by_reason(monkeypatch) -> None:
     assert [row["blocking_reason"] for row in out["actions"]] == ["host_side_reference"]
 
 
+def test_operator_next_actions_excludes_reasons_without_hiding_counts(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    monkeypatch.setattr(
+        mod,
+        "build_operator_status_bundle",
+        lambda repo_root=None, **_filters: {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "operator_proof_actions_required": 3,
+                "passive_operator_evidence_actions_required": 2,
+            },
+            "actions": {
+                "operator_proofs": [
+                    {"line": 7, "category": "remaining_proof", "next_action": "produce proof"},
+                    {"line": 8, "category": "host_side_reference", "next_action": "run host proof"},
+                ],
+                "passive_operator_evidence": [
+                    {"ordinal": 1, "next_action": "collect passive evidence"},
+                ],
+            },
+        },
+    )
+
+    out = mod.build_operator_next_actions(
+        repo_root=".",
+        exclude_reasons=["host_side_reference,passive_operator_evidence"],
+        max_actions=20,
+    )
+
+    assert out["exclude_reason_filter"] == ["host_side_reference", "passive_operator_evidence"]
+    assert out["action_count_total"] == 1
+    assert out["action_count_available"] == 1
+    assert out["source_summary"]["operator_proof_actions_required"] == 3
+    assert out["source_summary"]["passive_operator_evidence_actions_required"] == 2
+    assert out["summary"]["available_by_reason"] == {"remaining_proof": 1}
+    assert out["actions"] == [
+        {
+            "lane": "operator_proof",
+            "source": "remaining_proof",
+            "line": 7,
+            "blocking_reason": "remaining_proof",
+            "next_action": "produce proof",
+        }
+    ]
+
+
 def test_operator_next_actions_filters_by_action_source(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
 
@@ -1096,6 +1144,7 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             ],
             "lane_filter": lane,
             "reason_filter": reason,
+            "exclude_reason_filter": filters.get("exclude_reasons") or [],
             "action_source_filter": action_source,
             "backlog_lane_filter": filters.get("backlog_lane"),
             "backlog_lane_ordinal_filter": int(filters.get("backlog_lane_ordinal") or 0) or None,
@@ -1136,6 +1185,8 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "backlog_lane",
             "--reason",
             "backlog_lane_item",
+            "--exclude-reason",
+            "host_side_reference,passive_operator_evidence",
             "--action-source",
             "low_risk_docs_tests",
             "--backlog-lane",
@@ -1166,6 +1217,7 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     assert "Operator Next Actions" in out
     assert "actions=1 shown=1" in out
     assert "lane_filter=backlog_lane" in out
+    assert "exclude_reason_filter=host_side_reference,passive_operator_evidence" in out
     assert "action_source_filter=low_risk_docs_tests" in out
     assert "backlog_lane_filter=low_risk_docs_tests" in out
     assert "backlog_lane_ordinal_filter=1" in out

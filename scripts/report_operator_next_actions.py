@@ -40,6 +40,7 @@ def _print_report(payload: dict[str, Any]) -> None:
     for key in (
         "lane_filter",
         "reason_filter",
+        "exclude_reason_filter",
         "action_source_filter",
         "backlog_lane_filter",
         "backlog_lane_ordinal_filter",
@@ -57,7 +58,10 @@ def _print_report(payload: dict[str, Any]) -> None:
     ):
         value = payload.get(key)
         if value:
-            print(f"{key}={value}")
+            if isinstance(value, list):
+                print(f"{key}={','.join(str(item) for item in value)}")
+            else:
+                print(f"{key}={value}")
     summary = dict(payload.get("summary") or {})
     for label, values in (
         ("by_lane", dict(summary.get("available_by_lane") or {})),
@@ -101,6 +105,12 @@ def main(argv: list[str] | None = None) -> int:
         help="Limit output to one action lane",
     )
     parser.add_argument("--reason", default=None, help="Limit output to one blocking_reason value")
+    parser.add_argument(
+        "--exclude-reason",
+        action="append",
+        default=None,
+        help="Exclude one blocking_reason value; may be repeated or comma-separated",
+    )
     parser.add_argument("--action-source", default=None, help="Limit output to one final action source value")
     parser.add_argument("--backlog-lane", default=None, help="Forward a backlog lane filter to the source bundle")
     parser.add_argument(
@@ -166,6 +176,7 @@ def main(argv: list[str] | None = None) -> int:
         max_actions=args.max_actions,
         lane=args.lane,
         reason=args.reason,
+        exclude_reasons=args.exclude_reason,
         action_source=args.action_source,
         backlog_lane=args.backlog_lane,
         backlog_lane_ordinal=args.backlog_lane_ordinal,

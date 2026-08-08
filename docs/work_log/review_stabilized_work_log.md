@@ -27289,6 +27289,61 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T16:38:11Z - Next-Actions Exclusion Filter for Code-First Check-Ins
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator check-in lane by adding a subtractive
+  next-actions filter so known non-coding categories can be hidden without
+  editing backlog content or changing source reports.
+
+What was found:
+- SHOWN: `operator-next-actions` could select one `blocking_reason` with
+  `--reason`, but it could not exclude noisy reasons such as
+  `host_side_reference` or `passive_operator_evidence`.
+- SHOWN: the source bundle already preserves source summaries, so an exclusion
+  filter can narrow the displayed action queue without hiding original counts.
+
+What changed:
+- `build_operator_next_actions` now accepts `exclude_reasons` as repeated or
+  comma-separated reason values.
+- `scripts/report_operator_next_actions.py` exposes `--exclude-reason` and
+  prints the active exclusion filter.
+- `Makefile` exposes `OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON`.
+- `scripts/SCRIPTS.md` and regression tests document and pin the filter.
+
+Why this change was chosen:
+- This keeps check-ins moving by allowing focused code/review/proof views such
+  as excluding `host_side_reference,passive_operator_evidence`, while keeping
+  passive and host-side work visible through normal reports and explicit lane
+  filters.
+
+Expected outcome:
+- Operators can run:
+  `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON=host_side_reference,passive_operator_evidence`
+  to get a code-first queue without altering backlog state.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `30 passed in 0.26s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON=host_side_reference,passive_operator_evidence OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: `action_count_total=50`, `exclude_reason_filter` includes both
+    reasons, and summary contains only concrete `operator_proof` categories.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T16:34:37Z - Default Next-Actions Prioritize Concrete Proof Rows
 
 Active role: ENGINEER

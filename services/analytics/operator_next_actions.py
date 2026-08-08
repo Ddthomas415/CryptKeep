@@ -183,12 +183,26 @@ def _counts_by_key(actions: list[dict[str, Any]], key: str) -> dict[str, int]:
     return dict(sorted(counts.items()))
 
 
+def _split_filter_values(value: str | list[str] | tuple[str, ...] | None) -> tuple[str, ...]:
+    if value is None:
+        return ()
+    raw_values = [value] if isinstance(value, str) else list(value)
+    out: list[str] = []
+    for raw in raw_values:
+        for part in str(raw or "").split(","):
+            item = part.strip()
+            if item and item not in out:
+                out.append(item)
+    return tuple(out)
+
+
 def build_operator_next_actions(
     *,
     repo_root: str | Path | None = None,
     max_actions: int = 20,
     lane: str | None = None,
     reason: str | None = None,
+    exclude_reasons: str | list[str] | tuple[str, ...] | None = None,
     action_source: str | None = None,
     backlog_lane: str | None = None,
     backlog_lane_ordinal: int | str | None = None,
@@ -208,6 +222,7 @@ def build_operator_next_actions(
     limit = max(1, int(max_actions))
     lane_filter = str(lane or "").strip()
     reason_filter = str(reason or "").strip()
+    exclude_reason_filters = _split_filter_values(exclude_reasons)
     source_filter = str(action_source or "").strip()
     backlog_lane_filter = str(backlog_lane or "").strip()
     backlog_lane_ordinal_filter = str(backlog_lane_ordinal or "").strip()
@@ -277,6 +292,8 @@ def build_operator_next_actions(
         actions = [row for row in actions if row.get("lane") == lane_filter]
     if reason_filter:
         actions = [row for row in actions if row.get("blocking_reason") == reason_filter]
+    if exclude_reason_filters:
+        actions = [row for row in actions if str(row.get("blocking_reason") or "") not in exclude_reason_filters]
     if source_filter:
         actions = [row for row in actions if row.get("source") == source_filter]
     required_total = (
@@ -322,6 +339,10 @@ def build_operator_next_actions(
         # The source summary has lane totals, not reason totals; once filtered
         # by reason, the truthful total is the filtered available row count.
         required_total = len(actions)
+    if exclude_reason_filters:
+        # Exclusion filters are final action-row filters, not source-report
+        # summary dimensions, so the truthful total is the remaining row count.
+        required_total = len(actions)
     if source_filter:
         # Source is a final action-row field, not a source-report summary
         # dimension, so the truthful total is the filtered available row count.
@@ -347,6 +368,7 @@ def build_operator_next_actions(
         "available_action_lanes": list(_ACTION_LANES),
         "lane_filter": lane_filter or None,
         "reason_filter": reason_filter or None,
+        "exclude_reason_filter": list(exclude_reason_filters),
         "action_source_filter": source_filter or None,
         "backlog_lane_filter": backlog_lane_filter or None,
         "backlog_lane_ordinal_filter": (
