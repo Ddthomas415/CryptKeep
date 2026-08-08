@@ -28040,6 +28040,76 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T18:44:16Z - Paper Gate Velocity: Qualified-Bar and Overall Estimate
+
+Active role: ENGINEER
+
+Objective:
+- Prioritize the active paper-gate blocker by making the read-only velocity
+  report estimate both configured slow-daily thresholds: qualified round trips
+  and qualified source bars.
+
+What was found:
+- SHOWN: current local `make status-paper-gate-qualification-json` reports
+  `es_daily_trend_v1` on policy `slow_daily_single_symbol_v1`, with `3/5`
+  qualified round trips and `47/60` qualified source bars.
+- SHOWN: current local `make status-paper-soak-json` reports laptop campaigns
+  `2/2` running and `es_daily_trend_v1` waiting for the next UTC day.
+- SHOWN: `report_paper_gate_velocity.py` estimated completion from qualified
+  round-trip close cadence only, even though the active policy also blocks on
+  qualified source bars.
+- SHOWN: `count_qualified_signal_bars()` already computes the exact unique bar
+  keys used for the gate, but did not expose their timestamps to read-only
+  diagnostics.
+
+What changed:
+- `count_qualified_signal_bars()` now returns sorted
+  `qualified_bar_timestamps` as additive diagnostic metadata. The gate count,
+  rejection rules, and threshold semantics are unchanged.
+- `load_paper_promotion_progress()` carries those timestamps into the
+  progress payload.
+- `paper_gate_velocity` now adds `qualified_bar_velocity` and
+  `overall_velocity`. The overall estimate selects the later projected
+  incomplete threshold, or refuses projection if an incomplete threshold lacks
+  enough history.
+- `report_paper_gate_velocity.py` prints the qualified-bar velocity and
+  overall estimate in human output.
+- `scripts/SCRIPTS.md` now describes both velocity inputs instead of only
+  round-trip cadence.
+
+Why this change was chosen:
+- The active gate is no longer a pure round-trip gate. Operators need the
+  current bottleneck and completion projection for every active threshold, not
+  just the trade-cycle threshold. This keeps the report read-only and
+  evidence-preserving while making the priority blocker visible.
+
+Expected outcome:
+- `make status-paper-gate-velocity-json` identifies whether round trips or
+  qualified bars govern the expected completion date for the current
+  slow-daily policy.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_velocity_report.py tests/test_paper_promotion_policy.py tests/test_paper_promotion_progress.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `64 passed in 0.83s`.
+- `./.venv/bin/python -m py_compile services/control/paper_gate_velocity.py services/control/paper_promotion_policy.py services/control/paper_promotion_progress.py scripts/report_paper_gate_velocity.py tests/test_paper_gate_velocity_report.py`
+  - SHOWN: exit 0.
+- `make status-paper-gate-velocity-json`
+  - SHOWN: `qualified_bar_velocity.status=projected`,
+    `qualified_bar_velocity.estimated_days_remaining=15`,
+    `overall_velocity.blocking_threshold=round_trips`,
+    `overall_velocity.estimated_days_remaining=21`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only diagnostics, additive payload fields, docs, and tests only.
+  No campaign, market-data fetch, proof closure, promotion policy threshold,
+  gate pass/fail logic, evidence qualification rule, ingestion, live routing,
+  execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T16:33:18Z - Operator Proof Resolution Counts in Status Bundle
 
 Active role: ENGINEER

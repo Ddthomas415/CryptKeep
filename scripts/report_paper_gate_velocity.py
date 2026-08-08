@@ -20,6 +20,8 @@ from services.control.paper_gate_velocity import build_paper_gate_velocity_repor
 
 def _print_report(payload: dict[str, Any]) -> None:
     velocity = dict(payload.get("velocity") or {})
+    bar_velocity = dict(payload.get("qualified_bar_velocity") or {})
+    overall_velocity = dict(payload.get("overall_velocity") or {})
     trips = dict(payload.get("round_trips") or {})
     bars = dict(payload.get("qualified_bars") or {})
     days = dict(payload.get("days") or {})
@@ -48,12 +50,26 @@ def _print_report(payload: dict[str, Any]) -> None:
             f"remaining={bars.get('remaining', 0)} "
             f"source={bars.get('source')}"
         )
+        print(
+            "Qualified bar velocity: "
+            f"status={bar_velocity.get('status')} "
+            f"mean_days_per_bar={bar_velocity.get('mean_days_per_qualified_bar')} "
+            f"estimated_days_remaining={bar_velocity.get('estimated_days_remaining')} "
+            f"estimated_completion_ts={bar_velocity.get('estimated_completion_ts')}"
+        )
     print(
         "Velocity: "
         f"status={velocity.get('status')} "
         f"mean_days_per_round_trip={velocity.get('mean_days_per_qualified_round_trip')} "
         f"estimated_days_remaining={velocity.get('estimated_days_remaining')} "
         f"estimated_completion_ts={velocity.get('estimated_completion_ts')}"
+    )
+    print(
+        "Overall estimate: "
+        f"status={overall_velocity.get('status')} "
+        f"blocking_threshold={overall_velocity.get('blocking_threshold')} "
+        f"estimated_days_remaining={overall_velocity.get('estimated_days_remaining')} "
+        f"estimated_completion_ts={overall_velocity.get('estimated_completion_ts')}"
     )
     findings = list(payload.get("findings") or [])
     if findings:

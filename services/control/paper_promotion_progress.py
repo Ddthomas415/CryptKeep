@@ -318,6 +318,7 @@ def load_paper_promotion_progress(
         "qualified_bars_ready": bool(bar_summary.get("qualified_bars_ready")),
         "qualified_bars_enabled": bool(bar_summary.get("enabled")),
         "bar_count_source": str(bar_summary.get("bar_count_source") or "none"),
+        "qualified_bar_timestamps": list(bar_summary.get("qualified_bar_timestamps") or []),
         "qualified_bar_summary": bar_summary,
         "thresholds_ready": not blockers,
         "blocking_thresholds": blockers,
