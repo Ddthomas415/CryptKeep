@@ -638,8 +638,7 @@ def test_operator_proof_status_shows_manual_strategy_decision_record_command(tmp
     assert out["ok"] is True
     manual = out["passive_operator_items"][0]
     assert manual["action_required"] is True
-    assert "--action passive_operator_decision" in manual["next_action"]
-    assert "--target manual_strategy_performance_decision" in manual["next_action"]
+    assert manual["next_action"] == "make record-manual-strategy-performance-decision OPERATOR_DECISION_REASON='<reason>'"
     assert manual["artifact_status"]["artifact_status"] == "missing"
     assert manual["artifact_status"]["record_command"] == manual["next_action"]
 
@@ -800,9 +799,9 @@ def test_operator_proof_status_attaches_funding_research_without_satisfying_deci
     assert out["ok"] is True
     funding = out["passive_operator_items"][0]
     assert funding["action_required"] is True
-    assert "--action passive_operator_decision" in funding["next_action"]
-    assert "--target funding_extreme_persistent_campaign_decision" in funding["next_action"]
-    assert "--result no_persistent_campaign" in funding["next_action"]
+    assert funding["next_action"] == (
+        "make record-funding-extreme-persistent-campaign-decision OPERATOR_DECISION_REASON='<reason>'"
+    )
     assert funding["artifact_status"]["artifact_id"] == "funding_research_evidence"
     assert funding["artifact_status"]["artifact_status"] == "no_actionable_basis"
     assert funding["artifact_status"]["satisfied"] is False

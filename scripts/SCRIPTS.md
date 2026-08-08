@@ -393,7 +393,12 @@ are not paper-campaign controls.
   `composite_hybrid_paper_advancement_decision`, or
   `funding_extreme_persistent_campaign_decision`. Accepted result values for
   those passive decisions include `accepted`, `accepted_with_risk`,
-  `declined`, `research_only`, and `no_persistent_campaign`.
+  `declined`, `research_only`, and `no_persistent_campaign`. Standard passive
+  decision records can be written through
+  `make record-manual-strategy-performance-decision OPERATOR_DECISION_REASON='<reason>'`,
+  `make record-composite-hybrid-paper-decision OPERATOR_DECISION_REASON='<reason>'`,
+  or
+  `make record-funding-extreme-persistent-campaign-decision OPERATOR_DECISION_REASON='<reason>'`.
 - `check_operator_arm_to_halt_replay.py` — replay a live arm/resume event
   followed by halt/disable from operator-event journal records; supports
   `make operator-arm-to-halt-replay[-json]` and

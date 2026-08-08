@@ -275,6 +275,21 @@ def _load_operator_events(root: Path) -> list[dict[str, Any]]:
 
 
 def _operator_decision_record_command(target: str, *, result: str = "accepted") -> str:
+    make_targets = {
+        "manual_strategy_performance_decision": "record-manual-strategy-performance-decision",
+        "composite_hybrid_paper_advancement_decision": "record-composite-hybrid-paper-decision",
+        "funding_extreme_persistent_campaign_decision": "record-funding-extreme-persistent-campaign-decision",
+    }
+    make_target = make_targets.get(target)
+    reason_arg = "OPERATOR_DECISION_REASON='<reason>'"
+    if make_target == "record-funding-extreme-persistent-campaign-decision":
+        result_arg = ""
+        if result != "no_persistent_campaign":
+            result_arg = f" FUNDING_EXTREME_PERSISTENT_CAMPAIGN_DECISION_RESULT={result}"
+        return f"make {make_target}{result_arg} {reason_arg}"
+    if make_target:
+        result_arg = "" if result == "accepted" else f" OPERATOR_DECISION_RESULT={result}"
+        return f"make {make_target}{result_arg} {reason_arg}"
     return (
         "./.venv/bin/python scripts/record_operator_event.py "
         "--actor operator "

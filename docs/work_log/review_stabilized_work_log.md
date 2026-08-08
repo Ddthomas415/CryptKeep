@@ -28081,6 +28081,72 @@ Remaining risk:
   campaigns, live routing, execution, authorization, or runtime behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T23:19:27Z - Passive Operator Decision Record Targets
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by standardizing the
+  passive operator decision-record commands behind guarded Make targets.
+
+What was found:
+- SHOWN: passive operator proof status still emitted raw
+  `record_operator_event.py --action passive_operator_decision` commands for
+  the manual strategy performance, composite/hybrid paper advancement, and
+  `funding_extreme` persistent-campaign decisions.
+- SHOWN: these commands append operator-event journal rows only when explicitly
+  run; they do not run campaigns, change gates, or move capital.
+
+What changed:
+- Added guarded Make targets:
+  `record-manual-strategy-performance-decision`,
+  `record-composite-hybrid-paper-decision`, and
+  `record-funding-extreme-persistent-campaign-decision`.
+- Each target requires `OPERATOR_DECISION_REASON`; a bare target exits before
+  writing an event.
+- Updated operator proof status, Makefile script-index output,
+  `scripts/SCRIPTS.md`, and regression tests to use the Make targets.
+
+Why this change was chosen:
+- Standard targets reduce copy/paste error in the operator evidence lane while
+  preserving explicit operator reasoning. The funding target keeps
+  `no_persistent_campaign` as its default result, matching the current passive
+  guidance for insufficient actionable basis.
+
+Expected outcome:
+- Passive decision rows surface concise Make commands and retain the same
+  target/result semantics as the previous raw script commands.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `81 passed in 0.81s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py tests/test_makefile_wiring.py scripts/record_operator_event.py`
+  - SHOWN: exit 0.
+- `make -n record-manual-strategy-performance-decision OPERATOR_DECISION_REASON=reviewed`
+  - SHOWN: expands to `record_operator_event.py` with target
+    `manual_strategy_performance_decision`, result `accepted`, and reason
+    `reviewed`.
+- `make -n record-composite-hybrid-paper-decision OPERATOR_DECISION_REASON=reviewed`
+  - SHOWN: expands to `record_operator_event.py` with target
+    `composite_hybrid_paper_advancement_decision`, result `accepted`, and
+    reason `reviewed`.
+- `make -n record-funding-extreme-persistent-campaign-decision OPERATOR_DECISION_REASON=reviewed`
+  - SHOWN: expands to `record_operator_event.py` with target
+    `funding_extreme_persistent_campaign_decision`, result
+    `no_persistent_campaign`, and reason `reviewed`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinals 2, 6, and 8 next actions
+    now use the three guarded Make targets.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. This patch does not execute the
+  decision targets, write operator events, close proof, run campaigns, fetch
+  market data, change gates, live routing, execution, authorization, or runtime
+  behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T20:11:43Z - Operator Proof Status Research Artifact Passive Evidence
 
 Active role: ENGINEER

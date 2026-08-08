@@ -44,3 +44,9 @@ def test_makefile_has_alignment_targets():
     assert "scripts/smoke_exchange.py $(EXCHANGE_SANDBOX_SMOKE_ARGS)" in txt
     assert "backup-state:" in txt
     assert "scripts/backup_state.py backup --dest $(STATE_BACKUP_DEST)" in txt
+    assert "record-manual-strategy-performance-decision:" in txt
+    assert "--target manual_strategy_performance_decision" in txt
+    assert "record-composite-hybrid-paper-decision:" in txt
+    assert "--target composite_hybrid_paper_advancement_decision" in txt
+    assert "record-funding-extreme-persistent-campaign-decision:" in txt
+    assert "--target funding_extreme_persistent_campaign_decision" in txt
