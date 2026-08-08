@@ -28023,6 +28023,64 @@ Remaining risk:
   behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T23:16:47Z - Passive Operator Evidence Make Target Guidance
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by replacing raw
+  passive operator proof commands with stable Make target guidance where the
+  commands already have a standard shape.
+
+What was found:
+- SHOWN: passive operator proof status still surfaced raw commands for the
+  private sandbox smoke and backup-state proof guidance.
+- SHOWN: those commands are operator-run proof steps, not campaign/gate/live
+  execution changes, and can be represented as Make targets without executing
+  them.
+
+What changed:
+- Added `make smoke-exchange-sandbox`, parameterized by
+  `EXCHANGE_SANDBOX_SMOKE_ARGS`, with the current standard default
+  `--exchange binance --sandbox --orderbook`.
+- Added `make backup-state STATE_BACKUP_DEST=<backup_dir>`, parameterized by
+  `STATE_BACKUP_DEST`, for the backup half of the full-state drill.
+- Updated passive operator proof status, Makefile script-index output,
+  `scripts/SCRIPTS.md`, and regression tests to point to the new targets.
+
+Why this change was chosen:
+- Operator next-action reports should use stable Make targets for repeatable
+  proof commands. The manual decision-record commands stay explicit because
+  they require operator-specific reasons and results.
+
+Expected outcome:
+- Passive operator evidence rows for sandbox smoke and backup-state proof are
+  shorter, stable, and aligned with Makefile/script-index documentation.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `81 passed in 0.85s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py tests/test_makefile_wiring.py`
+  - SHOWN: exit 0.
+- `make -n smoke-exchange-sandbox`
+  - SHOWN:
+    `./.venv/bin/python scripts/smoke_exchange.py --exchange binance --sandbox --orderbook`.
+- `make -n backup-state STATE_BACKUP_DEST=/tmp/cbp-backup-proof`
+  - SHOWN:
+    `./.venv/bin/python scripts/backup_state.py backup --dest /tmp/cbp-backup-proof`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinal 3 next action is
+    `make smoke-exchange-sandbox`; ordinal 13 next action is
+    `make backup-state STATE_BACKUP_DEST=<backup_dir>`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. This patch does not run the sandbox
+  smoke, create backups, fetch market data, close proof, change gates,
+  campaigns, live routing, execution, authorization, or runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T20:11:43Z - Operator Proof Status Research Artifact Passive Evidence
 
 Active role: ENGINEER

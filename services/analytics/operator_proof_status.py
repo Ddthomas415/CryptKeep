@@ -572,7 +572,7 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
     if "Private sandbox/testnet lifecycle proof" in item:
         return _command_guidance_status(
             artifact_id="exchange_sandbox_smoke_guidance",
-            next_action="./.venv/bin/python scripts/smoke_exchange.py --exchange binance --sandbox --orderbook",
+            next_action="make smoke-exchange-sandbox",
             note="Coinbase has no working CCXT sandbox URL in this repo; see docs/EXCHANGE_SANDBOX_SMOKE.md.",
         )
     if "Launch evidence packet" in item:
@@ -625,7 +625,7 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
     if "Backup/restore drill evidence" in item:
         return _command_guidance_status(
             artifact_id="state_backup_restore_drill_guidance",
-            next_action="./.venv/bin/python scripts/backup_state.py backup --dest <backup_dir>",
+            next_action="make backup-state STATE_BACKUP_DEST=<backup_dir>",
             note="Follow with verify/restore steps from docs/FULL_STATE_BACKUP_RESTORE_DRILL.md.",
         )
     if "Server secrets injection/rotation drill" in item:

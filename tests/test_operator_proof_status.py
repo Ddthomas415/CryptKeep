@@ -916,13 +916,13 @@ def test_operator_proof_status_shows_command_guidance_without_satisfying_rows(tm
     rows = out["passive_operator_items"]
     assert all(row["action_required"] is True for row in rows)
     assert rows[0]["artifact_status"]["artifact_id"] == "exchange_sandbox_smoke_guidance"
-    assert "scripts/smoke_exchange.py --exchange binance --sandbox --orderbook" in rows[0]["next_action"]
+    assert rows[0]["next_action"] == "make smoke-exchange-sandbox"
     assert rows[1]["artifact_status"]["artifact_id"] == "launch_packet_replay_guidance"
     assert rows[1]["next_action"] == "make operator-arm-to-halt-replay-json"
     assert rows[2]["artifact_status"]["artifact_id"] == "execution_cost_stack_report_guidance"
     assert rows[2]["next_action"] == "make record-execution-cost-stack"
     assert rows[3]["artifact_status"]["artifact_id"] == "state_backup_restore_drill_guidance"
-    assert "scripts/backup_state.py backup --dest <backup_dir>" in rows[3]["next_action"]
+    assert rows[3]["next_action"] == "make backup-state STATE_BACKUP_DEST=<backup_dir>"
     assert rows[4]["artifact_status"]["artifact_id"] == "supply_chain_audit_guidance"
     assert rows[4]["next_action"] == "make record-supply-chain"
     assert out["summary"]["passive_operator_items_satisfied"] == 0

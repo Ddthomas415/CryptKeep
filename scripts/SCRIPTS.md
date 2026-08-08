@@ -64,7 +64,7 @@ listed below.
 | `install_systemd_units.py` | — | Verify and install rendered systemd units from `packaging/systemd/` (dry-run by default; `--repo-dir` targets non-default checkout paths; never arms live trading) |
 | `check_live_intent_history_schema.py` | `make live-intent-history-schema` / `make live-intent-history-schema-json` / `make live-intent-history-schema-init` | Check whether the current runtime live-intent queue has `live_trade_intent_events`; read-only by default, `--init` explicitly initializes/migrates the existing queue schema |
 | `run_paper_sim_monitor.py` | — | Read-only paper simulation monitor, watch management, and local watch-trigger notifications |
-| `backup_state.py` | — | Full-state backup/verify/restore (sqlite-API-consistent; restore refuses over live locks; see `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`) |
+| `backup_state.py` | `make backup-state STATE_BACKUP_DEST=<backup_dir>` | Full-state backup/verify/restore (sqlite-API-consistent; restore refuses over live locks; see `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`) |
 | `run_paper_strategy_evidence_collector.py` | `make collect-paper-strategy-evidence` / `make status-paper-strategy-evidence` / `make stop-paper-strategy-evidence` | Managed paper evidence collector; use `--daily-loop --detach` for a persistent daily process and `--max-daily-attempts` to bound retryable failures |
 | `update_paper_campaign_manifest.py` | — | Audited schema-v1 paper-campaign manifest enable/disable update; requires a `campaign_manifest_change` operator event before writing |
 | `run_preflight.py` | — | Preflight entrypoint |
@@ -155,7 +155,8 @@ may require network access and should not be treated as paper-campaign proof.
 - `run_ws_ticker_feed_safe.py` — guarded WebSocket ticker feed.
 - `smoke_binance.py` — Binance connectivity smoke test.
 - `smoke_coinbase.py` — Coinbase connectivity smoke test.
-- `smoke_exchange.py` — generic exchange smoke test.
+- `smoke_exchange.py` — generic exchange smoke test; use
+  `make smoke-exchange-sandbox` for the standard sandbox orderbook smoke.
 - `smoke_gateio.py` — Gate.io connectivity smoke test.
 
 ### Cloud Provisioning And Host Safeguards
