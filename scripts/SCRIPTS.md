@@ -407,9 +407,12 @@ are not paper-campaign controls.
   `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`).
 - `check_cost_assumptions.py` — read-only paper fee/slippage cost-assumption
   validator for the active `user.yaml`; supports
-  `make check-cost-assumptions[-json]`; reports paper-fill, evidence-scoring,
-  dormant lookup, and backtest cost surfaces without mutating config or trading
-  state.
+  `make check-cost-assumptions[-json]` and `make record-cost-assumptions`;
+  reports paper-fill, evidence-scoring, dormant lookup, and backtest cost
+  surfaces without mutating config or trading state. The record target writes
+  the current verification artifact under `.cbp_state/data/cost_assumptions/`
+  and treats warning reports as recorded evidence, while fail/config errors
+  still exit non-zero.
 - `report_platform_event_journal.py` — read-only summary of the append-only
   platform event journal for research/campaign/evidence observability; supports
   `make platform-event-journal[-json]`; returns exit 2 with

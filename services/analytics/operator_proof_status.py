@@ -225,12 +225,61 @@ def _paper_gate_velocity_artifact_status(root: Path) -> dict[str, Any]:
     }
 
 
+def _cost_assumptions_artifact_status(root: Path) -> dict[str, Any]:
+    latest = root / ".cbp_state" / "data" / "cost_assumptions" / "cost_assumptions.latest.json"
+    payload = _load_json(latest)
+    passed = (
+        latest.is_file()
+        and str(payload.get("report_type") or "") == "cost_assumptions"
+        and bool(payload.get("read_only")) is True
+        and str(payload.get("overall") or "") in {"ok", "warning"}
+        and isinstance(payload.get("checks"), list)
+        and bool(payload.get("checks"))
+    )
+    return {
+        "artifact_id": "cost_assumptions",
+        "artifact_path": str(latest),
+        "artifact_exists": latest.is_file(),
+        "artifact_sha256": _sha256(latest),
+        "artifact_status": str(payload.get("overall") or "missing"),
+        "generated_at": str(payload.get("generated_at") or ""),
+        "satisfied": bool(passed),
+    }
+
+
 def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
     if "Canonical `es_daily_trend_v1` qualified round-trip collection" in item:
         return _paper_gate_velocity_artifact_status(root)
     if "Pullback Stage 0 long proof" in item:
         return _pullback_stage0_artifact_status(root)
     return None
+
+
+def _marker_artifact_status(root: Path, marker: ProofMarker) -> dict[str, Any] | None:
+    text = f"{marker.text} {marker.context}".lower()
+    if marker.category == "remaining_operational_proof" and (
+        "fee/slippage" in text or "cost-assumption" in text or "cost assumptions" in text
+    ):
+        return _cost_assumptions_artifact_status(root)
+    return None
+
+
+def _marker_row(root: Path, marker: ProofMarker) -> dict[str, Any]:
+    artifact_status = _marker_artifact_status(root, marker)
+    artifact_satisfied = bool((artifact_status or {}).get("satisfied"))
+    status = "satisfied_artifact" if artifact_satisfied else _marker_status(marker)
+    action_required = False if artifact_satisfied else _marker_action_required(marker)
+    return {
+        "line": marker.line,
+        "category": marker.category,
+        "marker": marker.marker,
+        "text": marker.text,
+        "status": status,
+        "satisfied": artifact_satisfied or _marker_satisfied(marker),
+        "action_required": action_required,
+        "next_action": "none" if artifact_satisfied else _marker_next_action(marker),
+        "artifact_status": artifact_status,
+    }
 
 
 def build_operator_proof_status(
@@ -310,6 +359,7 @@ def build_operator_proof_status(
         proof_markers = ()
         proof_marker_scope = "suppressed_by_passive_ordinal"
     category_counts = _category_counts(proof_markers)
+    proof_marker_rows = [_marker_row(root, marker) for marker in proof_markers]
     remaining_marker_count = sum(
         count
         for category, count in category_counts.items()
@@ -357,19 +407,7 @@ def build_operator_proof_status(
         "proof_marker_scope": proof_marker_scope,
         "proof_marker_count": len(proof_markers),
         "source_proof_marker_count": len(all_proof_markers),
-        "proof_markers": [
-            {
-                "line": marker.line,
-                "category": marker.category,
-                "marker": marker.marker,
-                "text": marker.text,
-                "status": _marker_status(marker),
-                "satisfied": _marker_satisfied(marker),
-                "action_required": _marker_action_required(marker),
-                "next_action": _marker_next_action(marker),
-            }
-            for marker in proof_markers
-        ],
+        "proof_markers": proof_marker_rows,
         "summary": {
             "passive_operator_items": len(passive_rows),
             "source_passive_operator_items": len(all_passive_items),
@@ -377,9 +415,9 @@ def build_operator_proof_status(
             "remaining_proof_or_coverage_markers": remaining_marker_count,
             "host_side_markers": category_counts.get("host_side_reference", 0),
             "proof_ready_markers": category_counts.get("proof_ready_implementation", 0),
-            "proof_marker_actions_required": sum(1 for marker in proof_markers if _marker_action_required(marker)),
-            "proof_markers_satisfied": sum(1 for marker in proof_markers if _marker_satisfied(marker)),
-            "proof_markers_context_only": sum(1 for marker in proof_markers if _marker_status(marker) == "context_only"),
+            "proof_marker_actions_required": sum(1 for row in proof_marker_rows if bool(row.get("action_required"))),
+            "proof_markers_satisfied": sum(1 for row in proof_marker_rows if bool(row.get("satisfied"))),
+            "proof_markers_context_only": sum(1 for row in proof_marker_rows if row.get("status") == "context_only"),
             "category_counts": category_counts,
             "source_category_counts": source_category_counts,
         },

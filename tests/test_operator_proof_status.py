@@ -424,6 +424,49 @@ def test_operator_proof_status_marks_paper_gate_velocity_passive_item_satisfied(
     assert out["passive_operator_items"][1]["action_required"] is True
 
 
+def test_operator_proof_status_marks_cost_assumption_operational_markers_satisfied(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+            [
+                "1. Paper PnL.",
+                "   Remaining operational proof: verify active campaign config uses realistic fee/slippage values.",
+                "   Remaining operational proof: verify host fee/slippage values and use report fields to segment old evidence.",
+                "   Remaining proof: unrelated drill.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    artifact_dir = tmp_path / ".cbp_state" / "data" / "cost_assumptions"
+    artifact_dir.mkdir(parents=True)
+    artifact = artifact_dir / "cost_assumptions.latest.json"
+    artifact.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "report_type": "cost_assumptions",
+                "generated_at": "2026-08-08T00:00:00+00:00",
+                "read_only": True,
+                "overall": "warning",
+                "checks": [{"name": "engine_costs_configured", "status": "warning"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path, category="remaining_operational_proof")
+
+    assert out["ok"] is True
+    assert out["proof_marker_count"] == 2
+    assert out["summary"]["proof_marker_actions_required"] == 0
+    assert out["summary"]["proof_markers_satisfied"] == 2
+    assert {row["status"] for row in out["proof_markers"]} == {"satisfied_artifact"}
+    assert all(row["artifact_status"]["artifact_id"] == "cost_assumptions" for row in out["proof_markers"])
+    assert all(row["next_action"] == "none" for row in out["proof_markers"])
+
+
 def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:
     from scripts import report_operator_proof_status as script
 

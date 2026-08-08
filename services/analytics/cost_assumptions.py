@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import inspect
+import json
 import math
 import os
 from dataclasses import fields
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 ENGINE_DEFAULT_FEE_BPS = 7.5
@@ -39,6 +42,14 @@ def _configured_float(mapping: dict[str, Any], key: str, *, default: float) -> d
 
 def _check(name: str, status: str, detail: str) -> dict[str, str]:
     return {"name": name, "status": status, "detail": detail}
+
+
+def _generated_at() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _safe_stamp() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
 
 def min_plausible_round_trip_bps() -> float:
@@ -295,6 +306,10 @@ def evaluate_cost_assumptions(user_cfg: dict[str, Any]) -> dict[str, Any]:
 
     overall = max((item["status"] for item in checks), key=lambda status: _RANK[status])
     return {
+        "schema_version": 1,
+        "report_type": "cost_assumptions",
+        "generated_at": _generated_at(),
+        "read_only": True,
         "overall": overall,
         "round_trip_bps": round_trip_bps,
         "policy_floor_bps": min_plausible_round_trip_bps(),
@@ -311,6 +326,10 @@ def check_cost_assumptions() -> dict[str, Any]:
         cfg = load_user_yaml(strict=True)
     except Exception as exc:
         return {
+            "schema_version": 1,
+            "report_type": "cost_assumptions",
+            "generated_at": _generated_at(),
+            "read_only": True,
             "overall": CONFIG_UNREADABLE,
             "round_trip_bps": None,
             "policy_floor_bps": min_plausible_round_trip_bps(),
@@ -322,3 +341,14 @@ def check_cost_assumptions() -> dict[str, Any]:
             ),
         }
     return evaluate_cost_assumptions(cfg)
+
+
+def write_cost_assumptions_artifact(report: dict[str, Any], *, evidence_dest: str | Path) -> dict[str, str]:
+    dest = Path(evidence_dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(report, indent=2, sort_keys=True, default=str)
+    latest = dest / "cost_assumptions.latest.json"
+    stamped = dest / f"cost_assumptions.{_safe_stamp()}.json"
+    latest.write_text(text, encoding="utf-8")
+    stamped.write_text(text, encoding="utf-8")
+    return {"latest_json": str(latest), "stamped_json": str(stamped)}

@@ -28183,6 +28183,86 @@ Remaining risk:
   authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T19:39:04Z - Recordable Cost-Assumption Operational Proof
+
+Active role: ENGINEER
+
+Objective:
+- Continue the active paper evidence/cost-measurement priority lane by making
+  the existing cost-assumption verification recordable and visible to the
+  operator-proof tracker.
+
+What was found:
+- SHOWN: `make check-cost-assumptions-json` reports `overall=warning` locally,
+  not fail: modeled paper round trip is `25.0` bps against a `5.0` bps policy
+  floor.
+- SHOWN: warning reasons are still material: paper-engine fee/slippage fall
+  back to code defaults, evidence-scoring defaults differ from paper-engine
+  fees, and walk-forward/backtest cost defaults differ from paper-engine fees.
+- SHOWN: the existing cost checker produced stdout/JSON but did not write a
+  durable latest artifact, and `operator_proof_status` could not connect it to
+  the two remaining fee/slippage operational-proof markers.
+
+What changed:
+- `services/analytics/cost_assumptions.py` now adds report metadata
+  (`schema_version`, `report_type`, `generated_at`, `read_only`) and exposes
+  `write_cost_assumptions_artifact()`.
+- `scripts/check_cost_assumptions.py` now supports `--evidence-dest` and
+  `--allow-warning-exit-zero`. Default exit behavior is unchanged; warning
+  returns non-zero unless the caller explicitly opts into warning-tolerant
+  recording.
+- Added `make record-cost-assumptions`, writing to
+  `.cbp_state/data/cost_assumptions/` and tolerating warning status for
+  operator-proof recording. Fail/config-unreadable status still exits
+  non-zero.
+- `operator_proof_status` now marks fee/slippage remaining-operational-proof
+  markers as `satisfied_artifact` when a valid latest cost-assumptions artifact
+  exists with `overall=ok` or `overall=warning`.
+- Updated `scripts/SCRIPTS.md` and regression tests.
+
+Why this change was chosen:
+- The remaining proof asked to verify cost assumptions and segment old
+  evidence, not to silently rewrite config. A warning artifact is the honest
+  state: the paper-fill surface is plausible but still needs operator
+  confirmation because defaults and adjacent cost surfaces differ.
+
+Expected outcome:
+- Operators can run `make record-cost-assumptions` to preserve the current
+  cost-assumption state. The proof tracker then stops repeating the
+  fee/slippage verification action while preserving the warning status in the
+  artifact.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_cost_assumptions.py tests/test_cost_surface_audit_invariants.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `87 passed in 1.13s`.
+- `./.venv/bin/python -m py_compile services/analytics/cost_assumptions.py services/analytics/operator_proof_status.py scripts/check_cost_assumptions.py tests/test_cost_assumptions.py`
+  - SHOWN: exit 0.
+- `make -n record-cost-assumptions`
+  - SHOWN: expands to
+    `./.venv/bin/python scripts/check_cost_assumptions.py --evidence-dest .cbp_state/data/cost_assumptions --allow-warning-exit-zero`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make record-cost-assumptions`
+  - SHOWN: exits 0 with `overall=WARNING`, records
+    `.cbp_state/data/cost_assumptions/cost_assumptions.latest.json`, modeled
+    round trip `25.0` bps, and warning checks preserved.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --json --category remaining_operational_proof`
+  - SHOWN: both fee/slippage markers are `satisfied_artifact`,
+    `artifact_id=cost_assumptions`, `artifact_status=warning`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 5 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: open operator-proof actions dropped from `63` to `61`; open
+    remaining-operational-proof actions dropped from `2` to `0`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: explicit operator artifact writing and proof-status recognition only.
+  No config values were changed. Warning status is preserved, not converted to
+  OK. No campaign, market-data fetch, proof closure, promotion policy
+  threshold, gate pass/fail logic, evidence qualification rule, ingestion, live
+  routing, execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T16:33:18Z - Operator Proof Resolution Counts in Status Bundle
 
 Active role: ENGINEER
