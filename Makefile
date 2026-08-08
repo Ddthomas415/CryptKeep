@@ -269,12 +269,16 @@ plan-multi-symbol-paper-campaigns:
 plan-multi-symbol-paper-campaigns-json:
 	@$(PYTHON) scripts/plan_multi_symbol_paper_campaigns.py --json $(MULTI_SYMBOL_PAPER_CAMPAIGN_PLAN_ARGS)
 
-.PHONY: status-paper-gate-velocity status-paper-gate-velocity-json
+PAPER_GATE_VELOCITY_EVIDENCE_DEST ?= .cbp_state/data/paper_gate_velocity
+.PHONY: status-paper-gate-velocity status-paper-gate-velocity-json record-paper-gate-velocity
 status-paper-gate-velocity:
 	$(PYTHON) scripts/report_paper_gate_velocity.py
 
 status-paper-gate-velocity-json:
 	@$(PYTHON) scripts/report_paper_gate_velocity.py --json
+
+record-paper-gate-velocity:
+	$(PYTHON) scripts/report_paper_gate_velocity.py --evidence-dest $(PAPER_GATE_VELOCITY_EVIDENCE_DEST)
 
 status-paper-hetzner:
 	$(PYTHON) scripts/report_hetzner_paper_campaign_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --transport $(HETZNER_STATUS_TRANSPORT) --app-dir $(HETZNER_APP_DIR) --config $(HETZNER_PAPER_CAMPAIGN_CONFIG) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC)
@@ -616,6 +620,7 @@ script-index:
 	@echo "  make status-paper-all   — daily paper campaign check-in"
 	@echo "  make recover-paper-campaigns — guarded paper campaign recovery"
 	@echo "  make status-paper-gate-velocity — estimate paper gate completion velocity"
+	@echo "  make record-paper-gate-velocity — record latest paper gate velocity artifact"
 	@echo "  make paper-run          — run paper campaign"
 	@echo "  make check-gates        — promotion gate status"
 	@echo "  make backlog-lane-status[-json] — report backlog execution-lane counts"

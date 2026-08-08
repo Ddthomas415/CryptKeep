@@ -15,7 +15,10 @@ except ModuleNotFoundError:
 
 add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-from services.control.paper_gate_velocity import build_paper_gate_velocity_report  # noqa: E402
+from services.control.paper_gate_velocity import (  # noqa: E402
+    build_paper_gate_velocity_report,
+    write_paper_gate_velocity_artifact,
+)
 
 
 def _print_report(payload: dict[str, Any]) -> None:
@@ -84,9 +87,19 @@ def main(argv: list[str] | None = None) -> int:
         description="Read-only paper promotion gate velocity and completion estimate"
     )
     parser.add_argument("--json", action="store_true", help="Output JSON")
+    parser.add_argument(
+        "--evidence-dest",
+        default="",
+        help="Write latest and stamped JSON artifacts into this directory",
+    )
     args = parser.parse_args(argv)
 
     payload = build_paper_gate_velocity_report()
+    if args.evidence_dest:
+        payload["artifact_paths"] = write_paper_gate_velocity_artifact(
+            payload,
+            evidence_dest=args.evidence_dest,
+        )
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True, default=str))
     else:

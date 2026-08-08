@@ -372,6 +372,58 @@ def test_operator_proof_status_marks_pullback_stage0_passive_item_satisfied(tmp_
     assert out["passive_operator_items"][1]["action_required"] is True
 
 
+def test_operator_proof_status_marks_paper_gate_velocity_passive_item_satisfied(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Canonical `es_daily_trend_v1` qualified round-trip collection and fresh paper-gate output.",
+                "- Another host proof.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    artifact_dir = tmp_path / ".cbp_state" / "data" / "paper_gate_velocity"
+    artifact_dir.mkdir(parents=True)
+    artifact = artifact_dir / "paper_gate_velocity.latest.json"
+    artifact.write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "read_only": True,
+                "report_type": "paper_gate_velocity",
+                "generated_at": "2026-08-08T00:00:00+00:00",
+                "strategy_id": "es_daily_trend_v1",
+                "round_trips": {"qualified": 3, "required": 5, "remaining": 2},
+                "qualified_bars": {"recorded": 47, "required": 60, "remaining": 13},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    assert out["passive_operator_item_count"] == 2
+    assert out["summary"]["passive_operator_items_satisfied"] == 1
+    paper_gate = out["passive_operator_items"][0]
+    assert paper_gate["action_required"] is False
+    assert paper_gate["next_action"] == "none"
+    assert paper_gate["artifact_status"]["artifact_id"] == "paper_gate_velocity"
+    assert paper_gate["artifact_status"]["artifact_status"] == "recorded"
+    assert paper_gate["artifact_status"]["satisfied"] is True
+    assert out["passive_operator_items"][1]["action_required"] is True
+
+
 def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:
     from scripts import report_operator_proof_status as script
 

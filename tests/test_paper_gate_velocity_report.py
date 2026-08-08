@@ -197,3 +197,24 @@ def test_velocity_report_overall_estimate_uses_latest_incomplete_threshold(monke
         "reason": "latest_projected_incomplete_threshold",
     }
     assert "Overall projected completion is governed by round_trips" in out["summary_text"]
+
+
+def test_velocity_report_writer_records_latest_and_stamped_json(tmp_path) -> None:
+    from services.control.paper_gate_velocity import write_paper_gate_velocity_artifact
+
+    report = {
+        "ok": True,
+        "read_only": True,
+        "report_type": "paper_gate_velocity",
+        "strategy_id": "es_daily_trend_v1",
+        "round_trips": {"qualified": 3},
+        "qualified_bars": {"recorded": 47},
+    }
+
+    paths = write_paper_gate_velocity_artifact(report, evidence_dest=tmp_path)
+
+    latest = tmp_path / "paper_gate_velocity.latest.json"
+    assert paths["latest_json"] == str(latest)
+    assert latest.exists()
+    stamped = list(tmp_path.glob("paper_gate_velocity.*.json"))
+    assert len(stamped) == 2  # latest + timestamped

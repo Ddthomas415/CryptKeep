@@ -28110,6 +28110,79 @@ Remaining risk:
   execution, authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T19:07:25Z - Recordable Paper Gate Velocity Operator Artifact
+
+Active role: ENGINEER
+
+Objective:
+- Continue the active paper-gate priority lane by making fresh canonical
+  paper-gate status recordable as operator evidence and visible to the
+  operator-proof tracker.
+
+What was found:
+- SHOWN: passive operator evidence item 1 asks for canonical
+  `es_daily_trend_v1` qualified round-trip collection and fresh paper-gate
+  output.
+- SHOWN: `report_paper_gate_velocity.py` produced read-only stdout/JSON but
+  did not write a durable latest artifact.
+- SHOWN: `operator_proof_status` only recognized the pullback Stage 0
+  verification artifact, so fresh paper-gate output stayed action-required
+  even after running the status command.
+
+What changed:
+- Added `write_paper_gate_velocity_artifact()` to write latest and stamped
+  JSON reports under an explicit evidence destination.
+- Added `scripts/report_paper_gate_velocity.py --evidence-dest`.
+- Added `make record-paper-gate-velocity`, which writes to
+  `.cbp_state/data/paper_gate_velocity/` while leaving
+  `status-paper-gate-velocity[-json]` read-only.
+- Added operator-proof artifact recognition for
+  `.cbp_state/data/paper_gate_velocity/paper_gate_velocity.latest.json`.
+  A valid artifact satisfies passive operator item 1 without claiming the gate
+  passed.
+- Updated `scripts/SCRIPTS.md` and regression tests.
+
+Why this change was chosen:
+- The active priority is paper-gate progress and evidence. This closes the gap
+  between a transient status command and a durable operator evidence artifact,
+  without changing the promotion gate, campaign runtime, or evidence
+  qualification rules.
+
+Expected outcome:
+- Running `make record-paper-gate-velocity` records current canonical gate
+  progress, and `operator_proof_status --passive-ordinal 1` reports the item
+  satisfied when that latest artifact is present and valid.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_velocity_report.py tests/test_report_paper_gate_velocity_script.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `73 passed in 0.88s`.
+- `./.venv/bin/python -m py_compile services/control/paper_gate_velocity.py services/analytics/operator_proof_status.py scripts/report_paper_gate_velocity.py tests/test_report_paper_gate_velocity_script.py`
+  - SHOWN: exit 0.
+- `make -n record-paper-gate-velocity`
+  - SHOWN: expands to
+    `./.venv/bin/python scripts/report_paper_gate_velocity.py --evidence-dest .cbp_state/data/paper_gate_velocity`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make record-paper-gate-velocity`
+  - SHOWN: records local current gate artifact and reports `3/5` qualified
+    round trips, `47/60` qualified bars, and overall blocker `round_trips`.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --json --passive-ordinal 1`
+  - SHOWN: `action_required=false`, `artifact_id=paper_gate_velocity`,
+    `artifact_status=recorded`, `satisfied=true`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 5 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: passive evidence actions dropped to `13`, and passive items
+    satisfied increased to `2`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: explicit operator artifact writing and proof-status recognition only.
+  Default velocity status commands remain read-only. No campaign, market-data
+  fetch, proof closure, promotion policy threshold, gate pass/fail logic,
+  evidence qualification rule, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T16:33:18Z - Operator Proof Resolution Counts in Status Bundle
 
 Active role: ENGINEER

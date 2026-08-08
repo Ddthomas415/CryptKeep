@@ -198,7 +198,36 @@ def _pullback_stage0_artifact_status(root: Path) -> dict[str, Any]:
     }
 
 
+def _paper_gate_velocity_artifact_status(root: Path) -> dict[str, Any]:
+    latest = root / ".cbp_state" / "data" / "paper_gate_velocity" / "paper_gate_velocity.latest.json"
+    payload = _load_json(latest)
+    round_trips = payload.get("round_trips") if isinstance(payload.get("round_trips"), dict) else {}
+    qualified_bars = (
+        payload.get("qualified_bars") if isinstance(payload.get("qualified_bars"), dict) else {}
+    )
+    passed = (
+        latest.is_file()
+        and str(payload.get("report_type") or "") == "paper_gate_velocity"
+        and bool(payload.get("ok")) is True
+        and bool(payload.get("read_only")) is True
+        and str(payload.get("strategy_id") or "") == "es_daily_trend_v1"
+        and "qualified" in round_trips
+        and "recorded" in qualified_bars
+    )
+    return {
+        "artifact_id": "paper_gate_velocity",
+        "artifact_path": str(latest),
+        "artifact_exists": latest.is_file(),
+        "artifact_sha256": _sha256(latest),
+        "artifact_status": "recorded" if passed else str(payload.get("status") or "missing"),
+        "generated_at": str(payload.get("generated_at") or ""),
+        "satisfied": bool(passed),
+    }
+
+
 def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
+    if "Canonical `es_daily_trend_v1` qualified round-trip collection" in item:
+        return _paper_gate_velocity_artifact_status(root)
     if "Pullback Stage 0 long proof" in item:
         return _pullback_stage0_artifact_status(root)
     return None

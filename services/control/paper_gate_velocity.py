@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 import math
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Any
 
 from services.control.paper_promotion_progress import load_paper_promotion_progress
@@ -24,6 +26,13 @@ def _round2(value: float | None) -> float | None:
     if value is None or not math.isfinite(float(value)):
         return None
     return round(float(value), 2)
+
+
+def _safe_stamp(reference_ts: datetime | None = None) -> str:
+    now = reference_ts or datetime.now(timezone.utc)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    return now.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
 
 def _qualified_close_times(qualification: dict[str, Any]) -> list[datetime]:
@@ -352,6 +361,7 @@ def build_paper_gate_velocity_report(
         "ok": True,
         "read_only": True,
         "report_type": "paper_gate_velocity",
+        "generated_at": (reference_ts or datetime.now(timezone.utc)).astimezone(timezone.utc).isoformat(),
         "strategy_id": progress.get("strategy_id"),
         "target_strategy": progress.get("target_strategy"),
         "policy_id": progress.get("policy_id"),
@@ -391,6 +401,21 @@ def build_paper_gate_velocity_report(
             excluded=excluded,
         ),
     }
+
+
+def write_paper_gate_velocity_artifact(
+    report: dict[str, Any],
+    *,
+    evidence_dest: str | Path,
+) -> dict[str, str]:
+    dest = Path(evidence_dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(report, indent=2, sort_keys=True, default=str)
+    latest = dest / "paper_gate_velocity.latest.json"
+    stamped = dest / f"paper_gate_velocity.{_safe_stamp()}.json"
+    latest.write_text(text, encoding="utf-8")
+    stamped.write_text(text, encoding="utf-8")
+    return {"latest_json": str(latest), "stamped_json": str(stamped)}
 
 
 def _summary_text(
