@@ -250,6 +250,42 @@ def test_operator_proof_status_keeps_crypto_edge_remaining_proof_open_without_fi
     assert row["action_required"] is True
 
 
+def test_operator_proof_status_treats_passive_lane_owned_remaining_proof_as_context_only(
+    tmp_path: Path,
+) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+            [
+                "1. Backup.",
+                "   Remaining proof: fresh backup/restore drill evidence and backup-artifact secrets scan.",
+                "2. Cost.",
+                "   Remaining proof: accepted shadow-derived cost-stack report with maker/taker bps.",
+                "3. Local.",
+                "   Remaining proof: execute the local invariant check.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path, category="remaining_proof")
+
+    assert out["ok"] is True
+    assert out["proof_marker_count"] == 3
+    assert out["summary"]["proof_markers_context_only"] == 2
+    assert out["summary"]["proof_marker_actions_required"] == 1
+    rows = {row["line"]: row for row in out["proof_markers"]}
+    assert rows[2]["status"] == "context_only"
+    assert rows[2]["action_required"] is False
+    assert rows[2]["next_action"] == "none"
+    assert rows[4]["status"] == "context_only"
+    assert rows[4]["action_required"] is False
+    assert rows[6]["status"] == "open"
+    assert rows[6]["action_required"] is True
+
+
 def test_operator_proof_status_does_not_treat_policy_mentions_as_proof_ready_actions(
     tmp_path: Path,
 ) -> None:

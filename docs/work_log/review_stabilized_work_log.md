@@ -28079,6 +28079,57 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T19:48:55Z - Operator Proof Status Passive-Lane Duplicate Suppression
+
+Active role: ENGINEER
+
+Objective:
+- Remove duplicate next-action rows where a backlog `Remaining proof` marker is
+  already represented by the Passive / Operator Evidence lane.
+
+What was found:
+- SHOWN: after host-side filtering, two generic `remaining_proof` actions still
+  appeared: the full-state backup/restore drill and the shadow-derived
+  execution-cost report.
+- SHOWN: both are already present as passive operator evidence items:
+  "Backup/restore drill evidence and backup-artifact secrets scan" and
+  "Accepted shadow-derived execution-cost report using those records."
+
+What changed:
+- `operator_proof_status` now marks those duplicate remaining-proof markers as
+  `context_only`.
+- The proof is not marked satisfied; the action remains owned by the passive
+  operator-evidence lane until the actual artifact/evidence exists.
+- Regression coverage pins duplicate passive-lane ownership while keeping an
+  unrelated local remaining-proof marker open.
+
+Why this change was chosen:
+- A single task should not appear twice in the next-action queue under two
+  different lanes. Passive operator evidence is the correct owner for evidence
+  collection tasks that are not code defects.
+
+Expected outcome:
+- With host-side/proof-ready/capped-live/coverage exclusions applied, the
+  generic `remaining_proof` lane no longer duplicates passive operator evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `64 passed in 0.60s`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 10 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=13`; available actions are now
+    `passive_operator_evidence` only.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --category remaining_proof --json`
+  - SHOWN: lines 1650 and 2089 are `context_only`, while lines 706/718/748
+    remain `satisfied_recorded`; no `remaining_proof` marker requires action in
+    that filtered category report.
+
+Remaining risk:
+- LOW: read-only status interpretation and tests only. No proof was closed, no
+  passive evidence was generated, and no campaign, market-data fetch, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T16:58:59Z - Register Replay and Schema Read-Only Commands
 
 Active role: ENGINEER

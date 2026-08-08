@@ -175,6 +175,8 @@ def _marker_status(marker: ProofMarker) -> str:
         return "open"
     if marker.category == "remaining_proof" and _crypto_edge_remaining_proof_recorded(marker):
         return "satisfied_recorded"
+    if marker.category == "remaining_proof" and _remaining_proof_owned_by_passive_lane(marker):
+        return "context_only"
     if marker.category != "host_side_reference":
         return "open"
     marker_text = marker.text.lower()
@@ -220,6 +222,16 @@ def _crypto_edge_remaining_proof_recorded(marker: ProofMarker) -> bool:
         )
     )
     return host_closed
+
+
+def _remaining_proof_owned_by_passive_lane(marker: ProofMarker) -> bool:
+    text = f"{marker.text} {marker.context}".lower()
+    passive_owned_phrases = (
+        "accepted shadow-derived cost-stack report",
+        "backup/restore drill evidence and backup-artifact secrets scan",
+        "execute the drill against the future capped-live state bundle",
+    )
+    return any(phrase in text for phrase in passive_owned_phrases)
 
 
 def _marker_satisfied(marker: ProofMarker) -> bool:
