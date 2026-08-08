@@ -151,6 +151,71 @@ def test_operator_proof_status_does_not_reopen_recorded_host_proof(tmp_path: Pat
     assert "host-side evidence" in rows[4]["next_action"]
 
 
+def test_operator_proof_status_closes_recorded_crypto_edge_remaining_proof(
+    tmp_path: Path,
+) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+            [
+                "14. Start scheduled read-only crypto-edge collection.",
+                "    Remaining proof: operator-host schedule, recent OKX snapshot timestamps, cadence-gap alerting, and downstream context strategy/provenance review.",
+                "    2026-07-12: crypto-edge paper qualification extension is ready for independent review.",
+                "    2026-07-18: independently reviewed and accepted by the operator.",
+                "    2026-07-18 final host proof recorded in docs/checkpoints/ready.md:",
+                "    check_edge_cadence.py --json reports fresh OKX funding, open-interest, and basis snapshots with missing=[], stale=[].",
+                "    This closes the host-side crypto-edge schedule/cadence proof.",
+                "15. Another item.",
+                "    Remaining proof: execute the next drill.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path, category="remaining_proof")
+
+    assert out["ok"] is True
+    assert out["proof_marker_count"] == 2
+    assert out["summary"]["proof_markers_satisfied"] == 1
+    assert out["summary"]["proof_marker_actions_required"] == 1
+    rows = {row["line"]: row for row in out["proof_markers"]}
+    assert rows[2]["status"] == "satisfied_recorded"
+    assert rows[2]["action_required"] is False
+    assert rows[2]["next_action"] == "none"
+    assert rows[9]["status"] == "open"
+    assert rows[9]["action_required"] is True
+
+
+def test_operator_proof_status_keeps_crypto_edge_remaining_proof_open_without_final_host_proof(
+    tmp_path: Path,
+) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+            [
+                "14. Start scheduled read-only crypto-edge collection.",
+                "    Remaining proof: operator-host schedule, recent OKX snapshot timestamps, cadence-gap alerting, and downstream context strategy/provenance review.",
+                "    2026-07-12: crypto-edge paper qualification extension is ready for independent review.",
+                "    2026-07-18: independently reviewed and accepted by the operator.",
+                "    The host-side crypto-edge schedule/cadence proof remains open.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path, category="remaining_proof")
+
+    assert out["ok"] is True
+    assert out["proof_marker_count"] == 1
+    row = out["proof_markers"][0]
+    assert row["status"] == "open"
+    assert row["action_required"] is True
+
+
 def test_operator_proof_status_does_not_treat_policy_mentions_as_proof_ready_actions(
     tmp_path: Path,
 ) -> None:

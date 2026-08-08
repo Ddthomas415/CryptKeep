@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -88,9 +89,7 @@ def _proof_markers(backlog_text: str) -> tuple[ProofMarker, ...]:
         text = raw.strip()
         if not text:
             continue
-        start = max(0, line_no - 5)
-        end = min(len(lines), line_no + 4)
-        context = " ".join(part.strip() for part in lines[start:end] if part.strip())
+        context = _numbered_item_context(lines, line_no)
         lowered = text.lower()
         for category, marker in _MARKERS:
             if marker in lowered:
@@ -105,6 +104,16 @@ def _proof_markers(backlog_text: str) -> tuple[ProofMarker, ...]:
                 )
                 break
     return tuple(markers)
+
+
+def _numbered_item_context(lines: list[str], line_no: int) -> str:
+    start = line_no - 1
+    while start > 0 and not re.match(r"^\s*\d+\.\s+", lines[start]):
+        start -= 1
+    end = line_no
+    while end < len(lines) and not re.match(r"^\s*\d+\.\s+", lines[end]):
+        end += 1
+    return " ".join(part.strip() for part in lines[start:end] if part.strip())
 
 
 def _category_counts(markers: tuple[ProofMarker, ...]) -> dict[str, int]:
@@ -133,6 +142,8 @@ def _marker_status(marker: ProofMarker) -> str:
         if "completed/proof-ready" in text or "not to rebuild completed/proof-ready" in text:
             return "context_only"
         return "open"
+    if marker.category == "remaining_proof" and _crypto_edge_remaining_proof_recorded(marker):
+        return "satisfied_recorded"
     if marker.category != "host_side_reference":
         return "open"
     marker_text = marker.text.lower()
@@ -152,6 +163,32 @@ def _marker_status(marker: ProofMarker) -> str:
     if any(phrase in text for phrase in recorded_phrases):
         return "satisfied_recorded"
     return "open"
+
+
+def _crypto_edge_remaining_proof_recorded(marker: ProofMarker) -> bool:
+    text = f"{marker.text} {marker.context}".lower()
+    if not any(
+        phrase in text
+        for phrase in (
+            "crypto-edge",
+            "edge cadence",
+            "okx snapshot",
+            "okx funding",
+            "open-interest",
+        )
+    ):
+        return False
+    host_closed = all(
+        phrase in text
+        for phrase in (
+            "final host proof recorded",
+            "this closes the host-side crypto-edge schedule/cadence proof",
+            "reports fresh okx funding",
+            "missing=[]",
+            "stale=[]",
+        )
+    )
+    return host_closed
 
 
 def _marker_satisfied(marker: ProofMarker) -> bool:

@@ -27965,6 +27965,65 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T19:44:38Z - Operator Proof Status Recorded Crypto-Edge Closure
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator-proof cleanup lane by preventing stale
+  crypto-edge "Remaining proof" markers from reappearing as next actions after
+  the same backlog item records final host cadence evidence.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` item 14 contains early crypto-edge remaining-proof
+  text for host schedule, OKX snapshot timestamps, and cadence-gap alerting.
+- SHOWN: the same item later records final Hetzner host proof:
+  `check_edge_cadence.py --json` under `CBP_STATE_DIR=/var/lib/cbp` reported
+  fresh OKX funding/open-interest/basis snapshots with `missing=[]`,
+  `stale=[]`, and exit code 0.
+- SHOWN: `report_operator_next_actions.py` still surfaced the earlier lines as
+  open operator proof work because `operator_proof_status` only used a short
+  local context window around each marker.
+
+What changed:
+- `operator_proof_status` now evaluates proof markers with their full numbered
+  backlog-item context instead of a narrow nearby-line window.
+- A narrow crypto-edge closure rule marks `remaining_proof` markers
+  `satisfied_recorded` only when the same item includes final host proof text,
+  fresh OKX funding/open-interest/basis evidence, and no missing or stale
+  families.
+- Regression tests cover both sides: recorded crypto-edge closure suppresses the
+  stale action, while a crypto-edge item without final host proof remains open.
+
+Why this change was chosen:
+- The report should not ask the operator to repeat already-recorded host proof.
+  The fix keeps the backlog history intact and only changes read-only
+  status/next-action interpretation.
+
+Expected outcome:
+- The top next-action queue no longer repeats item 14 crypto-edge cadence proof
+  after the recorded final host proof; genuinely open proof markers still
+  remain visible.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py`
+  - SHOWN: `18 passed in 0.21s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 10 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available` dropped from 22 to 19; lines 706, 718,
+    and 748 no longer appear as next actions.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --category remaining_proof --json`
+  - SHOWN: lines 706, 718, and 748 are `satisfied_recorded`; six other
+    `remaining_proof` markers remain open.
+
+Remaining risk:
+- LOW: read-only reporting/status interpretation and tests only. No backlog text
+  was rewritten, no proof was newly closed, no campaign, market-data fetch,
+  gate, ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T16:58:59Z - Register Replay and Schema Read-Only Commands
 
 Active role: ENGINEER
