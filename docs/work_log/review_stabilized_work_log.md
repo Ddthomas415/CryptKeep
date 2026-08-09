@@ -28271,6 +28271,57 @@ Remaining risk:
   execution, authorization, or runtime behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-09T01:04:22Z - Passive Next-Actions Check-In Target
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by adding a stable
+  Make target for the recurring passive-operator-evidence next-action view.
+
+What was found:
+- SHOWN: the useful check-in command repeatedly used the same long
+  `report_operator_next_actions.py` invocation: passive operator evidence
+  source, bounded max rows, and exclusions for host-side, proof-ready,
+  capped-live, and coverage rows.
+- SHOWN: the generic `operator-next-actions[-json]` targets support the same
+  report but require manual filter wiring for this standard view.
+
+What changed:
+- Added `make operator-next-actions-passive` and
+  `make operator-next-actions-passive-json`.
+- Updated `script-index`, `scripts/SCRIPTS.md`, and Makefile wiring tests.
+
+Why this change was chosen:
+- The operator check-in path should be one stable target instead of a repeated
+  long command. This reduces command drift while preserving the underlying
+  reporter and filters.
+
+Expected outcome:
+- Operators can run `make operator-next-actions-passive-json` for the same
+  passive evidence action list without rebuilding the filter command manually.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `31 passed in 0.29s`.
+- `./.venv/bin/python -m py_compile scripts/report_operator_next_actions.py tests/test_makefile_wiring.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions-passive-json`
+  - SHOWN: `ok=true`, `action_source_filter=passive_operator_evidence`,
+    `action_count_available=12`, and no campaigns, market-data fetches, proof
+    closure, or state mutation.
+- `make -n operator-next-actions-passive`
+  - SHOWN: expands to the passive operator-evidence next-action report with
+    exclusions for host-side, proof-ready, capped-live, and coverage rows.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/tests only. This patch does not run campaigns, commands
+  from the action list, market-data fetches, proof closure, artifact writes,
+  gates, live routing, execution, authorization, or runtime mutation.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T20:11:43Z - Operator Proof Status Research Artifact Passive Evidence
 
 Active role: ENGINEER
