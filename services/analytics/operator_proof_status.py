@@ -634,8 +634,42 @@ def _paper_gate_velocity_artifact_status(root: Path) -> dict[str, Any]:
         "artifact_sha256": _sha256(latest),
         "artifact_status": "recorded" if passed else str(payload.get("status") or "missing"),
         "generated_at": str(payload.get("generated_at") or ""),
+        "thresholds_ready": bool(payload.get("thresholds_ready")),
+        "round_trips": round_trips,
+        "qualified_bars": qualified_bars,
         "satisfied": bool(passed),
     }
+
+
+def _manual_strategy_decision_status(root: Path) -> dict[str, Any]:
+    decision = _operator_decision_event_status(root, target="manual_strategy_performance_decision")
+    if bool(decision.get("satisfied")):
+        return decision
+    gate = _paper_gate_velocity_artifact_status(root)
+    if not bool(gate.get("satisfied")):
+        return {
+            "artifact_id": "manual_strategy_performance_decision",
+            "artifact_status": "waiting_for_paper_gate_velocity",
+            "satisfied": False,
+            "action_required": False,
+            "next_action": "none",
+            "prerequisite_action": "make record-paper-gate-velocity",
+            "paper_gate_velocity": gate,
+            "decision_event": decision,
+        }
+    if not bool(gate.get("thresholds_ready")):
+        return {
+            "artifact_id": "manual_strategy_performance_decision",
+            "artifact_status": "waiting_for_paper_gate_threshold",
+            "satisfied": False,
+            "action_required": False,
+            "next_action": "none",
+            "paper_gate_velocity": gate,
+            "decision_event": decision,
+        }
+    decision["next_action"] = str(decision.get("record_command") or "")
+    decision["paper_gate_velocity"] = gate
+    return decision
 
 
 def _cost_assumptions_artifact_status(root: Path) -> dict[str, Any]:
@@ -898,10 +932,7 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
     if "Launch evidence packet" in item:
         return _operator_arm_to_halt_replay_artifact_status(root)
     if "Manual strategy performance decision" in item:
-        out = _operator_decision_event_status(root, target="manual_strategy_performance_decision")
-        if not bool(out.get("satisfied")):
-            out["next_action"] = str(out.get("record_command") or "")
-        return out
+        return _manual_strategy_decision_status(root)
     if "Composite/hybrid paper advancement decision" in item:
         out = _operator_decision_event_status(root, target="composite_hybrid_paper_advancement_decision")
         if not bool(out.get("satisfied")):
@@ -1013,12 +1044,16 @@ def build_operator_proof_status(
     for idx, item in enumerate(all_passive_items, start=1):
         artifact_status = _passive_artifact_status(root, item)
         satisfied = bool((artifact_status or {}).get("satisfied"))
+        if artifact_status is not None and "action_required" in artifact_status:
+            action_required = bool(artifact_status.get("action_required"))
+        else:
+            action_required = not satisfied
         artifact_next_action = str((artifact_status or {}).get("next_action") or "")
         passive_rows.append(
             {
                 "ordinal": idx,
                 "text": item,
-                "action_required": not satisfied,
+                "action_required": action_required,
                 "next_action": (
                     "none"
                     if satisfied

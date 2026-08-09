@@ -632,6 +632,24 @@ def test_operator_proof_status_shows_manual_strategy_decision_record_command(tmp
         encoding="utf-8",
     )
     (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    artifact_dir = tmp_path / ".cbp_state" / "data" / "paper_gate_velocity"
+    artifact_dir.mkdir(parents=True)
+    (artifact_dir / "paper_gate_velocity.latest.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "read_only": True,
+                "report_type": "paper_gate_velocity",
+                "generated_at": "2026-08-08T00:00:00+00:00",
+                "strategy_id": "es_daily_trend_v1",
+                "thresholds_ready": True,
+                "round_trips": {"qualified": 5, "required": 5, "remaining": 0},
+                "qualified_bars": {"recorded": 60, "required": 60, "remaining": 0},
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
 
     out = build_operator_proof_status(repo_root=tmp_path)
 
@@ -641,6 +659,56 @@ def test_operator_proof_status_shows_manual_strategy_decision_record_command(tmp
     assert manual["next_action"] == "make record-manual-strategy-performance-decision OPERATOR_DECISION_REASON='<reason>'"
     assert manual["artifact_status"]["artifact_status"] == "missing"
     assert manual["artifact_status"]["record_command"] == manual["next_action"]
+    assert manual["artifact_status"]["paper_gate_velocity"]["thresholds_ready"] is True
+
+
+def test_operator_proof_status_waits_for_paper_gate_before_manual_decision(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Manual strategy performance decision after the paper gate reaches the configured threshold.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    artifact_dir = tmp_path / ".cbp_state" / "data" / "paper_gate_velocity"
+    artifact_dir.mkdir(parents=True)
+    (artifact_dir / "paper_gate_velocity.latest.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "read_only": True,
+                "report_type": "paper_gate_velocity",
+                "generated_at": "2026-08-08T00:00:00+00:00",
+                "strategy_id": "es_daily_trend_v1",
+                "thresholds_ready": False,
+                "round_trips": {"qualified": 3, "required": 5, "remaining": 2},
+                "qualified_bars": {"recorded": 47, "required": 60, "remaining": 13},
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    manual = out["passive_operator_items"][0]
+    assert manual["action_required"] is False
+    assert manual["next_action"] == "none"
+    assert manual["artifact_status"]["artifact_status"] == "waiting_for_paper_gate_threshold"
+    assert manual["artifact_status"]["paper_gate_velocity"]["round_trips"]["remaining"] == 2
+    assert out["summary"]["passive_operator_items_satisfied"] == 1
 
 
 def test_operator_proof_status_marks_composite_decision_event_satisfied(tmp_path: Path) -> None:

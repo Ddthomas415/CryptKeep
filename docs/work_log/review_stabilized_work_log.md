@@ -31605,3 +31605,51 @@ Remaining risk:
   was executed by this change, and no campaign, market-data fetch, service
   operation, gate, live routing, authorization, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T04:02:38Z - Manual Strategy Decision Prerequisite Gating
+
+Active role: ENGINEER
+
+Objective:
+- Keep passive next-actions from prompting a manual strategy-performance
+  decision before the paper gate reaches its configured threshold.
+
+What was found:
+- The passive row text says the manual strategy performance decision happens
+  after the paper gate reaches the configured threshold, but the status layer
+  prompted `make record-manual-strategy-performance-decision` whenever the
+  decision event was missing, even if the latest paper-gate velocity artifact
+  still reported incomplete thresholds.
+
+What changed:
+- `operator_proof_status` now exposes paper-gate velocity threshold fields and
+  routes the manual strategy decision through a prerequisite-aware detector.
+- If paper-gate velocity evidence is missing, the manual decision row waits for
+  `make record-paper-gate-velocity`.
+- If paper-gate velocity exists but `thresholds_ready=false`, the row reports
+  `waiting_for_paper_gate_threshold` with no operator next action.
+- If `thresholds_ready=true`, the existing manual decision record command is
+  surfaced unchanged.
+- Added regression tests for threshold-wait and threshold-ready behavior.
+
+Why this change was chosen:
+- It removes premature operator work without changing the paper gate, thresholds,
+  campaign state, or decision event contract.
+
+Expected outcome:
+- `operator-next-actions-passive[-json]` no longer asks for the manual strategy
+  performance decision until the configured paper gate is actually ready.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `85 passed in 0.75s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions-passive-json`
+  - SHOWN: exit 0; local passive next-actions dropped from 12 to 11 and no longer include `record-manual-strategy-performance-decision` while local `paper_gate_velocity.latest.json` has `thresholds_ready=false`.
+
+Remaining risk:
+- LOW: read-only status/reporting and tests only. No campaign, market-data fetch,
+  service operation, gate threshold, promotion logic, live routing,
+  authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
