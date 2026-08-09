@@ -31653,3 +31653,50 @@ Remaining risk:
   service operation, gate threshold, promotion logic, live routing,
   authorization, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T21:31:11Z - Execution Cost Report Prerequisite Gating
+
+Active role: ENGINEER
+
+Objective:
+- Keep passive next-actions from prompting execution-cost report generation
+  before stored `shadow_would_be_fill` records exist.
+
+What was found:
+- The passive row text says the execution-cost report uses shadow-derived
+  records, but the status layer prompted `make record-execution-cost-stack`
+  whenever the report artifact was missing, even when no
+  `shadow_would_be_fill` evidence records were present.
+
+What changed:
+- `operator_proof_status` now checks the existing shadow-record detector before
+  surfacing the execution-cost report command.
+- If the cost report is missing and shadow records are missing or invalid, the
+  row reports `waiting_for_shadow_would_be_fill_records` with no operator next
+  action.
+- Once clean shadow records exist, the existing `make record-execution-cost-stack`
+  action is surfaced unchanged.
+- Added regression tests for waiting, ready-to-record, recorded, and invalid
+  execution-cost report states.
+
+Why this change was chosen:
+- It removes premature operator work without changing the report generator,
+  shadow recorder, paper/shadow behavior, campaign state, or execution policy.
+
+Expected outcome:
+- `operator-next-actions-passive[-json]` no longer asks for an execution-cost
+  stack report until the prerequisite shadow records exist.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `87 passed in 0.75s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions-passive-json`
+  - SHOWN: exit 0; local passive next-actions dropped from 11 to 10 and no longer include `record-execution-cost-stack` while no local `shadow_would_be_fill` records exist.
+
+Remaining risk:
+- LOW: read-only status/reporting and tests only. No campaign, market-data fetch,
+  report generation, shadow recording, service operation, gate threshold,
+  promotion logic, live routing, authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

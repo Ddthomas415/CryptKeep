@@ -779,6 +779,18 @@ def _supply_chain_artifact_status(root: Path) -> dict[str, Any]:
 def _execution_cost_stack_artifact_status(root: Path) -> dict[str, Any]:
     latest = root / ".cbp_state" / "data" / "execution_cost_stack" / "execution_cost_stack.latest.json"
     if not latest.is_file():
+        shadow = _shadow_would_be_fill_artifact_status(root)
+        if not bool(shadow.get("satisfied")):
+            return {
+                "artifact_id": "execution_cost_stack_report",
+                "artifact_status": "waiting_for_shadow_would_be_fill_records",
+                "satisfied": False,
+                "action_required": False,
+                "next_action": "none",
+                "prerequisite_action": str(shadow.get("next_action") or ""),
+                "shadow_would_be_fill": shadow,
+                "note": "Execution-cost report is only actionable after stored shadow_would_be_fill records exist.",
+            }
         return _command_guidance_status(
             artifact_id="execution_cost_stack_report_guidance",
             next_action="make record-execution-cost-stack",

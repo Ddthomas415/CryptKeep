@@ -981,19 +981,24 @@ def test_operator_proof_status_shows_command_guidance_without_satisfying_rows(tm
 
     assert out["ok"] is True
     rows = out["passive_operator_items"]
-    assert all(row["action_required"] is True for row in rows)
     assert rows[0]["artifact_status"]["artifact_id"] == "exchange_sandbox_smoke_guidance"
+    assert rows[0]["action_required"] is True
     assert rows[0]["next_action"] == "make record-exchange-sandbox-smoke"
     assert rows[1]["artifact_status"]["artifact_id"] == "launch_packet_replay_guidance"
+    assert rows[1]["action_required"] is True
     assert rows[1]["next_action"] == "make record-operator-arm-to-halt-replay"
-    assert rows[2]["artifact_status"]["artifact_id"] == "execution_cost_stack_report_guidance"
-    assert rows[2]["next_action"] == "make record-execution-cost-stack"
+    assert rows[2]["artifact_status"]["artifact_id"] == "execution_cost_stack_report"
+    assert rows[2]["artifact_status"]["artifact_status"] == "waiting_for_shadow_would_be_fill_records"
+    assert rows[2]["action_required"] is False
+    assert rows[2]["next_action"] == "none"
     assert rows[3]["artifact_status"]["artifact_id"] == "state_backup_restore_drill"
     assert rows[3]["artifact_status"]["artifact_status"] == "missing_or_incomplete"
+    assert rows[3]["action_required"] is True
     assert rows[3]["next_action"] == "make backup-state STATE_BACKUP_DEST=<backup_dir>"
     assert rows[4]["artifact_status"]["artifact_id"] == "supply_chain_audit_guidance"
+    assert rows[4]["action_required"] is True
     assert rows[4]["next_action"] == "make record-supply-chain"
-    assert out["summary"]["passive_operator_items_satisfied"] == 0
+    assert out["summary"]["passive_operator_items_satisfied"] == 1
 
 
 def test_operator_proof_status_marks_exchange_sandbox_smoke_satisfied(tmp_path: Path) -> None:
@@ -1426,6 +1431,86 @@ def test_operator_proof_status_marks_execution_cost_report_satisfied(tmp_path: P
     assert cost["artifact_status"]["recommendation"] == "research_more"
     assert cost["artifact_status"]["source_report_hash"] == "abc123"
     assert out["passive_operator_items"][1]["action_required"] is True
+    assert out["summary"]["passive_operator_items_satisfied"] == 1
+
+
+def test_operator_proof_status_prompts_execution_cost_report_after_shadow_records(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Accepted shadow-derived execution-cost report using those records.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    evidence_file = tmp_path / ".cbp_state" / "data" / "evidence" / "shadow_session" / "fill_0001.jsonl"
+    evidence_file.parent.mkdir(parents=True)
+    evidence_file.write_text(
+        json.dumps(
+            {
+                "record_subtype": "shadow_would_be_fill",
+                "shadow_would_be_fill": True,
+                "timestamp": "2026-08-08T20:00:00Z",
+                "strategy_id": "es_daily_trend_v1",
+                "intent_id": "intent-1",
+                "reference_bid": 100.0,
+                "reference_ask": 100.2,
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    cost = out["passive_operator_items"][0]
+    assert cost["action_required"] is True
+    assert cost["next_action"] == "make record-execution-cost-stack"
+    assert cost["artifact_status"]["artifact_id"] == "execution_cost_stack_report_guidance"
+    assert cost["artifact_status"]["artifact_status"] == "command_guidance"
+    assert out["summary"]["passive_operator_items_satisfied"] == 0
+
+
+def test_operator_proof_status_waits_for_shadow_records_before_execution_cost_report(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Accepted shadow-derived execution-cost report using those records.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    cost = out["passive_operator_items"][0]
+    assert cost["action_required"] is False
+    assert cost["next_action"] == "none"
+    assert cost["artifact_status"]["artifact_status"] == "waiting_for_shadow_would_be_fill_records"
+    assert cost["artifact_status"]["shadow_would_be_fill"]["artifact_status"] == "missing"
     assert out["summary"]["passive_operator_items_satisfied"] == 1
 
 
