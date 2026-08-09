@@ -660,6 +660,49 @@ def _cost_assumptions_artifact_status(root: Path) -> dict[str, Any]:
     }
 
 
+def _latest_exchange_sandbox_smoke_evidence(root: Path) -> Path | None:
+    evidence_dir = root / ".cbp_state" / "data" / "exchange_sandbox_smoke"
+    paths = sorted(evidence_dir.glob("exchange-sandbox-smoke-*.json"))
+    return paths[-1] if paths else None
+
+
+def _exchange_sandbox_smoke_artifact_status(root: Path) -> dict[str, Any]:
+    latest = _latest_exchange_sandbox_smoke_evidence(root)
+    if latest is None:
+        return _command_guidance_status(
+            artifact_id="exchange_sandbox_smoke_guidance",
+            next_action="make record-exchange-sandbox-smoke",
+            note="Writes standard exchange sandbox smoke evidence under .cbp_state/data/exchange_sandbox_smoke/.",
+        )
+    payload = _load_json(latest)
+    checks = payload.get("checks") if isinstance(payload.get("checks"), list) else []
+    passed = (
+        latest.is_file()
+        and str(payload.get("report_type") or "") == "exchange_sandbox_smoke"
+        and bool(payload.get("ok")) is True
+        and bool(payload.get("sandbox")) is True
+        and bool(payload.get("read_only")) is True
+        and bool(str(payload.get("exchange") or ""))
+        and bool(str(payload.get("symbol") or ""))
+        and bool(checks)
+        and all(isinstance(row, dict) and bool(row.get("ok")) is True for row in checks)
+    )
+    return {
+        "artifact_id": "exchange_sandbox_smoke",
+        "artifact_path": str(latest),
+        "artifact_exists": latest.is_file(),
+        "artifact_sha256": _sha256(latest),
+        "artifact_status": "recorded" if passed else "invalid_or_failed",
+        "created": str(payload.get("created") or ""),
+        "exchange": payload.get("exchange"),
+        "symbol": payload.get("symbol"),
+        "sandbox": bool(payload.get("sandbox")),
+        "check_count": len(checks),
+        "satisfied": bool(passed),
+        "next_action": "none" if passed else "make record-exchange-sandbox-smoke",
+    }
+
+
 def _latest_supply_chain_evidence(root: Path) -> Path | None:
     evidence_dir = root / ".cbp_state" / "data" / "supply_chain"
     paths = sorted(evidence_dir.glob("supply-chain-evidence-*.json"))
@@ -851,11 +894,7 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
     if "Pullback Stage 0 long proof" in item:
         return _pullback_stage0_artifact_status(root)
     if "Private sandbox/testnet lifecycle proof" in item:
-        return _command_guidance_status(
-            artifact_id="exchange_sandbox_smoke_guidance",
-            next_action="make smoke-exchange-sandbox",
-            note="Coinbase has no working CCXT sandbox URL in this repo; see docs/EXCHANGE_SANDBOX_SMOKE.md.",
-        )
+        return _exchange_sandbox_smoke_artifact_status(root)
     if "Launch evidence packet" in item:
         return _operator_arm_to_halt_replay_artifact_status(root)
     if "Manual strategy performance decision" in item:

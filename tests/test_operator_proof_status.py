@@ -915,7 +915,7 @@ def test_operator_proof_status_shows_command_guidance_without_satisfying_rows(tm
     rows = out["passive_operator_items"]
     assert all(row["action_required"] is True for row in rows)
     assert rows[0]["artifact_status"]["artifact_id"] == "exchange_sandbox_smoke_guidance"
-    assert rows[0]["next_action"] == "make smoke-exchange-sandbox"
+    assert rows[0]["next_action"] == "make record-exchange-sandbox-smoke"
     assert rows[1]["artifact_status"]["artifact_id"] == "launch_packet_replay_guidance"
     assert rows[1]["next_action"] == "make record-operator-arm-to-halt-replay"
     assert rows[2]["artifact_status"]["artifact_id"] == "execution_cost_stack_report_guidance"
@@ -925,6 +925,111 @@ def test_operator_proof_status_shows_command_guidance_without_satisfying_rows(tm
     assert rows[3]["next_action"] == "make backup-state STATE_BACKUP_DEST=<backup_dir>"
     assert rows[4]["artifact_status"]["artifact_id"] == "supply_chain_audit_guidance"
     assert rows[4]["next_action"] == "make record-supply-chain"
+    assert out["summary"]["passive_operator_items_satisfied"] == 0
+
+
+def test_operator_proof_status_marks_exchange_sandbox_smoke_satisfied(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Private sandbox/testnet lifecycle proof or explicit accepted exception.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    evidence_dir = tmp_path / ".cbp_state" / "data" / "exchange_sandbox_smoke"
+    evidence_dir.mkdir(parents=True)
+    artifact = evidence_dir / "exchange-sandbox-smoke-20260809T000000Z.json"
+    artifact.write_text(
+        json.dumps(
+            {
+                "report_type": "exchange_sandbox_smoke",
+                "created": "2026-08-09T00:00:00Z",
+                "read_only": True,
+                "ok": True,
+                "exchange": "binance",
+                "symbol": "BTC/USD",
+                "sandbox": True,
+                "checks": [
+                    {"name": "build_exchange", "ok": True},
+                    {"name": "fetch_ticker", "ok": True},
+                    {"name": "fetch_order_book", "ok": True},
+                ],
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    sandbox = out["passive_operator_items"][0]
+    assert sandbox["action_required"] is False
+    assert sandbox["next_action"] == "none"
+    assert sandbox["artifact_status"]["artifact_id"] == "exchange_sandbox_smoke"
+    assert sandbox["artifact_status"]["artifact_status"] == "recorded"
+    assert sandbox["artifact_status"]["exchange"] == "binance"
+    assert sandbox["artifact_status"]["check_count"] == 3
+    assert out["summary"]["passive_operator_items_satisfied"] == 1
+
+
+def test_operator_proof_status_keeps_failed_exchange_sandbox_smoke_open(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Private sandbox/testnet lifecycle proof or explicit accepted exception.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    evidence_dir = tmp_path / ".cbp_state" / "data" / "exchange_sandbox_smoke"
+    evidence_dir.mkdir(parents=True)
+    artifact = evidence_dir / "exchange-sandbox-smoke-20260809T000000Z.json"
+    artifact.write_text(
+        json.dumps(
+            {
+                "report_type": "exchange_sandbox_smoke",
+                "created": "2026-08-09T00:00:00Z",
+                "read_only": True,
+                "ok": False,
+                "exchange": "binance",
+                "symbol": "BTC/USD",
+                "sandbox": True,
+                "checks": [{"name": "fetch_ticker", "ok": False}],
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    sandbox = out["passive_operator_items"][0]
+    assert sandbox["action_required"] is True
+    assert sandbox["next_action"] == "make record-exchange-sandbox-smoke"
+    assert sandbox["artifact_status"]["artifact_status"] == "invalid_or_failed"
     assert out["summary"]["passive_operator_items_satisfied"] == 0
 
 

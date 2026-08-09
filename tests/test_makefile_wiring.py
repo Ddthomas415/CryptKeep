@@ -48,6 +48,8 @@ def test_makefile_has_alignment_targets():
     assert "scripts/report_execution_cost_stack.py --write-default-artifact" in txt
     assert "smoke-exchange-sandbox:" in txt
     assert "scripts/smoke_exchange.py $(EXCHANGE_SANDBOX_SMOKE_ARGS)" in txt
+    assert "record-exchange-sandbox-smoke:" in txt
+    assert "--evidence-dest $(EXCHANGE_SANDBOX_SMOKE_EVIDENCE_DEST)" in txt
     assert "backup-state:" in txt
     assert "scripts/backup_state.py backup --dest $(STATE_BACKUP_DEST)" in txt
     assert "record-manual-strategy-performance-decision:" in txt

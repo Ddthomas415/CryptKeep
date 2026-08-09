@@ -37,6 +37,7 @@ OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY ?=
 OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE ?=
 OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL ?=
 EXCHANGE_SANDBOX_SMOKE_ARGS ?= --exchange binance --sandbox --orderbook
+EXCHANGE_SANDBOX_SMOKE_EVIDENCE_DEST ?= .cbp_state/data/exchange_sandbox_smoke
 STATE_BACKUP_DEST ?=
 OPERATOR_DECISION_REASON ?=
 OPERATOR_DECISION_RESULT ?= accepted
@@ -45,7 +46,7 @@ OPERATOR_CHECKPOINT_REASON ?=
 OPERATOR_CHECKPOINT_RESULT ?= completed
 OPERATOR_ARM_TO_HALT_REPLAY_EVIDENCE_DEST ?= .cbp_state/data/operator_arm_to_halt_replay
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks roadmap-tracking-status roadmap-tracking-status-json backlog-lane-status backlog-lane-status-json operator-proof-status operator-proof-status-json operator-read-only-command-status operator-read-only-command-status-json operator-status operator-status-json operator-next-actions operator-next-actions-json operator-next-actions-passive operator-next-actions-passive-json platform-event-journal platform-event-journal-json platform-event-secrets platform-event-secrets-json platform-event-integrity platform-event-integrity-json platform-event-packet platform-event-packet-json operator-arm-to-halt-replay operator-arm-to-halt-replay-json record-operator-arm-to-halt-replay record-manual-strategy-performance-decision record-composite-hybrid-paper-decision record-funding-extreme-persistent-campaign-decision record-hetzner-state-migration-checkpoint record-paper-to-shadow-first-hour-checkpoint record-backup-restore-drill-checkpoint record-server-secrets-rotation-checkpoint phase1-safety phase1-smoke phase1-smoke-openai smoke-exchange-sandbox load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness check-edge-cadence check-edge-cadence-json check-dead-man check-dead-man-json check-cost-assumptions check-cost-assumptions-json record-cost-assumptions check-supply-chain check-supply-chain-json record-supply-chain record-execution-cost-stack backup-state collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json plan-multi-symbol-paper-campaigns plan-multi-symbol-paper-campaigns-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-pipeline-status research-pipeline-status-json research-command-status research-command-status-json
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks roadmap-tracking-status roadmap-tracking-status-json backlog-lane-status backlog-lane-status-json operator-proof-status operator-proof-status-json operator-read-only-command-status operator-read-only-command-status-json operator-status operator-status-json operator-next-actions operator-next-actions-json operator-next-actions-passive operator-next-actions-passive-json platform-event-journal platform-event-journal-json platform-event-secrets platform-event-secrets-json platform-event-integrity platform-event-integrity-json platform-event-packet platform-event-packet-json operator-arm-to-halt-replay operator-arm-to-halt-replay-json record-operator-arm-to-halt-replay record-manual-strategy-performance-decision record-composite-hybrid-paper-decision record-funding-extreme-persistent-campaign-decision record-hetzner-state-migration-checkpoint record-paper-to-shadow-first-hour-checkpoint record-backup-restore-drill-checkpoint record-server-secrets-rotation-checkpoint phase1-safety phase1-smoke phase1-smoke-openai smoke-exchange-sandbox record-exchange-sandbox-smoke load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness check-edge-cadence check-edge-cadence-json check-dead-man check-dead-man-json check-cost-assumptions check-cost-assumptions-json record-cost-assumptions check-supply-chain check-supply-chain-json record-supply-chain record-execution-cost-stack backup-state collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json plan-multi-symbol-paper-campaigns plan-multi-symbol-paper-campaigns-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-pipeline-status research-pipeline-status-json research-command-status research-command-status-json
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -237,6 +238,9 @@ phase1-smoke-openai:
 
 smoke-exchange-sandbox:
 	$(PYTHON) scripts/smoke_exchange.py $(EXCHANGE_SANDBOX_SMOKE_ARGS)
+
+record-exchange-sandbox-smoke:
+	$(PYTHON) scripts/smoke_exchange.py $(EXCHANGE_SANDBOX_SMOKE_ARGS) --evidence-dest $(EXCHANGE_SANDBOX_SMOKE_EVIDENCE_DEST)
 
 load-sample-crypto-edges:
 	$(PYTHON) scripts/load_sample_crypto_edge_data.py --print-report
@@ -712,6 +716,7 @@ script-index:
 	@echo "  make record-supply-chain — record supply-chain evidence artifact"
 	@echo "  make record-execution-cost-stack — record shadow execution-cost report artifact"
 	@echo "  make smoke-exchange-sandbox — run the configured exchange sandbox smoke"
+	@echo "  make record-exchange-sandbox-smoke — run exchange sandbox smoke and record evidence"
 	@echo "  make backup-state STATE_BACKUP_DEST=<backup_dir> — create a full-state backup"
 	@echo "  make check-paper-campaign-ownership — check laptop/Hetzner campaign ownership"
 	@echo "  make pullback-stage0-readiness — check pullback Stage 0 readiness"

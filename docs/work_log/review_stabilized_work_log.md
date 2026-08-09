@@ -31551,3 +31551,57 @@ Remaining risk:
   fetch, service operation, gate, live routing, authorization, or runtime policy
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T03:59:28Z - Exchange Sandbox Smoke Passive Evidence Detection
+
+Active role: ENGINEER
+
+Objective:
+- Convert the passive sandbox/testnet lifecycle proof row from command-only
+  guidance into standard evidence detection without running sandbox smoke,
+  campaigns, market-data fetches, services, or proof-closing operations.
+
+What was found:
+- `scripts/smoke_exchange.py` printed JSON but had no evidence artifact mode.
+- The passive operator row for sandbox/testnet proof therefore stayed at
+  `command_guidance` and could not satisfy after an operator completed a smoke
+  proof.
+
+What changed:
+- Added `--evidence-dest` to `scripts/smoke_exchange.py`; recorded output is
+  tagged with `report_type=exchange_sandbox_smoke`, `read_only=true`, and a
+  timestamp.
+- Added `make record-exchange-sandbox-smoke` to write standard evidence under
+  `.cbp_state/data/exchange_sandbox_smoke/`.
+- Updated `operator_proof_status` so the sandbox/testnet passive row satisfies
+  only on a recorded successful sandbox smoke artifact with successful checks.
+- Updated script documentation, Makefile wiring tests, smoke CLI tests, and
+  operator proof status tests.
+
+Why this change was chosen:
+- It keeps the status layer passive while making completed operator smoke proof
+  durable and machine-detectable. The normal `smoke-exchange-sandbox` command
+  remains available; the new target is the recordable proof path.
+
+Expected outcome:
+- `operator-next-actions-passive[-json]` points to
+  `make record-exchange-sandbox-smoke` until a valid artifact exists, then
+  removes the sandbox/testnet row from passive next actions.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_exchange_smoke.py tests/test_smoke_exchange_scripts.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `98 passed in 1.08s`.
+- `./.venv/bin/python -m py_compile scripts/smoke_exchange.py services/diagnostics/exchange_smoke.py services/analytics/operator_proof_status.py tests/test_smoke_exchange_scripts.py tests/test_operator_proof_status.py tests/test_makefile_wiring.py`
+  - SHOWN: exit 0.
+- `make -n record-exchange-sandbox-smoke`
+  - SHOWN: dry-run emits `scripts/smoke_exchange.py --exchange binance --sandbox --orderbook --evidence-dest .cbp_state/data/exchange_sandbox_smoke`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: exit 0; sandbox/testnet passive row now reports `next_action=make record-exchange-sandbox-smoke`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: evidence-output option, Makefile/docs/status/tests only. No sandbox smoke
+  was executed by this change, and no campaign, market-data fetch, service
+  operation, gate, live routing, authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -70,6 +70,7 @@ listed below.
 | `run_preflight.py` | — | Preflight entrypoint |
 | `run_signal_quality_report.py` | — | Read-only signal-quality report for scoring whether qualified public-OHLCV signals were early enough; `--allow-unqualified-evidence` is research-only |
 | `run_system_diagnostics.py` | `make system-diagnostics` | System diagnostics wrapper |
+| `smoke_exchange.py` | `make smoke-exchange-sandbox` / `make record-exchange-sandbox-smoke` | Exchange sandbox smoke check; `record-exchange-sandbox-smoke` writes standard evidence under `.cbp_state/data/exchange_sandbox_smoke/` |
 | `show_control_kernel_status.py` | `make kernel-status` / `make kernel-status-json` / `make kernel-promote` | Control-kernel status; `--promote` is gate-enforced and fails closed unless the supported promotion gate is ready |
 | `supervisor_status.py` | — | Supervisor state |
 | `validate.py` | `make validate-quick` / `make validate` | Repo validation |
@@ -429,6 +430,10 @@ are not paper-campaign controls.
   `make record-supply-chain`; `record-supply-chain` writes standard
   provenance evidence under `.cbp_state/data/supply_chain/` (see
   `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`).
+- `smoke_exchange.py` — exchange sandbox smoke check; supports
+  `make smoke-exchange-sandbox` and `make record-exchange-sandbox-smoke`;
+  the record target writes standard evidence under
+  `.cbp_state/data/exchange_sandbox_smoke/`.
 - `check_cost_assumptions.py` — read-only paper fee/slippage cost-assumption
   validator for the active `user.yaml`; supports
   `make check-cost-assumptions[-json]` and `make record-cost-assumptions`;
