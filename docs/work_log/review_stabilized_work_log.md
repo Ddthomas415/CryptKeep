@@ -28322,6 +28322,62 @@ Remaining risk:
   gates, live routing, execution, authorization, or runtime mutation.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-09T01:06:20Z - Execution-Cost Report Passive Evidence Detection
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by making the passive
+  execution-cost report item detect the standard latest report artifact.
+
+What was found:
+- SHOWN: `scripts/report_execution_cost_stack.py --write-default-artifact`
+  writes `.cbp_state/data/execution_cost_stack/execution_cost_stack.latest.json`.
+- SHOWN: `operator_proof_status` still treated the accepted
+  shadow-derived execution-cost report row as unsatisfied command guidance even
+  after such an artifact would exist.
+
+What changed:
+- Added read-only detection for
+  `.cbp_state/data/execution_cost_stack/execution_cost_stack.latest.json`.
+- The row is satisfied only when the artifact reports
+  `report_type=execution_cost_stack_report`, `read_only=true`,
+  `scope=research_only_shadow_would_be_fill_records`, an accepted
+  recommendation enum, a source report hash, and all existing no-live/no-order
+  type/no-canonical-paper policy flags.
+- Invalid or incomplete artifacts stay actionable and point back to
+  `make record-execution-cost-stack`.
+- Added regression tests for recorded and invalid report artifacts.
+
+Why this change was chosen:
+- The report recording target should have a matching read-side proof detector.
+  That lets the passive evidence list shrink from artifacts that actually
+  exist, rather than staying as permanent command guidance.
+
+Expected outcome:
+- Once a valid execution-cost report artifact exists, the passive next-action
+  row is marked satisfied with artifact path/hash, recommendation, and source
+  hashes visible for review.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_execution_cost_stack_report.py`
+  - SHOWN: `82 passed in 0.80s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py services/analytics/execution_cost_stack_report.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions-passive-json`
+  - SHOWN: `action_count_available=12`; ordinal 10 remains actionable locally
+    because no standard `execution_cost_stack.latest.json` artifact exists in
+    local state.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only status classification and tests only. This patch does not run
+  the execution-cost report, write artifacts, fetch market data, close gates,
+  change campaigns, live routing, execution, authorization, or runtime
+  behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T20:11:43Z - Operator Proof Status Research Artifact Passive Evidence
 
 Active role: ENGINEER

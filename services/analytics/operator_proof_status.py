@@ -584,6 +584,48 @@ def _supply_chain_artifact_status(root: Path) -> dict[str, Any]:
     }
 
 
+def _execution_cost_stack_artifact_status(root: Path) -> dict[str, Any]:
+    latest = root / ".cbp_state" / "data" / "execution_cost_stack" / "execution_cost_stack.latest.json"
+    if not latest.is_file():
+        return _command_guidance_status(
+            artifact_id="execution_cost_stack_report_guidance",
+            next_action="make record-execution-cost-stack",
+            note="Report is read-only over stored shadow_would_be_fill records; it does not change routing or order type.",
+        )
+    payload = _load_json(latest)
+    policy = payload.get("policy") if isinstance(payload.get("policy"), dict) else {}
+    passed = (
+        str(payload.get("report_type") or "") == "execution_cost_stack_report"
+        and bool(payload.get("read_only")) is True
+        and str(payload.get("scope") or "") == "research_only_shadow_would_be_fill_records"
+        and bool(policy.get("no_live_routing_changes")) is True
+        and bool(policy.get("no_order_type_policy_changes")) is True
+        and bool(policy.get("no_canonical_paper_campaign_changes")) is True
+        and bool(policy.get("paper_fills_excluded")) is True
+        and bool(payload.get("source_report_hash"))
+        and str(payload.get("recommendation") or "") in {
+            "no_change",
+            "research_more",
+            "candidate_execution_policy_change",
+        }
+    )
+    return {
+        "artifact_id": "execution_cost_stack_report",
+        "artifact_path": str(latest),
+        "artifact_exists": True,
+        "artifact_sha256": _sha256(latest),
+        "artifact_status": "recorded" if passed else "invalid_or_incomplete",
+        "generated_at": str(payload.get("generated_at") or ""),
+        "recommendation": str(payload.get("recommendation") or ""),
+        "source_report_hash": payload.get("source_report_hash"),
+        "source_artifact_hash": payload.get("source_artifact_hash"),
+        "record_count": ((payload.get("summary") or {}).get("record_count") if isinstance(payload.get("summary"), dict) else None),
+        "parse_errors": payload.get("parse_errors"),
+        "satisfied": bool(passed),
+        "next_action": "none" if passed else "make record-execution-cost-stack",
+    }
+
+
 def _research_inventory_row(root: Path, artifact_id: str) -> dict[str, Any]:
     try:
         from services.analytics.research_artifact_inventory import build_research_artifact_inventory
@@ -722,11 +764,7 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
     if "Accepted shadow-stage run producing real `shadow_would_be_fill` records" in item:
         return _shadow_would_be_fill_artifact_status(root)
     if "Accepted shadow-derived execution-cost report" in item:
-        return _command_guidance_status(
-            artifact_id="execution_cost_stack_report_guidance",
-            next_action="make record-execution-cost-stack",
-            note="Report is read-only over stored shadow_would_be_fill records; it does not change routing or order type.",
-        )
+        return _execution_cost_stack_artifact_status(root)
     if "Hetzner canonical `.cbp_state` migration follow-through" in item:
         return _runbook_checkpoint_status(
             root,

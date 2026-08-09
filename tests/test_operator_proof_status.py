@@ -977,6 +977,111 @@ def test_operator_proof_status_marks_supply_chain_evidence_satisfied(tmp_path: P
     assert out["summary"]["passive_operator_items_satisfied"] == 1
 
 
+def test_operator_proof_status_marks_execution_cost_report_satisfied(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Accepted shadow-derived execution-cost report using those records.",
+                "- Supply-chain audit/waiver evidence.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    latest = tmp_path / ".cbp_state" / "data" / "execution_cost_stack" / "execution_cost_stack.latest.json"
+    latest.parent.mkdir(parents=True)
+    latest.write_text(
+        json.dumps(
+            {
+                "report_type": "execution_cost_stack_report",
+                "generated_at": "2026-08-09T01:00:00+00:00",
+                "read_only": True,
+                "scope": "research_only_shadow_would_be_fill_records",
+                "source_report_hash": "abc123",
+                "source_artifact_hash": "def456",
+                "recommendation": "research_more",
+                "parse_errors": 0,
+                "policy": {
+                    "no_live_routing_changes": True,
+                    "no_order_type_policy_changes": True,
+                    "no_canonical_paper_campaign_changes": True,
+                    "paper_fills_excluded": True,
+                },
+                "summary": {"record_count": 3},
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    cost = out["passive_operator_items"][0]
+    assert cost["action_required"] is False
+    assert cost["next_action"] == "none"
+    assert cost["artifact_status"]["artifact_id"] == "execution_cost_stack_report"
+    assert cost["artifact_status"]["artifact_status"] == "recorded"
+    assert cost["artifact_status"]["recommendation"] == "research_more"
+    assert cost["artifact_status"]["source_report_hash"] == "abc123"
+    assert out["passive_operator_items"][1]["action_required"] is True
+    assert out["summary"]["passive_operator_items_satisfied"] == 1
+
+
+def test_operator_proof_status_keeps_invalid_execution_cost_report_open(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Accepted shadow-derived execution-cost report using those records.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    latest = tmp_path / ".cbp_state" / "data" / "execution_cost_stack" / "execution_cost_stack.latest.json"
+    latest.parent.mkdir(parents=True)
+    latest.write_text(
+        json.dumps(
+            {
+                "report_type": "execution_cost_stack_report",
+                "read_only": True,
+                "scope": "research_only_shadow_would_be_fill_records",
+                "recommendation": "research_more",
+                "policy": {"paper_fills_excluded": True},
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    cost = out["passive_operator_items"][0]
+    assert cost["action_required"] is True
+    assert cost["next_action"] == "make record-execution-cost-stack"
+    assert cost["artifact_status"]["artifact_status"] == "invalid_or_incomplete"
+    assert out["summary"]["passive_operator_items_satisfied"] == 0
+
+
 def test_operator_proof_status_shows_runbook_guidance_without_satisfying_rows(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 
