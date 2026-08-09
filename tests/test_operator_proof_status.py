@@ -708,7 +708,8 @@ def test_operator_proof_status_waits_for_paper_gate_before_manual_decision(tmp_p
     assert manual["next_action"] == "none"
     assert manual["artifact_status"]["artifact_status"] == "waiting_for_paper_gate_threshold"
     assert manual["artifact_status"]["paper_gate_velocity"]["round_trips"]["remaining"] == 2
-    assert out["summary"]["passive_operator_items_satisfied"] == 1
+    assert out["summary"]["passive_operator_items_satisfied"] == 0
+    assert out["summary"]["passive_operator_items_waiting"] == 1
 
 
 def test_operator_proof_status_marks_composite_decision_event_satisfied(tmp_path: Path) -> None:
@@ -875,7 +876,8 @@ def test_operator_proof_status_attaches_funding_research_without_satisfying_deci
     assert funding["artifact_status"]["actionable_basis"] is False
     assert funding["artifact_status"]["candidate_count"] == 0
     assert funding["artifact_status"]["decision_event"]["satisfied"] is False
-    assert out["summary"]["passive_operator_items_satisfied"] == 1
+    assert out["summary"]["passive_operator_items_satisfied"] == 0
+    assert out["summary"]["passive_operator_items_waiting"] == 1
 
 
 def test_operator_proof_status_prompts_funding_decision_with_actionable_basis(
@@ -1055,7 +1057,9 @@ def test_operator_proof_status_shows_command_guidance_without_satisfying_rows(tm
     assert rows[4]["artifact_status"]["artifact_id"] == "supply_chain_audit_guidance"
     assert rows[4]["action_required"] is True
     assert rows[4]["next_action"] == "make record-supply-chain"
-    assert out["summary"]["passive_operator_items_satisfied"] == 1
+    assert out["summary"]["passive_operator_items_satisfied"] == 0
+    assert out["summary"]["passive_operator_items_waiting"] == 1
+    assert out["summary"]["passive_operator_items_action_required"] == 4
 
 
 def test_operator_proof_status_marks_exchange_sandbox_smoke_satisfied(tmp_path: Path) -> None:
@@ -1568,7 +1572,8 @@ def test_operator_proof_status_waits_for_shadow_records_before_execution_cost_re
     assert cost["next_action"] == "none"
     assert cost["artifact_status"]["artifact_status"] == "waiting_for_shadow_would_be_fill_records"
     assert cost["artifact_status"]["shadow_would_be_fill"]["artifact_status"] == "missing"
-    assert out["summary"]["passive_operator_items_satisfied"] == 1
+    assert out["summary"]["passive_operator_items_satisfied"] == 0
+    assert out["summary"]["passive_operator_items_waiting"] == 1
 
 
 def test_operator_proof_status_keeps_invalid_execution_cost_report_open(tmp_path: Path) -> None:

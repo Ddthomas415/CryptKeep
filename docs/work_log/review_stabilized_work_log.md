@@ -31747,3 +31747,53 @@ Remaining risk:
   campaign, market-data fetch, artifact generation, strategy config,
   qualification gate, live routing, authorization, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T21:36:28Z - Passive Operator Summary Waiting Count Separation
+
+Active role: ENGINEER
+
+Objective:
+- Make the passive operator-evidence summary distinguish completed proof items
+  from waiting/non-actionable rows.
+
+What was found:
+- `passive_operator_items_satisfied` counted every passive row with
+  `action_required=false` as satisfied. After prerequisite gating, that
+  incorrectly treated waiting rows such as "not ready yet" as completed proof.
+
+What changed:
+- `operator_proof_status` now derives satisfied rows from
+  `artifact_status.satisfied`.
+- Added explicit summary counts for `passive_operator_items_waiting` and
+  `passive_operator_items_action_required`.
+- `operator_status_bundle` and the text reporter now surface the new counts.
+- Updated regression tests so waiting rows are not counted as satisfied.
+
+Why this change was chosen:
+- It preserves the reduced operator-action list while making the summary
+  truthful: satisfied means proof recorded, waiting means prerequisite not yet
+  met, and action-required means the operator can act now.
+
+Expected outcome:
+- `operator-status` and passive next-action summaries no longer overstate
+  completed proof work when rows are intentionally waiting on prerequisites.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `88 passed in 0.66s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py services/analytics/operator_status_bundle.py scripts/report_operator_status_bundle.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `build_operator_status_bundle(section="operator_proof")`
+  - SHOWN: local summary reports `passive_operator_items=15`,
+    `passive_operator_items_satisfied=3`, `passive_operator_items_waiting=3`,
+    `passive_operator_items_action_required=9`, and
+    `passive_operator_evidence_actions_required=9`.
+- `build_operator_next_actions(action_source="passive_operator_evidence")`
+  - SHOWN: local passive next-actions report 9 available actions with the same
+    3 satisfied / 3 waiting / 9 action-required source split.
+
+Remaining risk:
+- LOW: read-only status/reporting and tests only. No campaigns, market-data
+  fetches, proof artifacts, strategy configs, promotion gates, live routing,
+  authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

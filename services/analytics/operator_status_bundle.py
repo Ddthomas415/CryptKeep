@@ -320,6 +320,10 @@ def build_operator_status_bundle(
             "proof_markers_satisfied": int(proof_summary.get("proof_markers_satisfied") or 0),
             "proof_markers_context_only": int(proof_summary.get("proof_markers_context_only") or 0),
             "passive_operator_items_satisfied": int(proof_summary.get("passive_operator_items_satisfied") or 0),
+            "passive_operator_items_waiting": int(proof_summary.get("passive_operator_items_waiting") or 0),
+            "passive_operator_items_action_required": int(
+                proof_summary.get("passive_operator_items_action_required") or 0
+            ),
             "operator_proof_actions_required": len(proof_actions),
             "passive_operator_evidence_actions_required": len(passive_actions),
         },

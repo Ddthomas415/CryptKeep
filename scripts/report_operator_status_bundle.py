@@ -169,6 +169,8 @@ def _print_report(payload: dict[str, Any]) -> None:
             f"satisfied={summary.get('proof_markers_satisfied', 0)} "
             f"context_only={summary.get('proof_markers_context_only', 0)} "
             f"passive_satisfied={summary.get('passive_operator_items_satisfied', 0)} "
+            f"passive_waiting={summary.get('passive_operator_items_waiting', 0)} "
+            f"passive_action_required={summary.get('passive_operator_items_action_required', 0)} "
             f"actions_required={summary.get('operator_proof_actions_required', 0)}"
         )
     for row in list(actions_payload.get("passive_operator_evidence") or [])[:5]:

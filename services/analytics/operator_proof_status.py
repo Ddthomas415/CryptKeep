@@ -1155,7 +1155,18 @@ def build_operator_proof_status(
         "summary": {
             "passive_operator_items": len(passive_rows),
             "source_passive_operator_items": len(all_passive_items),
-            "passive_operator_items_satisfied": sum(1 for row in passive_rows if not bool(row.get("action_required"))),
+            "passive_operator_items_satisfied": sum(
+                1 for row in passive_rows if bool(((row.get("artifact_status") or {}).get("satisfied")))
+            ),
+            "passive_operator_items_waiting": sum(
+                1
+                for row in passive_rows
+                if not bool(row.get("action_required"))
+                and not bool(((row.get("artifact_status") or {}).get("satisfied")))
+            ),
+            "passive_operator_items_action_required": sum(
+                1 for row in passive_rows if bool(row.get("action_required"))
+            ),
             "remaining_proof_or_coverage_markers": remaining_marker_count,
             "host_side_markers": category_counts.get("host_side_reference", 0),
             "proof_ready_markers": category_counts.get("proof_ready_implementation", 0),

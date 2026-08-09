@@ -150,6 +150,8 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["summary"]["proof_markers_satisfied"] == 0
     assert out["summary"]["proof_markers_context_only"] == 0
     assert out["summary"]["passive_operator_items_satisfied"] == 0
+    assert "passive_operator_items_waiting" in out["summary"]
+    assert "passive_operator_items_action_required" in out["summary"]
     assert out["summary"]["operator_proof_actions_required"] >= 1
     assert out["actions"]["passive_operator_evidence"]
     assert out["actions"]["operator_proofs"]
@@ -703,6 +705,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "proof_markers_satisfied": 5,
                 "proof_markers_context_only": 2,
                 "passive_operator_items_satisfied": 1,
+                "passive_operator_items_waiting": 3,
+                "passive_operator_items_action_required": 11,
                 "operator_proof_actions_required": 2,
             },
             "reports": {
@@ -830,6 +834,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "satisfied=5" in out
     assert "context_only=2" in out
     assert "passive_satisfied=1" in out
+    assert "passive_waiting=3" in out
+    assert "passive_action_required=11" in out
     assert "passive_action: #1" in out
     assert "collect or record operator evidence" in out
     assert "proof_action: L7 remaining_proof" in out
