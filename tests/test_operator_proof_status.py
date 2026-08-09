@@ -917,13 +917,110 @@ def test_operator_proof_status_shows_command_guidance_without_satisfying_rows(tm
     assert rows[0]["artifact_status"]["artifact_id"] == "exchange_sandbox_smoke_guidance"
     assert rows[0]["next_action"] == "make smoke-exchange-sandbox"
     assert rows[1]["artifact_status"]["artifact_id"] == "launch_packet_replay_guidance"
-    assert rows[1]["next_action"] == "make operator-arm-to-halt-replay-json"
+    assert rows[1]["next_action"] == "make record-operator-arm-to-halt-replay"
     assert rows[2]["artifact_status"]["artifact_id"] == "execution_cost_stack_report_guidance"
     assert rows[2]["next_action"] == "make record-execution-cost-stack"
     assert rows[3]["artifact_status"]["artifact_id"] == "state_backup_restore_drill_guidance"
     assert rows[3]["next_action"] == "make backup-state STATE_BACKUP_DEST=<backup_dir>"
     assert rows[4]["artifact_status"]["artifact_id"] == "supply_chain_audit_guidance"
     assert rows[4]["next_action"] == "make record-supply-chain"
+    assert out["summary"]["passive_operator_items_satisfied"] == 0
+
+
+def test_operator_proof_status_marks_arm_to_halt_replay_evidence_satisfied(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Launch evidence packet: restart, recovery, kill-switch, reconcile, rollback.",
+                "- Backup/restore drill evidence and backup-artifact secrets scan.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    evidence = tmp_path / ".cbp_state" / "data" / "operator_arm_to_halt_replay"
+    evidence.mkdir(parents=True)
+    (evidence / "operator-arm-to-halt-replay-20260809T000000Z.json").write_text(
+        json.dumps(
+            {
+                "created": "2026-08-09T00:00:00Z",
+                "ok": True,
+                "reason": "ok",
+                "event_count": 2,
+                "arm_event": {"event_id": "evt-arm", "action": "live_enable"},
+                "halt_event": {"event_id": "evt-halt", "action": "live_halt"},
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    replay = out["passive_operator_items"][0]
+    assert replay["action_required"] is False
+    assert replay["next_action"] == "none"
+    assert replay["artifact_status"]["artifact_id"] == "operator_arm_to_halt_replay"
+    assert replay["artifact_status"]["artifact_status"] == "recorded"
+    assert replay["artifact_status"]["arm_event"]["event_id"] == "evt-arm"
+    assert replay["artifact_status"]["halt_event"]["event_id"] == "evt-halt"
+    assert out["passive_operator_items"][1]["action_required"] is True
+    assert out["summary"]["passive_operator_items_satisfied"] == 1
+
+
+def test_operator_proof_status_keeps_failed_arm_to_halt_replay_open(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Launch evidence packet: restart, recovery, kill-switch, reconcile, rollback.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    evidence = tmp_path / ".cbp_state" / "data" / "operator_arm_to_halt_replay"
+    evidence.mkdir(parents=True)
+    (evidence / "operator-arm-to-halt-replay-20260809T000000Z.json").write_text(
+        json.dumps(
+            {
+                "created": "2026-08-09T00:00:00Z",
+                "ok": False,
+                "reason": "missing_live_halt_event_after_arm",
+                "event_count": 1,
+                "arm_event": {"event_id": "evt-arm"},
+                "halt_event": None,
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    replay = out["passive_operator_items"][0]
+    assert replay["action_required"] is True
+    assert replay["next_action"] == "make record-operator-arm-to-halt-replay"
+    assert replay["artifact_status"]["artifact_status"] == "missing_live_halt_event_after_arm"
     assert out["summary"]["passive_operator_items_satisfied"] == 0
 
 

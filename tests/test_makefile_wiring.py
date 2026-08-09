@@ -42,6 +42,8 @@ def test_makefile_has_alignment_targets():
     assert "operator-next-actions-passive-json:" in txt
     assert "--action-source passive_operator_evidence" in txt
     assert "--exclude-reason host_side_reference" in txt
+    assert "record-operator-arm-to-halt-replay:" in txt
+    assert "scripts/check_operator_arm_to_halt_replay.py --json --evidence-dest $(OPERATOR_ARM_TO_HALT_REPLAY_EVIDENCE_DEST)" in txt
     assert "record-execution-cost-stack:" in txt
     assert "scripts/report_execution_cost_stack.py --write-default-artifact" in txt
     assert "smoke-exchange-sandbox:" in txt

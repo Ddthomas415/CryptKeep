@@ -349,6 +349,47 @@ def _command_guidance_status(*, artifact_id: str, next_action: str, note: str = 
     }
 
 
+def _latest_matching_file(root: Path, rel_dir: str, pattern: str) -> Path | None:
+    evidence_dir = root / rel_dir
+    paths = sorted(evidence_dir.glob(pattern))
+    return paths[-1] if paths else None
+
+
+def _operator_arm_to_halt_replay_artifact_status(root: Path) -> dict[str, Any]:
+    latest = _latest_matching_file(
+        root,
+        ".cbp_state/data/operator_arm_to_halt_replay",
+        "operator-arm-to-halt-replay-*.json",
+    )
+    if latest is None:
+        return _command_guidance_status(
+            artifact_id="launch_packet_replay_guidance",
+            next_action="make record-operator-arm-to-halt-replay",
+            note="Writes arm/resume-to-halt replay evidence only; does not execute operator actions.",
+        )
+    payload = _load_json(latest)
+    passed = (
+        bool(payload.get("ok")) is True
+        and str(payload.get("reason") or "") == "ok"
+        and isinstance(payload.get("arm_event"), dict)
+        and isinstance(payload.get("halt_event"), dict)
+        and int(payload.get("event_count") or 0) >= 2
+    )
+    return {
+        "artifact_id": "operator_arm_to_halt_replay",
+        "artifact_path": str(latest),
+        "artifact_exists": True,
+        "artifact_sha256": _sha256(latest),
+        "artifact_status": "recorded" if passed else str(payload.get("reason") or "invalid_or_failed"),
+        "created": str(payload.get("created") or ""),
+        "event_count": payload.get("event_count"),
+        "arm_event": payload.get("arm_event"),
+        "halt_event": payload.get("halt_event"),
+        "satisfied": bool(passed),
+        "next_action": "none" if passed else "make record-operator-arm-to-halt-replay",
+    }
+
+
 def _runbook_guidance_status(*, artifact_id: str, next_action: str, doc_path: str) -> dict[str, Any]:
     return {
         "artifact_id": artifact_id,
@@ -742,11 +783,7 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
             note="Coinbase has no working CCXT sandbox URL in this repo; see docs/EXCHANGE_SANDBOX_SMOKE.md.",
         )
     if "Launch evidence packet" in item:
-        return _command_guidance_status(
-            artifact_id="launch_packet_replay_guidance",
-            next_action="make operator-arm-to-halt-replay-json",
-            note="Use --evidence-dest only when writing launch-packet evidence is intended.",
-        )
+        return _operator_arm_to_halt_replay_artifact_status(root)
     if "Manual strategy performance decision" in item:
         out = _operator_decision_event_status(root, target="manual_strategy_performance_decision")
         if not bool(out.get("satisfied")):

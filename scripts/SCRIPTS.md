@@ -408,8 +408,9 @@ are not paper-campaign controls.
 - `check_operator_arm_to_halt_replay.py` — replay a live arm/resume event
   followed by halt/disable from operator-event journal records; supports
   `make operator-arm-to-halt-replay[-json]` and
-  `OPERATOR_ARM_TO_HALT_REPLAY_PATH`; writes launch-packet evidence only when
-  `--evidence-dest` is supplied directly.
+  `OPERATOR_ARM_TO_HALT_REPLAY_PATH`; `make record-operator-arm-to-halt-replay`
+  writes standard replay evidence under
+  `.cbp_state/data/operator_arm_to_halt_replay/`.
 - `check_operator_event_secrets.py` — scan operator event journal payloads for
   unredacted secret-like fields without printing leaked values; `--require-events`
   is the launch-packet posture.

@@ -28378,6 +28378,65 @@ Remaining risk:
   behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-09T02:29:23Z - Arm-To-Halt Replay Evidence Recording Target
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by adding a standard
+  evidence-writing target and read-side detector for the live arm/resume-to-halt
+  replay proof.
+
+What was found:
+- SHOWN: `scripts/check_operator_arm_to_halt_replay.py` is read-only by
+  default and writes replay evidence only when `--evidence-dest` is supplied.
+- SHOWN: passive operator proof status only surfaced command guidance for the
+  launch-packet replay row and did not detect replay artifacts after they were
+  written.
+
+What changed:
+- Added `make record-operator-arm-to-halt-replay`, writing to
+  `.cbp_state/data/operator_arm_to_halt_replay/` by default, with
+  `OPERATOR_ARM_TO_HALT_REPLAY_EVIDENCE_DEST` as an override.
+- Added read-only detection for
+  `operator-arm-to-halt-replay-*.json` artifacts in that standard directory.
+- The replay row is satisfied only when the latest artifact has `ok=true`,
+  `reason=ok`, both arm/halt event summaries, and at least two events.
+- Failed or missing replay artifacts remain actionable and point back to the
+  recording target.
+- Updated `scripts/SCRIPTS.md`, Makefile wiring tests, and proof-status tests.
+
+Why this change was chosen:
+- The existing checker already produces the right replay report. A standard
+  recording target plus artifact detector removes manual path choice and lets
+  the passive evidence list close from stored proof.
+
+Expected outcome:
+- After a valid arm/resume-to-halt replay artifact is recorded, the passive
+  launch-packet replay row is marked satisfied with artifact path/hash and the
+  arm/halt event summaries visible for audit.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py tests/test_operator_event_replay.py`
+  - SHOWN: `93 passed in 0.96s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py scripts/check_operator_arm_to_halt_replay.py tests/test_operator_proof_status.py tests/test_makefile_wiring.py`
+  - SHOWN: exit 0.
+- `make -n record-operator-arm-to-halt-replay`
+  - SHOWN:
+    `./.venv/bin/python scripts/check_operator_arm_to_halt_replay.py --json --evidence-dest .cbp_state/data/operator_arm_to_halt_replay`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: `action_count_available=12`; ordinal 4 next action is now
+    `make record-operator-arm-to-halt-replay`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. This patch does not run the replay
+  target, write replay evidence, append operator events, run campaigns, fetch
+  market data, close gates, change live routing, execution, authorization, or
+  runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T20:11:43Z - Operator Proof Status Research Artifact Passive Evidence
 
 Active role: ENGINEER
