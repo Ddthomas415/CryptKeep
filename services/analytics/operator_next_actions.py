@@ -151,6 +151,9 @@ def _proof_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
                 "source": str(row.get("category") or ""),
                 "line": row.get("line"),
                 "blocking_reason": row.get("category"),
+                "marker": str(row.get("marker") or ""),
+                "status": str(row.get("status") or ""),
+                "text": str(row.get("text") or ""),
                 "next_action": str(row.get("next_action") or ""),
             }
         )

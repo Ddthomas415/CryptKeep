@@ -197,6 +197,9 @@ def build_operator_status_bundle(
         {
             "line": row.get("line"),
             "category": str(row.get("category") or ""),
+            "marker": str(row.get("marker") or ""),
+            "status": str(row.get("status") or ""),
+            "text": str(row.get("text") or ""),
             "next_action": str(row.get("next_action") or ""),
         }
         for row in list(proofs.get("proof_markers") or [])

@@ -157,6 +157,9 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert "artifact_id" in out["actions"]["passive_operator_evidence"][0]
     assert "artifact_status" in out["actions"]["passive_operator_evidence"][0]
     assert out["actions"]["operator_proofs"]
+    assert "marker" in out["actions"]["operator_proofs"][0]
+    assert "status" in out["actions"]["operator_proofs"][0]
+    assert "text" in out["actions"]["operator_proofs"][0]
 
 
 def test_operator_status_bundle_filters_by_section(tmp_path: Path) -> None:

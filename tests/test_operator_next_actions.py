@@ -54,6 +54,9 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
                     {
                         "line": 12,
                         "category": "remaining_proof",
+                        "marker": "operator-host",
+                        "status": "open",
+                        "text": "Attach host proof",
                         "next_action": "produce or record proof",
                     }
                 ],
@@ -97,6 +100,9 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
     assert out["actions"][1]["source"] == "archive_parameter_sweep"
     assert out["actions"][2]["source"] == "funding_threshold_pipeline"
     assert out["actions"][3]["line"] == 12
+    assert out["actions"][3]["marker"] == "operator-host"
+    assert out["actions"][3]["status"] == "open"
+    assert out["actions"][3]["text"] == "Attach host proof"
     assert out["actions"][4]["source"] == "passive_operator_evidence"
     assert out["actions"][4]["ordinal"] == 1
     assert out["actions"][4]["text"] == "Run host proof"
@@ -593,6 +599,9 @@ def test_operator_next_actions_excludes_reasons_without_hiding_counts(monkeypatc
             "source": "remaining_proof",
             "line": 7,
             "blocking_reason": "remaining_proof",
+            "marker": "",
+            "status": "",
+            "text": "",
             "next_action": "produce proof",
         }
     ]

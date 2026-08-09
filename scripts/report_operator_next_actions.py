@@ -81,6 +81,11 @@ def _print_report(payload: dict[str, Any]) -> None:
             f"ref={ref} reason={row.get('blocking_reason')} "
             f"action={row.get('next_action')}"
         )
+        if row.get("lane") == "operator_proof" and row.get("text"):
+            print(
+                f"   proof={row.get('text')} "
+                f"marker={row.get('marker')} status={row.get('status')}"
+            )
         if row.get("lane") == "passive_operator_evidence":
             if row.get("text"):
                 print(f"   proof={row.get('text')}")

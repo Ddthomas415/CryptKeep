@@ -31846,3 +31846,48 @@ Remaining risk:
   proof artifacts, strategy configs, promotion gates, live routing,
   authorization, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T21:41:43Z - Operator-Proof Next-Action Context Projection
+
+Active role: ENGINEER
+
+Objective:
+- Make operator-proof next-action rows include the proof marker text that
+  explains what the REMAINING_TASKS line is asking for.
+
+What was found:
+- `operator-next-actions` showed `operator_proof` line numbers and commands,
+  but omitted the marker text, marker token, and proof status already present in
+  `operator_proof_status`.
+
+What changed:
+- `operator_status_bundle` now carries compact proof-marker context:
+  `marker`, `status`, and `text`.
+- `operator_next_actions` projects those fields into `operator_proof` action
+  rows.
+- `report_operator_next_actions.py` prints proof text, marker, and status for
+  operator-proof actions.
+- Added regression assertions for bundle and next-action projection.
+
+Why this change was chosen:
+- It makes the main next-action checklist usable without requiring the operator
+  to open `REMAINING_TASKS.md` for every proof marker.
+
+Expected outcome:
+- Operator-proof next actions show both the command and the exact proof text
+  driving the action.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_proof_status.py`
+  - SHOWN: `88 passed in 0.70s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py services/analytics/operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --lane operator_proof --max-actions 2`
+  - SHOWN: exit 0; local output includes proof text plus
+    `marker=operator-host status=open` for the first operator-proof rows.
+
+Remaining risk:
+- LOW: read-only reporting and tests only. No action selection, proof status,
+  campaigns, market-data fetches, proof artifacts, strategy configs, promotion
+  gates, live routing, authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
