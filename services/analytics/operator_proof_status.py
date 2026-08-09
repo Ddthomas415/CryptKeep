@@ -448,6 +448,80 @@ def _runbook_checkpoint_status(
     }
 
 
+def _latest_operator_event(
+    events: list[dict[str, Any]],
+    *,
+    action: str,
+    target: str,
+    accepted_results: set[str],
+) -> dict[str, Any] | None:
+    matches = [
+        row
+        for row in events
+        if str(row.get("action") or "") == action
+        and str(row.get("target") or "") == target
+        and str(row.get("result") or "") in accepted_results
+    ]
+    return matches[-1] if matches else None
+
+
+def _operator_event_summary(row: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not isinstance(row, dict):
+        return None
+    return {
+        "event_id": row.get("event_id"),
+        "timestamp": row.get("timestamp"),
+        "action": row.get("action"),
+        "target": row.get("target"),
+        "result": row.get("result"),
+        "reason": row.get("reason"),
+    }
+
+
+def _backup_restore_drill_artifact_status(root: Path) -> dict[str, Any]:
+    path = _operator_event_journal_path(root)
+    events = _load_operator_events(root)
+    success = {"success"}
+    checkpoint_results = {"accepted", "accepted_with_risk", "completed", "recorded"}
+    backup = _latest_operator_event(events, action="state_backup", target="state_dir", accepted_results=success)
+    verify = _latest_operator_event(events, action="state_backup_verify", target="state_dir", accepted_results=success)
+    restore = _latest_operator_event(events, action="state_restore", target="state_dir", accepted_results=success)
+    checkpoint = _latest_operator_event(
+        events,
+        action="runbook_checkpoint",
+        target="state_backup_restore_drill",
+        accepted_results=checkpoint_results,
+    )
+    satisfied = all(row is not None for row in (backup, verify, restore, checkpoint))
+    if backup is None:
+        next_action = "make backup-state STATE_BACKUP_DEST=<backup_dir>"
+    elif verify is None:
+        next_action = "verify the backup with ./.venv/bin/python scripts/backup_state.py verify <backup_dir>"
+    elif restore is None:
+        next_action = "complete the restore drill from docs/FULL_STATE_BACKUP_RESTORE_DRILL.md"
+    elif checkpoint is None:
+        next_action = "make record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'"
+    else:
+        next_action = "none"
+    return {
+        "artifact_id": "state_backup_restore_drill",
+        "artifact_path": str(path),
+        "artifact_exists": path.is_file(),
+        "artifact_sha256": _sha256(path),
+        "artifact_status": "recorded" if satisfied else "missing_or_incomplete",
+        "satisfied": bool(satisfied),
+        "next_action": next_action,
+        "accepted_checkpoint_results": sorted(checkpoint_results),
+        "events": {
+            "backup": _operator_event_summary(backup),
+            "verify": _operator_event_summary(verify),
+            "restore": _operator_event_summary(restore),
+            "checkpoint": _operator_event_summary(checkpoint),
+        },
+        "doc_path": "docs/FULL_STATE_BACKUP_RESTORE_DRILL.md",
+    }
+
+
 def _shadow_would_be_fill_artifact_status(root: Path) -> dict[str, Any]:
     from services.analytics.execution_cost_stack_report import load_shadow_would_be_fills
 
@@ -819,11 +893,7 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
             doc_path="docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
         )
     if "Backup/restore drill evidence" in item:
-        return _command_guidance_status(
-            artifact_id="state_backup_restore_drill_guidance",
-            next_action="make backup-state STATE_BACKUP_DEST=<backup_dir>",
-            note="Follow with verify/restore steps from docs/FULL_STATE_BACKUP_RESTORE_DRILL.md.",
-        )
+        return _backup_restore_drill_artifact_status(root)
     if "Server secrets injection/rotation drill" in item:
         return _runbook_checkpoint_status(
             root,

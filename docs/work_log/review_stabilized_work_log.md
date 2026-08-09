@@ -31496,3 +31496,58 @@ Remaining risk:
   ingestion, live routing, execution, authorization, or runtime mutation
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T03:16:41Z - Backup/Restore Drill Passive Evidence Detection
+
+Active role: ENGINEER
+
+Objective:
+- Convert the passive backup/restore drill row from command-only guidance into
+  read-side evidence detection without running backup, restore, campaign, market
+  data, or service commands.
+
+What was found:
+- The backup/restore passive item only returned `command_guidance`, so it could
+  not mark itself satisfied after the operator completed and recorded the real
+  drill.
+- `scripts/backup_state.py` already writes operator journal events for
+  `state_backup`, `state_backup_verify`, and `state_restore`; the missing piece
+  was read-side aggregation plus a final runbook checkpoint marker.
+
+What changed:
+- Added `make record-backup-restore-drill-checkpoint`, which records a
+  `runbook_checkpoint` event for `state_backup_restore_drill` after the operator
+  completes the drill and backup-artifact secrets-scan review.
+- Added backup/verify/restore/checkpoint detection in
+  `services/analytics/operator_proof_status.py`; the row satisfies only when all
+  four accepted records are present.
+- Updated script documentation and Makefile wiring tests.
+- Added regression tests for missing, partial-without-checkpoint, and fully
+  satisfied backup/restore drill status.
+
+Why this change was chosen:
+- It reuses the existing operator event journal instead of introducing a second
+  backup evidence format, and it keeps the status command passive/read-only.
+
+Expected outcome:
+- `operator-next-actions-passive[-json]` keeps pointing first to backup, then
+  verify, then restore, then checkpoint, and only removes the backup/restore row
+  after the full drill sequence is recorded.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py tests/test_operator_event_journal.py`
+  - SHOWN: `95 passed in 1.05s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py tests/test_makefile_wiring.py scripts/record_operator_event.py`
+  - SHOWN: exit 0.
+- `make -n record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON=reviewed`
+  - SHOWN: dry-run emits `scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target state_backup_restore_drill --result completed --reason "reviewed"`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: exit 0; backup/restore passive row remains open locally with `next_action=make backup-state STATE_BACKUP_DEST=<backup_dir>`, as expected without recorded backup/verify/restore/checkpoint events.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. No backup, restore, campaign, market-data
+  fetch, service operation, gate, live routing, authorization, or runtime policy
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

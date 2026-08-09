@@ -403,6 +403,7 @@ are not paper-campaign controls.
   written through
   `make record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`,
   `make record-paper-to-shadow-first-hour-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`,
+  `make record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`,
   or
   `make record-server-secrets-rotation-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`.
 - `check_operator_arm_to_halt_replay.py` — replay a live arm/resume event

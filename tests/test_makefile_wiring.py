@@ -60,5 +60,7 @@ def test_makefile_has_alignment_targets():
     assert "--target hetzner_canonical_state_migration" in txt
     assert "record-paper-to-shadow-first-hour-checkpoint:" in txt
     assert "--target paper_to_shadow_first_hour_rehearsal" in txt
+    assert "record-backup-restore-drill-checkpoint:" in txt
+    assert "--target state_backup_restore_drill" in txt
     assert "record-server-secrets-rotation-checkpoint:" in txt
     assert "--target server_secrets_rotation_drill" in txt
