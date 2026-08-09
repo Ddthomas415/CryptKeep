@@ -162,6 +162,8 @@ def _passive_operator_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
     for row in list(dict(bundle.get("actions") or {}).get("passive_operator_evidence") or []):
         if not isinstance(row, dict):
             continue
+        artifact_payload = row.get("artifact_status") or {}
+        artifact_status = artifact_payload if isinstance(artifact_payload, dict) else {}
         rows.append(
             {
                 "lane": "passive_operator_evidence",
@@ -169,6 +171,12 @@ def _passive_operator_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
                 "line": None,
                 "ordinal": row.get("ordinal"),
                 "blocking_reason": "passive_operator_evidence",
+                "text": str(row.get("text") or ""),
+                "artifact_id": str(artifact_status.get("artifact_id") or row.get("artifact_id") or ""),
+                "artifact_status": str(
+                    artifact_status.get("artifact_status")
+                    or (artifact_payload if isinstance(artifact_payload, str) else "")
+                ),
                 "next_action": str(row.get("next_action") or ""),
             }
         )

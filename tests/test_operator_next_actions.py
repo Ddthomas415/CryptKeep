@@ -43,6 +43,10 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
                     {
                         "ordinal": 1,
                         "text": "Run host proof",
+                        "artifact_status": {
+                            "artifact_id": "host_proof_guidance",
+                            "artifact_status": "command_guidance",
+                        },
                         "next_action": "collect or record operator evidence",
                     }
                 ],
@@ -95,6 +99,9 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
     assert out["actions"][3]["line"] == 12
     assert out["actions"][4]["source"] == "passive_operator_evidence"
     assert out["actions"][4]["ordinal"] == 1
+    assert out["actions"][4]["text"] == "Run host proof"
+    assert out["actions"][4]["artifact_id"] == "host_proof_guidance"
+    assert out["actions"][4]["artifact_status"] == "command_guidance"
 
 
 def test_operator_next_actions_respects_limit(monkeypatch) -> None:
@@ -279,8 +286,19 @@ def test_operator_next_actions_filters_by_passive_lane(monkeypatch) -> None:
                     {"pipeline_id": "price_action", "blocking_reason": "missing", "next_action": "run research"}
                 ],
                 "passive_operator_evidence": [
-                    {"ordinal": 1, "text": "Evidence A", "next_action": "collect evidence A"},
-                    {"ordinal": 2, "text": "Evidence B", "next_action": "collect evidence B"},
+                    {
+                        "ordinal": 1,
+                        "text": "Evidence A",
+                        "artifact_status": {"artifact_id": "a", "artifact_status": "missing"},
+                        "next_action": "collect evidence A",
+                    },
+                    {
+                        "ordinal": 2,
+                        "text": "Evidence B",
+                        "artifact_id": "b",
+                        "artifact_status": "command_guidance",
+                        "next_action": "collect evidence B",
+                    },
                 ],
                 "operator_proofs": [
                     {"line": 7, "category": "remaining_proof", "next_action": "produce proof"}
@@ -297,6 +315,8 @@ def test_operator_next_actions_filters_by_passive_lane(monkeypatch) -> None:
     assert out["action_count_returned"] == 2
     assert [row["lane"] for row in out["actions"]] == ["passive_operator_evidence", "passive_operator_evidence"]
     assert [row["ordinal"] for row in out["actions"]] == [1, 2]
+    assert [row["text"] for row in out["actions"]] == ["Evidence A", "Evidence B"]
+    assert [row["artifact_status"] for row in out["actions"]] == ["missing", "command_guidance"]
 
 
 def test_operator_next_actions_filters_by_research_command_lane(monkeypatch) -> None:
@@ -1161,17 +1181,20 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "operator_proof_passive_ordinal_filter": int(filters.get("operator_proof_passive_ordinal") or 0)
             or None,
             "summary": {
-                "available_by_lane": {"backlog_lane": 1},
-                "available_by_reason": {"backlog_lane_item": 1},
+                "available_by_lane": {"passive_operator_evidence": 1},
+                "available_by_reason": {"passive_operator_evidence": 1},
             },
             "actions": [
                 {
-                    "lane": "backlog_lane",
-                    "source": "low_risk_docs_tests",
+                    "lane": "passive_operator_evidence",
+                    "source": "passive_operator_evidence",
                     "line": None,
                     "ordinal": 1,
-                    "blocking_reason": "backlog_lane_item",
-                    "next_action": "select or execute a scoped batch",
+                    "blocking_reason": "passive_operator_evidence",
+                    "text": "Private sandbox/testnet lifecycle proof or explicit accepted exception.",
+                    "artifact_id": "exchange_sandbox_smoke_guidance",
+                    "artifact_status": "command_guidance",
+                    "next_action": "make record-exchange-sandbox-smoke",
                 }
             ],
         },
@@ -1182,9 +1205,9 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "--max-actions",
             "1",
             "--lane",
-            "backlog_lane",
+            "passive_operator_evidence",
             "--reason",
-            "backlog_lane_item",
+            "passive_operator_evidence",
             "--exclude-reason",
             "host_side_reference,passive_operator_evidence",
             "--action-source",
@@ -1216,7 +1239,7 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     out = capsys.readouterr().out
     assert "Operator Next Actions" in out
     assert "actions=1 shown=1" in out
-    assert "lane_filter=backlog_lane" in out
+    assert "lane_filter=passive_operator_evidence" in out
     assert "exclude_reason_filter=host_side_reference,passive_operator_evidence" in out
     assert "action_source_filter=low_risk_docs_tests" in out
     assert "backlog_lane_filter=low_risk_docs_tests" in out
@@ -1230,7 +1253,9 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     assert "operator_proof_category_filter=host_side_reference" in out
     assert "operator_proof_line_filter=7" in out
     assert "operator_proof_passive_ordinal_filter=1" in out
-    assert "by_lane: backlog_lane=1" in out
-    assert "by_reason: backlog_lane_item=1" in out
-    assert "backlog_lane:low_risk_docs_tests" in out
-    assert "select or execute a scoped batch" in out
+    assert "by_lane: passive_operator_evidence=1" in out
+    assert "by_reason: passive_operator_evidence=1" in out
+    assert "passive_operator_evidence:passive_operator_evidence" in out
+    assert "make record-exchange-sandbox-smoke" in out
+    assert "proof=Private sandbox/testnet lifecycle proof or explicit accepted exception." in out
+    assert "artifact_status=command_guidance artifact_id=exchange_sandbox_smoke_guidance" in out

@@ -154,6 +154,8 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert "passive_operator_items_action_required" in out["summary"]
     assert out["summary"]["operator_proof_actions_required"] >= 1
     assert out["actions"]["passive_operator_evidence"]
+    assert "artifact_id" in out["actions"]["passive_operator_evidence"][0]
+    assert "artifact_status" in out["actions"]["passive_operator_evidence"][0]
     assert out["actions"]["operator_proofs"]
 
 
@@ -621,6 +623,8 @@ def test_operator_status_bundle_forwards_passive_operator_ordinal(tmp_path: Path
     assert out["summary"]["passive_operator_items"] == 1
     assert out["summary"]["source_passive_operator_items"] == 1
     assert [row["ordinal"] for row in out["actions"]["passive_operator_evidence"]] == [1]
+    assert "artifact_id" in out["actions"]["passive_operator_evidence"][0]
+    assert "artifact_status" in out["actions"]["passive_operator_evidence"][0]
 
 
 def test_operator_status_bundle_rejects_unknown_section(tmp_path: Path) -> None:

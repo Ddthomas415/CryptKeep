@@ -206,6 +206,8 @@ def build_operator_status_bundle(
         {
             "ordinal": row.get("ordinal"),
             "text": str(row.get("text") or ""),
+            "artifact_id": str(((row.get("artifact_status") or {}).get("artifact_id")) or ""),
+            "artifact_status": str(((row.get("artifact_status") or {}).get("artifact_status")) or ""),
             "next_action": str(row.get("next_action") or ""),
         }
         for row in list(proofs.get("passive_operator_items") or [])

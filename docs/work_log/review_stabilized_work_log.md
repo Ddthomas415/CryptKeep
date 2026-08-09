@@ -31797,3 +31797,52 @@ Remaining risk:
   fetches, proof artifacts, strategy configs, promotion gates, live routing,
   authorization, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T21:40:01Z - Passive Operator Next-Action Context Projection
+
+Active role: ENGINEER
+
+Objective:
+- Make passive operator next-action rows self-explanatory without requiring a
+  second lookup in the full operator-proof report.
+
+What was found:
+- `operator-next-actions --lane passive_operator_evidence` showed ordinals and
+  commands, but omitted the proof text and artifact status. That made the
+  checklist harder to act on safely.
+- The bundle layer compacted passive rows, so artifact context had to be carried
+  through both `operator_status_bundle` and `operator_next_actions`.
+
+What changed:
+- `operator_status_bundle` now carries compact passive artifact context:
+  `artifact_id` and `artifact_status`.
+- `operator_next_actions` now projects passive proof text plus artifact context
+  into action rows.
+- `report_operator_next_actions.py` prints the proof text and artifact status
+  for passive operator-evidence rows.
+- Added regression coverage for dict-shaped artifact payloads and compact
+  string artifact statuses.
+
+Why this change was chosen:
+- It improves operator checklist clarity without changing action selection,
+  proof status computation, artifact generation, campaigns, gates, or execution.
+
+Expected outcome:
+- The passive next-action report tells the operator what proof each command
+  satisfies and what artifact state triggered it.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_proof_status.py`
+  - SHOWN: `88 passed in 0.71s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py services/analytics/operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --lane passive_operator_evidence --max-actions 2`
+  - SHOWN: exit 0; local output includes proof text and
+    `artifact_status=command_guidance artifact_id=exchange_sandbox_smoke_guidance`
+    for the first passive action.
+
+Remaining risk:
+- LOW: read-only reporting and tests only. No campaigns, market-data fetches,
+  proof artifacts, strategy configs, promotion gates, live routing,
+  authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
