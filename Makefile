@@ -41,8 +41,10 @@ STATE_BACKUP_DEST ?=
 OPERATOR_DECISION_REASON ?=
 OPERATOR_DECISION_RESULT ?= accepted
 FUNDING_EXTREME_PERSISTENT_CAMPAIGN_DECISION_RESULT ?= no_persistent_campaign
+OPERATOR_CHECKPOINT_REASON ?=
+OPERATOR_CHECKPOINT_RESULT ?= completed
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks roadmap-tracking-status roadmap-tracking-status-json backlog-lane-status backlog-lane-status-json operator-proof-status operator-proof-status-json operator-read-only-command-status operator-read-only-command-status-json operator-status operator-status-json operator-next-actions operator-next-actions-json platform-event-journal platform-event-journal-json platform-event-secrets platform-event-secrets-json platform-event-integrity platform-event-integrity-json platform-event-packet platform-event-packet-json operator-arm-to-halt-replay operator-arm-to-halt-replay-json record-manual-strategy-performance-decision record-composite-hybrid-paper-decision record-funding-extreme-persistent-campaign-decision phase1-safety phase1-smoke phase1-smoke-openai smoke-exchange-sandbox load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness check-edge-cadence check-edge-cadence-json check-dead-man check-dead-man-json check-cost-assumptions check-cost-assumptions-json record-cost-assumptions check-supply-chain check-supply-chain-json record-supply-chain record-execution-cost-stack backup-state collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json plan-multi-symbol-paper-campaigns plan-multi-symbol-paper-campaigns-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-pipeline-status research-pipeline-status-json research-command-status research-command-status-json
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks roadmap-tracking-status roadmap-tracking-status-json backlog-lane-status backlog-lane-status-json operator-proof-status operator-proof-status-json operator-read-only-command-status operator-read-only-command-status-json operator-status operator-status-json operator-next-actions operator-next-actions-json platform-event-journal platform-event-journal-json platform-event-secrets platform-event-secrets-json platform-event-integrity platform-event-integrity-json platform-event-packet platform-event-packet-json operator-arm-to-halt-replay operator-arm-to-halt-replay-json record-manual-strategy-performance-decision record-composite-hybrid-paper-decision record-funding-extreme-persistent-campaign-decision record-hetzner-state-migration-checkpoint record-paper-to-shadow-first-hour-checkpoint record-server-secrets-rotation-checkpoint phase1-safety phase1-smoke phase1-smoke-openai smoke-exchange-sandbox load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness check-edge-cadence check-edge-cadence-json check-dead-man check-dead-man-json check-cost-assumptions check-cost-assumptions-json record-cost-assumptions check-supply-chain check-supply-chain-json record-supply-chain record-execution-cost-stack backup-state collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json plan-multi-symbol-paper-campaigns plan-multi-symbol-paper-campaigns-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-pipeline-status research-pipeline-status-json research-command-status research-command-status-json
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -197,6 +199,18 @@ record-composite-hybrid-paper-decision:
 record-funding-extreme-persistent-campaign-decision:
 	@test -n "$(OPERATOR_DECISION_REASON)" || (echo "Set OPERATOR_DECISION_REASON='<reason>'" >&2; exit 2)
 	$(PYTHON) scripts/record_operator_event.py --actor operator --action passive_operator_decision --target funding_extreme_persistent_campaign_decision --result $(FUNDING_EXTREME_PERSISTENT_CAMPAIGN_DECISION_RESULT) --reason "$(OPERATOR_DECISION_REASON)"
+
+record-hetzner-state-migration-checkpoint:
+	@test -n "$(OPERATOR_CHECKPOINT_REASON)" || (echo "Set OPERATOR_CHECKPOINT_REASON='<reason>'" >&2; exit 2)
+	$(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target hetzner_canonical_state_migration --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
+
+record-paper-to-shadow-first-hour-checkpoint:
+	@test -n "$(OPERATOR_CHECKPOINT_REASON)" || (echo "Set OPERATOR_CHECKPOINT_REASON='<reason>'" >&2; exit 2)
+	$(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target paper_to_shadow_first_hour_rehearsal --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
+
+record-server-secrets-rotation-checkpoint:
+	@test -n "$(OPERATOR_CHECKPOINT_REASON)" || (echo "Set OPERATOR_CHECKPOINT_REASON='<reason>'" >&2; exit 2)
+	$(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target server_secrets_rotation_drill --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
 
 phase1-safety:
 	$(PYTHON) scripts/run_phase1_safety.py
@@ -670,6 +684,9 @@ script-index:
 	@echo "  make record-manual-strategy-performance-decision OPERATOR_DECISION_REASON='<reason>' — record manual strategy decision"
 	@echo "  make record-composite-hybrid-paper-decision OPERATOR_DECISION_REASON='<reason>' — record composite/hybrid decision"
 	@echo "  make record-funding-extreme-persistent-campaign-decision OPERATOR_DECISION_REASON='<reason>' — record funding_extreme campaign decision"
+	@echo "  make record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>' — record Hetzner migration checkpoint"
+	@echo "  make record-paper-to-shadow-first-hour-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>' — record paper-to-shadow rehearsal checkpoint"
+	@echo "  make record-server-secrets-rotation-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>' — record server secrets rotation checkpoint"
 	@echo "  make operator-arm-to-halt-replay[-json] — replay arm/resume-to-halt event journal path"
 	@echo "  make check-short-context-readiness — check short/context data readiness"
 	@echo "  make check-edge-cadence[-json] — check stored crypto-edge cadence"

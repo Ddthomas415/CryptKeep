@@ -399,6 +399,12 @@ are not paper-campaign controls.
   `make record-composite-hybrid-paper-decision OPERATOR_DECISION_REASON='<reason>'`,
   or
   `make record-funding-extreme-persistent-campaign-decision OPERATOR_DECISION_REASON='<reason>'`.
+  Runbook checkpoints recognized by `report_operator_proof_status.py` can be
+  written through
+  `make record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`,
+  `make record-paper-to-shadow-first-hour-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`,
+  or
+  `make record-server-secrets-rotation-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`.
 - `check_operator_arm_to_halt_replay.py` — replay a live arm/resume event
   followed by halt/disable from operator-event journal records; supports
   `make operator-arm-to-halt-replay[-json]` and

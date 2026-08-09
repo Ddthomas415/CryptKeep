@@ -50,3 +50,9 @@ def test_makefile_has_alignment_targets():
     assert "--target composite_hybrid_paper_advancement_decision" in txt
     assert "record-funding-extreme-persistent-campaign-decision:" in txt
     assert "--target funding_extreme_persistent_campaign_decision" in txt
+    assert "record-hetzner-state-migration-checkpoint:" in txt
+    assert "--target hetzner_canonical_state_migration" in txt
+    assert "record-paper-to-shadow-first-hour-checkpoint:" in txt
+    assert "--target paper_to_shadow_first_hour_rehearsal" in txt
+    assert "record-server-secrets-rotation-checkpoint:" in txt
+    assert "--target server_secrets_rotation_drill" in txt

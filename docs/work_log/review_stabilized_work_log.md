@@ -28202,6 +28202,75 @@ Remaining risk:
   behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-09T01:02:16Z - Runbook Checkpoint Passive Evidence Detection
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by making runbook-only
+  passive evidence rows satisfiable through explicit operator-event checkpoint
+  records.
+
+What was found:
+- SHOWN: migration, paper-to-shadow rehearsal, and server-secret rotation
+  passive items were permanent runbook guidance rows; they could not become
+  satisfied even after an operator recorded completion elsewhere.
+- SHOWN: `scripts/record_operator_event.py` already appends redacted,
+  fsynced operator-event journal records.
+
+What changed:
+- Added guarded Make targets for three runbook checkpoints:
+  `record-hetzner-state-migration-checkpoint`,
+  `record-paper-to-shadow-first-hour-checkpoint`, and
+  `record-server-secrets-rotation-checkpoint`.
+- Each target requires `OPERATOR_CHECKPOINT_REASON`; a bare target exits before
+  writing an event.
+- `operator_proof_status` now recognizes
+  `action=runbook_checkpoint` journal rows for those targets and marks the
+  corresponding passive row satisfied when the result is accepted, accepted
+  with risk, completed, or recorded.
+- Updated script docs, Makefile wiring tests, and proof-status tests.
+
+Why this change was chosen:
+- Runbook proof rows need a durable evidence handle, not permanent prose
+  guidance. The journal path keeps the evidence redacted and reviewable without
+  inventing new artifact stores.
+
+Expected outcome:
+- Once an operator completes and records one of these runbook checkpoints, the
+  passive evidence report stops repeating that item while preserving event ID,
+  timestamp, result, reason, and journal hash for audit.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py tests/test_operator_event_journal.py`
+  - SHOWN: `89 passed in 0.94s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py tests/test_makefile_wiring.py scripts/record_operator_event.py`
+  - SHOWN: exit 0.
+- `make -n record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON=reviewed`
+  - SHOWN: expands to `record_operator_event.py` with action
+    `runbook_checkpoint`, target `hetzner_canonical_state_migration`, result
+    `completed`, and reason `reviewed`.
+- `make -n record-paper-to-shadow-first-hour-checkpoint OPERATOR_CHECKPOINT_REASON=reviewed`
+  - SHOWN: expands to `record_operator_event.py` with action
+    `runbook_checkpoint`, target `paper_to_shadow_first_hour_rehearsal`,
+    result `completed`, and reason `reviewed`.
+- `make -n record-server-secrets-rotation-checkpoint OPERATOR_CHECKPOINT_REASON=reviewed`
+  - SHOWN: expands to `record_operator_event.py` with action
+    `runbook_checkpoint`, target `server_secrets_rotation_drill`, result
+    `completed`, and reason `reviewed`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinals 11, 12, and 14 next actions
+    now use the three checkpoint Make targets.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. This patch does not execute checkpoint
+  targets, write operator events, run campaigns, fetch market data, create
+  backups, rotate secrets, migrate state, change gates, live routing,
+  execution, authorization, or runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T20:11:43Z - Operator Proof Status Research Artifact Passive Evidence
 
 Active role: ENGINEER

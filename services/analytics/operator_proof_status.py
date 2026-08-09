@@ -359,6 +359,54 @@ def _runbook_guidance_status(*, artifact_id: str, next_action: str, doc_path: st
     }
 
 
+def _runbook_checkpoint_status(
+    root: Path,
+    *,
+    artifact_id: str,
+    target: str,
+    next_action: str,
+    doc_path: str,
+) -> dict[str, Any]:
+    path = _operator_event_journal_path(root)
+    accepted_results = {"accepted", "accepted_with_risk", "completed", "recorded"}
+    matches = [
+        row
+        for row in _load_operator_events(root)
+        if str(row.get("action") or "") == "runbook_checkpoint"
+        and str(row.get("target") or "") == target
+        and str(row.get("result") or "") in accepted_results
+    ]
+    if not matches:
+        out = _runbook_guidance_status(artifact_id=artifact_id, next_action=next_action, doc_path=doc_path)
+        out.update(
+            {
+                "artifact_path": str(path),
+                "artifact_exists": path.is_file(),
+                "artifact_sha256": _sha256(path),
+                "target": target,
+                "accepted_results": sorted(accepted_results),
+            }
+        )
+        return out
+    latest = matches[-1]
+    return {
+        "artifact_id": artifact_id,
+        "artifact_path": str(path),
+        "artifact_exists": path.is_file(),
+        "artifact_sha256": _sha256(path),
+        "artifact_status": "recorded",
+        "satisfied": True,
+        "next_action": "none",
+        "doc_path": doc_path,
+        "target": target,
+        "accepted_results": sorted(accepted_results),
+        "event_id": latest.get("event_id"),
+        "timestamp": latest.get("timestamp"),
+        "result": latest.get("result"),
+        "reason": latest.get("reason"),
+    }
+
+
 def _shadow_would_be_fill_artifact_status(root: Path) -> dict[str, Any]:
     from services.analytics.execution_cost_stack_report import load_shadow_would_be_fills
 
@@ -680,15 +728,19 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
             note="Report is read-only over stored shadow_would_be_fill records; it does not change routing or order type.",
         )
     if "Hetzner canonical `.cbp_state` migration follow-through" in item:
-        return _runbook_guidance_status(
+        return _runbook_checkpoint_status(
+            root,
             artifact_id="hetzner_canonical_state_migration_guidance",
-            next_action="use docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md",
+            target="hetzner_canonical_state_migration",
+            next_action="make record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'",
             doc_path="docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md",
         )
     if "Paper-to-shadow first-hour rehearsal" in item:
-        return _runbook_guidance_status(
+        return _runbook_checkpoint_status(
+            root,
             artifact_id="paper_to_shadow_first_hour_guidance",
-            next_action="rehearse docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md and record the checkpoint",
+            target="paper_to_shadow_first_hour_rehearsal",
+            next_action="make record-paper-to-shadow-first-hour-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'",
             doc_path="docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
         )
     if "Backup/restore drill evidence" in item:
@@ -698,9 +750,11 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
             note="Follow with verify/restore steps from docs/FULL_STATE_BACKUP_RESTORE_DRILL.md.",
         )
     if "Server secrets injection/rotation drill" in item:
-        return _runbook_guidance_status(
+        return _runbook_checkpoint_status(
+            root,
             artifact_id="server_secrets_rotation_guidance",
-            next_action="follow docs/SERVER_SECRETS_ROTATION_MODEL.md and record a redacted proof packet",
+            target="server_secrets_rotation_drill",
+            next_action="make record-server-secrets-rotation-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'",
             doc_path="docs/SERVER_SECRETS_ROTATION_MODEL.md",
         )
     if "Supply-chain audit/waiver evidence" in item:
