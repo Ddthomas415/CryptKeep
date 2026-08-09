@@ -1005,7 +1005,9 @@ def test_operator_proof_status_shows_runbook_guidance_without_satisfying_rows(tm
     assert out["ok"] is True
     rows = out["passive_operator_items"]
     assert all(row["action_required"] is True for row in rows)
-    assert rows[0]["artifact_status"]["artifact_id"] == "shadow_would_be_fill_runbook_guidance"
+    assert rows[0]["artifact_status"]["artifact_id"] == "shadow_would_be_fill_records"
+    assert rows[0]["artifact_status"]["artifact_status"] == "missing"
+    assert rows[0]["artifact_status"]["record_count"] == 0
     assert rows[0]["artifact_status"]["doc_path"] == "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md"
     assert "shadow_would_be_fill" in rows[0]["next_action"]
     assert rows[1]["artifact_status"]["artifact_id"] == "hetzner_canonical_state_migration_guidance"
@@ -1015,6 +1017,98 @@ def test_operator_proof_status_shows_runbook_guidance_without_satisfying_rows(tm
     assert rows[3]["artifact_status"]["artifact_id"] == "server_secrets_rotation_guidance"
     assert rows[3]["artifact_status"]["doc_path"] == "docs/SERVER_SECRETS_ROTATION_MODEL.md"
     assert out["summary"]["passive_operator_items_satisfied"] == 0
+
+
+def test_operator_proof_status_marks_shadow_would_be_fill_records_satisfied(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Accepted shadow-stage run producing real `shadow_would_be_fill` records.",
+                "- Paper-to-shadow first-hour rehearsal.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    evidence_file = tmp_path / ".cbp_state" / "data" / "evidence" / "shadow_session" / "fill_0001.jsonl"
+    evidence_file.parent.mkdir(parents=True)
+    evidence_file.write_text(
+        json.dumps(
+            {
+                "record_subtype": "shadow_would_be_fill",
+                "shadow_would_be_fill": True,
+                "timestamp": "2026-08-08T20:00:00Z",
+                "strategy_id": "es_daily_trend_v1",
+                "intent_id": "intent-1",
+                "reference_bid": 100.0,
+                "reference_ask": 100.2,
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    shadow = out["passive_operator_items"][0]
+    assert shadow["action_required"] is False
+    assert shadow["next_action"] == "none"
+    assert shadow["artifact_status"]["artifact_id"] == "shadow_would_be_fill_records"
+    assert shadow["artifact_status"]["artifact_status"] == "recorded"
+    assert shadow["artifact_status"]["record_count"] == 1
+    assert shadow["artifact_status"]["parse_errors"] == 0
+    assert shadow["artifact_status"]["source_artifact_hash"]
+    assert out["passive_operator_items"][1]["action_required"] is True
+    assert out["summary"]["passive_operator_items_satisfied"] == 1
+
+
+def test_operator_proof_status_keeps_shadow_records_open_on_parse_errors(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Accepted shadow-stage run producing real `shadow_would_be_fill` records.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    evidence_file = tmp_path / ".cbp_state" / "data" / "evidence" / "shadow_session" / "fill_0001.jsonl"
+    evidence_file.parent.mkdir(parents=True)
+    evidence_file.write_text(
+        json.dumps({"record_subtype": "shadow_would_be_fill", "shadow_would_be_fill": True})
+        + "\n"
+        + "{bad json}\n",
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    shadow = out["passive_operator_items"][0]
+    assert shadow["action_required"] is True
+    assert shadow["artifact_status"]["artifact_status"] == "recorded_with_parse_errors"
+    assert shadow["artifact_status"]["record_count"] == 1
+    assert shadow["artifact_status"]["parse_errors"] == 1
 
 
 def test_operator_proof_status_marks_cost_assumption_operational_markers_satisfied(tmp_path: Path) -> None:

@@ -359,6 +359,67 @@ def _runbook_guidance_status(*, artifact_id: str, next_action: str, doc_path: st
     }
 
 
+def _shadow_would_be_fill_artifact_status(root: Path) -> dict[str, Any]:
+    from services.analytics.execution_cost_stack_report import load_shadow_would_be_fills
+
+    evidence_root = root / ".cbp_state" / "data" / "evidence"
+    next_action = (
+        "follow docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md until a shadow session writes "
+        "stored shadow_would_be_fill records"
+    )
+    try:
+        loaded = load_shadow_would_be_fills(evidence_root=evidence_root)
+    except Exception as exc:
+        return {
+            "artifact_id": "shadow_would_be_fill_records",
+            "artifact_status": "read_error",
+            "satisfied": False,
+            "next_action": next_action,
+            "doc_path": "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
+            "evidence_root": str(evidence_root),
+            "reason": f"shadow_would_be_fill_scan_failed:{type(exc).__name__}",
+        }
+    record_count = len(loaded.get("records") or [])
+    parse_errors = int(loaded.get("parse_errors") or 0)
+    if record_count > 0 and parse_errors == 0:
+        return {
+            "artifact_id": "shadow_would_be_fill_records",
+            "artifact_status": "recorded",
+            "satisfied": True,
+            "next_action": "none",
+            "doc_path": "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
+            "evidence_root": loaded.get("evidence_root"),
+            "record_count": record_count,
+            "parse_errors": parse_errors,
+            "source_artifact_hash": loaded.get("source_artifact_hash"),
+            "source_files": loaded.get("source_files") or [],
+        }
+    if record_count > 0:
+        return {
+            "artifact_id": "shadow_would_be_fill_records",
+            "artifact_status": "recorded_with_parse_errors",
+            "satisfied": False,
+            "next_action": "inspect shadow_would_be_fill evidence parse errors before accepting the run",
+            "doc_path": "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
+            "evidence_root": loaded.get("evidence_root"),
+            "record_count": record_count,
+            "parse_errors": parse_errors,
+            "source_artifact_hash": loaded.get("source_artifact_hash"),
+            "source_files": loaded.get("source_files") or [],
+        }
+    return {
+        "artifact_id": "shadow_would_be_fill_records",
+        "artifact_status": "missing",
+        "satisfied": False,
+        "next_action": next_action,
+        "doc_path": "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
+        "evidence_root": loaded.get("evidence_root"),
+        "record_count": 0,
+        "parse_errors": parse_errors,
+        "source_files": loaded.get("source_files") or [],
+    }
+
+
 def _pullback_stage0_artifact_status(root: Path) -> dict[str, Any]:
     latest = (
         root
@@ -611,14 +672,7 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
     if "`funding_extreme` persistent-campaign decision" in item:
         return _funding_research_artifact_status(root)
     if "Accepted shadow-stage run producing real `shadow_would_be_fill` records" in item:
-        return _runbook_guidance_status(
-            artifact_id="shadow_would_be_fill_runbook_guidance",
-            next_action=(
-                "follow docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md until a shadow session writes "
-                "stored shadow_would_be_fill records"
-            ),
-            doc_path="docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
-        )
+        return _shadow_would_be_fill_artifact_status(root)
     if "Accepted shadow-derived execution-cost report" in item:
         return _command_guidance_status(
             artifact_id="execution_cost_stack_report_guidance",

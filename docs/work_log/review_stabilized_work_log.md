@@ -28147,6 +28147,61 @@ Remaining risk:
   behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-09T00:56:24Z - Shadow Would-Be-Fill Passive Evidence Detection
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by making the passive
+  shadow-stage run item detect actual stored `shadow_would_be_fill` records
+  instead of remaining permanent runbook guidance.
+
+What was found:
+- SHOWN: `execution_cost_stack_report.load_shadow_would_be_fills()` already
+  scans the canonical evidence tree for stored `shadow_would_be_fill` rows and
+  reports parse errors, source files, and a source artifact hash.
+- SHOWN: `operator_proof_status` still treated the corresponding passive item
+  as unsatisfied runbook guidance even when real records existed.
+
+What changed:
+- Added a read-only `shadow_would_be_fill` artifact status path in
+  `operator_proof_status` that reuses the execution-cost report loader.
+- The item is satisfied only when at least one stored shadow record exists and
+  the scan has zero parse errors.
+- Missing records remain actionable with the existing first-hour runbook
+  guidance. Records with parse errors remain actionable with an inspect-first
+  reason instead of being accepted.
+- Added regression tests for missing, recorded, and recorded-with-parse-errors
+  states.
+
+Why this change was chosen:
+- A real evidence-producing item should close from evidence, not from a manual
+  checkpoint. Reusing the cost-report loader keeps the status view aligned with
+  the report that will consume the same records.
+
+Expected outcome:
+- Once shadow writes valid `shadow_would_be_fill` records, operator next-action
+  output stops repeating that passive item and the source hash/files are visible
+  for review.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_execution_cost_stack_report.py`
+  - SHOWN: `79 passed in 0.77s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py services/analytics/execution_cost_stack_report.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinal 9 remains actionable locally
+    because no stored `shadow_would_be_fill` records were found.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only status classification and tests only. This patch does not
+  start shadow, write evidence, create artifacts, fetch market data, close
+  gates, change campaigns, live routing, execution, authorization, or runtime
+  behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-08T20:11:43Z - Operator Proof Status Research Artifact Passive Evidence
 
 Active role: ENGINEER
