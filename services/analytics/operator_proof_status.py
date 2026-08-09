@@ -894,6 +894,15 @@ def _funding_research_artifact_status(root: Path) -> dict[str, Any]:
     actionable_basis = bool(actionable_candidates)
     decision_event = _operator_decision_event_status(root, target="funding_extreme_persistent_campaign_decision")
     decision_satisfied = bool(decision_event.get("satisfied"))
+    action_required = bool(not decision_satisfied and (not evidence_recorded or actionable_basis))
+    if decision_satisfied:
+        next_action = "none"
+    elif actionable_basis:
+        next_action = _operator_decision_record_command("funding_extreme_persistent_campaign_decision")
+    elif evidence_recorded:
+        next_action = "none"
+    else:
+        next_action = "run or repair the funding threshold research pipeline"
     return {
         "artifact_id": "funding_research_evidence",
         "artifact_status": (
@@ -909,19 +918,9 @@ def _funding_research_artifact_status(root: Path) -> dict[str, Any]:
         "evidence_recorded": bool(evidence_recorded),
         "actionable_basis": bool(actionable_basis),
         "candidate_count": len(actionable_candidates),
+        "action_required": action_required,
         "decision_event": decision_event,
-        "next_action": (
-            "none"
-            if decision_satisfied
-            else _operator_decision_record_command("funding_extreme_persistent_campaign_decision")
-            if evidence_recorded and actionable_basis
-            else _operator_decision_record_command(
-                "funding_extreme_persistent_campaign_decision",
-                result="no_persistent_campaign",
-            )
-            if evidence_recorded
-            else "run or repair the funding threshold research pipeline"
-        ),
+        "next_action": next_action,
         "artifacts": [
             {
                 "artifact_id": artifact_id,

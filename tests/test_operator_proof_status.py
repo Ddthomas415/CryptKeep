@@ -866,10 +866,8 @@ def test_operator_proof_status_attaches_funding_research_without_satisfying_deci
 
     assert out["ok"] is True
     funding = out["passive_operator_items"][0]
-    assert funding["action_required"] is True
-    assert funding["next_action"] == (
-        "make record-funding-extreme-persistent-campaign-decision OPERATOR_DECISION_REASON='<reason>'"
-    )
+    assert funding["action_required"] is False
+    assert funding["next_action"] == "none"
     assert funding["artifact_status"]["artifact_id"] == "funding_research_evidence"
     assert funding["artifact_status"]["artifact_status"] == "no_actionable_basis"
     assert funding["artifact_status"]["satisfied"] is False
@@ -877,6 +875,65 @@ def test_operator_proof_status_attaches_funding_research_without_satisfying_deci
     assert funding["artifact_status"]["actionable_basis"] is False
     assert funding["artifact_status"]["candidate_count"] == 0
     assert funding["artifact_status"]["decision_event"]["satisfied"] is False
+    assert out["summary"]["passive_operator_items_satisfied"] == 1
+
+
+def test_operator_proof_status_prompts_funding_decision_with_actionable_basis(
+    tmp_path: Path,
+) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- `funding_extreme` persistent-campaign decision after reviewed price-joined research shows an actionable basis.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    run_dir = tmp_path / ".cbp_state" / "data" / "research" / "funding_threshold_pipeline" / "run"
+    run_dir.mkdir(parents=True)
+    (run_dir / "pipeline_summary.json").write_text(
+        json.dumps({"report_type": "funding_threshold_research_pipeline", "ok": True, "read_only": True}),
+        encoding="utf-8",
+    )
+    (run_dir / "funding_context_price_join.json").write_text(
+        json.dumps({"artifact_type": "funding_context_price_join_v1", "ok": True}),
+        encoding="utf-8",
+    )
+    (run_dir / "funding_threshold_candidate_triage.json").write_text(
+        json.dumps(
+            {
+                "artifact_type": "funding_threshold_candidate_triage_v1",
+                "ok": True,
+                "candidates": [{"status": "candidate", "candidate_id": "funding-a"}],
+                "review_candidates": [{"status": "candidate", "candidate_id": "funding-a"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    assert out["ok"] is True
+    funding = out["passive_operator_items"][0]
+    assert funding["action_required"] is True
+    assert funding["next_action"] == (
+        "make record-funding-extreme-persistent-campaign-decision "
+        "FUNDING_EXTREME_PERSISTENT_CAMPAIGN_DECISION_RESULT=accepted "
+        "OPERATOR_DECISION_REASON='<reason>'"
+    )
+    assert funding["artifact_status"]["artifact_status"] == "actionable_basis_recorded"
+    assert funding["artifact_status"]["actionable_basis"] is True
+    assert funding["artifact_status"]["candidate_count"] == 1
 
 
 def test_operator_proof_status_marks_funding_decision_event_satisfied(

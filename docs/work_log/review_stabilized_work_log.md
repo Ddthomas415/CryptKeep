@@ -31700,3 +31700,50 @@ Remaining risk:
   report generation, shadow recording, service operation, gate threshold,
   promotion logic, live routing, authorization, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T21:33:06Z - Funding Persistent-Campaign Decision Prerequisite Gating
+
+Active role: ENGINEER
+
+Objective:
+- Keep passive next-actions from prompting a `funding_extreme` persistent-campaign
+  decision when reviewed funding research records no actionable candidate basis.
+
+What was found:
+- The passive row text scopes the persistent-campaign decision to reviewed
+  price-joined research that shows an actionable basis, but the status layer
+  still prompted a decision when funding research was complete with zero
+  actionable candidates.
+
+What changed:
+- `operator_proof_status` now makes the funding decision action-required only
+  when research is missing/needs repair or when reviewed research records at
+  least one actionable candidate.
+- Complete reviewed research with no actionable basis remains visible as
+  `no_actionable_basis`, but produces no operator next action.
+- Existing recorded decisions still satisfy the row.
+- Added regression tests for no-candidate, actionable-candidate, and recorded
+  decision states.
+
+Why this change was chosen:
+- It removes premature operator work without changing funding research artifacts,
+  strategy configuration, campaign behavior, or qualification logic.
+
+Expected outcome:
+- `operator-next-actions-passive[-json]` no longer asks for a funding persistent
+  campaign decision unless reviewed research actually presents an actionable
+  candidate or the research pipeline is missing/incomplete.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `88 passed in 0.81s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions-passive-json`
+  - SHOWN: exit 0; local passive next-actions dropped from 10 to 9 and no longer include `record-funding-extreme-persistent-campaign-decision` while local funding research has zero actionable candidates.
+
+Remaining risk:
+- LOW: read-only status/reporting and tests only. No research pipeline,
+  campaign, market-data fetch, artifact generation, strategy config,
+  qualification gate, live routing, authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
