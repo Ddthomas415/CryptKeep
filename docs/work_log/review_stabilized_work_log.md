@@ -32054,3 +32054,46 @@ Remaining risk:
   paper/shadow/live execution, order routing, authorization, or runtime policy
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:10:41Z - README Current Architecture Boundary Links
+
+Active role: ENGINEER
+
+Objective:
+- Make the root README point at the current system map and the new expansion
+  boundaries.
+
+What was found:
+- `README.md` linked project identity and directional plan, but not the current
+  system diagram, symbol-selection boundary, or stock/options requirements
+  boundary.
+
+What changed:
+- Added a root README pointer to `docs/CURRENT_SYSTEM_DIAGRAM.md`,
+  `docs/strategies/symbol_selection_current_boundary.md`, and
+  `docs/research/stock_options_requirements.md`.
+- Pinned that README linkage and non-authorization language in
+  `tests/test_project_directional_plan.py`.
+
+Why this change was chosen:
+- The public entry point now routes architecture/scope questions to the current
+  repo map and the explicit boundaries instead of leaving readers to infer
+  scope from campaign defaults.
+
+Expected outcome:
+- New sessions start from current identity, current diagram, symbol-selection
+  boundary, and stock/options requirements before proposing runtime changes.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_project_directional_plan.py tests/test_project_identity_scope.py tests/test_current_system_diagram.py tests/test_symbol_selection_current_boundary.py tests/test_stock_options_requirements_backlog.py`
+  - SHOWN: `18 passed in 0.40s`.
+- `./.venv/bin/python -m py_compile tests/test_project_directional_plan.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: README and tests only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

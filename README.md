@@ -13,6 +13,8 @@ Crypto Bot Pro is a crypto-first operator platform for market-data collection, p
 
 Directional plan: see [docs/PROJECT_DIRECTIONAL_PLAN.md](docs/PROJECT_DIRECTIONAL_PLAN.md). The project direction is an event-driven trading intelligence platform built as a modular monolith: LLM/research layers investigate and explain, while deterministic risk/execution layers remain the only authority allowed to move capital.
 
+Current system map: see [docs/CURRENT_SYSTEM_DIAGRAM.md](docs/CURRENT_SYSTEM_DIAGRAM.md). Symbol selection and stock/options expansion boundaries are documented in [docs/strategies/symbol_selection_current_boundary.md](docs/strategies/symbol_selection_current_boundary.md) and [docs/research/stock_options_requirements.md](docs/research/stock_options_requirements.md); neither document authorizes campaign, promotion-gate, broker, or live-execution changes.
+
 Supported production surface for current hardening:
 - root repo Python platform only
 - supported baseline commands in this README cover the root install/run/test path
