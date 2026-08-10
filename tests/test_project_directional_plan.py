@@ -74,6 +74,7 @@ def test_readme_links_directional_plan() -> None:
     assert "docs/PROJECT_DIRECTIONAL_PLAN.md" in readme
     assert "event-driven trading intelligence platform" in readme
     assert "docs/CURRENT_SYSTEM_DIAGRAM.md" in readme
+    assert "docs/REPO_LAYOUT.md" in readme
     assert "docs/strategies/symbol_selection_current_boundary.md" in readme
     assert "docs/research/stock_options_requirements.md" in readme
     assert "neither document authorizes campaign, promotion-gate, broker, or live-execution changes" in readme

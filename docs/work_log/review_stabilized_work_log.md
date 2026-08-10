@@ -32201,3 +32201,45 @@ Remaining risk:
   promotion gates, paper/shadow/live execution, order routing, authorization,
   broker support, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:32:32Z - README Links Repo Orientation Index
+
+Active role: ENGINEER
+
+Objective:
+- Make the root README point to the repo layout orientation index.
+
+What was found:
+- `README.md` linked the project identity, directional plan, current system
+  diagram, symbol-selection boundary, and stock/options boundary, but it did
+  not link `docs/REPO_LAYOUT.md`.
+
+What changed:
+- Added a README pointer to `docs/REPO_LAYOUT.md` for repo orientation and
+  source-root boundaries.
+- Updated `tests/test_project_directional_plan.py` to pin that README link.
+
+Why this change was chosen:
+- The README is the first repo entry point; it should route readers to the
+  source-root and orientation index without requiring them to discover it via
+  roadmap status output.
+
+Expected outcome:
+- New sessions can find current architecture, scope, roadmap, symbol-selection,
+  stock/options, and repo-root boundaries directly from the README.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_project_directional_plan.py tests/test_repo_layout_scope_doc.py tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py`
+  - SHOWN: `24 passed in 0.35s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=11`,
+    `source_docs_linked=11`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: README, test, and work log only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, or runtime policy
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

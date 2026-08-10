@@ -15,6 +15,8 @@ Directional plan: see [docs/PROJECT_DIRECTIONAL_PLAN.md](docs/PROJECT_DIRECTIONA
 
 Current system map: see [docs/CURRENT_SYSTEM_DIAGRAM.md](docs/CURRENT_SYSTEM_DIAGRAM.md). Symbol selection and stock/options expansion boundaries are documented in [docs/strategies/symbol_selection_current_boundary.md](docs/strategies/symbol_selection_current_boundary.md) and [docs/research/stock_options_requirements.md](docs/research/stock_options_requirements.md); neither document authorizes campaign, promotion-gate, broker, or live-execution changes.
 
+Repo orientation and source-root boundaries: see [docs/REPO_LAYOUT.md](docs/REPO_LAYOUT.md).
+
 Supported production surface for current hardening:
 - root repo Python platform only
 - supported baseline commands in this README cover the root install/run/test path
