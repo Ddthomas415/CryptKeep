@@ -26,6 +26,7 @@ def test_roadmap_checklist_preserves_source_of_truth_boundaries() -> None:
     assert "Backlog content | `REMAINING_TASKS.md`" in text
     assert "Safe batching lanes | `docs/BACKLOG_EXECUTION_LANES.md`" in text
     assert "Launch readiness | `docs/LAUNCH_CHECKLIST.md`" in text
+    assert "Stock/options boundary | `docs/research/stock_options_requirements.md`" in text
 
 
 def test_roadmap_checklist_preserves_current_phase_and_direction() -> None:

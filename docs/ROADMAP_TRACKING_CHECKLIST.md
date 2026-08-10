@@ -21,6 +21,7 @@ or change campaign, gate, risk, execution, data-fetch, or deployment behavior.
 | Launch readiness | `docs/LAUNCH_CHECKLIST.md` |
 | Strategy expansion | `docs/research/strategy_expansion_roadmap.md` |
 | Derivatives/intraday boundary | `docs/research/derivatives_intraday_roadmap.md` |
+| Stock/options boundary | `docs/research/stock_options_requirements.md` |
 | Work evidence | `docs/work_log/review_stabilized_work_log.md` |
 
 ## Current Phase

@@ -95,4 +95,5 @@ flowchart TD
 - `docs/ARCHITECTURE.md`
 - `docs/ROADMAP_TRACKING_CHECKLIST.md`
 - `docs/BACKLOG_EXECUTION_LANES.md`
+- `docs/research/stock_options_requirements.md`
 - `REMAINING_TASKS.md`

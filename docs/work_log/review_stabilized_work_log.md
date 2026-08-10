@@ -31945,3 +31945,55 @@ Remaining risk:
   market-data fetches, proof artifacts, strategy configs, promotion gates, live
   routing, broker support, authorization, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:06:57Z - Stock Options Requirements Boundary
+
+Active role: ENGINEER
+
+Objective:
+- Convert the stock/options backlog note into a dedicated requirements boundary
+  document before any equities/options implementation work exists.
+
+What was found:
+- `REMAINING_TASKS.md` already contains a stock/options requirements item and
+  `tests/test_stock_options_requirements_backlog.py` pins the backlog
+  boundary, but there was no dedicated document for the requirements packet.
+
+What changed:
+- Added `docs/research/stock_options_requirements.md`.
+- The document states that stock/options research may run in parallel with
+  crypto only as an isolated read-only lane, while stock/options execution,
+  broker credentials, campaigns, promotion evidence, and shared crypto risk
+  budget remain prohibited until separate review.
+- Linked the new document from `docs/CURRENT_SYSTEM_DIAGRAM.md` and
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- Updated `roadmap_tracking_status` so the new stock/options boundary is
+  tracked as a ninth roadmap source document.
+- Extended tests to pin OPRA/OCC/ODD, OSI/OCC symbology, assignment/exercise,
+  no stock/options routing, no shared risk budget, and research-only labels.
+
+Why this change was chosen:
+- It answers the stock/options scope question without creating a broker/data
+  integration or mixing equities/options into the crypto paper gate.
+
+Expected outcome:
+- Future stock/options work starts from a reviewed requirements boundary and
+  cannot silently become execution, promotion evidence, or shared-risk scope.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_stock_options_requirements_backlog.py tests/test_current_system_diagram.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: `15 passed in 0.46s`.
+- `./.venv/bin/python -m py_compile services/analytics/roadmap_tracking_status.py tests/test_stock_options_requirements_backlog.py tests/test_current_system_diagram.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: exit 0.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=9`,
+    `source_docs_linked=9`, and
+    `docs/research/stock_options_requirements.md` listed as a linked source
+    doc.
+
+Remaining risk:
+- LOW: docs, read-only roadmap tracking, and tests only. No equities/options
+  data integration, broker credentials, campaigns, market-data fetches,
+  promotion gates, crypto risk budget, order routing, authorization, or runtime
+  policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
