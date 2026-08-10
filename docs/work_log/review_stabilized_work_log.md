@@ -31997,3 +31997,60 @@ Remaining risk:
   promotion gates, crypto risk budget, order routing, authorization, or runtime
   policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:09:33Z - Symbol Selection Current Boundary
+
+Active role: ENGINEER
+
+Objective:
+- Document how symbol selection works today and prevent read-only planning
+  surfaces from being mistaken for automatic campaign, promotion, or live
+  trading authority.
+
+What was found:
+- Current campaign symbols come from configs/manifests.
+- `services/signals/universe_loader.py`, `scripts/data/run_candidate_scan.py`,
+  `scripts/plan_multi_symbol_paper_campaigns.py`,
+  `services/runtime/dynamic_symbol_selector.py`, and
+  `services/analytics/multi_symbol_paper_campaign_generator.py` exist, but the
+  current governed boundary keeps them in research/planning/helper roles unless
+  a separate reviewed policy changes campaign or promotion authority.
+
+What changed:
+- Added `docs/strategies/symbol_selection_current_boundary.md`.
+- Linked it from `docs/CURRENT_SYSTEM_DIAGRAM.md` and
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- Updated `roadmap_tracking_status` to track the symbol-selection boundary as a
+  roadmap source document.
+- Added tests pinning that BTC/USDT is not the project identity, current
+  campaigns trade configured symbols, candidate scan/multi-symbol planning are
+  read-only/planning surfaces, and proposals cannot change active campaigns or
+  count toward promotion without review.
+
+Why this change was chosen:
+- It answers the recurring multi-trading/symbol-selection question without
+  changing campaign manifests, strategy configs, paper gates, live execution,
+  or risk semantics.
+
+Expected outcome:
+- Future symbol-universe work starts from the explicit boundary: automatic
+  selectors can propose, but they do not control canonical promotion or live
+  trading until separately reviewed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_symbol_selection_current_boundary.py tests/test_current_system_diagram.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: `17 passed in 0.34s`.
+- `./.venv/bin/python -m py_compile services/analytics/roadmap_tracking_status.py tests/test_symbol_selection_current_boundary.py tests/test_current_system_diagram.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: exit 0.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=10`,
+    `source_docs_linked=10`, and
+    `docs/strategies/symbol_selection_current_boundary.md` listed as a linked
+    source doc.
+
+Remaining risk:
+- LOW: docs, read-only roadmap tracking, and tests only. No campaigns,
+  market-data fetches, symbol universe, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, authorization, or runtime policy
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

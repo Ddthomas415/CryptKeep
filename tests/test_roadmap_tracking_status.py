@@ -5,6 +5,7 @@ from pathlib import Path
 
 def _write_minimal_repo(root: Path, *, omit_command: str = "", omit_doc_link: str = "") -> None:
     (root / "docs" / "research").mkdir(parents=True)
+    (root / "docs" / "strategies").mkdir(parents=True)
     (root / "docs" / "work_log").mkdir(parents=True)
     required_docs = (
         "docs/CURRENT_SYSTEM_DIAGRAM.md",
@@ -13,6 +14,7 @@ def _write_minimal_repo(root: Path, *, omit_command: str = "", omit_doc_link: st
         "docs/OPERATOR_GOVERNANCE_LANES.md",
         "docs/LAUNCH_CHECKLIST.md",
         "docs/research/strategy_expansion_roadmap.md",
+        "docs/strategies/symbol_selection_current_boundary.md",
         "docs/research/derivatives_intraday_roadmap.md",
         "docs/research/stock_options_requirements.md",
         "docs/work_log/review_stabilized_work_log.md",
@@ -69,7 +71,7 @@ def test_roadmap_tracking_status_reports_real_repo_ok() -> None:
     assert out["does_not_run_campaigns"] is True
     assert out["does_not_fetch_market_data"] is True
     assert out["does_not_mutate_state"] is True
-    assert out["summary"]["source_doc_count"] == 9
+    assert out["summary"]["source_doc_count"] == 10
     assert out["summary"]["command_count"] == 11
     assert out["summary"]["commands_listed"] == out["summary"]["command_count"]
     assert out["summary"]["boundaries_present"] == out["summary"]["boundary_count"]

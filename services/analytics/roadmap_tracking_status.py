@@ -15,6 +15,7 @@ REQUIRED_SOURCE_DOCS: tuple[str, ...] = (
     "docs/OPERATOR_GOVERNANCE_LANES.md",
     "docs/LAUNCH_CHECKLIST.md",
     "docs/research/strategy_expansion_roadmap.md",
+    "docs/strategies/symbol_selection_current_boundary.md",
     "docs/research/derivatives_intraday_roadmap.md",
     "docs/research/stock_options_requirements.md",
     "docs/work_log/review_stabilized_work_log.md",

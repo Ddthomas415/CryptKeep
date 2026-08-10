@@ -73,6 +73,7 @@ flowchart TD
 | Crypto spot/perp research | Supported in research/read-only lanes where configured data exists | Results remain advisory until governed campaign/gate changes |
 | BTC/USDT canonical paper gate | Active validation track | Not the project identity and not proof that only BTC can be used |
 | Additional crypto paper candidates | Present through existing strategy configs and managed campaign tooling | Must preserve provenance, ownership, risk, and gate policy |
+| Automatic symbol selection | Present as read-only/planning/helper surfaces | Does not control canonical promotion or live trading without separate review |
 | Stocks/options | Backlog requirements exist, but no governed broker/data/execution scope is active | Read-only research only until requirements, entitlements, margin/assignment, and isolation policy are accepted |
 
 ## Near-Term Direction
@@ -95,5 +96,6 @@ flowchart TD
 - `docs/ARCHITECTURE.md`
 - `docs/ROADMAP_TRACKING_CHECKLIST.md`
 - `docs/BACKLOG_EXECUTION_LANES.md`
+- `docs/strategies/symbol_selection_current_boundary.md`
 - `docs/research/stock_options_requirements.md`
 - `REMAINING_TASKS.md`

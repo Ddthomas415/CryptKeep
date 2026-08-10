@@ -54,6 +54,8 @@ def test_current_system_diagram_keeps_multi_asset_scope_bounded() -> None:
     text = _normalized(DOC)
 
     assert "Not the project identity and not proof that only BTC can be used" in text
+    assert "Automatic symbol selection" in text
+    assert "Does not control canonical promotion or live trading without separate review" in text
     assert "Stocks/options" in text
     assert "Read-only research only until requirements" in text
     assert "no governed broker/data/execution scope is active" in text
