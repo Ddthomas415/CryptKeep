@@ -22,6 +22,7 @@ def test_roadmap_checklist_preserves_source_of_truth_boundaries() -> None:
 
     assert "operator-facing roadmap index" in text
     assert "It does not replace `REMAINING_TASKS.md`" in text
+    assert "Current system diagram | `docs/CURRENT_SYSTEM_DIAGRAM.md`" in text
     assert "Backlog content | `REMAINING_TASKS.md`" in text
     assert "Safe batching lanes | `docs/BACKLOG_EXECUTION_LANES.md`" in text
     assert "Launch readiness | `docs/LAUNCH_CHECKLIST.md`" in text

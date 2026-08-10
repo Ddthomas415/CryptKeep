@@ -31891,3 +31891,57 @@ Remaining risk:
   campaigns, market-data fetches, proof artifacts, strategy configs, promotion
   gates, live routing, authorization, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:05:04Z - Current System Diagram And Roadmap Source Tracking
+
+Active role: ENGINEER
+
+Objective:
+- Add a compact current-state system diagram that matches the evolved repo and
+  make roadmap tracking treat it as a first-class source document.
+
+What was found:
+- `docs/PROJECT_DIRECTIONAL_PLAN.md` and `docs/ARCHITECTURE.md` described the
+  current direction and repo shape, but there was no single compact diagram
+  showing the present operator, advisory, data, evidence, strategy, risk, and
+  execution boundaries.
+- After adding the diagram to the roadmap table, `roadmap_tracking_status`
+  still tracked only the previous seven source docs.
+
+What changed:
+- Added `docs/CURRENT_SYSTEM_DIAGRAM.md` with a Mermaid current-state map,
+  current authority boundaries, current multi-asset status, and near-term
+  direction.
+- Linked the diagram from `docs/ARCHITECTURE.md` and
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- Updated `roadmap_tracking_status` so `make roadmap-tracking-status-json`
+  tracks the diagram as an eighth source document.
+- Added tests pinning that the diagram does not claim profitability, live
+  capital reliability, AI/order authority, or active stock/options execution
+  support.
+
+Why this change was chosen:
+- It addresses architecture/scope confusion without changing runtime behavior.
+  The diagram is descriptive and bounded; it does not authorize campaigns,
+  gates, execution, broker expansion, or live trading.
+
+Expected outcome:
+- Architecture and roadmap discussions start from one current repo map instead
+  of re-litigating whether BTC/USDT, AI advisory work, stocks/options, or live
+  execution are the project identity.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_current_system_diagram.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_project_directional_plan.py tests/test_project_identity_scope.py`
+  - SHOWN: `21 passed in 0.53s`.
+- `./.venv/bin/python -m py_compile services/analytics/roadmap_tracking_status.py tests/test_current_system_diagram.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: exit 0.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=8`,
+    `source_docs_linked=8`, and `docs/CURRENT_SYSTEM_DIAGRAM.md` listed as a
+    linked source doc.
+
+Remaining risk:
+- LOW: docs, read-only roadmap tracking, and tests only. No campaigns,
+  market-data fetches, proof artifacts, strategy configs, promotion gates, live
+  routing, broker support, authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

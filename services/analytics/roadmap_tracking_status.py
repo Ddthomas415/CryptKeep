@@ -9,6 +9,7 @@ from typing import Any
 ROADMAP_DOC = "docs/ROADMAP_TRACKING_CHECKLIST.md"
 
 REQUIRED_SOURCE_DOCS: tuple[str, ...] = (
+    "docs/CURRENT_SYSTEM_DIAGRAM.md",
     "REMAINING_TASKS.md",
     "docs/BACKLOG_EXECUTION_LANES.md",
     "docs/OPERATOR_GOVERNANCE_LANES.md",
