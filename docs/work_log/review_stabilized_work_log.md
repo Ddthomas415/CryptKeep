@@ -32153,3 +32153,51 @@ Remaining risk:
   paper/shadow/live execution, order routing, authorization, broker support,
   or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:31:26Z - Roadmap Source Registry Tracks Repo Layout
+
+Active role: ENGINEER
+
+Objective:
+- Keep the roadmap status registry aligned with the repo layout orientation
+  index.
+
+What was found:
+- `docs/REPO_LAYOUT.md` now links the current system, scope, roadmap,
+  symbol-selection, and stock/options boundary documents, but
+  `docs/ROADMAP_TRACKING_CHECKLIST.md` and
+  `services/analytics/roadmap_tracking_status.py` did not track
+  `docs/REPO_LAYOUT.md` as a required source document.
+
+What changed:
+- Added `docs/REPO_LAYOUT.md` to the roadmap checklist source-of-truth table.
+- Added `docs/REPO_LAYOUT.md` to `REQUIRED_SOURCE_DOCS` in
+  `services/analytics/roadmap_tracking_status.py`.
+- Updated roadmap tracking tests to expect 11 linked source documents.
+
+Why this change was chosen:
+- The repo layout is now an operator orientation index; roadmap health should
+  fail if that index disappears or stops being linked from the operator
+  checklist.
+
+Expected outcome:
+- `make roadmap-tracking-status-json` now verifies that the repo layout
+  orientation index exists and is linked from the roadmap checklist.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py tests/test_repo_layout_scope_doc.py tests/test_current_system_diagram.py tests/test_project_directional_plan.py`
+  - SHOWN: `28 passed in 0.51s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=11`,
+    `source_docs_linked=11`.
+- `./.venv/bin/python -m py_compile services/analytics/roadmap_tracking_status.py tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: roadmap checklist, read-only status registry, tests, and work log only.
+  No campaigns, market-data fetches, symbol universe, strategy configs,
+  promotion gates, paper/shadow/live execution, order routing, authorization,
+  broker support, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

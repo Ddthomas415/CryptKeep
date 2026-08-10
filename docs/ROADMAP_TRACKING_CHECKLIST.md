@@ -15,6 +15,7 @@ or change campaign, gate, risk, execution, data-fetch, or deployment behavior.
 | Area | Source |
 |---|---|
 | Current system diagram | `docs/CURRENT_SYSTEM_DIAGRAM.md` |
+| Repo layout/orientation | `docs/REPO_LAYOUT.md` |
 | Backlog content | `REMAINING_TASKS.md` |
 | Safe batching lanes | `docs/BACKLOG_EXECUTION_LANES.md` |
 | Governance/risk lanes | `docs/OPERATOR_GOVERNANCE_LANES.md` |

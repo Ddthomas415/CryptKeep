@@ -9,6 +9,7 @@ def _write_minimal_repo(root: Path, *, omit_command: str = "", omit_doc_link: st
     (root / "docs" / "work_log").mkdir(parents=True)
     required_docs = (
         "docs/CURRENT_SYSTEM_DIAGRAM.md",
+        "docs/REPO_LAYOUT.md",
         "REMAINING_TASKS.md",
         "docs/BACKLOG_EXECUTION_LANES.md",
         "docs/OPERATOR_GOVERNANCE_LANES.md",
@@ -71,7 +72,7 @@ def test_roadmap_tracking_status_reports_real_repo_ok() -> None:
     assert out["does_not_run_campaigns"] is True
     assert out["does_not_fetch_market_data"] is True
     assert out["does_not_mutate_state"] is True
-    assert out["summary"]["source_doc_count"] == 10
+    assert out["summary"]["source_doc_count"] == 11
     assert out["summary"]["command_count"] == 11
     assert out["summary"]["commands_listed"] == out["summary"]["command_count"]
     assert out["summary"]["boundaries_present"] == out["summary"]["boundary_count"]
