@@ -35,6 +35,26 @@ def test_repo_layout_distinguishes_supported_baseline_from_broader_allowlist() -
     assert "`allowed_top_level_present` reports the broader intentional root allowlist used by `--strict`" in txt
 
 
+def test_repo_layout_links_current_orientation_docs_without_authorizing_runtime_change() -> None:
+    txt = (ROOT / "docs" / "REPO_LAYOUT.md").read_text(encoding="utf-8", errors="replace")
+    assert "Orientation docs:" in txt
+    for rel in (
+        "docs/CURRENT_SYSTEM_DIAGRAM.md",
+        "docs/PROJECT_IDENTITY_AND_SCOPE.md",
+        "docs/PROJECT_DIRECTIONAL_PLAN.md",
+        "docs/ROADMAP_TRACKING_CHECKLIST.md",
+        "docs/strategies/symbol_selection_current_boundary.md",
+        "docs/research/stock_options_requirements.md",
+    ):
+        assert rel in txt
+    assert "These docs are descriptive guardrails." in txt
+    assert "They do not authorize campaigns" in txt
+    assert "promotion-gate changes" in txt
+    assert "stock/options execution" in txt
+    assert "live trading" in txt
+    assert "strategy universe changes" in txt
+
+
 def test_repo_layout_uses_root_pre_commit_as_hook_source_of_truth() -> None:
     txt = (ROOT / "docs" / "REPO_LAYOUT.md").read_text(encoding="utf-8", errors="replace")
     assert "root `/.pre-commit-config.yaml` is the supported hook source of truth for the baseline" in txt

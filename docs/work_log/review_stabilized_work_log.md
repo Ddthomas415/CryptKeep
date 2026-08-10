@@ -32097,3 +32097,59 @@ Remaining risk:
   universe, strategy configs, promotion gates, paper/shadow/live execution,
   order routing, authorization, broker support, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:29:41Z - Repo Layout Orientation Doc Index
+
+Active role: ENGINEER
+
+Objective:
+- Make the current architecture, scope, roadmap, symbol-selection, and
+  stock/options boundary docs discoverable from the repo layout index.
+
+What was found:
+- `docs/REPO_LAYOUT.md` documented source roots, sidecars, local state, and
+  overlapping service families, but it did not point readers to the current
+  system diagram or the scope/roadmap boundary docs added in the recent
+  planning work.
+- `scripts/SCRIPTS.md` and the roadmap tracking source-doc registry were
+  already aligned; no script-index change was needed.
+
+What changed:
+- Added an `Orientation docs` section to `docs/REPO_LAYOUT.md` linking:
+  `docs/CURRENT_SYSTEM_DIAGRAM.md`,
+  `docs/PROJECT_IDENTITY_AND_SCOPE.md`,
+  `docs/PROJECT_DIRECTIONAL_PLAN.md`,
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`,
+  `docs/strategies/symbol_selection_current_boundary.md`, and
+  `docs/research/stock_options_requirements.md`.
+- Stated that those documents are descriptive guardrails and do not authorize
+  campaigns, promotion-gate changes, broker expansion, stock/options execution,
+  live trading, runtime policy changes, or strategy universe changes.
+- Extended `tests/test_repo_layout_scope_doc.py` to pin the orientation links
+  and non-authorization boundary.
+
+Why this change was chosen:
+- Repo organization should route new sessions to the current scope and
+  architecture documents without changing runtime behavior or creating another
+  planning artifact.
+
+Expected outcome:
+- Future work starts from the current system map and explicit scope boundaries
+  instead of inferring direction from older root-layout notes or current BTC
+  campaign defaults.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_repo_layout_scope_doc.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_current_system_diagram.py tests/test_project_directional_plan.py`
+  - SHOWN: `28 passed in 0.42s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=10`,
+    `source_docs_linked=10`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: repo layout documentation and tests only. No campaigns, market-data
+  fetches, symbol universe, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, authorization, broker support,
+  or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
