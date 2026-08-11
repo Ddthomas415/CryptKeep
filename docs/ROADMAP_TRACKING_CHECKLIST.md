@@ -24,6 +24,7 @@ or change campaign, gate, risk, execution, data-fetch, or deployment behavior.
 | Symbol selection boundary | `docs/strategies/symbol_selection_current_boundary.md` |
 | Derivatives/intraday boundary | `docs/research/derivatives_intraday_roadmap.md` |
 | Stock/options boundary | `docs/research/stock_options_requirements.md` |
+| GitHub auth/publish boundary | `docs/GITHUB_AUTH_RUNBOOK.md` |
 | Work evidence | `docs/work_log/review_stabilized_work_log.md` |
 
 ## Current Phase

@@ -32436,3 +32436,59 @@ Remaining risk:
   order routing, authorization, broker support, command behavior, or runtime
   policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T05:05:11Z - GitHub Auth Runbook And Roadmap Link
+
+Active role: ENGINEER
+
+Objective:
+- Document the supported local GitHub authentication recovery path without
+  changing repo behavior or credentials.
+
+What was found:
+- Local `gh` token/protocol prompts are environment/auth state, not evidence
+  that a repo patch is wrong.
+- No dedicated runbook stated the supported HTTPS/browser-login recovery path,
+  token handling rules, or separation between local `gh` auth and the ChatGPT
+  Codex Connector/GitHub app auth surface.
+
+What changed:
+- Added `docs/GITHUB_AUTH_RUNBOOK.md`.
+- Linked the runbook from `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- Added the runbook to
+  `services/analytics/roadmap_tracking_status.py::REQUIRED_SOURCE_DOCS`.
+- Added `tests/test_github_auth_runbook.py` and updated roadmap tracking tests
+  for 12 required source docs.
+
+Why this change was chosen:
+- It gives future sessions a repo-owned recovery path for invalid local GitHub
+  auth without improvising token handling in chat or changing code to work
+  around a credential problem.
+
+Expected outcome:
+- Roadmap status fails if the GitHub auth boundary disappears from the
+  operator-facing roadmap, and runbook tests pin the token/protocol boundaries.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_github_auth_runbook.py tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py tests/test_operator_status_bundle.py`
+  - SHOWN: `35 passed in 0.65s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=12`,
+    `source_docs_linked=12`, `commands_listed=12`,
+    `make_targets_present=12`.
+- `./.venv/bin/python -c 'from services.analytics.operator_status_bundle import build_operator_status_bundle; out=build_operator_status_bundle(); s=out["summary"]; print("ok", out["ok"]); [print(k, s.get(k)) for k in ("roadmap_tracking_ok","roadmap_commands_listed","roadmap_source_docs_linked","operator_read_only_commands_wired","research_commands_wired","research_pipelines_latest_ok","operator_proof_actions_required","passive_operator_evidence_actions_required")]'`
+  - SHOWN: `ok True`; `roadmap_tracking_ok=1`;
+    `roadmap_commands_listed=12`; `roadmap_source_docs_linked=12`;
+    `operator_read_only_commands_wired=23`; `research_commands_wired=20`;
+    `research_pipelines_latest_ok=2`; `operator_proof_actions_required=54`;
+    `passive_operator_evidence_actions_required=9`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs, read-only roadmap status registry, and tests only. No GitHub auth
+  command was run; no tokens, credentials, remotes, branch protection, CI,
+  campaigns, market-data fetches, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, broker support, or runtime policy
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

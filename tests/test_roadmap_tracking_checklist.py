@@ -29,6 +29,7 @@ def test_roadmap_checklist_preserves_source_of_truth_boundaries() -> None:
     assert "Launch readiness | `docs/LAUNCH_CHECKLIST.md`" in text
     assert "Symbol selection boundary | `docs/strategies/symbol_selection_current_boundary.md`" in text
     assert "Stock/options boundary | `docs/research/stock_options_requirements.md`" in text
+    assert "GitHub auth/publish boundary | `docs/GITHUB_AUTH_RUNBOOK.md`" in text
 
 
 def test_roadmap_checklist_preserves_current_phase_and_direction() -> None:
