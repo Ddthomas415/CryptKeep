@@ -414,8 +414,11 @@ are not paper-campaign controls.
   writes standard replay evidence under
   `.cbp_state/data/operator_arm_to_halt_replay/`.
 - `check_operator_event_secrets.py` — scan operator event journal payloads for
-  unredacted secret-like fields without printing leaked values; `--require-events`
-  is the launch-packet posture.
+  unredacted secret-like fields without printing leaked values; supports
+  `make operator-event-secrets[-json]`, `OPERATOR_EVENT_PATH`,
+  `OPERATOR_EVENT_REQUIRE_EVENTS`, and `OPERATOR_EVENT_EVIDENCE_DEST`;
+  `make record-operator-event-secrets` runs the launch-packet posture with
+  `--require-events`.
 - `check_backup_artifact_secrets.py` — scan a backup artifact directory for
   high-confidence secret indicators without printing leaked values; supports
   `make check-backup-artifact-secrets STATE_BACKUP_ARTIFACT=<backup_dir>` and

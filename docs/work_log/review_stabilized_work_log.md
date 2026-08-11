@@ -32688,6 +32688,55 @@ Remaining risk:
   treated as accepted.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T20:55:45Z - Operator Event Secret Scan Make Targets
+
+Active role: ENGINEER
+
+Objective:
+- Make the existing operator-event no-secret scan runnable through the standard
+  Makefile interface used by the launch-packet proof commands.
+
+What was found:
+- SHOWN: `scripts/check_operator_event_secrets.py` already supports
+  `--require-events` and `--evidence-dest`.
+- SHOWN: `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` tells operators to run the
+  raw script for launch-packet no-secret proof.
+- SHOWN: `Makefile` had analogous `platform-event-secrets[-json]` targets but
+  no operator-event secret scan target.
+
+What changed:
+- Added `operator-event-secrets`, `operator-event-secrets-json`, and
+  `record-operator-event-secrets` Make targets.
+- Added `OPERATOR_EVENT_PATH`, `OPERATOR_EVENT_REQUIRE_EVENTS`, and
+  `OPERATOR_EVENT_EVIDENCE_DEST` knobs.
+- Updated `scripts/SCRIPTS.md` and the Makefile wiring regression.
+
+Why this change was chosen:
+- This is command wiring around existing scan logic. It reduces raw-script
+  operator friction without changing scan semantics, event schemas, runtime
+  behavior, campaigns, gates, or execution.
+
+Expected outcome:
+- Operators can run the launch-packet operator-event no-secret scan with
+  `make record-operator-event-secrets` and use JSON output through
+  `make operator-event-secrets-json`.
+
+Verification:
+- `make operator-event-secrets-json OPERATOR_EVENT_REQUIRE_EVENTS=1`
+  - SHOWN: exit 0; `event_count=206`, `finding_count=0`, evidence written to
+    `.cbp_state/data/operator_event_secret_scan/operator-event-secret-scan-20260811T205602Z.json`.
+- `./.venv/bin/python -m pytest -q tests/test_makefile_wiring.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `6 passed in 0.19s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: command wiring and docs only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, GitHub auth, push/merge, or
+  runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T20:26:48Z - Exchange Sandbox Restricted-Location Exception Recorder
 
 Active role: ENGINEER
