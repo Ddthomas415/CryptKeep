@@ -32291,3 +32291,52 @@ Remaining risk:
   paper/shadow/live execution, order routing, authorization, broker support,
   command behavior, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T04:56:25Z - Roadmap Checklist Includes Operator Status Bundle
+
+Active role: ENGINEER
+
+Objective:
+- Make the canonical operator check-in bundle command discoverable from the
+  roadmap checklist and verified by roadmap status.
+
+What was found:
+- `make operator-status-json` is the actual bundled check-in target for
+  roadmap, backlog, research, read-only command, and proof status.
+- `docs/ROADMAP_TRACKING_CHECKLIST.md` listed the component commands and next
+  actions command, but not the bundled `operator-status-json` command.
+
+What changed:
+- Added `make operator-status-json` to the roadmap active tracking table and
+  fast-command list.
+- Added `make operator-status-json` to
+  `services/analytics/roadmap_tracking_status.py::REQUIRED_COMMANDS`.
+- Updated roadmap tracking tests to expect 12 required commands.
+
+Why this change was chosen:
+- It prevents operator check-ins from depending on memory or guessing the target
+  name, without changing any command behavior.
+
+Expected outcome:
+- `make roadmap-tracking-status-json` now fails if the bundled operator status
+  command disappears from the checklist or Makefile.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `60 passed in 0.68s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `command_count=12`,
+    `commands_listed=12`, `make_targets_present=12`.
+- `make operator-status-json`
+  - SHOWN: exit 0; `shown_ok=true`, `roadmap_tracking_ok=1`,
+    `roadmap_commands_listed=12`, `operator_read_only_commands_wired=23`,
+    `research_commands_wired=20`, `research_pipelines_latest_ok=2`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: roadmap checklist, read-only status registry, tests, and work log only.
+  No campaigns, market-data fetches, symbol universe, strategy configs,
+  promotion gates, paper/shadow/live execution, order routing, authorization,
+  broker support, command implementation, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -24,6 +24,7 @@ REQUIRED_SOURCE_DOCS: tuple[str, ...] = (
 
 REQUIRED_COMMANDS: tuple[str, ...] = (
     "make roadmap-tracking-status-json",
+    "make operator-status-json",
     "make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20",
     "make operator-proof-status-json",
     "make operator-read-only-command-status-json",
