@@ -32631,6 +32631,46 @@ Remaining risk:
   runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T21:14:14Z - Remaining-Coverage Marker Noise Cleanup
+
+Active role: ENGINEER
+
+Objective:
+- Remove duplicate operator-next-actions noise introduced by the user-auth
+  boundary backlog note.
+
+What was found:
+- SHOWN: the 2026-08-11 user-auth boundary note used the phrase `Remaining
+  coverage`, which caused `make operator-next-actions-json
+  OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage` to emit an extra action for
+  the same future-surface gap already tracked immediately above it.
+
+What changed:
+- Reworded that one backlog sentence to `Still open:` so the factual boundary
+  note remains but the status parser does not double-count the same gap.
+
+Why this change was chosen:
+- This is a docs-only tracker hygiene fix. It reduces noise without changing
+  any runtime behavior or removing the underlying open item.
+
+Expected outcome:
+- Remaining-coverage actions reflect real outstanding proof surfaces, not
+  duplicate wording inside proof-ready notes.
+
+Verification:
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; action count dropped from 9 to 8 and proof-marker count
+    dropped from 55 to 54.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `48 passed`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: one backlog wording change plus work-log record only; no source,
+  runtime, campaign, auth, credential, or gate behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T21:12:20Z - API Credential Store Boundary Invariant
 
 Active role: ENGINEER

@@ -1990,8 +1990,7 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `dashboard/` and `services/security/` and fails if any source file outside
     `services/security/user_auth_store.py` starts using the dashboard-auth
     keyring service name, users index account, or private auth-record write
-    helpers. Remaining coverage is limited to future surfaces outside those
-    scanned source roots.
+    helpers. Still open: future surfaces outside those scanned source roots.
     2026-07-16: central runtime config-save operator-event hook is ready for
     independent review. `services.admin.config_editor.save_user_yaml()` now
     appends best-effort metadata-only `runtime_config_save` operator events
