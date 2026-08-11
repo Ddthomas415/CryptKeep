@@ -98,21 +98,21 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
         "research_pipeline",
         "research_artifact",
         "research_command",
-        "operator_proof",
         "passive_operator_evidence",
+        "operator_proof",
     ]
     assert out["actions"][0]["source"] == "price_action"
     assert out["actions"][1]["source"] == "archive_parameter_sweep"
     assert out["actions"][2]["source"] == "funding_threshold_pipeline"
-    assert out["actions"][3]["line"] == 12
-    assert out["actions"][3]["marker"] == "operator-host"
-    assert out["actions"][3]["status"] == "open"
-    assert out["actions"][3]["text"] == "Attach host proof"
-    assert out["actions"][4]["source"] == "passive_operator_evidence"
-    assert out["actions"][4]["ordinal"] == 1
-    assert out["actions"][4]["text"] == "Run host proof"
-    assert out["actions"][4]["artifact_id"] == "host_proof_guidance"
-    assert out["actions"][4]["artifact_status"] == "command_guidance"
+    assert out["actions"][3]["source"] == "passive_operator_evidence"
+    assert out["actions"][3]["ordinal"] == 1
+    assert out["actions"][3]["text"] == "Run host proof"
+    assert out["actions"][3]["artifact_id"] == "host_proof_guidance"
+    assert out["actions"][3]["artifact_status"] == "command_guidance"
+    assert out["actions"][4]["line"] == 12
+    assert out["actions"][4]["marker"] == "operator-host"
+    assert out["actions"][4]["status"] == "open"
+    assert out["actions"][4]["text"] == "Attach host proof"
 
 
 def test_operator_next_actions_respects_limit(monkeypatch) -> None:

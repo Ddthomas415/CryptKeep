@@ -32683,6 +32683,52 @@ Remaining risk:
   runtime services, or change runtime behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T06:05:57Z - Operator Next-Actions Passive Evidence Priority
+
+Active role: ENGINEER
+
+Objective:
+- Make the default operator next-actions report surface local/passive evidence
+  work before proof-ready/review-only backlog rows.
+
+What was found:
+- The default `operator-next-actions` report flattened operator-proof rows
+  before passive operator-evidence rows.
+- This hid locally executable evidence commands behind proof-ready/review rows,
+  even when those evidence rows were the only practical local work.
+
+What changed:
+- `services.analytics.operator_next_actions.build_operator_next_actions` now
+  places `passive_operator_evidence` actions before `operator_proof` actions in
+  the default flattened list.
+- Updated the existing next-actions order test to pin the new priority.
+
+Why this change was chosen:
+- Passive evidence rows are often the next local action, while proof-ready rows
+  usually require review/merge or host evidence. Surfacing passive evidence
+  first better matches the operator check-in workflow without changing source
+  reports or proof semantics.
+
+Expected outcome:
+- `make operator-next-actions-json` shows local passive evidence rows before
+  proof-ready/review-only operator-proof rows when both are present.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py`
+  - SHOWN: `24 passed in 0.50s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; the first seven returned rows are
+    `passive_operator_evidence`, followed by `operator_proof` rows.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only status/report ordering and tests only. No source report
+  counts, campaigns, market-data fetches, strategy configs, proof closure,
+  paper/shadow/live execution, order routing, authorization, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T05:10:30Z - Backlog Work-Log Sync For Check-In/Auth Alignment
 
 Active role: ENGINEER
