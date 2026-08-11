@@ -486,24 +486,29 @@ def _backup_restore_drill_artifact_status(root: Path) -> dict[str, Any]:
     backup = _latest_operator_event(events, action="state_backup", target="state_dir", accepted_results=success)
     verify = _latest_operator_event(events, action="state_backup_verify", target="state_dir", accepted_results=success)
     restore = _latest_operator_event(events, action="state_restore", target="state_dir", accepted_results=success)
+    secret_scan = _latest_operator_event(
+        events,
+        action="state_backup_secret_scan",
+        target="state_dir",
+        accepted_results=success,
+    )
     checkpoint = _latest_operator_event(
         events,
         action="runbook_checkpoint",
         target="state_backup_restore_drill",
         accepted_results=checkpoint_results,
     )
-    satisfied = all(row is not None for row in (backup, verify, restore, checkpoint))
+    satisfied = all(row is not None for row in (backup, verify, restore, secret_scan, checkpoint))
     if backup is None:
         next_action = "make backup-state STATE_BACKUP_DEST=<backup_dir>"
     elif verify is None:
         next_action = "verify the backup with ./.venv/bin/python scripts/backup_state.py verify <backup_dir>"
     elif restore is None:
         next_action = "complete the restore drill from docs/FULL_STATE_BACKUP_RESTORE_DRILL.md"
+    elif secret_scan is None:
+        next_action = "make check-backup-artifact-secrets STATE_BACKUP_ARTIFACT=<backup_dir>"
     elif checkpoint is None:
-        next_action = (
-            "run backup artifact secrets scan, then make record-backup-restore-drill-checkpoint "
-            "OPERATOR_CHECKPOINT_REASON='<reason>'"
-        )
+        next_action = "make record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'"
     else:
         next_action = "none"
     return {
@@ -519,6 +524,7 @@ def _backup_restore_drill_artifact_status(root: Path) -> dict[str, Any]:
             "backup": _operator_event_summary(backup),
             "verify": _operator_event_summary(verify),
             "restore": _operator_event_summary(restore),
+            "secret_scan": _operator_event_summary(secret_scan),
             "checkpoint": _operator_event_summary(checkpoint),
         },
         "doc_path": "docs/FULL_STATE_BACKUP_RESTORE_DRILL.md",

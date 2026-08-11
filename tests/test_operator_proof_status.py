@@ -1373,6 +1373,17 @@ def test_operator_proof_status_marks_backup_restore_drill_satisfied(tmp_path: Pa
             "post_state": {"ok": True},
         },
         {
+            "event_id": "evt-secret-scan",
+            "timestamp": "2026-08-09T00:02:30Z",
+            "actor": "operator",
+            "action": "state_backup_secret_scan",
+            "target": "state_dir",
+            "result": "success",
+            "reason": "backup_artifact_secret_scan",
+            "pre_state": {"backup_dir": "/tmp/backup"},
+            "post_state": {"ok": True, "finding_count": 0},
+        },
+        {
             "event_id": "evt-checkpoint",
             "timestamp": "2026-08-09T00:03:00Z",
             "actor": "operator",
@@ -1395,11 +1406,12 @@ def test_operator_proof_status_marks_backup_restore_drill_satisfied(tmp_path: Pa
     assert drill["artifact_status"]["events"]["backup"]["event_id"] == "evt-backup"
     assert drill["artifact_status"]["events"]["verify"]["event_id"] == "evt-verify"
     assert drill["artifact_status"]["events"]["restore"]["event_id"] == "evt-restore"
+    assert drill["artifact_status"]["events"]["secret_scan"]["event_id"] == "evt-secret-scan"
     assert drill["artifact_status"]["events"]["checkpoint"]["event_id"] == "evt-checkpoint"
     assert out["summary"]["passive_operator_items_satisfied"] == 1
 
 
-def test_operator_proof_status_keeps_backup_restore_open_without_checkpoint(tmp_path: Path) -> None:
+def test_operator_proof_status_keeps_backup_restore_open_without_secret_scan(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 
     docs = tmp_path / "docs"
@@ -1432,14 +1444,50 @@ def test_operator_proof_status_keeps_backup_restore_open_without_checkpoint(tmp_
     assert out["ok"] is True
     drill = out["passive_operator_items"][0]
     assert drill["action_required"] is True
-    assert drill["next_action"] == (
-        "run backup artifact secrets scan, then make record-backup-restore-drill-checkpoint "
-        "OPERATOR_CHECKPOINT_REASON='<reason>'"
-    )
+    assert drill["next_action"] == "make check-backup-artifact-secrets STATE_BACKUP_ARTIFACT=<backup_dir>"
     assert drill["artifact_status"]["artifact_status"] == "missing_or_incomplete"
     assert drill["artifact_status"]["events"]["restore"]["event_id"] == "evt-restore"
+    assert drill["artifact_status"]["events"]["secret_scan"] is None
     assert drill["artifact_status"]["events"]["checkpoint"] is None
     assert out["summary"]["passive_operator_items_satisfied"] == 0
+
+
+def test_operator_proof_status_keeps_backup_restore_open_without_checkpoint_after_secret_scan(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Backup/restore drill evidence and backup-artifact secrets scan.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    journal = tmp_path / ".cbp_state" / "data" / "operator_events" / "operator_events.jsonl"
+    journal.parent.mkdir(parents=True)
+    events = [
+        {"event_id": "evt-backup", "action": "state_backup", "target": "state_dir", "result": "success"},
+        {"event_id": "evt-verify", "action": "state_backup_verify", "target": "state_dir", "result": "success"},
+        {"event_id": "evt-restore", "action": "state_restore", "target": "state_dir", "result": "success"},
+        {"event_id": "evt-secret-scan", "action": "state_backup_secret_scan", "target": "state_dir", "result": "success"},
+    ]
+    journal.write_text("\n".join(json.dumps(event, sort_keys=True) for event in events) + "\n", encoding="utf-8")
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    drill = out["passive_operator_items"][0]
+    assert drill["action_required"] is True
+    assert drill["next_action"] == "make record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'"
+    assert drill["artifact_status"]["events"]["secret_scan"]["event_id"] == "evt-secret-scan"
+    assert drill["artifact_status"]["events"]["checkpoint"] is None
 
 
 def test_operator_proof_status_marks_supply_chain_evidence_satisfied(tmp_path: Path) -> None:

@@ -416,6 +416,10 @@ are not paper-campaign controls.
 - `check_operator_event_secrets.py` — scan operator event journal payloads for
   unredacted secret-like fields without printing leaked values; `--require-events`
   is the launch-packet posture.
+- `check_backup_artifact_secrets.py` — scan a backup artifact directory for
+  high-confidence secret indicators without printing leaked values; supports
+  `make check-backup-artifact-secrets STATE_BACKUP_ARTIFACT=<backup_dir>` and
+  records a `state_backup_secret_scan` operator event.
 - `check_dead_man.py` — dead-man liveness check over trading-loop heartbeats;
   supports `make check-dead-man[-json]`, `DEAD_MAN_NAMES`, and
   `DEAD_MAN_MAX_AGE_S`; exit 0/1/2; `--alert` dispatches via the alert stack;

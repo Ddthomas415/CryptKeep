@@ -32751,6 +32751,79 @@ Remaining risk:
   open.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T08:13:07Z - Backup Artifact Secret Scan And Drill Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Finish the local backup/restore drill passive evidence row by replacing the
+  unavailable external `gitleaks` dependency with a repo-local read-only backup
+  artifact scanner.
+
+What was found:
+- `gitleaks` is not installed on this host.
+- The backup/restore drill status required a backup-artifact secrets scan before
+  the final checkpoint could be recorded.
+- The repo already had redacted JSONL event scanners, but no scanner for a full
+  backup directory containing mixed JSON, JSONL, SQLite, and file artifacts.
+
+What changed:
+- Added `services.audit.backup_artifact_secret_scan`, a read-only scanner for
+  backup artifact directories. It checks JSON/JSONL sensitive-key payloads and
+  high-confidence byte patterns such as private-key PEM headers, GitHub tokens,
+  AWS access keys, Slack tokens, and OpenAI-style API keys without printing
+  matched values.
+- Added `scripts/check_backup_artifact_secrets.py` and
+  `make check-backup-artifact-secrets STATE_BACKUP_ARTIFACT=<backup_dir>`.
+- The CLI writes evidence under `.cbp_state/data/backup_artifact_secret_scan/`
+  and records a `state_backup_secret_scan` operator event.
+- `operator_proof_status` now treats `state_backup_secret_scan` as a required
+  backup/restore drill step between restore and checkpoint.
+- Ran the scanner against
+  `/private/tmp/cbp-state-backups-20260811T063838Z/cbp-state-backup-20260811T063841Z`;
+  it scanned 463 files and found 0 findings.
+- Recorded the final `state_backup_restore_drill` checkpoint after backup,
+  verify, scratch restore, and backup-artifact secret scan all succeeded.
+
+Why this change was chosen:
+- It keeps the drill evidence local, deterministic, and executable when
+  external scanner installation is unavailable, without marking the drill
+  complete before the secret-scan step exists.
+
+Expected outcome:
+- `make operator-next-actions-passive-json` no longer lists the backup/restore
+  drill row once the backup, verify, restore, secret scan, and checkpoint events
+  all exist.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backup_artifact_secret_scan.py tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_makefile_wiring.py`
+  - SHOWN: `98 passed in 1.36s`.
+- `./.venv/bin/python -m py_compile services/audit/backup_artifact_secret_scan.py scripts/check_backup_artifact_secrets.py services/analytics/operator_proof_status.py tests/test_backup_artifact_secret_scan.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make check-backup-artifact-secrets STATE_BACKUP_ARTIFACT=/private/tmp/cbp-state-backups-20260811T063838Z/cbp-state-backup-20260811T063841Z`
+  - SHOWN: `backup artifact secret scan: ok`; `files_scanned: 463`;
+    `findings: 0`; evidence path
+    `.cbp_state/data/backup_artifact_secret_scan/backup-artifact-secret-scan-20260811T081234Z.json`.
+- `PYTHONPATH=. make record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='local backup, verify, scratch restore, and backup artifact secret scan completed; active state not replaced'`
+  - SHOWN: event `ed799204-6bf4-45a3-865b-1886d7557096` recorded with
+    result `completed`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: action count dropped from 7 to 6; backup/restore drill row is no
+    longer returned.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW/MEDIUM: read-only audit scanner plus operator proof-status classification
+  and local ignored evidence. No active state restore, campaigns, market-data
+  fetches, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, GitHub auth, push/merge, or
+  runtime policy changed.
+- UNVERIFIED: the repo-local scanner is not a full replacement for a future
+  host-side `gitleaks` scan if the launch checklist explicitly requires that
+  external tool.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T06:03:27Z - Local Supply-Chain Passive Evidence Recorded
 
 Active role: ENGINEER
