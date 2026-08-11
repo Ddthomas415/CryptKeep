@@ -2932,6 +2932,18 @@ substrate work, but they are concrete enough to keep visible.
     tests-only plus backlog/work-log text and does not change runtime code,
     decide backlog items, run research/campaigns, fetch market data, close
     proof, authorize implementation, or mutate runtime state.
+    2026-08-11: operator check-in and GitHub auth alignment is ready for
+    independent review. `docs/ROADMAP_TRACKING_CHECKLIST.md` now defines the
+    generic read-only check-in sequence (`git status --short --branch`,
+    `make operator-status-json`, optional bounded `operator-next-actions`) and
+    `docs/GITHUB_AUTH_RUNBOOK.md` documents the local GitHub CLI HTTPS/browser
+    recovery path, token-handling boundary, and separation from the ChatGPT
+    Codex Connector/GitHub app auth surface. Tests pin roadmap linkage,
+    source-doc counts, token boundaries, and the no-campaign/no-market/no-auth
+    repair boundary unless explicitly requested. This is docs/test/status
+    alignment only and does not change command behavior, credentials, remotes,
+    branch protection, campaigns, proof closure, market-data fetches,
+    authorization, or runtime state.
     2026-07-29: medium-lane read-only command status is ready for independent
     review. `services.analytics.operator_read_only_command_status` and
     `scripts/report_operator_read_only_command_status.py` inventory the

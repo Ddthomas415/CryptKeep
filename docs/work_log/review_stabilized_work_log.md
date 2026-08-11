@@ -32581,3 +32581,50 @@ Remaining risk:
   order routing, authorization, broker support, command behavior, GitHub auth,
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T05:10:30Z - Backlog Work-Log Sync For Check-In/Auth Alignment
+
+Active role: ENGINEER
+
+Objective:
+- Keep the backlog and work log synchronized for the operator check-in and
+  GitHub auth alignment work.
+
+What was found:
+- The work log recorded the README/check-in, compat-script classification,
+  GitHub auth runbook, roadmap check-in checklist, and roadmap source-count
+  regression batches.
+- `REMAINING_TASKS.md` item 18 did not yet summarize the current operator
+  check-in/GitHub auth alignment updates, and the sync guard did not require
+  those notes to match work-log entries.
+
+What changed:
+- Added a 2026-08-11 backlog note under item 18 summarizing the operator
+  check-in checklist and GitHub auth runbook boundaries.
+- Extended `tests/test_operator_reporting_backlog_worklog_sync.py` so the
+  backlog phrases for operator check-in/GitHub auth alignment must have
+  matching work-log titles.
+
+Why this change was chosen:
+- The selected low-risk lane item is work-log/backlog synchronization. This
+  keeps recent docs/test alignment work visible in the backlog without changing
+  runtime behavior.
+
+Expected outcome:
+- Future edits that drop the backlog note or the matching work-log entries
+  will fail the sync guard.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_reporting_backlog_worklog_sync.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_github_auth_runbook.py tests/test_operator_status_bundle.py`
+  - SHOWN: `38 passed in 1.01s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL=5 OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; planning row remains `Work-log/backlog synchronization`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: backlog, test, and work log only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, command behavior,
+  GitHub auth, push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
