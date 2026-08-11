@@ -721,19 +721,28 @@ def _exchange_sandbox_smoke_artifact_status(root: Path) -> dict[str, Any]:
         and bool(checks)
         and all(isinstance(row, dict) and bool(row.get("ok")) is True for row in checks)
     )
+    restricted_location = any(
+        isinstance(row, dict)
+        and "restricted location" in str(row.get("error") or "").lower()
+        for row in checks
+    )
+    next_action = "none" if passed else "make record-exchange-sandbox-smoke"
+    if restricted_location and not passed:
+        next_action = "record accepted sandbox exception or configure a reachable sandbox exchange"
     return {
         "artifact_id": "exchange_sandbox_smoke",
         "artifact_path": str(latest),
         "artifact_exists": latest.is_file(),
         "artifact_sha256": _sha256(latest),
-        "artifact_status": "recorded" if passed else "invalid_or_failed",
+        "artifact_status": "recorded" if passed else "blocked_restricted_location" if restricted_location else "invalid_or_failed",
         "created": str(payload.get("created") or ""),
         "exchange": payload.get("exchange"),
         "symbol": payload.get("symbol"),
         "sandbox": bool(payload.get("sandbox")),
         "check_count": len(checks),
+        "restricted_location": bool(restricted_location),
         "satisfied": bool(passed),
-        "next_action": "none" if passed else "make record-exchange-sandbox-smoke",
+        "next_action": next_action,
     }
 
 

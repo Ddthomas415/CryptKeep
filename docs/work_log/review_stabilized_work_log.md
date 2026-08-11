@@ -32630,6 +32630,62 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T06:36:31Z - Exchange Sandbox Restricted-Location Next Action
+
+Active role: ENGINEER
+
+Objective:
+- Keep passive operator next actions from repeating a known-failing exchange
+  sandbox smoke command when the latest evidence shows a restricted-location
+  block.
+
+What was found:
+- `make record-exchange-sandbox-smoke` wrote failed read-only evidence under
+  `.cbp_state/data/exchange_sandbox_smoke/`.
+- A normal sandboxed run failed with `NetworkError` to Binance testnet.
+- A rerun with network access reached Binance testnet but returned HTTP 451:
+  `Service unavailable from a restricted location according to 'b.
+  Eligibility'`.
+- `operator-next-actions` still returned `make record-exchange-sandbox-smoke`,
+  which would repeat the same blocked command instead of naming the real
+  operator choice.
+
+What changed:
+- `services.analytics.operator_proof_status` now classifies failed exchange
+  sandbox smoke evidence containing `restricted location` as
+  `blocked_restricted_location`.
+- The next action becomes `record accepted sandbox exception or configure a
+  reachable sandbox exchange`.
+- Added a regression test for the restricted-location artifact shape while
+  preserving the existing generic failed-smoke behavior.
+
+Why this change was chosen:
+- The change keeps the check-in loop actionable without closing proof or
+  pretending the sandbox lifecycle passed. It records that the latest evidence
+  is blocked by venue/location policy, not by missing command wiring.
+
+Expected outcome:
+- Future passive check-ins point to the real decision after a Binance testnet
+  451 instead of consuming time on repeated reruns.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `91 passed in 1.29s`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: exchange sandbox row reports
+    `artifact_status=blocked_restricted_location` and next action
+    `record accepted sandbox exception or configure a reachable sandbox
+    exchange`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only status/report classification and tests only. No campaigns,
+  strategy configs, promotion gates, paper/shadow/live execution, order
+  routing, authorization, broker support, GitHub auth, push/merge, or runtime
+  policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T06:03:27Z - Local Supply-Chain Passive Evidence Recorded
 
 Active role: ENGINEER

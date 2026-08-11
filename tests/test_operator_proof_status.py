@@ -1167,6 +1167,60 @@ def test_operator_proof_status_keeps_failed_exchange_sandbox_smoke_open(tmp_path
     assert out["summary"]["passive_operator_items_satisfied"] == 0
 
 
+def test_operator_proof_status_surfaces_restricted_exchange_sandbox_smoke(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Private sandbox/testnet lifecycle proof or explicit accepted exception.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    evidence_dir = tmp_path / ".cbp_state" / "data" / "exchange_sandbox_smoke"
+    evidence_dir.mkdir(parents=True)
+    artifact = evidence_dir / "exchange-sandbox-smoke-20260809T000000Z.json"
+    artifact.write_text(
+        json.dumps(
+            {
+                "report_type": "exchange_sandbox_smoke",
+                "created": "2026-08-09T00:00:00Z",
+                "read_only": True,
+                "ok": False,
+                "exchange": "binance",
+                "symbol": "BTC/USD",
+                "sandbox": True,
+                "checks": [
+                    {
+                        "name": "fetch_ticker",
+                        "ok": False,
+                        "error": "ExchangeNotAvailable: Service unavailable from a restricted location",
+                    }
+                ],
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    sandbox = out["passive_operator_items"][0]
+    assert sandbox["action_required"] is True
+    assert sandbox["next_action"] == "record accepted sandbox exception or configure a reachable sandbox exchange"
+    assert sandbox["artifact_status"]["artifact_status"] == "blocked_restricted_location"
+    assert sandbox["artifact_status"]["restricted_location"] is True
+
+
 def test_operator_proof_status_marks_arm_to_halt_replay_evidence_satisfied(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 
