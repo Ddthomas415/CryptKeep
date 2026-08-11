@@ -17,6 +17,9 @@ Current system map: see [docs/CURRENT_SYSTEM_DIAGRAM.md](docs/CURRENT_SYSTEM_DIA
 
 Repo orientation and source-root boundaries: see [docs/REPO_LAYOUT.md](docs/REPO_LAYOUT.md).
 
+Operator check-in: run `make operator-status-json` for the combined roadmap,
+backlog, research, read-only command, and proof status bundle.
+
 Supported production surface for current hardening:
 - root repo Python platform only
 - supported baseline commands in this README cover the root install/run/test path

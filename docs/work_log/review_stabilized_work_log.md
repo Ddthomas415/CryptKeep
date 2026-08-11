@@ -32340,3 +32340,51 @@ Remaining risk:
   promotion gates, paper/shadow/live execution, order routing, authorization,
   broker support, command implementation, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T04:59:57Z - README Documents Operator Status Check-In Command
+
+Active role: ENGINEER
+
+Objective:
+- Make the root README expose the canonical bundled operator check-in command.
+
+What was found:
+- `make operator-status-json` is the bundled operator status command and is now
+  tracked by `docs/ROADMAP_TRACKING_CHECKLIST.md`, but `README.md` did not point
+  to it.
+- A prior guessed target name (`operator-status-bundle-json`) does not exist;
+  `scripts/SCRIPTS.md` and the Makefile identify `make operator-status-json` as
+  the correct wrapper.
+
+What changed:
+- Added an `Operator check-in` README sentence pointing to
+  `make operator-status-json`.
+- Extended `tests/test_project_directional_plan.py` to pin the README pointer
+  and its combined roadmap/backlog/research/read-only/proof scope.
+
+Why this change was chosen:
+- The README is the first repo entry point; exposing the bundled check-in
+  command reduces target-name guessing without changing command behavior.
+
+Expected outcome:
+- Operators and future sessions can start from README and run the correct
+  read-only check-in bundle.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_project_directional_plan.py tests/test_readme_alignment_wiring.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_operator_status_bundle.py`
+  - SHOWN: `36 passed in 0.73s`.
+- `./.venv/bin/python -c 'from services.analytics.operator_status_bundle import build_operator_status_bundle; out=build_operator_status_bundle(); s=out["summary"]; print("ok", out["ok"]); [print(k, s.get(k)) for k in ("roadmap_tracking_ok","roadmap_commands_listed","roadmap_source_docs_linked","operator_read_only_commands_wired","research_commands_wired","research_pipelines_latest_ok","operator_proof_actions_required","passive_operator_evidence_actions_required")]'`
+  - SHOWN: `ok True`; `roadmap_tracking_ok=1`;
+    `roadmap_commands_listed=12`; `roadmap_source_docs_linked=11`;
+    `operator_read_only_commands_wired=23`; `research_commands_wired=20`;
+    `research_pipelines_latest_ok=2`; `operator_proof_actions_required=54`;
+    `passive_operator_evidence_actions_required=9`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: README, test, and work log only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, command
+  implementation, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
