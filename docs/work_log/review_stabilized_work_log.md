@@ -32582,6 +32582,55 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T06:03:27Z - Local Supply-Chain Passive Evidence Recorded
+
+Active role: ENGINEER
+
+Objective:
+- Close a local passive operator-evidence row that does not require host,
+  network, campaign, GitHub, auth, or live execution access.
+
+What was found:
+- `operator-next-actions` listed passive operator evidence ordinal 15:
+  supply-chain audit/waiver evidence.
+- `scripts/check_supply_chain.py` records pin integrity and environment
+  matching by default; it does not run `pip-audit` unless `--audit` or
+  `--strict-audit` is passed.
+
+What changed:
+- Ran the read-only supply-chain check and then recorded local evidence under
+  `.cbp_state/data/supply_chain/`.
+- Evidence artifact:
+  `.cbp_state/data/supply_chain/supply-chain-evidence-20260811T051403Z.json`
+  with SHA256
+  `dfac81dc820eb9050f5f3f4f4941796376dbb93ad5b2b137171af714397c0af0`.
+
+Why this change was chosen:
+- This was the only current passive-evidence row that could be satisfied
+  locally without host access, market data, campaign changes, GitHub auth, or
+  operator policy decisions.
+
+Expected outcome:
+- `operator-proof-status` and `operator-next-actions` no longer list the
+  supply-chain passive-evidence row as action-required for this local state.
+
+Verification:
+- `make check-supply-chain-json`
+  - SHOWN: exit 0; pin integrity `ok=true`, environment `ok=true`,
+    `checked=82`, no mismatches, no missing installs, audit not requested.
+- `make record-supply-chain`
+  - SHOWN: exit 0; wrote the evidence artifact above.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=passive_operator_evidence OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; passive evidence action count dropped from 9 to 8 and
+    supply-chain is no longer listed as action-required.
+
+Remaining risk:
+- LOW: local ignored evidence plus work-log record only. This does not run
+  vulnerability audit, fetch market data, run campaigns, change strategy
+  configs, close host proof, repair GitHub/Tailscale auth, push, merge, or
+  change runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T05:10:30Z - Backlog Work-Log Sync For Check-In/Auth Alignment
 
 Active role: ENGINEER
