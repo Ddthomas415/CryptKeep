@@ -8,6 +8,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_repo_alignment_workflow_doc_has_canonical_commands():
     txt = (ROOT / "docs" / "REPO_ALIGNMENT_WORKFLOW.md").read_text(encoding="utf-8", errors="replace")
+    flat = " ".join(txt.split())
+    assert "docs/REPO_LAYOUT.md" in txt
+    assert "Canonical source-root and orientation boundaries" in txt
+    assert "do not authorize moving source roots" in flat
+    assert "changing runtime scope" in flat
     assert "python scripts/check_repo_alignment.py" in txt
     assert "python scripts/check_repo_alignment.py --list-tests" in txt
     assert "python scripts/check_repo_alignment.py --json" in txt

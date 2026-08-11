@@ -32243,3 +32243,51 @@ Remaining risk:
   execution, order routing, authorization, broker support, or runtime policy
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T04:56:00Z - Repo Alignment Workflow Links Layout Boundary
+
+Active role: ENGINEER
+
+Objective:
+- Keep repo alignment guidance tied to the current source-root and orientation
+  boundary document.
+
+What was found:
+- `docs/REPO_ALIGNMENT_WORKFLOW.md` documented repo-doctor and validation
+  commands, but did not point to `docs/REPO_LAYOUT.md`, the current source-root
+  and orientation boundary document.
+- `tools/repo_doctor.py --strict --json` passed on the current checkout:
+  supported baseline present, no missing baseline roots, no non-canonical
+  top-level dirs, and no suspicious top-level files.
+
+What changed:
+- Added a short `docs/REPO_LAYOUT.md` reference to
+  `docs/REPO_ALIGNMENT_WORKFLOW.md`.
+- Stated that alignment commands enforce structure but do not authorize moving
+  source roots, reviving sidecars, or changing runtime scope.
+- Updated `tests/test_repo_alignment_workflow_doc.py` to pin the link and the
+  non-authorization boundary using whitespace-normalized text.
+
+Why this change was chosen:
+- The alignment workflow is a repo-organization entry point; it should route
+  source-root questions to the accepted layout boundary instead of leaving that
+  relationship implicit.
+
+Expected outcome:
+- Repo alignment work remains connected to the current root-layout policy
+  without changing command behavior.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_repo_alignment_workflow_doc.py tests/test_repo_layout_scope_doc.py tests/test_readme_alignment_wiring.py tests/test_repo_doctor_strict.py`
+  - SHOWN: `13 passed in 0.90s`.
+- `./.venv/bin/python tools/repo_doctor.py --strict --json`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: alignment documentation, test, and work log only. No campaigns,
+  market-data fetches, symbol universe, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, authorization, broker support,
+  command behavior, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

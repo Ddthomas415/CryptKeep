@@ -3,6 +3,12 @@
 ## Goal
 Keep the repo in canonical shape and prevent drift from returning.
 
+Canonical source-root and orientation boundaries are documented in
+`docs/REPO_LAYOUT.md`.
+
+Alignment commands enforce that structure. They do not authorize moving source
+roots, reviving sidecars, or changing runtime scope.
+
 ## Primary commands
 
 1. Fast alignment gate:
