@@ -1974,8 +1974,7 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     identity and state shape (role/enabled/MFA booleans and backup-code
     counts), without logging passwords, hashes, MFA codes, TOTP secrets, OTP
     URIs, or backup code values. Remaining coverage: any future user/role
-    management surface that bypasses `user_auth_store`, plus fail-closed
-    audit-write policy.
+    management surface that bypasses `user_auth_store`.
     2026-07-16: central auth-store mutation audit-write fail-closed slice is
     ready for independent review. `services.security.user_auth_store` now
     captures raw keyring user/index records before central user upsert/bootstrap,
@@ -1993,8 +1992,7 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     parse status, top-level section names/count, and result without logging
     config payloads or values. This narrows direct CLI/runtime config coverage
     for strategy, risk, and alert-routing families. Remaining coverage: direct
-    file edits, environment overrides, campaign manifest files, and
-    fail-closed audit-write policy.
+    file edits, environment overrides, and campaign manifest files.
     2026-07-16: central runtime config-save audit-write fail-closed slice is
     ready for independent review. `save_user_yaml()` now treats
     `runtime_config_save` audit persistence as required for non-dry-run writes:
@@ -2010,8 +2008,7 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     and stored field names without logging API keys, API secrets, or
     passphrases. The coverage matrix moves API credential rotation from
     MISSING to PARTIAL. Remaining coverage: direct keyring edits,
-    environment-based credential changes, server injection/rotation drills,
-    and fail-closed audit-write policy.
+    environment-based credential changes, and server injection/rotation drills.
     2026-07-16: API credential-rotation audit-write fail-closed slice is ready
     for independent review. Central `set_exchange_credentials()` and
     `delete_exchange_credentials()` now treat `api_credential_rotation` audit

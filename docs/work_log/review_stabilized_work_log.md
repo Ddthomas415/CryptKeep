@@ -32737,6 +32737,57 @@ Remaining risk:
   runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T21:05:51Z - Audit Coverage Fail-Closed Backlog Sync
+
+Active role: ENGINEER
+
+Objective:
+- Remove stale "fail-closed audit-write policy" remaining-coverage text from
+  backlog paragraphs whose immediately following entries already record the
+  fail-closed slice as proof-ready.
+
+What was found:
+- SHOWN: the auth-store hook paragraph still listed fail-closed audit-write
+  policy as remaining, while the next paragraph records the central auth-store
+  fail-closed slice.
+- SHOWN: the runtime config-save hook paragraph still listed fail-closed
+  audit-write policy as remaining, while the next paragraph records
+  `save_user_yaml()` rollback-on-audit-failure behavior.
+- SHOWN: the API credential-rotation hook paragraph still listed fail-closed
+  audit-write policy as remaining, while the next paragraph records credential
+  rollback/refusal on audit-write failure.
+
+What changed:
+- Removed those three stale fail-closed-policy phrases from
+  `REMAINING_TASKS.md`, leaving the genuinely open bypass/direct-edit/server
+  drill coverage text intact.
+
+Why this change was chosen:
+- This is backlog synchronization only. It prevents repeated completed work
+  from staying in the remaining queue without claiming host-side proof or
+  future bypass-surface closure.
+
+Expected outcome:
+- Remaining coverage text points to still-open surfaces only: future
+  user/role bypasses, direct file/env/manifest edits, direct keyring edits,
+  environment-based credentials, and server drills.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `48 passed in 0.32s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; the edited rows now list future bypass/direct-edit/server
+    drill coverage only.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs only. No campaigns, market-data fetches, symbol universe, strategy
+  configs, promotion gates, paper/shadow/live execution, order routing,
+  authorization, broker support, command behavior, GitHub auth, push/merge, or
+  runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T20:26:48Z - Exchange Sandbox Restricted-Location Exception Recorder
 
 Active role: ENGINEER
