@@ -32582,6 +32582,55 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T20:40:29Z - AI Copilot Coverage Backlog Sync
+
+Active role: ENGINEER
+
+Objective:
+- Remove stale AI-copilot coverage text that still listed local-only report
+  writes as remaining after the repo already recorded the report-write audit
+  hook as proof-ready.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` first said `call_llm` still had "local-only
+  report writes" remaining.
+- SHOWN: the immediately following backlog paragraph records the AI copilot
+  local report-write audit hook as ready for independent review, with central
+  `services.ai_copilot` report writers appending metadata-only
+  `ai_copilot_report_write` operator events after persisted report artifacts.
+- SHOWN: that same paragraph leaves only the host-side no-secret scan over real
+  report events as remaining coverage.
+
+What changed:
+- Updated the earlier `call_llm` coverage sentence to leave only the host-side
+  no-secret scan over real provider events as remaining.
+
+Why this change was chosen:
+- This is backlog/work-log synchronization only. It removes a repeated
+  completed coverage item from the remaining queue without changing any runtime
+  code or proof status semantics.
+
+Expected outcome:
+- Remaining-coverage tracking no longer asks for local-only AI report-write
+  coverage that the backlog already records as proof-ready.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `48 passed in 0.32s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; line 1937 now reads
+    `` `call_llm`. Remaining coverage: host-side no-secret scan over real``,
+    with the stale local-only report-write coverage removed.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs only. No campaigns, market-data fetches, symbol universe, strategy
+  configs, promotion gates, paper/shadow/live execution, order routing,
+  authorization, broker support, command behavior, GitHub auth, push/merge, or
+  runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T20:26:48Z - Exchange Sandbox Restricted-Location Exception Recorder
 
 Active role: ENGINEER

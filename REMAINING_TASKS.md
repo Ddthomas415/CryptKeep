@@ -1934,8 +1934,8 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `tests/test_ai_copilot_provider_boundary.py` rejects future
     `services/ai_copilot` Python modules that import external provider SDKs,
     read provider API-key environment variables, or call provider APIs outside
-    `call_llm`. Remaining coverage: local-only report writes and host-side
-    no-secret scan over real provider events.
+    `call_llm`. Remaining coverage: host-side no-secret scan over real
+    provider events.
     2026-07-16: AI copilot local report-write audit hook is ready for
     independent review. Central `services.ai_copilot` report writers now append
     best-effort metadata-only `ai_copilot_report_write` operator events after
