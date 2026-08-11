@@ -416,9 +416,12 @@ are not paper-campaign controls.
 - `check_operator_event_secrets.py` — scan operator event journal payloads for
   unredacted secret-like fields without printing leaked values; supports
   `make operator-event-secrets[-json]`, `OPERATOR_EVENT_PATH`,
-  `OPERATOR_EVENT_REQUIRE_EVENTS`, and `OPERATOR_EVENT_EVIDENCE_DEST`;
+  `OPERATOR_EVENT_REQUIRE_EVENTS`, `OPERATOR_EVENT_REQUIRE_ACTION`, and
+  `OPERATOR_EVENT_EVIDENCE_DEST`;
   `make record-operator-event-secrets` runs the launch-packet posture with
-  `--require-events`.
+  `--require-events`. `make record-ai-provider-event-secrets` and
+  `make record-ai-report-event-secrets` additionally require real
+  `ai_copilot_external_provider_call` or `ai_copilot_report_write` events.
 - `check_backup_artifact_secrets.py` — scan a backup artifact directory for
   high-confidence secret indicators without printing leaked values; supports
   `make check-backup-artifact-secrets STATE_BACKUP_ARTIFACT=<backup_dir>` and

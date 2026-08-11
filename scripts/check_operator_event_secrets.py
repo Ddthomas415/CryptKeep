@@ -28,6 +28,12 @@ def main() -> int:
     )
     parser.add_argument("--path", default="", help="operator event JSONL path; defaults to the repo state path")
     parser.add_argument("--require-events", action="store_true", help="fail if the journal is missing or empty")
+    parser.add_argument(
+        "--require-action",
+        action="append",
+        default=[],
+        help="fail if the operator event journal has no event with this action; may be repeated",
+    )
     parser.add_argument("--json", action="store_true", help="print the full JSON report")
     parser.add_argument("--evidence-dest", default="", help="write the JSON report into this directory")
     args = parser.parse_args()
@@ -35,6 +41,7 @@ def main() -> int:
     report = scan_operator_event_journal(
         Path(args.path) if args.path else None,
         require_events=bool(args.require_events),
+        require_actions=list(args.require_action or []),
     )
 
     if args.evidence_dest:

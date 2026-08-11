@@ -1936,6 +1936,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     read provider API-key environment variables, or call provider APIs outside
     `call_llm`. Remaining coverage: host-side no-secret scan over real
     provider events.
+    2026-08-11: action-specific operator-event secret-scan proof command is
+    ready for independent review. `make record-ai-provider-event-secrets`
+    requires at least one real `ai_copilot_external_provider_call` event and
+    scans the operator-event journal without printing secret values. This does
+    not close the host-side proof until run against the real host journal.
     2026-07-16: AI copilot local report-write audit hook is ready for
     independent review. Central `services.ai_copilot` report writers now append
     best-effort metadata-only `ai_copilot_report_write` operator events after
@@ -1943,6 +1948,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     status/severity, and artifact names/count without logging report payloads,
     stdout/stderr, prompts, recommendations, summaries, or artifact contents.
     Remaining coverage: host-side no-secret scan over real report events.
+    2026-08-11: action-specific operator-event secret-scan proof command is
+    ready for independent review. `make record-ai-report-event-secrets`
+    requires at least one real `ai_copilot_report_write` event and scans the
+    operator-event journal without printing secret values. This does not close
+    the host-side proof until run against the real host journal.
     2026-07-16: dashboard strategy-config audit hook is ready for independent
     review. Operations-page strategy parameter saves and preset applies now
     append required `strategy_config_change` operator events after the local

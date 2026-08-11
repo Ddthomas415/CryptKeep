@@ -32631,6 +32631,61 @@ Remaining risk:
   runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T21:27:00Z - AI Copilot Operator Event Secret-Scan Action Filters
+
+Active role: ENGINEER
+
+Objective:
+- Turn the AI copilot host-side no-secret scan coverage items into exact
+  action-specific proof commands.
+
+What was found:
+- SHOWN: `scripts/check_operator_event_secrets.py` could require a non-empty
+  operator-event journal, but it could not require the journal to contain the
+  specific AI actions named by the backlog:
+  `ai_copilot_external_provider_call` and `ai_copilot_report_write`.
+- Gap: a generic host-side scan could pass on unrelated operator events and
+  still not prove the AI provider/report event families had been scanned.
+
+What changed:
+- Extended `services.audit.operator_event_secret_scan.scan_operator_event_journal()`
+  with `require_actions`.
+- Added `--require-action` to `scripts/check_operator_event_secrets.py`.
+- Added Make targets `record-ai-provider-event-secrets` and
+  `record-ai-report-event-secrets`.
+- Updated `scripts/SCRIPTS.md` and `REMAINING_TASKS.md` with the exact host
+  proof commands while explicitly keeping host-side proof open until those
+  commands are run against the real host journal.
+
+Why this change was chosen:
+- This is the smallest change that prevents a false proof from a generic
+  operator-event secret scan. It does not log secret values, mutate runtime
+  state, or call external providers.
+
+Expected outcome:
+- Host-side AI copilot secret-scan proof must contain the relevant real event
+  action before it can pass.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_event_secret_scan.py tests/test_makefile_wiring.py`
+  - SHOWN: `8 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `48 passed`.
+- `make operator-event-secrets-json OPERATOR_EVENT_REQUIRE_ACTION=ai_copilot_report_write OPERATOR_EVENT_REQUIRE_EVENTS=1`
+  - SHOWN: failed closed on the local journal with `event_count=206`,
+    `action_counts.ai_copilot_report_write=0`, and
+    `operator_event_required_action_missing`; this is expected local behavior
+    and is not host proof.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; remaining-coverage action count stayed at 5.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only scanner/Makefile/docs/tests only. Real host proof remains
+  open until run on the host operator-event journal.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T21:24:32Z - Remaining-Coverage Duplicate Marker Cleanup
 
 Active role: ENGINEER
