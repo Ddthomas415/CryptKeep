@@ -1993,14 +1993,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     written after mutation, the helper restores those raw records and returns
     `operator_event_write_failed_user_auth_store_rolled_back`. Login-hash
     upgrades roll back the unaudited rehash but allow the already-verified login
-    to proceed. Remaining coverage: any future user/role management surface
-    that bypasses `user_auth_store`.
+    to proceed. Current-source boundary coverage is recorded in the note below.
     2026-08-11: current-source user/role storage boundary invariant is ready
     for independent review. `tests/test_user_auth_store_boundary.py` scans
-    `dashboard/` and `services/security/` and fails if any source file outside
+    `dashboard/`, `scripts/`, and `services/` and fails if any source file outside
     `services/security/user_auth_store.py` starts using the dashboard-auth
     keyring service name, users index account, or private auth-record write
-    helpers. Still open: future surfaces outside those scanned source roots.
+    helpers.
     2026-07-16: central runtime config-save operator-event hook is ready for
     independent review. `services.admin.config_editor.save_user_yaml()` now
     appends best-effort metadata-only `runtime_config_save` operator events

@@ -14,7 +14,7 @@ def test_dashboard_auth_user_storage_boundary_stays_centralized() -> None:
     records directly would bypass that contract.
     """
 
-    scanned_roots = [ROOT / "dashboard", ROOT / "services" / "security"]
+    scanned_roots = [ROOT / "dashboard", ROOT / "scripts", ROOT / "services"]
     allowed = {
         Path("services/security/user_auth_store.py"),
     }

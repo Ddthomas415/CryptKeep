@@ -32631,6 +32631,53 @@ Remaining risk:
   runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T21:28:51Z - User Auth Boundary Scan Root Expansion
+
+Active role: ENGINEER
+
+Objective:
+- Close the remaining current-source user/role bypass marker by widening the
+  auth-store boundary invariant to the normal production source roots.
+
+What was found:
+- SHOWN: the existing user-auth boundary guard scanned only `dashboard/` and
+  `services/security/`.
+- SHOWN: `make operator-next-actions-json
+  OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage` still reported a user/role
+  future-surface action because production roots outside that scan were not
+  covered by the wording.
+
+What changed:
+- Widened `tests/test_user_auth_store_boundary.py` to scan `dashboard/`,
+  `scripts/`, and `services/`.
+- Updated `REMAINING_TASKS.md`, `scripts/audit_coverage_matrix.py`, and
+  `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` so current-source user/role
+  keyring-write bypass protection matches the widened roots.
+
+Why this change was chosen:
+- This is the smallest local guard for current in-repo production source. It
+  does not change authentication, keyring storage, dashboard behavior, or
+  runtime policy.
+
+Expected outcome:
+- Future dashboard/script/service code cannot directly use dashboard-auth
+  backing-record tokens/helpers outside `user_auth_store` without failing the
+  boundary test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_user_auth_store_boundary.py tests/test_user_auth_store_audit.py tests/test_auth_gate.py`
+  - SHOWN: `23 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; remaining-coverage action count dropped from 5 to 4.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: auth-governance test/docs only; no auth runtime code changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T21:27:00Z - AI Copilot Operator Event Secret-Scan Action Filters
 
 Active role: ENGINEER
