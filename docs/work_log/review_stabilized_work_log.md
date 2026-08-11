@@ -32582,6 +32582,54 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T06:19:34Z - Remaining Task Snapshot Check-In
+
+Active role: ENGINEER
+
+Objective:
+- Record the current generated remaining-task inventory in the roadmap checklist
+  so operator check-ins do not depend on chat memory.
+
+What was found:
+- `operator-next-actions` reported 61 remaining next actions.
+- The actionable queue is dominated by operator proofs and host-side evidence:
+  7 passive operator-evidence actions, 23 proof-ready implementation markers,
+  15 host-side evidence references, 8 capped-live proof markers, and 8
+  remaining coverage markers.
+- Backlog lane, research pipeline, research artifact, research command, and
+  operator read-only command wiring reported zero missing-action rows.
+
+What changed:
+- Added a dated Remaining Task Snapshot to
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- Added a roadmap checklist regression that pins the snapshot section and the
+  top-level generated counts.
+
+Why this change was chosen:
+- The operator asked to update and check in after listing remaining tasks. This
+  records the current status without changing backlog semantics, campaign
+  behavior, market-data access, GitHub auth, or runtime code.
+
+Expected outcome:
+- Future check-ins have a compact repo-local checkpoint for the current
+  remaining-task shape while generated reports remain the source of truth.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `57 passed in 1.33s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_docs_linked=12`,
+    `commands_listed=12`, `boundaries_present=6`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test/work-log only. No campaigns, market-data fetches, strategy
+  configs, promotion gates, paper/shadow/live execution, order routing,
+  authorization, broker support, GitHub auth, push/merge, or runtime policy
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T06:03:27Z - Local Supply-Chain Passive Evidence Recorded
 
 Active role: ENGINEER

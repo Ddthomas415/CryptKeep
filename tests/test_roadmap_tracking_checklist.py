@@ -89,3 +89,14 @@ def test_roadmap_checklist_defines_read_only_operator_check_in() -> None:
     assert "make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20" in text
     assert "Report only current status, blockers, and the next concrete action." in text
     assert "Do not run campaigns, fetch market data, change configs, push, merge, or repair auth" in text
+
+
+def test_roadmap_checklist_records_remaining_task_snapshot() -> None:
+    text = _normalized(DOC)
+
+    assert "Remaining Task Snapshot" in text
+    assert "61 remaining next actions" in text
+    assert "7 passive operator-evidence actions" in text
+    assert "23 proof-ready implementation markers" in text
+    assert "15 host-side evidence references" in text
+    assert "zero missing-action rows" in text
