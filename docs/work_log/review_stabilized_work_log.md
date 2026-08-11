@@ -32631,6 +32631,63 @@ Remaining risk:
   runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T20:43:13Z - Dashboard Login Session Audit Fail-Closed Slice
+
+Active role: ENGINEER
+
+Objective:
+- Close the remaining dashboard session event fail-closed policy gap for the
+  authenticated-session-opening path.
+
+What was found:
+- SHOWN: `dashboard.auth_gate._mark_login_success()` wrote the authenticated
+  Streamlit session and then appended a `dashboard_login` operator event.
+- SHOWN: `_record_dashboard_auth_event()` returns an explicit failure when the
+  operator event journal cannot be written, but `_mark_login_success()` ignored
+  that result.
+- Consequence: a login-success audit write failure could leave
+  `SESSION_KEY.ok=True`.
+
+What changed:
+- `_mark_login_success()` now returns a result dict.
+- The function records the required metadata-only `dashboard_login` event for
+  the tentative authenticated session; if that write fails, it clears the
+  session, preserves lockout counters, and returns
+  `operator_event_write_failed_dashboard_login_session_cleared`.
+- Direct login and MFA-success callers now rerun only after the session-open
+  audit succeeds; otherwise they stay in the sign-in flow with an explicit
+  session error.
+- `REMAINING_TASKS.md`, `scripts/audit_coverage_matrix.py`, and
+  `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` now record the policy boundary:
+  login-success session opening is fail-closed; logout and failed auth/MFA
+  challenge events remain best-effort because they do not open an authenticated
+  session.
+
+Why this change was chosen:
+- It is the smallest risk-increasing session boundary fix. It does not make
+  risk-reducing or failed-auth events block on audit storage.
+
+Expected outcome:
+- A dashboard login cannot leave an authenticated session active unless the
+  corresponding metadata-only `dashboard_login` audit event is durably written.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_auth_gate.py tests/test_auth_runtime_guard.py tests/test_auth_capabilities.py tests/test_user_auth_store_audit.py`
+  - SHOWN: `34 passed in 1.56s`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed in 0.64s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; remaining dashboard-auth coverage now lists future
+    user/role bypass surfaces only, not dashboard session event fail-closed
+    policy.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- HIGH: auth/session behavior changed. Requires independent review before it is
+  treated as accepted.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T20:26:48Z - Exchange Sandbox Restricted-Location Exception Recorder
 
 Active role: ENGINEER

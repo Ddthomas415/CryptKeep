@@ -249,7 +249,7 @@ def logout() -> None:
     )
 
 
-def _mark_login_success(username: str, role: str, source: str) -> None:
+def _mark_login_success(username: str, role: str, source: str) -> dict[str, Any]:
     pre_state = _auth_public_state(_session_get())
     now = _now_ts()
     st.session_state[SESSION_KEY] = {
@@ -261,11 +261,7 @@ def _mark_login_success(username: str, role: str, source: str) -> None:
         "login_at": now,
         "last_activity_at": now,
     }
-    # Clear server-side lockout; session state is display cache only
-    _server_clear_failed_logins(str(username or ""))
-    st.session_state[FAILED_LOGIN_COUNT_KEY] = 0
-    st.session_state[FAILED_LOGIN_LOCKOUT_UNTIL_KEY] = 0
-    _record_dashboard_auth_event(
+    audit = _record_dashboard_auth_event(
         action="dashboard_login",
         username=str(username or ""),
         result="success",
@@ -274,6 +270,23 @@ def _mark_login_success(username: str, role: str, source: str) -> None:
         post_state={"session": _auth_public_state(st.session_state.get(SESSION_KEY))},
         extra={"role": str(role or "VIEWER"), "source": str(source or "")},
     )
+    if not bool(audit.get("ok")):
+        _clear_auth_session()
+        state = _session_get()
+        state["error"] = "operator_event_write_failed_dashboard_login"
+        st.session_state[SESSION_KEY] = state
+        return {
+            "ok": False,
+            "reason": "operator_event_write_failed_dashboard_login_session_cleared",
+            "operator_event": audit,
+        }
+
+    # Clear server-side lockout only after the auditable session transition is
+    # durable. Session state is display cache only.
+    _server_clear_failed_logins(str(username or ""))
+    st.session_state[FAILED_LOGIN_COUNT_KEY] = 0
+    st.session_state[FAILED_LOGIN_LOCKOUT_UNTIL_KEY] = 0
+    return {"ok": True, "operator_event": audit}
 
 
 def _register_failed_login(username: str = "") -> None:
@@ -626,13 +639,17 @@ def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]
                         )
                         if bool(out.get("ok")):
                             method = str(out.get("method") or "totp")
-                            _mark_login_success(
+                            marked = _mark_login_success(
                                 username=str(pending_mfa.get("username") or ""),
                                 role=str(pending_mfa.get("role") or "VIEWER"),
                                 source=f"{str(pending_mfa.get('source') or 'keychain')}+{method}",
                             )
-                            _clear_mfa_pending()
-                            st.rerun()
+                            if bool(marked.get("ok")):
+                                _clear_mfa_pending()
+                                st.rerun()
+                            state = _session_get()
+                            state["error"] = str(marked.get("reason") or "operator_event_write_failed")
+                            st.session_state[SESSION_KEY] = state
                         else:
                             _record_dashboard_auth_event(
                                 action="dashboard_mfa_challenge",
@@ -677,13 +694,17 @@ def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]
                                     state["error"] = ""
                                     st.session_state[SESSION_KEY] = state
                                     st.rerun()
-                                _mark_login_success(
+                                marked = _mark_login_success(
                                     username=str(out.get("username") or ""),
                                     role=str(out.get("role") or "VIEWER"),
                                     source=str(out.get("source") or ""),
                                 )
-                                _clear_mfa_pending()
-                                st.rerun()
+                                if bool(marked.get("ok")):
+                                    _clear_mfa_pending()
+                                    st.rerun()
+                                state = _session_get()
+                                state["error"] = str(marked.get("reason") or "operator_event_write_failed")
+                                st.session_state[SESSION_KEY] = state
                             else:
                                 _register_failed_login(str(username))
                                 state = _session_get()

@@ -1959,6 +1959,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     values. The coverage matrix moves the dashboard login/logout/MFA/role
     family from MISSING to PARTIAL; user/role mutation coverage is narrowed by
     the central auth-store hook below.
+    2026-08-11: dashboard login-success session transition audit persistence
+    is ready for independent review. `_mark_login_success()` now requires the
+    metadata-only `dashboard_login` operator event before the session remains
+    authenticated; if the audit write fails, the tentative session is cleared,
+    lockout counters are not reset, and callers stay in the sign-in flow.
+    Logout and failed auth/MFA challenge events remain best-effort because they
+    do not open an authenticated session.
     2026-07-16: central auth-store mutation audit hook is ready for
     independent review. `services.security.user_auth_store` now appends
     best-effort metadata-only `dashboard_user_auth_store_change` events for
@@ -1977,8 +1984,8 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     written after mutation, the helper restores those raw records and returns
     `operator_event_write_failed_user_auth_store_rolled_back`. Login-hash
     upgrades roll back the unaudited rehash but allow the already-verified login
-    to proceed. Remaining coverage: dashboard session event fail-closed policy
-    and any future user/role management surface that bypasses `user_auth_store`.
+    to proceed. Remaining coverage: any future user/role management surface
+    that bypasses `user_auth_store`.
     2026-07-16: central runtime config-save operator-event hook is ready for
     independent review. `services.admin.config_editor.save_user_yaml()` now
     appends best-effort metadata-only `runtime_config_save` operator events

@@ -142,6 +142,32 @@ def test_failed_logins_trigger_lockout_and_success_resets(monkeypatch) -> None:
     assert fake.session_state[auth_gate.SESSION_KEY]["ok"] is True
 
 
+def test_login_success_clears_session_when_required_audit_fails(monkeypatch) -> None:
+    fake = _FakeStreamlit()
+    fake.session_state[auth_gate.FAILED_LOGIN_COUNT_KEY] = 2
+    fake.session_state[auth_gate.FAILED_LOGIN_LOCKOUT_UNTIL_KEY] = 123
+    monkeypatch.setattr(auth_gate, "st", fake)
+    monkeypatch.setattr(auth_gate, "_now_ts", lambda: 1_000)
+    monkeypatch.setattr(auth_gate, "_server_clear_failed_logins", lambda _username: {"ok": True})
+
+    def _append_operator_event(**_kwargs):
+        raise PermissionError("journal denied")
+
+    monkeypatch.setattr(auth_gate, "append_operator_event", _append_operator_event)
+
+    result = auth_gate._mark_login_success(username="admin", role="ADMIN", source="keychain")
+
+    assert result == {
+        "ok": False,
+        "reason": "operator_event_write_failed_dashboard_login_session_cleared",
+        "operator_event": {"ok": False, "reason": "operator_event_write_failed:PermissionError"},
+    }
+    assert fake.session_state[auth_gate.SESSION_KEY]["ok"] is False
+    assert fake.session_state[auth_gate.SESSION_KEY]["error"] == "operator_event_write_failed_dashboard_login"
+    assert fake.session_state[auth_gate.FAILED_LOGIN_COUNT_KEY] == 2
+    assert fake.session_state[auth_gate.FAILED_LOGIN_LOCKOUT_UNTIL_KEY] == 123
+
+
 def test_auth_operator_events_are_metadata_only(monkeypatch) -> None:
     calls: list[dict[str, object]] = []
 
