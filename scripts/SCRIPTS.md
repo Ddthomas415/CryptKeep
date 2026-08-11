@@ -70,7 +70,7 @@ listed below.
 | `run_preflight.py` | — | Preflight entrypoint |
 | `run_signal_quality_report.py` | — | Read-only signal-quality report for scoring whether qualified public-OHLCV signals were early enough; `--allow-unqualified-evidence` is research-only |
 | `run_system_diagnostics.py` | `make system-diagnostics` | System diagnostics wrapper |
-| `smoke_exchange.py` | `make smoke-exchange-sandbox` / `make record-exchange-sandbox-smoke` | Exchange sandbox smoke check; `record-exchange-sandbox-smoke` writes standard evidence under `.cbp_state/data/exchange_sandbox_smoke/` |
+| `smoke_exchange.py` | `make smoke-exchange-sandbox` / `make record-exchange-sandbox-smoke` / `make record-exchange-sandbox-exception` | Exchange sandbox smoke check; `record-exchange-sandbox-smoke` writes standard evidence under `.cbp_state/data/exchange_sandbox_smoke/`; `record-exchange-sandbox-exception` records an explicit operator exception after restricted-location evidence |
 | `show_control_kernel_status.py` | `make kernel-status` / `make kernel-status-json` / `make kernel-promote` | Control-kernel status; `--promote` is gate-enforced and fails closed unless the supported promotion gate is ready |
 | `supervisor_status.py` | — | Supervisor state |
 | `validate.py` | `make validate-quick` / `make validate` | Repo validation |

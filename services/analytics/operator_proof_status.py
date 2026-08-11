@@ -279,6 +279,7 @@ def _operator_decision_record_command(target: str, *, result: str = "accepted") 
         "manual_strategy_performance_decision": "record-manual-strategy-performance-decision",
         "composite_hybrid_paper_advancement_decision": "record-composite-hybrid-paper-decision",
         "funding_extreme_persistent_campaign_decision": "record-funding-extreme-persistent-campaign-decision",
+        "exchange_sandbox_restricted_location_exception": "record-exchange-sandbox-exception",
     }
     make_target = make_targets.get(target)
     reason_arg = "OPERATOR_DECISION_REASON='<reason>'"
@@ -735,22 +736,37 @@ def _exchange_sandbox_smoke_artifact_status(root: Path) -> dict[str, Any]:
         and "restricted location" in str(row.get("error") or "").lower()
         for row in checks
     )
+    exception = _operator_decision_event_status(root, target="exchange_sandbox_restricted_location_exception")
+    exception_accepted = restricted_location and bool(exception.get("satisfied"))
     next_action = "none" if passed else "make record-exchange-sandbox-smoke"
     if restricted_location and not passed:
-        next_action = "record accepted sandbox exception or configure a reachable sandbox exchange"
+        next_action = (
+            "none"
+            if exception_accepted
+            else "make record-exchange-sandbox-exception OPERATOR_DECISION_REASON='<reason>' or configure a reachable sandbox exchange"
+        )
     return {
         "artifact_id": "exchange_sandbox_smoke",
         "artifact_path": str(latest),
         "artifact_exists": latest.is_file(),
         "artifact_sha256": _sha256(latest),
-        "artifact_status": "recorded" if passed else "blocked_restricted_location" if restricted_location else "invalid_or_failed",
+        "artifact_status": (
+            "recorded"
+            if passed
+            else "accepted_restricted_location_exception"
+            if exception_accepted
+            else "blocked_restricted_location"
+            if restricted_location
+            else "invalid_or_failed"
+        ),
         "created": str(payload.get("created") or ""),
         "exchange": payload.get("exchange"),
         "symbol": payload.get("symbol"),
         "sandbox": bool(payload.get("sandbox")),
         "check_count": len(checks),
         "restricted_location": bool(restricted_location),
-        "satisfied": bool(passed),
+        "exception_event": exception if restricted_location else None,
+        "satisfied": bool(passed or exception_accepted),
         "next_action": next_action,
     }
 

@@ -32582,6 +32582,66 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T20:26:48Z - Exchange Sandbox Restricted-Location Exception Recorder
+
+Active role: ENGINEER
+
+Objective:
+- Convert the passive sandbox/testnet blocker from an unstructured instruction
+  into a governed operator-event path when the latest sandbox smoke evidence
+  proves a restricted-location failure.
+
+What was found:
+- `make record-exchange-sandbox-smoke` already wrote standard evidence, and the
+  passive tracker classified the latest Binance sandbox smoke as
+  `blocked_restricted_location`.
+- The tracker next action said to record an accepted sandbox exception or
+  configure a reachable sandbox exchange, but the repo had no first-class Make
+  target or status logic for the accepted-exception path.
+
+What changed:
+- Added `make record-exchange-sandbox-exception`, which records a
+  `passive_operator_decision` for
+  `exchange_sandbox_restricted_location_exception`.
+- Updated `operator_proof_status` so restricted-location smoke evidence remains
+  open until an accepted exception event exists, then reports
+  `accepted_restricted_location_exception`.
+- Documented the new target in `scripts/SCRIPTS.md`.
+- Added regression coverage proving the sandbox item stays open before the
+  exception event and closes after the accepted event.
+
+Why this change was chosen:
+- This is the smallest auditable path for the exact passive action. It does not
+  weaken sandbox proof semantics: a successful sandbox smoke still satisfies
+  the item directly; the exception path requires both restricted-location
+  evidence and an explicit operator decision event.
+
+Expected outcome:
+- The passive next-actions report can be cleared without ad-hoc journal writes
+  when the environment cannot reach the configured sandbox/testnet venue.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_operator_doc_make_targets.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `81 passed in 0.93s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make -n record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='dry run'`
+  and `make -n record-composite-hybrid-paper-decision OPERATOR_DECISION_REASON='dry run'`
+  - SHOWN: both now invoke `PYTHONPATH=. ./.venv/bin/python
+    scripts/record_operator_event.py ...`.
+- `make record-exchange-sandbox-exception OPERATOR_DECISION_REASON='accepted exception: latest Binance sandbox smoke evidence is blocked by restricted-location HTTP 451 in this operator environment; no reachable supported sandbox/testnet venue is configured here' OPERATOR_DECISION_RESULT=accepted_with_risk`
+  - SHOWN: recorded operator event
+    `aadd7a02-45aa-41d1-bfd3-c23014331d41`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: passive action count dropped from 6 to 5; sandbox/testnet item no
+    longer appears.
+
+Remaining risk:
+- LOW/MEDIUM: operator-status and Make target wiring only. No market-data fetch,
+  campaigns, strategy configs, paper/shadow/live execution, order routing,
+  credentials, GitHub auth, push/merge, or runtime trading behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T06:19:34Z - Remaining Task Snapshot Check-In
 
 Active role: ENGINEER

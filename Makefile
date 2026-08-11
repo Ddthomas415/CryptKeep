@@ -203,31 +203,31 @@ record-operator-arm-to-halt-replay:
 
 record-manual-strategy-performance-decision:
 	@test -n "$(OPERATOR_DECISION_REASON)" || (echo "Set OPERATOR_DECISION_REASON='<reason>'" >&2; exit 2)
-	$(PYTHON) scripts/record_operator_event.py --actor operator --action passive_operator_decision --target manual_strategy_performance_decision --result $(OPERATOR_DECISION_RESULT) --reason "$(OPERATOR_DECISION_REASON)"
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action passive_operator_decision --target manual_strategy_performance_decision --result $(OPERATOR_DECISION_RESULT) --reason "$(OPERATOR_DECISION_REASON)"
 
 record-composite-hybrid-paper-decision:
 	@test -n "$(OPERATOR_DECISION_REASON)" || (echo "Set OPERATOR_DECISION_REASON='<reason>'" >&2; exit 2)
-	$(PYTHON) scripts/record_operator_event.py --actor operator --action passive_operator_decision --target composite_hybrid_paper_advancement_decision --result $(OPERATOR_DECISION_RESULT) --reason "$(OPERATOR_DECISION_REASON)"
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action passive_operator_decision --target composite_hybrid_paper_advancement_decision --result $(OPERATOR_DECISION_RESULT) --reason "$(OPERATOR_DECISION_REASON)"
 
 record-funding-extreme-persistent-campaign-decision:
 	@test -n "$(OPERATOR_DECISION_REASON)" || (echo "Set OPERATOR_DECISION_REASON='<reason>'" >&2; exit 2)
-	$(PYTHON) scripts/record_operator_event.py --actor operator --action passive_operator_decision --target funding_extreme_persistent_campaign_decision --result $(FUNDING_EXTREME_PERSISTENT_CAMPAIGN_DECISION_RESULT) --reason "$(OPERATOR_DECISION_REASON)"
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action passive_operator_decision --target funding_extreme_persistent_campaign_decision --result $(FUNDING_EXTREME_PERSISTENT_CAMPAIGN_DECISION_RESULT) --reason "$(OPERATOR_DECISION_REASON)"
 
 record-hetzner-state-migration-checkpoint:
 	@test -n "$(OPERATOR_CHECKPOINT_REASON)" || (echo "Set OPERATOR_CHECKPOINT_REASON='<reason>'" >&2; exit 2)
-	$(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target hetzner_canonical_state_migration --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target hetzner_canonical_state_migration --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
 
 record-paper-to-shadow-first-hour-checkpoint:
 	@test -n "$(OPERATOR_CHECKPOINT_REASON)" || (echo "Set OPERATOR_CHECKPOINT_REASON='<reason>'" >&2; exit 2)
-	$(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target paper_to_shadow_first_hour_rehearsal --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target paper_to_shadow_first_hour_rehearsal --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
 
 record-backup-restore-drill-checkpoint:
 	@test -n "$(OPERATOR_CHECKPOINT_REASON)" || (echo "Set OPERATOR_CHECKPOINT_REASON='<reason>'" >&2; exit 2)
-	$(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target state_backup_restore_drill --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target state_backup_restore_drill --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
 
 record-server-secrets-rotation-checkpoint:
 	@test -n "$(OPERATOR_CHECKPOINT_REASON)" || (echo "Set OPERATOR_CHECKPOINT_REASON='<reason>'" >&2; exit 2)
-	$(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target server_secrets_rotation_drill --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target server_secrets_rotation_drill --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
 
 phase1-safety:
 	$(PYTHON) scripts/run_phase1_safety.py
@@ -243,6 +243,10 @@ smoke-exchange-sandbox:
 
 record-exchange-sandbox-smoke:
 	$(PYTHON) scripts/smoke_exchange.py $(EXCHANGE_SANDBOX_SMOKE_ARGS) --evidence-dest $(EXCHANGE_SANDBOX_SMOKE_EVIDENCE_DEST)
+
+record-exchange-sandbox-exception:
+	@test -n "$(OPERATOR_DECISION_REASON)" || (echo "Set OPERATOR_DECISION_REASON='<reason>'" >&2; exit 2)
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action passive_operator_decision --target exchange_sandbox_restricted_location_exception --result $(OPERATOR_DECISION_RESULT) --reason "$(OPERATOR_DECISION_REASON)"
 
 load-sample-crypto-edges:
 	$(PYTHON) scripts/load_sample_crypto_edge_data.py --print-report

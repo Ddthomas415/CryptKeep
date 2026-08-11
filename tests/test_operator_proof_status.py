@@ -762,6 +762,83 @@ def test_operator_proof_status_marks_composite_decision_event_satisfied(tmp_path
     assert composite["artifact_status"]["result"] == "declined"
 
 
+def test_operator_proof_status_tracks_restricted_sandbox_exception(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Private sandbox/testnet lifecycle proof or explicit accepted exception.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    evidence_dir = tmp_path / ".cbp_state" / "data" / "exchange_sandbox_smoke"
+    evidence_dir.mkdir(parents=True)
+    (evidence_dir / "exchange-sandbox-smoke-20260811T000000Z.json").write_text(
+        json.dumps(
+            {
+                "report_type": "exchange_sandbox_smoke",
+                "ok": False,
+                "read_only": True,
+                "sandbox": True,
+                "exchange": "binance",
+                "symbol": "BTC/USDT",
+                "checks": [
+                    {
+                        "name": "orderbook",
+                        "ok": False,
+                        "error": "Service unavailable from a restricted location according to 'b. Eligibility'",
+                    }
+                ],
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    blocked = build_operator_proof_status(repo_root=tmp_path)
+    item = blocked["passive_operator_items"][0]
+    assert item["action_required"] is True
+    assert item["artifact_status"]["artifact_status"] == "blocked_restricted_location"
+    assert item["artifact_status"]["restricted_location"] is True
+    assert "record-exchange-sandbox-exception" in item["next_action"]
+
+    journal = tmp_path / ".cbp_state" / "data" / "operator_events" / "operator_events.jsonl"
+    journal.parent.mkdir(parents=True, exist_ok=True)
+    journal.write_text(
+        json.dumps(
+            {
+                "event_id": "evt-sandbox-exception",
+                "timestamp": "2026-08-11T20:30:00Z",
+                "actor": "operator",
+                "action": "passive_operator_decision",
+                "target": "exchange_sandbox_restricted_location_exception",
+                "result": "accepted_with_risk",
+                "reason": "binance sandbox is blocked from this location",
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    accepted = build_operator_proof_status(repo_root=tmp_path)
+    item = accepted["passive_operator_items"][0]
+    assert item["action_required"] is False
+    assert item["next_action"] == "none"
+    assert item["artifact_status"]["artifact_status"] == "accepted_restricted_location_exception"
+    assert item["artifact_status"]["exception_event"]["event_id"] == "evt-sandbox-exception"
+
+
 def test_operator_proof_status_marks_archive_research_passive_item_satisfied(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 
@@ -1216,7 +1293,8 @@ def test_operator_proof_status_surfaces_restricted_exchange_sandbox_smoke(tmp_pa
 
     sandbox = out["passive_operator_items"][0]
     assert sandbox["action_required"] is True
-    assert sandbox["next_action"] == "record accepted sandbox exception or configure a reachable sandbox exchange"
+    assert "record-exchange-sandbox-exception" in sandbox["next_action"]
+    assert "configure a reachable sandbox exchange" in sandbox["next_action"]
     assert sandbox["artifact_status"]["artifact_status"] == "blocked_restricted_location"
     assert sandbox["artifact_status"]["restricted_location"] is True
 
