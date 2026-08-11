@@ -211,9 +211,10 @@ FAMILIES = [
             "status updates after the live queue schema has been initialized. The "
             "runtime probe reports whether the current store actually has that event "
             "table. A current-source boundary invariant rejects direct mutations "
-            "to live intent tables outside LiveIntentQueueSQLite. Fills remain "
-            "stored separately, and venue reconciliation/event unification beyond "
-            "the queue store remains open."
+            "to live intent tables outside LiveIntentQueueSQLite. Live reconciler "
+            "status writes now label submit-unknown recovery/disposition, venue "
+            "order status reconciliation, and fill-accounted/deferred transitions "
+            "in the queue history. Fill payloads remain stored separately."
         ),
     },
     {

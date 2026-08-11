@@ -121,7 +121,8 @@ whether that table is present in the current runtime store, so an old/unmigrated
 SQLite file does not get credited with runtime history it does not yet contain.
 Events record intent ID, timestamp, actor, action, pre/post status, reason,
 source, last error, and order identifiers. Fills remain stored separately, and
-venue-reconciliation event unification beyond the queue store remains open.
+live reconciler transitions carry specific submit-unknown, venue-order, and
+fill-accounted/deferred action labels in the queue history.
 Current source also has a live-intent mutation boundary invariant: production
 source under `dashboard/`, `scripts/`, `services/`, and `storage/` may not
 mutate `live_trade_intents`, `live_trade_intent_events`, or

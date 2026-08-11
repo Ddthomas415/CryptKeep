@@ -46,6 +46,9 @@ def update_live_queue_status_as_reconciler(
     last_error: str | None = None,
     client_order_id: str | None = None,
     exchange_order_id: str | None = None,
+    event_action: str | None = None,
+    event_reason: str | None = None,
+    event_meta: dict[str, Any] | None = None,
 ) -> bool:
     intent_id = str(intent.get("intent_id") or "").strip()
     if not intent_id:
@@ -60,6 +63,14 @@ def update_live_queue_status_as_reconciler(
         kwargs["client_order_id"] = client_order_id
     if exchange_order_id is not None:
         kwargs["exchange_order_id"] = exchange_order_id
+    kwargs["event_actor"] = ctx.origin if ctx is not None else "reconciler"
+    kwargs["event_action"] = event_action or "reconciler_status_transition"
+    kwargs["event_reason"] = event_reason or "reconciler_state_authority"
+    kwargs["event_meta"] = {
+        "authority": ctx.authority if ctx is not None else None,
+        "origin": ctx.origin if ctx is not None else None,
+        **(event_meta or {}),
+    }
     return bool(qdb.update_status(intent_id, nxt, **kwargs))
 
 
@@ -87,6 +98,9 @@ def update_live_queue_status_as_intent_consumer(
     last_error: str | None = None,
     client_order_id: str | None = None,
     exchange_order_id: str | None = None,
+    event_action: str | None = None,
+    event_reason: str | None = None,
+    event_meta: dict[str, Any] | None = None,
 ) -> bool:
     intent_id = str(intent.get("intent_id") or "").strip()
     if not intent_id:
@@ -101,6 +115,14 @@ def update_live_queue_status_as_intent_consumer(
         kwargs["client_order_id"] = client_order_id
     if exchange_order_id is not None:
         kwargs["exchange_order_id"] = exchange_order_id
+    kwargs["event_actor"] = ctx.origin if ctx is not None else "intent_consumer"
+    kwargs["event_action"] = event_action or "intent_consumer_status_transition"
+    kwargs["event_reason"] = event_reason or "intent_consumer_state_authority"
+    kwargs["event_meta"] = {
+        "authority": ctx.authority if ctx is not None else None,
+        "origin": ctx.origin if ctx is not None else None,
+        **(event_meta or {}),
+    }
     return bool(qdb.update_status(intent_id, nxt, **kwargs))
 
 

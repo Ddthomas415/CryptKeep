@@ -63,13 +63,22 @@ def test_submit_unknown_recovery_promotes_to_submitted():
         (
             "i1",
             "submitted",
-            {
-                "last_error": None,
-                "client_order_id": "cid-1",
-                "exchange_order_id": "ex-1",
-            },
-        )
-    ]
+                {
+                    "last_error": None,
+                    "client_order_id": "cid-1",
+                    "exchange_order_id": "ex-1",
+                    "event_actor": "live_reconciler",
+                    "event_action": "submit_unknown_recovered",
+                    "event_reason": "venue_client_order_lookup_found",
+                    "event_meta": {
+                        "authority": "RECONCILER",
+                        "origin": "live_reconciler",
+                        "client_order_id": "cid-1",
+                        "exchange_order_id": "ex-1",
+                    },
+                },
+            )
+        ]
     assert ldb.orders[0]["client_order_id"] == "cid-1"
     assert ldb.orders[0]["exchange_order_id"] == "ex-1"
     assert ldb.orders[0]["status"] == "submitted"

@@ -367,6 +367,10 @@ class LiveIntentQueueSQLite:
         last_error: str | None = None,
         client_order_id: str | None = None,
         exchange_order_id: str | None = None,
+        event_actor: str | None = None,
+        event_action: str | None = None,
+        event_reason: str | None = None,
+        event_meta: dict[str, Any] | None = None,
     ) -> bool:
         con = _connect()
         try:
@@ -417,11 +421,11 @@ class LiveIntentQueueSQLite:
             _insert_intent_event(
                 con,
                 intent_id=str(intent_id),
-                actor="queue_status_writer",
-                action="update_status",
+                actor=event_actor or "queue_status_writer",
+                action=event_action or "update_status",
                 pre_status=str(current[0]) if current else None,
                 post_status=str(nxt),
-                reason="update_status",
+                reason=event_reason or "update_status",
                 last_error=last_error,
                 client_order_id=client_order_id
                 or (str(current[2]) if current and current[2] else None),
@@ -429,6 +433,7 @@ class LiveIntentQueueSQLite:
                 or (str(current[3]) if current and current[3] else None),
                 source=str(current[4]) if current and current[4] else None,
                 event_ts=now,
+                meta=event_meta,
             )
             con.execute("COMMIT")
             return True

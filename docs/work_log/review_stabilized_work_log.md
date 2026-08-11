@@ -32633,6 +32633,71 @@ Remaining risk:
   sensitive capped-live governance surface. No runtime behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T22:22:00Z - Live Reconciler Intent-History Event Labels
+
+Active role: ENGINEER
+
+Objective:
+- Close the venue reconciliation/fill event-labeling slice of the order-intent
+  lifecycle audit gap without changing live submit, retry, state-transition, or
+  fill-accounting behavior.
+
+What was found:
+- SHOWN: `live_trade_intent_events` already records insert, queue claim, and
+  successful status transitions.
+- SHOWN: all `update_status()` history rows used generic
+  `actor=queue_status_writer`, `action=update_status`, and
+  `reason=update_status`, so the event stream did not distinguish
+  submit-unknown recovery, venue order reconciliation, fill-accounted
+  transitions, lookback fill transitions, or fill deferrals.
+- SHOWN: live reconciler fill payloads are stored through the existing live
+  trading/canonical fill paths; this change does not move fill payload storage
+  into the intent-history table.
+
+What changed:
+- Extended `LiveIntentQueueSQLite.update_status()` with optional
+  `event_actor`, `event_action`, `event_reason`, and `event_meta` fields while
+  preserving default generic event behavior for existing callers.
+- Extended state-authority wrappers to pass origin/authority metadata into
+  queue history rows.
+- Labeled live reconciler submit-unknown, venue order, and fill-accounted/
+  deferred status transitions with specific `live_trade_intent_events.action`
+  values.
+- Updated tests, backlog, operator audit coverage docs, and matrix notes.
+
+Why this change was chosen:
+- The queue store remains the single mutation/history owner. Adding labels to
+  existing successful status-transition writes gives incident review better
+  provenance without adding a second event store or changing live execution
+  decisions.
+
+Expected outcome:
+- A reviewed `live_trade_intent_events` row now shows whether a reconciler
+  status transition came from submit-unknown lookup, venue order reconciliation,
+  or fill evidence, while fill payloads remain in the established fill stores.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_transition_history.py tests/test_live_reconciler_state_authority.py tests/test_live_state_authority_write_result.py tests/test_live_reconciler_submit_unknown_recovery.py`
+  - SHOWN: `20 passed in 0.94s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_reconciler.py tests/test_live_reconciler_fill_attribution.py tests/test_live_reconciler_order_store_gating.py tests/test_live_reconciler_cursor_safety.py`
+  - SHOWN: `11 passed in 0.94s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_transition_history.py tests/test_live_intent_queue_boundary.py tests/test_live_reconciler_state_authority.py tests/test_live_state_authority_write_result.py tests/test_live_reconciler_submit_unknown_recovery.py tests/test_live_queue_submit_owner_authority.py tests/test_live_intent_consumer_duplicate_prevention.py`
+  - SHOWN: `25 passed in 1.35s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_reconciler.py tests/test_live_reconciler_fill_attribution.py tests/test_live_reconciler_order_store_gating.py tests/test_live_reconciler_cursor_safety.py tests/test_crash_consistency_fault_injection.py`
+  - SHOWN: `20 passed, 7 warnings in 1.37s`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed in 0.74s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; remaining coverage queue drops from 4 to 3.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- HIGH: touches live intent state-history plumbing and live reconciler call
+  sites, although state machine, order routing, retry policy, and fill
+  accounting decisions are unchanged. Requires independent review.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T20:40:29Z - AI Copilot Coverage Backlog Sync
 
 Active role: ENGINEER

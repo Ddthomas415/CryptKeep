@@ -2076,15 +2076,26 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     action, pre/post status, reason, source, last error, and order identifiers.
     Duplicate insert attempts, invalid backward transitions, and terminal
     overwrite attempts do not create history rows. This narrows the order
-    intent lifecycle family; remaining coverage is venue reconciliation/fill
-    event unification beyond the queue store and any future lifecycle mutation
-    path that bypasses `LiveIntentQueueSQLite`.
+    intent lifecycle family; follow-up source-boundary and venue/fill event
+    labeling coverage is recorded in the notes below.
     2026-08-11: current-source live-intent mutation boundary invariant is ready
     for independent review. `tests/test_live_intent_queue_boundary.py` scans
     `dashboard/`, `scripts/`, `services/`, and `storage/` and fails if source
     outside `storage/live_intent_queue_sqlite.py` mutates `live_trade_intents`,
-    `live_trade_intent_events`, or `live_consumer_state` directly. Still open:
-    venue reconciliation/fill event unification beyond the queue store.
+    `live_trade_intent_events`, or `live_consumer_state` directly.
+    2026-08-11: live reconciler venue/fill intent-history labeling is ready for
+    independent review. `LiveIntentQueueSQLite.update_status()` now accepts
+    optional event actor/action/reason/meta fields, and the state-authority
+    wrappers pass origin/authority metadata to intent-history rows. The live
+    reconciler labels submit-unknown recovery/disposition, venue order
+    canceled/rejected/stale/error transitions, fill-accounted transitions,
+    lookback fill transitions, and zero-accounted-fill deferrals with specific
+    `live_trade_intent_events.action` values. This unifies reconciler and fill
+    status provenance in the queue history without changing the state machine,
+    submit/retry decisions, or canonical fill accounting. Fill payloads remain
+    stored in the existing fill/journal stores; any future lifecycle mutation
+    path that bypasses `LiveIntentQueueSQLite` remains blocked by the boundary
+    invariant.
     2026-07-17: live-intent history schema preflight is ready for independent
     review. `scripts/check_live_intent_history_schema.py` reports whether the
     current runtime `live_intent_queue.sqlite` has the declared
