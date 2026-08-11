@@ -102,8 +102,11 @@ write fails, the helper restores the previous config file bytes (or removes the
 new file for first-write attempts) and returns
 `operator_event_write_failed_runtime_config_rolled_back`. Events record file
 existence, parse status, top-level section names/count, and result only; config
-payloads and values are not logged. Direct file edits, environment overrides,
-and campaign manifest files remain unclassified.
+payloads and values are not logged. Current source also has a runtime
+`user.yaml` write boundary invariant: production source under `dashboard/`,
+`scripts/`, and `services/` may not write, unlink, or back up the
+runtime config path outside `services.admin.config_editor`. Manual file edits,
+environment overrides, and campaign manifest files remain unclassified.
 Current source also has a paper-campaign manifest write boundary invariant:
 production source under `dashboard/`, `scripts/`, and `services/` may not
 combine active `paper_evidence_campaigns*.json` paths with direct write

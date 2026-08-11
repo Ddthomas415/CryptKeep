@@ -158,6 +158,8 @@ FAMILIES = [
             "path for paper-campaign enable/disable manifest changes and refuses "
             "to write if the required campaign_manifest_change operator event "
             "cannot be recorded. A current-source boundary invariant rejects "
+            "dashboard/scripts/services code that writes runtime user.yaml "
+            "outside services.admin.config_editor, and a separate invariant rejects "
             "dashboard/scripts/services code that combines active "
             "paper_evidence_campaigns*.json paths with direct write primitives "
             "outside the governed manifest writer. Direct manifest file edits "
@@ -175,8 +177,10 @@ FAMILIES = [
             "append required metadata-only runtime_config_save events and roll back "
             "the config file on audit-write failure; first-run guided setup patch "
             "and risk-preset saves now return config_save_failed and stop before review/"
-            "preflight if the audited save fails. Direct file edits, env live-risk "
-            "caps, and non-user.yaml risk changes remain unclassified."
+            "preflight if the audited save fails. A current-source boundary "
+            "invariant rejects dashboard/scripts/services runtime user.yaml writes "
+            "outside config_editor. Manual file edits, env live-risk caps, and "
+            "non-user.yaml risk changes remain unclassified."
         ),
     },
     {
@@ -242,8 +246,10 @@ FAMILIES = [
             "dashboard Settings notification changes append fail-closed "
             "alert_routing_change operator events; central runtime user.yaml saves "
             "append required metadata-only runtime_config_save events and roll back "
-            "the config file on audit-write failure. Direct file edits and "
-            "dispatcher/env channel changes remain unclassified."
+            "the config file on audit-write failure. A current-source boundary "
+            "invariant rejects dashboard/scripts/services runtime user.yaml writes "
+            "outside config_editor. Manual file edits and dispatcher/env channel "
+            "changes remain unclassified."
         ),
     },
     {

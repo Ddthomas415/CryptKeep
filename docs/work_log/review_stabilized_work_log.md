@@ -32582,6 +32582,57 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T22:14:10Z - Runtime Config Write Boundary Invariant
+
+Active role: ENGINEER
+
+Objective:
+- Close the in-repo source-bypass slice for audited runtime `user.yaml` saves by
+  proving direct runtime config writes stay centralized behind
+  `services.admin.config_editor`.
+
+What was found:
+- SHOWN: normal dashboard/admin/live/first-run saves call
+  `save_user_yaml()` or `ensure_user_yaml_exists()`.
+- SHOWN: current production source has direct `CONFIG_PATH`/`BACKUP_PATH`
+  runtime config write, unlink, and backup primitives only in
+  `services/admin/config_editor.py`.
+- UNVERIFIED: manual file edits, environment overrides, server-side injection,
+  and campaign manifest files remain outside this source-boundary proof.
+
+What changed:
+- Added `tests/test_runtime_config_write_boundary.py`, scanning `dashboard/`,
+  `scripts/`, and `services/` for direct runtime `user.yaml` mutation tokens
+  outside `services/admin/config_editor.py`.
+- Updated the operator audit coverage doc, matrix notes, and backlog note to
+  record the narrowed in-repo boundary and preserve the remaining unclassified
+  sources.
+
+Why this change was chosen:
+- The central helper already owns metadata-only `runtime_config_save` operator
+  events and rollback-on-audit-write-failure behavior. A boundary invariant is
+  the smallest durable guard against future repo code bypassing that contract.
+
+Expected outcome:
+- Future source changes that write, unlink, or back up runtime `user.yaml`
+  outside `config_editor.py` fail locally before they can erode audit coverage.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_runtime_config_write_boundary.py`
+  - SHOWN: `1 passed in 0.17s`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed in 0.60s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; remaining coverage queue stays at 4 host/runtime proof
+    items.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: test/docs-only, but it guards runtime config audit coverage, a
+  sensitive capped-live governance surface. No runtime behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T20:40:29Z - AI Copilot Coverage Backlog Sync
 
 Active role: ENGINEER

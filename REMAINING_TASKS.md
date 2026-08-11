@@ -2016,6 +2016,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `operator_event_write_failed_runtime_config_rolled_back`. Remaining
     coverage: direct file edits, environment overrides, and campaign manifest
     files.
+    2026-08-11: current-source runtime `user.yaml` write boundary invariant is
+    ready for independent review. `tests/test_runtime_config_write_boundary.py`
+    scans `dashboard/`, `scripts/`, and `services/` and fails if source outside
+    `services/admin/config_editor.py` writes, unlinks, or backs up the runtime
+    config path directly. This narrows in-repo runtime config bypass coverage;
+    manual file edits, environment overrides, server injection, and campaign
+    manifest files remain unclassified.
     2026-07-16: API credential-rotation operator-event hook is ready for
     independent review. `services.security.credential_store` now appends
     best-effort metadata-only `api_credential_rotation` operator events after
