@@ -32686,6 +32686,71 @@ Remaining risk:
   policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T06:40:36Z - Backup Restore Drill Evidence Progress
+
+Active role: ENGINEER
+
+Objective:
+- Advance the backup/restore passive operator-evidence row without replacing
+  active local state.
+
+What was found:
+- The local `.cbp_state/data` directory is about 1.5 GB.
+- `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` defines scratch restore as running
+  restore with `CBP_STATE_DIR` pointed at a scratch root.
+- `gitleaks` is not installed on this host, so the backup-artifact secrets scan
+  could not be completed in this pass.
+- `operator_proof_status` asked for the final checkpoint immediately after
+  backup/verify/restore events, but the row text and drill doc still require a
+  backup-artifact secrets scan before checkpointing.
+
+What changed:
+- Created a local backup:
+  `/private/tmp/cbp-state-backups-20260811T063838Z/cbp-state-backup-20260811T063841Z`.
+- Verified the backup manifest and SQLite integrity: `ok=true`,
+  `file_count=408`.
+- Restored the backup into isolated scratch state:
+  `/private/tmp/cbp-restore-scratch-20260811T063838Z/data`.
+- Recorded a local `state_restore` operator event that explicitly states the
+  active state was not replaced.
+- Updated `operator_proof_status` so the backup/restore row next action is now
+  `run backup artifact secrets scan, then make
+  record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`
+  instead of prematurely asking only for the checkpoint.
+
+Why this change was chosen:
+- It completes the non-destructive backup, verify, and scratch-restore evidence
+  while preserving the remaining secrets-scan/checkpoint boundary.
+
+Expected outcome:
+- Operator check-ins show the backup/restore drill has progressed to the
+  backup-artifact secrets scan step instead of repeating already completed
+  backup/verify/restore work.
+
+Verification:
+- `make backup-state STATE_BACKUP_DEST=/private/tmp/cbp-state-backups-20260811T063838Z`
+  - SHOWN: `ok=true`, `file_count=408`, operator event recorded.
+- `./.venv/bin/python scripts/backup_state.py verify /private/tmp/cbp-state-backups-20260811T063838Z/cbp-state-backup-20260811T063841Z`
+  - SHOWN: `ok=true`, `problems=[]`, `file_count=408`, operator event recorded.
+- `CBP_STATE_DIR=/private/tmp/cbp-restore-scratch-20260811T063838Z ./.venv/bin/python scripts/backup_state.py restore /private/tmp/cbp-state-backups-20260811T063838Z/cbp-state-backup-20260811T063841Z`
+  - SHOWN: `ok=true`, `restored_files=408`, target was the scratch data dir.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `91 passed in 1.41s`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: backup/restore row next action is now the backup artifact secrets
+    scan followed by checkpoint recording.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only reporting classification plus local ignored operator evidence.
+  No active state restore, campaigns, market-data fetches, strategy configs,
+  promotion gates, paper/shadow/live execution, order routing, authorization,
+  broker support, GitHub auth, push/merge, or runtime policy changed.
+- UNVERIFIED: backup-artifact secrets scan and final drill checkpoint remain
+  open.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T06:03:27Z - Local Supply-Chain Passive Evidence Recorded
 
 Active role: ENGINEER

@@ -1432,7 +1432,10 @@ def test_operator_proof_status_keeps_backup_restore_open_without_checkpoint(tmp_
     assert out["ok"] is True
     drill = out["passive_operator_items"][0]
     assert drill["action_required"] is True
-    assert drill["next_action"] == "make record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'"
+    assert drill["next_action"] == (
+        "run backup artifact secrets scan, then make record-backup-restore-drill-checkpoint "
+        "OPERATOR_CHECKPOINT_REASON='<reason>'"
+    )
     assert drill["artifact_status"]["artifact_status"] == "missing_or_incomplete"
     assert drill["artifact_status"]["events"]["restore"]["event_id"] == "evt-restore"
     assert drill["artifact_status"]["events"]["checkpoint"] is None

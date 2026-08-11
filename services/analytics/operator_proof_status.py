@@ -500,7 +500,10 @@ def _backup_restore_drill_artifact_status(root: Path) -> dict[str, Any]:
     elif restore is None:
         next_action = "complete the restore drill from docs/FULL_STATE_BACKUP_RESTORE_DRILL.md"
     elif checkpoint is None:
-        next_action = "make record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'"
+        next_action = (
+            "run backup artifact secrets scan, then make record-backup-restore-drill-checkpoint "
+            "OPERATOR_CHECKPOINT_REASON='<reason>'"
+        )
     else:
         next_action = "none"
     return {
