@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+
+REPO = Path(__file__).resolve().parents[1]
+
 
 def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
@@ -1268,3 +1273,24 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     assert "make record-exchange-sandbox-smoke" in out
     assert "proof=Private sandbox/testnet lifecycle proof or explicit accepted exception." in out
     assert "artifact_status=command_guidance artifact_id=exchange_sandbox_smoke_guidance" in out
+
+
+def test_operator_next_actions_distinguishes_medium_lane_inventory_from_read_only_repairs() -> None:
+    from services.analytics.operator_next_actions import build_operator_next_actions
+
+    out = build_operator_next_actions(repo_root=REPO, lane="operator_read_only_command", max_actions=20)
+
+    assert out["ok"] is True
+    assert out["read_only"] is True
+    assert out["planning_only"] is True
+    assert out["does_not_run_campaigns"] is True
+    assert out["does_not_fetch_market_data"] is True
+    assert out["does_not_mutate_state"] is True
+    assert out["lane_filter"] == "operator_read_only_command"
+    assert out["source_summary"]["medium_risk_runtime_read_only"] > 0
+    assert out["source_summary"]["operator_read_only_commands_wired"] > 0
+    assert out["source_summary"]["operator_read_only_commands_not_wired"] == 0
+    assert out["source_summary"]["operator_read_only_command_actions_required"] == 0
+    assert out["action_count_total"] == 0
+    assert out["action_count_available"] == 0
+    assert out["actions"] == []

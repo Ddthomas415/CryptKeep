@@ -32628,3 +32628,50 @@ Remaining risk:
   execution, order routing, authorization, broker support, command behavior,
   GitHub auth, push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T05:12:53Z - Operator Next-Actions Medium-Lane Inventory Regression
+
+Active role: ENGINEER
+
+Objective:
+- Prevent operator check-ins from confusing medium-risk read-only lane inventory
+  with broken read-only command wiring.
+
+What was found:
+- `make operator-next-actions-json` reported no backlog-lane action rows after
+  the sync batch, while the source summary still listed
+  `medium_risk_runtime_read_only=7`.
+- The current repo has read-only command specs wired, so the medium-lane count
+  is inventory/context, not an actionable repair queue.
+
+What changed:
+- Added a real-repo regression in `tests/test_operator_next_actions.py` proving
+  `lane="operator_read_only_command"` returns zero actions when all read-only
+  commands are wired, even though medium-risk read-only lane inventory exists.
+
+Why this change was chosen:
+- This is the smallest local test-only guard for the exact check-in ambiguity.
+  It does not add a new status model or change command behavior.
+
+Expected outcome:
+- Future changes that turn medium-lane inventory into false repair actions will
+  fail the next-actions test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py`
+  - SHOWN: `24 passed in 0.43s`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `46 passed in 1.10s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=operator_read_only_command OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; `medium_risk_runtime_read_only=7`,
+    `operator_read_only_commands_wired=23`,
+    `operator_read_only_command_actions_required=0`, `action_count_total=0`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: test and work log only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, command behavior, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
