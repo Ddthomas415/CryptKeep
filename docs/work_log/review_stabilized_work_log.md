@@ -32631,6 +32631,58 @@ Remaining risk:
   change runtime behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T06:04:26Z - Local Arm-To-Halt Replay Evidence Recorded
+
+Active role: ENGINEER
+
+Objective:
+- Close the local launch-packet replay passive-evidence row where the command
+  can verify existing operator-event history without executing operator
+  actions.
+
+What was found:
+- `operator-next-actions` listed passive operator evidence ordinal 4:
+  launch evidence packet replay.
+- `scripts/check_operator_arm_to_halt_replay.py` replays existing
+  operator-event journal records and writes a JSON report when
+  `--evidence-dest` is provided; it does not enable, disable, halt, or mutate
+  runtime control state.
+
+What changed:
+- Verified the replay first with `make operator-arm-to-halt-replay-json`.
+- Recorded local evidence under `.cbp_state/data/operator_arm_to_halt_replay/`.
+- Evidence artifact:
+  `.cbp_state/data/operator_arm_to_halt_replay/operator-arm-to-halt-replay-20260811T060414Z.json`
+  with SHA256
+  `11b476cd94c1f023e5c83d7988ed7e35ebd6cc5964d012041413d9ecf9d4d3bb`.
+
+Why this change was chosen:
+- This passive-evidence item could be satisfied locally without host access,
+  market data, campaign changes, GitHub auth, live execution, or operator
+  policy decisions.
+
+Expected outcome:
+- `operator-proof-status` and `operator-next-actions` no longer list the
+  arm-to-halt replay passive-evidence row as action-required for this local
+  state.
+
+Verification:
+- `make operator-arm-to-halt-replay-json`
+  - SHOWN: exit 0; `ok=true`, `reason=ok`, `event_count=199`, with
+    `live_enable` and `live_disable` events found.
+- `make record-operator-arm-to-halt-replay`
+  - SHOWN: exit 0; wrote the evidence artifact above.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=passive_operator_evidence OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; passive evidence action count dropped from 8 to 7 and
+    launch-packet replay is no longer listed as action-required.
+
+Remaining risk:
+- LOW: local ignored evidence plus work-log record only. This does not run
+  campaigns, fetch market data, change strategy configs, close host proof,
+  repair GitHub/Tailscale auth, push, merge, enable/disable live trading, halt
+  runtime services, or change runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T05:10:30Z - Backlog Work-Log Sync For Check-In/Auth Alignment
 
 Active role: ENGINEER
