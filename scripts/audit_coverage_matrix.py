@@ -188,7 +188,10 @@ FAMILIES = [
             "services.security.credential_store set/delete APIs append required "
             "metadata-only api_credential_rotation operator events without logging "
             "API keys, secrets, or passphrases; audit-write failure rolls back to "
-            "the previous keyring entry or removes a newly created entry. Direct "
+            "the previous keyring entry or removes a newly created entry. A "
+            "current-source boundary invariant rejects dashboard/scripts/services "
+            "code that combines direct keyring mutation calls with exchange "
+            "credential payload fields outside credential_store. Direct/manual "
             "keyring edits, environment-based credential changes, and server "
             "injection/rotation drills remain unclassified."
         ),

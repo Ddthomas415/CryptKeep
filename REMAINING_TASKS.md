@@ -2025,6 +2025,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     If the previous credential cannot be read, the mutation is refused before
     writing. Remaining coverage: direct keyring edits, environment-based
     credential changes, and server injection/rotation drills.
+    2026-08-11: current-source API credential keyring boundary invariant is
+    ready for independent review. `tests/test_api_credential_store_boundary.py`
+    scans `dashboard/`, `scripts/`, and `services/` and fails if source outside
+    `services/security/credential_store.py` combines direct keyring mutation
+    calls with exchange credential payload fields. Still open:
+    direct/manual keyring edits, environment-based credential changes, and
+    server injection/rotation drills.
     2026-07-16: strategy stage-transition operator-event hook is ready for
     independent review. `services.control.deployment_stage` now appends
     best-effort `strategy_stage_transition` events for central promote, demote,

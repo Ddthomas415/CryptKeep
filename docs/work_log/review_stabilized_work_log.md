@@ -32631,6 +32631,59 @@ Remaining risk:
   runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T21:12:20Z - API Credential Store Boundary Invariant
+
+Active role: ENGINEER
+
+Objective:
+- Add a current-source guard for the remaining API credential direct keyring
+  mutation coverage item.
+
+What was found:
+- SHOWN: `services.security.credential_store` is the central exchange API
+  credential set/delete path and owns the fail-closed
+  `api_credential_rotation` audit-write rollback contract.
+- SHOWN: current production source outside `credential_store.py` does not
+  combine direct keyring mutation calls with exchange credential payload fields.
+- Gap: there was no invariant preventing a future in-repo script/service from
+  writing exchange API credentials directly to keyring and bypassing the
+  audited credential-rotation store.
+
+What changed:
+- Added `tests/test_api_credential_store_boundary.py`.
+- The test scans `dashboard/`, `scripts/`, and `services/` source and fails if
+  any file outside `services/security/credential_store.py` combines direct
+  keyring mutation calls with exchange credential payload fields.
+- Updated `REMAINING_TASKS.md`, `scripts/audit_coverage_matrix.py`, and
+  `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` to record current-source protection
+  while keeping direct/manual keyring edits, environment-based credential
+  changes, and server injection/rotation drills open.
+
+Why this change was chosen:
+- This is a test-only boundary guard. It does not change credentials,
+  keyring behavior, environment fallback, exchange setup, or runtime policy.
+
+Expected outcome:
+- Future exchange API credential mutation code must either use the central
+  audited store or explicitly update the boundary invariant.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_api_credential_store_boundary.py tests/test_credential_store_audit.py tests/test_credentials_loader.py tests/test_private_connectivity.py`
+  - SHOWN: `11 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; remaining-coverage action count stayed at 9 after the
+    wording was corrected to avoid creating a duplicate marker.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: credentials-governance test/docs only; direct/manual keyring edits,
+  environment-based credential changes, and server injection drills remain
+  outside this proof.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T21:10:52Z - Paper Campaign Manifest Write Boundary Invariant
 
 Active role: ENGINEER

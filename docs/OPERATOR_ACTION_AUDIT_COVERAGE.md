@@ -145,6 +145,12 @@ record exchange, operation, result, and stored field names only; API keys, API
 secrets, and passphrases are not logged. Direct keyring edits,
 environment-based credential changes, and server injection/rotation drills
 remain unclassified.
+Current source also has an API credential keyring boundary invariant:
+production source under `dashboard/`, `scripts/`, and `services/` may not
+combine direct keyring mutation calls with exchange credential payload fields
+outside `services.security.credential_store`. Manual keyring edits,
+environment-based credential changes, and server injection/rotation drills
+remain unclassified.
 
 Current partial hook for AI copilot external providers:
 `services.ai_copilot.providers.call_llm` enforces the configured external
