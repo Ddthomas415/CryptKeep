@@ -32631,6 +32631,49 @@ Remaining risk:
   runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T21:24:32Z - Remaining-Coverage Duplicate Marker Cleanup
+
+Active role: ENGINEER
+
+Objective:
+- Reduce duplicate `remaining_coverage` actions after adding current-source
+  boundary invariants.
+
+What was found:
+- SHOWN: older proof-ready notes for auth-store mutation, runtime config-save,
+  and API credential rotation repeated `Remaining coverage` markers that were
+  already represented by later fail-closed/current-source notes.
+- SHOWN: the duplicate wording inflated `make operator-next-actions-json
+  OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage` from the real actionable
+  gap list.
+
+What changed:
+- Reworded the older notes to say follow-up coverage is recorded below.
+- Kept the later actionable markers for the real open gaps: host-side AI
+  provider/report secret scans, future user/role surfaces, credential
+  env/direct/server surfaces, and venue reconciliation/fill unification.
+
+Why this change was chosen:
+- This is docs-only tracker hygiene. It does not remove any open gap; it keeps
+  the operator-next-actions output focused on unique actions.
+
+Expected outcome:
+- Remaining-coverage status lists one action per real open coverage gap rather
+  than duplicate actions caused by historical note wording.
+
+Verification:
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; action count dropped from 8 to 5.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `48 passed`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: backlog wording plus work-log only; no source, runtime, campaign, auth,
+  credential, or gate behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T21:15:30Z - Live Intent Queue Mutation Boundary Invariant
 
 Active role: ENGINEER

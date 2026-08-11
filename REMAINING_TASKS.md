@@ -1973,8 +1973,8 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     backup-code consumption, and login-hash upgrades. Events record only user
     identity and state shape (role/enabled/MFA booleans and backup-code
     counts), without logging passwords, hashes, MFA codes, TOTP secrets, OTP
-    URIs, or backup code values. Remaining coverage: any future user/role
-    management surface that bypasses `user_auth_store`.
+    URIs, or backup code values. Follow-up fail-closed/current-source coverage
+    is recorded in the notes below.
     2026-07-16: central auth-store mutation audit-write fail-closed slice is
     ready for independent review. `services.security.user_auth_store` now
     captures raw keyring user/index records before central user upsert/bootstrap,
@@ -1997,8 +1997,8 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     after successful non-dry-run `user.yaml` writes, recording file existence,
     parse status, top-level section names/count, and result without logging
     config payloads or values. This narrows direct CLI/runtime config coverage
-    for strategy, risk, and alert-routing families. Remaining coverage: direct
-    file edits, environment overrides, and campaign manifest files.
+    for strategy, risk, and alert-routing families. Follow-up fail-closed and
+    manifest-boundary coverage is recorded in the notes below.
     2026-07-16: central runtime config-save audit-write fail-closed slice is
     ready for independent review. `save_user_yaml()` now treats
     `runtime_config_save` audit persistence as required for non-dry-run writes:
@@ -2013,8 +2013,8 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     central keyring set/delete calls, recording exchange, operation, result,
     and stored field names without logging API keys, API secrets, or
     passphrases. The coverage matrix moves API credential rotation from
-    MISSING to PARTIAL. Remaining coverage: direct keyring edits,
-    environment-based credential changes, and server injection/rotation drills.
+    MISSING to PARTIAL. Follow-up fail-closed/current-source coverage is
+    recorded in the notes below.
     2026-07-16: API credential-rotation audit-write fail-closed slice is ready
     for independent review. Central `set_exchange_credentials()` and
     `delete_exchange_credentials()` now treat `api_credential_rotation` audit
