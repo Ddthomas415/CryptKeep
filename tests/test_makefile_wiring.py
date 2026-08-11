@@ -50,6 +50,10 @@ def test_makefile_has_alignment_targets():
     assert "--require-action ai_copilot_external_provider_call" in txt
     assert "record-ai-report-event-secrets:" in txt
     assert "--require-action ai_copilot_report_write" in txt
+    assert "credential-source-posture:" in txt
+    assert "scripts/check_credential_source_posture.py $(CREDENTIAL_SOURCE_POSTURE_ARGS)" in txt
+    assert "credential-source-posture-json:" in txt
+    assert "scripts/check_credential_source_posture.py --json $(CREDENTIAL_SOURCE_POSTURE_ARGS)" in txt
     assert "record-operator-arm-to-halt-replay:" in txt
     assert "scripts/check_operator_arm_to_halt_replay.py --json --evidence-dest $(OPERATOR_ARM_TO_HALT_REPLAY_EVIDENCE_DEST)" in txt
     assert "record-execution-cost-stack:" in txt

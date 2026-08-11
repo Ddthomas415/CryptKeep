@@ -440,6 +440,11 @@ are not paper-campaign controls.
   `make record-supply-chain`; `record-supply-chain` writes standard
   provenance evidence under `.cbp_state/data/supply_chain/` (see
   `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`).
+- `check_credential_source_posture.py` — read-only exchange credential-source
+  report that names keyring/env/missing source without printing credential
+  values; supports `make credential-source-posture[-json]`,
+  `CREDENTIAL_SOURCE_POSTURE_VENUE`, and `--fail-on-env` for stricter manual
+  checks.
 - `smoke_exchange.py` — exchange sandbox smoke check; supports
   `make smoke-exchange-sandbox` and `make record-exchange-sandbox-smoke`;
   the record target writes standard evidence under

@@ -2040,6 +2040,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     calls with exchange credential payload fields. Still open:
     direct/manual keyring edits, environment-based credential changes, and
     server injection/rotation drills.
+    2026-08-11: exchange credential-source posture command is ready for
+    independent review. `make credential-source-posture-json` reports
+    keyring/env/missing source per venue without printing credential values;
+    the CLI also supports `--fail-on-env` for stricter manual checks. This
+    makes environment-backed credential usage explicit, but does not close
+    direct/manual keyring edits or server injection/rotation drills.
     2026-07-16: strategy stage-transition operator-event hook is ready for
     independent review. `services.control.deployment_stage` now appends
     best-effort `strategy_stage_transition` events for central promote, demote,

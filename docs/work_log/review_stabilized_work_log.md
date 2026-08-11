@@ -32631,6 +32631,59 @@ Remaining risk:
   runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T21:31:37Z - Credential Source Posture Read-Only Check
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only command that makes exchange credential source posture
+  explicit without exposing credential values.
+
+What was found:
+- SHOWN: `services.security.credentials_loader.load_exchange_credentials()`
+  can return credentials from OS keyring or environment fallback.
+- Gap: the backlog still tracks environment-based credential changes and
+  server injection/rotation drills, but there was no dedicated read-only
+  command to report whether usable credentials currently resolve from keyring,
+  env, or missing sources without printing values.
+
+What changed:
+- Added `services/security/credential_source_posture.py`.
+- Added `scripts/check_credential_source_posture.py`.
+- Added Make targets `credential-source-posture` and
+  `credential-source-posture-json`.
+- Added `tests/test_credential_source_posture.py` and extended Makefile wiring
+  tests.
+- Updated `scripts/SCRIPTS.md` and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- This is a read-only status command. It does not mutate keyring entries,
+  environment variables, server secrets, exchange state, or runtime config, and
+  the report excludes credential values by construction.
+
+Expected outcome:
+- Operators can distinguish keyring-backed, env-backed, missing, and error
+  credential-source posture before running private connectivity or server
+  injection drills.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_credential_source_posture.py tests/test_credentials_loader.py tests/test_makefile_wiring.py`
+  - SHOWN: `6 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `48 passed`.
+- `make credential-source-posture-json CREDENTIAL_SOURCE_POSTURE_VENUE=coinbase`
+  - SHOWN: failed closed locally with `status=credentials_missing`,
+    `credential_values_logged=false`, and no credential values printed.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; remaining-coverage action count stayed at 4.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: security/credential read-only tooling and docs only. Direct/manual
+  keyring edits and server injection/rotation drill proof remain open.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T21:28:51Z - User Auth Boundary Scan Root Expansion
 
 Active role: ENGINEER
