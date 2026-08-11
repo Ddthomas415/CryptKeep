@@ -188,7 +188,10 @@ allowing the already-verified login to proceed. These events record usernames,
 roles, sources, result, and state metadata only; they do not log passwords,
 hashes, MFA codes, TOTP secrets, OTP URIs, or backup code values. Future
 user/role management surfaces that bypass `user_auth_store` remain
-unclassified.
+unclassified. A current-source boundary invariant rejects `dashboard/` and
+`services/security/` modules that write dashboard-auth user keyring records
+outside `services.security.user_auth_store`; future user/role management
+surfaces outside those scanned roots remain unclassified.
 
 Current partial hook for strategy stage transitions:
 `services.control.deployment_stage` appends `strategy_stage_transition` events

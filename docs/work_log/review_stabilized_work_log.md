@@ -32631,6 +32631,57 @@ Remaining risk:
   runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T21:07:49Z - User Auth Store Boundary Invariant
+
+Active role: ENGINEER
+
+Objective:
+- Add a current-source guard for the remaining user/role management bypass
+  coverage item.
+
+What was found:
+- SHOWN: `services.security.user_auth_store` owns the dashboard-auth keyring
+  service name, users index account, and private auth-record write helpers.
+- SHOWN: current `dashboard/` and `services/security/` source files outside
+  `user_auth_store.py` do not use those backing-record write boundaries.
+- Gap: there was no invariant preventing a future dashboard/security module
+  from writing dashboard auth users directly and bypassing the audited
+  `user_auth_store` rollback contract.
+
+What changed:
+- Added `tests/test_user_auth_store_boundary.py`.
+- The test scans current `dashboard/` and `services/security/` Python source
+  and fails if any file outside `services/security/user_auth_store.py` uses the
+  dashboard-auth keyring service name, users index account, or private auth
+  record write helpers.
+- Updated `REMAINING_TASKS.md`, `scripts/audit_coverage_matrix.py`, and
+  `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` to record that current-source
+  bypass protection is now proof-ready while future surfaces outside scanned
+  roots remain unclassified.
+
+Why this change was chosen:
+- This is a test-only boundary guard. It does not change authentication,
+  keyring storage, dashboard behavior, or runtime policy.
+
+Expected outcome:
+- Future user/role management code in the dashboard/security source roots must
+  go through the central audited store or explicitly update the invariant.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_user_auth_store_boundary.py tests/test_user_auth_store_audit.py tests/test_auth_gate.py`
+  - SHOWN: `23 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; current-source user-auth boundary coverage is surfaced in
+    the remaining-coverage operator-next-actions output.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: auth-governance test/docs only; no auth runtime code changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T20:43:13Z - Dashboard Login Session Audit Fail-Closed Slice
 
 Active role: ENGINEER
