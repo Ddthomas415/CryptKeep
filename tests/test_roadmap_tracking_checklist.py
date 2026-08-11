@@ -78,3 +78,14 @@ def test_roadmap_checklist_does_not_authorize_runtime_or_live_work() -> None:
 def test_roadmap_checklist_is_linked_from_backlog_and_lane_map() -> None:
     assert DOC in _text(BACKLOG)
     assert DOC in _text(LANE_MAP)
+
+
+def test_roadmap_checklist_defines_read_only_operator_check_in() -> None:
+    text = _normalized(DOC)
+
+    assert "Operator Check-In Checklist" in text
+    assert "git status --short --branch" in text
+    assert "make operator-status-json" in text
+    assert "make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20" in text
+    assert "Report only current status, blockers, and the next concrete action." in text
+    assert "Do not run campaigns, fetch market data, change configs, push, merge, or repair auth" in text

@@ -108,6 +108,19 @@ Use this loop for each work session:
    scope and stop at `READY_FOR_INDEPENDENT_REVIEW`.
 7. Update the work log for any repo change.
 
+## Operator Check-In Checklist
+
+Use this when the operator asks for a check-in and no specific host, campaign,
+CI, or PR command is requested:
+
+1. Run `git status --short --branch`.
+2. Run `make operator-status-json`.
+3. If a shorter action list is needed, run
+   `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20`.
+4. Report only current status, blockers, and the next concrete action.
+5. Do not run campaigns, fetch market data, change configs, push, merge, or
+   repair auth unless the operator explicitly asks for that action.
+
 ## Fast Commands
 
 ```bash

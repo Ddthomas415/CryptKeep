@@ -32492,3 +32492,48 @@ Remaining risk:
   paper/shadow/live execution, order routing, broker support, or runtime policy
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T05:06:26Z - Roadmap Operator Check-In Checklist
+
+Active role: ENGINEER
+
+Objective:
+- Define a short read-only check-in sequence for the generic operator request
+  "check in".
+
+What was found:
+- `docs/ROADMAP_TRACKING_CHECKLIST.md` had the operating loop and command table,
+  but did not spell out the minimal no-side-effect check-in sequence.
+
+What changed:
+- Added an `Operator Check-In Checklist` section to
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- Added a roadmap checklist test pinning the sequence:
+  `git status --short --branch`, `make operator-status-json`, optional
+  `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20`, and the
+  no-campaign/no-market/no-auth-repair boundary unless explicitly requested.
+
+Why this change was chosen:
+- It converts a repeated generic operator request into a deterministic
+  read-only workflow without changing any command behavior.
+
+Expected outcome:
+- Future check-ins start with current repo/status evidence and report blockers
+  plus next concrete action, instead of drifting into unrelated work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `54 passed in 0.64s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=12`,
+    `source_docs_linked=12`, `commands_listed=12`,
+    `make_targets_present=12`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: roadmap checklist, test, and work log only. No campaigns, market-data
+  fetches, symbol universe, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, authorization, broker support,
+  command behavior, GitHub auth, push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
