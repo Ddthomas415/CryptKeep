@@ -32631,6 +32631,59 @@ Remaining risk:
   runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T21:15:30Z - Live Intent Queue Mutation Boundary Invariant
+
+Active role: ENGINEER
+
+Objective:
+- Add a current-source guard for the remaining live-intent lifecycle mutation
+  bypass coverage item.
+
+What was found:
+- SHOWN: `storage.live_intent_queue_sqlite.LiveIntentQueueSQLite` owns schema,
+  state mutation, risk consumer state, and append-only event history for live
+  intent rows.
+- SHOWN: current source outside `storage/live_intent_queue_sqlite.py` only
+  reads/checks live-intent tables; it does not mutate those tables directly.
+- Gap: there was no invariant preventing a future in-repo script/service from
+  mutating `live_trade_intents`, `live_trade_intent_events`, or
+  `live_consumer_state` directly and bypassing the queue store contract.
+
+What changed:
+- Added `tests/test_live_intent_queue_boundary.py`.
+- The test scans `dashboard/`, `scripts/`, `services/`, and `storage/` source
+  and fails if any file outside `storage/live_intent_queue_sqlite.py` mutates
+  the live intent tables directly.
+- Updated `REMAINING_TASKS.md`, `scripts/audit_coverage_matrix.py`, and
+  `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` to record current-source protection
+  while keeping venue reconciliation/fill event unification open.
+
+Why this change was chosen:
+- This is a test-only boundary guard. It does not change live queue behavior,
+  reconciliation, fills, order routing, or runtime state.
+
+Expected outcome:
+- Future live-intent lifecycle mutations must remain behind
+  `LiveIntentQueueSQLite` or explicitly update the boundary invariant.
+
+Verification:
+- Discarded verification: an initial pytest command referenced a non-existent
+  `tests/test_live_intent_queue_sqlite.py` file and exited before running tests.
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_queue_boundary.py tests/test_live_intent_queue_integrity.py tests/test_live_intent_queue_lifecycle_fields.py tests/test_live_intent_transition_history.py tests/test_live_intent_history_schema_preflight.py tests/test_live_intent_queue_claim_race.py tests/test_live_intent_upsert_insert_only.py tests/test_queue_update_status_preserves_ids.py`
+  - SHOWN: `26 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; remaining-coverage action count stayed at 8.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- HIGH surface, test/docs only: live intent lifecycle is live-trading substrate,
+  but this patch does not change runtime behavior. Venue reconciliation/fill
+  event unification remains open.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T21:14:14Z - Remaining-Coverage Marker Noise Cleanup
 
 Active role: ENGINEER

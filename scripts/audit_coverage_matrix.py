@@ -206,8 +206,10 @@ FAMILIES = [
             "append-only per-transition history for insert, claim, and successful "
             "status updates after the live queue schema has been initialized. The "
             "runtime probe reports whether the current store actually has that event "
-            "table. Fills remain stored separately, and venue reconciliation/event "
-            "unification beyond the queue store remains open."
+            "table. A current-source boundary invariant rejects direct mutations "
+            "to live intent tables outside LiveIntentQueueSQLite. Fills remain "
+            "stored separately, and venue reconciliation/event unification beyond "
+            "the queue store remains open."
         ),
     },
     {

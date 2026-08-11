@@ -2057,6 +2057,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     intent lifecycle family; remaining coverage is venue reconciliation/fill
     event unification beyond the queue store and any future lifecycle mutation
     path that bypasses `LiveIntentQueueSQLite`.
+    2026-08-11: current-source live-intent mutation boundary invariant is ready
+    for independent review. `tests/test_live_intent_queue_boundary.py` scans
+    `dashboard/`, `scripts/`, `services/`, and `storage/` and fails if source
+    outside `storage/live_intent_queue_sqlite.py` mutates `live_trade_intents`,
+    `live_trade_intent_events`, or `live_consumer_state` directly. Still open:
+    venue reconciliation/fill event unification beyond the queue store.
     2026-07-17: live-intent history schema preflight is ready for independent
     review. `scripts/check_live_intent_history_schema.py` reports whether the
     current runtime `live_intent_queue.sqlite` has the declared

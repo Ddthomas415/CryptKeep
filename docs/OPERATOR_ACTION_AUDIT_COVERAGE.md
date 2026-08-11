@@ -119,6 +119,10 @@ SQLite file does not get credited with runtime history it does not yet contain.
 Events record intent ID, timestamp, actor, action, pre/post status, reason,
 source, last error, and order identifiers. Fills remain stored separately, and
 venue-reconciliation event unification beyond the queue store remains open.
+Current source also has a live-intent mutation boundary invariant: production
+source under `dashboard/`, `scripts/`, `services/`, and `storage/` may not
+mutate `live_trade_intents`, `live_trade_intent_events`, or
+`live_consumer_state` directly outside `storage.live_intent_queue_sqlite`.
 Use `make live-intent-history-schema` for a read-only runtime check of whether
 the current queue DB has the transition-history table. Use
 `make live-intent-history-schema-init` only when deliberately initializing or
