@@ -32631,6 +32631,59 @@ Remaining risk:
   runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-11T21:10:52Z - Paper Campaign Manifest Write Boundary Invariant
+
+Active role: ENGINEER
+
+Objective:
+- Add a current-source guard for the remaining paper-campaign manifest direct
+  write coverage item.
+
+What was found:
+- SHOWN: `services.admin.campaign_manifest_audit.update_campaign_enabled()`
+  is the governed path for active paper-campaign manifest enable/disable
+  changes.
+- SHOWN: current production source that names `paper_evidence_campaigns*.json`
+  is read/status/planning code plus the governed update CLI; no current source
+  outside the governed helper combines those active manifest paths with direct
+  write primitives.
+- Gap: there was no invariant preventing a future in-repo tool from writing an
+  active paper-campaign manifest directly and bypassing the required
+  `campaign_manifest_change` operator-event contract.
+
+What changed:
+- Added `tests/test_campaign_manifest_write_boundary.py`.
+- The test scans `dashboard/`, `scripts/`, and `services/` source and fails if
+  any file outside the governed manifest helper/CLI combines active
+  `paper_evidence_campaigns*.json` paths with direct write primitives.
+- Updated `REMAINING_TASKS.md`, `scripts/audit_coverage_matrix.py`, and
+  `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` to record current-source protection
+  while keeping manual hand edits outside this proof.
+
+Why this change was chosen:
+- This is a test-only boundary guard. It does not change campaign manifests,
+  campaign selection, strategy configs, market data, or runtime behavior.
+
+Expected outcome:
+- Future in-repo campaign-manifest mutation code must either use the governed
+  manifest writer or explicitly update the boundary invariant.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_campaign_manifest_write_boundary.py tests/test_campaign_manifest_audit.py tests/test_paper_campaign_recovery.py tests/test_paper_campaign_ownership.py`
+  - SHOWN: `31 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; remaining manifest coverage is still reported only for
+    direct/manual surfaces not closed by current-source scanning.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: test/docs/matrix only; manual file edits remain outside the audited
+  source boundary and are still unclassified.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T21:07:49Z - User Auth Store Boundary Invariant
 
 Active role: ENGINEER

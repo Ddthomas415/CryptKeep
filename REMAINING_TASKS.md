@@ -2070,6 +2070,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     cannot be persisted, writes the manifest atomically, and records a
     best-effort completion event. The coverage matrix now names this governed
     path while keeping direct hand edits to manifest files unclassified.
+    2026-08-11: current-source paper-campaign manifest write boundary invariant
+    is ready for independent review. `tests/test_campaign_manifest_write_boundary.py`
+    scans `dashboard/`, `scripts/`, and `services/` and fails if source outside
+    the governed manifest update helper/CLI combines active
+    `paper_evidence_campaigns*.json` paths with direct write primitives. Manual
+    hand edits to manifest files remain outside this proof.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but

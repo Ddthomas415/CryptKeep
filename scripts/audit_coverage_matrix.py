@@ -157,7 +157,11 @@ FAMILIES = [
             "failure. update_paper_campaign_manifest.py provides a governed CLI "
             "path for paper-campaign enable/disable manifest changes and refuses "
             "to write if the required campaign_manifest_change operator event "
-            "cannot be recorded. Direct manifest file edits remain unclassified."
+            "cannot be recorded. A current-source boundary invariant rejects "
+            "dashboard/scripts/services code that combines active "
+            "paper_evidence_campaigns*.json paths with direct write primitives "
+            "outside the governed manifest writer. Direct manifest file edits "
+            "remain unclassified."
         ),
     },
     {

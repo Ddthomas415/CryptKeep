@@ -104,6 +104,11 @@ new file for first-write attempts) and returns
 existence, parse status, top-level section names/count, and result only; config
 payloads and values are not logged. Direct file edits, environment overrides,
 and campaign manifest files remain unclassified.
+Current source also has a paper-campaign manifest write boundary invariant:
+production source under `dashboard/`, `scripts/`, and `services/` may not
+combine active `paper_evidence_campaigns*.json` paths with direct write
+primitives outside the governed manifest update helper/CLI. Manual file edits
+remain unclassified.
 
 Current partial hook for order-intent lifecycle: `storage.live_intent_queue_sqlite`
 maintains current intent rows and an append-only `live_trade_intent_events`
