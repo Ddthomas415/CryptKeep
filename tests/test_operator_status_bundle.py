@@ -199,6 +199,19 @@ def test_operator_status_bundle_filters_by_roadmap_section(tmp_path: Path) -> No
     assert out["actions"]["roadmap_tracking"] == []
 
 
+def test_operator_status_bundle_real_repo_surfaces_roadmap_source_count() -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+    from services.analytics.roadmap_tracking_status import REQUIRED_SOURCE_DOCS
+
+    out = build_operator_status_bundle(repo_root=Path(__file__).resolve().parents[1], section="roadmap")
+
+    assert out["ok"] is True
+    assert out["shown_sections"] == ["roadmap"]
+    assert out["summary"]["roadmap_source_docs_linked"] == len(REQUIRED_SOURCE_DOCS)
+    assert out["summary"]["roadmap_tracking_ok"] == 1
+    assert out["actions"]["roadmap_tracking"] == []
+
+
 def test_operator_status_bundle_forwards_backlog_filter(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 

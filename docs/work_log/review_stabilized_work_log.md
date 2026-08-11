@@ -32537,3 +32537,47 @@ Remaining risk:
   paper/shadow/live execution, order routing, authorization, broker support,
   command behavior, GitHub auth, push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T05:07:58Z - Operator Status Roadmap Source Count Regression
+
+Active role: ENGINEER
+
+Objective:
+- Add a regression test that locks existing operator-status behavior without
+  changing runtime code.
+
+What was found:
+- `operator-status-json` already surfaces `roadmap_source_docs_linked`, but the
+  real-repo section-filter path was not directly pinned against the roadmap
+  source registry count.
+
+What changed:
+- Added a test asserting `build_operator_status_bundle(section="roadmap")`
+  reports `roadmap_source_docs_linked == len(REQUIRED_SOURCE_DOCS)` on the real
+  repo and has no roadmap actions when roadmap tracking is healthy.
+
+Why this change was chosen:
+- The roadmap source count changed from 11 to 12 after adding the GitHub auth
+  runbook. The bundle should keep surfacing the registry-derived count instead
+  of drifting from roadmap tracking.
+
+Expected outcome:
+- If future roadmap source docs are added or removed, the operator-status bundle
+  must keep reporting the current registry count.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py`
+  - SHOWN: `32 passed in 0.92s`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=roadmap`
+  - SHOWN: exit 0; `ok=true`, `section_filter=roadmap`,
+    `roadmap_source_docs_linked=12`, `roadmap_tracking_ok=1`,
+    `shown_action_count=0`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: test and work log only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, command behavior, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
