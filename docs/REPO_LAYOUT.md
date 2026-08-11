@@ -119,6 +119,7 @@ Overlapping service families:
   - `docs/CORE.md`
   - `docs/BACKLOG_EXECUTION_LANES.md`
   - `docs/architecture/paper_execution_surfaces.md`
+  - `docs/architecture/compat_script_surfaces.md`
   - `docs/architecture/safety_surface_classification.md`
   - `docs/research/signal_discovery_classification.md`
   - `docs/architecture/storage_surface_classification.md`

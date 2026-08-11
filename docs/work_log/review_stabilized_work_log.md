@@ -32388,3 +32388,51 @@ Remaining risk:
   execution, order routing, authorization, broker support, command
   implementation, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T05:03:06Z - Compat Script Surface Classification
+
+Active role: ENGINEER
+
+Objective:
+- Classify the current `scripts/compat/*.py` family without changing runtime
+  behavior.
+
+What was found:
+- `scripts/compat/` contains mixed compatibility surfaces: shared bootstrap,
+  backing implementations for root wrappers, legacy supervisor helpers,
+  one-shot/loop pipeline helpers, a retired intent-consumer run mode, and a
+  direct live-trader shim.
+- Existing runtime docs classify the canonical operator control plane, but no
+  single classification record covered every tracked `scripts/compat/*.py`
+  file.
+
+What changed:
+- Added `docs/architecture/compat_script_surfaces.md` with a classification row
+  for each tracked `scripts/compat/*.py` file.
+- Linked that classification record from `docs/REPO_LAYOUT.md`.
+- Added `tests/test_compat_script_surface_classification.py` to pin full
+  coverage, the non-authorization boundary, and the retired intent-consumer run
+  reason.
+
+Why this change was chosen:
+- Compatibility script names are easy to misread as current authority. A
+  classification record prevents future work from inferring canonical operator,
+  campaign, promotion, or live-execution authority from file presence.
+
+Expected outcome:
+- Future compatibility-script additions must be classified explicitly, and
+  sessions can route new work to canonical root commands instead of guessing
+  from `scripts/compat/` names.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_compat_script_surface_classification.py tests/test_repo_layout_scope_doc.py tests/test_current_runtime_truth_guard.py tests/test_bot_control_runtime_truth_guard.py tests/test_process_control_runtime_truth_guard.py tests/test_legacy_intent_consumer_retirement.py`
+  - SHOWN: `36 passed in 0.52s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: documentation and tests only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, command behavior, or runtime
+  policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
