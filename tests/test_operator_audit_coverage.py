@@ -62,6 +62,24 @@ def test_required_fields_match_policy():
     }
 
 
+def test_policy_preserves_external_manual_and_host_side_exclusions() -> None:
+    doc = " ".join(
+        (REPO / "docs" / "OPERATOR_ACTION_AUDIT_COVERAGE.md")
+        .read_text(encoding="utf-8", errors="replace")
+        .split()
+    )
+
+    for phrase in (
+        "Manual file edits, environment overrides, and campaign manifest files remain unclassified.",
+        "Direct hand edits to manifest files remain unclassified.",
+        "Direct keyring edits, environment-based credential changes, and server injection/rotation drills remain unclassified.",
+        "Host-side no-secret scans over real provider/report events remain unclassified.",
+        "real host-side arm-to-halt replay and no-secret scans remain unrun",
+        "Migrations and rollbacks beyond git/work-log evidence remain unclassified.",
+    ):
+        assert phrase in doc
+
+
 def test_arming_probe_reports_real_state_facts(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     import services.os.app_paths as app_paths

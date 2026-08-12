@@ -32582,6 +32582,53 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-12T00:58:10Z - Operator Audit External-Exclusion Guard
+
+Active role: ENGINEER
+
+Objective:
+- Prevent local source-boundary audit work from silently claiming external,
+  manual, environment, or host-side operator-action coverage.
+
+What was found:
+- `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` already names several exclusions
+  that local source scans cannot close: manual file edits, direct manifest
+  edits, direct/manual keyring edits, environment-based credentials, server
+  injection/rotation drills, real host-side no-secret scans, real host-side
+  arm-to-halt replay, and migrations/rollbacks beyond git/work-log evidence.
+- Existing tests proved the matrix covers policy families, but did not pin
+  those external/manual exclusions as non-local proof boundaries.
+
+What changed:
+- Added `test_policy_preserves_external_manual_and_host_side_exclusions()` to
+  `tests/test_operator_audit_coverage.py`.
+
+Why this change was chosen:
+- This is a low-risk classification guard. It prevents repeated source-only
+  patches from overclaiming proof for operator actions that require host output
+  or explicit manual/operator evidence.
+
+Expected outcome:
+- Future edits that remove the external/manual/host-side proof boundaries from
+  the operator audit policy will fail the audit coverage test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: first run failed because the new assertion did not normalize
+    markdown line wrapping; after fixing that, rerun was `56 passed in 0.57s`.
+- `make operator-proof-status-json`
+  - SHOWN: exit 0; report remains read-only/planning-only, with
+    `host_side_reference=24`, `proof_ready_implementation=25`,
+    `remaining_capped_live_proof=8`, `remaining_coverage=3`, and
+    `proof_marker_actions_required=51`.
+
+Remaining risk:
+- LOW: test and work log only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, command behavior, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-12T00:07:05Z - Roadmap Remaining-Task Snapshot Refresh
 
 Active role: ENGINEER
