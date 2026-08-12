@@ -1294,3 +1294,26 @@ def test_operator_next_actions_distinguishes_medium_lane_inventory_from_read_onl
     assert out["action_count_total"] == 0
     assert out["action_count_available"] == 0
     assert out["actions"] == []
+
+
+def test_operator_next_actions_distinguishes_low_risk_lane_inventory_from_executable_actions() -> None:
+    from services.analytics.operator_next_actions import build_operator_next_actions
+
+    out = build_operator_next_actions(repo_root=REPO, backlog_lane="low_risk_docs_tests", max_actions=20)
+
+    assert out["ok"] is True
+    assert out["read_only"] is True
+    assert out["planning_only"] is True
+    assert out["does_not_run_campaigns"] is True
+    assert out["does_not_fetch_market_data"] is True
+    assert out["does_not_mutate_state"] is True
+    assert out["backlog_lane_filter"] == "low_risk_docs_tests"
+    assert out["source_summary"]["low_risk_docs_tests"] > 0
+    assert out["source_summary"]["source_backlog_lane_actions_required"] > 0
+    assert out["source_summary"]["backlog_lane_actions_required"] > 0
+    assert out["action_count_total"] == 0
+    assert out["action_count_available"] == 0
+    assert out["actions"] == []
+    assert out["planning_row_count"] > 0
+    assert all(row["lane"] == "backlog_lane" for row in out["planning_rows"])
+    assert all(row["source"] == "low_risk_docs_tests" for row in out["planning_rows"])

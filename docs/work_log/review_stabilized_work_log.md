@@ -32640,6 +32640,51 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-12T00:09:10Z - Low-Risk Lane Inventory Non-Action Regression
+
+Active role: ENGINEER
+
+Objective:
+- Prevent operator check-ins from treating low-risk backlog-lane planning
+  inventory as an executable local coding queue.
+
+What was found:
+- Mocked coverage already proved backlog-lane rows are planning rows, not
+  executable next actions.
+- The current-source behavior for
+  `backlog_lane="low_risk_docs_tests"` was not pinned by a real-repo
+  regression, leaving room for future check-ins to confuse generic lane
+  inventory with a concrete missing-action row.
+
+What changed:
+- Added a real-repo regression to `tests/test_operator_next_actions.py` proving
+  the current low-risk docs/tests lane reports visible planning rows while
+  returning zero executable actions.
+
+Why this change was chosen:
+- The selected safe local work is a regression test that prevents rebuilding
+  already accepted work or inflating planning inventory into coding tasks. It
+  changes no runtime behavior.
+
+Expected outcome:
+- Future changes that accidentally turn low-risk planning rows into executable
+  next-actions will fail the operator-next-actions test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_backlog_execution_lanes_guard.py tests/test_backlog_lane_status.py`
+  - SHOWN: `39 passed in 1.04s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; `action_count_total=0`, `action_count_available=0`,
+    `planning_row_count=7`, `backlog_lane_filter=low_risk_docs_tests`,
+    `planning_only=true`, `read_only=true`.
+
+Remaining risk:
+- LOW: test and work log only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, command behavior, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T22:14:10Z - Runtime Config Write Boundary Invariant
 
 Active role: ENGINEER
