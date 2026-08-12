@@ -95,8 +95,10 @@ def test_roadmap_checklist_records_remaining_task_snapshot() -> None:
     text = _normalized(DOC)
 
     assert "Remaining Task Snapshot" in text
-    assert "61 remaining next actions" in text
-    assert "7 passive operator-evidence actions" in text
+    assert "55 remaining next actions" in text
+    assert "4 passive operator-evidence actions" in text
     assert "23 proof-ready implementation markers" in text
-    assert "15 host-side evidence references" in text
+    assert "24 host-side markers remain in the source summary" in text
+    assert "17 host-side-reference rows" in text
+    assert "3 remaining-coverage markers" in text
     assert "zero missing-action rows" in text

@@ -32582,6 +32582,64 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-12T00:07:05Z - Roadmap Remaining-Task Snapshot Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Refresh the operator-facing roadmap snapshot so it matches the current
+  generated next-actions reports instead of stale August 11 counts.
+
+What was found:
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=60` now reports
+  55 remaining next actions, not the prior 61 shown in
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- The current passive operator-evidence queue has 4 rows:
+  `shadow_would_be_fill` records, Hetzner canonical `.cbp_state` migration
+  checkpoint, paper-to-shadow first-hour rehearsal, and server secrets
+  injection/rotation drill.
+- The proof-ready implementation marker count remains 23.
+- The source summary now reports 24 host-side markers, 8 capped-live proof
+  markers, and 3 remaining-coverage markers; the immediate action view returns
+  17 host-side-reference rows.
+- SHOWN separately before editing: the explicit single-symbol paper-gate policy
+  is already documented and tested, so this batch does not rebuild or reopen it.
+
+What changed:
+- Updated `docs/ROADMAP_TRACKING_CHECKLIST.md` with the current generated
+  counts and current passive evidence queue.
+- Updated `tests/test_roadmap_tracking_checklist.py` so the roadmap snapshot
+  assertions pin the refreshed counts.
+
+Why this change was chosen:
+- The next safe local action was stale operator-facing roadmap cleanup. This
+  keeps check-ins aligned with current generated reports without touching
+  runtime behavior or inventing new backlog work.
+
+Expected outcome:
+- Operator check-ins no longer report stale counts for remaining actions,
+  passive evidence, host-side markers, or remaining coverage markers.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_operator_next_actions.py`
+  - SHOWN: `35 passed in 0.67s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `planning_only=true`, `read_only=true`,
+    `missing_commands=[]`, `missing_make_targets=[]`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=60`
+  - SHOWN: exit 0; `action_count_total=55`, `action_count_returned=55`,
+    available reasons are `passive_operator_evidence=4`,
+    `proof_ready_implementation=23`, `host_side_reference=17`,
+    `remaining_capped_live_proof=8`, and `remaining_coverage=3`; source
+    summary reports `host_side_markers=24`.
+
+Remaining risk:
+- LOW: docs, test, and work log only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, command behavior, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-11T22:14:10Z - Runtime Config Write Boundary Invariant
 
 Active role: ENGINEER

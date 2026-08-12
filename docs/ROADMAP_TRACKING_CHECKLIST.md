@@ -69,21 +69,22 @@ separate reviewed runtime/gate change is accepted.
 
 ## Remaining Task Snapshot
 
-Last updated: 2026-08-11T06:19:34Z.
+Last updated: 2026-08-12T00:07:05Z.
 
-Generated check-in reports currently show 61 remaining next actions. The
+Generated check-in reports currently show 55 remaining next actions. The
 actionable queue is dominated by operator proofs and host-side evidence, not
 missing read-only command wiring:
 
-- 7 passive operator-evidence actions require operator proof or explicit
-  decisions: sandbox/testnet smoke, composite/hybrid decision,
-  `shadow_would_be_fill` records, Hetzner state migration checkpoint,
-  paper-to-shadow first-hour rehearsal, backup/restore drill, and server
-  secrets rotation drill.
+- 4 passive operator-evidence actions require operator proof or explicit
+  decisions: `shadow_would_be_fill` records, Hetzner canonical `.cbp_state`
+  migration checkpoint, paper-to-shadow first-hour rehearsal, and server
+  secrets injection/rotation drill.
 - 23 proof-ready implementation markers require review, merge, or recorded
   acceptance; these are not new coding tasks.
-- 15 host-side evidence references, 8 capped-live proof markers, and 8 coverage
-  markers still require host output, proof artifacts, or explicit acceptance.
+- 24 host-side markers remain in the source summary; the immediate action view
+  returns 17 host-side-reference rows. 8 capped-live proof markers and 3
+  remaining-coverage markers still require host output, proof artifacts, or
+  explicit acceptance.
 - Backlog lane, research pipeline, research artifact, research command, and
   operator read-only command wiring currently report zero missing-action rows.
 
