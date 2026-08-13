@@ -173,6 +173,7 @@ def _marker_status(marker: ProofMarker) -> str:
         context = marker.context.lower()
         if (
             "independently reviewed and accepted" in context
+            or "implementation slice accepted after independent review" in context
             or "implementation slices accepted after independent review" in context
             or "proof-ready slices accepted" in context
             or "accepted proof-ready slices" in context

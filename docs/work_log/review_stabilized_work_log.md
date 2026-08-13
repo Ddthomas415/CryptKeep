@@ -32605,7 +32605,8 @@ What changed:
   explicitly records independent review/acceptance.
 - `REMAINING_TASKS.md` records dated acceptance notes for the already
   implemented Decimal/finite-validation cluster and fail-closed config/daily
-  loss policy cluster without changing the remaining substrate scope.
+  loss policy cluster, plus the venue-lookup-not-found terminal policy slice,
+  without changing the remaining substrate scope.
 - Added a regression proving accepted proof-ready clusters stop producing
   operator actions while unrelated proof-ready rows remain open.
 
@@ -32622,10 +32623,10 @@ Verification:
 - `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
   - SHOWN: `95 passed in 1.71s`.
 - `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=proof_ready_implementation OPERATOR_NEXT_ACTIONS_MAX=50`
-  - SHOWN: `action_count_total=1`; the only remaining proof-ready action is
-    `venue-lookup-not-found terminal policy`.
+  - SHOWN: `action_count_total=0`.
 - `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20`
-  - SHOWN: `action_count_total=33`; `summary.available_by_reason.proof_ready_implementation=1`.
+  - SHOWN: `action_count_total=32`; `proof_ready_implementation` is absent from
+    `summary.available_by_reason`.
 - `git diff --check`
   - SHOWN: exit 0.
 

@@ -1516,6 +1516,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    observation count and age. Remaining risk: a live-but-persistently-invisible
    venue order could still be disposed after the bounded window; review the
    default window before live capital.
+   2026-08-13: implementation slice accepted after independent review. This
+   closes the review/acceptance tracking status for the venue-lookup-not-found
+   terminal policy implementation without changing runtime behavior; the
+   stated bounded-window risk remains a capped-live policy review point before
+   real capital.
 4. Add crash-consistency/fault-injection tests for submit, fill, reconcile, and
    restart. Kill between each side effect and assert reconciler convergence.
    This is a launch-packet companion, not a replacement for restart evidence.
