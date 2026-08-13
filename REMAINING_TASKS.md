@@ -1316,6 +1316,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    This preserves the read-only reconciliation contract while preventing a
    poisoned exchange quantity or tolerance from bypassing the operator-visible
    failure artifact.
+   2026-08-13: implementation slices accepted after independent review. This
+   closes the review/acceptance tracking status for the Decimal and
+   finite-validation slices above without changing runtime behavior; the
+   remaining substrate #1 work is the explicitly named broader Decimal storage,
+   fee, and PnL transport/accounting migration before capped-live exposure.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent
@@ -1473,6 +1478,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    state, arming the kill switch / setting the system guard `HALTED`, and
    returning an operator-visible `config_load_failed_runtime_halted` or
    `config_save_failed_runtime_halted` reason.
+   2026-08-13: implementation slices accepted after independent review. This
+   closes the review/acceptance tracking status for the fail-closed
+   config and daily-loss policy slices above without changing runtime behavior;
+   remaining work stays limited to separately named capped-live proof or future
+   config surfaces discovered by audit.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.

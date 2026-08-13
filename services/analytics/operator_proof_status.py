@@ -170,6 +170,14 @@ def _marker_next_action(marker: ProofMarker) -> str:
 def _marker_status(marker: ProofMarker) -> str:
     if marker.category == "proof_ready_implementation":
         text = marker.text.lower()
+        context = marker.context.lower()
+        if (
+            "independently reviewed and accepted" in context
+            or "implementation slices accepted after independent review" in context
+            or "proof-ready slices accepted" in context
+            or "accepted proof-ready slices" in context
+        ):
+            return "satisfied_recorded"
         if "completed/proof-ready" in text or "not to rebuild completed/proof-ready" in text:
             return "context_only"
         return "open"

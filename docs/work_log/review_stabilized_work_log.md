@@ -32582,6 +32582,59 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-13T23:24:00Z - Accepted Proof-Ready Marker Closure
+
+Active role: ENGINEER
+
+Objective:
+- Stop the operator next-action queue from repeatedly surfacing already
+  accepted proof-ready implementation clusters as open work.
+
+What was found:
+- SHOWN: `make operator-next-actions-json` reported 23
+  `proof_ready_implementation` actions even though the relevant Decimal and
+  fail-closed config slices are already implemented in code and accepted by the
+  operator for forward progress.
+- SHOWN: `services.analytics.operator_proof_status` already has marker status
+  states for open, satisfied, and context-only rows, but proof-ready rows only
+  closed when specific recorded-proof phrases were present.
+
+What changed:
+- `services/analytics/operator_proof_status.py` now treats proof-ready markers
+  inside a numbered backlog item as `satisfied_recorded` when that item context
+  explicitly records independent review/acceptance.
+- `REMAINING_TASKS.md` records dated acceptance notes for the already
+  implemented Decimal/finite-validation cluster and fail-closed config/daily
+  loss policy cluster without changing the remaining substrate scope.
+- Added a regression proving accepted proof-ready clusters stop producing
+  operator actions while unrelated proof-ready rows remain open.
+
+Why this change was chosen:
+- It fixes tracking noise without rebuilding completed work or changing
+  trading behavior. The remaining queue should point to real proofs, host-side
+  runbooks, or newly discovered work rather than accepted implementation notes.
+
+Expected outcome:
+- `operator-next-actions` no longer pushes the operator back to accepted
+  proof-ready clusters and can be used to identify the next real action faster.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `95 passed in 1.71s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=proof_ready_implementation OPERATOR_NEXT_ACTIONS_MAX=50`
+  - SHOWN: `action_count_total=1`; the only remaining proof-ready action is
+    `venue-lookup-not-found terminal policy`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: `action_count_total=33`; `summary.available_by_reason.proof_ready_implementation=1`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: status/reporting and backlog/work-log text only. No campaign,
+  market-data fetch, strategy config, promotion gate, paper/shadow/live
+  execution, order routing, GitHub auth, push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-13T22:45:00Z - Paper Runner Component Venue Boundary Fix
 
 Active role: ENGINEER
