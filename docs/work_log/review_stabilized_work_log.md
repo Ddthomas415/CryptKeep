@@ -32636,6 +32636,60 @@ Remaining risk:
   execution, order routing, GitHub auth, push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-13T23:38:00Z - Hetzner Runtime And Edge Cadence Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Record fresh read-only host evidence after Tailscale SSH re-auth unblocked
+  Hetzner status commands.
+
+What was found:
+- SHOWN: `make status-paper-hetzner` initially failed with
+  `tailscale_ssh_timeout:15s` and a Tailscale SSH browser-check URL.
+- SHOWN: direct `ssh` fallback reached `ssh_host_key_verification_failed`, so
+  it was not used as a silent bypass.
+- SHOWN: after Tailscale SSH re-auth, `make status-paper-hetzner` reported
+  Hetzner `ema_cross_default` `1/1` running, idle with
+  `reason=waiting_for_next_day`, `fills=11`, `closed=5`, `pnl=-2.8010`, and
+  latest fill `2026-08-13T00:16:11.041213+00:00`.
+- SHOWN: `make status-hetzner-edge-runtime` reported
+  `hetzner_crypto_edge_runtime_ready`, `ok=True`, `blocking_checks=0`,
+  remote branch `master`, and remote head `5eb36cbb5`.
+- SHOWN: host-side `check_edge_cadence.py --json` under
+  `CBP_STATE_DIR=/var/lib/cbp` reported `ok=true`, `missing=[]`, `stale=[]`,
+  and fresh OKX funding/open-interest/basis snapshots at
+  `2026-08-13T23:35:51+00:00`.
+
+What changed:
+- Added `docs/checkpoints/runtime_check_2026_08_13.md` with the command outputs
+  and boundaries.
+- Updated `REMAINING_TASKS.md` item 14 to point to the new read-only refresh.
+
+Why this change was chosen:
+- The host evidence is an operator-proof artifact. Recording it in docs keeps
+  the proof durable and prevents future status checks from relying on chat
+  history.
+
+Expected outcome:
+- Future backlog/status review can see that Hetzner paper and crypto-edge
+  cadence were healthy on 2026-08-13 without treating the refresh as promotion
+  or live-trading authorization.
+
+Verification:
+- `make status-paper-hetzner`
+  - SHOWN: `Campaigns: 1/1 running (all_running=True)`.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `status=hetzner_crypto_edge_runtime_ready`, `blocking_checks=0`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json'`
+  - SHOWN: `ok=true`, `missing=[]`, `stale=[]`.
+
+Remaining risk:
+- LOW: docs/checkpoint refresh only. No host files were modified; no services
+  were restarted; no campaign, strategy config, promotion gate, shadow/live
+  execution, order routing, GitHub auth, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-13T22:45:00Z - Paper Runner Component Venue Boundary Fix
 
 Active role: ENGINEER
