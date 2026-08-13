@@ -32582,6 +32582,59 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-13T22:45:00Z - Paper Runner Component Venue Boundary Fix
+
+Active role: ENGINEER
+
+Objective:
+- Fix the managed paper campaign component boundary found during the
+  `funding_extreme` Stage 0 proof: the collector launched the strategy runner
+  against `okx` while the paper engine status still reported the default
+  `coinbase`/`BTC/USD` surface.
+
+What was found:
+- SHOWN: `PaperStrategyEvidenceServiceCfg` component startup strips ambient
+  `CBP_VENUE`/`CBP_SYMBOLS` and passes campaign-scoped values as
+  `CBP_COMPONENT_VENUE`/`CBP_COMPONENT_SYMBOLS`.
+- SHOWN: `services.execution.paper_runner.run_forever()` read only
+  `CBP_VENUE`/`CBP_SYMBOLS`, then fell back to `paper_trading` config defaults.
+  In the isolated `funding_extreme` Stage 0 run, this made
+  `strategy_runner.status.json` report `okx`/`BTC/USDT` while
+  `paper_engine.status.json` reported `coinbase`/`BTC/USD`.
+
+What changed:
+- `services/execution/paper_runner.py` now resolves venue/symbols from
+  component-scoped env first, then ambient compatibility env, then config
+  defaults.
+- Added a regression test proving `CBP_COMPONENT_VENUE=okx` and
+  `CBP_COMPONENT_SYMBOLS=BTC/USDT` drive paper-engine status and
+  mark-to-market calls even when ambient `CBP_VENUE`/`CBP_SYMBOLS` contain
+  different values.
+
+Why this change was chosen:
+- This matches the existing managed-campaign component contract used by the
+  tick publisher and strategy runner. It is the smallest fix for the observed
+  venue mismatch and does not change strategy logic, promotion gates, live
+  execution, or campaign configs.
+
+Expected outcome:
+- Isolated or managed paper campaigns using non-default venues no longer
+  produce split-brain paper runtime status between strategy runner and paper
+  engine.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_engine_limit_and_status.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: `33 passed in 0.44s`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_runner_lifecycle.py tests/test_strategy_runtime_runner.py tests/test_tick_publisher_runtime.py tests/test_funding_stage0_readiness.py tests/test_funding_stage0_proof_verifier.py`
+  - SHOWN: `68 passed in 1.22s`.
+
+Remaining risk:
+- MEDIUM: paper-runtime component behavior changed. The current already-running
+  Stage 0 process was started before this patch and may still show the old
+  paper-engine venue until rerun. No live execution, order routing, promotion
+  gate, strategy config, or capital-moving path changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-12T00:58:10Z - Operator Audit External-Exclusion Guard
 
 Active role: ENGINEER

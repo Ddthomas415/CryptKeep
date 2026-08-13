@@ -250,8 +250,19 @@ def run_forever() -> None:
     jdb = TradeJournalSQLite()
     cfg = load_user_yaml()
     p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
-    venue = str((os.environ.get("CBP_VENUE") or p.get("default_venue") or "coinbase")).lower().strip()
-    symbols = [x.strip() for x in str(os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()]
+    venue = str(
+        (
+            os.environ.get("CBP_COMPONENT_VENUE")
+            or os.environ.get("CBP_VENUE")
+            or p.get("default_venue")
+            or "coinbase"
+        )
+    ).lower().strip()
+    symbols = [
+        x.strip()
+        for x in str(os.environ.get("CBP_COMPONENT_SYMBOLS") or os.environ.get("CBP_SYMBOLS") or "").split(",")
+        if x.strip()
+    ]
     if not symbols:
         cfg_symbol = str(p.get("default_symbol", DEFAULT_SYMBOL) or DEFAULT_SYMBOL).strip()
         symbols = [cfg_symbol] if cfg_symbol else [DEFAULT_SYMBOL]
