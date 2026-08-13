@@ -1033,6 +1033,12 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
 
 def _marker_artifact_status(root: Path, marker: ProofMarker) -> dict[str, Any] | None:
     text = f"{marker.text} {marker.context}".lower()
+    if marker.category == "host_side_reference" and (
+        "manual strategy performance decision" in text
+        or "after the paper gate reaches" in text
+        or "before real promotion" in text
+    ):
+        return _manual_strategy_decision_status(root)
     if marker.category == "remaining_operational_proof" and (
         "fee/slippage" in text or "cost-assumption" in text or "cost assumptions" in text
     ):
@@ -1043,8 +1049,15 @@ def _marker_artifact_status(root: Path, marker: ProofMarker) -> dict[str, Any] |
 def _marker_row(root: Path, marker: ProofMarker) -> dict[str, Any]:
     artifact_status = _marker_artifact_status(root, marker)
     artifact_satisfied = bool((artifact_status or {}).get("satisfied"))
+    artifact_controls_action = artifact_status is not None and "action_required" in artifact_status
     status = "satisfied_artifact" if artifact_satisfied else _marker_status(marker)
-    action_required = False if artifact_satisfied else _marker_action_required(marker)
+    action_required = (
+        bool(artifact_status.get("action_required"))
+        if artifact_controls_action and artifact_status is not None
+        else False
+        if artifact_satisfied
+        else _marker_action_required(marker)
+    )
     return {
         "line": marker.line,
         "category": marker.category,
@@ -1053,7 +1066,13 @@ def _marker_row(root: Path, marker: ProofMarker) -> dict[str, Any]:
         "status": status,
         "satisfied": artifact_satisfied or _marker_satisfied(marker),
         "action_required": action_required,
-        "next_action": "none" if artifact_satisfied else _marker_next_action(marker),
+        "next_action": (
+            str(artifact_status.get("next_action") or "none")
+            if artifact_controls_action and artifact_status is not None
+            else "none"
+            if artifact_satisfied
+            else _marker_next_action(marker)
+        ),
         "artifact_status": artifact_status,
     }
 

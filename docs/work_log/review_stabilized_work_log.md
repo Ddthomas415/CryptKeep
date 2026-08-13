@@ -32582,6 +32582,58 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-13T23:43:25Z - Promotion Host Marker Paper-Gate Wait Classification
+
+Active role: ENGINEER
+
+Objective:
+- Stop `operator-next-actions` from surfacing future promotion host-proof rows
+  as immediate operator actions while the paper gate is still below threshold.
+
+What was found:
+- Two `host-side` proof markers under the "After the paper gate reaches 10
+  qualified round trips" context were being treated as immediate actions:
+  the operator-host gate/status ground-truth line and the remaining
+  GitHub-CI/review plus host-output line.
+- The passive manual-strategy decision lane already models the correct state:
+  wait for the paper-gate threshold before requesting the host-side promotion
+  decision evidence.
+
+What changed:
+- `services/analytics/operator_proof_status.py` now routes host-side markers
+  in the manual-strategy/promotion-after-gate context through the existing
+  manual strategy decision artifact status.
+- Marker rows now let artifact status explicitly control `action_required` and
+  `next_action` when the artifact status includes an action decision.
+- Added a regression proving the future promotion host markers report
+  `waiting_for_paper_gate_threshold`, require no action, and have no next
+  action before the gate is ready.
+
+Why this change was chosen:
+- This is the smallest status-only fix: it reuses the already accepted
+  paper-gate waiting model instead of creating another special-case action lane
+  or changing the backlog text.
+
+Expected outcome:
+- Operator check-ins no longer tell the operator to produce promotion host
+  proof before the paper gate is ready.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `96 passed in 1.64s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: exit 0; `action_count_total=30`, with no future paper-gate
+    promotion host markers in the returned action list.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: status classification and tests only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-13T23:24:00Z - Accepted Proof-Ready Marker Closure
 
 Active role: ENGINEER

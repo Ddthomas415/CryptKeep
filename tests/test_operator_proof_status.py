@@ -746,6 +746,52 @@ def test_operator_proof_status_waits_for_paper_gate_before_manual_decision(tmp_p
     assert out["summary"]["passive_operator_items_waiting"] == 1
 
 
+def test_operator_proof_status_does_not_surface_future_promotion_host_marker_before_gate(
+    tmp_path: Path,
+) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+            [
+                "2. After the paper gate reaches 10 qualified round trips, write the manual strategy performance decision.",
+                "   Ground truth must come from the operator-host gate/status command output.",
+                "   Remaining before real promotion: GitHub CI/review, plus operator-host gate output as ground truth.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    artifact_dir = tmp_path / ".cbp_state" / "data" / "paper_gate_velocity"
+    artifact_dir.mkdir(parents=True)
+    (artifact_dir / "paper_gate_velocity.latest.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "read_only": True,
+                "report_type": "paper_gate_velocity",
+                "generated_at": "2026-08-13T00:00:00+00:00",
+                "strategy_id": "es_daily_trend_v1",
+                "thresholds_ready": False,
+                "round_trips": {"qualified": 3, "required": 5, "remaining": 2},
+                "qualified_bars": {"recorded": 52, "required": 60, "remaining": 8},
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path, category="host_side_reference")
+
+    assert out["ok"] is True
+    assert out["proof_marker_count"] == 2
+    assert out["summary"]["proof_marker_actions_required"] == 0
+    for row in out["proof_markers"]:
+        assert row["action_required"] is False
+        assert row["next_action"] == "none"
+        assert row["artifact_status"]["artifact_status"] == "waiting_for_paper_gate_threshold"
+
+
 def test_operator_proof_status_marks_composite_decision_event_satisfied(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 
