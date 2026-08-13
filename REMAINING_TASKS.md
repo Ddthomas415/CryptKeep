@@ -1739,9 +1739,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     clock correctness. Add a host/venue skew check and operator-visible status
     before relying on timestamp-sensitive shadow/live evidence. 2026-07-04:
     policy is documented in `docs/CLOCK_VENUE_TIME_SANITY_POLICY.md`.
-    Remaining capped-live proof: host UTC/NTP status, venue server-time query
-    or limitation record, observed skew against threshold, fail-closed behavior
-    for excessive skew, and operator-visible status output. 2026-07-10: the
+    2026-08-13 host proof recorded in
+    `docs/checkpoints/clock_venue_time_host_proof_2026_08_13.md`: Hetzner
+    `host_utc=2026-08-13T23:56:27.797371+00:00`, `ntp_status=timedatectl: yes`,
+    `threshold_ms=5000`, Coinbase `status=OK skew_ms=-409 rtt_ms=190`, and OKX
+    `status=OK skew_ms=42 rtt_ms=326`. This closes the host/venue-time evidence
+    refresh for the checked venues at that timestamp; future launch packets
+    should refresh the proof close to any shadow/capped-live transition.
+    2026-07-10: the
     implementation slice is ready for independent review —
     `services/execution/clock_sanity.py` measures venue skew against the
     round-trip midpoint (`measure_venue_skew`, rtt recorded as measurement

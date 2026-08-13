@@ -32634,6 +32634,48 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-13T23:56:27Z - Clock/Venue-Time Host Proof Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Record current host/venue-time proof for the remaining clock-sanity
+  capped-live evidence row using the accepted read-only Hetzner path.
+
+What was found:
+- `REMAINING_TASKS.md` still listed host UTC/NTP status, venue server-time
+  query, observed skew, and operator-visible status output as remaining
+  clock/venue-time proof.
+
+What changed:
+- Added `docs/checkpoints/clock_venue_time_host_proof_2026_08_13.md` with the
+  read-only Hetzner command and measured results.
+- Updated the clock/venue-time backlog item to reference the recorded proof
+  instead of presenting that host proof as still missing.
+
+Why this change was chosen:
+- This records actual host evidence instead of leaving a stale proof marker in
+  the operator action list.
+
+Expected outcome:
+- Operator status no longer treats the clock/venue-time host proof as missing
+  for the checked Coinbase and OKX venues at the recorded timestamp.
+
+Verification:
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_clock_sanity.py --json coinbase okx'`
+  - SHOWN: exit 0.
+  - SHOWN: `host_utc=2026-08-13T23:56:27.797371+00:00`.
+  - SHOWN: `ntp_status=timedatectl: yes`.
+  - SHOWN: `threshold_ms=5000`.
+  - SHOWN: Coinbase `status=OK skew_ms=-409 rtt_ms=190`.
+  - SHOWN: OKX `status=OK skew_ms=42 rtt_ms=326`.
+
+Remaining risk:
+- LOW: docs/checkpoint/backlog status only. The proof is timestamped and should
+  be refreshed close to any future shadow/capped-live transition. No services
+  restarted and no runtime state changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-13T23:54:45Z - Paper-To-Shadow Rehearsal Prerequisite Action Gating
 
 Active role: ENGINEER
