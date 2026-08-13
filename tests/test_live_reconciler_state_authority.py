@@ -11,10 +11,10 @@ from services.execution.state_authority import (
 
 class _FakeLiveQueue:
     def __init__(self) -> None:
-        self.updates: list[tuple[str, str, str | None]] = []
+        self.updates: list[tuple[str, str, dict]] = []
 
-    def update_status(self, intent_id: str, status: str, *, last_error: str | None = None) -> None:
-        self.updates.append((intent_id, status, last_error))
+    def update_status(self, intent_id: str, status: str, **kwargs) -> None:
+        self.updates.append((intent_id, status, kwargs))
 
 
 def _reconciler_ctx() -> LiveStateContext:
@@ -32,7 +32,19 @@ def test_reconciler_live_queue_update_allows_submitted_to_error() -> None:
         last_error="stale_order_not_found",
     )
 
-    assert qdb.updates == [("intent-1", "error", "stale_order_not_found")]
+    assert qdb.updates == [
+        (
+            "intent-1",
+            "error",
+            {
+                "last_error": "stale_order_not_found",
+                "event_actor": "test",
+                "event_action": "reconciler_status_transition",
+                "event_reason": "reconciler_state_authority",
+                "event_meta": {"authority": "RECONCILER", "origin": "test"},
+            },
+        )
+    ]
 
 
 @pytest.mark.parametrize("target", ["filled", "canceled", "rejected"])
@@ -47,7 +59,19 @@ def test_reconciler_live_queue_update_allows_submitted_terminal_targets(target: 
         last_error=None,
     )
 
-    assert qdb.updates == [("intent-1", target, None)]
+    assert qdb.updates == [
+        (
+            "intent-1",
+            target,
+            {
+                "last_error": None,
+                "event_actor": "test",
+                "event_action": "reconciler_status_transition",
+                "event_reason": "reconciler_state_authority",
+                "event_meta": {"authority": "RECONCILER", "origin": "test"},
+            },
+        )
+    ]
 
 
 def test_reconciler_live_queue_update_blocks_invalid_transition() -> None:

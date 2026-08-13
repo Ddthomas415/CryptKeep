@@ -27289,6 +27289,286 @@ Remaining risk:
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-08T16:45:31Z - Register Cost and Edge Cadence Read-Only Commands
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator organization lane by registering existing
+  read-only proof helpers in the operator command-status registry.
+
+What was found:
+- SHOWN: `scripts/check_cost_assumptions.py` and
+  `scripts/check_edge_cadence.py` already exist and are documented in
+  `scripts/SCRIPTS.md`.
+- SHOWN: both scripts had no first-class `operator_read_only_command_status`
+  registry rows, so the operator command-status check-in could not verify their
+  wiring as part of the normal command inventory.
+
+What changed:
+- Added `check-cost-assumptions[-json]` Makefile targets for the existing
+  cost-assumption validator.
+- Added `check-edge-cadence[-json]` Makefile targets for the existing
+  crypto-edge cadence checker, with optional `EDGE_CADENCE_STORE_PATH`.
+- Registered `cost_assumptions` and `edge_cadence` in
+  `OPERATOR_READ_ONLY_COMMANDS`.
+- Updated `scripts/SCRIPTS.md`, `script-index`, and regression tests.
+
+Why this change was chosen:
+- This is command discovery/wiring only. It makes existing read-only proof
+  helpers visible in the same operator command inventory as paper gate,
+  platform-event, and host-status helpers without executing them or changing
+  their behavior.
+
+Expected outcome:
+- `make operator-read-only-command-status-json` reports 19 wired commands with
+  no missing wiring, including `cost_assumptions` and `edge_cadence`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `34 passed in 0.57s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py tests/test_operator_read_only_command_status.py`
+  - SHOWN: exit 0.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=cost_assumptions`
+  - SHOWN: `ok=true`, `make_target=check-cost-assumptions`, `wiring_ok=true`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=edge_cadence`
+  - SHOWN: `ok=true`, `make_target=check-edge-cadence`, `wiring_ok=true`.
+- `make operator-read-only-command-status-json`
+  - SHOWN: `source_command_count=19`, `source_not_wired=0`, `source_wired=19`.
+- `make -n check-cost-assumptions-json`
+  - SHOWN: expands to `./.venv/bin/python scripts/check_cost_assumptions.py --json`.
+- `make -n check-edge-cadence-json`
+  - SHOWN: expands to `./.venv/bin/python scripts/check_edge_cadence.py --json`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only command registration, docs, and tests only. The newly exposed
+  targets are existing scripts; this patch does not run them, change their
+  behavior, close proof, fetch market data, run campaigns, mutate state,
+  change gates, or touch live execution.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T16:48:59Z - Roadmap Tracks Command Inventory and Proof Helpers
+
+Active role: ENGINEER
+
+Objective:
+- Keep the operator roadmap checklist aligned with the expanded read-only
+  command inventory and newly registered proof-helper targets.
+
+What was found:
+- SHOWN: `roadmap_tracking_status` still required only 8 command references.
+- SHOWN: after registering `cost_assumptions` and `edge_cadence`, the top-level
+  roadmap checklist did not require `operator-read-only-command-status-json`,
+  `check-cost-assumptions-json`, or `check-edge-cadence-json`.
+
+What changed:
+- `roadmap_tracking_status.REQUIRED_COMMANDS` now includes the operator
+  read-only command inventory plus cost-assumption and edge-cadence checks.
+- `docs/ROADMAP_TRACKING_CHECKLIST.md` now lists those commands in the active
+  checklist and fast-command block.
+- Roadmap tracking tests now pin `command_count=11`.
+
+Why this change was chosen:
+- The roadmap tracker should verify the command inventory and proof-helper
+  commands it relies on. This is alignment-only and preserves the roadmap's
+  no-runtime/no-proof-closure boundary.
+
+Expected outcome:
+- `make roadmap-tracking-status-json` fails if the command inventory, cost
+  assumptions check, or edge cadence check disappears from either the roadmap
+  or Makefile.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `48 passed in 0.54s`.
+- `./.venv/bin/python -m py_compile services/analytics/roadmap_tracking_status.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: exit 0.
+- `make roadmap-tracking-status-json`
+  - SHOWN: `ok=true`, `command_count=11`, `commands_listed=11`,
+    `make_targets_present=11`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: roadmap tracking docs/tests/reporting only. No backlog item is decided
+  or closed; no command is executed by the tracker; no campaign, market-data
+  fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, deployment, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T16:53:31Z - Register Dead-Man and Supply-Chain Read-Only Commands
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator organization lane by registering two existing
+  read-only launch/check helpers in the operator command-status inventory.
+
+What was found:
+- SHOWN: `scripts/check_dead_man.py` exists and defaults to a read-only
+  heartbeat check; it alerts only when `--alert` is supplied.
+- SHOWN: `scripts/check_supply_chain.py` exists and defaults to pin/environment
+  reporting; it writes evidence only when `--evidence-dest` is supplied.
+- SHOWN: both scripts were documented in `scripts/SCRIPTS.md` but were not
+  first-class operator read-only command registry rows.
+
+What changed:
+- Added non-mutating `check-dead-man[-json]` Makefile targets with optional
+  `DEAD_MAN_NAMES` and `DEAD_MAN_MAX_AGE_S`.
+- Added non-mutating `check-supply-chain[-json]` Makefile targets.
+- Registered `dead_man` and `supply_chain` in `OPERATOR_READ_ONLY_COMMANDS`.
+- Updated `scripts/SCRIPTS.md` and regression tests.
+
+Why this change was chosen:
+- These checks already exist and are part of launch/ops readiness. Registering
+  them makes command wiring visible in the same read-only inventory without
+  enabling alerts, writing evidence, running campaigns, fetching market data,
+  or mutating runtime state.
+
+Expected outcome:
+- `make operator-read-only-command-status-json` reports 21 wired commands with
+  no missing command wiring, including `dead_man` and `supply_chain`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py`
+  - SHOWN: `6 passed in 0.19s`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `34 passed in 0.52s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py tests/test_operator_read_only_command_status.py`
+  - SHOWN: exit 0.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=dead_man`
+  - SHOWN: `ok=true`, `make_target=check-dead-man`, `wiring_ok=true`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=supply_chain`
+  - SHOWN: `ok=true`, `make_target=check-supply-chain`, `wiring_ok=true`.
+- `make -n check-dead-man-json`
+  - SHOWN: expands to `./.venv/bin/python scripts/check_dead_man.py --json`.
+- `make -n check-supply-chain-json`
+  - SHOWN: expands to `./.venv/bin/python scripts/check_supply_chain.py --json`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only command registration, docs, and tests only. The newly exposed
+  targets are existing scripts and omit their mutating/side-effect flags. This
+  patch does not run those checks as proof, close proof, fetch market data, run
+  campaigns, mutate state, change gates, deploy, alert, write evidence, or
+  touch live execution.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T16:38:11Z - Next-Actions Exclusion Filter for Code-First Check-Ins
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator check-in lane by adding a subtractive
+  next-actions filter so known non-coding categories can be hidden without
+  editing backlog content or changing source reports.
+
+What was found:
+- SHOWN: `operator-next-actions` could select one `blocking_reason` with
+  `--reason`, but it could not exclude noisy reasons such as
+  `host_side_reference` or `passive_operator_evidence`.
+- SHOWN: the source bundle already preserves source summaries, so an exclusion
+  filter can narrow the displayed action queue without hiding original counts.
+
+What changed:
+- `build_operator_next_actions` now accepts `exclude_reasons` as repeated or
+  comma-separated reason values.
+- `scripts/report_operator_next_actions.py` exposes `--exclude-reason` and
+  prints the active exclusion filter.
+- `Makefile` exposes `OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON`.
+- `scripts/SCRIPTS.md` and regression tests document and pin the filter.
+
+Why this change was chosen:
+- This keeps check-ins moving by allowing focused code/review/proof views such
+  as excluding `host_side_reference,passive_operator_evidence`, while keeping
+  passive and host-side work visible through normal reports and explicit lane
+  filters.
+
+Expected outcome:
+- Operators can run:
+  `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON=host_side_reference,passive_operator_evidence`
+  to get a code-first queue without altering backlog state.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `30 passed in 0.26s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON=host_side_reference,passive_operator_evidence OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: `action_count_total=50`, `exclude_reason_filter` includes both
+    reasons, and summary contains only concrete `operator_proof` categories.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T16:34:37Z - Default Next-Actions Prioritize Concrete Proof Rows
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator check-in cleanup by making the default
+  `operator-next-actions` first page more execution-focused without hiding
+  passive operator evidence.
+
+What was found:
+- SHOWN: default `operator-next-actions` concatenated passive operator evidence
+  before proof-marker rows.
+- SHOWN: the unfiltered first page was dominated by passive evidence rows even
+  though concrete proof actions were available.
+- SHOWN: explicit lane filters already existed for
+  `passive_operator_evidence` and `operator_proof`.
+
+What changed:
+- Default action construction now lists concrete `operator_proof` rows before
+  `passive_operator_evidence` rows.
+- Explicit lane filters, reason filters, counts, and passive-evidence access
+  remain unchanged.
+- Regression tests pin the new default order while preserving lane-filter
+  behavior.
+
+Why this change was chosen:
+- The default check-in should put concrete review/proof work first. Passive
+  operator evidence remains visible and filterable, but it no longer crowds out
+  actionable proof rows in the first page.
+
+Expected outcome:
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=10` starts with
+  `operator_proof` rows while summaries still report both
+  `operator_proof=63` and `passive_operator_evidence=14`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `43 passed in 0.54s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: first 10 returned rows are `operator_proof`; summary still reports
+    `operator_proof=63` and `passive_operator_evidence=14`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-29T21:22:00Z - Backlog Lane Map Exact Selector Refresh
 
 Active role: ENGINEER
@@ -27683,6 +27963,1614 @@ Remaining risk:
   campaign, market-data fetch, artifact generation, proof closure, gate,
   ingestion, live routing, execution, authorization, or runtime mutation
   changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T23:13:38Z - Execution-Cost Stack Evidence Recording Target
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by standardizing the
+  execution-cost stack evidence recording command behind a Make target.
+
+What was found:
+- SHOWN: operator proof status already emitted a passive guidance item for the
+  accepted shadow-derived execution-cost report, but its next action was the
+  raw `scripts/report_execution_cost_stack.py --write-default-artifact`
+  command rather than a stable operator target.
+- SHOWN: `report_execution_cost_stack.py` was documented as the read-only
+  report producer, but the script index did not name a standard artifact
+  recording target.
+
+What changed:
+- Added `make record-execution-cost-stack`, with optional
+  `EXECUTION_COST_STACK_ARGS`, to run
+  `scripts/report_execution_cost_stack.py --write-default-artifact`.
+- Updated operator proof status so the passive execution-cost guidance row now
+  points to `make record-execution-cost-stack`.
+- Updated `scripts/SCRIPTS.md` and regression tests to keep the Make target,
+  script index, and operator action output aligned.
+
+Why this change was chosen:
+- The operator next-action list should prefer stable Make targets over raw
+  script invocations when a standard evidence artifact command exists. This is
+  command-surface cleanup only; it does not run the report or change report
+  semantics.
+
+Expected outcome:
+- `operator_next_actions` surfaces the execution-cost report as
+  `make record-execution-cost-stack`, matching the other standard passive
+  evidence recording commands.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `81 passed in 0.89s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py scripts/report_execution_cost_stack.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make -n record-execution-cost-stack`
+  - SHOWN:
+    `./.venv/bin/python scripts/report_execution_cost_stack.py --write-default-artifact`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinal 10 next action is
+    `make record-execution-cost-stack`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. This patch does not run the
+  execution-cost report, create artifacts, fetch market data, close proof,
+  change gates, campaigns, live routing, execution, authorization, or runtime
+  behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T23:16:47Z - Passive Operator Evidence Make Target Guidance
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by replacing raw
+  passive operator proof commands with stable Make target guidance where the
+  commands already have a standard shape.
+
+What was found:
+- SHOWN: passive operator proof status still surfaced raw commands for the
+  private sandbox smoke and backup-state proof guidance.
+- SHOWN: those commands are operator-run proof steps, not campaign/gate/live
+  execution changes, and can be represented as Make targets without executing
+  them.
+
+What changed:
+- Added `make smoke-exchange-sandbox`, parameterized by
+  `EXCHANGE_SANDBOX_SMOKE_ARGS`, with the current standard default
+  `--exchange binance --sandbox --orderbook`.
+- Added `make backup-state STATE_BACKUP_DEST=<backup_dir>`, parameterized by
+  `STATE_BACKUP_DEST`, for the backup half of the full-state drill.
+- Updated passive operator proof status, Makefile script-index output,
+  `scripts/SCRIPTS.md`, and regression tests to point to the new targets.
+
+Why this change was chosen:
+- Operator next-action reports should use stable Make targets for repeatable
+  proof commands. The manual decision-record commands stay explicit because
+  they require operator-specific reasons and results.
+
+Expected outcome:
+- Passive operator evidence rows for sandbox smoke and backup-state proof are
+  shorter, stable, and aligned with Makefile/script-index documentation.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `81 passed in 0.85s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py tests/test_makefile_wiring.py`
+  - SHOWN: exit 0.
+- `make -n smoke-exchange-sandbox`
+  - SHOWN:
+    `./.venv/bin/python scripts/smoke_exchange.py --exchange binance --sandbox --orderbook`.
+- `make -n backup-state STATE_BACKUP_DEST=/tmp/cbp-backup-proof`
+  - SHOWN:
+    `./.venv/bin/python scripts/backup_state.py backup --dest /tmp/cbp-backup-proof`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinal 3 next action is
+    `make smoke-exchange-sandbox`; ordinal 13 next action is
+    `make backup-state STATE_BACKUP_DEST=<backup_dir>`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. This patch does not run the sandbox
+  smoke, create backups, fetch market data, close proof, change gates,
+  campaigns, live routing, execution, authorization, or runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T23:19:27Z - Passive Operator Decision Record Targets
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by standardizing the
+  passive operator decision-record commands behind guarded Make targets.
+
+What was found:
+- SHOWN: passive operator proof status still emitted raw
+  `record_operator_event.py --action passive_operator_decision` commands for
+  the manual strategy performance, composite/hybrid paper advancement, and
+  `funding_extreme` persistent-campaign decisions.
+- SHOWN: these commands append operator-event journal rows only when explicitly
+  run; they do not run campaigns, change gates, or move capital.
+
+What changed:
+- Added guarded Make targets:
+  `record-manual-strategy-performance-decision`,
+  `record-composite-hybrid-paper-decision`, and
+  `record-funding-extreme-persistent-campaign-decision`.
+- Each target requires `OPERATOR_DECISION_REASON`; a bare target exits before
+  writing an event.
+- Updated operator proof status, Makefile script-index output,
+  `scripts/SCRIPTS.md`, and regression tests to use the Make targets.
+
+Why this change was chosen:
+- Standard targets reduce copy/paste error in the operator evidence lane while
+  preserving explicit operator reasoning. The funding target keeps
+  `no_persistent_campaign` as its default result, matching the current passive
+  guidance for insufficient actionable basis.
+
+Expected outcome:
+- Passive decision rows surface concise Make commands and retain the same
+  target/result semantics as the previous raw script commands.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `81 passed in 0.81s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py tests/test_makefile_wiring.py scripts/record_operator_event.py`
+  - SHOWN: exit 0.
+- `make -n record-manual-strategy-performance-decision OPERATOR_DECISION_REASON=reviewed`
+  - SHOWN: expands to `record_operator_event.py` with target
+    `manual_strategy_performance_decision`, result `accepted`, and reason
+    `reviewed`.
+- `make -n record-composite-hybrid-paper-decision OPERATOR_DECISION_REASON=reviewed`
+  - SHOWN: expands to `record_operator_event.py` with target
+    `composite_hybrid_paper_advancement_decision`, result `accepted`, and
+    reason `reviewed`.
+- `make -n record-funding-extreme-persistent-campaign-decision OPERATOR_DECISION_REASON=reviewed`
+  - SHOWN: expands to `record_operator_event.py` with target
+    `funding_extreme_persistent_campaign_decision`, result
+    `no_persistent_campaign`, and reason `reviewed`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinals 2, 6, and 8 next actions
+    now use the three guarded Make targets.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. This patch does not execute the
+  decision targets, write operator events, close proof, run campaigns, fetch
+  market data, change gates, live routing, execution, authorization, or runtime
+  behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T00:56:24Z - Shadow Would-Be-Fill Passive Evidence Detection
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by making the passive
+  shadow-stage run item detect actual stored `shadow_would_be_fill` records
+  instead of remaining permanent runbook guidance.
+
+What was found:
+- SHOWN: `execution_cost_stack_report.load_shadow_would_be_fills()` already
+  scans the canonical evidence tree for stored `shadow_would_be_fill` rows and
+  reports parse errors, source files, and a source artifact hash.
+- SHOWN: `operator_proof_status` still treated the corresponding passive item
+  as unsatisfied runbook guidance even when real records existed.
+
+What changed:
+- Added a read-only `shadow_would_be_fill` artifact status path in
+  `operator_proof_status` that reuses the execution-cost report loader.
+- The item is satisfied only when at least one stored shadow record exists and
+  the scan has zero parse errors.
+- Missing records remain actionable with the existing first-hour runbook
+  guidance. Records with parse errors remain actionable with an inspect-first
+  reason instead of being accepted.
+- Added regression tests for missing, recorded, and recorded-with-parse-errors
+  states.
+
+Why this change was chosen:
+- A real evidence-producing item should close from evidence, not from a manual
+  checkpoint. Reusing the cost-report loader keeps the status view aligned with
+  the report that will consume the same records.
+
+Expected outcome:
+- Once shadow writes valid `shadow_would_be_fill` records, operator next-action
+  output stops repeating that passive item and the source hash/files are visible
+  for review.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_execution_cost_stack_report.py`
+  - SHOWN: `79 passed in 0.77s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py services/analytics/execution_cost_stack_report.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinal 9 remains actionable locally
+    because no stored `shadow_would_be_fill` records were found.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only status classification and tests only. This patch does not
+  start shadow, write evidence, create artifacts, fetch market data, close
+  gates, change campaigns, live routing, execution, authorization, or runtime
+  behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T01:02:16Z - Runbook Checkpoint Passive Evidence Detection
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by making runbook-only
+  passive evidence rows satisfiable through explicit operator-event checkpoint
+  records.
+
+What was found:
+- SHOWN: migration, paper-to-shadow rehearsal, and server-secret rotation
+  passive items were permanent runbook guidance rows; they could not become
+  satisfied even after an operator recorded completion elsewhere.
+- SHOWN: `scripts/record_operator_event.py` already appends redacted,
+  fsynced operator-event journal records.
+
+What changed:
+- Added guarded Make targets for three runbook checkpoints:
+  `record-hetzner-state-migration-checkpoint`,
+  `record-paper-to-shadow-first-hour-checkpoint`, and
+  `record-server-secrets-rotation-checkpoint`.
+- Each target requires `OPERATOR_CHECKPOINT_REASON`; a bare target exits before
+  writing an event.
+- `operator_proof_status` now recognizes
+  `action=runbook_checkpoint` journal rows for those targets and marks the
+  corresponding passive row satisfied when the result is accepted, accepted
+  with risk, completed, or recorded.
+- Updated script docs, Makefile wiring tests, and proof-status tests.
+
+Why this change was chosen:
+- Runbook proof rows need a durable evidence handle, not permanent prose
+  guidance. The journal path keeps the evidence redacted and reviewable without
+  inventing new artifact stores.
+
+Expected outcome:
+- Once an operator completes and records one of these runbook checkpoints, the
+  passive evidence report stops repeating that item while preserving event ID,
+  timestamp, result, reason, and journal hash for audit.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py tests/test_operator_event_journal.py`
+  - SHOWN: `89 passed in 0.94s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py tests/test_makefile_wiring.py scripts/record_operator_event.py`
+  - SHOWN: exit 0.
+- `make -n record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON=reviewed`
+  - SHOWN: expands to `record_operator_event.py` with action
+    `runbook_checkpoint`, target `hetzner_canonical_state_migration`, result
+    `completed`, and reason `reviewed`.
+- `make -n record-paper-to-shadow-first-hour-checkpoint OPERATOR_CHECKPOINT_REASON=reviewed`
+  - SHOWN: expands to `record_operator_event.py` with action
+    `runbook_checkpoint`, target `paper_to_shadow_first_hour_rehearsal`,
+    result `completed`, and reason `reviewed`.
+- `make -n record-server-secrets-rotation-checkpoint OPERATOR_CHECKPOINT_REASON=reviewed`
+  - SHOWN: expands to `record_operator_event.py` with action
+    `runbook_checkpoint`, target `server_secrets_rotation_drill`, result
+    `completed`, and reason `reviewed`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinals 11, 12, and 14 next actions
+    now use the three checkpoint Make targets.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. This patch does not execute checkpoint
+  targets, write operator events, run campaigns, fetch market data, create
+  backups, rotate secrets, migrate state, change gates, live routing,
+  execution, authorization, or runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T01:04:22Z - Passive Next-Actions Check-In Target
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by adding a stable
+  Make target for the recurring passive-operator-evidence next-action view.
+
+What was found:
+- SHOWN: the useful check-in command repeatedly used the same long
+  `report_operator_next_actions.py` invocation: passive operator evidence
+  source, bounded max rows, and exclusions for host-side, proof-ready,
+  capped-live, and coverage rows.
+- SHOWN: the generic `operator-next-actions[-json]` targets support the same
+  report but require manual filter wiring for this standard view.
+
+What changed:
+- Added `make operator-next-actions-passive` and
+  `make operator-next-actions-passive-json`.
+- Updated `script-index`, `scripts/SCRIPTS.md`, and Makefile wiring tests.
+
+Why this change was chosen:
+- The operator check-in path should be one stable target instead of a repeated
+  long command. This reduces command drift while preserving the underlying
+  reporter and filters.
+
+Expected outcome:
+- Operators can run `make operator-next-actions-passive-json` for the same
+  passive evidence action list without rebuilding the filter command manually.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `31 passed in 0.29s`.
+- `./.venv/bin/python -m py_compile scripts/report_operator_next_actions.py tests/test_makefile_wiring.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions-passive-json`
+  - SHOWN: `ok=true`, `action_source_filter=passive_operator_evidence`,
+    `action_count_available=12`, and no campaigns, market-data fetches, proof
+    closure, or state mutation.
+- `make -n operator-next-actions-passive`
+  - SHOWN: expands to the passive operator-evidence next-action report with
+    exclusions for host-side, proof-ready, capped-live, and coverage rows.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/tests only. This patch does not run campaigns, commands
+  from the action list, market-data fetches, proof closure, artifact writes,
+  gates, live routing, execution, authorization, or runtime mutation.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T01:06:20Z - Execution-Cost Report Passive Evidence Detection
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by making the passive
+  execution-cost report item detect the standard latest report artifact.
+
+What was found:
+- SHOWN: `scripts/report_execution_cost_stack.py --write-default-artifact`
+  writes `.cbp_state/data/execution_cost_stack/execution_cost_stack.latest.json`.
+- SHOWN: `operator_proof_status` still treated the accepted
+  shadow-derived execution-cost report row as unsatisfied command guidance even
+  after such an artifact would exist.
+
+What changed:
+- Added read-only detection for
+  `.cbp_state/data/execution_cost_stack/execution_cost_stack.latest.json`.
+- The row is satisfied only when the artifact reports
+  `report_type=execution_cost_stack_report`, `read_only=true`,
+  `scope=research_only_shadow_would_be_fill_records`, an accepted
+  recommendation enum, a source report hash, and all existing no-live/no-order
+  type/no-canonical-paper policy flags.
+- Invalid or incomplete artifacts stay actionable and point back to
+  `make record-execution-cost-stack`.
+- Added regression tests for recorded and invalid report artifacts.
+
+Why this change was chosen:
+- The report recording target should have a matching read-side proof detector.
+  That lets the passive evidence list shrink from artifacts that actually
+  exist, rather than staying as permanent command guidance.
+
+Expected outcome:
+- Once a valid execution-cost report artifact exists, the passive next-action
+  row is marked satisfied with artifact path/hash, recommendation, and source
+  hashes visible for review.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_execution_cost_stack_report.py`
+  - SHOWN: `82 passed in 0.80s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py services/analytics/execution_cost_stack_report.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions-passive-json`
+  - SHOWN: `action_count_available=12`; ordinal 10 remains actionable locally
+    because no standard `execution_cost_stack.latest.json` artifact exists in
+    local state.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only status classification and tests only. This patch does not run
+  the execution-cost report, write artifacts, fetch market data, close gates,
+  change campaigns, live routing, execution, authorization, or runtime
+  behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T02:29:23Z - Arm-To-Halt Replay Evidence Recording Target
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator roadmap/reporting lane by adding a standard
+  evidence-writing target and read-side detector for the live arm/resume-to-halt
+  replay proof.
+
+What was found:
+- SHOWN: `scripts/check_operator_arm_to_halt_replay.py` is read-only by
+  default and writes replay evidence only when `--evidence-dest` is supplied.
+- SHOWN: passive operator proof status only surfaced command guidance for the
+  launch-packet replay row and did not detect replay artifacts after they were
+  written.
+
+What changed:
+- Added `make record-operator-arm-to-halt-replay`, writing to
+  `.cbp_state/data/operator_arm_to_halt_replay/` by default, with
+  `OPERATOR_ARM_TO_HALT_REPLAY_EVIDENCE_DEST` as an override.
+- Added read-only detection for
+  `operator-arm-to-halt-replay-*.json` artifacts in that standard directory.
+- The replay row is satisfied only when the latest artifact has `ok=true`,
+  `reason=ok`, both arm/halt event summaries, and at least two events.
+- Failed or missing replay artifacts remain actionable and point back to the
+  recording target.
+- Updated `scripts/SCRIPTS.md`, Makefile wiring tests, and proof-status tests.
+
+Why this change was chosen:
+- The existing checker already produces the right replay report. A standard
+  recording target plus artifact detector removes manual path choice and lets
+  the passive evidence list close from stored proof.
+
+Expected outcome:
+- After a valid arm/resume-to-halt replay artifact is recorded, the passive
+  launch-packet replay row is marked satisfied with artifact path/hash and the
+  arm/halt event summaries visible for audit.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py tests/test_operator_event_replay.py`
+  - SHOWN: `93 passed in 0.96s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py scripts/check_operator_arm_to_halt_replay.py tests/test_operator_proof_status.py tests/test_makefile_wiring.py`
+  - SHOWN: exit 0.
+- `make -n record-operator-arm-to-halt-replay`
+  - SHOWN:
+    `./.venv/bin/python scripts/check_operator_arm_to_halt_replay.py --json --evidence-dest .cbp_state/data/operator_arm_to_halt_replay`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: `action_count_available=12`; ordinal 4 next action is now
+    `make record-operator-arm-to-halt-replay`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. This patch does not run the replay
+  target, write replay evidence, append operator events, run campaigns, fetch
+  market data, close gates, change live routing, execution, authorization, or
+  runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T20:11:43Z - Operator Proof Status Research Artifact Passive Evidence
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by recognizing already-recorded
+  research artifacts when passive operator-evidence rows ask for archive or
+  funding research proof.
+
+What was found:
+- SHOWN: `scripts/research/report_research_artifact_inventory.py --json`
+  reports 14 research artifacts with zero actions required.
+- SHOWN: the archive research chain has recorded artifacts for
+  `archive_walk_forward`, `archive_parameter_sweep`, and terminal
+  `archive_parameter_sweep_triage`.
+- SHOWN: the funding threshold pipeline artifacts are recorded, but the
+  reviewed candidate triage has zero actionable candidates, so it does not
+  satisfy the separate operator decision to start a persistent
+  `funding_extreme` campaign.
+
+What changed:
+- `operator_proof_status` now attaches research-artifact status to the passive
+  archive-sweep row and marks it satisfied only when walk-forward, sweep, and
+  sweep-triage artifacts are present.
+- `operator_proof_status` now attaches funding research evidence to the
+  `funding_extreme` persistent-campaign decision row without closing it. If
+  artifacts are recorded but no actionable candidate exists, the next action is
+  narrowed to keeping `funding_extreme` research-only or recording an explicit
+  no-persistent-campaign decision.
+- Added regression tests for the archive satisfied path and the funding
+  recorded-but-not-satisfied path.
+
+Why this change was chosen:
+- The next-action queue should not ask the operator to collect proof that is
+  already recorded, but it also must not convert research artifacts into a
+  strategy/campaign decision. This keeps passive evidence tracking precise
+  without closing decisions the artifacts do not support.
+
+Expected outcome:
+- Operator check-ins report one fewer stale passive action. Archive research
+  proof is recognized as recorded, while the funding campaign decision remains
+  explicit and evidence-bound.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_research_artifact_inventory.py`
+  - SHOWN: `76 passed in 0.75s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py services/analytics/research_artifact_inventory.py scripts/report_operator_proof_status.py scripts/report_operator_next_actions.py scripts/research/report_research_artifact_inventory.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 20 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`, with only
+    `passive_operator_evidence` rows remaining.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --json`
+  - SHOWN: passive archive row ordinal 7 is `satisfied=true` with
+    `archive_research_evidence`; funding row ordinal 8 remains
+    `action_required=true` with `funding_research_evidence`,
+    `artifact_status=no_actionable_basis`, and `candidate_count=0`.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and tests only. No research job,
+  campaign, market-data fetch, artifact generation, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T20:14:43Z - Passive Operator Decision Event Recognition
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by allowing existing operator
+  event journal records to satisfy specific passive operator-decision rows.
+
+What was found:
+- SHOWN: `scripts/record_operator_event.py` already appends redacted,
+  fsynced operator/action audit events to the unified JSONL journal.
+- SHOWN: `operator_proof_status` did not read that journal for passive
+  decision rows, so manual strategy, composite/hybrid advancement, and
+  `funding_extreme` campaign/no-campaign decisions could be recorded without
+  affecting the next-action queue.
+
+What changed:
+- `operator_proof_status` now recognizes `action=passive_operator_decision`
+  operator-event records for these targets:
+  `manual_strategy_performance_decision`,
+  `composite_hybrid_paper_advancement_decision`, and
+  `funding_extreme_persistent_campaign_decision`.
+- Accepted passive decision results are `accepted`, `accepted_with_risk`,
+  `declined`, `research_only`, and `no_persistent_campaign`.
+- Funding research evidence still does not close the campaign decision by
+  itself; a matching decision event is required.
+- `scripts/SCRIPTS.md` documents the recognized passive decision targets and
+  accepted result vocabulary.
+
+Why this change was chosen:
+- Reusing the existing operator event journal avoids a duplicate decision
+  recorder while making the remaining decision rows machine-checkable.
+
+Expected outcome:
+- Operators can close supported passive decision rows by recording explicit
+  decision events; status reports remain open until such an event exists.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py`
+  - SHOWN: `25 passed in 0.29s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_operator_event_journal.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `81 passed in 0.84s`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 20 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; unchanged because no matching passive
+    decision events are present yet.
+
+Remaining risk:
+- LOW: read-only status interpretation, docs, and tests only. No journal entry
+  is written by this change, and no research job, campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization, or
+  runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T20:16:26Z - Passive Operator Decision Command Guidance
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by making passive decision rows
+  directly actionable in `operator_next_actions`.
+
+What was found:
+- SHOWN: after passive decision event recognition, missing decision rows still
+  required the operator to know the exact journal command, target, and result
+  vocabulary.
+- SHOWN: `record_operator_event.py` is already the accepted journal writer, so
+  the status report can safely expose command guidance without creating a new
+  recorder or writing any event.
+
+What changed:
+- Missing passive decision artifact status now includes `accepted_results` and
+  `record_command`.
+- `operator_next_actions` now shows concrete `record_operator_event.py`
+  commands for manual strategy performance, composite/hybrid advancement, and
+  `funding_extreme` no-persistent-campaign decisions.
+- Funding with recorded research and no actionable basis now recommends
+  `--result no_persistent_campaign`.
+- Added a regression test pinning the command guidance.
+
+Why this change was chosen:
+- The next-action queue should be executable without a second lookup step. The
+  report still does not write the event; it only tells the operator how to
+  record the decision explicitly.
+
+Expected outcome:
+- The remaining passive decision rows become one-command operator actions while
+  preserving the separation between status reporting and journal mutation.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `77 passed in 0.67s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 8 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: ordinals 2, 6, and 8 now show concrete
+    `record_operator_event.py --action passive_operator_decision ...`
+    commands; ordinal 8 uses `--result no_persistent_campaign`.
+
+Remaining risk:
+- LOW: read-only status text, docs, and tests only. No operator event is
+  written by this change, and no research job, campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization, or
+  runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T20:32:07Z - Passive Operator Evidence Command Guidance
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by replacing additional vague
+  passive operator-evidence rows with concrete repo-supported command guidance.
+
+What was found:
+- SHOWN: several passive rows had existing command surfaces documented in
+  `scripts/SCRIPTS.md`, `docs/EXCHANGE_SANDBOX_SMOKE.md`,
+  `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`, and
+  `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`.
+- SHOWN: these commands can guide evidence collection without marking the rows
+  satisfied or changing runtime behavior.
+
+What changed:
+- Added command-guidance artifact status for:
+  - private sandbox/testnet lifecycle smoke:
+    `./.venv/bin/python scripts/smoke_exchange.py --exchange binance --sandbox --orderbook`;
+  - launch-packet replay:
+    `make operator-arm-to-halt-replay-json`;
+  - shadow-derived execution-cost report:
+    `./.venv/bin/python scripts/report_execution_cost_stack.py --write-default-artifact`;
+  - backup/restore drill start:
+    `./.venv/bin/python scripts/backup_state.py backup --dest <backup_dir>`;
+  - supply-chain audit check:
+    `make check-supply-chain-json`.
+- Added a regression test proving these rows stay action-required and are not
+  treated as satisfied by command guidance alone.
+
+Why this change was chosen:
+- The next-action queue should tell the operator what to run when an accepted
+  command exists, while preserving the boundary that proof closes only after
+  the resulting evidence is recorded and reviewed.
+
+Expected outcome:
+- More passive rows are directly actionable from
+  `report_operator_next_actions.py`, but the open-count remains unchanged until
+  actual evidence artifacts or decisions exist.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `71 passed in 0.68s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinals 3, 4, 10, 13, and 15 now show
+    concrete command guidance.
+
+Remaining risk:
+- LOW: read-only status text and tests only. No command is run by this change,
+  no evidence is written, and no research job, campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization, or
+  runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T20:38:01Z - Supply-Chain Evidence Recording Target
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator reporting lane by giving supply-chain proof a
+  standard evidence-writing target and making proof status consume that
+  evidence once present.
+
+What was found:
+- SHOWN: `scripts/check_supply_chain.py` already supports `--evidence-dest`,
+  but Makefile exposed only non-recording `check-supply-chain[-json]` targets.
+- SHOWN: `operator_proof_status` could only show generic supply-chain command
+  guidance and could not recognize a recorded supply-chain evidence artifact.
+
+What changed:
+- Added `SUPPLY_CHAIN_EVIDENCE_DEST ?= .cbp_state/data/supply_chain`.
+- Added `make record-supply-chain`, which runs
+  `scripts/check_supply_chain.py --json --evidence-dest $(SUPPLY_CHAIN_EVIDENCE_DEST)`.
+- `operator_proof_status` now recognizes the latest
+  `.cbp_state/data/supply_chain/supply-chain-evidence-*.json` artifact and
+  marks the supply-chain passive row satisfied only when pin integrity and
+  environment checks are both ok and provenance fields are present.
+- Updated `scripts/SCRIPTS.md` and regression tests.
+
+Why this change was chosen:
+- Supply-chain proof should have the same standard record/check split as cost
+  assumptions: a fast read-only check target and a deliberate evidence-writing
+  target.
+
+Expected outcome:
+- `operator_next_actions` points the supply-chain row to `make
+  record-supply-chain`; after a valid evidence artifact is recorded, the row
+  closes automatically.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `81 passed in 0.81s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py scripts/check_supply_chain.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make -n record-supply-chain`
+  - SHOWN: expands to
+    `./.venv/bin/python scripts/check_supply_chain.py --json --evidence-dest .cbp_state/data/supply_chain`.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: ordinal 15 now shows `make record-supply-chain`.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. The new target writes supply-chain
+  evidence only when explicitly run; this patch did not run it and did not
+  change campaigns, gates, ingestion, live routing, execution, authorization,
+  or runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T20:35:36Z - Passive Operator Evidence Runbook Guidance
+
+Active role: ENGINEER
+
+Objective:
+- Finish making the passive operator-evidence next-action queue actionable by
+  replacing the remaining vague rows with explicit runbook or deployment-record
+  guidance.
+
+What was found:
+- SHOWN: the remaining vague passive rows correspond to documented operator
+  runbooks or deployment-record templates, not simple local status commands.
+- SHOWN: `docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md`,
+  `docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md`, and
+  `docs/SERVER_SECRETS_ROTATION_MODEL.md` are the current source documents for
+  those operator proofs.
+
+What changed:
+- Added runbook-guidance artifact status for:
+  - accepted shadow-stage run producing real `shadow_would_be_fill` records;
+  - Hetzner canonical `.cbp_state` migration follow-through;
+  - paper-to-shadow first-hour rehearsal;
+  - server secrets injection/rotation drill.
+- Added a regression test proving these rows remain action-required and are
+  not treated as satisfied by runbook guidance alone.
+
+Why this change was chosen:
+- Operator status should identify the exact source document for manual proof
+  work while preserving the rule that runbook guidance is not proof.
+
+Expected outcome:
+- The passive evidence queue now emits concrete commands or explicit runbook
+  paths for all remaining rows that can be locally classified.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `72 passed in 0.70s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 12 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=12`; ordinals 9, 11, 12, and 14 now show
+    explicit runbook/deployment-record guidance.
+
+Remaining risk:
+- LOW: read-only status text and tests only. No command is run by this change,
+  no evidence is written, and no research job, campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization, or
+  runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T19:44:38Z - Operator Proof Status Recorded Crypto-Edge Closure
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator-proof cleanup lane by preventing stale
+  crypto-edge "Remaining proof" markers from reappearing as next actions after
+  the same backlog item records final host cadence evidence.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` item 14 contains early crypto-edge remaining-proof
+  text for host schedule, OKX snapshot timestamps, and cadence-gap alerting.
+- SHOWN: the same item later records final Hetzner host proof:
+  `check_edge_cadence.py --json` under `CBP_STATE_DIR=/var/lib/cbp` reported
+  fresh OKX funding/open-interest/basis snapshots with `missing=[]`,
+  `stale=[]`, and exit code 0.
+- SHOWN: `report_operator_next_actions.py` still surfaced the earlier lines as
+  open operator proof work because `operator_proof_status` only used a short
+  local context window around each marker.
+
+What changed:
+- `operator_proof_status` now evaluates proof markers with their full numbered
+  backlog-item context instead of a narrow nearby-line window.
+- A narrow crypto-edge closure rule marks `remaining_proof` markers
+  `satisfied_recorded` only when the same item includes final host proof text,
+  fresh OKX funding/open-interest/basis evidence, and no missing or stale
+  families.
+- Regression tests cover both sides: recorded crypto-edge closure suppresses the
+  stale action, while a crypto-edge item without final host proof remains open.
+
+Why this change was chosen:
+- The report should not ask the operator to repeat already-recorded host proof.
+  The fix keeps the backlog history intact and only changes read-only
+  status/next-action interpretation.
+
+Expected outcome:
+- The top next-action queue no longer repeats item 14 crypto-edge cadence proof
+  after the recorded final host proof; genuinely open proof markers still
+  remain visible.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py`
+  - SHOWN: `18 passed in 0.21s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 10 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available` dropped from 22 to 19; lines 706, 718,
+    and 748 no longer appear as next actions.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --category remaining_proof --json`
+  - SHOWN: lines 706, 718, and 748 are `satisfied_recorded`; six other
+    `remaining_proof` markers remain open.
+
+Remaining risk:
+- LOW: read-only reporting/status interpretation and tests only. No backlog text
+  was rewritten, no proof was newly closed, no campaign, market-data fetch,
+  gate, ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T19:47:20Z - Operator Proof Status Host-Side Proof Classification
+
+Active role: ENGINEER
+
+Objective:
+- Continue reducing repeated operator-action noise by classifying host-side
+  drill/proof markers as host-side references instead of generic local
+  `remaining_proof` work.
+
+What was found:
+- SHOWN: backlog lines for restore drill, promotion proof, and future
+  server/capped-live backup evidence were surfaced as generic
+  `remaining_proof` actions even when the proof text was explicitly host-side.
+- SHOWN: `report_operator_next_actions.py` already supports
+  `--exclude-reason host_side_reference`, but these rows bypassed that filter
+  because their first textual marker was `Remaining proof`.
+
+What changed:
+- `operator_proof_status` now reclassifies explicit host-side remaining-proof
+  rows as `host_side_reference`.
+- The rule is intentionally narrow: it looks for host-side proof phrases on the
+  marker line or specific host-proof phrases in the numbered item context, and
+  does not reclassify generic/local remaining-proof rows.
+- Regression coverage pins host-side restore/promotion reclassification while
+  preserving a local remaining-proof marker.
+
+Why this change was chosen:
+- Host-only operational proofs should remain visible when requested, but should
+  be removable by the existing host-side exclusion when the operator asks for
+  local/code-ready next actions.
+
+Expected outcome:
+- The filtered next-action queue no longer treats host-side restore,
+  promotion, and future launch-packet proof as generic local work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `63 passed in 0.53s`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 10 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=15`; the generic `remaining_proof` queue now
+    starts with lines 1650 and 2089 only.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --json --line 1918`
+  - SHOWN: line 1918 is now `category=host_side_reference`.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --json --line 2022`
+  - SHOWN: line 2022 is now `category=host_side_reference`.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --json --line 3067`
+  - SHOWN: line 3067 is now `category=host_side_reference`.
+
+Remaining risk:
+- LOW: read-only status categorization and tests only. No backlog proof was
+  closed, no host action was run, and no campaign, market-data fetch, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T19:48:55Z - Operator Proof Status Passive-Lane Duplicate Suppression
+
+Active role: ENGINEER
+
+Objective:
+- Remove duplicate next-action rows where a backlog `Remaining proof` marker is
+  already represented by the Passive / Operator Evidence lane.
+
+What was found:
+- SHOWN: after host-side filtering, two generic `remaining_proof` actions still
+  appeared: the full-state backup/restore drill and the shadow-derived
+  execution-cost report.
+- SHOWN: both are already present as passive operator evidence items:
+  "Backup/restore drill evidence and backup-artifact secrets scan" and
+  "Accepted shadow-derived execution-cost report using those records."
+
+What changed:
+- `operator_proof_status` now marks those duplicate remaining-proof markers as
+  `context_only`.
+- The proof is not marked satisfied; the action remains owned by the passive
+  operator-evidence lane until the actual artifact/evidence exists.
+- Regression coverage pins duplicate passive-lane ownership while keeping an
+  unrelated local remaining-proof marker open.
+
+Why this change was chosen:
+- A single task should not appear twice in the next-action queue under two
+  different lanes. Passive operator evidence is the correct owner for evidence
+  collection tasks that are not code defects.
+
+Expected outcome:
+- With host-side/proof-ready/capped-live/coverage exclusions applied, the
+  generic `remaining_proof` lane no longer duplicates passive operator evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `64 passed in 0.60s`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 10 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: `action_count_available=13`; available actions are now
+    `passive_operator_evidence` only.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --category remaining_proof --json`
+  - SHOWN: lines 1650 and 2089 are `context_only`, while lines 706/718/748
+    remain `satisfied_recorded`; no `remaining_proof` marker requires action in
+    that filtered category report.
+
+Remaining risk:
+- LOW: read-only status interpretation and tests only. No proof was closed, no
+  passive evidence was generated, and no campaign, market-data fetch, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T16:58:59Z - Register Replay and Schema Read-Only Commands
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk repo-organization lane by wiring two existing
+  read-only operator checks into the make/script-index/operator-status
+  inventory: arm-to-halt replay and live-intent history schema status.
+
+What was found:
+- SHOWN: `scripts/check_operator_arm_to_halt_replay.py` is read-only by
+  default and writes launch-packet evidence only when `--evidence-dest` is
+  supplied.
+- SHOWN: `scripts/check_live_intent_history_schema.py` is read-only by default;
+  schema initialization requires explicit `--init`, and evidence writing
+  requires explicit `--evidence-dest`.
+- SHOWN: `Makefile` already had a read-only
+  `live-intent-history-schema` target, but no JSON alias.
+- SHOWN: arm-to-halt replay had script-index documentation but no make target
+  or operator read-only command registry row.
+
+What changed:
+- Added `operator-arm-to-halt-replay` and
+  `operator-arm-to-halt-replay-json` make targets. The optional path override
+  is `OPERATOR_ARM_TO_HALT_REPLAY_PATH`; no evidence destination is wired into
+  the make target.
+- Added `live-intent-history-schema-json` for the existing read-only schema
+  check. The mutating `live-intent-history-schema-init` target remains
+  separate and is not registered as a read-only command.
+- Registered `operator_arm_to_halt_replay` under the
+  `platform_event_packet` read-only lane and `live_intent_history_schema`
+  under `startup_host_diagnostic`.
+- Updated `scripts/SCRIPTS.md` and read-only command/status tests for the new
+  wiring and platform-event lane count.
+
+Why this change was chosen:
+- The checks already existed and matched the operator check-in model, but were
+  partially invisible from the consolidated status/next-action path. Wiring the
+  read-only defaults keeps the roadmap checklist mechanical without running
+  campaigns, fetching market data, or registering mutating variants.
+
+Expected outcome:
+- Operators can discover and run both checks through make and the read-only
+  command status inventory. Mutating schema initialization and launch-packet
+  evidence writes remain explicit direct-script actions.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `34 passed in 0.55s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py tests/test_operator_read_only_command_status.py`
+  - SHOWN: exit 0.
+- `make -n operator-arm-to-halt-replay-json`
+  - SHOWN: expands to
+    `./.venv/bin/python scripts/check_operator_arm_to_halt_replay.py --json`.
+- `make -n live-intent-history-schema-json`
+  - SHOWN: expands to
+    `./.venv/bin/python scripts/check_live_intent_history_schema.py --json`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=operator_arm_to_halt_replay`
+  - SHOWN: `ok=true`, `wiring_ok=true`, lane `platform_event_packet`, input
+    class `local_state`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=live_intent_history_schema`
+  - SHOWN: `ok=true`, `wiring_ok=true`, lane `startup_host_diagnostic`, input
+    class `local_state`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only wiring, docs, and tests only. No campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization,
+  schema initialization, launch-packet evidence write, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T18:44:16Z - Paper Gate Velocity: Qualified-Bar and Overall Estimate
+
+Active role: ENGINEER
+
+Objective:
+- Prioritize the active paper-gate blocker by making the read-only velocity
+  report estimate both configured slow-daily thresholds: qualified round trips
+  and qualified source bars.
+
+What was found:
+- SHOWN: current local `make status-paper-gate-qualification-json` reports
+  `es_daily_trend_v1` on policy `slow_daily_single_symbol_v1`, with `3/5`
+  qualified round trips and `47/60` qualified source bars.
+- SHOWN: current local `make status-paper-soak-json` reports laptop campaigns
+  `2/2` running and `es_daily_trend_v1` waiting for the next UTC day.
+- SHOWN: `report_paper_gate_velocity.py` estimated completion from qualified
+  round-trip close cadence only, even though the active policy also blocks on
+  qualified source bars.
+- SHOWN: `count_qualified_signal_bars()` already computes the exact unique bar
+  keys used for the gate, but did not expose their timestamps to read-only
+  diagnostics.
+
+What changed:
+- `count_qualified_signal_bars()` now returns sorted
+  `qualified_bar_timestamps` as additive diagnostic metadata. The gate count,
+  rejection rules, and threshold semantics are unchanged.
+- `load_paper_promotion_progress()` carries those timestamps into the
+  progress payload.
+- `paper_gate_velocity` now adds `qualified_bar_velocity` and
+  `overall_velocity`. The overall estimate selects the later projected
+  incomplete threshold, or refuses projection if an incomplete threshold lacks
+  enough history.
+- `report_paper_gate_velocity.py` prints the qualified-bar velocity and
+  overall estimate in human output.
+- `scripts/SCRIPTS.md` now describes both velocity inputs instead of only
+  round-trip cadence.
+
+Why this change was chosen:
+- The active gate is no longer a pure round-trip gate. Operators need the
+  current bottleneck and completion projection for every active threshold, not
+  just the trade-cycle threshold. This keeps the report read-only and
+  evidence-preserving while making the priority blocker visible.
+
+Expected outcome:
+- `make status-paper-gate-velocity-json` identifies whether round trips or
+  qualified bars govern the expected completion date for the current
+  slow-daily policy.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_velocity_report.py tests/test_paper_promotion_policy.py tests/test_paper_promotion_progress.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `64 passed in 0.83s`.
+- `./.venv/bin/python -m py_compile services/control/paper_gate_velocity.py services/control/paper_promotion_policy.py services/control/paper_promotion_progress.py scripts/report_paper_gate_velocity.py tests/test_paper_gate_velocity_report.py`
+  - SHOWN: exit 0.
+- `make status-paper-gate-velocity-json`
+  - SHOWN: `qualified_bar_velocity.status=projected`,
+    `qualified_bar_velocity.estimated_days_remaining=15`,
+    `overall_velocity.blocking_threshold=round_trips`,
+    `overall_velocity.estimated_days_remaining=21`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only diagnostics, additive payload fields, docs, and tests only.
+  No campaign, market-data fetch, proof closure, promotion policy threshold,
+  gate pass/fail logic, evidence qualification rule, ingestion, live routing,
+  execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T19:07:25Z - Recordable Paper Gate Velocity Operator Artifact
+
+Active role: ENGINEER
+
+Objective:
+- Continue the active paper-gate priority lane by making fresh canonical
+  paper-gate status recordable as operator evidence and visible to the
+  operator-proof tracker.
+
+What was found:
+- SHOWN: passive operator evidence item 1 asks for canonical
+  `es_daily_trend_v1` qualified round-trip collection and fresh paper-gate
+  output.
+- SHOWN: `report_paper_gate_velocity.py` produced read-only stdout/JSON but
+  did not write a durable latest artifact.
+- SHOWN: `operator_proof_status` only recognized the pullback Stage 0
+  verification artifact, so fresh paper-gate output stayed action-required
+  even after running the status command.
+
+What changed:
+- Added `write_paper_gate_velocity_artifact()` to write latest and stamped
+  JSON reports under an explicit evidence destination.
+- Added `scripts/report_paper_gate_velocity.py --evidence-dest`.
+- Added `make record-paper-gate-velocity`, which writes to
+  `.cbp_state/data/paper_gate_velocity/` while leaving
+  `status-paper-gate-velocity[-json]` read-only.
+- Added operator-proof artifact recognition for
+  `.cbp_state/data/paper_gate_velocity/paper_gate_velocity.latest.json`.
+  A valid artifact satisfies passive operator item 1 without claiming the gate
+  passed.
+- Updated `scripts/SCRIPTS.md` and regression tests.
+
+Why this change was chosen:
+- The active priority is paper-gate progress and evidence. This closes the gap
+  between a transient status command and a durable operator evidence artifact,
+  without changing the promotion gate, campaign runtime, or evidence
+  qualification rules.
+
+Expected outcome:
+- Running `make record-paper-gate-velocity` records current canonical gate
+  progress, and `operator_proof_status --passive-ordinal 1` reports the item
+  satisfied when that latest artifact is present and valid.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_velocity_report.py tests/test_report_paper_gate_velocity_script.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `73 passed in 0.88s`.
+- `./.venv/bin/python -m py_compile services/control/paper_gate_velocity.py services/analytics/operator_proof_status.py scripts/report_paper_gate_velocity.py tests/test_report_paper_gate_velocity_script.py`
+  - SHOWN: exit 0.
+- `make -n record-paper-gate-velocity`
+  - SHOWN: expands to
+    `./.venv/bin/python scripts/report_paper_gate_velocity.py --evidence-dest .cbp_state/data/paper_gate_velocity`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make record-paper-gate-velocity`
+  - SHOWN: records local current gate artifact and reports `3/5` qualified
+    round trips, `47/60` qualified bars, and overall blocker `round_trips`.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --json --passive-ordinal 1`
+  - SHOWN: `action_required=false`, `artifact_id=paper_gate_velocity`,
+    `artifact_status=recorded`, `satisfied=true`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 5 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: passive evidence actions dropped to `13`, and passive items
+    satisfied increased to `2`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: explicit operator artifact writing and proof-status recognition only.
+  Default velocity status commands remain read-only. No campaign, market-data
+  fetch, proof closure, promotion policy threshold, gate pass/fail logic,
+  evidence qualification rule, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T19:39:04Z - Recordable Cost-Assumption Operational Proof
+
+Active role: ENGINEER
+
+Objective:
+- Continue the active paper evidence/cost-measurement priority lane by making
+  the existing cost-assumption verification recordable and visible to the
+  operator-proof tracker.
+
+What was found:
+- SHOWN: `make check-cost-assumptions-json` reports `overall=warning` locally,
+  not fail: modeled paper round trip is `25.0` bps against a `5.0` bps policy
+  floor.
+- SHOWN: warning reasons are still material: paper-engine fee/slippage fall
+  back to code defaults, evidence-scoring defaults differ from paper-engine
+  fees, and walk-forward/backtest cost defaults differ from paper-engine fees.
+- SHOWN: the existing cost checker produced stdout/JSON but did not write a
+  durable latest artifact, and `operator_proof_status` could not connect it to
+  the two remaining fee/slippage operational-proof markers.
+
+What changed:
+- `services/analytics/cost_assumptions.py` now adds report metadata
+  (`schema_version`, `report_type`, `generated_at`, `read_only`) and exposes
+  `write_cost_assumptions_artifact()`.
+- `scripts/check_cost_assumptions.py` now supports `--evidence-dest` and
+  `--allow-warning-exit-zero`. Default exit behavior is unchanged; warning
+  returns non-zero unless the caller explicitly opts into warning-tolerant
+  recording.
+- Added `make record-cost-assumptions`, writing to
+  `.cbp_state/data/cost_assumptions/` and tolerating warning status for
+  operator-proof recording. Fail/config-unreadable status still exits
+  non-zero.
+- `operator_proof_status` now marks fee/slippage remaining-operational-proof
+  markers as `satisfied_artifact` when a valid latest cost-assumptions artifact
+  exists with `overall=ok` or `overall=warning`.
+- Updated `scripts/SCRIPTS.md` and regression tests.
+
+Why this change was chosen:
+- The remaining proof asked to verify cost assumptions and segment old
+  evidence, not to silently rewrite config. A warning artifact is the honest
+  state: the paper-fill surface is plausible but still needs operator
+  confirmation because defaults and adjacent cost surfaces differ.
+
+Expected outcome:
+- Operators can run `make record-cost-assumptions` to preserve the current
+  cost-assumption state. The proof tracker then stops repeating the
+  fee/slippage verification action while preserving the warning status in the
+  artifact.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_cost_assumptions.py tests/test_cost_surface_audit_invariants.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `87 passed in 1.13s`.
+- `./.venv/bin/python -m py_compile services/analytics/cost_assumptions.py services/analytics/operator_proof_status.py scripts/check_cost_assumptions.py tests/test_cost_assumptions.py`
+  - SHOWN: exit 0.
+- `make -n record-cost-assumptions`
+  - SHOWN: expands to
+    `./.venv/bin/python scripts/check_cost_assumptions.py --evidence-dest .cbp_state/data/cost_assumptions --allow-warning-exit-zero`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make record-cost-assumptions`
+  - SHOWN: exits 0 with `overall=WARNING`, records
+    `.cbp_state/data/cost_assumptions/cost_assumptions.latest.json`, modeled
+    round trip `25.0` bps, and warning checks preserved.
+- `./.venv/bin/python scripts/report_operator_proof_status.py --json --category remaining_operational_proof`
+  - SHOWN: both fee/slippage markers are `satisfied_artifact`,
+    `artifact_id=cost_assumptions`, `artifact_status=warning`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --max 5 --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage`
+  - SHOWN: open operator-proof actions dropped from `63` to `61`; open
+    remaining-operational-proof actions dropped from `2` to `0`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: explicit operator artifact writing and proof-status recognition only.
+  No config values were changed. Warning status is preserved, not converted to
+  OK. No campaign, market-data fetch, proof closure, promotion policy
+  threshold, gate pass/fail logic, evidence qualification rule, ingestion, live
+  routing, execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-08T16:33:18Z - Operator Proof Resolution Counts in Status Bundle
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk roadmap/status organization lane by making the
+  operator status bundle preserve proof-marker resolution counts already
+  computed by `operator_proof_status`.
+
+What was found:
+- SHOWN: `operator_proof_status` reports `proof_markers_satisfied`,
+  `proof_markers_context_only`, `passive_operator_items_satisfied`, and
+  `proof_marker_actions_required`.
+- SHOWN: `operator_status_bundle` exposed open/action counts but dropped those
+  resolution counts from its top-level summary, so a check-in could show the
+  remaining queue without showing how many markers had already been resolved or
+  demoted to context-only.
+
+What changed:
+- `operator_status_bundle` now carries the proof-marker satisfied,
+  context-only, passive-satisfied, and source action-required counts into the
+  bundle summary.
+- `report_operator_status_bundle.py` prints those counts in the human
+  `proofs:` line.
+- Regression tests pin both the programmatic summary and CLI output.
+
+Why this change was chosen:
+- This is read-only reporting hygiene that reduces repeated operator noise
+  without changing backlog text, proof closure policy, campaigns, gates, market
+  data, or runtime state.
+
+Expected outcome:
+- `make operator-status OPERATOR_STATUS_SECTION=operator_proof` now shows open
+  proof actions and resolved/context-only counts in one line, making check-ins
+  easier to interpret without reopening already satisfied evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_proof_status.py tests/test_operator_next_actions.py`
+  - SHOWN: `57 passed in 0.64s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py scripts/report_operator_status_bundle.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make operator-status OPERATOR_STATUS_SECTION=operator_proof`
+  - SHOWN: `proofs: remaining=27 host_side=18 proof_ready=25 satisfied=5 context_only=2 passive_satisfied=1 actions_required=63`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=operator_proof`
+  - SHOWN: summary includes `proof_markers_satisfied=5`,
+    `proof_markers_context_only=2`, `passive_operator_items_satisfied=1`, and
+    `proof_marker_actions_required=63`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and docs/tests only. No backlog item is
+  decided or closed; no campaign, market-data fetch, proof closure, gate,
+  ingestion, live routing, execution, authorization, or runtime mutation
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-02T01:40:53Z - Roadmap Status Read-Only Command Registration
+
+Active role: ENGINEER
+
+Objective:
+- Continue the roadmap/operator organization lane by registering the roadmap
+  tracking status report in the operator read-only command inventory.
+
+What was found:
+- SHOWN: `scripts/report_roadmap_tracking_status.py` already existed and was
+  documented in `scripts/SCRIPTS.md`.
+- SHOWN: `Makefile` already exposed `roadmap-tracking-status` and
+  `roadmap-tracking-status-json`.
+- SHOWN: `operator_read_only_command_status` did not list
+  `roadmap_tracking_status`, so `operator-status` and `operator-next-actions`
+  could not filter or verify that roadmap command by command ID.
+
+What changed:
+- Added `roadmap_tracking_status` to
+  `services/analytics/operator_read_only_command_status.py` as an
+  `optional_operator_report` with `repo_artifacts` inputs.
+- Added regression coverage proving the command can be filtered directly and
+  remains wired through script, Make target, and script-index checks.
+- Updated the operator bundle CLI fixture from its stale read-only command count
+  to the current 17-command registry total.
+
+Why this change was chosen:
+- The roadmap checklist should be reachable from the same read-only operator
+  command inventory as other check-in reports. This keeps command discovery
+  executable without running campaigns, fetching market data, closing proof, or
+  mutating state.
+
+Expected outcome:
+- Operators can run or filter the roadmap status command through
+  `operator-read-only-command-status`, `operator-status`, and downstream
+  next-action tooling without separate manual lookup.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_read_only_command_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_roadmap_tracking_status.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `59 passed in 0.71s`.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=roadmap_tracking_status`
+  - SHOWN: `ok=true`, `command_count=1`, `source_command_count=17`, and
+    `summary.source_not_wired=0`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_read_only_command_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_read_only_command_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py scripts/report_roadmap_tracking_status.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make operator-status OPERATOR_STATUS_SECTION=operator_read_only OPERATOR_STATUS_OPERATOR_READ_ONLY_COMMAND_ID=roadmap_tracking_status`
+  - SHOWN: `ok=True`, one shown `operator_read_only` section, `wired=1`,
+    `not_wired=0`, `actions_required=0`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=operator_read_only_command OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID=roadmap_tracking_status OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: `ok=true`, `action_count_total=0`, and
+    `operator_read_only_command_id_filter=roadmap_tracking_status`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only registry/docs/tests only. No campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization, or
+  runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-02T01:45:05Z - Operator Proof Recorded-Host Marker Hygiene
+
+Active role: ENGINEER
+
+Objective:
+- Reduce repeated operator-proof noise by distinguishing explicit recorded
+  host-proof/check notes from still-open host-side proof requirements.
+
+What was found:
+- SHOWN: `operator_proof_status` emitted every `host proof` / `host-side`
+  marker as `action_required=true`.
+- SHOWN: several current `REMAINING_TASKS.md` lines explicitly record completed
+  host proof/check evidence, for example `host proof recorded`,
+  `final host proof recorded`, and `read-only refresh recorded`.
+- SHOWN: those recorded evidence notes appeared alongside genuinely open
+  host-side proof requirements in `operator-next-actions`.
+
+What changed:
+- `operator_proof_status` now keeps recorded host-proof/check markers visible in
+  marker totals but marks them `satisfied=true`, `action_required=false`, and
+  `next_action=none`.
+- The satisfied detector is conservative: explicit open/remain wording on the
+  marker line wins over nearby recorded-proof context.
+- `proof_ready_implementation` policy-text mentions such as
+  `completed/proof-ready` and `not to rebuild completed/proof-ready` are now
+  `context_only` rather than implementation rows awaiting review.
+- `operator_status_bundle` no longer truncates `operator_proofs` to ten rows
+  before downstream filters, so reason-filtered next-action reports are
+  truthful.
+- `report_operator_proof_status.py` now prints satisfied/actionable marker
+  counts and omits `next_action=none` lines in text output.
+- Added regression coverage proving recorded host proof is not reopened while a
+  separate open host-side requirement remains actionable, and proving policy
+  mentions are not treated as proof-ready implementation actions.
+
+Why this change was chosen:
+- The report should not keep asking for proof that is already recorded, but it
+  also must not close proof by implication. Separating marker totals from
+  action-required rows preserves audit visibility while reducing repeated
+  false-positive work.
+
+Expected outcome:
+- `operator-next-actions` focuses on open proof/evidence work instead of
+  resurfacing recorded host-proof checkpoint notes as work to redo.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `57 passed in 0.59s`.
+- `make operator-proof-status OPERATOR_PROOF_STATUS_CATEGORY=host_side_reference`
+  - SHOWN: `ok=True`, `host_side=18`, `satisfied=5`,
+    `actions_required=13`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=host_side_reference OPERATOR_NEXT_ACTIONS_MAX=30`
+  - SHOWN: `ok=true`, `action_count_total=13`, with action rows for the
+    remaining open host-side references only.
+- `make operator-proof-status OPERATOR_PROOF_STATUS_CATEGORY=proof_ready_implementation`
+  - SHOWN: `ok=True`, `proof_ready=25`, `context_only=2`,
+    `actions_required=23`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=proof_ready_implementation OPERATOR_NEXT_ACTIONS_MAX=30`
+  - SHOWN: `ok=true`, `action_count_total=23`.
+
+Remaining risk:
+- LOW: read-only reporting/status only. No proof is closed, no backlog text is
+  rewritten, and no campaign, market-data fetch, gate, ingestion, live routing,
+  execution, authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-02T01:00:45Z - Roadmap Tracking Checklist
+
+Active role: ENGINEER
+
+Objective:
+- Organize the repo's roadmap/backlog tracking into one operator-facing
+  checklist without moving files or changing runtime behavior.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` is the source of truth for backlog content.
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` defines safe batching lanes.
+- SHOWN: launch, strategy expansion, and derivatives/intraday boundaries are
+  tracked in separate docs, so an operator has to jump across files to see the
+  current execution order.
+
+What changed:
+- Added `docs/ROADMAP_TRACKING_CHECKLIST.md` as the top-level roadmap index.
+- Linked the checklist from `REMAINING_TASKS.md` and
+  `docs/BACKLOG_EXECUTION_LANES.md`.
+- Added `tests/test_roadmap_tracking_checklist.py` to pin the organizer's
+  source-of-truth boundaries, directional plan, commands, and non-authority
+  statements.
+
+Why this change was chosen:
+- The repo already had the underlying trackers. The missing piece was a single
+  low-risk navigation artifact that organizes them without inventing new
+  backlog authority or reopening completed work.
+
+Expected outcome:
+- Operators can start from one checklist, identify the correct source document
+  and command, and avoid mixing passive proof work, read-only research, and
+  high-risk live/gate/deploy changes.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_checklist.py tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: `12 passed in 0.18s`.
+- `./.venv/bin/python -m py_compile tests/test_roadmap_tracking_checklist.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test organization only. No campaign, market-data fetch, proof
+  closure, gate, ingestion, live routing, execution, authorization, workflow,
+  deployment, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-02T01:07:10Z - Executable Roadmap Tracking Status
+
+Active role: ENGINEER
+
+Objective:
+- Continue repo organization by making the new roadmap checklist mechanically
+  checkable through a read-only status command and Makefile target.
+
+What was found:
+- SHOWN: the roadmap checklist existed, but checking whether it linked the
+  required source docs and commands still required manual inspection.
+- SHOWN: existing operator status reports follow a service-builder plus script
+  wrapper pattern and expose JSON Make targets.
+
+What changed:
+- Added `services/analytics/roadmap_tracking_status.py`.
+- Added `scripts/report_roadmap_tracking_status.py`.
+- Added `make roadmap-tracking-status` and
+  `make roadmap-tracking-status-json`.
+- Added script-index entries and tests for roadmap status, script-index
+  alignment, and checklist command coverage.
+
+Why this change was chosen:
+- It turns the organizer document into an executable invariant: linked source
+  docs, required commands, Makefile targets, and non-authority boundary phrases
+  are checked automatically.
+
+Expected outcome:
+- Operators can run one read-only command to verify the roadmap checklist is
+  still aligned before choosing the next proof, research report, or code batch.
+
+Verification:
+- `make roadmap-tracking-status-json`
+  - SHOWN: `ok=true`, `command_count=8`, `source_doc_count=7`,
+    `missing_commands=[]`, `missing_docs=[]`, `missing_boundaries=[]`.
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `16 passed in 0.37s`.
+- `./.venv/bin/python -m py_compile services/analytics/roadmap_tracking_status.py scripts/report_roadmap_tracking_status.py tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make roadmap-tracking-status`
+  - SHOWN: `ok=True sources=7/7 commands=8/8 boundaries=6/6`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only reporting and docs/tests only. No campaign, market-data fetch,
+  proof closure, gate, ingestion, live routing, execution, authorization,
+  workflow, deployment, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-02T01:15:31Z - Roadmap Health In Operator Status Bundle
+
+Active role: ENGINEER
+
+Objective:
+- Continue repo organization by making roadmap checklist health part of the
+  standard operator check-in path.
+
+What was found:
+- SHOWN: `make roadmap-tracking-status-json` verified the checklist directly,
+  but `operator-status` and `operator-next-actions` did not include roadmap
+  health.
+- SHOWN: a healthy roadmap should not create executable next-action rows; only
+  a broken checklist should generate a low-risk repair action.
+
+What changed:
+- `operator_status_bundle` now includes `roadmap_tracking_status` as the
+  `roadmap` section.
+- `operator-next-actions` now recognizes a `roadmap_tracking` lane and emits a
+  repair action only if roadmap tracking is incomplete.
+- `report_operator_status_bundle.py` prints compact roadmap health.
+- `report_operator_next_actions.py`, `scripts/SCRIPTS.md`, and regression
+  tests were updated.
+
+Why this change was chosen:
+- It keeps the new organizer from becoming another file operators must remember
+  manually. Normal check-in output now shows whether roadmap tracking is aligned.
+
+Expected outcome:
+- `make operator-status OPERATOR_STATUS_SECTION=roadmap` shows roadmap source,
+  command, and boundary health; `make operator-next-actions-json
+  OPERATOR_NEXT_ACTIONS_LANE=roadmap_tracking` returns no actions when healthy
+  and a concrete repair action if the roadmap check fails.
+
+Verification:
+- `make operator-status OPERATOR_STATUS_SECTION=roadmap`
+  - SHOWN: `ok=True`, `roadmap: ok=1 sources=7 commands=8 boundaries=6 actions_required=0`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=roadmap_tracking OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: `ok=true`, `action_count_total=0`, `action_count_available=0`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `58 passed in 0.60s`.
+
+Remaining risk:
+- LOW: read-only operator reporting and docs/tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, workflow, deployment, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## 2026-08-02T00:46:56Z - Operator Next Actions Generic Lane Suppression
@@ -29607,4 +31495,2605 @@ Remaining risk:
   campaign, market-data fetch, artifact generation, proof closure, gate,
   ingestion, live routing, execution, authorization, or runtime mutation
   changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T03:16:41Z - Backup/Restore Drill Passive Evidence Detection
+
+Active role: ENGINEER
+
+Objective:
+- Convert the passive backup/restore drill row from command-only guidance into
+  read-side evidence detection without running backup, restore, campaign, market
+  data, or service commands.
+
+What was found:
+- The backup/restore passive item only returned `command_guidance`, so it could
+  not mark itself satisfied after the operator completed and recorded the real
+  drill.
+- `scripts/backup_state.py` already writes operator journal events for
+  `state_backup`, `state_backup_verify`, and `state_restore`; the missing piece
+  was read-side aggregation plus a final runbook checkpoint marker.
+
+What changed:
+- Added `make record-backup-restore-drill-checkpoint`, which records a
+  `runbook_checkpoint` event for `state_backup_restore_drill` after the operator
+  completes the drill and backup-artifact secrets-scan review.
+- Added backup/verify/restore/checkpoint detection in
+  `services/analytics/operator_proof_status.py`; the row satisfies only when all
+  four accepted records are present.
+- Updated script documentation and Makefile wiring tests.
+- Added regression tests for missing, partial-without-checkpoint, and fully
+  satisfied backup/restore drill status.
+
+Why this change was chosen:
+- It reuses the existing operator event journal instead of introducing a second
+  backup evidence format, and it keeps the status command passive/read-only.
+
+Expected outcome:
+- `operator-next-actions-passive[-json]` keeps pointing first to backup, then
+  verify, then restore, then checkpoint, and only removes the backup/restore row
+  after the full drill sequence is recorded.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py tests/test_operator_event_journal.py`
+  - SHOWN: `95 passed in 1.05s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py tests/test_makefile_wiring.py scripts/record_operator_event.py`
+  - SHOWN: exit 0.
+- `make -n record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON=reviewed`
+  - SHOWN: dry-run emits `scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target state_backup_restore_drill --result completed --reason "reviewed"`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: exit 0; backup/restore passive row remains open locally with `next_action=make backup-state STATE_BACKUP_DEST=<backup_dir>`, as expected without recorded backup/verify/restore/checkpoint events.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: Makefile/docs/status/tests only. No backup, restore, campaign, market-data
+  fetch, service operation, gate, live routing, authorization, or runtime policy
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T03:59:28Z - Exchange Sandbox Smoke Passive Evidence Detection
+
+Active role: ENGINEER
+
+Objective:
+- Convert the passive sandbox/testnet lifecycle proof row from command-only
+  guidance into standard evidence detection without running sandbox smoke,
+  campaigns, market-data fetches, services, or proof-closing operations.
+
+What was found:
+- `scripts/smoke_exchange.py` printed JSON but had no evidence artifact mode.
+- The passive operator row for sandbox/testnet proof therefore stayed at
+  `command_guidance` and could not satisfy after an operator completed a smoke
+  proof.
+
+What changed:
+- Added `--evidence-dest` to `scripts/smoke_exchange.py`; recorded output is
+  tagged with `report_type=exchange_sandbox_smoke`, `read_only=true`, and a
+  timestamp.
+- Added `make record-exchange-sandbox-smoke` to write standard evidence under
+  `.cbp_state/data/exchange_sandbox_smoke/`.
+- Updated `operator_proof_status` so the sandbox/testnet passive row satisfies
+  only on a recorded successful sandbox smoke artifact with successful checks.
+- Updated script documentation, Makefile wiring tests, smoke CLI tests, and
+  operator proof status tests.
+
+Why this change was chosen:
+- It keeps the status layer passive while making completed operator smoke proof
+  durable and machine-detectable. The normal `smoke-exchange-sandbox` command
+  remains available; the new target is the recordable proof path.
+
+Expected outcome:
+- `operator-next-actions-passive[-json]` points to
+  `make record-exchange-sandbox-smoke` until a valid artifact exists, then
+  removes the sandbox/testnet row from passive next actions.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_exchange_smoke.py tests/test_smoke_exchange_scripts.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `98 passed in 1.08s`.
+- `./.venv/bin/python -m py_compile scripts/smoke_exchange.py services/diagnostics/exchange_smoke.py services/analytics/operator_proof_status.py tests/test_smoke_exchange_scripts.py tests/test_operator_proof_status.py tests/test_makefile_wiring.py`
+  - SHOWN: exit 0.
+- `make -n record-exchange-sandbox-smoke`
+  - SHOWN: dry-run emits `scripts/smoke_exchange.py --exchange binance --sandbox --orderbook --evidence-dest .cbp_state/data/exchange_sandbox_smoke`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: exit 0; sandbox/testnet passive row now reports `next_action=make record-exchange-sandbox-smoke`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: evidence-output option, Makefile/docs/status/tests only. No sandbox smoke
+  was executed by this change, and no campaign, market-data fetch, service
+  operation, gate, live routing, authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T04:02:38Z - Manual Strategy Decision Prerequisite Gating
+
+Active role: ENGINEER
+
+Objective:
+- Keep passive next-actions from prompting a manual strategy-performance
+  decision before the paper gate reaches its configured threshold.
+
+What was found:
+- The passive row text says the manual strategy performance decision happens
+  after the paper gate reaches the configured threshold, but the status layer
+  prompted `make record-manual-strategy-performance-decision` whenever the
+  decision event was missing, even if the latest paper-gate velocity artifact
+  still reported incomplete thresholds.
+
+What changed:
+- `operator_proof_status` now exposes paper-gate velocity threshold fields and
+  routes the manual strategy decision through a prerequisite-aware detector.
+- If paper-gate velocity evidence is missing, the manual decision row waits for
+  `make record-paper-gate-velocity`.
+- If paper-gate velocity exists but `thresholds_ready=false`, the row reports
+  `waiting_for_paper_gate_threshold` with no operator next action.
+- If `thresholds_ready=true`, the existing manual decision record command is
+  surfaced unchanged.
+- Added regression tests for threshold-wait and threshold-ready behavior.
+
+Why this change was chosen:
+- It removes premature operator work without changing the paper gate, thresholds,
+  campaign state, or decision event contract.
+
+Expected outcome:
+- `operator-next-actions-passive[-json]` no longer asks for the manual strategy
+  performance decision until the configured paper gate is actually ready.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `85 passed in 0.75s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions-passive-json`
+  - SHOWN: exit 0; local passive next-actions dropped from 12 to 11 and no longer include `record-manual-strategy-performance-decision` while local `paper_gate_velocity.latest.json` has `thresholds_ready=false`.
+
+Remaining risk:
+- LOW: read-only status/reporting and tests only. No campaign, market-data fetch,
+  service operation, gate threshold, promotion logic, live routing,
+  authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T21:31:11Z - Execution Cost Report Prerequisite Gating
+
+Active role: ENGINEER
+
+Objective:
+- Keep passive next-actions from prompting execution-cost report generation
+  before stored `shadow_would_be_fill` records exist.
+
+What was found:
+- The passive row text says the execution-cost report uses shadow-derived
+  records, but the status layer prompted `make record-execution-cost-stack`
+  whenever the report artifact was missing, even when no
+  `shadow_would_be_fill` evidence records were present.
+
+What changed:
+- `operator_proof_status` now checks the existing shadow-record detector before
+  surfacing the execution-cost report command.
+- If the cost report is missing and shadow records are missing or invalid, the
+  row reports `waiting_for_shadow_would_be_fill_records` with no operator next
+  action.
+- Once clean shadow records exist, the existing `make record-execution-cost-stack`
+  action is surfaced unchanged.
+- Added regression tests for waiting, ready-to-record, recorded, and invalid
+  execution-cost report states.
+
+Why this change was chosen:
+- It removes premature operator work without changing the report generator,
+  shadow recorder, paper/shadow behavior, campaign state, or execution policy.
+
+Expected outcome:
+- `operator-next-actions-passive[-json]` no longer asks for an execution-cost
+  stack report until the prerequisite shadow records exist.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `87 passed in 0.75s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions-passive-json`
+  - SHOWN: exit 0; local passive next-actions dropped from 11 to 10 and no longer include `record-execution-cost-stack` while no local `shadow_would_be_fill` records exist.
+
+Remaining risk:
+- LOW: read-only status/reporting and tests only. No campaign, market-data fetch,
+  report generation, shadow recording, service operation, gate threshold,
+  promotion logic, live routing, authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T21:33:06Z - Funding Persistent-Campaign Decision Prerequisite Gating
+
+Active role: ENGINEER
+
+Objective:
+- Keep passive next-actions from prompting a `funding_extreme` persistent-campaign
+  decision when reviewed funding research records no actionable candidate basis.
+
+What was found:
+- The passive row text scopes the persistent-campaign decision to reviewed
+  price-joined research that shows an actionable basis, but the status layer
+  still prompted a decision when funding research was complete with zero
+  actionable candidates.
+
+What changed:
+- `operator_proof_status` now makes the funding decision action-required only
+  when research is missing/needs repair or when reviewed research records at
+  least one actionable candidate.
+- Complete reviewed research with no actionable basis remains visible as
+  `no_actionable_basis`, but produces no operator next action.
+- Existing recorded decisions still satisfy the row.
+- Added regression tests for no-candidate, actionable-candidate, and recorded
+  decision states.
+
+Why this change was chosen:
+- It removes premature operator work without changing funding research artifacts,
+  strategy configuration, campaign behavior, or qualification logic.
+
+Expected outcome:
+- `operator-next-actions-passive[-json]` no longer asks for a funding persistent
+  campaign decision unless reviewed research actually presents an actionable
+  candidate or the research pipeline is missing/incomplete.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `88 passed in 0.81s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions-passive-json`
+  - SHOWN: exit 0; local passive next-actions dropped from 10 to 9 and no longer include `record-funding-extreme-persistent-campaign-decision` while local funding research has zero actionable candidates.
+
+Remaining risk:
+- LOW: read-only status/reporting and tests only. No research pipeline,
+  campaign, market-data fetch, artifact generation, strategy config,
+  qualification gate, live routing, authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T21:36:28Z - Passive Operator Summary Waiting Count Separation
+
+Active role: ENGINEER
+
+Objective:
+- Make the passive operator-evidence summary distinguish completed proof items
+  from waiting/non-actionable rows.
+
+What was found:
+- `passive_operator_items_satisfied` counted every passive row with
+  `action_required=false` as satisfied. After prerequisite gating, that
+  incorrectly treated waiting rows such as "not ready yet" as completed proof.
+
+What changed:
+- `operator_proof_status` now derives satisfied rows from
+  `artifact_status.satisfied`.
+- Added explicit summary counts for `passive_operator_items_waiting` and
+  `passive_operator_items_action_required`.
+- `operator_status_bundle` and the text reporter now surface the new counts.
+- Updated regression tests so waiting rows are not counted as satisfied.
+
+Why this change was chosen:
+- It preserves the reduced operator-action list while making the summary
+  truthful: satisfied means proof recorded, waiting means prerequisite not yet
+  met, and action-required means the operator can act now.
+
+Expected outcome:
+- `operator-status` and passive next-action summaries no longer overstate
+  completed proof work when rows are intentionally waiting on prerequisites.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `88 passed in 0.66s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py services/analytics/operator_status_bundle.py scripts/report_operator_status_bundle.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `build_operator_status_bundle(section="operator_proof")`
+  - SHOWN: local summary reports `passive_operator_items=15`,
+    `passive_operator_items_satisfied=3`, `passive_operator_items_waiting=3`,
+    `passive_operator_items_action_required=9`, and
+    `passive_operator_evidence_actions_required=9`.
+- `build_operator_next_actions(action_source="passive_operator_evidence")`
+  - SHOWN: local passive next-actions report 9 available actions with the same
+    3 satisfied / 3 waiting / 9 action-required source split.
+
+Remaining risk:
+- LOW: read-only status/reporting and tests only. No campaigns, market-data
+  fetches, proof artifacts, strategy configs, promotion gates, live routing,
+  authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T21:40:01Z - Passive Operator Next-Action Context Projection
+
+Active role: ENGINEER
+
+Objective:
+- Make passive operator next-action rows self-explanatory without requiring a
+  second lookup in the full operator-proof report.
+
+What was found:
+- `operator-next-actions --lane passive_operator_evidence` showed ordinals and
+  commands, but omitted the proof text and artifact status. That made the
+  checklist harder to act on safely.
+- The bundle layer compacted passive rows, so artifact context had to be carried
+  through both `operator_status_bundle` and `operator_next_actions`.
+
+What changed:
+- `operator_status_bundle` now carries compact passive artifact context:
+  `artifact_id` and `artifact_status`.
+- `operator_next_actions` now projects passive proof text plus artifact context
+  into action rows.
+- `report_operator_next_actions.py` prints the proof text and artifact status
+  for passive operator-evidence rows.
+- Added regression coverage for dict-shaped artifact payloads and compact
+  string artifact statuses.
+
+Why this change was chosen:
+- It improves operator checklist clarity without changing action selection,
+  proof status computation, artifact generation, campaigns, gates, or execution.
+
+Expected outcome:
+- The passive next-action report tells the operator what proof each command
+  satisfies and what artifact state triggered it.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_proof_status.py`
+  - SHOWN: `88 passed in 0.71s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py services/analytics/operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --lane passive_operator_evidence --max-actions 2`
+  - SHOWN: exit 0; local output includes proof text and
+    `artifact_status=command_guidance artifact_id=exchange_sandbox_smoke_guidance`
+    for the first passive action.
+
+Remaining risk:
+- LOW: read-only reporting and tests only. No campaigns, market-data fetches,
+  proof artifacts, strategy configs, promotion gates, live routing,
+  authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-09T21:41:43Z - Operator-Proof Next-Action Context Projection
+
+Active role: ENGINEER
+
+Objective:
+- Make operator-proof next-action rows include the proof marker text that
+  explains what the REMAINING_TASKS line is asking for.
+
+What was found:
+- `operator-next-actions` showed `operator_proof` line numbers and commands,
+  but omitted the marker text, marker token, and proof status already present in
+  `operator_proof_status`.
+
+What changed:
+- `operator_status_bundle` now carries compact proof-marker context:
+  `marker`, `status`, and `text`.
+- `operator_next_actions` projects those fields into `operator_proof` action
+  rows.
+- `report_operator_next_actions.py` prints proof text, marker, and status for
+  operator-proof actions.
+- Added regression assertions for bundle and next-action projection.
+
+Why this change was chosen:
+- It makes the main next-action checklist usable without requiring the operator
+  to open `REMAINING_TASKS.md` for every proof marker.
+
+Expected outcome:
+- Operator-proof next actions show both the command and the exact proof text
+  driving the action.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_proof_status.py`
+  - SHOWN: `88 passed in 0.70s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py services/analytics/operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --lane operator_proof --max-actions 2`
+  - SHOWN: exit 0; local output includes proof text plus
+    `marker=operator-host status=open` for the first operator-proof rows.
+
+Remaining risk:
+- LOW: read-only reporting and tests only. No action selection, proof status,
+  campaigns, market-data fetches, proof artifacts, strategy configs, promotion
+  gates, live routing, authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:05:04Z - Current System Diagram And Roadmap Source Tracking
+
+Active role: ENGINEER
+
+Objective:
+- Add a compact current-state system diagram that matches the evolved repo and
+  make roadmap tracking treat it as a first-class source document.
+
+What was found:
+- `docs/PROJECT_DIRECTIONAL_PLAN.md` and `docs/ARCHITECTURE.md` described the
+  current direction and repo shape, but there was no single compact diagram
+  showing the present operator, advisory, data, evidence, strategy, risk, and
+  execution boundaries.
+- After adding the diagram to the roadmap table, `roadmap_tracking_status`
+  still tracked only the previous seven source docs.
+
+What changed:
+- Added `docs/CURRENT_SYSTEM_DIAGRAM.md` with a Mermaid current-state map,
+  current authority boundaries, current multi-asset status, and near-term
+  direction.
+- Linked the diagram from `docs/ARCHITECTURE.md` and
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- Updated `roadmap_tracking_status` so `make roadmap-tracking-status-json`
+  tracks the diagram as an eighth source document.
+- Added tests pinning that the diagram does not claim profitability, live
+  capital reliability, AI/order authority, or active stock/options execution
+  support.
+
+Why this change was chosen:
+- It addresses architecture/scope confusion without changing runtime behavior.
+  The diagram is descriptive and bounded; it does not authorize campaigns,
+  gates, execution, broker expansion, or live trading.
+
+Expected outcome:
+- Architecture and roadmap discussions start from one current repo map instead
+  of re-litigating whether BTC/USDT, AI advisory work, stocks/options, or live
+  execution are the project identity.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_current_system_diagram.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_project_directional_plan.py tests/test_project_identity_scope.py`
+  - SHOWN: `21 passed in 0.53s`.
+- `./.venv/bin/python -m py_compile services/analytics/roadmap_tracking_status.py tests/test_current_system_diagram.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: exit 0.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=8`,
+    `source_docs_linked=8`, and `docs/CURRENT_SYSTEM_DIAGRAM.md` listed as a
+    linked source doc.
+
+Remaining risk:
+- LOW: docs, read-only roadmap tracking, and tests only. No campaigns,
+  market-data fetches, proof artifacts, strategy configs, promotion gates, live
+  routing, broker support, authorization, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:06:57Z - Stock Options Requirements Boundary
+
+Active role: ENGINEER
+
+Objective:
+- Convert the stock/options backlog note into a dedicated requirements boundary
+  document before any equities/options implementation work exists.
+
+What was found:
+- `REMAINING_TASKS.md` already contains a stock/options requirements item and
+  `tests/test_stock_options_requirements_backlog.py` pins the backlog
+  boundary, but there was no dedicated document for the requirements packet.
+
+What changed:
+- Added `docs/research/stock_options_requirements.md`.
+- The document states that stock/options research may run in parallel with
+  crypto only as an isolated read-only lane, while stock/options execution,
+  broker credentials, campaigns, promotion evidence, and shared crypto risk
+  budget remain prohibited until separate review.
+- Linked the new document from `docs/CURRENT_SYSTEM_DIAGRAM.md` and
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- Updated `roadmap_tracking_status` so the new stock/options boundary is
+  tracked as a ninth roadmap source document.
+- Extended tests to pin OPRA/OCC/ODD, OSI/OCC symbology, assignment/exercise,
+  no stock/options routing, no shared risk budget, and research-only labels.
+
+Why this change was chosen:
+- It answers the stock/options scope question without creating a broker/data
+  integration or mixing equities/options into the crypto paper gate.
+
+Expected outcome:
+- Future stock/options work starts from a reviewed requirements boundary and
+  cannot silently become execution, promotion evidence, or shared-risk scope.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_stock_options_requirements_backlog.py tests/test_current_system_diagram.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: `15 passed in 0.46s`.
+- `./.venv/bin/python -m py_compile services/analytics/roadmap_tracking_status.py tests/test_stock_options_requirements_backlog.py tests/test_current_system_diagram.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: exit 0.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=9`,
+    `source_docs_linked=9`, and
+    `docs/research/stock_options_requirements.md` listed as a linked source
+    doc.
+
+Remaining risk:
+- LOW: docs, read-only roadmap tracking, and tests only. No equities/options
+  data integration, broker credentials, campaigns, market-data fetches,
+  promotion gates, crypto risk budget, order routing, authorization, or runtime
+  policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:09:33Z - Symbol Selection Current Boundary
+
+Active role: ENGINEER
+
+Objective:
+- Document how symbol selection works today and prevent read-only planning
+  surfaces from being mistaken for automatic campaign, promotion, or live
+  trading authority.
+
+What was found:
+- Current campaign symbols come from configs/manifests.
+- `services/signals/universe_loader.py`, `scripts/data/run_candidate_scan.py`,
+  `scripts/plan_multi_symbol_paper_campaigns.py`,
+  `services/runtime/dynamic_symbol_selector.py`, and
+  `services/analytics/multi_symbol_paper_campaign_generator.py` exist, but the
+  current governed boundary keeps them in research/planning/helper roles unless
+  a separate reviewed policy changes campaign or promotion authority.
+
+What changed:
+- Added `docs/strategies/symbol_selection_current_boundary.md`.
+- Linked it from `docs/CURRENT_SYSTEM_DIAGRAM.md` and
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- Updated `roadmap_tracking_status` to track the symbol-selection boundary as a
+  roadmap source document.
+- Added tests pinning that BTC/USDT is not the project identity, current
+  campaigns trade configured symbols, candidate scan/multi-symbol planning are
+  read-only/planning surfaces, and proposals cannot change active campaigns or
+  count toward promotion without review.
+
+Why this change was chosen:
+- It answers the recurring multi-trading/symbol-selection question without
+  changing campaign manifests, strategy configs, paper gates, live execution,
+  or risk semantics.
+
+Expected outcome:
+- Future symbol-universe work starts from the explicit boundary: automatic
+  selectors can propose, but they do not control canonical promotion or live
+  trading until separately reviewed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_symbol_selection_current_boundary.py tests/test_current_system_diagram.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: `17 passed in 0.34s`.
+- `./.venv/bin/python -m py_compile services/analytics/roadmap_tracking_status.py tests/test_symbol_selection_current_boundary.py tests/test_current_system_diagram.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: exit 0.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=10`,
+    `source_docs_linked=10`, and
+    `docs/strategies/symbol_selection_current_boundary.md` listed as a linked
+    source doc.
+
+Remaining risk:
+- LOW: docs, read-only roadmap tracking, and tests only. No campaigns,
+  market-data fetches, symbol universe, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, authorization, or runtime policy
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:10:41Z - README Current Architecture Boundary Links
+
+Active role: ENGINEER
+
+Objective:
+- Make the root README point at the current system map and the new expansion
+  boundaries.
+
+What was found:
+- `README.md` linked project identity and directional plan, but not the current
+  system diagram, symbol-selection boundary, or stock/options requirements
+  boundary.
+
+What changed:
+- Added a root README pointer to `docs/CURRENT_SYSTEM_DIAGRAM.md`,
+  `docs/strategies/symbol_selection_current_boundary.md`, and
+  `docs/research/stock_options_requirements.md`.
+- Pinned that README linkage and non-authorization language in
+  `tests/test_project_directional_plan.py`.
+
+Why this change was chosen:
+- The public entry point now routes architecture/scope questions to the current
+  repo map and the explicit boundaries instead of leaving readers to infer
+  scope from campaign defaults.
+
+Expected outcome:
+- New sessions start from current identity, current diagram, symbol-selection
+  boundary, and stock/options requirements before proposing runtime changes.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_project_directional_plan.py tests/test_project_identity_scope.py tests/test_current_system_diagram.py tests/test_symbol_selection_current_boundary.py tests/test_stock_options_requirements_backlog.py`
+  - SHOWN: `18 passed in 0.40s`.
+- `./.venv/bin/python -m py_compile tests/test_project_directional_plan.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: README and tests only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:29:41Z - Repo Layout Orientation Doc Index
+
+Active role: ENGINEER
+
+Objective:
+- Make the current architecture, scope, roadmap, symbol-selection, and
+  stock/options boundary docs discoverable from the repo layout index.
+
+What was found:
+- `docs/REPO_LAYOUT.md` documented source roots, sidecars, local state, and
+  overlapping service families, but it did not point readers to the current
+  system diagram or the scope/roadmap boundary docs added in the recent
+  planning work.
+- `scripts/SCRIPTS.md` and the roadmap tracking source-doc registry were
+  already aligned; no script-index change was needed.
+
+What changed:
+- Added an `Orientation docs` section to `docs/REPO_LAYOUT.md` linking:
+  `docs/CURRENT_SYSTEM_DIAGRAM.md`,
+  `docs/PROJECT_IDENTITY_AND_SCOPE.md`,
+  `docs/PROJECT_DIRECTIONAL_PLAN.md`,
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`,
+  `docs/strategies/symbol_selection_current_boundary.md`, and
+  `docs/research/stock_options_requirements.md`.
+- Stated that those documents are descriptive guardrails and do not authorize
+  campaigns, promotion-gate changes, broker expansion, stock/options execution,
+  live trading, runtime policy changes, or strategy universe changes.
+- Extended `tests/test_repo_layout_scope_doc.py` to pin the orientation links
+  and non-authorization boundary.
+
+Why this change was chosen:
+- Repo organization should route new sessions to the current scope and
+  architecture documents without changing runtime behavior or creating another
+  planning artifact.
+
+Expected outcome:
+- Future work starts from the current system map and explicit scope boundaries
+  instead of inferring direction from older root-layout notes or current BTC
+  campaign defaults.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_repo_layout_scope_doc.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_current_system_diagram.py tests/test_project_directional_plan.py`
+  - SHOWN: `28 passed in 0.42s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=10`,
+    `source_docs_linked=10`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: repo layout documentation and tests only. No campaigns, market-data
+  fetches, symbol universe, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, authorization, broker support,
+  or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:31:26Z - Roadmap Source Registry Tracks Repo Layout
+
+Active role: ENGINEER
+
+Objective:
+- Keep the roadmap status registry aligned with the repo layout orientation
+  index.
+
+What was found:
+- `docs/REPO_LAYOUT.md` now links the current system, scope, roadmap,
+  symbol-selection, and stock/options boundary documents, but
+  `docs/ROADMAP_TRACKING_CHECKLIST.md` and
+  `services/analytics/roadmap_tracking_status.py` did not track
+  `docs/REPO_LAYOUT.md` as a required source document.
+
+What changed:
+- Added `docs/REPO_LAYOUT.md` to the roadmap checklist source-of-truth table.
+- Added `docs/REPO_LAYOUT.md` to `REQUIRED_SOURCE_DOCS` in
+  `services/analytics/roadmap_tracking_status.py`.
+- Updated roadmap tracking tests to expect 11 linked source documents.
+
+Why this change was chosen:
+- The repo layout is now an operator orientation index; roadmap health should
+  fail if that index disappears or stops being linked from the operator
+  checklist.
+
+Expected outcome:
+- `make roadmap-tracking-status-json` now verifies that the repo layout
+  orientation index exists and is linked from the roadmap checklist.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py tests/test_repo_layout_scope_doc.py tests/test_current_system_diagram.py tests/test_project_directional_plan.py`
+  - SHOWN: `28 passed in 0.51s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=11`,
+    `source_docs_linked=11`.
+- `./.venv/bin/python -m py_compile services/analytics/roadmap_tracking_status.py tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: roadmap checklist, read-only status registry, tests, and work log only.
+  No campaigns, market-data fetches, symbol universe, strategy configs,
+  promotion gates, paper/shadow/live execution, order routing, authorization,
+  broker support, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-10T04:32:32Z - README Links Repo Orientation Index
+
+Active role: ENGINEER
+
+Objective:
+- Make the root README point to the repo layout orientation index.
+
+What was found:
+- `README.md` linked the project identity, directional plan, current system
+  diagram, symbol-selection boundary, and stock/options boundary, but it did
+  not link `docs/REPO_LAYOUT.md`.
+
+What changed:
+- Added a README pointer to `docs/REPO_LAYOUT.md` for repo orientation and
+  source-root boundaries.
+- Updated `tests/test_project_directional_plan.py` to pin that README link.
+
+Why this change was chosen:
+- The README is the first repo entry point; it should route readers to the
+  source-root and orientation index without requiring them to discover it via
+  roadmap status output.
+
+Expected outcome:
+- New sessions can find current architecture, scope, roadmap, symbol-selection,
+  stock/options, and repo-root boundaries directly from the README.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_project_directional_plan.py tests/test_repo_layout_scope_doc.py tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py`
+  - SHOWN: `24 passed in 0.35s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=11`,
+    `source_docs_linked=11`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: README, test, and work log only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, or runtime policy
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T04:56:00Z - Repo Alignment Workflow Links Layout Boundary
+
+Active role: ENGINEER
+
+Objective:
+- Keep repo alignment guidance tied to the current source-root and orientation
+  boundary document.
+
+What was found:
+- `docs/REPO_ALIGNMENT_WORKFLOW.md` documented repo-doctor and validation
+  commands, but did not point to `docs/REPO_LAYOUT.md`, the current source-root
+  and orientation boundary document.
+- `tools/repo_doctor.py --strict --json` passed on the current checkout:
+  supported baseline present, no missing baseline roots, no non-canonical
+  top-level dirs, and no suspicious top-level files.
+
+What changed:
+- Added a short `docs/REPO_LAYOUT.md` reference to
+  `docs/REPO_ALIGNMENT_WORKFLOW.md`.
+- Stated that alignment commands enforce structure but do not authorize moving
+  source roots, reviving sidecars, or changing runtime scope.
+- Updated `tests/test_repo_alignment_workflow_doc.py` to pin the link and the
+  non-authorization boundary using whitespace-normalized text.
+
+Why this change was chosen:
+- The alignment workflow is a repo-organization entry point; it should route
+  source-root questions to the accepted layout boundary instead of leaving that
+  relationship implicit.
+
+Expected outcome:
+- Repo alignment work remains connected to the current root-layout policy
+  without changing command behavior.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_repo_alignment_workflow_doc.py tests/test_repo_layout_scope_doc.py tests/test_readme_alignment_wiring.py tests/test_repo_doctor_strict.py`
+  - SHOWN: `13 passed in 0.90s`.
+- `./.venv/bin/python tools/repo_doctor.py --strict --json`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: alignment documentation, test, and work log only. No campaigns,
+  market-data fetches, symbol universe, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, authorization, broker support,
+  command behavior, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T04:56:25Z - Roadmap Checklist Includes Operator Status Bundle
+
+Active role: ENGINEER
+
+Objective:
+- Make the canonical operator check-in bundle command discoverable from the
+  roadmap checklist and verified by roadmap status.
+
+What was found:
+- `make operator-status-json` is the actual bundled check-in target for
+  roadmap, backlog, research, read-only command, and proof status.
+- `docs/ROADMAP_TRACKING_CHECKLIST.md` listed the component commands and next
+  actions command, but not the bundled `operator-status-json` command.
+
+What changed:
+- Added `make operator-status-json` to the roadmap active tracking table and
+  fast-command list.
+- Added `make operator-status-json` to
+  `services/analytics/roadmap_tracking_status.py::REQUIRED_COMMANDS`.
+- Updated roadmap tracking tests to expect 12 required commands.
+
+Why this change was chosen:
+- It prevents operator check-ins from depending on memory or guessing the target
+  name, without changing any command behavior.
+
+Expected outcome:
+- `make roadmap-tracking-status-json` now fails if the bundled operator status
+  command disappears from the checklist or Makefile.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `60 passed in 0.68s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `command_count=12`,
+    `commands_listed=12`, `make_targets_present=12`.
+- `make operator-status-json`
+  - SHOWN: exit 0; `shown_ok=true`, `roadmap_tracking_ok=1`,
+    `roadmap_commands_listed=12`, `operator_read_only_commands_wired=23`,
+    `research_commands_wired=20`, `research_pipelines_latest_ok=2`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: roadmap checklist, read-only status registry, tests, and work log only.
+  No campaigns, market-data fetches, symbol universe, strategy configs,
+  promotion gates, paper/shadow/live execution, order routing, authorization,
+  broker support, command implementation, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T04:59:57Z - README Documents Operator Status Check-In Command
+
+Active role: ENGINEER
+
+Objective:
+- Make the root README expose the canonical bundled operator check-in command.
+
+What was found:
+- `make operator-status-json` is the bundled operator status command and is now
+  tracked by `docs/ROADMAP_TRACKING_CHECKLIST.md`, but `README.md` did not point
+  to it.
+- A prior guessed target name (`operator-status-bundle-json`) does not exist;
+  `scripts/SCRIPTS.md` and the Makefile identify `make operator-status-json` as
+  the correct wrapper.
+
+What changed:
+- Added an `Operator check-in` README sentence pointing to
+  `make operator-status-json`.
+- Extended `tests/test_project_directional_plan.py` to pin the README pointer
+  and its combined roadmap/backlog/research/read-only/proof scope.
+
+Why this change was chosen:
+- The README is the first repo entry point; exposing the bundled check-in
+  command reduces target-name guessing without changing command behavior.
+
+Expected outcome:
+- Operators and future sessions can start from README and run the correct
+  read-only check-in bundle.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_project_directional_plan.py tests/test_readme_alignment_wiring.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_operator_status_bundle.py`
+  - SHOWN: `36 passed in 0.73s`.
+- `./.venv/bin/python -c 'from services.analytics.operator_status_bundle import build_operator_status_bundle; out=build_operator_status_bundle(); s=out["summary"]; print("ok", out["ok"]); [print(k, s.get(k)) for k in ("roadmap_tracking_ok","roadmap_commands_listed","roadmap_source_docs_linked","operator_read_only_commands_wired","research_commands_wired","research_pipelines_latest_ok","operator_proof_actions_required","passive_operator_evidence_actions_required")]'`
+  - SHOWN: `ok True`; `roadmap_tracking_ok=1`;
+    `roadmap_commands_listed=12`; `roadmap_source_docs_linked=11`;
+    `operator_read_only_commands_wired=23`; `research_commands_wired=20`;
+    `research_pipelines_latest_ok=2`; `operator_proof_actions_required=54`;
+    `passive_operator_evidence_actions_required=9`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: README, test, and work log only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, command
+  implementation, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T05:03:06Z - Compat Script Surface Classification
+
+Active role: ENGINEER
+
+Objective:
+- Classify the current `scripts/compat/*.py` family without changing runtime
+  behavior.
+
+What was found:
+- `scripts/compat/` contains mixed compatibility surfaces: shared bootstrap,
+  backing implementations for root wrappers, legacy supervisor helpers,
+  one-shot/loop pipeline helpers, a retired intent-consumer run mode, and a
+  direct live-trader shim.
+- Existing runtime docs classify the canonical operator control plane, but no
+  single classification record covered every tracked `scripts/compat/*.py`
+  file.
+
+What changed:
+- Added `docs/architecture/compat_script_surfaces.md` with a classification row
+  for each tracked `scripts/compat/*.py` file.
+- Linked that classification record from `docs/REPO_LAYOUT.md`.
+- Added `tests/test_compat_script_surface_classification.py` to pin full
+  coverage, the non-authorization boundary, and the retired intent-consumer run
+  reason.
+
+Why this change was chosen:
+- Compatibility script names are easy to misread as current authority. A
+  classification record prevents future work from inferring canonical operator,
+  campaign, promotion, or live-execution authority from file presence.
+
+Expected outcome:
+- Future compatibility-script additions must be classified explicitly, and
+  sessions can route new work to canonical root commands instead of guessing
+  from `scripts/compat/` names.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_compat_script_surface_classification.py tests/test_repo_layout_scope_doc.py tests/test_current_runtime_truth_guard.py tests/test_bot_control_runtime_truth_guard.py tests/test_process_control_runtime_truth_guard.py tests/test_legacy_intent_consumer_retirement.py`
+  - SHOWN: `36 passed in 0.52s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: documentation and tests only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, command behavior, or runtime
+  policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T05:05:11Z - GitHub Auth Runbook And Roadmap Link
+
+Active role: ENGINEER
+
+Objective:
+- Document the supported local GitHub authentication recovery path without
+  changing repo behavior or credentials.
+
+What was found:
+- Local `gh` token/protocol prompts are environment/auth state, not evidence
+  that a repo patch is wrong.
+- No dedicated runbook stated the supported HTTPS/browser-login recovery path,
+  token handling rules, or separation between local `gh` auth and the ChatGPT
+  Codex Connector/GitHub app auth surface.
+
+What changed:
+- Added `docs/GITHUB_AUTH_RUNBOOK.md`.
+- Linked the runbook from `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- Added the runbook to
+  `services/analytics/roadmap_tracking_status.py::REQUIRED_SOURCE_DOCS`.
+- Added `tests/test_github_auth_runbook.py` and updated roadmap tracking tests
+  for 12 required source docs.
+
+Why this change was chosen:
+- It gives future sessions a repo-owned recovery path for invalid local GitHub
+  auth without improvising token handling in chat or changing code to work
+  around a credential problem.
+
+Expected outcome:
+- Roadmap status fails if the GitHub auth boundary disappears from the
+  operator-facing roadmap, and runbook tests pin the token/protocol boundaries.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_github_auth_runbook.py tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py tests/test_operator_status_bundle.py`
+  - SHOWN: `35 passed in 0.65s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=12`,
+    `source_docs_linked=12`, `commands_listed=12`,
+    `make_targets_present=12`.
+- `./.venv/bin/python -c 'from services.analytics.operator_status_bundle import build_operator_status_bundle; out=build_operator_status_bundle(); s=out["summary"]; print("ok", out["ok"]); [print(k, s.get(k)) for k in ("roadmap_tracking_ok","roadmap_commands_listed","roadmap_source_docs_linked","operator_read_only_commands_wired","research_commands_wired","research_pipelines_latest_ok","operator_proof_actions_required","passive_operator_evidence_actions_required")]'`
+  - SHOWN: `ok True`; `roadmap_tracking_ok=1`;
+    `roadmap_commands_listed=12`; `roadmap_source_docs_linked=12`;
+    `operator_read_only_commands_wired=23`; `research_commands_wired=20`;
+    `research_pipelines_latest_ok=2`; `operator_proof_actions_required=54`;
+    `passive_operator_evidence_actions_required=9`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs, read-only roadmap status registry, and tests only. No GitHub auth
+  command was run; no tokens, credentials, remotes, branch protection, CI,
+  campaigns, market-data fetches, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, broker support, or runtime policy
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T05:06:26Z - Roadmap Operator Check-In Checklist
+
+Active role: ENGINEER
+
+Objective:
+- Define a short read-only check-in sequence for the generic operator request
+  "check in".
+
+What was found:
+- `docs/ROADMAP_TRACKING_CHECKLIST.md` had the operating loop and command table,
+  but did not spell out the minimal no-side-effect check-in sequence.
+
+What changed:
+- Added an `Operator Check-In Checklist` section to
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- Added a roadmap checklist test pinning the sequence:
+  `git status --short --branch`, `make operator-status-json`, optional
+  `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20`, and the
+  no-campaign/no-market/no-auth-repair boundary unless explicitly requested.
+
+Why this change was chosen:
+- It converts a repeated generic operator request into a deterministic
+  read-only workflow without changing any command behavior.
+
+Expected outcome:
+- Future check-ins start with current repo/status evidence and report blockers
+  plus next concrete action, instead of drifting into unrelated work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `54 passed in 0.64s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_doc_count=12`,
+    `source_docs_linked=12`, `commands_listed=12`,
+    `make_targets_present=12`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: roadmap checklist, test, and work log only. No campaigns, market-data
+  fetches, symbol universe, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, authorization, broker support,
+  command behavior, GitHub auth, push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T05:07:58Z - Operator Status Roadmap Source Count Regression
+
+Active role: ENGINEER
+
+Objective:
+- Add a regression test that locks existing operator-status behavior without
+  changing runtime code.
+
+What was found:
+- `operator-status-json` already surfaces `roadmap_source_docs_linked`, but the
+  real-repo section-filter path was not directly pinned against the roadmap
+  source registry count.
+
+What changed:
+- Added a test asserting `build_operator_status_bundle(section="roadmap")`
+  reports `roadmap_source_docs_linked == len(REQUIRED_SOURCE_DOCS)` on the real
+  repo and has no roadmap actions when roadmap tracking is healthy.
+
+Why this change was chosen:
+- The roadmap source count changed from 11 to 12 after adding the GitHub auth
+  runbook. The bundle should keep surfacing the registry-derived count instead
+  of drifting from roadmap tracking.
+
+Expected outcome:
+- If future roadmap source docs are added or removed, the operator-status bundle
+  must keep reporting the current registry count.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py`
+  - SHOWN: `32 passed in 0.92s`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=roadmap`
+  - SHOWN: exit 0; `ok=true`, `section_filter=roadmap`,
+    `roadmap_source_docs_linked=12`, `roadmap_tracking_ok=1`,
+    `shown_action_count=0`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: test and work log only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, command behavior, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-13T22:45:00Z - Paper Runner Component Venue Boundary Fix
+
+Active role: ENGINEER
+
+Objective:
+- Fix the managed paper campaign component boundary found during the
+  `funding_extreme` Stage 0 proof: the collector launched the strategy runner
+  against `okx` while the paper engine status still reported the default
+  `coinbase`/`BTC/USD` surface.
+
+What was found:
+- SHOWN: `PaperStrategyEvidenceServiceCfg` component startup strips ambient
+  `CBP_VENUE`/`CBP_SYMBOLS` and passes campaign-scoped values as
+  `CBP_COMPONENT_VENUE`/`CBP_COMPONENT_SYMBOLS`.
+- SHOWN: `services.execution.paper_runner.run_forever()` read only
+  `CBP_VENUE`/`CBP_SYMBOLS`, then fell back to `paper_trading` config defaults.
+  In the isolated `funding_extreme` Stage 0 run, this made
+  `strategy_runner.status.json` report `okx`/`BTC/USDT` while
+  `paper_engine.status.json` reported `coinbase`/`BTC/USD`.
+
+What changed:
+- `services/execution/paper_runner.py` now resolves venue/symbols from
+  component-scoped env first, then ambient compatibility env, then config
+  defaults.
+- Added a regression test proving `CBP_COMPONENT_VENUE=okx` and
+  `CBP_COMPONENT_SYMBOLS=BTC/USDT` drive paper-engine status and
+  mark-to-market calls even when ambient `CBP_VENUE`/`CBP_SYMBOLS` contain
+  different values.
+
+Why this change was chosen:
+- This matches the existing managed-campaign component contract used by the
+  tick publisher and strategy runner. It is the smallest fix for the observed
+  venue mismatch and does not change strategy logic, promotion gates, live
+  execution, or campaign configs.
+
+Expected outcome:
+- Isolated or managed paper campaigns using non-default venues no longer
+  produce split-brain paper runtime status between strategy runner and paper
+  engine.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_engine_limit_and_status.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: `33 passed in 0.44s`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_runner_lifecycle.py tests/test_strategy_runtime_runner.py tests/test_tick_publisher_runtime.py tests/test_funding_stage0_readiness.py tests/test_funding_stage0_proof_verifier.py`
+  - SHOWN: `68 passed in 1.22s`.
+
+Remaining risk:
+- MEDIUM: paper-runtime component behavior changed. The current already-running
+  Stage 0 process was started before this patch and may still show the old
+  paper-engine venue until rerun. No live execution, order routing, promotion
+  gate, strategy config, or capital-moving path changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-12T00:58:10Z - Operator Audit External-Exclusion Guard
+
+Active role: ENGINEER
+
+Objective:
+- Prevent local source-boundary audit work from silently claiming external,
+  manual, environment, or host-side operator-action coverage.
+
+What was found:
+- `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` already names several exclusions
+  that local source scans cannot close: manual file edits, direct manifest
+  edits, direct/manual keyring edits, environment-based credentials, server
+  injection/rotation drills, real host-side no-secret scans, real host-side
+  arm-to-halt replay, and migrations/rollbacks beyond git/work-log evidence.
+- Existing tests proved the matrix covers policy families, but did not pin
+  those external/manual exclusions as non-local proof boundaries.
+
+What changed:
+- Added `test_policy_preserves_external_manual_and_host_side_exclusions()` to
+  `tests/test_operator_audit_coverage.py`.
+
+Why this change was chosen:
+- This is a low-risk classification guard. It prevents repeated source-only
+  patches from overclaiming proof for operator actions that require host output
+  or explicit manual/operator evidence.
+
+Expected outcome:
+- Future edits that remove the external/manual/host-side proof boundaries from
+  the operator audit policy will fail the audit coverage test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: first run failed because the new assertion did not normalize
+    markdown line wrapping; after fixing that, rerun was `56 passed in 0.57s`.
+- `make operator-proof-status-json`
+  - SHOWN: exit 0; report remains read-only/planning-only, with
+    `host_side_reference=24`, `proof_ready_implementation=25`,
+    `remaining_capped_live_proof=8`, `remaining_coverage=3`, and
+    `proof_marker_actions_required=51`.
+
+Remaining risk:
+- LOW: test and work log only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, command behavior, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-12T00:07:05Z - Roadmap Remaining-Task Snapshot Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Refresh the operator-facing roadmap snapshot so it matches the current
+  generated next-actions reports instead of stale August 11 counts.
+
+What was found:
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=60` now reports
+  55 remaining next actions, not the prior 61 shown in
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- The current passive operator-evidence queue has 4 rows:
+  `shadow_would_be_fill` records, Hetzner canonical `.cbp_state` migration
+  checkpoint, paper-to-shadow first-hour rehearsal, and server secrets
+  injection/rotation drill.
+- The proof-ready implementation marker count remains 23.
+- The source summary now reports 24 host-side markers, 8 capped-live proof
+  markers, and 3 remaining-coverage markers; the immediate action view returns
+  17 host-side-reference rows.
+- SHOWN separately before editing: the explicit single-symbol paper-gate policy
+  is already documented and tested, so this batch does not rebuild or reopen it.
+
+What changed:
+- Updated `docs/ROADMAP_TRACKING_CHECKLIST.md` with the current generated
+  counts and current passive evidence queue.
+- Updated `tests/test_roadmap_tracking_checklist.py` so the roadmap snapshot
+  assertions pin the refreshed counts.
+
+Why this change was chosen:
+- The next safe local action was stale operator-facing roadmap cleanup. This
+  keeps check-ins aligned with current generated reports without touching
+  runtime behavior or inventing new backlog work.
+
+Expected outcome:
+- Operator check-ins no longer report stale counts for remaining actions,
+  passive evidence, host-side markers, or remaining coverage markers.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_operator_next_actions.py`
+  - SHOWN: `35 passed in 0.67s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `planning_only=true`, `read_only=true`,
+    `missing_commands=[]`, `missing_make_targets=[]`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=60`
+  - SHOWN: exit 0; `action_count_total=55`, `action_count_returned=55`,
+    available reasons are `passive_operator_evidence=4`,
+    `proof_ready_implementation=23`, `host_side_reference=17`,
+    `remaining_capped_live_proof=8`, and `remaining_coverage=3`; source
+    summary reports `host_side_markers=24`.
+
+Remaining risk:
+- LOW: docs, test, and work log only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, command behavior, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-12T00:09:10Z - Low-Risk Lane Inventory Non-Action Regression
+
+Active role: ENGINEER
+
+Objective:
+- Prevent operator check-ins from treating low-risk backlog-lane planning
+  inventory as an executable local coding queue.
+
+What was found:
+- Mocked coverage already proved backlog-lane rows are planning rows, not
+  executable next actions.
+- The current-source behavior for
+  `backlog_lane="low_risk_docs_tests"` was not pinned by a real-repo
+  regression, leaving room for future check-ins to confuse generic lane
+  inventory with a concrete missing-action row.
+
+What changed:
+- Added a real-repo regression to `tests/test_operator_next_actions.py` proving
+  the current low-risk docs/tests lane reports visible planning rows while
+  returning zero executable actions.
+
+Why this change was chosen:
+- The selected safe local work is a regression test that prevents rebuilding
+  already accepted work or inflating planning inventory into coding tasks. It
+  changes no runtime behavior.
+
+Expected outcome:
+- Future changes that accidentally turn low-risk planning rows into executable
+  next-actions will fail the operator-next-actions test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_backlog_execution_lanes_guard.py tests/test_backlog_lane_status.py`
+  - SHOWN: `39 passed in 1.04s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; `action_count_total=0`, `action_count_available=0`,
+    `planning_row_count=7`, `backlog_lane_filter=low_risk_docs_tests`,
+    `planning_only=true`, `read_only=true`.
+
+Remaining risk:
+- LOW: test and work log only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, command behavior, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T22:14:10Z - Runtime Config Write Boundary Invariant
+
+Active role: ENGINEER
+
+Objective:
+- Close the in-repo source-bypass slice for audited runtime `user.yaml` saves by
+  proving direct runtime config writes stay centralized behind
+  `services.admin.config_editor`.
+
+What was found:
+- SHOWN: normal dashboard/admin/live/first-run saves call
+  `save_user_yaml()` or `ensure_user_yaml_exists()`.
+- SHOWN: current production source has direct `CONFIG_PATH`/`BACKUP_PATH`
+  runtime config write, unlink, and backup primitives only in
+  `services/admin/config_editor.py`.
+- UNVERIFIED: manual file edits, environment overrides, server-side injection,
+  and campaign manifest files remain outside this source-boundary proof.
+
+What changed:
+- Added `tests/test_runtime_config_write_boundary.py`, scanning `dashboard/`,
+  `scripts/`, and `services/` for direct runtime `user.yaml` mutation tokens
+  outside `services/admin/config_editor.py`.
+- Updated the operator audit coverage doc, matrix notes, and backlog note to
+  record the narrowed in-repo boundary and preserve the remaining unclassified
+  sources.
+
+Why this change was chosen:
+- The central helper already owns metadata-only `runtime_config_save` operator
+  events and rollback-on-audit-write-failure behavior. A boundary invariant is
+  the smallest durable guard against future repo code bypassing that contract.
+
+Expected outcome:
+- Future source changes that write, unlink, or back up runtime `user.yaml`
+  outside `config_editor.py` fail locally before they can erode audit coverage.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_runtime_config_write_boundary.py`
+  - SHOWN: `1 passed in 0.17s`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed in 0.60s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; remaining coverage queue stays at 4 host/runtime proof
+    items.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: test/docs-only, but it guards runtime config audit coverage, a
+  sensitive capped-live governance surface. No runtime behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T22:22:00Z - Live Reconciler Intent-History Event Labels
+
+Active role: ENGINEER
+
+Objective:
+- Close the venue reconciliation/fill event-labeling slice of the order-intent
+  lifecycle audit gap without changing live submit, retry, state-transition, or
+  fill-accounting behavior.
+
+What was found:
+- SHOWN: `live_trade_intent_events` already records insert, queue claim, and
+  successful status transitions.
+- SHOWN: all `update_status()` history rows used generic
+  `actor=queue_status_writer`, `action=update_status`, and
+  `reason=update_status`, so the event stream did not distinguish
+  submit-unknown recovery, venue order reconciliation, fill-accounted
+  transitions, lookback fill transitions, or fill deferrals.
+- SHOWN: live reconciler fill payloads are stored through the existing live
+  trading/canonical fill paths; this change does not move fill payload storage
+  into the intent-history table.
+
+What changed:
+- Extended `LiveIntentQueueSQLite.update_status()` with optional
+  `event_actor`, `event_action`, `event_reason`, and `event_meta` fields while
+  preserving default generic event behavior for existing callers.
+- Extended state-authority wrappers to pass origin/authority metadata into
+  queue history rows.
+- Labeled live reconciler submit-unknown, venue order, and fill-accounted/
+  deferred status transitions with specific `live_trade_intent_events.action`
+  values.
+- Updated tests, backlog, operator audit coverage docs, and matrix notes.
+
+Why this change was chosen:
+- The queue store remains the single mutation/history owner. Adding labels to
+  existing successful status-transition writes gives incident review better
+  provenance without adding a second event store or changing live execution
+  decisions.
+
+Expected outcome:
+- A reviewed `live_trade_intent_events` row now shows whether a reconciler
+  status transition came from submit-unknown lookup, venue order reconciliation,
+  or fill evidence, while fill payloads remain in the established fill stores.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_transition_history.py tests/test_live_reconciler_state_authority.py tests/test_live_state_authority_write_result.py tests/test_live_reconciler_submit_unknown_recovery.py`
+  - SHOWN: `20 passed in 0.94s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_reconciler.py tests/test_live_reconciler_fill_attribution.py tests/test_live_reconciler_order_store_gating.py tests/test_live_reconciler_cursor_safety.py`
+  - SHOWN: `11 passed in 0.94s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_transition_history.py tests/test_live_intent_queue_boundary.py tests/test_live_reconciler_state_authority.py tests/test_live_state_authority_write_result.py tests/test_live_reconciler_submit_unknown_recovery.py tests/test_live_queue_submit_owner_authority.py tests/test_live_intent_consumer_duplicate_prevention.py`
+  - SHOWN: `25 passed in 1.35s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_reconciler.py tests/test_live_reconciler_fill_attribution.py tests/test_live_reconciler_order_store_gating.py tests/test_live_reconciler_cursor_safety.py tests/test_crash_consistency_fault_injection.py`
+  - SHOWN: `20 passed, 7 warnings in 1.37s`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed in 0.74s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; remaining coverage queue drops from 4 to 3.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- HIGH: touches live intent state-history plumbing and live reconciler call
+  sites, although state machine, order routing, retry policy, and fill
+  accounting decisions are unchanged. Requires independent review.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T20:40:29Z - AI Copilot Coverage Backlog Sync
+
+Active role: ENGINEER
+
+Objective:
+- Remove stale AI-copilot coverage text that still listed local-only report
+  writes as remaining after the repo already recorded the report-write audit
+  hook as proof-ready.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` first said `call_llm` still had "local-only
+  report writes" remaining.
+- SHOWN: the immediately following backlog paragraph records the AI copilot
+  local report-write audit hook as ready for independent review, with central
+  `services.ai_copilot` report writers appending metadata-only
+  `ai_copilot_report_write` operator events after persisted report artifacts.
+- SHOWN: that same paragraph leaves only the host-side no-secret scan over real
+  report events as remaining coverage.
+
+What changed:
+- Updated the earlier `call_llm` coverage sentence to leave only the host-side
+  no-secret scan over real provider events as remaining.
+
+Why this change was chosen:
+- This is backlog/work-log synchronization only. It removes a repeated
+  completed coverage item from the remaining queue without changing any runtime
+  code or proof status semantics.
+
+Expected outcome:
+- Remaining-coverage tracking no longer asks for local-only AI report-write
+  coverage that the backlog already records as proof-ready.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `48 passed in 0.32s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; line 1937 now reads
+    `` `call_llm`. Remaining coverage: host-side no-secret scan over real``,
+    with the stale local-only report-write coverage removed.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs only. No campaigns, market-data fetches, symbol universe, strategy
+  configs, promotion gates, paper/shadow/live execution, order routing,
+  authorization, broker support, command behavior, GitHub auth, push/merge, or
+  runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T21:31:37Z - Credential Source Posture Read-Only Check
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only command that makes exchange credential source posture
+  explicit without exposing credential values.
+
+What was found:
+- SHOWN: `services.security.credentials_loader.load_exchange_credentials()`
+  can return credentials from OS keyring or environment fallback.
+- Gap: the backlog still tracks environment-based credential changes and
+  server injection/rotation drills, but there was no dedicated read-only
+  command to report whether usable credentials currently resolve from keyring,
+  env, or missing sources without printing values.
+
+What changed:
+- Added `services/security/credential_source_posture.py`.
+- Added `scripts/check_credential_source_posture.py`.
+- Added Make targets `credential-source-posture` and
+  `credential-source-posture-json`.
+- Added `tests/test_credential_source_posture.py` and extended Makefile wiring
+  tests.
+- Updated `scripts/SCRIPTS.md` and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- This is a read-only status command. It does not mutate keyring entries,
+  environment variables, server secrets, exchange state, or runtime config, and
+  the report excludes credential values by construction.
+
+Expected outcome:
+- Operators can distinguish keyring-backed, env-backed, missing, and error
+  credential-source posture before running private connectivity or server
+  injection drills.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_credential_source_posture.py tests/test_credentials_loader.py tests/test_makefile_wiring.py`
+  - SHOWN: `6 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `48 passed`.
+- `make credential-source-posture-json CREDENTIAL_SOURCE_POSTURE_VENUE=coinbase`
+  - SHOWN: failed closed locally with `status=credentials_missing`,
+    `credential_values_logged=false`, and no credential values printed.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; remaining-coverage action count stayed at 4.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: security/credential read-only tooling and docs only. Direct/manual
+  keyring edits and server injection/rotation drill proof remain open.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T21:28:51Z - User Auth Boundary Scan Root Expansion
+
+Active role: ENGINEER
+
+Objective:
+- Close the remaining current-source user/role bypass marker by widening the
+  auth-store boundary invariant to the normal production source roots.
+
+What was found:
+- SHOWN: the existing user-auth boundary guard scanned only `dashboard/` and
+  `services/security/`.
+- SHOWN: `make operator-next-actions-json
+  OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage` still reported a user/role
+  future-surface action because production roots outside that scan were not
+  covered by the wording.
+
+What changed:
+- Widened `tests/test_user_auth_store_boundary.py` to scan `dashboard/`,
+  `scripts/`, and `services/`.
+- Updated `REMAINING_TASKS.md`, `scripts/audit_coverage_matrix.py`, and
+  `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` so current-source user/role
+  keyring-write bypass protection matches the widened roots.
+
+Why this change was chosen:
+- This is the smallest local guard for current in-repo production source. It
+  does not change authentication, keyring storage, dashboard behavior, or
+  runtime policy.
+
+Expected outcome:
+- Future dashboard/script/service code cannot directly use dashboard-auth
+  backing-record tokens/helpers outside `user_auth_store` without failing the
+  boundary test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_user_auth_store_boundary.py tests/test_user_auth_store_audit.py tests/test_auth_gate.py`
+  - SHOWN: `23 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; remaining-coverage action count dropped from 5 to 4.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: auth-governance test/docs only; no auth runtime code changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T21:27:00Z - AI Copilot Operator Event Secret-Scan Action Filters
+
+Active role: ENGINEER
+
+Objective:
+- Turn the AI copilot host-side no-secret scan coverage items into exact
+  action-specific proof commands.
+
+What was found:
+- SHOWN: `scripts/check_operator_event_secrets.py` could require a non-empty
+  operator-event journal, but it could not require the journal to contain the
+  specific AI actions named by the backlog:
+  `ai_copilot_external_provider_call` and `ai_copilot_report_write`.
+- Gap: a generic host-side scan could pass on unrelated operator events and
+  still not prove the AI provider/report event families had been scanned.
+
+What changed:
+- Extended `services.audit.operator_event_secret_scan.scan_operator_event_journal()`
+  with `require_actions`.
+- Added `--require-action` to `scripts/check_operator_event_secrets.py`.
+- Added Make targets `record-ai-provider-event-secrets` and
+  `record-ai-report-event-secrets`.
+- Updated `scripts/SCRIPTS.md` and `REMAINING_TASKS.md` with the exact host
+  proof commands while explicitly keeping host-side proof open until those
+  commands are run against the real host journal.
+
+Why this change was chosen:
+- This is the smallest change that prevents a false proof from a generic
+  operator-event secret scan. It does not log secret values, mutate runtime
+  state, or call external providers.
+
+Expected outcome:
+- Host-side AI copilot secret-scan proof must contain the relevant real event
+  action before it can pass.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_event_secret_scan.py tests/test_makefile_wiring.py`
+  - SHOWN: `8 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `48 passed`.
+- `make operator-event-secrets-json OPERATOR_EVENT_REQUIRE_ACTION=ai_copilot_report_write OPERATOR_EVENT_REQUIRE_EVENTS=1`
+  - SHOWN: failed closed on the local journal with `event_count=206`,
+    `action_counts.ai_copilot_report_write=0`, and
+    `operator_event_required_action_missing`; this is expected local behavior
+    and is not host proof.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; remaining-coverage action count stayed at 5.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only scanner/Makefile/docs/tests only. Real host proof remains
+  open until run on the host operator-event journal.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T21:24:32Z - Remaining-Coverage Duplicate Marker Cleanup
+
+Active role: ENGINEER
+
+Objective:
+- Reduce duplicate `remaining_coverage` actions after adding current-source
+  boundary invariants.
+
+What was found:
+- SHOWN: older proof-ready notes for auth-store mutation, runtime config-save,
+  and API credential rotation repeated `Remaining coverage` markers that were
+  already represented by later fail-closed/current-source notes.
+- SHOWN: the duplicate wording inflated `make operator-next-actions-json
+  OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage` from the real actionable
+  gap list.
+
+What changed:
+- Reworded the older notes to say follow-up coverage is recorded below.
+- Kept the later actionable markers for the real open gaps: host-side AI
+  provider/report secret scans, future user/role surfaces, credential
+  env/direct/server surfaces, and venue reconciliation/fill unification.
+
+Why this change was chosen:
+- This is docs-only tracker hygiene. It does not remove any open gap; it keeps
+  the operator-next-actions output focused on unique actions.
+
+Expected outcome:
+- Remaining-coverage status lists one action per real open coverage gap rather
+  than duplicate actions caused by historical note wording.
+
+Verification:
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; action count dropped from 8 to 5.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `48 passed`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: backlog wording plus work-log only; no source, runtime, campaign, auth,
+  credential, or gate behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T21:15:30Z - Live Intent Queue Mutation Boundary Invariant
+
+Active role: ENGINEER
+
+Objective:
+- Add a current-source guard for the remaining live-intent lifecycle mutation
+  bypass coverage item.
+
+What was found:
+- SHOWN: `storage.live_intent_queue_sqlite.LiveIntentQueueSQLite` owns schema,
+  state mutation, risk consumer state, and append-only event history for live
+  intent rows.
+- SHOWN: current source outside `storage/live_intent_queue_sqlite.py` only
+  reads/checks live-intent tables; it does not mutate those tables directly.
+- Gap: there was no invariant preventing a future in-repo script/service from
+  mutating `live_trade_intents`, `live_trade_intent_events`, or
+  `live_consumer_state` directly and bypassing the queue store contract.
+
+What changed:
+- Added `tests/test_live_intent_queue_boundary.py`.
+- The test scans `dashboard/`, `scripts/`, `services/`, and `storage/` source
+  and fails if any file outside `storage/live_intent_queue_sqlite.py` mutates
+  the live intent tables directly.
+- Updated `REMAINING_TASKS.md`, `scripts/audit_coverage_matrix.py`, and
+  `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` to record current-source protection
+  while keeping venue reconciliation/fill event unification open.
+
+Why this change was chosen:
+- This is a test-only boundary guard. It does not change live queue behavior,
+  reconciliation, fills, order routing, or runtime state.
+
+Expected outcome:
+- Future live-intent lifecycle mutations must remain behind
+  `LiveIntentQueueSQLite` or explicitly update the boundary invariant.
+
+Verification:
+- Discarded verification: an initial pytest command referenced a non-existent
+  `tests/test_live_intent_queue_sqlite.py` file and exited before running tests.
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_queue_boundary.py tests/test_live_intent_queue_integrity.py tests/test_live_intent_queue_lifecycle_fields.py tests/test_live_intent_transition_history.py tests/test_live_intent_history_schema_preflight.py tests/test_live_intent_queue_claim_race.py tests/test_live_intent_upsert_insert_only.py tests/test_queue_update_status_preserves_ids.py`
+  - SHOWN: `26 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; remaining-coverage action count stayed at 8.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- HIGH surface, test/docs only: live intent lifecycle is live-trading substrate,
+  but this patch does not change runtime behavior. Venue reconciliation/fill
+  event unification remains open.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T21:14:14Z - Remaining-Coverage Marker Noise Cleanup
+
+Active role: ENGINEER
+
+Objective:
+- Remove duplicate operator-next-actions noise introduced by the user-auth
+  boundary backlog note.
+
+What was found:
+- SHOWN: the 2026-08-11 user-auth boundary note used the phrase `Remaining
+  coverage`, which caused `make operator-next-actions-json
+  OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage` to emit an extra action for
+  the same future-surface gap already tracked immediately above it.
+
+What changed:
+- Reworded that one backlog sentence to `Still open:` so the factual boundary
+  note remains but the status parser does not double-count the same gap.
+
+Why this change was chosen:
+- This is a docs-only tracker hygiene fix. It reduces noise without changing
+  any runtime behavior or removing the underlying open item.
+
+Expected outcome:
+- Remaining-coverage actions reflect real outstanding proof surfaces, not
+  duplicate wording inside proof-ready notes.
+
+Verification:
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; action count dropped from 9 to 8 and proof-marker count
+    dropped from 55 to 54.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `48 passed`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: one backlog wording change plus work-log record only; no source,
+  runtime, campaign, auth, credential, or gate behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T21:12:20Z - API Credential Store Boundary Invariant
+
+Active role: ENGINEER
+
+Objective:
+- Add a current-source guard for the remaining API credential direct keyring
+  mutation coverage item.
+
+What was found:
+- SHOWN: `services.security.credential_store` is the central exchange API
+  credential set/delete path and owns the fail-closed
+  `api_credential_rotation` audit-write rollback contract.
+- SHOWN: current production source outside `credential_store.py` does not
+  combine direct keyring mutation calls with exchange credential payload fields.
+- Gap: there was no invariant preventing a future in-repo script/service from
+  writing exchange API credentials directly to keyring and bypassing the
+  audited credential-rotation store.
+
+What changed:
+- Added `tests/test_api_credential_store_boundary.py`.
+- The test scans `dashboard/`, `scripts/`, and `services/` source and fails if
+  any file outside `services/security/credential_store.py` combines direct
+  keyring mutation calls with exchange credential payload fields.
+- Updated `REMAINING_TASKS.md`, `scripts/audit_coverage_matrix.py`, and
+  `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` to record current-source protection
+  while keeping direct/manual keyring edits, environment-based credential
+  changes, and server injection/rotation drills open.
+
+Why this change was chosen:
+- This is a test-only boundary guard. It does not change credentials,
+  keyring behavior, environment fallback, exchange setup, or runtime policy.
+
+Expected outcome:
+- Future exchange API credential mutation code must either use the central
+  audited store or explicitly update the boundary invariant.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_api_credential_store_boundary.py tests/test_credential_store_audit.py tests/test_credentials_loader.py tests/test_private_connectivity.py`
+  - SHOWN: `11 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; remaining-coverage action count stayed at 9 after the
+    wording was corrected to avoid creating a duplicate marker.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: credentials-governance test/docs only; direct/manual keyring edits,
+  environment-based credential changes, and server injection drills remain
+  outside this proof.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T21:10:52Z - Paper Campaign Manifest Write Boundary Invariant
+
+Active role: ENGINEER
+
+Objective:
+- Add a current-source guard for the remaining paper-campaign manifest direct
+  write coverage item.
+
+What was found:
+- SHOWN: `services.admin.campaign_manifest_audit.update_campaign_enabled()`
+  is the governed path for active paper-campaign manifest enable/disable
+  changes.
+- SHOWN: current production source that names `paper_evidence_campaigns*.json`
+  is read/status/planning code plus the governed update CLI; no current source
+  outside the governed helper combines those active manifest paths with direct
+  write primitives.
+- Gap: there was no invariant preventing a future in-repo tool from writing an
+  active paper-campaign manifest directly and bypassing the required
+  `campaign_manifest_change` operator-event contract.
+
+What changed:
+- Added `tests/test_campaign_manifest_write_boundary.py`.
+- The test scans `dashboard/`, `scripts/`, and `services/` source and fails if
+  any file outside the governed manifest helper/CLI combines active
+  `paper_evidence_campaigns*.json` paths with direct write primitives.
+- Updated `REMAINING_TASKS.md`, `scripts/audit_coverage_matrix.py`, and
+  `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` to record current-source protection
+  while keeping manual hand edits outside this proof.
+
+Why this change was chosen:
+- This is a test-only boundary guard. It does not change campaign manifests,
+  campaign selection, strategy configs, market data, or runtime behavior.
+
+Expected outcome:
+- Future in-repo campaign-manifest mutation code must either use the governed
+  manifest writer or explicitly update the boundary invariant.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_campaign_manifest_write_boundary.py tests/test_campaign_manifest_audit.py tests/test_paper_campaign_recovery.py tests/test_paper_campaign_ownership.py`
+  - SHOWN: `31 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; remaining manifest coverage is still reported only for
+    direct/manual surfaces not closed by current-source scanning.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: test/docs/matrix only; manual file edits remain outside the audited
+  source boundary and are still unclassified.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T21:07:49Z - User Auth Store Boundary Invariant
+
+Active role: ENGINEER
+
+Objective:
+- Add a current-source guard for the remaining user/role management bypass
+  coverage item.
+
+What was found:
+- SHOWN: `services.security.user_auth_store` owns the dashboard-auth keyring
+  service name, users index account, and private auth-record write helpers.
+- SHOWN: current `dashboard/` and `services/security/` source files outside
+  `user_auth_store.py` do not use those backing-record write boundaries.
+- Gap: there was no invariant preventing a future dashboard/security module
+  from writing dashboard auth users directly and bypassing the audited
+  `user_auth_store` rollback contract.
+
+What changed:
+- Added `tests/test_user_auth_store_boundary.py`.
+- The test scans current `dashboard/` and `services/security/` Python source
+  and fails if any file outside `services/security/user_auth_store.py` uses the
+  dashboard-auth keyring service name, users index account, or private auth
+  record write helpers.
+- Updated `REMAINING_TASKS.md`, `scripts/audit_coverage_matrix.py`, and
+  `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` to record that current-source
+  bypass protection is now proof-ready while future surfaces outside scanned
+  roots remain unclassified.
+
+Why this change was chosen:
+- This is a test-only boundary guard. It does not change authentication,
+  keyring storage, dashboard behavior, or runtime policy.
+
+Expected outcome:
+- Future user/role management code in the dashboard/security source roots must
+  go through the central audited store or explicitly update the invariant.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_user_auth_store_boundary.py tests/test_user_auth_store_audit.py tests/test_auth_gate.py`
+  - SHOWN: `23 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; current-source user-auth boundary coverage is surfaced in
+    the remaining-coverage operator-next-actions output.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- MEDIUM: auth-governance test/docs only; no auth runtime code changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T20:43:13Z - Dashboard Login Session Audit Fail-Closed Slice
+
+Active role: ENGINEER
+
+Objective:
+- Close the remaining dashboard session event fail-closed policy gap for the
+  authenticated-session-opening path.
+
+What was found:
+- SHOWN: `dashboard.auth_gate._mark_login_success()` wrote the authenticated
+  Streamlit session and then appended a `dashboard_login` operator event.
+- SHOWN: `_record_dashboard_auth_event()` returns an explicit failure when the
+  operator event journal cannot be written, but `_mark_login_success()` ignored
+  that result.
+- Consequence: a login-success audit write failure could leave
+  `SESSION_KEY.ok=True`.
+
+What changed:
+- `_mark_login_success()` now returns a result dict.
+- The function records the required metadata-only `dashboard_login` event for
+  the tentative authenticated session; if that write fails, it clears the
+  session, preserves lockout counters, and returns
+  `operator_event_write_failed_dashboard_login_session_cleared`.
+- Direct login and MFA-success callers now rerun only after the session-open
+  audit succeeds; otherwise they stay in the sign-in flow with an explicit
+  session error.
+- `REMAINING_TASKS.md`, `scripts/audit_coverage_matrix.py`, and
+  `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` now record the policy boundary:
+  login-success session opening is fail-closed; logout and failed auth/MFA
+  challenge events remain best-effort because they do not open an authenticated
+  session.
+
+Why this change was chosen:
+- It is the smallest risk-increasing session boundary fix. It does not make
+  risk-reducing or failed-auth events block on audit storage.
+
+Expected outcome:
+- A dashboard login cannot leave an authenticated session active unless the
+  corresponding metadata-only `dashboard_login` audit event is durably written.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_auth_gate.py tests/test_auth_runtime_guard.py tests/test_auth_capabilities.py tests/test_user_auth_store_audit.py`
+  - SHOWN: `34 passed in 1.56s`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `55 passed in 0.64s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; remaining dashboard-auth coverage now lists future
+    user/role bypass surfaces only, not dashboard session event fail-closed
+    policy.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- HIGH: auth/session behavior changed. Requires independent review before it is
+  treated as accepted.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T20:55:45Z - Operator Event Secret Scan Make Targets
+
+Active role: ENGINEER
+
+Objective:
+- Make the existing operator-event no-secret scan runnable through the standard
+  Makefile interface used by the launch-packet proof commands.
+
+What was found:
+- SHOWN: `scripts/check_operator_event_secrets.py` already supports
+  `--require-events` and `--evidence-dest`.
+- SHOWN: `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` tells operators to run the
+  raw script for launch-packet no-secret proof.
+- SHOWN: `Makefile` had analogous `platform-event-secrets[-json]` targets but
+  no operator-event secret scan target.
+
+What changed:
+- Added `operator-event-secrets`, `operator-event-secrets-json`, and
+  `record-operator-event-secrets` Make targets.
+- Added `OPERATOR_EVENT_PATH`, `OPERATOR_EVENT_REQUIRE_EVENTS`, and
+  `OPERATOR_EVENT_EVIDENCE_DEST` knobs.
+- Updated `scripts/SCRIPTS.md` and the Makefile wiring regression.
+
+Why this change was chosen:
+- This is command wiring around existing scan logic. It reduces raw-script
+  operator friction without changing scan semantics, event schemas, runtime
+  behavior, campaigns, gates, or execution.
+
+Expected outcome:
+- Operators can run the launch-packet operator-event no-secret scan with
+  `make record-operator-event-secrets` and use JSON output through
+  `make operator-event-secrets-json`.
+
+Verification:
+- `make operator-event-secrets-json OPERATOR_EVENT_REQUIRE_EVENTS=1`
+  - SHOWN: exit 0; `event_count=206`, `finding_count=0`, evidence written to
+    `.cbp_state/data/operator_event_secret_scan/operator-event-secret-scan-20260811T205602Z.json`.
+- `./.venv/bin/python -m pytest -q tests/test_makefile_wiring.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `6 passed in 0.19s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: command wiring and docs only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, GitHub auth, push/merge, or
+  runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T21:05:51Z - Audit Coverage Fail-Closed Backlog Sync
+
+Active role: ENGINEER
+
+Objective:
+- Remove stale "fail-closed audit-write policy" remaining-coverage text from
+  backlog paragraphs whose immediately following entries already record the
+  fail-closed slice as proof-ready.
+
+What was found:
+- SHOWN: the auth-store hook paragraph still listed fail-closed audit-write
+  policy as remaining, while the next paragraph records the central auth-store
+  fail-closed slice.
+- SHOWN: the runtime config-save hook paragraph still listed fail-closed
+  audit-write policy as remaining, while the next paragraph records
+  `save_user_yaml()` rollback-on-audit-failure behavior.
+- SHOWN: the API credential-rotation hook paragraph still listed fail-closed
+  audit-write policy as remaining, while the next paragraph records credential
+  rollback/refusal on audit-write failure.
+
+What changed:
+- Removed those three stale fail-closed-policy phrases from
+  `REMAINING_TASKS.md`, leaving the genuinely open bypass/direct-edit/server
+  drill coverage text intact.
+
+Why this change was chosen:
+- This is backlog synchronization only. It prevents repeated completed work
+  from staying in the remaining queue without claiming host-side proof or
+  future bypass-surface closure.
+
+Expected outcome:
+- Remaining coverage text points to still-open surfaces only: future
+  user/role bypasses, direct file/env/manifest edits, direct keyring edits,
+  environment-based credentials, and server drills.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `48 passed in 0.32s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=remaining_coverage OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; the edited rows now list future bypass/direct-edit/server
+    drill coverage only.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs only. No campaigns, market-data fetches, symbol universe, strategy
+  configs, promotion gates, paper/shadow/live execution, order routing,
+  authorization, broker support, command behavior, GitHub auth, push/merge, or
+  runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T20:26:48Z - Exchange Sandbox Restricted-Location Exception Recorder
+
+Active role: ENGINEER
+
+Objective:
+- Convert the passive sandbox/testnet blocker from an unstructured instruction
+  into a governed operator-event path when the latest sandbox smoke evidence
+  proves a restricted-location failure.
+
+What was found:
+- `make record-exchange-sandbox-smoke` already wrote standard evidence, and the
+  passive tracker classified the latest Binance sandbox smoke as
+  `blocked_restricted_location`.
+- The tracker next action said to record an accepted sandbox exception or
+  configure a reachable sandbox exchange, but the repo had no first-class Make
+  target or status logic for the accepted-exception path.
+
+What changed:
+- Added `make record-exchange-sandbox-exception`, which records a
+  `passive_operator_decision` for
+  `exchange_sandbox_restricted_location_exception`.
+- Updated `operator_proof_status` so restricted-location smoke evidence remains
+  open until an accepted exception event exists, then reports
+  `accepted_restricted_location_exception`.
+- Documented the new target in `scripts/SCRIPTS.md`.
+- Added regression coverage proving the sandbox item stays open before the
+  exception event and closes after the accepted event.
+
+Why this change was chosen:
+- This is the smallest auditable path for the exact passive action. It does not
+  weaken sandbox proof semantics: a successful sandbox smoke still satisfies
+  the item directly; the exception path requires both restricted-location
+  evidence and an explicit operator decision event.
+
+Expected outcome:
+- The passive next-actions report can be cleared without ad-hoc journal writes
+  when the environment cannot reach the configured sandbox/testnet venue.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_makefile_wiring.py tests/test_operator_doc_make_targets.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `81 passed in 0.93s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make -n record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='dry run'`
+  and `make -n record-composite-hybrid-paper-decision OPERATOR_DECISION_REASON='dry run'`
+  - SHOWN: both now invoke `PYTHONPATH=. ./.venv/bin/python
+    scripts/record_operator_event.py ...`.
+- `make record-exchange-sandbox-exception OPERATOR_DECISION_REASON='accepted exception: latest Binance sandbox smoke evidence is blocked by restricted-location HTTP 451 in this operator environment; no reachable supported sandbox/testnet venue is configured here' OPERATOR_DECISION_RESULT=accepted_with_risk`
+  - SHOWN: recorded operator event
+    `aadd7a02-45aa-41d1-bfd3-c23014331d41`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: passive action count dropped from 6 to 5; sandbox/testnet item no
+    longer appears.
+
+Remaining risk:
+- LOW/MEDIUM: operator-status and Make target wiring only. No market-data fetch,
+  campaigns, strategy configs, paper/shadow/live execution, order routing,
+  credentials, GitHub auth, push/merge, or runtime trading behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T06:19:34Z - Remaining Task Snapshot Check-In
+
+Active role: ENGINEER
+
+Objective:
+- Record the current generated remaining-task inventory in the roadmap checklist
+  so operator check-ins do not depend on chat memory.
+
+What was found:
+- `operator-next-actions` reported 61 remaining next actions.
+- The actionable queue is dominated by operator proofs and host-side evidence:
+  7 passive operator-evidence actions, 23 proof-ready implementation markers,
+  15 host-side evidence references, 8 capped-live proof markers, and 8
+  remaining coverage markers.
+- Backlog lane, research pipeline, research artifact, research command, and
+  operator read-only command wiring reported zero missing-action rows.
+
+What changed:
+- Added a dated Remaining Task Snapshot to
+  `docs/ROADMAP_TRACKING_CHECKLIST.md`.
+- Added a roadmap checklist regression that pins the snapshot section and the
+  top-level generated counts.
+
+Why this change was chosen:
+- The operator asked to update and check in after listing remaining tasks. This
+  records the current status without changing backlog semantics, campaign
+  behavior, market-data access, GitHub auth, or runtime code.
+
+Expected outcome:
+- Future check-ins have a compact repo-local checkpoint for the current
+  remaining-task shape while generated reports remain the source of truth.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `57 passed in 1.33s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `source_docs_linked=12`,
+    `commands_listed=12`, `boundaries_present=6`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test/work-log only. No campaigns, market-data fetches, strategy
+  configs, promotion gates, paper/shadow/live execution, order routing,
+  authorization, broker support, GitHub auth, push/merge, or runtime policy
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T06:36:31Z - Exchange Sandbox Restricted-Location Next Action
+
+Active role: ENGINEER
+
+Objective:
+- Keep passive operator next actions from repeating a known-failing exchange
+  sandbox smoke command when the latest evidence shows a restricted-location
+  block.
+
+What was found:
+- `make record-exchange-sandbox-smoke` wrote failed read-only evidence under
+  `.cbp_state/data/exchange_sandbox_smoke/`.
+- A normal sandboxed run failed with `NetworkError` to Binance testnet.
+- A rerun with network access reached Binance testnet but returned HTTP 451:
+  `Service unavailable from a restricted location according to 'b.
+  Eligibility'`.
+- `operator-next-actions` still returned `make record-exchange-sandbox-smoke`,
+  which would repeat the same blocked command instead of naming the real
+  operator choice.
+
+What changed:
+- `services.analytics.operator_proof_status` now classifies failed exchange
+  sandbox smoke evidence containing `restricted location` as
+  `blocked_restricted_location`.
+- The next action becomes `record accepted sandbox exception or configure a
+  reachable sandbox exchange`.
+- Added a regression test for the restricted-location artifact shape while
+  preserving the existing generic failed-smoke behavior.
+
+Why this change was chosen:
+- The change keeps the check-in loop actionable without closing proof or
+  pretending the sandbox lifecycle passed. It records that the latest evidence
+  is blocked by venue/location policy, not by missing command wiring.
+
+Expected outcome:
+- Future passive check-ins point to the real decision after a Binance testnet
+  451 instead of consuming time on repeated reruns.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `91 passed in 1.29s`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: exchange sandbox row reports
+    `artifact_status=blocked_restricted_location` and next action
+    `record accepted sandbox exception or configure a reachable sandbox
+    exchange`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only status/report classification and tests only. No campaigns,
+  strategy configs, promotion gates, paper/shadow/live execution, order
+  routing, authorization, broker support, GitHub auth, push/merge, or runtime
+  policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T06:40:36Z - Backup Restore Drill Evidence Progress
+
+Active role: ENGINEER
+
+Objective:
+- Advance the backup/restore passive operator-evidence row without replacing
+  active local state.
+
+What was found:
+- The local `.cbp_state/data` directory is about 1.5 GB.
+- `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` defines scratch restore as running
+  restore with `CBP_STATE_DIR` pointed at a scratch root.
+- `gitleaks` is not installed on this host, so the backup-artifact secrets scan
+  could not be completed in this pass.
+- `operator_proof_status` asked for the final checkpoint immediately after
+  backup/verify/restore events, but the row text and drill doc still require a
+  backup-artifact secrets scan before checkpointing.
+
+What changed:
+- Created a local backup:
+  `/private/tmp/cbp-state-backups-20260811T063838Z/cbp-state-backup-20260811T063841Z`.
+- Verified the backup manifest and SQLite integrity: `ok=true`,
+  `file_count=408`.
+- Restored the backup into isolated scratch state:
+  `/private/tmp/cbp-restore-scratch-20260811T063838Z/data`.
+- Recorded a local `state_restore` operator event that explicitly states the
+  active state was not replaced.
+- Updated `operator_proof_status` so the backup/restore row next action is now
+  `run backup artifact secrets scan, then make
+  record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`
+  instead of prematurely asking only for the checkpoint.
+
+Why this change was chosen:
+- It completes the non-destructive backup, verify, and scratch-restore evidence
+  while preserving the remaining secrets-scan/checkpoint boundary.
+
+Expected outcome:
+- Operator check-ins show the backup/restore drill has progressed to the
+  backup-artifact secrets scan step instead of repeating already completed
+  backup/verify/restore work.
+
+Verification:
+- `make backup-state STATE_BACKUP_DEST=/private/tmp/cbp-state-backups-20260811T063838Z`
+  - SHOWN: `ok=true`, `file_count=408`, operator event recorded.
+- `./.venv/bin/python scripts/backup_state.py verify /private/tmp/cbp-state-backups-20260811T063838Z/cbp-state-backup-20260811T063841Z`
+  - SHOWN: `ok=true`, `problems=[]`, `file_count=408`, operator event recorded.
+- `CBP_STATE_DIR=/private/tmp/cbp-restore-scratch-20260811T063838Z ./.venv/bin/python scripts/backup_state.py restore /private/tmp/cbp-state-backups-20260811T063838Z/cbp-state-backup-20260811T063841Z`
+  - SHOWN: `ok=true`, `restored_files=408`, target was the scratch data dir.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `91 passed in 1.41s`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: backup/restore row next action is now the backup artifact secrets
+    scan followed by checkpoint recording.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only reporting classification plus local ignored operator evidence.
+  No active state restore, campaigns, market-data fetches, strategy configs,
+  promotion gates, paper/shadow/live execution, order routing, authorization,
+  broker support, GitHub auth, push/merge, or runtime policy changed.
+- UNVERIFIED: backup-artifact secrets scan and final drill checkpoint remain
+  open.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T08:13:07Z - Backup Artifact Secret Scan And Drill Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Finish the local backup/restore drill passive evidence row by replacing the
+  unavailable external `gitleaks` dependency with a repo-local read-only backup
+  artifact scanner.
+
+What was found:
+- `gitleaks` is not installed on this host.
+- The backup/restore drill status required a backup-artifact secrets scan before
+  the final checkpoint could be recorded.
+- The repo already had redacted JSONL event scanners, but no scanner for a full
+  backup directory containing mixed JSON, JSONL, SQLite, and file artifacts.
+
+What changed:
+- Added `services.audit.backup_artifact_secret_scan`, a read-only scanner for
+  backup artifact directories. It checks JSON/JSONL sensitive-key payloads and
+  high-confidence byte patterns such as private-key PEM headers, GitHub tokens,
+  AWS access keys, Slack tokens, and OpenAI-style API keys without printing
+  matched values.
+- Added `scripts/check_backup_artifact_secrets.py` and
+  `make check-backup-artifact-secrets STATE_BACKUP_ARTIFACT=<backup_dir>`.
+- The CLI writes evidence under `.cbp_state/data/backup_artifact_secret_scan/`
+  and records a `state_backup_secret_scan` operator event.
+- `operator_proof_status` now treats `state_backup_secret_scan` as a required
+  backup/restore drill step between restore and checkpoint.
+- Ran the scanner against
+  `/private/tmp/cbp-state-backups-20260811T063838Z/cbp-state-backup-20260811T063841Z`;
+  it scanned 463 files and found 0 findings.
+- Recorded the final `state_backup_restore_drill` checkpoint after backup,
+  verify, scratch restore, and backup-artifact secret scan all succeeded.
+
+Why this change was chosen:
+- It keeps the drill evidence local, deterministic, and executable when
+  external scanner installation is unavailable, without marking the drill
+  complete before the secret-scan step exists.
+
+Expected outcome:
+- `make operator-next-actions-passive-json` no longer lists the backup/restore
+  drill row once the backup, verify, restore, secret scan, and checkpoint events
+  all exist.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backup_artifact_secret_scan.py tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_makefile_wiring.py`
+  - SHOWN: `98 passed in 1.36s`.
+- `./.venv/bin/python -m py_compile services/audit/backup_artifact_secret_scan.py scripts/check_backup_artifact_secrets.py services/analytics/operator_proof_status.py tests/test_backup_artifact_secret_scan.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make check-backup-artifact-secrets STATE_BACKUP_ARTIFACT=/private/tmp/cbp-state-backups-20260811T063838Z/cbp-state-backup-20260811T063841Z`
+  - SHOWN: `backup artifact secret scan: ok`; `files_scanned: 463`;
+    `findings: 0`; evidence path
+    `.cbp_state/data/backup_artifact_secret_scan/backup-artifact-secret-scan-20260811T081234Z.json`.
+- `PYTHONPATH=. make record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='local backup, verify, scratch restore, and backup artifact secret scan completed; active state not replaced'`
+  - SHOWN: event `ed799204-6bf4-45a3-865b-1886d7557096` recorded with
+    result `completed`.
+- `make operator-next-actions-passive-json`
+  - SHOWN: action count dropped from 7 to 6; backup/restore drill row is no
+    longer returned.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW/MEDIUM: read-only audit scanner plus operator proof-status classification
+  and local ignored evidence. No active state restore, campaigns, market-data
+  fetches, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, GitHub auth, push/merge, or
+  runtime policy changed.
+- UNVERIFIED: the repo-local scanner is not a full replacement for a future
+  host-side `gitleaks` scan if the launch checklist explicitly requires that
+  external tool.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T06:03:27Z - Local Supply-Chain Passive Evidence Recorded
+
+Active role: ENGINEER
+
+Objective:
+- Close a local passive operator-evidence row that does not require host,
+  network, campaign, GitHub, auth, or live execution access.
+
+What was found:
+- `operator-next-actions` listed passive operator evidence ordinal 15:
+  supply-chain audit/waiver evidence.
+- `scripts/check_supply_chain.py` records pin integrity and environment
+  matching by default; it does not run `pip-audit` unless `--audit` or
+  `--strict-audit` is passed.
+
+What changed:
+- Ran the read-only supply-chain check and then recorded local evidence under
+  `.cbp_state/data/supply_chain/`.
+- Evidence artifact:
+  `.cbp_state/data/supply_chain/supply-chain-evidence-20260811T051403Z.json`
+  with SHA256
+  `dfac81dc820eb9050f5f3f4f4941796376dbb93ad5b2b137171af714397c0af0`.
+
+Why this change was chosen:
+- This was the only current passive-evidence row that could be satisfied
+  locally without host access, market data, campaign changes, GitHub auth, or
+  operator policy decisions.
+
+Expected outcome:
+- `operator-proof-status` and `operator-next-actions` no longer list the
+  supply-chain passive-evidence row as action-required for this local state.
+
+Verification:
+- `make check-supply-chain-json`
+  - SHOWN: exit 0; pin integrity `ok=true`, environment `ok=true`,
+    `checked=82`, no mismatches, no missing installs, audit not requested.
+- `make record-supply-chain`
+  - SHOWN: exit 0; wrote the evidence artifact above.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=passive_operator_evidence OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; passive evidence action count dropped from 9 to 8 and
+    supply-chain is no longer listed as action-required.
+
+Remaining risk:
+- LOW: local ignored evidence plus work-log record only. This does not run
+  vulnerability audit, fetch market data, run campaigns, change strategy
+  configs, close host proof, repair GitHub/Tailscale auth, push, merge, or
+  change runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T06:04:26Z - Local Arm-To-Halt Replay Evidence Recorded
+
+Active role: ENGINEER
+
+Objective:
+- Close the local launch-packet replay passive-evidence row where the command
+  can verify existing operator-event history without executing operator
+  actions.
+
+What was found:
+- `operator-next-actions` listed passive operator evidence ordinal 4:
+  launch evidence packet replay.
+- `scripts/check_operator_arm_to_halt_replay.py` replays existing
+  operator-event journal records and writes a JSON report when
+  `--evidence-dest` is provided; it does not enable, disable, halt, or mutate
+  runtime control state.
+
+What changed:
+- Verified the replay first with `make operator-arm-to-halt-replay-json`.
+- Recorded local evidence under `.cbp_state/data/operator_arm_to_halt_replay/`.
+- Evidence artifact:
+  `.cbp_state/data/operator_arm_to_halt_replay/operator-arm-to-halt-replay-20260811T060414Z.json`
+  with SHA256
+  `11b476cd94c1f023e5c83d7988ed7e35ebd6cc5964d012041413d9ecf9d4d3bb`.
+
+Why this change was chosen:
+- This passive-evidence item could be satisfied locally without host access,
+  market data, campaign changes, GitHub auth, live execution, or operator
+  policy decisions.
+
+Expected outcome:
+- `operator-proof-status` and `operator-next-actions` no longer list the
+  arm-to-halt replay passive-evidence row as action-required for this local
+  state.
+
+Verification:
+- `make operator-arm-to-halt-replay-json`
+  - SHOWN: exit 0; `ok=true`, `reason=ok`, `event_count=199`, with
+    `live_enable` and `live_disable` events found.
+- `make record-operator-arm-to-halt-replay`
+  - SHOWN: exit 0; wrote the evidence artifact above.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=passive_operator_evidence OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; passive evidence action count dropped from 8 to 7 and
+    launch-packet replay is no longer listed as action-required.
+
+Remaining risk:
+- LOW: local ignored evidence plus work-log record only. This does not run
+  campaigns, fetch market data, change strategy configs, close host proof,
+  repair GitHub/Tailscale auth, push, merge, enable/disable live trading, halt
+  runtime services, or change runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T06:05:57Z - Operator Next-Actions Passive Evidence Priority
+
+Active role: ENGINEER
+
+Objective:
+- Make the default operator next-actions report surface local/passive evidence
+  work before proof-ready/review-only backlog rows.
+
+What was found:
+- The default `operator-next-actions` report flattened operator-proof rows
+  before passive operator-evidence rows.
+- This hid locally executable evidence commands behind proof-ready/review rows,
+  even when those evidence rows were the only practical local work.
+
+What changed:
+- `services.analytics.operator_next_actions.build_operator_next_actions` now
+  places `passive_operator_evidence` actions before `operator_proof` actions in
+  the default flattened list.
+- Updated the existing next-actions order test to pin the new priority.
+
+Why this change was chosen:
+- Passive evidence rows are often the next local action, while proof-ready rows
+  usually require review/merge or host evidence. Surfacing passive evidence
+  first better matches the operator check-in workflow without changing source
+  reports or proof semantics.
+
+Expected outcome:
+- `make operator-next-actions-json` shows local passive evidence rows before
+  proof-ready/review-only operator-proof rows when both are present.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py`
+  - SHOWN: `24 passed in 0.50s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=12`
+  - SHOWN: exit 0; the first seven returned rows are
+    `passive_operator_evidence`, followed by `operator_proof` rows.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only status/report ordering and tests only. No source report
+  counts, campaigns, market-data fetches, strategy configs, proof closure,
+  paper/shadow/live execution, order routing, authorization, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T05:10:30Z - Backlog Work-Log Sync For Check-In/Auth Alignment
+
+Active role: ENGINEER
+
+Objective:
+- Keep the backlog and work log synchronized for the operator check-in and
+  GitHub auth alignment work.
+
+What was found:
+- The work log recorded the README/check-in, compat-script classification,
+  GitHub auth runbook, roadmap check-in checklist, and roadmap source-count
+  regression batches.
+- `REMAINING_TASKS.md` item 18 did not yet summarize the current operator
+  check-in/GitHub auth alignment updates, and the sync guard did not require
+  those notes to match work-log entries.
+
+What changed:
+- Added a 2026-08-11 backlog note under item 18 summarizing the operator
+  check-in checklist and GitHub auth runbook boundaries.
+- Extended `tests/test_operator_reporting_backlog_worklog_sync.py` so the
+  backlog phrases for operator check-in/GitHub auth alignment must have
+  matching work-log titles.
+
+Why this change was chosen:
+- The selected low-risk lane item is work-log/backlog synchronization. This
+  keeps recent docs/test alignment work visible in the backlog without changing
+  runtime behavior.
+
+Expected outcome:
+- Future edits that drop the backlog note or the matching work-log entries
+  will fail the sync guard.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_reporting_backlog_worklog_sync.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_github_auth_runbook.py tests/test_operator_status_bundle.py`
+  - SHOWN: `38 passed in 1.01s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=low_risk_docs_tests OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL=5 OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; planning row remains `Work-log/backlog synchronization`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: backlog, test, and work log only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, command behavior,
+  GitHub auth, push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-11T05:12:53Z - Operator Next-Actions Medium-Lane Inventory Regression
+
+Active role: ENGINEER
+
+Objective:
+- Prevent operator check-ins from confusing medium-risk read-only lane inventory
+  with broken read-only command wiring.
+
+What was found:
+- `make operator-next-actions-json` reported no backlog-lane action rows after
+  the sync batch, while the source summary still listed
+  `medium_risk_runtime_read_only=7`.
+- The current repo has read-only command specs wired, so the medium-lane count
+  is inventory/context, not an actionable repair queue.
+
+What changed:
+- Added a real-repo regression in `tests/test_operator_next_actions.py` proving
+  `lane="operator_read_only_command"` returns zero actions when all read-only
+  commands are wired, even though medium-risk read-only lane inventory exists.
+
+Why this change was chosen:
+- This is the smallest local test-only guard for the exact check-in ambiguity.
+  It does not add a new status model or change command behavior.
+
+Expected outcome:
+- Future changes that turn medium-lane inventory into false repair actions will
+  fail the next-actions test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py`
+  - SHOWN: `24 passed in 0.43s`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `46 passed in 1.10s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=operator_read_only_command OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: exit 0; `medium_risk_runtime_read_only=7`,
+    `operator_read_only_commands_wired=23`,
+    `operator_read_only_command_actions_required=0`, `action_count_total=0`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: test and work log only. No campaigns, market-data fetches, symbol
+  universe, strategy configs, promotion gates, paper/shadow/live execution,
+  order routing, authorization, broker support, command behavior, GitHub auth,
+  push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -118,3 +118,29 @@ def test_live_intent_events_schema_created_for_existing_database(monkeypatch, tm
     events = qdb.list_intent_events(intent_id="intent-history-4")
     assert len(events) == 1
     assert events[0]["post_status"] == "queued"
+
+
+def test_live_intent_status_event_accepts_authority_metadata(monkeypatch, tmp_path):
+    queue_mod = _reload_queue(monkeypatch, tmp_path)
+    qdb = queue_mod.LiveIntentQueueSQLite()
+
+    qdb.upsert_intent(_row(intent_id="intent-history-5"))
+    qdb.claim_next_queued(limit=1)
+    assert qdb.update_status(
+        "intent-history-5",
+        "submitted",
+        client_order_id="cid-5",
+        exchange_order_id="ex-5",
+        event_actor="live_reconciler",
+        event_action="submit_unknown_recovered",
+        event_reason="venue_client_order_lookup_found",
+        event_meta={"authority": "RECONCILER", "origin": "live_reconciler"},
+    )
+
+    event = qdb.list_intent_events(intent_id="intent-history-5")[-1]
+    assert event["actor"] == "live_reconciler"
+    assert event["action"] == "submit_unknown_recovered"
+    assert event["reason"] == "venue_client_order_lookup_found"
+    assert event["client_order_id"] == "cid-5"
+    assert event["exchange_order_id"] == "ex-5"
+    assert event["meta"] == {"authority": "RECONCILER", "origin": "live_reconciler"}

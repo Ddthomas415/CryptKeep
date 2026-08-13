@@ -72,6 +72,10 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/hetzner_paper_host_health_alerting_proof_2026_07_01.md
 - docs/checkpoints/hetzner_canonical_state_migration_template_2026_07_01.md
 
+Top-level roadmap tracking checklist:
+
+- docs/ROADMAP_TRACKING_CHECKLIST.md
+
 ## Active Backlog
 These are the remaining tasks visible from the accepted checkpoint and planning
 documents. Keep implementation scoped; high-risk runtime, launch, strategy, or
@@ -1930,8 +1934,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `tests/test_ai_copilot_provider_boundary.py` rejects future
     `services/ai_copilot` Python modules that import external provider SDKs,
     read provider API-key environment variables, or call provider APIs outside
-    `call_llm`. Remaining coverage: local-only report writes and host-side
-    no-secret scan over real provider events.
+    `call_llm`. Remaining coverage: host-side no-secret scan over real
+    provider events.
+    2026-08-11: action-specific operator-event secret-scan proof command is
+    ready for independent review. `make record-ai-provider-event-secrets`
+    requires at least one real `ai_copilot_external_provider_call` event and
+    scans the operator-event journal without printing secret values. This does
+    not close the host-side proof until run against the real host journal.
     2026-07-16: AI copilot local report-write audit hook is ready for
     independent review. Central `services.ai_copilot` report writers now append
     best-effort metadata-only `ai_copilot_report_write` operator events after
@@ -1939,6 +1948,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     status/severity, and artifact names/count without logging report payloads,
     stdout/stderr, prompts, recommendations, summaries, or artifact contents.
     Remaining coverage: host-side no-secret scan over real report events.
+    2026-08-11: action-specific operator-event secret-scan proof command is
+    ready for independent review. `make record-ai-report-event-secrets`
+    requires at least one real `ai_copilot_report_write` event and scans the
+    operator-event journal without printing secret values. This does not close
+    the host-side proof until run against the real host journal.
     2026-07-16: dashboard strategy-config audit hook is ready for independent
     review. Operations-page strategy parameter saves and preset applies now
     append required `strategy_config_change` operator events after the local
@@ -1955,6 +1969,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     values. The coverage matrix moves the dashboard login/logout/MFA/role
     family from MISSING to PARTIAL; user/role mutation coverage is narrowed by
     the central auth-store hook below.
+    2026-08-11: dashboard login-success session transition audit persistence
+    is ready for independent review. `_mark_login_success()` now requires the
+    metadata-only `dashboard_login` operator event before the session remains
+    authenticated; if the audit write fails, the tentative session is cleared,
+    lockout counters are not reset, and callers stay in the sign-in flow.
+    Logout and failed auth/MFA challenge events remain best-effort because they
+    do not open an authenticated session.
     2026-07-16: central auth-store mutation audit hook is ready for
     independent review. `services.security.user_auth_store` now appends
     best-effort metadata-only `dashboard_user_auth_store_change` events for
@@ -1962,9 +1983,8 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     backup-code consumption, and login-hash upgrades. Events record only user
     identity and state shape (role/enabled/MFA booleans and backup-code
     counts), without logging passwords, hashes, MFA codes, TOTP secrets, OTP
-    URIs, or backup code values. Remaining coverage: any future user/role
-    management surface that bypasses `user_auth_store`, plus fail-closed
-    audit-write policy.
+    URIs, or backup code values. Follow-up fail-closed/current-source coverage
+    is recorded in the notes below.
     2026-07-16: central auth-store mutation audit-write fail-closed slice is
     ready for independent review. `services.security.user_auth_store` now
     captures raw keyring user/index records before central user upsert/bootstrap,
@@ -1973,17 +1993,21 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     written after mutation, the helper restores those raw records and returns
     `operator_event_write_failed_user_auth_store_rolled_back`. Login-hash
     upgrades roll back the unaudited rehash but allow the already-verified login
-    to proceed. Remaining coverage: dashboard session event fail-closed policy
-    and any future user/role management surface that bypasses `user_auth_store`.
+    to proceed. Current-source boundary coverage is recorded in the note below.
+    2026-08-11: current-source user/role storage boundary invariant is ready
+    for independent review. `tests/test_user_auth_store_boundary.py` scans
+    `dashboard/`, `scripts/`, and `services/` and fails if any source file outside
+    `services/security/user_auth_store.py` starts using the dashboard-auth
+    keyring service name, users index account, or private auth-record write
+    helpers.
     2026-07-16: central runtime config-save operator-event hook is ready for
     independent review. `services.admin.config_editor.save_user_yaml()` now
     appends best-effort metadata-only `runtime_config_save` operator events
     after successful non-dry-run `user.yaml` writes, recording file existence,
     parse status, top-level section names/count, and result without logging
     config payloads or values. This narrows direct CLI/runtime config coverage
-    for strategy, risk, and alert-routing families. Remaining coverage: direct
-    file edits, environment overrides, campaign manifest files, and
-    fail-closed audit-write policy.
+    for strategy, risk, and alert-routing families. Follow-up fail-closed and
+    manifest-boundary coverage is recorded in the notes below.
     2026-07-16: central runtime config-save audit-write fail-closed slice is
     ready for independent review. `save_user_yaml()` now treats
     `runtime_config_save` audit persistence as required for non-dry-run writes:
@@ -1992,15 +2016,21 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `operator_event_write_failed_runtime_config_rolled_back`. Remaining
     coverage: direct file edits, environment overrides, and campaign manifest
     files.
+    2026-08-11: current-source runtime `user.yaml` write boundary invariant is
+    ready for independent review. `tests/test_runtime_config_write_boundary.py`
+    scans `dashboard/`, `scripts/`, and `services/` and fails if source outside
+    `services/admin/config_editor.py` writes, unlinks, or backs up the runtime
+    config path directly. This narrows in-repo runtime config bypass coverage;
+    manual file edits, environment overrides, server injection, and campaign
+    manifest files remain unclassified.
     2026-07-16: API credential-rotation operator-event hook is ready for
     independent review. `services.security.credential_store` now appends
     best-effort metadata-only `api_credential_rotation` operator events after
     central keyring set/delete calls, recording exchange, operation, result,
     and stored field names without logging API keys, API secrets, or
     passphrases. The coverage matrix moves API credential rotation from
-    MISSING to PARTIAL. Remaining coverage: direct keyring edits,
-    environment-based credential changes, server injection/rotation drills,
-    and fail-closed audit-write policy.
+    MISSING to PARTIAL. Follow-up fail-closed/current-source coverage is
+    recorded in the notes below.
     2026-07-16: API credential-rotation audit-write fail-closed slice is ready
     for independent review. Central `set_exchange_credentials()` and
     `delete_exchange_credentials()` now treat `api_credential_rotation` audit
@@ -2010,6 +2040,19 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     If the previous credential cannot be read, the mutation is refused before
     writing. Remaining coverage: direct keyring edits, environment-based
     credential changes, and server injection/rotation drills.
+    2026-08-11: current-source API credential keyring boundary invariant is
+    ready for independent review. `tests/test_api_credential_store_boundary.py`
+    scans `dashboard/`, `scripts/`, and `services/` and fails if source outside
+    `services/security/credential_store.py` combines direct keyring mutation
+    calls with exchange credential payload fields. Still open:
+    direct/manual keyring edits, environment-based credential changes, and
+    server injection/rotation drills.
+    2026-08-11: exchange credential-source posture command is ready for
+    independent review. `make credential-source-posture-json` reports
+    keyring/env/missing source per venue without printing credential values;
+    the CLI also supports `--fail-on-env` for stricter manual checks. This
+    makes environment-backed credential usage explicit, but does not close
+    direct/manual keyring edits or server injection/rotation drills.
     2026-07-16: strategy stage-transition operator-event hook is ready for
     independent review. `services.control.deployment_stage` now appends
     best-effort `strategy_stage_transition` events for central promote, demote,
@@ -2033,9 +2076,26 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     action, pre/post status, reason, source, last error, and order identifiers.
     Duplicate insert attempts, invalid backward transitions, and terminal
     overwrite attempts do not create history rows. This narrows the order
-    intent lifecycle family; remaining coverage is venue reconciliation/fill
-    event unification beyond the queue store and any future lifecycle mutation
-    path that bypasses `LiveIntentQueueSQLite`.
+    intent lifecycle family; follow-up source-boundary and venue/fill event
+    labeling coverage is recorded in the notes below.
+    2026-08-11: current-source live-intent mutation boundary invariant is ready
+    for independent review. `tests/test_live_intent_queue_boundary.py` scans
+    `dashboard/`, `scripts/`, `services/`, and `storage/` and fails if source
+    outside `storage/live_intent_queue_sqlite.py` mutates `live_trade_intents`,
+    `live_trade_intent_events`, or `live_consumer_state` directly.
+    2026-08-11: live reconciler venue/fill intent-history labeling is ready for
+    independent review. `LiveIntentQueueSQLite.update_status()` now accepts
+    optional event actor/action/reason/meta fields, and the state-authority
+    wrappers pass origin/authority metadata to intent-history rows. The live
+    reconciler labels submit-unknown recovery/disposition, venue order
+    canceled/rejected/stale/error transitions, fill-accounted transitions,
+    lookback fill transitions, and zero-accounted-fill deferrals with specific
+    `live_trade_intent_events.action` values. This unifies reconciler and fill
+    status provenance in the queue history without changing the state machine,
+    submit/retry decisions, or canonical fill accounting. Fill payloads remain
+    stored in the existing fill/journal stores; any future lifecycle mutation
+    path that bypasses `LiveIntentQueueSQLite` remains blocked by the boundary
+    invariant.
     2026-07-17: live-intent history schema preflight is ready for independent
     review. `scripts/check_live_intent_history_schema.py` reports whether the
     current runtime `live_intent_queue.sqlite` has the declared
@@ -2055,6 +2115,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     cannot be persisted, writes the manifest atomically, and records a
     best-effort completion event. The coverage matrix now names this governed
     path while keeping direct hand edits to manifest files unclassified.
+    2026-08-11: current-source paper-campaign manifest write boundary invariant
+    is ready for independent review. `tests/test_campaign_manifest_write_boundary.py`
+    scans `dashboard/`, `scripts/`, and `services/` and fails if source outside
+    the governed manifest update helper/CLI combines active
+    `paper_evidence_campaigns*.json` paths with direct write primitives. Manual
+    hand edits to manifest files remain outside this proof.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but
@@ -2928,6 +2994,18 @@ substrate work, but they are concrete enough to keep visible.
     tests-only plus backlog/work-log text and does not change runtime code,
     decide backlog items, run research/campaigns, fetch market data, close
     proof, authorize implementation, or mutate runtime state.
+    2026-08-11: operator check-in and GitHub auth alignment is ready for
+    independent review. `docs/ROADMAP_TRACKING_CHECKLIST.md` now defines the
+    generic read-only check-in sequence (`git status --short --branch`,
+    `make operator-status-json`, optional bounded `operator-next-actions`) and
+    `docs/GITHUB_AUTH_RUNBOOK.md` documents the local GitHub CLI HTTPS/browser
+    recovery path, token-handling boundary, and separation from the ChatGPT
+    Codex Connector/GitHub app auth surface. Tests pin roadmap linkage,
+    source-doc counts, token boundaries, and the no-campaign/no-market/no-auth
+    repair boundary unless explicitly requested. This is docs/test/status
+    alignment only and does not change command behavior, credentials, remotes,
+    branch protection, campaigns, proof closure, market-data fetches,
+    authorization, or runtime state.
     2026-07-29: medium-lane read-only command status is ready for independent
     review. `services.analytics.operator_read_only_command_status` and
     `scripts/report_operator_read_only_command_status.py` inventory the

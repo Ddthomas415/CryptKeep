@@ -11,6 +11,8 @@ OPERATOR_REPORTING_SYNC_PAIRS = {
     "read-only batch checklist refinement": "Read-Only Batch Checklist Refinement",
     "operator reporting read-only contract regression guard": "Operator Reporting Read-Only Contract Regression Guard",
     "operator reporting backlog/work-log synchronization guard": "Operator Reporting Backlog/Work-Log Synchronization Guard",
+    "operator check-in and GitHub auth alignment": "Roadmap Operator Check-In Checklist",
+    "GitHub CLI HTTPS/browser": "GitHub Auth Runbook And Roadmap Link",
 }
 
 

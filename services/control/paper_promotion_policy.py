@@ -254,6 +254,7 @@ def count_qualified_signal_bars(
     contract = dict(policy.qualified_bar or {})
     keys: set[tuple[str, str, str, str, str, str]] = set()
     sources: set[str] = set()
+    bar_timestamps: set[str] = set()
     rejected: dict[str, int] = {}
     excluded_before_cohort = 0
     total = 0
@@ -309,6 +310,7 @@ def count_qualified_signal_bars(
                 continue
         sources.add(source_kind)
         keys.add((sid, source, timeframe, venue, symbol, bar_ts))
+        bar_timestamps.add(bar_ts)
 
     count = len(keys)
     if not sources:
@@ -325,6 +327,7 @@ def count_qualified_signal_bars(
         "qualified_bars_remaining": max(0, required - count),
         "qualified_bars_ready": (count >= required) if required > 0 else True,
         "bar_count_source": source_label,
+        "qualified_bar_timestamps": sorted(bar_timestamps),
         "total_signal_records": total,
         "excluded_before_cohort_signals": excluded_before_cohort,
         "rejected_signal_records": sum(rejected.values()),

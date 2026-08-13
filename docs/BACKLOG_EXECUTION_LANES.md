@@ -9,6 +9,10 @@ classifies the remaining work by execution lane so engineering passes can batch
 safe work without mixing in high-risk trading, gate, deployment, or background
 job changes.
 
+`docs/ROADMAP_TRACKING_CHECKLIST.md` is the top-level operator index that links
+the backlog, lane map, launch checklist, and research roadmaps into one
+directional view. It does not replace this lane map or authorize runtime work.
+
 This is a planning/control artifact only. It does not close runtime proof.
 
 ## Lane Definitions

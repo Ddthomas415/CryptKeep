@@ -24,7 +24,19 @@ def test_reconciler_status_helper_returns_false_when_persistent_write_fails():
     )
 
     assert ok is False
-    assert qdb.calls == [("i1", "filled", {"last_error": None})]
+    assert qdb.calls == [
+        (
+            "i1",
+            "filled",
+            {
+                "last_error": None,
+                "event_actor": "test",
+                "event_action": "reconciler_status_transition",
+                "event_reason": "reconciler_state_authority",
+                "event_meta": {"authority": "RECONCILER", "origin": "test"},
+            },
+        )
+    ]
 
 
 def test_intent_consumer_status_helper_returns_false_when_persistent_write_fails():
@@ -43,10 +55,14 @@ def test_intent_consumer_status_helper_returns_false_when_persistent_write_fails
         (
             "i1",
             "submitted",
-            {
-                "last_error": None,
-                "client_order_id": "cid-1",
-                "exchange_order_id": "ex-1",
-            },
-        )
-    ]
+                {
+                    "last_error": None,
+                    "client_order_id": "cid-1",
+                    "exchange_order_id": "ex-1",
+                    "event_actor": "test",
+                    "event_action": "intent_consumer_status_transition",
+                    "event_reason": "intent_consumer_state_authority",
+                    "event_meta": {"authority": "INTENT_CONSUMER", "origin": "test"},
+                },
+            )
+        ]

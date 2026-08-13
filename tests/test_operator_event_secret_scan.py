@@ -73,6 +73,41 @@ def test_operator_event_secret_scan_require_events_fails_missing_or_empty(tmp_pa
     assert report["findings"][0]["reason"] == "operator_event_journal_empty"
 
 
+def test_operator_event_secret_scan_requires_specific_action(tmp_path):
+    path = tmp_path / "operator_events.jsonl"
+    append_operator_event(
+        actor="operator",
+        action="ai_copilot_report_write",
+        target="report",
+        result="success",
+        path=path,
+    )
+
+    report = scan_operator_event_journal(
+        path,
+        require_events=True,
+        require_actions=["ai_copilot_external_provider_call"],
+    )
+
+    assert report["ok"] is False
+    assert report["event_count"] == 1
+    assert report["action_counts"] == {"ai_copilot_external_provider_call": 0}
+    assert report["findings"] == [
+        {
+            "reason": "operator_event_required_action_missing",
+            "action": "ai_copilot_external_provider_call",
+        }
+    ]
+
+    report = scan_operator_event_journal(
+        path,
+        require_events=True,
+        require_actions=["ai_copilot_report_write"],
+    )
+    assert report["ok"] is True
+    assert report["action_counts"] == {"ai_copilot_report_write": 1}
+
+
 def test_operator_event_secret_scan_flags_unparseable_json(tmp_path):
     path = tmp_path / "operator_events.jsonl"
     path.write_text("{not-json}\n", encoding="utf-8")
@@ -118,3 +153,40 @@ def test_check_operator_event_secrets_cli_writes_evidence(tmp_path, capsys):
     assert out["event_count"] == 1
     assert out["evidence_path"].startswith(str(evidence))
     assert len(list(evidence.glob("operator-event-secret-scan-*.json"))) == 1
+
+
+def test_check_operator_event_secrets_cli_requires_action(tmp_path, capsys):
+    from scripts.check_operator_event_secrets import main
+
+    path = tmp_path / "operator_events.jsonl"
+    append_operator_event(
+        actor="operator",
+        action="ai_copilot_report_write",
+        target="report",
+        result="success",
+        path=path,
+    )
+
+    old_argv = sys.argv
+    try:
+        sys.argv = [
+            "check_operator_event_secrets.py",
+            "--path",
+            str(path),
+            "--require-events",
+            "--require-action",
+            "ai_copilot_external_provider_call",
+            "--json",
+        ]
+        assert main() == 1
+    finally:
+        sys.argv = old_argv
+
+    out = json.loads(capsys.readouterr().out)
+    assert out["ok"] is False
+    assert out["findings"] == [
+        {
+            "reason": "operator_event_required_action_missing",
+            "action": "ai_copilot_external_provider_call",
+        }
+    ]

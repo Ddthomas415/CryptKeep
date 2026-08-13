@@ -23,7 +23,19 @@ def test_submit_owner_helper_allows_queued_to_submitted():
     )
 
     assert qdb.calls == [
-        ("i1", "submitted", {"last_error": None, "client_order_id": "coid-1", "exchange_order_id": "oid-1"})
+        (
+            "i1",
+            "submitted",
+            {
+                "last_error": None,
+                "client_order_id": "coid-1",
+                "exchange_order_id": "oid-1",
+                "event_actor": "test",
+                "event_action": "intent_consumer_status_transition",
+                "event_reason": "intent_consumer_state_authority",
+                "event_meta": {"authority": "INTENT_CONSUMER", "origin": "test"},
+            },
+        )
     ]
 
 

@@ -42,14 +42,17 @@ def _print_report(payload: dict[str, Any]) -> None:
         "summary: "
         f"remaining={summary.get('remaining_proof_or_coverage_markers', 0)} "
         f"host_side={summary.get('host_side_markers', 0)} "
-        f"proof_ready={summary.get('proof_ready_markers', 0)}"
+        f"proof_ready={summary.get('proof_ready_markers', 0)} "
+        f"satisfied={summary.get('proof_markers_satisfied', 0)} "
+        f"context_only={summary.get('proof_markers_context_only', 0)} "
+        f"actions_required={summary.get('proof_marker_actions_required', payload.get('proof_marker_count', 0))}"
     )
     print("passive_operator_evidence:")
     for row in list(payload.get("passive_operator_items") or []):
         if not isinstance(row, dict):
             continue
         print(f"- {row.get('ordinal')}. {row.get('text')}")
-        if row.get("next_action"):
+        if row.get("next_action") and row.get("next_action") != "none":
             print(f"  next_action={row.get('next_action')}")
 
     markers = [row for row in list(payload.get("proof_markers") or []) if isinstance(row, dict)]
@@ -57,7 +60,7 @@ def _print_report(payload: dict[str, Any]) -> None:
         print("proof_marker_lines:")
         for row in markers[:20]:
             print(f"- L{row.get('line')} {row.get('category')}: {row.get('text')}")
-            if row.get("next_action"):
+            if row.get("next_action") and row.get("next_action") != "none":
                 print(f"  next_action={row.get('next_action')}")
         if len(markers) > 20:
             print(f"... {len(markers) - 20} more markers; use --json for all")

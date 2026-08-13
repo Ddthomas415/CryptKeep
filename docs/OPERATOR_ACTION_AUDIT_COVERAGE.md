@@ -102,8 +102,16 @@ write fails, the helper restores the previous config file bytes (or removes the
 new file for first-write attempts) and returns
 `operator_event_write_failed_runtime_config_rolled_back`. Events record file
 existence, parse status, top-level section names/count, and result only; config
-payloads and values are not logged. Direct file edits, environment overrides,
-and campaign manifest files remain unclassified.
+payloads and values are not logged. Current source also has a runtime
+`user.yaml` write boundary invariant: production source under `dashboard/`,
+`scripts/`, and `services/` may not write, unlink, or back up the
+runtime config path outside `services.admin.config_editor`. Manual file edits,
+environment overrides, and campaign manifest files remain unclassified.
+Current source also has a paper-campaign manifest write boundary invariant:
+production source under `dashboard/`, `scripts/`, and `services/` may not
+combine active `paper_evidence_campaigns*.json` paths with direct write
+primitives outside the governed manifest update helper/CLI. Manual file edits
+remain unclassified.
 
 Current partial hook for order-intent lifecycle: `storage.live_intent_queue_sqlite`
 maintains current intent rows and an append-only `live_trade_intent_events`
@@ -113,7 +121,12 @@ whether that table is present in the current runtime store, so an old/unmigrated
 SQLite file does not get credited with runtime history it does not yet contain.
 Events record intent ID, timestamp, actor, action, pre/post status, reason,
 source, last error, and order identifiers. Fills remain stored separately, and
-venue-reconciliation event unification beyond the queue store remains open.
+live reconciler transitions carry specific submit-unknown, venue-order, and
+fill-accounted/deferred action labels in the queue history.
+Current source also has a live-intent mutation boundary invariant: production
+source under `dashboard/`, `scripts/`, `services/`, and `storage/` may not
+mutate `live_trade_intents`, `live_trade_intent_events`, or
+`live_consumer_state` directly outside `storage.live_intent_queue_sqlite`.
 Use `make live-intent-history-schema` for a read-only runtime check of whether
 the current queue DB has the transition-history table. Use
 `make live-intent-history-schema-init` only when deliberately initializing or
@@ -138,6 +151,12 @@ created entry and returns
 `operator_event_write_failed_api_credential_rotation_rolled_back`. Events
 record exchange, operation, result, and stored field names only; API keys, API
 secrets, and passphrases are not logged. Direct keyring edits,
+environment-based credential changes, and server injection/rotation drills
+remain unclassified.
+Current source also has an API credential keyring boundary invariant:
+production source under `dashboard/`, `scripts/`, and `services/` may not
+combine direct keyring mutation calls with exchange credential payload fields
+outside `services.security.credential_store`. Manual keyring edits,
 environment-based credential changes, and server injection/rotation drills
 remain unclassified.
 
@@ -173,9 +192,13 @@ cannot be persisted, writes the manifest atomically, and records a best-effort
 completion event. Direct hand edits to manifest files remain unclassified.
 
 Current partial hook for dashboard authentication: `dashboard.auth_gate`
-appends best-effort `dashboard_login`, `dashboard_logout`,
+appends metadata-only `dashboard_login`, `dashboard_logout`,
 `dashboard_mfa_change`, and `dashboard_mfa_challenge` events for session and
-MFA transitions. `services.security.user_auth_store` requires metadata-only
+MFA transitions. Login-success session opening requires durable
+`dashboard_login` audit persistence and clears the tentative session if that
+write fails; logout and failed auth/MFA challenge events remain best-effort
+because they do not open an authenticated session.
+`services.security.user_auth_store` requires metadata-only
 `dashboard_user_auth_store_change` events for central user upsert/bootstrap,
 MFA enrollment/confirmation/disablement, and backup-code consumption; if that
 audit write fails, it restores the raw keyring user/index records and returns a
@@ -183,8 +206,10 @@ rolled-back failure. Login-hash upgrades roll back the unaudited rehash while
 allowing the already-verified login to proceed. These events record usernames,
 roles, sources, result, and state metadata only; they do not log passwords,
 hashes, MFA codes, TOTP secrets, OTP URIs, or backup code values. Future
-user/role management surfaces that bypass `user_auth_store` and dashboard
-session event fail-closed policy remain unclassified.
+user/role management surfaces that bypass `user_auth_store` are guarded for
+current production source by a boundary invariant: `dashboard/`, `scripts/`,
+and `services/` modules may not write dashboard-auth user keyring records
+outside `services.security.user_auth_store`.
 
 Current partial hook for strategy stage transitions:
 `services.control.deployment_stage` appends `strategy_stage_transition` events

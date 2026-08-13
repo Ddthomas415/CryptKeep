@@ -157,7 +157,13 @@ FAMILIES = [
             "failure. update_paper_campaign_manifest.py provides a governed CLI "
             "path for paper-campaign enable/disable manifest changes and refuses "
             "to write if the required campaign_manifest_change operator event "
-            "cannot be recorded. Direct manifest file edits remain unclassified."
+            "cannot be recorded. A current-source boundary invariant rejects "
+            "dashboard/scripts/services code that writes runtime user.yaml "
+            "outside services.admin.config_editor, and a separate invariant rejects "
+            "dashboard/scripts/services code that combines active "
+            "paper_evidence_campaigns*.json paths with direct write primitives "
+            "outside the governed manifest writer. Direct manifest file edits "
+            "remain unclassified."
         ),
     },
     {
@@ -171,8 +177,10 @@ FAMILIES = [
             "append required metadata-only runtime_config_save events and roll back "
             "the config file on audit-write failure; first-run guided setup patch "
             "and risk-preset saves now return config_save_failed and stop before review/"
-            "preflight if the audited save fails. Direct file edits, env live-risk "
-            "caps, and non-user.yaml risk changes remain unclassified."
+            "preflight if the audited save fails. A current-source boundary "
+            "invariant rejects dashboard/scripts/services runtime user.yaml writes "
+            "outside config_editor. Manual file edits, env live-risk caps, and "
+            "non-user.yaml risk changes remain unclassified."
         ),
     },
     {
@@ -184,7 +192,10 @@ FAMILIES = [
             "services.security.credential_store set/delete APIs append required "
             "metadata-only api_credential_rotation operator events without logging "
             "API keys, secrets, or passphrases; audit-write failure rolls back to "
-            "the previous keyring entry or removes a newly created entry. Direct "
+            "the previous keyring entry or removes a newly created entry. A "
+            "current-source boundary invariant rejects dashboard/scripts/services "
+            "code that combines direct keyring mutation calls with exchange "
+            "credential payload fields outside credential_store. Direct/manual "
             "keyring edits, environment-based credential changes, and server "
             "injection/rotation drills remain unclassified."
         ),
@@ -199,8 +210,11 @@ FAMILIES = [
             "append-only per-transition history for insert, claim, and successful "
             "status updates after the live queue schema has been initialized. The "
             "runtime probe reports whether the current store actually has that event "
-            "table. Fills remain stored separately, and venue reconciliation/event "
-            "unification beyond the queue store remains open."
+            "table. A current-source boundary invariant rejects direct mutations "
+            "to live intent tables outside LiveIntentQueueSQLite. Live reconciler "
+            "status writes now label submit-unknown recovery/disposition, venue "
+            "order status reconciliation, and fill-accounted/deferred transitions "
+            "in the queue history. Fill payloads remain stored separately."
         ),
     },
     {
@@ -233,8 +247,10 @@ FAMILIES = [
             "dashboard Settings notification changes append fail-closed "
             "alert_routing_change operator events; central runtime user.yaml saves "
             "append required metadata-only runtime_config_save events and roll back "
-            "the config file on audit-write failure. Direct file edits and "
-            "dispatcher/env channel changes remain unclassified."
+            "the config file on audit-write failure. A current-source boundary "
+            "invariant rejects dashboard/scripts/services runtime user.yaml writes "
+            "outside config_editor. Manual file edits and dispatcher/env channel "
+            "changes remain unclassified."
         ),
     },
     {
@@ -242,7 +258,7 @@ FAMILIES = [
         "surfaces": ["dashboard"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "dashboard.auth_gate appends best-effort metadata-only dashboard_login, dashboard_logout, dashboard_mfa_change, and dashboard_mfa_challenge events; services.security.user_auth_store requires metadata-only dashboard_user_auth_store_change events for central user upsert/bootstrap, MFA enrollment/confirmation/disablement, and backup-code consumption, rolling raw keyring user/index state back on audit-write failure. Login-hash upgrades roll back the unaudited rehash while allowing the verified login to proceed. Passwords, hashes, MFA codes, TOTP secrets, OTP URIs, and backup code values are not logged. Future user/role management surfaces that bypass user_auth_store and dashboard session event fail-closed policy remain unclassified.",
+        "notes": "dashboard.auth_gate appends metadata-only dashboard_login, dashboard_logout, dashboard_mfa_change, and dashboard_mfa_challenge events; login-success session opening requires durable dashboard_login audit persistence and clears the tentative session if that write fails, while logout and failed auth/MFA challenge events remain best-effort because they do not open an authenticated session. services.security.user_auth_store requires metadata-only dashboard_user_auth_store_change events for central user upsert/bootstrap, MFA enrollment/confirmation/disablement, and backup-code consumption, rolling raw keyring user/index state back on audit-write failure. Login-hash upgrades roll back the unaudited rehash while allowing the verified login to proceed. Passwords, hashes, MFA codes, TOTP secrets, OTP URIs, and backup code values are not logged. A current-source boundary invariant rejects dashboard/scripts/services modules that write dashboard-auth user keyring records outside user_auth_store.",
     },
     {
         "family": "AI copilot report generation (external providers)",

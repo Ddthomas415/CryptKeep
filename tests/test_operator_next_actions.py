@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+
+REPO = Path(__file__).resolve().parents[1]
+
 
 def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
@@ -43,6 +48,10 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
                     {
                         "ordinal": 1,
                         "text": "Run host proof",
+                        "artifact_status": {
+                            "artifact_id": "host_proof_guidance",
+                            "artifact_status": "command_guidance",
+                        },
                         "next_action": "collect or record operator evidence",
                     }
                 ],
@@ -50,6 +59,9 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
                     {
                         "line": 12,
                         "category": "remaining_proof",
+                        "marker": "operator-host",
+                        "status": "open",
+                        "text": "Attach host proof",
                         "next_action": "produce or record proof",
                     }
                 ],
@@ -94,7 +106,13 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
     assert out["actions"][2]["source"] == "funding_threshold_pipeline"
     assert out["actions"][3]["source"] == "passive_operator_evidence"
     assert out["actions"][3]["ordinal"] == 1
+    assert out["actions"][3]["text"] == "Run host proof"
+    assert out["actions"][3]["artifact_id"] == "host_proof_guidance"
+    assert out["actions"][3]["artifact_status"] == "command_guidance"
     assert out["actions"][4]["line"] == 12
+    assert out["actions"][4]["marker"] == "operator-host"
+    assert out["actions"][4]["status"] == "open"
+    assert out["actions"][4]["text"] == "Attach host proof"
 
 
 def test_operator_next_actions_respects_limit(monkeypatch) -> None:
@@ -199,6 +217,7 @@ def test_operator_next_actions_fails_closed_on_invalid_lane(monkeypatch) -> None
     assert out["ok"] is False
     assert out["reason"] == "invalid_action_lane"
     assert out["available_action_lanes"] == [
+        "roadmap_tracking",
         "backlog_lane",
         "research_pipeline",
         "research_artifact",
@@ -211,6 +230,52 @@ def test_operator_next_actions_fails_closed_on_invalid_lane(monkeypatch) -> None
     assert out["action_count_total"] == 0
     assert out["action_count_available"] == 0
     assert out["actions"] == []
+
+
+def test_operator_next_actions_surfaces_roadmap_tracking_failure(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    monkeypatch.setattr(
+        mod,
+        "build_operator_status_bundle",
+        lambda repo_root=None, **_filters: {
+            "ok": False,
+            "reason": "roadmap_tracking_incomplete",
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "roadmap_tracking_actions_required": 1,
+                "research_pipeline_actions_required": 0,
+                "operator_proof_actions_required": 0,
+            },
+            "actions": {
+                "roadmap_tracking": [
+                    {
+                        "blocking_reason": "roadmap_tracking_incomplete",
+                        "next_action": "repair roadmap tracking links, commands, or boundaries; then run make roadmap-tracking-status-json",
+                    }
+                ],
+                "operator_proofs": [],
+            },
+        },
+    )
+
+    out = mod.build_operator_next_actions(repo_root=".", lane="roadmap_tracking")
+
+    assert out["ok"] is False
+    assert out["source_reason"] == "roadmap_tracking_incomplete"
+    assert out["lane_filter"] == "roadmap_tracking"
+    assert out["action_count_total"] == 1
+    assert out["action_count_available"] == 1
+    assert out["summary"]["available_by_lane"] == {"roadmap_tracking": 1}
+    assert out["actions"] == [
+        {
+            "lane": "roadmap_tracking",
+            "source": "roadmap_tracking_status",
+            "line": None,
+            "blocking_reason": "roadmap_tracking_incomplete",
+            "next_action": "repair roadmap tracking links, commands, or boundaries; then run make roadmap-tracking-status-json",
+        }
+    ]
 
 
 def test_operator_next_actions_filters_by_passive_lane(monkeypatch) -> None:
@@ -232,8 +297,19 @@ def test_operator_next_actions_filters_by_passive_lane(monkeypatch) -> None:
                     {"pipeline_id": "price_action", "blocking_reason": "missing", "next_action": "run research"}
                 ],
                 "passive_operator_evidence": [
-                    {"ordinal": 1, "text": "Evidence A", "next_action": "collect evidence A"},
-                    {"ordinal": 2, "text": "Evidence B", "next_action": "collect evidence B"},
+                    {
+                        "ordinal": 1,
+                        "text": "Evidence A",
+                        "artifact_status": {"artifact_id": "a", "artifact_status": "missing"},
+                        "next_action": "collect evidence A",
+                    },
+                    {
+                        "ordinal": 2,
+                        "text": "Evidence B",
+                        "artifact_id": "b",
+                        "artifact_status": "command_guidance",
+                        "next_action": "collect evidence B",
+                    },
                 ],
                 "operator_proofs": [
                     {"line": 7, "category": "remaining_proof", "next_action": "produce proof"}
@@ -250,6 +326,8 @@ def test_operator_next_actions_filters_by_passive_lane(monkeypatch) -> None:
     assert out["action_count_returned"] == 2
     assert [row["lane"] for row in out["actions"]] == ["passive_operator_evidence", "passive_operator_evidence"]
     assert [row["ordinal"] for row in out["actions"]] == [1, 2]
+    assert [row["text"] for row in out["actions"]] == ["Evidence A", "Evidence B"]
+    assert [row["artifact_status"] for row in out["actions"]] == ["missing", "command_guidance"]
 
 
 def test_operator_next_actions_filters_by_research_command_lane(monkeypatch) -> None:
@@ -481,6 +559,57 @@ def test_operator_next_actions_filters_by_reason(monkeypatch) -> None:
     assert out["action_count_available"] == 1
     assert out["summary"]["available_by_reason"] == {"host_side_reference": 1}
     assert [row["blocking_reason"] for row in out["actions"]] == ["host_side_reference"]
+
+
+def test_operator_next_actions_excludes_reasons_without_hiding_counts(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    monkeypatch.setattr(
+        mod,
+        "build_operator_status_bundle",
+        lambda repo_root=None, **_filters: {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "operator_proof_actions_required": 3,
+                "passive_operator_evidence_actions_required": 2,
+            },
+            "actions": {
+                "operator_proofs": [
+                    {"line": 7, "category": "remaining_proof", "next_action": "produce proof"},
+                    {"line": 8, "category": "host_side_reference", "next_action": "run host proof"},
+                ],
+                "passive_operator_evidence": [
+                    {"ordinal": 1, "next_action": "collect passive evidence"},
+                ],
+            },
+        },
+    )
+
+    out = mod.build_operator_next_actions(
+        repo_root=".",
+        exclude_reasons=["host_side_reference,passive_operator_evidence"],
+        max_actions=20,
+    )
+
+    assert out["exclude_reason_filter"] == ["host_side_reference", "passive_operator_evidence"]
+    assert out["action_count_total"] == 1
+    assert out["action_count_available"] == 1
+    assert out["source_summary"]["operator_proof_actions_required"] == 3
+    assert out["source_summary"]["passive_operator_evidence_actions_required"] == 2
+    assert out["summary"]["available_by_reason"] == {"remaining_proof": 1}
+    assert out["actions"] == [
+        {
+            "lane": "operator_proof",
+            "source": "remaining_proof",
+            "line": 7,
+            "blocking_reason": "remaining_proof",
+            "marker": "",
+            "status": "",
+            "text": "",
+            "next_action": "produce proof",
+        }
+    ]
 
 
 def test_operator_next_actions_filters_by_action_source(monkeypatch) -> None:
@@ -1049,6 +1178,7 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             ],
             "lane_filter": lane,
             "reason_filter": reason,
+            "exclude_reason_filter": filters.get("exclude_reasons") or [],
             "action_source_filter": action_source,
             "backlog_lane_filter": filters.get("backlog_lane"),
             "backlog_lane_ordinal_filter": int(filters.get("backlog_lane_ordinal") or 0) or None,
@@ -1065,17 +1195,20 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "operator_proof_passive_ordinal_filter": int(filters.get("operator_proof_passive_ordinal") or 0)
             or None,
             "summary": {
-                "available_by_lane": {"backlog_lane": 1},
-                "available_by_reason": {"backlog_lane_item": 1},
+                "available_by_lane": {"passive_operator_evidence": 1},
+                "available_by_reason": {"passive_operator_evidence": 1},
             },
             "actions": [
                 {
-                    "lane": "backlog_lane",
-                    "source": "low_risk_docs_tests",
+                    "lane": "passive_operator_evidence",
+                    "source": "passive_operator_evidence",
                     "line": None,
                     "ordinal": 1,
-                    "blocking_reason": "backlog_lane_item",
-                    "next_action": "select or execute a scoped batch",
+                    "blocking_reason": "passive_operator_evidence",
+                    "text": "Private sandbox/testnet lifecycle proof or explicit accepted exception.",
+                    "artifact_id": "exchange_sandbox_smoke_guidance",
+                    "artifact_status": "command_guidance",
+                    "next_action": "make record-exchange-sandbox-smoke",
                 }
             ],
         },
@@ -1086,9 +1219,11 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "--max-actions",
             "1",
             "--lane",
-            "backlog_lane",
+            "passive_operator_evidence",
             "--reason",
-            "backlog_lane_item",
+            "passive_operator_evidence",
+            "--exclude-reason",
+            "host_side_reference,passive_operator_evidence",
             "--action-source",
             "low_risk_docs_tests",
             "--backlog-lane",
@@ -1118,7 +1253,8 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     out = capsys.readouterr().out
     assert "Operator Next Actions" in out
     assert "actions=1 shown=1" in out
-    assert "lane_filter=backlog_lane" in out
+    assert "lane_filter=passive_operator_evidence" in out
+    assert "exclude_reason_filter=host_side_reference,passive_operator_evidence" in out
     assert "action_source_filter=low_risk_docs_tests" in out
     assert "backlog_lane_filter=low_risk_docs_tests" in out
     assert "backlog_lane_ordinal_filter=1" in out
@@ -1131,7 +1267,53 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     assert "operator_proof_category_filter=host_side_reference" in out
     assert "operator_proof_line_filter=7" in out
     assert "operator_proof_passive_ordinal_filter=1" in out
-    assert "by_lane: backlog_lane=1" in out
-    assert "by_reason: backlog_lane_item=1" in out
-    assert "backlog_lane:low_risk_docs_tests" in out
-    assert "select or execute a scoped batch" in out
+    assert "by_lane: passive_operator_evidence=1" in out
+    assert "by_reason: passive_operator_evidence=1" in out
+    assert "passive_operator_evidence:passive_operator_evidence" in out
+    assert "make record-exchange-sandbox-smoke" in out
+    assert "proof=Private sandbox/testnet lifecycle proof or explicit accepted exception." in out
+    assert "artifact_status=command_guidance artifact_id=exchange_sandbox_smoke_guidance" in out
+
+
+def test_operator_next_actions_distinguishes_medium_lane_inventory_from_read_only_repairs() -> None:
+    from services.analytics.operator_next_actions import build_operator_next_actions
+
+    out = build_operator_next_actions(repo_root=REPO, lane="operator_read_only_command", max_actions=20)
+
+    assert out["ok"] is True
+    assert out["read_only"] is True
+    assert out["planning_only"] is True
+    assert out["does_not_run_campaigns"] is True
+    assert out["does_not_fetch_market_data"] is True
+    assert out["does_not_mutate_state"] is True
+    assert out["lane_filter"] == "operator_read_only_command"
+    assert out["source_summary"]["medium_risk_runtime_read_only"] > 0
+    assert out["source_summary"]["operator_read_only_commands_wired"] > 0
+    assert out["source_summary"]["operator_read_only_commands_not_wired"] == 0
+    assert out["source_summary"]["operator_read_only_command_actions_required"] == 0
+    assert out["action_count_total"] == 0
+    assert out["action_count_available"] == 0
+    assert out["actions"] == []
+
+
+def test_operator_next_actions_distinguishes_low_risk_lane_inventory_from_executable_actions() -> None:
+    from services.analytics.operator_next_actions import build_operator_next_actions
+
+    out = build_operator_next_actions(repo_root=REPO, backlog_lane="low_risk_docs_tests", max_actions=20)
+
+    assert out["ok"] is True
+    assert out["read_only"] is True
+    assert out["planning_only"] is True
+    assert out["does_not_run_campaigns"] is True
+    assert out["does_not_fetch_market_data"] is True
+    assert out["does_not_mutate_state"] is True
+    assert out["backlog_lane_filter"] == "low_risk_docs_tests"
+    assert out["source_summary"]["low_risk_docs_tests"] > 0
+    assert out["source_summary"]["source_backlog_lane_actions_required"] > 0
+    assert out["source_summary"]["backlog_lane_actions_required"] > 0
+    assert out["action_count_total"] == 0
+    assert out["action_count_available"] == 0
+    assert out["actions"] == []
+    assert out["planning_row_count"] > 0
+    assert all(row["lane"] == "backlog_lane" for row in out["planning_rows"])
+    assert all(row["source"] == "low_risk_docs_tests" for row in out["planning_rows"])

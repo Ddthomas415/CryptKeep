@@ -128,3 +128,50 @@ def test_cli_outputs_json(monkeypatch, capsys):
 
     assert main(["--json"]) == 1
     assert json.loads(capsys.readouterr().out)["overall"] == ca.WARN
+
+
+def test_report_includes_artifact_metadata():
+    report = ca.evaluate_cost_assumptions({"paper_trading": {"fee_bps": 7.5, "slippage_bps": 5.0}})
+
+    assert report["schema_version"] == 1
+    assert report["report_type"] == "cost_assumptions"
+    assert report["read_only"] is True
+    assert report["generated_at"]
+
+
+def test_write_cost_assumptions_artifact_records_latest_and_stamped_json(tmp_path):
+    report = ca.evaluate_cost_assumptions({"paper_trading": {"fee_bps": 7.5, "slippage_bps": 5.0}})
+
+    paths = ca.write_cost_assumptions_artifact(report, evidence_dest=tmp_path)
+
+    latest = tmp_path / "cost_assumptions.latest.json"
+    assert paths["latest_json"] == str(latest)
+    assert latest.exists()
+    assert json.loads(latest.read_text(encoding="utf-8"))["report_type"] == "cost_assumptions"
+    assert len(list(tmp_path.glob("cost_assumptions.*.json"))) == 2
+
+
+def test_cli_records_warning_artifact_with_zero_exit_when_explicit(monkeypatch, tmp_path, capsys):
+    from scripts.check_cost_assumptions import main
+
+    monkeypatch.setattr(
+        "scripts.check_cost_assumptions.check_cost_assumptions",
+        lambda: {
+            "schema_version": 1,
+            "report_type": "cost_assumptions",
+            "generated_at": "2026-08-08T00:00:00+00:00",
+            "read_only": True,
+            "overall": ca.WARN,
+            "round_trip_bps": 25.0,
+            "policy_floor_bps": 5.0,
+            "surfaces": {},
+            "checks": [{"name": "engine_costs_configured", "status": ca.WARN, "detail": "default"}],
+            "interpretation": "warn",
+        },
+    )
+
+    assert main(["--json", "--evidence-dest", str(tmp_path), "--allow-warning-exit-zero"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    latest = tmp_path / "cost_assumptions.latest.json"
+    assert latest.exists()
+    assert payload["artifact_paths"]["latest_json"] == str(latest)

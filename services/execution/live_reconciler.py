@@ -364,6 +364,9 @@ def _recover_submit_unknown_by_client_order_id(
                 "error",
                 ctx=_RECONCILER_STATE_CONTEXT,
                 last_error=reason,
+                event_action="submit_unknown_not_found_terminal",
+                event_reason="venue_client_order_lookup_not_found",
+                event_meta={"client_order_id": client_order_id},
             ):
                 ldb.upsert_order({
                     "client_order_id": client_order_id,
@@ -393,6 +396,9 @@ def _recover_submit_unknown_by_client_order_id(
         last_error=None,
         client_order_id=client_order_id,
         exchange_order_id=ex_oid,
+        event_action="submit_unknown_recovered",
+        event_reason="venue_client_order_lookup_found",
+        event_meta={"client_order_id": client_order_id, "exchange_order_id": ex_oid},
     ):
         return False
     ldb.upsert_order({
@@ -498,6 +504,9 @@ def run_forever() -> None:
                                 "error",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error="stale_order_not_found",
+                                event_action="venue_order_not_found_stale",
+                                event_reason="venue_order_reconcile",
+                                event_meta={"exchange_order_id": ex_oid, "age_ms": _age_ms},
                             ):
                                 continue
                             ldb.upsert_order({
@@ -520,6 +529,9 @@ def run_forever() -> None:
                                 "canceled",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error=None,
+                                event_action="venue_order_canceled",
+                                event_reason="venue_order_reconcile",
+                                event_meta={"exchange_order_id": ex_oid, "venue_status": st},
                             ):
                                 continue
                         elif st in ("rejected",):
@@ -529,6 +541,9 @@ def run_forever() -> None:
                                 "rejected",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error=str(o.get("rejectReason") or o.get("info") or "rejected"),
+                                event_action="venue_order_rejected",
+                                event_reason="venue_order_reconcile",
+                                event_meta={"exchange_order_id": ex_oid, "venue_status": st},
                             ):
                                 continue
                         elif st in ("open", "new", "partially_filled", "partiallyfilled"):
@@ -539,6 +554,9 @@ def run_forever() -> None:
                                     "error",
                                     ctx=_RECONCILER_STATE_CONTEXT,
                                     last_error=f"stale_open_order:{_age_ms}ms",
+                                    event_action="venue_order_open_stale",
+                                    event_reason="venue_order_reconcile",
+                                    event_meta={"exchange_order_id": ex_oid, "age_ms": _age_ms, "venue_status": st},
                                 ):
                                     continue
                                 ldb.upsert_order({
@@ -634,6 +652,9 @@ def run_forever() -> None:
                                     "filled",
                                     ctx=_RECONCILER_STATE_CONTEXT,
                                     last_error=None,
+                                    event_action="venue_fill_accounted",
+                                    event_reason="venue_trade_reconcile",
+                                    event_meta={"exchange_order_id": ex_oid, "accounted_fills": _loop_accounted_fills},
                                 )
                                 if _transitioned:
                                     ldb.upsert_order({
@@ -665,6 +686,9 @@ def run_forever() -> None:
                                         "filled",
                                         ctx=_RECONCILER_STATE_CONTEXT,
                                         last_error=None,
+                                        event_action="venue_fill_accounted_lookback",
+                                        event_reason="venue_trade_reconcile",
+                                        event_meta={"exchange_order_id": ex_oid, "accounted_fills": _lookback},
                                     )
                                     if _transitioned:
                                         ldb.upsert_order({
@@ -689,6 +713,9 @@ def run_forever() -> None:
                                         "submitted",
                                         ctx=_RECONCILER_STATE_CONTEXT,
                                         last_error="filled_deferred:zero_accounted_fills",
+                                        event_action="venue_fill_deferred",
+                                        event_reason="venue_trade_reconcile",
+                                        event_meta={"exchange_order_id": ex_oid, "accounted_fills": 0},
                                     )
                     except Exception as e:
                         _err = f"{type(e).__name__}:{e}"
@@ -699,6 +726,9 @@ def run_forever() -> None:
                                 "error",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error=f"stale_order_fetch_error:{_err}",
+                                event_action="venue_order_fetch_error_stale",
+                                event_reason="venue_order_reconcile",
+                                event_meta={"exchange_order_id": ex_oid, "age_ms": _age_ms},
                             ):
                                 continue
                             ldb.upsert_order({

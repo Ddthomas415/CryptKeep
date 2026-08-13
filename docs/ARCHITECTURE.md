@@ -1,5 +1,7 @@
 # Architecture
 
+For the compact current-state map, see `docs/CURRENT_SYSTEM_DIAGRAM.md`.
+
 ## Current Repo Shape
 
 Crypto Bot Pro is a crypto-first operator platform with four major concerns:

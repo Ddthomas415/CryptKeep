@@ -23,6 +23,25 @@ Allowed in the repo root does not mean part of the required root install/run/tes
 - `supported_baseline_present` reports the documented baseline roots
 - `allowed_top_level_present` reports the broader intentional root allowlist used by `--strict`
 
+Orientation docs:
+- `docs/CURRENT_SYSTEM_DIAGRAM.md`
+  - compact current-state map of user/operator, research, paper evidence,
+    risk, execution, observability, and host/runtime boundaries
+- `docs/PROJECT_IDENTITY_AND_SCOPE.md`
+  - current operating identity and scope boundaries
+- `docs/PROJECT_DIRECTIONAL_PLAN.md`
+  - directional plan and architecture stop rule
+- `docs/ROADMAP_TRACKING_CHECKLIST.md`
+  - operator roadmap index, status commands, and remaining work tracking
+- `docs/strategies/symbol_selection_current_boundary.md`
+  - configured-symbol versus selector/planner boundary for multi-symbol work
+- `docs/research/stock_options_requirements.md`
+  - stock/options research-only boundary and prerequisites
+
+These docs are descriptive guardrails. They do not authorize campaigns,
+promotion-gate changes, broker expansion, stock/options execution,
+live trading, runtime policy changes, or strategy universe changes.
+
 Backtest code location:
 - there is no canonical top-level `backtest/` root in the current tree
 - backtest implementation currently lives under `services/backtest/`
@@ -100,6 +119,7 @@ Overlapping service families:
   - `docs/CORE.md`
   - `docs/BACKLOG_EXECUTION_LANES.md`
   - `docs/architecture/paper_execution_surfaces.md`
+  - `docs/architecture/compat_script_surfaces.md`
   - `docs/architecture/safety_surface_classification.md`
   - `docs/research/signal_discovery_classification.md`
   - `docs/architecture/storage_surface_classification.md`

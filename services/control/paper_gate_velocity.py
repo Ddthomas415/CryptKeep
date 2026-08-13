@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 import math
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Any
 
 from services.control.paper_promotion_progress import load_paper_promotion_progress
@@ -24,6 +26,13 @@ def _round2(value: float | None) -> float | None:
     if value is None or not math.isfinite(float(value)):
         return None
     return round(float(value), 2)
+
+
+def _safe_stamp(reference_ts: datetime | None = None) -> str:
+    now = reference_ts or datetime.now(timezone.utc)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    return now.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
 
 def _qualified_close_times(qualification: dict[str, Any]) -> list[datetime]:
@@ -126,6 +135,163 @@ def compute_round_trip_velocity(
     }
 
 
+def compute_qualified_bar_velocity(
+    *,
+    bar_timestamps: list[Any],
+    recorded: int,
+    required: int,
+    reference_ts: datetime | None = None,
+) -> dict[str, Any]:
+    """Estimate qualified-bar threshold completion from observed unique bars.
+
+    Diagnostic only: this consumes the same qualified bar keys the gate progress
+    report counts, and never changes promotion thresholds or evidence.
+    """
+
+    now = reference_ts or datetime.now(timezone.utc)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    now = now.astimezone(timezone.utc)
+
+    remaining = max(0, int(required) - int(recorded))
+    times = sorted(
+        {
+            parsed
+            for value in list(bar_timestamps or [])
+            if (parsed := _parse_ts(value)) is not None
+        }
+    )
+    if int(required) <= 0:
+        return {
+            "status": "disabled",
+            "can_estimate": True,
+            "qualified_bars_recorded": int(recorded),
+            "qualified_bars_required": int(required),
+            "qualified_bars_remaining": 0,
+            "qualified_bar_count": len(times),
+            "observed_span_days": 0.0,
+            "mean_days_per_qualified_bar": 0.0,
+            "estimated_days_remaining": 0,
+            "estimated_completion_ts": now.isoformat(),
+            "reason": "qualified_bar_threshold_disabled",
+        }
+    if remaining <= 0:
+        return {
+            "status": "complete",
+            "can_estimate": True,
+            "qualified_bars_recorded": int(recorded),
+            "qualified_bars_required": int(required),
+            "qualified_bars_remaining": 0,
+            "qualified_bar_count": len(times),
+            "observed_span_days": 0.0,
+            "mean_days_per_qualified_bar": 0.0,
+            "estimated_days_remaining": 0,
+            "estimated_completion_ts": now.isoformat(),
+            "reason": "threshold_met",
+        }
+    if len(times) < 2:
+        return {
+            "status": "insufficient_velocity_history",
+            "can_estimate": False,
+            "qualified_bars_recorded": int(recorded),
+            "qualified_bars_required": int(required),
+            "qualified_bars_remaining": remaining,
+            "qualified_bar_count": len(times),
+            "observed_span_days": None,
+            "mean_days_per_qualified_bar": None,
+            "estimated_days_remaining": None,
+            "estimated_completion_ts": None,
+            "reason": "need_at_least_two_qualified_bars",
+        }
+
+    span_days = max(0.0, (times[-1] - times[0]).total_seconds() / 86400.0)
+    intervals = max(1, len(times) - 1)
+    mean_days = span_days / float(intervals)
+    if mean_days <= 0.0 or not math.isfinite(mean_days):
+        return {
+            "status": "insufficient_velocity_history",
+            "can_estimate": False,
+            "qualified_bars_recorded": int(recorded),
+            "qualified_bars_required": int(required),
+            "qualified_bars_remaining": remaining,
+            "qualified_bar_count": len(times),
+            "observed_span_days": _round2(span_days),
+            "mean_days_per_qualified_bar": None,
+            "estimated_days_remaining": None,
+            "estimated_completion_ts": None,
+            "reason": "non_positive_observed_cadence",
+        }
+
+    days_remaining = int(math.ceil(float(remaining) * mean_days))
+    completion = now + timedelta(days=days_remaining)
+    return {
+        "status": "projected",
+        "can_estimate": True,
+        "qualified_bars_recorded": int(recorded),
+        "qualified_bars_required": int(required),
+        "qualified_bars_remaining": remaining,
+        "qualified_bar_count": len(times),
+        "first_qualified_bar_ts": times[0].isoformat(),
+        "latest_qualified_bar_ts": times[-1].isoformat(),
+        "observed_span_days": _round2(span_days),
+        "mean_days_per_qualified_bar": _round2(mean_days),
+        "estimated_days_remaining": days_remaining,
+        "estimated_completion_ts": completion.isoformat(),
+        "reason": "projection_uses_mean_observed_qualified_bar_cadence",
+    }
+
+
+def _overall_completion_estimate(
+    *,
+    velocities: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    active: list[tuple[str, dict[str, Any], datetime]] = []
+    incomplete_without_estimate: list[str] = []
+
+    for name, row in velocities.items():
+        status = str(row.get("status") or "")
+        if status in {"complete", "disabled"}:
+            continue
+        if not bool(row.get("can_estimate")):
+            incomplete_without_estimate.append(name)
+            continue
+        parsed = _parse_ts(row.get("estimated_completion_ts"))
+        if parsed is None:
+            incomplete_without_estimate.append(name)
+            continue
+        active.append((name, row, parsed))
+
+    if incomplete_without_estimate:
+        return {
+            "status": "insufficient_velocity_history",
+            "can_estimate": False,
+            "estimated_days_remaining": None,
+            "estimated_completion_ts": None,
+            "blocking_threshold": None,
+            "reason": "incomplete_threshold_without_projection",
+            "incomplete_without_estimate": sorted(incomplete_without_estimate),
+        }
+    if not active:
+        return {
+            "status": "complete",
+            "can_estimate": True,
+            "estimated_days_remaining": 0,
+            "estimated_completion_ts": None,
+            "blocking_threshold": None,
+            "reason": "all_projected_thresholds_complete_or_disabled",
+        }
+
+    name, row, _parsed = max(active, key=lambda item: item[2])
+    return {
+        "status": "projected",
+        "can_estimate": True,
+        "estimated_days_remaining": row.get("estimated_days_remaining"),
+        "estimated_completion_ts": row.get("estimated_completion_ts"),
+        "blocking_threshold": name,
+        "reason": "latest_projected_incomplete_threshold",
+    }
+
+
 def build_paper_gate_velocity_report(
     *,
     reference_ts: datetime | None = None,
@@ -138,6 +304,18 @@ def build_paper_gate_velocity_report(
         recorded=int(progress.get("round_trips_recorded") or 0),
         required=int(progress.get("round_trips_required") or 0),
         reference_ts=reference_ts,
+    )
+    bar_velocity = compute_qualified_bar_velocity(
+        bar_timestamps=list(progress.get("qualified_bar_timestamps") or []),
+        recorded=int(progress.get("qualified_bars_recorded") or 0),
+        required=int(progress.get("qualified_bars_required") or 0),
+        reference_ts=reference_ts,
+    )
+    overall_velocity = _overall_completion_estimate(
+        velocities={
+            "round_trips": velocity,
+            "qualified_bars": bar_velocity,
+        }
     )
     all_history = int(progress.get("all_history_round_trips") or 0)
     qualified = int(progress.get("round_trips_recorded") or 0)
@@ -183,6 +361,7 @@ def build_paper_gate_velocity_report(
         "ok": True,
         "read_only": True,
         "report_type": "paper_gate_velocity",
+        "generated_at": (reference_ts or datetime.now(timezone.utc)).astimezone(timezone.utc).isoformat(),
         "strategy_id": progress.get("strategy_id"),
         "target_strategy": progress.get("target_strategy"),
         "policy_id": progress.get("policy_id"),
@@ -209,17 +388,42 @@ def build_paper_gate_velocity_report(
             "source": str(progress.get("bar_count_source") or "none"),
         },
         "velocity": velocity,
+        "qualified_bar_velocity": bar_velocity,
+        "overall_velocity": overall_velocity,
         "qualification_explanation": progress.get("qualification_explanation"),
         "blocking_thresholds": list(progress.get("blocking_thresholds") or []),
         "findings": findings,
-        "summary_text": _summary_text(progress=progress, velocity=velocity, excluded=excluded),
+        "summary_text": _summary_text(
+            progress=progress,
+            velocity=velocity,
+            bar_velocity=bar_velocity,
+            overall_velocity=overall_velocity,
+            excluded=excluded,
+        ),
     }
+
+
+def write_paper_gate_velocity_artifact(
+    report: dict[str, Any],
+    *,
+    evidence_dest: str | Path,
+) -> dict[str, str]:
+    dest = Path(evidence_dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(report, indent=2, sort_keys=True, default=str)
+    latest = dest / "paper_gate_velocity.latest.json"
+    stamped = dest / f"paper_gate_velocity.{_safe_stamp()}.json"
+    latest.write_text(text, encoding="utf-8")
+    stamped.write_text(text, encoding="utf-8")
+    return {"latest_json": str(latest), "stamped_json": str(stamped)}
 
 
 def _summary_text(
     *,
     progress: dict[str, Any],
     velocity: dict[str, Any],
+    bar_velocity: dict[str, Any],
+    overall_velocity: dict[str, Any],
     excluded: int,
 ) -> str:
     base = (
@@ -239,6 +443,28 @@ def _summary_text(
         base = f"{base} Round-trip threshold is complete."
     else:
         base = f"{base} Projection unavailable: {velocity.get('reason')}."
+    if bool(progress.get("qualified_bars_enabled")):
+        if bar_velocity.get("status") == "projected":
+            base = (
+                f"{base} Qualified-bar cadence is "
+                f"{bar_velocity.get('mean_days_per_qualified_bar')} days per "
+                f"bar; projected bar completion in "
+                f"{bar_velocity.get('estimated_days_remaining')} days "
+                f"({bar_velocity.get('estimated_completion_ts')})."
+            )
+        elif bar_velocity.get("status") == "complete":
+            base = f"{base} Qualified-bar threshold is complete."
+        else:
+            base = f"{base} Qualified-bar projection unavailable: {bar_velocity.get('reason')}."
+    if overall_velocity.get("status") == "projected":
+        base = (
+            f"{base} Overall projected completion is governed by "
+            f"{overall_velocity.get('blocking_threshold')} in "
+            f"{overall_velocity.get('estimated_days_remaining')} days "
+            f"({overall_velocity.get('estimated_completion_ts')})."
+        )
+    elif overall_velocity.get("status") == "complete":
+        base = f"{base} All projected thresholds are complete."
     if excluded:
         base = f"{base} {excluded} legacy/all-history round trip(s) remain diagnostic only."
     return base

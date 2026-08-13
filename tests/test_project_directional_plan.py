@@ -71,6 +71,13 @@ def test_directional_plan_blocks_architecture_review_loops() -> None:
 
 def test_readme_links_directional_plan() -> None:
     readme = (REPO / "README.md").read_text(encoding="utf-8")
+    normalized = " ".join(readme.split())
     assert "docs/PROJECT_DIRECTIONAL_PLAN.md" in readme
     assert "event-driven trading intelligence platform" in readme
-
+    assert "docs/CURRENT_SYSTEM_DIAGRAM.md" in readme
+    assert "docs/REPO_LAYOUT.md" in readme
+    assert "docs/strategies/symbol_selection_current_boundary.md" in readme
+    assert "docs/research/stock_options_requirements.md" in readme
+    assert "neither document authorizes campaign, promotion-gate, broker, or live-execution changes" in readme
+    assert "make operator-status-json" in readme
+    assert "combined roadmap, backlog, research, read-only command, and proof status bundle" in normalized

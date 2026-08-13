@@ -213,3 +213,69 @@ def test_paper_runner_status_file_contains_expected_keys_after_loop(monkeypatch,
     assert "open_seen" in rec
     assert "filled" in rec
     assert "rejected" in rec
+
+
+def test_paper_runner_honors_component_scoped_venue_and_symbols(monkeypatch, tmp_path):
+    """Managed campaigns pass component-scoped env after stripping ambient CBP_*."""
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    monkeypatch.setenv("CBP_COMPONENT_VENUE", "okx")
+    monkeypatch.setenv("CBP_COMPONENT_SYMBOLS", "BTC/USDT")
+    monkeypatch.setenv("CBP_VENUE", "should_not_win")
+    monkeypatch.setenv("CBP_SYMBOLS", "SHOULD/NOT_WIN")
+
+    import services.os.app_paths as app_paths
+    import storage.intent_queue_sqlite as intent_queue_mod
+    import storage.paper_trading_sqlite as paper_store_mod
+    import storage.trade_journal_sqlite as trade_journal_mod
+    import services.execution.intent_reconciler as reconciler_mod
+    import services.execution.paper_runner as paper_runner
+
+    importlib.reload(app_paths)
+    importlib.reload(intent_queue_mod)
+    importlib.reload(paper_store_mod)
+    importlib.reload(trade_journal_mod)
+    importlib.reload(reconciler_mod)
+    importlib.reload(paper_runner)
+
+    status_written: list[dict] = []
+    mtm_calls: list[tuple[str, str]] = []
+
+    class FakeEngine:
+        db = paper_store_mod.PaperTradingSQLite()
+
+        def evaluate_open_orders(self) -> dict:
+            return {"open_orders_seen": 0, "filled": 0, "rejected": 0}
+
+        def mark_to_market(self, venue: str, symbol: str) -> dict:
+            mtm_calls.append((venue, symbol))
+            return {
+                "ok": True,
+                "cash_quote": 1000.0,
+                "equity_quote": 1000.0,
+                "unrealized_pnl": 0.0,
+                "realized_pnl": 0.0,
+                "mid": 100.0,
+            }
+
+    def fake_sleep(_seconds: float) -> None:
+        paper_runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+        paper_runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(paper_runner, "PaperEngine", FakeEngine)
+    monkeypatch.setattr(
+        paper_runner,
+        "load_user_yaml",
+        lambda: {"paper_trading": {"default_venue": "coinbase", "default_symbol": "BTC/USD", "loop_interval_sec": 0.0}},
+    )
+    monkeypatch.setattr(paper_runner, "_consume_queued_intents_once", lambda **_kwargs: {})
+    monkeypatch.setattr(paper_runner, "reconcile_once", lambda **_kwargs: {})
+    monkeypatch.setattr(paper_runner.time, "sleep", fake_sleep)
+    monkeypatch.setattr(paper_runner, "_write_status", lambda obj: status_written.append(obj))
+
+    paper_runner.run_forever()
+
+    loop_statuses = [s for s in status_written if s.get("status") == "running" and "mtm" in s]
+    assert loop_statuses
+    assert loop_statuses[-1]["venue"] == "okx"
+    assert loop_statuses[-1]["symbols"] == ["BTC/USDT"]
+    assert mtm_calls == [("okx", "BTC/USDT")]

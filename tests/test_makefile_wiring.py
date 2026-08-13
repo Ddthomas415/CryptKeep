@@ -38,3 +38,43 @@ def test_makefile_has_alignment_targets():
     assert "scripts/pre_release_sanity.py --json --skip-ruff --skip-mypy --skip-pytest --skip-config --skip-imports" in txt
     assert "CBP_PRE_RELEASE_SKIP_PYTEST=1" in txt
     assert "scripts/pre_release_sanity.py --json --skip-ruff --skip-mypy" in txt
+    assert "operator-next-actions-passive:" in txt
+    assert "operator-next-actions-passive-json:" in txt
+    assert "--action-source passive_operator_evidence" in txt
+    assert "--exclude-reason host_side_reference" in txt
+    assert "operator-event-secrets:" in txt
+    assert "operator-event-secrets-json:" in txt
+    assert "record-operator-event-secrets:" in txt
+    assert "scripts/check_operator_event_secrets.py --require-events --evidence-dest $(OPERATOR_EVENT_EVIDENCE_DEST)" in txt
+    assert "record-ai-provider-event-secrets:" in txt
+    assert "--require-action ai_copilot_external_provider_call" in txt
+    assert "record-ai-report-event-secrets:" in txt
+    assert "--require-action ai_copilot_report_write" in txt
+    assert "credential-source-posture:" in txt
+    assert "scripts/check_credential_source_posture.py $(CREDENTIAL_SOURCE_POSTURE_ARGS)" in txt
+    assert "credential-source-posture-json:" in txt
+    assert "scripts/check_credential_source_posture.py --json $(CREDENTIAL_SOURCE_POSTURE_ARGS)" in txt
+    assert "record-operator-arm-to-halt-replay:" in txt
+    assert "scripts/check_operator_arm_to_halt_replay.py --json --evidence-dest $(OPERATOR_ARM_TO_HALT_REPLAY_EVIDENCE_DEST)" in txt
+    assert "record-execution-cost-stack:" in txt
+    assert "scripts/report_execution_cost_stack.py --write-default-artifact" in txt
+    assert "smoke-exchange-sandbox:" in txt
+    assert "scripts/smoke_exchange.py $(EXCHANGE_SANDBOX_SMOKE_ARGS)" in txt
+    assert "record-exchange-sandbox-smoke:" in txt
+    assert "--evidence-dest $(EXCHANGE_SANDBOX_SMOKE_EVIDENCE_DEST)" in txt
+    assert "backup-state:" in txt
+    assert "scripts/backup_state.py backup --dest $(STATE_BACKUP_DEST)" in txt
+    assert "record-manual-strategy-performance-decision:" in txt
+    assert "--target manual_strategy_performance_decision" in txt
+    assert "record-composite-hybrid-paper-decision:" in txt
+    assert "--target composite_hybrid_paper_advancement_decision" in txt
+    assert "record-funding-extreme-persistent-campaign-decision:" in txt
+    assert "--target funding_extreme_persistent_campaign_decision" in txt
+    assert "record-hetzner-state-migration-checkpoint:" in txt
+    assert "--target hetzner_canonical_state_migration" in txt
+    assert "record-paper-to-shadow-first-hour-checkpoint:" in txt
+    assert "--target paper_to_shadow_first_hour_rehearsal" in txt
+    assert "record-backup-restore-drill-checkpoint:" in txt
+    assert "--target state_backup_restore_drill" in txt
+    assert "record-server-secrets-rotation-checkpoint:" in txt
+    assert "--target server_secrets_rotation_drill" in txt

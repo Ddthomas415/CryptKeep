@@ -53,6 +53,13 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "local_state",
     ),
     OperatorReadOnlyCommandSpec(
+        "cost_assumptions",
+        "scripts/check_cost_assumptions.py",
+        "check-cost-assumptions",
+        "gate_diagnostic",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
         "supervised_soak_status",
         "scripts/report_supervised_soak_status.py",
         "status-paper-soak",
@@ -81,6 +88,20 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "local_state",
     ),
     OperatorReadOnlyCommandSpec(
+        "edge_cadence",
+        "scripts/check_edge_cadence.py",
+        "check-edge-cadence",
+        "startup_host_diagnostic",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
+        "dead_man",
+        "scripts/check_dead_man.py",
+        "check-dead-man",
+        "startup_host_diagnostic",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
         "paper_campaign_ownership",
         "scripts/check_paper_campaign_ownership.py",
         "check-paper-campaign-ownership",
@@ -99,6 +120,27 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "scripts/run_ai_operator_oversight.py",
         "ai-operator-oversight",
         "optional_operator_report",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
+        "roadmap_tracking_status",
+        "scripts/report_roadmap_tracking_status.py",
+        "roadmap-tracking-status",
+        "optional_operator_report",
+        "repo_artifacts",
+    ),
+    OperatorReadOnlyCommandSpec(
+        "supply_chain",
+        "scripts/check_supply_chain.py",
+        "check-supply-chain",
+        "optional_operator_report",
+        "repo_artifacts",
+    ),
+    OperatorReadOnlyCommandSpec(
+        "operator_arm_to_halt_replay",
+        "scripts/check_operator_arm_to_halt_replay.py",
+        "operator-arm-to-halt-replay",
+        "platform_event_packet",
         "local_state",
     ),
     OperatorReadOnlyCommandSpec(
@@ -127,6 +169,13 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "scripts/report_platform_event_packet.py",
         "platform-event-packet",
         "platform_event_packet",
+        "local_state",
+    ),
+    OperatorReadOnlyCommandSpec(
+        "live_intent_history_schema",
+        "scripts/check_live_intent_history_schema.py",
+        "live-intent-history-schema",
+        "startup_host_diagnostic",
         "local_state",
     ),
 )

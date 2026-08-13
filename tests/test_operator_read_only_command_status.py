@@ -54,9 +54,25 @@ def test_operator_read_only_command_status_reports_current_repo_wiring() -> None
     assert rows["multi_symbol_paper_campaign_planner"]["wiring_ok"] is True
     assert rows["managed_paper_campaign_planner"]["script_index_exists"] is True
     assert rows["paper_gate_velocity"]["make_target"] == "status-paper-gate-velocity"
+    assert rows["cost_assumptions"]["make_target"] == "check-cost-assumptions"
+    assert rows["cost_assumptions"]["medium_lane_item"] == "gate_diagnostic"
+    assert rows["edge_cadence"]["make_target"] == "check-edge-cadence"
+    assert rows["edge_cadence"]["medium_lane_item"] == "startup_host_diagnostic"
+    assert rows["dead_man"]["make_target"] == "check-dead-man"
+    assert rows["dead_man"]["medium_lane_item"] == "startup_host_diagnostic"
     assert rows["ai_operator_oversight"]["make_target"] == "ai-operator-oversight"
+    assert rows["roadmap_tracking_status"]["make_target"] == "roadmap-tracking-status"
+    assert rows["roadmap_tracking_status"]["medium_lane_item"] == "optional_operator_report"
+    assert rows["roadmap_tracking_status"]["input_class"] == "repo_artifacts"
+    assert rows["supply_chain"]["make_target"] == "check-supply-chain"
+    assert rows["supply_chain"]["medium_lane_item"] == "optional_operator_report"
+    assert rows["supply_chain"]["input_class"] == "repo_artifacts"
+    assert rows["operator_arm_to_halt_replay"]["make_target"] == "operator-arm-to-halt-replay"
+    assert rows["operator_arm_to_halt_replay"]["medium_lane_item"] == "platform_event_packet"
     assert rows["platform_event_packet"]["make_target"] == "platform-event-packet"
     assert rows["platform_event_integrity"]["medium_lane_item"] == "platform_event_packet"
+    assert rows["live_intent_history_schema"]["make_target"] == "live-intent-history-schema"
+    assert rows["live_intent_history_schema"]["medium_lane_item"] == "startup_host_diagnostic"
 
 
 def test_operator_read_only_command_status_filters() -> None:
@@ -75,6 +91,48 @@ def test_operator_read_only_command_status_filters() -> None:
     assert by_command["command_count"] == 1
     assert by_command["commands"][0]["script"] == "scripts/run_system_diagnostics.py"
 
+    by_roadmap = build_operator_read_only_command_status(command_id="roadmap_tracking_status")
+    assert by_roadmap["ok"] is True
+    assert by_roadmap["command_count"] == 1
+    assert by_roadmap["commands"][0]["script"] == "scripts/report_roadmap_tracking_status.py"
+    assert by_roadmap["commands"][0]["make_target"] == "roadmap-tracking-status"
+
+    by_cost = build_operator_read_only_command_status(command_id="cost_assumptions")
+    assert by_cost["ok"] is True
+    assert by_cost["command_count"] == 1
+    assert by_cost["commands"][0]["script"] == "scripts/check_cost_assumptions.py"
+    assert by_cost["commands"][0]["input_class"] == "local_state"
+
+    by_edge = build_operator_read_only_command_status(command_id="edge_cadence")
+    assert by_edge["ok"] is True
+    assert by_edge["command_count"] == 1
+    assert by_edge["commands"][0]["script"] == "scripts/check_edge_cadence.py"
+    assert by_edge["commands"][0]["input_class"] == "local_state"
+
+    by_dead_man = build_operator_read_only_command_status(command_id="dead_man")
+    assert by_dead_man["ok"] is True
+    assert by_dead_man["command_count"] == 1
+    assert by_dead_man["commands"][0]["script"] == "scripts/check_dead_man.py"
+    assert by_dead_man["commands"][0]["input_class"] == "local_state"
+
+    by_supply_chain = build_operator_read_only_command_status(command_id="supply_chain")
+    assert by_supply_chain["ok"] is True
+    assert by_supply_chain["command_count"] == 1
+    assert by_supply_chain["commands"][0]["script"] == "scripts/check_supply_chain.py"
+    assert by_supply_chain["commands"][0]["input_class"] == "repo_artifacts"
+
+    by_arm_replay = build_operator_read_only_command_status(command_id="operator_arm_to_halt_replay")
+    assert by_arm_replay["ok"] is True
+    assert by_arm_replay["command_count"] == 1
+    assert by_arm_replay["commands"][0]["script"] == "scripts/check_operator_arm_to_halt_replay.py"
+    assert by_arm_replay["commands"][0]["input_class"] == "local_state"
+
+    by_live_schema = build_operator_read_only_command_status(command_id="live_intent_history_schema")
+    assert by_live_schema["ok"] is True
+    assert by_live_schema["command_count"] == 1
+    assert by_live_schema["commands"][0]["script"] == "scripts/check_live_intent_history_schema.py"
+    assert by_live_schema["commands"][0]["input_class"] == "local_state"
+
 
 def test_operator_read_only_command_status_filters_platform_event_packet_lane() -> None:
     from services.analytics.operator_read_only_command_status import build_operator_read_only_command_status
@@ -82,9 +140,10 @@ def test_operator_read_only_command_status_filters_platform_event_packet_lane() 
     out = build_operator_read_only_command_status(medium_lane_item="platform_event_packet")
 
     assert out["ok"] is True
-    assert out["command_count"] == 4
-    assert out["summary"]["by_medium_lane_item"] == {"platform_event_packet": 4}
+    assert out["command_count"] == 5
+    assert out["summary"]["by_medium_lane_item"] == {"platform_event_packet": 5}
     assert {row["command_id"] for row in out["commands"]} == {
+        "operator_arm_to_halt_replay",
         "platform_event_journal",
         "platform_event_secrets",
         "platform_event_integrity",

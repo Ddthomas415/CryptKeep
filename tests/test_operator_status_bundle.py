@@ -6,8 +6,10 @@ from pathlib import Path
 def _write_minimal_repo(root: Path) -> None:
     from services.analytics.operator_read_only_command_status import OPERATOR_READ_ONLY_COMMANDS
     from services.analytics.research_command_status import RESEARCH_COMMANDS
+    from services.analytics.roadmap_tracking_status import REQUIRED_COMMANDS, REQUIRED_SOURCE_DOCS
 
-    (root / "docs").mkdir()
+    (root / "docs" / "research").mkdir(parents=True)
+    (root / "docs" / "work_log").mkdir(parents=True)
     (root / "scripts" / "research").mkdir(parents=True)
     (root / "scripts" / "SCRIPTS.md").write_text(
         "\n".join(
@@ -28,12 +30,14 @@ def _write_minimal_repo(root: Path) -> None:
         path = root / spec.script
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("", encoding="utf-8")
+    make_targets = [
+        spec.make_target
+        for spec in (*RESEARCH_COMMANDS, *OPERATOR_READ_ONLY_COMMANDS)
+        if spec.make_target
+    ]
+    make_targets.extend(command.split()[1] for command in REQUIRED_COMMANDS)
     (root / "Makefile").write_text(
-        "\n".join(
-            f"{spec.make_target}:\n\ttrue"
-            for spec in (*RESEARCH_COMMANDS, *OPERATOR_READ_ONLY_COMMANDS)
-            if spec.make_target
-        ),
+        "\n".join(f"{target}:\n\ttrue" for target in dict.fromkeys(make_targets)),
         encoding="utf-8",
     )
     lanes = (
@@ -46,8 +50,40 @@ def _write_minimal_repo(root: Path) -> None:
     for lane in lanes:
         parts.extend([f"### {lane}", "", f"- Item for {lane}", ""])
     (root / "docs" / "BACKLOG_EXECUTION_LANES.md").write_text("\n".join(parts), encoding="utf-8")
+    for rel in REQUIRED_SOURCE_DOCS:
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if not path.exists():
+            path.write_text(f"{rel}\n", encoding="utf-8")
     (root / "REMAINING_TASKS.md").write_text(
         "See docs/BACKLOG_EXECUTION_LANES.md\nRemaining proof: run host drill.\nhost-side status required.",
+        encoding="utf-8",
+    )
+    roadmap_lines = [
+        "# CryptKeep Roadmap Tracking Checklist",
+        "It does not replace `REMAINING_TASKS.md`",
+        "This checklist does not authorize:",
+        "live trading;",
+        "Current operating phase: paper-evidence collection and read-only research.",
+        "deterministic trading/risk engine remains the only authority",
+        "Batch only items from the same lane.",
+        *REQUIRED_SOURCE_DOCS,
+        *REQUIRED_COMMANDS,
+    ]
+    (root / "docs" / "ROADMAP_TRACKING_CHECKLIST.md").write_text(
+        "\n".join(roadmap_lines),
+        encoding="utf-8",
+    )
+    (root / "REMAINING_TASKS.md").write_text(
+        "See docs/BACKLOG_EXECUTION_LANES.md\n"
+        "docs/ROADMAP_TRACKING_CHECKLIST.md\n"
+        "Remaining proof: run host drill.\n"
+        "host-side status required.",
+        encoding="utf-8",
+    )
+    (root / "docs" / "BACKLOG_EXECUTION_LANES.md").write_text(
+        (root / "docs" / "BACKLOG_EXECUTION_LANES.md").read_text(encoding="utf-8")
+        + "\ndocs/ROADMAP_TRACKING_CHECKLIST.md\n",
         encoding="utf-8",
     )
 
@@ -66,8 +102,9 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["does_not_fetch_market_data"] is True
     assert out["does_not_mutate_state"] is True
     assert out["section_filter"] is None
-    assert out["shown_report_count"] == 6
+    assert out["shown_report_count"] == 7
     assert set(out["shown_sections"]) == {
+        "roadmap",
         "backlog",
         "research_pipeline",
         "research_artifact",
@@ -76,6 +113,7 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
         "operator_proof",
     }
     assert set(out["reports"]) == {
+        "roadmap_tracking_status",
         "backlog_lane_status",
         "research_pipeline_status",
         "research_artifact_inventory",
@@ -83,6 +121,9 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
         "operator_read_only_command_status",
         "operator_proof_status",
     }
+    assert out["summary"]["roadmap_tracking_ok"] == 1
+    assert out["summary"]["roadmap_tracking_actions_required"] == 0
+    assert out["actions"]["roadmap_tracking"] == []
     assert out["summary"]["passive_operator_items"] == 1
     assert out["summary"]["backlog_lane_actions_required"] == 0
     assert out["summary"]["passive_operator_evidence_actions_required"] == 1
@@ -105,9 +146,20 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["summary"]["operator_read_only_command_actions_required"] == 0
     assert out["summary"]["remaining_proof_or_coverage_markers"] == 1
     assert out["summary"]["host_side_markers"] == 1
+    assert out["summary"]["proof_marker_actions_required"] >= 1
+    assert out["summary"]["proof_markers_satisfied"] == 0
+    assert out["summary"]["proof_markers_context_only"] == 0
+    assert out["summary"]["passive_operator_items_satisfied"] == 0
+    assert "passive_operator_items_waiting" in out["summary"]
+    assert "passive_operator_items_action_required" in out["summary"]
     assert out["summary"]["operator_proof_actions_required"] >= 1
     assert out["actions"]["passive_operator_evidence"]
+    assert "artifact_id" in out["actions"]["passive_operator_evidence"][0]
+    assert "artifact_status" in out["actions"]["passive_operator_evidence"][0]
     assert out["actions"]["operator_proofs"]
+    assert "marker" in out["actions"]["operator_proofs"][0]
+    assert "status" in out["actions"]["operator_proofs"][0]
+    assert "text" in out["actions"]["operator_proofs"][0]
 
 
 def test_operator_status_bundle_filters_by_section(tmp_path: Path) -> None:
@@ -120,12 +172,44 @@ def test_operator_status_bundle_filters_by_section(tmp_path: Path) -> None:
     assert out["ok"] is True
     assert out["section_filter"] == "research_pipeline"
     assert out["shown_sections"] == ["research_pipeline"]
-    assert out["source_report_count"] == 6
+    assert out["source_report_count"] == 7
     assert out["shown_report_count"] == 1
     assert set(out["reports"]) == {"research_pipeline_status"}
     assert set(out["actions"]) == {"research_pipelines"}
     assert out["summary"]["research_pipelines_wired"] == 2
     assert out["shown_action_count"] == len(out["actions"]["research_pipelines"])
+
+
+def test_operator_status_bundle_filters_by_roadmap_section(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(repo_root=tmp_path, section="roadmap")
+
+    assert out["ok"] is True
+    assert out["section_filter"] == "roadmap"
+    assert out["shown_sections"] == ["roadmap"]
+    assert out["source_report_count"] == 7
+    assert out["shown_report_count"] == 1
+    assert set(out["reports"]) == {"roadmap_tracking_status"}
+    assert set(out["actions"]) == {"roadmap_tracking"}
+    assert out["summary"]["roadmap_tracking_ok"] == 1
+    assert out["summary"]["roadmap_tracking_actions_required"] == 0
+    assert out["actions"]["roadmap_tracking"] == []
+
+
+def test_operator_status_bundle_real_repo_surfaces_roadmap_source_count() -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+    from services.analytics.roadmap_tracking_status import REQUIRED_SOURCE_DOCS
+
+    out = build_operator_status_bundle(repo_root=Path(__file__).resolve().parents[1], section="roadmap")
+
+    assert out["ok"] is True
+    assert out["shown_sections"] == ["roadmap"]
+    assert out["summary"]["roadmap_source_docs_linked"] == len(REQUIRED_SOURCE_DOCS)
+    assert out["summary"]["roadmap_tracking_ok"] == 1
+    assert out["actions"]["roadmap_tracking"] == []
 
 
 def test_operator_status_bundle_forwards_backlog_filter(tmp_path: Path) -> None:
@@ -307,8 +391,8 @@ def test_operator_status_bundle_filters_platform_event_read_only_lane(tmp_path: 
     assert out["section_filter"] == "operator_read_only"
     assert out["operator_read_only_medium_lane_item_filter"] == "platform_event_packet"
     assert report["medium_lane_item_filter"] == "platform_event_packet"
-    assert report["command_count"] == 4
-    assert out["summary"]["operator_read_only_commands_wired"] == 4
+    assert report["command_count"] == 5
+    assert out["summary"]["operator_read_only_commands_wired"] == 5
     assert out["shown_sections"] == ["operator_read_only"]
     assert out["actions"]["operator_read_only_commands"] == []
 
@@ -472,6 +556,28 @@ def test_operator_status_bundle_forwards_proof_category(tmp_path: Path) -> None:
     assert all(row["category"] == "host_side_reference" for row in out["actions"]["operator_proofs"])
 
 
+def test_operator_status_bundle_does_not_truncate_proof_actions_before_filters(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(f"host-side proof item {idx}" for idx in range(1, 13)),
+        encoding="utf-8",
+    )
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="operator_proof",
+        operator_proof_category="host_side_reference",
+    )
+
+    assert out["ok"] is True
+    assert out["summary"]["operator_proof_actions_required"] == 12
+    assert out["shown_action_count"] == 12 + len(out["actions"]["passive_operator_evidence"])
+    assert len(out["actions"]["operator_proofs"]) == 12
+    assert all(row["category"] == "host_side_reference" for row in out["actions"]["operator_proofs"])
+
+
 def test_operator_status_bundle_propagates_invalid_proof_category(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 
@@ -533,6 +639,8 @@ def test_operator_status_bundle_forwards_passive_operator_ordinal(tmp_path: Path
     assert out["summary"]["passive_operator_items"] == 1
     assert out["summary"]["source_passive_operator_items"] == 1
     assert [row["ordinal"] for row in out["actions"]["passive_operator_evidence"]] == [1]
+    assert "artifact_id" in out["actions"]["passive_operator_evidence"][0]
+    assert "artifact_status" in out["actions"]["passive_operator_evidence"][0]
 
 
 def test_operator_status_bundle_rejects_unknown_section(tmp_path: Path) -> None:
@@ -549,6 +657,7 @@ def test_operator_status_bundle_rejects_unknown_section(tmp_path: Path) -> None:
     assert out["reports"] == {}
     assert out["actions"] == {}
     assert "research_pipeline" in out["available_sections"]
+    assert "roadmap" in out["available_sections"]
 
 
 def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
@@ -576,8 +685,20 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             or None,
             "shown_sections": [section]
             if section
-            else ["backlog", "research_pipeline", "research_artifact", "operator_read_only", "operator_proof"],
+            else [
+                "roadmap",
+                "backlog",
+                "research_pipeline",
+                "research_artifact",
+                "operator_read_only",
+                "operator_proof",
+            ],
             "summary": {
+                "roadmap_tracking_ok": 1,
+                "roadmap_tracking_actions_required": 0,
+                "roadmap_source_docs_linked": 7,
+                "roadmap_commands_listed": 8,
+                "roadmap_boundaries_present": 6,
                 "passive_operator_items": 15,
                 "backlog_lane_actions_required": 1,
                 "low_risk_docs_tests": 13,
@@ -594,15 +715,22 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "research_commands_wired": 19,
                 "research_commands_not_wired": 0,
                 "research_command_actions_required": 1,
-                "operator_read_only_commands_wired": 11,
+                "operator_read_only_commands_wired": 17,
                 "operator_read_only_commands_not_wired": 0,
                 "operator_read_only_command_actions_required": 1,
                 "remaining_proof_or_coverage_markers": 27,
                 "host_side_markers": 17,
                 "proof_ready_markers": 25,
+                "proof_marker_actions_required": 2,
+                "proof_markers_satisfied": 5,
+                "proof_markers_context_only": 2,
+                "passive_operator_items_satisfied": 1,
+                "passive_operator_items_waiting": 3,
+                "passive_operator_items_action_required": 11,
                 "operator_proof_actions_required": 2,
             },
             "reports": {
+                "roadmap_tracking_status": {},
                 "backlog_lane_status": {},
                 "research_pipeline_status": {},
                 "research_artifact_inventory": {},
@@ -611,6 +739,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "operator_proof_status": {},
             },
             "actions": {
+                "roadmap_tracking": [],
                 "backlog_lanes": [
                     {
                         "ordinal": 1,
@@ -708,6 +837,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "operator_proof_line_filter=7" in out
     assert "operator_proof_passive_ordinal_filter=1" in out
     assert "passive=15" in out
+    assert "roadmap: ok=1 sources=7 commands=8 boundaries=6 actions_required=0" in out
     assert "backlog_action: #1 low_risk_docs_tests" in out
     assert "wired=2" in out
     assert "actions_required=1" in out
@@ -718,9 +848,14 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "research_commands: wired=19" in out
     assert "actions_required=1" in out
     assert "research_command_action: funding_threshold_pipeline" in out
-    assert "operator_read_only_commands: wired=11" in out
+    assert "operator_read_only_commands: wired=17" in out
     assert "operator_read_only_command_action: paper_gate_velocity" in out
     assert "remaining=27" in out
+    assert "satisfied=5" in out
+    assert "context_only=2" in out
+    assert "passive_satisfied=1" in out
+    assert "passive_waiting=3" in out
+    assert "passive_action_required=11" in out
     assert "passive_action: #1" in out
     assert "collect or record operator evidence" in out
     assert "proof_action: L7 remaining_proof" in out

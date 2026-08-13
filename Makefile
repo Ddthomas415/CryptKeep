@@ -22,6 +22,7 @@ OPERATOR_PROOF_STATUS_PASSIVE_ORDINAL ?=
 OPERATOR_NEXT_ACTIONS_MAX ?= 20
 OPERATOR_NEXT_ACTIONS_LANE ?=
 OPERATOR_NEXT_ACTIONS_REASON ?=
+OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON ?=
 OPERATOR_NEXT_ACTIONS_SOURCE ?=
 OPERATOR_NEXT_ACTIONS_BACKLOG_LANE ?=
 OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE ?=
@@ -35,8 +36,19 @@ OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID ?=
 OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY ?=
 OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE ?=
 OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL ?=
+EXCHANGE_SANDBOX_SMOKE_ARGS ?= --exchange binance --sandbox --orderbook
+EXCHANGE_SANDBOX_SMOKE_EVIDENCE_DEST ?= .cbp_state/data/exchange_sandbox_smoke
+STATE_BACKUP_DEST ?=
+STATE_BACKUP_ARTIFACT ?=
+STATE_BACKUP_SECRET_SCAN_EVIDENCE_DEST ?= .cbp_state/data/backup_artifact_secret_scan
+OPERATOR_DECISION_REASON ?=
+OPERATOR_DECISION_RESULT ?= accepted
+FUNDING_EXTREME_PERSISTENT_CAMPAIGN_DECISION_RESULT ?= no_persistent_campaign
+OPERATOR_CHECKPOINT_REASON ?=
+OPERATOR_CHECKPOINT_RESULT ?= completed
+OPERATOR_ARM_TO_HALT_REPLAY_EVIDENCE_DEST ?= .cbp_state/data/operator_arm_to_halt_replay
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks backlog-lane-status backlog-lane-status-json operator-proof-status operator-proof-status-json operator-read-only-command-status operator-read-only-command-status-json operator-status operator-status-json operator-next-actions operator-next-actions-json platform-event-journal platform-event-journal-json platform-event-secrets platform-event-secrets-json platform-event-integrity platform-event-integrity-json platform-event-packet platform-event-packet-json phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json plan-multi-symbol-paper-campaigns plan-multi-symbol-paper-campaigns-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-pipeline-status research-pipeline-status-json research-command-status research-command-status-json
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks roadmap-tracking-status roadmap-tracking-status-json backlog-lane-status backlog-lane-status-json operator-proof-status operator-proof-status-json operator-read-only-command-status operator-read-only-command-status-json operator-status operator-status-json operator-next-actions operator-next-actions-json operator-next-actions-passive operator-next-actions-passive-json operator-event-secrets operator-event-secrets-json record-operator-event-secrets record-ai-provider-event-secrets record-ai-report-event-secrets credential-source-posture credential-source-posture-json platform-event-journal platform-event-journal-json platform-event-secrets platform-event-secrets-json platform-event-integrity platform-event-integrity-json platform-event-packet platform-event-packet-json operator-arm-to-halt-replay operator-arm-to-halt-replay-json record-operator-arm-to-halt-replay record-manual-strategy-performance-decision record-composite-hybrid-paper-decision record-funding-extreme-persistent-campaign-decision record-hetzner-state-migration-checkpoint record-paper-to-shadow-first-hour-checkpoint record-backup-restore-drill-checkpoint record-server-secrets-rotation-checkpoint phase1-safety phase1-smoke phase1-smoke-openai smoke-exchange-sandbox record-exchange-sandbox-smoke load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness check-edge-cadence check-edge-cadence-json check-dead-man check-dead-man-json check-cost-assumptions check-cost-assumptions-json record-cost-assumptions check-supply-chain check-supply-chain-json record-supply-chain record-execution-cost-stack backup-state check-backup-artifact-secrets collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json plan-multi-symbol-paper-campaigns plan-multi-symbol-paper-campaigns-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-pipeline-status research-pipeline-status-json research-command-status research-command-status-json
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -88,6 +100,12 @@ pre-release-sanity-json-fast:
 remaining-tasks:
 	$(PYTHON) scripts/rebuild_remaining_tasks.py
 
+roadmap-tracking-status:
+	$(PYTHON) scripts/report_roadmap_tracking_status.py
+
+roadmap-tracking-status-json:
+	@$(PYTHON) scripts/report_roadmap_tracking_status.py --json
+
 BACKLOG_LANE_STATUS_LANE ?=
 backlog-lane-status:
 	$(PYTHON) scripts/report_backlog_lane_status.py $(if $(BACKLOG_LANE_STATUS_LANE),--lane $(BACKLOG_LANE_STATUS_LANE),)
@@ -131,10 +149,46 @@ operator-status-json:
 
 OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL ?=
 operator-next-actions:
-	$(PYTHON) scripts/report_operator_next_actions.py --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) $(if $(OPERATOR_NEXT_ACTIONS_LANE),--lane $(OPERATOR_NEXT_ACTIONS_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_REASON),--reason $(OPERATOR_NEXT_ACTIONS_REASON),) $(if $(OPERATOR_NEXT_ACTIONS_SOURCE),--action-source $(OPERATOR_NEXT_ACTIONS_SOURCE),) $(if $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),--backlog-lane $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL),--backlog-lane-ordinal $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),--research-pipeline $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE),--research-artifact-lane $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID),--research-artifact-id $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),--research-command-lane $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),--research-command-input-class $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID),--research-command-id $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM),--operator-read-only-medium-lane-item $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID),--operator-read-only-command-id $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),--operator-proof-category $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE),--operator-proof-line $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL),--operator-proof-passive-ordinal $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL),)
+	$(PYTHON) scripts/report_operator_next_actions.py --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) $(if $(OPERATOR_NEXT_ACTIONS_LANE),--lane $(OPERATOR_NEXT_ACTIONS_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_REASON),--reason $(OPERATOR_NEXT_ACTIONS_REASON),) $(if $(OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON),--exclude-reason $(OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON),) $(if $(OPERATOR_NEXT_ACTIONS_SOURCE),--action-source $(OPERATOR_NEXT_ACTIONS_SOURCE),) $(if $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),--backlog-lane $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL),--backlog-lane-ordinal $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),--research-pipeline $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE),--research-artifact-lane $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID),--research-artifact-id $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),--research-command-lane $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),--research-command-input-class $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID),--research-command-id $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM),--operator-read-only-medium-lane-item $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID),--operator-read-only-command-id $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),--operator-proof-category $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE),--operator-proof-line $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL),--operator-proof-passive-ordinal $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL),)
 
 operator-next-actions-json:
-	@$(PYTHON) scripts/report_operator_next_actions.py --json --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) $(if $(OPERATOR_NEXT_ACTIONS_LANE),--lane $(OPERATOR_NEXT_ACTIONS_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_REASON),--reason $(OPERATOR_NEXT_ACTIONS_REASON),) $(if $(OPERATOR_NEXT_ACTIONS_SOURCE),--action-source $(OPERATOR_NEXT_ACTIONS_SOURCE),) $(if $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),--backlog-lane $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL),--backlog-lane-ordinal $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),--research-pipeline $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE),--research-artifact-lane $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID),--research-artifact-id $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),--research-command-lane $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),--research-command-input-class $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID),--research-command-id $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM),--operator-read-only-medium-lane-item $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID),--operator-read-only-command-id $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),--operator-proof-category $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE),--operator-proof-line $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL),--operator-proof-passive-ordinal $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL),)
+	@$(PYTHON) scripts/report_operator_next_actions.py --json --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) $(if $(OPERATOR_NEXT_ACTIONS_LANE),--lane $(OPERATOR_NEXT_ACTIONS_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_REASON),--reason $(OPERATOR_NEXT_ACTIONS_REASON),) $(if $(OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON),--exclude-reason $(OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON),) $(if $(OPERATOR_NEXT_ACTIONS_SOURCE),--action-source $(OPERATOR_NEXT_ACTIONS_SOURCE),) $(if $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),--backlog-lane $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL),--backlog-lane-ordinal $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),--research-pipeline $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE),--research-artifact-lane $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID),--research-artifact-id $(OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),--research-command-lane $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),--research-command-input-class $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID),--research-command-id $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM),--operator-read-only-medium-lane-item $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID),--operator-read-only-command-id $(OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),--operator-proof-category $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE),--operator-proof-line $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL),--operator-proof-passive-ordinal $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL),)
+
+operator-next-actions-passive:
+	$(PYTHON) scripts/report_operator_next_actions.py --action-source passive_operator_evidence --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage
+
+operator-next-actions-passive-json:
+	@$(PYTHON) scripts/report_operator_next_actions.py --json --action-source passive_operator_evidence --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) --exclude-reason host_side_reference --exclude-reason proof_ready_implementation --exclude-reason remaining_capped_live_proof --exclude-reason remaining_coverage
+
+OPERATOR_EVENT_PATH ?=
+OPERATOR_EVENT_REQUIRE_EVENTS ?=
+OPERATOR_EVENT_EVIDENCE_DEST ?= .cbp_state/data/operator_event_secret_scan
+OPERATOR_EVENT_REQUIRE_ACTION ?=
+OPERATOR_EVENT_SECRET_SCAN_ARGS = $(if $(OPERATOR_EVENT_PATH),--path $(OPERATOR_EVENT_PATH),) $(if $(OPERATOR_EVENT_REQUIRE_EVENTS),--require-events,) $(if $(OPERATOR_EVENT_REQUIRE_ACTION),--require-action $(OPERATOR_EVENT_REQUIRE_ACTION),) $(if $(OPERATOR_EVENT_EVIDENCE_DEST),--evidence-dest $(OPERATOR_EVENT_EVIDENCE_DEST),)
+
+operator-event-secrets:
+	$(PYTHON) scripts/check_operator_event_secrets.py $(OPERATOR_EVENT_SECRET_SCAN_ARGS)
+
+operator-event-secrets-json:
+	@$(PYTHON) scripts/check_operator_event_secrets.py --json $(OPERATOR_EVENT_SECRET_SCAN_ARGS)
+
+record-operator-event-secrets:
+	$(PYTHON) scripts/check_operator_event_secrets.py --require-events --evidence-dest $(OPERATOR_EVENT_EVIDENCE_DEST)
+
+record-ai-provider-event-secrets:
+	$(PYTHON) scripts/check_operator_event_secrets.py --require-events --require-action ai_copilot_external_provider_call --evidence-dest $(OPERATOR_EVENT_EVIDENCE_DEST)
+
+record-ai-report-event-secrets:
+	$(PYTHON) scripts/check_operator_event_secrets.py --require-events --require-action ai_copilot_report_write --evidence-dest $(OPERATOR_EVENT_EVIDENCE_DEST)
+
+CREDENTIAL_SOURCE_POSTURE_VENUE ?=
+CREDENTIAL_SOURCE_POSTURE_ARGS = $(if $(CREDENTIAL_SOURCE_POSTURE_VENUE),--venue $(CREDENTIAL_SOURCE_POSTURE_VENUE),)
+
+credential-source-posture:
+	$(PYTHON) scripts/check_credential_source_posture.py $(CREDENTIAL_SOURCE_POSTURE_ARGS)
+
+credential-source-posture-json:
+	@$(PYTHON) scripts/check_credential_source_posture.py --json $(CREDENTIAL_SOURCE_POSTURE_ARGS)
 
 PLATFORM_EVENT_PATH ?=
 PLATFORM_EVENT_TYPE ?=
@@ -167,6 +221,44 @@ platform-event-packet:
 platform-event-packet-json:
 	@$(PYTHON) scripts/report_platform_event_packet.py --json $(PLATFORM_EVENT_PACKET_ARGS)
 
+OPERATOR_ARM_TO_HALT_REPLAY_PATH ?=
+operator-arm-to-halt-replay:
+	$(PYTHON) scripts/check_operator_arm_to_halt_replay.py $(if $(OPERATOR_ARM_TO_HALT_REPLAY_PATH),--path $(OPERATOR_ARM_TO_HALT_REPLAY_PATH),)
+
+operator-arm-to-halt-replay-json:
+	@$(PYTHON) scripts/check_operator_arm_to_halt_replay.py --json $(if $(OPERATOR_ARM_TO_HALT_REPLAY_PATH),--path $(OPERATOR_ARM_TO_HALT_REPLAY_PATH),)
+
+record-operator-arm-to-halt-replay:
+	$(PYTHON) scripts/check_operator_arm_to_halt_replay.py --json --evidence-dest $(OPERATOR_ARM_TO_HALT_REPLAY_EVIDENCE_DEST) $(if $(OPERATOR_ARM_TO_HALT_REPLAY_PATH),--path $(OPERATOR_ARM_TO_HALT_REPLAY_PATH),)
+
+record-manual-strategy-performance-decision:
+	@test -n "$(OPERATOR_DECISION_REASON)" || (echo "Set OPERATOR_DECISION_REASON='<reason>'" >&2; exit 2)
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action passive_operator_decision --target manual_strategy_performance_decision --result $(OPERATOR_DECISION_RESULT) --reason "$(OPERATOR_DECISION_REASON)"
+
+record-composite-hybrid-paper-decision:
+	@test -n "$(OPERATOR_DECISION_REASON)" || (echo "Set OPERATOR_DECISION_REASON='<reason>'" >&2; exit 2)
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action passive_operator_decision --target composite_hybrid_paper_advancement_decision --result $(OPERATOR_DECISION_RESULT) --reason "$(OPERATOR_DECISION_REASON)"
+
+record-funding-extreme-persistent-campaign-decision:
+	@test -n "$(OPERATOR_DECISION_REASON)" || (echo "Set OPERATOR_DECISION_REASON='<reason>'" >&2; exit 2)
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action passive_operator_decision --target funding_extreme_persistent_campaign_decision --result $(FUNDING_EXTREME_PERSISTENT_CAMPAIGN_DECISION_RESULT) --reason "$(OPERATOR_DECISION_REASON)"
+
+record-hetzner-state-migration-checkpoint:
+	@test -n "$(OPERATOR_CHECKPOINT_REASON)" || (echo "Set OPERATOR_CHECKPOINT_REASON='<reason>'" >&2; exit 2)
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target hetzner_canonical_state_migration --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
+
+record-paper-to-shadow-first-hour-checkpoint:
+	@test -n "$(OPERATOR_CHECKPOINT_REASON)" || (echo "Set OPERATOR_CHECKPOINT_REASON='<reason>'" >&2; exit 2)
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target paper_to_shadow_first_hour_rehearsal --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
+
+record-backup-restore-drill-checkpoint:
+	@test -n "$(OPERATOR_CHECKPOINT_REASON)" || (echo "Set OPERATOR_CHECKPOINT_REASON='<reason>'" >&2; exit 2)
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target state_backup_restore_drill --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
+
+record-server-secrets-rotation-checkpoint:
+	@test -n "$(OPERATOR_CHECKPOINT_REASON)" || (echo "Set OPERATOR_CHECKPOINT_REASON='<reason>'" >&2; exit 2)
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action runbook_checkpoint --target server_secrets_rotation_drill --result $(OPERATOR_CHECKPOINT_RESULT) --reason "$(OPERATOR_CHECKPOINT_REASON)"
+
 phase1-safety:
 	$(PYTHON) scripts/run_phase1_safety.py
 
@@ -175,6 +267,16 @@ phase1-smoke:
 
 phase1-smoke-openai:
 	$(PYTHON) scripts/smoke_phase1_copilot.py --expect-openai
+
+smoke-exchange-sandbox:
+	$(PYTHON) scripts/smoke_exchange.py $(EXCHANGE_SANDBOX_SMOKE_ARGS)
+
+record-exchange-sandbox-smoke:
+	$(PYTHON) scripts/smoke_exchange.py $(EXCHANGE_SANDBOX_SMOKE_ARGS) --evidence-dest $(EXCHANGE_SANDBOX_SMOKE_EVIDENCE_DEST)
+
+record-exchange-sandbox-exception:
+	@test -n "$(OPERATOR_DECISION_REASON)" || (echo "Set OPERATOR_DECISION_REASON='<reason>'" >&2; exit 2)
+	PYTHONPATH=. $(PYTHON) scripts/record_operator_event.py --actor operator --action passive_operator_decision --target exchange_sandbox_restricted_location_exception --result $(OPERATOR_DECISION_RESULT) --reason "$(OPERATOR_DECISION_REASON)"
 
 load-sample-crypto-edges:
 	$(PYTHON) scripts/load_sample_crypto_edge_data.py --print-report
@@ -193,6 +295,52 @@ status-live-crypto-edges-loop:
 
 check-short-context-readiness:
 	$(PYTHON) scripts/check_short_context_readiness.py
+
+EDGE_CADENCE_STORE_PATH ?=
+check-edge-cadence:
+	$(PYTHON) scripts/check_edge_cadence.py $(if $(EDGE_CADENCE_STORE_PATH),--store-path $(EDGE_CADENCE_STORE_PATH),)
+
+check-edge-cadence-json:
+	@$(PYTHON) scripts/check_edge_cadence.py --json $(if $(EDGE_CADENCE_STORE_PATH),--store-path $(EDGE_CADENCE_STORE_PATH),)
+
+DEAD_MAN_NAMES ?=
+DEAD_MAN_MAX_AGE_S ?=
+check-dead-man:
+	$(PYTHON) scripts/check_dead_man.py $(if $(DEAD_MAN_NAMES),--names $(DEAD_MAN_NAMES),) $(if $(DEAD_MAN_MAX_AGE_S),--max-age-s $(DEAD_MAN_MAX_AGE_S),)
+
+check-dead-man-json:
+	@$(PYTHON) scripts/check_dead_man.py --json $(if $(DEAD_MAN_NAMES),--names $(DEAD_MAN_NAMES),) $(if $(DEAD_MAN_MAX_AGE_S),--max-age-s $(DEAD_MAN_MAX_AGE_S),)
+
+COST_ASSUMPTIONS_EVIDENCE_DEST ?= .cbp_state/data/cost_assumptions
+check-cost-assumptions:
+	$(PYTHON) scripts/check_cost_assumptions.py
+
+check-cost-assumptions-json:
+	@$(PYTHON) scripts/check_cost_assumptions.py --json
+
+record-cost-assumptions:
+	$(PYTHON) scripts/check_cost_assumptions.py --evidence-dest $(COST_ASSUMPTIONS_EVIDENCE_DEST) --allow-warning-exit-zero
+
+check-supply-chain:
+	$(PYTHON) scripts/check_supply_chain.py
+
+check-supply-chain-json:
+	@$(PYTHON) scripts/check_supply_chain.py --json
+
+SUPPLY_CHAIN_EVIDENCE_DEST ?= .cbp_state/data/supply_chain
+record-supply-chain:
+	$(PYTHON) scripts/check_supply_chain.py --json --evidence-dest $(SUPPLY_CHAIN_EVIDENCE_DEST)
+
+EXECUTION_COST_STACK_ARGS ?=
+record-execution-cost-stack:
+	$(PYTHON) scripts/report_execution_cost_stack.py --write-default-artifact $(EXECUTION_COST_STACK_ARGS)
+
+backup-state:
+	$(PYTHON) scripts/backup_state.py backup --dest $(STATE_BACKUP_DEST)
+
+check-backup-artifact-secrets:
+	@test -n "$(STATE_BACKUP_ARTIFACT)" || (echo "Set STATE_BACKUP_ARTIFACT=<backup_dir>" >&2; exit 2)
+	$(PYTHON) scripts/check_backup_artifact_secrets.py "$(STATE_BACKUP_ARTIFACT)" --evidence-dest $(STATE_BACKUP_SECRET_SCAN_EVIDENCE_DEST)
 
 .PHONY: check-paper-campaign-ownership
 check-paper-campaign-ownership:
@@ -228,12 +376,16 @@ plan-multi-symbol-paper-campaigns:
 plan-multi-symbol-paper-campaigns-json:
 	@$(PYTHON) scripts/plan_multi_symbol_paper_campaigns.py --json $(MULTI_SYMBOL_PAPER_CAMPAIGN_PLAN_ARGS)
 
-.PHONY: status-paper-gate-velocity status-paper-gate-velocity-json
+PAPER_GATE_VELOCITY_EVIDENCE_DEST ?= .cbp_state/data/paper_gate_velocity
+.PHONY: status-paper-gate-velocity status-paper-gate-velocity-json record-paper-gate-velocity
 status-paper-gate-velocity:
 	$(PYTHON) scripts/report_paper_gate_velocity.py
 
 status-paper-gate-velocity-json:
 	@$(PYTHON) scripts/report_paper_gate_velocity.py --json
+
+record-paper-gate-velocity:
+	$(PYTHON) scripts/report_paper_gate_velocity.py --evidence-dest $(PAPER_GATE_VELOCITY_EVIDENCE_DEST)
 
 status-paper-hetzner:
 	$(PYTHON) scripts/report_hetzner_paper_campaign_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --transport $(HETZNER_STATUS_TRANSPORT) --app-dir $(HETZNER_APP_DIR) --config $(HETZNER_PAPER_CAMPAIGN_CONFIG) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC)
@@ -332,7 +484,7 @@ governance-smoke:
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
 .PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill archive-walk-forward archive-parameter-sweep funding-context-price-join funding-threshold-sensitivity funding-threshold-window-stability funding-threshold-candidate-triage funding-threshold-stability-triage funding-threshold-research-pipeline archive-parameter-sweep-triage crypto-edge-strategy-readiness price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage price-action-research-pipeline research-pipeline-status research-artifact-inventory check-short-context-readiness
-.PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
+.PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-json live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
 # Use this in CI or when you don't want to wait for loop tests
@@ -563,6 +715,9 @@ live-reconcile:
 live-intent-history-schema:
 	$(PYTHON) scripts/check_live_intent_history_schema.py
 
+live-intent-history-schema-json:
+	@$(PYTHON) scripts/check_live_intent_history_schema.py --json
+
 live-intent-history-schema-init:
 	$(PYTHON) scripts/check_live_intent_history_schema.py --init
 
@@ -572,9 +727,11 @@ script-index:
 	@echo "  make status-paper-all   — daily paper campaign check-in"
 	@echo "  make recover-paper-campaigns — guarded paper campaign recovery"
 	@echo "  make status-paper-gate-velocity — estimate paper gate completion velocity"
+	@echo "  make record-paper-gate-velocity — record latest paper gate velocity artifact"
 	@echo "  make paper-run          — run paper campaign"
 	@echo "  make check-gates        — promotion gate status"
 	@echo "  make backlog-lane-status[-json] — report backlog execution-lane counts"
+	@echo "  make operator-next-actions-passive[-json] — show passive operator evidence actions only"
 	@echo "  make kill-switch-on/off — arm/disarm kill switch"
 	@echo "  make gate-inputs        — show live gate current values"
 	@echo "  make inject-test-fill   — inject a test fill (paper only)"
@@ -583,7 +740,24 @@ script-index:
 	@echo "  make candidate-outcomes — write candidate outcome report artifact"
 	@echo "  make ai-operator-oversight — write read-only AI operator oversight report"
 	@echo "  make live-intent-history-schema — check live intent transition-history schema"
+	@echo "  make record-manual-strategy-performance-decision OPERATOR_DECISION_REASON='<reason>' — record manual strategy decision"
+	@echo "  make record-composite-hybrid-paper-decision OPERATOR_DECISION_REASON='<reason>' — record composite/hybrid decision"
+	@echo "  make record-funding-extreme-persistent-campaign-decision OPERATOR_DECISION_REASON='<reason>' — record funding_extreme campaign decision"
+	@echo "  make record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>' — record Hetzner migration checkpoint"
+	@echo "  make record-paper-to-shadow-first-hour-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>' — record paper-to-shadow rehearsal checkpoint"
+	@echo "  make record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>' — record backup/restore drill checkpoint"
+	@echo "  make record-server-secrets-rotation-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>' — record server secrets rotation checkpoint"
+	@echo "  make operator-arm-to-halt-replay[-json] — replay arm/resume-to-halt event journal path"
+	@echo "  make record-operator-arm-to-halt-replay — write arm/resume-to-halt replay evidence"
 	@echo "  make check-short-context-readiness — check short/context data readiness"
+	@echo "  make check-edge-cadence[-json] — check stored crypto-edge cadence"
+	@echo "  make check-cost-assumptions[-json] — check local paper cost assumptions"
+	@echo "  make record-cost-assumptions — record local paper cost-assumption artifact"
+	@echo "  make record-supply-chain — record supply-chain evidence artifact"
+	@echo "  make record-execution-cost-stack — record shadow execution-cost report artifact"
+	@echo "  make smoke-exchange-sandbox — run the configured exchange sandbox smoke"
+	@echo "  make record-exchange-sandbox-smoke — run exchange sandbox smoke and record evidence"
+	@echo "  make backup-state STATE_BACKUP_DEST=<backup_dir> — create a full-state backup"
 	@echo "  make check-paper-campaign-ownership — check laptop/Hetzner campaign ownership"
 	@echo "  make pullback-stage0-readiness — check pullback Stage 0 readiness"
 	@echo "  make pullback-stage0-baseline  — record baseline before pullback Stage 0"
@@ -591,6 +765,7 @@ script-index:
 	@echo "  make funding-stage0-readiness  — check funding_extreme Stage 0 readiness"
 	@echo "  make funding-stage0-baseline   — record baseline before funding_extreme Stage 0"
 	@echo "  make funding-stage0-verify     — verify funding_extreme Stage 0 after proof"
+	@echo "  make roadmap-tracking-status[-json] — verify top-level roadmap checklist links and commands"
 	@echo "  make funding-context-replay    — replay stored funding_extreme context signals"
 	@echo "  make ohlcv-archive-backfill    — backfill archived OHLCV for research"
 	@echo "  make archive-walk-forward      — run one archive-backed walk-forward"

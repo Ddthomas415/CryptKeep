@@ -49,26 +49,28 @@ listed below.
 | `report_paper_run_diagnostics.py` | — | Paper-run diagnostic report |
 | `report_hetzner_paper_campaign_status.py` | `make status-paper-hetzner` | Read-only remote wrapper for Hetzner campaign status with timeout-aware failure reporting; defaults to Tailscale SSH and supports opt-in direct SSH with `HETZNER_STATUS_TRANSPORT=ssh` |
 | `report_hetzner_crypto_edge_runtime_status.py` | `make status-hetzner-edge-runtime` | Read-only remote wrapper for Hetzner crypto-edge runtime readiness; defaults to Tailscale SSH, supports opt-in direct SSH with `HETZNER_STATUS_TRANSPORT=ssh`, and checks accepted checkout/tooling, OKX collector plan, collector status under the deployed `CBP_STATE_DIR`, and collector/cadence scheduling without deploying or starting collectors |
+| `report_roadmap_tracking_status.py` | `make roadmap-tracking-status` / `make roadmap-tracking-status-json` | Read-only roadmap organizer report over `docs/ROADMAP_TRACKING_CHECKLIST.md`; verifies linked source docs, required status commands, and non-authority boundaries without running campaigns, fetching market data, closing proof, deciding backlog items, or mutating state |
 | `report_backlog_lane_status.py` | `make backlog-lane-status` / `make backlog-lane-status-json` | Read-only planning report over `docs/BACKLOG_EXECUTION_LANES.md`; supports `BACKLOG_LANE_STATUS_LANE`; summarizes backlog lane counts and source hashes without deciding backlog items or changing runtime state |
 | `report_operator_proof_status.py` | `make operator-proof-status` / `make operator-proof-status-json` | Read-only report over passive/operator-evidence lane items and proof/coverage markers in `REMAINING_TASKS.md`; supports `OPERATOR_PROOF_STATUS_CATEGORY`, `OPERATOR_PROOF_STATUS_LINE`, and `OPERATOR_PROOF_STATUS_PASSIVE_ORDINAL`; includes proof next actions without running campaigns, fetching market data, closing proof, or mutating state |
 | `report_operator_read_only_command_status.py` | `make operator-read-only-command-status` / `make operator-read-only-command-status-json` | Read-only wiring inventory for medium-lane operator command surfaces: campaign planners, gate diagnostics, optional reports, host diagnostics, host status wrappers, and platform-event packet checks; supports `OPERATOR_READ_ONLY_COMMAND_STATUS_MEDIUM_LANE_ITEM` and `OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID`; does not run commands, campaigns, market-data fetches, proof closure, or runtime mutation |
 | `report_operator_status_bundle.py` | `make operator-status` / `make operator-status-json` | Read-only bundle of backlog lane, research pipeline, research artifact inventory, research command, operator read-only command, and operator proof status reports for check-ins; supports `OPERATOR_STATUS_SECTION` and underlying backlog/research-pipeline/research-artifact/research-command/operator-read-only/proof filters, including `OPERATOR_STATUS_BACKLOG_LANE_ORDINAL`, `OPERATOR_STATUS_RESEARCH_ARTIFACT_LANE`, `OPERATOR_STATUS_RESEARCH_ARTIFACT_ID`, `OPERATOR_STATUS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM`, proof category/line, and `OPERATOR_STATUS_OPERATOR_PROOF_PASSIVE_ORDINAL`; surfaces next actions without running pipelines/campaigns/commands, fetching market data, closing proof, deciding backlog items, or mutating state |
-| `report_operator_next_actions.py` | `make operator-next-actions` / `make operator-next-actions-json` | Read-only compact next-action report derived from operator status; includes research pipeline, research artifact, research command, operator read-only command, passive operator-evidence, and proof-marker action lanes; supports `OPERATOR_NEXT_ACTIONS_MAX`, `OPERATOR_NEXT_ACTIONS_LANE`, `OPERATOR_NEXT_ACTIONS_REASON`, `OPERATOR_NEXT_ACTIONS_SOURCE`, and source-report filters (`OPERATOR_NEXT_ACTIONS_BACKLOG_LANE`, `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL`, `OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE`, `OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE`, `OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID`, `OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE`, `OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS`, `OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID`, `OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM`, `OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID`, `OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY`, `OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE`, `OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL`); does not run research, campaigns, commands, market-data fetches, proof closure, or runtime mutation |
+| `report_operator_next_actions.py` | `make operator-next-actions` / `make operator-next-actions-json` / `make operator-next-actions-passive-json` | Read-only compact next-action report derived from operator status; includes roadmap tracking, research pipeline, research artifact, research command, operator read-only command, passive operator-evidence, and proof-marker action lanes; supports `OPERATOR_NEXT_ACTIONS_MAX`, `OPERATOR_NEXT_ACTIONS_LANE`, `OPERATOR_NEXT_ACTIONS_REASON`, `OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON`, `OPERATOR_NEXT_ACTIONS_SOURCE`, and source-report filters (`OPERATOR_NEXT_ACTIONS_BACKLOG_LANE`, `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL`, `OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE`, `OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_LANE`, `OPERATOR_NEXT_ACTIONS_RESEARCH_ARTIFACT_ID`, `OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE`, `OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS`, `OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_ID`, `OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_MEDIUM_LANE_ITEM`, `OPERATOR_NEXT_ACTIONS_OPERATOR_READ_ONLY_COMMAND_ID`, `OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY`, `OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE`, `OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_PASSIVE_ORDINAL`); `operator-next-actions-passive[-json]` is the standard passive-operator-evidence view with host-side, proof-ready, capped-live, and coverage rows excluded; does not run research, campaigns, commands, market-data fetches, proof closure, or runtime mutation |
 | `report_paper_campaign_status.py` | — | Read-only campaign-health formatter for configured campaign status payloads without promotion-gate coupling |
 | `report_paper_gate_qualification.py` | `make status-paper-gate-qualification` / `make status-paper-gate-qualification-json` | Read-only fill-level explanation for which paper fills count toward the provenance-qualified gate and why rejected/incomplete fills do not count |
-| `report_paper_gate_velocity.py` | `make status-paper-gate-velocity` / `make status-paper-gate-velocity-json` | Read-only paper-gate velocity report; estimates completion from completed provenance-qualified round-trip close cadence and keeps legacy/all-history fills diagnostic only |
+| `report_paper_gate_velocity.py` | `make status-paper-gate-velocity` / `make status-paper-gate-velocity-json` / `make record-paper-gate-velocity` | Read-only paper-gate velocity report by default; estimates completion from completed provenance-qualified round-trip close cadence and qualified source-bar cadence, then reports the slower active blocker while keeping legacy/all-history fills diagnostic only. `record-paper-gate-velocity` writes the current report under `.cbp_state/data/paper_gate_velocity/` as operator evidence |
 | `report_supervised_soak_status.py` | `make status-paper-soak` / `make status-paper-soak-json` | Read-only supervised paper-soak summary across configured campaigns and paper promotion gate status |
 | `restore_paper_campaigns.py` | `make status-paper-campaigns` / `make restore-paper-campaigns` / `make recover-paper-campaigns` | Read-only status by default; explicitly restores only configured paper collectors that are not alive; `--restore --preflight-ohlcv` blocks launches when the configured public-OHLCV source is unreachable; `--restart-unhealthy` is opt-in and preflight-required for alive unhealthy collectors |
 | `run_dashboard.py` | `make dashboard` | Dashboard entrypoint |
 | `install_systemd_units.py` | — | Verify and install rendered systemd units from `packaging/systemd/` (dry-run by default; `--repo-dir` targets non-default checkout paths; never arms live trading) |
-| `check_live_intent_history_schema.py` | `make live-intent-history-schema` / `make live-intent-history-schema-init` | Check whether the current runtime live-intent queue has `live_trade_intent_events`; read-only by default, `--init` explicitly initializes/migrates the existing queue schema |
+| `check_live_intent_history_schema.py` | `make live-intent-history-schema` / `make live-intent-history-schema-json` / `make live-intent-history-schema-init` | Check whether the current runtime live-intent queue has `live_trade_intent_events`; read-only by default, `--init` explicitly initializes/migrates the existing queue schema |
 | `run_paper_sim_monitor.py` | — | Read-only paper simulation monitor, watch management, and local watch-trigger notifications |
-| `backup_state.py` | — | Full-state backup/verify/restore (sqlite-API-consistent; restore refuses over live locks; see `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`) |
+| `backup_state.py` | `make backup-state STATE_BACKUP_DEST=<backup_dir>` | Full-state backup/verify/restore (sqlite-API-consistent; restore refuses over live locks; see `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`) |
 | `run_paper_strategy_evidence_collector.py` | `make collect-paper-strategy-evidence` / `make status-paper-strategy-evidence` / `make stop-paper-strategy-evidence` | Managed paper evidence collector; use `--daily-loop --detach` for a persistent daily process and `--max-daily-attempts` to bound retryable failures |
 | `update_paper_campaign_manifest.py` | — | Audited schema-v1 paper-campaign manifest enable/disable update; requires a `campaign_manifest_change` operator event before writing |
 | `run_preflight.py` | — | Preflight entrypoint |
 | `run_signal_quality_report.py` | — | Read-only signal-quality report for scoring whether qualified public-OHLCV signals were early enough; `--allow-unqualified-evidence` is research-only |
 | `run_system_diagnostics.py` | `make system-diagnostics` | System diagnostics wrapper |
+| `smoke_exchange.py` | `make smoke-exchange-sandbox` / `make record-exchange-sandbox-smoke` / `make record-exchange-sandbox-exception` | Exchange sandbox smoke check; `record-exchange-sandbox-smoke` writes standard evidence under `.cbp_state/data/exchange_sandbox_smoke/`; `record-exchange-sandbox-exception` records an explicit operator exception after restricted-location evidence |
 | `show_control_kernel_status.py` | `make kernel-status` / `make kernel-status-json` / `make kernel-promote` | Control-kernel status; `--promote` is gate-enforced and fails closed unless the supported promotion gate is ready |
 | `supervisor_status.py` | — | Supervisor state |
 | `validate.py` | `make validate-quick` / `make validate` | Repo validation |
@@ -154,7 +156,8 @@ may require network access and should not be treated as paper-campaign proof.
 - `run_ws_ticker_feed_safe.py` — guarded WebSocket ticker feed.
 - `smoke_binance.py` — Binance connectivity smoke test.
 - `smoke_coinbase.py` — Coinbase connectivity smoke test.
-- `smoke_exchange.py` — generic exchange smoke test.
+- `smoke_exchange.py` — generic exchange smoke test; use
+  `make smoke-exchange-sandbox` for the standard sandbox orderbook smoke.
 - `smoke_gateio.py` — Gate.io connectivity smoke test.
 
 ### Cloud Provisioning And Host Safeguards
@@ -226,7 +229,8 @@ decision makes them authoritative.
   `shadow_would_be_fill` records; computes taker cost and quote-only maker
   metrics, requires stored subsequent price path before fill-probability
   conclusions, and never changes routing, order type, or paper campaign
-  behavior.
+  behavior. Use `make record-execution-cost-stack` to write the standard
+  artifact.
 - `research/run_funding_context_replay.py` — read-only `funding_extreme`
   signal-distribution replay over stored crypto-edge funding snapshots; writes
   dataset-hashed JSON artifacts only and does not compute PnL, expectancy, or
@@ -383,19 +387,76 @@ are not paper-campaign controls.
 - `audit_coverage_matrix.py` — operator/action audit coverage matrix (SHOWN/PARTIAL/MISSING per policy family; `--strict` capped-live posture; see `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md`).
 - `record_operator_event.py` — append one manual operator/action audit event to
   the unified JSONL journal; redacts secret-like payload fields.
+  Passive operator-evidence decisions recognized by
+  `report_operator_proof_status.py` use
+  `--action passive_operator_decision` with one of these targets:
+  `manual_strategy_performance_decision`,
+  `composite_hybrid_paper_advancement_decision`, or
+  `funding_extreme_persistent_campaign_decision`. Accepted result values for
+  those passive decisions include `accepted`, `accepted_with_risk`,
+  `declined`, `research_only`, and `no_persistent_campaign`. Standard passive
+  decision records can be written through
+  `make record-manual-strategy-performance-decision OPERATOR_DECISION_REASON='<reason>'`,
+  `make record-composite-hybrid-paper-decision OPERATOR_DECISION_REASON='<reason>'`,
+  or
+  `make record-funding-extreme-persistent-campaign-decision OPERATOR_DECISION_REASON='<reason>'`.
+  Runbook checkpoints recognized by `report_operator_proof_status.py` can be
+  written through
+  `make record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`,
+  `make record-paper-to-shadow-first-hour-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`,
+  `make record-backup-restore-drill-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`,
+  or
+  `make record-server-secrets-rotation-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'`.
 - `check_operator_arm_to_halt_replay.py` — replay a live arm/resume event
-  followed by halt/disable from operator-event journal records; writes
-  launch-packet evidence with `--evidence-dest`.
+  followed by halt/disable from operator-event journal records; supports
+  `make operator-arm-to-halt-replay[-json]` and
+  `OPERATOR_ARM_TO_HALT_REPLAY_PATH`; `make record-operator-arm-to-halt-replay`
+  writes standard replay evidence under
+  `.cbp_state/data/operator_arm_to_halt_replay/`.
 - `check_operator_event_secrets.py` — scan operator event journal payloads for
-  unredacted secret-like fields without printing leaked values; `--require-events`
-  is the launch-packet posture.
-- `check_dead_man.py` — dead-man liveness check over trading-loop heartbeats (exit 0/1/2; `--alert` dispatches via the alert stack; driven by `packaging/systemd/cbp-dead-man.timer`).
-- `check_edge_cadence.py` — read-only crypto-edge collector cadence/dead-man check over stored funding/OI/basis snapshot timestamps (exit 0/1/2; `--alert` best-effort; schedulable by `packaging/systemd/cbp-edge-cadence.timer`).
-- `check_supply_chain.py` — pin integrity + environment match + optional pip-audit lane; `--evidence-dest` writes launch-packet provenance JSON (see `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`).
+  unredacted secret-like fields without printing leaked values; supports
+  `make operator-event-secrets[-json]`, `OPERATOR_EVENT_PATH`,
+  `OPERATOR_EVENT_REQUIRE_EVENTS`, `OPERATOR_EVENT_REQUIRE_ACTION`, and
+  `OPERATOR_EVENT_EVIDENCE_DEST`;
+  `make record-operator-event-secrets` runs the launch-packet posture with
+  `--require-events`. `make record-ai-provider-event-secrets` and
+  `make record-ai-report-event-secrets` additionally require real
+  `ai_copilot_external_provider_call` or `ai_copilot_report_write` events.
+- `check_backup_artifact_secrets.py` — scan a backup artifact directory for
+  high-confidence secret indicators without printing leaked values; supports
+  `make check-backup-artifact-secrets STATE_BACKUP_ARTIFACT=<backup_dir>` and
+  records a `state_backup_secret_scan` operator event.
+- `check_dead_man.py` — dead-man liveness check over trading-loop heartbeats;
+  supports `make check-dead-man[-json]`, `DEAD_MAN_NAMES`, and
+  `DEAD_MAN_MAX_AGE_S`; exit 0/1/2; `--alert` dispatches via the alert stack;
+  driven by `packaging/systemd/cbp-dead-man.timer`.
+- `check_edge_cadence.py` — read-only crypto-edge collector cadence/dead-man
+  check over stored funding/OI/basis snapshot timestamps; supports
+  `make check-edge-cadence[-json]` and `EDGE_CADENCE_STORE_PATH`; exit 0/1/2;
+  `--alert` best-effort; schedulable by
+  `packaging/systemd/cbp-edge-cadence.timer`.
+- `check_supply_chain.py` — pin integrity + environment match + optional
+  pip-audit lane; supports `make check-supply-chain[-json]` and
+  `make record-supply-chain`; `record-supply-chain` writes standard
+  provenance evidence under `.cbp_state/data/supply_chain/` (see
+  `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`).
+- `check_credential_source_posture.py` — read-only exchange credential-source
+  report that names keyring/env/missing source without printing credential
+  values; supports `make credential-source-posture[-json]`,
+  `CREDENTIAL_SOURCE_POSTURE_VENUE`, and `--fail-on-env` for stricter manual
+  checks.
+- `smoke_exchange.py` — exchange sandbox smoke check; supports
+  `make smoke-exchange-sandbox` and `make record-exchange-sandbox-smoke`;
+  the record target writes standard evidence under
+  `.cbp_state/data/exchange_sandbox_smoke/`.
 - `check_cost_assumptions.py` — read-only paper fee/slippage cost-assumption
-  validator for the active `user.yaml`; reports paper-fill, evidence-scoring,
-  dormant lookup, and backtest cost surfaces without mutating config or trading
-  state.
+  validator for the active `user.yaml`; supports
+  `make check-cost-assumptions[-json]` and `make record-cost-assumptions`;
+  reports paper-fill, evidence-scoring, dormant lookup, and backtest cost
+  surfaces without mutating config or trading state. The record target writes
+  the current verification artifact under `.cbp_state/data/cost_assumptions/`
+  and treats warning reports as recorded evidence, while fail/config errors
+  still exit non-zero.
 - `report_platform_event_journal.py` — read-only summary of the append-only
   platform event journal for research/campaign/evidence observability; supports
   `make platform-event-journal[-json]`; returns exit 2 with
