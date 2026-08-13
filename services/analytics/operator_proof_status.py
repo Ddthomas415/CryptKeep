@@ -545,6 +545,7 @@ def _shadow_would_be_fill_artifact_status(root: Path) -> dict[str, Any]:
     from services.analytics.execution_cost_stack_report import load_shadow_would_be_fills
 
     evidence_root = root / ".cbp_state" / "data" / "evidence"
+    manual_decision = _manual_strategy_decision_status(root)
     next_action = (
         "follow docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md until a shadow session writes "
         "stored shadow_would_be_fill records"
@@ -581,6 +582,7 @@ def _shadow_would_be_fill_artifact_status(root: Path) -> dict[str, Any]:
             "artifact_id": "shadow_would_be_fill_records",
             "artifact_status": "recorded_with_parse_errors",
             "satisfied": False,
+            "action_required": True,
             "next_action": "inspect shadow_would_be_fill evidence parse errors before accepting the run",
             "doc_path": "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
             "evidence_root": loaded.get("evidence_root"),
@@ -589,10 +591,26 @@ def _shadow_would_be_fill_artifact_status(root: Path) -> dict[str, Any]:
             "source_artifact_hash": loaded.get("source_artifact_hash"),
             "source_files": loaded.get("source_files") or [],
         }
+    if not bool(manual_decision.get("satisfied")):
+        return {
+            "artifact_id": "shadow_would_be_fill_records",
+            "artifact_status": "waiting_for_shadow_prerequisites",
+            "satisfied": False,
+            "action_required": False,
+            "next_action": "none",
+            "doc_path": "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
+            "evidence_root": loaded.get("evidence_root"),
+            "record_count": 0,
+            "parse_errors": parse_errors,
+            "source_files": loaded.get("source_files") or [],
+            "manual_strategy_decision": manual_decision,
+            "note": "Shadow would-be-fill collection is actionable only after the paper gate is ready and the manual strategy decision is recorded.",
+        }
     return {
         "artifact_id": "shadow_would_be_fill_records",
         "artifact_status": "missing",
         "satisfied": False,
+        "action_required": True,
         "next_action": next_action,
         "doc_path": "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
         "evidence_root": loaded.get("evidence_root"),

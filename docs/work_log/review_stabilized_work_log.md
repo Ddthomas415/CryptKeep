@@ -32634,6 +32634,58 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-13T23:52:46Z - Shadow Would-Be-Fill Prerequisite Action Gating
+
+Active role: ENGINEER
+
+Objective:
+- Stop `operator-next-actions` from presenting shadow would-be-fill collection
+  as an immediate action before the paper gate and manual strategy decision
+  prerequisites are satisfied.
+
+What was found:
+- The passive row for accepted `shadow_would_be_fill` records was the top
+  immediate action even though `docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md`
+  says the runbook must not start until the fresh paper gate is clear and the
+  manual strategy review is written and accepted.
+- A read-only shadow gate check showed `current_stage=paper`,
+  `evidence_scope.status=not_started`, zero shadow records, and the paper
+  history still at 3 qualified round trips.
+
+What changed:
+- `_shadow_would_be_fill_artifact_status()` now reuses the manual strategy
+  decision status. If the paper gate is not ready or the manual decision is not
+  recorded, the row reports `waiting_for_shadow_prerequisites`,
+  `action_required=false`, and `next_action=none`.
+- Once the manual strategy decision is satisfied and records are still missing,
+  the row becomes actionable again with the existing runbook next action.
+- Added regressions for waiting before gate/manual decision and prompting only
+  after the manual decision is recorded.
+
+Why this change was chosen:
+- This preserves the runbook boundary without changing stage control,
+  promotion gates, campaign behavior, or evidence writes.
+
+Expected outcome:
+- Operator check-ins no longer nudge shadow execution before the accepted paper
+  gate/manual-review prerequisites.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `98 passed in 1.96s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: exit 0; `action_count_total=29`, with
+    `shadow_would_be_fill_records` removed from immediate actions.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: status classification and tests only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-13T23:24:00Z - Accepted Proof-Ready Marker Closure
 
 Active role: ENGINEER
