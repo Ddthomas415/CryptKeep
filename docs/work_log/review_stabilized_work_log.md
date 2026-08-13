@@ -32634,6 +32634,54 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-13T23:54:45Z - Paper-To-Shadow Rehearsal Prerequisite Action Gating
+
+Active role: ENGINEER
+
+Objective:
+- Stop `operator-next-actions` from presenting the paper-to-shadow first-hour
+  rehearsal as an immediate action before the paper gate and manual strategy
+  decision prerequisites are satisfied.
+
+What was found:
+- After gating `shadow_would_be_fill` records, the paper-to-shadow first-hour
+  rehearsal row still remained actionable even though the same runbook
+  preconditions apply.
+
+What changed:
+- The paper-to-shadow first-hour rehearsal passive row now checks for an
+  already recorded checkpoint first. If no checkpoint exists, it reuses the
+  manual strategy decision status and waits with `action_required=false` until
+  the paper gate is ready and the manual decision is recorded.
+- Added a regression proving the row becomes actionable only after the manual
+  strategy decision is recorded, while existing recorded checkpoints remain
+  satisfied.
+
+Why this change was chosen:
+- This preserves recorded evidence and removes premature operator prompts
+  without changing runbook content, campaigns, stage control, promotion gates,
+  or evidence writes.
+
+Expected outcome:
+- Operator check-ins no longer present any paper-to-shadow execution/rehearsal
+  action before the accepted paper gate and manual review prerequisites.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `99 passed in 2.27s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: exit 0; `action_count_total=28`, with both shadow prerequisite rows
+    removed from immediate actions.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: status classification and tests only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-13T23:52:46Z - Shadow Would-Be-Fill Prerequisite Action Gating
 
 Active role: ENGINEER

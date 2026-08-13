@@ -1027,13 +1027,28 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
             doc_path="docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md",
         )
     if "Paper-to-shadow first-hour rehearsal" in item:
-        return _runbook_checkpoint_status(
+        checkpoint = _runbook_checkpoint_status(
             root,
             artifact_id="paper_to_shadow_first_hour_guidance",
             target="paper_to_shadow_first_hour_rehearsal",
             next_action="make record-paper-to-shadow-first-hour-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'",
             doc_path="docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
         )
+        if bool(checkpoint.get("satisfied")):
+            return checkpoint
+        manual_decision = _manual_strategy_decision_status(root)
+        if not bool(manual_decision.get("satisfied")):
+            return {
+                "artifact_id": "paper_to_shadow_first_hour_guidance",
+                "artifact_status": "waiting_for_shadow_prerequisites",
+                "satisfied": False,
+                "action_required": False,
+                "next_action": "none",
+                "doc_path": "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
+                "manual_strategy_decision": manual_decision,
+                "note": "Paper-to-shadow rehearsal is actionable only after the paper gate is ready and the manual strategy decision is recorded.",
+            }
+        return checkpoint
     if "Backup/restore drill evidence" in item:
         return _backup_restore_drill_artifact_status(root)
     if "Server secrets injection/rotation drill" in item:
