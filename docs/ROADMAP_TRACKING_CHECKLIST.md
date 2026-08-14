@@ -63,6 +63,7 @@ separate reviewed runtime/gate change is accepted.
 | Cost assumptions | Check local paper fee/slippage cost assumptions before trusting evidence | `make check-cost-assumptions-json` | Medium-risk read-only |
 | Edge cadence | Check stored crypto-edge cadence before depending on funding/OI history | `make check-edge-cadence-json` | Medium-risk read-only |
 | Research | Run accepted read-only archive/funding/strategy reports | `make research-pipeline-status-json` and `make research-command-status-json` | Medium-risk read-only |
+| Research artifacts | Inspect accepted research artifact hashes and missing artifact rows | `make research-artifact-inventory-json` | Medium-risk read-only |
 | Pullback candidate | Keep Stage 0 proof artifact visible; decide only after evidence review | `make pullback-stage0-verify` | Passive/operator evidence |
 | Funding candidate | Keep funding research and price-join artifacts separate from promotion | `make funding-stage0-verify` when preconditions are met | Passive/operator evidence |
 | Launch | Do not arm live until checklist is complete | `docs/LAUNCH_CHECKLIST.md` | High-risk/deferred |
@@ -156,5 +157,6 @@ make status-paper-campaigns
 make check-cost-assumptions-json
 make check-edge-cadence-json
 make research-pipeline-status-json
+make research-artifact-inventory-json
 make research-command-status-json
 ```

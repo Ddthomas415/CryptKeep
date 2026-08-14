@@ -35,6 +35,7 @@ REQUIRED_COMMANDS: tuple[str, ...] = (
     "make check-cost-assumptions-json",
     "make check-edge-cadence-json",
     "make research-pipeline-status-json",
+    "make research-artifact-inventory-json",
     "make research-command-status-json",
 )
 
