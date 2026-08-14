@@ -1775,6 +1775,17 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     requirements, accepted waiver fields, future gate options, and launch/CI
     policy links. This is docs/test only and does not change CI, dependency
     installation, release workflows, or branch protection.
+    2026-08-14: supply-chain vulnerability remediation branch updates the
+    vulnerable pinned packages found by local `pip-audit`: `aiohttp` 3.14.3,
+    `click` 8.3.3, `cryptography` 50.0.0, `GitPython` 3.1.58, `idna` 3.15,
+    `pillow` 12.3.0, `starlette` 1.3.1, `tornado` 6.5.7, and `urllib3` 2.7.0;
+    it also explicitly pins `setuptools` 83.0.0 because the audit found the
+    installed version vulnerable even though it was not previously listed in
+    the pinned requirement files. Local `scripts/check_supply_chain.py --audit`
+    reports pin integrity OK, environment OK, and `vulnerable_count=0` on the
+    modified working tree. Remaining capped-live proof after merge is to repeat
+    the audit for the final deployed SHA and decide whether hash-locked installs
+    or SBOMs become release gates.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live

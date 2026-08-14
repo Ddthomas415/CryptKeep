@@ -34097,3 +34097,65 @@ Remaining risk:
   order routing, authorization, broker support, command behavior, GitHub auth,
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-14T00:14:22Z - Supply-Chain Vulnerability Pin Remediation
+
+Active role: ENGINEER
+
+Objective:
+- Remediate the vulnerable pinned packages reported by local `pip-audit` while
+  keeping the dependency diff narrow and reviewable.
+
+What was found:
+- The local audit over the previous pinned environment reported vulnerable
+  packages across `aiohttp`, `click`, `cryptography`, `GitPython`, `idna`,
+  `pillow`, `setuptools`, `starlette`, `tornado`, and `urllib3`.
+- A first remediation to `GitPython==3.1.55` still left newer GitPython
+  advisories open, fixed by `GitPython==3.1.58`.
+- `setuptools` was installed and vulnerable but not explicitly pinned in the
+  repo requirement files.
+
+What changed:
+- Updated vulnerable pins in both `requirements-pinned.txt` and
+  `requirements-dev-pinned.txt`:
+  - `aiohttp==3.14.3`
+  - `click==8.3.3`
+  - `cryptography==50.0.0`
+  - `GitPython==3.1.58`
+  - `idna==3.15`
+  - `pillow==12.3.0`
+  - `starlette==1.3.1`
+  - `tornado==6.5.7`
+  - `urllib3==2.7.0`
+- Added `setuptools==83.0.0` as an explicit pin in both pinned files.
+- Added a dated backlog note under the existing supply-chain item.
+
+Why this change was chosen:
+- This is the smallest package-only remediation that drives the repo's
+  supply-chain audit from vulnerable findings to zero findings without changing
+  application source, campaigns, gates, or runtime behavior.
+
+Expected outcome:
+- Fresh installs from the pinned requirement files should avoid the known
+  vulnerabilities reported by the local audit.
+
+Verification:
+- `./.venv/bin/python -m pip install aiohttp==3.14.3 click==8.3.3 cryptography==50.0.0 gitpython==3.1.55 idna==3.15 pillow==12.3.0 starlette==1.3.1 tornado==6.5.7 urllib3==2.7.0 setuptools==83.0.0`
+  - SHOWN: exit 0; first pass installed cleanly.
+- `./.venv/bin/python -m pip install gitpython==3.1.58`
+  - SHOWN: exit 0; upgraded remaining vulnerable GitPython pin.
+- `./.venv/bin/python scripts/check_supply_chain.py --json --audit --evidence-dest .cbp_state/data/supply_chain`
+  - SHOWN: exit 0; pin integrity OK, environment OK, audit ran,
+    `vulnerable_count=0`.
+- `./.venv/bin/python -m pytest -q tests/test_supply_chain_check.py tests/test_supply_chain_release_policy_guard.py`
+  - SHOWN: `14 passed in 0.46s`.
+- `./.venv/bin/python -m pytest -q tests/test_exchange_factory_resolution.py tests/test_crypto_edge_collector.py tests/test_order_router_retry_flow.py tests/test_paper_engine_honesty.py tests/test_paper_engine_integration.py tests/test_paper_engine_limit_and_status.py tests/test_user_stream_router.py tests/test_user_stream_ws.py tests/test_websocket_surface_classification.py tests/test_ai_copilot_policy.py tests/test_ai_copilot_provider_audit.py tests/test_ai_copilot_provider_boundary.py tests/test_runtime_identity.py tests/test_root_dependency_contract.py`
+  - SHOWN: `77 passed in 2.81s`.
+
+Remaining risk:
+- MEDIUM: dependency pins changed. CI and review should confirm macOS/Windows
+  packaging and the broader test suite. No application source, campaigns,
+  market-data fetches, symbol universe, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, authorization, GitHub auth, host
+  mutation, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
