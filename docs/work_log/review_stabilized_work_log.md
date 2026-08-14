@@ -34699,6 +34699,13 @@ What was found:
   `CBP_STATE_DIR=/var/lib/cbp` reports fresh OKX funding/open-interest/basis
   snapshots at `2026-08-14T05:03:59+00:00`, with `missing=[]` and `stale=[]`.
 - SHOWN: platform/operator event secret scans report `finding_count=0`.
+- SHOWN: host-side operator event secret scan under `/var/lib/cbp` reports
+  `finding_count=0`, but no operator event journal exists there yet
+  (`exists=false`, `event_count=0`).
+- SHOWN: remote host checkout `5eb36cbb5` lacks
+  `scripts/check_platform_event_secrets.py` and
+  `scripts/report_platform_event_packet.py`, so host-side platform event
+  coverage cannot be closed from that deployed SHA.
 
 What changed:
 - Added `docs/checkpoints/runtime_check_2026_08_14.md`.
@@ -34731,6 +34738,13 @@ Verification:
   - SHOWN: exit 0; `finding_count=0`.
 - `make operator-event-secrets-json`
   - SHOWN: exit 0; `finding_count=0`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_operator_event_secrets.py --json'`
+  - SHOWN: exit 0; `ok=true`, `exists=false`, `event_count=0`,
+    `finding_count=0`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && git rev-parse --short=9 HEAD && git status --short --branch && ls scripts/check_platform_event_secrets.py scripts/report_platform_event_packet.py scripts/check_operator_event_secrets.py 2>&1'`
+  - SHOWN: exit 2 because platform-event scripts are absent; remote checkout
+    is `5eb36cbb5` on `master...origin/master`, and
+    `scripts/check_operator_event_secrets.py` is present.
 
 Remaining risk:
 - LOW: docs/checkpoint only. No service was started, stopped, deployed, or
@@ -34738,4 +34752,7 @@ Remaining risk:
   config, promotion gate, paper/shadow/live execution, order routing,
   authorization, broker support, GitHub auth, host config, or runtime policy
   changed.
+- Host-side platform event proof remains open until the deployed host checkout
+  includes the platform-event check scripts or the proof scope is explicitly
+  limited to operator events.
 - Acceptance state: `ACCEPTED`.

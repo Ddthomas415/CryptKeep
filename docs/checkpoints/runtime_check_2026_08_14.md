@@ -110,6 +110,32 @@ Results:
 - Operator event secret scan after server-secrets checkpoint:
   `ok=true`, `event_count=281`, `finding_count=0`.
 
+### Host-Side Event Coverage Probe
+
+Commands:
+
+```bash
+tailscale ssh cryptkeep@100.86.128.9 \
+  'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_operator_event_secrets.py --json'
+
+tailscale ssh cryptkeep@100.86.128.9 \
+  'cd /srv/cryptkeep/app && git rev-parse --short=9 HEAD && git status --short --branch && ls scripts/check_platform_event_secrets.py scripts/report_platform_event_packet.py scripts/check_operator_event_secrets.py 2>&1'
+```
+
+Result:
+
+- Remote checkout: `5eb36cbb5`, branch `master...origin/master`.
+- Host operator event secret scan: `ok=true`, `finding_count=0`, but
+  `exists=false` and `event_count=0` for
+  `/var/lib/cbp/data/operator_events/operator_events.jsonl`.
+- Host checkout contains `scripts/check_operator_event_secrets.py`.
+- Host checkout does not contain `scripts/check_platform_event_secrets.py`.
+- Host checkout does not contain `scripts/report_platform_event_packet.py`.
+- Interpretation: local event scans are clean, but host-side platform event
+  coverage cannot be closed from the deployed host SHA until the host checkout
+  includes those scripts or the proof is explicitly scoped to operator events
+  only.
+
 ### Server Secrets Passive Checkpoint
 
 Command:
@@ -144,5 +170,7 @@ NOT SHOWN:
 - No live/shadow execution proof was attempted.
 - No deployment, systemd install, backup/restore drill, promotion proof, or
   capped-live proof was executed.
+- Host-side platform event secret/integrity proof was not closed because the
+  deployed host checkout lacks the platform-event check scripts.
 - This checkpoint does not validate profitability or authorize strategy
   promotion.
