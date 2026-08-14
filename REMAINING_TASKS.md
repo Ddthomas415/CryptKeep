@@ -1802,6 +1802,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     requirements, accepted waiver fields, future gate options, and launch/CI
     policy links. This is docs/test only and does not change CI, dependency
     installation, release workflows, or branch protection.
+    2026-08-14: local `pip-audit` vulnerability evidence is now recorded at
+    `.cbp_state/data/supply_chain/supply-chain-evidence-20260814T000731Z.json`.
+    Pin integrity and installed pinned-environment checks passed for commit
+    `9daac50a305c3b5f0f0c8c01616acefe0c1d87c4`; the vulnerability audit ran
+    and reported `vulnerable_count=10` across pinned packages. Remaining
+    capped-live proof is no longer "run the audit" for this local artifact; it
+    is review/remediate or explicitly waive the recorded findings, decide
+    whether hash-locked installs or SBOMs become release gates, and repeat the
+    audit for the final deployed SHA.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live

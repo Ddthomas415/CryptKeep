@@ -32666,6 +32666,11 @@ What changed:
   - `vulnerability_audit_ok`
 - Added a regression test proving vulnerability findings remain visible in the
   passive supply-chain status row.
+- Added a 2026-08-14 backlog note under the supply-chain item recording the
+  local audit artifact, the passing pin/environment checks, and the
+  `vulnerable_count=10` result so the remaining work is review/remediate or
+  explicitly waive findings for capped-live, not "run the audit" for this
+  local SHA.
 
 Why this change was chosen:
 - The passive item is about recording audit/waiver evidence, so the artifact
