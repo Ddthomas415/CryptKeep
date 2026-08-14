@@ -34892,3 +34892,54 @@ Remaining risk:
 - This does not install units, reload systemd, enable services, restart
   services, or close post-install deployment evidence.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-14T05:32:00Z - Host Backup/Restore Drill Blocker Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Attempt the safe portion of the Hetzner full-state backup/restore drill:
+  backup live data, verify the backup, restore only into scratch
+  `CBP_STATE_DIR`, and scan the backup artifact for secrets.
+
+What was found:
+- SHOWN: the host checkout remains at `5eb36cbb5`.
+- SHOWN: `scripts/backup_state.py` exists on that checkout.
+- SHOWN: `scripts/check_backup_artifact_secrets.py` is absent on that checkout.
+- SHOWN: `/var/lib/cbp` and `/var/lib/cbp/data` are owned by `cbp:cbp`.
+- SHOWN: the current Tailscale login is `cryptkeep`.
+- SHOWN: `sudo -n -u cbp ...` fails with `sudo: a password is required`.
+- SHOWN: `CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/backup_state.py backup --dest ...`
+  failed during SQLite snapshot with `sqlite3.OperationalError: attempt to
+  write a readonly database`.
+
+What changed:
+- Added `docs/checkpoints/host_backup_restore_drill_blocker_2026_08_14.md`.
+- Updated the full-state backup/restore backlog item to name the blocker and
+  the next required proof sequence.
+
+Why this change was chosen:
+- The drill did not pass. Recording the blocker prevents the backlog from
+  treating "run the drill" as an unspecified task and identifies the exact
+  host preconditions required to complete it.
+
+Expected outcome:
+- The next attempt should first sync `/srv/cryptkeep/app` to an approved
+  current master and run backup/verify/scratch-restore/secret-scan with
+  effective access to the `cbp` state data.
+
+Verification:
+- `tailscale ssh cryptkeep@100.86.128.9 '... backup_state.py backup --dest ...'`
+  - SHOWN: backup failed with `sqlite3.OperationalError: attempt to write a
+    readonly database`.
+- `tailscale ssh cryptkeep@100.86.128.9 '... git rev-parse --short=9 HEAD ... ls scripts/check_backup_artifact_secrets.py scripts/backup_state.py ...'`
+  - SHOWN: host SHA `5eb36cbb5`; backup script present; backup secret scanner
+    absent.
+- `tailscale ssh cryptkeep@100.86.128.9 '... sudo -n -u cbp ...'`
+  - SHOWN: sudo requires a password.
+
+Remaining risk:
+- This is docs/evidence recording only. It does not run a successful backup,
+  verify, scratch restore, backup-artifact secret scan, resume/idempotence
+  check, or service restart.
+- Acceptance state: `ACCEPTED`.
