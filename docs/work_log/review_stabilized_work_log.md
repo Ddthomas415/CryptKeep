@@ -34583,6 +34583,44 @@ Remaining risk:
   mutation, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-14T04:47:09Z - Supply-Chain Post-Merge Audit Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Record the local post-merge supply-chain audit for the remediated dependency
+  pins after PR #503 merged to master.
+
+What was found:
+- SHOWN: master is at commit `77a3a529494ac32e6e059cf4d35f669711d89018`.
+- SHOWN: local git state was clean for the audit (`git_dirty=false`).
+- SHOWN: `scripts/check_supply_chain.py --audit` reports pin integrity OK,
+  installed pinned environment OK, and `vulnerable_count=0`.
+
+What changed:
+- Added `docs/checkpoints/supply_chain_post_merge_audit_2026_08_14.md`.
+- Updated `REMAINING_TASKS.md` under the existing supply-chain item to record
+  the post-merge audit result and narrow remaining release-policy decisions to
+  SBOM/hash-locked install requirements for future deployed SHAs.
+
+Why this change was chosen:
+- The remediation branch proved zero findings on a modified working tree; this
+  checkpoint records the same audit after the merge on a clean master SHA.
+
+Expected outcome:
+- Operator status and future launch-packet review can reference the exact
+  post-merge audit proof instead of relying on terminal history.
+
+Verification:
+- `./.venv/bin/python scripts/check_supply_chain.py --json --audit --evidence-dest .cbp_state/data/supply_chain/supply-chain-evidence-20260814T044700Z.json`
+  - SHOWN: exit 0; `pin_integrity.ok=true`, `environment.ok=true`,
+    `vulnerability_audit.ran=true`, `vulnerable_count=0`, `findings=[]`.
+
+Remaining risk:
+- LOW: docs/checkpoint only. This does not install on Hetzner, generate an
+  SBOM, enable hash-locked installs, or change CI/release policy.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-08-14T04:52:15Z - Roadmap Research Artifact Command Discoverability
 
 Active role: ENGINEER
