@@ -34851,3 +34851,44 @@ Remaining risk:
 - This is docs/evidence recording only. It does not close deployment, schema,
   or restore-drill proof rows by itself.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-14T05:23:30Z - Host Systemd Dry-Run Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Run and record a read-only Hetzner systemd installer dry run for the packaged
+  deployment units.
+
+What was found:
+- SHOWN: `scripts/install_systemd_units.py --repo-dir /srv/cryptkeep/app`
+  completed on Hetzner in dry-run mode.
+- SHOWN: static verification passed for `cbp-collector`,
+  `cbp-crypto-edge-collector`, `cbp-intent-consumer`, `cbp-reconciler`,
+  `cbp-dashboard`, `cbp-dead-man`, `cbp-edge-cadence`, and both timers.
+- SHOWN: the script reported that it would copy rendered units only if rerun
+  with `--apply`.
+- SHOWN: the script printed the live-arming boundary: installing units never
+  arms live trading; arming flows only through the ceremony.
+
+What changed:
+- Added `docs/checkpoints/host_systemd_dry_run_2026_08_14.md`.
+- Linked that dry-run checkpoint from the deployment-unit backlog item.
+
+Why this change was chosen:
+- Deployment installation remains a priority host-side proof row. A dry-run
+  proves the host checkout can render and verify the full packaged unit set
+  without changing host state.
+
+Expected outcome:
+- Future deployment review can start from a verified dry-run artifact instead
+  of re-establishing whether the unit templates render on the host.
+
+Verification:
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && ./.venv/bin/python scripts/install_systemd_units.py --repo-dir /srv/cryptkeep/app'`
+  - SHOWN: exit 0; static verify OK; dry-run only.
+
+Remaining risk:
+- This does not install units, reload systemd, enable services, restart
+  services, or close post-install deployment evidence.
+- Acceptance state: `ACCEPTED`.
