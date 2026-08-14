@@ -804,6 +804,13 @@ deployment work still needs independent review.
     host-side `check_edge_cadence.py --json` under `CBP_STATE_DIR=/var/lib/cbp`
     reports OKX funding/open-interest/basis all fresh at
     `2026-07-21T21:10:42+00:00` with `missing=[]` and `stale=[]`.
+    2026-08-13 read-only refresh recorded in
+    `docs/checkpoints/runtime_check_2026_08_13.md`: Hetzner
+    `ema_cross_default` remains `1/1` running and idle for the next UTC day,
+    remote crypto-edge runtime is ready on `master` at `5eb36cbb5`, and
+    host-side `check_edge_cadence.py --json` under `CBP_STATE_DIR=/var/lib/cbp`
+    reports OKX funding/open-interest/basis all fresh at
+    `2026-08-13T23:35:51+00:00` with `missing=[]` and `stale=[]`.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
@@ -1316,6 +1323,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    This preserves the read-only reconciliation contract while preventing a
    poisoned exchange quantity or tolerance from bypassing the operator-visible
    failure artifact.
+   2026-08-13: implementation slices accepted after independent review. This
+   closes the review/acceptance tracking status for the Decimal and
+   finite-validation slices above without changing runtime behavior; the
+   remaining substrate #1 work is the explicitly named broader Decimal storage,
+   fee, and PnL transport/accounting migration before capped-live exposure.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent
@@ -1473,6 +1485,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    state, arming the kill switch / setting the system guard `HALTED`, and
    returning an operator-visible `config_load_failed_runtime_halted` or
    `config_save_failed_runtime_halted` reason.
+   2026-08-13: implementation slices accepted after independent review. This
+   closes the review/acceptance tracking status for the fail-closed
+   config and daily-loss policy slices above without changing runtime behavior;
+   remaining work stays limited to separately named capped-live proof or future
+   config surfaces discovered by audit.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
@@ -1506,6 +1523,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    observation count and age. Remaining risk: a live-but-persistently-invisible
    venue order could still be disposed after the bounded window; review the
    default window before live capital.
+   2026-08-13: implementation slice accepted after independent review. This
+   closes the review/acceptance tracking status for the venue-lookup-not-found
+   terminal policy implementation without changing runtime behavior; the
+   stated bounded-window risk remains a capped-live policy review point before
+   real capital.
 4. Add crash-consistency/fault-injection tests for submit, fill, reconcile, and
    restart. Kill between each side effect and assert reconciler convergence.
    This is a launch-packet companion, not a replacement for restart evidence.
@@ -1717,9 +1739,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     clock correctness. Add a host/venue skew check and operator-visible status
     before relying on timestamp-sensitive shadow/live evidence. 2026-07-04:
     policy is documented in `docs/CLOCK_VENUE_TIME_SANITY_POLICY.md`.
-    Remaining capped-live proof: host UTC/NTP status, venue server-time query
-    or limitation record, observed skew against threshold, fail-closed behavior
-    for excessive skew, and operator-visible status output. 2026-07-10: the
+    2026-08-13 host proof recorded in
+    `docs/checkpoints/clock_venue_time_host_proof_2026_08_13.md`: Hetzner
+    `host_utc=2026-08-13T23:56:27.797371+00:00`, `ntp_status=timedatectl: yes`,
+    `threshold_ms=5000`, Coinbase `status=OK skew_ms=-409 rtt_ms=190`, and OKX
+    `status=OK skew_ms=42 rtt_ms=326`. This closes the host/venue-time evidence
+    refresh for the checked venues at that timestamp; future launch packets
+    should refresh the proof close to any shadow/capped-live transition.
+    2026-07-10: the
     implementation slice is ready for independent review —
     `services/execution/clock_sanity.py` measures venue skew against the
     round-trip midpoint (`measure_venue_skew`, rtt recorded as measurement
@@ -1775,6 +1802,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     requirements, accepted waiver fields, future gate options, and launch/CI
     policy links. This is docs/test only and does not change CI, dependency
     installation, release workflows, or branch protection.
+    2026-08-14: local `pip-audit` vulnerability evidence is now recorded at
+    `.cbp_state/data/supply_chain/supply-chain-evidence-20260814T000731Z.json`.
+    Pin integrity and installed pinned-environment checks passed for commit
+    `9daac50a305c3b5f0f0c8c01616acefe0c1d87c4`; the vulnerability audit ran
+    and reported `vulnerable_count=10` across pinned packages. Remaining
+    capped-live proof is no longer "run the audit" for this local artifact; it
+    is review/remediate or explicitly waive the recorded findings, decide
+    whether hash-locked installs or SBOMs become release gates, and repeat the
+    audit for the final deployed SHA.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live

@@ -170,6 +170,15 @@ def _marker_next_action(marker: ProofMarker) -> str:
 def _marker_status(marker: ProofMarker) -> str:
     if marker.category == "proof_ready_implementation":
         text = marker.text.lower()
+        context = marker.context.lower()
+        if (
+            "independently reviewed and accepted" in context
+            or "implementation slice accepted after independent review" in context
+            or "implementation slices accepted after independent review" in context
+            or "proof-ready slices accepted" in context
+            or "accepted proof-ready slices" in context
+        ):
+            return "satisfied_recorded"
         if "completed/proof-ready" in text or "not to rebuild completed/proof-ready" in text:
             return "context_only"
         return "open"
@@ -449,6 +458,32 @@ def _runbook_checkpoint_status(
     }
 
 
+def _hetzner_canonical_state_migration_status(root: Path) -> dict[str, Any]:
+    checkpoint = _runbook_checkpoint_status(
+        root,
+        artifact_id="hetzner_canonical_state_migration_guidance",
+        target="hetzner_canonical_state_migration",
+        next_action="make record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'",
+        doc_path="docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md",
+    )
+    if bool(checkpoint.get("satisfied")):
+        return checkpoint
+    return {
+        "artifact_id": "hetzner_canonical_state_migration_guidance",
+        "artifact_status": "waiting_for_canonical_migration_preconditions",
+        "satisfied": False,
+        "action_required": False,
+        "next_action": "none",
+        "doc_path": "docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md",
+        "note": (
+            "Canonical state migration is actionable only after the reviewed "
+            "Hetzner canonical campaign manifest, maintenance-window, laptop-stop, "
+            "manifest-verification, gate-output, and single-owner prerequisites are recorded."
+        ),
+        "checkpoint": checkpoint,
+    }
+
+
 def _latest_operator_event(
     events: list[dict[str, Any]],
     *,
@@ -536,6 +571,7 @@ def _shadow_would_be_fill_artifact_status(root: Path) -> dict[str, Any]:
     from services.analytics.execution_cost_stack_report import load_shadow_would_be_fills
 
     evidence_root = root / ".cbp_state" / "data" / "evidence"
+    manual_decision = _manual_strategy_decision_status(root)
     next_action = (
         "follow docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md until a shadow session writes "
         "stored shadow_would_be_fill records"
@@ -572,6 +608,7 @@ def _shadow_would_be_fill_artifact_status(root: Path) -> dict[str, Any]:
             "artifact_id": "shadow_would_be_fill_records",
             "artifact_status": "recorded_with_parse_errors",
             "satisfied": False,
+            "action_required": True,
             "next_action": "inspect shadow_would_be_fill evidence parse errors before accepting the run",
             "doc_path": "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
             "evidence_root": loaded.get("evidence_root"),
@@ -580,10 +617,26 @@ def _shadow_would_be_fill_artifact_status(root: Path) -> dict[str, Any]:
             "source_artifact_hash": loaded.get("source_artifact_hash"),
             "source_files": loaded.get("source_files") or [],
         }
+    if not bool(manual_decision.get("satisfied")):
+        return {
+            "artifact_id": "shadow_would_be_fill_records",
+            "artifact_status": "waiting_for_shadow_prerequisites",
+            "satisfied": False,
+            "action_required": False,
+            "next_action": "none",
+            "doc_path": "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
+            "evidence_root": loaded.get("evidence_root"),
+            "record_count": 0,
+            "parse_errors": parse_errors,
+            "source_files": loaded.get("source_files") or [],
+            "manual_strategy_decision": manual_decision,
+            "note": "Shadow would-be-fill collection is actionable only after the paper gate is ready and the manual strategy decision is recorded.",
+        }
     return {
         "artifact_id": "shadow_would_be_fill_records",
         "artifact_status": "missing",
         "satisfied": False,
+        "action_required": True,
         "next_action": next_action,
         "doc_path": "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
         "evidence_root": loaded.get("evidence_root"),
@@ -788,6 +841,16 @@ def _supply_chain_artifact_status(root: Path) -> dict[str, Any]:
     payload = _load_json(latest)
     pin_integrity = payload.get("pin_integrity") if isinstance(payload.get("pin_integrity"), dict) else {}
     environment = payload.get("environment") if isinstance(payload.get("environment"), dict) else {}
+    vulnerability_audit = (
+        payload.get("vulnerability_audit")
+        if isinstance(payload.get("vulnerability_audit"), dict)
+        else {}
+    )
+    vulnerability_ran = bool(vulnerability_audit.get("ran"))
+    try:
+        vulnerable_count = int(vulnerability_audit.get("vulnerable_count") or 0)
+    except Exception:
+        vulnerable_count = -1
     passed = (
         latest.is_file()
         and bool(pin_integrity.get("ok")) is True
@@ -805,6 +868,10 @@ def _supply_chain_artifact_status(root: Path) -> dict[str, Any]:
         "git_dirty": bool(payload.get("git_dirty")),
         "pin_integrity_ok": bool(pin_integrity.get("ok")),
         "environment_ok": bool(environment.get("ok")),
+        "vulnerability_audit_ran": vulnerability_ran,
+        "vulnerability_audit_reason": vulnerability_audit.get("reason"),
+        "vulnerable_count": vulnerable_count,
+        "vulnerability_audit_ok": vulnerability_ran and vulnerable_count == 0,
         "satisfied": bool(passed),
         "next_action": "none" if passed else "make record-supply-chain",
     }
@@ -992,21 +1059,30 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
     if "Accepted shadow-derived execution-cost report" in item:
         return _execution_cost_stack_artifact_status(root)
     if "Hetzner canonical `.cbp_state` migration follow-through" in item:
-        return _runbook_checkpoint_status(
-            root,
-            artifact_id="hetzner_canonical_state_migration_guidance",
-            target="hetzner_canonical_state_migration",
-            next_action="make record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'",
-            doc_path="docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md",
-        )
+        return _hetzner_canonical_state_migration_status(root)
     if "Paper-to-shadow first-hour rehearsal" in item:
-        return _runbook_checkpoint_status(
+        checkpoint = _runbook_checkpoint_status(
             root,
             artifact_id="paper_to_shadow_first_hour_guidance",
             target="paper_to_shadow_first_hour_rehearsal",
             next_action="make record-paper-to-shadow-first-hour-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'",
             doc_path="docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
         )
+        if bool(checkpoint.get("satisfied")):
+            return checkpoint
+        manual_decision = _manual_strategy_decision_status(root)
+        if not bool(manual_decision.get("satisfied")):
+            return {
+                "artifact_id": "paper_to_shadow_first_hour_guidance",
+                "artifact_status": "waiting_for_shadow_prerequisites",
+                "satisfied": False,
+                "action_required": False,
+                "next_action": "none",
+                "doc_path": "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md",
+                "manual_strategy_decision": manual_decision,
+                "note": "Paper-to-shadow rehearsal is actionable only after the paper gate is ready and the manual strategy decision is recorded.",
+            }
+        return checkpoint
     if "Backup/restore drill evidence" in item:
         return _backup_restore_drill_artifact_status(root)
     if "Server secrets injection/rotation drill" in item:
@@ -1024,6 +1100,12 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
 
 def _marker_artifact_status(root: Path, marker: ProofMarker) -> dict[str, Any] | None:
     text = f"{marker.text} {marker.context}".lower()
+    if marker.category == "host_side_reference" and (
+        "manual strategy performance decision" in text
+        or "after the paper gate reaches" in text
+        or "before real promotion" in text
+    ):
+        return _manual_strategy_decision_status(root)
     if marker.category == "remaining_operational_proof" and (
         "fee/slippage" in text or "cost-assumption" in text or "cost assumptions" in text
     ):
@@ -1034,8 +1116,15 @@ def _marker_artifact_status(root: Path, marker: ProofMarker) -> dict[str, Any] |
 def _marker_row(root: Path, marker: ProofMarker) -> dict[str, Any]:
     artifact_status = _marker_artifact_status(root, marker)
     artifact_satisfied = bool((artifact_status or {}).get("satisfied"))
+    artifact_controls_action = artifact_status is not None and "action_required" in artifact_status
     status = "satisfied_artifact" if artifact_satisfied else _marker_status(marker)
-    action_required = False if artifact_satisfied else _marker_action_required(marker)
+    action_required = (
+        bool(artifact_status.get("action_required"))
+        if artifact_controls_action and artifact_status is not None
+        else False
+        if artifact_satisfied
+        else _marker_action_required(marker)
+    )
     return {
         "line": marker.line,
         "category": marker.category,
@@ -1044,7 +1133,13 @@ def _marker_row(root: Path, marker: ProofMarker) -> dict[str, Any]:
         "status": status,
         "satisfied": artifact_satisfied or _marker_satisfied(marker),
         "action_required": action_required,
-        "next_action": "none" if artifact_satisfied else _marker_next_action(marker),
+        "next_action": (
+            str(artifact_status.get("next_action") or "none")
+            if artifact_controls_action and artifact_status is not None
+            else "none"
+            if artifact_satisfied
+            else _marker_next_action(marker)
+        ),
         "artifact_status": artifact_status,
     }
 

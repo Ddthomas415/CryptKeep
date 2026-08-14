@@ -322,6 +322,40 @@ def test_operator_proof_status_does_not_treat_policy_mentions_as_proof_ready_act
     assert rows[4]["next_action"] == "none"
 
 
+def test_operator_proof_status_closes_accepted_proof_ready_cluster(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+            [
+                "1. Decimal migration.",
+                "   2026-07-13 order-boundary slice is proof-ready for independent review.",
+                "   2026-07-14 risk-gate slice is proof-ready for independent review.",
+                "   2026-08-13: implementation slices accepted after independent review.",
+                "2. Still open.",
+                "   2026-07-15 another slice is proof-ready for independent review.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path, category="proof_ready_implementation")
+
+    assert out["ok"] is True
+    assert out["proof_marker_count"] == 3
+    assert out["summary"]["proof_markers_satisfied"] == 2
+    assert out["summary"]["proof_marker_actions_required"] == 1
+    rows = {row["line"]: row for row in out["proof_markers"]}
+    assert rows[2]["status"] == "satisfied_recorded"
+    assert rows[2]["action_required"] is False
+    assert rows[2]["next_action"] == "none"
+    assert rows[3]["status"] == "satisfied_recorded"
+    assert rows[3]["action_required"] is False
+    assert rows[6]["status"] == "open"
+    assert rows[6]["action_required"] is True
+
+
 def test_operator_proof_status_rejects_unknown_category_filter(tmp_path: Path) -> None:
     from services.analytics.operator_proof_status import build_operator_proof_status
 
@@ -710,6 +744,52 @@ def test_operator_proof_status_waits_for_paper_gate_before_manual_decision(tmp_p
     assert manual["artifact_status"]["paper_gate_velocity"]["round_trips"]["remaining"] == 2
     assert out["summary"]["passive_operator_items_satisfied"] == 0
     assert out["summary"]["passive_operator_items_waiting"] == 1
+
+
+def test_operator_proof_status_does_not_surface_future_promotion_host_marker_before_gate(
+    tmp_path: Path,
+) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+            [
+                "2. After the paper gate reaches 10 qualified round trips, write the manual strategy performance decision.",
+                "   Ground truth must come from the operator-host gate/status command output.",
+                "   Remaining before real promotion: GitHub CI/review, plus operator-host gate output as ground truth.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    artifact_dir = tmp_path / ".cbp_state" / "data" / "paper_gate_velocity"
+    artifact_dir.mkdir(parents=True)
+    (artifact_dir / "paper_gate_velocity.latest.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "read_only": True,
+                "report_type": "paper_gate_velocity",
+                "generated_at": "2026-08-13T00:00:00+00:00",
+                "strategy_id": "es_daily_trend_v1",
+                "thresholds_ready": False,
+                "round_trips": {"qualified": 3, "required": 5, "remaining": 2},
+                "qualified_bars": {"recorded": 52, "required": 60, "remaining": 8},
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path, category="host_side_reference")
+
+    assert out["ok"] is True
+    assert out["proof_marker_count"] == 2
+    assert out["summary"]["proof_marker_actions_required"] == 0
+    for row in out["proof_markers"]:
+        assert row["action_required"] is False
+        assert row["next_action"] == "none"
+        assert row["artifact_status"]["artifact_status"] == "waiting_for_paper_gate_threshold"
 
 
 def test_operator_proof_status_marks_composite_decision_event_satisfied(tmp_path: Path) -> None:
@@ -1615,7 +1695,58 @@ def test_operator_proof_status_marks_supply_chain_evidence_satisfied(tmp_path: P
     assert supply["artifact_status"]["artifact_status"] == "recorded"
     assert supply["artifact_status"]["pin_integrity_ok"] is True
     assert supply["artifact_status"]["environment_ok"] is True
+    assert supply["artifact_status"]["vulnerability_audit_ran"] is False
+    assert supply["artifact_status"]["vulnerability_audit_reason"] == "not_requested"
+    assert supply["artifact_status"]["vulnerable_count"] == 0
+    assert supply["artifact_status"]["vulnerability_audit_ok"] is False
     assert out["summary"]["passive_operator_items_satisfied"] == 1
+
+
+def test_operator_proof_status_surfaces_supply_chain_vulnerability_findings(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Supply-chain audit/waiver evidence.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    evidence_dir = tmp_path / ".cbp_state" / "data" / "supply_chain"
+    evidence_dir.mkdir(parents=True)
+    artifact = evidence_dir / "supply-chain-evidence-20260808T203700Z.json"
+    artifact.write_text(
+        json.dumps(
+            {
+                "created": "2026-08-08T20:37:00Z",
+                "git_sha": "abc123",
+                "git_dirty": False,
+                "requirement_file_sha256": {"requirements-pinned.txt": "sha"},
+                "pin_integrity": {"ok": True, "problems": [], "pin_count": 1},
+                "environment": {"ok": True, "checked": 1, "mismatches": [], "not_installed": []},
+                "vulnerability_audit": {"ran": True, "vulnerable_count": 3, "findings": []},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    supply = out["passive_operator_items"][0]
+    assert supply["action_required"] is False
+    assert supply["artifact_status"]["artifact_status"] == "recorded"
+    assert supply["artifact_status"]["vulnerability_audit_ran"] is True
+    assert supply["artifact_status"]["vulnerable_count"] == 3
+    assert supply["artifact_status"]["vulnerability_audit_ok"] is False
 
 
 def test_operator_proof_status_marks_execution_cost_report_satisfied(tmp_path: Path) -> None:
@@ -1754,7 +1885,10 @@ def test_operator_proof_status_waits_for_shadow_records_before_execution_cost_re
     assert cost["action_required"] is False
     assert cost["next_action"] == "none"
     assert cost["artifact_status"]["artifact_status"] == "waiting_for_shadow_would_be_fill_records"
-    assert cost["artifact_status"]["shadow_would_be_fill"]["artifact_status"] == "missing"
+    assert (
+        cost["artifact_status"]["shadow_would_be_fill"]["artifact_status"]
+        == "waiting_for_shadow_prerequisites"
+    )
     assert out["summary"]["passive_operator_items_satisfied"] == 0
     assert out["summary"]["passive_operator_items_waiting"] == 1
 
@@ -1831,22 +1965,218 @@ def test_operator_proof_status_shows_runbook_guidance_without_satisfying_rows(tm
 
     assert out["ok"] is True
     rows = out["passive_operator_items"]
-    assert all(row["action_required"] is True for row in rows)
+    assert rows[0]["action_required"] is False
+    assert rows[1]["action_required"] is False
+    assert rows[2]["action_required"] is False
+    assert rows[3]["action_required"] is True
     assert rows[0]["artifact_status"]["artifact_id"] == "shadow_would_be_fill_records"
-    assert rows[0]["artifact_status"]["artifact_status"] == "missing"
+    assert rows[0]["artifact_status"]["artifact_status"] == "waiting_for_shadow_prerequisites"
     assert rows[0]["artifact_status"]["record_count"] == 0
     assert rows[0]["artifact_status"]["doc_path"] == "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md"
-    assert "shadow_would_be_fill" in rows[0]["next_action"]
+    assert rows[0]["next_action"] == "none"
+    assert (
+        rows[0]["artifact_status"]["manual_strategy_decision"]["artifact_status"]
+        == "waiting_for_paper_gate_velocity"
+    )
     assert rows[1]["artifact_status"]["artifact_id"] == "hetzner_canonical_state_migration_guidance"
+    assert rows[1]["artifact_status"]["artifact_status"] == "waiting_for_canonical_migration_preconditions"
     assert rows[1]["artifact_status"]["doc_path"] == "docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md"
-    assert rows[1]["next_action"] == "make record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'"
+    assert rows[1]["next_action"] == "none"
+    assert rows[1]["artifact_status"]["checkpoint"]["artifact_status"] == "runbook_guidance"
     assert rows[2]["artifact_status"]["artifact_id"] == "paper_to_shadow_first_hour_guidance"
+    assert rows[2]["artifact_status"]["artifact_status"] == "waiting_for_shadow_prerequisites"
     assert rows[2]["artifact_status"]["doc_path"] == "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md"
-    assert rows[2]["next_action"] == "make record-paper-to-shadow-first-hour-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'"
+    assert rows[2]["next_action"] == "none"
     assert rows[3]["artifact_status"]["artifact_id"] == "server_secrets_rotation_guidance"
     assert rows[3]["artifact_status"]["doc_path"] == "docs/SERVER_SECRETS_ROTATION_MODEL.md"
     assert rows[3]["next_action"] == "make record-server-secrets-rotation-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'"
     assert out["summary"]["passive_operator_items_satisfied"] == 0
+
+
+def test_operator_proof_status_waits_for_shadow_records_until_manual_decision(
+    tmp_path: Path,
+) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Accepted shadow-stage run producing real `shadow_would_be_fill` records.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    artifact_dir = tmp_path / ".cbp_state" / "data" / "paper_gate_velocity"
+    artifact_dir.mkdir(parents=True)
+    (artifact_dir / "paper_gate_velocity.latest.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "read_only": True,
+                "report_type": "paper_gate_velocity",
+                "generated_at": "2026-08-13T00:00:00+00:00",
+                "strategy_id": "es_daily_trend_v1",
+                "thresholds_ready": True,
+                "round_trips": {"qualified": 5, "required": 5, "remaining": 0},
+                "qualified_bars": {"recorded": 60, "required": 60, "remaining": 0},
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    shadow = out["passive_operator_items"][0]
+    assert shadow["action_required"] is False
+    assert shadow["next_action"] == "none"
+    assert shadow["artifact_status"]["artifact_status"] == "waiting_for_shadow_prerequisites"
+    assert shadow["artifact_status"]["manual_strategy_decision"]["artifact_status"] == "missing"
+
+
+def test_operator_proof_status_prompts_shadow_records_after_manual_decision(
+    tmp_path: Path,
+) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Accepted shadow-stage run producing real `shadow_would_be_fill` records.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    artifact_dir = tmp_path / ".cbp_state" / "data" / "paper_gate_velocity"
+    artifact_dir.mkdir(parents=True)
+    (artifact_dir / "paper_gate_velocity.latest.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "read_only": True,
+                "report_type": "paper_gate_velocity",
+                "generated_at": "2026-08-13T00:00:00+00:00",
+                "strategy_id": "es_daily_trend_v1",
+                "thresholds_ready": True,
+                "round_trips": {"qualified": 5, "required": 5, "remaining": 0},
+                "qualified_bars": {"recorded": 60, "required": 60, "remaining": 0},
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+    journal = tmp_path / ".cbp_state" / "data" / "operator_events" / "operator_events.jsonl"
+    journal.parent.mkdir(parents=True)
+    journal.write_text(
+        json.dumps(
+            {
+                "event_id": "evt-manual-decision",
+                "timestamp": "2026-08-13T01:00:00Z",
+                "actor": "operator",
+                "action": "passive_operator_decision",
+                "target": "manual_strategy_performance_decision",
+                "result": "accepted",
+                "reason": "advance_to_shadow_review",
+                "pre_state": {},
+                "post_state": {},
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    shadow = out["passive_operator_items"][0]
+    assert shadow["action_required"] is True
+    assert "shadow_would_be_fill" in shadow["next_action"]
+    assert shadow["artifact_status"]["artifact_status"] == "missing"
+    assert shadow["artifact_status"]["record_count"] == 0
+
+
+def test_operator_proof_status_prompts_shadow_rehearsal_after_manual_decision(
+    tmp_path: Path,
+) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Paper-to-shadow first-hour rehearsal.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    artifact_dir = tmp_path / ".cbp_state" / "data" / "paper_gate_velocity"
+    artifact_dir.mkdir(parents=True)
+    (artifact_dir / "paper_gate_velocity.latest.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "read_only": True,
+                "report_type": "paper_gate_velocity",
+                "generated_at": "2026-08-13T00:00:00+00:00",
+                "strategy_id": "es_daily_trend_v1",
+                "thresholds_ready": True,
+                "round_trips": {"qualified": 5, "required": 5, "remaining": 0},
+                "qualified_bars": {"recorded": 60, "required": 60, "remaining": 0},
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+    journal = tmp_path / ".cbp_state" / "data" / "operator_events" / "operator_events.jsonl"
+    journal.parent.mkdir(parents=True)
+    journal.write_text(
+        json.dumps(
+            {
+                "event_id": "evt-manual-decision",
+                "timestamp": "2026-08-13T01:00:00Z",
+                "actor": "operator",
+                "action": "passive_operator_decision",
+                "target": "manual_strategy_performance_decision",
+                "result": "accepted",
+                "reason": "advance_to_shadow_review",
+                "pre_state": {},
+                "post_state": {},
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    rehearsal = out["passive_operator_items"][0]
+    assert rehearsal["action_required"] is True
+    assert rehearsal["next_action"] == "make record-paper-to-shadow-first-hour-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'"
+    assert rehearsal["artifact_status"]["artifact_status"] == "runbook_guidance"
 
 
 def test_operator_proof_status_marks_runbook_checkpoint_satisfied(tmp_path: Path) -> None:
@@ -1862,6 +2192,7 @@ def test_operator_proof_status_marks_runbook_checkpoint_satisfied(tmp_path: Path
                 "### Passive / Operator Evidence",
                 "",
                 "- Paper-to-shadow first-hour rehearsal.",
+                "- Hetzner canonical `.cbp_state` migration follow-through.",
                 "- Server secrets injection/rotation drill.",
                 "",
             ]
@@ -1883,6 +2214,20 @@ def test_operator_proof_status_marks_runbook_checkpoint_satisfied(tmp_path: Path
                         "target": "paper_to_shadow_first_hour_rehearsal",
                         "result": "completed",
                         "reason": "rehearsed_without_runtime_changes",
+                        "pre_state": {},
+                        "post_state": {},
+                    },
+                    sort_keys=True,
+                ),
+                json.dumps(
+                    {
+                        "event_id": "evt-hetzner-migration",
+                        "timestamp": "2026-08-09T00:00:30Z",
+                        "actor": "operator",
+                        "action": "runbook_checkpoint",
+                        "target": "hetzner_canonical_state_migration",
+                        "result": "recorded",
+                        "reason": "reviewed_manifest_and_single_owner_recorded",
                         "pre_state": {},
                         "post_state": {},
                     },
@@ -1918,8 +2263,11 @@ def test_operator_proof_status_marks_runbook_checkpoint_satisfied(tmp_path: Path
     assert rows[0]["artifact_status"]["event_id"] == "evt-shadow-rehearsal"
     assert rows[1]["next_action"] == "none"
     assert rows[1]["artifact_status"]["artifact_status"] == "recorded"
-    assert rows[1]["artifact_status"]["event_id"] == "evt-secrets-drill"
-    assert out["summary"]["passive_operator_items_satisfied"] == 2
+    assert rows[1]["artifact_status"]["event_id"] == "evt-hetzner-migration"
+    assert rows[2]["next_action"] == "none"
+    assert rows[2]["artifact_status"]["artifact_status"] == "recorded"
+    assert rows[2]["artifact_status"]["event_id"] == "evt-secrets-drill"
+    assert out["summary"]["passive_operator_items_satisfied"] == 3
 
 
 def test_operator_proof_status_marks_shadow_would_be_fill_records_satisfied(tmp_path: Path) -> None:
@@ -1972,7 +2320,11 @@ def test_operator_proof_status_marks_shadow_would_be_fill_records_satisfied(tmp_
     assert shadow["artifact_status"]["record_count"] == 1
     assert shadow["artifact_status"]["parse_errors"] == 0
     assert shadow["artifact_status"]["source_artifact_hash"]
-    assert out["passive_operator_items"][1]["action_required"] is True
+    assert out["passive_operator_items"][1]["action_required"] is False
+    assert (
+        out["passive_operator_items"][1]["artifact_status"]["artifact_status"]
+        == "waiting_for_shadow_prerequisites"
+    )
     assert out["summary"]["passive_operator_items_satisfied"] == 1
 
 
