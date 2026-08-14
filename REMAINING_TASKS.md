@@ -1822,6 +1822,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     modified working tree. Remaining capped-live proof after merge is to repeat
     the audit for the final deployed SHA and decide whether hash-locked installs
     or SBOMs become release gates.
+    2026-08-14: post-merge local supply-chain audit is recorded in
+    `docs/checkpoints/supply_chain_post_merge_audit_2026_08_14.md` for master
+    commit `77a3a5294`: git state was clean, pin integrity OK, installed
+    environment OK, audit ran, and `vulnerable_count=0`. Remaining capped-live
+    release-policy decision: whether SBOM and hash-locked install evidence are
+    required for future deployed SHAs.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
