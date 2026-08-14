@@ -34674,3 +34674,68 @@ Remaining risk:
   paper/shadow/live execution, order routing, authorization, broker support,
   GitHub auth, host mutation, or runtime policy changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-14T05:06:59Z - Runtime Checkpoint Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Record the current read-only runtime/campaign/crypto-edge checkpoint after
+  PRs #504 and #505 merged and after the passive server-secrets checkpoint
+  action was cleared.
+
+What was found:
+- SHOWN: open PR list is empty after PR #505 merged.
+- SHOWN: local `master` and `origin/master` are aligned at merge commit
+  `1d6df9e83`.
+- SHOWN: `make status-paper-all` reports laptop campaigns `2/2` running and
+  Hetzner `ema_cross_default` `1/1` running.
+- SHOWN: canonical paper gate remains not ready at `3/5` qualified round trips
+  with `2` remaining and manual review still required.
+- SHOWN: `make status-hetzner-edge-runtime` reports
+  `hetzner_crypto_edge_runtime_ready`, `ok=True`, remote `master` at
+  `5eb36cbb5`, and `blocking_checks=0`.
+- SHOWN: host-side `check_edge_cadence.py --json` under
+  `CBP_STATE_DIR=/var/lib/cbp` reports fresh OKX funding/open-interest/basis
+  snapshots at `2026-08-14T05:03:59+00:00`, with `missing=[]` and `stale=[]`.
+- SHOWN: platform/operator event secret scans report `finding_count=0`.
+
+What changed:
+- Added `docs/checkpoints/runtime_check_2026_08_14.md`.
+- Added a dated runtime-refresh note to `REMAINING_TASKS.md` under the
+  crypto-edge cadence/runtime item.
+
+Why this change was chosen:
+- The current backlog already uses dated read-only runtime checkpoints for
+  this exact evidence path. Recording the evidence keeps progress visible
+  without changing runtime behavior, host services, campaigns, gates, configs,
+  or execution surfaces.
+
+Expected outcome:
+- Future operator-status and launch-packet review can reference the August 14
+  campaign/runtime/edge-cadence state without relying on terminal scrollback.
+
+Verification:
+- `make status-paper-all`
+  - SHOWN: exit 0 outside sandbox; laptop `2/2` running, Hetzner `1/1`
+    running, paper gate `3/5` qualified round trips.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: exit 0; `ok=True`, `blocking_checks=0`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json'`
+  - SHOWN: exit 0; `ok=true`, `missing=[]`, `stale=[]`.
+- `make platform-event-packet-json`
+  - SHOWN: exit 0; `ok=true`, event integrity/secrets/summary checks true.
+- `make operator-arm-to-halt-replay-json`
+  - SHOWN: exit 0; `ok=true`.
+- `make platform-event-secrets-json`
+  - SHOWN: exit 0; `finding_count=0`.
+- `make operator-event-secrets-json`
+  - SHOWN: exit 0; `finding_count=0`.
+
+Remaining risk:
+- LOW: docs/checkpoint only. No service was started, stopped, deployed, or
+  restarted; no campaign, market-data fetch policy, symbol universe, strategy
+  config, promotion gate, paper/shadow/live execution, order routing,
+  authorization, broker support, GitHub auth, host config, or runtime policy
+  changed.
+- Acceptance state: `ACCEPTED`.

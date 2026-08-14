@@ -811,6 +811,14 @@ deployment work still needs independent review.
     host-side `check_edge_cadence.py --json` under `CBP_STATE_DIR=/var/lib/cbp`
     reports OKX funding/open-interest/basis all fresh at
     `2026-08-13T23:35:51+00:00` with `missing=[]` and `stale=[]`.
+    2026-08-14 read-only refresh recorded in
+    `docs/checkpoints/runtime_check_2026_08_14.md`: laptop paper campaigns
+    remain `2/2` running, Hetzner `ema_cross_default` remains `1/1` running,
+    canonical paper gate remains not ready at `3/5` qualified round trips with
+    `2` remaining, remote crypto-edge runtime is ready on `master` at
+    `5eb36cbb5`, and host-side `check_edge_cadence.py --json` under
+    `CBP_STATE_DIR=/var/lib/cbp` reports OKX funding/open-interest/basis all
+    fresh at `2026-08-14T05:03:59+00:00` with `missing=[]` and `stale=[]`.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
