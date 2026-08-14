@@ -7,8 +7,8 @@ def test_run_op_requires_operator_role() -> None:
 
 def test_run_repo_script_requires_operator_role() -> None:
     with pytest.raises(PermissionError):
-        operator.run_repo_script("scripts/run_crypto_edge_collector_loop.py", current_role="VIEWER")
+        operator.run_repo_script(operator.CRYPTO_EDGE_COLLECTOR_SCRIPT, current_role="VIEWER")
 
 def test_start_repo_script_background_requires_operator_role() -> None:
     with pytest.raises(PermissionError):
-        operator.start_repo_script_background("scripts/run_crypto_edge_collector_loop.py", current_role="VIEWER")
+        operator.start_repo_script_background(operator.CRYPTO_EDGE_COLLECTOR_SCRIPT, current_role="VIEWER")

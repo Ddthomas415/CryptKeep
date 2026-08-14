@@ -16,6 +16,13 @@ Rules:
 - Keep this file aligned with root `scripts/*.py` when adding or removing root
   script entrypoints.
 
+Executable guard:
+- `tests/test_script_index_alignment_guard.py` pins the alignment boundary
+  among this file, `docs/GOLDEN_PATH.md`, `REMAINING_TASKS.md`, and the
+  Makefile `script-index` target. Update that guard in the same change when a
+  command is promoted into the daily operator path, moved out of it, or given a
+  new Makefile wrapper.
+
 ## Canonical Operator
 
 These are the safe daily/operator-facing commands for the current paper evidence
@@ -216,6 +223,19 @@ decision makes them authoritative.
   backfills the local market OHLCV archive from public exchange OHLCV and
   writes a dataset-hashed JSON summary; it does not affect campaigns, gates,
   or trading. Use `make ohlcv-archive-backfill`.
+- `research/run_archive_walk_forward.py` — research-only archive-backed
+  anchored walk-forward runner for one strategy config; writes a dataset-hashed
+  JSON artifact, does not sweep or rank parameters, and does not create
+  promotion evidence. Use `make archive-walk-forward`.
+- `research/run_archive_parameter_sweep.py` — research-only archive-backed
+  parameter sweep over an explicit grid; ranks descriptive walk-forward
+  artifacts only and does not promote, mutate, or select strategy configs. Use
+  `make archive-parameter-sweep`.
+- `research/run_archive_parameter_sweep_triage.py` — read-only triage report
+  over an existing `archive_backed_parameter_sweep_v1` JSON artifact; ranks
+  sweep variants for manual review only and does not rerun backtests, change
+  strategy config, start campaigns, or produce promotion evidence. Use
+  `make archive-parameter-sweep-triage`.
 - `research/run_funding_context_price_join.py` — read-only
   `funding_extreme` forward-return report joining stored funding snapshots to
   archived OHLCV rows; computes unit-size modeled forward returns only and
@@ -227,6 +247,24 @@ decision makes them authoritative.
   action counts and unit-size modeled forward returns for explicit threshold
   grids, does not change strategy config, fetch data, start campaigns, or
   produce promotion evidence. Use `make funding-threshold-sensitivity`.
+- `research/run_funding_threshold_window_stability.py` — read-only
+  funding-threshold window-stability report over an existing
+  funding-context price-join JSON artifact; compares threshold-pair behavior
+  across fixed row windows and does not change strategy config, campaigns,
+  gates, execution, or promotion evidence. Use
+  `make funding-threshold-window-stability`.
+- `research/run_funding_threshold_candidate_triage.py` — read-only
+  funding-threshold candidate triage report over an existing
+  `funding_threshold_sensitivity_v1` JSON artifact; ranks threshold pairs for
+  manual review only and does not change strategy config, campaigns, gates,
+  execution, or promotion evidence. Use
+  `make funding-threshold-candidate-triage`.
+- `research/run_funding_threshold_stability_triage.py` — read-only
+  stability-aware funding-threshold triage report over an existing
+  `funding_threshold_window_stability_v1` JSON artifact; ranks threshold pairs
+  for manual review only and does not change strategy config, campaigns, gates,
+  execution, or promotion evidence. Use
+  `make funding-threshold-stability-triage`.
 - `research/run_crypto_edge_strategy_readiness.py` — read-only crypto-edge
   strategy readiness matrix over current source-tree wiring; classifies
   `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` as
@@ -239,23 +277,32 @@ decision makes them authoritative.
   rows. It writes explicit artifacts under `--output-dir` and does not fetch
   live data, change strategy configs, start campaigns, or create promotion
   evidence. Use `make crypto-edge-research-pipeline`.
-- `research/run_price_action_context_labels.py` — research-only OHLCV
-  price-action context label artifact builder over the market archive;
-  emits fair-value gap, engulfing, swing-failure, break/retest,
-  rejection-wick, displacement, manipulation-candidate, and opening-range
-  labels with dataset/artifact hashes. It does not change strategy configs,
-  campaigns, gates, or live execution. Use `make price-action-context-labels`.
-- `research/run_price_action_forward_return_join.py` — research-only consumer
-  of a saved price-action label artifact; computes label-conditioned long and
-  short forward returns after explicit fee/slippage assumptions and compares
-  them to the unconditioned baseline. It does not select strategies, change
-  configs, start campaigns, or create promotion evidence. Use
+- `research/run_price_action_context_labels.py` — read-only OHLCV
+  price-action context label artifact over the existing market archive;
+  labels fair-value gaps, engulfing candles, swing failures, break/retest,
+  rejection wicks, displacement bars, opening-range state, and
+  acceptance/rejection context without changing strategy config, campaigns,
+  gates, or promotion evidence. Use `make price-action-context-labels`.
+- `research/run_price_action_forward_returns.py` — read-only
+  label-conditioned forward-return report over archived OHLCV; computes
+  unit-size long/short modeled returns after explicit fee/slippage assumptions
+  for price-action label buckets and does not change strategy config,
+  campaigns, gates, execution, or promotion evidence. Use
   `make price-action-forward-returns`.
+- `research/run_price_action_window_stability.py` — read-only multi-window
+  price-action stability report over archived OHLCV; compares label-conditioned
+  forward returns against unconditioned baselines across windows and does not
+  change strategy config, campaigns, gates, execution, or promotion evidence.
+  Use `make price-action-window-stability`.
 - `research/run_price_action_stability_report.py` — research-only consumer of
   a saved price-action forward-return artifact; splits rows into chronological
   windows and reports whether label-conditioned deltas persist across windows.
   It does not select strategies, authorize filters, change configs, start
   campaigns, or create promotion evidence. Use `make price-action-stability`.
+- `research/run_price_action_candidate_triage.py` — read-only price-action
+  candidate triage report over archived OHLCV; ranks label/side pairs for
+  manual review only and does not change strategy config, campaigns, gates,
+  execution, or promotion evidence. Use `make price-action-candidate-triage`.
 - `research/run_price_action_research_pipeline.py` — research-only orchestration
   wrapper that runs archive labels, forward-return join, and window stability
   together, writing all artifacts under an explicit output directory. It does

@@ -1,31 +1,37 @@
 from __future__ import annotations
-import logging
-import sqlite3
-from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_intent_consumer
+
 import asyncio
 import json
+import logging
 import math
 import os
+import sqlite3
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from services.admin.config_editor import ConfigLoadError
-from services.config_loader import ConfigLoadError as RuntimeConfigLoadError, load_runtime_trading_config
-from services.markets.math_utils import decimal_product, decimal_value
-from services.os.app_paths import runtime_dir, ensure_dirs
-from services.risk.market_quality_guard import check as mq_check
-from services.market_data.symbol_router import normalize_venue, normalize_symbol
-from services.execution.live_arming import is_live_sandbox, live_enabled_and_armed, live_risk_cfg
-from services.execution.intent_ttl import check_intent_age
+from services.config_loader import ConfigLoadError as RuntimeConfigLoadError
+from services.config_loader import load_runtime_trading_config
+from services.control.managed_component import clean_stale_lock_file
 from services.execution.clock_sanity import check_venue_clock
-from services.process.heartbeat import write_named_heartbeat
+from services.execution.intent_ttl import check_intent_age
+from services.execution.live_arming import is_live_sandbox, live_enabled_and_armed, live_risk_cfg
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
+from services.execution.state_authority import (
+    LiveStateContext,
+    update_live_queue_status_as_intent_consumer,
+)
 from services.live_router.router import decide_order
+from services.market_data.symbol_router import normalize_symbol, normalize_venue
+from services.markets.math_utils import decimal_product, decimal_value
+from services.os.app_paths import ensure_dirs, runtime_dir
+from services.os.file_utils import atomic_write
+from services.process.heartbeat import write_named_heartbeat
+from services.risk.market_quality_guard import check as mq_check
+from services.risk.staleness_guard import is_snapshot_fresh
 from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
 from storage.live_trading_sqlite import LiveTradingSQLite
 from storage.order_dedupe_store_sqlite import OrderDedupeStore
-from services.risk.staleness_guard import is_snapshot_fresh
-from services.os.file_utils import atomic_write
-from services.control.managed_component import clean_stale_lock_file
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
@@ -35,7 +41,7 @@ STATUS_FILE = FLAGS / "live_intent_consumer.status.json"
 _LOG = logging.getLogger(__name__)
 
 def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 def _write_status(obj: dict) -> None:
     FLAGS.mkdir(parents=True, exist_ok=True)
@@ -56,12 +62,12 @@ def _acquire_lock() -> bool:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
             fh.write(payload)
-    except Exception:
+    except OSError:
         try:
             if LOCK_FILE.exists():
                 LOCK_FILE.unlink()
-        except Exception:
-            pass
+        except OSError as exc:
+            _LOG.debug("live_intent_consumer.lock_cleanup_failed err=%s:%s", type(exc).__name__, exc)
         raise
     return True
 
@@ -69,8 +75,8 @@ def _release_lock() -> None:
     try:
         if LOCK_FILE.exists():
             LOCK_FILE.unlink()
-    except Exception as _err:
-        pass  # suppressed: live_intent_consumer.py
+    except OSError as exc:
+        _LOG.debug("live_intent_consumer.lock_release_failed err=%s:%s", type(exc).__name__, exc)
 
 def request_stop() -> dict:
     ensure_dirs()
@@ -79,7 +85,7 @@ def request_stop() -> dict:
     return {"ok": True, "stop_file": str(STOP_FILE)}
 
 def _risk_reset_if_needed(db: LiveIntentQueueSQLite) -> None:
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
     cur = db.get_state("risk:day") or ""
     if cur != today:
         db.reset_risk_state_for_day(today)
@@ -128,7 +134,7 @@ def _submitting_stale_recovery_ms() -> float:
         return SUBMITTING_STALE_RECOVERY_MS_DEFAULT
     try:
         value = float(raw)
-    except Exception as _err:
+    except (TypeError, ValueError, OverflowError):
         return SUBMITTING_STALE_RECOVERY_MS_DEFAULT
     if not math.isfinite(value) or value <= 0.0:
         return SUBMITTING_STALE_RECOVERY_MS_DEFAULT
@@ -154,11 +160,11 @@ def _recover_stale_submitting(qdb: LiveIntentQueueSQLite, ldb: LiveTradingSQLite
     read-then-classify and cannot double-submit).
     """
     stale_ms = _submitting_stale_recovery_ms()
-    now_epoch = datetime.now(timezone.utc).timestamp()
+    now_epoch = datetime.now(UTC).timestamp()
     out = {"scanned": 0, "recovered_submitted": 0, "moved_submit_unknown": 0, "left_untouched": 0}
     try:
         rows = qdb.list_intents(limit=200, status="submitting")
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - startup recovery must fail closed on store errors
         _LOG.error("stale_submitting_recovery.list_failed err=%s:%s", type(exc).__name__, exc)
         return out
     aged = []
@@ -190,7 +196,7 @@ def _recover_stale_submitting(qdb: LiveIntentQueueSQLite, ldb: LiveTradingSQLite
                     ad = LiveExchangeAdapter(venue, sandbox=sandbox)
                     adapters[venue] = ad
                 found = ad.find_order_by_client_oid(symbol, client_order_id)
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001 - venue lookup ambiguity is handled by leaving intent untouched
                 _LOG.warning(
                     "stale_submitting_recovery.lookup_failed intent_id=%s err=%s:%s — leaving untouched",
                     it.get("intent_id"), type(exc).__name__, exc,
@@ -240,8 +246,8 @@ def _recover_stale_submitting(qdb: LiveIntentQueueSQLite, ldb: LiveTradingSQLite
         for ad in adapters.values():
             try:
                 ad.close()
-            except Exception:
-                pass
+            except Exception as exc:  # noqa: BLE001 - adapter close is best-effort cleanup
+                _LOG.debug("stale_submitting_recovery.adapter_close_failed err=%s:%s", type(exc).__name__, exc)
     return out
 
 
@@ -257,8 +263,8 @@ def run_forever() -> None:
     try:
         if STOP_FILE.exists():
             STOP_FILE.unlink()
-    except Exception as _err:
-        pass  # suppressed: live_intent_consumer.py
+    except OSError as exc:
+        _LOG.debug("live_intent_consumer.stop_file_cleanup_failed err=%s:%s", type(exc).__name__, exc)
     if not _acquire_lock():
         _write_status({"ok": False, "reason": "lock_exists", "lock_file": str(LOCK_FILE), "ts": _now()})
         return
@@ -324,7 +330,7 @@ def run_forever() -> None:
                 symbol = normalize_symbol(it["symbol"])
                 try:
                     mq = mq_check(venue, symbol)
-                except Exception as exc:
+                except Exception as exc:  # noqa: BLE001 - guard errors fail closed as rejected intents
                     _LOG.error(
                         "live_intent_consumer.market_quality_guard_error intent_id=%s symbol=%s err=%s:%s",
                         it.get("intent_id"), symbol, type(exc).__name__, exc,
@@ -345,7 +351,7 @@ def run_forever() -> None:
                         if not escalated:
                             _LOG.error("live_intent_consumer.mq_submit_unknown_write_failed intent_id=%s reason=%s", it.get("intent_id"), mq_reason)
                     continue
-                clock = check_venue_clock(venue, lambda v=venue: LiveExchangeAdapter(v, sandbox=sandbox))
+                clock = check_venue_clock(venue, lambda v=venue, sb=sandbox: LiveExchangeAdapter(v, sandbox=sb))
                 if not clock.get("ok"):
                     clock_reason = f"clock_skew_blocked:{clock.get('reason', 'unknown')}"
                     _write_status({"ok": True, "status": "running", "ts": _now(), "note": "clock_skew_blocked", "blocked": {k: clock.get(k) for k in ("venue", "skew_ms", "rtt_ms", "threshold_ms", "reason")}, "intent": it.get("intent_id")})
@@ -439,7 +445,7 @@ def run_forever() -> None:
                     recovered = None
                     try:
                         recovered = ad.find_order_by_client_oid(symbol, client_order_id)
-                    except Exception:
+                    except Exception:  # noqa: BLE001 - pre-submit lookup failure falls through to submit attempt
                         recovered = None
 
                     if recovered:
@@ -528,11 +534,11 @@ def run_forever() -> None:
                         "last_error": None,
                     })
                     submitted += 1
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 - submit ambiguity must be recorded as submit_unknown
                     recovered = None
                     try:
                         recovered = ad.find_order_by_client_oid(symbol, client_order_id) if ad else None
-                    except Exception:
+                    except Exception:  # noqa: BLE001 - recovery lookup failure keeps submit_unknown path
                         recovered = None
 
                     if recovered:

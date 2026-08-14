@@ -118,8 +118,8 @@ def test_qualification_expectancy_is_per_closed_trade():
 # ---------------------------------------------------------------------------
 # FORK 2: the fee/slippage surface census.
 #
-# Five fee surfaces were traced (2026-07-12). This test pins the census so a new
-# surface (or a change to an existing default) cannot appear unnoticed.
+# Fee surfaces are explicitly censused. This test pins the census so a new
+# surface, including research-only reporting, cannot appear unnoticed.
 # ---------------------------------------------------------------------------
 
 _FEE_SURFACES = {
@@ -133,6 +133,8 @@ _FEE_SURFACES = {
     "services/analytics/price_action_forward_return_join.py": (10.0, 5.0, "research-only price-action label forward-return report"),
     "services/analytics/price_action_research_pipeline.py": (10.0, 5.0, "research-only price-action pipeline cost passthrough"),
     "services/analytics/crypto_edge_research_pipeline.py": (10.0, 5.0, "research-only crypto-edge pipeline cost passthrough"),
+    "services/analytics/price_action_forward_returns.py": (10.0, 5.0, "research-only price-action forward-return report"),
+    "services/analytics/price_action_window_stability.py": (10.0, 5.0, "research-only price-action window-stability report"),
 }
 
 

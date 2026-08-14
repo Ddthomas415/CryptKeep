@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 from services.execution import state_authority
 from services.execution.state_authority import LiveStateContext
 from storage.intent_queue_sqlite import IntentQueueSQLite
 
 
-def hold_intent(intent_id: str, *, reason: str = "manual_hold") -> Dict[str, Any]:
+def hold_intent(intent_id: str, *, reason: str = "manual_hold") -> dict[str, Any]:
     db = IntentQueueSQLite()
     row = db.get_intent(str(intent_id))
     if not row:
@@ -17,7 +17,7 @@ def hold_intent(intent_id: str, *, reason: str = "manual_hold") -> Dict[str, Any
     return {"ok": True, "intent_id": str(intent_id), "status": "held", "reason": str(reason)}
 
 
-def release_intent(intent_id: str) -> Dict[str, Any]:
+def release_intent(intent_id: str) -> dict[str, Any]:
     db = IntentQueueSQLite()
     row = db.get_intent(str(intent_id))
     if not row:
@@ -27,5 +27,5 @@ def release_intent(intent_id: str) -> Dict[str, Any]:
     return {"ok": True, "intent_id": str(intent_id), "status": "queued"}
 
 
-def list_held(*, limit: int = 200) -> List[Dict[str, Any]]:
+def list_held(*, limit: int = 200) -> list[dict[str, Any]]:
     return IntentQueueSQLite().list_intents(limit=int(limit), status="held")

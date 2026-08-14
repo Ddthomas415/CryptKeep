@@ -157,3 +157,10 @@ Recommended next action:
   research report, then verify narrowly.
 - If advancing production readiness: run the operator proofs instead of opening
   another code batch.
+
+## Executable Guard
+
+`tests/test_backlog_execution_lanes_guard.py` pins the lane definitions,
+same-lane batching rule, high-risk no-same-thread-closure rule, operator-
+evidence bottleneck, and current safe batching order. The guard is documentation
+only; it does not decide any backlog item or authorize implementation.
