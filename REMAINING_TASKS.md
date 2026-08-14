@@ -1734,6 +1734,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    with effective access to the `cbp` state data, verify the manifest, restore
    into scratch state, run the backup-artifact secret scan, and then record the
    checkpoint.
+   2026-08-14: backup tooling follow-up is ready for review. `create_backup()`
+   now converts SQLite snapshot and file-copy exceptions into structured JSON
+   failures (`snapshot_failed:<rel>:<Exception>` /
+   `copy_failed:<rel>:<Exception>`) instead of letting tracebacks escape before
+   operator-event recording. This does not execute or close the host drill; it
+   makes the next host attempt machine-readable when a source file cannot be
+   snapshotted or copied.
    2026-07-22: executable full-state restore-drill contract guard is ready for
    review. `tests/test_full_state_restore_drill_contract.py` pins that
    `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` does not claim an executed host
