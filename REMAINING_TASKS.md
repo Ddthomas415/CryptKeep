@@ -1625,6 +1625,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    (`cbp-collector`, `cbp-dashboard`, `cbp-dead-man`, `cbp-intent-consumer`,
    `cbp-reconciler`) were not observed as loaded/running. This is partial
    evidence only; the deployment installation proof remains open.
+   2026-08-14: Hetzner systemd installer dry run is recorded in
+   `docs/checkpoints/host_systemd_dry_run_2026_08_14.md`. The host checkout
+   rendered and statically verified `cbp-collector`, `cbp-crypto-edge-collector`,
+   `cbp-intent-consumer`, `cbp-reconciler`, `cbp-dashboard`, `cbp-dead-man`,
+   `cbp-edge-cadence`, and both timers. No units were installed or restarted;
+   installation/post-install evidence remains open.
 6. Add trading-loop metrics and dead-man alerting. Host health checks are not
    enough; each managed trading loop needs heartbeat metrics and alert-on-absence
    within a defined time window. Include a watchdog proof that each loop checks
