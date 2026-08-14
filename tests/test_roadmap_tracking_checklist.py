@@ -54,6 +54,7 @@ def test_roadmap_checklist_preserves_active_tracking_commands() -> None:
         "make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20",
         "make backlog-lane-status-json",
         "make research-pipeline-status-json",
+        "make research-artifact-inventory-json",
         "make research-command-status-json",
     ):
         assert command in text

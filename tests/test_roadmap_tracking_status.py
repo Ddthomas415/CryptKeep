@@ -45,6 +45,7 @@ def _write_minimal_repo(root: Path, *, omit_command: str = "", omit_doc_link: st
         "make check-cost-assumptions-json",
         "make check-edge-cadence-json",
         "make research-pipeline-status-json",
+        "make research-artifact-inventory-json",
         "make research-command-status-json",
     )
     doc_lines = [
@@ -75,7 +76,7 @@ def test_roadmap_tracking_status_reports_real_repo_ok() -> None:
     assert out["does_not_fetch_market_data"] is True
     assert out["does_not_mutate_state"] is True
     assert out["summary"]["source_doc_count"] == 12
-    assert out["summary"]["command_count"] == 12
+    assert out["summary"]["command_count"] == 13
     assert out["summary"]["commands_listed"] == out["summary"]["command_count"]
     assert out["summary"]["boundaries_present"] == out["summary"]["boundary_count"]
 

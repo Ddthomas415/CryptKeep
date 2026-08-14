@@ -34582,3 +34582,57 @@ Remaining risk:
   paper/shadow/live execution, order routing, authorization, GitHub auth, host
   mutation, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-14T04:52:15Z - Roadmap Research Artifact Command Discoverability
+
+Active role: ENGINEER
+
+Objective:
+- Keep the operator-facing roadmap aligned with the accepted read-only research
+  command surface after `research-artifact-inventory-json` was confirmed as
+  the actual artifact inventory target.
+
+What was found:
+- SHOWN: `make research-artifact-status-json` is not a Makefile target.
+- SHOWN: the correct target is `make research-artifact-inventory-json`, and it
+  is already registered in the research command/status surface.
+- SHOWN: `docs/ROADMAP_TRACKING_CHECKLIST.md` listed pipeline and command
+  status checks but did not list the artifact inventory command in the active
+  checklist or fast commands.
+
+What changed:
+- Added `make research-artifact-inventory-json` to the roadmap active tracking
+  checklist and fast-command block.
+- Added the command to `services.analytics.roadmap_tracking_status` required
+  command checks, increasing the guarded command count from 12 to 13.
+- Updated roadmap checklist/status tests so the command cannot silently fall
+  out of the operator-facing roadmap again.
+
+Why this change was chosen:
+- This is the smallest low-risk docs/reporting fix for a real discoverability
+  gap encountered during operator-action selection. It does not run research,
+  fetch market data, mutate state, or change strategy/gate/runtime behavior.
+
+Expected outcome:
+- Operators can find the accepted artifact inventory command from the top-level
+  roadmap, and `make roadmap-tracking-status-json` now fails if that command is
+  removed from the checklist or Makefile.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_research_artifact_inventory.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `68 passed in 1.96s`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: exit 0; `ok=true`, `command_count=13`,
+    `commands_listed=13`, `make_targets_present=13`.
+- `make research-artifact-inventory-json`
+  - SHOWN: exit 0; `ok=true`, `artifact_count=14`, `missing=0`,
+    `action_required=0`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: roadmap/status docs and read-only planning checks only. No campaigns,
+  market-data fetches, symbol universe, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, authorization, broker support,
+  GitHub auth, host mutation, or runtime policy changed.
+- Acceptance state: `ACCEPTED`.
