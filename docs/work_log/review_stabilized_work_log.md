@@ -34756,3 +34756,98 @@ Remaining risk:
   includes the platform-event check scripts or the proof scope is explicitly
   limited to operator events.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-14T05:15:31Z - Paper Gate Velocity Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Record a current read-only velocity checkpoint for the canonical
+  `es_daily_trend_v1` paper promotion gate after the runtime checkpoint merged.
+
+What was found:
+- SHOWN: `make record-paper-gate-velocity` completed successfully and wrote
+  `.cbp_state/data/paper_gate_velocity/paper_gate_velocity.20260814T051531Z.json`.
+- SHOWN: the paper gate is at `3/5` qualified round trips and `53/60`
+  qualified bars under policy `slow_daily_single_symbol_v1`.
+- SHOWN: the active projected blocker is round trips, with `2` remaining and
+  estimated completion at `2026-09-04T05:15:31.343677+00:00`.
+- SHOWN: `7` legacy/all-history round trips remain diagnostic only because
+  they do not satisfy the current provenance/cohort contract.
+
+What changed:
+- Added `docs/checkpoints/paper_gate_velocity_2026_08_14.md` with the command,
+  artifact paths, threshold position, velocity estimate, and explicit
+  boundaries.
+
+Why this change was chosen:
+- The user asked to keep moving on priority tasks. This records the current
+  paper-gate bottleneck as durable evidence without changing campaign behavior,
+  weakening provenance, changing promotion policy, or touching live/shadow
+  surfaces.
+
+Expected outcome:
+- Future status reviews can see the current ES gate projection and the exact
+  reason promotion is still blocked: two more provenance-qualified round trips,
+  not missing calendar days.
+
+Verification:
+- `make record-paper-gate-velocity`
+  - SHOWN: command completed with `ok=true`, `3/5` qualified round trips,
+    `53/60` qualified bars, and overall blocker `round_trips`.
+
+Remaining risk:
+- This is docs/evidence recording only. It does not close the paper gate or
+  modify the validation policy.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-08-14T05:18:00Z - Host Proof Inventory Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Record a read-only host inventory for open deployment, live-intent schema,
+  and backup/restore proof rows without changing host state.
+
+What was found:
+- SHOWN: Hetzner checkout is `5eb36cbb5`.
+- SHOWN: `cbp-crypto-edge-collector.service` is loaded and active/running, and
+  `cbp-edge-cadence.timer` is loaded and active/waiting.
+- SHOWN: the broader core systemd units were not observed as loaded/running in
+  `systemctl list-units "cbp-*"`.
+- SHOWN: `scripts/check_live_intent_history_schema.py --json` reported
+  `ok=false`, `status=schema_uninitialized`, and
+  `reason=live_intent_queue_db_missing` for
+  `/var/lib/cbp/data/live_intent_queue.sqlite`.
+- SHOWN: `scripts/backup_state.py --help` is available on the host and exposes
+  `backup`, `verify`, and `restore`.
+
+What changed:
+- Added `docs/checkpoints/host_proof_inventory_2026_08_14.md`.
+- Updated `REMAINING_TASKS.md` under the deployment and live-intent history
+  proof rows to link the checkpoint and preserve that these proofs remain open.
+
+Why this change was chosen:
+- The operator queue still contains host-side proof rows. A read-only inventory
+  turns current host state into durable evidence without installing units,
+  initializing schemas, running restore, restarting services, or touching
+  campaigns.
+
+Expected outcome:
+- Future proof review can distinguish what is already present on the host
+  (crypto-edge unit/cadence and backup tooling) from what remains open (core
+  deployment proof, live schema initialization proof, and backup/restore drill).
+
+Verification:
+- `tailscale ssh cryptkeep@100.86.128.9 'systemctl list-units --type=service --type=timer --all --no-pager --plain "cbp-*"'`
+  - SHOWN: three loaded cbp units: crypto-edge collector service, edge cadence
+    service, and edge cadence timer.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_live_intent_history_schema.py --json'`
+  - SHOWN: `ok=false`, `reason=live_intent_queue_db_missing`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/backup_state.py --help'`
+  - SHOWN: backup tooling is present.
+
+Remaining risk:
+- This is docs/evidence recording only. It does not close deployment, schema,
+  or restore-drill proof rows by itself.
+- Acceptance state: `ACCEPTED`.

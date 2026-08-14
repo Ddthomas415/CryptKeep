@@ -128,6 +128,14 @@ deployment work still needs independent review.
    provenance-qualified round-trip close timestamps, refuses projections with
    fewer than two closes, surfaces legacy/all-history exclusions as diagnostic
    only, and leaves gate policy/evidence unchanged.
+   2026-08-14: current paper-gate velocity checkpoint is recorded in
+   `docs/checkpoints/paper_gate_velocity_2026_08_14.md`. `make
+   record-paper-gate-velocity` wrote
+   `.cbp_state/data/paper_gate_velocity/paper_gate_velocity.20260814T051531Z.json`
+   with `3/5` qualified round trips, `53/60` qualified bars, round trips as
+   the active blocker, and projected completion on `2026-09-04T05:15:31Z`.
+   This is evidence recording only and does not change policy, provenance, or
+   campaign behavior.
    2026-07-18: guarded paper campaign restore is ready for independent review.
    `restore_paper_campaigns.py --restore --preflight-ohlcv` uses the existing
    public-OHLCV preflight before starting a dead collector, reports
@@ -1610,6 +1618,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    per-unit enable policy, and keeps the intent-consumer enable decision as an
    operator action. Docker-compose disposition and host-side installation
    remain open.
+   2026-08-14: read-only Hetzner inventory is recorded in
+   `docs/checkpoints/host_proof_inventory_2026_08_14.md`. Hetzner checkout
+   `5eb36cbb5` has `cbp-crypto-edge-collector.service` active and
+   `cbp-edge-cadence.timer` active, but the broader core units
+   (`cbp-collector`, `cbp-dashboard`, `cbp-dead-man`, `cbp-intent-consumer`,
+   `cbp-reconciler`) were not observed as loaded/running. This is partial
+   evidence only; the deployment installation proof remains open.
 6. Add trading-loop metrics and dead-man alerting. Host health checks are not
    enough; each managed trading loop needs heartbeat metrics and alert-on-absence
    within a defined time window. Include a watchdog proof that each loop checks
@@ -1697,6 +1712,10 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    families outside `data_dir()`, the secrets scan, and
    resume/idempotence proofs stay drill-time operator steps by design.
    Remaining: execute the drill on the host and file the evidence.
+   2026-08-14: Hetzner inventory confirms `scripts/backup_state.py` is
+   present on the Hetzner checkout and exposes `backup`, `verify`, and
+   `restore` subcommands. No backup or restore was executed; the drill remains
+   open.
    2026-07-22: executable full-state restore-drill contract guard is ready for
    review. `tests/test_full_state_restore_drill_contract.py` pins that
    `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` does not claim an executed host
@@ -2166,6 +2185,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     targets: `make live-intent-history-schema` and
     `make live-intent-history-schema-init`. This does not close host proof by
     itself; run it on the operator host and preserve the JSON evidence.
+    2026-08-14: read-only Hetzner schema check is recorded in
+    `docs/checkpoints/host_proof_inventory_2026_08_14.md`. Hetzner reported
+    `ok=false`, `status=schema_uninitialized`, and
+    `reason=live_intent_queue_db_missing` for
+    `/var/lib/cbp/data/live_intent_queue.sqlite`. This is consistent with
+    paper-only operation and does not initialize or close the live-intent
+    history schema evidence.
     2026-07-17: paper-campaign manifest change audit slice is ready for
     independent review. `scripts/update_paper_campaign_manifest.py` provides a
     governed CLI path for schema-v1 paper-campaign manifest enable/disable
