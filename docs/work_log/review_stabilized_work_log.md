@@ -34756,3 +34756,47 @@ Remaining risk:
   includes the platform-event check scripts or the proof scope is explicitly
   limited to operator events.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-14T05:15:31Z - Paper Gate Velocity Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Record a current read-only velocity checkpoint for the canonical
+  `es_daily_trend_v1` paper promotion gate after the runtime checkpoint merged.
+
+What was found:
+- SHOWN: `make record-paper-gate-velocity` completed successfully and wrote
+  `.cbp_state/data/paper_gate_velocity/paper_gate_velocity.20260814T051531Z.json`.
+- SHOWN: the paper gate is at `3/5` qualified round trips and `53/60`
+  qualified bars under policy `slow_daily_single_symbol_v1`.
+- SHOWN: the active projected blocker is round trips, with `2` remaining and
+  estimated completion at `2026-09-04T05:15:31.343677+00:00`.
+- SHOWN: `7` legacy/all-history round trips remain diagnostic only because
+  they do not satisfy the current provenance/cohort contract.
+
+What changed:
+- Added `docs/checkpoints/paper_gate_velocity_2026_08_14.md` with the command,
+  artifact paths, threshold position, velocity estimate, and explicit
+  boundaries.
+
+Why this change was chosen:
+- The user asked to keep moving on priority tasks. This records the current
+  paper-gate bottleneck as durable evidence without changing campaign behavior,
+  weakening provenance, changing promotion policy, or touching live/shadow
+  surfaces.
+
+Expected outcome:
+- Future status reviews can see the current ES gate projection and the exact
+  reason promotion is still blocked: two more provenance-qualified round trips,
+  not missing calendar days.
+
+Verification:
+- `make record-paper-gate-velocity`
+  - SHOWN: command completed with `ok=true`, `3/5` qualified round trips,
+    `53/60` qualified bars, and overall blocker `round_trips`.
+
+Remaining risk:
+- This is docs/evidence recording only. It does not close the paper gate or
+  modify the validation policy.
+- Acceptance state: `ACCEPTED`.

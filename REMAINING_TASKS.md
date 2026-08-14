@@ -128,6 +128,14 @@ deployment work still needs independent review.
    provenance-qualified round-trip close timestamps, refuses projections with
    fewer than two closes, surfaces legacy/all-history exclusions as diagnostic
    only, and leaves gate policy/evidence unchanged.
+   2026-08-14: current paper-gate velocity checkpoint is recorded in
+   `docs/checkpoints/paper_gate_velocity_2026_08_14.md`. `make
+   record-paper-gate-velocity` wrote
+   `.cbp_state/data/paper_gate_velocity/paper_gate_velocity.20260814T051531Z.json`
+   with `3/5` qualified round trips, `53/60` qualified bars, round trips as
+   the active blocker, and projected completion on `2026-09-04T05:15:31Z`.
+   This is evidence recording only and does not change policy, provenance, or
+   campaign behavior.
    2026-07-18: guarded paper campaign restore is ready for independent review.
    `restore_paper_campaigns.py --restore --preflight-ohlcv` uses the existing
    public-OHLCV preflight before starting a dead collector, reports
