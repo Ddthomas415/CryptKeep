@@ -32582,6 +32582,429 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-14T00:04:37Z - Hetzner Canonical Migration Next-Action Guard
+
+Active role: ENGINEER
+
+Objective:
+- Prevent operator check-ins from surfacing the Hetzner canonical `.cbp_state`
+  migration checkpoint before the migration runbook prerequisites are recorded.
+
+What was found:
+- The passive operator item for Hetzner canonical `.cbp_state` migration went
+  directly through the generic runbook-checkpoint guidance path.
+- That made `make operator-next-actions-json` propose
+  `make record-hetzner-state-migration-checkpoint ...` even when the required
+  reviewed canonical campaign manifest, maintenance window, laptop-stop,
+  manifest verification, gate-output comparison, and single-owner proof were
+  absent.
+
+What changed:
+- Added a dedicated status wrapper for the Hetzner canonical migration passive
+  item.
+- A recorded accepted/completed migration checkpoint remains satisfying
+  evidence.
+- Without that checkpoint, the item now reports
+  `waiting_for_canonical_migration_preconditions`, `action_required=false`, and
+  `next_action=none`.
+- Extended operator-proof-status tests for both the waiting branch and the
+  recorded-checkpoint branch.
+
+Why this change was chosen:
+- Canonical state migration is a high-risk operator runbook. The local status
+  view should not ask the operator to record completion before the precondition
+  evidence exists.
+- The diff stays status/test/docs only and does not mutate runtime state,
+  campaign ownership, host state, promotion gates, or execution logic.
+
+Expected outcome:
+- Operator next-actions stop listing the Hetzner canonical migration as an
+  immediate passive action while the current accepted Hetzner proof only covers
+  runtime health and edge cadence, not canonical `es_daily_trend_v1` ownership
+  migration.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `99 passed in 1.70s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: exit 0; `action_count_total=25`,
+    `passive_operator_evidence_actions_required=1`, and the returned top
+    passive action is server secrets rotation, not Hetzner canonical migration.
+
+Remaining risk:
+- LOW: status, tests, and work log only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, GitHub auth,
+  host mutation, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-14T00:09:12Z - Supply-Chain Audit Status Visibility
+
+Active role: ENGINEER
+
+Objective:
+- Make the operator proof-status report show whether supply-chain vulnerability
+  audit evidence actually ran and whether it found vulnerable packages.
+
+What was found:
+- `scripts/check_supply_chain.py --audit` was not usable until `pip-audit` was
+  installed in the local venv.
+- After installing the tool locally, the repo audit ran and wrote
+  `.cbp_state/data/supply_chain/supply-chain-evidence-20260814T000731Z.json`.
+- The evidence reports pin integrity and installed pinned environment as OK,
+  but vulnerability audit found `vulnerable_count=10`.
+- The passive supply-chain row showed the evidence artifact as recorded but did
+  not expose `vulnerability_audit_ran`, `vulnerable_count`, or whether the
+  audit was clean.
+
+What changed:
+- Extended `services.analytics.operator_proof_status` supply-chain artifact
+  status with:
+  - `vulnerability_audit_ran`
+  - `vulnerability_audit_reason`
+  - `vulnerable_count`
+  - `vulnerability_audit_ok`
+- Added a regression test proving vulnerability findings remain visible in the
+  passive supply-chain status row.
+- Added a 2026-08-14 backlog note under the supply-chain item recording the
+  local audit artifact, the passing pin/environment checks, and the
+  `vulnerable_count=10` result so the remaining work is review/remediate or
+  explicitly waive findings for capped-live, not "run the audit" for this
+  local SHA.
+
+Why this change was chosen:
+- The passive item is about recording audit/waiver evidence, so the artifact
+  can be recorded even when findings exist.
+- The status report still needs to expose the difference between "audit did not
+  run", "audit ran clean", and "audit ran with findings" so capped-live
+  remediation or waiver decisions are not hidden by a generic recorded status.
+
+Expected outcome:
+- Operator check-ins show the supply-chain audit artifact and the vulnerable
+  package count without pretending remediation or waiver has happened.
+
+Verification:
+- `./.venv/bin/python scripts/check_supply_chain.py --json --audit --evidence-dest .cbp_state/data/supply_chain`
+  - SHOWN: exit 0; audit ran; `vulnerable_count=10`; evidence path
+    `.cbp_state/data/supply_chain/supply-chain-evidence-20260814T000731Z.json`.
+- `make operator-proof-status-json OPERATOR_PROOF_STATUS_PASSIVE_ORDINAL=15`
+  - SHOWN: exit 0; supply-chain passive row reports
+    `vulnerability_audit_ran=true`, `vulnerability_audit_ok=false`, and
+    `vulnerable_count=10`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `100 passed in 1.82s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: status, tests, and work log only. No requirements files, campaigns,
+  market-data fetches, symbol universe, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, authorization, broker support,
+  GitHub auth, host mutation, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-13T23:43:25Z - Promotion Host Marker Paper-Gate Wait Classification
+
+Active role: ENGINEER
+
+Objective:
+- Stop `operator-next-actions` from surfacing future promotion host-proof rows
+  as immediate operator actions while the paper gate is still below threshold.
+
+What was found:
+- Two `host-side` proof markers under the "After the paper gate reaches 10
+  qualified round trips" context were being treated as immediate actions:
+  the operator-host gate/status ground-truth line and the remaining
+  GitHub-CI/review plus host-output line.
+- The passive manual-strategy decision lane already models the correct state:
+  wait for the paper-gate threshold before requesting the host-side promotion
+  decision evidence.
+
+What changed:
+- `services/analytics/operator_proof_status.py` now routes host-side markers
+  in the manual-strategy/promotion-after-gate context through the existing
+  manual strategy decision artifact status.
+- Marker rows now let artifact status explicitly control `action_required` and
+  `next_action` when the artifact status includes an action decision.
+- Added a regression proving the future promotion host markers report
+  `waiting_for_paper_gate_threshold`, require no action, and have no next
+  action before the gate is ready.
+
+Why this change was chosen:
+- This is the smallest status-only fix: it reuses the already accepted
+  paper-gate waiting model instead of creating another special-case action lane
+  or changing the backlog text.
+
+Expected outcome:
+- Operator check-ins no longer tell the operator to produce promotion host
+  proof before the paper gate is ready.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `96 passed in 1.64s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: exit 0; `action_count_total=30`, with no future paper-gate
+    promotion host markers in the returned action list.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: status classification and tests only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-13T23:56:27Z - Clock/Venue-Time Host Proof Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Record current host/venue-time proof for the remaining clock-sanity
+  capped-live evidence row using the accepted read-only Hetzner path.
+
+What was found:
+- `REMAINING_TASKS.md` still listed host UTC/NTP status, venue server-time
+  query, observed skew, and operator-visible status output as remaining
+  clock/venue-time proof.
+
+What changed:
+- Added `docs/checkpoints/clock_venue_time_host_proof_2026_08_13.md` with the
+  read-only Hetzner command and measured results.
+- Updated the clock/venue-time backlog item to reference the recorded proof
+  instead of presenting that host proof as still missing.
+
+Why this change was chosen:
+- This records actual host evidence instead of leaving a stale proof marker in
+  the operator action list.
+
+Expected outcome:
+- Operator status no longer treats the clock/venue-time host proof as missing
+  for the checked Coinbase and OKX venues at the recorded timestamp.
+
+Verification:
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_clock_sanity.py --json coinbase okx'`
+  - SHOWN: exit 0.
+  - SHOWN: `host_utc=2026-08-13T23:56:27.797371+00:00`.
+  - SHOWN: `ntp_status=timedatectl: yes`.
+  - SHOWN: `threshold_ms=5000`.
+  - SHOWN: Coinbase `status=OK skew_ms=-409 rtt_ms=190`.
+  - SHOWN: OKX `status=OK skew_ms=42 rtt_ms=326`.
+
+Remaining risk:
+- LOW: docs/checkpoint/backlog status only. The proof is timestamped and should
+  be refreshed close to any future shadow/capped-live transition. No services
+  restarted and no runtime state changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-13T23:54:45Z - Paper-To-Shadow Rehearsal Prerequisite Action Gating
+
+Active role: ENGINEER
+
+Objective:
+- Stop `operator-next-actions` from presenting the paper-to-shadow first-hour
+  rehearsal as an immediate action before the paper gate and manual strategy
+  decision prerequisites are satisfied.
+
+What was found:
+- After gating `shadow_would_be_fill` records, the paper-to-shadow first-hour
+  rehearsal row still remained actionable even though the same runbook
+  preconditions apply.
+
+What changed:
+- The paper-to-shadow first-hour rehearsal passive row now checks for an
+  already recorded checkpoint first. If no checkpoint exists, it reuses the
+  manual strategy decision status and waits with `action_required=false` until
+  the paper gate is ready and the manual decision is recorded.
+- Added a regression proving the row becomes actionable only after the manual
+  strategy decision is recorded, while existing recorded checkpoints remain
+  satisfied.
+
+Why this change was chosen:
+- This preserves recorded evidence and removes premature operator prompts
+  without changing runbook content, campaigns, stage control, promotion gates,
+  or evidence writes.
+
+Expected outcome:
+- Operator check-ins no longer present any paper-to-shadow execution/rehearsal
+  action before the accepted paper gate and manual review prerequisites.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `99 passed in 2.27s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: exit 0; `action_count_total=28`, with both shadow prerequisite rows
+    removed from immediate actions.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: status classification and tests only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-13T23:52:46Z - Shadow Would-Be-Fill Prerequisite Action Gating
+
+Active role: ENGINEER
+
+Objective:
+- Stop `operator-next-actions` from presenting shadow would-be-fill collection
+  as an immediate action before the paper gate and manual strategy decision
+  prerequisites are satisfied.
+
+What was found:
+- The passive row for accepted `shadow_would_be_fill` records was the top
+  immediate action even though `docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md`
+  says the runbook must not start until the fresh paper gate is clear and the
+  manual strategy review is written and accepted.
+- A read-only shadow gate check showed `current_stage=paper`,
+  `evidence_scope.status=not_started`, zero shadow records, and the paper
+  history still at 3 qualified round trips.
+
+What changed:
+- `_shadow_would_be_fill_artifact_status()` now reuses the manual strategy
+  decision status. If the paper gate is not ready or the manual decision is not
+  recorded, the row reports `waiting_for_shadow_prerequisites`,
+  `action_required=false`, and `next_action=none`.
+- Once the manual strategy decision is satisfied and records are still missing,
+  the row becomes actionable again with the existing runbook next action.
+- Added regressions for waiting before gate/manual decision and prompting only
+  after the manual decision is recorded.
+
+Why this change was chosen:
+- This preserves the runbook boundary without changing stage control,
+  promotion gates, campaign behavior, or evidence writes.
+
+Expected outcome:
+- Operator check-ins no longer nudge shadow execution before the accepted paper
+  gate/manual-review prerequisites.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `98 passed in 1.96s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: exit 0; `action_count_total=29`, with
+    `shadow_would_be_fill_records` removed from immediate actions.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: status classification and tests only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, GitHub auth,
+  push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-13T23:24:00Z - Accepted Proof-Ready Marker Closure
+
+Active role: ENGINEER
+
+Objective:
+- Stop the operator next-action queue from repeatedly surfacing already
+  accepted proof-ready implementation clusters as open work.
+
+What was found:
+- SHOWN: `make operator-next-actions-json` reported 23
+  `proof_ready_implementation` actions even though the relevant Decimal and
+  fail-closed config slices are already implemented in code and accepted by the
+  operator for forward progress.
+- SHOWN: `services.analytics.operator_proof_status` already has marker status
+  states for open, satisfied, and context-only rows, but proof-ready rows only
+  closed when specific recorded-proof phrases were present.
+
+What changed:
+- `services/analytics/operator_proof_status.py` now treats proof-ready markers
+  inside a numbered backlog item as `satisfied_recorded` when that item context
+  explicitly records independent review/acceptance.
+- `REMAINING_TASKS.md` records dated acceptance notes for the already
+  implemented Decimal/finite-validation cluster and fail-closed config/daily
+  loss policy cluster, plus the venue-lookup-not-found terminal policy slice,
+  without changing the remaining substrate scope.
+- Added a regression proving accepted proof-ready clusters stop producing
+  operator actions while unrelated proof-ready rows remain open.
+
+Why this change was chosen:
+- It fixes tracking noise without rebuilding completed work or changing
+  trading behavior. The remaining queue should point to real proofs, host-side
+  runbooks, or newly discovered work rather than accepted implementation notes.
+
+Expected outcome:
+- `operator-next-actions` no longer pushes the operator back to accepted
+  proof-ready clusters and can be used to identify the next real action faster.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `95 passed in 1.71s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=proof_ready_implementation OPERATOR_NEXT_ACTIONS_MAX=50`
+  - SHOWN: `action_count_total=0`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=20`
+  - SHOWN: `action_count_total=32`; `proof_ready_implementation` is absent from
+    `summary.available_by_reason`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: status/reporting and backlog/work-log text only. No campaign,
+  market-data fetch, strategy config, promotion gate, paper/shadow/live
+  execution, order routing, GitHub auth, push/merge, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-13T23:38:00Z - Hetzner Runtime And Edge Cadence Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Record fresh read-only host evidence after Tailscale SSH re-auth unblocked
+  Hetzner status commands.
+
+What was found:
+- SHOWN: `make status-paper-hetzner` initially failed with
+  `tailscale_ssh_timeout:15s` and a Tailscale SSH browser-check URL.
+- SHOWN: direct `ssh` fallback reached `ssh_host_key_verification_failed`, so
+  it was not used as a silent bypass.
+- SHOWN: after Tailscale SSH re-auth, `make status-paper-hetzner` reported
+  Hetzner `ema_cross_default` `1/1` running, idle with
+  `reason=waiting_for_next_day`, `fills=11`, `closed=5`, `pnl=-2.8010`, and
+  latest fill `2026-08-13T00:16:11.041213+00:00`.
+- SHOWN: `make status-hetzner-edge-runtime` reported
+  `hetzner_crypto_edge_runtime_ready`, `ok=True`, `blocking_checks=0`,
+  remote branch `master`, and remote head `5eb36cbb5`.
+- SHOWN: host-side `check_edge_cadence.py --json` under
+  `CBP_STATE_DIR=/var/lib/cbp` reported `ok=true`, `missing=[]`, `stale=[]`,
+  and fresh OKX funding/open-interest/basis snapshots at
+  `2026-08-13T23:35:51+00:00`.
+
+What changed:
+- Added `docs/checkpoints/runtime_check_2026_08_13.md` with the command outputs
+  and boundaries.
+- Updated `REMAINING_TASKS.md` item 14 to point to the new read-only refresh.
+
+Why this change was chosen:
+- The host evidence is an operator-proof artifact. Recording it in docs keeps
+  the proof durable and prevents future status checks from relying on chat
+  history.
+
+Expected outcome:
+- Future backlog/status review can see that Hetzner paper and crypto-edge
+  cadence were healthy on 2026-08-13 without treating the refresh as promotion
+  or live-trading authorization.
+
+Verification:
+- `make status-paper-hetzner`
+  - SHOWN: `Campaigns: 1/1 running (all_running=True)`.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `status=hetzner_crypto_edge_runtime_ready`, `blocking_checks=0`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json'`
+  - SHOWN: `ok=true`, `missing=[]`, `stale=[]`.
+
+Remaining risk:
+- LOW: docs/checkpoint refresh only. No host files were modified; no services
+  were restarted; no campaign, strategy config, promotion gate, shadow/live
+  execution, order routing, GitHub auth, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-13T22:45:00Z - Paper Runner Component Venue Boundary Fix
 
 Active role: ENGINEER
