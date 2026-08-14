@@ -32582,6 +32582,62 @@ Remaining risk:
   push/merge, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-14T00:04:37Z - Hetzner Canonical Migration Next-Action Guard
+
+Active role: ENGINEER
+
+Objective:
+- Prevent operator check-ins from surfacing the Hetzner canonical `.cbp_state`
+  migration checkpoint before the migration runbook prerequisites are recorded.
+
+What was found:
+- The passive operator item for Hetzner canonical `.cbp_state` migration went
+  directly through the generic runbook-checkpoint guidance path.
+- That made `make operator-next-actions-json` propose
+  `make record-hetzner-state-migration-checkpoint ...` even when the required
+  reviewed canonical campaign manifest, maintenance window, laptop-stop,
+  manifest verification, gate-output comparison, and single-owner proof were
+  absent.
+
+What changed:
+- Added a dedicated status wrapper for the Hetzner canonical migration passive
+  item.
+- A recorded accepted/completed migration checkpoint remains satisfying
+  evidence.
+- Without that checkpoint, the item now reports
+  `waiting_for_canonical_migration_preconditions`, `action_required=false`, and
+  `next_action=none`.
+- Extended operator-proof-status tests for both the waiting branch and the
+  recorded-checkpoint branch.
+
+Why this change was chosen:
+- Canonical state migration is a high-risk operator runbook. The local status
+  view should not ask the operator to record completion before the precondition
+  evidence exists.
+- The diff stays status/test/docs only and does not mutate runtime state,
+  campaign ownership, host state, promotion gates, or execution logic.
+
+Expected outcome:
+- Operator next-actions stop listing the Hetzner canonical migration as an
+  immediate passive action while the current accepted Hetzner proof only covers
+  runtime health and edge cadence, not canonical `es_daily_trend_v1` ownership
+  migration.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `99 passed in 1.70s`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_MAX=10`
+  - SHOWN: exit 0; `action_count_total=25`,
+    `passive_operator_evidence_actions_required=1`, and the returned top
+    passive action is server secrets rotation, not Hetzner canonical migration.
+
+Remaining risk:
+- LOW: status, tests, and work log only. No campaigns, market-data fetches,
+  symbol universe, strategy configs, promotion gates, paper/shadow/live
+  execution, order routing, authorization, broker support, GitHub auth,
+  host mutation, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-13T23:43:25Z - Promotion Host Marker Paper-Gate Wait Classification
 
 Active role: ENGINEER

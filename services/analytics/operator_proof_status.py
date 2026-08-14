@@ -458,6 +458,32 @@ def _runbook_checkpoint_status(
     }
 
 
+def _hetzner_canonical_state_migration_status(root: Path) -> dict[str, Any]:
+    checkpoint = _runbook_checkpoint_status(
+        root,
+        artifact_id="hetzner_canonical_state_migration_guidance",
+        target="hetzner_canonical_state_migration",
+        next_action="make record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'",
+        doc_path="docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md",
+    )
+    if bool(checkpoint.get("satisfied")):
+        return checkpoint
+    return {
+        "artifact_id": "hetzner_canonical_state_migration_guidance",
+        "artifact_status": "waiting_for_canonical_migration_preconditions",
+        "satisfied": False,
+        "action_required": False,
+        "next_action": "none",
+        "doc_path": "docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md",
+        "note": (
+            "Canonical state migration is actionable only after the reviewed "
+            "Hetzner canonical campaign manifest, maintenance-window, laptop-stop, "
+            "manifest-verification, gate-output, and single-owner prerequisites are recorded."
+        ),
+        "checkpoint": checkpoint,
+    }
+
+
 def _latest_operator_event(
     events: list[dict[str, Any]],
     *,
@@ -1019,13 +1045,7 @@ def _passive_artifact_status(root: Path, item: str) -> dict[str, Any] | None:
     if "Accepted shadow-derived execution-cost report" in item:
         return _execution_cost_stack_artifact_status(root)
     if "Hetzner canonical `.cbp_state` migration follow-through" in item:
-        return _runbook_checkpoint_status(
-            root,
-            artifact_id="hetzner_canonical_state_migration_guidance",
-            target="hetzner_canonical_state_migration",
-            next_action="make record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'",
-            doc_path="docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md",
-        )
+        return _hetzner_canonical_state_migration_status(root)
     if "Paper-to-shadow first-hour rehearsal" in item:
         checkpoint = _runbook_checkpoint_status(
             root,

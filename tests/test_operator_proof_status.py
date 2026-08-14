@@ -1915,7 +1915,7 @@ def test_operator_proof_status_shows_runbook_guidance_without_satisfying_rows(tm
     assert out["ok"] is True
     rows = out["passive_operator_items"]
     assert rows[0]["action_required"] is False
-    assert rows[1]["action_required"] is True
+    assert rows[1]["action_required"] is False
     assert rows[2]["action_required"] is False
     assert rows[3]["action_required"] is True
     assert rows[0]["artifact_status"]["artifact_id"] == "shadow_would_be_fill_records"
@@ -1928,8 +1928,10 @@ def test_operator_proof_status_shows_runbook_guidance_without_satisfying_rows(tm
         == "waiting_for_paper_gate_velocity"
     )
     assert rows[1]["artifact_status"]["artifact_id"] == "hetzner_canonical_state_migration_guidance"
+    assert rows[1]["artifact_status"]["artifact_status"] == "waiting_for_canonical_migration_preconditions"
     assert rows[1]["artifact_status"]["doc_path"] == "docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md"
-    assert rows[1]["next_action"] == "make record-hetzner-state-migration-checkpoint OPERATOR_CHECKPOINT_REASON='<reason>'"
+    assert rows[1]["next_action"] == "none"
+    assert rows[1]["artifact_status"]["checkpoint"]["artifact_status"] == "runbook_guidance"
     assert rows[2]["artifact_status"]["artifact_id"] == "paper_to_shadow_first_hour_guidance"
     assert rows[2]["artifact_status"]["artifact_status"] == "waiting_for_shadow_prerequisites"
     assert rows[2]["artifact_status"]["doc_path"] == "docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md"
@@ -2139,6 +2141,7 @@ def test_operator_proof_status_marks_runbook_checkpoint_satisfied(tmp_path: Path
                 "### Passive / Operator Evidence",
                 "",
                 "- Paper-to-shadow first-hour rehearsal.",
+                "- Hetzner canonical `.cbp_state` migration follow-through.",
                 "- Server secrets injection/rotation drill.",
                 "",
             ]
@@ -2160,6 +2163,20 @@ def test_operator_proof_status_marks_runbook_checkpoint_satisfied(tmp_path: Path
                         "target": "paper_to_shadow_first_hour_rehearsal",
                         "result": "completed",
                         "reason": "rehearsed_without_runtime_changes",
+                        "pre_state": {},
+                        "post_state": {},
+                    },
+                    sort_keys=True,
+                ),
+                json.dumps(
+                    {
+                        "event_id": "evt-hetzner-migration",
+                        "timestamp": "2026-08-09T00:00:30Z",
+                        "actor": "operator",
+                        "action": "runbook_checkpoint",
+                        "target": "hetzner_canonical_state_migration",
+                        "result": "recorded",
+                        "reason": "reviewed_manifest_and_single_owner_recorded",
                         "pre_state": {},
                         "post_state": {},
                     },
@@ -2195,8 +2212,11 @@ def test_operator_proof_status_marks_runbook_checkpoint_satisfied(tmp_path: Path
     assert rows[0]["artifact_status"]["event_id"] == "evt-shadow-rehearsal"
     assert rows[1]["next_action"] == "none"
     assert rows[1]["artifact_status"]["artifact_status"] == "recorded"
-    assert rows[1]["artifact_status"]["event_id"] == "evt-secrets-drill"
-    assert out["summary"]["passive_operator_items_satisfied"] == 2
+    assert rows[1]["artifact_status"]["event_id"] == "evt-hetzner-migration"
+    assert rows[2]["next_action"] == "none"
+    assert rows[2]["artifact_status"]["artifact_status"] == "recorded"
+    assert rows[2]["artifact_status"]["event_id"] == "evt-secrets-drill"
+    assert out["summary"]["passive_operator_items_satisfied"] == 3
 
 
 def test_operator_proof_status_marks_shadow_would_be_fill_records_satisfied(tmp_path: Path) -> None:
