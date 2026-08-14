@@ -34800,3 +34800,54 @@ Remaining risk:
 - This is docs/evidence recording only. It does not close the paper gate or
   modify the validation policy.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-14T05:18:00Z - Host Proof Inventory Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Record a read-only host inventory for open deployment, live-intent schema,
+  and backup/restore proof rows without changing host state.
+
+What was found:
+- SHOWN: Hetzner checkout is `5eb36cbb5`.
+- SHOWN: `cbp-crypto-edge-collector.service` is loaded and active/running, and
+  `cbp-edge-cadence.timer` is loaded and active/waiting.
+- SHOWN: the broader core systemd units were not observed as loaded/running in
+  `systemctl list-units "cbp-*"`.
+- SHOWN: `scripts/check_live_intent_history_schema.py --json` reported
+  `ok=false`, `status=schema_uninitialized`, and
+  `reason=live_intent_queue_db_missing` for
+  `/var/lib/cbp/data/live_intent_queue.sqlite`.
+- SHOWN: `scripts/backup_state.py --help` is available on the host and exposes
+  `backup`, `verify`, and `restore`.
+
+What changed:
+- Added `docs/checkpoints/host_proof_inventory_2026_08_14.md`.
+- Updated `REMAINING_TASKS.md` under the deployment and live-intent history
+  proof rows to link the checkpoint and preserve that these proofs remain open.
+
+Why this change was chosen:
+- The operator queue still contains host-side proof rows. A read-only inventory
+  turns current host state into durable evidence without installing units,
+  initializing schemas, running restore, restarting services, or touching
+  campaigns.
+
+Expected outcome:
+- Future proof review can distinguish what is already present on the host
+  (crypto-edge unit/cadence and backup tooling) from what remains open (core
+  deployment proof, live schema initialization proof, and backup/restore drill).
+
+Verification:
+- `tailscale ssh cryptkeep@100.86.128.9 'systemctl list-units --type=service --type=timer --all --no-pager --plain "cbp-*"'`
+  - SHOWN: three loaded cbp units: crypto-edge collector service, edge cadence
+    service, and edge cadence timer.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_live_intent_history_schema.py --json'`
+  - SHOWN: `ok=false`, `reason=live_intent_queue_db_missing`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/backup_state.py --help'`
+  - SHOWN: backup tooling is present.
+
+Remaining risk:
+- This is docs/evidence recording only. It does not close deployment, schema,
+  or restore-drill proof rows by itself.
+- Acceptance state: `ACCEPTED`.
