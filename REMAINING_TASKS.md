@@ -1722,6 +1722,18 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    present on the Hetzner checkout and exposes `backup`, `verify`, and
    `restore` subcommands. No backup or restore was executed; the drill remains
    open.
+   2026-08-14: a read-only/scratch Hetzner drill attempt is recorded in
+   `docs/checkpoints/host_backup_restore_drill_blocker_2026_08_14.md` and is
+   blocked, not passed. The host checkout is still `5eb36cbb5`, which lacks
+   `scripts/check_backup_artifact_secrets.py`; `/var/lib/cbp/data` is owned by
+   `cbp:cbp`; the current `cryptkeep` Tailscale login cannot run
+   `sudo -n -u cbp`; and `backup_state.py backup` against
+   `CBP_STATE_DIR=/var/lib/cbp` failed during SQLite snapshot with
+   `sqlite3.OperationalError: attempt to write a readonly database`. Remaining
+   proof: sync the host checkout to an approved current master, run the drill
+   with effective access to the `cbp` state data, verify the manifest, restore
+   into scratch state, run the backup-artifact secret scan, and then record the
+   checkpoint.
    2026-07-22: executable full-state restore-drill contract guard is ready for
    review. `tests/test_full_state_restore_drill_contract.py` pins that
    `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` does not claim an executed host
