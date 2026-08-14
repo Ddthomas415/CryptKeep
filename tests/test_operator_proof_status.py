@@ -1695,7 +1695,58 @@ def test_operator_proof_status_marks_supply_chain_evidence_satisfied(tmp_path: P
     assert supply["artifact_status"]["artifact_status"] == "recorded"
     assert supply["artifact_status"]["pin_integrity_ok"] is True
     assert supply["artifact_status"]["environment_ok"] is True
+    assert supply["artifact_status"]["vulnerability_audit_ran"] is False
+    assert supply["artifact_status"]["vulnerability_audit_reason"] == "not_requested"
+    assert supply["artifact_status"]["vulnerable_count"] == 0
+    assert supply["artifact_status"]["vulnerability_audit_ok"] is False
     assert out["summary"]["passive_operator_items_satisfied"] == 1
+
+
+def test_operator_proof_status_surfaces_supply_chain_vulnerability_findings(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "BACKLOG_EXECUTION_LANES.md").write_text(
+        "\n".join(
+            [
+                "# Backlog Execution Lanes",
+                "",
+                "### Passive / Operator Evidence",
+                "",
+                "- Supply-chain audit/waiver evidence.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+    evidence_dir = tmp_path / ".cbp_state" / "data" / "supply_chain"
+    evidence_dir.mkdir(parents=True)
+    artifact = evidence_dir / "supply-chain-evidence-20260808T203700Z.json"
+    artifact.write_text(
+        json.dumps(
+            {
+                "created": "2026-08-08T20:37:00Z",
+                "git_sha": "abc123",
+                "git_dirty": False,
+                "requirement_file_sha256": {"requirements-pinned.txt": "sha"},
+                "pin_integrity": {"ok": True, "problems": [], "pin_count": 1},
+                "environment": {"ok": True, "checked": 1, "mismatches": [], "not_installed": []},
+                "vulnerability_audit": {"ran": True, "vulnerable_count": 3, "findings": []},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path)
+
+    supply = out["passive_operator_items"][0]
+    assert supply["action_required"] is False
+    assert supply["artifact_status"]["artifact_status"] == "recorded"
+    assert supply["artifact_status"]["vulnerability_audit_ran"] is True
+    assert supply["artifact_status"]["vulnerable_count"] == 3
+    assert supply["artifact_status"]["vulnerability_audit_ok"] is False
 
 
 def test_operator_proof_status_marks_execution_cost_report_satisfied(tmp_path: Path) -> None:

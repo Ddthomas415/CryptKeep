@@ -841,6 +841,16 @@ def _supply_chain_artifact_status(root: Path) -> dict[str, Any]:
     payload = _load_json(latest)
     pin_integrity = payload.get("pin_integrity") if isinstance(payload.get("pin_integrity"), dict) else {}
     environment = payload.get("environment") if isinstance(payload.get("environment"), dict) else {}
+    vulnerability_audit = (
+        payload.get("vulnerability_audit")
+        if isinstance(payload.get("vulnerability_audit"), dict)
+        else {}
+    )
+    vulnerability_ran = bool(vulnerability_audit.get("ran"))
+    try:
+        vulnerable_count = int(vulnerability_audit.get("vulnerable_count") or 0)
+    except Exception:
+        vulnerable_count = -1
     passed = (
         latest.is_file()
         and bool(pin_integrity.get("ok")) is True
@@ -858,6 +868,10 @@ def _supply_chain_artifact_status(root: Path) -> dict[str, Any]:
         "git_dirty": bool(payload.get("git_dirty")),
         "pin_integrity_ok": bool(pin_integrity.get("ok")),
         "environment_ok": bool(environment.get("ok")),
+        "vulnerability_audit_ran": vulnerability_ran,
+        "vulnerability_audit_reason": vulnerability_audit.get("reason"),
+        "vulnerable_count": vulnerable_count,
+        "vulnerability_audit_ok": vulnerability_ran and vulnerable_count == 0,
         "satisfied": bool(passed),
         "next_action": "none" if passed else "make record-supply-chain",
     }

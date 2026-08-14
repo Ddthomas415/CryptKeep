@@ -32638,6 +32638,66 @@ Remaining risk:
   host mutation, or runtime policy changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-14T00:09:12Z - Supply-Chain Audit Status Visibility
+
+Active role: ENGINEER
+
+Objective:
+- Make the operator proof-status report show whether supply-chain vulnerability
+  audit evidence actually ran and whether it found vulnerable packages.
+
+What was found:
+- `scripts/check_supply_chain.py --audit` was not usable until `pip-audit` was
+  installed in the local venv.
+- After installing the tool locally, the repo audit ran and wrote
+  `.cbp_state/data/supply_chain/supply-chain-evidence-20260814T000731Z.json`.
+- The evidence reports pin integrity and installed pinned environment as OK,
+  but vulnerability audit found `vulnerable_count=10`.
+- The passive supply-chain row showed the evidence artifact as recorded but did
+  not expose `vulnerability_audit_ran`, `vulnerable_count`, or whether the
+  audit was clean.
+
+What changed:
+- Extended `services.analytics.operator_proof_status` supply-chain artifact
+  status with:
+  - `vulnerability_audit_ran`
+  - `vulnerability_audit_reason`
+  - `vulnerable_count`
+  - `vulnerability_audit_ok`
+- Added a regression test proving vulnerability findings remain visible in the
+  passive supply-chain status row.
+
+Why this change was chosen:
+- The passive item is about recording audit/waiver evidence, so the artifact
+  can be recorded even when findings exist.
+- The status report still needs to expose the difference between "audit did not
+  run", "audit ran clean", and "audit ran with findings" so capped-live
+  remediation or waiver decisions are not hidden by a generic recorded status.
+
+Expected outcome:
+- Operator check-ins show the supply-chain audit artifact and the vulnerable
+  package count without pretending remediation or waiver has happened.
+
+Verification:
+- `./.venv/bin/python scripts/check_supply_chain.py --json --audit --evidence-dest .cbp_state/data/supply_chain`
+  - SHOWN: exit 0; audit ran; `vulnerable_count=10`; evidence path
+    `.cbp_state/data/supply_chain/supply-chain-evidence-20260814T000731Z.json`.
+- `make operator-proof-status-json OPERATOR_PROOF_STATUS_PASSIVE_ORDINAL=15`
+  - SHOWN: exit 0; supply-chain passive row reports
+    `vulnerability_audit_ran=true`, `vulnerability_audit_ok=false`, and
+    `vulnerable_count=10`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_next_actions.py tests/test_operator_status_bundle.py`
+  - SHOWN: `100 passed in 1.82s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: status, tests, and work log only. No requirements files, campaigns,
+  market-data fetches, symbol universe, strategy configs, promotion gates,
+  paper/shadow/live execution, order routing, authorization, broker support,
+  GitHub auth, host mutation, or runtime policy changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-13T23:43:25Z - Promotion Host Marker Paper-Gate Wait Classification
 
 Active role: ENGINEER
