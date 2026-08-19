@@ -34943,3 +34943,53 @@ Remaining risk:
   verify, scratch restore, backup-artifact secret scan, resume/idempotence
   check, or service restart.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-14T05:35:30Z - Backup Snapshot Error Structured Failure
+
+Active role: ENGINEER
+
+Objective:
+- Convert backup snapshot/copy failures from uncaught tracebacks into
+  structured fail-closed JSON results.
+
+What was found:
+- SHOWN from the Hetzner drill attempt: `backup_state.py backup` can raise
+  `sqlite3.OperationalError: attempt to write a readonly database` during a
+  SQLite snapshot before producing JSON output for the failed file.
+- SHOWN: this makes the backup proof harder to automate because the caller sees
+  a traceback instead of a machine-readable reason.
+
+What changed:
+- `scripts/backup_state.py::create_backup()` now catches exceptions from
+  `_snapshot_sqlite()` and `shutil.copy2()` per source file.
+- Snapshot failures return `ok=false`,
+  `reason=snapshot_failed:<rel>:<ExceptionType>`, the exception text, and the
+  partial backup directory.
+- Copy failures return `ok=false`,
+  `reason=copy_failed:<rel>:<ExceptionType>`, the exception text, and the
+  partial backup directory.
+- Added a regression test for the exact host error class.
+
+Why this change was chosen:
+- The host permission issue still requires an operator/host fix, but the
+  backup tool should fail closed with structured output so proof automation can
+  distinguish permission/snapshot failures from missing manifests or restore
+  failures.
+
+Expected outcome:
+- The next host drill attempt should produce JSON containing the failing
+  relative path and exception class instead of an uncaught traceback if a state
+  file cannot be snapshotted or copied.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_state_backup_restore.py`
+  - SHOWN: `13 passed`.
+- `./.venv/bin/python -m py_compile scripts/backup_state.py tests/test_state_backup_restore.py`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- This does not complete the host backup/restore drill, change host
+  permissions, sync the host checkout, run the secret scan, or restore any
+  state. The Hetzner drill remains blocked until those host preconditions are
+  satisfied.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

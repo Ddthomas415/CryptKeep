@@ -127,11 +127,27 @@ def create_backup(dest_root: Path) -> dict:
         dest.parent.mkdir(parents=True, exist_ok=True)
         kind = "sqlite" if _is_sqlite(path) else "file"
         if kind == "sqlite":
-            _snapshot_sqlite(path, dest)
+            try:
+                _snapshot_sqlite(path, dest)
+            except Exception as exc:
+                return {
+                    "ok": False,
+                    "reason": f"snapshot_failed:{rel}:{type(exc).__name__}",
+                    "error": str(exc),
+                    "backup_dir": str(out_dir),
+                }
             if not _integrity_ok(dest):
                 return {"ok": False, "reason": f"snapshot_integrity_failed:{rel}"}
         else:
-            shutil.copy2(path, dest)
+            try:
+                shutil.copy2(path, dest)
+            except Exception as exc:
+                return {
+                    "ok": False,
+                    "reason": f"copy_failed:{rel}:{type(exc).__name__}",
+                    "error": str(exc),
+                    "backup_dir": str(out_dir),
+                }
         entries.append({
             "rel": str(Path(ARCHIVE_SUBDIR) / rel),
             "kind": kind,

@@ -120,6 +120,26 @@ def test_backup_is_consistent_under_active_writer(monkeypatch, tmp_path):
     assert not any(str(entry["rel"]).endswith("-journal") for entry in manifest["files"])
 
 
+def test_backup_snapshot_error_returns_structured_failure(monkeypatch, tmp_path):
+    bs, _ap = _load(monkeypatch, tmp_path)
+    from services.os.app_paths import data_dir
+
+    _seed_store(data_dir(), "market_raw.sqlite", 1)
+
+    def _raise_snapshot(_src, _dest):
+        raise sqlite3.OperationalError("attempt to write a readonly database")
+
+    monkeypatch.setattr(bs, "_snapshot_sqlite", _raise_snapshot)
+
+    out = bs.create_backup(tmp_path / "backups")
+
+    assert out["ok"] is False
+    assert out["reason"] == "snapshot_failed:market_raw.sqlite:OperationalError"
+    assert out["error"] == "attempt to write a readonly database"
+    assert Path(out["backup_dir"]).exists()
+    assert not (Path(out["backup_dir"]) / bs.MANIFEST_NAME).exists()
+
+
 def test_verify_detects_tamper_and_missing(monkeypatch, tmp_path):
     bs, ap = _load(monkeypatch, tmp_path)
     from services.os.app_paths import data_dir
