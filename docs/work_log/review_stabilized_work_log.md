@@ -34993,3 +34993,81 @@ Remaining risk:
   state. The Hetzner drill remains blocked until those host preconditions are
   satisfied.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-19T09:58:30Z - Hetzner Sync and Backup Drill Follow-up
+
+Active role: ENGINEER
+
+Objective:
+- Sync `/srv/cryptkeep/app` on Hetzner to current master without restarting
+  services, then rerun read-only edge/paper/backup proof checks.
+
+What was found:
+- SHOWN: local master and origin/master are `a10aca01f`.
+- SHOWN: Hetzner checkout was `5eb36cbb5` before sync.
+- SHOWN: `git merge --ff-only origin/master` fast-forwarded Hetzner to
+  `a10aca01f`.
+- SHOWN: `cbp-crypto-edge-collector.service` and `cbp-edge-cadence.timer`
+  remained active after sync.
+- SHOWN: `scripts/backup_state.py` and
+  `scripts/check_backup_artifact_secrets.py` are both present after sync.
+- SHOWN: host edge cadence against `/var/lib/cbp` is fresh with funding,
+  open-interest, and basis capture timestamp `2026-08-19T09:54:38+00:00`.
+- SHOWN: Hetzner edge wrapper reports
+  `status=hetzner_crypto_edge_runtime_ready`, `ok=True`, and
+  `remote_head=a10aca01fc37de181cc32d17a30e5d677050f901`.
+- SHOWN: Hetzner paper wrapper reports `Campaigns: 1/1 running` for
+  `ema_cross_default`, waiting for the next UTC day.
+- SHOWN: the backup proof attempt still fails from the `cryptkeep` execution
+  context with `snapshot_failed:market_raw.sqlite:OperationalError` and
+  `attempt to write a readonly database`.
+- SHOWN: operator-event recording for that failed backup attempt also reports
+  `operator_event_write_failed:OperatorEventJournalError`.
+- SHOWN: host operator-event secret scan reports `ok=true`,
+  `finding_count=0`, and `event_count=0`.
+- SHOWN: host platform-event secret scan reports `ok=true`,
+  `finding_count=0`, and `event_count=0`.
+- SHOWN: host platform-event journal report runs and reports `ok=true`,
+  `event_count=0`.
+- SHOWN: host live-intent history schema remains uninitialized with
+  `reason=live_intent_queue_db_missing`.
+
+What changed:
+- Added `docs/checkpoints/host_sync_backup_drill_followup_2026_08_19.md`.
+- Updated the deployment and full-state backup/restore backlog rows with the
+  current host SHA, script availability, health checks, and remaining blocker.
+- Added read-only host audit-scan and live-intent schema follow-up evidence to
+  the same checkpoint.
+
+Why this change was chosen:
+- The prior blocker included host checkout drift and missing backup secret-scan
+  tooling. Syncing the host resolved that part without restarting services.
+  Recording the follow-up keeps the remaining blocker precise: state-data and
+  operator-event permissions, not missing scripts.
+
+Expected outcome:
+- The next backup/restore drill attempt should run backup/verify/scratch
+  restore/backup-secret-scan with effective access to the `cbp` state data and
+  operator-event journal.
+
+Verification:
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && git fetch origin master && git merge --ff-only origin/master ...'`
+  - SHOWN: fast-forward to `a10aca01f`; collector and cadence timer active.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json'`
+  - SHOWN: `ok=true`; funding/open_interest/basis fresh.
+- `make status-hetzner-edge-runtime status-paper-hetzner`
+  - SHOWN: edge runtime ready; paper campaign `1/1` running.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && ... scripts/backup_state.py backup --dest ...'`
+  - SHOWN: structured failure
+    `snapshot_failed:market_raw.sqlite:OperationalError`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_operator_event_secrets.py --json'`
+  - SHOWN: `ok=true`, `finding_count=0`, `event_count=0`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_platform_event_secrets.py --json'`
+  - SHOWN: `ok=true`, `finding_count=0`, `event_count=0`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_live_intent_history_schema.py --json'`
+  - SHOWN: `reason=live_intent_queue_db_missing`.
+
+Remaining risk:
+- This does not complete the backup/restore drill, install systemd units,
+  restart services, initialize live intent history, or change host permissions.
+- Acceptance state: `ACCEPTED`.

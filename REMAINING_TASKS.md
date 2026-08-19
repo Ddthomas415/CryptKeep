@@ -1631,6 +1631,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `cbp-intent-consumer`, `cbp-reconciler`, `cbp-dashboard`, `cbp-dead-man`,
    `cbp-edge-cadence`, and both timers. No units were installed or restarted;
    installation/post-install evidence remains open.
+   2026-08-19: Hetzner checkout sync is recorded in
+   `docs/checkpoints/host_sync_backup_drill_followup_2026_08_19.md`. The host
+   fast-forwarded from `5eb36cbb5` to `a10aca01f` without service restart;
+   `cbp-crypto-edge-collector.service` and `cbp-edge-cadence.timer` remained
+   active. The broader deployment installation/post-install proof still remains
+   open.
 6. Add trading-loop metrics and dead-man alerting. Host health checks are not
    enough; each managed trading loop needs heartbeat metrics and alert-on-absence
    within a defined time window. Include a watchdog proof that each loop checks
@@ -1741,6 +1747,18 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    operator-event recording. This does not execute or close the host drill; it
    makes the next host attempt machine-readable when a source file cannot be
    snapshotted or copied.
+   2026-08-19: host follow-up is recorded in
+   `docs/checkpoints/host_sync_backup_drill_followup_2026_08_19.md`. The host
+   is now at `a10aca01f` and contains both `scripts/backup_state.py` and
+   `scripts/check_backup_artifact_secrets.py`; edge cadence and Hetzner paper
+   status are healthy after sync. The drill remains blocked because running
+   `backup_state.py backup` as `cryptkeep` against `CBP_STATE_DIR=/var/lib/cbp`
+   returns structured failure
+   `snapshot_failed:market_raw.sqlite:OperationalError` with
+   `attempt to write a readonly database`, and operator-event recording returns
+   `operator_event_write_failed:OperatorEventJournalError`. Remaining proof:
+   rerun backup/verify/scratch-restore/backup-secret-scan with effective access
+   to the `cbp` state data and operator-event journal.
    2026-07-22: executable full-state restore-drill contract guard is ready for
    review. `tests/test_full_state_restore_drill_contract.py` pins that
    `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` does not claim an executed host
@@ -2041,6 +2059,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     read provider API-key environment variables, or call provider APIs outside
     `call_llm`. Remaining coverage: host-side no-secret scan over real
     provider events.
+    2026-08-19: synced-host read-only scan recorded in
+    `docs/checkpoints/host_sync_backup_drill_followup_2026_08_19.md` reports
+    `ok=true`, `finding_count=0`, and `event_count=0` for the host operator
+    event journal path. This is a clean scan of an absent/empty journal, not
+    closure for provider-event coverage requiring real provider events.
     2026-08-11: action-specific operator-event secret-scan proof command is
     ready for independent review. `make record-ai-provider-event-secrets`
     requires at least one real `ai_copilot_external_provider_call` event and
@@ -2053,6 +2076,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     status/severity, and artifact names/count without logging report payloads,
     stdout/stderr, prompts, recommendations, summaries, or artifact contents.
     Remaining coverage: host-side no-secret scan over real report events.
+    2026-08-19: synced-host read-only scan recorded in
+    `docs/checkpoints/host_sync_backup_drill_followup_2026_08_19.md` reports
+    `ok=true`, `finding_count=0`, and `event_count=0` for the host operator
+    event journal path. This is a clean scan of an absent/empty journal, not
+    closure for report-event coverage requiring real report events.
     2026-08-11: action-specific operator-event secret-scan proof command is
     ready for independent review. `make record-ai-report-event-secrets`
     requires at least one real `ai_copilot_report_write` event and scans the
