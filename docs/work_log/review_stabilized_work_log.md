@@ -35121,3 +35121,47 @@ Remaining risk:
   restart campaigns, change host state, or close the Hetzner/capped-live proof
   items.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-19T21:44:23Z - Codex Remediation Prompts For Repeated Workflow Failures
+
+Active role: ENGINEER
+
+Objective:
+- Record corrective operating prompts for repeated Codex workflow failures so
+  future sessions stop reintroducing the same GitHub auth, CI-waiting, and
+  repeated-backlog-finding friction.
+
+What was found:
+- SHOWN: GitHub publishing had been conflated across sandbox network failures,
+  `gh auth status`, git credential-helper setup, remote git capability, and PR
+  API capability.
+- SHOWN: PR #512 was created only after separating helper wiring, remote push,
+  connector limitations, and sandbox-vs-outside-sandbox network behavior.
+- CLAIMED by operator feedback: repeated waiting, repeated auth prompts, and
+  repeated already-resolved findings are materially slowing progress.
+
+What changed:
+- Added `docs/CODEX_REMEDIATION_PROMPTS.md` with corrective prompts for:
+  GitHub auth and publishing, CI-and-next-work flow, and repeated backlog
+  findings.
+
+Why this change was chosen:
+- A durable prompt artifact is lower-friction than re-litigating the same
+  workflow problem in every session. It gives future Codex runs an explicit
+  checklist before asking the operator to authenticate again, waiting on CI, or
+  presenting an old issue as new.
+
+Expected outcome:
+- Future sessions classify GitHub failures before requesting login, continue
+  safe non-overlapping work while CI is pending, and search the current backlog
+  plus work log before naming a problem as open.
+
+Verification:
+- `test -f docs/CODEX_REMEDIATION_PROMPTS.md`
+  - SHOWN: file exists.
+- Documentation-only change; no runtime tests required.
+
+Remaining risk:
+- This does not change Codex system behavior by itself; future sessions must
+  read and follow the remediation prompt file.
+- Acceptance state: `ACCEPTED`.
