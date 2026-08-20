@@ -35071,3 +35071,49 @@ Remaining risk:
 - This does not complete the backup/restore drill, install systemd units,
   restart services, initialize live intent history, or change host permissions.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-20T22:52:18Z - Host Proof Blocker Check-In
+
+Active role: ENGINEER
+
+Objective:
+- Continue the operator-proof queue without waiting on PR #512 by running the
+  next read-only host evidence commands and recording the current blocker.
+
+What was found:
+- SHOWN: `make status-hetzner-edge-runtime` returned
+  `status=hetzner_crypto_edge_runtime_blocked` with
+  `reason=tailscale_ssh_timeout:15s`.
+- SHOWN: `make status-paper-hetzner` returned no campaign status from the host
+  because Tailscale SSH required an additional authentication URL and timed out.
+- SHOWN: `make check-hetzner-paper-host-health` returned
+  `status=hetzner_paper_host_blocked` from a read-only local preflight with
+  `storage_health: backup_dir_missing` and `time_sync: timedatectl_missing`.
+- SHOWN: the same health artifact reports `ssh_invoked=false`,
+  `restore_invoked=false`, and `collector_mutation_invoked=false`.
+
+What changed:
+- Added `docs/checkpoints/host_proof_blocker_checkin_2026_08_20.md`.
+
+Why this change was chosen:
+- The generated next-action queue is dominated by host-side proof. Recording
+  the current read-only blocker prevents rerunning the same checks as if no
+  evidence exists, while preserving the boundary that this is not host proof.
+
+Expected outcome:
+- Future sessions can go directly to Tailscale SSH authentication and rerun the
+  read-only host commands instead of re-discovering the same blocker.
+
+Verification:
+- `make status-hetzner-edge-runtime`
+  - SHOWN: blocked by `tailscale_ssh_timeout:15s`.
+- `make status-paper-hetzner`
+  - SHOWN: blocked by `tailscale_ssh_timeout:15s`.
+- `make check-hetzner-paper-host-health`
+  - SHOWN: blocked locally by `backup_dir_missing` and `timedatectl_missing`;
+    no SSH, restore, or collector mutation invoked.
+
+Remaining risk:
+- This is checkpoint documentation only. It does not close host-side systemd,
+  backup/restore, paper-host health, or capped-live proof.
+- Acceptance state: `ACCEPTED`.
