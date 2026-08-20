@@ -35325,3 +35325,61 @@ Remaining risk:
   launch-packet action-event proofs.
 - Docs/checkpoint-only change; no runtime behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-20T23:05:37Z - Tailscale Auth Classification And Host Status Check-In
+
+Active role: ENGINEER
+
+Objective:
+- Continue progress without waiting on PR #512 by improving read-only Hetzner
+  status diagnostics and recording the fresh host status once Tailscale SSH
+  succeeded.
+
+What was found:
+- SHOWN: the paper and crypto-edge Hetzner wrappers already had a
+  `tailscale_ssh_auth_required` classifier, but timeout and non-zero process
+  paths returned generic timeout/failure before consulting it.
+- SHOWN: fresh `make status-hetzner-edge-runtime` succeeded with
+  `status=hetzner_crypto_edge_runtime_ready`, `ok=True`, remote branch
+  `master`, and remote head `a10aca01fc37de181cc32d17a30e5d677050f901`.
+- SHOWN: fresh `make status-paper-hetzner` succeeded with `Campaigns: 1/1
+  running` for `ema_cross_default`, idle `waiting_for_next_day`.
+- SHOWN: direct host `scripts/check_edge_cadence.py --json` under
+  `CBP_STATE_DIR=/var/lib/cbp` returned `ok=true`; funding, open-interest, and
+  basis were fresh.
+
+What changed:
+- `scripts/report_hetzner_paper_campaign_status.py` now classifies Tailscale
+  authentication prompts before generic timeout/non-zero failure reporting.
+- `scripts/report_hetzner_crypto_edge_runtime_status.py` now applies the same
+  classification order.
+- Updated paper and crypto-edge wrapper tests for auth-prompt timeout/non-zero
+  cases.
+- Added `docs/checkpoints/host_status_ready_checkin_2026_08_20.md`.
+
+Why this change was chosen:
+- The previous operator-facing output required manual stderr inspection to
+  distinguish "host unreachable" from "Tailscale SSH needs browser auth." The
+  wrappers now report the actionable reason directly, reducing repeated false
+  blockers.
+
+Expected outcome:
+- Future read-only Hetzner status checks identify Tailscale auth prompts as
+  `tailscale_ssh_auth_required` instead of generic timeout/failure when that
+  prompt is present.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_paper_campaign_status.py tests/test_report_hetzner_crypto_edge_runtime_status.py`
+  - SHOWN: `21 passed`.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `ok=True`, remote runtime ready.
+- `make status-paper-hetzner`
+  - SHOWN: `Campaigns: 1/1 running`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json'`
+  - SHOWN: `ok=true`; funding/open_interest/basis fresh.
+
+Remaining risk:
+- This is read-only diagnostic/status behavior plus checkpoint documentation.
+  It does not install units, restart services, complete backup/restore proof,
+  or close capped-live proof.
+- Acceptance state: `ACCEPTED`.

@@ -482,6 +482,16 @@ def fetch_remote_runtime_status(
     except FileNotFoundError:
         return _failure_payload("ssh_cli_not_found" if transport_name == "ssh" else "tailscale_cli_not_found")
     except subprocess.TimeoutExpired as exc:
+        non_json_reason = _tailscale_non_json_reason(
+            stdout=getattr(exc, "stdout", ""),
+            stderr=getattr(exc, "stderr", ""),
+        )
+        if non_json_reason:
+            return _failure_payload(
+                non_json_reason,
+                stdout=getattr(exc, "stdout", ""),
+                stderr=getattr(exc, "stderr", ""),
+            )
         timeout_prefix = "ssh_timeout" if transport_name == "ssh" else "tailscale_ssh_timeout"
         return _failure_payload(
             f"{timeout_prefix}:{timeout_sec:g}s",
@@ -493,6 +503,9 @@ def fetch_remote_runtime_status(
         return _failure_payload(f"{os_prefix}:{type(exc).__name__}:{exc}")
 
     if result.returncode != 0:
+        non_json_reason = _tailscale_non_json_reason(stdout=result.stdout, stderr=result.stderr)
+        if non_json_reason:
+            return _failure_payload(non_json_reason, stdout=result.stdout, stderr=result.stderr)
         if transport_name == "ssh":
             reason = _ssh_failure_reason(stdout=result.stdout, stderr=result.stderr)
             if reason:
