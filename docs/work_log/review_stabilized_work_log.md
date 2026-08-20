@@ -35071,3 +35071,53 @@ Remaining risk:
 - This does not complete the backup/restore drill, install systemd units,
   restart services, initialize live intent history, or change host permissions.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-20T23:23:00Z - Host Credential Source Posture Status
+
+Active role: ENGINEER
+
+Objective:
+- Continue the remaining credential coverage queue by running the read-only
+  credential source posture checks locally and on Hetzner.
+
+What was found:
+- SHOWN: local `make credential-source-posture-json` reported
+  `status=credentials_missing` for `binance` and
+  `credential_values_logged=false`.
+- SHOWN: local `make credential-source-posture-json
+  CREDENTIAL_SOURCE_POSTURE_VENUE=coinbase` reported
+  `status=credentials_missing` and `credential_values_logged=false`.
+- SHOWN: Hetzner has `scripts/check_credential_source_posture.py` and
+  `services/security/credential_source_posture.py` at checkout `a10aca01f`.
+- SHOWN: Hetzner `scripts/check_credential_source_posture.py --json --venue
+  coinbase` reported `status=credentials_missing`,
+  `credential_values_logged=false`, no Coinbase API key/secret environment
+  variables, and no recommended keyring backend.
+
+What changed:
+- Added `docs/checkpoints/host_credential_posture_status_2026_08_20.md`.
+
+Why this change was chosen:
+- The backlog keeps direct/manual keyring edits, environment-based credential
+  changes, and server injection/rotation drills open. This checkpoint records
+  the current read-only posture so future sessions do not repeat the same
+  discovery or confuse missing credentials with a completed rotation drill.
+
+Expected outcome:
+- Future credential work can proceed directly to the governed server
+  injection/rotation drill when intentionally authorized, then rerun the
+  posture check without logging secret values.
+
+Verification:
+- `make credential-source-posture-json`
+  - SHOWN: `credentials_missing`, `credential_values_logged=false`.
+- `make credential-source-posture-json CREDENTIAL_SOURCE_POSTURE_VENUE=coinbase`
+  - SHOWN: `credentials_missing`, `credential_values_logged=false`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_credential_source_posture.py --json --venue coinbase'`
+  - SHOWN: `credentials_missing`, `credential_values_logged=false`.
+
+Remaining risk:
+- This is checkpoint documentation only. It does not inject, rotate, delete, or
+  validate live credentials, and it does not close the server
+  injection/rotation drill.
+- Acceptance state: `ACCEPTED`.
