@@ -171,7 +171,7 @@ def test_fetch_remote_status_fails_closed_when_tailscale_ssh_fails(monkeypatch) 
     out = script.fetch_remote_status(timeout_sec=3.0)
 
     assert out["ok"] is False
-    assert out["reason"] == "tailscale_ssh_failed:255"
+    assert out["reason"] == "tailscale_ssh_auth_required"
     assert "Tailscale SSH requires" in out["stdout_preview"]
     assert "authenticate" in out["stderr_preview"]
     assert out["recommendations"] == ["investigate_report_failure"]
@@ -191,7 +191,7 @@ def test_fetch_remote_status_times_out_instead_of_blocking(monkeypatch) -> None:
     out = script.fetch_remote_status(timeout_sec=2.0)
 
     assert out["ok"] is False
-    assert out["reason"] == "tailscale_ssh_timeout:2s"
+    assert out["reason"] == "tailscale_ssh_auth_required"
     assert "Tailscale SSH requires" in out["stdout_preview"]
     assert "browser auth" in out["stderr_preview"]
 

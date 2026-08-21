@@ -299,6 +299,46 @@ def test_fetch_remote_runtime_status_classifies_tailscale_auth_prompt(monkeypatc
     assert "login.tailscale.com" in report["stderr_preview"]
 
 
+def test_fetch_remote_runtime_status_classifies_tailscale_auth_prompt_on_nonzero(monkeypatch) -> None:
+    def _run(cmd, *, capture_output, check, text, timeout):
+        return subprocess.CompletedProcess(
+            cmd,
+            255,
+            stdout="# Tailscale SSH requires an additional check.",
+            stderr="# To authenticate, visit: https://login.tailscale.com/a/example\n",
+        )
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    report = script.fetch_remote_runtime_status(timeout_sec=1.0)
+
+    assert report["ok"] is False
+    assert report["reason"] == "tailscale_ssh_auth_required"
+    assert report["blockers"] == ["tailscale_ssh_auth_required"]
+    assert "Tailscale SSH requires" in report["stdout_preview"]
+    assert "login.tailscale.com" in report["stderr_preview"]
+
+
+def test_fetch_remote_runtime_status_classifies_tailscale_auth_prompt_on_timeout(monkeypatch) -> None:
+    def _run(cmd, *, capture_output, check, text, timeout):
+        raise subprocess.TimeoutExpired(
+            cmd,
+            timeout,
+            output="# Tailscale SSH requires an additional check.",
+            stderr="# To authenticate, visit: https://login.tailscale.com/a/example\n",
+        )
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    report = script.fetch_remote_runtime_status(timeout_sec=1.0)
+
+    assert report["ok"] is False
+    assert report["reason"] == "tailscale_ssh_auth_required"
+    assert report["blockers"] == ["tailscale_ssh_auth_required"]
+    assert "Tailscale SSH requires" in report["stdout_preview"]
+    assert "login.tailscale.com" in report["stderr_preview"]
+
+
 def test_main_strict_returns_one_when_blocked(monkeypatch, capsys) -> None:
     monkeypatch.setattr(
         script,
