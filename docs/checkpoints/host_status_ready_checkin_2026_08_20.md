@@ -41,4 +41,3 @@ The earlier `host_proof_blocker_checkin_2026_08_20` PR was closed as stale
 because the fresh Tailscale SSH run succeeded. Remaining host-side proof work
 still depends on the specific proof artifacts named in `REMAINING_TASKS.md`;
 this checkpoint only proves current remote status and edge cadence.
-
