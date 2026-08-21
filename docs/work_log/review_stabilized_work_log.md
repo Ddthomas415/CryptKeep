@@ -35166,6 +35166,52 @@ Remaining risk:
   read and follow the remediation prompt file.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-08-20T23:16:34Z - Host AI Event Secret-Scan Status
+
+Active role: ENGINEER
+
+Objective:
+- Continue the remaining-coverage proof queue by running the host-side
+  operator-event secret scans for AI provider-call and report-write events.
+
+What was found:
+- SHOWN: baseline host-side `scripts/check_operator_event_secrets.py --json`
+  under `CBP_STATE_DIR=/var/lib/cbp` returned `ok=true`,
+  `finding_count=0`, and `event_count=0`.
+- SHOWN: the action-specific scan for
+  `ai_copilot_external_provider_call` returned `ok=false` with
+  `operator_event_journal_missing` and
+  `operator_event_required_action_missing`.
+- SHOWN: the action-specific scan for `ai_copilot_report_write` returned
+  `ok=false` with `operator_event_journal_missing` and
+  `operator_event_required_action_missing`.
+
+What changed:
+- Added `docs/checkpoints/host_ai_event_secret_scan_status_2026_08_20.md`.
+
+Why this change was chosen:
+- The backlog requires real host-side AI provider/report events before the
+  no-secret scans can close coverage. Recording the current host result makes
+  the blocker explicit without reclassifying it as a new code issue.
+
+Expected outcome:
+- Future sessions can go directly to producing or waiting for real host-side AI
+  operator events before rerunning the action-specific scans.
+
+Verification:
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_operator_event_secrets.py --json'`
+  - SHOWN: `ok=true`, `finding_count=0`, `event_count=0`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_operator_event_secrets.py --json --require-events --require-action ai_copilot_external_provider_call'`
+  - SHOWN: `ok=false`; required action missing.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_operator_event_secrets.py --json --require-events --require-action ai_copilot_report_write'`
+  - SHOWN: `ok=false`; required action missing.
+
+Remaining risk:
+- This is a docs/checkpoint update only. It does not create real AI events,
+  call external providers, write reports, rotate secrets, or close the
+  action-specific no-secret coverage items.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-08-20T23:23:00Z - Host Credential Source Posture Status
 
 Active role: ENGINEER
