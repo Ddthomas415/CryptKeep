@@ -35405,6 +35405,8 @@ What changed:
 - Reused the canonicalizer in `operator_status_bundle` and
   `operator_next_actions` so top-level JSON, nested reports, and planning rows
   all report the canonical underscore lane key.
+- Documented the accepted alias forms in `docs/BACKLOG_EXECUTION_LANES.md` and
+  pinned that wording in `tests/test_backlog_execution_lanes_guard.py`.
 - Added regression tests at the lane-status, status-bundle, and next-actions
   layers.
 
