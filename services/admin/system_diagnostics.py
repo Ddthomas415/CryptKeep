@@ -42,6 +42,21 @@ def _runtime_relative_str(value: object) -> str:
         return _repo_relative_str(raw)
 
 
+def _resolve_runtime_report_path(value: object) -> Path:
+    raw = str(value or "").strip()
+    if not raw:
+        return Path()
+    path = Path(raw).expanduser()
+    if path.is_absolute():
+        return path
+
+    runtime_path = runtime_dir() / path
+    if runtime_path.exists() or path.parts[:1] in {("flags",), ("locks",), ("pids",), ("health",)}:
+        return runtime_path
+
+    return REPO_ROOT / path
+
+
 def _normalize_detail_text(value: object) -> str:
     raw = str(value or "").strip()
     if not raw:
@@ -663,7 +678,7 @@ def apply_safe_self_repair(*, export_bundle: bool = True) -> dict[str, Any]:
             failed.append({"action": "export_diagnostics", "error": f"{type(exc).__name__}: {exc}"})
 
     for item in repair_plan:
-        path = Path(str(item.get("path") or ""))
+        path = _resolve_runtime_report_path(item.get("path"))
         if not _safe_remove_file(path):
             failed.append({"action": str(item.get("action") or ""), "path": _runtime_relative_str(path), "error": "remove_failed"})
             continue
