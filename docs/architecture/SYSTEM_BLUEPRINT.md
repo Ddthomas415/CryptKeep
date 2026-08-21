@@ -115,9 +115,9 @@ carried in a separate column.
 (gross) is apples-to-oranges. The backlog's net-of-fees fix (#28) corrected the **paper**
 path only.
 
-### CLAIM-06 — REFUTED (capital-relevant, UNSAFE direction)
+### CLAIM-06 — RESOLVED (capital-relevant daily-loss policy)
 
-**Claim:** "The live daily-loss cap limits net loss."
+**Original claim:** "The live daily-loss cap limits net loss."
 
 **Trace:**
 ```
@@ -126,27 +126,22 @@ services/risk/risk_daily.py  snapshot() returns:
                                "fees":         fees
                                "pnl": (realized - fees)        <- NET, computed here
         ↓
-services/risk/risk_daily.py  realized_today_usd() -> snap["realized_pnl"]   <- GROSS
+services/risk/risk_daily.py  realized_today_usd() -> snap["pnl"]            <- NET
         ↓
 services/execution/_executor_submit.py:382
                              rpnl = RiskDailyDB(...).realized_today_usd()
                              -> PHASE82 live risk gates
 ```
 
-**Finding:** the live daily-loss gate is evaluated against **gross** realized PnL —
-even though `snapshot()` computes the net figure (`realized - fees`) on the adjacent
-line and does not use it.
+**Finding:** the live daily-loss gate is now evaluated against **net** realized PnL
+including fees. The gross realized field remains available as
+`snapshot()["realized_pnl"]`, but `realized_today_usd()` returns
+`snapshot()["pnl"]`.
 
-**Impact:** on a losing day the true **net** loss exceeds the configured cap by the
-total fees paid. Unlike CLAIM-01 (which understates expectancy — conservative), this
-direction is **unsafe**: it permits more loss than configured. This is a **deferred
-capped-live** concern, not a paper-stage one, since the gate only runs on the live
-submit path — but it must be resolved before capital is exposed.
+**Impact:** fees cannot cause actual fee-inclusive loss to exceed the configured
+daily-loss cap unnoticed.
 
-**Not claimed:** whether the intended policy is a gross or net cap. That is an operator
-decision. The blueprint records only what the code does.
-
-**Regression protection:** `test_realized_today_usd_returns_gross_not_net`,
+**Regression protection:** `test_realized_today_usd_returns_net_including_fees`,
 `test_risk_daily_snapshot_exposes_both_gross_and_net`.
 
 ---
@@ -207,7 +202,7 @@ the paper surface and explicitly disclaims the backtest one.*
 | Sweep optimizes against costs never validated | independent sourcing | `test_backtest_costs_not_sourced_from_user_yaml` | Validate the backtest surface separately |
 | Legacy runner evidence enters analysis | 1.0/0.0 costs | `test_legacy_runner_models_near_free_execution` | Keep non-canonical; never treat as evidence |
 | An uncensused cost surface appears | census drift | `test_no_new_fee_surface_appeared` | Census invariant |
-| **Live daily-loss cap permits more loss than configured** | CLAIM-06: gate reads gross PnL; fees excluded | `test_realized_today_usd_returns_gross_not_net` | **Decide gross-vs-net cap policy before capped-live**; the net figure already exists in `snapshot()["pnl"]` |
+| **Live daily-loss cap fee policy** | CLAIM-06 resolved: gate reads net PnL including fees | `test_realized_today_usd_returns_net_including_fees` | Keep daily-loss policy fee-inclusive unless explicitly changed under capped-live review |
 | Paper (net) vs live/journal (gross) PnL compared | CLAIM-05: same field name, different math | `test_live_position_store_realized_pnl_is_gross_of_fees` | Never compare across the boundary without normalizing |
 | Backtest family diverges internally | 7 modules, 7 defaults | `test_backtest_fee_family_is_internally_consistent` | Family-consistency invariant |
 
@@ -220,11 +215,14 @@ the paper surface and explicitly disclaims the backtest one.*
   consumers and authority **not traced**.
 - ~~**Risk metrics / PnL producers**~~ — **NOW TRACED**: see CLAIM-05 and CLAIM-06.
   `live_position_store` produces GROSS realized PnL; `paper_trading_sqlite` produces NET.
-  `fill_sink` passes gross + fee separately to `risk_daily`. The live daily-loss gate
-  consumes the gross figure.
-- **`canonical_execdb`** realized-PnL semantics: still **UNKNOWN** (it receives
-  `realized_pnl_usd` from `fill_sink`, so presumably gross, but its own transformations
-  were not traced).
+  `fill_sink` passes gross + fee separately to `risk_daily`. `risk_daily.snapshot()["pnl"]`
+  computes net PnL, and the live daily-loss gate consumes that net value through
+  `RiskDailyDB.realized_today_usd()`.
+- ~~**`canonical_execdb` realized-PnL semantics**~~ — **NOW TRACED**:
+  `docs/architecture/canonical_execdb_pnl_classification.md` classifies
+  `canonical_fills.realized_pnl_usd` as source-supplied or `NULL`, with
+  `canonical_fills.fee_usd` stored separately. The local gross fallback is used
+  for `risk_daily`, where downstream net PnL is derived by subtracting fees.
 - **Retirement vs promotion thresholds:** both compute rolling expectancy but from
   different sources; equivalence **not verified**.
 - **`journal_analytics.expectancy_return_pct`:** a fifth expectancy definition; inputs

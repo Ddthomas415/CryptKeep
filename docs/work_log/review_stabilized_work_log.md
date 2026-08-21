@@ -35431,3 +35431,58 @@ Remaining risk:
 - This does not select, execute, or close any backlog task. It only fixes the
   read-only lane-filtering interface used to plan batches.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-21T00:00:00Z - Canonical ExecDB PnL Classification
+
+Active role: ENGINEER
+
+Objective:
+- Resolve the `canonical_execdb` realized-PnL semantics UNKNOWN from the system
+  blueprint without changing runtime behavior.
+
+What was found:
+- SHOWN: `CanonicalJournal.record_fill()` stores `fee_usd` and
+  `realized_pnl_usd` as separate columns and does not subtract fees.
+- SHOWN: `CanonicalFillSink.on_fill()` records source-provided
+  `realized_pnl_usd` into `canonical_fills`; when source PnL is missing, the
+  canonical row stores `NULL`.
+- SHOWN: the missing-PnL fallback is applied later to `risk_daily` through
+  `LivePositionStore.apply_fill()`, whose sell realized PnL is gross of fees.
+- SHOWN: `RiskDailyDB.snapshot()["pnl"]` derives net PnL as realized minus fees,
+  and current `realized_today_usd()` returns that net field for daily-loss
+  gates.
+
+What changed:
+- Added `docs/architecture/canonical_execdb_pnl_classification.md`.
+- Linked the new classification from `docs/ARCHITECTURE.md`,
+  `docs/REPO_LAYOUT.md`, and `docs/CORE.md`.
+- Updated `docs/architecture/SYSTEM_BLUEPRINT.md` to remove the
+  `canonical_execdb` UNKNOWN and align the daily-loss entry with the accepted
+  net-of-fees policy already pinned in tests.
+- Added `tests/test_canonical_execdb_pnl_classification.py` to guard the
+  classification links and the canonical-vs-risk-daily PnL boundary.
+
+Why this change was chosen:
+- This converts an ambiguous accounting surface into a documented,
+  executable classification record while avoiding any runtime, gate, or
+  execution behavior change.
+
+Expected outcome:
+- Future consumers can distinguish canonical source-supplied-or-null PnL from
+  risk-daily gross fallback and net snapshot values before comparing metrics
+  across paper, live, and journal surfaces.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_canonical_execdb_pnl_classification.py tests/test_blueprint_invariants.py tests/test_fill_sink_live_position_integration.py tests/test_fill_sink_logging.py tests/test_risk_daily_atomic.py tests/test_backlog_execution_lanes_guard.py`
+  - SHOWN: `49 passed`.
+- `./.venv/bin/python -m py_compile services/journal/canonical_execdb.py services/journal/fill_sink.py storage/live_position_store_sqlite.py services/risk/risk_daily.py tests/test_canonical_execdb_pnl_classification.py tests/test_blueprint_invariants.py`
+  - SHOWN: exit code 0.
+- `git diff --check`
+  - SHOWN: exit code 0.
+
+Remaining risk:
+- Exchange-provided `realized_pnl_usd` semantics remain source-specific and
+  are stored as supplied; this classification does not prove an exchange's
+  external gross/net convention.
+- Low-risk docs/tests-only change; no runtime behavior changed.
+- Acceptance state: `ACCEPTED`.

@@ -300,4 +300,5 @@ Current classification:
 - `docs/architecture/paper_execution_surfaces.md`
 - `docs/architecture/safety_surface_classification.md`
 - `docs/architecture/storage_surface_classification.md`
+- `docs/architecture/canonical_execdb_pnl_classification.md`
 - `docs/architecture/websocket_surface_classification.md`

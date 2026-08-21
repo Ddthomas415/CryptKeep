@@ -123,6 +123,7 @@ Overlapping service families:
   - `docs/architecture/safety_surface_classification.md`
   - `docs/research/signal_discovery_classification.md`
   - `docs/architecture/storage_surface_classification.md`
+  - `docs/architecture/canonical_execdb_pnl_classification.md`
   - `docs/architecture/websocket_surface_classification.md`
   - `data/` and `data_collector/`
   - `live_router/`, `live_trader_fleet/`, and `live_trader_multi/`
