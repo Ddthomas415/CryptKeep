@@ -135,6 +135,26 @@ def test_backlog_lane_status_filters_by_lane_key(tmp_path: Path) -> None:
     assert out["source_summary"]["high_risk_gate_execution_deploy"] == 2
 
 
+def test_backlog_lane_status_accepts_human_hyphenated_lane_alias(tmp_path: Path) -> None:
+    from services.analytics.backlog_lane_status import build_backlog_lane_status
+
+    _write_lane_doc(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text("See docs/BACKLOG_EXECUTION_LANES.md", encoding="utf-8")
+
+    out = build_backlog_lane_status(repo_root=tmp_path, lane="low-risk-docs-tests")
+
+    assert out["ok"] is True
+    assert out["lane_filter"] == "low_risk_docs_tests"
+    assert out["available_lanes"] == [
+        "passive_operator_evidence",
+        "low_risk_docs_tests",
+        "medium_risk_runtime_read_only",
+        "high_risk_gate_execution_deploy",
+    ]
+    assert out["lane_count"] == 1
+    assert out["lanes"][0]["name"] == "Low-Risk Docs / Tests"
+
+
 def test_backlog_lane_status_rejects_unknown_lane(tmp_path: Path) -> None:
     from services.analytics.backlog_lane_status import build_backlog_lane_status
 

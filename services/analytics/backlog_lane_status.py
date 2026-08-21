@@ -22,6 +22,17 @@ LANE_KEYS: tuple[str, ...] = (
 )
 
 LANE_KEY_TO_HEADING = dict(zip(LANE_KEYS, LANE_HEADINGS))
+LANE_ALIASES: dict[str, str] = {
+    "passive-operator-evidence": "passive_operator_evidence",
+    "low-risk-docs-tests": "low_risk_docs_tests",
+    "medium-risk-runtime-read-only": "medium_risk_runtime_read_only",
+    "high-risk-gate-execution-deploy": "high_risk_gate_execution_deploy",
+}
+
+
+def canonical_lane_key(value: str | None) -> str:
+    raw = str(value or "").strip()
+    return LANE_ALIASES.get(raw, raw)
 
 
 @dataclass(frozen=True)
@@ -111,7 +122,7 @@ def build_backlog_lane_status(
     lane: str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
-    lane_filter = str(lane or "").strip()
+    lane_filter = canonical_lane_key(lane)
     lane_doc = root / "docs" / "BACKLOG_EXECUTION_LANES.md"
     backlog = root / "REMAINING_TASKS.md"
     lane_text = _read_text(lane_doc)

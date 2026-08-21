@@ -464,6 +464,51 @@ def test_operator_next_actions_backlog_lane_filter_reports_planning_rows_not_act
     ]
 
 
+def test_operator_next_actions_accepts_human_backlog_lane_alias(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    captured = {}
+
+    def fake_bundle(repo_root=None, **filters):
+        captured.update(filters)
+        return {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "backlog_lane_actions_required": 1,
+                "source_backlog_lane_actions_required": 1,
+                "operator_proof_actions_required": 0,
+            },
+            "actions": {
+                "backlog_lanes": [
+                    {
+                        "lane_key": "low_risk_docs_tests",
+                        "ordinal": 1,
+                        "next_action": "select or execute a scoped batch for docs",
+                    }
+                ],
+                "operator_proofs": [],
+            },
+        }
+
+    monkeypatch.setattr(mod, "build_operator_status_bundle", fake_bundle)
+
+    out = mod.build_operator_next_actions(repo_root=".", backlog_lane="low-risk-docs-tests", max_actions=20)
+
+    assert captured["backlog_lane"] == "low_risk_docs_tests"
+    assert out["backlog_lane_filter"] == "low_risk_docs_tests"
+    assert out["planning_rows"] == [
+        {
+            "lane": "backlog_lane",
+            "source": "low_risk_docs_tests",
+            "line": None,
+            "ordinal": 1,
+            "blocking_reason": "backlog_lane_item",
+            "next_action": "select or execute a scoped batch for docs",
+        }
+    ]
+
+
 def test_operator_next_actions_forwards_backlog_lane_ordinal(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
 

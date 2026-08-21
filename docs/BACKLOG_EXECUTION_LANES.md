@@ -52,6 +52,11 @@ and `OPERATOR_NEXT_ACTIONS_BACKLOG_LANE_ORDINAL`. Use that selector to name the
 exact lane item before opening another implementation batch. Invalid selectors
 fail closed instead of returning an empty successful plan.
 
+Lane filters accept the canonical machine keys, such as `low_risk_docs_tests`,
+and human hyphenated aliases, such as `low-risk-docs-tests`. Reports normalize
+accepted aliases back to canonical machine keys so downstream automation remains
+stable.
+
 The operator-reporting selector stack is already covered by dedicated
 read-only contract and backlog/work-log synchronization guards. Do not rebuild
 that stack as a fresh backlog item; use the existing reports and guards unless

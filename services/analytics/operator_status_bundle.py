@@ -4,7 +4,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from services.analytics.backlog_lane_status import LANE_KEY_TO_HEADING, build_backlog_lane_status
+from services.analytics.backlog_lane_status import (
+    LANE_KEY_TO_HEADING,
+    build_backlog_lane_status,
+    canonical_lane_key,
+)
 from services.analytics.operator_read_only_command_status import build_operator_read_only_command_status
 from services.analytics.operator_proof_status import build_operator_proof_status
 from services.analytics.research_artifact_inventory import build_research_artifact_inventory
@@ -71,7 +75,7 @@ def build_operator_status_bundle(
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     section_filter = str(section or "").strip()
     available_sections = tuple(_SECTION_REPORT_KEYS)
-    backlog_lane_filter = str(backlog_lane or "").strip()
+    backlog_lane_filter = canonical_lane_key(backlog_lane)
     backlog_lane_ordinal_filter = str(backlog_lane_ordinal or "").strip()
     research_pipeline_filter = str(research_pipeline or "").strip()
     research_artifact_lane_filter = str(research_artifact_lane or "").strip()
