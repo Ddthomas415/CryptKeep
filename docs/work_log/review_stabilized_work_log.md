@@ -35261,3 +35261,67 @@ Remaining risk:
   validate live credentials, and it does not close the server
   injection/rotation drill.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-21T04:19:00Z - Read-Only Runtime and Host Check-In
+
+Active role: ENGINEER
+
+Objective:
+- Record current laptop and Hetzner runtime status without waiting on unrelated
+  CI and without mutating services, campaigns, state, deployment, or risk
+  policy.
+
+What was found:
+- SHOWN: PR #518 was opened for canonical ExecDB PnL classification; GitGuardian
+  passed and the remaining checks were pending at first status check.
+- SHOWN: laptop paper campaigns report `ok=true`, `running_count=2`, with
+  `es_daily_trend_v1` and `breakout_default` both running and idle after the
+  2026-08-21 daily cycle.
+- SHOWN: ES paper-gate velocity reports `3/5` qualified round trips, `60/60`
+  qualified bars, and projected completion on
+  `2026-09-11T04:19:18.304911+00:00` under observed cadence.
+- SHOWN: cost-assumption check exits `2` with overall `warning`; paper engine
+  fee/slippage are configured at `7.5/5.0` bps, with remaining warnings for
+  independently sourced evidence/backtest cost surfaces.
+- SHOWN: Hetzner paper campaign status reports `1/1` running; `ema_cross_default`
+  is idle with `reason=waiting_for_next_day`, `fills=12`, `closed=6`,
+  `pnl=-1.9833`, and recommendation `continue_paper_observation`.
+- SHOWN: Hetzner edge runtime reports `ok=True`, remote branch `master`, remote
+  head `a10aca01fc37de181cc32d17a30e5d677050f901`, and `blocking_checks=0`.
+- SHOWN: Hetzner edge cadence reports `ok=true`; funding/open-interest/basis are
+  fresh with capture timestamp `2026-08-21T03:08:42+00:00`.
+
+What changed:
+- Added `docs/checkpoints/host_runtime_checkin_2026_08_21.md`.
+- Updated the deployment backlog row with the read-only runtime check-in.
+
+Why this change was chosen:
+- The current next-action queue is dominated by operator-proof and host-side
+  evidence, not new low-risk coding work. Recording current read-only runtime
+  evidence advances that queue without changing the trading system.
+
+Expected outcome:
+- Operators have a current checkpoint showing paper campaign liveness, ES gate
+  velocity, cost-assumption warning state, Hetzner paper status, and edge
+  cadence freshness.
+
+Verification:
+- `make status-paper-campaigns`
+  - SHOWN: `ok=true`, `running_count=2`.
+- `make status-paper-gate-velocity-json`
+  - SHOWN: `3/5` qualified round trips, `60/60` qualified bars.
+- `make check-cost-assumptions-json`
+  - SHOWN: exit code `2`, overall `warning`.
+- `make status-paper-hetzner`
+  - SHOWN: `Campaigns: 1/1 running`.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `status=hetzner_crypto_edge_runtime_ready`, `ok=True`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json'`
+  - SHOWN: `ok=true`; funding/open-interest/basis fresh.
+
+Remaining risk:
+- This checkpoint does not close deployment installation/post-install,
+  backup/restore, secrets rotation, live-intent history initialization, or
+  launch-packet action-event proofs.
+- Docs/checkpoint-only change; no runtime behavior changed.
+- Acceptance state: `ACCEPTED`.

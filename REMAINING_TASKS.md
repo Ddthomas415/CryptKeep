@@ -1637,6 +1637,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `cbp-crypto-edge-collector.service` and `cbp-edge-cadence.timer` remained
    active. The broader deployment installation/post-install proof still remains
    open.
+   2026-08-21: read-only runtime check-in is recorded in
+   `docs/checkpoints/host_runtime_checkin_2026_08_21.md`. Laptop paper
+   campaigns are `2/2` running and idle after the 2026-08-21 daily cycle;
+   Hetzner paper campaign is `1/1` running and idle; Hetzner edge runtime is
+   ready on master `a10aca01f`; OKX funding/open-interest/basis cadence is
+   fresh at `2026-08-21T03:08:42+00:00`. This is status evidence only; it does
+   not close deployment installation/post-install, backup/restore, or launch
+   proof items.
 6. Add trading-loop metrics and dead-man alerting. Host health checks are not
    enough; each managed trading loop needs heartbeat metrics and alert-on-absence
    within a defined time window. Include a watchdog proof that each loop checks
