@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from services.analytics.backlog_lane_status import canonical_lane_key
 from services.analytics.operator_status_bundle import build_operator_status_bundle
 
 
@@ -235,7 +236,7 @@ def build_operator_next_actions(
     reason_filter = str(reason or "").strip()
     exclude_reason_filters = _split_filter_values(exclude_reasons)
     source_filter = str(action_source or "").strip()
-    backlog_lane_filter = str(backlog_lane or "").strip()
+    backlog_lane_filter = canonical_lane_key(backlog_lane)
     backlog_lane_ordinal_filter = str(backlog_lane_ordinal or "").strip()
     research_pipeline_filter = str(research_pipeline or "").strip()
     research_artifact_lane_filter = str(research_artifact_lane or "").strip()

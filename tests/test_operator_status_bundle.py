@@ -243,6 +243,24 @@ def test_operator_status_bundle_forwards_backlog_filter(tmp_path: Path) -> None:
     ]
 
 
+def test_operator_status_bundle_accepts_human_backlog_lane_alias(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="backlog",
+        backlog_lane="low-risk-docs-tests",
+    )
+
+    assert out["ok"] is True
+    assert out["backlog_lane_filter"] == "low_risk_docs_tests"
+    assert out["reports"]["backlog_lane_status"]["lane_filter"] == "low_risk_docs_tests"
+    assert out["summary"]["backlog_lane_actions_required"] == 1
+    assert out["actions"]["backlog_lanes"][0]["lane_key"] == "low_risk_docs_tests"
+
+
 def test_operator_status_bundle_filters_backlog_lane_by_ordinal(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 

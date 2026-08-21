@@ -35383,3 +35383,49 @@ Remaining risk:
   It does not install units, restart services, complete backup/restore proof,
   or close capped-live proof.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-21T00:12:23Z - Backlog Lane Filter Alias Repair
+
+Active role: ENGINEER
+
+Objective:
+- Repair the operator roadmap workflow so human hyphenated backlog-lane names
+  such as `low-risk-docs-tests` work the same as the canonical machine key
+  `low_risk_docs_tests`.
+
+What was found:
+- SHOWN: `scripts/report_operator_status_bundle.py --json --backlog-lane
+  low-risk-docs-tests` returned `ok=false` with `reason=invalid_lane`.
+- SHOWN: the canonical lane existed as `low_risk_docs_tests`, and the lane
+  document/operator language uses human hyphenated names.
+
+What changed:
+- Added `canonical_lane_key()` and explicit hyphenated aliases in
+  `services.analytics.backlog_lane_status`.
+- Reused the canonicalizer in `operator_status_bundle` and
+  `operator_next_actions` so top-level JSON, nested reports, and planning rows
+  all report the canonical underscore lane key.
+- Added regression tests at the lane-status, status-bundle, and next-actions
+  layers.
+
+Why this change was chosen:
+- This is a low-risk reporting/tooling fix. It removes a workflow friction point
+  without changing backlog contents, campaign behavior, promotion gates,
+  research execution, host state, or trading authority.
+
+Expected outcome:
+- Operators can use readable lane aliases when selecting safe batches, while
+  downstream automation continues to receive stable canonical lane keys.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backlog_lane_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: `57 passed`.
+- `./.venv/bin/python scripts/report_operator_status_bundle.py --json --backlog-lane low-risk-docs-tests | ./.venv/bin/python -c '...'`
+  - SHOWN: `True low_risk_docs_tests 7`.
+- `./.venv/bin/python scripts/report_operator_next_actions.py --json --backlog-lane medium-risk-runtime-read-only --max-actions 20 | ./.venv/bin/python -c '...'`
+  - SHOWN: `True medium_risk_runtime_read_only 7 0`.
+
+Remaining risk:
+- This does not select, execute, or close any backlog task. It only fixes the
+  read-only lane-filtering interface used to plan batches.
+- Acceptance state: `ACCEPTED`.
