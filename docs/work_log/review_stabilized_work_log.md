@@ -35071,3 +35071,97 @@ Remaining risk:
 - This does not complete the backup/restore drill, install systemd units,
   restart services, initialize live intent history, or change host permissions.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-19T21:25:00Z - System Diagnostics Safe-Repair Runtime Path Fix
+
+Active role: ENGINEER
+
+Objective:
+- Fix the local diagnostics safe-repair path resolution so stale runtime
+  markers reported as `flags/...` or `pids/...` are removed from the actual
+  runtime directory instead of the repo root.
+
+What was found:
+- SHOWN: `scripts/run_system_diagnostics.py --preview-repair` reported 10 safe
+  cleanup actions for stale runtime pid/stop files.
+- SHOWN: the first `--repair-safe` run removed `0` files and reported
+  `remove_failed` because `apply_safe_self_repair()` treated normalized report
+  paths like `flags/paper_engine.stop` as repo-root paths.
+- SHOWN: the actual files lived under `.cbp_state/runtime/flags` and
+  `.cbp_state/runtime/pids`.
+
+What changed:
+- Added runtime-report path resolution in
+  `services/admin/system_diagnostics.py` before safe removal.
+- Added a regression test proving a report path such as
+  `flags/strategy_runner.stop` resolves to the configured `runtime_dir()`.
+
+Why this change was chosen:
+- The diagnostics report intentionally displays runtime-relative paths for
+  readability. Repair must reverse that display normalization before unlinking,
+  otherwise the operator workflow reports repairable issues but cannot clear
+  them.
+
+Expected outcome:
+- `scripts/run_system_diagnostics.py --repair-safe` can remove safe stale
+  runtime markers and leave diagnostics with no repairable stale pid/stop-file
+  issues.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_system_diagnostics.py tests/test_run_system_diagnostics.py`
+  - SHOWN: `7 passed`.
+- `./.venv/bin/python -m py_compile services/admin/system_diagnostics.py tests/test_system_diagnostics.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/run_system_diagnostics.py --repair-safe`
+  - SHOWN: `ok=true`, `removed_count=10`, `failed_actions=[]`, and
+    `diagnostics_after.summary.repairable_issues=0`.
+
+Remaining risk:
+- This is local operator-runtime cleanup only. It does not start services,
+  restart campaigns, change host state, or close the Hetzner/capped-live proof
+  items.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-08-19T21:44:23Z - Codex Remediation Prompts For Repeated Workflow Failures
+
+Active role: ENGINEER
+
+Objective:
+- Record corrective operating prompts for repeated Codex workflow failures so
+  future sessions stop reintroducing the same GitHub auth, CI-waiting, and
+  repeated-backlog-finding friction.
+
+What was found:
+- SHOWN: GitHub publishing had been conflated across sandbox network failures,
+  `gh auth status`, git credential-helper setup, remote git capability, and PR
+  API capability.
+- SHOWN: PR #512 was created only after separating helper wiring, remote push,
+  connector limitations, and sandbox-vs-outside-sandbox network behavior.
+- CLAIMED by operator feedback: repeated waiting, repeated auth prompts, and
+  repeated already-resolved findings are materially slowing progress.
+
+What changed:
+- Added `docs/CODEX_REMEDIATION_PROMPTS.md` with corrective prompts for:
+  GitHub auth and publishing, CI-and-next-work flow, and repeated backlog
+  findings.
+
+Why this change was chosen:
+- A durable prompt artifact is lower-friction than re-litigating the same
+  workflow problem in every session. It gives future Codex runs an explicit
+  checklist before asking the operator to authenticate again, waiting on CI, or
+  presenting an old issue as new.
+
+Expected outcome:
+- Future sessions classify GitHub failures before requesting login, continue
+  safe non-overlapping work while CI is pending, and search the current backlog
+  plus work log before naming a problem as open.
+
+Verification:
+- `test -f docs/CODEX_REMEDIATION_PROMPTS.md`
+  - SHOWN: file exists.
+- Documentation-only change; no runtime tests required.
+
+Remaining risk:
+- This does not change Codex system behavior by itself; future sessions must
+  read and follow the remediation prompt file.
+- Acceptance state: `ACCEPTED`.

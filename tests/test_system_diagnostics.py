@@ -87,3 +87,30 @@ def test_apply_safe_self_repair_removes_paths_and_exports(monkeypatch, tmp_path:
     assert str(export_path) == out["export_path"]
     assert stale_lock.exists() is False
     assert stale_pid.exists() is False
+
+
+def test_apply_safe_self_repair_resolves_runtime_relative_report_paths(monkeypatch, tmp_path: Path) -> None:
+    runtime = tmp_path / "runtime"
+    flags = runtime / "flags"
+    flags.mkdir(parents=True)
+    stale_stop = flags / "strategy_runner.stop"
+    stale_stop.write_text("2026-08-19T00:00:00Z\n", encoding="utf-8")
+
+    monkeypatch.setattr(
+        sd,
+        "preview_safe_self_repair",
+        lambda: {
+            "ok": True,
+            "repair_plan": [
+                {"action": "remove_stale_stop_file", "path": "flags/strategy_runner.stop"},
+            ],
+        },
+    )
+    monkeypatch.setattr(sd, "runtime_dir", lambda: runtime)
+    monkeypatch.setattr(sd, "run_full_diagnostics", lambda export_bundle=False: {"ok": True, "status": "ok", "summary": {}})
+
+    out = sd.apply_safe_self_repair(export_bundle=False)
+
+    assert out["ok"] is True
+    assert out["removed_paths"] == ["flags/strategy_runner.stop"]
+    assert stale_stop.exists() is False
