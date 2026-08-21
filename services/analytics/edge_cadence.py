@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import math
 import os
+import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 
@@ -23,6 +25,14 @@ META_KEYS = {
     "basis": "basis_meta",
     "quote": "quote_meta",
     "order_book": "order_book_meta",
+}
+
+TABLES = {
+    "funding": "funding_snapshots",
+    "open_interest": "open_interest_snapshots",
+    "basis": "basis_snapshots",
+    "quote": "quote_snapshots",
+    "order_book": "order_book_snapshots",
 }
 
 
@@ -112,6 +122,54 @@ def evaluate_cadence(
     }
 
 
+def _default_store_path() -> Path:
+    from storage.crypto_edge_store_sqlite import DB_PATH
+
+    return Path(DB_PATH)
+
+
+def _table_exists(conn: sqlite3.Connection, table: str) -> bool:
+    row = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ? LIMIT 1",
+        (table,),
+    ).fetchone()
+    return row is not None
+
+
+def _latest_snapshot_meta_read_only(conn: sqlite3.Connection, table: str) -> dict[str, Any] | None:
+    if not _table_exists(conn, table):
+        return None
+    row = conn.execute(
+        f"SELECT snapshot_id, capture_ts, source, COUNT(*) AS row_count FROM {table} "
+        "GROUP BY snapshot_id, capture_ts, source "
+        "ORDER BY capture_ts DESC LIMIT 1"
+    ).fetchone()
+    if not row:
+        return None
+    return {
+        "snapshot_id": str(row["snapshot_id"]),
+        "capture_ts": str(row["capture_ts"]),
+        "source": str(row["source"]),
+        "row_count": int(row["row_count"] or 0),
+    }
+
+
+def _latest_report_read_only(store_path: str | None = None) -> dict[str, Any]:
+    path = Path(store_path).expanduser() if store_path else _default_store_path()
+    if not path.exists():
+        return {"store_path": str(path), "has_any_data": False}
+    conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    conn.row_factory = sqlite3.Row
+    try:
+        report: dict[str, Any] = {"store_path": "redacted"}
+        for family, meta_key in META_KEYS.items():
+            report[meta_key] = _latest_snapshot_meta_read_only(conn, TABLES[family])
+        report["has_any_data"] = any(bool(report.get(meta_key)) for meta_key in META_KEYS.values())
+        return report
+    finally:
+        conn.close()
+
+
 def check_edge_cadence(
     *,
     store_path: str | None = None,
@@ -119,10 +177,7 @@ def check_edge_cadence(
     max_age_sec: dict[str, float] | None = None,
 ) -> dict[str, Any]:
     try:
-        from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite
-
-        store = CryptoEdgeStoreSQLite(path=store_path or "")
-        report = store.latest_report()
+        report = _latest_report_read_only(store_path=store_path)
     except Exception as exc:
         return {
             "ok": False,
