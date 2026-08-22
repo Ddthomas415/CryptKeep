@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -112,11 +113,48 @@ def test_bad_env_override_falls_back_to_default(monkeypatch):
 
 
 def test_empty_created_store_reports_missing_families(tmp_path):
-    result = ec.check_edge_cadence(store_path=str(tmp_path / "new_store.sqlite"))
+    store_path = tmp_path / "new_store.sqlite"
+
+    result = ec.check_edge_cadence(store_path=str(store_path))
 
     assert result["ok"] is False
     assert "funding" in result["missing"]
     assert "store_error" not in result
+    assert not store_path.exists()
+
+
+def test_check_edge_cadence_reads_existing_store_without_writer_init(tmp_path):
+    db_path = tmp_path / "edge.sqlite"
+    capture_ts = datetime.now(timezone.utc).isoformat()
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            "CREATE TABLE funding_snapshots("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, snapshot_id TEXT, capture_ts TEXT, "
+            "source TEXT, symbol TEXT, venue TEXT, funding_rate REAL, interval_hours REAL, payload_json TEXT)"
+        )
+        conn.execute(
+            "CREATE TABLE open_interest_snapshots("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, snapshot_id TEXT, capture_ts TEXT, "
+            "source TEXT, symbol TEXT, venue TEXT, open_interest REAL, price_change_pct REAL, payload_json TEXT)"
+        )
+        conn.execute(
+            "CREATE TABLE basis_snapshots("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, snapshot_id TEXT, capture_ts TEXT, "
+            "source TEXT, symbol TEXT, venue TEXT, spot_px REAL, perp_px REAL, days_to_expiry REAL, payload_json TEXT)"
+        )
+        for table in ("funding_snapshots", "open_interest_snapshots", "basis_snapshots"):
+            conn.execute(
+                f"INSERT INTO {table}(snapshot_id, capture_ts, source, symbol, venue, payload_json) "
+                "VALUES(?,?,?,?,?,?)",
+                ("snap-1", capture_ts, "test", "BTC/USDT", "okx", "{}"),
+            )
+        conn.commit()
+
+    result = ec.check_edge_cadence(store_path=str(db_path))
+
+    assert result["ok"] is True
+    assert "store_error" not in result
+    assert result["missing"] == []
 
 
 def test_alert_dispatch_is_best_effort(monkeypatch):

@@ -35486,3 +35486,52 @@ Remaining risk:
   external gross/net convention.
 - Low-risk docs/tests-only change; no runtime behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-21T01:28:00Z - Edge Cadence Checker True Read-Only Repair
+
+Active role: ENGINEER
+
+Objective:
+- Repair `scripts/check_edge_cadence.py` so the advertised read-only cadence
+  check does not instantiate the crypto-edge writer store or attempt SQLite
+  writes on host state.
+
+What was found:
+- SHOWN: direct Hetzner cadence check returned
+  `OperationalError: attempt to write a readonly database`.
+- SHOWN: `services.analytics.edge_cadence.check_edge_cadence()` constructed
+  `CryptoEdgeStoreSQLite`, whose initialization runs DDL/WAL setup before
+  reading latest metadata.
+- SHOWN: the script help and systemd tests classify this checker as read-only.
+
+What changed:
+- Replaced the writer-store read path in `services.analytics.edge_cadence` with
+  SQLite `mode=ro` metadata queries over the known crypto-edge snapshot tables.
+- Missing DB or missing tables now report missing cadence data without creating
+  files or initializing schema.
+- Added regression coverage proving the checker does not create a missing DB
+  and can read an existing metadata DB without returning `store_error`.
+
+Why this change was chosen:
+- The cadence checker is an operator/read-only proof surface. A read-only
+  status command must not require write permission to the host database, and it
+  must not mutate the DB just to determine freshness.
+
+Expected outcome:
+- Host cadence checks distinguish stale/missing data from database write
+  permission errors caused by the checker itself.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_edge_cadence.py tests/test_funding_stage0_readiness.py tests/test_report_hetzner_crypto_edge_runtime_status.py tests/test_roadmap_tracking_status.py`
+  - SHOWN: `33 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/edge_cadence.py scripts/check_edge_cadence.py`
+  - SHOWN: exit code 0.
+- `make check-edge-cadence-json`
+  - SHOWN: no `store_error`; local data is stale, so the command correctly
+    exits non-zero with stale funding/open_interest/basis.
+
+Remaining risk:
+- This does not restart collectors, repair stale local data, or close host
+  cadence proof by itself. It only fixes the checker so read-only cadence proof
+  can be gathered without write access.
+- Acceptance state: `ACCEPTED`.
