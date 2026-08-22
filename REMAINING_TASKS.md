@@ -3239,7 +3239,22 @@ substrate work, but they are concrete enough to keep visible.
     allowed/forbidden provider payload families, advisory-only provider
     summaries, and the accepted data-disclosure decision requirement. This is
     docs/test only and does not change AI provider behavior or runtime access.
-21. Bring permanently ignored CI tests back under an explicit policy. Current
+21. Add a Jarvis-like Operator Briefing and Guidance Agent as an advisory-only
+    AI layer. The goal is to reduce operator interaction by producing a regular
+    evidence-backed brief over campaign health, gate progress, host/data
+    freshness, CI/PR state, cost/PnL warnings, research-artifact changes, and
+    recommended next actions. Scope boundaries: the assistant may summarize,
+    rank, recommend, draft PRs/runbooks, and ask for approval; it must not move
+    capital, change live risk, promote strategies, start/stop campaigns, mutate
+    manifests/configs, or alter execution/routing policy without explicit
+    operator approval and the existing deterministic gates. Acceptance criteria:
+    define the briefing schema, evidence sources, recommendation confidence
+    labels, alert/escalation thresholds, audit logging, and a read-only command
+    that emits a daily/operator-on-demand brief from existing status reports.
+    Keep this as "autonomous analyst/operator assistant," not "autonomous
+    trader." Any future capital-authority expansion requires a separate
+    high-risk design review.
+22. Bring permanently ignored CI tests back under an explicit policy. Current
     CI invokes pytest with four `--ignore` entries:
     `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,
     `tests/test_dashboard_page_runtime.py`, and
@@ -3273,7 +3288,7 @@ substrate work, but they are concrete enough to keep visible.
     `workflow_dispatch` only; `tests/test_ci_ignored_tests_policy.py` is the
     regression guard. Remaining work is future hygiene only: do not reintroduce
     hidden permanent ignores without a reviewed policy update.
-22. Decide retention policy for evidence, snapshot, status, and runtime stores
+23. Decide retention policy for evidence, snapshot, status, and runtime stores
     before server operation accumulates unbounded state. Prior audits found
     pruning/DELETE behavior only in narrow strategy-state and desktop logging
     surfaces; evidence logs, snapshots, status files, and SQLite stores mostly
@@ -3299,7 +3314,7 @@ substrate work, but they are concrete enough to keep visible.
     threshold baseline, and capped-live caveat. This is docs/test only and
     does not change runtime behavior; future launch-packet host evidence
     remains open.
-23. Turn paper diagnostics and loss replay into a scheduled strategy-review
+24. Turn paper diagnostics and loss replay into a scheduled strategy-review
     ritual. Tooling exists through `scripts/report_paper_run_diagnostics.py`,
     `scripts/dev/replay_paper_losses.py`, and the AI copilot
     `paper_loss_replay` job, but the repo does not yet define a weekly
@@ -3331,7 +3346,7 @@ substrate work, but they are concrete enough to keep visible.
     advisory-only boundary, RUNBOOKS link, and existing dated artifact. This
     is docs/test only and does not change runtime behavior; future review
     cadence remains an operator action.
-24. Define stock-options requirements before any equities/options data,
+25. Define stock-options requirements before any equities/options data,
     campaign, gate, or execution work. This is a separate research/governance
     surface from the current crypto paper gate. Required scope: broker/options
     account approval level, OCC/ODD disclosure boundary, OPRA or vendor market

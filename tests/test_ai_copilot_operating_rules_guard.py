@@ -93,3 +93,19 @@ def test_backlog_links_ai_copilot_operating_rules() -> None:
 
     assert DOC in backlog
     assert (REPO / DOC).is_file()
+
+
+def test_backlog_tracks_advisory_operator_briefing_agent_boundary() -> None:
+    backlog = _normalized("REMAINING_TASKS.md")
+
+    assert "Jarvis-like Operator Briefing and Guidance Agent" in backlog
+    assert "autonomous analyst/operator assistant" in backlog
+    assert "not \"autonomous trader.\"" in backlog
+    assert "campaign health, gate progress, host/data" in backlog
+    assert "CI/PR state, cost/PnL warnings, research-artifact changes" in backlog
+    assert "must not move" in backlog
+    assert "change live risk" in backlog
+    assert "promote strategies" in backlog
+    assert "start/stop campaigns" in backlog
+    assert "alter execution/routing policy" in backlog
+    assert "separate high-risk design review" in backlog

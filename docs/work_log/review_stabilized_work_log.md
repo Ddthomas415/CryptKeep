@@ -35535,3 +35535,49 @@ Remaining risk:
   cadence proof by itself. It only fixes the checker so read-only cadence proof
   can be gathered without write access.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-22T01:35:00Z - Jarvis-Like Operator Briefing Agent Backlog Scope
+
+Active role: ENGINEER
+
+Objective:
+- Add the user's desired Jarvis-like assistant direction to the backlog without
+  changing runtime behavior or granting AI capital authority.
+
+What was found:
+- SHOWN: existing AI-copilot backlog and operating rules already preserve
+  deterministic trading/risk authority and advisory-only provider summaries.
+- SHOWN: the requested direction fits as an advisory operator-briefing layer,
+  not as autonomous execution, promotion, routing, or live-risk authority.
+
+What changed:
+- Added `REMAINING_TASKS.md` item 21 for a Jarvis-like Operator Briefing and
+  Guidance Agent.
+- Scoped the item to evidence-backed campaign/gate/host/data/CI/cost/PnL/
+  research summaries, recommendations, PR/runbook drafts, and approval prompts.
+- Explicitly prohibited moving capital, changing live risk, promoting
+  strategies, starting/stopping campaigns, mutating manifests/configs, or
+  altering execution/routing policy without explicit operator approval and
+  existing deterministic gates.
+- Added a regression guard in `tests/test_ai_copilot_operating_rules_guard.py`
+  to keep the advisory-only boundary visible.
+
+Why this change was chosen:
+- It records the long-term product direction that reduces operator interaction
+  while preserving the repo's core safety model: AI advises; deterministic
+  gates and the operator retain capital authority.
+
+Expected outcome:
+- Future AI/operator work has a backlog anchor for building a daily/on-demand
+  briefing agent before any higher-risk autonomy is considered.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_operating_rules_guard.py tests/test_backlog_execution_lanes_guard.py tests/test_roadmap_tracking_checklist.py`
+  - SHOWN: `20 passed`.
+- `git diff --check`
+  - SHOWN: exit code 0.
+
+Remaining risk:
+- Docs/test only; no implementation exists yet. The future implementation must
+  remain read-only/advisory unless separately reviewed as high risk.
+- Acceptance state: `ACCEPTED`.
