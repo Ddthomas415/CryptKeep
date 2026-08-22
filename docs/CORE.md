@@ -67,6 +67,8 @@ consolidating modules by name:
   client-order-id, and legacy live-trader dispositions.
 - `docs/architecture/storage_surface_classification.md` - core, candidate, and
   quarantined SQLite store surfaces.
+- `docs/architecture/canonical_execdb_pnl_classification.md` - canonical ExecDB
+  gross-vs-net realized-PnL semantics.
 - `docs/architecture/websocket_surface_classification.md` - optional websocket
   services versus helper/status modules.
 - `docs/research/signal_discovery_classification.md` - research/advisory signal
