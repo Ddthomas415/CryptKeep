@@ -35829,3 +35829,51 @@ Remaining risk:
 - Does not close dead-man scheduling/heartbeat production proof; host checker
   currently reports missing heartbeats.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T05:26:44Z - Hetzner Operator-Event Journal Status
+
+Active role: ENGINEER
+
+Objective:
+- Record the current host-side operator-event/audit-journal proof state without
+  writing events, starting/stopping services, or changing live/shadow state.
+
+What was found:
+- SHOWN: host `scripts/check_operator_event_secrets.py --json` under
+  `CBP_STATE_DIR=/var/lib/cbp` reports `ok=true` with no findings, but the
+  journal does not exist and `event_count=0`.
+- SHOWN: the same scan with `--require-events` fails with
+  `operator_event_journal_missing`.
+- SHOWN: host `scripts/check_operator_arm_to_halt_replay.py --json` fails with
+  `operator_event_journal_missing`; there are no arm/halt events to replay.
+
+What changed:
+- Added `docs/checkpoints/host_operator_event_status_2026_08_23.md` with the
+  exact read-only commands and outputs.
+
+Why this change was chosen:
+- The next visible queue rows are host-side and capped-live audit proof rows.
+  Recording the current host evidence clarifies the actual blocker: missing
+  host operator-event journal/events, not a replay mismatch.
+
+Expected outcome:
+- Future launch-proof work starts from the right blocker: produce real
+  operator-event records through accepted hooks/drills, then rerun the
+  no-secret scan and arm-to-halt replay.
+
+Verification:
+- Host command:
+  `ssh -o BatchMode=yes -o ConnectTimeout=10 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_operator_event_secrets.py --json'`
+  - SHOWN: `ok=true`, `event_count=0`, `exists=false`, `finding_count=0`.
+- Host command:
+  `ssh -o BatchMode=yes -o ConnectTimeout=10 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_operator_event_secrets.py --json --require-events'`
+  - SHOWN: exit code 1, `operator_event_journal_missing`.
+- Host command:
+  `ssh -o BatchMode=yes -o ConnectTimeout=10 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_operator_arm_to_halt_replay.py --json'`
+  - SHOWN: exit code 1, `operator_event_journal_missing`.
+
+Remaining risk:
+- Docs/checkpoint only; no host state changed.
+- Does not close no-secret launch proof or arm-to-halt replay proof because
+  required host events are absent.
+- Acceptance state: `ACCEPTED`.
