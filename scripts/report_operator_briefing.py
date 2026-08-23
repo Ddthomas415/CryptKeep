@@ -65,8 +65,17 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON only")
     parser.add_argument("--max-actions", type=int, default=8, help="Maximum next-action rows to include")
+    parser.add_argument(
+        "--config",
+        default="configs/paper_evidence_campaigns.laptop.json",
+        help="Paper campaign config used for the campaign-status section.",
+    )
     args = parser.parse_args(argv)
-    payload = build_operator_briefing(repo_root=ROOT, max_actions=args.max_actions)
+    payload = build_operator_briefing(
+        repo_root=ROOT,
+        max_actions=args.max_actions,
+        campaign_config_path=args.config,
+    )
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:

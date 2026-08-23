@@ -162,10 +162,10 @@ operator-next-actions-passive-json:
 
 OPERATOR_BRIEFING_MAX_ACTIONS ?= 8
 operator-briefing:
-	$(PYTHON) scripts/report_operator_briefing.py --max-actions $(OPERATOR_BRIEFING_MAX_ACTIONS)
+	$(PYTHON) scripts/report_operator_briefing.py --config $(PAPER_CAMPAIGN_CONFIG) --max-actions $(OPERATOR_BRIEFING_MAX_ACTIONS)
 
 operator-briefing-json:
-	@$(PYTHON) scripts/report_operator_briefing.py --json --max-actions $(OPERATOR_BRIEFING_MAX_ACTIONS)
+	@$(PYTHON) scripts/report_operator_briefing.py --json --config $(PAPER_CAMPAIGN_CONFIG) --max-actions $(OPERATOR_BRIEFING_MAX_ACTIONS)
 
 OPERATOR_EVENT_PATH ?=
 OPERATOR_EVENT_REQUIRE_EVENTS ?=

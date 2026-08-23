@@ -7,11 +7,7 @@ from typing import Any, Callable
 from services.analytics.cost_assumptions import check_cost_assumptions
 from services.analytics.operator_next_actions import build_operator_next_actions
 from services.analytics.operator_status_bundle import build_operator_status_bundle
-from services.analytics.paper_campaign_recovery import (
-    DEFAULT_CONFIG_PATH,
-    load_campaign_specs,
-    manage_campaigns,
-)
+from services.analytics.paper_campaign_recovery import load_campaign_specs, manage_campaigns
 from services.control.paper_gate_velocity import build_paper_gate_velocity_report
 
 
@@ -63,8 +59,8 @@ def _latest_result(collector: dict[str, Any]) -> dict[str, Any]:
     return results[-1] if results else {}
 
 
-def build_paper_campaign_status_report() -> dict[str, Any]:
-    specs = load_campaign_specs(DEFAULT_CONFIG_PATH)
+def build_paper_campaign_status_report(*, config_path: str | Path) -> dict[str, Any]:
+    specs = load_campaign_specs(Path(config_path))
     return manage_campaigns(specs, restore=False)
 
 
@@ -241,8 +237,12 @@ def build_operator_briefing(
     *,
     repo_root: str | Path | None = None,
     max_actions: int = 8,
+    campaign_config_path: str | Path = "configs/paper_evidence_campaigns.laptop.json",
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
+    campaign_config = Path(campaign_config_path)
+    if not campaign_config.is_absolute():
+        campaign_config = root / campaign_config
     sources = {
         "operator_status": _source(
             "operator_status",
@@ -252,7 +252,10 @@ def build_operator_briefing(
             "operator_next_actions",
             lambda: build_operator_next_actions(repo_root=root, max_actions=max_actions),
         ),
-        "paper_campaign_status": _source("paper_campaign_status", build_paper_campaign_status_report),
+        "paper_campaign_status": _source(
+            "paper_campaign_status",
+            lambda: build_paper_campaign_status_report(config_path=campaign_config),
+        ),
         "paper_gate_velocity": _source("paper_gate_velocity", build_paper_gate_velocity_report),
         "cost_assumptions": _source("cost_assumptions", check_cost_assumptions),
     }
@@ -293,6 +296,7 @@ def build_operator_briefing(
         "does_not_change_config": True,
         "does_not_promote_strategies": True,
         "repo_root": str(root),
+        "campaign_config_path": str(campaign_config),
         "source_status": source_status,
         "summaries": {
             "campaigns": campaigns,

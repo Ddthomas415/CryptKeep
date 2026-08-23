@@ -88,7 +88,13 @@ def _minimal_cost() -> dict:
 def test_operator_briefing_is_read_only_advisory(monkeypatch, tmp_path):
     monkeypatch.setattr(briefing, "build_operator_status_bundle", lambda **_: _minimal_status())
     monkeypatch.setattr(briefing, "build_operator_next_actions", lambda **_: _minimal_next_actions())
-    monkeypatch.setattr(briefing, "build_paper_campaign_status_report", lambda: _minimal_status()["reports"]["paper_campaign_status"])
+    captured: dict[str, object] = {}
+
+    def _campaign_status(**kwargs: object) -> dict:
+        captured.update(kwargs)
+        return _minimal_status()["reports"]["paper_campaign_status"]
+
+    monkeypatch.setattr(briefing, "build_paper_campaign_status_report", _campaign_status)
     monkeypatch.setattr(briefing, "build_paper_gate_velocity_report", lambda: _minimal_gate())
     monkeypatch.setattr(briefing, "check_cost_assumptions", lambda: _minimal_cost())
 
@@ -107,6 +113,7 @@ def test_operator_briefing_is_read_only_advisory(monkeypatch, tmp_path):
     assert payload["summaries"]["campaigns"]["running_count"] == 2
     assert payload["summaries"]["paper_gate"]["round_trips"]["remaining"] == 2
     assert any(row["id"] == "cost_assumption_attention" for row in payload["recommendations"])
+    assert str(captured["config_path"]).endswith("configs/paper_evidence_campaigns.laptop.json")
 
 
 def test_operator_briefing_survives_source_failure(monkeypatch, tmp_path):
@@ -115,7 +122,11 @@ def test_operator_briefing_survives_source_failure(monkeypatch, tmp_path):
 
     monkeypatch.setattr(briefing, "build_operator_status_bundle", _broken_status)
     monkeypatch.setattr(briefing, "build_operator_next_actions", lambda **_: _minimal_next_actions())
-    monkeypatch.setattr(briefing, "build_paper_campaign_status_report", lambda: _minimal_status()["reports"]["paper_campaign_status"])
+    monkeypatch.setattr(
+        briefing,
+        "build_paper_campaign_status_report",
+        lambda **_: _minimal_status()["reports"]["paper_campaign_status"],
+    )
     monkeypatch.setattr(briefing, "build_paper_gate_velocity_report", lambda: _minimal_gate())
     monkeypatch.setattr(briefing, "check_cost_assumptions", lambda: _minimal_cost())
 

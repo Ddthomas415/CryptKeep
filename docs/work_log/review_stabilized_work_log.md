@@ -35603,6 +35603,10 @@ What changed:
   cost/action state, and emits evidence-backed advisory recommendations.
 - Added `scripts/report_operator_briefing.py` plus `make operator-briefing`
   and `make operator-briefing-json`.
+- Corrected the campaign-status source to use the same `PAPER_CAMPAIGN_CONFIG`
+  path as `make status-paper-campaigns`; the broader default config includes
+  campaigns outside the laptop operator status scope and would otherwise create
+  a misleading briefing.
 - Registered the script in `scripts/SCRIPTS.md` and the script-index guard.
 - Added tests that pin the advisory-only/no-mutation boundary and source
   failure behavior.
