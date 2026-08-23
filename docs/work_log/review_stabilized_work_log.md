@@ -35582,6 +35582,59 @@ Remaining risk:
   remain read-only/advisory unless separately reviewed as high risk.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-08-23T03:58:00Z - Operator Briefing Agent, Read-Only First Slice
+
+Active role: ENGINEER
+
+Objective:
+- Implement the first code slice of backlog item 21: a Jarvis-like operator
+  briefing command that reduces manual check-in work without granting AI or
+  the report any capital-moving authority.
+
+What was found:
+- SHOWN: existing read-only status surfaces already cover operator status,
+  next actions, paper-gate velocity, and cost assumptions.
+- SHOWN: the correct implementation shape is an aggregator over those reports,
+  not a new authority path and not a campaign/gate/config runner.
+
+What changed:
+- Added `services/ai_copilot/operator_briefing.py` as a resilient read-only
+  aggregator. It composes existing source reports, summarizes campaign/gate/
+  cost/action state, and emits evidence-backed advisory recommendations.
+- Added `scripts/report_operator_briefing.py` plus `make operator-briefing`
+  and `make operator-briefing-json`.
+- Corrected the campaign-status source to use the same `PAPER_CAMPAIGN_CONFIG`
+  path as `make status-paper-campaigns`; the broader default config includes
+  campaigns outside the laptop operator status scope and would otherwise create
+  a misleading briefing.
+- Registered the script in `scripts/SCRIPTS.md` and the script-index guard.
+- Added tests that pin the advisory-only/no-mutation boundary and source
+  failure behavior.
+
+Why this change was chosen:
+- It moves the requested Jarvis-like assistant direction from backlog text to
+  useful operator tooling while preserving the deterministic authority model:
+  summarize and recommend only; do not start/stop campaigns, fetch market
+  data, change config, promote strategies, alter routing, or move capital.
+
+Expected outcome:
+- Operators get one compact briefing command for check-ins without replacing
+  the existing deterministic status, gate, risk, and campaign controls.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_briefing.py tests/test_script_index_alignment_guard.py tests/test_ai_copilot_operating_rules_guard.py`
+  - SHOWN: `16 passed`.
+- `make operator-briefing-json`
+  - SHOWN: exit code 0; report used
+    `configs/paper_evidence_campaigns.laptop.json`, surfaced laptop campaigns
+    `2/2`, paper gate `3/5` qualified round trips with 2 remaining, and
+    warning-level cost assumptions.
+
+Remaining risk:
+- Low/medium: read-only status aggregation and CLI registration. It does not
+  mutate runtime state or touch live execution/risk logic.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-08-23T04:09:00Z - Roadmap Snapshot Refresh
 
 Active role: ENGINEER
