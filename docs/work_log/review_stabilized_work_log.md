@@ -35634,3 +35634,50 @@ Remaining risk:
 - Low/medium: read-only status aggregation and CLI registration. It does not
   mutate runtime state or touch live execution/risk logic.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T04:09:00Z - Roadmap Snapshot Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Refresh the stale dated snapshot in `docs/ROADMAP_TRACKING_CHECKLIST.md` so
+  the roadmap does not keep reporting the older 2026-08-12 action counts.
+
+What was found:
+- SHOWN: `make operator-status-json` currently reports 25 operator-proof
+  actions, 25 proof-ready markers, 27 host-side markers, 19 remaining
+  proof-or-coverage markers, 15 passive operator-evidence rows, 9 satisfied
+  passive rows, 6 waiting passive rows, and zero missing roadmap/backlog/
+  research/read-only-command wiring actions.
+- SHOWN: filtering next actions with
+  `OPERATOR_NEXT_ACTIONS_EXCLUDE_REASON=host_side_reference,remaining_capped_live_proof,remaining_coverage`
+  returns 0 rows.
+
+What changed:
+- Updated the roadmap's `Remaining Task Snapshot` date and counts.
+- Clarified that the remaining queue is host/proof/coverage dominated, not a
+  local-safe coding backlog.
+
+Why this change was chosen:
+- The roadmap is the operator-facing checklist. Keeping the snapshot current
+  prevents rebuilding already accepted work or treating host-side proof rows as
+  local code tasks.
+
+Expected outcome:
+- Check-ins route correctly: local code work only starts when a concrete
+  low-risk or read-only row exists; otherwise the next action is proof/host
+  evidence or review.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_status.py tests/test_backlog_execution_lanes_guard.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `18 passed`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: `ok=True`, `missing_docs=0`, `missing_commands=0`, 13 commands
+    listed.
+- `git diff --check`
+  - SHOWN: exit code 0.
+
+Remaining risk:
+- Docs only; no runtime, campaign, gate, execution, risk, or deployment behavior
+  changed.
+- Acceptance state: `ACCEPTED`.
