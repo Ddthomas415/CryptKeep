@@ -35625,9 +35625,10 @@ Verification:
 - `./.venv/bin/python -m pytest -q tests/test_operator_briefing.py tests/test_script_index_alignment_guard.py tests/test_ai_copilot_operating_rules_guard.py`
   - SHOWN: `16 passed`.
 - `make operator-briefing-json`
-  - SHOWN: exit code 0; report surfaced 3 configured campaigns, paper gate
-    `3/5` qualified round trips with 2 remaining, and warning-level cost
-    assumptions.
+  - SHOWN: exit code 0; report used
+    `configs/paper_evidence_campaigns.laptop.json`, surfaced laptop campaigns
+    `2/2`, paper gate `3/5` qualified round trips with 2 remaining, and
+    warning-level cost assumptions.
 
 Remaining risk:
 - Low/medium: read-only status aggregation and CLI registration. It does not
