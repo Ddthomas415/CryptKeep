@@ -111,6 +111,7 @@ def test_read_only_status_reports_have_json_make_targets():
         "operator-read-only-command-status-json": "scripts/report_operator_read_only_command_status.py --json",
         "operator-status-json": "scripts/report_operator_status_bundle.py --json",
         "operator-next-actions-json": "scripts/report_operator_next_actions.py --json",
+        "operator-briefing-json": "scripts/report_operator_briefing.py --json",
         "research-pipeline-status-json": "scripts/research/report_research_pipeline_status.py --json",
         "research-artifact-inventory-json": "scripts/research/report_research_artifact_inventory.py --json",
         "research-command-status-json": "scripts/research/report_research_command_status.py --json",
