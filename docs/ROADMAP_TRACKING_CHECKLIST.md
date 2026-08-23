@@ -70,24 +70,25 @@ separate reviewed runtime/gate change is accepted.
 
 ## Remaining Task Snapshot
 
-Last updated: 2026-08-12T00:07:05Z.
+Last updated: 2026-08-23T04:09:00Z.
 
-Generated check-in reports currently show 55 remaining next actions. The
-actionable queue is dominated by operator proofs and host-side evidence, not
-missing read-only command wiring:
+Generated check-in reports currently show 25 operator-proof actions. The
+actionable queue remains dominated by host-side evidence, capped-live proof, and
+coverage markers, not missing read-only command wiring:
 
-- 4 passive operator-evidence actions require operator proof or explicit
-  decisions: `shadow_would_be_fill` records, Hetzner canonical `.cbp_state`
-  migration checkpoint, paper-to-shadow first-hour rehearsal, and server
-  secrets injection/rotation drill.
-- 23 proof-ready implementation markers require review, merge, or recorded
-  acceptance; these are not new coding tasks.
-- 24 host-side markers remain in the source summary; the immediate action view
-  returns 17 host-side-reference rows. 8 capped-live proof markers and 3
-  remaining-coverage markers still require host output, proof artifacts, or
-  explicit acceptance.
-- Backlog lane, research pipeline, research artifact, research command, and
-  operator read-only command wiring currently report zero missing-action rows.
+- Passive operator-evidence tracking shows 15 rows: 9 satisfied and 6 waiting
+  on future thresholds or explicit operator events.
+- 25 proof-ready markers remain in the source summary. These require review,
+  merge, recorded acceptance, host output, or explicit proof artifacts; they are
+  not automatically new coding tasks.
+- 27 host-side markers remain in the source summary. 19 remaining
+  proof-or-coverage markers still require host output, proof artifacts, coverage
+  evidence, or explicit acceptance.
+- After excluding `host_side_reference`, `remaining_capped_live_proof`, and
+  `remaining_coverage`, the immediate local next-action queue returns 0 rows.
+- Backlog lane, research pipeline, research artifact, research command, roadmap
+  tracking, and operator read-only command wiring currently report zero
+  missing-action rows.
 
 ## Coding Batch Rules
 
