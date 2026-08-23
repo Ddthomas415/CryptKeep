@@ -35681,3 +35681,85 @@ Remaining risk:
 - Docs only; no runtime, campaign, gate, execution, risk, or deployment behavior
   changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T05:00:32Z - Runtime Checkpoint Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Record the current local and Hetzner runtime status after the roadmap and
+  operator-briefing merges, without mutating campaigns, services, config,
+  deployment, or state.
+
+What was found:
+- SHOWN: local `master` is clean and aligned with `origin/master` at
+  `f2e49842f`.
+- SHOWN: no open PRs were returned by `gh pr list --limit 20`.
+- SHOWN: local paper campaigns are `2/2` running and idle for the current UTC
+  day: `es_daily_trend_v1` and `breakout_default`.
+- SHOWN: local ES paper gate remains `3/5` qualified round trips with `2`
+  remaining; qualified bars are complete at `62/60`; projected completion is
+  `2026-09-13T04:56:53Z`.
+- SHOWN: local crypto-edge cadence is fresh for `funding`, `open_interest`, and
+  `basis`.
+- SHOWN: `make pullback-stage0-verify` passes with `blocking_checks=0` for
+  `pullback_recovery_default`.
+- SHOWN: `make funding-stage0-verify` remains blocked by one check:
+  `completed_session_expected_commit`, `expected=fd7f11e9c`,
+  `actual=1920d13b0`; the completed session otherwise reconciled, used
+  `public_ohlcv_5m`, had OKX `live_public` funding context, had no critical
+  error, and left canonical fill count unchanged.
+- SHOWN: direct SSH attempts with `baitus` and `ubuntu` were rejected by
+  Tailscale policy; the documented account `cryptkeep@100.86.128.9` worked
+  after Tailscale browser re-authentication.
+- SHOWN: Hetzner paper campaign status is `1/1` running and idle for
+  `ema_cross_default`; Hetzner crypto-edge runtime is ready at remote master
+  `a10aca01fc37de181cc32d17a30e5d677050f901`; host edge cadence is fresh with
+  capture timestamp `2026-08-23T04:56:02+00:00`.
+
+What changed:
+- Added `docs/checkpoints/runtime_check_2026_08_23.md` with the exact read-only
+  commands and summarized outputs.
+- Updated `tests/test_roadmap_tracking_checklist.py` to pin the accepted
+  2026-08-23 roadmap snapshot values instead of the stale pre-refresh counts
+  (`55 remaining next actions`, `23 proof-ready implementation markers`, etc.).
+
+Why this change was chosen:
+- The current action queue is proof/host dominated rather than local-code
+  dominated. Recording fresh host and local runtime evidence advances the
+  actual bottleneck without inventing new code work.
+
+Expected outcome:
+- Future check-ins can cite a dated checkpoint for the current local/Hetzner
+  runtime state and the correct Hetzner SSH identity.
+
+Verification:
+- `make status-paper-campaigns`
+  - SHOWN: `all_running=true`, `running_count=2`.
+- `make status-paper-gate-velocity-json`
+  - SHOWN: `3/5` qualified round trips, `62/60` qualified bars.
+- `make check-edge-cadence-json`
+  - SHOWN: `ok=true`, no missing or stale checked families.
+- `make status-paper-hetzner HETZNER_STATUS_TRANSPORT=ssh`
+  - SHOWN: `1/1` running; `ema_cross_default` idle.
+- `make status-hetzner-edge-runtime HETZNER_STATUS_TRANSPORT=ssh`
+  - SHOWN: `ok=True`, `blocking_checks=0`.
+- Host `scripts/check_edge_cadence.py --json` under
+  `CBP_STATE_DIR=/var/lib/cbp`
+  - SHOWN: `ok=true`, funding/OI/basis fresh.
+- `make pullback-stage0-verify`
+  - SHOWN: `status=passed`, `blocking_checks=0`.
+- `make funding-stage0-verify`
+  - SHOWN: `status=failed`, `blocking_checks=1`,
+    `completed_session_expected_commit`.
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_backlog_execution_lanes_guard.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `25 passed`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `1 failed, 3606 passed, 33 skipped`; failure was the stale
+    roadmap snapshot assertion corrected in this branch.
+
+Remaining risk:
+- Docs/checkpoint only; no runtime behavior changed.
+- Does not close launch, capped-live, backup/restore, secrets-rotation,
+  deployment-installation, or audit-journal proof requirements.
+- Acceptance state: `ACCEPTED`.
