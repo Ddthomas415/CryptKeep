@@ -35763,3 +35763,69 @@ Remaining risk:
 - Does not close launch, capped-live, backup/restore, secrets-rotation,
   deployment-installation, or audit-journal proof requirements.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T05:22:48Z - Hetzner Systemd Dry-Run Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Refresh the first host-side proof row for deployment/systemd unit readiness
+  without installing units, restarting services, changing host config, or
+  mutating runtime state.
+
+What was found:
+- SHOWN: the documented Hetzner SSH target is `cryptkeep@100.86.128.9`.
+- SHOWN: the host checkout is still at short SHA `a10aca01`.
+- SHOWN: `scripts/install_systemd_units.py --repo-dir /srv/cryptkeep/app`
+  statically verifies the full packaged unit set in dry-run mode:
+  `cbp-collector.service`, `cbp-crypto-edge-collector.service`,
+  `cbp-intent-consumer.service`, `cbp-reconciler.service`,
+  `cbp-dashboard.service`, `cbp-dead-man.service`, `cbp-edge-cadence.service`,
+  `cbp-dead-man.timer`, and `cbp-edge-cadence.timer`.
+- SHOWN: installed/loaded host inventory remains limited to
+  `cbp-crypto-edge-collector.service`, `cbp-edge-cadence.service`, and
+  `cbp-edge-cadence.timer`; broader core units were not observed as loaded.
+- SHOWN: `scripts/check_dead_man.py`, `services/process/heartbeat.py`, and
+  packaged `cbp-dead-man` service/timer files are present on the host.
+- SHOWN: host `scripts/check_dead_man.py --json` under `CBP_STATE_DIR=/var/lib/cbp`
+  fails closed with `overall=missing` for default
+  `intent_consumer,live_reconciler` heartbeat names; explicit
+  `crypto_edge_collector,edge_cadence` names are also missing.
+
+What changed:
+- Added `docs/checkpoints/host_systemd_dry_run_2026_08_23.md` with commands,
+  outputs, interpretation, and boundaries.
+
+Why this change was chosen:
+- The local safe-code queue is empty and the remaining actionable queue is
+  proof/host dominated. Refreshing the read-only host deployment evidence
+  advances the actual queue without creating duplicate implementation work.
+
+Expected outcome:
+- The systemd/deployment backlog entry has a fresh host dry-run/inventory
+  checkpoint for the current observed host checkout.
+
+Verification:
+- Host command:
+  `ssh -o BatchMode=yes -o ConnectTimeout=10 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && git rev-parse --short HEAD && ./.venv/bin/python scripts/install_systemd_units.py --repo-dir /srv/cryptkeep/app'`
+  - SHOWN: `a10aca01`; `static verify ok`; dry-run only.
+- Host command:
+  `ssh -o BatchMode=yes -o ConnectTimeout=10 cryptkeep@100.86.128.9 'systemctl list-units --type=service --type=timer --all --no-pager --plain "cbp-*"'`
+  - SHOWN: 3 loaded units listed, with crypto-edge collector active and
+    edge-cadence timer waiting.
+- Host command:
+  `ssh -o BatchMode=yes -o ConnectTimeout=10 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_dead_man.py --json'`
+  - SHOWN: exit code 2; default heartbeat names missing.
+- Host command:
+  `ssh -o BatchMode=yes -o ConnectTimeout=10 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_dead_man.py --json --names crypto_edge_collector,edge_cadence'`
+  - SHOWN: exit code 2; explicit edge heartbeat names missing.
+- `make status-paper-campaigns`
+  - SHOWN: local laptop campaigns remain `2/2` running and idle for
+    `2026-08-23`.
+
+Remaining risk:
+- Docs/checkpoint only; no host install or service change was performed.
+- Does not close deployment installation/post-install proof.
+- Does not close dead-man scheduling/heartbeat production proof; host checker
+  currently reports missing heartbeats.
+- Acceptance state: `ACCEPTED`.
