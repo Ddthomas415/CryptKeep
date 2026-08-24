@@ -35965,3 +35965,54 @@ Remaining risk:
   SBOM, CI policy, host, runtime, campaign, gate, risk, or execution behavior
   changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T21:12:30Z - Local Supply-Chain Pip Remediation
+
+Active role: ENGINEER
+
+Objective:
+- Remediate the local project-venv `pip` vulnerability recorded by the
+  2026-08-23 supply-chain status checkpoint.
+
+What was found:
+- SHOWN: local `./.venv/bin/python -m pip --version` reported `pip 26.1.2`.
+- SHOWN: local `scripts/check_supply_chain.py --audit --json` on
+  `a4a555d539ae0d4634443f7c81a798063a2fed69` reported pin integrity OK,
+  environment OK, and `pip 26.1.2` vulnerable to `PYSEC-2026-3721` /
+  `CVE-2026-13346`, fixed in `pip 26.2`.
+
+What changed:
+- Upgraded only the local project virtualenv tool package:
+  `./.venv/bin/python -m pip install --upgrade pip==26.2`.
+- Added `docs/checkpoints/supply_chain_local_remediation_2026_08_23.md`.
+- Added a dated supply-chain note to `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The vulnerability was in the local package-management tool, not a checked
+  repo dependency pin. Updating the local virtualenv tool resolves the local
+  audit finding without changing runtime pins, app code, campaigns, gates, or
+  host state.
+
+Expected outcome:
+- Local supply-chain audit no longer reports vulnerable packages for the
+  current checkout; the remaining supply-chain proof is narrowed to Hetzner
+  environment alignment, host vulnerability audit/waiver, and release-policy
+  choices for SBOM/hash-locked install evidence.
+
+Verification:
+- `./.venv/bin/python -m pip --version`
+  - SHOWN: `pip 26.2` from the project virtualenv.
+- `./.venv/bin/python scripts/check_supply_chain.py --audit --json`
+  - SHOWN: pin integrity OK, environment OK, `vulnerability_audit.ran=true`,
+    `vulnerable_count=0`, `findings=[]`.
+- `./.venv/bin/python scripts/check_supply_chain.py --json --audit --evidence-dest .cbp_state/data/supply_chain`
+  - SHOWN: wrote
+    `.cbp_state/data/supply_chain/supply-chain-evidence-20260824T011230Z.json`
+    with `vulnerable_count=0`.
+
+Remaining risk:
+- MEDIUM: local dependency-tool remediation plus docs. No repo dependency pins,
+  host packages, SBOM policy, CI policy, runtime code, campaign, gate, risk,
+  live/shadow, or execution behavior changed.
+- Hetzner environment mismatch and host vulnerability audit/waiver remain open.
+- Acceptance state: `ACCEPTED`.
