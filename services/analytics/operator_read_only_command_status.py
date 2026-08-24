@@ -81,6 +81,13 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
         "ssh_read_only",
     ),
     OperatorReadOnlyCommandSpec(
+        "hetzner_dependency_alignment_status",
+        "scripts/report_hetzner_dependency_alignment_status.py",
+        "status-hetzner-dependency-alignment",
+        "host_status_wrapper",
+        "ssh_read_only",
+    ),
+    OperatorReadOnlyCommandSpec(
         "hetzner_paper_host_health",
         "scripts/check_hetzner_paper_host_health.py",
         "check-hetzner-paper-host-health",

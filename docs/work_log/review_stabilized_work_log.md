@@ -36480,3 +36480,74 @@ Remaining risk:
 - MEDIUM: read-only host-status wrapper behavior changed, but no trading,
   campaign, service, deployment, or host mutation path changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-24T04:06:04Z - Hetzner Dependency Alignment Read-Only Status Wrapper
+
+Active role: ENGINEER
+
+Objective:
+- Turn the open Hetzner dependency-alignment blocker into a repeatable
+  read-only status command instead of manual SSH/pip inspection.
+
+What was found:
+- SHOWN: local `make check-supply-chain-json` on `1e9dc10ac` reports
+  `pin_integrity.ok=true`, `environment.ok=true`, no mismatches, and
+  `vulnerability_audit.ran=false`.
+- SHOWN: Hetzner read-only `scripts/check_supply_chain.py --json` reports the
+  deployed checkout is clean but dependency-alignment is blocked by 10 package
+  mismatches: `aiohttp`, `click`, `cryptography`, `gitpython`, `idna`,
+  `pillow`, `setuptools`, `starlette`, `tornado`, and `urllib3`.
+- SHOWN: Hetzner read-only `pip install --dry-run -r requirements-pinned.txt`
+  would install the same 10 pinned package versions; no package was installed.
+- SHOWN: Hetzner checkout is on `master` but still at
+  `a10aca01fc37de181cc32d17a30e5d677050f901`, behind local master
+  `1e9dc10acca22ee0ce0ff2a7b6ba22e584c4ee20`.
+
+What changed:
+- Added `scripts/report_hetzner_dependency_alignment_status.py`, a read-only
+  wrapper that runs remote git status, the repo-local supply-chain checker, and
+  `pip install --dry-run -r requirements-pinned.txt` over SSH/Tailscale SSH.
+- Added `make status-hetzner-dependency-alignment` and
+  `make status-hetzner-dependency-alignment-json`.
+- Registered the wrapper in `scripts/SCRIPTS.md` and the operator read-only
+  command registry.
+- Added unit tests for ready, mismatch, stale-checkout, direct-SSH, automatic
+  fallback, parse-failure, and strict-exit behavior.
+
+Why this change was chosen:
+- The required host alignment remains a mutation that needs explicit operator
+  approval, but the status check itself is safe, read-only, and useful during
+  every check-in. Making it a first-class command removes manual copy/paste
+  drift without installing packages, deploying code, or restarting services.
+
+Expected outcome:
+- Operators can run one command to see whether Hetzner is synced to the current
+  repo head and whether the venv matches `requirements-pinned.txt`, including
+  the exact package delta if alignment is still blocked.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_dependency_alignment_status.py tests/test_operator_read_only_command_status.py`
+  - SHOWN: `13 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_dependency_alignment_status.py tests/test_operator_read_only_command_status.py tests/test_makefile_wiring.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `21 passed`.
+- `./.venv/bin/python -m py_compile scripts/report_hetzner_dependency_alignment_status.py tests/test_report_hetzner_dependency_alignment_status.py services/analytics/operator_read_only_command_status.py`
+  - SHOWN: passed.
+- `make operator-read-only-command-status-json OPERATOR_READ_ONLY_COMMAND_STATUS_COMMAND_ID=hetzner_dependency_alignment_status`
+  - SHOWN: command wired with `script_exists=true`, `script_index_exists=true`,
+    `make_target_exists=true`, and `wiring_ok=true`.
+- `HETZNER_STATUS_TRANSPORT=ssh make status-hetzner-dependency-alignment`
+  - SHOWN: read-only command exits non-zero as designed while blocked, with
+    blockers `remote_checkout_commit`, `environment_alignment`, and
+    `pip_dry_run`.
+- `HETZNER_STATUS_TRANSPORT=ssh make status-hetzner-dependency-alignment-json`
+  - SHOWN: read-only JSON command reports `ok=false`, the same blockers,
+    `pip_install_invoked=false`, `deploy_invoked=false`, and
+    `service_restart_invoked=false`.
+- `CBP_VALIDATE_SKIP_PYTEST=1 ./.venv/bin/python scripts/validate.py --json`
+  - SHOWN: `ok=true`, `error_count=0`, and `warning_count=0`.
+
+Remaining risk:
+- MEDIUM: read-only SSH wrapper and operator-command wiring changed; no
+  packages are installed, no services are restarted, and no host state is
+  mutated.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
