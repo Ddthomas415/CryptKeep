@@ -35919,3 +35919,49 @@ Remaining risk:
 - Docs-only synchronization. No runtime, campaign, host, config, risk, gate, or
   execution behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T21:07:08Z - Supply-Chain Proof Status Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Refresh supply-chain proof status for the current local checkout and Hetzner
+  without mutating dependencies or host state.
+
+What was found:
+- SHOWN: local `scripts/check_supply_chain.py --audit --json` on
+  `cc6c69f0588252c1838161d48c94ed553be713ac` reports pin integrity OK,
+  environment OK, and one vulnerability: `pip 26.1.2`,
+  `PYSEC-2026-3721` / `CVE-2026-13346`, fixed in `pip 26.2`.
+- SHOWN: Hetzner `scripts/check_supply_chain.py --json` on
+  `a10aca01fc37de181cc32d17a30e5d677050f901` reports pin integrity OK but
+  environment mismatch for 10 packages against the current pins.
+- SHOWN: host `--audit` was not run because external vulnerability auditing may
+  disclose host package inventory and needs explicit operator approval or
+  waiver.
+
+What changed:
+- Added `docs/checkpoints/supply_chain_status_2026_08_23.md`.
+- Added a dated supply-chain note to `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The supply-chain proof row is actionable with read-only checks. Recording the
+  exact local vulnerability and host environment drift advances the proof queue
+  without performing unapproved host dependency changes.
+
+Expected outcome:
+- The next supply-chain action is concrete: remediate/waive local `pip`, align
+  Hetzner venv to the current pins, and explicitly approve or waive host
+  vulnerability audit before treating capped-live supply-chain proof as closed.
+
+Verification:
+- `git diff --check`
+  - SHOWN: exit code 0.
+- `./.venv/bin/python -m pytest -q tests/test_supply_chain_release_policy_guard.py tests/test_backlog_execution_lanes_guard.py tests/test_roadmap_tracking_status.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `23 passed`.
+
+Remaining risk:
+- Docs/checkpoint only. No dependency install, upgrade, removal, hash-lock,
+  SBOM, CI policy, host, runtime, campaign, gate, risk, or execution behavior
+  changed.
+- Acceptance state: `ACCEPTED`.

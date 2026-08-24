@@ -1931,6 +1931,20 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     environment OK, audit ran, and `vulnerable_count=0`. Remaining capped-live
     release-policy decision: whether SBOM and hash-locked install evidence are
     required for future deployed SHAs.
+    2026-08-23: updated supply-chain status is recorded in
+    `docs/checkpoints/supply_chain_status_2026_08_23.md`. Local checkout
+    `cc6c69f` has pin integrity OK and environment OK, but `pip-audit` reports
+    one vulnerability in `pip 26.1.2` (`PYSEC-2026-3721` /
+    `CVE-2026-13346`, fixed in `pip 26.2`). Hetzner checkout `a10aca01f` has
+    pin integrity OK but environment mismatch against current pins for 10
+    packages (`aiohttp`, `click`, `cryptography`, `gitpython`, `idna`,
+    `pillow`, `setuptools`, `starlette`, `tornado`, `urllib3`). Host
+    vulnerability audit was not run because it may disclose host package
+    inventory externally and needs explicit operator approval or waiver.
+    Remaining capped-live proof: align the deployed environment with pins,
+    review/remediate or waive the local `pip` finding, run or waive host
+    vulnerability audit for the final deployed SHA, and decide whether
+    hash-locked installs or SBOMs become release gates.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
