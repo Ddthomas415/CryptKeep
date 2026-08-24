@@ -98,7 +98,7 @@ def test_fetch_remote_status_prefers_valid_json_over_tailscale_stderr(monkeypatc
 
     monkeypatch.setattr(script.subprocess, "run", _run)
 
-    out = script.fetch_remote_status(timeout_sec=3.0)
+    out = script.fetch_remote_status(timeout_sec=3.0, allow_auto_ssh_fallback=False)
 
     assert out["ok"] is True
     assert out["all_running"] is True
@@ -188,7 +188,7 @@ def test_fetch_remote_status_times_out_instead_of_blocking(monkeypatch) -> None:
 
     monkeypatch.setattr(script.subprocess, "run", _run)
 
-    out = script.fetch_remote_status(timeout_sec=2.0)
+    out = script.fetch_remote_status(timeout_sec=2.0, allow_auto_ssh_fallback=False)
 
     assert out["ok"] is False
     assert out["reason"] == "tailscale_ssh_auth_required"
@@ -207,11 +207,51 @@ def test_fetch_remote_status_classifies_tailscale_preferences_output(monkeypatch
 
     monkeypatch.setattr(script.subprocess, "run", _run)
 
-    out = script.fetch_remote_status(timeout_sec=1.0)
+    out = script.fetch_remote_status(timeout_sec=1.0, allow_auto_ssh_fallback=False)
 
     assert out["ok"] is False
     assert out["reason"] == "tailscale_cli_preferences_unavailable"
     assert "Failed to load preferences" in out["stdout_preview"]
+
+
+def test_fetch_remote_status_auto_falls_back_to_direct_ssh_for_tailscale_preferences(monkeypatch) -> None:
+    seen: list[list[str]] = []
+
+    def _run(cmd, *, capture_output, check, text, timeout):
+        seen.append(cmd)
+        if cmd[0] == "tailscale":
+            return subprocess.CompletedProcess(
+                cmd,
+                0,
+                stdout="The Tailscale CLI failed to start: Failed to load preferences.",
+                stderr="",
+            )
+        return subprocess.CompletedProcess(
+            cmd,
+            0,
+            stdout=json.dumps(
+                {
+                    "ok": True,
+                    "all_running": True,
+                    "campaign_count": 1,
+                    "running_count": 1,
+                    "campaigns": [{"name": "ema_cross_default", "ok": True, "running": True}],
+                }
+            ),
+            stderr="",
+        )
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    out = script.fetch_remote_status(timeout_sec=1.0)
+
+    assert [cmd[0] for cmd in seen] == ["tailscale", "ssh"]
+    assert out["ok"] is True
+    assert out["transport"] == "ssh"
+    assert out["transport_fallback"] == {
+        "from": "tailscale-ssh",
+        "reason": "tailscale_cli_preferences_unavailable",
+    }
 
 
 def test_fetch_remote_status_classifies_tailscale_auth_prompt_output(monkeypatch) -> None:
@@ -228,7 +268,7 @@ def test_fetch_remote_status_classifies_tailscale_auth_prompt_output(monkeypatch
 
     monkeypatch.setattr(script.subprocess, "run", _run)
 
-    out = script.fetch_remote_status(timeout_sec=1.0)
+    out = script.fetch_remote_status(timeout_sec=1.0, allow_auto_ssh_fallback=False)
 
     assert out["ok"] is False
     assert out["reason"] == "tailscale_ssh_auth_required"

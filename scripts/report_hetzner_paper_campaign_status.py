@@ -25,6 +25,10 @@ DEFAULT_APP_DIR = "/srv/cryptkeep/app"
 DEFAULT_CONFIG = "configs/paper_evidence_campaigns.hetzner.example.json"
 DEFAULT_TIMEOUT_SEC = 45.0
 DEFAULT_TRANSPORT = "tailscale-ssh"
+AUTO_SSH_FALLBACK_REASONS = {
+    "tailscale_cli_preferences_unavailable",
+    "tailscale_ssh_auth_required",
+}
 
 
 def _preview(value: Any, *, limit: int = 500) -> str:
@@ -101,6 +105,12 @@ def _transport_command(
     return ["tailscale", "ssh", ssh_target, remote_command]
 
 
+def _with_transport_metadata(payload: dict[str, Any], *, transport: str) -> dict[str, Any]:
+    out = dict(payload)
+    out["transport"] = transport
+    return out
+
+
 def fetch_remote_status(
     *,
     ssh_target: str = DEFAULT_SSH_TARGET,
@@ -108,6 +118,7 @@ def fetch_remote_status(
     config_path: str = DEFAULT_CONFIG,
     timeout_sec: float = DEFAULT_TIMEOUT_SEC,
     transport: str = DEFAULT_TRANSPORT,
+    allow_auto_ssh_fallback: bool = True,
 ) -> dict[str, Any]:
     remote_command = _remote_status_command(app_dir=app_dir, config_path=config_path)
     transport_name = str(transport or DEFAULT_TRANSPORT)
@@ -122,57 +133,112 @@ def fetch_remote_status(
             timeout=timeout_sec,
         )
     except FileNotFoundError:
-        return _failure_payload("ssh_cli_not_found" if transport_name == "ssh" else "tailscale_cli_not_found")
+        payload = _failure_payload("ssh_cli_not_found" if transport_name == "ssh" else "tailscale_cli_not_found")
+        return _with_transport_metadata(payload, transport=transport_name)
     except subprocess.TimeoutExpired as exc:
         non_json_reason = _tailscale_non_json_reason(
             stdout=getattr(exc, "stdout", ""),
             stderr=getattr(exc, "stderr", ""),
         )
         if non_json_reason:
-            return _failure_payload(
+            payload = _failure_payload(
                 non_json_reason,
                 stdout=getattr(exc, "stdout", ""),
                 stderr=getattr(exc, "stderr", ""),
             )
+            if (
+                allow_auto_ssh_fallback
+                and transport_name == DEFAULT_TRANSPORT
+                and non_json_reason in AUTO_SSH_FALLBACK_REASONS
+            ):
+                fallback = fetch_remote_status(
+                    ssh_target=ssh_target,
+                    app_dir=app_dir,
+                    config_path=config_path,
+                    timeout_sec=timeout_sec,
+                    transport="ssh",
+                    allow_auto_ssh_fallback=False,
+                )
+                fallback["transport_fallback"] = {"from": transport_name, "reason": non_json_reason}
+                return fallback
+            return _with_transport_metadata(payload, transport=transport_name)
         timeout_prefix = "ssh_timeout" if transport_name == "ssh" else "tailscale_ssh_timeout"
-        return _failure_payload(
+        payload = _failure_payload(
             f"{timeout_prefix}:{timeout_sec:g}s",
             stdout=getattr(exc, "stdout", ""),
             stderr=getattr(exc, "stderr", ""),
         )
+        return _with_transport_metadata(payload, transport=transport_name)
     except OSError as exc:
         os_prefix = "ssh_os_error" if transport_name == "ssh" else "tailscale_ssh_os_error"
-        return _failure_payload(f"{os_prefix}:{type(exc).__name__}:{exc}")
+        payload = _failure_payload(f"{os_prefix}:{type(exc).__name__}:{exc}")
+        return _with_transport_metadata(payload, transport=transport_name)
 
     if result.returncode != 0:
         non_json_reason = _tailscale_non_json_reason(stdout=result.stdout, stderr=result.stderr)
         if non_json_reason:
-            return _failure_payload(non_json_reason, stdout=result.stdout, stderr=result.stderr)
+            payload = _failure_payload(non_json_reason, stdout=result.stdout, stderr=result.stderr)
+            if (
+                allow_auto_ssh_fallback
+                and transport_name == DEFAULT_TRANSPORT
+                and non_json_reason in AUTO_SSH_FALLBACK_REASONS
+            ):
+                fallback = fetch_remote_status(
+                    ssh_target=ssh_target,
+                    app_dir=app_dir,
+                    config_path=config_path,
+                    timeout_sec=timeout_sec,
+                    transport="ssh",
+                    allow_auto_ssh_fallback=False,
+                )
+                fallback["transport_fallback"] = {"from": transport_name, "reason": non_json_reason}
+                return fallback
+            return _with_transport_metadata(payload, transport=transport_name)
         if transport_name == "ssh":
             reason = _ssh_failure_reason(stdout=result.stdout, stderr=result.stderr)
             if reason:
-                return _failure_payload(reason, stdout=result.stdout, stderr=result.stderr)
-        return _failure_payload(
+                payload = _failure_payload(reason, stdout=result.stdout, stderr=result.stderr)
+                return _with_transport_metadata(payload, transport=transport_name)
+        payload = _failure_payload(
             f"{'ssh_failed' if transport_name == 'ssh' else 'tailscale_ssh_failed'}:{result.returncode}",
             stdout=result.stdout,
             stderr=result.stderr,
         )
+        return _with_transport_metadata(payload, transport=transport_name)
 
     try:
-        return formatter.build_report_from_status(json.loads(result.stdout))
+        payload = formatter.build_report_from_status(json.loads(result.stdout))
+        return _with_transport_metadata(payload, transport=transport_name)
     except (json.JSONDecodeError, ValueError) as exc:
         non_json_reason = _tailscale_non_json_reason(stdout=result.stdout, stderr=result.stderr)
         if non_json_reason:
-            return _failure_payload(
+            payload = _failure_payload(
                 non_json_reason,
                 stdout=result.stdout,
                 stderr=result.stderr,
             )
-        return _failure_payload(
+            if (
+                allow_auto_ssh_fallback
+                and transport_name == DEFAULT_TRANSPORT
+                and non_json_reason in AUTO_SSH_FALLBACK_REASONS
+            ):
+                fallback = fetch_remote_status(
+                    ssh_target=ssh_target,
+                    app_dir=app_dir,
+                    config_path=config_path,
+                    timeout_sec=timeout_sec,
+                    transport="ssh",
+                    allow_auto_ssh_fallback=False,
+                )
+                fallback["transport_fallback"] = {"from": transport_name, "reason": non_json_reason}
+                return fallback
+            return _with_transport_metadata(payload, transport=transport_name)
+        payload = _failure_payload(
             f"remote_status_parse_failed:{type(exc).__name__}:{exc}",
             stdout=result.stdout,
             stderr=result.stderr,
         )
+        return _with_transport_metadata(payload, transport=transport_name)
 
 
 def main(argv: list[str] | None = None) -> int:

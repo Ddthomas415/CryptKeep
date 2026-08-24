@@ -36420,3 +36420,63 @@ Verification:
 Remaining risk:
 - LOW: documentation and guard-test alignment only.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-24T03:16:08Z - Hetzner Read-Only Status: Automatic Direct-SSH Fallback
+
+Active role: ENGINEER
+
+Objective:
+- Prevent the aggregate read-only paper status path from failing solely because
+  the local Tailscale CLI cannot load preferences or requires browser auth, when
+  direct BatchMode SSH to the same Tailscale IP is available.
+
+What was found:
+- SHOWN: `make status-paper-all` initially failed on the Hetzner leg with
+  `tailscale_cli_preferences_unavailable` while the laptop campaigns were
+  healthy.
+- SHOWN: the same Hetzner paper and crypto-edge status checks succeeded with
+  `HETZNER_STATUS_TRANSPORT=ssh HETZNER_SSH_TARGET=cryptkeep@100.86.128.9`.
+- SHOWN: the wrappers already supported direct SSH as an opt-in read-only
+  transport, but default aggregate status did not attempt that fallback.
+
+What changed:
+- `scripts/report_hetzner_paper_campaign_status.py` and
+  `scripts/report_hetzner_crypto_edge_runtime_status.py` now retry with
+  `ssh -o BatchMode=yes` only when the default `tailscale-ssh` path fails with
+  `tailscale_cli_preferences_unavailable` or `tailscale_ssh_auth_required`.
+- Successful or failed fallback results include `transport` and, when fallback
+  is used, `transport_fallback` metadata. Explicit `--transport ssh` behavior is
+  unchanged.
+- Added tests proving automatic fallback for the known local Tailscale failure
+  and preserving fail-closed classification when fallback is disabled.
+
+Why this change was chosen:
+- This keeps routine status checks read-only and non-interactive while avoiding
+  repeated operator interruption from local Tailscale CLI state. It does not
+  start, stop, restore, deploy, or mutate any local or remote service.
+
+Expected outcome:
+- `make status-paper-all` and `make status-hetzner-edge-runtime` can continue
+  reporting remote read-only status when the Tailscale CLI wrapper is broken but
+  direct SSH remains available.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_paper_campaign_status.py tests/test_report_hetzner_crypto_edge_runtime_status.py`
+  - SHOWN: `24 passed`.
+- `./.venv/bin/python -m py_compile scripts/report_hetzner_paper_campaign_status.py scripts/report_hetzner_crypto_edge_runtime_status.py tests/test_report_hetzner_paper_campaign_status.py tests/test_report_hetzner_crypto_edge_runtime_status.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: no whitespace errors.
+- `make status-paper-all`
+  - SHOWN: exited `0`; laptop campaigns `2/2` running/idle; Hetzner
+    `ema_cross_default` `1/1` running/idle.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: exited `0`; `hetzner_crypto_edge_runtime_ready`, `blocking_checks=0`.
+- JSON wrapper probes after the transient local Tailscale issue cleared reported
+  `transport=tailscale-ssh` and no fallback needed; fallback behavior is pinned
+  by unit tests.
+
+Remaining risk:
+- MEDIUM: read-only host-status wrapper behavior changed, but no trading,
+  campaign, service, deployment, or host mutation path changed.
+- Acceptance state: `ACCEPTED`.

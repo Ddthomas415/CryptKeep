@@ -339,7 +339,7 @@ def test_fetch_remote_runtime_status_classifies_tailscale_auth_prompt(monkeypatc
 
     monkeypatch.setattr(script.subprocess, "run", _run)
 
-    report = script.fetch_remote_runtime_status(timeout_sec=1.0)
+    report = script.fetch_remote_runtime_status(timeout_sec=1.0, allow_auto_ssh_fallback=False)
 
     assert report["ok"] is False
     assert report["reason"] == "tailscale_ssh_auth_required"
@@ -358,7 +358,7 @@ def test_fetch_remote_runtime_status_classifies_tailscale_auth_prompt_on_nonzero
 
     monkeypatch.setattr(script.subprocess, "run", _run)
 
-    report = script.fetch_remote_runtime_status(timeout_sec=1.0)
+    report = script.fetch_remote_runtime_status(timeout_sec=1.0, allow_auto_ssh_fallback=False)
 
     assert report["ok"] is False
     assert report["reason"] == "tailscale_ssh_auth_required"
@@ -378,13 +378,45 @@ def test_fetch_remote_runtime_status_classifies_tailscale_auth_prompt_on_timeout
 
     monkeypatch.setattr(script.subprocess, "run", _run)
 
-    report = script.fetch_remote_runtime_status(timeout_sec=1.0)
+    report = script.fetch_remote_runtime_status(timeout_sec=1.0, allow_auto_ssh_fallback=False)
 
     assert report["ok"] is False
     assert report["reason"] == "tailscale_ssh_auth_required"
     assert report["blockers"] == ["tailscale_ssh_auth_required"]
     assert "Tailscale SSH requires" in report["stdout_preview"]
     assert "login.tailscale.com" in report["stderr_preview"]
+
+
+def test_fetch_remote_runtime_status_auto_falls_back_to_direct_ssh_for_tailscale_preferences(monkeypatch) -> None:
+    seen: list[list[str]] = []
+
+    def _run(cmd, *, capture_output, check, text, timeout):
+        seen.append(cmd)
+        if cmd[0] == "tailscale":
+            return subprocess.CompletedProcess(
+                cmd,
+                0,
+                stdout="The Tailscale CLI failed to start: Failed to load preferences.",
+                stderr="",
+            )
+        return subprocess.CompletedProcess(cmd, 0, stdout=json.dumps(_remote_payload()), stderr="")
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    report = script.fetch_remote_runtime_status(
+        ssh_target="cryptkeep@100.86.128.9",
+        app_dir="/srv/cryptkeep/app",
+        expected_commit="e8224057f",
+        timeout_sec=1.0,
+    )
+
+    assert [cmd[0] for cmd in seen] == ["tailscale", "ssh"]
+    assert report["ok"] is True
+    assert report["transport"] == "ssh"
+    assert report["transport_fallback"] == {
+        "from": "tailscale-ssh",
+        "reason": "tailscale_cli_preferences_unavailable",
+    }
 
 
 def test_main_strict_returns_one_when_blocked(monkeypatch, capsys) -> None:
