@@ -35877,3 +35877,45 @@ Remaining risk:
 - Does not close no-secret launch proof or arm-to-halt replay proof because
   required host events are absent.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T05:32:00Z - Backlog Proof Checkpoint Synchronization
+
+Active role: ENGINEER
+
+Objective:
+- Sync `REMAINING_TASKS.md` to the accepted 2026-08-23 proof checkpoints so the
+  source-of-truth backlog does not keep resurfacing evidence that was already
+  captured.
+
+What was found:
+- SHOWN: `docs/checkpoints/runtime_check_2026_08_23.md`,
+  `docs/checkpoints/host_systemd_dry_run_2026_08_23.md`, and
+  `docs/checkpoints/host_operator_event_status_2026_08_23.md` exist on
+  `master`.
+- SHOWN: `REMAINING_TASKS.md` did not yet reference those accepted checkpoint
+  files.
+
+What changed:
+- Added dated notes under the deployment/systemd, dead-man, and operator-event
+  audit coverage sections pointing to the accepted checkpoint files and
+  preserving the remaining open proof boundaries.
+
+Why this change was chosen:
+- The operator-next-action queue is source-summary driven. Backlog notes must
+  identify recorded proof checkpoints clearly, otherwise future sessions risk
+  repeating the same host evidence work.
+
+Expected outcome:
+- Future operators can see which 2026-08-23 host evidence was captured and which
+  proof requirements remain open without reopening the terminal transcript.
+
+Verification:
+- `git diff --check`
+  - SHOWN: exit code 0.
+- `./.venv/bin/python -m pytest -q tests/test_backlog_execution_lanes_guard.py tests/test_roadmap_tracking_status.py tests/test_roadmap_tracking_checklist.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `25 passed`.
+
+Remaining risk:
+- Docs-only synchronization. No runtime, campaign, host, config, risk, gate, or
+  execution behavior changed.
+- Acceptance state: `ACCEPTED`.

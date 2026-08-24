@@ -1645,6 +1645,23 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    fresh at `2026-08-21T03:08:42+00:00`. This is status evidence only; it does
    not close deployment installation/post-install, backup/restore, or launch
    proof items.
+   2026-08-23: fresh read-only runtime status is recorded in
+   `docs/checkpoints/runtime_check_2026_08_23.md`. Laptop paper campaigns are
+   `2/2` running and idle after the 2026-08-23 daily cycle; Hetzner
+   `ema_cross_default` is `1/1` running and idle; Hetzner edge runtime is ready
+   on master `a10aca01f`; host OKX funding/open-interest/basis cadence is fresh
+   at `2026-08-23T04:56:02+00:00`; pullback Stage 0 verification passes with
+   zero blockers; funding Stage 0 remains blocked by expected-commit mismatch
+   (`expected=fd7f11e9c`, `actual=1920d13b0`). This is status evidence only; it
+   does not close deployment installation/post-install, backup/restore, or
+   launch proof items.
+   2026-08-23: fresh Hetzner systemd dry-run and loaded-unit inventory are
+   recorded in `docs/checkpoints/host_systemd_dry_run_2026_08_23.md`. Host
+   checkout `a10aca01` statically verifies the full packaged unit set in dry-run
+   mode; currently loaded `cbp-*` units remain limited to
+   `cbp-crypto-edge-collector.service`, `cbp-edge-cadence.service`, and
+   `cbp-edge-cadence.timer`. No units were installed, enabled, reloaded, or
+   restarted; deployment installation/post-install proof remains open.
 6. Add trading-loop metrics and dead-man alerting. Host health checks are not
    enough; each managed trading loop needs heartbeat metrics and alert-on-absence
    within a defined time window. Include a watchdog proof that each loop checks
@@ -1682,6 +1699,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    named beats and per-loop watchdog policy remain follow-ups (the item
    prefers the external dead-man first); healthchecks/ntfy push channels
    remain operator choices layered on the checker's exit codes.
+   2026-08-23: host dead-man status is recorded in
+   `docs/checkpoints/host_systemd_dry_run_2026_08_23.md`. The checker and
+   packaged `cbp-dead-man` service/timer files are present on Hetzner, and the
+   checker fails closed with `overall=missing` under `CBP_STATE_DIR=/var/lib/cbp`
+   for the packaged default heartbeat names (`intent_consumer`,
+   `live_reconciler`) and explicit edge names (`crypto_edge_collector`,
+   `edge_cadence`). The `cbp-dead-man` service/timer is not currently loaded;
+   heartbeat production/scheduling proof remains open.
 7. Write a state-store consolidation decision record before implementation.
    Decide how fills, positions, PnL, intents, and ledgers should move toward one
    transactional schema or explicitly accept the current reconciler-dependent
@@ -1914,6 +1939,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     dashboard/CLI/system/automation coverage matrix, audit-log replay of at
     least one live-arm-to-halt drill, no-secret audit payload scan, and
     fail-closed behavior for critical audit-write failures.
+    2026-08-23: current Hetzner operator-event journal status is recorded in
+    `docs/checkpoints/host_operator_event_status_2026_08_23.md`. Host
+    no-required-events secret scan reports no findings but also
+    `exists=false` and `event_count=0`; `--require-events` fails with
+    `operator_event_journal_missing`; arm-to-halt replay also fails with
+    `operator_event_journal_missing`. This is useful negative evidence only:
+    host-side no-secret launch proof and arm-to-halt replay remain open until
+    real operator-event records exist.
     2026-07-12: executable audit-coverage matrix tooling is ready for
     independent review. `scripts/audit_coverage_matrix.py` classifies policy
     families as SHOWN/PARTIAL/MISSING with store pointers and runtime probes,
