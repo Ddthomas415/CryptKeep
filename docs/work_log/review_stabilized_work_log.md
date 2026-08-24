@@ -36189,3 +36189,77 @@ Remaining risk:
 - Host vulnerability audit/waiver and SBOM/hash-locked release-policy decision
   remain open after dependency alignment.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T22:02:30Z - Hetzner Read-Only Status Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Record the current local/host runtime state after merging the dependency
+  alignment runbook, without mutating the host or waiting on a future
+  maintenance window.
+
+What was found:
+- SHOWN: local `master` is clean and aligned with `origin/master` at
+  `2bb6a411c`.
+- SHOWN: open PR list is empty.
+- SHOWN: repo doctor reports no missing supported-baseline dirs, no
+  non-canonical duplicates, and no suspicious top-level files.
+- SHOWN: local paper campaigns are `2/2` running and idle for the next UTC day.
+- SHOWN: local paper gate remains `3/5` qualified round trips with `2`
+  remaining; qualified bars are complete at `63/60`.
+- SHOWN: Hetzner crypto-edge runtime reports
+  `hetzner_crypto_edge_runtime_ready` with `blocking_checks=0`.
+- SHOWN: Hetzner paper status reports `ema_cross_default` `1/1` running and
+  idle with `15` fills, `7` closed trades, and latest fill
+  `2026-08-24T00:01:55.857611+00:00`.
+- SHOWN: Hetzner supply-chain check still has pin integrity OK but environment
+  mismatch for the same 10 packages documented in the dependency-alignment
+  runbook; vulnerability audit was not requested.
+
+What changed:
+- Added `docs/checkpoints/hetzner_readonly_status_2026_08_24.md`.
+- Added a dated supply-chain note to `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- It records current read-only evidence and keeps separate facts separate:
+  runtime/campaign readiness is healthy, while dependency-pin alignment remains
+  an unexecuted host-maintenance task.
+
+Expected outcome:
+- Future check-ins do not re-discover the same host state or confuse
+  crypto-edge runtime readiness with supply-chain environment alignment.
+
+Verification:
+- `git status --short --branch`
+  - SHOWN: `## master...origin/master`.
+- `git log --oneline -5 --decorate`
+  - SHOWN: head `2bb6a411c`.
+- `gh pr list --state open --json number,title,headRefName,baseRefName,mergeStateStatus`
+  - SHOWN: `[]`.
+- `./.venv/bin/python tools/repo_doctor.py`
+  - SHOWN: no suspicious top-level files or duplicate top-level dirs.
+- `make status-paper-campaigns`
+  - SHOWN: `all_running=true`, `running_count=2`.
+- `make status-paper-gate-velocity-json`
+  - SHOWN: `3/5` qualified round trips, `2` remaining, `63/60` qualified bars.
+- `make roadmap-tracking-status-json`
+  - SHOWN: `ok=true`.
+- `make operator-read-only-command-status-json`
+  - SHOWN: `23/23` commands wired.
+- `HETZNER_STATUS_TRANSPORT=ssh HETZNER_SSH_TARGET=cryptkeep@100.86.128.9 make status-hetzner-edge-runtime`
+  - SHOWN: `hetzner_crypto_edge_runtime_ready`, `blocking_checks=0`.
+- `HETZNER_STATUS_TRANSPORT=ssh HETZNER_SSH_TARGET=cryptkeep@100.86.128.9 make status-paper-hetzner`
+  - SHOWN: `1/1` running, `ema_cross_default` idle.
+- `ssh -o BatchMode=yes -o ConnectTimeout=10 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && ./.venv/bin/python scripts/check_supply_chain.py --json'`
+  - SHOWN: pin integrity OK, environment mismatch for 10 packages,
+    vulnerability audit not requested.
+
+Remaining risk:
+- LOW: docs/checkpoint only. No code, config, campaign, gate, risk, live/shadow,
+  execution, service, package, timer, or host state changed.
+- Hetzner dependency alignment remains open until the approved runbook is
+  executed.
+- Host vulnerability audit/waiver and SBOM/hash-locked release-policy decision
+  remain open.
+- Acceptance state: `ACCEPTED`.
