@@ -1945,6 +1945,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     review/remediate or waive the local `pip` finding, run or waive host
     vulnerability audit for the final deployed SHA, and decide whether
     hash-locked installs or SBOMs become release gates.
+    2026-08-23: local `pip` remediation is recorded in
+    `docs/checkpoints/supply_chain_local_remediation_2026_08_23.md`.
+    The project virtualenv was upgraded from `pip 26.1.2` to `pip 26.2`;
+    subsequent local `scripts/check_supply_chain.py --audit --json` on
+    `a4a555d` reports pin integrity OK, environment OK, and
+    `vulnerable_count=0`. Audited evidence artifact:
+    `.cbp_state/data/supply_chain/supply-chain-evidence-20260824T011230Z.json`.
+    Remaining capped-live proof: align the deployed Hetzner environment with
+    pins, run or waive host vulnerability audit for the final deployed SHA, and
+    decide whether hash-locked installs or SBOMs become release gates.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
