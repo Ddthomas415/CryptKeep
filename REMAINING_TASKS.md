@@ -1668,6 +1668,18 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `cbp-crypto-edge-collector.service`, `cbp-edge-cadence.service`, and
    `cbp-edge-cadence.timer`. No units were installed, enabled, reloaded, or
    restarted; deployment installation/post-install proof remains open.
+   2026-08-24: read-only runtime check-in is recorded in
+   `docs/checkpoints/runtime_check_2026_08_24.md`. PR #529 is merged on
+   `master` (`db8bd11d3`), local paper campaigns are `2/2` running and idle
+   after the 2026-08-24 daily cycle, the local paper gate remains `3/5`
+   qualified round trips with `2` remaining and qualified bars complete at
+   `63/60`, roadmap tracking is clean, the passive local operator queue is
+   empty, Hetzner `ema_cross_default` is `1/1` running and idle after the
+   2026-08-24 daily cycle, and the merged Hetzner crypto-edge runtime wrapper
+   reports `hetzner_crypto_edge_runtime_ready` with zero blockers against remote
+   `master` at `a10aca01f`. This is status evidence only; it does not close
+   deployment installation/post-install, host dependency alignment,
+   backup/restore, or launch proof items.
 6. Add trading-loop metrics and dead-man alerting. Host health checks are not
    enough; each managed trading loop needs heartbeat metrics and alert-on-absence
    within a defined time window. Include a watchdog proof that each loop checks

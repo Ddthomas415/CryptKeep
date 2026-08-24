@@ -36067,3 +36067,74 @@ Remaining risk:
   start/stop/restart, deploy, strategy, campaign, gate, risk, live/shadow, or
   execution behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T21:49:30Z - Runtime Check-In After Hetzner Edge Wrapper Merge
+
+Active role: ENGINEER
+
+Objective:
+- Record the current post-merge runtime state so future sessions start from
+  visible repo evidence instead of chat history.
+
+What was found:
+- SHOWN: PR `#529` had all GitHub checks passing and merged as `db8bd11d3`.
+- SHOWN: local checkout is clean on `master` and aligned with `origin/master`;
+  `gh pr list --state open` returned no open PRs.
+- SHOWN: local paper campaigns are `2/2` running and idle after the
+  2026-08-24 daily cycle.
+- SHOWN: paper gate velocity remains `3/5` qualified round trips with `2`
+  remaining; qualified bars are complete at `63/60`.
+- SHOWN: roadmap tracking is clean, with all `13` roadmap commands and all
+  `12` linked source docs present.
+- SHOWN: the passive local operator queue has `0` available actions after
+  excluding host-side, capped-live-proof, and coverage-only items.
+- SHOWN: Hetzner paper campaign status reports `1/1` running and idle for
+  `ema_cross_default` after the 2026-08-24 daily cycle.
+- SHOWN: the merged Hetzner crypto-edge runtime wrapper reports
+  `hetzner_crypto_edge_runtime_ready`, `ok=True`, `blocking_checks=0`, remote
+  branch `master`, and remote head `a10aca01f`.
+
+What changed:
+- Added `docs/checkpoints/runtime_check_2026_08_24.md`.
+- Added a dated note in `REMAINING_TASKS.md` pointing to the checkpoint.
+
+Why this change was chosen:
+- The repo's remaining generated queue is now proof/host dominated. Recording a
+  compact checkpoint prevents repeated rediscovery and keeps the next action
+  boundary clear without changing runtime behavior.
+
+Expected outcome:
+- Future work can start from the actual post-merge state: clean master, no open
+  PRs, campaigns running, paper gate still waiting for round trips, and Hetzner
+  edge runtime ready under the merged wrapper.
+
+Verification:
+- `gh pr checks 529`
+  - SHOWN: all checks passed.
+- `gh pr merge 529 --squash --delete-branch --admin`
+  - SHOWN: local master fast-forwarded to `db8bd11d3`.
+- `git status --short --branch`
+  - SHOWN: `## master...origin/master`.
+- `gh pr list --state open --json number,title,headRefName,baseRefName,mergeStateStatus`
+  - SHOWN: `[]`.
+- `make status-paper-campaigns`
+  - SHOWN: `all_running=true`, `running_count=2`.
+- `make status-paper-gate-velocity-json`
+  - SHOWN: `3/5` qualified round trips, `2` remaining, `63/60` qualified bars.
+- `make status-paper-soak-json`
+  - SHOWN: `campaigns_ok=true`, gate `machine_ready=false`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: `ok=true`.
+- `HETZNER_STATUS_TRANSPORT=ssh HETZNER_SSH_TARGET=cryptkeep@100.86.128.9 make status-paper-hetzner`
+  - SHOWN: `1/1` running, `ema_cross_default` idle, `fills=15`,
+    `closed=7`, latest fill `2026-08-24T00:01:55.857611+00:00`.
+- `HETZNER_STATUS_TRANSPORT=ssh HETZNER_SSH_TARGET=cryptkeep@100.86.128.9 make status-hetzner-edge-runtime`
+  - SHOWN: `hetzner_crypto_edge_runtime_ready`, `blocking_checks=0`.
+
+Remaining risk:
+- LOW: documentation/status checkpoint only. No code, host mutation, service
+  start/stop/restart, campaign, gate, risk, live/shadow, or execution behavior
+  changed.
+- Hetzner dependency-pin alignment remains open; this checkpoint did not mutate
+  the host virtualenv.
+- Acceptance state: `ACCEPTED`.
