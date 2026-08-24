@@ -1680,6 +1680,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `master` at `a10aca01f`. This is status evidence only; it does not close
    deployment installation/post-install, host dependency alignment,
    backup/restore, or launch proof items.
+   2026-08-24: Docker-compose disposition proof is recorded in
+   `docs/checkpoints/docker_compose_disposition_2026_08_24.md`. Default Compose
+   config renders only `dashboard`; `COMPOSE_PROFILES=phase1-companion` renders
+   `dashboard` plus `backend`; and `tests/test_companion_repo_dependency.py`
+   passes. This closes the Docker companion-disposition slice. Server
+   deployment installation/post-install evidence remains open under the
+   existing proof marker above.
 6. Add trading-loop metrics and dead-man alerting. Host health checks are not
    enough; each managed trading loop needs heartbeat metrics and alert-on-absence
    within a defined time window. Include a watchdog proof that each loop checks
