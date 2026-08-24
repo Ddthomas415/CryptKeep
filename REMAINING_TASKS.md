@@ -82,7 +82,8 @@ documents. Keep implementation scoped; high-risk runtime, launch, strategy, or
 deployment work still needs independent review.
 
 1. Continue canonical paper evidence collection until `es_daily_trend_v1`
-   reaches 10 provenance-qualified round trips.
+   satisfies its active `slow_daily_single_symbol_v1` policy: 45 calendar days,
+   60 qualified source bars, and 5 provenance-qualified round trips.
    2026-07-18 design review: configurable paper promotion gate policy RFC is
    drafted in
    `docs/decisions/paper_promotion_gate_policy_rfc_2026-07-18.md`. The RFC
@@ -3596,8 +3597,9 @@ Current paper-campaign path:
    intentionally want one side of the split-host status
 3. use `make status-paper-campaigns` only when you need raw laptop process
    restore/status detail
-4. wait for `es_daily_trend_v1` to reach 10 provenance-qualified round trips,
-   then perform the manual performance review
+4. wait for `es_daily_trend_v1` to satisfy its active
+   `slow_daily_single_symbol_v1` policy, then perform the manual performance
+   review
 
 Root-runtime launch path:
 
