@@ -36263,3 +36263,57 @@ Remaining risk:
 - Host vulnerability audit/waiver and SBOM/hash-locked release-policy decision
   remain open.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T22:08:30Z - Docker Compose Disposition Proof
+
+Active role: ENGINEER
+
+Objective:
+- Resolve the Docker-compose disposition slice of the deployment backlog
+  without changing runtime behavior.
+
+What was found:
+- SHOWN: `docker/docker-compose.yml` keeps `backend` behind the
+  `phase1-companion` profile.
+- SHOWN: `docs/COMPANION_REPO_DEPENDENCY.md` documents
+  `phase1_research_copilot/` as a sidecar/archived companion, not a required
+  root runtime dependency.
+- SHOWN: `tests/test_companion_repo_dependency.py` pins the root Docker startup
+  behavior.
+- SHOWN: default `docker compose ... config --services` renders only
+  `dashboard`.
+- SHOWN: `COMPOSE_PROFILES=phase1-companion docker compose ... config --services`
+  renders `dashboard` and `backend`.
+
+What changed:
+- Added `docs/checkpoints/docker_compose_disposition_2026_08_24.md`.
+- Added a dated note under the deployment/systemd backlog item.
+
+Why this change was chosen:
+- The backlog item had two separable surfaces: Docker-compose disposition and
+  server systemd installation. The Compose side is already implemented and
+  testable locally; recording it prevents rework while keeping the host-side
+  proof open.
+
+Expected outcome:
+- Future operator queues should treat Docker companion disposition as resolved
+  and focus deployment proof on server unit installation/post-install
+  evidence.
+
+Verification:
+- `docker compose -f docker/docker-compose.yml config --services`
+  - SHOWN: `dashboard`.
+- `COMPOSE_PROFILES=phase1-companion docker compose -f docker/docker-compose.yml config --services`
+  - SHOWN: `dashboard`, `backend`.
+- `docker compose -f docker/docker-compose.yml config`
+  - SHOWN: rendered successfully and default config excludes `backend`.
+- `COMPOSE_PROFILES=phase1-companion docker compose -f docker/docker-compose.yml config`
+  - SHOWN: rendered successfully and includes `backend`.
+- `./.venv/bin/python -m pytest -q tests/test_companion_repo_dependency.py`
+  - SHOWN: `2 passed`.
+
+Remaining risk:
+- LOW: docs/checkpoint only. No Docker file, code, config, host, service,
+  campaign, gate, risk, live/shadow, or execution behavior changed.
+- Server systemd installation/post-install evidence remains open.
+- Acceptance state: `ACCEPTED`.
