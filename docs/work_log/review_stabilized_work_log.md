@@ -36380,10 +36380,14 @@ What was found:
   `docs/strategies/es_daily_trend_v1.md`, and `docs/DECISION_FRAMEWORK.md`
   still contained current guidance phrased as 10 completed/provenance-qualified
   round trips.
+- SHOWN: `scripts/dev/run_es_daily_trend_paper.py --check-promotion` still
+  printed the stale `10+ completed round trips` checklist label.
 
 What changed:
 - Updated current operator guidance to name the active strategy-class policy and
   its thresholds instead of the stale universal 10-round-trip wording.
+- Updated the ES paper runner's `--check-promotion` checklist output to print
+  the same active policy threshold.
 - Updated the Golden Path guard test so current docs stay aligned with the
   active policy. Historical checkpoints and fixture data were not rewritten.
 
@@ -36399,6 +36403,11 @@ Expected outcome:
 Verification:
 - `./.venv/bin/python -m pytest -q tests/test_golden_path_operator_flow_guard.py`
   - SHOWN: `9 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_golden_path_operator_flow_guard.py tests/test_remaining_compat_wrappers.py`
+  - SHOWN: `16 passed`.
+- `./.venv/bin/python scripts/run_es_daily_trend_paper.py --check-promotion`
+  - SHOWN: checklist prints `slow_daily_single_symbol_v1 policy satisfied`
+    with `45 days, 60 qualified bars, 5 provenance-qualified round trips`.
 - `make status-paper-gate-velocity-json`
   - SHOWN: policy `slow_daily_single_symbol_v1`, days `111/45`,
     qualified bars `63/60`, and round trips `3/5`.

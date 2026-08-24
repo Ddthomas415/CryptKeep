@@ -93,8 +93,7 @@ def _print_promotion_check() -> None:
 
     if stage == Stage.PAPER:
         checks = [
-            ("30 calendar days of operation",       None, "run 'python scripts/run_es_daily_trend_paper.py' daily"),
-            ("10+ completed round trips",           None, "check evidence logs"),
+            ("slow_daily_single_symbol_v1 policy satisfied", None, "45 days, 60 qualified bars, 5 provenance-qualified round trips"),
             ("Expectancy within 30% of backtest",   None, "check evidence logs"),
             ("No critical operational bugs",        None, "check logs/errors"),
             ("Kill switch tested",                  None, "test manually: CBP_KILL_SWITCH=1"),
