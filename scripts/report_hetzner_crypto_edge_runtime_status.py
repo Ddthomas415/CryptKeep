@@ -148,6 +148,31 @@ def _remote_probe_program(*, plan_path: str, state_dir: str) -> str:
         else:
             collector_status["error"] = "collector_status_unavailable"
 
+        edge_cadence = {{"attempted": False, "ok": False, "payload": None, "error": ""}}
+        if files.get("scripts/check_edge_cadence.py") and files.get("venv_python"):
+            edge_cadence["attempted"] = True
+            raw = run(
+                ["./.venv/bin/python", "scripts/check_edge_cadence.py", "--json"],
+                env=({{"CBP_STATE_DIR": STATE_DIR}} if STATE_DIR else None),
+            )
+            edge_cadence["raw"] = raw
+            if raw.get("returncode") == 0:
+                try:
+                    edge_cadence["payload"] = json.loads(raw.get("stdout") or "{{}}")
+                    edge_cadence["ok"] = bool(edge_cadence["payload"].get("ok"))
+                    if not edge_cadence["ok"]:
+                        edge_cadence["error"] = "edge_cadence_not_ok"
+                except Exception as exc:
+                    edge_cadence["error"] = f"cadence_parse_failed:{{type(exc).__name__}}:{{exc}}"
+            else:
+                edge_cadence["error"] = f"cadence_command_failed:{{raw.get('returncode')}}"
+                try:
+                    edge_cadence["payload"] = json.loads(raw.get("stdout") or "{{}}")
+                except Exception:
+                    pass
+        else:
+            edge_cadence["error"] = "edge_cadence_unavailable"
+
         scheduler = {{
             "systemd_edge_cadence_enabled": run(["systemctl", "--user", "is-enabled", "cbp-edge-cadence.timer"]),
             "systemd_edge_cadence_active": run(["systemctl", "--user", "is-active", "cbp-edge-cadence.timer"]),
@@ -166,6 +191,7 @@ def _remote_probe_program(*, plan_path: str, state_dir: str) -> str:
             "state": state,
             "plan": plan,
             "collector_status": collector_status,
+            "edge_cadence": edge_cadence,
             "scheduler": scheduler,
         }}, sort_keys=True))
         """
@@ -242,6 +268,7 @@ def build_report(
     state = dict(remote_payload.get("state") or {})
     plan = dict(remote_payload.get("plan") or {})
     collector_status = dict(remote_payload.get("collector_status") or {})
+    edge_cadence = dict(remote_payload.get("edge_cadence") or {})
     scheduler = dict(remote_payload.get("scheduler") or {})
 
     head = _cmd_stdout(dict(repo.get("head") or {}))
@@ -275,6 +302,10 @@ def build_report(
         "running",
         "collecting",
     }
+    cadence_payload = dict(edge_cadence.get("payload") or {})
+    edge_cadence_ok = bool(edge_cadence.get("attempted")) and bool(edge_cadence.get("ok")) and bool(
+        cadence_payload.get("ok")
+    )
 
     timers_stdout = _cmd_stdout(dict(scheduler.get("systemd_user_timers") or {})).lower()
     system_timers_stdout = _cmd_stdout(dict(scheduler.get("systemd_system_timers") or {})).lower()
@@ -370,6 +401,18 @@ def build_report(
                 "crontab_preview": crontab_stdout[:500],
             },
         ),
+        _check(
+            "edge_cadence_fresh",
+            edge_cadence_ok,
+            "fresh" if edge_cadence_ok else str(edge_cadence.get("error") or "missing"),
+            {
+                "attempted": bool(edge_cadence.get("attempted")),
+                "checked": list(cadence_payload.get("checked") or []),
+                "missing": list(cadence_payload.get("missing") or []),
+                "stale": list(cadence_payload.get("stale") or []),
+                "families": list(cadence_payload.get("families") or []),
+            },
+        ),
     ]
     blockers = [row["name"] for row in checks if not bool(row.get("ok"))]
     ok = not blockers
@@ -399,7 +442,6 @@ def build_report(
 def _recommendations(blockers: list[str]) -> list[str]:
     if not blockers:
         return [
-            "Run scripts/check_edge_cadence.py --json on the host and record recent OKX snapshot timestamps.",
             "Keep the collector and cadence checker schedules under host monitoring.",
         ]
     recommendations = [
@@ -413,6 +455,8 @@ def _recommendations(blockers: list[str]) -> list[str]:
         recommendations.append("Install or start only a reviewed read-only crypto-edge collector schedule after checkout and plan checks pass.")
     if "cadence_checker_schedule" in blockers:
         recommendations.append("Enable the accepted read-only cadence checker timer after the checker exists on the host.")
+    if "edge_cadence_fresh" in blockers:
+        recommendations.append("Investigate missing or stale crypto-edge snapshots before depending on funding/OI/basis context.")
     return recommendations
 
 

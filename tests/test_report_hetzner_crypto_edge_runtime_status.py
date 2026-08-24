@@ -17,6 +17,7 @@ def _remote_payload(
     files: dict | None = None,
     plan: dict | None = None,
     collector: dict | None = None,
+    edge_cadence: dict | None = None,
     scheduler: dict | None = None,
 ) -> dict:
     if files is None:
@@ -41,6 +42,13 @@ def _remote_payload(
             "payload": {"status": "running", "pid": 1234, "pid_alive": True},
             "error": "",
         }
+    if edge_cadence is None:
+        edge_cadence = {
+            "attempted": True,
+            "ok": True,
+            "payload": {"ok": True, "checked": ["funding", "open_interest", "basis"], "missing": [], "stale": []},
+            "error": "",
+        }
     if scheduler is None:
         scheduler = {
             "systemd_edge_cadence_enabled": _cmd("enabled\n"),
@@ -58,6 +66,7 @@ def _remote_payload(
         "state": {"path": "/var/lib/cbp", "exists": True},
         "plan": plan,
         "collector_status": collector,
+        "edge_cadence": edge_cadence,
         "scheduler": scheduler,
     }
 
@@ -77,6 +86,10 @@ def test_build_report_passes_only_when_checkout_plan_runtime_and_schedules_are_r
     assert report["remote"]["state_dir_exists"] is True
     assert report["collector_start_invoked"] is False
     assert report["deploy_invoked"] is False
+    cadence_check = next(row for row in report["checks"] if row["name"] == "edge_cadence_fresh")
+    assert cadence_check["status"] == "fresh"
+    assert cadence_check["details"]["missing"] == []
+    assert cadence_check["details"]["stale"] == []
 
 
 def test_build_report_accepts_systemd_system_collector_and_cadence_units() -> None:
@@ -106,6 +119,34 @@ def test_build_report_accepts_systemd_system_collector_and_cadence_units() -> No
     assert collector_check["details"]["collector_service_active"] == "active"
     assert cadence_check["details"]["system_timer_enabled"] == "enabled"
     assert cadence_check["details"]["system_timer_active"] == "active"
+
+
+def test_build_report_blocks_when_edge_cadence_is_missing_or_stale() -> None:
+    report = script.build_report(
+        remote_payload=_remote_payload(
+            edge_cadence={
+                "attempted": True,
+                "ok": False,
+                "payload": {
+                    "ok": False,
+                    "checked": ["funding", "open_interest", "basis"],
+                    "missing": ["open_interest"],
+                    "stale": ["basis"],
+                },
+                "error": "cadence_command_failed:2",
+            }
+        ),
+        expected_branch="master",
+        expected_commit="e8224057f",
+        expected_derivatives_venue="okx",
+    )
+
+    assert report["ok"] is False
+    assert "edge_cadence_fresh" in report["blockers"]
+    cadence_check = next(row for row in report["checks"] if row["name"] == "edge_cadence_fresh")
+    assert cadence_check["status"] == "cadence_command_failed:2"
+    assert cadence_check["details"]["missing"] == ["open_interest"]
+    assert cadence_check["details"]["stale"] == ["basis"]
 
 
 def test_build_report_blocks_stale_binance_unscheduled_remote_state() -> None:
@@ -151,6 +192,12 @@ def test_build_report_blocks_stale_binance_unscheduled_remote_state() -> None:
             files=files,
             plan=plan,
             collector=collector,
+            edge_cadence={
+                "attempted": False,
+                "ok": False,
+                "payload": None,
+                "error": "edge_cadence_unavailable",
+            },
             scheduler=scheduler,
         ),
         expected_branch="master",
@@ -168,6 +215,7 @@ def test_build_report_blocks_stale_binance_unscheduled_remote_state() -> None:
         "collector_runtime_status",
         "collector_schedule",
         "cadence_checker_schedule",
+        "edge_cadence_fresh",
     ]
     plan_check = next(row for row in report["checks"] if row["name"] == "collector_plan_derivatives_source")
     assert plan_check["details"]["venues"] == {

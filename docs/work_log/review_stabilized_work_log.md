@@ -36016,3 +36016,54 @@ Remaining risk:
   live/shadow, or execution behavior changed.
 - Hetzner environment mismatch and host vulnerability audit/waiver remain open.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T21:30:40Z - Hetzner Edge Runtime Wrapper Cadence Proof
+
+Active role: ENGINEER
+
+Objective:
+- Remove a repeated manual proof step by making the read-only Hetzner
+  crypto-edge runtime wrapper include the actual edge-cadence freshness result.
+
+What was found:
+- SHOWN: `make status-hetzner-edge-runtime` checked checkout/tooling, OKX plan,
+  collector runtime, and collector/cadence schedules, but its success
+  recommendations still told the operator to separately run
+  `scripts/check_edge_cadence.py --json` on the host.
+- SHOWN: a direct host check with
+  `CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json`
+  reports funding/open-interest/basis fresh with `missing=[]`, `stale=[]`.
+
+What changed:
+- Extended `scripts/report_hetzner_crypto_edge_runtime_status.py` remote probe
+  to run `scripts/check_edge_cadence.py --json` under the same remote
+  `CBP_STATE_DIR`.
+- Added an `edge_cadence_fresh` check that blocks when funding/open-interest/
+  basis snapshots are missing or stale.
+- Updated `scripts/SCRIPTS.md` and `REMAINING_TASKS.md` to describe the wrapper
+  as including cadence freshness, not just recommending a separate command.
+
+Why this change was chosen:
+- The existing wrapper already owns the host crypto-edge runtime proof surface.
+  Including the read-only cadence result in that wrapper prevents future
+  sessions from repeating a second manual host command to answer the same
+  readiness question.
+
+Expected outcome:
+- `make status-hetzner-edge-runtime` becomes the single read-only check for
+  host checkout, accepted OKX collector plan, collector schedule, cadence
+  checker schedule, and recent funding/OI/basis snapshots.
+
+Verification:
+- `HETZNER_STATUS_TRANSPORT=ssh ./.venv/bin/python scripts/report_hetzner_crypto_edge_runtime_status.py --json --strict --ssh-target cryptkeep@100.86.128.9 --transport ssh --app-dir /srv/cryptkeep/app --remote-state-dir /var/lib/cbp --expected-branch master --expected-derivatives-venue okx --timeout-sec 15`
+  - SHOWN: `ok=true`, `blockers=[]`, `collector_runtime_status=running`,
+    `cadence_checker_schedule=present`, and `edge_cadence_fresh=fresh` with
+    `missing=[]`, `stale=[]`.
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_crypto_edge_runtime_status.py`
+  - SHOWN: `13 passed`.
+
+Remaining risk:
+- MEDIUM: read-only remote status wrapper behavior. No host mutation, service
+  start/stop/restart, deploy, strategy, campaign, gate, risk, live/shadow, or
+  execution behavior changed.
+- Acceptance state: `ACCEPTED`.
