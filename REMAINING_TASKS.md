@@ -1622,8 +1622,7 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `scripts/install_systemd_units.py` verifies that boundary in dry-run mode
    before any install. `docs/DEPLOYMENT.md` documents host prerequisites,
    per-unit enable policy, and keeps the intent-consumer enable decision as an
-   operator action. Docker-compose disposition and host-side installation
-   remain open.
+   operator action. Host-side installation remains open.
    2026-08-14: read-only Hetzner inventory is recorded in
    `docs/checkpoints/host_proof_inventory_2026_08_14.md`. Hetzner checkout
    `5eb36cbb5` has `cbp-crypto-edge-collector.service` active and

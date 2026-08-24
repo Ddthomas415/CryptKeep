@@ -36317,3 +36317,49 @@ Remaining risk:
   campaign, gate, risk, live/shadow, or execution behavior changed.
 - Server systemd installation/post-install evidence remains open.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T22:18:00Z - Remove Stale Docker Compose Open Wording
+
+Active role: ENGINEER
+
+Objective:
+- Stop the operator queue from repeating Docker-compose disposition as an open
+  item after the disposition proof was merged.
+
+What was found:
+- SHOWN: PR #533 recorded `docs/checkpoints/docker_compose_disposition_2026_08_24.md`
+  and proved default Compose renders only `dashboard` while the explicit
+  `phase1-companion` profile renders `dashboard` plus `backend`.
+- SHOWN: the older deployment backlog sentence still said
+  "Docker-compose disposition and host-side installation remain open."
+- SHOWN: `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=host_side_reference`
+  surfaced that stale sentence as the first host-side action.
+
+What changed:
+- Reworded that older backlog sentence to: "Host-side installation remains
+  open."
+
+Why this change was chosen:
+- The Docker companion-disposition slice is closed; the remaining deployment
+  proof is server installation/post-install evidence. Keeping the old combined
+  wording would cause the operator queue to repeat completed work.
+
+Expected outcome:
+- The operator queue still exposes the real host-side installation proof, but
+  no longer claims Docker-compose disposition is open.
+
+Verification:
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=host_side_reference OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: first action text is `operator action. Host-side installation
+    remains open.`
+- `make operator-proof-status-json`
+  - SHOWN: proof-marker action count remained stable at `28`; no new false
+    proof marker was introduced.
+- `git diff --check`
+  - SHOWN: no whitespace errors.
+
+Remaining risk:
+- LOW: docs/backlog wording only. No code, Docker file, config, host, service,
+  campaign, gate, risk, live/shadow, or execution behavior changed.
+- Host-side installation/post-install evidence remains open.
+- Acceptance state: `ACCEPTED`.
