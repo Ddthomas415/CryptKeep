@@ -1973,6 +1973,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     Remaining capped-live proof: align the deployed Hetzner environment with
     pins, run or waive host vulnerability audit for the final deployed SHA, and
     decide whether hash-locked installs or SBOMs become release gates.
+    2026-08-24: Hetzner dependency alignment runbook is recorded in
+    `docs/checkpoints/hetzner_dependency_alignment_runbook_2026_08_24.md`.
+    A read-only host `pip install --dry-run -r requirements-pinned.txt` exited
+    `0` and showed the same 10 package updates would be installed
+    (`aiohttp`, `click`, `cryptography`, `GitPython`, `idna`, `pillow`,
+    `setuptools`, `starlette`, `tornado`, `urllib3`), with host `pip` also
+    upgradeable from `26.1.2` to the locally remediated `26.2`. The runbook
+    records the no-restart maintenance boundary, pre-change `pip freeze`
+    rollback artifact, post-change supply-chain verification, and the exact
+    operator approval text required before mutating the host virtualenv.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live

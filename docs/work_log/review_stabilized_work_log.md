@@ -36138,3 +36138,54 @@ Remaining risk:
 - Hetzner dependency-pin alignment remains open; this checkpoint did not mutate
   the host virtualenv.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-23T21:56:30Z - Hetzner Dependency Alignment Runbook
+
+Active role: ENGINEER
+
+Objective:
+- Convert the remaining Hetzner dependency-alignment proof into an executable
+  maintenance runbook with rollback and verification before mutating the host.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` still lists Hetzner environment alignment,
+  host vulnerability audit/waiver, and SBOM/hash-lock release policy as the
+  remaining capped-live supply-chain proof.
+- SHOWN: read-only host dry-run exits `0` and would install/upgrade
+  `aiohttp==3.14.3`, `click==8.3.3`, `cryptography==50.0.0`,
+  `GitPython==3.1.58`, `idna==3.15`, `pillow==12.3.0`,
+  `setuptools==83.0.0`, `starlette==1.3.1`, `tornado==6.5.7`,
+  and `urllib3==2.7.0`.
+- SHOWN: the host also reports `pip` can be upgraded from `26.1.2`; local
+  remediation used `pip==26.2` because the vulnerability metadata listed
+  `26.2` as fixed.
+- SHOWN: attempting the live host install without a dedicated maintenance and
+  rollback record was rejected by the execution safety reviewer.
+
+What changed:
+- Added `docs/checkpoints/hetzner_dependency_alignment_runbook_2026_08_24.md`.
+- Added a dated note under the supply-chain item in `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- Host virtualenv mutation is deployment-environment work. The safest next step
+  is to make the command sequence, no-restart boundary, rollback artifact, and
+  post-change checks explicit before execution.
+
+Expected outcome:
+- The operator can approve one exact maintenance action, execute host
+  dependency alignment without service restart, and verify pin/environment
+  alignment afterward without re-litigating the command sequence.
+
+Verification:
+- `ssh -o BatchMode=yes -o ConnectTimeout=10 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && ./.venv/bin/python -m pip install --dry-run -r requirements-pinned.txt'`
+  - SHOWN: exit `0`; would install the 10 pinned package updates listed above;
+    no packages installed because `--dry-run` was used.
+
+Remaining risk:
+- LOW: docs/runbook only. No host mutation, service restart, code, config,
+  campaign, gate, risk, live/shadow, or execution behavior changed.
+- HIGH: executing the runbook mutates the Hetzner app virtualenv and still
+  requires explicit operator approval.
+- Host vulnerability audit/waiver and SBOM/hash-locked release-policy decision
+  remain open after dependency alignment.
+- Acceptance state: `ACCEPTED`.
