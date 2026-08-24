@@ -124,14 +124,15 @@ A system that resumes trading without confirming its own state is a system that 
 The most expensive mistake is going live before the evidence warrants it. Use this sequence in order.
 
 **Paper (simulation only) — minimum requirements to advance:**
-- 30 trading days minimum
-- 10+ completed round trips for slow-turnover daily systems
+- active strategy-class policy satisfied; for the current `es_daily_trend_v1`
+  campaign this is `slow_daily_single_symbol_v1` with 45 calendar days,
+  60 qualified source bars, and 5 provenance-qualified completed round trips
 - Observed expectancy within a tolerable range of backtest assumptions
 - No critical operational bugs encountered
 - Kill switch tested
 
-The 10+ paper threshold is a path-validation threshold, not a profitability proof.
-Each counted round trip must have both entry and exit fills explicitly attributed
+The paper threshold is a path-validation threshold, not a profitability proof.
+Each counted round trip and qualified source bar must be explicitly attributed
 to the configured non-sample market-data source, timeframe, venue, and symbol.
 Latest-window collector health cannot qualify older unstamped fills.
 The machine gate must still surface any manual review needed to compare observed

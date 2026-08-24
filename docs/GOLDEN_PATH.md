@@ -185,8 +185,9 @@ history remains diagnostic and does not count when either trade leg lacks the
 configured provenance.
 
 Gates for paper → shadow promotion:
-- 30 calendar days of operation
-- 10+ completed round trips
+- active strategy-class policy satisfied; for `es_daily_trend_v1` this is
+  `slow_daily_single_symbol_v1` with 45 calendar days, 60 qualified source bars,
+  and 5 provenance-qualified completed round trips
 - Expectancy within 30% of backtest
 - No critical operational bugs
 - Kill switch tested within the configured cadence (`ops.kill_switch_test_frequency`, weekly by default)

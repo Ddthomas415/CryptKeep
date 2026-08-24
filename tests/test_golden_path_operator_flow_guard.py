@@ -103,8 +103,9 @@ def test_promotion_gate_and_shadow_boundary_are_pinned() -> None:
     assert "Read by: `scripts/check_promotion_gates.py` from two canonical evidence surfaces" in text
     assert "Raw journal history remains diagnostic and does not count" in text
     for criterion in (
-        "30 calendar days of operation",
-        "10+ completed round trips",
+        "active strategy-class policy satisfied",
+        "`slow_daily_single_symbol_v1` with 45 calendar days, 60 qualified source bars",
+        "5 provenance-qualified completed round trips",
         "Expectancy within 30% of backtest",
         "No critical operational bugs",
         "Kill switch tested within the configured cadence",

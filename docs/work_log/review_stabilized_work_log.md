@@ -36363,3 +36363,51 @@ Remaining risk:
   campaign, gate, risk, live/shadow, or execution behavior changed.
 - Host-side installation/post-install evidence remains open.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-24T02:25:11Z - Operator Guidance Alignment: Active Paper Gate Policy
+
+Active role: ENGINEER
+
+Objective:
+- Remove stale current-operator guidance that still described the active
+  `es_daily_trend_v1` paper gate as the old universal 10-round-trip threshold.
+
+What was found:
+- SHOWN: `make status-paper-gate-velocity-json` reports policy
+  `slow_daily_single_symbol_v1` with 45 calendar days, 60 qualified bars, and
+  5 required provenance-qualified round trips.
+- SHOWN: `REMAINING_TASKS.md`, `docs/GOLDEN_PATH.md`,
+  `docs/strategies/es_daily_trend_v1.md`, and `docs/DECISION_FRAMEWORK.md`
+  still contained current guidance phrased as 10 completed/provenance-qualified
+  round trips.
+
+What changed:
+- Updated current operator guidance to name the active strategy-class policy and
+  its thresholds instead of the stale universal 10-round-trip wording.
+- Updated the Golden Path guard test so current docs stay aligned with the
+  active policy. Historical checkpoints and fixture data were not rewritten.
+
+Why this change was chosen:
+- This is docs/test alignment only. It does not change promotion policy,
+  evidence, campaigns, runtime behavior, or live execution.
+
+Expected outcome:
+- Operators see the same threshold model in the generated gate report and the
+  current guidance docs: `slow_daily_single_symbol_v1`, 45 days, 60 qualified
+  source bars, and 5 provenance-qualified round trips.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_golden_path_operator_flow_guard.py`
+  - SHOWN: `9 passed`.
+- `make status-paper-gate-velocity-json`
+  - SHOWN: policy `slow_daily_single_symbol_v1`, days `111/45`,
+    qualified bars `63/60`, and round trips `3/5`.
+- `make operator-proof-status-json`
+  - SHOWN: host-side markers remained `28`, proof-marker actions required
+    remained `28`, and passive operator items requiring action remained `0`.
+- `git diff --check`
+  - SHOWN: no whitespace errors.
+
+Remaining risk:
+- LOW: documentation and guard-test alignment only.
+- Acceptance state: `ACCEPTED`.

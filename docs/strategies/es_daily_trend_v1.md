@@ -126,8 +126,9 @@ Work through each gate in order. Do not advance until all items pass.
 
 ### Paper gate
 
-- [ ] 30 calendar days of simulated operation
-- [ ] 10+ completed round trips (entry + exit)
+- [ ] Active `slow_daily_single_symbol_v1` policy satisfied: 45 calendar days,
+      60 qualified source bars, and 5 provenance-qualified completed round trips
+      (entry + exit)
 - [ ] Observed win rate and avg win/loss within 25% of backtest expectations
 - [ ] No critical bugs in signal generation, order formatting, or state management
 - [ ] Kill switch tested successfully
@@ -135,9 +136,9 @@ Work through each gate in order. Do not advance until all items pass.
 - [ ] Daily loss halt triggered and recovered correctly at least once in simulation
 - [ ] Regime filter blocked at least one entry in the run
 
-The 10+ completed round-trip threshold validates the paper execution path. It does
-not prove profitability. Promotion review still requires an explicit comparison of
-observed win rate and average winning/losing trade returns against backtest
+The strategy-class paper threshold validates the paper execution path. It does
+not prove profitability. Promotion review still requires an explicit comparison
+of observed win rate and average winning/losing trade returns against backtest
 expectations.
 Both legs of every counted round trip must explicitly match the strategy's
 `public_ohlcv`, `1d`, Coinbase, `BTC/USDT`, non-sample provenance contract.
