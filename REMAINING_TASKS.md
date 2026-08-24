@@ -827,6 +827,12 @@ deployment work still needs independent review.
     `5eb36cbb5`, and host-side `check_edge_cadence.py --json` under
     `CBP_STATE_DIR=/var/lib/cbp` reports OKX funding/open-interest/basis all
     fresh at `2026-08-14T05:03:59+00:00` with `missing=[]` and `stale=[]`.
+    2026-08-23: the Hetzner crypto-edge runtime wrapper is updated to include
+    the read-only `scripts/check_edge_cadence.py --json` result inside
+    `make status-hetzner-edge-runtime`; the wrapper now blocks on missing or
+    stale funding/open-interest/basis snapshots instead of only recommending a
+    separate manual cadence command. This changes reporting only and does not
+    deploy, start, stop, or mutate collectors.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
