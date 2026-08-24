@@ -1983,6 +1983,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     records the no-restart maintenance boundary, pre-change `pip freeze`
     rollback artifact, post-change supply-chain verification, and the exact
     operator approval text required before mutating the host virtualenv.
+    2026-08-24: read-only host refresh is recorded in
+    `docs/checkpoints/hetzner_readonly_status_2026_08_24.md`. Hetzner
+    crypto-edge runtime remains ready (`blocking_checks=0`), Hetzner
+    `ema_cross_default` paper remains `1/1` running and idle, and the
+    supply-chain check still reports the same 10 dependency mismatches with
+    pin integrity OK and vulnerability audit not requested. This refresh did
+    not mutate the host; Hetzner dependency alignment, host audit/waiver, and
+    SBOM/hash-lock release-policy decisions remain open.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
