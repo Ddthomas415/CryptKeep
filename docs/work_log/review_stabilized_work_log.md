@@ -36711,3 +36711,65 @@ Remaining risk:
   host deploy, live routing, credentials, order submission, or promotion gate
   behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-25T04:55:00Z - Hetzner No-Restart Checkout Sync to Current Master
+
+Active role: ENGINEER
+
+Objective:
+- Bring Hetzner `/srv/cryptkeep/app` to the current accepted `master` checkout
+  without restarting services, installing packages, changing configs, or
+  starting/stopping campaigns.
+
+What was found:
+- SHOWN: local `master` and `origin/master` were clean at
+  `eb2749a280062f561ae619723d9c6f37d4efc768`.
+- SHOWN: Hetzner dependency-alignment status initially reported remote head
+  `a10aca01fc37de181cc32d17a30e5d677050f901`, clean `master`, and package
+  alignment blocked by 10 pinned-package mismatches.
+- SHOWN: pre-sync Hetzner paper campaign status was `1/1` running, idle
+  `waiting_for_next_day`.
+- SHOWN: pre-sync Hetzner crypto-edge runtime was ready with
+  `blocking_checks=0`.
+
+What changed:
+- Ran `tailscale ssh cryptkeep@100.86.128.9 git -C /srv/cryptkeep/app fetch origin master`.
+- Ran `tailscale ssh cryptkeep@100.86.128.9 git -C /srv/cryptkeep/app merge --ff-only origin/master`.
+- Added `docs/checkpoints/hetzner_checkout_sync_2026_08_25.md`.
+- Updated `REMAINING_TASKS.md` to record that checkout sync is complete and
+  dependency alignment remains open.
+
+Why this change was chosen:
+- The checkout mismatch was a concrete host-side blocker and could be fixed by
+  a documented fast-forward-only git sync without touching runtime services or
+  dependencies. Package installation was not performed because the existing
+  dependency-alignment runbook requires explicit approval before mutating the
+  host virtualenv.
+
+Expected outcome:
+- Hetzner code is aligned to current master while existing paper and edge
+  processes continue running; the remaining dependency mismatch is isolated to
+  the approved package-alignment runbook.
+
+Verification:
+- `tailscale ssh cryptkeep@100.86.128.9 git -C /srv/cryptkeep/app rev-parse HEAD`
+  - SHOWN: `eb2749a280062f561ae619723d9c6f37d4efc768`.
+- `tailscale ssh cryptkeep@100.86.128.9 git -C /srv/cryptkeep/app status --short --branch`
+  - SHOWN: `## master...origin/master`.
+- `make status-paper-hetzner`
+  - SHOWN: `Campaigns: 1/1 running`; `ema_cross_default` idle
+    `waiting_for_next_day`.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `status=hetzner_crypto_edge_runtime_ready`; `blocking_checks=0`;
+    `remote_head=eb2749a280062f561ae619723d9c6f37d4efc768`.
+- `make status-hetzner-dependency-alignment-json`
+  - SHOWN: checkout branch/commit clean and matching current master; package
+    environment still mismatched with 10 dry-run install candidates; no package
+    install invoked.
+
+Remaining risk:
+- MEDIUM: host checkout was changed, but only by fast-forward git sync and with
+  no service/package/config mutation. Hetzner dependency alignment still needs
+  the explicit approval text from
+  `docs/checkpoints/hetzner_dependency_alignment_runbook_2026_08_24.md`.
+- Acceptance state: `ACCEPTED_WITH_RISK`.
