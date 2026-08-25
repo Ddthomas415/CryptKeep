@@ -58,6 +58,27 @@ Before approving any widened paper universe, prepare a packet with:
 6. correlation/non-independence caveat;
 7. rollback plan to the current canonical single-symbol campaign.
 
+## Hetzner Binance/Gate.io Paper-Research Backlog Scope
+
+Binance and Gate.io may be evaluated for Hetzner as separate paper/research
+venue candidates before any canonical-gate or live-execution change. That
+evaluation must stay outside the canonical `es_daily_trend_v1` promotion gate
+unless a future reconsideration packet changes this decision.
+
+Minimum scope for that backlog item:
+
+- add a proposed Hetzner paper/research manifest or planner output for
+  `gateio` and, separately, `binance`;
+- require OHLCV reachability preflight for each venue/symbol/timeframe before
+  any campaign starts;
+- keep Binance behind the existing explicit guard (`CBP_VENUE=binance*` and
+  `CBP_ALLOW_BINANCE=1`);
+- record venue, symbol, signal source, and provenance expectations per row;
+- keep generated evidence isolated from the canonical `es_daily_trend_v1`
+  state directory and gate count;
+- do not add exchange credentials, live routing, order submission, or host
+  package/service mutations in the same change.
+
 ## Operator Outcome
 
 No campaign, manifest, strategy config, gate threshold, or runtime process is

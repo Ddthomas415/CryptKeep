@@ -70,9 +70,9 @@ separate reviewed runtime/gate change is accepted.
 
 ## Remaining Task Snapshot
 
-Last updated: 2026-08-23T04:09:00Z.
+Last updated: 2026-08-25T03:31:56Z.
 
-Generated check-in reports currently show 25 operator-proof actions. The
+Generated check-in reports currently show 28 operator-proof actions. The
 actionable queue remains dominated by host-side evidence, capped-live proof, and
 coverage markers, not missing read-only command wiring:
 
@@ -81,7 +81,7 @@ coverage markers, not missing read-only command wiring:
 - 25 proof-ready markers remain in the source summary. These require review,
   merge, recorded acceptance, host output, or explicit proof artifacts; they are
   not automatically new coding tasks.
-- 27 host-side markers remain in the source summary. 19 remaining
+- 28 host-side markers remain in the source summary. 21 remaining
   proof-or-coverage markers still require host output, proof artifacts, coverage
   evidence, or explicit acceptance.
 - After excluding `host_side_reference`, `remaining_capped_live_proof`, and

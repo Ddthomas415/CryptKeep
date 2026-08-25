@@ -36551,3 +36551,105 @@ Remaining risk:
   packages are installed, no services are restarted, and no host state is
   mutated.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-25T03:31:56Z - Roadmap Snapshot Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Refresh the operator-facing roadmap snapshot from the current read-only
+  status reports without changing runtime behavior, strategy policy, campaign
+  configuration, gates, host state, or execution code.
+
+What was found:
+- SHOWN: `make operator-status-json` reports `28` operator-proof actions,
+  `28` host-side markers, and `21` remaining proof-or-coverage markers.
+- SHOWN: `make operator-next-actions-passive-json` reports an empty passive
+  local action queue after excluding host-side, proof-ready, capped-live, and
+  coverage-only rows.
+- SHOWN: `docs/ROADMAP_TRACKING_CHECKLIST.md` still carried the older
+  2026-08-23 snapshot counts.
+
+What changed:
+- Updated `docs/ROADMAP_TRACKING_CHECKLIST.md` snapshot timestamp and counts to
+  match the current read-only reports.
+- Updated `tests/test_roadmap_tracking_checklist.py` so the roadmap snapshot
+  guard pins the refreshed values.
+
+Why this change was chosen:
+- This is a low-risk docs/test alignment item from the backlog lane map. It
+  prevents stale roadmap numbers from becoming another repeated manual
+  discussion while leaving all operational authority unchanged.
+
+Expected outcome:
+- Operator roadmap check-ins point at the current proof/action shape: no local
+  passive action rows, with remaining work dominated by host-side proof,
+  capped-live proof, and coverage markers.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_repo_layout_scope_doc.py tests/test_symbol_selection_current_boundary.py`
+  - SHOWN: `25 passed`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: `ok=true`; all `12` source docs and `13` listed Make commands are
+    present.
+- `git diff --check`
+  - SHOWN: no whitespace errors.
+
+Remaining risk:
+- LOW: docs/test-only refresh. No runtime code, campaign, gate, host, deploy,
+  risk, or execution behavior changed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-08-25T03:45:00Z - Hetzner Binance/Gate.io Paper-Research Backlog Scope
+
+Active role: ENGINEER
+
+Objective:
+- Add the requested Binance/Gate.io Hetzner expansion to the backlog without
+  changing host state, campaign manifests, strategy configs, promotion gates,
+  credentials, live routing, or execution behavior.
+
+What was found:
+- SHOWN: `docs/EXCHANGES.md` lists `binance`, `coinbase`, and `gateio`.
+- SHOWN: `services/preflight/preflight.py` includes
+  `SUPPORTED_EXCHANGES = ("coinbase", "binance", "gateio")`.
+- SHOWN: `services/market_data/symbol_router.py` normalizes `gate`,
+  `gate.io`, and `gateio` to `gateio`.
+- SHOWN: local CCXT exposes `binance=True`, `gateio=True`, and
+  `coinbase=True`.
+- SHOWN: the current Hetzner paper manifest runs only Coinbase
+  `ema_cross_default`.
+- SHOWN: Binance exchange construction is guarded by `CBP_VENUE=binance*`
+  and `CBP_ALLOW_BINANCE=1`.
+
+What changed:
+- Added a dated backlog note under paper-universe widening for Hetzner
+  Binance/Gate.io paper-research venue expansion.
+- Added a section to
+  `docs/strategies/paper_universe_widening_decision_2026-07-04.md` defining
+  the safe scope: proposed manifest/planner output, OHLCV preflight per
+  venue/symbol/timeframe, isolated evidence, Binance guard, and explicit
+  exclusions for credentials/live routing/order submission/host mutation.
+- Updated `tests/test_paper_universe_widening_decision.py` to pin that scope.
+
+Why this change was chosen:
+- Binance/Gate.io support should be recorded as a paper/research venue
+  expansion candidate, not implemented as a live or canonical-gate change.
+  This keeps the multi-trading direction visible while preserving the current
+  evidence and risk boundaries.
+
+Expected outcome:
+- The next implementation can add a proposed Hetzner multi-venue paper/research
+  manifest or planner output without re-opening whether Binance/Gate.io belong
+  in scope, and without weakening the canonical paper gate.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_universe_widening_decision.py tests/test_symbol_selection_current_boundary.py tests/test_roadmap_tracking_checklist.py`
+  - SHOWN: `16 passed`.
+- `git diff --check`
+  - SHOWN: no whitespace errors.
+
+Remaining risk:
+- LOW: docs/test-only backlog scope. No runtime code, campaign, gate, host,
+  deploy, risk, live, credential, or execution behavior changed.
+- Acceptance state: `ACCEPTED`.
