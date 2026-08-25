@@ -36849,3 +36849,60 @@ Remaining risk:
   operator-event/live-intent host proofs remain open until real live/operator
   journals exist.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-25T05:05:00Z - Local Research Pipeline Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Refresh the accepted local research-only price-action and funding-threshold
+  pipelines, then record the artifact boundary and interpretation without
+  changing campaigns, promotion gates, strategy configs, execution, routing,
+  ingestion policy, or host services.
+
+What was found:
+- SHOWN: `make research-pipeline-status-json` initially reported both accepted
+  research pipelines wired and latest-ok, but their latest artifacts were from
+  2026-08-13.
+- SHOWN: the pipeline wrappers are explicitly marked as read-only research
+  tooling and emit `not_strategy_config`, `not_campaign_evidence`,
+  `not_promotion_evidence`, and `not_execution_input` flags.
+
+What changed:
+- Ran `make price-action-research-pipeline`.
+- Ran `make funding-threshold-research-pipeline`.
+- Added `docs/checkpoints/research_pipeline_refresh_2026_08_25.md`.
+- Updated `REMAINING_TASKS.md` and
+  `docs/research/pattern_strategy_backlog.md` to point to the refreshed
+  artifacts and preserve the research-only boundary.
+
+Why this change was chosen:
+- The next safe lane after the host proof refresh was research-only strategy
+  evidence. Refreshing accepted pipelines produces current artifacts without
+  touching paper/live campaign authority or promotion logic.
+
+Expected outcome:
+- Operators can review current price-action and funding-threshold research
+  artifacts while keeping them separate from campaign evidence, promotion
+  evidence, profitability evidence, strategy configuration, and execution.
+
+Verification:
+- `make price-action-research-pipeline`
+  - SHOWN: `ok=true`, four expected steps, summary
+    `.cbp_state/data/research/price_action_pipeline/20260825T050434Z/pipeline_summary.json`.
+  - SHOWN: candidate triage produced `15` label/side pairs for manual review.
+- `make funding-threshold-research-pipeline`
+  - SHOWN: `ok=true`, five expected steps, summary
+    `.cbp_state/data/research/funding_threshold_pipeline/20260825T050434Z/pipeline_summary.json`.
+  - SHOWN: direct and stability triage both produced `0` review candidates
+    across `16` threshold pairs on `414` joined rows.
+- `make research-pipeline-status-json`
+  - SHOWN: `latest_ok=2`, `latest_not_ok=0`, `not_run=0`; both latest summary
+    paths point to the 2026-08-25 refresh artifacts.
+
+Remaining risk:
+- MEDIUM: research artifacts were generated under local `.cbp_state`, but no
+  repo runtime code or campaign/gate behavior changed. The artifacts remain
+  research-only and require separate review before any strategy, confirmation
+  filter, campaign, promotion, or execution use.
+- Acceptance state: `ACCEPTED_WITH_RISK`.

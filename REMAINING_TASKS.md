@@ -663,6 +663,17 @@ deployment work still needs independent review.
     required. This remains research orchestration only; it does not change
     collectors, thresholds, scoring logic, strategy config, campaigns, gates,
     data ingestion policy, live routing, execution, or promotion evidence.
+    2026-08-25: local research refresh recorded in
+    `docs/checkpoints/research_pipeline_refresh_2026_08_25.md`. `make
+    funding-threshold-research-pipeline` returned `ok=true` and wrote five
+    research-only artifacts under
+    `.cbp_state/data/research/funding_threshold_pipeline/20260825T050434Z`.
+    The joined sample had `414` rows and funding-rate percentages from
+    `0.00303595` to `0.01`; both direct candidate triage and stability triage
+    produced `0` review candidates across `16` threshold pairs. Interpretation:
+    current default funding thresholds still do not produce an actionable
+    `funding_extreme` candidate on this local artifact window; this is not a
+    campaign, promotion, or profitability decision.
     2026-07-22: research-only crypto-edge strategy readiness matrix is ready
     for independent review. `services.analytics.crypto_edge_strategy_readiness`
     and `scripts/research/run_crypto_edge_strategy_readiness.py` classify the
@@ -2869,6 +2880,17 @@ substrate work, but they are concrete enough to keep visible.
     run pipelines, fetch data, or change research artifacts, strategy config,
     campaigns, gates, data ingestion, live routing, execution, or promotion
     evidence.
+    2026-08-25: local research refresh recorded in
+    `docs/checkpoints/research_pipeline_refresh_2026_08_25.md`. `make
+    price-action-research-pipeline` returned `ok=true` and wrote four
+    research-only artifacts under
+    `.cbp_state/data/research/price_action_pipeline/20260825T050434Z` for
+    Coinbase `BTC/USDT` `1h`. Candidate triage produced `15` label/side pairs
+    for manual review, led by `opening_range_state:inside` long,
+    `break_and_retest:bearish_hold` long, and `fair_value_gap:bearish` long.
+    These remain descriptive research candidates only and do not authorize a
+    confirmation filter, strategy config, campaign, gate, promotion, or
+    execution change.
     2026-07-28: research pipeline status filtering is ready for independent
     review. The report now supports `--pipeline <pipeline_id>` and the Make
     override `RESEARCH_PIPELINE_STATUS_PIPELINE`; filtered JSON keeps
