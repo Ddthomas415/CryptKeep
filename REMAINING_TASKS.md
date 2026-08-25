@@ -2019,6 +2019,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     pin integrity OK and vulnerability audit not requested. This refresh did
     not mutate the host; Hetzner dependency alignment, host audit/waiver, and
     SBOM/hash-lock release-policy decisions remain open.
+    2026-08-25: no-restart Hetzner checkout sync recorded in
+    `docs/checkpoints/hetzner_checkout_sync_2026_08_25.md`.
+    `/srv/cryptkeep/app` fast-forwarded from `a10aca01` to current master
+    `eb2749a28`; post-sync paper campaign status remained `1/1` running and
+    crypto-edge runtime remained ready with `blocking_checks=0`. Dependency
+    alignment remains open: read-only dry-run still reports the same 10 pinned
+    package updates would be installed, and the host virtualenv was not
+    modified without the explicit runbook approval.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
