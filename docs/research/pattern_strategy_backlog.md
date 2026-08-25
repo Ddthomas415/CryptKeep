@@ -125,6 +125,16 @@ writes each artifact plus a summary manifest, and stops fail-closed when a
 step cannot produce an `ok=true` artifact. The wrapper is operator convenience,
 not strategy config, campaign evidence, promotion evidence, or execution.
 
+Latest local refresh:
+
+- 2026-08-25: `make price-action-research-pipeline` returned `ok=true` for
+  Coinbase `BTC/USDT` `1h` and wrote artifacts under
+  `.cbp_state/data/research/price_action_pipeline/20260825T050434Z`.
+- Candidate triage produced `15` label/side pairs for manual review. This is
+  descriptive research output only; it does not authorize confirmation-filter,
+  strategy-config, campaign, promotion, or execution changes.
+- Checkpoint: `docs/checkpoints/research_pipeline_refresh_2026_08_25.md`.
+
 Research acceptance before use:
 
 - Join labels to forward returns after fees/slippage.
