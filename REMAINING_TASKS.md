@@ -2038,6 +2038,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     alignment remains open: read-only dry-run still reports the same 10 pinned
     package updates would be installed, and the host virtualenv was not
     modified without the explicit runbook approval.
+    2026-08-25 follow-up: the same checkpoint records a second no-restart
+    fast-forward after docs/checkpoint PRs moved master to `6c0903d31`.
+    Hetzner `/srv/cryptkeep/app` fast-forwarded from `eb2749a28` to
+    `6c0903d31`; post-sync paper campaign status remained `1/1` running,
+    crypto-edge runtime returned ready with `blocking_checks=0`, and direct
+    edge cadence remained fresh. Dependency alignment remains blocked only by
+    the same 10 virtualenv package mismatches; no package install was run.
     2026-08-25: read-only host refresh is recorded in
     `docs/checkpoints/hetzner_readonly_status_2026_08_25.md`. Hetzner
     `ema_cross_default` remains `1/1` running and idle after recording
