@@ -46,7 +46,7 @@ def test_operator_read_only_command_status_reports_current_repo_wiring() -> None
     assert out["command_count"] >= 11
     assert out["summary"]["not_wired"] == 0
     assert out["summary"]["by_medium_lane_item"]["gate_diagnostic"] >= 2
-    assert out["summary"]["by_medium_lane_item"]["host_status_wrapper"] >= 2
+    assert out["summary"]["by_medium_lane_item"]["host_status_wrapper"] >= 3
     rows = {row["command_id"]: row for row in out["commands"]}
     assert rows["managed_paper_campaign_planner"]["make_target"] is None
     assert rows["multi_symbol_paper_campaign_planner"]["make_target"] == "plan-multi-symbol-paper-campaigns"
@@ -67,6 +67,9 @@ def test_operator_read_only_command_status_reports_current_repo_wiring() -> None
     assert rows["supply_chain"]["make_target"] == "check-supply-chain"
     assert rows["supply_chain"]["medium_lane_item"] == "optional_operator_report"
     assert rows["supply_chain"]["input_class"] == "repo_artifacts"
+    assert rows["hetzner_dependency_alignment_status"]["make_target"] == "status-hetzner-dependency-alignment"
+    assert rows["hetzner_dependency_alignment_status"]["medium_lane_item"] == "host_status_wrapper"
+    assert rows["hetzner_dependency_alignment_status"]["input_class"] == "ssh_read_only"
     assert rows["operator_arm_to_halt_replay"]["make_target"] == "operator-arm-to-halt-replay"
     assert rows["operator_arm_to_halt_replay"]["medium_lane_item"] == "platform_event_packet"
     assert rows["platform_event_packet"]["make_target"] == "platform-event-packet"
