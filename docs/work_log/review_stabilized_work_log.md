@@ -36906,3 +36906,60 @@ Remaining risk:
   research-only and require separate review before any strategy, confirmation
   filter, campaign, promotion, or execution use.
 - Acceptance state: `ACCEPTED_WITH_RISK`.
+
+## 2026-08-25T05:56:00Z - Hetzner No-Restart Checkout Follow-Up Sync
+
+Active role: ENGINEER
+
+Objective:
+- Bring Hetzner `/srv/cryptkeep/app` from the previous accepted docs boundary
+  `eb2749a28` to current `master` `6c0903d31` without restarting services,
+  installing packages, changing configs, or starting/stopping campaigns.
+
+What was found:
+- SHOWN: local `master` and `origin/master` were clean at
+  `6c0903d318756d27eb6414a01abbfc8c8e879ae5`.
+- SHOWN: read-only Hetzner dependency alignment status reported remote head
+  `eb2749a280062f561ae619723d9c6f37d4efc768`, clean `master`, and package
+  alignment blocked by the same 10 pinned-package mismatches.
+- SHOWN: Hetzner paper campaign was `1/1` running and idle
+  `waiting_for_next_day`.
+- SHOWN: direct host `check_edge_cadence.py --json` reported `ok=true`.
+
+What changed:
+- Ran `tailscale ssh cryptkeep@100.86.128.9 git -C /srv/cryptkeep/app fetch origin master`.
+- Ran `tailscale ssh cryptkeep@100.86.128.9 git -C /srv/cryptkeep/app merge --ff-only origin/master`.
+- Updated `docs/checkpoints/hetzner_checkout_sync_2026_08_25.md` and
+  `REMAINING_TASKS.md` to record the follow-up sync.
+
+Why this change was chosen:
+- The host checkout mismatch was concrete and resolvable by a fast-forward-only
+  git sync. Dependency installation remains separate because it mutates the
+  host virtualenv and still requires the dependency-alignment runbook approval.
+
+Expected outcome:
+- Hetzner code checkout is aligned to the current accepted master while paper
+  and edge processes continue running unchanged.
+
+Verification:
+- `make status-paper-hetzner`
+  - SHOWN: `Campaigns: 1/1 running`; `ema_cross_default` idle
+    `waiting_for_next_day`.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `status=hetzner_crypto_edge_runtime_ready`;
+    `remote_head=6c0903d318756d27eb6414a01abbfc8c8e879ae5`;
+    `blocking_checks=0`.
+- `make status-hetzner-dependency-alignment-json`
+  - SHOWN: checkout branch/commit clean and matching current master;
+    dependency alignment remains blocked by the same 10 pinned-package
+    mismatches; no install invoked.
+- Direct host `check_edge_cadence.py --json`
+  - SHOWN: `ok=true`; `funding`, `open_interest`, and `basis` fresh.
+
+Remaining risk:
+- MEDIUM: host checkout was changed, but only by fast-forward git sync and with
+  no service/package/config mutation. This documentation update should not
+  create a recursive host-sync requirement solely to deploy the sync record
+  itself. Hetzner dependency alignment still needs the explicit approval text
+  from `docs/checkpoints/hetzner_dependency_alignment_runbook_2026_08_24.md`.
+- Acceptance state: `ACCEPTED_WITH_RISK`.
