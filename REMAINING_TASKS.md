@@ -1096,6 +1096,19 @@ deployment work still needs independent review.
     the do-not-widen status, reconsideration requirements, packet fields, and
     no-runtime-change outcome. This is docs/test only and does not change
     campaign, manifest, strategy config, gate threshold, or runtime behavior.
+    2026-08-25: backlog scope added for Hetzner Binance/Gate.io paper-research
+    venue expansion. Binance and Gate.io are already visible supported venue
+    surfaces (`docs/EXCHANGES.md`, preflight exchange support, symbol router,
+    and CCXT availability), but the current Hetzner paper manifest runs only
+    Coinbase `ema_cross_default`. Next implementation should add a proposed
+    Hetzner paper/research manifest or planner output for `gateio` and
+    separately guarded `binance`, require OHLCV reachability preflight for each
+    venue/symbol/timeframe, record provenance expectations per row, keep
+    evidence isolated from the canonical `es_daily_trend_v1` state directory
+    and gate count, and keep Binance behind `CBP_VENUE=binance*` plus
+    `CBP_ALLOW_BINANCE=1`. Explicit exclusions: no exchange credentials, no
+    live routing, no order submission, no canonical paper-gate widening, and no
+    Hetzner package/service mutation in the same change.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,

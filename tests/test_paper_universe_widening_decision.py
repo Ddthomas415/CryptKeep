@@ -61,6 +61,24 @@ def test_paper_universe_decision_preserves_no_runtime_change_outcome() -> None:
     assert "changed by this decision" in text
 
 
+def test_paper_universe_decision_scopes_hetzner_binance_gateio_backlog() -> None:
+    text = _normalized(DOC)
+    backlog = _normalized("REMAINING_TASKS.md")
+
+    for needle in (
+        "Hetzner Binance/Gate.io Paper-Research Backlog Scope",
+        "Binance and Gate.io may be evaluated for Hetzner as separate paper/research venue candidates",
+        "require OHLCV reachability preflight for each venue/symbol/timeframe",
+        "keep Binance behind the existing explicit guard (`CBP_VENUE=binance*` and `CBP_ALLOW_BINANCE=1`)",
+        "keep generated evidence isolated from the canonical `es_daily_trend_v1` state directory and gate count",
+        "do not add exchange credentials, live routing, order submission, or host package/service mutations",
+    ):
+        assert needle in text
+
+    assert "Hetzner Binance/Gate.io paper-research venue expansion" in backlog
+    assert "no live routing, no order submission, no canonical paper-gate widening" in backlog
+
+
 def test_backlog_links_paper_universe_decision_record() -> None:
     backlog = _text("REMAINING_TASKS.md")
 
