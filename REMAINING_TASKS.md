@@ -1109,6 +1109,14 @@ deployment work still needs independent review.
     `CBP_ALLOW_BINANCE=1`. Explicit exclusions: no exchange credentials, no
     live routing, no order submission, no canonical paper-gate widening, and no
     Hetzner package/service mutation in the same change.
+    2026-08-25: implementation artifact added:
+    `configs/paper_evidence_campaigns.hetzner.multi_venue_proposed.json`
+    records disabled Gate.io and Binance `ema_cross` BTC/USDT paper/research
+    candidate rows with isolated `.cbp_state_challengers` state directories.
+    `docs/strategies/hetzner_multi_venue_paper_research_proposals.md` records
+    the required OHLCV preflight commands and boundaries. This does not modify
+    the active Hetzner manifest; rows remain disabled and must not count toward
+    the canonical `es_daily_trend_v1` gate.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,

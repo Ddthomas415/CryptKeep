@@ -36653,3 +36653,61 @@ Remaining risk:
 - LOW: docs/test-only backlog scope. No runtime code, campaign, gate, host,
   deploy, risk, live, credential, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-25T04:20:00Z - Hetzner Multi-Venue Paper Research Proposal Manifest
+
+Active role: ENGINEER
+
+Objective:
+- Convert the accepted Binance/Gate.io Hetzner paper-research backlog scope
+  into a concrete proposal artifact without starting campaigns or changing host
+  state.
+
+What was found:
+- SHOWN: `configs/paper_evidence_campaigns.hetzner.example.json` remains the
+  active Hetzner example manifest and contains only enabled Coinbase
+  `ema_cross_default`.
+- SHOWN: `services.analytics.paper_campaign_recovery.load_campaign_specs()`
+  skips disabled rows and rejects manifests with zero enabled campaigns, so an
+  all-disabled proposal must be documented as non-runnable until a reviewed
+  activation step promotes a row into an active manifest.
+- SHOWN: `scripts/check_ohlcv_preflight.py` supports explicit
+  `--venue`, `--symbol`, and `--signal-source` checks with exit code `2` for
+  OHLCV source unreachability.
+
+What changed:
+- Added
+  `configs/paper_evidence_campaigns.hetzner.multi_venue_proposed.json` with
+  disabled Gate.io and Binance BTC/USDT `ema_cross` paper/research candidate
+  rows.
+- Added
+  `docs/strategies/hetzner_multi_venue_paper_research_proposals.md` describing
+  the proposal-only status, required OHLCV preflight commands, Binance guard,
+  evidence-isolation rule, and no-live/no-host-mutation boundaries.
+- Added `tests/test_hetzner_multi_venue_paper_proposals.py` to pin the proposal
+  rows as disabled, isolated, headless, non-canonical, and free of live/secret
+  controls.
+- Updated `REMAINING_TASKS.md` to record that the proposed manifest now exists
+  and remains inactive.
+
+Why this change was chosen:
+- It advances the multi-trading/venue-expansion direction with a concrete,
+  reviewable artifact while avoiding accidental campaign startup, canonical
+  gate widening, credential changes, or live execution scope.
+
+Expected outcome:
+- Operators can review Gate.io and Binance Hetzner paper/research candidates
+  as explicit disabled rows and run reachability preflights before any future
+  activation decision.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_hetzner_multi_venue_paper_proposals.py tests/test_paper_universe_widening_decision.py tests/test_paper_campaign_recovery.py`
+  - SHOWN: `29 passed`.
+- `git diff --check`
+  - SHOWN: no whitespace errors.
+
+Remaining risk:
+- LOW: proposal config/docs/tests only. No active manifest, campaign process,
+  host deploy, live routing, credentials, order submission, or promotion gate
+  behavior changed.
+- Acceptance state: `ACCEPTED`.
