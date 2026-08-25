@@ -17,10 +17,10 @@ SHOWN:
   - `breakout_default`: `fills=12`, `closed=6`, `pnl=-4.1120`
 - Hetzner-owned `ema_cross_default` is healthy when checked through the
   Hetzner campaign manifest:
-  - `ema_cross_default`: `fills=6`, `closed=3`, `pnl=-0.2678`
-  - latest fill: `2026-06-24T00:01:43.601405+00:00`
+  - `ema_cross_default`: `fills=15`, `closed=7`, `pnl=-2.3016`
+  - latest fill: `2026-08-24T00:01:55.857611+00:00`
   - status: `idle`, `waiting_for_next_day`, session evidence already recorded
-    for `2026-07-02`
+    for `2026-08-25`
 - Codex sandboxed Tailscale may report
   `tailscale_cli_preferences_unavailable`; use a normal operator terminal or
   approved out-of-sandbox status check when Hetzner status must be verified.
@@ -2027,6 +2027,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     alignment remains open: read-only dry-run still reports the same 10 pinned
     package updates would be installed, and the host virtualenv was not
     modified without the explicit runbook approval.
+    2026-08-25: read-only host refresh is recorded in
+    `docs/checkpoints/hetzner_readonly_status_2026_08_25.md`. Hetzner
+    `ema_cross_default` remains `1/1` running and idle after recording
+    2026-08-25 session evidence, crypto-edge runtime remains ready, and
+    edge cadence reports fresh `funding`, `open_interest`, and `basis`
+    snapshots. Supply-chain pin integrity remains OK, but the same 10
+    dependency mismatches remain; no host package install or vulnerability
+    audit was run.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
@@ -2043,6 +2051,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `operator_event_journal_missing`. This is useful negative evidence only:
     host-side no-secret launch proof and arm-to-halt replay remain open until
     real operator-event records exist.
+    2026-08-25: read-only host refresh is recorded in
+    `docs/checkpoints/hetzner_readonly_status_2026_08_25.md`. The same
+    operator-event status remains: required event scan and arm-to-halt replay
+    fail with `operator_event_journal_missing` because the journal is absent
+    under the current paper-only host posture. Platform event checks are clean
+    for an empty/missing journal (`event_count=0`, no secret findings), but do
+    not close action-specific platform event payload proofs.
     2026-07-12: executable audit-coverage matrix tooling is ready for
     independent review. `scripts/audit_coverage_matrix.py` classifies policy
     families as SHOWN/PARTIAL/MISSING with store pointers and runtime probes,

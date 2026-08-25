@@ -36773,3 +36773,79 @@ Remaining risk:
   the explicit approval text from
   `docs/checkpoints/hetzner_dependency_alignment_runbook_2026_08_24.md`.
 - Acceptance state: `ACCEPTED_WITH_RISK`.
+
+## 2026-08-25T04:49:00Z - Hetzner Read-Only Host Proof Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Record current Hetzner paper, crypto-edge, supply-chain, operator-event, and
+  live-intent proof status after the accepted no-restart checkout sync, without
+  mutating host services, packages, configs, timers, campaigns, virtualenv
+  state, or journals.
+
+What was found:
+- SHOWN: local `master` and `origin/master` were clean and aligned.
+- SHOWN: Hetzner `ema_cross_default` paper campaign was `1/1` running, idle
+  `waiting_for_next_day`, with `fills=15`, `closed=7`, and latest fill
+  `2026-08-24T00:01:55.857611+00:00`.
+- SHOWN: Hetzner crypto-edge runtime reported
+  `hetzner_crypto_edge_runtime_ready`, `blocking_checks=0`, and remote head
+  `eb2749a280062f561ae619723d9c6f37d4efc768`.
+- SHOWN: host `check_edge_cadence.py --json` reported `ok=true`; `funding`,
+  `open_interest`, and `basis` were fresh.
+- SHOWN: host `check_supply_chain.py --json` reported pin integrity OK but
+  environment mismatch for the same 10 pinned packages documented in the
+  dependency-alignment runbook; vulnerability audit was not requested.
+- SHOWN: host operator-event journal remains absent; required event scan and
+  arm-to-halt replay fail with `operator_event_journal_missing`.
+- SHOWN: host platform event checks are clean for the empty/missing journal,
+  but prove no action-specific payloads.
+- SHOWN: host live-intent history schema remains uninitialized because
+  `/var/lib/cbp/data/live_intent_queue.sqlite` is absent under paper-only
+  operation.
+
+What changed:
+- Added `docs/checkpoints/hetzner_readonly_status_2026_08_25.md`.
+- Updated `REMAINING_TASKS.md` with the fresh Hetzner paper status,
+  crypto-edge/cadence status, unchanged dependency mismatch, and unchanged
+  operator-event proof boundary.
+
+Why this change was chosen:
+- The host proof boundary needed current evidence after the checkout sync. The
+  useful work was read-only verification and documentation; package alignment
+  and live/operator journal initialization remain separate higher-risk actions.
+
+Expected outcome:
+- Operators can distinguish healthy current paper/edge collection from the
+  still-open dependency-alignment, operator-event, arm-to-halt, platform-event,
+  and live-intent host proofs.
+
+Verification:
+- `make status-paper-hetzner`
+  - SHOWN: `Campaigns: 1/1 running`; `ema_cross_default` idle
+    `waiting_for_next_day`.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `status=hetzner_crypto_edge_runtime_ready`; `blocking_checks=0`.
+- Host `check_edge_cadence.py --json`
+  - SHOWN: `ok=true`; `funding`, `open_interest`, and `basis` fresh.
+- Host `check_supply_chain.py --json`
+  - SHOWN: pin integrity OK; environment mismatch unchanged; audit not run.
+- Host `check_operator_event_secrets.py --json --require-events`
+  - SHOWN: `operator_event_journal_missing`.
+- Host `check_operator_arm_to_halt_replay.py --json`
+  - SHOWN: `operator_event_journal_missing`.
+- Host `report_platform_event_journal.py`
+  - SHOWN: `ok=true`; `event_count=0`.
+- Host `check_platform_event_secrets.py --json`
+  - SHOWN: `ok=true`; `finding_count=0`; `exists=false`.
+- Host `check_live_intent_history_schema.py --json`
+  - SHOWN: `status=schema_uninitialized`;
+    `reason=live_intent_queue_db_missing`.
+
+Remaining risk:
+- LOW: docs/backlog/work-log only. No host state was changed. Hetzner
+  dependency alignment still requires the explicit runbook approval, and
+  operator-event/live-intent host proofs remain open until real live/operator
+  journals exist.
+- Acceptance state: `ACCEPTED`.
