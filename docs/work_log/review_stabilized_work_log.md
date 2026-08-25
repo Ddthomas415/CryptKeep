@@ -36551,3 +36551,51 @@ Remaining risk:
   packages are installed, no services are restarted, and no host state is
   mutated.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-08-25T03:31:56Z - Roadmap Snapshot Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Refresh the operator-facing roadmap snapshot from the current read-only
+  status reports without changing runtime behavior, strategy policy, campaign
+  configuration, gates, host state, or execution code.
+
+What was found:
+- SHOWN: `make operator-status-json` reports `28` operator-proof actions,
+  `28` host-side markers, and `21` remaining proof-or-coverage markers.
+- SHOWN: `make operator-next-actions-passive-json` reports an empty passive
+  local action queue after excluding host-side, proof-ready, capped-live, and
+  coverage-only rows.
+- SHOWN: `docs/ROADMAP_TRACKING_CHECKLIST.md` still carried the older
+  2026-08-23 snapshot counts.
+
+What changed:
+- Updated `docs/ROADMAP_TRACKING_CHECKLIST.md` snapshot timestamp and counts to
+  match the current read-only reports.
+- Updated `tests/test_roadmap_tracking_checklist.py` so the roadmap snapshot
+  guard pins the refreshed values.
+
+Why this change was chosen:
+- This is a low-risk docs/test alignment item from the backlog lane map. It
+  prevents stale roadmap numbers from becoming another repeated manual
+  discussion while leaving all operational authority unchanged.
+
+Expected outcome:
+- Operator roadmap check-ins point at the current proof/action shape: no local
+  passive action rows, with remaining work dominated by host-side proof,
+  capped-live proof, and coverage markers.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_repo_layout_scope_doc.py tests/test_symbol_selection_current_boundary.py`
+  - SHOWN: `25 passed`.
+- `make roadmap-tracking-status-json`
+  - SHOWN: `ok=true`; all `12` source docs and `13` listed Make commands are
+    present.
+- `git diff --check`
+  - SHOWN: no whitespace errors.
+
+Remaining risk:
+- LOW: docs/test-only refresh. No runtime code, campaign, gate, host, deploy,
+  risk, or execution behavior changed.
+- Acceptance state: `ACCEPTED`.

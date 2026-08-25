@@ -96,10 +96,10 @@ def test_roadmap_checklist_records_remaining_task_snapshot() -> None:
     text = _normalized(DOC)
 
     assert "Remaining Task Snapshot" in text
-    assert "Last updated: 2026-08-23T04:09:00Z." in text
-    assert "25 operator-proof actions" in text
+    assert "Last updated: 2026-08-25T03:31:56Z." in text
+    assert "28 operator-proof actions" in text
     assert "25 proof-ready markers remain in the source summary" in text
-    assert "27 host-side markers remain in the source summary" in text
-    assert "19 remaining proof-or-coverage markers" in text
+    assert "28 host-side markers remain in the source summary" in text
+    assert "21 remaining proof-or-coverage markers" in text
     assert "immediate local next-action queue returns 0 rows" in text
     assert "zero missing-action rows" in text
