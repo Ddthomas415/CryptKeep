@@ -2076,6 +2076,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     under the current paper-only host posture. Platform event checks are clean
     for an empty/missing journal (`event_count=0`, no secret findings), but do
     not close action-specific platform event payload proofs.
+    2026-08-26: read-only host refresh is recorded in
+    `docs/checkpoints/hetzner_readonly_status_2026_08_26.md`. Hetzner paper and
+    crypto-edge runtime remain healthy; dependency alignment remains open
+    pending the explicit runbook approval; baseline operator/platform no-secret
+    checks are clean for empty/missing journals; action-specific AI and
+    capped-live event proofs remain open until real host events exist.
     2026-07-12: executable audit-coverage matrix tooling is ready for
     independent review. `scripts/audit_coverage_matrix.py` classifies policy
     families as SHOWN/PARTIAL/MISSING with store pointers and runtime probes,

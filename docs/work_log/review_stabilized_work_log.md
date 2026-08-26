@@ -36963,3 +36963,72 @@ Remaining risk:
   itself. Hetzner dependency alignment still needs the explicit approval text
   from `docs/checkpoints/hetzner_dependency_alignment_runbook_2026_08_24.md`.
 - Acceptance state: `ACCEPTED_WITH_RISK`.
+
+## 2026-08-26T01:42:00Z - Hetzner Read-Only Status Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Refresh current Hetzner paper, crypto-edge, dependency-alignment,
+  operator-event, platform-event, and cost-assumption status without mutating
+  the host.
+
+What was found:
+- SHOWN: the documented host transport is `tailscale ssh
+  cryptkeep@100.86.128.9`; direct plain SSH user guesses were rejected by the
+  tailnet policy.
+- SHOWN: `make status-paper-hetzner HETZNER_STATUS_TIMEOUT_SEC=30` reported
+  `Campaigns: 1/1 running`; `ema_cross_default` idle
+  `waiting_for_next_day`.
+- SHOWN: `make status-hetzner-edge-runtime HETZNER_STATUS_TIMEOUT_SEC=30`
+  reported `ok=True` and `blocking_checks=0`.
+- SHOWN: `make status-hetzner-dependency-alignment-json
+  HETZNER_STATUS_TIMEOUT_SEC=90` reported clean remote `master` at
+  `6c0903d318756d27eb6414a01abbfc8c8e879ae5`, pin integrity `ok=true`, and
+  the same 10 pinned-package environment mismatches. No install or restart was
+  invoked.
+- SHOWN: baseline host operator-event secret scan reported `ok=true`,
+  `finding_count=0`, and `event_count=0`; action-specific AI provider/report
+  scans still fail with `operator_event_journal_missing` and
+  `operator_event_required_action_missing`.
+- SHOWN: host platform-event packet reported `ok=true`, `event_count=0`, and
+  clean integrity/secrets/summary checks for an empty/missing journal.
+- SHOWN: host cost assumptions report `overall=warning`; paper costs fall back
+  to code defaults while modeled round-trip remains `25.0` bps.
+
+What changed:
+- Added `docs/checkpoints/hetzner_readonly_status_2026_08_26.md`.
+- Updated `REMAINING_TASKS.md` to point at the refreshed checkpoint while
+  keeping dependency alignment and action-specific event proofs open.
+
+Why this change was chosen:
+- The host facts are current and useful, but they do not justify service,
+  package, config, campaign, or journal mutation. A docs-only checkpoint keeps
+  the evidence out of chat history without pretending open proof items are
+  closed.
+
+Expected outcome:
+- Operators can see the current host state and the precise remaining blockers:
+  dependency alignment needs exact runbook approval, and event-based proofs need
+  real host events.
+
+Verification:
+- `make status-paper-hetzner HETZNER_STATUS_TIMEOUT_SEC=30`
+  - SHOWN: `Campaigns: 1/1 running`.
+- `make status-hetzner-edge-runtime HETZNER_STATUS_TIMEOUT_SEC=30`
+  - SHOWN: `ok=True`; `blocking_checks=0`.
+- `make status-hetzner-dependency-alignment-json HETZNER_STATUS_TIMEOUT_SEC=90`
+  - SHOWN: `pip_install_invoked=false`; `service_restart_invoked=false`;
+    environment still mismatched against 10 pinned packages.
+- Host `check_operator_event_secrets.py --json`
+  - SHOWN: `ok=true`; `finding_count=0`; `event_count=0`.
+- Host action-specific AI scans
+  - SHOWN: both remain `ok=false` due missing operator-event journal/actions.
+- Host `report_platform_event_packet.py --json`
+  - SHOWN: `ok=true`; `event_count=0`.
+
+Remaining risk:
+- LOW: docs-only status refresh. It does not close host proof markers that
+  require real operator/platform events and does not perform dependency
+  alignment.
+- Acceptance state: `ACCEPTED`.
