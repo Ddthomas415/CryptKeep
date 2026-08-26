@@ -411,7 +411,19 @@ Host monitoring minimum:
 - UTC/NTP synchronization;
 - backup age and last restore-test result.
 
-Use the scheduled-safe host-health wrapper for the first five checks above:
+From a laptop, use the remote host-health wrapper for the first five checks
+above:
+
+```bash
+make check-hetzner-paper-host-health
+```
+
+This runs the Linux host-local check on Hetzner through the same Tailscale SSH
+path as `make status-paper-hetzner`. Do not use the host-local command below as
+a laptop health signal; on macOS it can correctly report local-only failures
+such as `timedatectl_missing` that do not describe Hetzner.
+
+On the Hetzner host itself, use the scheduled-safe host-local wrapper:
 
 ```bash
 ./.venv/bin/python scripts/check_hetzner_paper_host_health.py \
@@ -422,7 +434,7 @@ Use the scheduled-safe host-health wrapper for the first five checks above:
   --min-free-inodes 10000
 ```
 
-The wrapper:
+The host-local wrapper:
 - runs the existing read-only Hetzner host preflight;
 - writes
   `.cbp_state/runtime/snapshots/hetzner_paper_host_health.latest.json`;

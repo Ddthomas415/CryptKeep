@@ -171,7 +171,11 @@ planning; apply modes are high-risk and require an accepted review.
   Cloud firewall, backup, and delete/rebuild protection safeguards for the paper
   host using the OS-keyring token; use `--access-mode tailscale-only` for the
   accepted no-public-inbound firewall boundary.
-- `check_hetzner_paper_host_health.py` — read-only scheduled-safe wrapper around
+- `report_hetzner_paper_host_health.py` — read-only laptop/operator wrapper
+  that runs the Hetzner host-health check on the Hetzner host through the same
+  Tailscale SSH path as `make status-paper-hetzner`; this is what
+  `make check-hetzner-paper-host-health` invokes from a laptop.
+- `check_hetzner_paper_host_health.py` — read-only scheduled-safe host-local wrapper around
   the Hetzner host preflight; writes
   `.cbp_state/runtime/snapshots/hetzner_paper_host_health.latest.json` and uses
   the local critical-alert fallback when the preflight fails. It does not SSH,

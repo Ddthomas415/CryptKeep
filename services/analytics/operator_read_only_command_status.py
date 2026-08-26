@@ -89,10 +89,10 @@ OPERATOR_READ_ONLY_COMMANDS: tuple[OperatorReadOnlyCommandSpec, ...] = (
     ),
     OperatorReadOnlyCommandSpec(
         "hetzner_paper_host_health",
-        "scripts/check_hetzner_paper_host_health.py",
+        "scripts/report_hetzner_paper_host_health.py",
         "check-hetzner-paper-host-health",
-        "startup_host_diagnostic",
-        "local_state",
+        "host_status_wrapper",
+        "ssh_read_only",
     ),
     OperatorReadOnlyCommandSpec(
         "edge_cadence",
