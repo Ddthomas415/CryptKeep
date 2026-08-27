@@ -37198,3 +37198,55 @@ Remaining risk:
   local research state and are not committed; no strategy, campaign, gate,
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-27T12:32:58Z - Price-Action Multi-Market Research Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Run the accepted price-action research pipeline across already archived
+  venue/symbol/timeframe variants and record the results without changing
+  campaigns, gates, strategy config, or execution behavior.
+
+What was found:
+- SHOWN: the local OHLCV archive contains stored rows for Coinbase `BTC/USD`
+  `1d`, Coinbase `BTC/USDT` `5m`, OKX `BTC/USDT` `5m`, and OKX `ETH/USDT`
+  `5m`.
+- SHOWN: all four read-only price-action pipeline variants completed with
+  `ok=true`.
+- SHOWN: manual-review candidates were concentrated in opening-range
+  acceptance/rejection labels across multiple runs; `fair_value_gap` and
+  `swing_failure` labels repeated in fewer runs.
+
+What changed:
+- Added `docs/checkpoints/price_action_multi_market_research_2026_08_27.md`
+  with artifact paths, hashes, repeated-label summary, and research-only
+  boundaries.
+- Added a dated note under the existing price-action research backlog item.
+
+Why this change was chosen:
+- The prior checkpoint covered the default Coinbase `BTC/USDT` `1h` pipeline.
+  The backlog explicitly called for real archive triage across relevant
+  symbols/timeframes before any label could be reviewed as a confirmation
+  filter candidate.
+
+Expected outcome:
+- Operators can distinguish repeated research leads from single-run labels
+  without treating them as strategy configuration, campaign evidence, promotion
+  evidence, profitability evidence, or execution input.
+
+Verification:
+- `./.venv/bin/python scripts/research/run_price_action_research_pipeline.py --venue coinbase --symbol BTC/USD --timeframe 1d --limit 500 --window-bars 120 --output-dir .cbp_state/data/research/price_action_pipeline/20260827T1232_coinbase_btcusd_1d`
+  - SHOWN: `ok=true`; `18` manual-review candidates.
+- `./.venv/bin/python scripts/research/run_price_action_research_pipeline.py --venue coinbase --symbol BTC/USDT --timeframe 5m --limit 500 --window-bars 120 --output-dir .cbp_state/data/research/price_action_pipeline/20260827T1232_coinbase_btcusdt_5m`
+  - SHOWN: `ok=true`; `13` manual-review candidates.
+- `./.venv/bin/python scripts/research/run_price_action_research_pipeline.py --venue okx --symbol BTC/USDT --timeframe 5m --limit 500 --window-bars 120 --output-dir .cbp_state/data/research/price_action_pipeline/20260827T1232_okx_btcusdt_5m`
+  - SHOWN: `ok=true`; `13` manual-review candidates.
+- `./.venv/bin/python scripts/research/run_price_action_research_pipeline.py --venue okx --symbol ETH/USDT --timeframe 5m --limit 500 --window-bars 120 --output-dir .cbp_state/data/research/price_action_pipeline/20260827T1232_okx_ethusdt_5m`
+  - SHOWN: `ok=true`; `15` manual-review candidates.
+
+Remaining risk:
+- LOW: docs/checkpoint update only. The generated `.cbp_state` artifacts remain
+  local research state and are not committed; no strategy, campaign, gate,
+  promotion, or execution behavior changed.
+- Acceptance state: `ACCEPTED`.
