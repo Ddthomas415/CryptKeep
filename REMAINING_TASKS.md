@@ -2904,6 +2904,20 @@ substrate work, but they are concrete enough to keep visible.
     These remain descriptive research candidates only and do not authorize a
     confirmation filter, strategy config, campaign, gate, promotion, or
     execution change.
+    2026-08-27: local research refresh recorded in
+    `docs/checkpoints/research_pipeline_refresh_2026_08_27.md`. `make
+    price-action-research-pipeline` returned `ok=true` and wrote four
+    research-only artifacts under
+    `.cbp_state/data/research/price_action_pipeline/20260827T070741Z` for
+    Coinbase `BTC/USDT` `1h`. Candidate triage again produced `15` label/side
+    pairs for manual review, led by `opening_range_state:inside` long,
+    `break_and_retest:bearish_hold` long, and `fair_value_gap:bearish` long.
+    `make funding-threshold-research-pipeline` also returned `ok=true` under
+    `.cbp_state/data/research/funding_threshold_pipeline/20260827T070741Z`,
+    but both funding candidate triage artifacts produced `0` review
+    candidates from `412` input rows. These remain descriptive research
+    artifacts only and do not authorize a confirmation filter, strategy config,
+    campaign, gate, promotion, or execution change.
     2026-07-28: research pipeline status filtering is ready for independent
     review. The report now supports `--pipeline <pipeline_id>` and the Make
     override `RESEARCH_PIPELINE_STATUS_PIPELINE`; filtered JSON keeps
