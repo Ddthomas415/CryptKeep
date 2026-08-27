@@ -33,6 +33,8 @@ def _print_report(payload: dict[str, Any]) -> None:
         print(f"line_filter={payload.get('line_filter')}")
     if payload.get("passive_operator_ordinal_filter"):
         print(f"passive_operator_ordinal_filter={payload.get('passive_operator_ordinal_filter')}")
+    if payload.get("passive_operator_scope") and payload.get("passive_operator_scope") != "all":
+        print(f"passive_operator_scope={payload.get('passive_operator_scope')}")
     if payload.get("reason"):
         print(f"reason={payload.get('reason')}")
     if payload.get("reason") == "invalid_category":

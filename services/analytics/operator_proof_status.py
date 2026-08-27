@@ -1225,6 +1225,12 @@ def build_operator_proof_status(
         proof_marker_scope = "line" if proof_marker_scope == "all" else f"{proof_marker_scope}+line"
     passive_ordinal_requested = bool(passive_ordinal_raw)
     explicit_proof_filter_requested = bool(category_filter) or bool(line_filter_raw)
+    passive_operator_scope = "ordinal" if passive_ordinal_requested else "all"
+    if explicit_proof_filter_requested and not passive_ordinal_requested:
+        # A proof-marker query is a focused proof report. Preserve source counts
+        # for auditability, but avoid dumping unrelated passive evidence rows.
+        passive_rows = []
+        passive_operator_scope = "suppressed_by_proof_filter"
     if passive_ordinal_requested and not explicit_proof_filter_requested:
         # A passive-ordinal query is a focused passive-lane report. Preserve
         # source counts for auditability, but avoid dumping unrelated backlog
@@ -1270,6 +1276,7 @@ def build_operator_proof_status(
         "available_categories": list(available_categories),
         "line_filter": line_filter if valid_line_filter else None,
         "passive_operator_ordinal_filter": passive_ordinal_filter if valid_passive_ordinal_filter else None,
+        "passive_operator_scope": passive_operator_scope,
         "lane_doc": str(lane_doc),
         "lane_doc_sha256": _sha256(lane_doc),
         "backlog": str(backlog),

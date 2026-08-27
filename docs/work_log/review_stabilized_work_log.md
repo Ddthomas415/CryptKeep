@@ -37199,6 +37199,60 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-08-27T12:55:00Z - Focus Operator Proof Filter Output
+
+Active role: ENGINEER
+
+Objective:
+- Reduce operator-proof report noise for focused proof-marker queries without
+  changing proof classification, passive-evidence classification, campaigns,
+  host state, gates, strategy configs, or execution behavior.
+
+What was found:
+- SHOWN: `make operator-proof-status-json OPERATOR_PROOF_STATUS_LINE=2415`
+  returned the single requested proof marker, but also dumped all 15 passive
+  operator-evidence rows. That made a focused proof lookup large and noisy even
+  though the passive rows were unrelated to the requested marker.
+
+What changed:
+- `services.analytics.operator_proof_status.build_operator_proof_status` now
+  suppresses unrelated passive rows when a proof filter (`--line` or
+  `--category`) is requested without `--passive-ordinal`.
+- Source counts are preserved through `source_passive_operator_item_count` and
+  `summary.source_passive_operator_items`.
+- Added `passive_operator_scope` so JSON and human-readable output explain
+  whether passive rows are all rows, ordinal-filtered rows, or suppressed by a
+  proof filter.
+- Updated `scripts/SCRIPTS.md` to document focused proof-filter behavior.
+
+Why this change was chosen:
+- Focused proof queries are used while working through host/proof markers. The
+  report should answer the requested proof question without consuming output on
+  unrelated passive evidence, while still preserving audit counts.
+
+Expected outcome:
+- Operators can inspect a single proof marker or category with materially less
+  output noise and no loss of source-count auditability.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_read_only_command_status.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `89 passed`.
+- `make operator-proof-status-json OPERATOR_PROOF_STATUS_LINE=2415`
+  - SHOWN: `passive_operator_item_count=0`,
+    `source_passive_operator_item_count=15`,
+    `passive_operator_scope=suppressed_by_proof_filter`, and
+    `proof_marker_count=1`.
+- `make operator-proof-status OPERATOR_PROOF_STATUS_LINE=2415`
+  - SHOWN: human-readable output prints
+    `passive_operator_scope=suppressed_by_proof_filter` and the single L2415
+    proof marker.
+
+Remaining risk:
+- LOW: read-only reporting/tooling behavior only. No state mutation, market-data
+  fetch, campaign run, host service, strategy, promotion gate, risk gate, or
+  execution path changed.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-08-27T12:32:58Z - Price-Action Multi-Market Research Checkpoint
 
 Active role: ENGINEER
