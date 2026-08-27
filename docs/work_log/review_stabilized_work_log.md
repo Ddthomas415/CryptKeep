@@ -37148,3 +37148,53 @@ Remaining risk:
   a passing host-health report still requires completing the Tailscale SSH
   browser re-check or using an accepted working transport.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-27T07:08:30Z - Research Pipeline Refresh Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Refresh the accepted read-only research pipelines and record the current
+  artifact pointers without changing campaigns, gates, strategy config, or
+  execution behavior.
+
+What was found:
+- SHOWN: `make research-pipeline-status-json` reported both accepted research
+  pipelines wired and latest-ok before refresh.
+- SHOWN: `make check-cost-assumptions-json` reported valid paper-fill costs
+  but warning-level separate evidence/backtest cost surfaces.
+
+What changed:
+- Added `docs/checkpoints/research_pipeline_refresh_2026_08_27.md` recording
+  the fresh price-action and funding-threshold research artifact paths, hashes,
+  input assumptions, candidate counts, and hard research-only boundaries.
+- Updated `REMAINING_TASKS.md` with a dated note pointing to the new checkpoint.
+
+Why this change was chosen:
+- The repo still pointed at the 2026-08-25 local research refresh as the latest
+  documented checkpoint. Recording the 2026-08-27 refresh prevents stale
+  research status from driving operator decisions.
+
+Expected outcome:
+- Operators can see that price-action research currently has manual-review
+  candidates, while funding-threshold research still has no actionable
+  candidates on the latest local artifact window.
+
+Verification:
+- `make funding-threshold-research-pipeline`
+  - SHOWN: `ok=true`; summary
+    `.cbp_state/data/research/funding_threshold_pipeline/20260827T070741Z/pipeline_summary.json`;
+    candidate triage and stability triage each produced `0` review candidates
+    from `412` rows.
+- `make price-action-research-pipeline`
+  - SHOWN: `ok=true`; summary
+    `.cbp_state/data/research/price_action_pipeline/20260827T070741Z/pipeline_summary.json`;
+    candidate triage produced `15` manual-review candidates.
+- `make research-pipeline-status-json`
+  - SHOWN: `latest_ok=2`, `latest_not_ok=0`, `not_run=0`.
+
+Remaining risk:
+- LOW: docs/checkpoint update only. The generated `.cbp_state` artifacts remain
+  local research state and are not committed; no strategy, campaign, gate,
+  promotion, or execution behavior changed.
+- Acceptance state: `ACCEPTED`.
