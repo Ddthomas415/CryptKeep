@@ -2918,6 +2918,16 @@ substrate work, but they are concrete enough to keep visible.
     candidates from `412` input rows. These remain descriptive research
     artifacts only and do not authorize a confirmation filter, strategy config,
     campaign, gate, promotion, or execution change.
+    2026-08-27: multi-market local price-action research checkpoint recorded
+    in `docs/checkpoints/price_action_multi_market_research_2026_08_27.md`.
+    Four read-only archive-backed variants returned `ok=true`: Coinbase
+    `BTC/USD` `1d`, Coinbase `BTC/USDT` `5m`, OKX `BTC/USDT` `5m`, and OKX
+    `ETH/USDT` `5m`. Manual-review candidate counts were `18`, `13`, `13`,
+    and `15`. Repeated candidates across multiple runs were concentrated in
+    opening-range acceptance/rejection labels, with `fair_value_gap` and
+    `swing_failure` labels appearing in fewer runs. These remain descriptive
+    research artifacts only and do not authorize a confirmation filter,
+    strategy config, campaign, gate, promotion, or execution change.
     2026-07-28: research pipeline status filtering is ready for independent
     review. The report now supports `--pipeline <pipeline_id>` and the Make
     override `RESEARCH_PIPELINE_STATUS_PIPELINE`; filtered JSON keeps
