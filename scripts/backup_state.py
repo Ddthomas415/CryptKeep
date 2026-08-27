@@ -62,7 +62,8 @@ def _snapshot_sqlite(src: Path, dest: Path) -> None:
     file copy of a live database tears pages under WAL/concurrent writes;
     the backup API takes a transactionally consistent snapshot even while
     writers are active."""
-    src_con = sqlite3.connect(src)
+    src_uri = f"{src.resolve().as_uri()}?mode=ro"
+    src_con = sqlite3.connect(src_uri, uri=True)
     try:
         src_con.execute("PRAGMA busy_timeout=5000")
         dest_con = sqlite3.connect(dest)
