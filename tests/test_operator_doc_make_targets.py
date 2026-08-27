@@ -52,6 +52,7 @@ def test_operator_docs_still_reference_core_make_targets() -> None:
         "status-paper-all",
         "status-paper-soak",
         "status-paper-hetzner",
+        "check-hetzner-paper-host-health",
         "restore-paper-campaigns",
         "recover-paper-campaigns",
         "check-gates",

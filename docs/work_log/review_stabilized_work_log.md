@@ -37032,3 +37032,61 @@ Remaining risk:
   require real operator/platform events and does not perform dependency
   alignment.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-26T01:57:19Z - Hetzner Host-Health Target Remote Wrapper
+
+Active role: ENGINEER
+
+Objective:
+- Stop `make check-hetzner-paper-host-health` from producing macOS-local
+  false blockers for a Linux Hetzner host health check.
+
+What was found:
+- SHOWN: `scripts/check_hetzner_paper_host_health.py` calls the host preflight
+  locally and explicitly records `ssh_invoked=false`.
+- SHOWN: the host preflight correctly checks Linux/host facts including
+  backup directory existence, `timedatectl`, and `tailscale status --json`.
+- SHOWN: running the Make target from the Mac therefore produced local failures
+  such as `timedatectl_missing` and `tailscale_status_invalid_json`, even
+  while the separate remote Hetzner status wrappers reported the host healthy.
+
+What changed:
+- Added `scripts/report_hetzner_paper_host_health.py`, a read-only remote
+  wrapper that runs the existing host-local health script on Hetzner through
+  the same Tailscale SSH transport used by `make status-paper-hetzner`.
+- Updated `make check-hetzner-paper-host-health` to call the remote wrapper.
+- Added `make check-hetzner-paper-host-health-local` for deliberate host-local
+  execution of the original script.
+- Updated the operator read-only command registry so
+  `hetzner_paper_host_health` points at the remote wrapper and is classified as
+  `ssh_read_only`.
+- Updated operator docs to distinguish laptop remote checks from host-local
+  checks.
+
+Why this change was chosen:
+- The host-local preflight checks were correct; only the operator entry point
+  was wrong for laptop use. Moving the Make target to remote execution preserves
+  strict host checks and removes the recurring false local blocker.
+
+Expected outcome:
+- `make check-hetzner-paper-host-health` reports actual Hetzner host health
+  from a laptop instead of evaluating the Mac as if it were the server.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_paper_host_health.py tests/test_check_hetzner_paper_host_health.py tests/test_operator_doc_make_targets.py`
+  - SHOWN: `10 passed`.
+- `make -n check-hetzner-paper-host-health`
+  - SHOWN: target invokes `scripts/report_hetzner_paper_host_health.py` with
+    `--transport tailscale-ssh`.
+- `make check-hetzner-paper-host-health`
+  - SHOWN: `status=hetzner_paper_host_healthy`, `ok=True`,
+    `transport=tailscale-ssh`, `remote_returncode=0`.
+- `make operator-read-only-command-status-json`
+  - SHOWN: `hetzner_paper_host_health` is wired to
+    `scripts/report_hetzner_paper_host_health.py` with input class
+    `ssh_read_only`.
+
+Remaining risk:
+- LOW: read-only ops wrapper and docs/tests only; no service, dependency,
+  campaign, state, or host configuration mutation.
+- Acceptance state: `ACCEPTED`.
