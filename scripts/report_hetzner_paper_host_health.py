@@ -31,6 +31,12 @@ def _preview(value: Any, *, limit: int = 500) -> str:
     return str(value)[:limit]
 
 
+def _with_transport_metadata(payload: dict[str, Any], *, transport: str) -> dict[str, Any]:
+    out = dict(payload)
+    out["transport"] = transport
+    return out
+
+
 def _failure_payload(reason: str, *, stdout: Any = "", stderr: Any = "") -> dict[str, Any]:
     return {
         "ok": False,
@@ -45,6 +51,17 @@ def _failure_payload(reason: str, *, stdout: Any = "", stderr: Any = "") -> dict
         "stderr_preview": _preview(stderr),
         "recommendations": ["investigate_remote_health_report_failure"],
     }
+
+
+def _tailscale_non_json_reason(*, stdout: Any, stderr: Any) -> str:
+    combined = f"{stdout or ''}\n{stderr or ''}".lower()
+    if "failed to load preferences" in combined:
+        return "tailscale_cli_preferences_unavailable"
+    if "tailscale ssh requires an additional check" in combined:
+        return "tailscale_ssh_auth_required"
+    if "authenticate" in combined and "tailscale" in combined:
+        return "tailscale_ssh_auth_required"
+    return ""
 
 
 def _remote_health_command(
@@ -133,29 +150,56 @@ def fetch_remote_health(
             timeout=timeout_sec,
         )
     except FileNotFoundError:
-        return _failure_payload(
-            "ssh_cli_not_found" if transport_name == "ssh" else "tailscale_cli_not_found"
+        return _with_transport_metadata(
+            _failure_payload(
+                "ssh_cli_not_found" if transport_name == "ssh" else "tailscale_cli_not_found"
+            ),
+            transport=transport_name,
         )
     except subprocess.TimeoutExpired as exc:
-        return _failure_payload(
-            f"{transport_name}_timeout:{timeout_sec:g}s",
+        non_json_reason = _tailscale_non_json_reason(
             stdout=getattr(exc, "stdout", ""),
             stderr=getattr(exc, "stderr", ""),
+        )
+        return _with_transport_metadata(
+            _failure_payload(
+                non_json_reason or f"{transport_name}_timeout:{timeout_sec:g}s",
+                stdout=getattr(exc, "stdout", ""),
+                stderr=getattr(exc, "stderr", ""),
+            ),
+            transport=transport_name,
         )
 
     try:
         payload = json.loads(str(result.stdout or "{}"))
     except json.JSONDecodeError:
-        return _failure_payload(
-            "remote_health_invalid_json",
-            stdout=result.stdout,
-            stderr=result.stderr,
+        non_json_reason = _tailscale_non_json_reason(stdout=result.stdout, stderr=result.stderr)
+        return _with_transport_metadata(
+            _failure_payload(
+                non_json_reason or "remote_health_invalid_json",
+                stdout=result.stdout,
+                stderr=result.stderr,
+            ),
+            transport=transport_name,
         )
     if not isinstance(payload, dict):
-        return _failure_payload(
-            "remote_health_non_object_json",
-            stdout=result.stdout,
-            stderr=result.stderr,
+        return _with_transport_metadata(
+            _failure_payload(
+                "remote_health_non_object_json",
+                stdout=result.stdout,
+                stderr=result.stderr,
+            ),
+            transport=transport_name,
+        )
+    if "ok" not in payload and "status" not in payload:
+        non_json_reason = _tailscale_non_json_reason(stdout=result.stdout, stderr=result.stderr)
+        return _with_transport_metadata(
+            _failure_payload(
+                non_json_reason or "remote_health_missing_fields",
+                stdout=result.stdout,
+                stderr=result.stderr,
+            ),
+            transport=transport_name,
         )
 
     out = dict(payload)

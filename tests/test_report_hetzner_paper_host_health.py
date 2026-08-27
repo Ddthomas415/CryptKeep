@@ -79,6 +79,51 @@ def test_fetch_remote_health_classifies_invalid_remote_json(monkeypatch) -> None
     assert out["ok"] is False
     assert out["reason"] == "remote_health_invalid_json"
     assert out["ssh_invoked"] is True
+    assert out["transport"] == "tailscale-ssh"
+
+
+def test_fetch_remote_health_classifies_tailscale_auth_prompt_on_timeout(monkeypatch) -> None:
+    def _run(cmd, *, capture_output, check, text, timeout):
+        raise subprocess.TimeoutExpired(
+            cmd=cmd,
+            timeout=timeout,
+            output="",
+            stderr=(
+                "# Tailscale SSH requires an additional check.\n"
+                "# To authenticate, visit: https://login.tailscale.com/a/example\n"
+            ),
+        )
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    out = script.fetch_remote_health(timeout_sec=3)
+
+    assert out["ok"] is False
+    assert out["reason"] == "tailscale_ssh_auth_required"
+    assert out["transport"] == "tailscale-ssh"
+    assert "login.tailscale.com" in out["stderr_preview"]
+
+
+def test_fetch_remote_health_classifies_tailscale_auth_prompt_on_non_json_output(monkeypatch) -> None:
+    monkeypatch.setattr(
+        script.subprocess,
+        "run",
+        lambda cmd, *, capture_output, check, text, timeout: subprocess.CompletedProcess(
+            cmd,
+            0,
+            stdout="",
+            stderr=(
+                "# Tailscale SSH requires an additional check.\n"
+                "# To authenticate, visit: https://login.tailscale.com/a/example\n"
+            ),
+        ),
+    )
+
+    out = script.fetch_remote_health(timeout_sec=3)
+
+    assert out["ok"] is False
+    assert out["reason"] == "tailscale_ssh_auth_required"
+    assert out["transport"] == "tailscale-ssh"
 
 
 def test_main_strict_returns_one_for_failed_remote_health(monkeypatch, capsys) -> None:
