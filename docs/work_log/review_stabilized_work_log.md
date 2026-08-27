@@ -37199,6 +37199,61 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-08-27T13:10:00Z - Backup State Read-Only Source Snapshot Fix
+
+Active role: ENGINEER
+
+Objective:
+- Advance the highest remaining operator proof blocker by addressing the known
+  Hetzner backup drill failure where `backup_state.py backup` returned
+  `snapshot_failed:market_raw.sqlite:OperationalError` with `attempt to write a
+  readonly database` when run as `cryptkeep` against `CBP_STATE_DIR=/var/lib/cbp`.
+
+What was found:
+- SHOWN: `docs/checkpoints/host_sync_backup_drill_followup_2026_08_19.md`
+  records the host blocker as a SQLite snapshot failure against a `cbp`-owned
+  database while running under the `cryptkeep` account.
+- SHOWN: `scripts/backup_state.py::_snapshot_sqlite()` opened the source
+  database with `sqlite3.connect(src)`, which requests the default read/write
+  connection even though the backup operation only needs a read source.
+
+What changed:
+- `scripts/backup_state.py::_snapshot_sqlite()` now opens the source database
+  as a SQLite URI with `mode=ro` before invoking the SQLite backup API.
+- `tests/test_state_backup_restore.py` adds a regression proving the source
+  connection uses `file:<path>?mode=ro` with `uri=True` and still produces a
+  valid snapshot.
+- `REMAINING_TASKS.md` records the fix under the existing full-state
+  backup/restore drill item without claiming the host drill is complete.
+
+Why this change was chosen:
+- It is the smallest code change that matches the observed host blocker and
+  preserves the existing backup API consistency guarantee. The change does not
+  restore over live state, restart services, or mutate Hetzner.
+
+Expected outcome:
+- The next Hetzner backup drill attempt should no longer fail because the
+  source database connection asks for write access. Host operator-event journal
+  write permissions and the scratch restore/secret scan still need to be proven
+  on the host.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_state_backup_restore.py`
+  - SHOWN: `14 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_state_backup_restore.py tests/test_full_state_restore_drill_contract.py tests/test_backup_artifact_secret_scan.py tests/test_launch_checklist_guard.py`
+  - SHOWN: `31 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+- `./.venv/bin/python scripts/validate.py`
+  - SHOWN: `[validate] OK`; `3628 passed, 33 skipped, 17 warnings`.
+
+Remaining risk:
+- MEDIUM: backup tooling affects launch recovery proof, but this slice is
+  limited to source database open mode. The full host drill, backup artifact
+  secret scan, and operator-event journal write path remain unverified until run
+  against Hetzner after this patch is accepted and deployed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-27T12:55:00Z - Focus Operator Proof Filter Output
 
 Active role: ENGINEER

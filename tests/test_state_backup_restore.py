@@ -140,6 +140,28 @@ def test_backup_snapshot_error_returns_structured_failure(monkeypatch, tmp_path)
     assert not (Path(out["backup_dir"]) / bs.MANIFEST_NAME).exists()
 
 
+def test_snapshot_sqlite_opens_source_read_only(monkeypatch, tmp_path):
+    bs, _ap = _load(monkeypatch, tmp_path)
+    from services.os.app_paths import data_dir
+
+    src = _seed_store(data_dir(), "market_raw.sqlite", 3)
+    dest = tmp_path / "snapshot.sqlite"
+    calls = []
+    real_connect = sqlite3.connect
+
+    def _connect(*args, **kwargs):
+        calls.append((args, kwargs))
+        return real_connect(*args, **kwargs)
+
+    monkeypatch.setattr(bs.sqlite3, "connect", _connect)
+
+    bs._snapshot_sqlite(src, dest)
+
+    assert _count(dest) == 3
+    assert calls[0][0] == (f"{src.resolve().as_uri()}?mode=ro",)
+    assert calls[0][1] == {"uri": True}
+
+
 def test_verify_detects_tamper_and_missing(monkeypatch, tmp_path):
     bs, ap = _load(monkeypatch, tmp_path)
     from services.os.app_paths import data_dir

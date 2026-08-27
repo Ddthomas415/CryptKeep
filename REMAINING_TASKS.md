@@ -1849,6 +1849,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `operator_event_write_failed:OperatorEventJournalError`. Remaining proof:
    rerun backup/verify/scratch-restore/backup-secret-scan with effective access
    to the `cbp` state data and operator-event journal.
+   2026-08-27: backup snapshot source-access fix is ready for independent
+   review. `scripts/backup_state.py::_snapshot_sqlite()` now opens source
+   databases with SQLite URI `mode=ro` before invoking the backup API, matching
+   the host blocker where `cryptkeep` could read but not write `cbp`-owned
+   SQLite files. A regression test pins the read-only source connection. This
+   does not execute or close the host drill; remaining proof is to sync the
+   accepted patch to Hetzner and rerun backup/verify/scratch-restore plus the
+   backup-artifact secret scan against `/var/lib/cbp`.
    2026-07-22: executable full-state restore-drill contract guard is ready for
    review. `tests/test_full_state_restore_drill_contract.py` pins that
    `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` does not claim an executed host
