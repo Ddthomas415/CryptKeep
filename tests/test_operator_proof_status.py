@@ -104,9 +104,14 @@ def test_operator_proof_status_filters_proof_markers_by_category(tmp_path: Path)
     out = build_operator_proof_status(repo_root=tmp_path, category="host_side_reference")
 
     assert out["category_filter"] == "host_side_reference"
-    assert out["passive_operator_item_count"] == 2
+    assert out["passive_operator_scope"] == "suppressed_by_proof_filter"
+    assert out["passive_operator_item_count"] == 0
+    assert out["source_passive_operator_item_count"] == 2
+    assert out["passive_operator_items"] == []
     assert out["proof_marker_count"] == 1
     assert out["source_proof_marker_count"] == 4
+    assert out["summary"]["passive_operator_items"] == 0
+    assert out["summary"]["source_passive_operator_items"] == 2
     assert out["summary"]["category_counts"] == {"host_side_reference": 1}
     assert out["summary"]["source_category_counts"]["proof_ready_implementation"] == 1
     assert [row["category"] for row in out["proof_markers"]] == ["host_side_reference"]
@@ -401,6 +406,10 @@ def test_operator_proof_status_filters_proof_markers_by_line(tmp_path: Path) -> 
 
     assert out["ok"] is True
     assert out["line_filter"] == 3
+    assert out["passive_operator_scope"] == "suppressed_by_proof_filter"
+    assert out["passive_operator_item_count"] == 0
+    assert out["source_passive_operator_item_count"] == 2
+    assert out["passive_operator_items"] == []
     assert out["proof_marker_count"] == 1
     assert out["source_proof_marker_count"] == 2
     assert [row["line"] for row in out["proof_markers"]] == [3]
@@ -429,6 +438,7 @@ def test_operator_proof_status_filters_passive_items_by_ordinal(tmp_path: Path) 
     out = build_operator_proof_status(repo_root=tmp_path, passive_ordinal=2)
 
     assert out["ok"] is True
+    assert out["passive_operator_scope"] == "ordinal"
     assert out["passive_operator_ordinal_filter"] == 2
     assert out["source_passive_operator_item_count"] == 2
     assert out["passive_operator_item_count"] == 1
