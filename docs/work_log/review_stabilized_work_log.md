@@ -37090,3 +37090,61 @@ Remaining risk:
 - LOW: read-only ops wrapper and docs/tests only; no service, dependency,
   campaign, state, or host configuration mutation.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-27T06:47:56Z - Hetzner Host-Health Tailscale Auth Classification
+
+Active role: ENGINEER
+
+Objective:
+- Make the remote Hetzner host-health wrapper report Tailscale SSH re-auth
+  requirements as an explicit operator action instead of a generic timeout or
+  invalid JSON failure.
+
+What was found:
+- SHOWN: after the remote-wrapper merge, `make check-hetzner-paper-host-health`
+  could fail with `tailscale-ssh_timeout:<n>s` while the underlying Tailscale
+  SSH condition was an auth re-check.
+- SHOWN: the mature `status-paper-hetzner` wrapper already classifies this
+  condition as `tailscale_ssh_auth_required`.
+
+What changed:
+- Added Tailscale auth/preference prompt classification to
+  `scripts/report_hetzner_paper_host_health.py` for timeout and non-JSON output
+  paths.
+- Preserved transport metadata on remote health failure payloads.
+- Added a missing-field guard so empty stdout plus auth text in stderr cannot
+  return a payload without `ok`/`status`.
+- Added regression tests for timeout classification, non-JSON auth output, and
+  preserved transport metadata.
+
+Why this change was chosen:
+- The operator needs to know when the problem is local Tailscale SSH re-auth,
+  not Hetzner host health. Naming that condition avoids recreating false
+  infrastructure blockers.
+
+Expected outcome:
+- When Tailscale SSH requires browser re-auth, the command reports
+  `reason=tailscale_ssh_auth_required` and does not imply the host preflight
+  itself failed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_paper_host_health.py tests/test_report_hetzner_paper_campaign_status.py`
+  - SHOWN: `16 passed`.
+- `HETZNER_STATUS_TIMEOUT_SEC=5 make check-hetzner-paper-host-health`
+  - SHOWN: `status=hetzner_paper_host_health_unavailable`, `ok=False`,
+    `transport=tailscale-ssh`, `reason=tailscale_ssh_auth_required`.
+- `tailscale ssh cryptkeep@100.86.128.9 true`
+  - SHOWN: browser re-check completed with `Authentication checked with
+    Tailscale SSH`.
+- `make check-hetzner-paper-host-health`
+  - SHOWN after re-auth: `status=hetzner_paper_host_healthy`, `ok=True`,
+    `transport=tailscale-ssh`, `remote_returncode=0`.
+- `make status-paper-hetzner HETZNER_STATUS_TIMEOUT_SEC=30`
+  - SHOWN after re-auth: `Campaigns: 1/1 running`; `ema_cross_default` idle
+    `waiting_for_next_day`.
+
+Remaining risk:
+- LOW: read-only error classification and tests only. The host was not mutated;
+  a passing host-health report still requires completing the Tailscale SSH
+  browser re-check or using an accepted working transport.
+- Acceptance state: `ACCEPTED`.
