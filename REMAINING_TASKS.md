@@ -12,20 +12,23 @@ SHOWN:
   PR #211 merged the accepted `review-stabilized` batch to `master`, then
   `review-stabilized` was fast-forwarded; all three refs were verified at
   `7861f7292b418f8ccbc53ca002635618f87a079b`.
-- Laptop-owned paper campaigns are healthy:
-  - `es_daily_trend_v1`: `fills=18`, `closed=9`, `pnl=32.1776`
-  - `breakout_default`: `fills=12`, `closed=6`, `pnl=-4.1120`
+- Laptop-owned paper campaigns are healthy as of the 2026-08-28 guarded
+  recovery/status refresh:
+  - `es_daily_trend_v1`: `running`, `collecting`
+  - `breakout_default`: `running`, `collecting`
+  - `make status-paper-soak` reported `2/2 running`
 - Hetzner-owned `ema_cross_default` is healthy when checked through the
   Hetzner campaign manifest:
   - `ema_cross_default`: `fills=15`, `closed=7`, `pnl=-2.3016`
   - latest fill: `2026-08-24T00:01:55.857611+00:00`
   - status: `idle`, `waiting_for_next_day`, session evidence already recorded
-    for `2026-08-25`
+    for `2026-08-28`
 - Codex sandboxed Tailscale may report
-  `tailscale_cli_preferences_unavailable`; use a normal operator terminal or
-  approved out-of-sandbox status check when Hetzner status must be verified.
-- Canonical `es_daily_trend_v1` paper promotion remains blocked at `3/10`
-  provenance-qualified round trips, with `7` remaining. 2026-07-21 local
+  `tailscale_cli_preferences_unavailable` or `ssh_operation_not_permitted`; use
+  a normal operator terminal or approved out-of-sandbox status check when
+  Hetzner status must be verified.
+- Canonical `es_daily_trend_v1` paper promotion remains blocked at `3/5`
+  provenance-qualified round trips, with `2` remaining. 2026-07-21 local
   `make status-paper-gate-qualification` reports `qualified=3`,
   `all_history=10`, `counted=6`, `incomplete=1`, and `rejected=9`; local
   `make status-paper-soak` reports laptop campaigns `2/2 running`.
@@ -36,6 +39,15 @@ SHOWN:
 - Raw all-history currently reports `9` closed trades, but those remain
   diagnostic unless both entry and exit fills carry the required non-sample
   public-OHLCV provenance.
+- 2026-08-28 status refresh is recorded in
+  `docs/checkpoints/hetzner_laptop_readonly_status_2026_08_28.md`. SHOWN:
+  laptop campaigns recovered to `2/2 running`; Hetzner `ema_cross_default`
+  remained `1/1 running`; Hetzner crypto-edge runtime was ready; dependency
+  alignment remained open because the host checkout was still
+  `6c0903d318756d27eb6414a01abbfc8c8e879ae5` while local `origin/master` was
+  `5b39d051e8d0063a8fc731c68d384f63e1f5a9d3`, and the same 10 pinned-package
+  mismatches remained. No host package install, deploy, or service restart was
+  run.
 - 2026-07-06 strategy validation note: do not add another persistent campaign
   before proof. The next runnable non-persistent validation candidate is
   `pullback_recovery_default`, via isolated Stage 0 proof. `funding_extreme`
@@ -2061,6 +2073,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     snapshots. Supply-chain pin integrity remains OK, but the same 10
     dependency mismatches remain; no host package install or vulnerability
     audit was run.
+    2026-08-28: read-only host refresh is recorded in
+    `docs/checkpoints/hetzner_laptop_readonly_status_2026_08_28.md`. Hetzner
+    `ema_cross_default` remains `1/1` running and idle after recording
+    2026-08-28 session evidence; crypto-edge runtime remains ready with
+    `blocking_checks=0`; dependency alignment remains open because the host
+    checkout is behind current master and the same 10 pinned-package mismatches
+    remain. No host package install, deploy, or service restart was run.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
