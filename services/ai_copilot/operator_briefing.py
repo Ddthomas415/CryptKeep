@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
+from services.ai_copilot.report_audit import record_ai_copilot_report_write
 from services.analytics.cost_assumptions import check_cost_assumptions
 from services.analytics.operator_next_actions import build_operator_next_actions
 from services.analytics.operator_status_bundle import build_operator_status_bundle
 from services.analytics.paper_campaign_recovery import load_campaign_specs, manage_campaigns
 from services.control.paper_gate_velocity import build_paper_gate_velocity_report
+from services.os.app_paths import data_dir
+from services.os.file_utils import atomic_write
 
 
 REPORT_TYPE = "operator_briefing"
@@ -16,6 +20,10 @@ REPORT_TYPE = "operator_briefing"
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _stamp() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
 
 def _source(name: str, builder: Callable[[], dict[str, Any]]) -> dict[str, Any]:
@@ -59,6 +67,18 @@ def _latest_result(collector: dict[str, Any]) -> dict[str, Any]:
     return results[-1] if results else {}
 
 
+def _campaign_needs_attention(row: dict[str, Any]) -> bool:
+    status = str(row.get("status") or "").strip().lower()
+    reason = str(row.get("reason") or "").strip().lower()
+    if bool(row.get("running")):
+        return False
+    if status == "idle" and reason == "waiting_for_next_day":
+        return False
+    if status == "completed" and bool(row.get("ok", True)):
+        return False
+    return True
+
+
 def build_paper_campaign_status_report(*, config_path: str | Path) -> dict[str, Any]:
     specs = load_campaign_specs(Path(config_path))
     return manage_campaigns(specs, restore=False)
@@ -66,9 +86,12 @@ def build_paper_campaign_status_report(*, config_path: str | Path) -> dict[str, 
 
 def _campaign_summary(campaigns: dict[str, Any]) -> dict[str, Any]:
     rows = [dict(row) for row in list(campaigns.get("campaigns") or []) if isinstance(row, dict)]
+    attention_rows = [row for row in rows if _campaign_needs_attention(row)]
     return {
         "ok": bool(campaigns.get("ok")),
         "all_running": bool(campaigns.get("all_running")),
+        "attention_required": bool(attention_rows),
+        "attention_count": len(attention_rows),
         "running_count": _as_int(campaigns.get("running_count")),
         "campaign_count": _as_int(campaigns.get("campaign_count")),
         "statuses": [
@@ -174,7 +197,7 @@ def _recommendations(
     next_actions: dict[str, Any],
 ) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
-    if campaigns and not bool(campaigns.get("all_running")):
+    if campaigns and bool(campaigns.get("attention_required")):
         out.append(
             {
                 "id": "campaign_process_attention",
@@ -324,4 +347,103 @@ def build_operator_briefing(
                 "alter execution or routing policy",
             ],
         },
+    }
+
+
+def render_operator_briefing_markdown(report: dict[str, Any]) -> str:
+    summaries = dict(report.get("summaries") or {})
+    campaigns = dict(summaries.get("campaigns") or {})
+    gate = dict(summaries.get("paper_gate") or {})
+    round_trips = dict(gate.get("round_trips") or {})
+    qualified_bars = dict(gate.get("qualified_bars") or {})
+    cost = dict(summaries.get("cost_assumptions") or {})
+    lines = [
+        "# Operator Briefing",
+        "",
+        f"- Generated: {report.get('generated_at')}",
+        f"- OK: `{bool(report.get('ok'))}`",
+        f"- Read-only: `{bool(report.get('read_only'))}`",
+        f"- Advisory-only: `{bool(report.get('advisory_only'))}`",
+        f"- Capital authority: `{report.get('capital_authority')}`",
+        "",
+        "## Source Status",
+    ]
+    for name, row in sorted(dict(report.get("source_status") or {}).items()):
+        details = dict(row) if isinstance(row, dict) else {}
+        status = details.get("status")
+        if details.get("error_type"):
+            status = f"{status}:{details.get('error_type')}"
+        lines.append(f"- `{name}` ok=`{bool(details.get('ok'))}` status=`{status}`")
+    lines.extend(
+        [
+            "",
+            "## Campaigns",
+            f"- Running: `{campaigns.get('running_count', 0)}/{campaigns.get('campaign_count', 0)}`",
+            f"- All running: `{bool(campaigns.get('all_running'))}`",
+            "",
+            "## Paper Gate",
+            f"- Round trips: `{round_trips.get('qualified', 0)}/{round_trips.get('required', 0)}`",
+            f"- Round trips remaining: `{round_trips.get('remaining', 0)}`",
+            f"- Qualified bars: `{qualified_bars.get('recorded', 0)}/{qualified_bars.get('required', 0)}`",
+            "",
+            "## Cost Assumptions",
+            f"- Overall: `{cost.get('overall', 'unknown')}`",
+            f"- Round trip bps: `{cost.get('round_trip_bps')}`",
+            "",
+            "## Recommendations",
+        ]
+    )
+    for row in list(report.get("recommendations") or []):
+        if not isinstance(row, dict):
+            continue
+        lines.append(
+            f"- `{row.get('id')}` priority=`{row.get('priority')}` "
+            f"confidence=`{row.get('confidence')}` source=`{row.get('evidence_source')}`: "
+            f"{row.get('action')}"
+        )
+    lines.extend(
+        [
+            "",
+            "## Boundary",
+            "- This artifact is advisory. It does not move capital, start or stop campaigns, change config, promote strategies, or alter execution/routing policy.",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def write_operator_briefing_artifact(
+    report: dict[str, Any],
+    *,
+    evidence_dest: str | Path | None = None,
+) -> dict[str, Any]:
+    root = Path(evidence_dest).expanduser().resolve() if evidence_dest else data_dir() / REPORT_TYPE
+    stamp = _stamp()
+    latest_json = root / f"{REPORT_TYPE}.latest.json"
+    dated_json = root / f"{REPORT_TYPE}.{stamp}.json"
+    latest_md = root / f"{REPORT_TYPE}.latest.md"
+    dated_md = root / f"{REPORT_TYPE}.{stamp}.md"
+    json_text = json.dumps(report, indent=2, sort_keys=True, default=str)
+    markdown_text = render_operator_briefing_markdown(report)
+    for path, text in (
+        (latest_json, json_text),
+        (dated_json, json_text),
+        (latest_md, markdown_text),
+        (dated_md, markdown_text),
+    ):
+        atomic_write(path, text)
+    paths = {
+        "latest_json": str(latest_json),
+        "dated_json": str(dated_json),
+        "latest_markdown": str(latest_md),
+        "dated_markdown": str(dated_md),
+    }
+    return {
+        **paths,
+        "operator_event": record_ai_copilot_report_write(
+            report_type=REPORT_TYPE,
+            report=report,
+            paths=paths,
+            source="services.ai_copilot.operator_briefing",
+        ),
     }

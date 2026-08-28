@@ -15,7 +15,10 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parents[1])
 
-from services.ai_copilot.operator_briefing import build_operator_briefing  # noqa: E402
+from services.ai_copilot.operator_briefing import (  # noqa: E402
+    build_operator_briefing,
+    write_operator_briefing_artifact,
+)
 
 
 def _print_report(payload: dict[str, Any]) -> None:
@@ -70,12 +73,31 @@ def main(argv: list[str] | None = None) -> int:
         default="configs/paper_evidence_campaigns.laptop.json",
         help="Paper campaign config used for the campaign-status section.",
     )
+    parser.add_argument(
+        "--evidence-dest",
+        default="",
+        help="Write latest and timestamped JSON/Markdown briefing artifacts into this directory.",
+    )
+    parser.add_argument(
+        "--write-default-artifact",
+        action="store_true",
+        help="Write latest and timestamped JSON/Markdown briefing artifacts under the default state data dir.",
+    )
     args = parser.parse_args(argv)
     payload = build_operator_briefing(
         repo_root=ROOT,
         max_actions=args.max_actions,
         campaign_config_path=args.config,
     )
+    if args.evidence_dest or args.write_default_artifact:
+        payload["artifact_write_requested"] = True
+        payload["does_not_mutate_state"] = False
+        payload["does_not_mutate_runtime_state"] = True
+        payload["mutates_only_operator_briefing_artifacts"] = True
+        payload["artifact_paths"] = write_operator_briefing_artifact(
+            payload,
+            evidence_dest=args.evidence_dest or None,
+        )
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
