@@ -37315,6 +37315,65 @@ Remaining risk:
 - Low: docs-only checkpoint. It does not close host proof.
 - Acceptance state: `INCOMPLETE`.
 
+## 2026-08-28T23:00:00Z - Laptop Recovery and Hetzner Read-Only Status Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Continue from the operator briefing after PR #553 by restoring accepted laptop
+  paper campaigns if the guarded recovery path allowed it, then rerun the
+  Hetzner read-only proof commands outside the sandbox so the prior transport
+  blocker could be replaced with concrete host evidence.
+
+What was found:
+- SHOWN: sandboxed `make recover-paper-campaigns` failed before launch because
+  Coinbase public-OHLCV preflight returned `NetworkError` for both laptop
+  campaigns.
+- SHOWN: the out-of-sandbox retry passed Coinbase public-OHLCV preflight on the
+  first attempt for both laptop campaigns and returned `ok=true`,
+  `all_running=true`, `running_count=2`.
+- SHOWN: follow-up `make status-paper-soak` reported `Campaigns: 2/2 running
+  (all_running=True)`.
+- SHOWN: Hetzner SSH/Tailscale worked outside the sandbox. Dependency alignment
+  remained blocked because the host checkout was
+  `6c0903d318756d27eb6414a01abbfc8c8e879ae5` while local `origin/master` was
+  `5b39d051e8d0063a8fc731c68d384f63e1f5a9d3`, and 10 pinned-package
+  mismatches remained.
+- SHOWN: the dependency check was read-only: no deploy, package install, or
+  service restart was invoked.
+- SHOWN: Hetzner crypto-edge runtime returned ready with `blocking_checks=0`.
+- SHOWN: Hetzner paper campaign status returned `1/1` running for
+  `ema_cross_default`, idle and waiting for the next UTC day after recording
+  2026-08-28 session evidence.
+
+What changed:
+- Added `docs/checkpoints/hetzner_laptop_readonly_status_2026_08_28.md`.
+- Updated the current-state and supply-chain/dependency notes in
+  `REMAINING_TASKS.md` so they reflect the current `3/5` paper gate policy,
+  the recovered laptop campaigns, and the latest Hetzner read-only status.
+
+Why this change was chosen:
+- The prior merged checkpoint truthfully recorded a sandbox transport blocker.
+  Once out-of-sandbox SSH succeeded, leaving that as the latest status would
+  cause repeated rediscovery and operator confusion.
+
+Expected outcome:
+- Operators can distinguish current open work: laptop campaigns are running,
+  Hetzner edge/paper are healthy, and the remaining host-side blocker is sync
+  plus dependency alignment, not SSH transport.
+
+Verification:
+- `git diff --check`
+  - SHOWN: clean.
+- `./.venv/bin/python -m pytest -q tests/test_checkpoints_repo_path_references_exist.py tests/test_checkpoints_tail_contract.py`
+  - SHOWN: `4 passed`.
+
+Remaining risk:
+- Low: docs/checkpoint update plus guarded laptop paper-campaign recovery. No
+  strategy, gate, config, deploy, package install, host service restart,
+  execution, routing, or live-money behavior changed.
+- Acceptance state: `INCOMPLETE`.
+
 ## 2026-08-27T13:10:00Z - Backup State Read-Only Source Snapshot Fix
 
 Active role: ENGINEER
