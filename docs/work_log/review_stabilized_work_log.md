@@ -37268,6 +37268,53 @@ Remaining risk:
   capital authority changes.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-28T03:47:25Z - Host Read-Only Proof Blocked by Local SSH Transport
+
+Active role: ENGINEER
+
+Objective:
+- Attempt the next surfaced read-only host proof after PR #552 merged, without
+  installing units, deploying code, restarting services, changing campaigns, or
+  mutating trading/runtime authority.
+
+What was found:
+- SHOWN: `make status-hetzner-dependency-alignment-json` stayed read-only but
+  returned `ok=false`, `reason=ssh_operation_not_permitted`.
+- SHOWN: the dependency wrapper first hit
+  `transport_fallback.reason=tailscale_cli_preferences_unavailable`, then direct
+  SSH failed with `ssh: connect to host 100.86.128.9 port 22: Operation not
+  permitted`.
+- SHOWN: `make status-hetzner-edge-runtime HETZNER_STATUS_TIMEOUT_SEC=30`
+  returned `status=hetzner_crypto_edge_runtime_blocked`, `ok=false`, and
+  `reason=ssh_operation_not_permitted`.
+- SHOWN: both wrappers reported or are documented as read-only; no deploy,
+  package install, service restart, campaign run, market-data mutation, config
+  change, gate change, strategy promotion, execution, or routing change was
+  made.
+
+What changed:
+- Added `docs/checkpoints/host_readonly_proof_blocked_2026_08_28.md` recording
+  the commands, outputs, interpretation, unresolved proof, and next action.
+
+Why this change was chosen:
+- The operator-proof queue surfaced host-side proof as the next blocker. The
+  failed local transport attempt should be recorded as negative evidence so it
+  is not mistaken for a host failure or rediscovered as a code defect.
+
+Expected outcome:
+- Future host-proof work starts from a known blocker: fix or use a working
+  Tailscale/direct SSH path, then rerun the same read-only wrappers.
+
+Verification:
+- `git diff --check`
+  - SHOWN: clean.
+- `./.venv/bin/python -m pytest -q tests/test_checkpoints_repo_path_references_exist.py tests/test_checkpoints_tail_contract.py`
+  - SHOWN: `4 passed`.
+
+Remaining risk:
+- Low: docs-only checkpoint. It does not close host proof.
+- Acceptance state: `INCOMPLETE`.
+
 ## 2026-08-27T13:10:00Z - Backup State Read-Only Source Snapshot Fix
 
 Active role: ENGINEER
