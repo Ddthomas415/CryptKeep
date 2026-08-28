@@ -48,6 +48,17 @@ SHOWN:
   `5b39d051e8d0063a8fc731c68d384f63e1f5a9d3`, and the same 10 pinned-package
   mismatches remained. No host package install, deploy, or service restart was
   run.
+- 2026-08-28 dependency-alignment proof is recorded in
+  `docs/checkpoints/hetzner_dependency_alignment_proof_2026_08_28.md`. SHOWN:
+  the operator-approved no-restart host venv alignment upgraded host `pip` to
+  `26.2`, installed the 10 pinned-package updates, wrote a pre-change rollback
+  freeze under `/tmp/cryptkeep_supply_chain/`, and produced post-change
+  supply-chain JSON with `pin_integrity.ok=true`, `environment.ok=true`,
+  `mismatches=[]`, and `not_installed=[]`. Post-change read-only checks showed
+  Hetzner crypto-edge runtime ready and `ema_cross_default` still `1/1`
+  running. Remaining host blocker: checkout sync from
+  `6c0903d318756d27eb6414a01abbfc8c8e879ae5` to current master; host
+  vulnerability audit and SBOM/hash-lock decisions remain separate.
 - 2026-07-06 strategy validation note: do not add another persistent campaign
   before proof. The next runnable non-persistent validation candidate is
   `pullback_recovery_default`, via isolated Stage 0 proof. `funding_extreme`
@@ -2080,6 +2091,17 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `blocking_checks=0`; dependency alignment remains open because the host
     checkout is behind current master and the same 10 pinned-package mismatches
     remain. No host package install, deploy, or service restart was run.
+    2026-08-28 follow-up: the approved no-restart dependency-alignment runbook
+    was executed and recorded in
+    `docs/checkpoints/hetzner_dependency_alignment_proof_2026_08_28.md`.
+    Host `pip` was upgraded to `26.2`, the 10 pinned-package mismatches were
+    installed, and post-change supply-chain JSON reported pin integrity OK and
+    environment OK with no mismatches or missing packages. The post-change
+    dependency status is still blocked only by host checkout drift
+    (`6c0903d318756d27eb6414a01abbfc8c8e879ae5` behind current master);
+    no deploy or service restart was run. Remaining capped-live proof: sync
+    the host checkout, run or waive host vulnerability audit, and decide
+    SBOM/hash-lock release-policy requirements.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
