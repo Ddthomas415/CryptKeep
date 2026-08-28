@@ -37254,6 +37254,45 @@ Remaining risk:
   against Hetzner after this patch is accepted and deployed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-27T20:55:00Z - Recent Work Audit Handoff
+
+Active role: ENGINEER
+
+Objective:
+- Leave a detailed repo-local review handoff for recent Codex work after the
+  operator raised trust concerns and indicated independent review may be needed.
+
+What was found:
+- SHOWN: recent merged work to re-audit first is #549
+  (`ded0ac936 fix: focus operator proof filter output`) and #550
+  (`98b2d7e7c fix: open backup snapshot sources read-only`).
+- SHOWN: local repo was clean on `master` before creating this docs-only branch.
+
+What changed:
+- Added `docs/checkpoints/recent_codex_work_audit_handoff_2026_08_27.md`.
+  The document records scope, files changed, verification claimed, CI/merge
+  posture, remaining unverified host proof, and independent review questions for
+  both #549 and #550.
+
+Why this change was chosen:
+- A durable checkpoint is easier to audit than chat history and avoids relying
+  on the implementing agent's summary during independent review.
+
+Expected outcome:
+- A human or another AI can start review from exact commits, commands, and
+  unresolved proof items without reconstructing the session from memory.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_checkpoints_repo_path_references_exist.py tests/test_checkpoints_tail_contract.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `5 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- LOW: documentation/checkpoint only. No runtime code, tests, host state,
+  campaigns, market data, gates, or execution behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-27T12:55:00Z - Focus Operator Proof Filter Output
 
 Active role: ENGINEER
