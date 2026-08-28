@@ -99,10 +99,31 @@ def test_backlog_tracks_advisory_operator_briefing_agent_boundary() -> None:
     backlog = _normalized("REMAINING_TASKS.md")
 
     assert "Jarvis-like Operator Briefing and Guidance Agent" in backlog
+    assert "services/ai_copilot/operator_briefing.py" in backlog
+    assert "scripts/report_operator_briefing.py" in backlog
+    assert "make operator-briefing" in backlog
+    assert "make operator-briefing-json" in backlog
+    assert "make record-operator-briefing" in backlog
+    assert ".cbp_state/data/operator_briefing/" in backlog
     assert "autonomous analyst/operator assistant" in backlog
     assert "not \"autonomous trader.\"" in backlog
     assert "campaign health, gate progress, host/data" in backlog
     assert "CI/PR state, cost/PnL warnings, research-artifact changes" in backlog
+    assert "schema_version" in backlog
+    assert "source-status rows" in backlog
+    assert "recommendation priority/confidence labels" in backlog
+    assert "read_only=true" in backlog
+    assert "advisory_only=true" in backlog
+    assert "capital_authority=none" in backlog
+    assert "does_not_mutate_state=true" in backlog
+    assert "artifact_write_requested=true" in backlog
+    assert "does_not_mutate_runtime_state=true" in backlog
+    assert "mutates_only_operator_briefing_artifacts=true" in backlog
+    assert "does_not_run_campaigns=true" in backlog
+    assert "does_not_start_or_stop_campaigns=true" in backlog
+    assert "does_not_fetch_market_data=true" in backlog
+    assert "does_not_change_config=true" in backlog
+    assert "does_not_promote_strategies=true" in backlog
     assert "must not move" in backlog
     assert "change live risk" in backlog
     assert "promote strategies" in backlog

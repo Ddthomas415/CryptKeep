@@ -3745,6 +3745,9 @@ Verification:
   - SHOWN: `18 passed in 0.25s`.
 - `git diff --check`
   - SHOWN: clean.
+- `./.venv/bin/python scripts/validate.py --quick`
+  - SHOWN: `[validate] OK`; quick subset reported `23 passed` plus alignment
+    guard `15 passed`.
 - `CBP_STATE_DIR=.../.cbp_state_challengers/ema_cross_default_daily ./.venv/bin/python - <<'PY' ... svc.collect_once(...) ... PY`
   - SHOWN: isolated monitor output now reports `fills_observed=1`,
     `latest_journal_fill` populated, `paper_position.qty=0.001`, and summary
@@ -37198,6 +37201,72 @@ Remaining risk:
   local research state and are not committed; no strategy, campaign, gate,
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-08-28T03:03:24Z - Operator Briefing Backlog Closure Alignment
+
+Active role: ENGINEER
+
+Objective:
+- Align `REMAINING_TASKS.md` item 21 with the already-implemented read-only
+  operator briefing slice, and add a durable artifact writer so the briefing can
+  serve as a daily/on-demand checkpoint instead of terminal-only output.
+
+What was found:
+- SHOWN: `scripts/report_operator_briefing.py`, `make operator-briefing`,
+  `make operator-briefing-json`, `services/ai_copilot/operator_briefing.py`,
+  and `tests/test_operator_briefing.py` already exist on master.
+- SHOWN: the 2026-08-23 work-log entry records the first operator-briefing
+  implementation slice as accepted, with targeted tests and
+  `make operator-briefing-json` verification.
+- SHOWN: backlog item 21 still described the desired capability without
+  recording the implemented command, schema/boundary fields, artifact path, or
+  remaining follow-up scope.
+
+What changed:
+- Added a dated implementation-status note under backlog item 21 naming the
+  accepted source files, Make targets, source reports, schema/source-status/
+  summary/recommendation fields, and explicit no-authority flags.
+- Extended `tests/test_ai_copilot_operating_rules_guard.py` so the backlog must
+  keep the actual operator-briefing command and read-only/advisory boundary
+  visible.
+- Added `render_operator_briefing_markdown()` and
+  `write_operator_briefing_artifact()` to persist latest and timestamped
+  JSON/Markdown artifacts under `.cbp_state/data/operator_briefing/`.
+- Added `--evidence-dest`, `--write-default-artifact`, and
+  `make record-operator-briefing`, then registered the target in
+  `scripts/SCRIPTS.md` and the script-index guard.
+- Tightened the record-mode truthfulness contract: terminal-only briefing keeps
+  `does_not_mutate_state=true`; record mode sets `does_not_mutate_state=false`,
+  `does_not_mutate_runtime_state=true`, and
+  `mutates_only_operator_briefing_artifacts=true` because it writes briefing
+  artifacts and metadata-only operator-event audit rows.
+- Fixed a false-positive recommendation found by running the briefing on the
+  current local campaign state: `all_running=false` with both campaigns
+  `idle` / `waiting_for_next_day` is expected for daily campaigns after the
+  UTC evidence run, so it must not emit `campaign_process_attention`.
+
+Why this change was chosen:
+- This keeps the accepted advisory tool useful as an operator checkpoint while
+  preserving the authority boundary: report/record only, with no campaign,
+  gate, config, strategy-promotion, execution, routing, or AI-provider behavior
+  change.
+
+Expected outcome:
+- Future operators and review agents can run or record one operator briefing
+  artifact and see that remaining work is scheduling, richer ingestion, and
+  advisory drafting only.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_operating_rules_guard.py tests/test_operator_briefing.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `19 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- Low/medium: adds optional artifact writing for an advisory report. No campaign,
+  gate, config, strategy-promotion, execution, routing, AI-provider behavior, or
+  capital authority changes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## 2026-08-27T13:10:00Z - Backup State Read-Only Source Snapshot Fix
 

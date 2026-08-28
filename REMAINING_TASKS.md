@@ -3465,6 +3465,34 @@ substrate work, but they are concrete enough to keep visible.
     Keep this as "autonomous analyst/operator assistant," not "autonomous
     trader." Any future capital-authority expansion requires a separate
     high-risk design review.
+    2026-08-28: current implementation status is accepted for the first
+    read-only slice. `services/ai_copilot/operator_briefing.py`,
+    `scripts/report_operator_briefing.py`, `make operator-briefing`,
+    `make operator-briefing-json`, and `make record-operator-briefing`
+    aggregate existing operator status,
+    next-action, paper-gate velocity, paper-campaign, and cost-assumption
+    reports into an advisory briefing. The payload carries `schema_version`,
+    source-status rows, campaign/gate/cost/action summaries, recommendation
+    priority/confidence labels, and explicit boundary flags for report mode:
+    `read_only=true`, `advisory_only=true`, `capital_authority=none`,
+    `does_not_mutate_state=true`, `does_not_run_campaigns=true`,
+    `does_not_start_or_stop_campaigns=true`, `does_not_fetch_market_data=true`,
+    `does_not_change_config=true`, and `does_not_promote_strategies=true`.
+    SHOWN verification in the work log: targeted operator-briefing/script-index/
+    AI-copilot guard tests passed, and `make operator-briefing-json` executed
+    successfully against `configs/paper_evidence_campaigns.laptop.json`.
+    The recording target writes latest and timestamped JSON/Markdown artifacts
+    under `.cbp_state/data/operator_briefing/` for daily/on-demand checkpoints
+    and reports `artifact_write_requested=true`,
+    `does_not_mutate_runtime_state=true`, and
+    `mutates_only_operator_briefing_artifacts=true`; it does not change
+    campaigns, gates, configs, strategy promotion, execution, or routing.
+    The briefing recommendation logic treats scheduled daily `idle` /
+    `waiting_for_next_day` campaigns as non-attention state so the assistant
+    does not invent a restore action after a normal daily evidence run.
+    Remaining future scope: scheduling/notification cadence, richer host/CI/
+    research-artifact ingestion, and any PR/runbook drafting workflow remain
+    advisory-only follow-ups; no capital authority is granted by this item.
 22. Bring permanently ignored CI tests back under an explicit policy. Current
     CI invokes pytest with four `--ignore` entries:
     `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,
