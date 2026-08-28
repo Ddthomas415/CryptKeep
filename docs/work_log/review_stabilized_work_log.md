@@ -37374,6 +37374,69 @@ Remaining risk:
   execution, routing, or live-money behavior changed.
 - Acceptance state: `INCOMPLETE`.
 
+## 2026-08-28T23:07:30Z - Hetzner No-Restart Dependency Alignment
+
+Active role: ENGINEER
+
+Objective:
+- Execute the operator-approved Hetzner dependency-alignment runbook for
+  `/srv/cryptkeep/app/.venv`: upgrade host `pip` to `26.2`, install
+  `requirements-pinned.txt`, preserve rollback evidence, and verify the result
+  without restarting host services.
+
+What was found:
+- SHOWN: the operator approved the exact runbook text from
+  `docs/checkpoints/hetzner_dependency_alignment_runbook_2026_08_24.md`.
+- SHOWN: the command wrote pre-change rollback evidence to
+  `/tmp/cryptkeep_supply_chain/pip-freeze-before-20260828T230654Z.txt`.
+- SHOWN: host `pip` upgraded from `26.1.2` to `26.2`.
+- SHOWN: the previously mismatched pinned packages were installed:
+  `aiohttp==3.14.3`, `click==8.3.3`, `cryptography==50.0.0`,
+  `GitPython==3.1.58`, `idna==3.15`, `pillow==12.3.0`,
+  `setuptools==83.0.0`, `starlette==1.3.1`, `tornado==6.5.7`, and
+  `urllib3==2.7.0`.
+- SHOWN: post-change supply-chain evidence was written to
+  `/tmp/cryptkeep_supply_chain/supply-chain-after-20260828T230654Z.json` with
+  `pin_integrity.ok=true`, `environment.ok=true`, `mismatches=[]`, and
+  `not_installed=[]`.
+- SHOWN: post-change `make status-hetzner-dependency-alignment-json` reported
+  `environment_alignment.status=aligned`, `pip_dry_run.status=no_changes`, and
+  no package mismatches. The overall report remains blocked only by
+  `remote_checkout_commit`.
+- SHOWN: post-change Hetzner crypto-edge runtime remained ready with
+  `blocking_checks=0`.
+- SHOWN: post-change Hetzner paper campaign remained `1/1` running and idle
+  after recording 2026-08-28 session evidence.
+
+What changed:
+- Added `docs/checkpoints/hetzner_dependency_alignment_proof_2026_08_28.md`.
+- Updated `REMAINING_TASKS.md` to record that the Hetzner pinned-package
+  mismatch is resolved and that the remaining host blocker is checkout drift,
+  plus separate vulnerability-audit and SBOM/hash-lock decisions.
+
+Why this change was chosen:
+- The host dependency mismatch was a repeated capped-live proof blocker with an
+  approved no-restart runbook. Executing the runbook closes the environment
+  drift without changing strategy, campaign, gate, execution, routing, or
+  service state.
+
+Expected outcome:
+- Future dependency-alignment checks should no longer report the 10 package
+  mismatches. Remaining host work can focus on checkout sync and release-policy
+  evidence.
+
+Verification:
+- `git diff --check`
+  - SHOWN: clean.
+- `./.venv/bin/python -m pytest -q tests/test_checkpoints_repo_path_references_exist.py tests/test_checkpoints_tail_contract.py`
+  - SHOWN: `4 passed`.
+
+Remaining risk:
+- Medium: this mutated the Hetzner application virtualenv, but no service was
+  restarted and post-change read-only status checks passed. Host vulnerability
+  audit was not run because it requires separate approval or waiver.
+- Acceptance state: `INCOMPLETE`.
+
 ## 2026-08-27T13:10:00Z - Backup State Read-Only Source Snapshot Fix
 
 Active role: ENGINEER
