@@ -37437,6 +37437,64 @@ Remaining risk:
   audit was not run because it requires separate approval or waiver.
 - Acceptance state: `INCOMPLETE`.
 
+## 2026-08-29T00:04:00Z - Hetzner No-Restart Checkout Sync
+
+Active role: ENGINEER
+
+Objective:
+- Bring Hetzner `/srv/cryptkeep/app` from the previously verified
+  `6c0903d318756d27eb6414a01abbfc8c8e879ae5` checkout to current
+  `origin/master` by fast-forward-only git sync, then verify dependency,
+  crypto-edge, paper-campaign, and host-health status without restarting
+  services.
+
+What was found:
+- SHOWN: local `HEAD` and `origin/master` were both
+  `0018c1213214f74033a70c59949e9ed86e3cfbad` before sync.
+- SHOWN: Hetzner `git fetch origin master` exited `0`.
+- SHOWN: Hetzner `git merge --ff-only origin/master` exited `0`.
+- SHOWN: Hetzner `/srv/cryptkeep/app` fast-forwarded from
+  `6c0903d318756d27eb6414a01abbfc8c8e879ae5` to
+  `0018c1213214f74033a70c59949e9ed86e3cfbad`.
+- SHOWN: post-sync dependency status returned
+  `hetzner_dependency_alignment_ready` with branch/commit match, clean git
+  state, pin integrity OK, environment aligned, `mismatches=[]`,
+  `not_installed=[]`, and `pip_dry_run.status=no_changes`.
+- SHOWN: post-sync crypto-edge runtime returned ready with `blocking_checks=0`.
+- SHOWN: post-sync Hetzner paper campaign status returned `1/1` running for
+  `ema_cross_default`, idle and waiting for the next UTC day after recording
+  2026-08-29 session evidence.
+- SHOWN: `check-hetzner-paper-host-health` returned
+  `hetzner_paper_host_healthy`, `ok=True`, and wrote
+  `/srv/cryptkeep/app/.cbp_state/runtime/snapshots/hetzner_paper_host_health.latest.json`.
+
+What changed:
+- Added `docs/checkpoints/hetzner_checkout_sync_2026_08_29.md`.
+- Updated `REMAINING_TASKS.md` to record that host checkout drift is resolved
+  at `0018c1213214f74033a70c59949e9ed86e3cfbad`.
+
+Why this change was chosen:
+- After the venv alignment proof, the only remaining dependency-alignment
+  blocker was checkout drift. Fast-forward-only git sync matches prior host
+  sync practice and avoids service restarts or package changes.
+
+Expected outcome:
+- Future `make status-hetzner-dependency-alignment-json` runs should return
+  ready unless master advances again or the host environment drifts.
+
+Verification:
+- `git diff --check`
+  - SHOWN: clean.
+- `./.venv/bin/python -m pytest -q tests/test_checkpoints_repo_path_references_exist.py tests/test_checkpoints_tail_contract.py`
+  - SHOWN: `4 passed`.
+
+Remaining risk:
+- Medium: host checkout changed by fast-forward git sync, but no service
+  restart, package install, config edit, campaign start/stop, gate change,
+  strategy promotion, execution, routing, or live-money behavior changed. Host
+  vulnerability audit and SBOM/hash-lock policy remain separate.
+- Acceptance state: `INCOMPLETE`.
+
 ## 2026-08-27T13:10:00Z - Backup State Read-Only Source Snapshot Fix
 
 Active role: ENGINEER
