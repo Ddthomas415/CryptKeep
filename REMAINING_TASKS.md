@@ -59,6 +59,16 @@ SHOWN:
   running. Remaining host blocker: checkout sync from
   `6c0903d318756d27eb6414a01abbfc8c8e879ae5` to current master; host
   vulnerability audit and SBOM/hash-lock decisions remain separate.
+- 2026-08-29 checkout-sync proof is recorded in
+  `docs/checkpoints/hetzner_checkout_sync_2026_08_29.md`. SHOWN: Hetzner
+  `/srv/cryptkeep/app` fast-forwarded without restart from
+  `6c0903d318756d27eb6414a01abbfc8c8e879ae5` to current master
+  `0018c1213214f74033a70c59949e9ed86e3cfbad`; post-sync dependency alignment
+  was ready with no package mismatches and `pip_dry_run.status=no_changes`;
+  crypto-edge runtime remained ready; Hetzner paper campaign remained `1/1`
+  running; and host health reported `hetzner_paper_host_healthy`. Remaining
+  host-side release-policy work: vulnerability audit approval/waiver and
+  SBOM/hash-lock decision.
 - 2026-07-06 strategy validation note: do not add another persistent campaign
   before proof. The next runnable non-persistent validation candidate is
   `pullback_recovery_default`, via isolated Stage 0 proof. `funding_extreme`
@@ -2102,6 +2112,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     no deploy or service restart was run. Remaining capped-live proof: sync
     the host checkout, run or waive host vulnerability audit, and decide
     SBOM/hash-lock release-policy requirements.
+    2026-08-29 follow-up: no-restart checkout sync is recorded in
+    `docs/checkpoints/hetzner_checkout_sync_2026_08_29.md`. Hetzner
+    `/srv/cryptkeep/app` fast-forwarded to
+    `0018c1213214f74033a70c59949e9ed86e3cfbad`; post-sync dependency status
+    returned `hetzner_dependency_alignment_ready` with environment aligned,
+    `mismatches=[]`, and `pip_dry_run.status=no_changes`; crypto-edge runtime
+    remained ready; Hetzner paper campaign remained `1/1` running; and
+    `check-hetzner-paper-host-health` returned `hetzner_paper_host_healthy`.
+    Remaining capped-live proof: run or waive host vulnerability audit and
+    decide SBOM/hash-lock release-policy requirements.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
