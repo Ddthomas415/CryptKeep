@@ -2039,10 +2039,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `pillow`, `setuptools`, `starlette`, `tornado`, `urllib3`). Host
     vulnerability audit was not run because it may disclose host package
     inventory externally and needs explicit operator approval or waiver.
-    Remaining capped-live proof: align the deployed environment with pins,
-    review/remediate or waive the local `pip` finding, run or waive host
-    vulnerability audit for the final deployed SHA, and decide whether
-    hash-locked installs or SBOMs become release gates.
+    Later 2026-08-28/2026-08-29 follow-ups closed the local `pip` remediation
+    and deployed-environment pin alignment pieces. Remaining capped-live
+    release-policy proof is to run or waive host vulnerability audit for the
+    final deployed SHA and decide whether hash-locked installs or SBOMs become
+    release gates.
     2026-08-23: local `pip` remediation is recorded in
     `docs/checkpoints/supply_chain_local_remediation_2026_08_23.md`.
     The project virtualenv was upgraded from `pip 26.1.2` to `pip 26.2`;
@@ -2050,8 +2051,9 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `a4a555d` reports pin integrity OK, environment OK, and
     `vulnerable_count=0`. Audited evidence artifact:
     `.cbp_state/data/supply_chain/supply-chain-evidence-20260824T011230Z.json`.
-    Remaining capped-live proof: align the deployed Hetzner environment with
-    pins, run or waive host vulnerability audit for the final deployed SHA, and
+    Later 2026-08-28/2026-08-29 follow-ups closed the deployed Hetzner
+    environment pin alignment piece. Remaining capped-live release-policy proof
+    is to run or waive host vulnerability audit for the final deployed SHA and
     decide whether hash-locked installs or SBOMs become release gates.
     2026-08-24: Hetzner dependency alignment runbook is recorded in
     `docs/checkpoints/hetzner_dependency_alignment_runbook_2026_08_24.md`.
@@ -2107,11 +2109,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     Host `pip` was upgraded to `26.2`, the 10 pinned-package mismatches were
     installed, and post-change supply-chain JSON reported pin integrity OK and
     environment OK with no mismatches or missing packages. The post-change
-    dependency status is still blocked only by host checkout drift
+    dependency status was still blocked only by host checkout drift
     (`6c0903d318756d27eb6414a01abbfc8c8e879ae5` behind current master);
-    no deploy or service restart was run. Remaining capped-live proof: sync
-    the host checkout, run or waive host vulnerability audit, and decide
-    SBOM/hash-lock release-policy requirements.
+    no deploy or service restart was run. The 2026-08-29 checkout-sync
+    follow-up closed that drift; remaining capped-live release-policy proof is
+    to run or waive host vulnerability audit and decide SBOM/hash-lock
+    requirements.
     2026-08-29 follow-up: no-restart checkout sync is recorded in
     `docs/checkpoints/hetzner_checkout_sync_2026_08_29.md`. Hetzner
     `/srv/cryptkeep/app` fast-forwarded to
