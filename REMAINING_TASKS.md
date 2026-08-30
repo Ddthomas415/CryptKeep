@@ -575,6 +575,21 @@ deployment work still needs independent review.
     wiring proof accepted, but no persistent campaign or promotion treatment
     until archive-backed research and the high-risk crypto-edge qualification
     extension are separately reviewed.
+    2026-08-30: a second isolated `funding_extreme_default` Stage 0 wiring
+    proof was recorded after current readiness passed. The one-shot proof used
+    Coinbase public OHLCV (`BTC/USDT`, `public_ohlcv_5m`) with OKX live-public
+    funding context (`BTC/USDT:USDT`) and completed at commit `4e21a4c69`.
+    SHOWN: terminal collector result `status=completed`, `reason=completed`,
+    `signal_action=hold`, `enqueued_total=0`, `fills_delta=0`,
+    `closed_trades_delta=0`, and `net_realized_pnl_delta=0.0`. The default
+    verifier first failed because its saved baseline expected stale commit
+    `fd7f11e9c` and OHLCV venue `okx`; rerunning the verifier read-only with
+    the actual accepted contract returned `status=passed` and
+    `blocking_checks=0`. Checkpoint:
+    `docs/checkpoints/funding_extreme_stage0_proof_2026_08_30.md`. This
+    confirms wiring and live-public context consumption only; it does not show
+    profitability, actionable fill behavior, promotion qualification, or
+    persistent-campaign suitability.
     2026-07-21 follow-up proof-workflow fix: the readiness helper and paper
     evidence collector now carry an explicit
     `CBP_CRYPTO_EDGE_DB_PATH` / `--strategy-context-db-path` override. This

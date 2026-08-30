@@ -37764,6 +37764,60 @@ Remaining risk:
   exist.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-30T08:35:00Z - Funding Extreme Stage 0 Proof Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Record the completed one-shot `funding_extreme_default` Stage 0 proof result
+  from the current local run without changing runtime code, campaign manifests,
+  strategy config, promotion gates, or live execution.
+
+What was found:
+- SHOWN: the isolated collector completed with `status=completed`,
+  `reason=completed`, and runtime `903.7023799419403` seconds.
+- SHOWN: the strategy evaluated successfully but held:
+  `signal_action=hold`, `signal_changed=false`, `enqueued_total=0`,
+  `fills_delta=0`, `closed_trades_delta=0`, and
+  `net_realized_pnl_delta=0.0`.
+- SHOWN: the evidence cycle and decision record were skipped because paper
+  history was unchanged.
+- SHOWN: the default verifier failed against stale baseline assumptions:
+  expected commit `fd7f11e9c` and OHLCV venue `okx`.
+- SHOWN: rerunning the verifier read-only with the actual accepted contract
+  (`4e21a4c69`, Coinbase `BTC/USDT` `public_ohlcv_5m`, OKX
+  `BTC/USDT:USDT` live-public funding context) passed with
+  `blocking_checks=0`.
+
+What changed:
+- Added `docs/checkpoints/funding_extreme_stage0_proof_2026_08_30.md`.
+- Added a dated note to `REMAINING_TASKS.md` item 12.
+- Added a dated update to
+  `docs/strategies/funding_extreme_stage0_decision_2026-07-11.md`.
+
+Why this change was chosen:
+- The prior runtime checkpoint recorded that the proof had started but did not
+  record the terminal result. The result needs to remain visible outside local
+  terminal output and `.cbp_state` artifacts.
+
+Expected outcome:
+- Operators can distinguish the accepted wiring proof from profitability,
+  actionable-fill, promotion-qualification, or persistent-campaign evidence.
+
+Verification:
+- `make funding-stage0-verify`
+  - SHOWN: failed with 2 blockers due stale baseline contract:
+    `completed_session_expected_commit` and
+    `completed_session_public_ohlcv`.
+- `./.venv/bin/python scripts/verify_funding_stage0_proof.py --expected-commit 4e21a4c69 --symbol BTC/USDT --venue coinbase --signal-source public_ohlcv_5m --strategy-context-symbol BTC/USDT:USDT --strategy-context-venue okx --strategy-context-source live_public`
+  - SHOWN: `status=passed`, `blocking_checks=0`.
+
+Remaining risk:
+- LOW: docs/checkpoint update only. No campaign, gate, execution, live routing,
+  or config behavior changed.
+- The run produced no fills, so it remains a wiring proof only.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-08-27T12:32:58Z - Price-Action Multi-Market Research Checkpoint
 
 Active role: ENGINEER
