@@ -37643,6 +37643,127 @@ Remaining risk:
   execution path changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-08-30T08:10:00Z - Runtime Check And Local Crypto-Edge Collector Restart
+
+Active role: ENGINEER
+
+Objective:
+- Continue the operational check-in after the local read-only crypto-edge
+  collector loop was found dead while one-shot collection still worked.
+
+What was found:
+- SHOWN: local checkout was clean and aligned with `origin/master` before this
+  checkpoint branch.
+- SHOWN: open PR list was empty.
+- SHOWN: local quick validation passed after the docs checkpoint updates.
+- SHOWN: local paper campaigns were `2/2` running and idle after the
+  2026-08-30 daily cycle.
+- SHOWN: paper gate remained at `3/5` qualified round trips under
+  `slow_daily_single_symbol_v1`.
+- SHOWN: initial local crypto-edge collector loop status was `dead` with
+  `reason=process_not_running`.
+- SHOWN: one foreground collector loop completed successfully and collected
+  live public OKX/Coinbase/Kraken research data with `execution_enabled=false`.
+- SHOWN: raw detached shell starts did not persist in this Codex command
+  environment.
+- SHOWN: the repo-supported OPERATOR control path started the collector as
+  PID `73735`, after which status reported `running` and `pid_alive=true`.
+- SHOWN: Hetzner paper campaign remained `1/1` running; Hetzner crypto-edge
+  runtime was ready; Hetzner dependency alignment was ready with no pip install,
+  deploy, or service restart needed.
+- SHOWN: backlog lane status, research pipeline status, research command
+  status, research artifact inventory, and roadmap tracking all reported no
+  required local wiring action.
+- SHOWN: funding Stage 0 readiness initially failed under sandboxed networking
+  with `ohlcv_source_unreachable`, then passed with network access:
+  `status=ready_for_operator_stage0`, `blocking_checks=0`.
+- SHOWN: crypto-edge strategy readiness reported `funding_extreme` as
+  `stage0_wired_research_only`; short-context readiness reported
+  `live_public_ready`.
+- SHOWN: funding-threshold research pipeline reran successfully after the
+  collector restart; the latest run joined `279` rows and returned no review
+  candidates from candidate or stability triage.
+- SHOWN: price-action research pipeline reran successfully and returned `15`
+  manual-review candidates; the top candidate remained
+  `opening_range_state:inside` long.
+- SHOWN: after readiness passed, the one-shot funding_extreme Stage 0 proof was
+  started in `.cbp_state_challengers/funding_extreme_default`; terminal result
+  was not yet available when this checkpoint entry was amended.
+
+What changed:
+- Added `docs/checkpoints/runtime_check_2026_08_30.md` with the exact observed
+  runtime state, commands, boundaries, and remaining proof items.
+- Restarted only the local read-only crypto-edge collector loop through
+  `dashboard.services.operator.start_crypto_edge_collector_loop(...)`.
+- Recorded a fresh operator briefing artifact through `make record-operator-briefing`.
+
+Why this change was chosen:
+- The collector protects research-data freshness and had a supported OPERATOR
+  control path. Using that path avoided inventing a new background-launch
+  mechanism and preserved the documented read-only boundary.
+
+Expected outcome:
+- Local crypto-edge data continues refreshing in the background while paper
+  campaigns continue untouched.
+- Future check-ins can start from the documented 2026-08-30 runtime boundary
+  instead of rediscovering the same collector state.
+
+Verification:
+- `./.venv/bin/python scripts/validate.py --quick`
+  - SHOWN: repo doctor, alignment guard, and quick pytest subset completed with
+    `[validate] OK`.
+- `make status-live-crypto-edges-loop`
+  - SHOWN: final `status=running`, `pid=73735`, `pid_alive=true`,
+    `writes=1`, `errors=0`.
+- `make check-edge-cadence-json`
+  - SHOWN: `ok=true`; funding, open interest, and basis fresh.
+- `make status-paper-campaigns`
+  - SHOWN: `all_running=true`, `running_count=2`.
+- `make status-paper-gate-qualification-json`
+  - SHOWN: policy `slow_daily_single_symbol_v1`, `qualified_round_trips=3`,
+    `min_qualified_round_trips=5`.
+- `make status-paper-hetzner`
+  - SHOWN: `1/1` running, `ema_cross_default` idle.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `status=hetzner_crypto_edge_runtime_ready`, `blocking_checks=0`.
+- `make status-hetzner-dependency-alignment-json`
+  - SHOWN: `status=hetzner_dependency_alignment_ready`, `mismatches=[]`,
+    `not_installed=[]`, `pip_dry_run.status=no_changes`.
+- `make operator-briefing-json` and `make record-operator-briefing`
+  - SHOWN: advisory-only briefing generated and recorded.
+- `make backlog-lane-status-json`, `make research-pipeline-status-json`,
+  `make research-command-status-json`, `make research-artifact-inventory`, and
+  `make roadmap-tracking-status-json`
+  - SHOWN: backlog lanes, research pipeline wiring, research command wiring,
+    research artifacts, and roadmap tracking were all current with no generated
+    local wiring action.
+- `make funding-stage0-readiness`
+  - SHOWN: sandboxed run failed with `ohlcv_source_unreachable`; rerun with
+    network access passed with `status=ready_for_operator_stage0` and
+    `blocking_checks=0`.
+- `make crypto-edge-strategy-readiness` and `make check-short-context-readiness`
+  - SHOWN: funding_extreme Stage 0 wiring and live-public short-context rows
+    were ready; no campaign, gate, or execution behavior was changed.
+- `make funding-threshold-research-pipeline`
+  - SHOWN: `ok=true`, output directory
+    `.cbp_state/data/research/funding_threshold_pipeline/20260830T081716Z`,
+    `279` joined rows, and `review_candidates=[]`.
+- `make price-action-research-pipeline`
+  - SHOWN: `ok=true`, output directory
+    `.cbp_state/data/research/price_action_pipeline/20260830T081822Z`, and
+    `15` manual-review candidates.
+
+Remaining risk:
+- LOW/MEDIUM operational: the local background collector was restarted, but it
+  is research-only and explicitly not execution-capable. No campaigns, gates,
+  strategy configs, live routing, package installs, or host services were
+  changed.
+- Host vulnerability audit remains unrun because it was not requested in this
+  check-in.
+- Host-side operator/platform event proofs remain open until real host journals
+  exist.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-27T12:32:58Z - Price-Action Multi-Market Research Checkpoint
 
 Active role: ENGINEER
