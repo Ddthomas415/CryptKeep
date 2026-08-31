@@ -2115,6 +2115,17 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `docs/checkpoints/hetzner_checkout_sync_2026_08_31.md`. This does not close
     host vulnerability audit/waiver, SBOM policy, hash-locked install policy,
     or capped-live launch packet proof.
+    2026-08-31 host audit attempt: approved out-of-sandbox read-only
+    `scripts/check_supply_chain.py --audit --json` on Hetzner reported
+    pin integrity OK, environment OK, `83` checked packages, no mismatches,
+    and no missing packages at host SHA
+    `c7bd305287792993d0a63e01e9bdc5ad3cfacf6e`; vulnerability audit remained
+    open with `vulnerability_audit.ran=false`,
+    `reason=pip_audit_unavailable`. Checkpoint:
+    `docs/checkpoints/hetzner_supply_chain_audit_attempt_2026_08_31.md`.
+    Remaining capped-live release-policy proof is still to install/enable
+    host `pip-audit` and rerun, or explicitly waive the vulnerability audit,
+    plus decide SBOM/hash-lock requirements.
     2026-08-24: Hetzner dependency alignment runbook is recorded in
     `docs/checkpoints/hetzner_dependency_alignment_runbook_2026_08_24.md`.
     A read-only host `pip install --dry-run -r requirements-pinned.txt` exited
