@@ -2070,6 +2070,29 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     environment pin alignment piece. Remaining capped-live release-policy proof
     is to run or waive host vulnerability audit for the final deployed SHA and
     decide whether hash-locked installs or SBOMs become release gates.
+    2026-08-31: local supply-chain evidence was recorded for clean master
+    commit `c7bd305287792993d0a63e01e9bdc5ad3cfacf6e`. SHOWN:
+    `make check-supply-chain-json` reported pin integrity OK, installed
+    environment OK, 83 checked pins, no mismatches, no missing packages, and
+    `vulnerability_audit.ran=false` with reason `not_requested`.
+    `make record-supply-chain` wrote
+    `.cbp_state/data/supply_chain/supply-chain-evidence-20260831T053704Z.json`.
+    Checkpoint:
+    `docs/checkpoints/supply_chain_local_evidence_2026_08_31.md`. This narrows
+    local latest-SHA evidence only; host vulnerability audit/waiver,
+    SBOM policy, and hash-locked install policy remain open capped-live
+    release decisions.
+    2026-08-31 follow-up: Hetzner checkout drift was corrected by a
+    no-restart fast-forward-only sync from
+    `d3b46e3c2f0541c20897f78739ce071c637d9647` to current master
+    `c7bd305287792993d0a63e01e9bdc5ad3cfacf6e`. SHOWN: remote status is clean
+    `master...origin/master`; dependency alignment is ready with no blockers,
+    pin integrity OK, environment OK, and pip dry-run no changes; crypto-edge
+    runtime is ready; Hetzner paper host is healthy; `ema_cross_default` remains
+    `1/1` running and idle `waiting_for_next_day`. Checkpoint:
+    `docs/checkpoints/hetzner_checkout_sync_2026_08_31.md`. This does not close
+    host vulnerability audit/waiver, SBOM policy, hash-locked install policy,
+    or capped-live launch packet proof.
     2026-08-24: Hetzner dependency alignment runbook is recorded in
     `docs/checkpoints/hetzner_dependency_alignment_runbook_2026_08_24.md`.
     A read-only host `pip install --dry-run -r requirements-pinned.txt` exited

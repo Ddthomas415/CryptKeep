@@ -37202,6 +37202,109 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-08-31T05:37:00Z - Local Supply-Chain Evidence for Latest Master
+
+Active role: ENGINEER
+
+Objective:
+- Record current local pin/environment supply-chain evidence for the latest
+  merged SHA without running a vulnerability audit or changing release policy.
+
+What was found:
+- SHOWN: local checkout was clean and aligned with `origin/master`.
+- SHOWN: checked commit was
+  `c7bd305287792993d0a63e01e9bdc5ad3cfacf6e`.
+- SHOWN: `make check-supply-chain-json` reported exact-pin integrity OK,
+  installed environment OK, 83 checked pins, no mismatches, and no missing
+  packages.
+- SHOWN: vulnerability audit was not run:
+  `vulnerability_audit.ran=false`, `reason=not_requested`.
+
+What changed:
+- Added `docs/checkpoints/supply_chain_local_evidence_2026_08_31.md`.
+- Added a dated note under the existing supply-chain release-policy backlog
+  item.
+
+Why this change was chosen:
+- The previous supply-chain release-policy item still requires proof or waiver
+  for host vulnerability audit and SBOM/hash-lock decisions. Recording the
+  local latest-SHA evidence keeps the known-good local pin/environment state
+  visible without implying the host-side release-policy work is complete.
+
+Expected outcome:
+- Operators can distinguish clean local pin/environment evidence from the
+  remaining capped-live host-audit and release-policy decisions.
+
+Verification:
+- `make check-supply-chain-json`
+  - SHOWN: `pin_integrity.ok=true`, `environment.ok=true`,
+    `vulnerability_audit.ran=false`.
+- `make record-supply-chain`
+  - SHOWN: wrote
+    `.cbp_state/data/supply_chain/supply-chain-evidence-20260831T053704Z.json`.
+
+Remaining risk:
+- LOW: docs/checkpoint update only.
+- Host vulnerability audit or explicit waiver remains open.
+- SBOM/hash-locked install release-policy decisions remain open.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-08-31T05:40:00Z - Hetzner Checkout Sync to Current Master
+
+Active role: ENGINEER
+
+Objective:
+- Correct the observed Hetzner `/srv/cryptkeep/app` checkout drift to current
+  `origin/master` using the documented no-restart, fast-forward-only sync path.
+
+What was found:
+- SHOWN: read-only dependency alignment first reported remote checkout mismatch:
+  host `d3b46e3c2f0541c20897f78739ce071c637d9647`, expected local
+  `origin/master` `c7bd305287792993d0a63e01e9bdc5ad3cfacf6e`.
+- SHOWN: remote git state was clean, remote branch was `master`, pin integrity
+  was OK, installed environment was OK, pip dry-run had no changes, and
+  vulnerability audit was not requested.
+
+What changed:
+- Ran `tailscale ssh cryptkeep@100.86.128.9 git -C /srv/cryptkeep/app fetch origin master`.
+- Ran `tailscale ssh cryptkeep@100.86.128.9 git -C /srv/cryptkeep/app merge --ff-only origin/master`.
+- Added `docs/checkpoints/hetzner_checkout_sync_2026_08_31.md`.
+- Added a dated note under the existing supply-chain/release-policy backlog
+  item.
+
+Why this change was chosen:
+- The host mismatch was concrete checkout drift, and the existing accepted
+  pattern for this repo is a fast-forward-only git sync without service
+  restart, package install, config edit, campaign start/stop, gate change, or
+  execution change.
+
+Expected outcome:
+- Hetzner proof/status commands evaluate the same accepted source tree as local
+  `origin/master`.
+
+Verification:
+- `tailscale ssh cryptkeep@100.86.128.9 git -C /srv/cryptkeep/app rev-parse HEAD`
+  - SHOWN: `c7bd305287792993d0a63e01e9bdc5ad3cfacf6e`.
+- `tailscale ssh cryptkeep@100.86.128.9 git -C /srv/cryptkeep/app status --short --branch`
+  - SHOWN: `## master...origin/master`.
+- `./.venv/bin/python scripts/report_hetzner_dependency_alignment_status.py --json --strict --ssh-target cryptkeep@100.86.128.9 --transport tailscale-ssh --app-dir /srv/cryptkeep/app --expected-branch master --expected-commit c7bd305287792993d0a63e01e9bdc5ad3cfacf6e --timeout-sec 15`
+  - SHOWN: `status=hetzner_dependency_alignment_ready`, `blockers=[]`.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `status=hetzner_crypto_edge_runtime_ready`, `blocking_checks=0`.
+- `make check-hetzner-paper-host-health`
+  - SHOWN: `status=hetzner_paper_host_healthy`.
+- `make status-paper-hetzner`
+  - SHOWN: `Campaigns: 1/1 running`, `ema_cross_default` idle
+    `waiting_for_next_day`.
+
+Remaining risk:
+- MEDIUM: host checkout changed by fast-forward sync, but no service restart,
+  package install, config edit, campaign start/stop, gate change, live routing,
+  or execution behavior change was performed.
+- Host vulnerability audit or explicit waiver remains open.
+- SBOM/hash-locked install release-policy decisions remain open.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-08-28T03:03:24Z - Operator Briefing Backlog Closure Alignment
 
 Active role: ENGINEER
