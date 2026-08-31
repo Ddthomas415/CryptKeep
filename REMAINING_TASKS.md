@@ -17,12 +17,34 @@ SHOWN:
   - `es_daily_trend_v1`: `running`, `collecting`
   - `breakout_default`: `running`, `collecting`
   - `make status-paper-soak` reported `2/2 running`
+- 2026-08-31 read-only status checkpoint:
+  - laptop campaigns remain `2/2 running`
+  - `es_daily_trend_v1`: `idle`, `waiting_for_next_day`, `fills=20`,
+    `closed=10`, `pnl=31.4369`
+  - `breakout_default`: `idle`, `waiting_for_next_day`, `fills=23`,
+    `closed=11`, `pnl=4.2183`
+  - canonical gate remains `3/5` provenance-qualified round trips with `2`
+    remaining; evidence writer status is `ok`
+  - `make status-paper-gate-velocity` projects completion in `21` days at the
+    current observed cadence, estimated
+    `2026-09-21T05:54:47.809287+00:00`; days and qualified-bar thresholds are
+    already complete, so round trips are the blocking threshold
+  - checkpoint:
+    `docs/checkpoints/paper_campaign_status_2026_08_31.md`
 - Hetzner-owned `ema_cross_default` is healthy when checked through the
   Hetzner campaign manifest:
   - `ema_cross_default`: `fills=15`, `closed=7`, `pnl=-2.3016`
   - latest fill: `2026-08-24T00:01:55.857611+00:00`
   - status: `idle`, `waiting_for_next_day`, session evidence already recorded
     for `2026-08-28`
+- 2026-08-31 out-of-sandbox read-only Hetzner status checkpoint:
+  - `ema_cross_default`: `1/1 running`, `idle`, `waiting_for_next_day`,
+    `fills=16`, `closed=8`, `pnl=-2.3183`
+  - latest fill: `2026-08-29T00:02:44.159494+00:00`
+  - session evidence already recorded for `2026-08-31`
+  - recommendation: `continue_paper_observation`
+  - checkpoint:
+    `docs/checkpoints/paper_campaign_status_2026_08_31.md`
 - Codex sandboxed Tailscale may report
   `tailscale_cli_preferences_unavailable` or `ssh_operation_not_permitted`; use
   a normal operator terminal or approved out-of-sandbox status check when
