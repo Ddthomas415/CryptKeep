@@ -39,6 +39,16 @@ Verifier result:
 - canonical fill count unchanged: `176`
 - challenger fill count: `0`
 
+2026-08-30 update: a second isolated Stage 0 wiring proof passed against the
+current readiness-generated contract. The run used Coinbase public OHLCV
+(`BTC/USDT`, `public_ohlcv_5m`) with OKX live-public funding context
+(`BTC/USDT:USDT`) at commit `4e21a4c69`. The 900-second run completed with
+`signal_action=hold`, `enqueued_total=0`, `fills_delta=0`, and
+`closed_trades_delta=0`. The default verifier first failed because the saved
+baseline expected stale commit `fd7f11e9c` and OHLCV venue `okx`; the
+explicit-contract verifier passed with `blocking_checks=0`. Full checkpoint:
+`docs/checkpoints/funding_extreme_stage0_proof_2026_08_30.md`.
+
 ## Decision
 
 Keep `funding_extreme_default` as the next high-value profitability research
