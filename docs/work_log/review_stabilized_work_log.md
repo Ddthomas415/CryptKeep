@@ -37253,6 +37253,54 @@ Remaining risk:
   treated as accepted.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-31T05:58:40Z - Hetzner Supply-Chain Audit Attempt
+
+Active role: ENGINEER
+
+Objective:
+- Run and record the existing read-only host supply-chain audit command without
+  restarting services, installing packages, changing config, or changing
+  campaign state.
+
+What was found:
+- SHOWN: approved out-of-sandbox Tailscale SSH command reached Hetzner and ran
+  `./.venv/bin/python scripts/check_supply_chain.py --audit --json` from
+  `/srv/cryptkeep/app`.
+- SHOWN: host checkout SHA was
+  `c7bd305287792993d0a63e01e9bdc5ad3cfacf6e`, dirty state `false`.
+- SHOWN: pin integrity was OK with `83` pins and no problems.
+- SHOWN: host environment alignment was OK with `83` checked packages, no
+  mismatches, and no missing packages.
+- SHOWN: vulnerability audit did not run:
+  `vulnerability_audit.ran=false`, `reason=pip_audit_unavailable`.
+
+What changed:
+- Added `docs/checkpoints/hetzner_supply_chain_audit_attempt_2026_08_31.md`.
+- Added a dated note under the existing supply-chain/release-policy backlog
+  item.
+
+Why this change was chosen:
+- Host vulnerability audit/waiver is one of the remaining operator-proof
+  blockers. Running the existing read-only command clarifies the real blocker:
+  host dependency alignment is good, but the audit tool is unavailable.
+
+Expected outcome:
+- Operators can decide the next action precisely: install/enable `pip-audit` on
+  the host and rerun, or explicitly waive the vulnerability-audit proof. SBOM
+  and hash-lock policy decisions remain separate.
+
+Verification:
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && ./.venv/bin/python scripts/check_supply_chain.py --audit --json'`
+  - SHOWN: `pin_integrity.ok=true`, `environment.ok=true`,
+    `vulnerability_audit.ran=false`,
+    `vulnerability_audit.reason=pip_audit_unavailable`.
+
+Remaining risk:
+- LOW: docs/checkpoint update only. The command was read-only and no host state
+  was changed.
+- The capped-live vulnerability-audit proof remains open.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-08-31T05:55:00Z - Paper Campaign Status Checkpoint
 
 Active role: ENGINEER
