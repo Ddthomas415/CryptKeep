@@ -37253,6 +37253,62 @@ Remaining risk:
   treated as accepted.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-08-31T05:55:00Z - Paper Campaign Status Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Record the current read-only paper campaign operating state without changing
+  services, campaign configs, deployment, dependencies, gates, or execution
+  behavior.
+
+What was found:
+- SHOWN: local laptop campaigns are `2/2 running`.
+- SHOWN: `es_daily_trend_v1` is idle waiting for the next day with `fills=20`,
+  `closed=10`, and `pnl=31.4369`.
+- SHOWN: `breakout_default` is idle waiting for the next day with `fills=23`,
+  `closed=11`, and `pnl=4.2183`.
+- SHOWN: canonical `es_daily_trend_v1` gate remains not ready at `3/5`
+  provenance-qualified round trips, with `2` remaining, and evidence writer
+  status `ok`.
+- SHOWN: `make status-paper-gate-velocity` reports days and qualified bars are
+  complete; round trips are the blocking threshold, with `21` projected days
+  remaining and estimated completion
+  `2026-09-21T05:54:47.809287+00:00`.
+- SHOWN: sandboxed Hetzner SSH failed with `ssh_operation_not_permitted`.
+- SHOWN: approved out-of-sandbox Hetzner read-only status check succeeded:
+  `ema_cross_default` is `1/1 running`, idle waiting for next UTC day, with
+  `fills=16`, `closed=8`, `pnl=-2.3183`, and latest fill
+  `2026-08-29T00:02:44.159494+00:00`.
+
+What changed:
+- Added `docs/checkpoints/paper_campaign_status_2026_08_31.md`.
+- Updated the current-state section in `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- Current operating truth is the highest-value non-conflicting work while PR
+  #560 CI runs. The checkpoint records evidence collection progress without
+  restarting or modifying any campaign.
+
+Expected outcome:
+- Operators can distinguish active campaign health from the remaining canonical
+  paper-gate blocker and from sandbox-only Hetzner SSH limitations.
+
+Verification:
+- `make status-paper-all`
+  - SHOWN: local section produced `2/2 running` and gate progress `3/5`; command
+    exited non-zero only when the sandboxed Hetzner SSH check returned
+    `ssh_operation_not_permitted`.
+- `make status-paper-gate-velocity`
+  - SHOWN: projected completion in `21` days, estimated
+    `2026-09-21T05:54:47.809287+00:00`.
+- `./.venv/bin/python scripts/report_hetzner_paper_campaign_status.py --strict --ssh-target cryptkeep@100.86.128.9 --transport tailscale-ssh --app-dir /srv/cryptkeep/app --config configs/paper_evidence_campaigns.hetzner.example.json --timeout-sec 15`
+  - SHOWN: `Campaigns: 1/1 running (all_running=True)`.
+
+Remaining risk:
+- LOW: docs/checkpoint update only. No runtime behavior changed.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-08-31T05:37:00Z - Local Supply-Chain Evidence for Latest Master
 
 Active role: ENGINEER
