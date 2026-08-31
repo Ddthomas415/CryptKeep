@@ -37202,6 +37202,57 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-08-31T05:48:00Z - Backup Artifact Secret Scan None Sentinel
+
+Active role: ENGINEER
+
+Objective:
+- Fix a false-positive backup-artifact secret scan finding without weakening
+  detection for real secrets.
+
+What was found:
+- SHOWN: `scripts/backup_state.py backup` and `verify` succeeded for
+  `/private/tmp/cbp-state-backup-20260831T0538Z/cbp-state-backup-20260831T054203Z`.
+- SHOWN: the first secret scan failed with six `sensitive_key_unredacted`
+  findings at `capital_authority`, each reporting a string length of `4`.
+- SHOWN by targeted inspection: each flagged value was the literal sentinel
+  `"none"`.
+- Root cause: `capital_authority` contains `auth`, so it is intentionally
+  classified as sensitive, but `_is_safely_redacted()` did not accept the
+  explicit string sentinel `"none"`.
+
+What changed:
+- `services/audit/jsonl_secret_scan.py::_is_safely_redacted()` now treats
+  `"none"` as a safely redacted sentinel, case-insensitively.
+- Added a backup-artifact regression test proving `"none"` under
+  `capital_authority` and `api_key` does not produce a finding.
+- Added checkpoint
+  `docs/checkpoints/backup_artifact_secret_scan_false_positive_2026_08_31.md`.
+
+Why this change was chosen:
+- The key remains correctly classified as sensitive; the bug was the redaction
+  sentinel list. Narrowly accepting `"none"` fixes the false positive while
+  preserving findings for real values and preserving byte-pattern scanning.
+
+Expected outcome:
+- Full-state backup drills can distinguish real secret findings from explicit
+  no-capital-authority sentinel values.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backup_artifact_secret_scan.py tests/test_operator_event_secret_scan.py tests/test_platform_event_secret_scan.py`
+  - SHOWN: `18 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_backup_artifact_secret_scan.py tests/test_operator_event_secret_scan.py tests/test_platform_event_secret_scan.py tests/test_checkpoints_repo_path_references_exist.py tests/test_checkpoints_tail_contract.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `23 passed`.
+- `./.venv/bin/python scripts/check_backup_artifact_secrets.py --json /private/tmp/cbp-state-backup-20260831T0538Z/cbp-state-backup-20260831T054203Z`
+  - SHOWN: `ok=true`, `finding_count=0`, `files_scanned=664`,
+    `text_files_scanned=572`.
+
+Remaining risk:
+- MEDIUM/HIGH: security-sensitive scanner behavior changed. The change is
+  intentionally narrow, but it should be independently reviewed before being
+  treated as accepted.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-31T05:37:00Z - Local Supply-Chain Evidence for Latest Master
 
 Active role: ENGINEER
