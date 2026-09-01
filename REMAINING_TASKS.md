@@ -915,6 +915,20 @@ deployment work still needs independent review.
     stale funding/open-interest/basis snapshots instead of only recommending a
     separate manual cadence command. This changes reporting only and does not
     deploy, start, stop, or mutate collectors.
+    2026-09-01: local laptop-reset recovery exposed a repo-local collector
+    compatibility failure with `ccxt` OKX `load_markets()`: OKX returned
+    public market rows with `id=None`, and `ccxt.okx` raised a TypeError while
+    sorting mixed `None` and string market IDs. A read-only collector fix is
+    ready for independent review: for that exact TypeError shape only,
+    `_open_public_exchange("okx")` falls back to `fetch_markets()`, drops rows
+    with missing IDs, and calls `set_markets()` so accepted OKX
+    funding/open-interest/basis collection can continue. Runtime proof showed
+    `4541` raw OKX markets with `3` missing IDs, a one-shot collector run with
+    `errors=0`, and `check_edge_cadence.py --json` returning `ok=true` with
+    `missing=[]` and `stale=[]`; the persistent local research-only collector
+    loop was restarted. This does not authorize live routing, derivatives
+    execution, strategy promotion evidence, or live trading. Hetzner status was
+    not refreshed because Tailscale SSH required an interactive auth check.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.

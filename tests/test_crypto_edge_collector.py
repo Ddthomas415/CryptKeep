@@ -80,6 +80,51 @@ def test_open_public_exchange_preserves_binance_guard(monkeypatch) -> None:
     assert _FakeBinance.configs == []
 
 
+def test_open_public_exchange_filters_none_market_ids_after_ccxt_sort_typeerror(monkeypatch) -> None:
+    class _FakeOkx(_FakeCCXTExchange):
+        configs: list[dict] = []
+
+        def __init__(self, cfg: dict) -> None:
+            super().__init__(cfg)
+            self.markets_set: list[dict] = []
+
+        def load_markets(self) -> None:
+            raise TypeError("'<' not supported between instances of 'NoneType' and 'str'")
+
+        def fetch_markets(self) -> list[dict]:
+            return [
+                {"id": "BTC-USDT", "symbol": "BTC/USDT"},
+                {"id": None, "symbol": "BROKEN/ROW"},
+                {"id": "BTC-USDT-SWAP", "symbol": "BTC/USDT:USDT"},
+            ]
+
+        def set_markets(self, markets: list[dict]) -> None:
+            self.markets_set = list(markets)
+
+    fake_ccxt = types.SimpleNamespace(okx=_FakeOkx)
+    monkeypatch.setitem(sys.modules, "ccxt", fake_ccxt)
+
+    ex = collector._open_public_exchange("okx")
+
+    assert isinstance(ex, _FakeOkx)
+    assert [m["id"] for m in ex.markets_set] == ["BTC-USDT", "BTC-USDT-SWAP"]
+    assert _FakeOkx.configs == [{"enableRateLimit": True, "apiKey": None, "secret": None}]
+
+
+def test_open_public_exchange_reraises_unrelated_load_markets_typeerror(monkeypatch) -> None:
+    class _FakeOkx(_FakeCCXTExchange):
+        configs: list[dict] = []
+
+        def load_markets(self) -> None:
+            raise TypeError("unrelated constructor bug")
+
+    fake_ccxt = types.SimpleNamespace(okx=_FakeOkx)
+    monkeypatch.setitem(sys.modules, "ccxt", fake_ccxt)
+
+    with pytest.raises(TypeError, match="unrelated constructor bug"):
+        collector._open_public_exchange("okx")
+
+
 def test_collect_live_crypto_edge_snapshot_builds_research_rows(monkeypatch) -> None:
     monkeypatch.setattr(
         collector,
