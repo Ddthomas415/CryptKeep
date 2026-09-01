@@ -37264,6 +37264,65 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-01T23:40:20Z - Local Research Pipeline Refresh Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Refresh the accepted local research pipelines and record the result as a
+  checkpoint without changing campaigns, promotion gates, strategy config, live
+  routing, execution behavior, host services, or Hetzner state.
+
+What was found:
+- SHOWN: `make price-action-research-pipeline` completed with `ok=true` and
+  wrote
+  `.cbp_state/data/research/price_action_pipeline/20260901T233946Z/pipeline_summary.json`.
+- SHOWN: price-action candidate triage produced `15`
+  `candidate_for_manual_review` rows; the highest reported candidate was
+  `opening_range_state:inside` long with sample size `44`,
+  `outperform_window_ratio=1.0`, and
+  `avg_delta_vs_unconditioned_pct=0.12745632891795666`.
+- SHOWN: default `make funding-threshold-research-pipeline` failed the
+  stability step with `reason=insufficient_windows` because `187` joined rows
+  with `window_rows=100` produced only `1` window.
+- SHOWN: rerunning funding-threshold research with
+  `--window-rows 50 --min-windows 2` completed with `ok=true` and wrote
+  `.cbp_state/data/research/funding_threshold_pipeline/20260901T233955Z/pipeline_summary.json`.
+- SHOWN: funding-threshold candidate and stability triage produced no
+  actionable funding candidate; all `16` threshold pairs remained
+  `not_candidate`.
+
+What changed:
+- Added `docs/checkpoints/research_pipeline_refresh_2026_09_01.md`.
+- Added a dated current-state note to `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The generated `.cbp_state` artifacts are not committed, so the artifact
+  paths, hashes, and conclusions need a tracked checkpoint to remain
+  reviewable.
+
+Expected outcome:
+- Operators can distinguish current research leads from campaign evidence,
+  promotion evidence, strategy configuration, profitability proof, or execution
+  input.
+
+Verification:
+- `make price-action-research-pipeline`
+  - SHOWN: `ok=true`.
+- `make funding-threshold-research-pipeline`
+  - SHOWN: failed with `reason=insufficient_windows`.
+- `make funding-threshold-research-pipeline FUNDING_THRESHOLD_RESEARCH_PIPELINE_ARGS="--window-rows 50 --min-windows 2"`
+  - SHOWN: `ok=true`.
+- `make research-pipeline-status-json`
+  - SHOWN: both `price_action` and `funding_threshold` reported
+    `latest_status=latest_ok`.
+
+Remaining risk:
+- LOW: docs/checkpoint update only. No runtime behavior changed.
+- The research-only `window_rows=50` funding rerun is not a gate, campaign, or
+  strategy-policy change.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-09-01T05:15:11Z - OKX Market-ID Filter For Crypto-Edge Collector
 
 Active role: ENGINEER
