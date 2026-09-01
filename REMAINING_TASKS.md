@@ -103,6 +103,14 @@ SHOWN:
   execution action was run. Remaining release-policy work: install/enable
   `pip-audit` on host or explicitly waive vulnerability audit, then decide
   SBOM/hash-lock requirements.
+- 2026-09-01 local research refresh is recorded in
+  `docs/checkpoints/research_pipeline_refresh_2026_09_01.md`. SHOWN:
+  price-action research completed with `ok=true` and `15` manual-review
+  candidates; funding-threshold research completed with `ok=true` only after a
+  research-only window-size adjustment (`--window-rows 50 --min-windows 2`) and
+  still produced no actionable funding candidates. No campaign, gate, strategy
+  config, live routing, execution path, host service, or Hetzner state was
+  changed.
 - 2026-07-06 strategy validation note: do not add another persistent campaign
   before proof. The next runnable non-persistent validation candidate is
   `pullback_recovery_default`, via isolated Stage 0 proof. `funding_extreme`
