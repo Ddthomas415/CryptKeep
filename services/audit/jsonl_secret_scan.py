@@ -21,7 +21,7 @@ def _is_safely_redacted(value: Any) -> bool:
     if value is None:
         return True
     if isinstance(value, str):
-        return value.strip() in ("", "<redacted>")
+        return value.strip().lower() in ("", "<redacted>", "none")
     return False
 
 
@@ -115,4 +115,3 @@ def scan_jsonl_secret_fields(
         "finding_count": len(findings),
         "findings": findings,
     }
-

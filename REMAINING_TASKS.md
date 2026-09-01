@@ -2115,6 +2115,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `docs/checkpoints/hetzner_checkout_sync_2026_08_31.md`. This does not close
     host vulnerability audit/waiver, SBOM policy, hash-locked install policy,
     or capped-live launch packet proof.
+    2026-08-31 follow-up: full-state backup artifact secret scanning produced
+    six false-positive `sensitive_key_unredacted` findings for the explicit
+    sentinel value `"none"` under `capital_authority`. The scanner now treats
+    `"none"` as a safely redacted sentinel while leaving sensitive-key
+    classification and byte-pattern scanning unchanged. SHOWN: the real backup
+    artifact scan now reports `ok=true`, `finding_count=0`, `files_scanned=664`.
+    Checkpoint:
+    `docs/checkpoints/backup_artifact_secret_scan_false_positive_2026_08_31.md`.
+    Acceptance state: `READY_FOR_INDEPENDENT_REVIEW` because security-sensitive
+    scanner behavior changed.
     2026-08-31 host audit attempt: approved out-of-sandbox read-only
     `scripts/check_supply_chain.py --audit --json` on Hetzner reported
     pin integrity OK, environment OK, `83` checked packages, no mismatches,

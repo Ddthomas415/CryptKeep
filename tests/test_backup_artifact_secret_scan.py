@@ -44,6 +44,22 @@ def test_backup_artifact_secret_scan_flags_json_sensitive_key_without_value(tmp_
     assert secret_value not in json.dumps(report)
 
 
+def test_backup_artifact_secret_scan_allows_explicit_none_sentinel(tmp_path):
+    backup = tmp_path / "backup"
+    state = backup / "state"
+    state.mkdir(parents=True)
+    (backup / "backup_manifest.json").write_text("{}", encoding="utf-8")
+    (state / "operator_briefing.json").write_text(
+        json.dumps({"capital_authority": "none", "api_key": "none"}),
+        encoding="utf-8",
+    )
+
+    report = scan_backup_artifact(backup)
+
+    assert report["ok"] is True
+    assert report["finding_count"] == 0
+
+
 def test_backup_artifact_secret_scan_flags_high_confidence_binary_patterns(tmp_path):
     backup = tmp_path / "backup"
     state = backup / "state"
