@@ -111,6 +111,17 @@ SHOWN:
   still produced no actionable funding candidates. No campaign, gate, strategy
   config, live routing, execution path, host service, or Hetzner state was
   changed.
+- 2026-09-01 no-restart Hetzner checkout sync is recorded in
+  `docs/checkpoints/hetzner_checkout_sync_2026_09_01.md`. SHOWN:
+  `/srv/cryptkeep/app` fast-forwarded cleanly from
+  `c7bd305287792993d0a63e01e9bdc5ad3cfacf6e` to current master
+  `f5837f03af3f9292b62f083d50c961847b442728`; post-sync checks showed
+  Hetzner paper campaign `1/1` running, crypto-edge runtime ready, edge cadence
+  fresh, dependency alignment ready, pin integrity OK, and environment
+  alignment OK. No service restart, package install, dependency install,
+  config edit, campaign start/stop, gate change, live routing, or execution
+  action was run. Remaining release-policy work: host vulnerability audit
+  approval/waiver and SBOM/hash-lock decision.
 - 2026-07-06 strategy validation note: do not add another persistent campaign
   before proof. The next runnable non-persistent validation candidate is
   `pullback_recovery_default`, via isolated Stage 0 proof. `funding_extreme`

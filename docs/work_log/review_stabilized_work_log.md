@@ -37323,6 +37323,62 @@ Remaining risk:
   strategy-policy change.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-01T23:46:30Z - Hetzner Checkout Sync To `f5837f03`
+
+Active role: ENGINEER
+
+Objective:
+- Align Hetzner `/srv/cryptkeep/app` to current `origin/master` without
+  restarting services, installing packages, editing config, changing campaigns,
+  changing gates, or touching execution behavior.
+
+What was found:
+- SHOWN: local `HEAD` and `origin/master` were both
+  `f5837f03af3f9292b62f083d50c961847b442728`.
+- SHOWN: host checkout was clean on `master` at
+  `c7bd305287792993d0a63e01e9bdc5ad3cfacf6e`.
+
+What changed:
+- SHOWN: host `/srv/cryptkeep/app` was fast-forwarded with
+  `git fetch origin master` and `git merge --ff-only origin/master`.
+- SHOWN: host checkout ended clean on `master` at
+  `f5837f03af3f9292b62f083d50c961847b442728`.
+- Added `docs/checkpoints/hetzner_checkout_sync_2026_09_01.md`.
+- Added a dated current-state note to `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The previous host status checkpoint showed the host was healthy but behind
+  local/origin master. A fast-forward-only sync updates the source boundary
+  without service restarts or runtime changes.
+
+Expected outcome:
+- Host read-only wrappers and future host proofs now evaluate against the same
+  source boundary as local/origin master.
+
+Verification:
+- `make status-paper-hetzner HETZNER_STATUS_TRANSPORT=ssh`
+  - SHOWN: `Campaigns: 1/1 running`; `ema_cross_default` idle,
+    `waiting_for_next_day`, `fills=16`, `closed=8`, `pnl=-2.3183`.
+- `make status-hetzner-edge-runtime HETZNER_STATUS_TRANSPORT=ssh`
+  - SHOWN: `status=hetzner_crypto_edge_runtime_ready`, `ok=True`,
+    `remote_head=f5837f03af3f9292b62f083d50c961847b442728`.
+- `make status-hetzner-dependency-alignment HETZNER_STATUS_TRANSPORT=ssh`
+  - SHOWN: `status=hetzner_dependency_alignment_ready`, no package mismatches,
+    `pip_dry_run: no_changes`.
+- Host `CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json`
+  - SHOWN: `ok=true`, `missing=[]`, `stale=[]`; funding/open-interest/basis
+    fresh at `2026-09-01T23:44:35+00:00`.
+- Host `./.venv/bin/python scripts/check_supply_chain.py --json`
+  - SHOWN: pin integrity OK, environment OK, `mismatches=[]`,
+    `not_installed=[]`, vulnerability audit not requested.
+
+Remaining risk:
+- MEDIUM: host checkout was changed, but no services were restarted and the
+  tracked repo change is docs-only.
+- Host vulnerability audit remains open until `pip-audit` is available/run or
+  explicitly waived.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-09-01T05:15:11Z - OKX Market-ID Filter For Crypto-Edge Collector
 
 Active role: ENGINEER
