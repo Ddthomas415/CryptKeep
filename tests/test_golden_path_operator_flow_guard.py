@@ -64,9 +64,16 @@ def test_recovery_and_hetzner_status_commands_are_linked() -> None:
     assert "repeated restore calls do not create duplicate collectors" in text
     assert "`ema_cross_default` is intentionally excluded from the laptop shortcut" in text
     assert "make status-paper-hetzner" in text
-    assert "Tailscale SSH" in text
+    assert "direct `ssh` to the Hetzner Tailscale IP" in text
     assert "Automatic OS-login startup is intentionally not enabled" in text
     assert "docs/PAPER_CAMPAIGN_RECOVERY.md" in text
+
+
+def test_hetzner_status_make_default_uses_direct_ssh() -> None:
+    makefile = _text(MAKEFILE)
+
+    assert "HETZNER_STATUS_TRANSPORT ?= ssh" in makefile
+    assert "HETZNER_STATUS_TRANSPORT ?= tailscale-ssh" not in makefile
 
 
 def test_paper_run_component_order_and_signal_provenance_are_pinned() -> None:

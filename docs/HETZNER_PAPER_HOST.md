@@ -107,9 +107,15 @@ Routine read-only campaign status command:
 make status-paper-hetzner
 ```
 
+The Make target defaults to direct `ssh` to the Hetzner Tailscale IP. Use
+`HETZNER_STATUS_TRANSPORT=tailscale-ssh` only when the Tailscale SSH browser-auth
+path is intentionally preferred.
+
 If the command fails, use the top-level `Reason:` line before interpreting the
 Hetzner campaign as unhealthy:
 
+- `remote_ssh_failed` means the direct SSH transport failed. Confirm Tailscale is
+  connected, the target IP is reachable, and the host key/account are available.
 - `tailscale_cli_preferences_unavailable` means the local laptop Tailscale CLI
   or app state is unavailable. Fix or restart local Tailscale first; the remote
   campaign state is still unverified.
@@ -418,10 +424,10 @@ above:
 make check-hetzner-paper-host-health
 ```
 
-This runs the Linux host-local check on Hetzner through the same Tailscale SSH
-path as `make status-paper-hetzner`. Do not use the host-local command below as
-a laptop health signal; on macOS it can correctly report local-only failures
-such as `timedatectl_missing` that do not describe Hetzner.
+This runs the Linux host-local check on Hetzner through the same direct SSH
+transport as `make status-paper-hetzner`. Do not use the host-local command
+below as a laptop health signal; on macOS it can correctly report local-only
+failures such as `timedatectl_missing` that do not describe Hetzner.
 
 On the Hetzner host itself, use the scheduled-safe host-local wrapper:
 
