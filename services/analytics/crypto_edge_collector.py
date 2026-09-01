@@ -47,7 +47,25 @@ def _open_public_exchange(venue: str) -> Any:
         cfg["options"] = {"adjustForTimeDifference": True}
     ex = klass(cfg)
     if hasattr(ex, "load_markets"):
-        ex.load_markets()
+        try:
+            ex.load_markets()
+        except TypeError as exc:
+            # ccxt.okx 4.5.48 can return a few public market rows with
+            # id=None; ccxt then sorts mixed None/string keys and raises.
+            # Filter only those unusable rows so read-only public collectors
+            # can keep funding/OI/basis cadence fresh.
+            if "NoneType" not in str(exc) or "str" not in str(exc):
+                raise
+            fetch_markets = getattr(ex, "fetch_markets", None)
+            set_markets = getattr(ex, "set_markets", None)
+            if not (callable(fetch_markets) and callable(set_markets)):
+                raise
+            markets = [
+                dict(m)
+                for m in list(fetch_markets() or [])
+                if isinstance(m, dict) and m.get("id") is not None
+            ]
+            set_markets(markets)
     return ex
 
 

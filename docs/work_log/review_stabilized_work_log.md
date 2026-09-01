@@ -37202,6 +37202,76 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-01T05:15:11Z - OKX Market-ID Filter For Crypto-Edge Collector
+
+Active role: ENGINEER
+
+Objective:
+- Restore local research-only crypto-edge funding/open-interest/basis cadence
+  after the laptop reset exposed an OKX public-market compatibility failure.
+
+What was found:
+- SHOWN: local paper campaigns remained `2/2` running after the laptop reset,
+  with `es_daily_trend_v1` and `breakout_default` both waiting for the next UTC
+  day.
+- SHOWN: local crypto-edge cadence was stale before recovery; funding,
+  open-interest, and basis snapshots were older than the accepted freshness
+  threshold.
+- SHOWN: sandboxed collector restart attempts failed with exchange network
+  errors, so network behavior was verified outside the sandbox.
+- SHOWN: unsandboxed `ccxt.okx.load_markets()` failed with a TypeError from
+  sorting mixed `None` and string market IDs.
+- SHOWN: direct probing found `4541` OKX public market rows and `3` rows with
+  `id=None`; filtering those unusable rows allowed OKX funding, open-interest,
+  perp ticker, and spot ticker reads to succeed.
+
+What changed:
+- `services/analytics/crypto_edge_collector.py` now catches only the observed
+  OKX `load_markets()` TypeError shape containing `NoneType` and `str`, then
+  falls back to `fetch_markets()`, drops market rows with `id=None`, and calls
+  `set_markets()`.
+- Unrelated TypeError exceptions still raise, and venues without callable
+  `fetch_markets()` plus `set_markets()` still raise.
+- `tests/test_crypto_edge_collector.py` pins the OKX missing-ID fallback and
+  the unrelated-TypeError fail-closed path.
+- Added `docs/checkpoints/crypto_edge_okx_market_id_filter_2026_09_01.md` and
+  a dated note under `REMAINING_TASKS.md` item 14.
+
+Why this change was chosen:
+- The accepted OKX collector is read-only research infrastructure, and
+  funding/open-interest history is time-sensitive. Dropping only unusable
+  missing-ID market rows preserves the collector's existing venue path without
+  changing strategy, campaign, promotion, live routing, or execution behavior.
+
+Expected outcome:
+- The local crypto-edge collector can keep OKX funding, open-interest, and
+  basis cadence fresh even when the installed CCXT version encounters public
+  market rows with missing IDs.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_collector.py tests/test_run_crypto_edge_collector_loop.py tests/test_edge_cadence.py tests/test_collect_live_crypto_edge_snapshot.py tests/test_crypto_edge_collector_service.py`
+  - SHOWN: `30 passed`.
+- `./.venv/bin/python scripts/data/run_crypto_edge_collector_loop.py --plan-file sample_data/crypto_edges/live_collector_plan.json --interval-sec 300 --max-loops 1`
+  - SHOWN: `status=stopped`, `reason=max_loops`, `loops=1`, `writes=1`,
+    `errors=0`.
+- `./.venv/bin/python scripts/check_edge_cadence.py --json`
+  - SHOWN: `ok=true`, `missing=[]`, `stale=[]`; funding, open-interest, and
+    basis snapshots fresh at `2026-09-01T05:13:01+00:00`.
+- `make status-live-crypto-edges-loop`
+  - SHOWN: persistent local collector `status=running`, `pid_alive=true`,
+    `loops=1`, `writes=1`, `errors=0`.
+- `git diff --check`
+  - SHOWN: no whitespace errors.
+
+Remaining risk:
+- MEDIUM/HIGH operational: this touches read-only background collector startup
+  behavior. It does not touch live trading, order routing, paper campaigns,
+  promotion gates, risk gates, or strategy configs.
+- Hetzner status was not refreshed because Tailscale SSH required an
+  interactive auth check; this checkpoint covers the local laptop-reset
+  recovery path only.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-08-31T05:48:00Z - Backup Artifact Secret Scan None Sentinel
 
 Active role: ENGINEER
