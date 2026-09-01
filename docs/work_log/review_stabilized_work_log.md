@@ -25,6 +25,68 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-09-01T05:40:21Z - Hetzner Read-Only Status Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Record the current Hetzner paper, crypto-edge, and supply-chain status after
+  the laptop reset recovery without mutating host state.
+
+What was found:
+- SHOWN: Tailscale was connected, but `tailscale ssh` required a browser
+  approval check. After approval, regular SSH over `100.86.128.9` succeeded in
+  batch mode.
+- SHOWN: Hetzner checkout was clean on `master` at
+  `c7bd305287792993d0a63e01e9bdc5ad3cfacf6e`.
+- SHOWN: host supply-chain pin integrity and installed environment alignment
+  were OK, but vulnerability audit did not run because `pip-audit` is
+  unavailable on the host.
+- SHOWN: Hetzner `ema_cross_default` paper campaign remained `1/1` running and
+  idle for the next UTC day.
+- SHOWN: host crypto-edge cadence under `CBP_STATE_DIR=/var/lib/cbp` was fresh
+  for OKX funding, open-interest, and basis.
+- SHOWN: `cbp-crypto-edge-collector.service` was active/running and
+  `cbp-edge-cadence.timer` was active/waiting.
+
+What changed:
+- Added `docs/checkpoints/hetzner_readonly_status_2026_09_01.md`.
+- Added dated notes to the release-policy current-state section and crypto-edge
+  backlog item in `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The highest-priority remaining local next actions are host-side proof
+  markers. Recording the read-only status narrows the real blockers without
+  deploying code, restarting services, installing packages, editing config,
+  starting/stopping campaigns, changing gates, or touching live execution.
+
+Expected outcome:
+- Operators can distinguish healthy host runtime from the specific remaining
+  release-policy blocker: `pip-audit` is unavailable, so vulnerability audit
+  remains unproven or must be explicitly waived.
+
+Verification:
+- `ssh -o BatchMode=yes -o ConnectTimeout=15 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && ./.venv/bin/python scripts/check_supply_chain.py --audit --json'`
+  - SHOWN: `pin_integrity.ok=true`, `environment.ok=true`,
+    `vulnerability_audit.ran=false`,
+    `vulnerability_audit.reason=pip_audit_unavailable`.
+- `ssh -o BatchMode=yes -o ConnectTimeout=15 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && ./.venv/bin/python scripts/report_supervised_soak_status.py --config configs/paper_evidence_campaigns.hetzner.example.json --json'`
+  - SHOWN: `all_running=true`, `running_count=1`, `ema_cross_default` idle
+    `waiting_for_next_day`.
+- `ssh -o BatchMode=yes -o ConnectTimeout=15 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json'`
+  - SHOWN: `ok=true`, `missing=[]`, `stale=[]`.
+- `ssh -o BatchMode=yes -o ConnectTimeout=15 cryptkeep@100.86.128.9 'systemctl --user --no-pager --plain status cbp-crypto-edge-collector.service cbp-edge-cadence.timer 2>/dev/null || systemctl --no-pager --plain status cbp-crypto-edge-collector.service cbp-edge-cadence.timer 2>/dev/null || true'`
+  - SHOWN: `cbp-crypto-edge-collector.service` active/running and
+    `cbp-edge-cadence.timer` active/waiting.
+
+Remaining risk:
+- LOW: docs/checkpoint update only. No host state was changed.
+- Host vulnerability audit remains open until `pip-audit` is available on the
+  host or the requirement is explicitly waived.
+- Local master contains newer commits than the host checkout after PR #563; no
+  host sync was attempted in this checkpoint.
+- Acceptance state: `ACCEPTED`.
+
 ## Retrospective Scope
 
 SHOWN:
