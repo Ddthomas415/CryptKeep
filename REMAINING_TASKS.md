@@ -91,6 +91,18 @@ SHOWN:
   running; and host health reported `hetzner_paper_host_healthy`. Remaining
   host-side release-policy work: vulnerability audit approval/waiver and
   SBOM/hash-lock decision.
+- 2026-09-01 read-only Hetzner status is recorded in
+  `docs/checkpoints/hetzner_readonly_status_2026_09_01.md`. SHOWN:
+  `check_supply_chain.py --audit --json` reported pin integrity OK and
+  environment alignment OK on `c7bd305287792993d0a63e01e9bdc5ad3cfacf6e`, but
+  `vulnerability_audit.ran=false` with `reason=pip_audit_unavailable`.
+  Hetzner `ema_cross_default` remained `1/1` running and idle for the next UTC
+  day, and host crypto-edge cadence under `CBP_STATE_DIR=/var/lib/cbp` remained
+  fresh with `missing=[]` and `stale=[]`. No host sync, service restart, package
+  install, config edit, campaign start/stop, gate change, live routing, or
+  execution action was run. Remaining release-policy work: install/enable
+  `pip-audit` on host or explicitly waive vulnerability audit, then decide
+  SBOM/hash-lock requirements.
 - 2026-07-06 strategy validation note: do not add another persistent campaign
   before proof. The next runnable non-persistent validation candidate is
   `pullback_recovery_default`, via isolated Stage 0 proof. `funding_extreme`
@@ -929,6 +941,14 @@ deployment work still needs independent review.
     loop was restarted. This does not authorize live routing, derivatives
     execution, strategy promotion evidence, or live trading. Hetzner status was
     not refreshed because Tailscale SSH required an interactive auth check.
+    2026-09-01 follow-up: after Tailscale browser approval cleared, regular SSH
+    over the Tailscale IP showed Hetzner crypto-edge cadence fresh under
+    `CBP_STATE_DIR=/var/lib/cbp` with `missing=[]`, `stale=[]`, and OKX
+    funding/open-interest/basis snapshots from `2026-09-01T04:05:10+00:00`.
+    `cbp-crypto-edge-collector.service` was active/running and
+    `cbp-edge-cadence.timer` was active/waiting. The wrapper path that uses
+    Tailscale SSH still reported a strict host-key failure, so direct SSH was
+    used for this read-only proof. No host service was restarted.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
