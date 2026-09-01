@@ -50,8 +50,9 @@ def test_fetch_remote_status_formats_valid_remote_payload(monkeypatch) -> None:
 
     assert seen == {
         "cmd": [
-            "tailscale",
             "ssh",
+            "-o",
+            "BatchMode=yes",
             "cryptkeep@100.86.128.9",
             "cd /srv/cryptkeep/app && ./.venv/bin/python "
             "scripts/restore_paper_campaigns.py "
@@ -243,7 +244,7 @@ def test_fetch_remote_status_auto_falls_back_to_direct_ssh_for_tailscale_prefere
 
     monkeypatch.setattr(script.subprocess, "run", _run)
 
-    out = script.fetch_remote_status(timeout_sec=1.0)
+    out = script.fetch_remote_status(timeout_sec=1.0, transport="tailscale-ssh")
 
     assert [cmd[0] for cmd in seen] == ["tailscale", "ssh"]
     assert out["ok"] is True
@@ -268,7 +269,11 @@ def test_fetch_remote_status_classifies_tailscale_auth_prompt_output(monkeypatch
 
     monkeypatch.setattr(script.subprocess, "run", _run)
 
-    out = script.fetch_remote_status(timeout_sec=1.0, allow_auto_ssh_fallback=False)
+    out = script.fetch_remote_status(
+        timeout_sec=1.0,
+        transport="tailscale-ssh",
+        allow_auto_ssh_fallback=False,
+    )
 
     assert out["ok"] is False
     assert out["reason"] == "tailscale_ssh_auth_required"

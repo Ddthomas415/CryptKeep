@@ -125,7 +125,7 @@ def test_fetch_remote_status_auto_falls_back_to_direct_ssh_for_tailscale_prefere
 
     monkeypatch.setattr(script.subprocess, "run", _run)
 
-    out = script.fetch_remote_status(timeout_sec=3.0)
+    out = script.fetch_remote_status(timeout_sec=3.0, transport="tailscale-ssh")
 
     assert [cmd[0] for cmd in seen] == ["tailscale", "ssh"]
     assert out["ok"] is True

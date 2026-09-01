@@ -19,7 +19,8 @@ add_repo_root_to_syspath(Path(__file__).resolve().parent)
 DEFAULT_SSH_TARGET = "cryptkeep@100.86.128.9"
 DEFAULT_APP_DIR = "/srv/cryptkeep/app"
 DEFAULT_TIMEOUT_SEC = 90.0
-DEFAULT_TRANSPORT = "tailscale-ssh"
+TAILSCALE_TRANSPORT = "tailscale-ssh"
+DEFAULT_TRANSPORT = "ssh"
 DEFAULT_EXPECTED_BRANCH = "master"
 AUTO_SSH_FALLBACK_REASONS = {
     "tailscale_cli_preferences_unavailable",
@@ -307,7 +308,7 @@ def fetch_remote_status(
                 stdout=getattr(exc, "stdout", ""),
                 stderr=getattr(exc, "stderr", ""),
             )
-            if allow_auto_ssh_fallback and transport_name == DEFAULT_TRANSPORT:
+            if allow_auto_ssh_fallback and transport_name == TAILSCALE_TRANSPORT:
                 fallback = fetch_remote_status(
                     ssh_target=ssh_target,
                     app_dir=app_dir,
@@ -336,7 +337,7 @@ def fetch_remote_status(
         non_json_reason = _tailscale_non_json_reason(stdout=result.stdout, stderr=result.stderr)
         if non_json_reason:
             payload = _failure_payload(non_json_reason, stdout=result.stdout, stderr=result.stderr)
-            if allow_auto_ssh_fallback and transport_name == DEFAULT_TRANSPORT:
+            if allow_auto_ssh_fallback and transport_name == TAILSCALE_TRANSPORT:
                 fallback = fetch_remote_status(
                     ssh_target=ssh_target,
                     app_dir=app_dir,
@@ -372,7 +373,7 @@ def fetch_remote_status(
         non_json_reason = _tailscale_non_json_reason(stdout=result.stdout, stderr=result.stderr)
         if non_json_reason:
             payload = _failure_payload(non_json_reason, stdout=result.stdout, stderr=result.stderr)
-            if allow_auto_ssh_fallback and transport_name == DEFAULT_TRANSPORT:
+            if allow_auto_ssh_fallback and transport_name == TAILSCALE_TRANSPORT:
                 fallback = fetch_remote_status(
                     ssh_target=ssh_target,
                     app_dir=app_dir,
@@ -439,8 +440,8 @@ def main(argv: list[str] | None = None) -> int:
         choices=("tailscale-ssh", "ssh"),
         default=DEFAULT_TRANSPORT,
         help=(
-            "Remote transport. Defaults to Tailscale SSH and can auto-fallback "
-            "to direct SSH for local Tailscale auth failures."
+            "Remote transport. Defaults to direct SSH to the Tailscale IP; "
+            "use tailscale-ssh when browser-auth transport is intentionally preferred."
         ),
     )
     ap.add_argument("--expected-branch", default=DEFAULT_EXPECTED_BRANCH, help="Expected remote branch")

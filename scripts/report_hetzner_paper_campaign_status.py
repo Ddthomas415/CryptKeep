@@ -24,7 +24,8 @@ DEFAULT_SSH_TARGET = "cryptkeep@100.86.128.9"
 DEFAULT_APP_DIR = "/srv/cryptkeep/app"
 DEFAULT_CONFIG = "configs/paper_evidence_campaigns.hetzner.example.json"
 DEFAULT_TIMEOUT_SEC = 45.0
-DEFAULT_TRANSPORT = "tailscale-ssh"
+TAILSCALE_TRANSPORT = "tailscale-ssh"
+DEFAULT_TRANSPORT = "ssh"
 AUTO_SSH_FALLBACK_REASONS = {
     "tailscale_cli_preferences_unavailable",
     "tailscale_ssh_auth_required",
@@ -148,7 +149,7 @@ def fetch_remote_status(
             )
             if (
                 allow_auto_ssh_fallback
-                and transport_name == DEFAULT_TRANSPORT
+                and transport_name == TAILSCALE_TRANSPORT
                 and non_json_reason in AUTO_SSH_FALLBACK_REASONS
             ):
                 fallback = fetch_remote_status(
@@ -180,7 +181,7 @@ def fetch_remote_status(
             payload = _failure_payload(non_json_reason, stdout=result.stdout, stderr=result.stderr)
             if (
                 allow_auto_ssh_fallback
-                and transport_name == DEFAULT_TRANSPORT
+                and transport_name == TAILSCALE_TRANSPORT
                 and non_json_reason in AUTO_SSH_FALLBACK_REASONS
             ):
                 fallback = fetch_remote_status(
@@ -219,7 +220,7 @@ def fetch_remote_status(
             )
             if (
                 allow_auto_ssh_fallback
-                and transport_name == DEFAULT_TRANSPORT
+                and transport_name == TAILSCALE_TRANSPORT
                 and non_json_reason in AUTO_SSH_FALLBACK_REASONS
             ):
                 fallback = fetch_remote_status(
@@ -243,7 +244,7 @@ def fetch_remote_status(
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        description="Read-only Hetzner paper campaign status over Tailscale SSH"
+        description="Read-only Hetzner paper campaign status over SSH to the Tailscale IP"
     )
     ap.add_argument("--json", action="store_true", help="Output JSON")
     ap.add_argument(
@@ -251,12 +252,12 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Exit non-zero when remote status needs investigation",
     )
-    ap.add_argument("--ssh-target", default=DEFAULT_SSH_TARGET, help="Tailscale SSH target")
+    ap.add_argument("--ssh-target", default=DEFAULT_SSH_TARGET, help="Remote SSH target")
     ap.add_argument(
         "--transport",
         choices=("tailscale-ssh", "ssh"),
         default=DEFAULT_TRANSPORT,
-        help="Remote transport. Use ssh for opt-in direct SSH to the Tailscale IP when the Tailscale CLI is unavailable.",
+        help="Remote transport. Defaults to direct SSH to the Tailscale IP; use tailscale-ssh when browser-auth transport is intentionally preferred.",
     )
     ap.add_argument("--app-dir", default=DEFAULT_APP_DIR, help="Remote repo directory")
     ap.add_argument(
@@ -268,7 +269,7 @@ def main(argv: list[str] | None = None) -> int:
         "--timeout-sec",
         type=float,
         default=DEFAULT_TIMEOUT_SEC,
-        help="Maximum seconds to wait for Tailscale SSH status output",
+        help="Maximum seconds to wait for remote status output",
     )
     args = ap.parse_args(argv)
 

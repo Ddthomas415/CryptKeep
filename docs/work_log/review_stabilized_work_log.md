@@ -37285,6 +37285,9 @@ What was found:
 
 What changed:
 - Updated `HETZNER_STATUS_TRANSPORT ?= ssh` in `Makefile`.
+- Updated the three Hetzner status wrapper script defaults to `ssh`, while
+  preserving explicit `tailscale-ssh` support and known-auth-failure fallback
+  when that transport is requested.
 - Updated current operator docs to state that the Make targets default to direct
   `ssh` to the Hetzner Tailscale IP and that
   `HETZNER_STATUS_TRANSPORT=tailscale-ssh` remains the explicit override when
@@ -37307,6 +37310,8 @@ Expected outcome:
 Verification:
 - `./.venv/bin/python -m pytest -q tests/test_golden_path_operator_flow_guard.py tests/test_script_index_alignment_guard.py tests/test_operator_doc_make_targets.py tests/test_paper_campaign_recovery_runbook_guard.py`
   - SHOWN: `26 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_paper_campaign_status.py tests/test_report_hetzner_dependency_alignment_status.py tests/test_report_hetzner_crypto_edge_runtime_status.py`
+  - SHOWN: `31 passed`.
 - `make -n status-paper-all`
   - SHOWN: Hetzner leg passes `--transport ssh`.
 - `make -n status-hetzner-edge-runtime`
