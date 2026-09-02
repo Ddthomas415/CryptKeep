@@ -47,8 +47,8 @@ listed below.
 | `preflight.py` | — | Pre-launch checks |
 | `preflight_check.py` | — | Runtime/config preflight check |
 | `report_paper_run_diagnostics.py` | — | Paper-run diagnostic report |
-| `report_hetzner_paper_campaign_status.py` | `make status-paper-hetzner` | Read-only remote wrapper for Hetzner campaign status with timeout-aware failure reporting; defaults to Tailscale SSH and supports opt-in direct SSH with `HETZNER_STATUS_TRANSPORT=ssh` |
-| `report_hetzner_crypto_edge_runtime_status.py` | `make status-hetzner-edge-runtime` | Read-only remote wrapper for Hetzner crypto-edge runtime readiness; defaults to Tailscale SSH, supports opt-in direct SSH with `HETZNER_STATUS_TRANSPORT=ssh`, and checks accepted checkout/tooling, OKX collector plan, collector status under the deployed `CBP_STATE_DIR`, collector/cadence scheduling, and fresh funding/open-interest/basis cadence without deploying or starting collectors |
+| `report_hetzner_paper_campaign_status.py` | `make status-paper-hetzner` | Read-only remote wrapper for Hetzner campaign status with timeout-aware failure reporting; the script and Make target default to direct `ssh` to the Tailscale IP and support `HETZNER_STATUS_TRANSPORT=tailscale-ssh` when Tailscale SSH browser auth is intentionally preferred |
+| `report_hetzner_crypto_edge_runtime_status.py` | `make status-hetzner-edge-runtime` | Read-only remote wrapper for Hetzner crypto-edge runtime readiness; the script and Make target default to direct `ssh` to the Tailscale IP, support `HETZNER_STATUS_TRANSPORT=tailscale-ssh`, and checks accepted checkout/tooling, OKX collector plan, collector status under the deployed `CBP_STATE_DIR`, collector/cadence scheduling, and fresh funding/open-interest/basis cadence without deploying or starting collectors |
 | `report_hetzner_dependency_alignment_status.py` | `make status-hetzner-dependency-alignment` / `make status-hetzner-dependency-alignment-json` | Read-only remote wrapper for Hetzner dependency alignment; runs the host supply-chain checker and `pip install --dry-run -r requirements-pinned.txt`, reports pin/environment mismatches and dry-run package deltas, and never installs packages, deploys code, or restarts services |
 | `report_roadmap_tracking_status.py` | `make roadmap-tracking-status` / `make roadmap-tracking-status-json` | Read-only roadmap organizer report over `docs/ROADMAP_TRACKING_CHECKLIST.md`; verifies linked source docs, required status commands, and non-authority boundaries without running campaigns, fetching market data, closing proof, deciding backlog items, or mutating state |
 | `report_backlog_lane_status.py` | `make backlog-lane-status` / `make backlog-lane-status-json` | Read-only planning report over `docs/BACKLOG_EXECUTION_LANES.md`; supports `BACKLOG_LANE_STATUS_LANE`; summarizes backlog lane counts and source hashes without deciding backlog items or changing runtime state |
@@ -173,7 +173,7 @@ planning; apply modes are high-risk and require an accepted review.
   accepted no-public-inbound firewall boundary.
 - `report_hetzner_paper_host_health.py` — read-only laptop/operator wrapper
   that runs the Hetzner host-health check on the Hetzner host through the same
-  Tailscale SSH path as `make status-paper-hetzner`; this is what
+  direct-SSH-to-Tailscale-IP path as `make status-paper-hetzner`; this is what
   `make check-hetzner-paper-host-health` invokes from a laptop.
 - `check_hetzner_paper_host_health.py` — read-only scheduled-safe host-local wrapper around
   the Hetzner host preflight; writes

@@ -37264,6 +37264,69 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-01T23:52:27Z - Hetzner Status Make Default: Direct SSH
+
+Active role: ENGINEER
+
+Objective:
+- Remove repeated false daily-status failures from the laptop/Codex environment
+  by making the Makefile Hetzner status wrappers use the verified direct SSH
+  transport by default.
+
+What was found:
+- SHOWN: PR #566 CI was green and merged; local `master` fast-forwarded to
+  `752a73b36`.
+- SHOWN: `make status-paper-all` delegated to `status-paper-hetzner`, which
+  passed `--transport tailscale-ssh` because `HETZNER_STATUS_TRANSPORT ?=
+  tailscale-ssh`.
+- SHOWN: direct SSH to `cryptkeep@100.86.128.9` was the verified working
+  transport in this environment during the 2026-09-01 Hetzner sync/status
+  proof.
+
+What changed:
+- Updated `HETZNER_STATUS_TRANSPORT ?= ssh` in `Makefile`.
+- Updated the three Hetzner status wrapper script defaults to `ssh`, while
+  preserving explicit `tailscale-ssh` support and known-auth-failure fallback
+  when that transport is requested.
+- Updated current operator docs to state that the Make targets default to direct
+  `ssh` to the Hetzner Tailscale IP and that
+  `HETZNER_STATUS_TRANSPORT=tailscale-ssh` remains the explicit override when
+  Tailscale SSH browser auth is intentionally preferred.
+- Added a regression test pinning the Make default so it does not drift back to
+  `tailscale-ssh` silently.
+
+Why this change was chosen:
+- The status wrappers are read-only and already support both transports. The
+  failing behavior came from the default, not from campaign health. Changing the
+  Make default removes a recurring operator/Codex friction point without
+  changing campaigns, services, gates, deployment, or execution behavior.
+
+Expected outcome:
+- `make status-paper-all`, `make status-paper-hetzner`,
+  `make status-hetzner-edge-runtime`, and
+  `make status-hetzner-dependency-alignment` use the verified direct SSH path
+  unless an operator explicitly asks for Tailscale SSH.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_golden_path_operator_flow_guard.py tests/test_script_index_alignment_guard.py tests/test_operator_doc_make_targets.py tests/test_paper_campaign_recovery_runbook_guard.py`
+  - SHOWN: `26 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_paper_campaign_status.py tests/test_report_hetzner_dependency_alignment_status.py tests/test_report_hetzner_crypto_edge_runtime_status.py`
+  - SHOWN: `31 passed`.
+- `make -n status-paper-all`
+  - SHOWN: Hetzner leg passes `--transport ssh`.
+- `make -n status-hetzner-edge-runtime`
+  - SHOWN: command passes `--transport ssh`.
+- `make -n status-hetzner-dependency-alignment`
+  - SHOWN: command passes `--transport ssh`.
+- `make status-paper-all`
+  - SHOWN: command exited 0; laptop paper campaigns reported `2/2 running`
+    and Hetzner paper campaign reported `1/1 running` through direct SSH.
+
+Remaining risk:
+- LOW: operator status command default and docs/tests only. No trading logic,
+  campaign process, gate, risk, deployment, or live execution behavior changed.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-09-01T23:40:20Z - Local Research Pipeline Refresh Checkpoint
 
 Active role: ENGINEER

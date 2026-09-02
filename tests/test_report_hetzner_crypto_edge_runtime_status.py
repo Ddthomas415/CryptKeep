@@ -249,8 +249,8 @@ def test_fetch_remote_runtime_status_builds_read_only_tailscale_command(monkeypa
     )
 
     assert report["ok"] is True
-    assert seen["cmd"][0:3] == ["tailscale", "ssh", "cryptkeep@100.86.128.9"]
-    remote_command = seen["cmd"][3]
+    assert seen["cmd"][0:4] == ["ssh", "-o", "BatchMode=yes", "cryptkeep@100.86.128.9"]
+    remote_command = seen["cmd"][4]
     assert remote_command.startswith("cd /srv/cryptkeep/app && python3 -c ")
     assert "CBP_STATE_DIR" in remote_command
     assert "/var/lib/cbp" in remote_command
@@ -320,7 +320,7 @@ def test_fetch_remote_runtime_status_honors_custom_remote_state_dir(monkeypatch)
         timeout_sec=3.0,
     )
 
-    remote_command = seen["cmd"][3]
+    remote_command = seen["cmd"][4]
     assert "CBP_STATE_DIR" in remote_command
     assert "/srv/cryptkeep/app/.cbp_state" in remote_command
 
@@ -339,7 +339,11 @@ def test_fetch_remote_runtime_status_classifies_tailscale_auth_prompt(monkeypatc
 
     monkeypatch.setattr(script.subprocess, "run", _run)
 
-    report = script.fetch_remote_runtime_status(timeout_sec=1.0, allow_auto_ssh_fallback=False)
+    report = script.fetch_remote_runtime_status(
+        timeout_sec=1.0,
+        transport="tailscale-ssh",
+        allow_auto_ssh_fallback=False,
+    )
 
     assert report["ok"] is False
     assert report["reason"] == "tailscale_ssh_auth_required"
@@ -408,6 +412,7 @@ def test_fetch_remote_runtime_status_auto_falls_back_to_direct_ssh_for_tailscale
         app_dir="/srv/cryptkeep/app",
         expected_commit="e8224057f",
         timeout_sec=1.0,
+        transport="tailscale-ssh",
     )
 
     assert [cmd[0] for cmd in seen] == ["tailscale", "ssh"]
