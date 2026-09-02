@@ -30,6 +30,23 @@ manifest with no enabled rows, so this file should not be passed directly to
 `scripts/restore_paper_campaigns.py` until a reviewed follow-up deliberately
 promotes one candidate row into an active manifest.
 
+## Read-Only Status
+
+Use this structure-only check before any activation discussion:
+
+```bash
+make status-hetzner-multi-venue-proposals-json
+```
+
+To include public-OHLCV reachability probes without enabling campaigns:
+
+```bash
+make status-hetzner-multi-venue-proposals-json HETZNER_MULTI_VENUE_PROPOSAL_ARGS=--preflight
+```
+
+The preflight mode remains read-only. Binance still requires the existing guard
+environment (`CBP_VENUE=binance CBP_ALLOW_BINANCE=1`) before it is probed.
+
 ## Required Preflight Before Any Activation
 
 Gate.io candidate:

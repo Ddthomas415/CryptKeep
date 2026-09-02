@@ -228,6 +228,13 @@ decision makes them authoritative.
   mutating active manifests or starting campaigns. Use
   `make plan-multi-symbol-paper-campaigns-json` for the default read-only
   `--no-write` proposal check.
+- `report_hetzner_multi_venue_proposal_status.py` — read-only status check for
+  the disabled Hetzner Gate.io/Binance paper-research proposal manifest. Use
+  `make status-hetzner-multi-venue-proposals-json` for structure-only checks,
+  or add `HETZNER_MULTI_VENUE_PROPOSAL_ARGS=--preflight` to run public-OHLCV
+  preflights without enabling campaigns, mutating manifests, counting canonical
+  promotion evidence, or routing orders. Binance remains behind
+  `CBP_VENUE=binance CBP_ALLOW_BINANCE=1`.
 - `run_candidate_outcome_report.py` — read-only candidate-vs-paper-outcome
   report that writes `.cbp_state/data/candidate_outcomes/` artifacts; use
   `make candidate-outcomes`.
