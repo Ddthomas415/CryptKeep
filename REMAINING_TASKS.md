@@ -124,6 +124,17 @@ SHOWN:
   round trips with projected completion around 2026-09-23; and both research
   pipelines remained latest-ok. Remaining release-policy work is unchanged:
   host vulnerability audit approval/waiver plus SBOM/hash-lock decision.
+- 2026-09-02 Hetzner GitHub pull-auth blocker is recorded in
+  `docs/GITHUB_AUTH_RUNBOOK.md`. SHOWN: after PR #570, local `master` reached
+  `db467fd5ea2e7adffea136d6b1728fc27965d6c7`, but Hetzner noninteractive
+  checkout sync could not fetch GitHub as `cryptkeep` because the host remote
+  uses private HTTPS auth, `gh` is not installed on the host, and no read-only
+  deploy key is installed for `~cryptkeep`. Runtime code on Hetzner is still at
+  `df06a8b06aadaede0fe3265307aace2512932cca`; PR #570 was docs-only, so no
+  service restart or runtime catch-up is required for campaign behavior. Safe
+  permanent fix is a dedicated read-only GitHub deploy key plus SSH remote for
+  `/srv/cryptkeep/app`, requiring explicit operator approval because it creates
+  persistent credential material and changes host Git auth.
 - 2026-09-01 local research refresh is recorded in
   `docs/checkpoints/research_pipeline_refresh_2026_09_01.md`. SHOWN:
   price-action research completed with `ok=true` and `15` manual-review
