@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 
 import pytest
 
@@ -120,3 +122,34 @@ def test_record_operator_event_cli_writes_jsonl(tmp_path, capsys):
     assert len(rows) == 1
     assert rows[0]["extra"]["api_token"] == "<redacted>"
     assert rows[0]["extra"]["safe"] == "ok"
+
+
+def test_record_operator_event_script_bootstraps_when_run_as_file(tmp_path):
+    path = tmp_path / "events.jsonl"
+
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "scripts/record_operator_event.py",
+            "--actor",
+            "operator",
+            "--action",
+            "note",
+            "--target",
+            "launch_packet",
+            "--result",
+            "recorded",
+            "--reason",
+            "direct_file_execution",
+            "--path",
+            str(path),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    out = json.loads(proc.stdout)
+    assert out["path"] == str(path)
+    assert load_operator_events(path)[0]["reason"] == "direct_file_execution"

@@ -2292,6 +2292,19 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     under the current paper-only host posture. Platform event checks are clean
     for an empty/missing journal (`event_count=0`, no secret findings), but do
     not close action-specific platform event payload proofs.
+    2026-09-02 host proof attempt is recorded in
+    `docs/checkpoints/host_operator_event_journal_permission_2026_09_02.md`.
+    SHOWN: `record_operator_event.py` direct file execution was missing the
+    standard bootstrap fallback and is fixed in the linked branch; a direct
+    `cryptkeep` append to canonical `/var/lib/cbp` failed with
+    `operator_event_write_failed:PermissionError` because `/var/lib/cbp/data`
+    is owned `cbp:cbp` mode `0755`; service-user execution via existing root
+    SSH then wrote `runbook_checkpoint` event
+    `aec98ad5-10d7-4bf0-a1b8-459571a5138a` as `cbp`, and
+    `check_operator_event_secrets.py --require-events --require-action
+    runbook_checkpoint` passed with `event_count=1`, `finding_count=0`.
+    Remaining capped-live proofs: arm-to-halt replay, enable/resume action
+    coverage, and critical audit-write fail-closed behavior remain separate.
     2026-08-26: read-only host refresh is recorded in
     `docs/checkpoints/hetzner_readonly_status_2026_08_26.md`. Hetzner paper and
     crypto-edge runtime remain healthy; dependency alignment remains open

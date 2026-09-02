@@ -5,7 +5,10 @@ import argparse
 import json
 from pathlib import Path
 
-from scripts._bootstrap import add_repo_root_to_syspath
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
 
 add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
@@ -53,4 +56,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
