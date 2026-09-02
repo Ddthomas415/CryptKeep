@@ -37264,6 +37264,81 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-02T04:49:00Z - Host Operator-Event Journal Service-User Proof
+
+Active role: ENGINEER
+
+Objective:
+- Advance the operator/action audit coverage proof by attempting a real
+  non-secret host operator-event append for the accepted Hetzner checkout sync,
+  then scan the canonical journal path.
+
+What was found:
+- SHOWN: before the attempt, Hetzner
+  `CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_operator_event_secrets.py --json --require-events`
+  reported `exists=false`, `event_count=0`, and
+  `operator_event_journal_missing`.
+- SHOWN: direct execution of `scripts/record_operator_event.py` failed on the
+  host with `ModuleNotFoundError: No module named 'scripts'`.
+- SHOWN: retrying with `PYTHONPATH=.` reached the canonical journal path but
+  failed with `operator_event_write_failed:PermissionError` while creating
+  `/var/lib/cbp/data/operator_events`.
+- SHOWN: SSH user is `cryptkeep`; `/var/lib/cbp` and `/var/lib/cbp/data` are
+  owned by `cbp:cbp` mode `0755`; passwordless sudo from `cryptkeep` was not
+  available.
+- SHOWN: root SSH was available and could run commands as the `cbp` service
+  user without changing filesystem permissions.
+
+What changed:
+- Updated `scripts/record_operator_event.py` to use the standard script
+  bootstrap fallback when run directly as a file.
+- Added a subprocess regression test for direct file execution.
+- Ran the existing recorder/checker as `cbp` from root SSH; this wrote one
+  `runbook_checkpoint` event under canonical `/var/lib/cbp` and scanned it.
+- Added `docs/checkpoints/host_operator_event_journal_permission_2026_09_02.md`.
+- Added a dated backlog note under operator/action event coverage.
+
+Why this change was chosen:
+- The script bootstrap issue is a repo bug shown by the host proof attempt and
+  can be fixed locally without changing runtime behavior. The host permission
+  issue should not be bypassed by writing a non-canonical journal path or
+  loosening `/var/lib/cbp` blindly; running as the owning `cbp` service user is
+  the least-surprising deployment path and is now SHOWN working.
+
+Expected outcome:
+- Direct file execution of `record_operator_event.py` works consistently with
+  other scripts, and host operator-event append/no-secret scanning works when
+  run as `cbp` against canonical `/var/lib/cbp`.
+
+Verification:
+- Host read-only check:
+  `CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_operator_event_secrets.py --json --require-events`
+  - SHOWN: journal missing before append.
+- Host write attempt:
+  `CBP_STATE_DIR=/var/lib/cbp PYTHONPATH=. ./.venv/bin/python scripts/record_operator_event.py ...`
+  - SHOWN: import succeeded; append failed with `PermissionError`.
+- Host ownership inspection:
+  - SHOWN: `cryptkeep` lacks write access to `cbp:cbp` `/var/lib/cbp/data`.
+- Host service-user write/scan:
+  `ssh root@100.86.128.9 'su -s /bin/bash cbp -c "... record_operator_event.py ... && ... check_operator_event_secrets.py --json --require-events --require-action runbook_checkpoint"'`
+  - SHOWN: event `aec98ad5-10d7-4bf0-a1b8-459571a5138a` written to
+    `/var/lib/cbp/data/operator_events/operator_events.jsonl`.
+  - SHOWN: required-action secret scan reported `exists=true`,
+    `event_count=1`, `action_counts.runbook_checkpoint=1`,
+    `finding_count=0`, `ok=true`.
+- Host arm-to-halt replay check:
+  `ssh root@100.86.128.9 'su -s /bin/bash cbp -c "... check_operator_arm_to_halt_replay.py --json"'`
+  - SHOWN: canonical journal was readable and contained `event_count=1`.
+  - SHOWN: replay failed with `missing_live_arm_event`, `arm_event=null`,
+    `halt_event=null`, as expected because only the benign checkpoint event was
+    recorded.
+
+Remaining risk:
+- MEDIUM: this closes the benign service-user append/no-secret proof for
+  `runbook_checkpoint`; separate arm-to-halt, enable/resume action coverage,
+  and critical audit-write fail-closed proofs remain open.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-09-02T04:43:17Z - Hetzner Checkout Sync to `bbe2f4b5f`
 
 Active role: ENGINEER
