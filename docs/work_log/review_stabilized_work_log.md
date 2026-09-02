@@ -37339,6 +37339,63 @@ Remaining risk:
   and critical audit-write fail-closed proofs remain open.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-09-02T06:31:50Z - Hetzner Checkout Sync After PR #569
+
+Active role: ENGINEER
+
+Objective:
+- Sync Hetzner `/srv/cryptkeep/app` to merged `master`
+  `df06a8b06aadaede0fe3265307aace2512932cca` after PR #569 and record the
+  post-sync status without restarting services.
+
+What was found:
+- SHOWN: PR #569 was green and merged at
+  `df06a8b06aadaede0fe3265307aace2512932cca`.
+- SHOWN: local `master` fast-forwarded to the same SHA.
+- SHOWN: Hetzner checkout was clean at
+  `bbe2f4b5f64a4b49f36467aebea5d7c57acd3f03` before sync.
+
+What changed:
+- Ran `git fetch origin master` and `git merge --ff-only origin/master` on
+  Hetzner under `/srv/cryptkeep/app`.
+- Added `docs/checkpoints/hetzner_checkout_sync_2026_09_02_pr569.md`.
+- Added a dated note to `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- PR #569 fixed a script-bootstrap path and recorded host operator-event proof.
+  Keeping Hetzner on the accepted master SHA avoids host/local drift while
+  preserving the no-restart boundary.
+
+Expected outcome:
+- Hetzner checkout, campaign status, crypto-edge runtime status, dependency
+  alignment status, and repo documentation agree on `df06a8b06`.
+
+Verification:
+- Host checkout sync:
+  `ssh -o BatchMode=yes -o ConnectTimeout=15 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && git status --short --branch && git rev-parse HEAD && git fetch origin master && git merge --ff-only origin/master && git rev-parse HEAD && git status --short --branch'`
+  - SHOWN: host fast-forwarded from `bbe2f4b5` to `df06a8b0`; checkout clean.
+- `make status-paper-hetzner`
+  - SHOWN: `Campaigns: 1/1 running`; `ema_cross_default` idle with
+    `waiting_for_next_day`.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `status=hetzner_crypto_edge_runtime_ready`, `ok=True`,
+    `blocking_checks=0`, remote head `df06a8b0`.
+- `make status-hetzner-dependency-alignment-json`
+  - SHOWN: `status=hetzner_dependency_alignment_ready`, no package mismatches
+    or missing packages, `pip_dry_run.status=no_changes`.
+- `make status-paper-gate-velocity-json`
+  - SHOWN: `3/5` qualified round trips, `72/60` qualified bars, projected
+    completion `2026-09-23T06:31:42.518899+00:00`.
+- `make research-pipeline-status-json`
+  - SHOWN: `price_action` and `funding_threshold` pipelines latest-ok.
+
+Remaining risk:
+- LOW: docs/checkpoint update only. The host sync itself was fast-forward-only
+  and no-restart.
+- Host vulnerability audit/waiver and SBOM/hash-lock release-policy decisions
+  remain separate.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-09-02T04:43:17Z - Hetzner Checkout Sync to `bbe2f4b5f`
 
 Active role: ENGINEER
