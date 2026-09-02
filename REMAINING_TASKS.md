@@ -103,6 +103,16 @@ SHOWN:
   execution action was run. Remaining release-policy work: install/enable
   `pip-audit` on host or explicitly waive vulnerability audit, then decide
   SBOM/hash-lock requirements.
+- 2026-09-02 checkout-sync proof is recorded in
+  `docs/checkpoints/hetzner_checkout_sync_2026_09_02.md`. SHOWN: Hetzner
+  `/srv/cryptkeep/app` fast-forwarded without restart from
+  `f5837f03af3f9292b62f083d50c961847b442728` to current master
+  `bbe2f4b5f64a4b49f36467aebea5d7c57acd3f03`; post-sync dependency alignment
+  was ready with no package mismatches and `pip_dry_run.status=no_changes`;
+  crypto-edge runtime remained ready; Hetzner paper campaign remained `1/1`
+  running; and host edge cadence remained fresh. Remaining release-policy work:
+  install/enable `pip-audit` on host or explicitly waive vulnerability audit,
+  then decide SBOM/hash-lock requirements.
 - 2026-09-01 local research refresh is recorded in
   `docs/checkpoints/research_pipeline_refresh_2026_09_01.md`. SHOWN:
   price-action research completed with `ok=true` and `15` manual-review

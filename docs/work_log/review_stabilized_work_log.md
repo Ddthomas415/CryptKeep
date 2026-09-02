@@ -37264,6 +37264,64 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-02T04:43:17Z - Hetzner Checkout Sync to `bbe2f4b5f`
+
+Active role: ENGINEER
+
+Objective:
+- Sync Hetzner `/srv/cryptkeep/app` to the current accepted `master` after PR
+  #567, without restarting services or changing runtime configuration.
+
+What was found:
+- SHOWN: PR #567 was fully green and merged; local `master` and
+  `origin/master` were both
+  `bbe2f4b5f64a4b49f36467aebea5d7c57acd3f03`.
+- SHOWN: Hetzner `/srv/cryptkeep/app` was clean on `master` at
+  `f5837f03af3f9292b62f083d50c961847b442728` before sync.
+
+What changed:
+- Ran `git fetch origin master` and `git merge --ff-only origin/master` on
+  Hetzner under `/srv/cryptkeep/app`.
+- Added `docs/checkpoints/hetzner_checkout_sync_2026_09_02.md`.
+- Added a dated note to `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The prior local fix made direct SSH the accepted default for status wrappers,
+  but the host checkout still lagged current master. A fast-forward-only
+  no-restart sync keeps host code aligned without changing campaign processes,
+  service state, dependencies, config, gates, live routing, or execution.
+
+Expected outcome:
+- Hetzner checkout, status wrappers, dependency-alignment checks, and current
+  repo docs all agree on `bbe2f4b5f64a4b49f36467aebea5d7c57acd3f03`.
+
+Verification:
+- `ssh -o BatchMode=yes -o ConnectTimeout=15 cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && git status --short --branch && git rev-parse HEAD && git fetch origin master && git merge --ff-only origin/master && git rev-parse HEAD && git status --short --branch'`
+  - SHOWN: fast-forwarded from `f5837f03` to `bbe2f4b5`; checkout remained
+    clean on `master`.
+- `make status-paper-hetzner`
+  - SHOWN: `Campaigns: 1/1 running`; `ema_cross_default` idle with
+    `waiting_for_next_day`.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `status=hetzner_crypto_edge_runtime_ready`, `ok=True`,
+    `blocking_checks=0`, remote head `bbe2f4b5f`.
+- `make status-hetzner-dependency-alignment`
+  - SHOWN: `status=hetzner_dependency_alignment_ready`, `ok=True`,
+    `transport=ssh`, no package mismatches, `pip_dry_run: no_changes`.
+- Host `CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json`
+  - SHOWN: `ok=true`, `missing=[]`, `stale=[]`.
+- Host `./.venv/bin/python scripts/check_supply_chain.py --json`
+  - SHOWN: `git_sha=bbe2f4b5f64a4b49f36467aebea5d7c57acd3f03`,
+    `git_dirty=false`, pin integrity and environment alignment OK.
+
+Remaining risk:
+- LOW: docs/checkpoint update only in this repo branch. The host sync itself
+  was fast-forward-only and no-restart.
+- Host vulnerability audit remains open until `pip-audit` is installed/enabled
+  on the host or the audit requirement is explicitly waived.
+- SBOM/hash-lock release-policy requirements remain a separate decision.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-09-01T23:52:27Z - Hetzner Status Make Default: Direct SSH
 
 Active role: ENGINEER
