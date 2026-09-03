@@ -235,6 +235,11 @@ decision makes them authoritative.
   preflights without enabling campaigns, mutating manifests, counting canonical
   promotion evidence, or routing orders. Binance remains behind
   `CBP_VENUE=binance CBP_ALLOW_BINANCE=1`.
+- `make status-hetzner-gateio-challenger` reports the isolated Gate.io
+  challenger manifest after it is present on Hetzner. `make
+  restore-hetzner-gateio-challenger` is the reviewed, preflight-required
+  restore path for that single paper/research candidate; it must not be run
+  from a stale host checkout.
 - `run_candidate_outcome_report.py` — read-only candidate-vs-paper-outcome
   report that writes `.cbp_state/data/candidate_outcomes/` artifacts; use
   `make candidate-outcomes`.
