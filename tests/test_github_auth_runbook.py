@@ -57,3 +57,13 @@ def test_github_auth_runbook_defines_verification_and_stop_conditions() -> None:
     assert "gh repo view --json nameWithOwner,url" in text
     assert "Do not treat this as permanent." in text
     assert "the intended repository or account differs from `Ddthomas415/CryptKeep`" in text
+
+
+def test_github_auth_runbook_defines_hetzner_pull_auth_boundary() -> None:
+    text = _flat()
+
+    assert "Hetzner checkout sync is a separate auth surface from the local laptop `gh` session." in text
+    assert "read-only deploy key" in text
+    assert "Do not copy a personal GitHub CLI token or browser token to Hetzner." in text
+    assert "Do not enable deploy-key write access." in text
+    assert "switching the Hetzner repo remote to SSH" in text

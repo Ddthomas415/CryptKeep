@@ -37396,6 +37396,62 @@ Remaining risk:
   remain separate.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-02T19:13:12Z - Hetzner GitHub Pull Auth Runbook
+
+Active role: ENGINEER
+
+Objective:
+- Record the durable fix for the recurring Hetzner checkout-sync auth failure
+  without creating credentials, changing host remotes, restarting services, or
+  mutating host state.
+
+What was found:
+- SHOWN: local `master` reached
+  `db467fd5ea2e7adffea136d6b1728fc27965d6c7` after PR #570.
+- SHOWN: Hetzner `/srv/cryptkeep/app` was still clean at
+  `df06a8b06aadaede0fe3265307aace2512932cca`.
+- SHOWN: direct `cryptkeep@100.86.128.9` SSH prompted for an interactive
+  Tailscale browser check during the attempted sync.
+- SHOWN: root SSH could reach the host, but root Git reported dubious
+  ownership for `/srv/cryptkeep/app`.
+- SHOWN: running Git as `cryptkeep` avoided the ownership issue but could not
+  fetch the private HTTPS remote noninteractively:
+  `fatal: could not read Username for 'https://github.com': No such device or
+  address`.
+- SHOWN: `gh` was not installed on the host and no deploy key was present under
+  `~cryptkeep/.ssh/`.
+
+What changed:
+- Added a Hetzner pull-auth section to `docs/GITHUB_AUTH_RUNBOOK.md`.
+- Added a regression test that pins the Hetzner pull-auth boundary.
+- Added a dated note to `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The durable fix is not another local `gh auth login`; local laptop auth and
+  server checkout auth are separate. The lowest-friction permanent server-side
+  path is a dedicated read-only GitHub deploy key for pulls only, with the
+  Hetzner remote switched to SSH. Creating that key is credential/deploy work
+  and needs explicit operator approval, so this batch documents the exact
+  approval boundary instead of mutating host credentials.
+
+Expected outcome:
+- Future sessions stop rediscovering the same GitHub-auth issue and can either
+  remain docs-only or proceed directly with the explicit approved deploy-key
+  remediation.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_github_auth_runbook.py tests/test_operator_reporting_backlog_worklog_sync.py tests/test_roadmap_tracking_checklist.py tests/test_roadmap_tracking_status.py tests/test_script_path_references_exist.py`
+  - SHOWN: `19 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- HIGH if executed on host: provisioning a persistent deploy key and changing a
+  host Git remote is credential/deploy work. This docs/test/backlog change does
+  not create keys, change remotes, install `gh`, copy tokens, restart services,
+  or sync Hetzner beyond the already accepted `df06a8b0` runtime SHA.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-09-02T19:22:03Z - Hetzner Multi-Venue Proposal Status Tool
 
 Active role: ENGINEER

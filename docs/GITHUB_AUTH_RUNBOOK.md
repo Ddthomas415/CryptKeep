@@ -77,6 +77,51 @@ A local auth repair is considered verified only when:
 Do not treat this as permanent. GitHub sessions, tokens, browser grants, SSO,
 and app permissions can expire or be revoked outside the repo.
 
+## Hetzner Pull Auth
+
+Hetzner checkout sync is a separate auth surface from the local laptop `gh`
+session. Local `gh auth status` does not prove `/srv/cryptkeep/app` can fetch
+from GitHub.
+
+Observed failure mode on 2026-09-02:
+
+- the Hetzner checkout is owned by `cryptkeep`;
+- direct `cryptkeep@100.86.128.9` SSH can require an interactive Tailscale
+  browser check;
+- root SSH can reach the host, but root Git sees `/srv/cryptkeep/app` as a
+  dubious-ownership repository unless commands run as `cryptkeep`;
+- running Git as `cryptkeep` reaches the correct repository but cannot fetch
+  the private HTTPS remote noninteractively;
+- `gh` is not installed for the host user, and no GitHub SSH deploy key was
+  present under `~cryptkeep/.ssh/`.
+
+Preferred permanent fix:
+
+1. Generate or install a dedicated SSH deploy key owned by `cryptkeep`.
+2. Add only the public key to `Ddthomas415/CryptKeep` as a read-only deploy key.
+3. Verify GitHub's SSH host key against GitHub's published documentation, then
+   add it to `~cryptkeep/.ssh/known_hosts`.
+4. Change only the Hetzner repo remote to
+   `git@github.com:Ddthomas415/CryptKeep.git`.
+5. Run `git fetch origin master` and `git merge --ff-only origin/master` as
+   `cryptkeep`, with no service restart.
+
+Do not copy a personal GitHub CLI token or browser token to Hetzner. Do not
+enable deploy-key write access. Do not use a machine user or PAT unless the
+deploy-key path is rejected by operator policy.
+
+Explicit approval text for this host mutation:
+
+```text
+I approve provisioning a read-only GitHub deploy key on Hetzner for
+/srv/cryptkeep/app pulls, adding the public key to Ddthomas415/CryptKeep
+without write access, switching the Hetzner repo remote to SSH, and
+fast-forwarding the checkout with no service restart.
+```
+
+This is high-risk credential/deploy work. Until that approval is given, the
+safe action is documentation only.
+
 ## When To Stop
 
 Stop and ask the operator for action if:
