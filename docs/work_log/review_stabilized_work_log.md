@@ -37264,6 +37264,72 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-03T05:55:24Z - Hetzner Gate.io/Binance Challenger Host Start Proof
+
+Active role: ENGINEER
+
+Objective:
+- Execute the approved Hetzner read-only deploy-key Git pull-auth fix, sync the
+  host to current `master`, and start the isolated Gate.io and Binance
+  paper/research challengers through their reviewed preflight restore targets.
+
+What was found:
+- SHOWN: Hetzner `/srv/cryptkeep/app` used an HTTPS remote and could not fetch
+  noninteractively: `fatal: could not read Username for 'https://github.com'`.
+- SHOWN: no Hetzner deploy key existed before provisioning.
+- SHOWN: the new GitHub deploy key is listed as `read-only`.
+- SHOWN: GitHub's SSH host key matched the published Ed25519 fingerprint before
+  `known_hosts` was updated.
+- SHOWN: Gate.io and Binance spot `BTC/USDT` `public_ohlcv_5m` preflights both
+  passed from Hetzner.
+
+What changed:
+- Created/installed a Hetzner-owned SSH key for `/srv/cryptkeep/app` pulls and
+  added its public key to `Ddthomas415/CryptKeep` as a read-only deploy key.
+- Switched only the Hetzner checkout remote to
+  `git@github.com:Ddthomas415/CryptKeep.git`.
+- Fast-forwarded Hetzner to `02b512af` with no service restart.
+- Started `ema_cross_gateio_btcusdt_paper_candidate` and
+  `ema_cross_binance_btcusdt_paper_candidate` through their documented
+  restore/preflight Make targets.
+- Added `docs/checkpoints/hetzner_gateio_binance_challenger_start_2026_09_03.md`
+  to preserve the host-side proof outside terminal history.
+
+Why this change was chosen:
+- The blocker to running the isolated Hetzner challengers was host Git pull
+  auth, not venue OHLCV reachability. The read-only deploy-key path is the
+  documented permanent fix and avoids copying a personal GitHub token to the
+  server.
+
+Expected outcome:
+- Hetzner can pull future `master` updates noninteractively using a read-only
+  key, while Gate.io and Binance collect isolated paper/research evidence under
+  `.cbp_state_challengers`.
+
+Verification:
+- `gh repo deploy-key list -R Ddthomas415/CryptKeep`
+  - SHOWN: key id `162142842`, access `read-only`.
+- Hetzner GitHub host-key verification
+  - SHOWN: `SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU`.
+- Hetzner sync
+  - SHOWN: `git fetch origin master` and `git merge --ff-only origin/master`
+    succeeded over SSH; final host HEAD `02b512af`.
+- `make restore-hetzner-gateio-challenger`
+  - SHOWN: `ok=true`, preflight `row_count=400`, PID `1499165`.
+- `make restore-hetzner-binance-challenger`
+  - SHOWN: `ok=true`, preflight `row_count=400`, PID `1499247`.
+- `make status-hetzner-gateio-challenger HETZNER_STATUS_TRANSPORT=ssh`
+  - SHOWN: `1/1 running`, reason `collecting`.
+- `make status-hetzner-binance-challenger HETZNER_STATUS_TRANSPORT=ssh`
+  - SHOWN: `1/1 running`, reason `collecting`.
+
+Remaining risk:
+- MEDIUM/HIGH operationally: persistent deploy-key auth and background
+  paper/research jobs were changed on the host, though no live trading,
+  exchange credentials, canonical state, canonical gate, or order submission
+  behavior changed.
+- Acceptance state: `ACCEPTED_WITH_RISK`.
+
 ## 2026-09-03T02:30:37Z - Multi-Venue Proposal Preflight Env Scoping Fix
 
 Active role: ENGINEER
