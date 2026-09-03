@@ -70,6 +70,13 @@ def test_makefile_has_alignment_targets():
     assert "restore-hetzner-gateio-challenger:" in txt
     assert "--config $(HETZNER_GATEIO_CHALLENGER_CONFIG)" in txt
     assert "--campaign $(HETZNER_GATEIO_CHALLENGER_NAME) --restore --preflight-ohlcv" in txt
+    assert "HETZNER_BINANCE_CHALLENGER_CONFIG ?= configs/paper_evidence_campaigns.hetzner.binance_challenger.json" in txt
+    assert "HETZNER_BINANCE_CHALLENGER_NAME ?= ema_cross_binance_btcusdt_paper_candidate" in txt
+    assert "status-hetzner-binance-challenger:" in txt
+    assert "restore-hetzner-binance-challenger:" in txt
+    assert "CBP_VENUE=binance CBP_ALLOW_BINANCE=1 ./.venv/bin/python scripts/restore_paper_campaigns.py" in txt
+    assert "--config $(HETZNER_BINANCE_CHALLENGER_CONFIG)" in txt
+    assert "--campaign $(HETZNER_BINANCE_CHALLENGER_NAME) --restore --preflight-ohlcv" in txt
     assert "record-manual-strategy-performance-decision:" in txt
     assert "--target manual_strategy_performance_decision" in txt
     assert "record-composite-hybrid-paper-decision:" in txt
