@@ -1301,6 +1301,17 @@ deployment work still needs independent review.
     orders, or touch live trading. Remaining work: run preflight on the target
     host/network and make a separate reviewed activation decision if either
     row should move into an active isolated paper/research manifest.
+    2026-09-03 follow-up: read-only preflight env scoping fix is ready for
+    independent review. The proposal status checker now scopes `CBP_VENUE` to
+    each candidate row during OHLCV preflight and restores the caller
+    environment afterward, so enabling the Binance guard no longer causes the
+    Gate.io row to fail with `CBP_VENUE conflict`. Local proof with
+    `CBP_VENUE=binance CBP_ALLOW_BINANCE=1` showed Gate.io `BTC/USDT`
+    `public_ohlcv_5m` reachable with 5 rows, while Binance reached the real
+    preflight path and failed with Binance `451` restricted-location
+    `ExchangeNotAvailable`. This remains proposal/read-only only: no campaigns
+    enabled, no manifests mutated, no gate evidence counted, no orders routed,
+    and no live trading touched.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,

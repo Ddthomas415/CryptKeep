@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import json
 import os
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Iterator
 
 from services.execution.ohlcv_preflight import check_ohlcv_reachable
 from services.os.app_paths import code_root
@@ -81,6 +82,23 @@ def _row_checks(row: dict[str, Any], *, index: int) -> list[str]:
     return reasons
 
 
+@contextmanager
+def _candidate_venue_env(venue: str) -> Iterator[None]:
+    """Scope CBP_VENUE to the row being probed, then restore the caller env."""
+    old = os.environ.get("CBP_VENUE")
+    if venue:
+        os.environ["CBP_VENUE"] = venue
+    else:
+        os.environ.pop("CBP_VENUE", None)
+    try:
+        yield
+    finally:
+        if old is None:
+            os.environ.pop("CBP_VENUE", None)
+        else:
+            os.environ["CBP_VENUE"] = old
+
+
 def build_hetzner_multi_venue_proposal_status(
     *,
     manifest_path: Path | None = None,
@@ -129,16 +147,17 @@ def build_hetzner_multi_venue_proposal_status(
                 preflight_failed += 1
             else:
                 preflight_checked += 1
-                preflight = dict(
-                    preflight_fn(
-                        venue=venue,
-                        symbol=str(row.get("symbol") or ""),
-                        signal_source=str(row.get("signal_source") or ""),
-                        probe_limit=int(preflight_probe_limit),
-                        attempts=int(preflight_attempts),
+                with _candidate_venue_env(venue):
+                    preflight = dict(
+                        preflight_fn(
+                            venue=venue,
+                            symbol=str(row.get("symbol") or ""),
+                            signal_source=str(row.get("signal_source") or ""),
+                            probe_limit=int(preflight_probe_limit),
+                            attempts=int(preflight_attempts),
+                        )
+                        or {}
                     )
-                    or {}
-                )
                 if bool(preflight.get("ok")):
                     preflight_passed += 1
                 else:
@@ -232,4 +251,3 @@ def render_hetzner_multi_venue_proposal_status(report: dict[str, Any]) -> str:
         if reasons:
             lines.append(f"  reasons={reasons}")
     return "\n".join(lines)
-

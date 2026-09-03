@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 from services.analytics import hetzner_multi_venue_proposal_status as status
@@ -110,6 +111,28 @@ def test_preflight_allows_binance_when_existing_guard_is_satisfied(monkeypatch, 
     assert report["preflight_summary"] == {"checked": 2, "passed": 2, "failed": 0, "skipped": 0}
 
 
+def test_preflight_scopes_global_binance_env_per_candidate(monkeypatch, tmp_path: Path) -> None:
+    calls: list[tuple[str, str]] = []
+
+    def _preflight(**kwargs):
+        venue = str(kwargs["venue"])
+        calls.append((venue, os.environ.get("CBP_VENUE", "")))
+        return {"ok": True, "status": "ok", "row_count": 5}
+
+    monkeypatch.setenv("CBP_VENUE", "binance")
+    monkeypatch.setenv("CBP_ALLOW_BINANCE", "1")
+    report = status.build_hetzner_multi_venue_proposal_status(
+        manifest_path=_manifest(tmp_path, _valid_payload()),
+        repo_root=tmp_path,
+        run_preflight=True,
+        preflight_fn=_preflight,
+    )
+
+    assert report["status"] == "ok"
+    assert calls == [("gateio", "gateio"), ("binance", "binance")]
+    assert os.environ["CBP_VENUE"] == "binance"
+
+
 def test_invalid_candidate_row_fails_closed(tmp_path: Path) -> None:
     payload = _valid_payload()
     payload["campaigns"][0]["enabled"] = True
@@ -149,4 +172,3 @@ def test_cli_exit_codes(monkeypatch, capsys) -> None:
 
     assert script.main(["--json", "--preflight"]) == 2
     assert json.loads(capsys.readouterr().out)["status"] == "preflight_failed"
-
