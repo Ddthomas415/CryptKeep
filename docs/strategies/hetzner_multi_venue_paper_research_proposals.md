@@ -44,7 +44,10 @@ enabled row:
 
 This manifest is isolated from the canonical `.cbp_state` directory and from
 `es_daily_trend_v1`. It is intended for a reviewed Hetzner paper/research
-campaign start after public-OHLCV preflight passes.
+campaign start after public-OHLCV preflight passes. SHOWN from the Hetzner
+Berlin host on 2026-09-03: Gate.io spot `BTC/USDT` `public_ohlcv_5m`
+preflight returned `status=ok`, `reason=public_ohlcv_reachable`, and
+`row_count=5`.
 
 Read-only remote status after the manifest is present on Hetzner:
 
@@ -60,6 +63,39 @@ make restore-hetzner-gateio-challenger
 
 Do not run the start command from an old checkout. First verify the host has the
 commit that added `configs/paper_evidence_campaigns.hetzner.gateio_challenger.json`.
+
+## Binance Isolated Campaign Manifest
+
+`configs/paper_evidence_campaigns.hetzner.binance_challenger.json` is the
+reviewable activation manifest for the Binance candidate only. It contains one
+enabled row:
+
+- `ema_cross_binance_btcusdt_paper_candidate`
+  - venue: `binance`
+  - symbol: `BTC/USDT`
+  - signal source: `public_ohlcv_5m`
+  - state directory: `.cbp_state_challengers/ema_cross_binance_btcusdt_daily`
+
+This manifest is isolated from the canonical `.cbp_state` directory and from
+`es_daily_trend_v1`. It is intended for a reviewed Hetzner paper/research
+campaign start after public-OHLCV preflight passes from the Hetzner host. The
+restore path keeps Binance behind the explicit guard environment.
+
+Read-only remote status after the manifest is present on Hetzner:
+
+```bash
+make status-hetzner-binance-challenger HETZNER_STATUS_TRANSPORT=ssh
+```
+
+Reviewed start command after preflight passes:
+
+```bash
+make restore-hetzner-binance-challenger
+```
+
+Do not run the start command from an old checkout. First verify the host has the
+commit that added
+`configs/paper_evidence_campaigns.hetzner.binance_challenger.json`.
 
 ## Read-Only Status
 
