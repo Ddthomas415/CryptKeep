@@ -37452,6 +37452,70 @@ Remaining risk:
   or sync Hetzner beyond the already accepted `df06a8b0` runtime SHA.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-09-02T19:22:03Z - Hetzner Multi-Venue Proposal Status Tool
+
+Active role: ENGINEER
+
+Objective:
+- Convert the disabled Hetzner Gate.io/Binance paper-research proposal into a
+  mechanical read-only status check without enabling campaigns, changing the
+  active Hetzner manifest, or touching canonical promotion evidence.
+
+What was found:
+- SHOWN: backlog item #26 already contains the Binance/Gate.io paper-research
+  scope, including disabled proposal rows and explicit exclusions.
+- SHOWN: `configs/paper_evidence_campaigns.hetzner.multi_venue_proposed.json`
+  contains two disabled BTC/USDT `ema_cross` rows, one for `gateio` and one for
+  `binance`, both under `.cbp_state_challengers`.
+- SHOWN: existing `services.execution.ohlcv_preflight.check_ohlcv_reachable`
+  is the accepted read-only public-OHLCV reachability probe.
+- SHOWN: Binance remains guarded by `CBP_VENUE=binance*` and
+  `CBP_ALLOW_BINANCE=1`.
+
+What changed:
+- Added `services/analytics/hetzner_multi_venue_proposal_status.py`.
+- Added `scripts/report_hetzner_multi_venue_proposal_status.py`.
+- Added `make status-hetzner-multi-venue-proposals` and
+  `make status-hetzner-multi-venue-proposals-json`.
+- Updated `scripts/SCRIPTS.md`,
+  `docs/strategies/hetzner_multi_venue_paper_research_proposals.md`, and
+  `REMAINING_TASKS.md`.
+- Corrected stale active-backlog wording that still said the current paper gate
+  needed `10` qualified round trips; the active `es_daily_trend_v1` policy is
+  `slow_daily_single_symbol_v1` with 45 calendar days, 60 qualified source
+  bars, and 5 provenance-qualified round trips.
+- Added `tests/test_hetzner_multi_venue_proposal_status.py`.
+
+Why this change was chosen:
+- The next useful step for Binance/Gate.io was not campaign activation; it was
+  removing manual inspection from the disabled proposal. A structure-only
+  status command can run without network access, while opt-in `--preflight`
+  uses the existing OHLCV probe and keeps Binance behind the existing explicit
+  guard.
+
+Expected outcome:
+- Operators can distinguish a valid disabled proposal, a malformed proposal,
+  a missing Binance guard, and true OHLCV preflight failure before deciding
+  whether any row should become an active isolated paper/research campaign.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_hetzner_multi_venue_proposal_status.py tests/test_hetzner_multi_venue_paper_proposals.py tests/test_makefile_wiring.py tests/test_script_path_references_exist.py`
+  - SHOWN: `10 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_paper_promotion_policy.py tests/test_paper_gate_velocity_report.py tests/test_report_paper_gate_velocity_script.py tests/test_golden_path_operator_flow_guard.py tests/test_strategy_review_ritual_guard.py`
+  - SHOWN: `80 passed`.
+- `make status-hetzner-multi-venue-proposals-json`
+  - SHOWN: `status=proposal_valid_preflight_not_run`, `candidate_count=2`,
+    both rows valid and disabled, `campaigns_started=false`,
+    `active_manifest_mutated=false`, `canonical_gate_mutated=false`,
+    `orders_routed=false`, and `live_trading_touched=false`.
+
+Remaining risk:
+- LOW/MEDIUM: read-only research/proposal status tooling only. `--preflight`
+  may perform public market-data requests, but no campaigns are started, no
+  active manifests are mutated, no canonical gate/evidence state is changed,
+  and no orders are routed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-09-02T04:43:17Z - Hetzner Checkout Sync to `bbe2f4b5f`
 
 Active role: ENGINEER

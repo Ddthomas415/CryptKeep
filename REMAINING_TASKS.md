@@ -288,8 +288,12 @@ deployment work still needs independent review.
    failure, launches with a one-attempt override
    (`launch_max_daily_attempts = previous_daily_attempts + 1`) and reports the
    override in `recovery_attempt_override`.
-2. After the paper gate reaches 10 qualified round trips, write the manual
-   strategy performance decision against the accepted baseline. Before relying
+2. After the paper gate satisfies the active `slow_daily_single_symbol_v1`
+   threshold, write the manual strategy performance decision against the
+   accepted baseline. Current active threshold for `es_daily_trend_v1` is 45
+   calendar days, 60 qualified source bars, and 5 provenance-qualified round
+   trips; do not use the retired universal 10-round-trip wording for current
+   gate status. Before relying
    on the expectancy/manual-review gate, populate or explicitly waive the
    currently null `backtest_expectations` fields in
    `configs/strategies/es_daily_trend_v1.yaml` from an accepted parity/backtest
@@ -1283,6 +1287,20 @@ deployment work still needs independent review.
     the required OHLCV preflight commands and boundaries. This does not modify
     the active Hetzner manifest; rows remain disabled and must not count toward
     the canonical `es_daily_trend_v1` gate.
+    2026-09-02: read-only proposal status tooling is ready for independent
+    review. `services.analytics.hetzner_multi_venue_proposal_status` and
+    `scripts/report_hetzner_multi_venue_proposal_status.py` validate the
+    disabled Hetzner Gate.io/Binance proposal manifest, enforce isolated
+    challenger state dirs and no live/secret controls, optionally run public
+    OHLCV preflights, and keep Binance behind `CBP_VENUE=binance` plus
+    `CBP_ALLOW_BINANCE=1` before probing. `make
+    status-hetzner-multi-venue-proposals-json` reports
+    `proposal_valid_preflight_not_run` locally for the two disabled rows. This
+    does not enable campaigns, mutate active manifests, count canonical
+    promotion evidence, fetch data unless `--preflight` is requested, route
+    orders, or touch live trading. Remaining work: run preflight on the target
+    host/network and make a separate reviewed activation decision if either
+    row should move into an active isolated paper/research manifest.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,

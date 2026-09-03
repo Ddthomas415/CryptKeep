@@ -765,7 +765,7 @@ def test_operator_proof_status_does_not_surface_future_promotion_host_marker_bef
     (tmp_path / "REMAINING_TASKS.md").write_text(
         "\n".join(
             [
-                "2. After the paper gate reaches 10 qualified round trips, write the manual strategy performance decision.",
+                "2. After the paper gate satisfies the active `slow_daily_single_symbol_v1` threshold, write the manual strategy performance decision.",
                 "   Ground truth must come from the operator-host gate/status command output.",
                 "   Remaining before real promotion: GitHub CI/review, plus operator-host gate output as ground truth.",
             ]
