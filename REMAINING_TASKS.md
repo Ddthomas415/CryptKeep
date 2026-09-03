@@ -1307,11 +1307,29 @@ deployment work still needs independent review.
     environment afterward, so enabling the Binance guard no longer causes the
     Gate.io row to fail with `CBP_VENUE conflict`. Local proof with
     `CBP_VENUE=binance CBP_ALLOW_BINANCE=1` showed Gate.io `BTC/USDT`
-    `public_ohlcv_5m` reachable with 5 rows, while Binance reached the real
-    preflight path and failed with Binance `451` restricted-location
-    `ExchangeNotAvailable`. This remains proposal/read-only only: no campaigns
-    enabled, no manifests mutated, no gate evidence counted, no orders routed,
-    and no live trading touched.
+    `public_ohlcv_5m` reachable with 5 rows, while the local/Mac Binance
+    guarded preflight reached the real path and returned Binance `451`
+    restricted-location `ExchangeNotAvailable`. 2026-09-03 follow-up from the
+    Hetzner Berlin host showed Binance spot `BTC/USDT` `public_ohlcv_5m`
+    reachable with 5 rows under `CBP_VENUE=binance CBP_ALLOW_BINANCE=1`.
+    This remains proposal/read-only only: no campaigns enabled, no manifests
+    mutated, no gate evidence counted, no orders routed, and no live trading
+    touched. Binance activation still requires a separate reviewed isolated
+    manifest/operator path.
+    2026-09-03 follow-up: Gate.io isolated Hetzner campaign manifest is ready
+    for independent review.
+    `configs/paper_evidence_campaigns.hetzner.gateio_challenger.json` promotes
+    only the Gate.io proposal row into a separate enabled paper/research
+    manifest with `session_strategy_id=ema_cross_gateio_btcusdt_paper_candidate`
+    and isolated state dir
+    `.cbp_state_challengers/ema_cross_gateio_btcusdt_daily`. It does not
+    modify the active Hetzner `ema_cross_default` manifest, canonical
+    `.cbp_state`, `es_daily_trend_v1`, live routing, order submission, or any
+    promotion gate. `make status-hetzner-gateio-challenger` and `make
+    restore-hetzner-gateio-challenger` provide the reviewed operator path.
+    Remaining action after merge/sync: run the documented Hetzner restore
+    command with `--preflight-ohlcv`, then record the host status output as
+    isolated challenger evidence.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,

@@ -37310,15 +37310,94 @@ Verification:
 - `./.venv/bin/python -m py_compile services/analytics/hetzner_multi_venue_proposal_status.py scripts/report_hetzner_multi_venue_proposal_status.py`
   - SHOWN: passed with no output.
 - `CBP_VENUE=binance CBP_ALLOW_BINANCE=1 make status-hetzner-multi-venue-proposals-json HETZNER_MULTI_VENUE_PROPOSAL_ARGS=--preflight`
-  - SHOWN: Gate.io `BTC/USDT` `public_ohlcv_5m` passed with 5 rows; Binance
-    reached the real guarded preflight and failed with
+  - SHOWN: Gate.io `BTC/USDT` `public_ohlcv_5m` passed with 5 rows; the
+    local/Mac Binance guarded preflight reached the real path and returned
     `ExchangeNotAvailable` / Binance `451` restricted-location. The earlier
     `VenueResolutionError: CBP_VENUE conflict` no longer occurs.
+- `ssh -o BatchMode=yes cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_VENUE=binance CBP_ALLOW_BINANCE=1 ./.venv/bin/python scripts/check_ohlcv_preflight.py --venue binance --symbol BTC/USDT --signal-source public_ohlcv_5m --json'`
+  - SHOWN: on the Hetzner Berlin host, Binance spot `BTC/USDT`
+    `public_ohlcv_5m` returned `status=ok`, `reason=public_ohlcv_reachable`,
+    and `row_count=5`.
 
 Remaining risk:
 - LOW/MEDIUM: read-only reporting/preflight surface only. The command can make
   public market-data requests but does not start campaigns, mutate manifests,
   change gates/evidence, route orders, or touch live trading.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-09-03T02:41:40Z - Hetzner Gate.io Isolated Challenger Manifest
+
+Active role: ENGINEER
+
+Objective:
+- Convert the accepted disabled Gate.io proposal row into a separate,
+  reviewable Hetzner paper/research campaign manifest without changing the
+  existing Hetzner campaign manifest or canonical paper evidence.
+
+What was found:
+- SHOWN: Hetzner currently runs only `ema_cross_default` from
+  `configs/paper_evidence_campaigns.hetzner.example.json`.
+- SHOWN: the Gate.io proposal row is valid, disabled, isolated under
+  `.cbp_state_challengers`, and its read-only OHLCV preflight passed locally
+  for `BTC/USDT` `public_ohlcv_5m`.
+- SHOWN: Gate.io remains the only activation manifest in this batch. Binance
+  is also reachable for spot OHLCV from the Hetzner Berlin host under
+  `CBP_VENUE=binance CBP_ALLOW_BINANCE=1`, but Binance activation still needs
+  its own reviewed isolated manifest/operator path rather than being folded
+  into the Gate.io change.
+
+What changed:
+- Added `configs/paper_evidence_campaigns.hetzner.gateio_challenger.json`
+  with one enabled Gate.io `ema_cross` challenger row:
+  `ema_cross_gateio_btcusdt_paper_candidate`.
+- Updated
+  `docs/strategies/hetzner_multi_venue_paper_research_proposals.md` with the
+  read-only status command and reviewed restore command for the new manifest.
+- Added `make status-hetzner-gateio-challenger` and
+  `make restore-hetzner-gateio-challenger` so operators do not need to copy a
+  raw SSH command for the reviewed start path.
+- Added tests proving the manifest is single-venue, isolated from canonical
+  `.cbp_state`, not `es_daily_trend_v1`, and loadable by the existing paper
+  campaign recovery loader as exactly one enabled campaign; Makefile tests pin
+  the named operator targets.
+
+Why this change was chosen:
+- Running the candidate on Hetzner is feasible, but it should not be done by
+  mutating the active `ema_cross_default` manifest or by enabling the proposal
+  file directly. A separate manifest gives the operator a clear reviewed start
+  path and keeps evidence ownership isolated.
+
+Expected outcome:
+- After merge and host sync, the operator can run the documented
+  `make restore-hetzner-gateio-challenger` target to start only the Gate.io
+  isolated challenger with `--preflight-ohlcv`, then inspect/report its status
+  without affecting canonical paper-gate evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_hetzner_multi_venue_paper_proposals.py tests/test_paper_campaign_recovery.py tests/test_report_hetzner_paper_campaign_status.py tests/test_script_path_references_exist.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `38 passed` before named Make targets were added.
+- `./.venv/bin/python -m pytest -q tests/test_hetzner_multi_venue_paper_proposals.py tests/test_paper_campaign_recovery.py tests/test_report_hetzner_paper_campaign_status.py tests/test_script_path_references_exist.py tests/test_operator_reporting_backlog_worklog_sync.py tests/test_makefile_wiring.py tests/test_operator_doc_make_targets.py`
+  - SHOWN: `41 passed`.
+- `make -n status-hetzner-gateio-challenger`
+  - SHOWN: expands to `status-paper-hetzner` with
+    `HETZNER_PAPER_CAMPAIGN_CONFIG=configs/paper_evidence_campaigns.hetzner.gateio_challenger.json`.
+- `make -n restore-hetzner-gateio-challenger`
+  - SHOWN: expands to SSH command running `restore_paper_campaigns.py
+    --config configs/paper_evidence_campaigns.hetzner.gateio_challenger.json
+    --campaign ema_cross_gateio_btcusdt_paper_candidate --restore
+    --preflight-ohlcv`.
+- `./.venv/bin/python - <<'PY' ... load_campaign_specs(Path('configs/paper_evidence_campaigns.hetzner.gateio_challenger.json')) ... PY`
+  - SHOWN: one enabled spec:
+    `ema_cross_gateio_btcusdt_paper_candidate gateio BTC/USDT public_ohlcv_5m
+    .cbp_state_challengers/ema_cross_gateio_btcusdt_daily`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- MEDIUM: this patch does not start a campaign, but it introduces a manifest
+  that can start a new background paper/research collector after review. No
+  live trading, live routing, canonical gate, canonical `.cbp_state`, or order
+  submission behavior is changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## 2026-09-02T04:49:00Z - Host Operator-Event Journal Service-User Proof
