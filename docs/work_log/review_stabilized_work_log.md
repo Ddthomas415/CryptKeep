@@ -37264,6 +37264,63 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-03T02:30:37Z - Multi-Venue Proposal Preflight Env Scoping Fix
+
+Active role: ENGINEER
+
+Objective:
+- Fix the read-only Hetzner multi-venue proposal status checker so an explicit
+  Binance guard environment does not break preflight checks for non-Binance
+  proposal rows in the same manifest.
+
+What was found:
+- SHOWN: `make status-hetzner-multi-venue-proposals-json
+  HETZNER_MULTI_VENUE_PROPOSAL_ARGS=--preflight` works for Gate.io when no
+  Binance guard environment is set, and correctly skips Binance with
+  `binance_guard_not_enabled`.
+- SHOWN: running the same read-only preflight with `CBP_VENUE=binance` and
+  `CBP_ALLOW_BINANCE=1` failed before reaching the Binance row because the
+  Gate.io row called `make_exchange("gateio", ...)` while the global
+  `CBP_VENUE` was `binance`, causing
+  `VenueResolutionError: CBP_VENUE conflict`.
+
+What changed:
+- `services.analytics.hetzner_multi_venue_proposal_status` now scopes
+  `CBP_VENUE` to each candidate only while that candidate's OHLCV preflight is
+  running, then restores the caller environment.
+- Added a regression test proving a global Binance guard environment probes
+  Gate.io with `CBP_VENUE=gateio`, probes Binance with
+  `CBP_VENUE=binance`, and restores the original environment afterward.
+
+Why this change was chosen:
+- The proposal checker is intentionally multi-venue. A single global
+  `CBP_VENUE` value is still required by the Binance guard, but it must not
+  leak across candidate rows and create false venue-conflict failures.
+
+Expected outcome:
+- Operators can run one read-only proposal preflight across Gate.io and Binance
+  candidates without misclassifying an environment-scope conflict as a venue or
+  market-data outage.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_hetzner_multi_venue_proposal_status.py tests/test_hetzner_multi_venue_paper_proposals.py tests/test_makefile_wiring.py tests/test_script_path_references_exist.py`
+  - SHOWN: `11 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_hetzner_multi_venue_proposal_status.py tests/test_hetzner_multi_venue_paper_proposals.py tests/test_makefile_wiring.py tests/test_script_path_references_exist.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `12 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/hetzner_multi_venue_proposal_status.py scripts/report_hetzner_multi_venue_proposal_status.py`
+  - SHOWN: passed with no output.
+- `CBP_VENUE=binance CBP_ALLOW_BINANCE=1 make status-hetzner-multi-venue-proposals-json HETZNER_MULTI_VENUE_PROPOSAL_ARGS=--preflight`
+  - SHOWN: Gate.io `BTC/USDT` `public_ohlcv_5m` passed with 5 rows; Binance
+    reached the real guarded preflight and failed with
+    `ExchangeNotAvailable` / Binance `451` restricted-location. The earlier
+    `VenueResolutionError: CBP_VENUE conflict` no longer occurs.
+
+Remaining risk:
+- LOW/MEDIUM: read-only reporting/preflight surface only. The command can make
+  public market-data requests but does not start campaigns, mutate manifests,
+  change gates/evidence, route orders, or touch live trading.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-09-02T04:49:00Z - Host Operator-Event Journal Service-User Proof
 
 Active role: ENGINEER
