@@ -240,6 +240,12 @@ decision makes them authoritative.
   restore-hetzner-gateio-challenger` is the reviewed, preflight-required
   restore path for that single paper/research candidate; it must not be run
   from a stale host checkout.
+- `make status-hetzner-binance-challenger` reports the isolated Binance
+  challenger manifest after it is present on Hetzner. `make
+  restore-hetzner-binance-challenger` is the reviewed, preflight-required
+  restore path for that single paper/research candidate and runs with
+  `CBP_VENUE=binance CBP_ALLOW_BINANCE=1`; it must not be run from a stale
+  host checkout.
 - `run_candidate_outcome_report.py` — read-only candidate-vs-paper-outcome
   report that writes `.cbp_state/data/candidate_outcomes/` artifacts; use
   `make candidate-outcomes`.

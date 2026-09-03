@@ -1330,6 +1330,25 @@ deployment work still needs independent review.
     Remaining action after merge/sync: run the documented Hetzner restore
     command with `--preflight-ohlcv`, then record the host status output as
     isolated challenger evidence.
+    2026-09-03 follow-up: Binance isolated Hetzner campaign manifest is ready
+    for independent review.
+    `configs/paper_evidence_campaigns.hetzner.binance_challenger.json`
+    promotes only the Binance proposal row into a separate enabled
+    paper/research manifest with
+    `session_strategy_id=ema_cross_binance_btcusdt_paper_candidate` and
+    isolated state dir
+    `.cbp_state_challengers/ema_cross_binance_btcusdt_daily`. The restore path
+    keeps Binance behind `CBP_VENUE=binance CBP_ALLOW_BINANCE=1`. SHOWN from
+    the Hetzner Berlin host: Binance spot `BTC/USDT` `public_ohlcv_5m`
+    preflight returned `status=ok`, `reason=public_ohlcv_reachable`, and
+    `row_count=5`. This does not modify the active Hetzner `ema_cross_default`
+    manifest, canonical `.cbp_state`, `es_daily_trend_v1`, live routing, order
+    submission, or any promotion gate. `make
+    status-hetzner-binance-challenger` and `make
+    restore-hetzner-binance-challenger` provide the reviewed operator path.
+    Remaining action after merge/sync: run the documented Hetzner restore
+    command with guarded Binance env and `--preflight-ohlcv`, then record the
+    host status output as isolated challenger evidence.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,

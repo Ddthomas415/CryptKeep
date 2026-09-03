@@ -37400,6 +37400,56 @@ Remaining risk:
   submission behavior is changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-09-03T05:24:34Z - Hetzner Binance Isolated Challenger Manifest
+
+Active role: ENGINEER
+
+Objective:
+- Convert the accepted disabled Binance proposal row into a separate,
+  reviewable Hetzner paper/research campaign manifest after proving spot OHLCV
+  reachability from the Hetzner Berlin host.
+
+What was found:
+- SHOWN: Binance spot `BTC/USDT` `public_ohlcv_5m` is reachable from Hetzner
+  under `CBP_VENUE=binance CBP_ALLOW_BINANCE=1`; the read-only preflight
+  returned `status=ok`, `reason=public_ohlcv_reachable`, and `row_count=5`.
+- SHOWN: the earlier Binance `451` result was local/Mac path evidence and
+  should not be generalized to the Hetzner Berlin host.
+- SHOWN: the existing multi-venue proposal row already names the isolated
+  Binance state directory and keeps Binance behind the explicit guard.
+
+What changed:
+- Added `configs/paper_evidence_campaigns.hetzner.binance_challenger.json`
+  with one enabled Binance `ema_cross` challenger row:
+  `ema_cross_binance_btcusdt_paper_candidate`.
+- Added `make status-hetzner-binance-challenger` and
+  `make restore-hetzner-binance-challenger`; the restore target runs with
+  `CBP_VENUE=binance CBP_ALLOW_BINANCE=1` and `--preflight-ohlcv`.
+- Updated the multi-venue strategy doc, script index, backlog, and Make wiring
+  tests to pin the isolated Binance operator path.
+
+Why this change was chosen:
+- Binance should run on Hetzner if the Hetzner host can reach the required
+  spot OHLCV source. A separate manifest keeps the candidate isolated from
+  Gate.io, the existing Hetzner `ema_cross_default` campaign, and the canonical
+  ES paper gate.
+
+Expected outcome:
+- Operators can review and start a Binance Hetzner paper/research challenger
+  through a guarded, preflight-required path without touching live execution or
+  canonical promotion evidence.
+
+Verification:
+- `ssh -o BatchMode=yes cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_VENUE=binance CBP_ALLOW_BINANCE=1 ./.venv/bin/python scripts/check_ohlcv_preflight.py --venue binance --symbol BTC/USDT --signal-source public_ohlcv_5m --json'`
+  - SHOWN: `status=ok`, `reason=public_ohlcv_reachable`, `row_count=5`.
+
+Remaining risk:
+- MEDIUM: this patch does not start a campaign, but it introduces a manifest
+  that can start a new background paper/research collector after review. No
+  live trading, live routing, canonical gate, canonical `.cbp_state`, or order
+  submission behavior is changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-09-02T04:49:00Z - Host Operator-Event Journal Service-User Proof
 
 Active role: ENGINEER
