@@ -288,8 +288,12 @@ deployment work still needs independent review.
    failure, launches with a one-attempt override
    (`launch_max_daily_attempts = previous_daily_attempts + 1`) and reports the
    override in `recovery_attempt_override`.
-2. After the paper gate reaches 10 qualified round trips, write the manual
-   strategy performance decision against the accepted baseline. Before relying
+2. After the paper gate satisfies the active `slow_daily_single_symbol_v1`
+   threshold, write the manual strategy performance decision against the
+   accepted baseline. Current active threshold for `es_daily_trend_v1` is 45
+   calendar days, 60 qualified source bars, and 5 provenance-qualified round
+   trips; do not use the retired universal 10-round-trip wording for current
+   gate status. Before relying
    on the expectancy/manual-review gate, populate or explicitly waive the
    currently null `backtest_expectations` fields in
    `configs/strategies/es_daily_trend_v1.yaml` from an accepted parity/backtest

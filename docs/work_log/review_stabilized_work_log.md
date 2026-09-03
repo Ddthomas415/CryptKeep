@@ -37480,6 +37480,10 @@ What changed:
 - Updated `scripts/SCRIPTS.md`,
   `docs/strategies/hetzner_multi_venue_paper_research_proposals.md`, and
   `REMAINING_TASKS.md`.
+- Corrected stale active-backlog wording that still said the current paper gate
+  needed `10` qualified round trips; the active `es_daily_trend_v1` policy is
+  `slow_daily_single_symbol_v1` with 45 calendar days, 60 qualified source
+  bars, and 5 provenance-qualified round trips.
 - Added `tests/test_hetzner_multi_venue_proposal_status.py`.
 
 Why this change was chosen:
@@ -37497,6 +37501,8 @@ Expected outcome:
 Verification:
 - `./.venv/bin/python -m pytest -q tests/test_hetzner_multi_venue_proposal_status.py tests/test_hetzner_multi_venue_paper_proposals.py tests/test_makefile_wiring.py tests/test_script_path_references_exist.py`
   - SHOWN: `10 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_paper_promotion_policy.py tests/test_paper_gate_velocity_report.py tests/test_report_paper_gate_velocity_script.py tests/test_golden_path_operator_flow_guard.py tests/test_strategy_review_ritual_guard.py`
+  - SHOWN: `80 passed`.
 - `make status-hetzner-multi-venue-proposals-json`
   - SHOWN: `status=proposal_valid_preflight_not_run`, `candidate_count=2`,
     both rows valid and disabled, `campaigns_started=false`,
