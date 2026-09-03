@@ -64,6 +64,12 @@ def test_makefile_has_alignment_targets():
     assert "--evidence-dest $(EXCHANGE_SANDBOX_SMOKE_EVIDENCE_DEST)" in txt
     assert "backup-state:" in txt
     assert "scripts/backup_state.py backup --dest $(STATE_BACKUP_DEST)" in txt
+    assert "HETZNER_GATEIO_CHALLENGER_CONFIG ?= configs/paper_evidence_campaigns.hetzner.gateio_challenger.json" in txt
+    assert "HETZNER_GATEIO_CHALLENGER_NAME ?= ema_cross_gateio_btcusdt_paper_candidate" in txt
+    assert "status-hetzner-gateio-challenger:" in txt
+    assert "restore-hetzner-gateio-challenger:" in txt
+    assert "--config $(HETZNER_GATEIO_CHALLENGER_CONFIG)" in txt
+    assert "--campaign $(HETZNER_GATEIO_CHALLENGER_NAME) --restore --preflight-ohlcv" in txt
     assert "record-manual-strategy-performance-decision:" in txt
     assert "--target manual_strategy_performance_decision" in txt
     assert "record-composite-hybrid-paper-decision:" in txt

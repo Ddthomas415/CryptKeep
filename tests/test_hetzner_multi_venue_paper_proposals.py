@@ -6,6 +6,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 PROPOSAL = REPO / "configs" / "paper_evidence_campaigns.hetzner.multi_venue_proposed.json"
+GATEIO_ACTIVE = REPO / "configs" / "paper_evidence_campaigns.hetzner.gateio_challenger.json"
 DOC = REPO / "docs" / "strategies" / "hetzner_multi_venue_paper_research_proposals.md"
 
 
@@ -58,5 +59,40 @@ def test_hetzner_multi_venue_proposal_doc_pins_preflight_and_boundaries() -> Non
         "check_ohlcv_preflight.py --venue binance --symbol BTC/USDT --signal-source public_ohlcv_5m",
         "must not count toward the canonical `es_daily_trend_v1` promotion gate",
         "No exchange credentials, live routing, order submission, host package install",
+        "make status-hetzner-gateio-challenger HETZNER_STATUS_TRANSPORT=ssh",
+        "make restore-hetzner-gateio-challenger",
+        "Do not run the start command from an old checkout",
     ):
         assert needle in text
+
+
+def test_hetzner_gateio_challenger_manifest_is_isolated_and_single_venue() -> None:
+    payload = json.loads(GATEIO_ACTIVE.read_text(encoding="utf-8"))
+
+    assert payload["schema_version"] == 1
+    campaigns = payload["campaigns"]
+    assert len(campaigns) == 1
+    row = campaigns[0]
+    assert row["enabled"] is True
+    assert row["name"] == "ema_cross_gateio_btcusdt_paper_candidate"
+    assert row["session_strategy_id"] == "ema_cross_gateio_btcusdt_paper_candidate"
+    assert row["strategy"] == "ema_cross"
+    assert row["venue"] == "gateio"
+    assert row["symbol"] == "BTC/USDT"
+    assert row["signal_source"] == "public_ohlcv_5m"
+    assert row["state_dir"] == ".cbp_state_challengers/ema_cross_gateio_btcusdt_daily"
+    assert row["state_dir"] != ".cbp_state"
+    assert row["session_strategy_id"] != "es_daily_trend_v1"
+    assert row["desktop_notify"] is False
+
+
+def test_hetzner_gateio_challenger_manifest_loads_as_one_campaign() -> None:
+    from services.analytics.paper_campaign_recovery import load_campaign_specs
+
+    specs = load_campaign_specs(GATEIO_ACTIVE)
+
+    assert len(specs) == 1
+    spec = specs[0]
+    assert spec.name == "ema_cross_gateio_btcusdt_paper_candidate"
+    assert spec.venue == "gateio"
+    assert spec.state_dir.as_posix().endswith(".cbp_state_challengers/ema_cross_gateio_btcusdt_daily")

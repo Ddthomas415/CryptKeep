@@ -30,6 +30,37 @@ manifest with no enabled rows, so this file should not be passed directly to
 `scripts/restore_paper_campaigns.py` until a reviewed follow-up deliberately
 promotes one candidate row into an active manifest.
 
+## Gate.io Isolated Campaign Manifest
+
+`configs/paper_evidence_campaigns.hetzner.gateio_challenger.json` is the
+reviewable activation manifest for the Gate.io candidate only. It contains one
+enabled row:
+
+- `ema_cross_gateio_btcusdt_paper_candidate`
+  - venue: `gateio`
+  - symbol: `BTC/USDT`
+  - signal source: `public_ohlcv_5m`
+  - state directory: `.cbp_state_challengers/ema_cross_gateio_btcusdt_daily`
+
+This manifest is isolated from the canonical `.cbp_state` directory and from
+`es_daily_trend_v1`. It is intended for a reviewed Hetzner paper/research
+campaign start after public-OHLCV preflight passes.
+
+Read-only remote status after the manifest is present on Hetzner:
+
+```bash
+make status-hetzner-gateio-challenger HETZNER_STATUS_TRANSPORT=ssh
+```
+
+Reviewed start command after preflight passes:
+
+```bash
+make restore-hetzner-gateio-challenger
+```
+
+Do not run the start command from an old checkout. First verify the host has the
+commit that added `configs/paper_evidence_campaigns.hetzner.gateio_challenger.json`.
+
 ## Read-Only Status
 
 Use this structure-only check before any activation discussion:
