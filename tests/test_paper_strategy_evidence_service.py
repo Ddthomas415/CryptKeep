@@ -357,6 +357,22 @@ def test_component_env_passes_strategy_context_overrides(monkeypatch) -> None:
     assert out["CBP_STRATEGY_NAME"] == "funding_extreme"
 
 
+def test_component_env_sets_configured_binance_venue_for_guard(monkeypatch) -> None:
+    monkeypatch.setenv("CBP_VENUE", "should_not_leak")
+    monkeypatch.setenv("CBP_ALLOW_BINANCE", "1")
+    cfg = svc.PaperStrategyEvidenceServiceCfg(
+        symbol="BTC/USDT",
+        venue="binance",
+    )
+
+    out = svc._component_env(cfg, strategy_name="ema_cross")
+
+    assert out["CBP_COMPONENT_SYMBOLS"] == "BTC/USDT"
+    assert out["CBP_COMPONENT_VENUE"] == "binance"
+    assert out["CBP_VENUE"] == "binance"
+    assert out["CBP_ALLOW_BINANCE"] == "1"
+
+
 def test_run_campaign_continues_when_default_watch_seed_fails(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
 

@@ -1352,6 +1352,19 @@ deployment work still needs independent review.
     Remaining action after merge/sync: run the documented Hetzner restore
     command with guarded Binance env and `--preflight-ohlcv`, then record the
     host status output as isolated challenger evidence.
+    2026-09-04 follow-up: host recovery exposed a managed-child environment
+    gap in the isolated Binance paper path. The Binance restore preflight
+    passed on Hetzner with 400 rows, but `strategy_runner` then refused live
+    OHLCV fetches because managed child processes received
+    `CBP_COMPONENT_VENUE=binance` and `CBP_ALLOW_BINANCE=1` while
+    `CBP_VENUE` had been deliberately stripped to prevent parent-env leakage.
+    The existing Binance guard requires `CBP_VENUE=binance*` plus
+    `CBP_ALLOW_BINANCE=1`, so the campaign parked at `no_public_ohlcv`.
+    A scoped fix is ready for independent review: managed paper children still
+    clear inherited `CBP_VENUE`, but when the configured child venue is
+    Binance they set `CBP_VENUE` to that configured venue only. Non-Binance
+    children continue using `CBP_COMPONENT_VENUE` without inherited
+    `CBP_VENUE`.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,

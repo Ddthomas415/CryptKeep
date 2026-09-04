@@ -560,7 +560,12 @@ def _component_env(cfg: "PaperStrategyEvidenceServiceCfg", *, strategy_name: str
     env.pop("CBP_SYMBOLS", None)
     env.pop("CBP_VENUE", None)
     env["CBP_COMPONENT_SYMBOLS"] = str(cfg.symbol or DEFAULT_SYMBOL)
-    env["CBP_COMPONENT_VENUE"] = str(cfg.venue or DEFAULT_VENUE)
+    component_venue = str(cfg.venue or DEFAULT_VENUE)
+    env["CBP_COMPONENT_VENUE"] = component_venue
+    if component_venue.strip().lower().startswith("binance"):
+        # Binance remains explicitly guarded by CBP_VENUE + CBP_ALLOW_BINANCE.
+        # Set only the configured child venue, never an inherited parent value.
+        env["CBP_VENUE"] = component_venue
     env["CBP_TICK_PUBLISH_INTERVAL_SEC"] = str(float(cfg.tick_publish_interval_sec))
     if int(cfg.strategy_min_bars or 0) > 0:
         env["CBP_STRATEGY_MIN_BARS"] = str(int(cfg.strategy_min_bars))
