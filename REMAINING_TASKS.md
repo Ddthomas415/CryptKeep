@@ -288,6 +288,13 @@ deployment work still needs independent review.
    failure, launches with a one-attempt override
    (`launch_max_daily_attempts = previous_daily_attempts + 1`) and reports the
    override in `recovery_attempt_override`.
+   2026-09-04 follow-up: Hetzner Binance recovery showed the same override also
+   needs to apply when a preflight-confirmed recovery stop leaves the collector
+   status at `reason=stop_requested`, `pid_alive=false`, and same-day attempts
+   already equal to the manifest cap. A focused fix is ready for independent
+   review: explicit `--restore --preflight-ohlcv` of a stopped/exhausted
+   campaign grants one fresh same-day attempt, preserving the same
+   `recovery_attempt_override` audit payload.
 2. After the paper gate satisfies the active `slow_daily_single_symbol_v1`
    threshold, write the manual strategy performance decision against the
    accepted baseline. Current active threshold for `es_daily_trend_v1` is 45
@@ -1365,6 +1372,14 @@ deployment work still needs independent review.
     Binance they set `CBP_VENUE` to that configured venue only. Non-Binance
     children continue using `CBP_COMPONENT_VENUE` without inherited
     `CBP_VENUE`.
+    2026-09-04 follow-up: after that fix merged and Hetzner fast-forwarded to
+    `d79cb972`, the guarded restore preflight again passed for Binance with
+    400 rows, but the relaunch immediately parked at
+    `daily_retry_limit_exhausted` because the prior repair stop left
+    `reason=stop_requested` and the manifest cap stayed at 2. A focused
+    recovery fix is ready for independent review so stopped/exhausted
+    preflight-confirmed recoveries receive the same one-attempt override as
+    OHLCV/daily-limit failures.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,

@@ -303,6 +303,7 @@ def _recovery_attempt_limit(
         "daily_retry_limit_exhausted",
         "no_public_ohlcv",
         "ohlcv_source_unreachable",
+        "stop_requested",
     }:
         return None, None
     launch_limit = max(int(spec.max_daily_attempts), attempts + 1)
