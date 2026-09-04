@@ -37264,6 +37264,68 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-04T02:27:09Z - Binance Managed Paper Child Env Guard Fix
+
+Active role: ENGINEER
+
+Objective:
+- Fix the isolated Hetzner Binance paper challenger path after host status
+  showed Binance OHLCV preflight passing while the managed strategy runner
+  refused Binance fetches.
+
+What was found:
+- SHOWN: Hetzner Binance preflight passed with `status=ok`,
+  `reason=public_ohlcv_reachable`, and `row_count=400` for Binance
+  `BTC/USDT` `public_ohlcv_5m`.
+- SHOWN: the Binance challenger was alive but unhealthy with
+  `reason=no_public_ohlcv` after exhausting same-day attempts.
+- SHOWN: remote runner logs repeatedly reported
+  `Refusing Binance ex_id='binance' because CBP_VENUE='' and/or
+  CBP_ALLOW_BINANCE='1' != '1'`.
+- SHOWN: `paper_strategy_evidence_service._component_env()` deliberately
+  stripped inherited `CBP_VENUE` and only set `CBP_COMPONENT_VENUE`; that is
+  correct for preventing parent-env leakage but incompatible with the existing
+  Binance guard, which requires explicit `CBP_VENUE=binance*` plus
+  `CBP_ALLOW_BINANCE=1`.
+
+What changed:
+- `services/analytics/paper_strategy_evidence_service.py`: managed child env
+  still clears inherited `CBP_VENUE`, but if the configured child venue starts
+  with `binance`, it sets `CBP_VENUE` to that configured venue only.
+- `tests/test_paper_strategy_evidence_service.py`: added a regression proving
+  Binance children receive `CBP_VENUE=binance` plus the existing
+  `CBP_ALLOW_BINANCE=1`, while the existing non-Binance test still proves
+  inherited parent venue does not leak.
+- `REMAINING_TASKS.md`: added the dated backlog note under the
+  Binance/Gate.io venue expansion item.
+
+Why this change was chosen:
+- The preflight and campaign paths need to use the same guarded venue
+  authority. Setting `CBP_VENUE` only from the configured Binance child venue
+  satisfies the existing Binance guard without re-opening the global
+  parent-env leakage fixed for managed children.
+
+Expected outcome:
+- Isolated Binance managed paper campaigns can fetch public OHLCV when the
+  operator explicitly enables Binance with `CBP_ALLOW_BINANCE=1`, while
+  Gate.io/OKX/Coinbase managed children remain isolated from inherited
+  `CBP_VENUE`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_strategy_evidence_service.py tests/test_exchange_factory_resolution.py tests/test_hetzner_multi_venue_paper_proposals.py tests/test_makefile_wiring.py`
+  - SHOWN: `45 passed`.
+- Host recovery before this patch was attempted with guarded preflight and
+  restarted the Binance challenger to PID `1501486`, but the same child-env
+  failure recurred. The unhealthy challenger was stopped before this code fix.
+
+Remaining risk:
+- MEDIUM: paper/research runtime env fix only. No live execution, order
+  routing, risk gate, promotion gate, strategy config, or canonical
+  `es_daily_trend_v1` evidence path is changed.
+- Host deploy/sync and Binance challenger restart after merge remain
+  operational proof.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-09-03T05:55:24Z - Hetzner Gate.io/Binance Challenger Host Start Proof
 
 Active role: ENGINEER
