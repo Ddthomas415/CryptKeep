@@ -37264,6 +37264,75 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-05T03:01:18Z - Hetzner Supply-Chain Alignment After Remediation
+
+Active role: ENGINEER
+
+Objective:
+- Record the post-merge Hetzner checkout and virtualenv alignment after PR #582
+  remediated the current local supply-chain audit findings.
+
+What was found:
+- SHOWN: PR #582 merged to master as
+  `e38c342de9eb8209bdd7fdd44ca75cf757901fa2`.
+- SHOWN: before alignment, Hetzner `/srv/cryptkeep/app` was still on
+  `9aecbace` with `GitPython 3.1.58` and `tornado 6.5.7`.
+- SHOWN: after fast-forward, Hetzner was on `e38c342d`.
+- SHOWN: after installing `requirements-pinned.txt`, Hetzner had
+  `GitPython 3.1.59` and `tornado 6.5.8`.
+- SHOWN: host `scripts/check_supply_chain.py --json` reported
+  `pin_integrity.ok=true`, `environment.ok=true`, `mismatches=[]`, and
+  `not_installed=[]`.
+- SHOWN: host vulnerability audit was not run:
+  `vulnerability_audit.ran=false`, `reason=not_requested`; `pip-audit` is not
+  installed in `/srv/cryptkeep/app/.venv`.
+- SHOWN: Gate.io and Binance Hetzner challengers remained `1/1` running and
+  idle `waiting_for_next_day`.
+
+What changed:
+- Added `docs/checkpoints/hetzner_supply_chain_alignment_2026_09_05.md`.
+- Added a dated follow-up note under the existing supply-chain/release-policy
+  backlog item.
+- No source code, campaign config, gate behavior, execution behavior, or live
+  routing behavior changed in this record branch.
+
+Why this change was chosen:
+- The runtime host alignment changed deployed dependency state after PR #582
+  merged. The proof belongs in repo-visible operator evidence rather than only
+  terminal output.
+
+Expected outcome:
+- Operators can distinguish the closed deployed-environment pin-alignment piece
+  from the still-open host vulnerability audit/waiver and SBOM/hash-lock
+  release-policy decisions.
+
+Verification:
+- `gh pr checks 582`
+  - SHOWN: seven checks passed; zero pending.
+- `gh pr merge 582 --squash --delete-branch --admin`
+  - SHOWN: master fast-forwarded locally to `e38c342de`.
+- `ssh -o BatchMode=yes cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && GIT_SSH_COMMAND="ssh -i ~/.ssh/cryptkeep_github_readonly -o IdentitiesOnly=yes" git fetch origin master && GIT_SSH_COMMAND="ssh -i ~/.ssh/cryptkeep_github_readonly -o IdentitiesOnly=yes" git merge --ff-only origin/master && git rev-parse --short HEAD'`
+  - SHOWN: Hetzner fast-forwarded to `e38c342d`.
+- `ssh -o BatchMode=yes cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && ./.venv/bin/python -m pip install -r requirements-pinned.txt'`
+  - SHOWN: installed `gitpython-3.1.59` and `tornado-6.5.8`.
+- `ssh -o BatchMode=yes cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && ./.venv/bin/python scripts/check_supply_chain.py --json && ./.venv/bin/python -m pip show GitPython tornado pip-audit 2>/dev/null || true'`
+  - SHOWN: pin/environment alignment OK and expected package versions present;
+    vulnerability audit not requested.
+- `make status-hetzner-gateio-challenger`
+  - SHOWN: `Campaigns: 1/1 running`.
+- `make status-hetzner-binance-challenger`
+  - SHOWN: `Campaigns: 1/1 running`.
+
+Remaining risk:
+- MEDIUM/HIGH: deployed dependency state changed on the host, though no service
+  restart was performed and campaign status remained healthy after alignment.
+- Existing running Python processes may keep already-imported module objects
+  until their normal restart.
+- Host vulnerability audit remains open until `pip-audit` is installed/enabled
+  and run, or explicitly waived.
+- SBOM/hash-lock release-gate policy remains open.
+- Acceptance state: `ACCEPTED_WITH_RISK`.
+
 ## 2026-09-05T02:50:07Z - Supply-Chain Local Audit Remediation
 
 Active role: ENGINEER

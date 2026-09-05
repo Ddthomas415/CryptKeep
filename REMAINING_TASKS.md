@@ -2269,6 +2269,19 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     Remaining host proof: repeat the audit on final deployed SHA; Hetzner
     read-only inspection showed pip `26.2` but no installed `pip-audit`.
     SBOM/hash-lock release-gate policy remains undecided.
+    2026-09-05 follow-up: PR #582 merged to master as
+    `e38c342de9eb8209bdd7fdd44ca75cf757901fa2`; Hetzner
+    `/srv/cryptkeep/app` was fast-forwarded without service restart from
+    `9aecbace` to `e38c342d`, then the host venv was aligned to
+    `requirements-pinned.txt`. SHOWN: `GitPython 3.1.59` and `tornado 6.5.8`
+    installed; `scripts/check_supply_chain.py --json` reports pin integrity OK,
+    environment OK, no mismatches, no missing packages, and
+    `vulnerability_audit.ran=false` with reason `not_requested`; Gate.io and
+    Binance Hetzner challengers remained `1/1` running and idle
+    `waiting_for_next_day`. Checkpoint:
+    `docs/checkpoints/hetzner_supply_chain_alignment_2026_09_05.md`.
+    Remaining release-policy work is narrowed to host vulnerability audit
+    enablement/waiver and SBOM/hash-lock policy; no service restart was run.
     2026-08-23: updated supply-chain status is recorded in
     `docs/checkpoints/supply_chain_status_2026_08_23.md`. Local checkout
     `cc6c69f` has pin integrity OK and environment OK, but `pip-audit` reports
