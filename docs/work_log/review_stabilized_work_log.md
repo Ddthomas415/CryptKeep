@@ -37264,6 +37264,46 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-05T18:45:16Z - Venue Challenger Activity Comparison
+
+Active role: AUDITOR
+
+Objective: compare the new venue challengers with existing campaigns using
+read-only status, recorded sessions, and a bounded offline signal diagnostic.
+
+What was found (SHOWN, VERIFIED_ENV):
+- All three Hetzner collectors and both laptop-owned collectors were running.
+- Binance and Gate.io completed Sep 5 sessions with zero fills, final
+  `no_cross` signals, and healthy evidence writers. Earlier Binance data
+  failures are historical; the recovery remains supported by the latest session.
+- Coinbase EMA closed one trade on Sep 5: 18 total fills, 9 closed trades.
+- All three host strategy windows are approximately 15 minutes per UTC day.
+- Binance/Gate.io snapshots each contain 400 consecutive 5-minute candles;
+  the shorter Coinbase snapshot has 40 non-5-minute adjacent intervals.
+- Offline preset replay found 13/11/10 raw crossovers for
+  Binance/Gate.io/Coinbase respectively, but only 2/1/1 passing sell signals
+  and no buys. Most rejection reasons were the volatility filter.
+
+What changed and why:
+- Added `docs/checkpoints/venue_challenger_activity_review_2026_09_05.md`
+  with comparison, schedule trace, replay scope, hashes, and recommendations.
+- Preserved snapshot copies in ignored local research state. No campaigns,
+  gates, runtime configuration, or trading behavior changed.
+- The record distinguishes a short daily observation trial from continuous
+  5-minute strategy evaluation, without treating hypothetical signals as fills.
+
+Expected outcome: evaluate longer isolated observation with unchanged filters
+before making claims about evidence velocity or relative venue performance.
+
+Verification: direct SSH status and selected evidence reads; laptop-specific
+status; prefix replay through repository EMA functions; `git diff --check`.
+No application tests rerun for a documentation-only observational report.
+
+Remaining risk: snapshot replay omits historical runtime overrides, position,
+risk, and intrabar execution state. No passing buys in this sample means
+longer observation alone is not proven to generate new round trips.
+Acceptance state: ACCEPTED_WITH_RISK.
+
 ## 2026-09-05T03:01:18Z - Hetzner Supply-Chain Alignment After Remediation
 
 Active role: ENGINEER
