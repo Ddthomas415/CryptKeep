@@ -37264,6 +37264,66 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-04T02:43:14Z - Stopped/Exhausted Paper Campaign Recovery Override
+
+Active role: ENGINEER
+
+Objective:
+- Fix the guarded paper campaign recovery path exposed by the Hetzner Binance
+  challenger after the managed child environment fix was merged and deployed.
+
+What was found:
+- SHOWN: PR #579 merged green and Hetzner `/srv/cryptkeep/app` fast-forwarded
+  to `d79cb972` without a service restart.
+- SHOWN: the Hetzner Binance OHLCV preflight passed with `status=ok`,
+  `reason=public_ohlcv_reachable`, and `row_count=400`.
+- SHOWN: the subsequent guarded restore started a new Binance campaign process,
+  but the collector immediately reported `reason=daily_retry_limit_exhausted`
+  because the stopped prior repair left `reason=stop_requested`,
+  `pid_alive=false`, `daily_attempts=2`, and the manifest cap remained `2`.
+- SHOWN: `services.analytics.paper_campaign_recovery._recovery_attempt_limit`
+  already granted one same-day preflight recovery attempt for
+  `daily_retry_limit_exhausted`, `no_public_ohlcv`, and
+  `ohlcv_source_unreachable`, but not for the stopped/exhausted
+  `stop_requested` shape.
+
+What changed:
+- Extended the existing successful-preflight one-attempt recovery override to
+  stopped/exhausted collectors with `reason=stop_requested`.
+- Added a regression test matching the live Binance failure shape, asserting
+  launch uses `previous_daily_attempts + 1` and records the same
+  `recovery_attempt_override` audit payload.
+- Updated `REMAINING_TASKS.md` under the existing paper reliability and
+  Binance/Gate.io venue-expansion notes.
+
+Why this change was chosen:
+- The operator explicitly requested recovery of the Hetzner Binance challenger.
+  Re-running the restore without this fix would repeatedly relaunch into the
+  persisted same-day cap instead of testing the now-fixed Binance child env.
+- The change stays inside the already-reviewed preflight recovery lane: it only
+  applies after an explicit `--restore --preflight-ohlcv` and a successful
+  source preflight.
+
+Expected outcome:
+- After merge and Hetzner fast-forward, a stopped/exhausted Binance challenger
+  can receive one audited same-day recovery attempt and proceed to collection
+  instead of immediately parking at `daily_retry_limit_exhausted`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py tests/test_paper_campaign_recovery_runbook_guard.py`
+  - SHOWN: `35 passed`.
+- `rg -l "paper_campaign_recovery|restore_paper_campaigns|report_hetzner_paper_campaign_status|recovery_attempt_override|daily_retry_limit_exhausted|stop_requested" tests services scripts | rg '^tests/.*\.py$' | xargs ./.venv/bin/python -m pytest -q`
+  - SHOWN: `135 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_operator_reporting_backlog_worklog_sync.py tests/test_script_path_references_exist.py`
+  - SHOWN: `2 passed`.
+
+Remaining risk:
+- MEDIUM/HIGH: touches paper campaign recovery/background-job behavior and host
+  operator recovery flow. It does not change live trading, promotion gates, or
+  canonical campaign policy, but should stop at independent review before
+  merge.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-09-04T02:27:09Z - Binance Managed Paper Child Env Guard Fix
 
 Active role: ENGINEER
