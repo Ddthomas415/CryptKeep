@@ -1380,6 +1380,16 @@ deployment work still needs independent review.
     recovery fix is ready for independent review so stopped/exhausted
     preflight-confirmed recoveries receive the same one-attempt override as
     OHLCV/daily-limit failures.
+    2026-09-05 follow-up: the stopped/exhausted recovery fix merged as
+    `620ecbdf` and Hetzner `/srv/cryptkeep/app` fast-forwarded to that commit
+    with no service restart. The guarded Binance restore then reported
+    `ok=true`, `running_count=1`, `status=idle`, `reason=waiting_for_next_day`,
+    and `last_completed_day=2026-09-05` for
+    `ema_cross_binance_btcusdt_paper_candidate`. A 900 second Binance session
+    completed with `signal_action=hold`, zero fills, and zero closed trades;
+    this is isolated venue/session recovery evidence only, not strategy
+    performance or canonical promotion evidence. Recorded in
+    `docs/checkpoints/hetzner_binance_challenger_recovery_2026_09_05.md`.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,

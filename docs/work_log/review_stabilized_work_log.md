@@ -37324,6 +37324,53 @@ Remaining risk:
   merge.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-09-05T02:31:29Z - Hetzner Binance Challenger Recovery Proof Record
+
+Active role: ENGINEER
+
+Objective:
+- Record the host-side Binance challenger recovery proof after the managed
+  child-env and stopped/exhausted recovery fixes landed.
+
+What was found:
+- SHOWN: PR #580 merged green and local/remote master advanced to `620ecbdf`.
+- SHOWN: Hetzner `/srv/cryptkeep/app` fast-forwarded from `d79cb972` to
+  `620ecbdf` using the existing read-only deploy key, with no service restart.
+- SHOWN: the guarded Binance restore command returned `ok=true`,
+  `all_running=true`, and `running_count=1`.
+- SHOWN: `ema_cross_binance_btcusdt_paper_candidate` is running under the
+  isolated challenger state directory with `status=idle`,
+  `reason=waiting_for_next_day`, `pid_alive=true`, and
+  `last_completed_day=2026-09-05`.
+- SHOWN: the last Binance session ran for about 900 seconds, ended by
+  `runtime_elapsed`, produced `signal_action=hold`, and recorded zero fills and
+  zero closed trades.
+
+What changed:
+- Added
+  `docs/checkpoints/hetzner_binance_challenger_recovery_2026_09_05.md`.
+- Added the post-merge host proof note to `REMAINING_TASKS.md` under the
+  existing Binance/Gate.io paper-research expansion item.
+
+Why this change was chosen:
+- The host recovery proof is operational evidence and should not live only in
+  transient terminal output. Recording it closes the open post-merge action
+  created by the Binance child-env and stopped/exhausted recovery fixes.
+
+Expected outcome:
+- Operators can distinguish the fixed Binance challenger session recovery from
+  strategy-performance evidence or canonical promotion-gate evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_reporting_backlog_worklog_sync.py tests/test_script_path_references_exist.py`
+  - SHOWN: `2 passed`.
+
+Remaining risk:
+- LOW: docs/checkpoint update only. No code, campaign config, live trading,
+  promotion gate, canonical `.cbp_state`, or exchange credential behavior is
+  changed.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-09-04T02:27:09Z - Binance Managed Paper Child Env Guard Fix
 
 Active role: ENGINEER
