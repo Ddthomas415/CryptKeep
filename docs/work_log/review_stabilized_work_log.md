@@ -37264,6 +37264,58 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-05T02:50:07Z - Supply-Chain Local Audit Remediation
+
+Active role: ENGINEER
+
+Objective:
+- Remediate the current local `pip-audit` findings in the pinned dependency
+  set without changing runtime code or host services.
+
+What was found:
+- SHOWN: `./.venv/bin/python scripts/check_supply_chain.py --audit --json` on
+  local master `9aecbaced` reported pin integrity OK, installed environment OK,
+  and `vulnerability_audit.ran=true`.
+- SHOWN: the audit reported `vulnerable_count=2` for currently pinned
+  `gitpython==3.1.58` and `tornado==6.5.7`.
+- SHOWN: advisory metadata in the audit output listed fixed versions
+  `gitpython==3.1.59` and `tornado==6.5.8`.
+- SHOWN: read-only Hetzner inspection reported the host venv uses pip `26.2`,
+  but `pip-audit` is not installed there, so host-side audit remains open.
+
+What changed:
+- Updated `requirements-pinned.txt` and `requirements-dev-pinned.txt`:
+  `gitpython==3.1.59` and `tornado==6.5.8`.
+- Added
+  `docs/checkpoints/supply_chain_local_remediation_2026_09_05.md`.
+- Added a dated supply-chain note to `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- It is the smallest remediation for the active audit findings and keeps the
+  pinned runtime/dev environments aligned. Older dated checkpoints remain
+  historical records and were not rewritten.
+
+Expected outcome:
+- The local pinned environment audits cleanly for the current findings, while
+  host-side vulnerability audit enablement/waiver and SBOM/hash-lock release
+  policy remain explicit follow-up decisions.
+
+Verification:
+- `./.venv/bin/python -m pip install GitPython==3.1.59 tornado==6.5.8`
+  - SHOWN: both packages installed into the local venv for verification.
+- `./.venv/bin/python scripts/check_supply_chain.py --audit --json`
+  - SHOWN: pin integrity OK, environment OK, audit ran,
+    `vulnerable_count=0`, and `findings=[]`.
+- `./.venv/bin/python -m pytest -q tests/test_supply_chain_check.py tests/test_script_path_references_exist.py tests/test_operator_reporting_backlog_worklog_sync.py`
+  - SHOWN: `11 passed`.
+
+Remaining risk:
+- HIGH: dependency/security/config change. Requires independent review and CI
+  before merge. After merge, repeat audit on the final deployed SHA and decide
+  whether to install/enable `pip-audit` on Hetzner or record an explicit host
+  waiver.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-09-04T02:43:14Z - Stopped/Exhausted Paper Campaign Recovery Override
 
 Active role: ENGINEER

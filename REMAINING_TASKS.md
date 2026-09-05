@@ -2258,6 +2258,17 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     environment OK, audit ran, and `vulnerable_count=0`. Remaining capped-live
     release-policy decision: whether SBOM and hash-locked install evidence are
     required for future deployed SHAs.
+    2026-09-05: local `pip-audit` on master `9aecbaced` found two currently
+    vulnerable pinned packages after the latest dependency refresh:
+    `gitpython==3.1.58` and `tornado==6.5.7`. A remediation branch is ready for
+    independent review, bumping runtime and dev pins to `gitpython==3.1.59` and
+    `tornado==6.5.8`. SHOWN after local venv verification:
+    `scripts/check_supply_chain.py --audit --json` reports pin integrity OK,
+    environment OK, `vulnerability_audit.ran=true`, and `vulnerable_count=0`.
+    Recorded in `docs/checkpoints/supply_chain_local_remediation_2026_09_05.md`.
+    Remaining host proof: repeat the audit on final deployed SHA; Hetzner
+    read-only inspection showed pip `26.2` but no installed `pip-audit`.
+    SBOM/hash-lock release-gate policy remains undecided.
     2026-08-23: updated supply-chain status is recorded in
     `docs/checkpoints/supply_chain_status_2026_08_23.md`. Local checkout
     `cc6c69f` has pin integrity OK and environment OK, but `pip-audit` reports
