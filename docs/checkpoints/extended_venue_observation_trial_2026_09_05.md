@@ -93,6 +93,48 @@ Use the corresponding Binance trial path to stop Binance. Inspect owned child
 processes after termination; preserve state and evidence. Do not issue global
 service restarts, delete state, or restart a finished trial automatically.
 
+## Terminal Verification Checklist
+
+Before launch, record a UTC escalation deadline of launch time plus 25 hours
+(24-hour strategy target plus one hour for startup/reporting). This is a trial
+operations policy, not an enforced timer. Launch is not ready until a host-side
+deadline mechanism or an available operator owns that check; a laptop reminder
+alone is insufficient. If the deadline is exceeded, request the scoped stop
+above and mark coverage INCOMPLETE rather than extending the window silently.
+
+At normal completion or escalation:
+
+1. Record collector status and its `started_components` and `reused_components`
+   maps. In a fresh isolated trial, unexpected reused components require
+   investigation, not blanket termination.
+2. Check the collector and all four component identities: strategy runner,
+   paper engine, tick publisher, and paper simulation monitor. Their state-local
+   PID records are `runtime/locks/strategy_runner.lock`,
+   `runtime/locks/paper_engine.lock`, `runtime/locks/tick_publisher.lock`, and
+   `runtime/health/paper_sim_monitor.pid.json`. Confirm any live PID's command,
+   start time, and state-directory association before acting; a lock file alone
+   is not proof of ownership and a missing lock is not proof of process exit.
+3. If owned children survive collector exit, use their existing state-scoped
+   stop APIs. Capture timeout/failure explicitly. Do not signal by process name,
+   delete locks, or reuse stale PIDs. Escalation to process termination needs
+   verified identity and must exclude every pre-trial campaign PID.
+4. Once all trial writers are confirmed stopped, inspect these databases using
+   SQLite URI `mode=ro` (never construct a store that initializes missing files):
+   `data/intent_queue.sqlite` (`trade_intents`), and
+   `data/paper_trading.sqlite` (`paper_orders`, `paper_fills`, `paper_positions`).
+   Record queue/order status counts, fill count, and every position's quantity,
+   average price, and realized PnL. Preserve pending work and open positions as
+   residual state; do not mark intents consumed, flatten positions, or restart
+   the engine merely to improve the completion report. Missing/unreadable state
+   is UNVERIFIED, never an empty/flat result.
+5. Capture final artifact hashes after writers stop, alongside actual stop time
+   and the pre/post PID comparison for existing campaigns. Operational completion
+   requires stopped trial processes and accounted-for residual state, not zero
+   positions. Unexplained residuals or surviving writers mean INCOMPLETE.
+
+The host deadline mechanism and scoped shutdown rehearsal are still UNVERIFIED.
+This checklist defines the required evidence; it does not claim it was executed.
+
 ## Measurement and Acceptance
 
 Record elapsed strategy runtime, venue errors/blocked intervals, final snapshot

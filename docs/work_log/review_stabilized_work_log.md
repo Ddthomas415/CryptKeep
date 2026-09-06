@@ -37309,6 +37309,21 @@ No host deployment or launch was performed; operational launch remains
 INCOMPLETE pending effective configuration, deadline/cleanup, and reconciliation
 verification. No new tests were rerun solely for these documentation additions.
 
+## 2026-09-06 - Bounded Trial Terminal Verification Procedure
+
+Active role: ENGINEER. Objective: make PR #586 launch/termination evidence
+requirements executable by an operator without modifying existing campaigns.
+SHOWN: normal collector cleanup ignores stop-wait results; exceptional cleanup
+does not stop every managed component. Added a 25-hour escalation policy,
+state-local PID ownership checks, and read-only queue/order/fill/position
+reconciliation to the existing runbook. These are operating requirements, not
+a new runtime timer or a claim that host shutdown was tested.
+Verification: inspected service runtime paths and SQLite table definitions;
+`git diff --check` required before handoff. No runtime code changed in this step.
+Remaining risk: deadline enforcement and shutdown rehearsal unverified; no
+host deployment, campaign launch, service restart, or gate changes performed.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-05T03:01:18Z - Hetzner Supply-Chain Alignment After Remediation
 
 Active role: ENGINEER
