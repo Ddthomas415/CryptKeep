@@ -37309,6 +37309,31 @@ No host deployment or launch was performed; operational launch remains
 INCOMPLETE pending effective configuration, deadline/cleanup, and reconciliation
 verification. No new tests were rerun solely for these documentation additions.
 
+## 2026-09-06 - Approved Hetzner User Linger Enabled
+
+Active role: ENGINEER. Operator instructed proceed immediately after the
+explicit linger approval question. VERIFIED_ENV: loginctl enable-linger
+cryptkeep succeeded; second SSH inspection confirmed Linger=yes and manager
+running. Existing collector PID/start-time identities unchanged. No sudo was
+needed, despite prior sudo -n requiring a password. Recorded rollback command
+and effects in the trial runbook; rollback was not executed. No service restart,
+credential change, deployment, or trial launch. git diff --check passed.
+Remaining uncertainty: real collector shutdown and effective trial config;
+no forced final logout/reboot experiment. Acceptance state:
+READY_FOR_INDEPENDENT_REVIEW for operational evidence.
+
+## 2026-09-06 - Logout Persistence and State Configuration Inspection
+
+Active role: AUDITOR. Read-only host inspection confirmed active user manager,
+Linger=no, existing sessions, and password-required sudo. No durable logout
+guarantee established. Trial states absent; existing daily challenger states
+present without state-local user.yaml. Initial candidate-name paths were not
+manifest state paths; corrected inspection used the manifest's *_daily paths.
+Recorded findings in the runbook. No host modifications or campaign restarts.
+Verification: SSH command output; documentation diff check. Next decision:
+approve persistent linger for cryptkeep or choose a system-owned supervisor.
+Acceptance state: INCOMPLETE for logout-independent trial supervision.
+
 ## 2026-09-06T06:58:41Z - Hetzner Dummy Deadline Rehearsal
 
 Active role: ENGINEER. VERIFIED_ENV: host systemd 255, user manager running;

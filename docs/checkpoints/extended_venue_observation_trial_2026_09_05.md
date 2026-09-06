@@ -184,6 +184,31 @@ collector shutdown, graceful intent drain, or 25-hour persistence after logout.
 Linger remains disabled. A durable supervisor choice and real trial effective
 configuration/terminal reconciliation remain UNVERIFIED; no trial launched.
 
+Follow-up host inspection on 2026-09-06: `user@UID.service` was active with
+`StopWhenUnneeded=no`, four sessions were present, and `Linger=no` remained.
+`sudo -n -l` required a password. Current sessions do not prove availability
+after final logout. Enabling linger is a proposed persistent host change,
+not performed here. Host checkout remained e38c342de9eb8209bdd7fdd44ca75cf757901fa2.
+Both proposed trial state directories were absent. The manifest-defined daily
+Gate.io/Binance state directories existed but had no `runtime/config/user.yaml`.
+This establishes absence of state-local overrides, not a complete effective
+configuration audit. No configuration or app state was created.
+
+### Approved Linger Change, 2026-09-06
+
+After the explicit question about enabling linger, the operator instructed
+proceed. Executed `loginctl enable-linger cryptkeep` on Hetzner; it succeeded
+without sudo authentication. A second SSH connection independently returned
+`Linger=yes` and user manager `running`. Existing collector PIDs/start times
+1287182, 1496067, 1499165, and 1501788 were unchanged. This supersedes the
+earlier `Linger=no` snapshot, not the still-open real trial validation.
+
+Rollback, if separately requested: `loginctl disable-linger cryptkeep`.
+Assess active user units before rollback, because removing linger may affect
+their availability after final logout. No service restart, app deployment,
+trial launch, or credential change was performed. A final-logout experiment
+was not attempted because existing sessions/campaigns must not be disrupted.
+
 ## Measurement and Acceptance
 
 Record elapsed strategy runtime, venue errors/blocked intervals, final snapshot
