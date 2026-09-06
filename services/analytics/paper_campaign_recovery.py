@@ -32,6 +32,7 @@ class PaperCampaignSpec:
     poll_interval_sec: float
     max_daily_attempts: int
     desktop_notify: bool = True
+    max_loops: int | None = None
 
 
 RunCommand = Callable[..., subprocess.CompletedProcess[str]]
@@ -122,6 +123,10 @@ def load_campaign_specs(
                 poll_interval_sec=_positive_float(raw, "poll_interval_sec"),
                 max_daily_attempts=_positive_int(raw, "max_daily_attempts", default=2),
                 desktop_notify=_boolean(raw, "desktop_notify", default=True),
+                max_loops=(
+                    _positive_int(raw, "max_loops", default=1)
+                    if "max_loops" in raw else None
+                ),
             )
         )
     if not specs:
@@ -165,6 +170,8 @@ def _command(
     )
     if not spec.desktop_notify:
         command.append("--no-desktop-notify")
+    if spec.max_loops is not None:
+        command.extend(["--max-loops", str(spec.max_loops)])
     return command
 
 

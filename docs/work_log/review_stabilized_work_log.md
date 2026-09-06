@@ -37264,6 +37264,51 @@ Remaining risk:
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-09-05 - Bounded Extended Venue Observation Preparation
+
+Active role: ENGINEER
+
+Objective: prepare a single 24-hour isolated paper observation per new venue
+without turning the experiment into another indefinite daily campaign.
+
+SHOWN: the collector already supports `--max-loops`; manifest-driven recovery
+did not propagate that option. Existing manifests intentionally use recurring
+daily mode. The strategy-window duration is distinct from request pacing and
+from total child-process lifetime.
+
+Changed: optional positive `max_loops` parsing/CLI propagation in
+`services/analytics/paper_campaign_recovery.py`; an explicit two-venue trial
+manifest with new state and evidence identities; focused regression tests; and
+`docs/checkpoints/extended_venue_observation_trial_2026_09_05.md` with launch,
+measurement, stop, and review boundaries. No host deployment or launch occurred.
+
+Why: reuse the existing bounded collector behavior with the smallest change.
+Existing manifests keep their original commands; malformed explicit bounds
+cannot silently become recurring operation.
+
+Expected outcome: after independent review, run a bounded cadence experiment
+with unchanged strategy filters; distinguish more observation from more trades.
+
+Verification: 46 tests passed across bounded-trial, recovery, and collector
+tests; `git diff --check` passed. Real 24-hour runtime, request volume, and host
+child cleanup remain UNVERIFIED. Review of effective costs/pacing is required
+before launch; no claim of increased profitability or gate completion is made.
+
+Risk: HIGH due to background campaign configuration. Independent review pending.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+2026-09-06 continuation after tooling usage-limit interruption:
+Independent reviewer found no new merge-blocking implementation defect and
+independently passed 46 recovery/collector/trial tests plus 33 evidence-service
+and runner-lifecycle tests. Implementation disposition: ACCEPTED_WITH_RISK.
+Pre-existing exceptional cleanup can leave tick/paper components running;
+position preservation is not terminal reconciliation proof. These findings
+are now explicit in the runbook. The review did not cover the final runbook
+additions, so the complete packet remains READY_FOR_INDEPENDENT_REVIEW.
+No host deployment or launch was performed; operational launch remains
+INCOMPLETE pending effective configuration, deadline/cleanup, and reconciliation
+verification. No new tests were rerun solely for these documentation additions.
+
 ## 2026-09-05T03:01:18Z - Hetzner Supply-Chain Alignment After Remediation
 
 Active role: ENGINEER
