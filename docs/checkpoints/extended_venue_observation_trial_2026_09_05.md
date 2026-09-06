@@ -135,6 +135,55 @@ At normal completion or escalation:
 The host deadline mechanism and scoped shutdown rehearsal are still UNVERIFIED.
 This checklist defines the required evidence; it does not claim it was executed.
 
+### Host Rehearsal Plan and Result
+
+Independent AUDITOR review accepted the terminal checklist at `b4641611b`
+as documentation only; no actionable defects were found. Host launch remains
+INCOMPLETE.
+
+First inspect the host systemd version, user manager availability, and linger
+state without changing them. If supported, rehearse a uniquely named transient
+user service with dummy parent/child processes only, including a child started
+in a separate POSIX session. Use a short runtime timeout, `Restart=no`, and
+`KillMode=control-group`; verify the entire unit is empty after timeout and
+unrelated campaign PIDs are unchanged. Preserve journal/result evidence before
+removing the dummy unit. This is not a real collector shutdown proof.
+
+The candidate trial supervisor would run the collector in foreground (omit
+`--detach`), with `RuntimeMaxSec=25h` and a finite stop timeout. Do not wrap the
+existing detached restore command as the service's main process. A timeout is
+an INCOMPLETE trial with possible residual intents, not a successful finish.
+Do not install or launch this candidate until host support and the rehearsal
+are verified and the final supervision configuration is reviewed.
+
+These candidate controls follow the upstream systemd
+[service runtime documentation](https://raw.githubusercontent.com/systemd/systemd/main/man/systemd.service.xml)
+and [control-group shutdown documentation](https://raw.githubusercontent.com/systemd/systemd/main/man/systemd.kill.xml).
+Installed-host behavior must still be tested. No linger, credential, persistent
+unit, or existing service changes are authorized by this preparation step.
+
+SHOWN host rehearsal, 2026-09-06 06:58:33-06:58:41 UTC:
+
+- systemd 255.4-1ubuntu8.17, user manager running, `Linger=no`.
+- Transient unit `cryptkeep-dummy-deadline-1788677913738367016.service`
+  used `Type=exec`, `RuntimeMaxSec=6s`, `TimeoutStopSec=2s`,
+  `KillMode=control-group`, and `Restart=no`.
+- Dummy parent PID 1514992 spawned child PID 1514994 with a separate POSIX
+  session; the child deliberately ignored SIGTERM.
+- Journal recorded runtime expiry at 06:58:39 and SIGKILL of the remaining
+  child at 06:58:41. Terminal state was `Result=timeout`, `MainPID=0`,
+  `ActiveState=failed`, empty `ControlGroup`. No matching dummy remained.
+- Pre/post command and start-time inventory was identical for existing app
+  Python processes: Coinbase collector 1287182, crypto-edge collector 1496067,
+  Gate.io collector 1499165, Binance collector 1501788.
+- Failed transient-unit state was reset only after journal capture (exit 0).
+  No app state, credentials, persistent units, or existing services changed.
+
+This proves dummy cgroup timeout cleanup on the installed host, not real
+collector shutdown, graceful intent drain, or 25-hour persistence after logout.
+Linger remains disabled. A durable supervisor choice and real trial effective
+configuration/terminal reconciliation remain UNVERIFIED; no trial launched.
+
 ## Measurement and Acceptance
 
 Record elapsed strategy runtime, venue errors/blocked intervals, final snapshot

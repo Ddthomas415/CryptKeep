@@ -37309,6 +37309,34 @@ No host deployment or launch was performed; operational launch remains
 INCOMPLETE pending effective configuration, deadline/cleanup, and reconciliation
 verification. No new tests were rerun solely for these documentation additions.
 
+## 2026-09-06T06:58:41Z - Hetzner Dummy Deadline Rehearsal
+
+Active role: ENGINEER. VERIFIED_ENV: host systemd 255, user manager running;
+linger disabled. Executed a unique transient user unit with a six-second runtime
+and two-second stop timeout, containing only dummy Python parent/child processes.
+The separate-session child ignored SIGTERM; systemd killed it on timeout.
+SHOWN: Result=timeout, MainPID=0, empty ControlGroup, no dummy process remaining;
+existing app process PID/start-time inventory identical before and after.
+Captured exact unit, PIDs and timestamps in the trial runbook; reset only this
+dummy unit's failed state after capture. No app data/service/credential changes.
+Verification: host journal and process inventory; git diff --check. No application
+tests rerun for documentation-only edits. Real collector cleanup and durable
+logout-independent supervision remain unverified. No 24-hour trial launched.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-06 - Trial Supervision Rehearsal Preparation
+
+Active role: ENGINEER. Independent AUDITOR accepted documentation at b4641611b;
+host launch remained INCOMPLETE. Inspected foreground collector support and
+child process creation; recorded a dummy-process transient-service rehearsal
+before any real trial. Upstream systemd documentation supports candidate
+runtime and control-group shutdown controls, not installed-host verification.
+Read-only SSH inspection required a fresh Tailscale identity check and returned
+no host inventory yet. No credentials, app state, services, or campaigns changed.
+Verification: source inspection and `git diff --check`; no runtime tests needed
+for this documentation-only step. Host rehearsal and final supervision review
+remain outstanding. Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-06 - Bounded Trial Terminal Verification Procedure
 
 Active role: ENGINEER. Objective: make PR #586 launch/termination evidence
