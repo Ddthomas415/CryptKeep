@@ -244,6 +244,36 @@ failure can return exit zero: unit success alone is insufficient. Inspect
 collector status, evidence, child membership and residual state before claiming
 successful observation. Actual trial launch remains INCOMPLETE.
 
+## Real Collector Rehearsal, 2026-09-06
+
+Executed the deployed collector on host commit e38c342de in a unique transient
+unit `cryptkeep-collector-rehearsal-1788702657525253826`, state
+`/tmp/cryptkeep-collector-rehearsal-zr4qdhpa`. Gate.io, BTC/USDT,
+public_ohlcv_5m, EMA, no first-signal override, 30-second strategy target,
+one loop, runtime limit 120s and stop timeout 30s. This was a short lifecycle
+rehearsal, not either production 24-hour trial or a Binance validation.
+
+SHOWN: live cgroup contained collector 1515634, tick publisher 1515644,
+paper engine 1515653, monitor 1515654, and strategy runner 1515663. No reused
+components. Final unit inactive/dead, MainPID=0, empty ControlGroup,
+Result=success; all recorded rehearsal PIDs absent. Existing collector
+PID/start-time identities 1287182, 1496067, 1499165, 1501788 unchanged.
+
+Strategy interval 13:51:08.210886-13:51:50.364774 UTC, reported duration
+42.1548655s including overhead, stop_reason=runtime_elapsed. Collector stopped
+with reason=max_loops, loops=1. A state-scoped stop request was issued, but
+the recorded reason does not establish that it caused termination. Do not
+claim cooperative-stop or forced-timeout coverage from this run.
+
+Post-exit read-only SQLite checks: integrity_check=ok for intent_queue.sqlite
+and paper_trading.sqlite; zero trade_intents, paper_orders, paper_fills,
+paper_positions. Evidence generation was skipped because history was unchanged.
+Health artifact SHA-256:
+`67ec4781831eb21ddad2b08e4f3d37cb5e039ff69727bec34db8b9b8640f8c64`.
+Temporary state is preserved. This establishes normal bounded lifecycle with
+real collector children, not filled-position reconciliation, 24-hour data
+coverage, or profitable behavior. Actual trial deployment remains unperformed.
+
 ## Measurement and Acceptance
 
 Record elapsed strategy runtime, venue errors/blocked intervals, final snapshot

@@ -37309,6 +37309,21 @@ No host deployment or launch was performed; operational launch remains
 INCOMPLETE pending effective configuration, deadline/cleanup, and reconciliation
 verification. No new tests were rerun solely for these documentation additions.
 
+## 2026-09-06T13:51:53Z - Isolated Real Collector Rehearsal
+
+Active role: ENGINEER. VERIFIED_ENV deployed help confirmed flags before
+execution. Ran one Gate.io paper-only 30s strategy window in new /tmp state
+under unique transient user unit with 120s cap, no app checkout mutation.
+SHOWN: all five real processes in unit cgroup, normal runtime_elapsed/max_loops
+completion, final inactive/empty cgroup, no recorded rehearsal PIDs surviving.
+Requested scoped stop but final reason supports normal completion only.
+Both SQLite integrity checks ok; all intent/order/fill/position counts zero.
+Existing campaign PID/start times unchanged. Exact state, unit, times and health
+hash recorded in runbook; state preserved. No 24-hour trial launched.
+Verification: host status/journal/process inventory/read-only SQL; git diff
+--check. No local code changed/tests rerun. Filled-state reconciliation and
+long-run data coverage remain unverified. READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-06 - Trial Review Fix and Host Parser Proof
 
 Active role: ENGINEER. Addressed independent reviewer P3 by pinning working
