@@ -37309,6 +37309,20 @@ No host deployment or launch was performed; operational launch remains
 INCOMPLETE pending effective configuration, deadline/cleanup, and reconciliation
 verification. No new tests were rerun solely for these documentation additions.
 
+## 2026-09-06 - Trial Review Fix and Host Parser Proof
+
+Active role: ENGINEER. Addressed independent reviewer P3 by pinning working
+directory, daily-loop, and manifest notification parity in unit tests.
+26 targeted tests passed. Host files matched local SHA-256; static user-unit
+verification passed with the existing XDG_RUNTIME_DIR explicitly supplied.
+Initial parser initialization failed without that command-local variable;
+no persistent environment setting changed. Preserved exact hashes, temporary
+paths and caveat about exit-zero collector failures in the runbook.
+No unit installation/start, app deployment, or campaign restart. git diff
+--check passed. Independent unit implementation accepted with risk; actual
+collector shutdown and trial outputs remain UNVERIFIED. Acceptance state:
+READY_FOR_INDEPENDENT_REVIEW for this evidence update.
+
 ## 2026-09-06 - Opt-In Supervised Venue Trial Units
 
 Active role: ENGINEER. HIGH risk background supervision. Added separate Gate.io

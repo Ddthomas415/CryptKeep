@@ -220,6 +220,30 @@ their availability after final logout. No service restart, app deployment,
 trial launch, or credential change was performed. A final-logout experiment
 was not attempted because existing sessions/campaigns must not be disrupted.
 
+## Host Unit Parser Verification, 2026-09-06
+
+Independent unit review found no blocking defect and accepted implementation
+with risk. Added its requested test pins for WorkingDirectory, daily-loop,
+and notification parity. The 26-test trial/collector slice passed afterward.
+
+Copied only the two unit files to
+`/tmp/cryptkeep-unit-verify.UkWgLA/packaging/systemd/trials/` on Hetzner.
+`systemd-analyze --user verify` initially could not initialize its manager
+because the SSH environment lacked a runtime directory. Retried with
+`XDG_RUNTIME_DIR=/run/user/$(id -u)` after checking that directory exists:
+exit 0, no parser diagnostics. This changed only the command environment.
+No units installed, linked, enabled, or started.
+
+Host/local SHA-256 values matched:
+
+- Gate.io: `4115e9cc5aaef5da50ab0a65fa114996f6b39c7af769ad9e6b7286293069921c`.
+- Binance: `a3d37939d3beffe1dbc5650a6044fd364b6b0ec1ce26f6e80f4126cabaae99db`.
+
+Static parser success is not real collector shutdown proof. Also, a collector
+failure can return exit zero: unit success alone is insufficient. Inspect
+collector status, evidence, child membership and residual state before claiming
+successful observation. Actual trial launch remains INCOMPLETE.
+
 ## Measurement and Acceptance
 
 Record elapsed strategy runtime, venue errors/blocked intervals, final snapshot
