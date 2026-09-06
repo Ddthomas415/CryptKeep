@@ -60,17 +60,28 @@ register this manifest with persistent restore jobs.
   pending-intent and position reconciliation. Preserve unclosed positions;
   do not fabricate exits to finish the trial.
 
-## Reviewed Launch Procedure
+## Supervised Launch Procedure (Review Pending)
 
-After independent review and deployment of the accepted change, use the host
-app venv and explicitly select the trial manifest and campaign. Preflight must
-run on Hetzner. Example command for each isolated campaign:
+The opt-in user units are `packaging/systemd/trials/cbp-gateio-observation.service`
+and `cbp-binance-observation.service`. They are not included in the default
+installer and have no Install section: do not enable them for boot or recovery.
+After independent review and accepted deployment, verify them with the host's
+systemd verifier before linking them into the cryptkeep user manager. Preflight
+must run on Hetzner before explicit start. Do not use the detached restore
+command for this trial; the unit must own the foreground collector.
 
-```bash
-cd /srv/cryptkeep/app
-./.venv/bin/python scripts/restore_paper_campaigns.py --config configs/paper_evidence_campaigns.hetzner.extended_observation.json --campaign ema_cross_gateio_btcusdt_24h_trial --restore --preflight-ohlcv
-CBP_VENUE=binance CBP_ALLOW_BINANCE=1 ./.venv/bin/python scripts/restore_paper_campaigns.py --config configs/paper_evidence_campaigns.hetzner.extended_observation.json --campaign ema_cross_binance_btcusdt_24h_trial --restore --preflight-ohlcv
-```
+Units pin Type=exec, RuntimeMaxSec=25h, TimeoutStopSec=30s,
+KillMode=control-group, Restart=no, restrictive file permissions, and separate
+state/session identities. These are timeout escalation controls, not a graceful
+drain guarantee. At expiry, termination can occur during SQLite/evidence work;
+terminal reconciliation remains mandatory. Earlier cooperative stop instructions
+remain appropriate before the deadline. No ExecStop command claims to await a
+graceful drain. A manual second start is possible and must not be automated.
+
+The unit command pins tick interval to 2s and uses the same manifest strategy,
+symbol, source, runtime, drain, and loop caps. No shared environment file is
+loaded. This does not establish every ambient/default configuration value;
+effective configuration inspection remains a launch prerequisite.
 
 Launch close together, record actual start times, and compare only overlapping
 observation intervals. Confirm each reaches collecting with valid public data;
@@ -226,6 +237,11 @@ not a strategy failure. One day is an operational cadence experiment, not
 statistical validation of profitability or grounds to change promotion gates.
 
 Implementation verification:
+
+- `./.venv/bin/python -m pytest -q tests/test_venue_trial_units.py tests/test_bounded_venue_observation.py tests/test_systemd_units.py`:
+  21 passed. Tests pin unit limits, foreground execution, no automatic enable,
+  explicit venue/state environment, and manifest command parity. Host unit
+  parser validation and real collector shutdown are not covered by these tests.
 
 - `./.venv/bin/python -m pytest -q tests/test_bounded_venue_observation.py tests/test_paper_campaign_recovery.py tests/test_run_paper_strategy_evidence_collector.py`:
   46 passed, including existing collector cap/cleanup tests and new manifest

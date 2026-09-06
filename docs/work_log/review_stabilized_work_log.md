@@ -37309,6 +37309,19 @@ No host deployment or launch was performed; operational launch remains
 INCOMPLETE pending effective configuration, deadline/cleanup, and reconciliation
 verification. No new tests were rerun solely for these documentation additions.
 
+## 2026-09-06 - Opt-In Supervised Venue Trial Units
+
+Active role: ENGINEER. HIGH risk background supervision. Added separate Gate.io
+and Binance user units outside the default installer; foreground collector,
+25h runtime, 30s termination grace, control-group kill and no restart/Install
+section. Preserved isolated manifest identities and original signal flags.
+Updated runbook to replace detached launch instructions with reviewed unit
+workflow. No host installation, launch, deployment or restart performed.
+Verification: 21 passed across trial-unit, bounded-manifest and existing systemd
+tests. Independent AUDITOR review dispatched. Host parser validation and actual
+collector cleanup remain UNVERIFIED; timeout is not graceful intent drain.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-06 - Approved Hetzner User Linger Enabled
 
 Active role: ENGINEER. Operator instructed proceed immediately after the
