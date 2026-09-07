@@ -480,9 +480,15 @@ def _strategy_block_from_runner_cfg(s: dict) -> tuple[dict, str]:
             return _unsupported_strategy_block(raw_name, nested), preset_name
         strategy_name = "ema_cross"
     default_preset = _DEFAULT_PRESET_BY_STRATEGY[strategy_name]
+    local_name = nested.get("name", s.get("strategy_name", s.get("strategy_id")))
+    switched_strategy = (
+        os.environ.get("CBP_STRATEGY_NAME") is not None
+        and local_name is not None
+        and _canonical_strategy_name(local_name) != strategy_name
+    )
     preset_name = str(
         os.environ.get("CBP_STRATEGY_PRESET")
-        or s.get("strategy_preset")
+        or (None if switched_strategy else s.get("strategy_preset"))
         or default_preset
     ).strip() or default_preset
     preset = get_preset(preset_name) or get_preset(default_preset) or {}
@@ -490,8 +496,10 @@ def _strategy_block_from_runner_cfg(s: dict) -> tuple[dict, str]:
         preset_name = default_preset
 
     merged = dict(preset.get("strategy") if isinstance(preset.get("strategy"), dict) else {})
-    merged.update(_legacy_strategy_params(s, strategy_name))
-    for key, value in nested.items():
+    # A managed name override must not relabel another strategy's parameters.
+    if not switched_strategy:
+        merged.update(_legacy_strategy_params(s, strategy_name))
+    for key, value in ({} if switched_strategy else nested).items():
         if key == "name" or value is None:
             continue
         merged[key] = value

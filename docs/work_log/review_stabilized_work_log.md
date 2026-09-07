@@ -1,5 +1,17 @@
 # Review Stabilized Work Log
 
+## 2026-09-07 - Managed Cross-Strategy Parameter Isolation
+
+Active role: ENGINEER. HIGH-risk config interpretation fix on dedicated branch.
+Explicit managed strategy switches now omit parameters/preset from a differently
+named local strategy. Same-strategy/no-override behavior and explicit trading
+disable preserved. Tests cover SMA20 contamination, compatibility and legacy
+identity. Final runner/collector/promotion regression slice: 126 passed;
+git diff --check passed. Independent review pending.
+No campaign/config/host/gate change. Exit-risk configuration and unnamed local
+ownership deliberately unchanged. Record: managed_strategy_parameter_isolation
+checkpoint. Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 This file is the durable Codex work log for `review-stabilized`.
 
 Purpose: make engineering/audit work visible in git, including what was found,
