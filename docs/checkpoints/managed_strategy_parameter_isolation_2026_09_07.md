@@ -1,6 +1,15 @@
 # Managed Strategy Parameter Isolation
 
-Active role: ENGINEER. Risk: HIGH. READY_FOR_INDEPENDENT_REVIEW.
+Active role: GATE. Risk: HIGH. ACCEPTED by human review of 1f064560e.
+
+## Human Acceptance - 2026-09-08
+
+The user explicitly accepted the corrected implementation at 1f064560e with
+"INDEPENDENT REVIEW ACCEPTED". This records human acceptance, not a claim of
+completed subagent re-review or GitHub CI. The earlier review history below is
+preserved. Publication for CI is the next step; deployment and campaign restart
+are not included. Running campaign configuration remains unverified by these
+local tests.
 
 ## Defect and Scope
 

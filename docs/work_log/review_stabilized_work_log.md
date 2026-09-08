@@ -1,5 +1,15 @@
 # Review Stabilized Work Log
 
+## 2026-09-08 - Human Acceptance of Runtime Isolation Correction
+
+Active role: GATE. Objective: record acceptance of 1f064560e and publish for CI.
+SHOWN: user explicitly stated INDEPENDENT REVIEW ACCEPTED after the runtime
+bypass correction and 128-test report. Acceptance state: ACCEPTED (human).
+Only acceptance documentation changed in this entry; prior verification is
+128 targeted tests passed, not full-system proof. GitHub CI remains to run.
+No deployment, host mutation, campaign restart or historical evidence relabeling.
+Independent subagent re-review is not represented as completed by this entry.
+
 ## 2026-09-08 - Close Managed Parameter Runtime Bypass
 
 Active role: ENGINEER. Objective: complete the managed parameter isolation fix.
