@@ -32,3 +32,23 @@ test_strategy_runtime_runner.py, test_paper_strategy_evidence_service.py and
 test_check_promotion_gates.py. git diff --check passed. Independent AUDITOR
 review requested; result pending at this handoff.
 Local tests are not proof of a running campaign's effective configuration.
+
+## 2026-09-08 Runtime Review Correction
+
+The user accepted commit 5c705d01d, but the independent AUDITOR subsequently
+found a blocking bypass: the public-OHLCV loop reloaded raw nested parameters
+and passed SMA20 despite startup resolving SMA200. The prior implementation
+was incomplete; its 126 passing tests did not exercise this dispatch boundary.
+
+The loop now applies _strategy_block_from_runner_cfg to the reloaded runner
+configuration before binding the selected signal identity. Two bounded runtime
+regressions capture the block passed to _registry_signal_with_context and assert
+SMA200 plus preservation of explicit trade_enabled=true/false.
+
+Verification: ./.venv/bin/python -m pytest -q
+tests/test_strategy_runtime_runner.py
+tests/test_managed_strategy_parameter_isolation.py
+tests/test_paper_strategy_evidence_service.py tests/test_check_promotion_gates.py
+returned 128 passed. git diff --check passed. Independent re-review requested.
+No host, campaign or evidence mutation. Full-system integration remains
+UNVERIFIED. Corrected implementation: READY_FOR_INDEPENDENT_REVIEW.

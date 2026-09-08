@@ -1115,7 +1115,8 @@ def run_forever() -> None:
                         time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
                         continue
                     raw_runner = raw_cfg.get("strategy_runner") if isinstance(raw_cfg.get("strategy_runner"), dict) else {}
-                    raw_strategy = raw_runner.get("strategy") if isinstance(raw_runner.get("strategy"), dict) else {}
+                    # Apply the same ownership rules as startup configuration.
+                    raw_strategy, _ = _strategy_block_from_runner_cfg(raw_runner)
 
                     selected_block = _signal_strategy_block_from_selected_name(selected_strategy, raw_strategy)
                     evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe, ohlcv_source)
