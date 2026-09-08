@@ -1,5 +1,17 @@
 # Review Stabilized Work Log
 
+## 2026-09-08 - Intraday Trade-Window Coverage Proof
+
+Active role: AUDITOR. Verified six qualified order IDs against journal and
+counted Coinbase BTC/USDT intraday timestamps around all three round trips.
+SHOWN: 5m missing 15/85/287 containing bars; hourly covers July only. No claim
+about missing-candle cause. Exact runner replay remains unsupported; do not
+substitute bars for loops or infer tick ordering. Detailed method, hashes and
+next bounded re-fetch recommendation in es_intraday_coverage_2026_09_08.md.
+VERIFIED_ENV: mode=ro SQLite queries, two identical JSON runs (cmp rc=0).
+No campaign, archive or host mutation. Full suite not run for data inspection.
+Acceptance state: ACCEPTED for coverage assessment, not replay proof.
+
 ## 2026-09-08 - Execute Frozen SMA Comparison
 
 Active role: AUDITOR. Ran existing baseline engine with SMA20/200 on the same
