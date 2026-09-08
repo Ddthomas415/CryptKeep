@@ -1,5 +1,24 @@
 # Review Stabilized Work Log
 
+## 2026-09-08 - Execute Frozen SMA Comparison
+
+Active role: AUDITOR. Ran existing baseline engine with SMA20/200 on the same
+3077 daily rows, identical 7.5/5 bps modeled costs and 210-bar warmup. SHOWN:
+157 versus 31 closed trades; modeled net returns 250.94% versus 854.35%; max
+drawdowns 72.89% versus 64.29%. Research-only, not exit-policy replay or edge
+proof. Exact hashes, sizing caveat and results in es_sma_archive_results_2026_09_08.md.
+VERIFIED_ENV: local venv script succeeded, endpoint/continuity/hash assertions
+passed. No production code change, full-suite rerun or host operation.
+Acceptance state: ACCEPTED for the bounded research observation only.
+
+## 2026-09-08 - Comparison Engine Coverage Check
+
+Active role: AUDITOR. SHOWN by parity-engine inspection: the existing archive
+baseline does not invoke runner exit controls, so it cannot measure the proposed
+exit-policy difference. Recorded a predeclared matrix and data limitations in
+es_corrected_policy_comparison_protocol_2026_09_08.md. No results invented and
+no runtime changes. Docs-only; tests not rerun. Comparison remains INCOMPLETE.
+
 ## 2026-09-08 - Human Acceptance of Exit Alignment
 
 Active role: GATE. SHOWN: user accepted 0b1628a09, then directed continuation.
