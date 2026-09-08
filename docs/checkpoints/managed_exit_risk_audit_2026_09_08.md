@@ -1,5 +1,12 @@
 # Managed Exit-Risk Configuration Audit
 
+## Human Acceptance - 2026-09-08
+
+Active role: GATE. User explicitly accepted implementation commit 0b1628a09.
+Acceptance state: ACCEPTED (human review). Prior review-stage records below
+are preserved. This does not assert completed subagent review, GitHub CI or
+deployment proof. No campaign restart or deployment is included.
+
 ## Implementation - 2026-09-08
 
 Active role: ENGINEER. User approved implementation and alignment after the

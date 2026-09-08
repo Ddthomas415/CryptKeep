@@ -1,5 +1,12 @@
 # Review Stabilized Work Log
 
+## 2026-09-08 - Human Acceptance of Exit Alignment
+
+Active role: GATE. SHOWN: user accepted 0b1628a09, then directed continuation.
+Acceptance state: ACCEPTED (human). Prior 160-test proof remains local only.
+Publishing as a dependent PR for CI; no deployment or restart. PR #587 has
+seven successful checks but still requires GitHub review. No bypass attempted.
+
 ## 2026-09-08 - Implement Approved Managed Exit Alignment
 
 Active role: ENGINEER. HIGH risk. User approved the explicit ES exit-policy
