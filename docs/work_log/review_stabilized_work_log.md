@@ -1,5 +1,19 @@
 # Review Stabilized Work Log
 
+## 2026-09-08 - Implement Approved Managed Exit Alignment
+
+Active role: ENGINEER. HIGH risk. User approved the explicit ES exit-policy
+alignment. Added four zero exit controls to the ES preset and a narrow runner
+resolver preserving owned overrides, isolating managed cross-identity settings,
+rejecting invalid values and avoiding unrelated risk-limit changes. Unsupported
+identity compatibility remains intact after the first regression run exposed
+an over-broad mismatch rejection. Actual loop tests capture exit-stack args.
+VERIFIED_ENV: six targeted test files, 160 passed in 1.96s. Full-system tests
+and host deployment were not performed. Independent review requested.
+Detailed scope/proof in managed_exit_risk_audit_2026_09_08.md. No campaign restart,
+deployment, evidence rewriting or gate changes.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-08 - Managed Exit Policy Ownership Proposal
 
 Active role: DIRECTOR. HIGH-risk implementation scoped but not started.

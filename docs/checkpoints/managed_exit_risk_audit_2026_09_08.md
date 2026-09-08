@@ -1,5 +1,39 @@
 # Managed Exit-Risk Configuration Audit
 
+## Implementation - 2026-09-08
+
+Active role: ENGINEER. User approved implementation and alignment after the
+explicit policy question. The managed ES preset now declares all four zeros.
+Runner _cfg transports only the four selected exit controls as top-level keys,
+so existing setdefault calls preserve them. No collector environment change is
+needed: its selected strategy resolves the preset inside the child runner.
+
+Precedence: preset, then owned local risk, then owned local top-level controls.
+Without an environment strategy override, local ownership is retained. With an
+override, a matching explicit local identity is required; differently named or
+unnamed local exit settings cannot override the selected preset. A mismatched
+preset identity fails configuration resolution. Unsupported strategy identities
+retain their existing unsupported/hold path. No unrelated risk map is copied.
+Invalid, nonfinite, negative or boolean values fail configuration resolution;
+max_bars_hold must also be integral. This is startup refusal, not a new status
+protocol. Missing values retain existing runtime defaults.
+
+VERIFIED_ENV: ./.venv/bin/python -m pytest -q tests/test_managed_exit_policy.py
+tests/test_strategy_runtime_runner.py tests/test_managed_strategy_parameter_isolation.py
+tests/test_check_promotion_gates.py tests/test_paper_strategy_evidence_service.py
+tests/test_ema_runner_risk_defaults.py returned 160 passed.
+Runtime tests capture evaluate_strategy_exit_stack arguments for ES (zero
+percentages, no time stop) and breakout (existing defaults). Other tests cover
+YAML/preset alignment, ownership, invalid values and override precedence.
+Initial regression run caught unsupported-identity compatibility errors; these
+were corrected before the passing run. Independent review requested.
+
+No host, running campaign, cohort or historical evidence changes. Full-system
+proof and deployment readiness remain UNVERIFIED. The audit/decision history
+below is retained; its pending-decision state is superseded by implementation
+authorization, not independent acceptance of the code.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 Active role: AUDITOR. Scope: read-only configuration-path assessment after
 managed strategy parameter isolation. No runtime correction or deployment.
 
