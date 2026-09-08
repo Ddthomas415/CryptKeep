@@ -1,5 +1,29 @@
 # Review Stabilized Work Log
 
+## 2026-09-08 - Managed Exit Policy Ownership Proposal
+
+Active role: DIRECTOR. HIGH-risk implementation scoped but not started.
+SHOWN: managed ES preset omits four exit controls declared zero in standalone
+ES YAML. Transporting zeros requires an explicit policy choice, not inference.
+Recorded recommendation, precedence, validation and runtime proof requirements
+in managed_exit_risk_audit_2026_09_08.md. No code/campaign changes or tests run;
+source inspection is the evidence for this docs-only advisory. Next required
+decision: managed ES preset adopts the standalone zero exit-control policy.
+Acceptance state: BLOCKED pending that material policy decision.
+
+## 2026-09-08 - Exit-Risk Propagation Audit
+
+Active role: AUDITOR. SHOWN: mocked explicit zero exit settings disappear in
+strategy_runner._cfg; run_forever therefore has a 0.02 trailing default.
+The prior risk-default fix remains present; its source-text test does not
+exercise propagation. Documented the exact boundary and historical-proof limits
+in docs/checkpoints/managed_exit_risk_audit_2026_09_08.md. No runtime code changed.
+VERIFIED_ENV: local venv mock returned risk_present=False, exit_keys_present=[],
+runtime_trailing_default=0.02. No full-suite run for this documentation-only audit.
+Next treatment requires managed risk ownership plus behavioral proof, not blind
+copying of unrelated local risk settings. No host/campaign changes.
+Acceptance state: INCOMPLETE for the separate high-risk exit treatment.
+
 ## 2026-09-08 - Human Acceptance of Runtime Isolation Correction
 
 Active role: GATE. Objective: record acceptance of 1f064560e and publish for CI.
