@@ -1,5 +1,16 @@
 # Review Stabilized Work Log
 
+## 2026-09-09 - Close Bounded ES Gap Re-fetch
+
+Active role: AUDITOR. SHOWN: 10 public OHLCV requests completed pagination for
+three windows; recovered 0/387 absent timestamps. All 2480 returned rows match
+the archive exactly. Result and hashes in es_gap_refetch_result_2026_09_09.md.
+VERIFIED_ENV: public network run and read-only SQLite comparison. Source cause
+and exact historical runner replay remain UNVERIFIED. Stop repeated requests
+for identical gaps; retain research-only limitations. No campaign or archive
+mutation, no runtime changes or full-suite rerun.
+Acceptance state: ACCEPTED for bounded source-coverage observation.
+
 ## 2026-09-08 - Intraday Trade-Window Coverage Proof
 
 Active role: AUDITOR. Verified six qualified order IDs against journal and
