@@ -1,5 +1,13 @@
 # Corrected ES Prospective Manifest Review
 
+## Human Acceptance
+
+2026-09-09: user explicitly accepted manifest implementation f894a7a53 with
+INDEPENDENT REVIEW ACCEPTED. Acceptance state: ACCEPTED (human, manifest only).
+The implementation-stage record below is preserved. Manifest remains disabled.
+Effective sizing/cost proof and deadline enforcement remain required before
+launch; acceptance is not deployment or campaign-start authorization.
+
 Active role: ENGINEER. Risk HIGH (campaign configuration). Not launched.
 
 Prepared configs/paper_evidence_campaigns.es_corrected_prospective.json using
