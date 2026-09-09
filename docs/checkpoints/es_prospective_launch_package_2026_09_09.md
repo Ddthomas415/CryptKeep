@@ -2,6 +2,11 @@
 
 ## Independent Review Correction
 
+Human acceptance on 2026-09-09: user explicitly accepted correction a188e800f.
+Acceptance state: ACCEPTED (human, seed-check correction). Prior implementation
+status below is historical. Host validation and shutdown rehearsal are still
+separate, unverified steps; no launch follows from this acceptance alone.
+
 Reviewer found that the in-memory config test could pass even if the seed was
 never installed. The package now includes a second ExecCondition requiring the
 exact generated seed SHA256 at
