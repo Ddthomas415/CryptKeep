@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 import json
 
 import pytest
-from scripts.research.build_es_trial_package import before_deadline, render, NAME
+from scripts.research.build_es_trial_package import before_deadline, render, seed_matches, NAME
 
 NOW = datetime(2026, 9, 9, 12, tzinfo=timezone.utc)
 
@@ -44,3 +44,24 @@ def test_expired_start_refused_after_restart():
     end = "2026-10-10T00:00:00Z"
     assert before_deadline(end, NOW)
     assert not before_deadline(end, datetime(2026,10,10,tzinfo=timezone.utc))
+
+
+def test_seed_required_and_real_loader(tmp_path, monkeypatch):
+    from services.admin import config_editor
+    from services.execution import strategy_runner, paper_engine
+    files = render("2026-09-10T00:00:00Z", NOW)
+    expected = json.loads(files["evaluation.json"])["config_sha256"]
+    path = tmp_path / "runtime" / "config" / "user.yaml"
+    assert not seed_matches(path, expected)
+    path.parent.mkdir(parents=True)
+    path.write_text(files["user.yaml"])
+    assert seed_matches(path, expected)
+    monkeypatch.setattr(config_editor, "CONFIG_PATH", path)
+    monkeypatch.setenv("CBP_STRATEGY_NAME", "sma_200_trend")
+    monkeypatch.delenv("CBP_STRATEGY_PRESET", raising=False)
+    r, p = strategy_runner._cfg(), paper_engine._cfg()
+    assert r["strategy"]["sma_period"] == 200 and r["trailing_stop_pct"] == 0
+    assert (r["qty"], p["starting_cash_quote"], p["fee_bps"], p["slippage_bps"]) == (.001, 10000, 7.5, 5)
+    assert "--check-seed /srv/cryptkeep/app/.cbp_state_challengers/es_corrected_prospective_v1/runtime/config/user.yaml --sha256 " + expected in files[NAME + ".service"]
+    path.write_text("{}")
+    assert not seed_matches(path, expected)

@@ -1,5 +1,19 @@
 # Hetzner Prospective Launch Package
 
+## Independent Review Correction
+
+Reviewer found that the in-memory config test could pass even if the seed was
+never installed. The package now includes a second ExecCondition requiring the
+exact generated seed SHA256 at
+/srv/cryptkeep/app/.cbp_state_challengers/es_corrected_prospective_v1/runtime/config/user.yaml.
+The loose package user.yaml must be placed at precisely that destination in
+new state; absence, unreadability, symlink or changed bytes refuse startup.
+Real file-loader test exercises configuration resolution and missing/mismatched
+seed refusal. Targeted suite: 32 passed. Host deadline rehearsal remains pending
+Tailscale SSH authentication; no remote changes have been performed.
+This correction is READY_FOR_INDEPENDENT_REVIEW, not covered by the earlier
+acceptance of f841608e2.
+
 ## Human Acceptance
 
 2026-09-09: user explicitly accepted implementation f841608e2 with

@@ -1,5 +1,14 @@
 # Review Stabilized Work Log
 
+## 2026-09-09 - Close Prospective Seed Verification Gap
+
+Active role: ENGINEER. Independent reviewer showed in-memory tests could pass
+without installed seed. Added exact-path/hash startup condition plus real-file
+loader and absent/mismatched seed tests. 32 targeted tests passed. Exact seed
+destination documented. Host preflight requested Tailscale authentication;
+no remote file/service changes made. Deadline/process-tree rehearsal remains
+UNVERIFIED. Acceptance state: READY_FOR_INDEPENDENT_REVIEW for this correction.
+
 ## 2026-09-09 - Human Acceptance of Prospective Launch Package
 
 Active role: GATE. SHOWN: user explicitly accepted f841608e2.
