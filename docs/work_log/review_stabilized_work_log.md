@@ -1,5 +1,15 @@
 # Review Stabilized Work Log
 
+## 2026-09-09 - Uninstalled Hetzner Trial Package
+
+Active role: ENGINEER. HIGH risk. Render-only package pins candidate sizing/costs
+from local effective inspection and adds absolute timer, expired-start check,
+foreground collector and group-kill controls. No auto-install/start path.
+31 targeted tests passed, including actual runner/paper config resolution.
+Host unit parsing, child environment and shutdown rehearsal remain UNVERIFIED.
+Details in es_prospective_launch_package_2026_09_09.md. No host or campaign
+mutation. Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-09 - Human Acceptance of Disabled Prospective Manifest
 
 Active role: GATE. SHOWN: user accepted f894a7a53 explicitly. Acceptance state:
