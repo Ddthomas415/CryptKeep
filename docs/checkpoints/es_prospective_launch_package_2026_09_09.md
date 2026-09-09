@@ -1,5 +1,13 @@
 # Hetzner Prospective Launch Package
 
+## Human Acceptance
+
+2026-09-09: user explicitly accepted implementation f841608e2 with
+INDEPENDENT REVIEW ACCEPTED. Acceptance state: ACCEPTED (human, package only).
+This does not claim completed subagent review or host validation. Implementation
+history below is preserved. No installation or launch is authorized by this
+acceptance record; host unit verification and shutdown rehearsal remain next.
+
 Active role: ENGINEER. HIGH risk. Uninstalled, no campaign launch.
 
 scripts/research/build_es_trial_package.py renders files into a new output
