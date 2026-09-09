@@ -1,5 +1,16 @@
 # Review Stabilized Work Log
 
+## 2026-09-09 - Fixed Walk-Forward Diagnostic
+
+Active role: AUDITOR. Executed fixed SMA20/200 through existing anchored engine,
+six disjoint annual segments, same costs/data and no tuning. Detailed results
+and hashes in es_walk_forward_diagnostic_2026_09_09.md. Previously inspected
+history is not an untouched holdout. SHOWN: SMA200 still has 64.24% worst
+within-window drawdown; aggregate advantage does not establish deployment safety.
+VERIFIED_ENV: run completed and seven existing walk-forward tests passed.
+No runtime changes or campaign restart; full suite not rerun.
+Acceptance state: ACCEPTED for this bounded diagnostic only.
+
 ## 2026-09-09 - Close Bounded ES Gap Re-fetch
 
 Active role: AUDITOR. SHOWN: 10 public OHLCV requests completed pagination for
