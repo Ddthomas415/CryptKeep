@@ -1,5 +1,16 @@
 # Review Stabilized Work Log
 
+## 2026-09-09 - Training-Calibrated Risk Diagnostic
+
+Active role: AUDITOR. Used preceding training equity only to fit cash-sleeve
+weights to declared 12% drawdown target, then froze each for next annual segment.
+SHOWN: next-window DD reaches 15.58% SMA20 and 12.69% SMA200; not a guaranteed
+loss bound. Detailed limitations in es_training_risk_diagnostic_2026_09_09.md.
+VERIFIED_ENV: script assertions passed, seven existing tests passed. Research
+artifacts only; no portfolio implementation or campaign sizing change.
+Close retrospective tuning lane; deployment evidence remains incomplete.
+Acceptance state: ACCEPTED for bounded diagnostic only.
+
 ## 2026-09-09 - Allocation Benchmark Treatment
 
 Active role: AUDITOR. Completed initial-allocation matched SMA20/SMA200/buy-hold
