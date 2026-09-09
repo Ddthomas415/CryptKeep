@@ -1,5 +1,16 @@
 # Review Stabilized Work Log
 
+## 2026-09-09 - Allocation Benchmark Treatment
+
+Active role: AUDITOR. Completed initial-allocation matched SMA20/SMA200/buy-hold
+diagnostic using existing engine and frozen archive. SHOWN: SMA200 portfolio
+return 85.43%, drawdown 32.57% with unrebalanced 100/900 active/idle allocation.
+Not equal-volatility risk matching or untouched holdout; those remain incomplete.
+Detailed scope and artifact in es_allocation_benchmark_2026_09_09.md.
+VERIFIED_ENV: script completed, input hash and flat terminal positions asserted.
+No production change or full-suite rerun. Keep exposure unchanged; no deployment.
+Acceptance state: ACCEPTED for bounded research diagnostic only.
+
 ## 2026-09-09 - Fixed Walk-Forward Diagnostic
 
 Active role: AUDITOR. Executed fixed SMA20/200 through existing anchored engine,
