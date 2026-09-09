@@ -1,5 +1,16 @@
 # Review Stabilized Work Log
 
+## 2026-09-09 - Hetzner Dummy Deadline Proof
+
+Active role: AUDITOR. After user Tailscale approval, temporary rendered units
+verified rc=0 on host. Expired CLI rc=1; six-second absolute timer stopped dummy
+parent/resistant new-session child, cgroup empty and MainPID=0. Expected timeout
+result documented after correcting initial overly strict assertion. Test units
+cleaned; only temporary artifacts remain. 32 local tests passed.
+See es_hetzner_deadline_rehearsal_2026_09_09.md for exact scope and limitations.
+No deployment, app restart or real collector launch.
+Acceptance state: ACCEPTED for dummy proof; launch readiness INCOMPLETE.
+
 ## 2026-09-09 - Human Acceptance of Seed Check
 
 Active role: GATE. User explicitly accepted a188e800f. Acceptance state:
