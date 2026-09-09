@@ -1,5 +1,16 @@
 # Review Stabilized Work Log
 
+## 2026-09-09 - Isolated Runtime Reverification and Prospective Contract
+
+Active role: DIRECTOR after isolated test verification. SHOWN / VERIFIED_ENV:
+six targeted runtime/isolation/exit/collector/gate test files, 160 passed.
+Recorded fixed prospective criteria in es_prospective_evaluation_contract_2026_09_09.md:
+distinct state and effective-config proof before launch, seven-day operational
+inspection, fixed 30-calendar-day observation endpoint, no tuning/extensions
+or promotion inference. These periods are operational bounds, not edge proof.
+No real child launch, campaign restart, cohort change or host mutation.
+Acceptance state: INCOMPLETE for prospective evidence; tests are local only.
+
 ## 2026-09-09 - Training-Calibrated Risk Diagnostic
 
 Active role: AUDITOR. Used preceding training equity only to fit cash-sleeve
