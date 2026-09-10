@@ -1,5 +1,19 @@
 # Review Stabilized Work Log
 
+## 2026-09-10 - Integrate Final Prospective Launch Package
+
+Active role: ENGINEER. Objective: advance PR #590 onto accepted research
+integration 2a61a12bf without altering runtime or launching the trial.
+SHOWN: only work-log additions differ from the previous package tree; the
+work-log conflict was resolved by retaining both histories. This preserves
+the accepted implementation instead of rebuilding it. Nine-file targeted
+pytest slice (package, manifest, recovery, exits, runner, parameter isolation,
+promotion, evidence service, EMA defaults): 192 passed in 2.24s;
+git diff --check passed. All seven PR #588 checks are successful, but GitHub
+still requires review. No administrator bypass, deployment, service restart,
+or campaign start. Full-system launch remains unverified; delivery state:
+INCOMPLETE pending GitHub review/merge. Integration is documentation-only.
+
 ## 2026-09-10T00:36:05Z - Approved One-Time Admin Merge of PR 587
 
 Active role: GATE. User explicitly approved administrator bypass for #587 only.
@@ -76,6 +90,15 @@ foreground collector and group-kill controls. No auto-install/start path.
 Host unit parsing, child environment and shutdown rehearsal remain UNVERIFIED.
 Details in es_prospective_launch_package_2026_09_09.md. No host or campaign
 mutation. Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-10 - Advance Research Stack During CI
+
+Active role: GATE. User accepted #588 integration 772c1a335. Merged that base
+into the next research/disabled-manifest branch, retaining both work-log entries.
+Only documentation differs from its previous tree; runtime and manifest are
+unchanged. 31 manifest/recovery/walk-forward tests passed. #588 still requires
+GitHub review; its one-time predecessor bypass is not reused. No deployment.
+Acceptance: ACCEPTED (human, #588 integration); delivery remains INCOMPLETE.
 
 ## 2026-09-09 - Human Acceptance of Disabled Prospective Manifest
 
@@ -181,6 +204,18 @@ baseline does not invoke runner exit controls, so it cannot measure the proposed
 exit-policy difference. Recorded a predeclared matrix and data limitations in
 es_corrected_policy_comparison_protocol_2026_09_08.md. No results invented and
 no runtime changes. Docs-only; tests not rerun. Comparison remains INCOMPLETE.
+## 2026-09-10 - Retarget Exit Alignment to Merged Master
+
+Active role: ENGINEER (delivery integration only). PR #588 now targets master
+after #587 squash merge. Merged origin/master; resolved overlapping insertion
+hunks by retaining accepted exit tests/work-log history. Staged runtime/preset/
+test diff against pre-merge HEAD is empty: accepted code remains byte-identical.
+160 targeted tests passed. No force push, protection change, admin bypass or
+deployment. Retarget used repository REST API rather than broadening token
+scopes requested by gh pr edit. Earlier merge attempted after a failed branch
+switch was immediately aborted with clean state restored; no changes lost.
+Acceptance remains human-recorded for code; GitHub delivery INCOMPLETE pending
+new checks/review on the updated base.
 
 ## 2026-09-08 - Human Acceptance of Exit Alignment
 
