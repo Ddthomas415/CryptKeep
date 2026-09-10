@@ -1,5 +1,14 @@
 # Review Stabilized Work Log
 
+## 2026-09-10 - Advance Research Stack During CI
+
+Active role: GATE. User accepted #588 integration 772c1a335. Merged that base
+into the next research/disabled-manifest branch, retaining both work-log entries.
+Only documentation differs from its previous tree; runtime and manifest are
+unchanged. 31 manifest/recovery/walk-forward tests passed. #588 still requires
+GitHub review; its one-time predecessor bypass is not reused. No deployment.
+Acceptance: ACCEPTED (human, #588 integration); delivery remains INCOMPLETE.
+
 ## 2026-09-09 - Human Acceptance of Disabled Prospective Manifest
 
 Active role: GATE. SHOWN: user accepted f894a7a53 explicitly. Acceptance state:
@@ -104,6 +113,18 @@ baseline does not invoke runner exit controls, so it cannot measure the proposed
 exit-policy difference. Recorded a predeclared matrix and data limitations in
 es_corrected_policy_comparison_protocol_2026_09_08.md. No results invented and
 no runtime changes. Docs-only; tests not rerun. Comparison remains INCOMPLETE.
+## 2026-09-10 - Retarget Exit Alignment to Merged Master
+
+Active role: ENGINEER (delivery integration only). PR #588 now targets master
+after #587 squash merge. Merged origin/master; resolved overlapping insertion
+hunks by retaining accepted exit tests/work-log history. Staged runtime/preset/
+test diff against pre-merge HEAD is empty: accepted code remains byte-identical.
+160 targeted tests passed. No force push, protection change, admin bypass or
+deployment. Retarget used repository REST API rather than broadening token
+scopes requested by gh pr edit. Earlier merge attempted after a failed branch
+switch was immediately aborted with clean state restored; no changes lost.
+Acceptance remains human-recorded for code; GitHub delivery INCOMPLETE pending
+new checks/review on the updated base.
 
 ## 2026-09-08 - Human Acceptance of Exit Alignment
 
