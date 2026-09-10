@@ -1,5 +1,15 @@
 # Review Stabilized Work Log
 
+## 2026-09-09 - Publish ES Research and Launch Package Stack
+
+Active role: GATE. Published codex/es-sma-archive-comparison and
+codex/es-prospective-launch-package as dependent GitHub PRs over the accepted
+exit-alignment branch. Combined nine-file local regression slice: 192 passed
+in 2.06s. PR #587 remains REVIEW_REQUIRED; no branch-protection bypass attempted.
+Publication is not deployment or CI completion. No host or campaign change.
+Acceptance remains human-recorded for implementation; delivery is INCOMPLETE
+until required GitHub review/checks and merge finish.
+
 ## 2026-09-09 - Host Candidate Configuration Resolution
 
 Active role: AUDITOR. SHOWN: temporary candidate modules on host venv resolve
