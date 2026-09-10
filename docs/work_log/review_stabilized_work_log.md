@@ -1,5 +1,18 @@
 # Review Stabilized Work Log
 
+## 2026-09-10 - Retarget Exit Alignment to Merged Master
+
+Active role: ENGINEER (delivery integration only). PR #588 now targets master
+after #587 squash merge. Merged origin/master; resolved overlapping insertion
+hunks by retaining accepted exit tests/work-log history. Staged runtime/preset/
+test diff against pre-merge HEAD is empty: accepted code remains byte-identical.
+160 targeted tests passed. No force push, protection change, admin bypass or
+deployment. Retarget used repository REST API rather than broadening token
+scopes requested by gh pr edit. Earlier merge attempted after a failed branch
+switch was immediately aborted with clean state restored; no changes lost.
+Acceptance remains human-recorded for code; GitHub delivery INCOMPLETE pending
+new checks/review on the updated base.
+
 ## 2026-09-08 - Human Acceptance of Exit Alignment
 
 Active role: GATE. SHOWN: user accepted 0b1628a09, then directed continuation.
