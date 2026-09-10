@@ -480,9 +480,15 @@ def _strategy_block_from_runner_cfg(s: dict) -> tuple[dict, str]:
             return _unsupported_strategy_block(raw_name, nested), preset_name
         strategy_name = "ema_cross"
     default_preset = _DEFAULT_PRESET_BY_STRATEGY[strategy_name]
+    local_name = nested.get("name", s.get("strategy_name", s.get("strategy_id")))
+    switched_strategy = (
+        os.environ.get("CBP_STRATEGY_NAME") is not None
+        and local_name is not None
+        and _canonical_strategy_name(local_name) != strategy_name
+    )
     preset_name = str(
         os.environ.get("CBP_STRATEGY_PRESET")
-        or s.get("strategy_preset")
+        or (None if switched_strategy else s.get("strategy_preset"))
         or default_preset
     ).strip() or default_preset
     preset = get_preset(preset_name) or get_preset(default_preset) or {}
@@ -490,8 +496,10 @@ def _strategy_block_from_runner_cfg(s: dict) -> tuple[dict, str]:
         preset_name = default_preset
 
     merged = dict(preset.get("strategy") if isinstance(preset.get("strategy"), dict) else {})
-    merged.update(_legacy_strategy_params(s, strategy_name))
-    for key, value in nested.items():
+    # A managed name override must not relabel another strategy's parameters.
+    if not switched_strategy:
+        merged.update(_legacy_strategy_params(s, strategy_name))
+    for key, value in ({} if switched_strategy else nested).items():
         if key == "name" or value is None:
             continue
         merged[key] = value
@@ -1107,7 +1115,8 @@ def run_forever() -> None:
                         time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
                         continue
                     raw_runner = raw_cfg.get("strategy_runner") if isinstance(raw_cfg.get("strategy_runner"), dict) else {}
-                    raw_strategy = raw_runner.get("strategy") if isinstance(raw_runner.get("strategy"), dict) else {}
+                    # Apply the same ownership rules as startup configuration.
+                    raw_strategy, _ = _strategy_block_from_runner_cfg(raw_runner)
 
                     selected_block = _signal_strategy_block_from_selected_name(selected_strategy, raw_strategy)
                     evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe, ohlcv_source)

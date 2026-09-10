@@ -1,5 +1,43 @@
 # Review Stabilized Work Log
 
+## 2026-09-08 - Human Acceptance of Runtime Isolation Correction
+
+Active role: GATE. Objective: record acceptance of 1f064560e and publish for CI.
+SHOWN: user explicitly stated INDEPENDENT REVIEW ACCEPTED after the runtime
+bypass correction and 128-test report. Acceptance state: ACCEPTED (human).
+Only acceptance documentation changed in this entry; prior verification is
+128 targeted tests passed, not full-system proof. GitHub CI remains to run.
+No deployment, host mutation, campaign restart or historical evidence relabeling.
+Independent subagent re-review is not represented as completed by this entry.
+
+## 2026-09-08 - Close Managed Parameter Runtime Bypass
+
+Active role: ENGINEER. Objective: complete the managed parameter isolation fix.
+SHOWN: independent review of 5c705d01d found public-OHLCV dispatch reconstructing
+SMA20 from raw local configuration despite startup selecting SMA200. Human
+acceptance preceded that finding; it is not proof that the bypass was fixed.
+The loop now uses the existing ownership resolver before signal construction,
+avoiding a second interpretation policy. Added two bounded dispatch regressions
+for the selected period and explicit trading-disable preservation.
+VERIFIED_ENV: local venv targeted runner/isolation/collector/promotion tests,
+128 passed; git diff --check passed. Expected outcome: managed switches no
+longer inherit another named strategy's period at public signal dispatch.
+No deployment, campaign restart, gate or historical evidence change. Full-system
+behavior remains UNVERIFIED; independent re-review requested.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-07 - Managed Cross-Strategy Parameter Isolation
+
+Active role: ENGINEER. HIGH-risk config interpretation fix on dedicated branch.
+Explicit managed strategy switches now omit parameters/preset from a differently
+named local strategy. Same-strategy/no-override behavior and explicit trading
+disable preserved. Tests cover SMA20 contamination, compatibility and legacy
+identity. Final runner/collector/promotion regression slice: 126 passed;
+git diff --check passed. Independent review pending.
+No campaign/config/host/gate change. Exit-risk configuration and unnamed local
+ownership deliberately unchanged. Record: managed_strategy_parameter_isolation
+checkpoint. Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 This file is the durable Codex work log for `review-stabilized`.
 
 Purpose: make engineering/audit work visible in git, including what was found,
