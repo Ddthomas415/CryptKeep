@@ -1,5 +1,14 @@
 # Review Stabilized Work Log
 
+## 2026-09-10T00:36:05Z - Approved One-Time Admin Merge of PR 587
+
+Active role: GATE. User explicitly approved administrator bypass for #587 only.
+Rechecked all seven checks successful at head
+f10f81be313894bd17eef83fe39ce6334e30936d. Merged using squash/admin with exact
+head matching; GitHub confirmed MERGED as 3d4ac39e7c4351fbba90b79de84f51d76bb70891.
+Branch protection unchanged. No broader bypass authorization inferred, no other
+PR merged, no deployment or campaign restart. Acceptance state: ACCEPTED (human).
+
 ## 2026-09-09 - Publish ES Research and Launch Package Stack
 
 Active role: GATE. Published codex/es-sma-archive-comparison and
