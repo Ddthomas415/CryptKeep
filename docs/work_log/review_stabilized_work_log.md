@@ -1,5 +1,16 @@
 # Review Stabilized Work Log
 
+## 2026-09-09 - Host Candidate Configuration Resolution
+
+Active role: AUDITOR. SHOWN: temporary candidate modules on host venv resolve
+SMA200/ATR20, zero exits, .001 BTC quantity, 10000 USDT cash, 7.5/5 bps costs.
+Real file loader and exact module hashes checked; inherited CBP environment
+cleared only inside disposable probe. No collector launched or deployed files
+replaced. This is not full-service environment/startup proof. Details and hashes
+in es_hetzner_config_proof_2026_09_09.md. Acceptance state: ACCEPTED for resolver
+proof only. Next boundary is accepted checkout delivery and isolated startup,
+not another repetition of this configuration test.
+
 ## 2026-09-09 - Hetzner Dummy Deadline Proof
 
 Active role: AUDITOR. After user Tailscale approval, temporary rendered units
