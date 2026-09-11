@@ -1,5 +1,15 @@
 # Review Stabilized Work Log
 
+## 2026-09-11 - Refresh PR 590 While Research CI Runs
+
+Active role: ENGINEER. Integrated research head 632bc8849 into the launch
+package. SHOWN: only work-log additions differ from the previous package
+tree; retained both histories at the documentation conflict. Runtime and
+disabled manifest unchanged. VERIFIED_ENV: nine-file package/manifest/
+recovery/execution/gate regression slice: 192 passed in 2.17s; diff check
+passed. Local proof is not full-system proof. No deployment, restart, launch,
+or administrator merge. Delivery state: INCOMPLETE pending CI/review/merge.
+
 ## 2026-09-11T00:14:46Z - Human-Approved PR 588 Merge
 
 Active role: GATE. User answered the explicit one-time administrator-merge
@@ -102,6 +112,18 @@ foreground collector and group-kill controls. No auto-install/start path.
 Host unit parsing, child environment and shutdown rehearsal remain UNVERIFIED.
 Details in es_prospective_launch_package_2026_09_09.md. No host or campaign
 mutation. Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-11 - Advance PR 589 onto Merged Master
+
+Active role: ENGINEER. Objective: integrate origin/master 0bacb37f4 after
+PR #588 merged. SHOWN: retaining research work-log entries resolved the sole
+conflict; the resulting tree was byte-identical to prior HEAD before this
+record. No runtime, manifest, or research behavior changed. VERIFIED_ENV:
+manifest/recovery/walk-forward/archive-runner pytest slice: 31 passed in 0.54s.
+This is local integration proof, not full-system proof. Publish and retarget
+the existing PR to master; no administrator merge authorization inferred.
+No deployment, restart, or trial launch. Delivery state: INCOMPLETE pending
+GitHub checks/review/merge; disabled trial remains disabled.
 
 ## 2026-09-10 - Advance Research Stack During CI
 
