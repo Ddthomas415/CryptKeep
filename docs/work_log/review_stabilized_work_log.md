@@ -1,5 +1,19 @@
 # Review Stabilized Work Log
 
+## 2026-09-11T01:39:36Z - Approved Stack Delivery: PR 589 Merged
+
+Active role: GATE. User explicitly accepted the request for one-time admin
+merges of #589 and #590, in order, conditional on successful checks of each
+final master-targeted head. SHOWN: all seven checks passed at
+632bc88497e4199df6254a8420d9f2cbb00d6844; exact-head squash/admin merge of
+#589 confirmed as e4cbf335e049c73115c3e3033f06d27077e9dd07.
+Then ENGINEER stage: integrated this master into #590, retaining work-log
+history. Tree byte-identical to previous package before this record.
+VERIFIED_ENV: nine-file targeted regression slice: 192 passed in 2.20s.
+#590 now targets master; its merge remains conditional on final-head CI.
+Acceptance: ACCEPTED (human, scoped merge authorization); delivery INCOMPLETE
+until #590 merges. No protection changes, deployment, restart or trial launch.
+
 ## 2026-09-11 - Refresh PR 590 While Research CI Runs
 
 Active role: ENGINEER. Integrated research head 632bc8849 into the launch
