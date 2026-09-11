@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "campaigns": [
+    {
+      "name": "es_corrected_prospective_v1",
+      "enabled": false,
+      "state_dir": ".cbp_state_challengers/es_corrected_prospective_v1",
+      "strategy": "sma_200_trend",
+      "session_strategy_id": "es_corrected_prospective_v1",
+      "symbol": "BTC/USDT",
+      "venue": "coinbase",
+      "signal_source": "public_ohlcv_1d",
+      "runtime_sec": 20,
+      "strategy_drain_sec": 2,
+      "poll_interval_sec": 300,
+      "max_daily_attempts": 2,
+      "desktop_notify": false
+    }
+  ]
+}

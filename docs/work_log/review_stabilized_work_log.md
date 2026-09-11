@@ -1,5 +1,130 @@
 # Review Stabilized Work Log
 
+## 2026-09-11 - Advance PR 589 onto Merged Master
+
+Active role: ENGINEER. Objective: integrate origin/master 0bacb37f4 after
+PR #588 merged. SHOWN: retaining research work-log entries resolved the sole
+conflict; the resulting tree was byte-identical to prior HEAD before this
+record. No runtime, manifest, or research behavior changed. VERIFIED_ENV:
+manifest/recovery/walk-forward/archive-runner pytest slice: 31 passed in 0.54s.
+This is local integration proof, not full-system proof. Publish and retarget
+the existing PR to master; no administrator merge authorization inferred.
+No deployment, restart, or trial launch. Delivery state: INCOMPLETE pending
+GitHub checks/review/merge; disabled trial remains disabled.
+
+## 2026-09-10 - Advance Research Stack During CI
+
+Active role: GATE. User accepted #588 integration 772c1a335. Merged that base
+into the next research/disabled-manifest branch, retaining both work-log entries.
+Only documentation differs from its previous tree; runtime and manifest are
+unchanged. 31 manifest/recovery/walk-forward tests passed. #588 still requires
+GitHub review; its one-time predecessor bypass is not reused. No deployment.
+Acceptance: ACCEPTED (human, #588 integration); delivery remains INCOMPLETE.
+
+## 2026-09-09 - Human Acceptance of Disabled Prospective Manifest
+
+Active role: GATE. SHOWN: user accepted f894a7a53 explicitly. Acceptance state:
+ACCEPTED (human, manifest only). Recorded in the manifest review checkpoint.
+No runtime/configuration change beyond documentation; manifest remains disabled.
+Prior 24-test proof applies; tests not rerun for acceptance text. No launch,
+restart or deployment. Sizing/cost proof and deadline enforcement remain open.
+
+## 2026-09-09 - Disabled Corrected ES Prospective Manifest
+
+Active role: ENGINEER. Prepared isolated schema-v1 manifest, disabled by default,
+new session/state, existing ES sampling cadence. No default manifest changes.
+VERIFIED_ENV: 24 manifest/recovery tests passed, real loader validation with
+temporary enabled copy; no process launch. Remaining launch requirements include
+effective config/cost/sizing proof and deadline enforcement, which this schema
+does not supply. Details in es_prospective_manifest_review_2026_09_09.md.
+No deployment or campaign restart; full-system proof remains UNVERIFIED.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-09 - Isolated Runtime Reverification and Prospective Contract
+
+Active role: DIRECTOR after isolated test verification. SHOWN / VERIFIED_ENV:
+six targeted runtime/isolation/exit/collector/gate test files, 160 passed.
+Recorded fixed prospective criteria in es_prospective_evaluation_contract_2026_09_09.md:
+distinct state and effective-config proof before launch, seven-day operational
+inspection, fixed 30-calendar-day observation endpoint, no tuning/extensions
+or promotion inference. These periods are operational bounds, not edge proof.
+No real child launch, campaign restart, cohort change or host mutation.
+Acceptance state: INCOMPLETE for prospective evidence; tests are local only.
+
+## 2026-09-09 - Training-Calibrated Risk Diagnostic
+
+Active role: AUDITOR. Used preceding training equity only to fit cash-sleeve
+weights to declared 12% drawdown target, then froze each for next annual segment.
+SHOWN: next-window DD reaches 15.58% SMA20 and 12.69% SMA200; not a guaranteed
+loss bound. Detailed limitations in es_training_risk_diagnostic_2026_09_09.md.
+VERIFIED_ENV: script assertions passed, seven existing tests passed. Research
+artifacts only; no portfolio implementation or campaign sizing change.
+Close retrospective tuning lane; deployment evidence remains incomplete.
+Acceptance state: ACCEPTED for bounded diagnostic only.
+
+## 2026-09-09 - Allocation Benchmark Treatment
+
+Active role: AUDITOR. Completed initial-allocation matched SMA20/SMA200/buy-hold
+diagnostic using existing engine and frozen archive. SHOWN: SMA200 portfolio
+return 85.43%, drawdown 32.57% with unrebalanced 100/900 active/idle allocation.
+Not equal-volatility risk matching or untouched holdout; those remain incomplete.
+Detailed scope and artifact in es_allocation_benchmark_2026_09_09.md.
+VERIFIED_ENV: script completed, input hash and flat terminal positions asserted.
+No production change or full-suite rerun. Keep exposure unchanged; no deployment.
+Acceptance state: ACCEPTED for bounded research diagnostic only.
+
+## 2026-09-09 - Fixed Walk-Forward Diagnostic
+
+Active role: AUDITOR. Executed fixed SMA20/200 through existing anchored engine,
+six disjoint annual segments, same costs/data and no tuning. Detailed results
+and hashes in es_walk_forward_diagnostic_2026_09_09.md. Previously inspected
+history is not an untouched holdout. SHOWN: SMA200 still has 64.24% worst
+within-window drawdown; aggregate advantage does not establish deployment safety.
+VERIFIED_ENV: run completed and seven existing walk-forward tests passed.
+No runtime changes or campaign restart; full suite not rerun.
+Acceptance state: ACCEPTED for this bounded diagnostic only.
+
+## 2026-09-09 - Close Bounded ES Gap Re-fetch
+
+Active role: AUDITOR. SHOWN: 10 public OHLCV requests completed pagination for
+three windows; recovered 0/387 absent timestamps. All 2480 returned rows match
+the archive exactly. Result and hashes in es_gap_refetch_result_2026_09_09.md.
+VERIFIED_ENV: public network run and read-only SQLite comparison. Source cause
+and exact historical runner replay remain UNVERIFIED. Stop repeated requests
+for identical gaps; retain research-only limitations. No campaign or archive
+mutation, no runtime changes or full-suite rerun.
+Acceptance state: ACCEPTED for bounded source-coverage observation.
+
+## 2026-09-08 - Intraday Trade-Window Coverage Proof
+
+Active role: AUDITOR. Verified six qualified order IDs against journal and
+counted Coinbase BTC/USDT intraday timestamps around all three round trips.
+SHOWN: 5m missing 15/85/287 containing bars; hourly covers July only. No claim
+about missing-candle cause. Exact runner replay remains unsupported; do not
+substitute bars for loops or infer tick ordering. Detailed method, hashes and
+next bounded re-fetch recommendation in es_intraday_coverage_2026_09_08.md.
+VERIFIED_ENV: mode=ro SQLite queries, two identical JSON runs (cmp rc=0).
+No campaign, archive or host mutation. Full suite not run for data inspection.
+Acceptance state: ACCEPTED for coverage assessment, not replay proof.
+
+## 2026-09-08 - Execute Frozen SMA Comparison
+
+Active role: AUDITOR. Ran existing baseline engine with SMA20/200 on the same
+3077 daily rows, identical 7.5/5 bps modeled costs and 210-bar warmup. SHOWN:
+157 versus 31 closed trades; modeled net returns 250.94% versus 854.35%; max
+drawdowns 72.89% versus 64.29%. Research-only, not exit-policy replay or edge
+proof. Exact hashes, sizing caveat and results in es_sma_archive_results_2026_09_08.md.
+VERIFIED_ENV: local venv script succeeded, endpoint/continuity/hash assertions
+passed. No production code change, full-suite rerun or host operation.
+Acceptance state: ACCEPTED for the bounded research observation only.
+
+## 2026-09-08 - Comparison Engine Coverage Check
+
+Active role: AUDITOR. SHOWN by parity-engine inspection: the existing archive
+baseline does not invoke runner exit controls, so it cannot measure the proposed
+exit-policy difference. Recorded a predeclared matrix and data limitations in
+es_corrected_policy_comparison_protocol_2026_09_08.md. No results invented and
+no runtime changes. Docs-only; tests not rerun. Comparison remains INCOMPLETE.
 ## 2026-09-10 - Retarget Exit Alignment to Merged Master
 
 Active role: ENGINEER (delivery integration only). PR #588 now targets master
