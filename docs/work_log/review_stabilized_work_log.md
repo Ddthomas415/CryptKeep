@@ -1,5 +1,132 @@
 # Review Stabilized Work Log
 
+## 2026-09-11T01:39:36Z - Approved Stack Delivery: PR 589 Merged
+
+Active role: GATE. User explicitly accepted the request for one-time admin
+merges of #589 and #590, in order, conditional on successful checks of each
+final master-targeted head. SHOWN: all seven checks passed at
+632bc88497e4199df6254a8420d9f2cbb00d6844; exact-head squash/admin merge of
+#589 confirmed as e4cbf335e049c73115c3e3033f06d27077e9dd07.
+Then ENGINEER stage: integrated this master into #590, retaining work-log
+history. Tree byte-identical to previous package before this record.
+VERIFIED_ENV: nine-file targeted regression slice: 192 passed in 2.20s.
+#590 now targets master; its merge remains conditional on final-head CI.
+Acceptance: ACCEPTED (human, scoped merge authorization); delivery INCOMPLETE
+until #590 merges. No protection changes, deployment, restart or trial launch.
+
+## 2026-09-11 - Refresh PR 590 While Research CI Runs
+
+Active role: ENGINEER. Integrated research head 632bc8849 into the launch
+package. SHOWN: only work-log additions differ from the previous package
+tree; retained both histories at the documentation conflict. Runtime and
+disabled manifest unchanged. VERIFIED_ENV: nine-file package/manifest/
+recovery/execution/gate regression slice: 192 passed in 2.17s; diff check
+passed. Local proof is not full-system proof. No deployment, restart, launch,
+or administrator merge. Delivery state: INCOMPLETE pending CI/review/merge.
+
+## 2026-09-11T00:14:46Z - Human-Approved PR 588 Merge
+
+Active role: GATE. User answered the explicit one-time administrator-merge
+request for #588 with INDEPENDENT REVIEW ACCEPTED. Rechecked all seven checks
+successful at 772c1a33505c6c54b5658099a7e7fafe5df726e3; merged with squash/admin
+and exact head matching. GitHub confirms MERGED at
+0bacb37f41d4413220a00edcc38a624e0af44916. Acceptance state: ACCEPTED (human).
+No branch-protection changes, deployment, service restart, or campaign start.
+Authorization was limited to #588, not subsequent PRs. This record changes
+documentation only; tests not rerun. Remaining stack delivery and actual
+isolated launch proof are not claimed complete.
+
+## 2026-09-10 - Integrate Final Prospective Launch Package
+
+Active role: ENGINEER. Objective: advance PR #590 onto accepted research
+integration 2a61a12bf without altering runtime or launching the trial.
+SHOWN: only work-log additions differ from the previous package tree; the
+work-log conflict was resolved by retaining both histories. This preserves
+the accepted implementation instead of rebuilding it. Nine-file targeted
+pytest slice (package, manifest, recovery, exits, runner, parameter isolation,
+promotion, evidence service, EMA defaults): 192 passed in 2.24s;
+git diff --check passed. All seven PR #588 checks are successful, but GitHub
+still requires review. No administrator bypass, deployment, service restart,
+or campaign start. Full-system launch remains unverified; delivery state:
+INCOMPLETE pending GitHub review/merge. Integration is documentation-only.
+
+## 2026-09-10T00:36:05Z - Approved One-Time Admin Merge of PR 587
+
+Active role: GATE. User explicitly approved administrator bypass for #587 only.
+Rechecked all seven checks successful at head
+f10f81be313894bd17eef83fe39ce6334e30936d. Merged using squash/admin with exact
+head matching; GitHub confirmed MERGED as 3d4ac39e7c4351fbba90b79de84f51d76bb70891.
+Branch protection unchanged. No broader bypass authorization inferred, no other
+PR merged, no deployment or campaign restart. Acceptance state: ACCEPTED (human).
+
+## 2026-09-09 - Publish ES Research and Launch Package Stack
+
+Active role: GATE. Published codex/es-sma-archive-comparison and
+codex/es-prospective-launch-package as dependent GitHub PRs over the accepted
+exit-alignment branch. Combined nine-file local regression slice: 192 passed
+in 2.06s. PR #587 remains REVIEW_REQUIRED; no branch-protection bypass attempted.
+Publication is not deployment or CI completion. No host or campaign change.
+Acceptance remains human-recorded for implementation; delivery is INCOMPLETE
+until required GitHub review/checks and merge finish.
+
+## 2026-09-09 - Host Candidate Configuration Resolution
+
+Active role: AUDITOR. SHOWN: temporary candidate modules on host venv resolve
+SMA200/ATR20, zero exits, .001 BTC quantity, 10000 USDT cash, 7.5/5 bps costs.
+Real file loader and exact module hashes checked; inherited CBP environment
+cleared only inside disposable probe. No collector launched or deployed files
+replaced. This is not full-service environment/startup proof. Details and hashes
+in es_hetzner_config_proof_2026_09_09.md. Acceptance state: ACCEPTED for resolver
+proof only. Next boundary is accepted checkout delivery and isolated startup,
+not another repetition of this configuration test.
+
+## 2026-09-09 - Hetzner Dummy Deadline Proof
+
+Active role: AUDITOR. After user Tailscale approval, temporary rendered units
+verified rc=0 on host. Expired CLI rc=1; six-second absolute timer stopped dummy
+parent/resistant new-session child, cgroup empty and MainPID=0. Expected timeout
+result documented after correcting initial overly strict assertion. Test units
+cleaned; only temporary artifacts remain. 32 local tests passed.
+See es_hetzner_deadline_rehearsal_2026_09_09.md for exact scope and limitations.
+No deployment, app restart or real collector launch.
+Acceptance state: ACCEPTED for dummy proof; launch readiness INCOMPLETE.
+
+## 2026-09-09 - Human Acceptance of Seed Check
+
+Active role: GATE. User explicitly accepted a188e800f. Acceptance state:
+ACCEPTED (human, seed correction). Prior 32-test result remains local proof;
+host deadline and process-tree behavior remain unverified. Documentation-only
+acceptance entry, no tests rerun. No installation or campaign start authorized
+by this record.
+
+## 2026-09-09 - Close Prospective Seed Verification Gap
+
+Active role: ENGINEER. Independent reviewer showed in-memory tests could pass
+without installed seed. Added exact-path/hash startup condition plus real-file
+loader and absent/mismatched seed tests. 32 targeted tests passed. Exact seed
+destination documented. Host preflight requested Tailscale authentication;
+no remote file/service changes made. Deadline/process-tree rehearsal remains
+UNVERIFIED. Acceptance state: READY_FOR_INDEPENDENT_REVIEW for this correction.
+
+## 2026-09-09 - Human Acceptance of Prospective Launch Package
+
+Active role: GATE. SHOWN: user explicitly accepted f841608e2.
+Acceptance state: ACCEPTED (human, package only). Prior 31-test proof is local;
+subagent review and host validation are not asserted complete. Documentation
+only changed; no tests rerun beyond diff validation. No installation, launch,
+restart or host mutation. Host unit verification and dummy shutdown rehearsal
+remain required before a separately authorized launch.
+
+## 2026-09-09 - Uninstalled Hetzner Trial Package
+
+Active role: ENGINEER. HIGH risk. Render-only package pins candidate sizing/costs
+from local effective inspection and adds absolute timer, expired-start check,
+foreground collector and group-kill controls. No auto-install/start path.
+31 targeted tests passed, including actual runner/paper config resolution.
+Host unit parsing, child environment and shutdown rehearsal remain UNVERIFIED.
+Details in es_prospective_launch_package_2026_09_09.md. No host or campaign
+mutation. Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-11 - Advance PR 589 onto Merged Master
 
 Active role: ENGINEER. Objective: integrate origin/master 0bacb37f4 after
