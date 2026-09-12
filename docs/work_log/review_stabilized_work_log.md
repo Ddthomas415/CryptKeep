@@ -1,5 +1,24 @@
 # Review Stabilized Work Log
 
+## 2026-09-12 - Scoped Coinbase EMA Pause Requested
+
+Active role: ENGINEER. User continued after the recommendation to pause only
+Coinbase EMA. VERIFIED_ENV: explicit host journal still has 10 closes,
+-2.387556 USDT net, no FIFO lots; read-only paper_positions confirms
+BTC/USDT qty=0. Collector status idle, session ema_cross_default, PID 1287182;
+/proc PID environment confirms exact isolated state ownership.
+Called existing request_stop() only with CBP_STATE_DIR pointing to
+/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_default_daily.
+SHOWN: ok=true and state-local paper_strategy_evidence.stop path returned.
+No liquidation, deletion, kill signal or other campaign stop. Gate.io,
+Binance and corrected ES process identities were inspected, not modified.
+Graceful stop acknowledgment remains UNVERIFIED until next polling interval;
+do not label request submission as confirmed termination. No persistent
+manifest disable was performed; generic restore may restart this candidate,
+so any later restore must respect the recorded pause decision. Resume requires
+explicit operator decision; preserve all state. Acceptance state: INCOMPLETE
+pending stop acknowledgment. No code edits or tests; operational proof only.
+
 ## 2026-09-12 - Reuse Existing EMA Archive Evidence
 
 Active role: AUDITOR. Found both disabled and research-enabled August 1 EMA
