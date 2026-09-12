@@ -1,5 +1,17 @@
 # Review Stabilized Work Log
 
+## 2026-09-12T20:10:14Z - Coinbase EMA Graceful Stop Confirmed
+
+Active role: AUDITOR. SHOWN: isolated status reports stopped/stop_requested,
+session_strategy_id=ema_cross_default, timestamp 20:10:14.173715Z; original
+PID 1287182 no longer exists in /proc. This closes the pending acknowledgment
+from the scoped pause request. No force-kill or additional runtime change.
+State/history retained. Manifest remains enabled, so restore can restart it;
+pause persistence across restore is not claimed. PR #591 head c7532f464 had
+all seven checks successful before this documentation addition; final-head
+checks must be evaluated separately. Acceptance state: ACCEPTED for observed
+graceful termination. Verification was read-only SSH; no tests rerun.
+
 ## 2026-09-12 - Scoped Coinbase EMA Pause Requested
 
 Active role: ENGINEER. User continued after the recommendation to pause only
