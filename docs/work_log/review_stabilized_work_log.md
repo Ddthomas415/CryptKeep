@@ -1,5 +1,100 @@
 # Review Stabilized Work Log
 
+## 2026-09-12T19:53:01Z - Human-Approved Isolated ES Trial Launch
+
+Active role: ENGINEER. User accepted explicit installation/start scope, fresh
+host-clock dates, fixed 30-day endpoint, existing campaigns untouched.
+VERIFIED_ENV: host at 170ae24db8cd9fb20ae6a708c847f3462589dad6, clean;
+trial state/units absent and no CBP/Python manager overrides. Existing deployed
+renderer produced /tmp/cryptkeep-approved-es-nr63qmko. Unit verification and
+Coinbase BTC/USDT daily preflight passed (210 rows, one attempt).
+Installed seed exclusively into new
+/srv/cryptkeep/app/.cbp_state_challengers/es_corrected_prospective_v1/runtime/config/user.yaml.
+Seed SHA256 81accfe4d0acf86d7bcc11c771899c977c3c04893f9093500b073a535e92a1f8.
+Real deployed config loader in state-scoped subprocess verified SMA200/ATR20,
+qty .001, cash 10000, fee/slippage 7.5/5 bps, four zero exit controls.
+Installed only cbp-es-corrected-prospective service/deadline timer/stop service
+under the cryptkeep user; daemon-reload then started only trial service.
+No enable command or existing-campaign stop/restart. Failure handler stops
+only trial service/timer. Operational stop command is systemctl --user stop
+cbp-es-corrected-prospective.service; preserve state and deadline evidence.
+
+SHOWN: MainPID 1531600 active/running, deadline timer active with next elapse
+2026-10-13 00:00:00 UTC. Actual launch 2026-09-12T19:53:01.418557Z.
+Evaluation starts 2026-09-13 UTC; fixed end 2026-10-13 UTC; review 2026-09-20 UTC.
+Host state/evaluation.json records dates, SHA, hash and installed/launched true.
+Initial bounded session completed after 23.08 seconds; actual runner reports
+sma_200_trend, es_daily_trend_v1, public_ohlcv_1d, 300 bars, signal buy,
+signal_changed=false, enqueued=0, fills=0. Collector then idle with
+reason=waiting_for_next_day and session_strategy_id=es_corrected_prospective_v1.
+Stopped child statuses are expected bounded-session shutdown, not collector
+failure. Pre-start session is not evaluation evidence. Signal JSONL uses preset
+label inside isolated state; do not merge into canonical evidence by label.
+Remaining limits: configuration proof is subprocess resolution plus runner
+status, not direct introspection of every child setting; future collection and
+30-day outcome remain unverified. No profitability/promotion claim.
+Acceptance state: ACCEPTED (human-authorized launch); prospective proof INCOMPLETE.
+
+## 2026-09-11 - Deployed Package Verification Without Installation
+
+Active role: AUDITOR. Exact deployed SHA 170ae24db checked. Targeted pytest
+attempt in temporary state /tmp/cryptkeep-package-check.b3yb0A could not run:
+host app venv has no pytest. No dependencies installed; no test-pass claim.
+Instead deployed renderer produced /tmp/cryptkeep-package-verify.w1vtnye7.
+SHOWN: systemd-analyze --user verify returned 0 with empty stderr; direct
+assertions passed for valid seed, absent/mismatched seed refusal and expired
+deadline refusal. Seed SHA256:
+81accfe4d0acf86d7bcc11c771899c977c3c04893f9093500b073a535e92a1f8.
+Provisional window: 2026-09-12 UTC through 2026-10-12 UTC, operational review
+2026-09-19 UTC. Dates require launch before the start, not permission to launch.
+Package remains installed=false/launched=false. No daemon reload, unit
+installation or service start. Acceptance state: ACCEPTED for these bounded
+checks; actual child environment/startup and prospective evidence INCOMPLETE.
+
+## 2026-09-11 - Approved Hetzner Checkout Fast-Forward
+
+Active role: ENGINEER. User approved checkout update only to exact merged
+170ae24db8cd9fb20ae6a708c847f3462589dad6, no service restart or trial launch.
+VERIFIED_ENV: clean-tree precondition and ancestry check passed; git merge
+--ff-only advanced e38c342de to the approved SHA, final porcelain empty.
+Initial fetch failed because this invocation omitted the documented
+GIT_SSH_COMMAND key selection. Existing ~/.ssh/cryptkeep_github_readonly
+was then selected with IdentitiesOnly=yes; fetch succeeded. No persistent
+credentials/settings changed. This was an invocation error, not a new auth
+failure requiring credential replacement. No install/start/restart commands
+were issued. Checkout delivery complete; deployed process configuration and
+actual trial startup remain UNVERIFIED. Acceptance state: ACCEPTED (human,
+checkout-only scope). No tests run on host in this update.
+
+## 2026-09-11 - Read-Only Hetzner Prospective Preflight
+
+Active role: AUDITOR. After user completed Tailscale authentication,
+VERIFIED_ENV: SSH returned host checkout
+e38c342de9eb8209bdd7fdd44ca75cf757901fa2 and empty git status --porcelain.
+Designated es_corrected_prospective_v1 state was absent; its user service
+reported LoadState=not-found, ActiveState=inactive.
+Ran existing check_ohlcv_preflight.py with Coinbase BTC/USDT,
+public_ohlcv_1d, probe-limit 210, attempts 1, JSON output, using host venv
+and PYTHONDONTWRITEBYTECODE=1. SHOWN: exit 0, ok=true,
+reason=public_ohlcv_reachable, row_count=210, attempts_used=1, errors=[].
+This is point-in-time source reachability, not future availability or
+candidate deployed-child proof. Host still predates merged package
+170ae24db8cd9fb20ae6a708c847f3462589dad6. No checkout sync, config seed,
+installation, restart, or launch performed. Acceptance state: ACCEPTED for
+read-only preflight; deployment and prospective evidence remain INCOMPLETE.
+
+## 2026-09-11T03:20:13Z - Final Launch Package Merged
+
+Active role: GATE. Under the recorded human authorization for #589/#590,
+verified all eight checks successful on master-targeted head
+6d7c83c81040a3a330fcb69a1d67d2d526188f64. Exact-head squash/admin merge of
+#590 confirmed by GitHub as 170ae24db8cd9fb20ae6a708c847f3462589dad6.
+Acceptance state: ACCEPTED (human); PR stack delivery complete.
+AUDITOR stage: read-only Hetzner checkout/state/service preflight reached a
+Tailscale authentication check before producing host evidence. Host state
+remains UNVERIFIED in this attempt. No deployment, restart or launch performed.
+No runtime edits or tests rerun for this documentation-only record.
+
 ## 2026-09-11T01:39:36Z - Approved Stack Delivery: PR 589 Merged
 
 Active role: GATE. User explicitly accepted the request for one-time admin
