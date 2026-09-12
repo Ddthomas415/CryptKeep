@@ -1,5 +1,18 @@
 # Review Stabilized Work Log
 
+## 2026-09-12 - Reuse Existing EMA Archive Evidence
+
+Active role: AUDITOR. Found both disabled and research-enabled August 1 EMA
+archive artifacts; no new backtest run. Enabled report: six negative windows,
+104 closes, mean test return -5.701245%. Recorded file hashes and limitations:
+historical cost/code identity not present, dataset not revalidated. Existing
+June challenger plan specifies reject/pause at negative expectancy after 10+
+closes, now matching the inspected journal count/net sign. Updated advisory
+recommendation to scoped Coinbase EMA pause review, not indefinite observation
+or duplicate tuning. No services or configurations changed. Verification:
+artifact reads, config diff, SHA256, plan text; no tests needed for docs-only
+update. Acceptance state: ACCEPTED for descriptive review; pause unexecuted.
+
 ## 2026-09-12 - Publish Launch Evidence and Review Challengers
 
 Active role: AUDITOR. Published launch-evidence commit 96ea2f78d as PR #591.

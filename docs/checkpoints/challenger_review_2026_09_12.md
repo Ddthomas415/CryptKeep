@@ -2,6 +2,47 @@
 
 Active role: AUDITOR. Advisory only; no strategy, campaign or gate changes.
 
+## Follow-Up: Existing EMA Research Found
+
+The prior recommendation to investigate has now been narrowed: review a pause
+of the Coinbase EMA challenger under its existing decision rule, rather than
+rerun the same research. No pause has been executed.
+
+docs/checkpoints/ema_cross_challenger_plan_2026_06_05.md explicitly says
+"Reject or pause if" expectancy is negative after 10+ closed round trips.
+The inspected journal reaches 10 closes with negative net aggregate. This is
+a trigger for operator disposition under that plan, not proof of universal
+strategy failure or an automatic halt instruction. Check actual positions and
+current state again before any approved stop.
+
+Existing local archive artifacts generated 2026-08-01:
+- .cbp_state/data/research/archive_walk_forward/ema_cross_default_btcusdt_5m_walk_forward.latest.json:
+  governance-only config, zero trades and zero returns in six windows. This
+  is not positive performance despite positive_test_window_count=6.
+- .cbp_state/data/research/archive_walk_forward/ema_cross_default_btcusdt_5m_research_enabled_walk_forward.latest.json:
+  six windows, 104 test closes, zero non-negative windows, mean test return
+  -5.701245%, range -10.381712% to -2.127164%. Average test drawdown 7.129574%.
+  8000 Coinbase BTC/USDT 5m rows; stored dataset hash
+  4c74185c6236c433d98e62d592f1ce75a519bf0331c605360945ad53961a4073.
+  Inspected config diff enables trading only for research, retains 12/26
+  parameters and filters, and marks campaign_enabled/promotion_candidate false.
+
+SHA256 of inspected enabled artifact:
+eca38791d6ade0d1b86b7ebc113b75bbfc77a8302a17250310c07de59e7b2feb.
+SHA256 of inspected disabled artifact:
+8b043f0764333786b62615e0c78a65f630b73fdddbae791a39e91a4d59e43994.
+These hashes identify the inspected files; the historical dataset was not
+recomputed. The artifact does not record fee/slippage values or code SHA;
+do not claim exact current-campaign cost/runtime parity. Its complete=true
+field is not independent proof of gap-free chronology. It supports investigation,
+not a definitive economic verdict. Synthetic March comparisons favored 12/26
+over 9/21 but explicitly did not justify tuning; they are not market-history proof.
+
+Recommendation: seek a scoped pause decision for Coinbase EMA; retain its
+state/history and leave Gate.io/Binance variants and corrected ES untouched.
+Do not select a replacement parameter pair from this losing sample. Any new
+experiment needs a distinct hypothesis and recorded cost/runtime assumptions.
+
 ## Observed Records
 
 Both Coinbase BTC/USDT campaigns report ok=true, idle/waiting_for_next_day,
