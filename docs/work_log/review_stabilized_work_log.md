@@ -1,5 +1,18 @@
 # Review Stabilized Work Log
 
+## 2026-09-12 - Last-Campaign Durable Pause Correction
+
+Active role: ENGINEER, HIGH configuration risk. Host audited-writer dry-run
+refused to disable Coinbase EMA as the last enabled entry. No host change.
+Added explicit allow_empty opt-in for writer validation only; restore default
+still refuses empty selections. Updated the prior prohibition test to the
+new deliberate contract and pinned invalid boolean rejection. Targeted three
+files: 29 passed in 0.51s. Details and operational rollback in
+docs/checkpoints/last_campaign_pause_2026_09_12.md. Expected outcome: audited
+durable pause without bypassing writer or changing restore behavior. Remaining:
+independent review, host deployment and actual manifest pause unperformed.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-12T20:10:14Z - Coinbase EMA Graceful Stop Confirmed
 
 Active role: AUDITOR. SHOWN: isolated status reports stopped/stop_requested,
