@@ -1,5 +1,18 @@
 # Review Stabilized Work Log
 
+## 2026-09-12 - Publish Launch Evidence and Review Challengers
+
+Active role: AUDITOR. Published launch-evidence commit 96ea2f78d as PR #591.
+Read explicit breakout local and EMA host journals using existing loss replay;
+both report ok=true, with net totals +2.513560 and -2.387556 USDT respectively.
+Both campaign status files report September 12 complete. Excluded generic
+diagnostic output because its hardcoded canonical state ignored CBP_STATE_DIR.
+Recorded gross/net win-count distinction and all-history limitations in
+docs/checkpoints/challenger_review_2026_09_12.md. Recommendations: continue
+breakout observation; investigate EMA before expansion, no automatic retirement.
+No runtime changes or tests run; command outputs and code trace support this
+descriptive review. Acceptance state: ACCEPTED (bounded advisory review).
+
 ## 2026-09-12T19:53:01Z - Human-Approved Isolated ES Trial Launch
 
 Active role: ENGINEER. User accepted explicit installation/start scope, fresh
