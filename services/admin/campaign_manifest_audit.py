@@ -62,12 +62,12 @@ def _campaign_state(*, manifest_path: Path, campaign: dict[str, Any]) -> dict[st
 
 
 def _validate_after_payload(payload: dict[str, Any], manifest_path: Path) -> None:
-    # Reuse the runtime loader so the governed writer cannot create a manifest
-    # that the campaign restore/status path cannot read.
+    # A fully paused manifest is valid to save; restore still refuses an empty
+    # selection by default and cannot launch a disabled campaign.
     tmp_path = manifest_path.with_suffix(manifest_path.suffix + ".tmp-validate")
     tmp_path.write_text(json.dumps(payload, indent=2, sort_keys=False) + "\n", encoding="utf-8")
     try:
-        load_campaign_specs(tmp_path, repo_root=code_root())
+        load_campaign_specs(tmp_path, repo_root=code_root(), allow_empty=True)
     finally:
         try:
             tmp_path.unlink()
@@ -197,4 +197,3 @@ def update_campaign_enabled(
         "completion_event_id": (completion_event or {}).get("event_id"),
         "completion_event_error": completion_error,
     }
-

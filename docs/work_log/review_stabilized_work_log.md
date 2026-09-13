@@ -1,5 +1,43 @@
 # Review Stabilized Work Log
 
+## 2026-09-13T05:38:19Z - Approved PR 591 Merge and PR 592 Integration
+
+Active role: GATE. User approved one-time admin merges of #591/#592 in order,
+conditional on successful final master-targeted CI. All seven checks passed
+on 9720cb4265a35990bb3252aa15b76bf708099ac6; exact-head squash/admin merge
+confirmed #591 as 3619efacc107e9ac97e30d63edb494476ef17567.
+ENGINEER stage: integrated master into #592, preserving work-log history.
+Tree byte-identical to accepted prior head before this record. Three-file
+targeted suite: 29 passed in 0.56s. #592 targets master; merge remains
+conditional on final-head checks. No repeated approval required within scope.
+No host deployment, manifest mutation or restart. Acceptance state: ACCEPTED
+(human implementation/merge authorization); #592 delivery INCOMPLETE.
+Read-only host check also showed corrected ES completed September 13 session,
+zero fills/orders, waiting_for_next_day; Coinbase EMA still stopped.
+
+## 2026-09-13 - Human Acceptance of Last-Campaign Pause Fix
+
+Active role: GATE. User explicitly stated REVIEW ACCEPTED for 6d5a03f41.
+Acceptance state: ACCEPTED (human, implementation). Prior 29-test targeted
+proof remains recorded; this acceptance update changes documentation only.
+Publish as a dependent PR over #591 to keep the runtime diff separate from
+operational history. No administrator bypass authorization inferred.
+Host deployment and durable manifest pause remain INCOMPLETE; no service
+restart, campaign start or configuration mutation performed in this step.
+
+## 2026-09-12 - Last-Campaign Durable Pause Correction
+
+Active role: ENGINEER, HIGH configuration risk. Host audited-writer dry-run
+refused to disable Coinbase EMA as the last enabled entry. No host change.
+Added explicit allow_empty opt-in for writer validation only; restore default
+still refuses empty selections. Updated the prior prohibition test to the
+new deliberate contract and pinned invalid boolean rejection. Targeted three
+files: 29 passed in 0.51s. Details and operational rollback in
+docs/checkpoints/last_campaign_pause_2026_09_12.md. Expected outcome: audited
+durable pause without bypassing writer or changing restore behavior. Remaining:
+independent review, host deployment and actual manifest pause unperformed.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-12T20:10:14Z - Coinbase EMA Graceful Stop Confirmed
 
 Active role: AUDITOR. SHOWN: isolated status reports stopped/stop_requested,
