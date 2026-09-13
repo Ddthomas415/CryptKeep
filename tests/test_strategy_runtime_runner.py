@@ -461,6 +461,84 @@ def test_run_forever_enqueues_buy_from_public_ohlcv_first_signal(monkeypatch, tm
     assert queued[0]["side"] == "buy"
 
 
+@pytest.mark.parametrize("trade_enabled", [True, False])
+def test_public_loop_uses_isolated_managed_parameters(monkeypatch, tmp_path, trade_enabled):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setenv("CBP_STRATEGY_NAME", "sma_200_trend")
+    monkeypatch.delenv("CBP_STRATEGY_PRESET", raising=False)
+    monkeypatch.setenv("CBP_STRATEGY_SIGNAL_SOURCE", "public_ohlcv_1d")
+    monkeypatch.setenv("CBP_SAMPLE_OHLCV", "0")
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {
+        "strategy_runner": {
+            "strategy": {"name": "momentum", "sma_period": 20,
+                         "trade_enabled": trade_enabled},
+            "strategy_preset": "momentum_default",
+            "symbol": "BTC/USD", "venue": "coinbase",
+        }
+    })
+    rows = [[1700000000000 + i * 86400000, 100, 101, 99, 100, 1] for i in range(220)]
+    monkeypatch.setattr(runner, "_fetch_public_ohlcv", lambda cfg: (
+        rows, {"source": "public_ohlcv", "sample_path": None,
+               "sample_fallback": False, "row_count": len(rows), "env_sample_mode": False}
+    ))
+    captured = []
+
+    class SignalObserved(BaseException):
+        pass
+
+    def capture(**kwargs):
+        captured.append(kwargs["strategy_block"])
+        raise SignalObserved()
+
+    monkeypatch.setattr(runner, "_registry_signal_with_context", capture)
+    # Bound the test even if a future guard prevents reaching signal dispatch.
+    monkeypatch.setattr(runner.time, "sleep", lambda _: pytest.fail("signal dispatch not reached"))
+    with pytest.raises(SignalObserved):
+        runner.run_forever()
+    assert captured[0]["name"] == "sma_200_trend"
+    assert captured[0]["sma_period"] == 200
+    assert captured[0]["trade_enabled"] is trade_enabled
+
+
+@pytest.mark.parametrize("selected, expected", [
+    ("sma_200_trend", (0.0, 0.0, 0.0, None)),
+    ("breakout_donchian", (0.03, 0.06, 0.02, 60)),
+])
+def test_managed_exit_policy_reaches_exit_stack(monkeypatch, tmp_path, selected, expected):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setenv("CBP_STRATEGY_NAME", selected)
+    monkeypatch.delenv("CBP_STRATEGY_PRESET", raising=False)
+    monkeypatch.setenv("CBP_STRATEGY_SIGNAL_SOURCE", "public_ohlcv_1d")
+    monkeypatch.setenv("CBP_SAMPLE_OHLCV", "0")
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {
+        "strategy": {"name": "momentum"}, "risk": {"trailing_stop_pct": .99},
+        "symbol": "BTC/USD", "venue": "coinbase",
+    }})
+    rows = [[1700000000000 + i * 86400000, 100, 101, 99, 100, 1] for i in range(220)]
+    monkeypatch.setattr(runner, "_fetch_public_ohlcv", lambda cfg: (
+        rows, {"source": "public_ohlcv", "env_sample_mode": False, "row_count": 220}
+    ))
+    monkeypatch.setattr(runner, "_registry_signal_with_context", lambda **kw: {
+        "ok": True, "action": "hold", "reason": "test", "ind": {}})
+    monkeypatch.setattr(runner.PaperTradingSQLite, "get_position", lambda *a: {"qty": 1, "avg_price": 100})
+    captured = []
+
+    class ExitObserved(BaseException):
+        pass
+
+    def capture(**kwargs):
+        captured.append(kwargs)
+        raise ExitObserved()
+
+    monkeypatch.setattr(runner, "evaluate_strategy_exit_stack", capture)
+    monkeypatch.setattr(runner.time, "sleep", lambda _: pytest.fail("exit stack not reached"))
+    with pytest.raises(ExitObserved):
+        runner.run_forever()
+    assert tuple(captured[0][k] for k in (
+        "stop_loss_pct", "take_profit_pct", "trailing_stop_pct", "max_bars_hold"
+    )) == expected
+
+
 def test_fetch_public_ohlcv_returns_empty_on_exchange_error(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     monkeypatch.setattr(

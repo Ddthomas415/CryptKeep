@@ -87,6 +87,7 @@ def load_campaign_specs(
     config_path: Path = DEFAULT_CONFIG_PATH,
     *,
     repo_root: Path | None = None,
+    allow_empty: bool = False,
 ) -> tuple[PaperCampaignSpec, ...]:
     root = (repo_root or code_root()).resolve()
     payload = json.loads(Path(config_path).read_text(encoding="utf-8"))
@@ -129,7 +130,7 @@ def load_campaign_specs(
                 ),
             )
         )
-    if not specs:
+    if not specs and not allow_empty:
         raise ValueError("paper campaign config has no enabled campaigns")
     return tuple(specs)
 

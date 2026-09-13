@@ -1,5 +1,557 @@
 # Review Stabilized Work Log
 
+## 2026-09-13 - Integrate Bounded Venue Trials with Durable Pause
+
+Active role: ENGINEER. Integrated origin/master ea27688c2 into PR #586.
+Merge applied cleanly. SHOWN: runtime diff against master remains only the
+seven-line optional max_loops wiring; allow_empty=False and audited writer
+opt-in from #592 are preserved. Eight-file PR scope retained, no unrelated
+runtime edits. Combined nine-file trial/unit/collector/manifest/recovery/
+evidence-service/lifecycle regression slice: 99 passed in 1.42s.
+git diff --cached --check passed. Local proof is not actual 24-hour trial proof.
+Publish updated head for CI; no host pull, manifest mutation, unit installation
+or campaign start. Host-local paused Coinbase manifest must remain preserved
+in any eventual deployment. Acceptance state: READY_FOR_INDEPENDENT_REVIEW
+for integrated high-risk launch tooling; existing review history retained.
+
+## 2026-09-13T05:38:19Z - Approved PR 591 Merge and PR 592 Integration
+
+Active role: GATE. User approved one-time admin merges of #591/#592 in order,
+conditional on successful final master-targeted CI. All seven checks passed
+on 9720cb4265a35990bb3252aa15b76bf708099ac6; exact-head squash/admin merge
+confirmed #591 as 3619efacc107e9ac97e30d63edb494476ef17567.
+ENGINEER stage: integrated master into #592, preserving work-log history.
+Tree byte-identical to accepted prior head before this record. Three-file
+targeted suite: 29 passed in 0.56s. #592 targets master; merge remains
+conditional on final-head checks. No repeated approval required within scope.
+No host deployment, manifest mutation or restart. Acceptance state: ACCEPTED
+(human implementation/merge authorization); #592 delivery INCOMPLETE.
+Read-only host check also showed corrected ES completed September 13 session,
+zero fills/orders, waiting_for_next_day; Coinbase EMA still stopped.
+
+## 2026-09-13 - Human Acceptance of Last-Campaign Pause Fix
+
+Active role: GATE. User explicitly stated REVIEW ACCEPTED for 6d5a03f41.
+Acceptance state: ACCEPTED (human, implementation). Prior 29-test targeted
+proof remains recorded; this acceptance update changes documentation only.
+Publish as a dependent PR over #591 to keep the runtime diff separate from
+operational history. No administrator bypass authorization inferred.
+Host deployment and durable manifest pause remain INCOMPLETE; no service
+restart, campaign start or configuration mutation performed in this step.
+
+## 2026-09-12 - Last-Campaign Durable Pause Correction
+
+Active role: ENGINEER, HIGH configuration risk. Host audited-writer dry-run
+refused to disable Coinbase EMA as the last enabled entry. No host change.
+Added explicit allow_empty opt-in for writer validation only; restore default
+still refuses empty selections. Updated the prior prohibition test to the
+new deliberate contract and pinned invalid boolean rejection. Targeted three
+files: 29 passed in 0.51s. Details and operational rollback in
+docs/checkpoints/last_campaign_pause_2026_09_12.md. Expected outcome: audited
+durable pause without bypassing writer or changing restore behavior. Remaining:
+independent review, host deployment and actual manifest pause unperformed.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-12T20:10:14Z - Coinbase EMA Graceful Stop Confirmed
+
+Active role: AUDITOR. SHOWN: isolated status reports stopped/stop_requested,
+session_strategy_id=ema_cross_default, timestamp 20:10:14.173715Z; original
+PID 1287182 no longer exists in /proc. This closes the pending acknowledgment
+from the scoped pause request. No force-kill or additional runtime change.
+State/history retained. Manifest remains enabled, so restore can restart it;
+pause persistence across restore is not claimed. PR #591 head c7532f464 had
+all seven checks successful before this documentation addition; final-head
+checks must be evaluated separately. Acceptance state: ACCEPTED for observed
+graceful termination. Verification was read-only SSH; no tests rerun.
+
+## 2026-09-12 - Scoped Coinbase EMA Pause Requested
+
+Active role: ENGINEER. User continued after the recommendation to pause only
+Coinbase EMA. VERIFIED_ENV: explicit host journal still has 10 closes,
+-2.387556 USDT net, no FIFO lots; read-only paper_positions confirms
+BTC/USDT qty=0. Collector status idle, session ema_cross_default, PID 1287182;
+/proc PID environment confirms exact isolated state ownership.
+Called existing request_stop() only with CBP_STATE_DIR pointing to
+/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_default_daily.
+SHOWN: ok=true and state-local paper_strategy_evidence.stop path returned.
+No liquidation, deletion, kill signal or other campaign stop. Gate.io,
+Binance and corrected ES process identities were inspected, not modified.
+Graceful stop acknowledgment remains UNVERIFIED until next polling interval;
+do not label request submission as confirmed termination. No persistent
+manifest disable was performed; generic restore may restart this candidate,
+so any later restore must respect the recorded pause decision. Resume requires
+explicit operator decision; preserve all state. Acceptance state: INCOMPLETE
+pending stop acknowledgment. No code edits or tests; operational proof only.
+
+## 2026-09-12 - Reuse Existing EMA Archive Evidence
+
+Active role: AUDITOR. Found both disabled and research-enabled August 1 EMA
+archive artifacts; no new backtest run. Enabled report: six negative windows,
+104 closes, mean test return -5.701245%. Recorded file hashes and limitations:
+historical cost/code identity not present, dataset not revalidated. Existing
+June challenger plan specifies reject/pause at negative expectancy after 10+
+closes, now matching the inspected journal count/net sign. Updated advisory
+recommendation to scoped Coinbase EMA pause review, not indefinite observation
+or duplicate tuning. No services or configurations changed. Verification:
+artifact reads, config diff, SHA256, plan text; no tests needed for docs-only
+update. Acceptance state: ACCEPTED for descriptive review; pause unexecuted.
+
+## 2026-09-12 - Publish Launch Evidence and Review Challengers
+
+Active role: AUDITOR. Published launch-evidence commit 96ea2f78d as PR #591.
+Read explicit breakout local and EMA host journals using existing loss replay;
+both report ok=true, with net totals +2.513560 and -2.387556 USDT respectively.
+Both campaign status files report September 12 complete. Excluded generic
+diagnostic output because its hardcoded canonical state ignored CBP_STATE_DIR.
+Recorded gross/net win-count distinction and all-history limitations in
+docs/checkpoints/challenger_review_2026_09_12.md. Recommendations: continue
+breakout observation; investigate EMA before expansion, no automatic retirement.
+No runtime changes or tests run; command outputs and code trace support this
+descriptive review. Acceptance state: ACCEPTED (bounded advisory review).
+
+## 2026-09-12T19:53:01Z - Human-Approved Isolated ES Trial Launch
+
+Active role: ENGINEER. User accepted explicit installation/start scope, fresh
+host-clock dates, fixed 30-day endpoint, existing campaigns untouched.
+VERIFIED_ENV: host at 170ae24db8cd9fb20ae6a708c847f3462589dad6, clean;
+trial state/units absent and no CBP/Python manager overrides. Existing deployed
+renderer produced /tmp/cryptkeep-approved-es-nr63qmko. Unit verification and
+Coinbase BTC/USDT daily preflight passed (210 rows, one attempt).
+Installed seed exclusively into new
+/srv/cryptkeep/app/.cbp_state_challengers/es_corrected_prospective_v1/runtime/config/user.yaml.
+Seed SHA256 81accfe4d0acf86d7bcc11c771899c977c3c04893f9093500b073a535e92a1f8.
+Real deployed config loader in state-scoped subprocess verified SMA200/ATR20,
+qty .001, cash 10000, fee/slippage 7.5/5 bps, four zero exit controls.
+Installed only cbp-es-corrected-prospective service/deadline timer/stop service
+under the cryptkeep user; daemon-reload then started only trial service.
+No enable command or existing-campaign stop/restart. Failure handler stops
+only trial service/timer. Operational stop command is systemctl --user stop
+cbp-es-corrected-prospective.service; preserve state and deadline evidence.
+
+SHOWN: MainPID 1531600 active/running, deadline timer active with next elapse
+2026-10-13 00:00:00 UTC. Actual launch 2026-09-12T19:53:01.418557Z.
+Evaluation starts 2026-09-13 UTC; fixed end 2026-10-13 UTC; review 2026-09-20 UTC.
+Host state/evaluation.json records dates, SHA, hash and installed/launched true.
+Initial bounded session completed after 23.08 seconds; actual runner reports
+sma_200_trend, es_daily_trend_v1, public_ohlcv_1d, 300 bars, signal buy,
+signal_changed=false, enqueued=0, fills=0. Collector then idle with
+reason=waiting_for_next_day and session_strategy_id=es_corrected_prospective_v1.
+Stopped child statuses are expected bounded-session shutdown, not collector
+failure. Pre-start session is not evaluation evidence. Signal JSONL uses preset
+label inside isolated state; do not merge into canonical evidence by label.
+Remaining limits: configuration proof is subprocess resolution plus runner
+status, not direct introspection of every child setting; future collection and
+30-day outcome remain unverified. No profitability/promotion claim.
+Acceptance state: ACCEPTED (human-authorized launch); prospective proof INCOMPLETE.
+
+## 2026-09-11 - Deployed Package Verification Without Installation
+
+Active role: AUDITOR. Exact deployed SHA 170ae24db checked. Targeted pytest
+attempt in temporary state /tmp/cryptkeep-package-check.b3yb0A could not run:
+host app venv has no pytest. No dependencies installed; no test-pass claim.
+Instead deployed renderer produced /tmp/cryptkeep-package-verify.w1vtnye7.
+SHOWN: systemd-analyze --user verify returned 0 with empty stderr; direct
+assertions passed for valid seed, absent/mismatched seed refusal and expired
+deadline refusal. Seed SHA256:
+81accfe4d0acf86d7bcc11c771899c977c3c04893f9093500b073a535e92a1f8.
+Provisional window: 2026-09-12 UTC through 2026-10-12 UTC, operational review
+2026-09-19 UTC. Dates require launch before the start, not permission to launch.
+Package remains installed=false/launched=false. No daemon reload, unit
+installation or service start. Acceptance state: ACCEPTED for these bounded
+checks; actual child environment/startup and prospective evidence INCOMPLETE.
+
+## 2026-09-11 - Approved Hetzner Checkout Fast-Forward
+
+Active role: ENGINEER. User approved checkout update only to exact merged
+170ae24db8cd9fb20ae6a708c847f3462589dad6, no service restart or trial launch.
+VERIFIED_ENV: clean-tree precondition and ancestry check passed; git merge
+--ff-only advanced e38c342de to the approved SHA, final porcelain empty.
+Initial fetch failed because this invocation omitted the documented
+GIT_SSH_COMMAND key selection. Existing ~/.ssh/cryptkeep_github_readonly
+was then selected with IdentitiesOnly=yes; fetch succeeded. No persistent
+credentials/settings changed. This was an invocation error, not a new auth
+failure requiring credential replacement. No install/start/restart commands
+were issued. Checkout delivery complete; deployed process configuration and
+actual trial startup remain UNVERIFIED. Acceptance state: ACCEPTED (human,
+checkout-only scope). No tests run on host in this update.
+
+## 2026-09-11 - Read-Only Hetzner Prospective Preflight
+
+Active role: AUDITOR. After user completed Tailscale authentication,
+VERIFIED_ENV: SSH returned host checkout
+e38c342de9eb8209bdd7fdd44ca75cf757901fa2 and empty git status --porcelain.
+Designated es_corrected_prospective_v1 state was absent; its user service
+reported LoadState=not-found, ActiveState=inactive.
+Ran existing check_ohlcv_preflight.py with Coinbase BTC/USDT,
+public_ohlcv_1d, probe-limit 210, attempts 1, JSON output, using host venv
+and PYTHONDONTWRITEBYTECODE=1. SHOWN: exit 0, ok=true,
+reason=public_ohlcv_reachable, row_count=210, attempts_used=1, errors=[].
+This is point-in-time source reachability, not future availability or
+candidate deployed-child proof. Host still predates merged package
+170ae24db8cd9fb20ae6a708c847f3462589dad6. No checkout sync, config seed,
+installation, restart, or launch performed. Acceptance state: ACCEPTED for
+read-only preflight; deployment and prospective evidence remain INCOMPLETE.
+
+## 2026-09-11T03:20:13Z - Final Launch Package Merged
+
+Active role: GATE. Under the recorded human authorization for #589/#590,
+verified all eight checks successful on master-targeted head
+6d7c83c81040a3a330fcb69a1d67d2d526188f64. Exact-head squash/admin merge of
+#590 confirmed by GitHub as 170ae24db8cd9fb20ae6a708c847f3462589dad6.
+Acceptance state: ACCEPTED (human); PR stack delivery complete.
+AUDITOR stage: read-only Hetzner checkout/state/service preflight reached a
+Tailscale authentication check before producing host evidence. Host state
+remains UNVERIFIED in this attempt. No deployment, restart or launch performed.
+No runtime edits or tests rerun for this documentation-only record.
+
+## 2026-09-11T01:39:36Z - Approved Stack Delivery: PR 589 Merged
+
+Active role: GATE. User explicitly accepted the request for one-time admin
+merges of #589 and #590, in order, conditional on successful checks of each
+final master-targeted head. SHOWN: all seven checks passed at
+632bc88497e4199df6254a8420d9f2cbb00d6844; exact-head squash/admin merge of
+#589 confirmed as e4cbf335e049c73115c3e3033f06d27077e9dd07.
+Then ENGINEER stage: integrated this master into #590, retaining work-log
+history. Tree byte-identical to previous package before this record.
+VERIFIED_ENV: nine-file targeted regression slice: 192 passed in 2.20s.
+#590 now targets master; its merge remains conditional on final-head CI.
+Acceptance: ACCEPTED (human, scoped merge authorization); delivery INCOMPLETE
+until #590 merges. No protection changes, deployment, restart or trial launch.
+
+## 2026-09-11 - Refresh PR 590 While Research CI Runs
+
+Active role: ENGINEER. Integrated research head 632bc8849 into the launch
+package. SHOWN: only work-log additions differ from the previous package
+tree; retained both histories at the documentation conflict. Runtime and
+disabled manifest unchanged. VERIFIED_ENV: nine-file package/manifest/
+recovery/execution/gate regression slice: 192 passed in 2.17s; diff check
+passed. Local proof is not full-system proof. No deployment, restart, launch,
+or administrator merge. Delivery state: INCOMPLETE pending CI/review/merge.
+
+## 2026-09-11T00:14:46Z - Human-Approved PR 588 Merge
+
+Active role: GATE. User answered the explicit one-time administrator-merge
+request for #588 with INDEPENDENT REVIEW ACCEPTED. Rechecked all seven checks
+successful at 772c1a33505c6c54b5658099a7e7fafe5df726e3; merged with squash/admin
+and exact head matching. GitHub confirms MERGED at
+0bacb37f41d4413220a00edcc38a624e0af44916. Acceptance state: ACCEPTED (human).
+No branch-protection changes, deployment, service restart, or campaign start.
+Authorization was limited to #588, not subsequent PRs. This record changes
+documentation only; tests not rerun. Remaining stack delivery and actual
+isolated launch proof are not claimed complete.
+
+## 2026-09-10 - Integrate Final Prospective Launch Package
+
+Active role: ENGINEER. Objective: advance PR #590 onto accepted research
+integration 2a61a12bf without altering runtime or launching the trial.
+SHOWN: only work-log additions differ from the previous package tree; the
+work-log conflict was resolved by retaining both histories. This preserves
+the accepted implementation instead of rebuilding it. Nine-file targeted
+pytest slice (package, manifest, recovery, exits, runner, parameter isolation,
+promotion, evidence service, EMA defaults): 192 passed in 2.24s;
+git diff --check passed. All seven PR #588 checks are successful, but GitHub
+still requires review. No administrator bypass, deployment, service restart,
+or campaign start. Full-system launch remains unverified; delivery state:
+INCOMPLETE pending GitHub review/merge. Integration is documentation-only.
+
+## 2026-09-10T00:36:05Z - Approved One-Time Admin Merge of PR 587
+
+Active role: GATE. User explicitly approved administrator bypass for #587 only.
+Rechecked all seven checks successful at head
+f10f81be313894bd17eef83fe39ce6334e30936d. Merged using squash/admin with exact
+head matching; GitHub confirmed MERGED as 3d4ac39e7c4351fbba90b79de84f51d76bb70891.
+Branch protection unchanged. No broader bypass authorization inferred, no other
+PR merged, no deployment or campaign restart. Acceptance state: ACCEPTED (human).
+
+## 2026-09-09 - Publish ES Research and Launch Package Stack
+
+Active role: GATE. Published codex/es-sma-archive-comparison and
+codex/es-prospective-launch-package as dependent GitHub PRs over the accepted
+exit-alignment branch. Combined nine-file local regression slice: 192 passed
+in 2.06s. PR #587 remains REVIEW_REQUIRED; no branch-protection bypass attempted.
+Publication is not deployment or CI completion. No host or campaign change.
+Acceptance remains human-recorded for implementation; delivery is INCOMPLETE
+until required GitHub review/checks and merge finish.
+
+## 2026-09-09 - Host Candidate Configuration Resolution
+
+Active role: AUDITOR. SHOWN: temporary candidate modules on host venv resolve
+SMA200/ATR20, zero exits, .001 BTC quantity, 10000 USDT cash, 7.5/5 bps costs.
+Real file loader and exact module hashes checked; inherited CBP environment
+cleared only inside disposable probe. No collector launched or deployed files
+replaced. This is not full-service environment/startup proof. Details and hashes
+in es_hetzner_config_proof_2026_09_09.md. Acceptance state: ACCEPTED for resolver
+proof only. Next boundary is accepted checkout delivery and isolated startup,
+not another repetition of this configuration test.
+
+## 2026-09-09 - Hetzner Dummy Deadline Proof
+
+Active role: AUDITOR. After user Tailscale approval, temporary rendered units
+verified rc=0 on host. Expired CLI rc=1; six-second absolute timer stopped dummy
+parent/resistant new-session child, cgroup empty and MainPID=0. Expected timeout
+result documented after correcting initial overly strict assertion. Test units
+cleaned; only temporary artifacts remain. 32 local tests passed.
+See es_hetzner_deadline_rehearsal_2026_09_09.md for exact scope and limitations.
+No deployment, app restart or real collector launch.
+Acceptance state: ACCEPTED for dummy proof; launch readiness INCOMPLETE.
+
+## 2026-09-09 - Human Acceptance of Seed Check
+
+Active role: GATE. User explicitly accepted a188e800f. Acceptance state:
+ACCEPTED (human, seed correction). Prior 32-test result remains local proof;
+host deadline and process-tree behavior remain unverified. Documentation-only
+acceptance entry, no tests rerun. No installation or campaign start authorized
+by this record.
+
+## 2026-09-09 - Close Prospective Seed Verification Gap
+
+Active role: ENGINEER. Independent reviewer showed in-memory tests could pass
+without installed seed. Added exact-path/hash startup condition plus real-file
+loader and absent/mismatched seed tests. 32 targeted tests passed. Exact seed
+destination documented. Host preflight requested Tailscale authentication;
+no remote file/service changes made. Deadline/process-tree rehearsal remains
+UNVERIFIED. Acceptance state: READY_FOR_INDEPENDENT_REVIEW for this correction.
+
+## 2026-09-09 - Human Acceptance of Prospective Launch Package
+
+Active role: GATE. SHOWN: user explicitly accepted f841608e2.
+Acceptance state: ACCEPTED (human, package only). Prior 31-test proof is local;
+subagent review and host validation are not asserted complete. Documentation
+only changed; no tests rerun beyond diff validation. No installation, launch,
+restart or host mutation. Host unit verification and dummy shutdown rehearsal
+remain required before a separately authorized launch.
+
+## 2026-09-09 - Uninstalled Hetzner Trial Package
+
+Active role: ENGINEER. HIGH risk. Render-only package pins candidate sizing/costs
+from local effective inspection and adds absolute timer, expired-start check,
+foreground collector and group-kill controls. No auto-install/start path.
+31 targeted tests passed, including actual runner/paper config resolution.
+Host unit parsing, child environment and shutdown rehearsal remain UNVERIFIED.
+Details in es_prospective_launch_package_2026_09_09.md. No host or campaign
+mutation. Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-11 - Advance PR 589 onto Merged Master
+
+Active role: ENGINEER. Objective: integrate origin/master 0bacb37f4 after
+PR #588 merged. SHOWN: retaining research work-log entries resolved the sole
+conflict; the resulting tree was byte-identical to prior HEAD before this
+record. No runtime, manifest, or research behavior changed. VERIFIED_ENV:
+manifest/recovery/walk-forward/archive-runner pytest slice: 31 passed in 0.54s.
+This is local integration proof, not full-system proof. Publish and retarget
+the existing PR to master; no administrator merge authorization inferred.
+No deployment, restart, or trial launch. Delivery state: INCOMPLETE pending
+GitHub checks/review/merge; disabled trial remains disabled.
+
+## 2026-09-10 - Advance Research Stack During CI
+
+Active role: GATE. User accepted #588 integration 772c1a335. Merged that base
+into the next research/disabled-manifest branch, retaining both work-log entries.
+Only documentation differs from its previous tree; runtime and manifest are
+unchanged. 31 manifest/recovery/walk-forward tests passed. #588 still requires
+GitHub review; its one-time predecessor bypass is not reused. No deployment.
+Acceptance: ACCEPTED (human, #588 integration); delivery remains INCOMPLETE.
+
+## 2026-09-09 - Human Acceptance of Disabled Prospective Manifest
+
+Active role: GATE. SHOWN: user accepted f894a7a53 explicitly. Acceptance state:
+ACCEPTED (human, manifest only). Recorded in the manifest review checkpoint.
+No runtime/configuration change beyond documentation; manifest remains disabled.
+Prior 24-test proof applies; tests not rerun for acceptance text. No launch,
+restart or deployment. Sizing/cost proof and deadline enforcement remain open.
+
+## 2026-09-09 - Disabled Corrected ES Prospective Manifest
+
+Active role: ENGINEER. Prepared isolated schema-v1 manifest, disabled by default,
+new session/state, existing ES sampling cadence. No default manifest changes.
+VERIFIED_ENV: 24 manifest/recovery tests passed, real loader validation with
+temporary enabled copy; no process launch. Remaining launch requirements include
+effective config/cost/sizing proof and deadline enforcement, which this schema
+does not supply. Details in es_prospective_manifest_review_2026_09_09.md.
+No deployment or campaign restart; full-system proof remains UNVERIFIED.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-09 - Isolated Runtime Reverification and Prospective Contract
+
+Active role: DIRECTOR after isolated test verification. SHOWN / VERIFIED_ENV:
+six targeted runtime/isolation/exit/collector/gate test files, 160 passed.
+Recorded fixed prospective criteria in es_prospective_evaluation_contract_2026_09_09.md:
+distinct state and effective-config proof before launch, seven-day operational
+inspection, fixed 30-calendar-day observation endpoint, no tuning/extensions
+or promotion inference. These periods are operational bounds, not edge proof.
+No real child launch, campaign restart, cohort change or host mutation.
+Acceptance state: INCOMPLETE for prospective evidence; tests are local only.
+
+## 2026-09-09 - Training-Calibrated Risk Diagnostic
+
+Active role: AUDITOR. Used preceding training equity only to fit cash-sleeve
+weights to declared 12% drawdown target, then froze each for next annual segment.
+SHOWN: next-window DD reaches 15.58% SMA20 and 12.69% SMA200; not a guaranteed
+loss bound. Detailed limitations in es_training_risk_diagnostic_2026_09_09.md.
+VERIFIED_ENV: script assertions passed, seven existing tests passed. Research
+artifacts only; no portfolio implementation or campaign sizing change.
+Close retrospective tuning lane; deployment evidence remains incomplete.
+Acceptance state: ACCEPTED for bounded diagnostic only.
+
+## 2026-09-09 - Allocation Benchmark Treatment
+
+Active role: AUDITOR. Completed initial-allocation matched SMA20/SMA200/buy-hold
+diagnostic using existing engine and frozen archive. SHOWN: SMA200 portfolio
+return 85.43%, drawdown 32.57% with unrebalanced 100/900 active/idle allocation.
+Not equal-volatility risk matching or untouched holdout; those remain incomplete.
+Detailed scope and artifact in es_allocation_benchmark_2026_09_09.md.
+VERIFIED_ENV: script completed, input hash and flat terminal positions asserted.
+No production change or full-suite rerun. Keep exposure unchanged; no deployment.
+Acceptance state: ACCEPTED for bounded research diagnostic only.
+
+## 2026-09-09 - Fixed Walk-Forward Diagnostic
+
+Active role: AUDITOR. Executed fixed SMA20/200 through existing anchored engine,
+six disjoint annual segments, same costs/data and no tuning. Detailed results
+and hashes in es_walk_forward_diagnostic_2026_09_09.md. Previously inspected
+history is not an untouched holdout. SHOWN: SMA200 still has 64.24% worst
+within-window drawdown; aggregate advantage does not establish deployment safety.
+VERIFIED_ENV: run completed and seven existing walk-forward tests passed.
+No runtime changes or campaign restart; full suite not rerun.
+Acceptance state: ACCEPTED for this bounded diagnostic only.
+
+## 2026-09-09 - Close Bounded ES Gap Re-fetch
+
+Active role: AUDITOR. SHOWN: 10 public OHLCV requests completed pagination for
+three windows; recovered 0/387 absent timestamps. All 2480 returned rows match
+the archive exactly. Result and hashes in es_gap_refetch_result_2026_09_09.md.
+VERIFIED_ENV: public network run and read-only SQLite comparison. Source cause
+and exact historical runner replay remain UNVERIFIED. Stop repeated requests
+for identical gaps; retain research-only limitations. No campaign or archive
+mutation, no runtime changes or full-suite rerun.
+Acceptance state: ACCEPTED for bounded source-coverage observation.
+
+## 2026-09-08 - Intraday Trade-Window Coverage Proof
+
+Active role: AUDITOR. Verified six qualified order IDs against journal and
+counted Coinbase BTC/USDT intraday timestamps around all three round trips.
+SHOWN: 5m missing 15/85/287 containing bars; hourly covers July only. No claim
+about missing-candle cause. Exact runner replay remains unsupported; do not
+substitute bars for loops or infer tick ordering. Detailed method, hashes and
+next bounded re-fetch recommendation in es_intraday_coverage_2026_09_08.md.
+VERIFIED_ENV: mode=ro SQLite queries, two identical JSON runs (cmp rc=0).
+No campaign, archive or host mutation. Full suite not run for data inspection.
+Acceptance state: ACCEPTED for coverage assessment, not replay proof.
+
+## 2026-09-08 - Execute Frozen SMA Comparison
+
+Active role: AUDITOR. Ran existing baseline engine with SMA20/200 on the same
+3077 daily rows, identical 7.5/5 bps modeled costs and 210-bar warmup. SHOWN:
+157 versus 31 closed trades; modeled net returns 250.94% versus 854.35%; max
+drawdowns 72.89% versus 64.29%. Research-only, not exit-policy replay or edge
+proof. Exact hashes, sizing caveat and results in es_sma_archive_results_2026_09_08.md.
+VERIFIED_ENV: local venv script succeeded, endpoint/continuity/hash assertions
+passed. No production code change, full-suite rerun or host operation.
+Acceptance state: ACCEPTED for the bounded research observation only.
+
+## 2026-09-08 - Comparison Engine Coverage Check
+
+Active role: AUDITOR. SHOWN by parity-engine inspection: the existing archive
+baseline does not invoke runner exit controls, so it cannot measure the proposed
+exit-policy difference. Recorded a predeclared matrix and data limitations in
+es_corrected_policy_comparison_protocol_2026_09_08.md. No results invented and
+no runtime changes. Docs-only; tests not rerun. Comparison remains INCOMPLETE.
+## 2026-09-10 - Retarget Exit Alignment to Merged Master
+
+Active role: ENGINEER (delivery integration only). PR #588 now targets master
+after #587 squash merge. Merged origin/master; resolved overlapping insertion
+hunks by retaining accepted exit tests/work-log history. Staged runtime/preset/
+test diff against pre-merge HEAD is empty: accepted code remains byte-identical.
+160 targeted tests passed. No force push, protection change, admin bypass or
+deployment. Retarget used repository REST API rather than broadening token
+scopes requested by gh pr edit. Earlier merge attempted after a failed branch
+switch was immediately aborted with clean state restored; no changes lost.
+Acceptance remains human-recorded for code; GitHub delivery INCOMPLETE pending
+new checks/review on the updated base.
+
+## 2026-09-08 - Human Acceptance of Exit Alignment
+
+Active role: GATE. SHOWN: user accepted 0b1628a09, then directed continuation.
+Acceptance state: ACCEPTED (human). Prior 160-test proof remains local only.
+Publishing as a dependent PR for CI; no deployment or restart. PR #587 has
+seven successful checks but still requires GitHub review. No bypass attempted.
+
+## 2026-09-08 - Implement Approved Managed Exit Alignment
+
+Active role: ENGINEER. HIGH risk. User approved the explicit ES exit-policy
+alignment. Added four zero exit controls to the ES preset and a narrow runner
+resolver preserving owned overrides, isolating managed cross-identity settings,
+rejecting invalid values and avoiding unrelated risk-limit changes. Unsupported
+identity compatibility remains intact after the first regression run exposed
+an over-broad mismatch rejection. Actual loop tests capture exit-stack args.
+VERIFIED_ENV: six targeted test files, 160 passed in 1.96s. Full-system tests
+and host deployment were not performed. Independent review requested.
+Detailed scope/proof in managed_exit_risk_audit_2026_09_08.md. No campaign restart,
+deployment, evidence rewriting or gate changes.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-08 - Managed Exit Policy Ownership Proposal
+
+Active role: DIRECTOR. HIGH-risk implementation scoped but not started.
+SHOWN: managed ES preset omits four exit controls declared zero in standalone
+ES YAML. Transporting zeros requires an explicit policy choice, not inference.
+Recorded recommendation, precedence, validation and runtime proof requirements
+in managed_exit_risk_audit_2026_09_08.md. No code/campaign changes or tests run;
+source inspection is the evidence for this docs-only advisory. Next required
+decision: managed ES preset adopts the standalone zero exit-control policy.
+Acceptance state: BLOCKED pending that material policy decision.
+
+## 2026-09-08 - Exit-Risk Propagation Audit
+
+Active role: AUDITOR. SHOWN: mocked explicit zero exit settings disappear in
+strategy_runner._cfg; run_forever therefore has a 0.02 trailing default.
+The prior risk-default fix remains present; its source-text test does not
+exercise propagation. Documented the exact boundary and historical-proof limits
+in docs/checkpoints/managed_exit_risk_audit_2026_09_08.md. No runtime code changed.
+VERIFIED_ENV: local venv mock returned risk_present=False, exit_keys_present=[],
+runtime_trailing_default=0.02. No full-suite run for this documentation-only audit.
+Next treatment requires managed risk ownership plus behavioral proof, not blind
+copying of unrelated local risk settings. No host/campaign changes.
+Acceptance state: INCOMPLETE for the separate high-risk exit treatment.
+
+## 2026-09-08 - Human Acceptance of Runtime Isolation Correction
+
+Active role: GATE. Objective: record acceptance of 1f064560e and publish for CI.
+SHOWN: user explicitly stated INDEPENDENT REVIEW ACCEPTED after the runtime
+bypass correction and 128-test report. Acceptance state: ACCEPTED (human).
+Only acceptance documentation changed in this entry; prior verification is
+128 targeted tests passed, not full-system proof. GitHub CI remains to run.
+No deployment, host mutation, campaign restart or historical evidence relabeling.
+Independent subagent re-review is not represented as completed by this entry.
+
+## 2026-09-08 - Close Managed Parameter Runtime Bypass
+
+Active role: ENGINEER. Objective: complete the managed parameter isolation fix.
+SHOWN: independent review of 5c705d01d found public-OHLCV dispatch reconstructing
+SMA20 from raw local configuration despite startup selecting SMA200. Human
+acceptance preceded that finding; it is not proof that the bypass was fixed.
+The loop now uses the existing ownership resolver before signal construction,
+avoiding a second interpretation policy. Added two bounded dispatch regressions
+for the selected period and explicit trading-disable preservation.
+VERIFIED_ENV: local venv targeted runner/isolation/collector/promotion tests,
+128 passed; git diff --check passed. Expected outcome: managed switches no
+longer inherit another named strategy's period at public signal dispatch.
+No deployment, campaign restart, gate or historical evidence change. Full-system
+behavior remains UNVERIFIED; independent re-review requested.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-07 - Managed Cross-Strategy Parameter Isolation
+
+Active role: ENGINEER. HIGH-risk config interpretation fix on dedicated branch.
+Explicit managed strategy switches now omit parameters/preset from a differently
+named local strategy. Same-strategy/no-override behavior and explicit trading
+disable preserved. Tests cover SMA20 contamination, compatibility and legacy
+identity. Final runner/collector/promotion regression slice: 126 passed;
+git diff --check passed. Independent review pending.
+No campaign/config/host/gate change. Exit-risk configuration and unnamed local
+ownership deliberately unchanged. Record: managed_strategy_parameter_isolation
+checkpoint. Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 This file is the durable Codex work log for `review-stabilized`.
 
 Purpose: make engineering/audit work visible in git, including what was found,

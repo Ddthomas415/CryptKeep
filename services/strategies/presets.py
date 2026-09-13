@@ -331,6 +331,10 @@ PRESETS: Dict[str, Dict[str, Any]] = {
 
     "es_daily_trend_v1": {
         "risk": {
+            "stop_loss_pct": 0.0,
+            "take_profit_pct": 0.0,
+            "trailing_stop_pct": 0.0,
+            "max_bars_hold": 0,
             "max_concurrent_positions": 1,
             "max_symbol_exposure_pct": 10.0,
             "max_total_exposure_pct": 10.0,
