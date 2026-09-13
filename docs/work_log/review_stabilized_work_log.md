@@ -1,5 +1,20 @@
 # Review Stabilized Work Log
 
+## 2026-09-13T05:38:19Z - Approved PR 591 Merge and PR 592 Integration
+
+Active role: GATE. User approved one-time admin merges of #591/#592 in order,
+conditional on successful final master-targeted CI. All seven checks passed
+on 9720cb4265a35990bb3252aa15b76bf708099ac6; exact-head squash/admin merge
+confirmed #591 as 3619efacc107e9ac97e30d63edb494476ef17567.
+ENGINEER stage: integrated master into #592, preserving work-log history.
+Tree byte-identical to accepted prior head before this record. Three-file
+targeted suite: 29 passed in 0.56s. #592 targets master; merge remains
+conditional on final-head checks. No repeated approval required within scope.
+No host deployment, manifest mutation or restart. Acceptance state: ACCEPTED
+(human implementation/merge authorization); #592 delivery INCOMPLETE.
+Read-only host check also showed corrected ES completed September 13 session,
+zero fills/orders, waiting_for_next_day; Coinbase EMA still stopped.
+
 ## 2026-09-13 - Human Acceptance of Last-Campaign Pause Fix
 
 Active role: GATE. User explicitly stated REVIEW ACCEPTED for 6d5a03f41.
