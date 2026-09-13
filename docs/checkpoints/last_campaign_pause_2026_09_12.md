@@ -1,7 +1,8 @@
 # Last-Campaign Pause Correction
 
 Active role: ENGINEER. Risk: HIGH (configuration writer contract).
-Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+Acceptance state: ACCEPTED (human, 2026-09-13, commit 6d5a03f41).
+Publication, CI and deployment are separate; host manifest remains unchanged.
 
 Host dry-run of update_paper_campaign_manifest.py for Coinbase EMA,
 enabled=false, failed with manifest_validation_failed:ValueError:paper campaign

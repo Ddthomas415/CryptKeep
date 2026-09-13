@@ -1,5 +1,15 @@
 # Review Stabilized Work Log
 
+## 2026-09-13 - Human Acceptance of Last-Campaign Pause Fix
+
+Active role: GATE. User explicitly stated REVIEW ACCEPTED for 6d5a03f41.
+Acceptance state: ACCEPTED (human, implementation). Prior 29-test targeted
+proof remains recorded; this acceptance update changes documentation only.
+Publish as a dependent PR over #591 to keep the runtime diff separate from
+operational history. No administrator bypass authorization inferred.
+Host deployment and durable manifest pause remain INCOMPLETE; no service
+restart, campaign start or configuration mutation performed in this step.
+
 ## 2026-09-12 - Last-Campaign Durable Pause Correction
 
 Active role: ENGINEER, HIGH configuration risk. Host audited-writer dry-run
