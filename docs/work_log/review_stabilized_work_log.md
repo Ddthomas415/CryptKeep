@@ -1,5 +1,24 @@
 # Review Stabilized Work Log
 
+## 2026-09-14 - Deployed Venue Trial Preflight
+
+Active role: AUDITOR. VERIFIED_ENV: host 0c46c95f25fa563304126e2e45ee8a61dfc0b67b.
+Both 24h trial state directories absent; deployed manifest resolves runtime
+86400 and max_loops=1 for Gate.io/Binance. systemd-analyze --user verify of
+both deployed units returned 0, empty stderr. Explicit public OHLCV probes
+returned 300 BTC/USDT 5m rows each, one attempt, no errors; Binance guard
+was enabled only for its probe process. No units installed or started.
+Disposable-state deployed resolvers show identical EMA12/26 filters, .001 BTC,
+1-second runner loop, 10000 quote starting cash, 7.5/5 bps modeled costs.
+Probe states: /tmp/cryptkeep-gateio-config-probe-or7cmh4c and
+/tmp/cryptkeep-binance-config-probe-hjrz_afe. Cleared CBP overrides only in
+probe subprocesses; this does not verify future service-manager environment.
+Exit fields absent at _cfg stage; run loop supplies fallback values, so null
+probe output must not be represented as disabled exits. No actual child
+configuration or 24-hour request-load proof claimed. Existing daily controls
+were not re-resolved here. Acceptance state: ACCEPTED for bounded preflight;
+installation/launch remain separate and INCOMPLETE. No runtime edits/tests.
+
 ## 2026-09-14 - Guarded Hetzner Venue-Tooling Update
 
 Active role: ENGINEER. User confirmed guarded checkout update, then completed
