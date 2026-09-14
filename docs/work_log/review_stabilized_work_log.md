@@ -1,5 +1,18 @@
 # Review Stabilized Work Log
 
+## 2026-09-14 - Refresh Pending Audit Evidence PR 584
+
+Active role: AUDITOR. Verified preserved raw September 5 scanner JSON hash
+624ed419bb7b17d3ad6e5030cdfbb96c23cd3ebe4f69d70823c06c4702067de1,
+83 dependencies, zero reported vulnerabilities/skips. Current requirements
+hash matches recorded d74ea0e3a506caac2e02960de9fc9f3dfd07a7ba23ec0c0e510ec46beaef39f9.
+No fresh advisory query or current-host security certification claimed.
+ENGINEER delivery stage: merged current master 0c46c95f2 cleanly into existing
+PR #584. Four-file evidence/docs scope only. Two documentation/policy test
+files: 8 passed in 0.15s. No dependency, configuration, service or trial change.
+Acceptance state: ACCEPTED for bounded artifact validation; GitHub delivery
+pending final CI/review. Original point-in-time audit limitations retained.
+
 ## 2026-09-13 - Integrate Bounded Venue Trials with Durable Pause
 
 Active role: ENGINEER. Integrated origin/master ea27688c2 into PR #586.
@@ -576,6 +589,60 @@ Minimum entry fields:
 
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
+
+## 2026-09-05T03:09:18Z - Approved Hetzner Vulnerability Audit
+
+Active role: ENGINEER
+
+Objective:
+- Complete the explicitly approved audit of Hetzner runtime requirements with
+  a temporary `/tmp` scanner environment; preserve proof without changing the
+  app environment or restarting services.
+
+What was found:
+- SHOWN, VERIFIED_ENV: deployed checkout remained clean at
+  `e38c342de9eb8209bdd7fdd44ca75cf757901fa2`.
+- SHOWN: `pip-audit 2.10.1` returned exit code 0, 83 dependencies, zero known
+  vulnerabilities, and zero skipped dependencies.
+- SHOWN: app inventories before and after were byte-identical, pin integrity
+  and installed alignment passed for all 83 pins, and all six pre-existing
+  user-owned Python processes retained their PID/start time.
+- SHOWN: Gate.io and Binance collectors remained `1/1 running`, each idle
+  `waiting_for_next_day` after recording its 2026-09-05 session.
+
+What changed and why:
+- Installed the scanner only in `/tmp/cryptkeep-pip-audit.mzOMgTT4/venv` under
+  the operator's explicit authorization for advisory-service disclosure.
+- Added `docs/checkpoints/hetzner_vulnerability_audit_2026_09_05.md` and its
+  unmodified scanner JSON sidecar, including hashes, commands, limits, and
+  before/after verification. Copied supporting artifacts to local ignored state.
+- Updated the current-state summary and existing supply-chain backlog item so
+  historical missing-audit notes no longer describe the latest proof.
+
+Expected outcome:
+- Close the missing host-audit proof for the deployed SHA and pinned inventory;
+  preserve the existing separate SBOM/hash-lock policy decision.
+
+Verification:
+- Temporary scanner: `python -m pip_audit -r requirements-pinned.txt --format
+  json --progress-spinner off`, bounded by `timeout 300`: exit code 0.
+- App `scripts/check_supply_chain.py --json`: pin/environment checks OK,
+  no mismatches or missing pins. Its `audit=not_requested` field remains
+  unchanged because the separate scanner performed the audit.
+- Before/after `pip freeze --all` comparison: identical SHA-256
+  `846b823a88eb5775b1fae64a9285b90f2444d01e1d2938ba7d3d3b2c71ad5054`.
+- `./.venv/bin/python -m pytest -q tests/test_supply_chain_release_policy_guard.py tests/test_operator_doc_reference_paths.py`:
+  SHOWN: `8 passed`.
+- Local evidence comparison: exact 83/83 pin coverage, report hash preserved,
+  no findings/skips, inventories identical, before/after checkout alignment OK.
+- `git diff --check`: passed. Full application tests were not rerun for a
+  documentation and evidence-only change.
+
+Remaining risk:
+- Package advisories are a point-in-time result, not full-system security proof;
+  OS packages, unlisted environment extras, and application logic are outside
+  this scan. No runtime code or persistent configuration changed.
+- Acceptance state: `ACCEPTED_WITH_RISK` for the completed authorized audit.
 
 ## 2026-09-01T05:40:21Z - Hetzner Read-Only Status Checkpoint
 

@@ -6,6 +6,14 @@ This file is a lightweight index only.
 The active operating state is paper-evidence collection, not live launch.
 
 SHOWN:
+- 2026-09-05 approved Hetzner vulnerability audit is complete on deployed
+  `e38c342de9eb8209bdd7fdd44ca75cf757901fa2`: temporary `pip-audit 2.10.1`
+  reported 83 runtime dependencies, zero known vulnerabilities, zero skipped
+  dependencies, and exit code 0. App package inventory was unchanged, all 83
+  pins matched installed versions, and both venue challengers remained running.
+  This closes the host-audit proof missing in earlier dated notes below;
+  SBOM/hash-lock release-policy decisions remain open. Evidence:
+  `docs/checkpoints/hetzner_vulnerability_audit_2026_09_05.md`.
 - `master`, `origin/master`, and `review-stabilized` are kept aligned after
   accepted PR merges. Verify the exact current boundary with
   `git rev-parse HEAD origin/master origin/review-stabilized`. 2026-07-04:
@@ -2282,6 +2290,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `docs/checkpoints/hetzner_supply_chain_alignment_2026_09_05.md`.
     Remaining release-policy work is narrowed to host vulnerability audit
     enablement/waiver and SBOM/hash-lock policy; no service restart was run.
+    2026-09-05 audit completion: operator-approved temporary `/tmp` scanner
+    `pip-audit 2.10.1` audited runtime pins on deployed `e38c342de` with exit
+    code 0, 83 dependencies, zero known vulnerabilities, and no skips.
+    App inventories before/after were identical; pin/environment checks passed;
+    both challengers remained running. The host-audit proof is now complete
+    for this SHA and requirement hash. Raw scanner JSON and scope limits are
+    preserved with `docs/checkpoints/hetzner_vulnerability_audit_2026_09_05.md`.
+    SBOM/hash-lock policy remains a separate decision; no app venv mutation
+    or service restart was performed.
     2026-08-23: updated supply-chain status is recorded in
     `docs/checkpoints/supply_chain_status_2026_08_23.md`. Local checkout
     `cc6c69f` has pin integrity OK and environment OK, but `pip-audit` reports
