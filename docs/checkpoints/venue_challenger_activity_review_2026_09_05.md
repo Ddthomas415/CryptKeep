@@ -2,7 +2,17 @@
 
 Date: 2026-09-05 UTC. Active role: AUDITOR. Environment: VERIFIED_ENV.
 
-## Scope and Current Results
+## Historical Scope
+
+September 14 integration note: all observations and counts below describe
+September 5, not current campaign status. The longer-observation tooling has
+since landed in master `0c46c95f2` (PR #586); its operating procedure is in
+`docs/checkpoints/extended_venue_observation_trial_2026_09_05.md`.
+This report preserves the original rationale rather than proposing another
+deployment. It supplies no results from the subsequent 24-hour trials.
+All three retained snapshot hashes were rechecked on September 14 and match.
+
+## September 5 Results
 
 Read-only Hetzner checks completed at approximately `18:43-18:45 UTC` against
 `/srv/cryptkeep/app` at `e38c342de9eb8209bdd7fdd44ca75cf757901fa2`.

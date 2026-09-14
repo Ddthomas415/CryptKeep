@@ -1,0 +1,17 @@
+# Explicit opt-in user unit; never enable for automatic startup.
+[Unit]
+Description=CryptKeep binance isolated 24-hour paper observation
+
+[Service]
+Type=exec
+WorkingDirectory=/srv/cryptkeep/app
+Environment=CBP_STATE_DIR=/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_binance_btcusdt_24h_trial
+Environment=CBP_VENUE=binance
+Environment=CBP_ALLOW_BINANCE=1
+ExecStart=/srv/cryptkeep/app/.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --strategies ema_cross --session-strategy-id ema_cross_binance_btcusdt_24h_trial --symbol BTC/USDT --venue binance --signal-source public_ohlcv_5m --runtime-sec 86400 --strategy-drain-sec 2 --tick-interval-sec 2 --poll-interval-sec 300 --max-daily-attempts 1 --daily-loop --max-loops 1 --no-desktop-notify
+RuntimeMaxSec=25h
+TimeoutStopSec=30s
+KillMode=control-group
+Restart=no
+NoNewPrivileges=true
+UMask=0077

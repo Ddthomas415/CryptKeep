@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import pytest
 from pathlib import Path
 
 from services.admin.campaign_manifest_audit import update_campaign_enabled
@@ -102,9 +103,8 @@ def test_update_campaign_enabled_fails_closed_when_audit_write_fails(tmp_path: P
     assert manifest.read_text(encoding="utf-8") == before
 
 
-def test_update_campaign_enabled_refuses_manifest_that_runtime_loader_cannot_read(tmp_path: Path) -> None:
+def test_last_campaign_can_be_paused_but_restore_still_refuses_empty(tmp_path: Path) -> None:
     manifest = _manifest(tmp_path / "campaigns.json", single=True)
-    before = manifest.read_text(encoding="utf-8")
 
     out = update_campaign_enabled(
         manifest_path=manifest,
@@ -114,10 +114,24 @@ def test_update_campaign_enabled_refuses_manifest_that_runtime_loader_cannot_rea
         event_path=tmp_path / "events.jsonl",
     )
 
-    assert out["ok"] is False
-    assert out["changed"] is False
-    assert out["reason"].startswith("manifest_validation_failed:")
-    assert manifest.read_text(encoding="utf-8") == before
+    assert out["ok"] is True
+    assert out["changed"] is True
+    assert json.loads(manifest.read_text())["campaigns"][0]["enabled"] is False
+    assert [e["result"] for e in _events(tmp_path / "events.jsonl")] == ["started", "succeeded"]
+    from services.analytics.paper_campaign_recovery import load_campaign_specs
+    assert load_campaign_specs(manifest, allow_empty=True) == ()
+    with pytest.raises(ValueError, match="no enabled campaigns"):
+        load_campaign_specs(manifest)
+
+
+def test_empty_opt_in_does_not_accept_invalid_enabled_type(tmp_path: Path) -> None:
+    from services.analytics.paper_campaign_recovery import load_campaign_specs
+    manifest = _manifest(tmp_path / "campaigns.json", single=True)
+    payload = json.loads(manifest.read_text())
+    payload["campaigns"][0]["enabled"] = "false"
+    manifest.write_text(json.dumps(payload))
+    with pytest.raises(ValueError, match="must be a boolean"):
+        load_campaign_specs(manifest, allow_empty=True)
 
 
 def test_update_campaign_manifest_cli_writes_json_and_events(tmp_path: Path) -> None:
@@ -171,4 +185,3 @@ def test_update_campaign_manifest_dry_run_does_not_write_or_audit(tmp_path: Path
     assert out["dry_run"] is True
     assert manifest.read_text(encoding="utf-8") == before
     assert not event_path.exists()
-
