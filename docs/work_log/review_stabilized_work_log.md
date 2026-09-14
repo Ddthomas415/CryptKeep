@@ -1,5 +1,21 @@
 # Review Stabilized Work Log
 
+## 2026-09-14 - Venue Daily-Control Configuration Parity
+
+Active role: AUDITOR. Read-only host inspection found no CBP_, PYTHONPATH or
+PYTHONHOME overrides in user-manager environment. Verified daily collector
+PID/state associations: Gate.io 1499165 and Binance 1501788, both idle with
+September 14 completed. No state-local user.yaml on either daily control.
+Deployed resolvers run with each collector's environment and its expected
+strategy child selectors resolve EMA12/26, unchanged five filters, .001 BTC,
+1-second loop, 10000 quote cash, fee/slippage 7.5/5 bps. These match prior
+isolated trial probes. No secrets printed, environments only reused in host
+subprocesses. This is current resolver parity, not introspection of historical
+strategy children or proof of equal market exposure/accounting histories.
+No configuration writes, service restarts or trial launches. Acceptance state:
+ACCEPTED for bounded parity check. Explicit trial installation/start approval
+and actual startup/terminal proof remain separate. No tests rerun.
+
 ## 2026-09-14 - Deployed Venue Trial Preflight
 
 Active role: AUDITOR. VERIFIED_ENV: host 0c46c95f25fa563304126e2e45ee8a61dfc0b67b.
