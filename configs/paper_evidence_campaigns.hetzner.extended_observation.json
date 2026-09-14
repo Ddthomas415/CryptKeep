@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "campaigns": [
+    {
+      "name": "ema_cross_gateio_btcusdt_24h_trial",
+      "enabled": true,
+      "state_dir": ".cbp_state_challengers/ema_cross_gateio_btcusdt_24h_trial",
+      "strategy": "ema_cross",
+      "session_strategy_id": "ema_cross_gateio_btcusdt_24h_trial",
+      "symbol": "BTC/USDT",
+      "venue": "gateio",
+      "signal_source": "public_ohlcv_5m",
+      "runtime_sec": 86400,
+      "strategy_drain_sec": 2,
+      "poll_interval_sec": 300,
+      "max_daily_attempts": 1,
+      "max_loops": 1,
+      "desktop_notify": false
+    },
+    {
+      "name": "ema_cross_binance_btcusdt_24h_trial",
+      "enabled": true,
+      "state_dir": ".cbp_state_challengers/ema_cross_binance_btcusdt_24h_trial",
+      "strategy": "ema_cross",
+      "session_strategy_id": "ema_cross_binance_btcusdt_24h_trial",
+      "symbol": "BTC/USDT",
+      "venue": "binance",
+      "signal_source": "public_ohlcv_5m",
+      "runtime_sec": 86400,
+      "strategy_drain_sec": 2,
+      "poll_interval_sec": 300,
+      "max_daily_attempts": 1,
+      "max_loops": 1,
+      "desktop_notify": false
+    }
+  ]
+}

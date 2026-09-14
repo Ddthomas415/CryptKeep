@@ -338,6 +338,7 @@ def _cfg() -> dict:
 
     return {
         "enabled": bool(s.get("enabled", True)),
+        **_resolved_exit_controls(s, strategy_block, strategy_preset),
         "strategy_id": str(strategy_block["name"]),
         "strategy": strategy_block,
         "strategy_preset": str(strategy_preset),
@@ -387,6 +388,41 @@ def _cfg() -> dict:
             default=DEFAULT_FUNDING_MAX_AGE_SEC,
         ),
     }
+
+
+def _resolved_exit_controls(s: dict, block: dict, preset_name: str) -> dict:
+    """Resolve only exit controls; never import unrelated preset risk policy."""
+    if block.get("unsupported"):
+        return {}
+    keys = ("stop_loss_pct", "take_profit_pct", "trailing_stop_pct", "max_bars_hold")
+    preset = get_preset(preset_name) or {}
+    preset_strategy = preset.get("strategy") or {}
+    if _canonical_strategy_name(preset_strategy.get("name")) != block.get("name"):
+        raise ValueError("exit_policy_preset_identity_mismatch")
+    values = {k: v for k, v in (preset.get("risk") or {}).items() if k in keys}
+    nested = s.get("strategy") if isinstance(s.get("strategy"), dict) else {}
+    local_name = nested.get("name", s.get("strategy_name", s.get("strategy_id")))
+    # Unnamed settings cannot establish ownership during a managed override.
+    owns_local = os.environ.get("CBP_STRATEGY_NAME") is None or (
+        local_name is not None and _canonical_strategy_name(local_name) == block.get("name")
+    )
+    if owns_local:
+        risk = s.get("risk", {})
+        if not isinstance(risk, dict):
+            raise ValueError("invalid_exit_risk_config")
+        values.update({k: risk[k] for k in keys if k in risk})
+        values.update({k: s[k] for k in keys if k in s})
+    for key, value in values.items():
+        try:
+            number = float(value)
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise ValueError(f"invalid_exit_control:{key}") from exc
+        if isinstance(value, bool) or not math.isfinite(number) or number < 0:
+            raise ValueError(f"invalid_exit_control:{key}")
+        if key == "max_bars_hold" and not number.is_integer():
+            raise ValueError(f"invalid_exit_control:{key}")
+        values[key] = int(number) if key == "max_bars_hold" else number
+    return values
 
 
 def _configured_strategy_name(s: dict, nested: dict) -> tuple[object, bool]:
@@ -480,9 +516,15 @@ def _strategy_block_from_runner_cfg(s: dict) -> tuple[dict, str]:
             return _unsupported_strategy_block(raw_name, nested), preset_name
         strategy_name = "ema_cross"
     default_preset = _DEFAULT_PRESET_BY_STRATEGY[strategy_name]
+    local_name = nested.get("name", s.get("strategy_name", s.get("strategy_id")))
+    switched_strategy = (
+        os.environ.get("CBP_STRATEGY_NAME") is not None
+        and local_name is not None
+        and _canonical_strategy_name(local_name) != strategy_name
+    )
     preset_name = str(
         os.environ.get("CBP_STRATEGY_PRESET")
-        or s.get("strategy_preset")
+        or (None if switched_strategy else s.get("strategy_preset"))
         or default_preset
     ).strip() or default_preset
     preset = get_preset(preset_name) or get_preset(default_preset) or {}
@@ -490,8 +532,10 @@ def _strategy_block_from_runner_cfg(s: dict) -> tuple[dict, str]:
         preset_name = default_preset
 
     merged = dict(preset.get("strategy") if isinstance(preset.get("strategy"), dict) else {})
-    merged.update(_legacy_strategy_params(s, strategy_name))
-    for key, value in nested.items():
+    # A managed name override must not relabel another strategy's parameters.
+    if not switched_strategy:
+        merged.update(_legacy_strategy_params(s, strategy_name))
+    for key, value in ({} if switched_strategy else nested).items():
         if key == "name" or value is None:
             continue
         merged[key] = value
@@ -1107,7 +1151,8 @@ def run_forever() -> None:
                         time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
                         continue
                     raw_runner = raw_cfg.get("strategy_runner") if isinstance(raw_cfg.get("strategy_runner"), dict) else {}
-                    raw_strategy = raw_runner.get("strategy") if isinstance(raw_runner.get("strategy"), dict) else {}
+                    # Apply the same ownership rules as startup configuration.
+                    raw_strategy, _ = _strategy_block_from_runner_cfg(raw_runner)
 
                     selected_block = _signal_strategy_block_from_selected_name(selected_strategy, raw_strategy)
                     evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe, ohlcv_source)
