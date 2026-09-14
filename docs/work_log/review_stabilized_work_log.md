@@ -1,5 +1,21 @@
 # Review Stabilized Work Log
 
+## 2026-09-14 - Historical Venue Activity Report Integration
+
+Active role: ENGINEER. Objective: integrate docs-only PR #585 with accepted
+master 0c46c95f2 without reopening the already implemented observation trial.
+SHOWN: all three retained September 5 snapshot SHA-256 values match the report.
+Preserved both sides of the work-log merge conflict. Added an explicit
+historical-scope note; September 5 counts are not current campaign status or
+24-hour trial outcomes. No runtime, host, campaign, or gate changes.
+Verification: all three snapshot checksums matched; `.venv/bin/python -m
+pytest -q tests/test_supply_chain_release_policy_guard.py
+tests/test_operator_doc_reference_paths.py`: 8 passed in 0.16s.
+`git diff --check` passed. This is narrow documentation proof, not full CI.
+Remaining risk: historical replay is not execution proof or a venue ranking;
+the new trials' terminal outcomes remain unverified here.
+Acceptance state: ACCEPTED for low-risk documentation integration.
+
 ## 2026-09-13 - Integrate Bounded Venue Trials with Durable Pause
 
 Active role: ENGINEER. Integrated origin/master ea27688c2 into PR #586.
@@ -37815,6 +37831,46 @@ Remaining risk:
   local research state and are not committed; no strategy, campaign, gate,
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-09-05T18:45:16Z - Venue Challenger Activity Comparison
+
+Active role: AUDITOR
+
+Objective: compare the new venue challengers with existing campaigns using
+read-only status, recorded sessions, and a bounded offline signal diagnostic.
+
+What was found (SHOWN, VERIFIED_ENV):
+- All three Hetzner collectors and both laptop-owned collectors were running.
+- Binance and Gate.io completed Sep 5 sessions with zero fills, final
+  `no_cross` signals, and healthy evidence writers. Earlier Binance data
+  failures are historical; the recovery remains supported by the latest session.
+- Coinbase EMA closed one trade on Sep 5: 18 total fills, 9 closed trades.
+- All three host strategy windows are approximately 15 minutes per UTC day.
+- Binance/Gate.io snapshots each contain 400 consecutive 5-minute candles;
+  the shorter Coinbase snapshot has 40 non-5-minute adjacent intervals.
+- Offline preset replay found 13/11/10 raw crossovers for
+  Binance/Gate.io/Coinbase respectively, but only 2/1/1 passing sell signals
+  and no buys. Most rejection reasons were the volatility filter.
+
+What changed and why:
+- Added `docs/checkpoints/venue_challenger_activity_review_2026_09_05.md`
+  with comparison, schedule trace, replay scope, hashes, and recommendations.
+- Preserved snapshot copies in ignored local research state. No campaigns,
+  gates, runtime configuration, or trading behavior changed.
+- The record distinguishes a short daily observation trial from continuous
+  5-minute strategy evaluation, without treating hypothetical signals as fills.
+
+Expected outcome: evaluate longer isolated observation with unchanged filters
+before making claims about evidence velocity or relative venue performance.
+
+Verification: direct SSH status and selected evidence reads; laptop-specific
+status; prefix replay through repository EMA functions; `git diff --check`.
+No application tests rerun for a documentation-only observational report.
+
+Remaining risk: snapshot replay omits historical runtime overrides, position,
+risk, and intrabar execution state. No passing buys in this sample means
+longer observation alone is not proven to generate new round trips.
+Acceptance state: ACCEPTED_WITH_RISK.
 
 ## 2026-09-05 - Bounded Extended Venue Observation Preparation
 
