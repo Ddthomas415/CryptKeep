@@ -1,5 +1,35 @@
 # Review Stabilized Work Log
 
+## 2026-09-14T04:13:34Z - Approved Two-Venue Observation Launch
+
+Active role: ENGINEER. User explicitly approved installing/starting both
+isolated 24h paper trials with 25h limits, no automatic restart, existing
+campaigns untouched. VERIFIED_ENV: host 0c46c95f2, Linger=yes, trial units
+not-found and states absent; sole tracked diff remained paused Coinbase EMA.
+No conflicting manager CBP/Python overrides. Reverified unit syntax, installed
+reviewed units verbatim, daemon-reloaded, started only cbp-gateio-observation
+and cbp-binance-observation. No boot enable or shared-config changes.
+Gate.io unit SHA256 4115e9cc5aaef5da50ab0a65fa114996f6b39c7af769ad9e6b7286293069921c;
+Binance a3d37939d3beffe1dbc5650a6044fd364b6b0ec1ce26f6e80f4126cabaae99db.
+Both ActiveEnterTimestamp 2026-09-14 04:13:34 UTC; collector PIDs 1535099
+and 1535100. 24h strategy target ends approximately September 15 04:13 UTC
+plus startup overhead; runtime escalation limit approximately 05:13:34 UTC,
+then 30s stop grace. No automatic extension or second start authorized.
+
+SHOWN: both collectors running/collecting, actual EMA children running/ok,
+400 public_ohlcv_5m bars, no_cross, enqueued_total=0 at startup check.
+Child PIDs Gate.io 1535172 / Binance 1535143; /proc environment confirms
+distinct trial state, venue, BTC/USDT and EMA selectors, Binance guard 0/1
+respectively; each child belongs to its matching systemd service cgroup.
+Pre/post existing collector command/start-tick identities unchanged. Launch
+records and existing-process inventory stored in each trial's
+launch_record.json and launch_preflight.json. No live-capital execution.
+Rollback/early stop: target only the corresponding trial unit via systemctl
+--user stop; preserve state and reconcile pending intents/open positions after
+all owned writers stop. No liquidation implied. Actual day-long coverage,
+request load, terminal cleanup and financial outcomes remain UNVERIFIED.
+Acceptance state: ACCEPTED (human-authorized startup); trial outcome INCOMPLETE.
+
 ## 2026-09-14 - Venue Daily-Control Configuration Parity
 
 Active role: AUDITOR. Read-only host inspection found no CBP_, PYTHONPATH or
