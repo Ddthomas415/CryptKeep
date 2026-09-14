@@ -1,5 +1,19 @@
 # Review Stabilized Work Log
 
+## 2026-09-13 - Integrate Bounded Venue Trials with Durable Pause
+
+Active role: ENGINEER. Integrated origin/master ea27688c2 into PR #586.
+Merge applied cleanly. SHOWN: runtime diff against master remains only the
+seven-line optional max_loops wiring; allow_empty=False and audited writer
+opt-in from #592 are preserved. Eight-file PR scope retained, no unrelated
+runtime edits. Combined nine-file trial/unit/collector/manifest/recovery/
+evidence-service/lifecycle regression slice: 99 passed in 1.42s.
+git diff --cached --check passed. Local proof is not actual 24-hour trial proof.
+Publish updated head for CI; no host pull, manifest mutation, unit installation
+or campaign start. Host-local paused Coinbase manifest must remain preserved
+in any eventual deployment. Acceptance state: READY_FOR_INDEPENDENT_REVIEW
+for integrated high-risk launch tooling; existing review history retained.
+
 ## 2026-09-13T05:38:19Z - Approved PR 591 Merge and PR 592 Integration
 
 Active role: GATE. User approved one-time admin merges of #591/#592 in order,
@@ -37801,6 +37815,161 @@ Remaining risk:
   local research state and are not committed; no strategy, campaign, gate,
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-09-05 - Bounded Extended Venue Observation Preparation
+
+Active role: ENGINEER
+
+Objective: prepare a single 24-hour isolated paper observation per new venue
+without turning the experiment into another indefinite daily campaign.
+
+SHOWN: the collector already supports `--max-loops`; manifest-driven recovery
+did not propagate that option. Existing manifests intentionally use recurring
+daily mode. The strategy-window duration is distinct from request pacing and
+from total child-process lifetime.
+
+Changed: optional positive `max_loops` parsing/CLI propagation in
+`services/analytics/paper_campaign_recovery.py`; an explicit two-venue trial
+manifest with new state and evidence identities; focused regression tests; and
+`docs/checkpoints/extended_venue_observation_trial_2026_09_05.md` with launch,
+measurement, stop, and review boundaries. No host deployment or launch occurred.
+
+Why: reuse the existing bounded collector behavior with the smallest change.
+Existing manifests keep their original commands; malformed explicit bounds
+cannot silently become recurring operation.
+
+Expected outcome: after independent review, run a bounded cadence experiment
+with unchanged strategy filters; distinguish more observation from more trades.
+
+Verification: 46 tests passed across bounded-trial, recovery, and collector
+tests; `git diff --check` passed. Real 24-hour runtime, request volume, and host
+child cleanup remain UNVERIFIED. Review of effective costs/pacing is required
+before launch; no claim of increased profitability or gate completion is made.
+
+Risk: HIGH due to background campaign configuration. Independent review pending.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+2026-09-06 continuation after tooling usage-limit interruption:
+Independent reviewer found no new merge-blocking implementation defect and
+independently passed 46 recovery/collector/trial tests plus 33 evidence-service
+and runner-lifecycle tests. Implementation disposition: ACCEPTED_WITH_RISK.
+Pre-existing exceptional cleanup can leave tick/paper components running;
+position preservation is not terminal reconciliation proof. These findings
+are now explicit in the runbook. The review did not cover the final runbook
+additions, so the complete packet remains READY_FOR_INDEPENDENT_REVIEW.
+No host deployment or launch was performed; operational launch remains
+INCOMPLETE pending effective configuration, deadline/cleanup, and reconciliation
+verification. No new tests were rerun solely for these documentation additions.
+
+## 2026-09-06T13:51:53Z - Isolated Real Collector Rehearsal
+
+Active role: ENGINEER. VERIFIED_ENV deployed help confirmed flags before
+execution. Ran one Gate.io paper-only 30s strategy window in new /tmp state
+under unique transient user unit with 120s cap, no app checkout mutation.
+SHOWN: all five real processes in unit cgroup, normal runtime_elapsed/max_loops
+completion, final inactive/empty cgroup, no recorded rehearsal PIDs surviving.
+Requested scoped stop but final reason supports normal completion only.
+Both SQLite integrity checks ok; all intent/order/fill/position counts zero.
+Existing campaign PID/start times unchanged. Exact state, unit, times and health
+hash recorded in runbook; state preserved. No 24-hour trial launched.
+Verification: host status/journal/process inventory/read-only SQL; git diff
+--check. No local code changed/tests rerun. Filled-state reconciliation and
+long-run data coverage remain unverified. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-06 - Trial Review Fix and Host Parser Proof
+
+Active role: ENGINEER. Addressed independent reviewer P3 by pinning working
+directory, daily-loop, and manifest notification parity in unit tests.
+26 targeted tests passed. Host files matched local SHA-256; static user-unit
+verification passed with the existing XDG_RUNTIME_DIR explicitly supplied.
+Initial parser initialization failed without that command-local variable;
+no persistent environment setting changed. Preserved exact hashes, temporary
+paths and caveat about exit-zero collector failures in the runbook.
+No unit installation/start, app deployment, or campaign restart. git diff
+--check passed. Independent unit implementation accepted with risk; actual
+collector shutdown and trial outputs remain UNVERIFIED. Acceptance state:
+READY_FOR_INDEPENDENT_REVIEW for this evidence update.
+
+## 2026-09-06 - Opt-In Supervised Venue Trial Units
+
+Active role: ENGINEER. HIGH risk background supervision. Added separate Gate.io
+and Binance user units outside the default installer; foreground collector,
+25h runtime, 30s termination grace, control-group kill and no restart/Install
+section. Preserved isolated manifest identities and original signal flags.
+Updated runbook to replace detached launch instructions with reviewed unit
+workflow. No host installation, launch, deployment or restart performed.
+Verification: 21 passed across trial-unit, bounded-manifest and existing systemd
+tests. Independent AUDITOR review dispatched. Host parser validation and actual
+collector cleanup remain UNVERIFIED; timeout is not graceful intent drain.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-06 - Approved Hetzner User Linger Enabled
+
+Active role: ENGINEER. Operator instructed proceed immediately after the
+explicit linger approval question. VERIFIED_ENV: loginctl enable-linger
+cryptkeep succeeded; second SSH inspection confirmed Linger=yes and manager
+running. Existing collector PID/start-time identities unchanged. No sudo was
+needed, despite prior sudo -n requiring a password. Recorded rollback command
+and effects in the trial runbook; rollback was not executed. No service restart,
+credential change, deployment, or trial launch. git diff --check passed.
+Remaining uncertainty: real collector shutdown and effective trial config;
+no forced final logout/reboot experiment. Acceptance state:
+READY_FOR_INDEPENDENT_REVIEW for operational evidence.
+
+## 2026-09-06 - Logout Persistence and State Configuration Inspection
+
+Active role: AUDITOR. Read-only host inspection confirmed active user manager,
+Linger=no, existing sessions, and password-required sudo. No durable logout
+guarantee established. Trial states absent; existing daily challenger states
+present without state-local user.yaml. Initial candidate-name paths were not
+manifest state paths; corrected inspection used the manifest's *_daily paths.
+Recorded findings in the runbook. No host modifications or campaign restarts.
+Verification: SSH command output; documentation diff check. Next decision:
+approve persistent linger for cryptkeep or choose a system-owned supervisor.
+Acceptance state: INCOMPLETE for logout-independent trial supervision.
+
+## 2026-09-06T06:58:41Z - Hetzner Dummy Deadline Rehearsal
+
+Active role: ENGINEER. VERIFIED_ENV: host systemd 255, user manager running;
+linger disabled. Executed a unique transient user unit with a six-second runtime
+and two-second stop timeout, containing only dummy Python parent/child processes.
+The separate-session child ignored SIGTERM; systemd killed it on timeout.
+SHOWN: Result=timeout, MainPID=0, empty ControlGroup, no dummy process remaining;
+existing app process PID/start-time inventory identical before and after.
+Captured exact unit, PIDs and timestamps in the trial runbook; reset only this
+dummy unit's failed state after capture. No app data/service/credential changes.
+Verification: host journal and process inventory; git diff --check. No application
+tests rerun for documentation-only edits. Real collector cleanup and durable
+logout-independent supervision remain unverified. No 24-hour trial launched.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-06 - Trial Supervision Rehearsal Preparation
+
+Active role: ENGINEER. Independent AUDITOR accepted documentation at b4641611b;
+host launch remained INCOMPLETE. Inspected foreground collector support and
+child process creation; recorded a dummy-process transient-service rehearsal
+before any real trial. Upstream systemd documentation supports candidate
+runtime and control-group shutdown controls, not installed-host verification.
+Read-only SSH inspection required a fresh Tailscale identity check and returned
+no host inventory yet. No credentials, app state, services, or campaigns changed.
+Verification: source inspection and `git diff --check`; no runtime tests needed
+for this documentation-only step. Host rehearsal and final supervision review
+remain outstanding. Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-06 - Bounded Trial Terminal Verification Procedure
+
+Active role: ENGINEER. Objective: make PR #586 launch/termination evidence
+requirements executable by an operator without modifying existing campaigns.
+SHOWN: normal collector cleanup ignores stop-wait results; exceptional cleanup
+does not stop every managed component. Added a 25-hour escalation policy,
+state-local PID ownership checks, and read-only queue/order/fill/position
+reconciliation to the existing runbook. These are operating requirements, not
+a new runtime timer or a claim that host shutdown was tested.
+Verification: inspected service runtime paths and SQLite table definitions;
+`git diff --check` required before handoff. No runtime code changed in this step.
+Remaining risk: deadline enforcement and shutdown rehearsal unverified; no
+host deployment, campaign launch, service restart, or gate changes performed.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
 
 ## 2026-09-05T03:01:18Z - Hetzner Supply-Chain Alignment After Remediation
 
