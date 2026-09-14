@@ -1,5 +1,21 @@
 # Review Stabilized Work Log
 
+## 2026-09-14 - Guarded Hetzner Venue-Tooling Update
+
+Active role: ENGINEER. User confirmed guarded checkout update, then completed
+Tailscale authentication. VERIFIED_ENV: only local tracked change was the
+approved Coinbase EMA enabled=false manifest; semantic comparison against HEAD
+passed. Backed up exact bytes to
+/tmp/cryptkeep-paused-manifest-mrmnak79/paper_evidence_campaigns.hetzner.example.json.
+Existing scoped deploy key fetched master. Verified ancestry and unchanged
+upstream manifest before fast-forward from ea27688c28e4ca1e56137c195cc05e0aca91857e
+to 0c46c95f25fa563304126e2e45ee8a61dfc0b67b. Post-update manifest bytes identical;
+SHA256 093191436e27cfb47c55bcc0fcf4a5c5f93316c9a56b33485939d8b33b964fff.
+Only intentional manifest diff remains. No reset, dependency change, service
+restart, unit installation or trial launch. Acceptance state: ACCEPTED for
+approved checkout update. Extended trial startup remains UNVERIFIED; no host
+tests run as part of this update. Preserve the local manifest on future pulls.
+
 ## 2026-09-14T03:58:02Z - Approved PR 586 Merge
 
 Active role: GATE. User explicitly approved administrator merge of #586 only.
