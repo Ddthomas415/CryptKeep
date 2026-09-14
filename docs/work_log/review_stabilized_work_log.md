@@ -1,5 +1,19 @@
 # Review Stabilized Work Log
 
+## 2026-09-14T04:16:48Z - Early Venue Trial Health
+
+Active role: AUDITOR. Read-only host check: both units active/running,
+RuntimeMaxUSec=1d 1h; both collectors collecting, runner timestamps fresh
+(Gate.io 04:16:47, Binance 04:16:44), 400 bars, no_cross, zero enqueued.
+Evidence writers report ok=true. Unit Result=success while active is not a
+terminal success claim. Different loop counts (18/43) are observations, not
+proof of identical sampling or request rates. No tuning/restart/extension.
+Reuse the terminal checklist in extended_venue_observation_trial_2026_09_05.md:
+verify all owned processes stopped before database reconciliation, then report
+pending intents, fills, open positions and coverage over overlapping intervals.
+No duplicate checklist/tool added. Acceptance state: ACCEPTED for early-health
+snapshot; 24-hour outcome remains INCOMPLETE. No tests run for read-only status.
+
 ## 2026-09-14T04:13:34Z - Approved Two-Venue Observation Launch
 
 Active role: ENGINEER. User explicitly approved installing/starting both
