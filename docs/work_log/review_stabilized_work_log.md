@@ -1,5 +1,17 @@
 # Review Stabilized Work Log
 
+## 2026-09-14 - Prepare Matched Venue Comparison Inputs
+
+Active role: AUDITOR. Read explicit daily/trial status and artifact inventories
+on host without modifying campaigns. September 14 daily windows ended before
+trial launch; do not treat them as overlap. Recorded paths, exact control
+timestamps, baseline counts, historical Binance exclusion, costs and coverage
+limitations in venue_trial_comparison_inputs_2026_09_14.md. September 15 actual
+overlap remains to be observed. Reuse terminal reconciliation checklist and
+existing tools; no new runtime/scheduler. Verification: host JSON/status reads
+and local source paths; no tests run for documentation. Acceptance: ACCEPTED
+for preparation only, trial outcomes INCOMPLETE.
+
 ## 2026-09-14T04:16:48Z - Early Venue Trial Health
 
 Active role: AUDITOR. Read-only host check: both units active/running,
