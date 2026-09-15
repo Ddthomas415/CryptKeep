@@ -1,5 +1,31 @@
 # Review Stabilized Work Log
 
+## 2026-09-15 - Distinguish Existing OHLCV Fix from Mid-Session Gap
+
+Active role: AUDITOR. User requested checking the apparently recurring issue
+against prior fixes rather than reopening completed work. SHOWN: existing
+collector daily-loop preflight runs before _run_one_campaign, writes blocked
+source status and protects daily retry budget. This remains implemented.
+Targeted collector/preflight suite: `.venv/bin/python -m pytest -q
+tests/test_run_paper_strategy_evidence_collector.py tests/test_ohlcv_preflight.py`
+returned 32 passed in 0.33s. This is local regression proof, not host outage proof.
+
+SHOWN: strategy_runner._fetch_public_ohlcv creates a fresh make_exchange client
+per call, fetches, then closes it. exchange_factory constructs a new instance,
+not a cache. Mid-session empty fetch writes running/no_public_ohlcv, sleeps
+the runner interval and continues. The daily preflight does not wrap this loop.
+Thus the historical startup/retry fix was not shown reverted; these failures
+occurred on the separate mid-session path. Client lifecycle may increase
+metadata requests, but causation of the observed failures is UNVERIFIED.
+
+Next scoped engineering investigation: reuse a process-owned public data client
+with explicit lifecycle/venue isolation and test recovery/cleanup, retaining
+sample provenance and existing startup guards. Do not introduce global shared
+live clients, relax filters, or restart trials. Runtime changes require their
+own implementation and review, not inclusion in this evidence-only PR.
+No source or host changes in this step. Acceptance state: ACCEPTED for scope
+clarification; mid-session reliability treatment remains unimplemented.
+
 ## 2026-09-15 - Venue Zero-Trade Diagnostic Boundaries
 
 Active role: AUDITOR. Read-only host artifact inventory and local source trace.
