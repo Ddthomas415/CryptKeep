@@ -1,5 +1,37 @@
 # Review Stabilized Work Log
 
+## 2026-09-15 - Venue Zero-Trade Diagnostic Boundaries
+
+Active role: AUDITOR. Read-only host artifact inventory and local source trace.
+SHOWN: each trial has only start/end session JSONL records, not a per-loop
+signal journal. Monitor histories contain 7 Gate.io and 11 Binance snapshots;
+these are insufficient for complete rejection counts or evaluated-bar coverage.
+Final runners report 8575/20608 loops respectively and no_cross, zero enqueued;
+loop counts are not unique closed-bar counts or full historical signal reasons.
+Both evidence writers report zero write failures, which does not prove signal
+records were requested or retained.
+
+Each app.log contains 12 ohlcv_live_fetch_failed warnings. Gate.io first/last
+log timestamps September 14 09:54:22.491 / 10:27:55.859; Binance
+09:54:18.403 / 10:28:05.963. These are endpoints of intermittent warnings,
+not a continuous outage duration. Failed requests name metadata endpoints
+Gate.io /spot/currencies and Binance /exchangeInfo. Monitor snapshots confirm
+no_public_ohlcv observations. Shared timing suggests investigating the shared
+fetch/host path, but does not establish DNS, rate limiting or a common cause.
+Retained app.log SHA256: Gate.io
+30022a942620a7b734e5e2f7730c2401bda3af02f87440c1110207a86b8caa84;
+Binance aa3cf66183cbcc10dc7b1dc264dc6b45533391a8566c3d0735c5435f03aaf5d5.
+
+Separate SHOWN reporting discrepancy: collector _log_session_end computes
+zero_trade_run from completed_strategies == 0, so both completed zero-fill
+trials recorded false. Do not interpret that field as trading activity;
+the reconciled empty databases are authoritative for this observation.
+No runtime fix made here. No tests run; artifact reads and source inspection.
+Recommendation: trace existing metadata-fetch reuse and diagnostic retention
+before another trial; no filter relaxation, profitability conclusion, or
+automatic restart justified. Complete signal-cause attribution is UNVERIFIED.
+Acceptance state: ACCEPTED for bounded audit findings, not root-cause closure.
+
 ## 2026-09-15 - Two-Venue Trial Terminal Reconciliation
 
 Active role: AUDITOR. VERIFIED_ENV: read-only Tailscale SSH inspection of
