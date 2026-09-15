@@ -1,5 +1,17 @@
 # Review Stabilized Work Log
 
+## 2026-09-15T23:54:44Z - Approved PR 594 Merge
+
+Active role: GATE. User explicitly approved a one-time administrator merge
+of PR #594, with no deployment or restart. Rechecked exact head
+93215c5a6be39c4cbda6f4a29b7294ad87692565: all seven checks successful.
+Exact-head squash/admin merge confirmed by GitHub as
+52de0c2cbfb5fbf21eed966889a9c29e602089ee. Acceptance state: ACCEPTED
+(human); PR delivery complete. Branch-protection settings unchanged.
+No host pull, campaign restart, service change or new trial performed.
+Host integration and outage remediation remain UNVERIFIED. No tests rerun
+for this documentation-only record; final-head CI was checked before merge.
+
 ## 2026-09-15 - Distinguish Existing OHLCV Fix from Mid-Session Gap
 
 Active role: AUDITOR. User requested checking the apparently recurring issue
