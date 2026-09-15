@@ -1,5 +1,35 @@
 # Review Stabilized Work Log
 
+## 2026-09-15 - Two-Venue Trial Terminal Reconciliation
+
+Active role: AUDITOR. VERIFIED_ENV: read-only Tailscale SSH inspection of
+the two isolated trial roots on Hetzner after operator authentication.
+SHOWN: both systemd units inactive/dead, Result=success, MainPID=0,
+ExecMainStatus=0, empty ControlGroup. No readable /proc environment matched
+either exact CBP_STATE_DIR. Both collectors stopped at max_loops=1;
+strategy stop_reason=runtime_elapsed, completed successfully.
+Gate.io window: 2026-09-14T04:13:45.457560Z through
+2026-09-15T04:13:54.751879Z (86409.295 seconds).
+Binance window: 2026-09-14T04:13:39.735768Z through
+2026-09-15T04:13:44.812488Z (86405.077 seconds).
+Both report zero enqueued intents, fills, closed trades and realized PnL.
+SQLite mode=ro checks independently found empty trade_intents, paper_orders,
+paper_fills, paper_positions and journal_fills in each trial state.
+All six intent_queue/paper_trading/trade_journal integrity checks returned ok.
+No pending orders or recorded positions require intervention in these roots.
+Initial schema query had a shell-quoting error; corrected parameterized query
+completed successfully without database writes. No host changes or restarts.
+
+Conclusion: this bounded longer-observation trial generated no trades;
+it does not demonstrate profitability, uninterrupted market-data coverage,
+or the cause of absent entries. Latest hold and zero totals do not establish
+every historical signal reason. Next: inspect retained session observations
+for signal/filter/data coverage before proposing another experiment; do not
+automatically extend or restart these trials. Daily controls and ES unchanged
+by this inspection. No application tests run for read-only host observations.
+Acceptance state: ACCEPTED for terminal reconciliation; signal-cause and
+matched-overlap analysis remain INCOMPLETE.
+
 ## 2026-09-15 - Launch Evidence PR Base Integration
 
 Active role: ENGINEER. LOW risk, documentation-only integration of PR #593
