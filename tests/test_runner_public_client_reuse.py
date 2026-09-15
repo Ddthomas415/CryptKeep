@@ -1,3 +1,5 @@
+import pytest
+
 from services.execution import strategy_runner as runner
 
 
@@ -53,3 +55,48 @@ def test_cleanup_continues_after_close_error(monkeypatch):
     pool.get("binance")
     pool.close()
     assert len(closed) == 2
+
+
+def test_failed_construction_does_not_poison_pool(monkeypatch):
+    attempts = []
+    client = object()
+
+    def factory(*args, **kwargs):
+        attempts.append(True)
+        if len(attempts) == 1:
+            raise ConnectionError("construction failed")
+        return client
+
+    monkeypatch.setattr(runner, "make_exchange", factory)
+    pool = runner._PublicOHLCVClients()
+    with pytest.raises(ConnectionError):
+        pool.get("gateio")
+    assert pool.get("gateio") is client
+    assert pool.get("gateio") is client
+    assert len(attempts) == 2
+    pool.close()
+
+
+def test_runner_instances_do_not_share_clients(monkeypatch):
+    monkeypatch.setattr(runner, "make_exchange", lambda *a, **k: object())
+    first = runner._PublicOHLCVClients()
+    second = runner._PublicOHLCVClients()
+    assert first.get("gateio") is not second.get("gateio")
+    first.close()
+    second.close()
+
+
+def test_sample_mode_never_acquires_public_client(monkeypatch):
+    def unexpected(*args, **kwargs):
+        pytest.fail("sample mode acquired a public client")
+
+    monkeypatch.setattr(runner, "make_exchange", unexpected)
+    monkeypatch.setattr(runner, "_sample_ohlcv_env_enabled", lambda: True)
+    monkeypatch.setattr(runner, "_persist_public_ohlcv_snapshot", lambda *a, **k: None)
+    pool = runner._PublicOHLCVClients()
+    _, source = runner._fetch_public_ohlcv(
+        dict(venue="gateio", symbol="BTC/USDT", signal_source="public_ohlcv_5m"),
+        clients=pool,
+    )
+    assert source["source"] in ("sample_ohlcv", "none")
+    pool.close()

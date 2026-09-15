@@ -1,5 +1,17 @@
 # Review Stabilized Work Log
 
+## 2026-09-15 - Public Client Reuse Additional Regression Proof
+
+Active role: ENGINEER. Test-only follow-up while PR #594 CI runs.
+Added construction-failure retry, separate-owner isolation and sample-mode
+public-client bypass tests. No accepted runtime implementation changed.
+Same six-file targeted command recorded below now returns 105 passed in
+1.46s; git diff --check passed. This is local proof, not host remediation.
+GitHub reported REVIEW_REQUIRED and pending CI at inspection; no merge or
+administrator bypass performed. Publish updated tests for final-head CI.
+Acceptance state: ACCEPTED for test-only additions; prior human acceptance
+of runtime 5c601390a remains recorded. No deployment or campaign restart.
+
 ## 2026-09-15 - Human Acceptance of Public Client Reuse
 
 Active role: GATE. User explicitly stated REVIEW ACCEPTED for implementation
