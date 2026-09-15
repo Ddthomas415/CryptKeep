@@ -1,5 +1,34 @@
 # Review Stabilized Work Log
 
+## 2026-09-15 - Runner-Owned Public OHLCV Client Reuse
+
+Active role: ENGINEER. HIGH risk: shared strategy-runner data-client lifecycle.
+Objective: remove per-fetch public client construction without changing signals,
+filters, source provenance, order routing or daily preflight/retry protection.
+SHOWN: existing fetch helper constructed/closed a client on every call.
+Added a runner-owned, venue-keyed public-only client pool, passed explicitly
+to OHLCV fetches and closed in the runner finally block. Standalone helper
+calls retain create/close behavior. Sample-primary path remains before client
+acquisition. No global cache or execution clients; failures return empty rows
+and later calls reuse the client. Close failures do not skip other clients.
+Existing runner mocks accept the new optional keyword; assertions unchanged.
+Expected outcome: preserve per-client metadata/rate-limit state during a run.
+This does not prove client churn caused the September 14 interruptions and
+does not implement outage backoff or recover missing historical diagnostics.
+
+Verification: `.venv/bin/python -m pytest -q
+tests/test_runner_public_client_reuse.py tests/test_strategy_runtime_runner.py
+tests/test_sample_mode_provenance.py tests/test_ohlcv_snapshot_provenance.py
+tests/test_run_paper_strategy_evidence_collector.py tests/test_ohlcv_preflight.py`
+returned 102 passed in 1.52s. `git diff --check` passed.
+New tests exercise reuse after a failed fetch, venue separation, anonymous
+credentials, idempotent close and continued cleanup after close errors.
+Remaining: independent lifecycle review, full CI, actual host integration;
+no deployment, service restart or new trial performed. Long-lived exchange
+metadata refresh and permanently unusable clients need review; no automatic
+client replacement or altered retry policy is claimed.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-13 - Integrate Bounded Venue Trials with Durable Pause
 
 Active role: ENGINEER. Integrated origin/master ea27688c2 into PR #586.

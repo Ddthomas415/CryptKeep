@@ -762,7 +762,30 @@ def _market_quality_evidence_extra(venue: str, symbol: str) -> dict:
     return out
 
 
-def _fetch_public_ohlcv(cfg: dict) -> tuple[list[list[float]], dict]:
+class _PublicOHLCVClients:
+    """Single runner-owned clients; never shared with order execution."""
+
+    def __init__(self):
+        self._clients = {}
+
+    def get(self, venue):
+        if venue not in self._clients:
+            self._clients[venue] = make_exchange(
+                venue, {"apiKey": None, "secret": None}, enable_rate_limit=True
+            )
+        return self._clients[venue]
+
+    def close(self):
+        clients, self._clients = self._clients, {}
+        for client in clients.values():
+            try:
+                if hasattr(client, "close"):
+                    client.close()
+            except Exception:
+                _LOG.warning("ohlcv_client_close_failed", exc_info=True)
+
+
+def _fetch_public_ohlcv(cfg: dict, *, clients=None) -> tuple[list[list[float]], dict]:
     """
     Fetch OHLCV rows and report the actual source that produced them.
 
@@ -806,7 +829,8 @@ def _fetch_public_ohlcv(cfg: dict) -> tuple[list[list[float]], dict]:
 
     ex = None
     try:
-        ex = make_exchange(cfg["venue"], {"apiKey": None, "secret": None}, enable_rate_limit=True)
+        ex = (clients.get(cfg["venue"]) if clients is not None else
+              make_exchange(cfg["venue"], {"apiKey": None, "secret": None}, enable_rate_limit=True))
         symbol = map_symbol(cfg["venue"], normalize_symbol(cfg["symbol"]))
         limit = max(int(cfg["min_bars"]), int(cfg["max_bars"]))
         rows = ex.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
@@ -820,7 +844,7 @@ def _fetch_public_ohlcv(cfg: dict) -> tuple[list[list[float]], dict]:
                      cfg.get("venue"), cfg.get("symbol"), timeframe, _fetch_err)
     finally:
         try:
-            if ex is not None and hasattr(ex, "close"):
+            if clients is None and ex is not None and hasattr(ex, "close"):
                 ex.close()
         except Exception:
             pass
@@ -1002,6 +1026,7 @@ def run_forever() -> None:
     loops = 0
     enqueued = 0
     checked_startup_pairs: set[tuple[str, str]] = set()
+    public_clients = _PublicOHLCVClients()
     try:
         while True:
             loops += 1
@@ -1090,7 +1115,7 @@ def run_forever() -> None:
                     f"public_ohlcv:{timeframe}" if timeframe else "tick_based",
                 )
                 if timeframe:
-                    ohlcv, ohlcv_source = _fetch_public_ohlcv(sym_cfg)
+                    ohlcv, ohlcv_source = _fetch_public_ohlcv(sym_cfg, clients=public_clients)
                     ohlcv = ohlcv or []
                     if not ohlcv:
                         _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
@@ -1691,6 +1716,7 @@ def run_forever() -> None:
             })
             time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
     finally:
+        public_clients.close()
         try:
             sdb.set(k_prices, json.dumps(prices))
             sdb.set(k_last_action, last_action)
