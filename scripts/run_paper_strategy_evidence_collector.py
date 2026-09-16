@@ -147,6 +147,22 @@ def _log_session_start(*, strategy_id: str, cfg: PaperStrategyEvidenceServiceCfg
     )
 
 
+def _zero_trade_run(result: dict[str, object]) -> bool | None:
+    """Classify observed fills, not completed strategies; unknown stays unknown."""
+    rows = result.get("results")
+    if not isinstance(rows, list) or not rows:
+        return None
+    counts = [row.get("fills_delta") if isinstance(row, dict) else None for row in rows]
+    if any(type(n) is int and n > 0 for n in counts):
+        return False
+    total = result.get("total_strategies")
+    if (result.get("status") != "completed" or type(total) is not int
+            or total != len(rows) or total <= 0
+            or any(type(n) is not int or n < 0 for n in counts)):
+        return None
+    return True
+
+
 def _log_session_end(*, strategy_id: str, cfg: PaperStrategyEvidenceServiceCfg, result: dict[str, object]) -> None:
     completed = int(result.get("completed_strategies") or 0)
     campaign_status = str(result.get("status") or "unknown")
@@ -165,7 +181,7 @@ def _log_session_end(*, strategy_id: str, cfg: PaperStrategyEvidenceServiceCfg, 
             "completed_strategies": completed,
             "campaign_status": campaign_status,
             "campaign_reason": str(result.get("reason") or ""),
-            "zero_trade_run": (completed == 0),
+            "zero_trade_run": _zero_trade_run(result),
             **_campaign_provenance_extra(cfg),
         },
     )
