@@ -1,5 +1,14 @@
 # Review Stabilized Work Log
 
+## 2026-09-16 - Publish Consolidated Host Verification Evidence
+
+Active role: ENGINEER. Transferred three local post-merge records to PR #593
+and integrated master 52de0c2cb, retaining both work-log histories. Final diff
+is only this log and the comparison-input document; no runtime changes.
+Documentation reference and supply-chain policy tests: 8 passed in 0.16s;
+git diff --check passed. No new host operations or trial authorization used.
+Acceptance state: ACCEPTED for documentation integration; final-head CI pending.
+
 ## 2026-09-16 - Bounded Host Public-Client Probe
 
 Active role: AUDITOR. User authorized cautious bounded read-only verification.
@@ -282,6 +291,55 @@ implementation only). GitHub reports all eight checks successful at that head;
 review requirement remains outstanding. Prior 99-test local proof retained.
 This documentation record does not authorize administrator bypass, deployment,
 installation or trial launch. No host changes. Delivery remains INCOMPLETE.
+## 2026-09-15 - Public Client Reuse Additional Regression Proof
+
+Active role: ENGINEER. Test-only follow-up while PR #594 CI runs.
+Added construction-failure retry, separate-owner isolation and sample-mode
+public-client bypass tests. No accepted runtime implementation changed.
+Same six-file targeted command recorded below now returns 105 passed in
+1.46s; git diff --check passed. This is local proof, not host remediation.
+GitHub reported REVIEW_REQUIRED and pending CI at inspection; no merge or
+administrator bypass performed. Publish updated tests for final-head CI.
+Acceptance state: ACCEPTED for test-only additions; prior human acceptance
+of runtime 5c601390a remains recorded. No deployment or campaign restart.
+
+## 2026-09-15 - Human Acceptance of Public Client Reuse
+
+Active role: GATE. User explicitly stated REVIEW ACCEPTED for implementation
+5c601390a. Acceptance state: ACCEPTED (human review). Prior implementation
+record and 102-test targeted proof remain unchanged; not full-system proof.
+Publish the isolated branch for master-targeted CI. No administrator bypass,
+host deployment, campaign restart or trial extension authorized by this step.
+Actual host outage remediation remains UNVERIFIED.
+
+## 2026-09-15 - Runner-Owned Public OHLCV Client Reuse
+
+Active role: ENGINEER. HIGH risk: shared strategy-runner data-client lifecycle.
+Objective: remove per-fetch public client construction without changing signals,
+filters, source provenance, order routing or daily preflight/retry protection.
+SHOWN: existing fetch helper constructed/closed a client on every call.
+Added a runner-owned, venue-keyed public-only client pool, passed explicitly
+to OHLCV fetches and closed in the runner finally block. Standalone helper
+calls retain create/close behavior. Sample-primary path remains before client
+acquisition. No global cache or execution clients; failures return empty rows
+and later calls reuse the client. Close failures do not skip other clients.
+Existing runner mocks accept the new optional keyword; assertions unchanged.
+Expected outcome: preserve per-client metadata/rate-limit state during a run.
+This does not prove client churn caused the September 14 interruptions and
+does not implement outage backoff or recover missing historical diagnostics.
+
+Verification: `.venv/bin/python -m pytest -q
+tests/test_runner_public_client_reuse.py tests/test_strategy_runtime_runner.py
+tests/test_sample_mode_provenance.py tests/test_ohlcv_snapshot_provenance.py
+tests/test_run_paper_strategy_evidence_collector.py tests/test_ohlcv_preflight.py`
+returned 102 passed in 1.52s. `git diff --check` passed.
+New tests exercise reuse after a failed fetch, venue separation, anonymous
+credentials, idempotent close and continued cleanup after close errors.
+Remaining: independent lifecycle review, full CI, actual host integration;
+no deployment, service restart or new trial performed. Long-lived exchange
+metadata refresh and permanently unusable clients need review; no automatic
+client replacement or altered retry policy is claimed.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
 
 ## 2026-09-13 - Integrate Bounded Venue Trials with Durable Pause
 

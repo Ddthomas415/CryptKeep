@@ -428,7 +428,7 @@ def test_run_forever_enqueues_buy_from_public_ohlcv_first_signal(monkeypatch, tm
     monkeypatch.setattr(
         runner,
         "_fetch_public_ohlcv",
-        lambda cfg: (
+        lambda cfg, **kwargs: (
             [
                 [1, 100.0, 100.0, 100.0, 100.0, 1.0],
                 [2, 100.0, 100.0, 100.0, 100.0, 1.0],
@@ -477,7 +477,7 @@ def test_public_loop_uses_isolated_managed_parameters(monkeypatch, tmp_path, tra
         }
     })
     rows = [[1700000000000 + i * 86400000, 100, 101, 99, 100, 1] for i in range(220)]
-    monkeypatch.setattr(runner, "_fetch_public_ohlcv", lambda cfg: (
+    monkeypatch.setattr(runner, "_fetch_public_ohlcv", lambda cfg, **kwargs: (
         rows, {"source": "public_ohlcv", "sample_path": None,
                "sample_fallback": False, "row_count": len(rows), "env_sample_mode": False}
     ))
@@ -515,7 +515,7 @@ def test_managed_exit_policy_reaches_exit_stack(monkeypatch, tmp_path, selected,
         "symbol": "BTC/USD", "venue": "coinbase",
     }})
     rows = [[1700000000000 + i * 86400000, 100, 101, 99, 100, 1] for i in range(220)]
-    monkeypatch.setattr(runner, "_fetch_public_ohlcv", lambda cfg: (
+    monkeypatch.setattr(runner, "_fetch_public_ohlcv", lambda cfg, **kwargs: (
         rows, {"source": "public_ohlcv", "env_sample_mode": False, "row_count": 220}
     ))
     monkeypatch.setattr(runner, "_registry_signal_with_context", lambda **kw: {
@@ -805,7 +805,7 @@ def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeyp
     monkeypatch.setattr(
         runner,
         "_fetch_public_ohlcv",
-        lambda cfg: (
+        lambda cfg, **kwargs: (
             [
                 [1, 100.0, 100.0, 100.0, 100.0, 1.0],
                 [2, 100.0, 100.0, 100.0, 100.0, 1.0],
@@ -1127,7 +1127,7 @@ def test_run_forever_unknown_strategy_records_status_without_side_effects(monkey
     monkeypatch.setattr(
         runner,
         "_fetch_public_ohlcv",
-        lambda cfg: (
+        lambda cfg, **kwargs: (
             [
                 [1, 100.0, 100.0, 100.0, 100.0, 1.0],
                 [2, 100.0, 100.0, 100.0, 100.0, 1.0],
@@ -1208,7 +1208,7 @@ strategy_runner:
         encoding="utf-8",
     )
 
-    def _fetch_public_ohlcv(_cfg):
+    def _fetch_public_ohlcv(_cfg, **kwargs):
         config_editor.CONFIG_PATH.write_text("strategy_runner: [unterminated\n", encoding="utf-8")
         return (
             [

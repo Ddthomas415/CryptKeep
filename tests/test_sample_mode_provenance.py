@@ -197,7 +197,7 @@ def test_run_forever_holds_signal_on_provenance_mismatch(monkeypatch, tmp_path):
     monkeypatch.setattr(
         runner,
         "_fetch_public_ohlcv",
-        lambda cfg: (
+        lambda cfg, **kwargs: (
             [
                 [1, 100.0, 100.0, 100.0, 100.0, 1.0],
                 [2, 100.0, 100.0, 100.0, 100.0, 1.0],
