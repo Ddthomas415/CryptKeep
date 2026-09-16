@@ -1,5 +1,38 @@
 # Review Stabilized Work Log
 
+## 2026-09-16 - Approved Scoped Reporting Activation
+
+Active role: ENGINEER. User approved updating Hetzner and restarting only the
+idle Binance/Gate.io daily collectors. VERIFIED_ENV: both reported idle,
+waiting_for_next_day, last_completed_day=2026-09-16; the collector's own
+_has_session_day confirmed completed evidence for each exact session ID.
+Captured original argv/environment privately on-host, retained state roots,
+and checked ES process identity before deployment.
+
+SHOWN: fast-forward from 52de0c2cb to 563b12d2c succeeded. Only reporting code,
+its tests and work log changed upstream. Local manifest remained byte-identical;
+ES PID 1531600 start identity remained unchanged. Recovery material is in
+/tmp/cryptkeep-595-vyqnsq0q (private directory; contains process environment,
+must not be published). Original revision is 52de0c2cb; recovery must preserve
+local manifest and evidence, not reset the checkout or delete state.
+
+Graceful stop requested through each collector's state-scoped --stop command.
+No forced signals, gate resets, trial starts or historical evidence edits.
+Local pre-merge documentation branch regression slice: 48 passed in 0.58s;
+this is NOT verification of the new reporting helper. Host pytest invocation
+could not run: No module named pytest; no dependencies installed. Direct
+deployed-helper assertions passed for completed zero fills=True, positive
+fills=False, failed zero fills=None. Local documentation checks: 8 passed in
+0.15s. Final restarted identities are recorded on completion.
+SHOWN: both original PIDs exited gracefully. Supported --detach launch restored
+Gate.io as PID 1541537 and Binance as PID 1541539. Post-start assertions verified
+exact original argv/environment, idle/waiting_for_next_day, completed day
+2026-09-16, absent old PIDs, unchanged ES start identity and unchanged manifest.
+No duplicate daily session started. New processes launched from 563b12d2c.
+Acceptance state: ACCEPTED for human-authorized deployment and scoped restart.
+Next natural session-end reporting remains UNVERIFIED until that session ends;
+helper assertions and idle startup are not end-to-end session reporting proof.
+
 ## 2026-09-16 - Session Activity Reporting Merge and Activation Boundary
 
 Active role: ENGINEER. Objective: preserve the accepted reporting correction's
