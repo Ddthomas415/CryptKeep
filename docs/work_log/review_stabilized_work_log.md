@@ -1,5 +1,13 @@
 # Review Stabilized Work Log
 
+## 2026-09-16 - Human Acceptance of Session Activity Reporting
+
+Active role: GATE. User explicitly stated independently reviewed and approved
+for implementation 368ce76a4. Acceptance state: ACCEPTED (human review).
+Prior 49-test local proof and semantic limits remain recorded below. Publish
+as a separate master-targeted PR for CI; no administrator bypass, host
+deployment, campaign restart or historical evidence rewrite in this step.
+
 ## 2026-09-16 - Collector Session Trade-Activity Reporting
 
 Active role: ENGINEER. HIGH risk: evidence-field semantic correction, not
