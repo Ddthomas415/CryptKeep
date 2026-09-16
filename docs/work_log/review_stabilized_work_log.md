@@ -1,5 +1,26 @@
 # Review Stabilized Work Log
 
+## 2026-09-16 - Bounded Host Public-Client Probe
+
+Active role: AUDITOR. User authorized cautious bounded read-only verification.
+Host 52de0c2cb; disposable /tmp state; snapshot persistence replaced with a
+no-op in the probe process, anonymous clients, 10s request timeout, outer
+90s/60s command bounds. No campaign evidence, orders or service changes.
+Gate.io: two fetches returned five public_ohlcv rows each, 9.620s then .267s;
+one constructed client, one close, pool empty after cleanup.
+Initial combined probe omitted CBP_VENUE=binance; existing Binance guard
+correctly prevented construction, and final assertion failed. This was probe
+configuration error, not an observed Binance network failure. Corrected with
+process-local CBP_VENUE=binance plus CBP_ALLOW_BINANCE=1, no guard bypass.
+Binance retry: five public rows each, 4.693s then .232s, exactly one created
+and closed client, empty pool; assertion exit 0.
+Probe states: /tmp/cryptkeep-client-probe-pctmay6q and
+/tmp/cryptkeep-binance-client-probe-ztzbk1pv. Timing observations are not a
+benchmark or causal latency proof. SHOWN: deployed helper reuse and cleanup
+work for these bounded real fetches. Long-duration interruption recovery and
+campaign-level effectiveness remain UNVERIFIED. No restart/new trial.
+Acceptance state: ACCEPTED for bounded host integration proof only.
+
 ## 2026-09-16 - Guarded Host Public-Client Reuse Deployment
 
 Active role: ENGINEER. User approved the stated exact fast-forward with no
