@@ -1,5 +1,28 @@
 # Review Stabilized Work Log
 
+## 2026-09-16 - First Scheduled Post-Fix Sessions Completed
+
+Active role: AUDITOR. Read-only host observations confirmed both daily controls
+returned to idle/waiting_for_next_day without intervention. Gate.io strategy
+window 00:04:31.042653Z to 00:19:33.593519Z, runtime 902.552 seconds; Binance
+00:04:12.221504Z to 00:19:15.395290Z, runtime 903.174 seconds. Both stopped
+for runtime_elapsed, zero enqueued intents, fill/closed-trade/PnL deltas zero.
+September 16 session records identify deployed revision 52de0c2c. App-log scan
+at 00:19:22Z showed zero current-day ohlcv_live_fetch_failed lines; this was
+before Gate.io's final 11 seconds, so full-window absence is not established.
+Read-only queue transactions found only historical terminal records: Gate.io
+four rejected intents dated Sep 3/6/9, Binance one Sep 6 rejection and filled
+Sep 9/11 entries. No pending status observed. Historical Binance net loss
+-2.1213665852374706 and two fills are not new-session results.
+
+These roughly 15-minute windows do not reproduce the prior 24-hour exposure;
+do not claim the prior 12 failures per venue were eliminated causally. No
+restart, filter change, reset, new trial or historical evidence edit occurred.
+Acceptance state: ACCEPTED for bounded scheduled-session completion proof;
+sustained reliability and strategy benefit remain UNVERIFIED. No tests run
+for host reads; documentation reference and supply-chain policy checks:
+8 passed in 0.16s. git diff --check passed.
+
 ## 2026-09-16T00:10:07Z - Natural Daily Sessions After Deployment
 
 Active role: AUDITOR. Read-only host inspection; no start/restart commands.
