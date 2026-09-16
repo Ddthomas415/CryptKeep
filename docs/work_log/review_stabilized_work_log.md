@@ -1,5 +1,35 @@
 # Review Stabilized Work Log
 
+## 2026-09-16 - Session Activity Reporting Merge and Activation Boundary
+
+Active role: ENGINEER. Objective: preserve the accepted reporting correction's
+merge evidence without interrupting ongoing paper collection.
+
+SHOWN: GitHub reports PR #595 merged at 2026-09-16T14:25:52Z as
+563b12d2c1425310269c520937158aec36fd25a0. All nine checks passed on
+223636e8421c3f6fc00e2010a24dbb0873075bd1 before the user-authorized one-time
+admin merge. This authorization does not extend to other PRs.
+
+The correction derives session-end zero_trade_run from fill deltas, not the
+number of completed strategies; incomplete evidence remains unknown. Historical
+session records are not rewritten. The collector runs a persistent daily loop:
+a checkout update alone does not replace functions already loaded in that
+process. Repository merge is therefore not proof of runtime activation.
+
+Chosen treatment: retain existing campaigns and record this distinction rather
+than restart collectors solely for reporting. A future controlled activation
+must verify idle state, preserve state roots/configuration, restart only the
+intended collectors, and check a new session-end record against its fill deltas.
+No host pull, restart, gate reset, new trial, or credential change performed.
+Host activation remains UNVERIFIED; last verified deployed revision was
+52de0c2cb. This documentation branch predates #595's runtime changes and must
+not be mistaken for current master.
+
+Verification: GitHub merge metadata and collector daily-loop source inspected;
+test_operator_doc_reference_paths.py and test_supply_chain_release_policy_guard.py:
+8 passed in 0.16s; git diff --check passed. Acceptance state: ACCEPTED
+for the merge record only, not host activation or sustained reliability.
+
 ## 2026-09-16 - First Scheduled Post-Fix Sessions Completed
 
 Active role: AUDITOR. Read-only host observations confirmed both daily controls
