@@ -1,5 +1,21 @@
 # Review Stabilized Work Log
 
+## 2026-09-16T00:10:07Z - Natural Daily Sessions After Deployment
+
+Active role: AUDITOR. Read-only host inspection; no start/restart commands.
+Gate.io daily session start 00:04:30.189422Z and Binance 00:04:11.373197Z
+both record _commit=52de0c2c. Existing collector PIDs 1499165/1501788 retained;
+new runner PIDs 1539747/1539726 report running with fresh 00:10:06 timestamps,
+238/275 loops respectively, no_cross, zero enqueued_total. Both current-day
+app.log scans contain zero ohlcv_live_fetch_failed lines at inspection.
+Results are still empty while collecting; not evidence of completed outcomes.
+SHOWN: scheduled sessions launched under the deployed revision without manual
+restart. This does not introspect client identity or establish all-day network
+reliability. Prior bounded probe supplies separate client reuse/cleanup proof.
+Expected session finishes approximately 00:19 UTC; do not passively poll.
+No tests run for read-only observation. Acceptance state: ACCEPTED for this
+early-health snapshot; daily terminal outcome remains INCOMPLETE.
+
 ## 2026-09-16 - Publish Consolidated Host Verification Evidence
 
 Active role: ENGINEER. Transferred three local post-merge records to PR #593
