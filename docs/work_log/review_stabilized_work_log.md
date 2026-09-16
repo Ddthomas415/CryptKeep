@@ -1,5 +1,31 @@
 # Review Stabilized Work Log
 
+## 2026-09-16 - Collector Session Trade-Activity Reporting
+
+Active role: ENGINEER. HIGH risk: evidence-field semantic correction, not
+trading behavior. Confirmed completed_strategies incorrectly drove the end
+record zero_trade_run field, producing false for completed zero-fill trials.
+End records now use per-strategy fills_delta: any valid positive count gives
+false; a complete completed-result set of valid integer zeros gives true;
+missing, partial, failed-zero or malformed data gives null (unknown).
+This means fills, not closed round trips, consistent with zero-trade activity.
+Consumers must not treat null as proof of either zero trades or trading.
+Start records retain their pre-activity true value. Historical JSONL remains
+unchanged. No gate threshold, routing, configuration or host changes.
+Repository search found no services/scripts/tests readers of this field;
+external consumers remain unverified. The separate dev ES script has the
+same older expression and is not changed in this managed-collector slice.
+
+Verification: `.venv/bin/python -m pytest -q
+tests/test_run_paper_strategy_evidence_collector.py
+tests/test_campaign_event_alerts_integration.py
+tests/test_paper_strategy_evidence_service.py`: 49 passed in 0.56s.
+Tests cover real session-end wiring, positive fills, zero fills, missing and
+malformed counts, incomplete sets and failed sessions. No full-suite or host
+deployment proof claimed. Expected outcome: prospective session records no
+longer confuse successful execution of a strategy with trading activity.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-15 - Public Client Reuse Additional Regression Proof
 
 Active role: ENGINEER. Test-only follow-up while PR #594 CI runs.

@@ -402,6 +402,29 @@ def test_log_session_end_marks_failed_campaign_as_critical(monkeypatch) -> None:
     assert captured[0]["reconciliation_result"] == "campaign_error"
     assert captured[0]["extra"]["campaign_status"] == "failed"
     assert captured[0]["extra"]["campaign_reason"] == "no_public_ohlcv"
+    assert captured[0]["extra"]["zero_trade_run"] is None
+
+    result = {"status": "completed", "completed_strategies": 1,
+              "total_strategies": 1, "results": [{"fills_delta": 0}]}
+    script._log_session_end(
+        strategy_id="ema_cross_default",
+        cfg=script.PaperStrategyEvidenceServiceCfg(strategies=("ema_cross",)),
+        result=result,
+    )
+    assert captured[-1]["extra"]["zero_trade_run"] is True
+
+
+def test_zero_trade_run_uses_fills_and_preserves_unknown():
+    base = {"status": "completed", "total_strategies": 1, "completed_strategies": 1}
+    assert script._zero_trade_run({**base, "results": [{"fills_delta": 0}]}) is True
+    assert script._zero_trade_run({**base, "results": [{"fills_delta": 1}]}) is False
+    for value in (None, "0", -1, True, float("nan")):
+        assert script._zero_trade_run({**base, "results": [{"fills_delta": value}]}) is None
+    assert script._zero_trade_run(base) is None
+    assert script._zero_trade_run({**base, "results": []}) is None
+    assert script._zero_trade_run({**base, "total_strategies": 2, "results": [{"fills_delta": 0}]}) is None
+    assert script._zero_trade_run({**base, "status": "failed", "results": [{"fills_delta": 0}]}) is None
+    assert script._zero_trade_run({**base, "status": "failed", "results": [{"fills_delta": 1}]}) is False
 
 
 def test_run_daily_loop_retries_failed_campaign_once_then_waits(monkeypatch, tmp_path) -> None:
