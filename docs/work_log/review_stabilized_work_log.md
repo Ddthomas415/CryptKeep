@@ -1,5 +1,24 @@
 # Review Stabilized Work Log
 
+## 2026-09-16 - Guarded Host Public-Client Reuse Deployment
+
+Active role: ENGINEER. User approved the stated exact fast-forward with no
+restarts. VERIFIED_ENV: initial host HEAD 0c46c95f2, only tracked change was
+the intentional Coinbase EMA enabled=false manifest. Approved deploy key
+fetched origin/master. Verified ancestry and no upstream change to that
+manifest before fast-forward to 52de0c2cbfb5fbf21eed966889a9c29e602089ee.
+Backup: /tmp/cryptkeep-client-reuse-wem6zkd9, includes manifest and pre-update
+process command/start-tick inventory. Manifest bytes preserved, SHA256
+093191436e27cfb47c55bcc0fcf4a5c5f93316c9a56b33485939d8b33b964fff.
+Post-update matching process inventory unchanged (including established
+collector PIDs 1499165, 1501788, 1531600); no stop/start commands issued.
+Only the intentional manifest diff remains. No dependency changes or new
+trials. Already-loaded Python modules are not updated by checkout changes;
+future child imports may use the new code. No claim of runtime remediation.
+No host tests run in this deployment step; prior final-head CI recorded above.
+Acceptance state: ACCEPTED for approved guarded checkout update; actual
+long-lived client behavior and outage resolution remain UNVERIFIED.
+
 ## 2026-09-15T23:54:44Z - Approved PR 594 Merge
 
 Active role: GATE. User explicitly approved a one-time administrator merge
