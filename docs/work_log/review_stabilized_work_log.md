@@ -1,5 +1,17 @@
 # Review Stabilized Work Log
 
+## 2026-09-16 - Evidence PR Integration After Reporting Merge
+
+Active role: ENGINEER. Integrated master 563b12d2c into evidence PR #593.
+Resolved the sole conflict by retaining both work-log additions; no runtime
+edits made during resolution. Historical entries describe their observation
+time; the scoped activation entry supersedes earlier pending-deployment notes.
+Verification: documentation reference/policy and collector/alert/evidence
+regression slice, 57 passed in 0.69s; git diff --check passed. This is targeted
+local verification, not full-suite or next-session reporting proof.
+Acceptance state: ACCEPTED for documentation integration; refreshed PR CI and
+GitHub review remain separate merge requirements. No host operations this turn.
+
 ## 2026-09-16 - Approved Scoped Reporting Activation
 
 Active role: ENGINEER. User approved updating Hetzner and restarting only the
@@ -393,6 +405,40 @@ implementation only). GitHub reports all eight checks successful at that head;
 review requirement remains outstanding. Prior 99-test local proof retained.
 This documentation record does not authorize administrator bypass, deployment,
 installation or trial launch. No host changes. Delivery remains INCOMPLETE.
+## 2026-09-16 - Human Acceptance of Session Activity Reporting
+
+Active role: GATE. User explicitly stated independently reviewed and approved
+for implementation 368ce76a4. Acceptance state: ACCEPTED (human review).
+Prior 49-test local proof and semantic limits remain recorded below. Publish
+as a separate master-targeted PR for CI; no administrator bypass, host
+deployment, campaign restart or historical evidence rewrite in this step.
+
+## 2026-09-16 - Collector Session Trade-Activity Reporting
+
+Active role: ENGINEER. HIGH risk: evidence-field semantic correction, not
+trading behavior. Confirmed completed_strategies incorrectly drove the end
+record zero_trade_run field, producing false for completed zero-fill trials.
+End records now use per-strategy fills_delta: any valid positive count gives
+false; a complete completed-result set of valid integer zeros gives true;
+missing, partial, failed-zero or malformed data gives null (unknown).
+This means fills, not closed round trips, consistent with zero-trade activity.
+Consumers must not treat null as proof of either zero trades or trading.
+Start records retain their pre-activity true value. Historical JSONL remains
+unchanged. No gate threshold, routing, configuration or host changes.
+Repository search found no services/scripts/tests readers of this field;
+external consumers remain unverified. The separate dev ES script has the
+same older expression and is not changed in this managed-collector slice.
+
+Verification: `.venv/bin/python -m pytest -q
+tests/test_run_paper_strategy_evidence_collector.py
+tests/test_campaign_event_alerts_integration.py
+tests/test_paper_strategy_evidence_service.py`: 49 passed in 0.56s.
+Tests cover real session-end wiring, positive fills, zero fills, missing and
+malformed counts, incomplete sets and failed sessions. No full-suite or host
+deployment proof claimed. Expected outcome: prospective session records no
+longer confuse successful execution of a strategy with trading activity.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-15 - Public Client Reuse Additional Regression Proof
 
 Active role: ENGINEER. Test-only follow-up while PR #594 CI runs.
