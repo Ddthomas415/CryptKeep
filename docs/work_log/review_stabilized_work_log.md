@@ -1,5 +1,33 @@
 # Review Stabilized Work Log
 
+## 2026-09-17 - ES Initial Entry Comparison Audit
+
+Active role: AUDITOR. Read-only diagnosis; no runtime policy changes.
+SHOWN: host state-scoped _cfg resolves allow_first_signal_trade=False;
+collector PID 1531600 has no first-signal CLI or environment override.
+Inspected Sep 12-17 signal rows all report long, entry_allowed=True and
+market_quality_ok=True. Sep 17 completed with zero intents/fills.
+Runner strategy_runner.py initializes the remembered action without trading
+when first-signal permission is false, then enters only on action changes
+(separate exit logic remains available). This explains why a sustained buy
+does not itself request an entry under this configuration.
+
+SHOWN: parity_engine.run_parity_backtest enters when action=buy and flat,
+without the runner's initial-signal suppression. In-memory diagnostic patched
+compute_signal to constant buy over three synthetic daily rows, warmup=1,
+explicit 7.5/5 bps costs and allow_first_signal_trade=False: buy_count=1.
+This proves a simulator behavior difference, not actual historical return
+impact or a strategy signal defect. No real market rows or orders were used.
+
+Recommendation: label existing archive outcomes as distinct entry-policy
+comparisons; do not treat them as exact paper-runtime parity. At the scheduled
+Sep 20 review, decide whether transition-only or initial eligible entry is
+the intended policy. Any implementation needs separate review and an explicit
+cohort boundary; do not reset warmup, retroactively count trades, or flip the
+flag mid-trial to manufacture activity. Existing trial remains unchanged.
+Acceptance state: ACCEPTED for bounded audit finding; policy choice and
+historical impact remain UNVERIFIED. No full suite run for read-only diagnosis.
+
 ## 2026-09-16 - Evidence PR Integration After Reporting Merge
 
 Active role: ENGINEER. Integrated master 563b12d2c into evidence PR #593.
