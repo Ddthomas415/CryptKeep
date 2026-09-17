@@ -1,5 +1,35 @@
 # Review Stabilized Work Log
 
+## 2026-09-17 - Frozen Archive Initial Entry Comparison
+
+Active role: AUDITOR. Research only. Reused the exact 3077-row Coinbase BTC/USD
+daily archive, Jan 1 2018 through Jun 4 2026, hash
+c0d64661f4c09b4ca7be047694dceff46b22846ba576177f55e4464a623e28eb.
+Verified endpoints and daily continuity; SQLite opened read-only. Both runs:
+SMA200/ATR20, warmup 210, initial cash 1000, fee/slippage 7.5/5 bps per side,
+BTC/USDT label with explicit BTC/USD proxy, same existing parity engine.
+The research adapter suppresses initial/repeated buy actions until a transition;
+exits and sizing remain the archive engine's, NOT a full runner replay.
+Sequence assertions pinned buy,buy,hold,buy -> hold,hold,hold,buy and
+hold,buy -> hold,buy before comparison. No production code edits.
+
+SHOWN: initial eligible entry and transition-only entry returned identical full
+trade lists, 31 closes, final equity 9543.46652764858, net return 854.346653%,
+max drawdown 64.287205%, modeled fees 274.060214. First evaluated signal was
+hold; first buy timestamp 1554163200000. Thus this archive starts outside a
+buy regime and does not exercise the initial-long divergence seen at launch.
+Do not infer that the policy mismatch changed this historical baseline, or that
+identical results establish runtime parity. Do not select a new favorable window
+to force divergence. Synthetic constant-buy evidence separately demonstrates it.
+
+Diagnostic script/output: /tmp/es_entry_comparison.py and
+/tmp/es_entry_comparison.json (temporary local artifacts, not durable evidence).
+These are in-sample, all-cash simulations, not campaign-sized returns or edge
+proof. Recommendation: retain current trial; review initial-position semantics
+explicitly at the scheduled operational review, with no retroactive entry/reset.
+Acceptance state: ACCEPTED for bounded comparison; full runtime parity and
+profitability remain UNVERIFIED. No network fetch or host changes performed.
+
 ## 2026-09-17 - ES Initial Entry Comparison Audit
 
 Active role: AUDITOR. Read-only diagnosis; no runtime policy changes.
