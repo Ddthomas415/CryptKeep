@@ -1,5 +1,410 @@
 # Review Stabilized Work Log
 
+## 2026-09-16 - Evidence PR Integration After Reporting Merge
+
+Active role: ENGINEER. Integrated master 563b12d2c into evidence PR #593.
+Resolved the sole conflict by retaining both work-log additions; no runtime
+edits made during resolution. Historical entries describe their observation
+time; the scoped activation entry supersedes earlier pending-deployment notes.
+Verification: documentation reference/policy and collector/alert/evidence
+regression slice, 57 passed in 0.69s; git diff --check passed. This is targeted
+local verification, not full-suite or next-session reporting proof.
+Acceptance state: ACCEPTED for documentation integration; refreshed PR CI and
+GitHub review remain separate merge requirements. No host operations this turn.
+
+## 2026-09-16 - Approved Scoped Reporting Activation
+
+Active role: ENGINEER. User approved updating Hetzner and restarting only the
+idle Binance/Gate.io daily collectors. VERIFIED_ENV: both reported idle,
+waiting_for_next_day, last_completed_day=2026-09-16; the collector's own
+_has_session_day confirmed completed evidence for each exact session ID.
+Captured original argv/environment privately on-host, retained state roots,
+and checked ES process identity before deployment.
+
+SHOWN: fast-forward from 52de0c2cb to 563b12d2c succeeded. Only reporting code,
+its tests and work log changed upstream. Local manifest remained byte-identical;
+ES PID 1531600 start identity remained unchanged. Recovery material is in
+/tmp/cryptkeep-595-vyqnsq0q (private directory; contains process environment,
+must not be published). Original revision is 52de0c2cb; recovery must preserve
+local manifest and evidence, not reset the checkout or delete state.
+
+Graceful stop requested through each collector's state-scoped --stop command.
+No forced signals, gate resets, trial starts or historical evidence edits.
+Local pre-merge documentation branch regression slice: 48 passed in 0.58s;
+this is NOT verification of the new reporting helper. Host pytest invocation
+could not run: No module named pytest; no dependencies installed. Direct
+deployed-helper assertions passed for completed zero fills=True, positive
+fills=False, failed zero fills=None. Local documentation checks: 8 passed in
+0.15s. Final restarted identities are recorded on completion.
+SHOWN: both original PIDs exited gracefully. Supported --detach launch restored
+Gate.io as PID 1541537 and Binance as PID 1541539. Post-start assertions verified
+exact original argv/environment, idle/waiting_for_next_day, completed day
+2026-09-16, absent old PIDs, unchanged ES start identity and unchanged manifest.
+No duplicate daily session started. New processes launched from 563b12d2c.
+Acceptance state: ACCEPTED for human-authorized deployment and scoped restart.
+Next natural session-end reporting remains UNVERIFIED until that session ends;
+helper assertions and idle startup are not end-to-end session reporting proof.
+
+## 2026-09-16 - Session Activity Reporting Merge and Activation Boundary
+
+Active role: ENGINEER. Objective: preserve the accepted reporting correction's
+merge evidence without interrupting ongoing paper collection.
+
+SHOWN: GitHub reports PR #595 merged at 2026-09-16T14:25:52Z as
+563b12d2c1425310269c520937158aec36fd25a0. All nine checks passed on
+223636e8421c3f6fc00e2010a24dbb0873075bd1 before the user-authorized one-time
+admin merge. This authorization does not extend to other PRs.
+
+The correction derives session-end zero_trade_run from fill deltas, not the
+number of completed strategies; incomplete evidence remains unknown. Historical
+session records are not rewritten. The collector runs a persistent daily loop:
+a checkout update alone does not replace functions already loaded in that
+process. Repository merge is therefore not proof of runtime activation.
+
+Chosen treatment: retain existing campaigns and record this distinction rather
+than restart collectors solely for reporting. A future controlled activation
+must verify idle state, preserve state roots/configuration, restart only the
+intended collectors, and check a new session-end record against its fill deltas.
+No host pull, restart, gate reset, new trial, or credential change performed.
+Host activation remains UNVERIFIED; last verified deployed revision was
+52de0c2cb. This documentation branch predates #595's runtime changes and must
+not be mistaken for current master.
+
+Verification: GitHub merge metadata and collector daily-loop source inspected;
+test_operator_doc_reference_paths.py and test_supply_chain_release_policy_guard.py:
+8 passed in 0.16s; git diff --check passed. Acceptance state: ACCEPTED
+for the merge record only, not host activation or sustained reliability.
+
+## 2026-09-16 - First Scheduled Post-Fix Sessions Completed
+
+Active role: AUDITOR. Read-only host observations confirmed both daily controls
+returned to idle/waiting_for_next_day without intervention. Gate.io strategy
+window 00:04:31.042653Z to 00:19:33.593519Z, runtime 902.552 seconds; Binance
+00:04:12.221504Z to 00:19:15.395290Z, runtime 903.174 seconds. Both stopped
+for runtime_elapsed, zero enqueued intents, fill/closed-trade/PnL deltas zero.
+September 16 session records identify deployed revision 52de0c2c. App-log scan
+at 00:19:22Z showed zero current-day ohlcv_live_fetch_failed lines; this was
+before Gate.io's final 11 seconds, so full-window absence is not established.
+Read-only queue transactions found only historical terminal records: Gate.io
+four rejected intents dated Sep 3/6/9, Binance one Sep 6 rejection and filled
+Sep 9/11 entries. No pending status observed. Historical Binance net loss
+-2.1213665852374706 and two fills are not new-session results.
+
+These roughly 15-minute windows do not reproduce the prior 24-hour exposure;
+do not claim the prior 12 failures per venue were eliminated causally. No
+restart, filter change, reset, new trial or historical evidence edit occurred.
+Acceptance state: ACCEPTED for bounded scheduled-session completion proof;
+sustained reliability and strategy benefit remain UNVERIFIED. No tests run
+for host reads; documentation reference and supply-chain policy checks:
+8 passed in 0.16s. git diff --check passed.
+
+## 2026-09-16T00:10:07Z - Natural Daily Sessions After Deployment
+
+Active role: AUDITOR. Read-only host inspection; no start/restart commands.
+Gate.io daily session start 00:04:30.189422Z and Binance 00:04:11.373197Z
+both record _commit=52de0c2c. Existing collector PIDs 1499165/1501788 retained;
+new runner PIDs 1539747/1539726 report running with fresh 00:10:06 timestamps,
+238/275 loops respectively, no_cross, zero enqueued_total. Both current-day
+app.log scans contain zero ohlcv_live_fetch_failed lines at inspection.
+Results are still empty while collecting; not evidence of completed outcomes.
+SHOWN: scheduled sessions launched under the deployed revision without manual
+restart. This does not introspect client identity or establish all-day network
+reliability. Prior bounded probe supplies separate client reuse/cleanup proof.
+Expected session finishes approximately 00:19 UTC; do not passively poll.
+No tests run for read-only observation. Acceptance state: ACCEPTED for this
+early-health snapshot; daily terminal outcome remains INCOMPLETE.
+
+## 2026-09-16 - Publish Consolidated Host Verification Evidence
+
+Active role: ENGINEER. Transferred three local post-merge records to PR #593
+and integrated master 52de0c2cb, retaining both work-log histories. Final diff
+is only this log and the comparison-input document; no runtime changes.
+Documentation reference and supply-chain policy tests: 8 passed in 0.16s;
+git diff --check passed. No new host operations or trial authorization used.
+Acceptance state: ACCEPTED for documentation integration; final-head CI pending.
+
+## 2026-09-16 - Bounded Host Public-Client Probe
+
+Active role: AUDITOR. User authorized cautious bounded read-only verification.
+Host 52de0c2cb; disposable /tmp state; snapshot persistence replaced with a
+no-op in the probe process, anonymous clients, 10s request timeout, outer
+90s/60s command bounds. No campaign evidence, orders or service changes.
+Gate.io: two fetches returned five public_ohlcv rows each, 9.620s then .267s;
+one constructed client, one close, pool empty after cleanup.
+Initial combined probe omitted CBP_VENUE=binance; existing Binance guard
+correctly prevented construction, and final assertion failed. This was probe
+configuration error, not an observed Binance network failure. Corrected with
+process-local CBP_VENUE=binance plus CBP_ALLOW_BINANCE=1, no guard bypass.
+Binance retry: five public rows each, 4.693s then .232s, exactly one created
+and closed client, empty pool; assertion exit 0.
+Probe states: /tmp/cryptkeep-client-probe-pctmay6q and
+/tmp/cryptkeep-binance-client-probe-ztzbk1pv. Timing observations are not a
+benchmark or causal latency proof. SHOWN: deployed helper reuse and cleanup
+work for these bounded real fetches. Long-duration interruption recovery and
+campaign-level effectiveness remain UNVERIFIED. No restart/new trial.
+Acceptance state: ACCEPTED for bounded host integration proof only.
+
+## 2026-09-16 - Guarded Host Public-Client Reuse Deployment
+
+Active role: ENGINEER. User approved the stated exact fast-forward with no
+restarts. VERIFIED_ENV: initial host HEAD 0c46c95f2, only tracked change was
+the intentional Coinbase EMA enabled=false manifest. Approved deploy key
+fetched origin/master. Verified ancestry and no upstream change to that
+manifest before fast-forward to 52de0c2cbfb5fbf21eed966889a9c29e602089ee.
+Backup: /tmp/cryptkeep-client-reuse-wem6zkd9, includes manifest and pre-update
+process command/start-tick inventory. Manifest bytes preserved, SHA256
+093191436e27cfb47c55bcc0fcf4a5c5f93316c9a56b33485939d8b33b964fff.
+Post-update matching process inventory unchanged (including established
+collector PIDs 1499165, 1501788, 1531600); no stop/start commands issued.
+Only the intentional manifest diff remains. No dependency changes or new
+trials. Already-loaded Python modules are not updated by checkout changes;
+future child imports may use the new code. No claim of runtime remediation.
+No host tests run in this deployment step; prior final-head CI recorded above.
+Acceptance state: ACCEPTED for approved guarded checkout update; actual
+long-lived client behavior and outage resolution remain UNVERIFIED.
+
+## 2026-09-15T23:54:44Z - Approved PR 594 Merge
+
+Active role: GATE. User explicitly approved a one-time administrator merge
+of PR #594, with no deployment or restart. Rechecked exact head
+93215c5a6be39c4cbda6f4a29b7294ad87692565: all seven checks successful.
+Exact-head squash/admin merge confirmed by GitHub as
+52de0c2cbfb5fbf21eed966889a9c29e602089ee. Acceptance state: ACCEPTED
+(human); PR delivery complete. Branch-protection settings unchanged.
+No host pull, campaign restart, service change or new trial performed.
+Host integration and outage remediation remain UNVERIFIED. No tests rerun
+for this documentation-only record; final-head CI was checked before merge.
+
+## 2026-09-15 - Distinguish Existing OHLCV Fix from Mid-Session Gap
+
+Active role: AUDITOR. User requested checking the apparently recurring issue
+against prior fixes rather than reopening completed work. SHOWN: existing
+collector daily-loop preflight runs before _run_one_campaign, writes blocked
+source status and protects daily retry budget. This remains implemented.
+Targeted collector/preflight suite: `.venv/bin/python -m pytest -q
+tests/test_run_paper_strategy_evidence_collector.py tests/test_ohlcv_preflight.py`
+returned 32 passed in 0.33s. This is local regression proof, not host outage proof.
+
+SHOWN: strategy_runner._fetch_public_ohlcv creates a fresh make_exchange client
+per call, fetches, then closes it. exchange_factory constructs a new instance,
+not a cache. Mid-session empty fetch writes running/no_public_ohlcv, sleeps
+the runner interval and continues. The daily preflight does not wrap this loop.
+Thus the historical startup/retry fix was not shown reverted; these failures
+occurred on the separate mid-session path. Client lifecycle may increase
+metadata requests, but causation of the observed failures is UNVERIFIED.
+
+Next scoped engineering investigation: reuse a process-owned public data client
+with explicit lifecycle/venue isolation and test recovery/cleanup, retaining
+sample provenance and existing startup guards. Do not introduce global shared
+live clients, relax filters, or restart trials. Runtime changes require their
+own implementation and review, not inclusion in this evidence-only PR.
+No source or host changes in this step. Acceptance state: ACCEPTED for scope
+clarification; mid-session reliability treatment remains unimplemented.
+
+## 2026-09-15 - Venue Zero-Trade Diagnostic Boundaries
+
+Active role: AUDITOR. Read-only host artifact inventory and local source trace.
+SHOWN: each trial has only start/end session JSONL records, not a per-loop
+signal journal. Monitor histories contain 7 Gate.io and 11 Binance snapshots;
+these are insufficient for complete rejection counts or evaluated-bar coverage.
+Final runners report 8575/20608 loops respectively and no_cross, zero enqueued;
+loop counts are not unique closed-bar counts or full historical signal reasons.
+Both evidence writers report zero write failures, which does not prove signal
+records were requested or retained.
+
+Each app.log contains 12 ohlcv_live_fetch_failed warnings. Gate.io first/last
+log timestamps September 14 09:54:22.491 / 10:27:55.859; Binance
+09:54:18.403 / 10:28:05.963. These are endpoints of intermittent warnings,
+not a continuous outage duration. Failed requests name metadata endpoints
+Gate.io /spot/currencies and Binance /exchangeInfo. Monitor snapshots confirm
+no_public_ohlcv observations. Shared timing suggests investigating the shared
+fetch/host path, but does not establish DNS, rate limiting or a common cause.
+Retained app.log SHA256: Gate.io
+30022a942620a7b734e5e2f7730c2401bda3af02f87440c1110207a86b8caa84;
+Binance aa3cf66183cbcc10dc7b1dc264dc6b45533391a8566c3d0735c5435f03aaf5d5.
+
+Separate SHOWN reporting discrepancy: collector _log_session_end computes
+zero_trade_run from completed_strategies == 0, so both completed zero-fill
+trials recorded false. Do not interpret that field as trading activity;
+the reconciled empty databases are authoritative for this observation.
+No runtime fix made here. No tests run; artifact reads and source inspection.
+Recommendation: trace existing metadata-fetch reuse and diagnostic retention
+before another trial; no filter relaxation, profitability conclusion, or
+automatic restart justified. Complete signal-cause attribution is UNVERIFIED.
+Acceptance state: ACCEPTED for bounded audit findings, not root-cause closure.
+
+## 2026-09-15 - Two-Venue Trial Terminal Reconciliation
+
+Active role: AUDITOR. VERIFIED_ENV: read-only Tailscale SSH inspection of
+the two isolated trial roots on Hetzner after operator authentication.
+SHOWN: both systemd units inactive/dead, Result=success, MainPID=0,
+ExecMainStatus=0, empty ControlGroup. No readable /proc environment matched
+either exact CBP_STATE_DIR. Both collectors stopped at max_loops=1;
+strategy stop_reason=runtime_elapsed, completed successfully.
+Gate.io window: 2026-09-14T04:13:45.457560Z through
+2026-09-15T04:13:54.751879Z (86409.295 seconds).
+Binance window: 2026-09-14T04:13:39.735768Z through
+2026-09-15T04:13:44.812488Z (86405.077 seconds).
+Both report zero enqueued intents, fills, closed trades and realized PnL.
+SQLite mode=ro checks independently found empty trade_intents, paper_orders,
+paper_fills, paper_positions and journal_fills in each trial state.
+All six intent_queue/paper_trading/trade_journal integrity checks returned ok.
+No pending orders or recorded positions require intervention in these roots.
+Initial schema query had a shell-quoting error; corrected parameterized query
+completed successfully without database writes. No host changes or restarts.
+
+Conclusion: this bounded longer-observation trial generated no trades;
+it does not demonstrate profitability, uninterrupted market-data coverage,
+or the cause of absent entries. Latest hold and zero totals do not establish
+every historical signal reason. Next: inspect retained session observations
+for signal/filter/data coverage before proposing another experiment; do not
+automatically extend or restart these trials. Daily controls and ES unchanged
+by this inspection. No application tests run for read-only host observations.
+Acceptance state: ACCEPTED for terminal reconciliation; signal-cause and
+matched-overlap analysis remain INCOMPLETE.
+
+## 2026-09-15 - Launch Evidence PR Base Integration
+
+Active role: ENGINEER. LOW risk, documentation-only integration of PR #593
+with accepted master 0c46c95f2. The original PR comparison included already
+squash-merged runtime tooling; merging master removes that stale comparison.
+Preserved the entire launch/preflight/acceptance history at the prepend
+conflict. No campaign, host, configuration or runtime changes performed.
+Expected outcome: publish only new launch evidence and comparison preparation.
+Verification: `.venv/bin/python -m pytest -q
+tests/test_operator_doc_reference_paths.py tests/test_supply_chain_release_policy_guard.py`
+returned 8 passed in 0.16s; `git diff --check` passed. Diff against master is
+exactly the comparison-input document and work log, with no runtime files.
+This is narrow local documentation proof, not full-system or terminal proof.
+Trial completion and terminal reconciliation remain UNVERIFIED in this step.
+Acceptance state: ACCEPTED for low-risk documentation integration.
+
+## 2026-09-14 - Prepare Matched Venue Comparison Inputs
+
+Active role: AUDITOR. Read explicit daily/trial status and artifact inventories
+on host without modifying campaigns. September 14 daily windows ended before
+trial launch; do not treat them as overlap. Recorded paths, exact control
+timestamps, baseline counts, historical Binance exclusion, costs and coverage
+limitations in venue_trial_comparison_inputs_2026_09_14.md. September 15 actual
+overlap remains to be observed. Reuse terminal reconciliation checklist and
+existing tools; no new runtime/scheduler. Verification: host JSON/status reads
+and local source paths; no tests run for documentation. Acceptance: ACCEPTED
+for preparation only, trial outcomes INCOMPLETE.
+
+## 2026-09-14T04:16:48Z - Early Venue Trial Health
+
+Active role: AUDITOR. Read-only host check: both units active/running,
+RuntimeMaxUSec=1d 1h; both collectors collecting, runner timestamps fresh
+(Gate.io 04:16:47, Binance 04:16:44), 400 bars, no_cross, zero enqueued.
+Evidence writers report ok=true. Unit Result=success while active is not a
+terminal success claim. Different loop counts (18/43) are observations, not
+proof of identical sampling or request rates. No tuning/restart/extension.
+Reuse the terminal checklist in extended_venue_observation_trial_2026_09_05.md:
+verify all owned processes stopped before database reconciliation, then report
+pending intents, fills, open positions and coverage over overlapping intervals.
+No duplicate checklist/tool added. Acceptance state: ACCEPTED for early-health
+snapshot; 24-hour outcome remains INCOMPLETE. No tests run for read-only status.
+
+## 2026-09-14T04:13:34Z - Approved Two-Venue Observation Launch
+
+Active role: ENGINEER. User explicitly approved installing/starting both
+isolated 24h paper trials with 25h limits, no automatic restart, existing
+campaigns untouched. VERIFIED_ENV: host 0c46c95f2, Linger=yes, trial units
+not-found and states absent; sole tracked diff remained paused Coinbase EMA.
+No conflicting manager CBP/Python overrides. Reverified unit syntax, installed
+reviewed units verbatim, daemon-reloaded, started only cbp-gateio-observation
+and cbp-binance-observation. No boot enable or shared-config changes.
+Gate.io unit SHA256 4115e9cc5aaef5da50ab0a65fa114996f6b39c7af769ad9e6b7286293069921c;
+Binance a3d37939d3beffe1dbc5650a6044fd364b6b0ec1ce26f6e80f4126cabaae99db.
+Both ActiveEnterTimestamp 2026-09-14 04:13:34 UTC; collector PIDs 1535099
+and 1535100. 24h strategy target ends approximately September 15 04:13 UTC
+plus startup overhead; runtime escalation limit approximately 05:13:34 UTC,
+then 30s stop grace. No automatic extension or second start authorized.
+
+SHOWN: both collectors running/collecting, actual EMA children running/ok,
+400 public_ohlcv_5m bars, no_cross, enqueued_total=0 at startup check.
+Child PIDs Gate.io 1535172 / Binance 1535143; /proc environment confirms
+distinct trial state, venue, BTC/USDT and EMA selectors, Binance guard 0/1
+respectively; each child belongs to its matching systemd service cgroup.
+Pre/post existing collector command/start-tick identities unchanged. Launch
+records and existing-process inventory stored in each trial's
+launch_record.json and launch_preflight.json. No live-capital execution.
+Rollback/early stop: target only the corresponding trial unit via systemctl
+--user stop; preserve state and reconcile pending intents/open positions after
+all owned writers stop. No liquidation implied. Actual day-long coverage,
+request load, terminal cleanup and financial outcomes remain UNVERIFIED.
+Acceptance state: ACCEPTED (human-authorized startup); trial outcome INCOMPLETE.
+
+## 2026-09-14 - Venue Daily-Control Configuration Parity
+
+Active role: AUDITOR. Read-only host inspection found no CBP_, PYTHONPATH or
+PYTHONHOME overrides in user-manager environment. Verified daily collector
+PID/state associations: Gate.io 1499165 and Binance 1501788, both idle with
+September 14 completed. No state-local user.yaml on either daily control.
+Deployed resolvers run with each collector's environment and its expected
+strategy child selectors resolve EMA12/26, unchanged five filters, .001 BTC,
+1-second loop, 10000 quote cash, fee/slippage 7.5/5 bps. These match prior
+isolated trial probes. No secrets printed, environments only reused in host
+subprocesses. This is current resolver parity, not introspection of historical
+strategy children or proof of equal market exposure/accounting histories.
+No configuration writes, service restarts or trial launches. Acceptance state:
+ACCEPTED for bounded parity check. Explicit trial installation/start approval
+and actual startup/terminal proof remain separate. No tests rerun.
+
+## 2026-09-14 - Deployed Venue Trial Preflight
+
+Active role: AUDITOR. VERIFIED_ENV: host 0c46c95f25fa563304126e2e45ee8a61dfc0b67b.
+Both 24h trial state directories absent; deployed manifest resolves runtime
+86400 and max_loops=1 for Gate.io/Binance. systemd-analyze --user verify of
+both deployed units returned 0, empty stderr. Explicit public OHLCV probes
+returned 300 BTC/USDT 5m rows each, one attempt, no errors; Binance guard
+was enabled only for its probe process. No units installed or started.
+Disposable-state deployed resolvers show identical EMA12/26 filters, .001 BTC,
+1-second runner loop, 10000 quote starting cash, 7.5/5 bps modeled costs.
+Probe states: /tmp/cryptkeep-gateio-config-probe-or7cmh4c and
+/tmp/cryptkeep-binance-config-probe-hjrz_afe. Cleared CBP overrides only in
+probe subprocesses; this does not verify future service-manager environment.
+Exit fields absent at _cfg stage; run loop supplies fallback values, so null
+probe output must not be represented as disabled exits. No actual child
+configuration or 24-hour request-load proof claimed. Existing daily controls
+were not re-resolved here. Acceptance state: ACCEPTED for bounded preflight;
+installation/launch remain separate and INCOMPLETE. No runtime edits/tests.
+
+## 2026-09-14 - Guarded Hetzner Venue-Tooling Update
+
+Active role: ENGINEER. User confirmed guarded checkout update, then completed
+Tailscale authentication. VERIFIED_ENV: only local tracked change was the
+approved Coinbase EMA enabled=false manifest; semantic comparison against HEAD
+passed. Backed up exact bytes to
+/tmp/cryptkeep-paused-manifest-mrmnak79/paper_evidence_campaigns.hetzner.example.json.
+Existing scoped deploy key fetched master. Verified ancestry and unchanged
+upstream manifest before fast-forward from ea27688c28e4ca1e56137c195cc05e0aca91857e
+to 0c46c95f25fa563304126e2e45ee8a61dfc0b67b. Post-update manifest bytes identical;
+SHA256 093191436e27cfb47c55bcc0fcf4a5c5f93316c9a56b33485939d8b33b964fff.
+Only intentional manifest diff remains. No reset, dependency change, service
+restart, unit installation or trial launch. Acceptance state: ACCEPTED for
+approved checkout update. Extended trial startup remains UNVERIFIED; no host
+tests run as part of this update. Preserve the local manifest on future pulls.
+
+## 2026-09-14T03:58:02Z - Approved PR 586 Merge
+
+Active role: GATE. User explicitly approved administrator merge of #586 only.
+Rechecked master-targeted head 7b217af56b8daaf0692d2d9b5cd5caadb2859817:
+all eight checks successful. Exact-head squash/admin merge confirmed by
+GitHub as 0c46c95f25fa563304126e2e45ee8a61dfc0b67b.
+Acceptance state: ACCEPTED (human); PR delivery complete. Branch protection
+unchanged. No host deployment, installation, restart or trial launch.
+Documentation-only evidence record; tests not rerun. Actual extended venue
+observation and terminal reconciliation remain unverified.
+
+## 2026-09-13 - Human Acceptance of Integrated Venue Trial Tooling
+
+Active role: GATE. User explicitly stated REVIEW ACCEPTED for integration
+7b217af56b8daaf0692d2d9b5cd5caadb2859817. Acceptance state: ACCEPTED (human,
+implementation only). GitHub reports all eight checks successful at that head;
+review requirement remains outstanding. Prior 99-test local proof retained.
+This documentation record does not authorize administrator bypass, deployment,
+installation or trial launch. No host changes. Delivery remains INCOMPLETE.
 ## 2026-09-16 - Human Acceptance of Session Activity Reporting
 
 Active role: GATE. User explicitly stated independently reviewed and approved
