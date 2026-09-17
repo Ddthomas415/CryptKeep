@@ -1,5 +1,19 @@
 # Review Stabilized Work Log
 
+## 2026-09-17 - Durable Initial Entry Research Package
+
+Active role: ENGINEER. Preserved the temporary adapter as
+scripts/research/compare_es_initial_entry.py and its full result under
+docs/research/artifacts/es_initial_entry_2026_09_17/. README records dataset,
+script, engine and result hashes, source revision, reproduction command and
+limitations. Only path discovery changed from the temporary script.
+Integrated master 066c24b56, retaining audit history. Research rerun completed
+and cmp returned 0: byte-identical output. Built-in sequence assertions passed.
+No market fetch, host operation or campaign change. Archive not bundled;
+reproduction requires its exact locally available hash. Full suite not run.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW for research packaging; no
+approval of an entry-policy change or claim of full runtime parity.
+
 ## 2026-09-17 - Frozen Archive Initial Entry Comparison
 
 Active role: AUDITOR. Research only. Reused the exact 3077-row Coinbase BTC/USD
