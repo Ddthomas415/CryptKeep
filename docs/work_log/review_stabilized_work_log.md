@@ -1,5 +1,77 @@
 # Review Stabilized Work Log
 
+## 2026-09-17 - Durable Initial Entry Research Package
+
+Active role: ENGINEER. Preserved the temporary adapter as
+scripts/research/compare_es_initial_entry.py and its full result under
+docs/research/artifacts/es_initial_entry_2026_09_17/. README records dataset,
+script, engine and result hashes, source revision, reproduction command and
+limitations. Only path discovery changed from the temporary script.
+Integrated master 066c24b56, retaining audit history. Research rerun completed
+and cmp returned 0: byte-identical output. Built-in sequence assertions passed.
+No market fetch, host operation or campaign change. Archive not bundled;
+reproduction requires its exact locally available hash. Full suite not run.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW for research packaging; no
+approval of an entry-policy change or claim of full runtime parity.
+
+## 2026-09-17 - Frozen Archive Initial Entry Comparison
+
+Active role: AUDITOR. Research only. Reused the exact 3077-row Coinbase BTC/USD
+daily archive, Jan 1 2018 through Jun 4 2026, hash
+c0d64661f4c09b4ca7be047694dceff46b22846ba576177f55e4464a623e28eb.
+Verified endpoints and daily continuity; SQLite opened read-only. Both runs:
+SMA200/ATR20, warmup 210, initial cash 1000, fee/slippage 7.5/5 bps per side,
+BTC/USDT label with explicit BTC/USD proxy, same existing parity engine.
+The research adapter suppresses initial/repeated buy actions until a transition;
+exits and sizing remain the archive engine's, NOT a full runner replay.
+Sequence assertions pinned buy,buy,hold,buy -> hold,hold,hold,buy and
+hold,buy -> hold,buy before comparison. No production code edits.
+
+SHOWN: initial eligible entry and transition-only entry returned identical full
+trade lists, 31 closes, final equity 9543.46652764858, net return 854.346653%,
+max drawdown 64.287205%, modeled fees 274.060214. First evaluated signal was
+hold; first buy timestamp 1554163200000. Thus this archive starts outside a
+buy regime and does not exercise the initial-long divergence seen at launch.
+Do not infer that the policy mismatch changed this historical baseline, or that
+identical results establish runtime parity. Do not select a new favorable window
+to force divergence. Synthetic constant-buy evidence separately demonstrates it.
+
+Diagnostic script/output: /tmp/es_entry_comparison.py and
+/tmp/es_entry_comparison.json (temporary local artifacts, not durable evidence).
+These are in-sample, all-cash simulations, not campaign-sized returns or edge
+proof. Recommendation: retain current trial; review initial-position semantics
+explicitly at the scheduled operational review, with no retroactive entry/reset.
+Acceptance state: ACCEPTED for bounded comparison; full runtime parity and
+profitability remain UNVERIFIED. No network fetch or host changes performed.
+
+## 2026-09-17 - ES Initial Entry Comparison Audit
+
+Active role: AUDITOR. Read-only diagnosis; no runtime policy changes.
+SHOWN: host state-scoped _cfg resolves allow_first_signal_trade=False;
+collector PID 1531600 has no first-signal CLI or environment override.
+Inspected Sep 12-17 signal rows all report long, entry_allowed=True and
+market_quality_ok=True. Sep 17 completed with zero intents/fills.
+Runner strategy_runner.py initializes the remembered action without trading
+when first-signal permission is false, then enters only on action changes
+(separate exit logic remains available). This explains why a sustained buy
+does not itself request an entry under this configuration.
+
+SHOWN: parity_engine.run_parity_backtest enters when action=buy and flat,
+without the runner's initial-signal suppression. In-memory diagnostic patched
+compute_signal to constant buy over three synthetic daily rows, warmup=1,
+explicit 7.5/5 bps costs and allow_first_signal_trade=False: buy_count=1.
+This proves a simulator behavior difference, not actual historical return
+impact or a strategy signal defect. No real market rows or orders were used.
+
+Recommendation: label existing archive outcomes as distinct entry-policy
+comparisons; do not treat them as exact paper-runtime parity. At the scheduled
+Sep 20 review, decide whether transition-only or initial eligible entry is
+the intended policy. Any implementation needs separate review and an explicit
+cohort boundary; do not reset warmup, retroactively count trades, or flip the
+flag mid-trial to manufacture activity. Existing trial remains unchanged.
+Acceptance state: ACCEPTED for bounded audit finding; policy choice and
+historical impact remain UNVERIFIED. No full suite run for read-only diagnosis.
+
 ## 2026-09-16 - Evidence PR Integration After Reporting Merge
 
 Active role: ENGINEER. Integrated master 563b12d2c into evidence PR #593.
