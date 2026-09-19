@@ -1,5 +1,27 @@
 # Review Stabilized Work Log
 
+## 2026-09-19 - Opt-In ES Signal Input Capture Implementation
+
+Active role: ENGINEER. HIGH risk: evidence linkage in the trading runner and
+concurrent immutable publication. User approved observational capture failures
+without changing trading decisions. Added narrowly scoped ES capture/replay
+helper and registry-boundary evidence linkage; opt-in environment flag defaults
+off. Stores exact input rows, allowlisted effective signal parameters, provenance
+and loaded-code fingerprints. Atomic no-replace publication, hash validation,
+corruption refusal and deduplication; no full config/environment serialization.
+Failure reports error type and no success hash, without suppressing the signal.
+
+Verification: initial extended runner/collector/alert/evidence slice 102 passed
+in 1.44s, including cross-process replay, concurrent deduplication, modified
+candle retention, corrupted artifact refusal, code mismatch, nonfinite input,
+disabled/other-strategy isolation, and real signal-evidence linkage on success
+and write failure. Further default-parameter test added before final run.
+Ruff could not run: local venv has no ruff; no dependency changes made.
+No host deployment, capture enablement, restart or retrospective data rewrite.
+Signal replay is not full order-decision replay; old gaps remain explicit.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW. Full suite and host activation
+remain UNVERIFIED; campaign behavior and frozen endpoint are unchanged.
+
 ## 2026-09-19 - ES Decision-Time Input Retention Audit
 
 Active role: AUDITOR. Read-only inspection of the isolated ES data tree found

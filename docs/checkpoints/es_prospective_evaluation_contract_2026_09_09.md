@@ -1,5 +1,52 @@
 # Corrected ES Prospective Evaluation Contract
 
+## Proposed Signal Input Capture (2026-09-19)
+
+Implementation is READY_FOR_INDEPENDENT_REVIEW, disabled by default and not
+deployed. `CBP_CAPTURE_ES_SIGNAL_INPUTS=1` opts an ES runner process into capture
+at the registry-call boundary. This variable is not set on any host by this
+change. Scope is SMA signal calculation, NOT execution/position/risk replay.
+
+Exact supplied rows, including any still-forming candle, and the allowlisted
+SMA/ATR parameters are stored under the active state's
+`data/signal_inputs/<sha256>.json`. No user config or environment dump is stored.
+Source/venue/symbol/timeframe and loaded-function/Python fingerprints accompany
+the inputs. Fingerprints describe loaded signal code, not a git checkout that
+may have changed while a process was running; they do not capture all external
+dependencies or prove full execution reproducibility. Marshal fingerprints may
+differ across Python versions or checkout paths; replay refuses mismatches.
+
+Atomic no-replace publication preserves existing content, verifies duplicate
+bytes and detects corruption. Identical payloads deduplicate; each signal record
+retains its observation timestamp and hash. Changed partial candles produce
+different hashes. Captured files are never automatically deleted; disk growth
+must be assessed before enabling long-duration collection.
+
+Evidence fields: `signal_input_capture_status` (`captured` or `failed`),
+`signal_input_sha256` and `signal_input_observed_at` on success; error type only
+on failure. Failed capture leaves signal/trading behavior unchanged and logs a
+warning. It makes that observation non-replayable; it is NOT a new promotion
+gate or automatic halt. If the evidence writer also fails, the log warning is
+not a durable-delivery guarantee. Earlier evidence is not retroactively repaired.
+
+Read-only signal replay (with the matching runtime available):
+
+```python
+from pathlib import Path
+from services.strategies.signal_input_capture import replay_es_inputs
+signal = replay_es_inputs(Path("/absolute/state/data/signal_inputs/HASH.json"),
+                          expected_sha256="HASH")
+```
+
+Replay verifies checksum/schema/code identity and disables signal evidence
+emission. It never places an order. A checksum does not authenticate an artifact
+against a party able to replace both the artifact and its referencing evidence.
+
+Before activation: independently review, preserve the original trial dates,
+record the capture-start boundary, assess storage, and authorize the exact
+state-scoped environment change/restart. No trial extension, warmup reset or
+entry-policy change is part of this repair.
+
 Active role: DIRECTOR. Research/operational evaluation only; no campaign launch.
 
 ## Isolated Runtime Proof
