@@ -1,5 +1,36 @@
 # Review Stabilized Work Log
 
+## 2026-09-19 - ES Decision-Time Input Retention Audit
+
+Active role: AUDITOR. Read-only inspection of the isolated ES data tree found
+one current OHLCV snapshot, with version/source/written_ts/candles, and no
+historical OHLCV snapshot files in that tree. Sep 12-19 signal records contain
+no hash, snapshot, candles or config reference keys. This finding is scoped to
+the inspected state; it does not establish that no external backup exists.
+Source trace: write_local_ohlcv_snapshot atomically replaces the same pathname;
+the public runner passes the min_bars tail to _registry_signal_with_context.
+An independently fetched archive cannot establish exact decision-time candle
+revisions without a matching retained reference. Historical signal replay is
+therefore UNVERIFIED, not recoverable by silently substituting finalized bars.
+
+Smallest proposed treatment: opt-in isolated-paper capture at the signal-call
+boundary; immutable content-addressed OHLCV plus allowlisted resolved strategy
+parameters, source/venue/symbol/timeframe, observation timestamp and runtime
+code identity. Link the stored hash from the existing signal evidence. Do not
+serialize full user configuration or environment (secret exposure). Record the
+actual incomplete candle as received; do not replace it with later history.
+Hash/checksum verification and capture-error reporting are required. Claim only
+signal-input replay, not full execution replay: position state, remembered action,
+risk state, tick timing and external context are separate inputs.
+
+Material policy choice before implementation: whether capture failure only
+marks evidence non-replayable or also suppresses trading. Recommendation for
+this observational repair is evidence invalidation plus explicit error status,
+not a new trading veto. Any veto would change the frozen strategy behavior.
+No capture code, host configuration, trial reset or historical rewrite performed.
+Acceptance state: INCOMPLETE pending the capture-failure policy decision.
+Verification: host file/key inventory and source trace only; no tests run.
+
 ## 2026-09-19T22:04:19Z - Corrected ES Pre-Review Evidence Check
 
 Active role: AUDITOR. Read-only host inspection before the scheduled Sep 20
