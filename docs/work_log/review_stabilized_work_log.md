@@ -15,7 +15,9 @@ Verification: initial extended runner/collector/alert/evidence slice 102 passed
 in 1.44s, including cross-process replay, concurrent deduplication, modified
 candle retention, corrupted artifact refusal, code mismatch, nonfinite input,
 disabled/other-strategy isolation, and real signal-evidence linkage on success
-and write failure. Further default-parameter test added before final run.
+and write failure. Final run including default-parameter and documentation
+checks: 111 passed in 1.57s. git diff --check passed. Integrated master
+258ca54b1, preserving both work-log histories; no runtime conflict.
 Ruff could not run: local venv has no ruff; no dependency changes made.
 No host deployment, capture enablement, restart or retrospective data rewrite.
 Signal replay is not full order-decision replay; old gaps remain explicit.
