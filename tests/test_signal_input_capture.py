@@ -68,12 +68,20 @@ def test_code_mismatch_refuses_replay(inputs, tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("fail", [False, True])
-def test_runner_links_evidence_without_changing_signal(inputs, monkeypatch, tmp_path, fail):
+@pytest.mark.parametrize("reload_logger", [False, True])
+def test_runner_links_evidence_without_changing_signal(inputs, monkeypatch, tmp_path, fail, reload_logger):
+    import importlib
+
     from services.execution import strategy_runner as runner
-    from services.strategies.evidence_logger import EvidenceLogger
+    from services.strategies import es_daily_trend, evidence_logger
+
+    if reload_logger:
+        importlib.reload(evidence_logger)
 
     records = []
-    monkeypatch.setattr(EvidenceLogger, "log_signal", lambda self, **kw: records.append(kw))
+    # Patch the binding used by the strategy, even after another test reloads
+    # the defining module and creates a new EvidenceLogger class.
+    monkeypatch.setattr(es_daily_trend.EvidenceLogger, "log_signal", lambda self, **kw: records.append(kw))
     expected = compute_signal(cfg={"strategy": dict(inputs["strategy"], emit_evidence=False)},
                               symbol=inputs["symbol"], ohlcv=inputs["ohlcv"])
     if fail:

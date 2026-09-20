@@ -1,5 +1,30 @@
 # Review Stabilized Work Log
 
+## 2026-09-20 - Capture CI Test Isolation Repair and ES Review
+
+Active role: ENGINEER (test repair). PR #597 CI sanity/validate failed the two
+logger-link assertions; validate reported 2 failed, 3717 passed, 33 skipped.
+SHOWN locally: importing ES then reloading evidence_logger reproduces both
+failures. ES retains its original imported logger class while the test patched
+the newly exported class. Patch the actual es_daily_trend.EvidenceLogger binding;
+parameterize normal/reloaded cases without changing production behavior.
+Verification: capture/runner/collector/alerts/evidence slice 105 passed in 1.49s;
+explicit reload-before-pytest reproduction now 4 passed, 8 deselected in 0.18s.
+Full local suite not run; fresh CI required. Production capture code unchanged.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW for revised test proof.
+
+Active role: AUDITOR (subsequent read-only host review). At
+2026-09-20T20:29:30Z, ES PID 1531600 idle/waiting_for_next_day; Sep 13-20
+each has completed session evidence (Sep 12 excluded as pre-evaluation).
+Sep 20 runtime 22.274s, buy unchanged, zero intents/fills/closes/PnL.
+Seed hash remains 81accfe4d0acf86d7bcc11c771899c977c3c04893f9093500b073a535e92a1f8.
+Operational session continuity is SHOWN, not full input replay or continuous
+coverage. Historical replay gap and code-revision segmentation remain explicit;
+zero fills leave trading efficacy inconclusive. No campaign reset/extension,
+policy change, host deployment or restart. Capture remains undeployed.
+Acceptance state: INCOMPLETE for full evaluation contract; bounded status and
+configuration checks complete. No claim that elapsed time qualifies this trial.
+
 ## 2026-09-19 - Opt-In ES Signal Input Capture Implementation
 
 Active role: ENGINEER. HIGH risk: evidence linkage in the trading runner and
