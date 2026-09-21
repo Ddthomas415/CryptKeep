@@ -1,5 +1,30 @@
 # Review Stabilized Work Log
 
+## 2026-09-21 - Approved ES Capture Deployment
+
+Active role: ENGINEER. Human approved one-time PR #597 admin merge plus scoped
+ES deployment/restart. All seven checks passed on 409199b8b; GitHub confirmed
+merge fceddfb82078b52fa68f5cd4734e92ea789f80a5 at 01:25:59Z.
+VERIFIED_ENV: host initially 563b12d2c, ES idle with Sep 21 already completed;
+seed SHA matched, deadline Oct 13, no existing unit drop-ins. Fast-forward to
+fceddfb8 preserved the intentional local manifest. Added only ES unit drop-in
+signal-input-capture.conf with CBP_CAPTURE_ES_SIGNAL_INPUTS=1, daemon-reloaded
+and restarted only cbp-es-corrected-prospective.service.
+
+SHOWN: new PID 1553065 has the capture environment; all preexisting evidence
+JSONL hashes, seed bytes, manifest bytes and deadline unchanged. Binance/Gate.io
+PIDs 1541539/1541537 retain their original start identities. Recovery material:
+/tmp/cryptkeep-es-capture-jpwb3wg9 on host. Rollback is removal of this exact
+drop-in, daemon-reload and an idle ES-only restart; retain collected evidence
+and absolute deadline. No entry flag, trial dates, sizing or gate change.
+Capture starts prospectively with the next natural signal session, not earlier
+history. No claim of successful persisted capture or replay until observed.
+Acceptance state: ACCEPTED for authorized deployment; natural-session capture
+and replay remain UNVERIFIED. Host preservation assertions passed; no host
+pytest/dependency installation performed. At 01:27:49Z PID 1553065 verified
+idle/waiting_for_next_day, last_completed_day=2026-09-21; zero capture files
+as expected before the next natural session. No duplicate session started.
+
 ## 2026-09-20 - Capture CI Test Isolation Repair and ES Review
 
 Active role: ENGINEER (test repair). PR #597 CI sanity/validate failed the two
