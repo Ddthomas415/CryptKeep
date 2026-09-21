@@ -26,6 +26,12 @@ Passing verifies existing records, NOT expected session count, continuous bars,
 capture completeness or execution decisions. Combine with collector session
 completion evidence; never interpret an empty scan as successful capture.
 
+### Historical Implementation Proposal
+
+The following is the original proposal status. Capture was subsequently accepted
+and activated for isolated ES on September 21; see the work-log deployment proof.
+The read-only verifier above is a separate, not-yet-deployed addition.
+
 Implementation is READY_FOR_INDEPENDENT_REVIEW, disabled by default and not
 deployed. `CBP_CAPTURE_ES_SIGNAL_INPUTS=1` opts an ES runner process into capture
 at the registry-call boundary. This variable is not set on any host by this
