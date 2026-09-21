@@ -2,6 +2,30 @@
 
 ## Proposed Signal Input Capture (2026-09-19)
 
+### Read-Only Verification
+
+`scripts/research/verify_es_signal_capture.py` verifies stored signal records
+within an explicit timezone-aware half-open observation interval. Run on the
+matching host/runtime; code fingerprints intentionally reject incompatible
+Python/code. Example for the first post-activation UTC day:
+
+```sh
+./.venv/bin/python scripts/research/verify_es_signal_capture.py \
+  --state-dir /srv/cryptkeep/app/.cbp_state_challengers/es_corrected_prospective_v1 \
+  --since 2026-09-22T00:00:00Z --until 2026-09-23T00:00:00Z
+```
+
+Exit 0: every selected record verified; 1: malformed/missing/corrupt evidence,
+code/provenance/output mismatch or invalid input; 2: no selected records yet.
+It compares signal direction, regime, entry permission, SMA and ATR ratio,
+plus source/venue/symbol/timeframe. Numeric tolerance is 1e-12 absolute/relative.
+Malformed JSONL is not silently skipped, including in older inspected files.
+It writes no report/evidence, fetches no market data, starts no process/service
+and submits no order. Import-time logging infrastructure is unchanged.
+Passing verifies existing records, NOT expected session count, continuous bars,
+capture completeness or execution decisions. Combine with collector session
+completion evidence; never interpret an empty scan as successful capture.
+
 Implementation is READY_FOR_INDEPENDENT_REVIEW, disabled by default and not
 deployed. `CBP_CAPTURE_ES_SIGNAL_INPUTS=1` opts an ES runner process into capture
 at the registry-call boundary. This variable is not set on any host by this

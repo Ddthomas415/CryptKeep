@@ -1,5 +1,20 @@
 # Review Stabilized Work Log
 
+## 2026-09-21 - Read-Only Natural Signal Capture Verifier
+
+Active role: ENGINEER. Prepared bounded verification instead of repeatedly
+polling before the next daily session. Added explicit-state/time-window CLI
+over existing replay helper; verifies linked checksums, provenance and signal
+fields with no campaign writes, fetches or order submission. Empty selection
+returns a distinct non-success status. It does not prove session coverage.
+Tests exercise real capture/replay, read-only artifact bytes, mismatches,
+corruption, malformed evidence, prior-window exclusion and timezone handling.
+Initial capture/verifier slice 23 passed in 0.33s; final CLI/input/documentation
+slice 33 passed in 0.52s. git diff --check passed; full suite not run locally.
+No host changes or forced session. Deployment proof from the preceding local
+commit is retained on this branch. Acceptance state: READY_FOR_INDEPENDENT_REVIEW;
+natural-session evidence remains pending, not simulated into existence.
+
 ## 2026-09-21 - Approved ES Capture Deployment
 
 Active role: ENGINEER. Human approved one-time PR #597 admin merge plus scoped
