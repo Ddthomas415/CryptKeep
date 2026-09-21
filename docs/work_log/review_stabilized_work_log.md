@@ -1,5 +1,112 @@
 # Review Stabilized Work Log
 
+## 2026-09-20 - Capture CI Test Isolation Repair and ES Review
+
+Active role: ENGINEER (test repair). PR #597 CI sanity/validate failed the two
+logger-link assertions; validate reported 2 failed, 3717 passed, 33 skipped.
+SHOWN locally: importing ES then reloading evidence_logger reproduces both
+failures. ES retains its original imported logger class while the test patched
+the newly exported class. Patch the actual es_daily_trend.EvidenceLogger binding;
+parameterize normal/reloaded cases without changing production behavior.
+Verification: capture/runner/collector/alerts/evidence slice 105 passed in 1.49s;
+explicit reload-before-pytest reproduction now 4 passed, 8 deselected in 0.18s.
+Full local suite not run; fresh CI required. Production capture code unchanged.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW for revised test proof.
+
+Active role: AUDITOR (subsequent read-only host review). At
+2026-09-20T20:29:30Z, ES PID 1531600 idle/waiting_for_next_day; Sep 13-20
+each has completed session evidence (Sep 12 excluded as pre-evaluation).
+Sep 20 runtime 22.274s, buy unchanged, zero intents/fills/closes/PnL.
+Seed hash remains 81accfe4d0acf86d7bcc11c771899c977c3c04893f9093500b073a535e92a1f8.
+Operational session continuity is SHOWN, not full input replay or continuous
+coverage. Historical replay gap and code-revision segmentation remain explicit;
+zero fills leave trading efficacy inconclusive. No campaign reset/extension,
+policy change, host deployment or restart. Capture remains undeployed.
+Acceptance state: INCOMPLETE for full evaluation contract; bounded status and
+configuration checks complete. No claim that elapsed time qualifies this trial.
+
+## 2026-09-19 - Opt-In ES Signal Input Capture Implementation
+
+Active role: ENGINEER. HIGH risk: evidence linkage in the trading runner and
+concurrent immutable publication. User approved observational capture failures
+without changing trading decisions. Added narrowly scoped ES capture/replay
+helper and registry-boundary evidence linkage; opt-in environment flag defaults
+off. Stores exact input rows, allowlisted effective signal parameters, provenance
+and loaded-code fingerprints. Atomic no-replace publication, hash validation,
+corruption refusal and deduplication; no full config/environment serialization.
+Failure reports error type and no success hash, without suppressing the signal.
+
+Verification: initial extended runner/collector/alert/evidence slice 102 passed
+in 1.44s, including cross-process replay, concurrent deduplication, modified
+candle retention, corrupted artifact refusal, code mismatch, nonfinite input,
+disabled/other-strategy isolation, and real signal-evidence linkage on success
+and write failure. Final run including default-parameter and documentation
+checks: 111 passed in 1.57s. git diff --check passed. Integrated master
+258ca54b1, preserving both work-log histories; no runtime conflict.
+Ruff could not run: local venv has no ruff; no dependency changes made.
+No host deployment, capture enablement, restart or retrospective data rewrite.
+Signal replay is not full order-decision replay; old gaps remain explicit.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW. Full suite and host activation
+remain UNVERIFIED; campaign behavior and frozen endpoint are unchanged.
+
+## 2026-09-19 - ES Decision-Time Input Retention Audit
+
+Active role: AUDITOR. Read-only inspection of the isolated ES data tree found
+one current OHLCV snapshot, with version/source/written_ts/candles, and no
+historical OHLCV snapshot files in that tree. Sep 12-19 signal records contain
+no hash, snapshot, candles or config reference keys. This finding is scoped to
+the inspected state; it does not establish that no external backup exists.
+Source trace: write_local_ohlcv_snapshot atomically replaces the same pathname;
+the public runner passes the min_bars tail to _registry_signal_with_context.
+An independently fetched archive cannot establish exact decision-time candle
+revisions without a matching retained reference. Historical signal replay is
+therefore UNVERIFIED, not recoverable by silently substituting finalized bars.
+
+Smallest proposed treatment: opt-in isolated-paper capture at the signal-call
+boundary; immutable content-addressed OHLCV plus allowlisted resolved strategy
+parameters, source/venue/symbol/timeframe, observation timestamp and runtime
+code identity. Link the stored hash from the existing signal evidence. Do not
+serialize full user configuration or environment (secret exposure). Record the
+actual incomplete candle as received; do not replace it with later history.
+Hash/checksum verification and capture-error reporting are required. Claim only
+signal-input replay, not full execution replay: position state, remembered action,
+risk state, tick timing and external context are separate inputs.
+
+Material policy choice before implementation: whether capture failure only
+marks evidence non-replayable or also suppresses trading. Recommendation for
+this observational repair is evidence invalidation plus explicit error status,
+not a new trading veto. Any veto would change the frozen strategy behavior.
+No capture code, host configuration, trial reset or historical rewrite performed.
+Acceptance state: INCOMPLETE pending the capture-failure policy decision.
+Verification: host file/key inventory and source trace only; no tests run.
+
+## 2026-09-19T22:04:19Z - Corrected ES Pre-Review Evidence Check
+
+Active role: AUDITOR. Read-only host inspection before the scheduled Sep 20
+00:00 UTC review; this does not close the seven-day review early.
+SHOWN: completed session start/end records exist for Sep 13-19; Sep 12 is
+pre-evaluation and excluded. The 87 inspected signal records (8,8,8,15,16,16,16
+per day) all report public_ohlcv, sample=false, source_mismatch=false and
+market_quality_ok=true. Repeated loop records are NOT 87 qualified daily bars.
+No matching dated ohlcv_live_fetch_failed line was printed by the scan of
+current runtime/logs files; retained-log scope does not prove absence of all
+historical outages. Approved seed hash remains
+81accfe4d0acf86d7bcc11c771899c977c3c04893f9093500b073a535e92a1f8.
+Deadline timer active, next elapse 2026-10-13 00:00 UTC. Collector PID 1531600
+idle; Sep 19 session completed, buy unchanged, zero intents/fills/closes.
+Binance and Gate.io also completed Sep 19 with zero new trades and were idle.
+
+Limits: daily session completion is not continuous coverage, finalized-bar
+qualification or complete raw-input replay. Code revision segmentation and
+missing historical input snapshots remain review limitations. Zero fills
+cannot establish execution efficacy or profitability. No stop/reset/restart,
+entry-policy change, gate change or extension performed. Recommendation:
+retain fixed endpoint and unchanged campaign; complete scheduled review when
+due, explicitly distinguishing operational evidence from trading efficacy.
+Acceptance state: ACCEPTED for this bounded pre-review observation only.
+Verification: JSONL/status/config reads and systemd timer inspection; no tests
+run for host observations. Documentation diff checked separately.
+
 ## 2026-09-17 - Durable Initial Entry Research Package
 
 Active role: ENGINEER. Preserved the temporary adapter as

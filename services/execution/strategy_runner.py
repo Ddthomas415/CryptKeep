@@ -24,6 +24,7 @@ from services.security.exchange_factory import make_exchange
 from services.strategies.config_tools import build_strategy_block
 from services.strategies.presets import get_preset
 from services.strategies.strategy_registry import compute_signal
+from services.strategies.signal_input_capture import capture_es_inputs
 from services.strategies.strategy_selector import select_strategy
 from services.risk.exposure_controls import build_risk_limits, summarize_exposure, evaluate_entry
 from services.risk.kill_conditions import build_kill_limits, should_block_symbol, evaluate_risk_block_kill
@@ -661,6 +662,14 @@ def _registry_signal_with_context(
         if bool(context_result.get("ok")):
             context = context_result.get("context")
 
+    capture_extra = capture_es_inputs(
+        strategy=strategy_block, symbol=symbol, venue=venue, ohlcv=ohlcv,
+    )
+    if capture_extra:
+        strategy_block = dict(strategy_block)
+        strategy_block["evidence_extra"] = {
+            **(strategy_block.get("evidence_extra") or {}), **capture_extra,
+        }
     kwargs = {
         "cfg": {"strategy": strategy_block},
         "symbol": symbol,
@@ -669,6 +678,8 @@ def _registry_signal_with_context(
     if context is not None:
         kwargs["context"] = context
     signal = compute_signal(**kwargs)
+    if isinstance(signal, dict) and capture_extra:
+        signal.update(capture_extra)
     if isinstance(signal, dict) and context_meta:
         signal.update({k: v for k, v in context_meta.items() if v is not None})
     return signal
