@@ -1,5 +1,18 @@
 # Review Stabilized Work Log
 
+## 2026-09-22 - Breakout Provenance Review Closed
+
+Active role: AUDITOR. Bounded docs/research-artifact search found explicit
+10/5 bps arguments for the later August 1 sweep, not the earlier single-config
+run. Inspected sweep and triage: 12 successful variants, best mean return
+-0.603437%, zero review candidates, different dataset hash. Recorded why those
+costs cannot be assigned retrospectively to the earlier artifact. No rerun,
+tuning, retirement, data repair or campaign modification performed. Updated
+the existing checkpoint to close completed census/search steps rather than
+leave them as recurring tasks. Verification: JSON inspection, command-record
+comparison, git diff --check; tests not run for documentation-only change.
+Acceptance: ACCEPTED for bounded audit findings; earlier cost inputs unknown.
+
 ## 2026-09-22 - Breakout Source-Row Census
 
 Active role: AUDITOR. Followed the provenance review with SQLite mode=ro and

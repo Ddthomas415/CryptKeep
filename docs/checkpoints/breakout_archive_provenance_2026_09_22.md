@@ -54,13 +54,34 @@ absence and collection loss remain distinct possibilities. No data was fetched,
 fabricated, inserted or changed. Gap impact on the reported losses is unverified.
 Historical cost arguments remain unknown. Do not repeat this completed census.
 
-Do not use this artifact alone to retire, tune, promote or expand breakout.
-Preserve it unchanged as a historical research result with limited provenance.
-Before any new simulation, inspect the identified archive rows read-only to
-verify the hash and timestamp census. Recover a contemporaneous invocation if
-available; otherwise label historical costs unknown rather than infer defaults.
-Any later explicit-cost comparison is a separate research artifact, not a repair
-of this historical result. No extra campaign or ES retrospective sweep is needed.
+### Historical Invocation Search Closed
+
+Searched tracked docs and local research JSON/text/log artifacts for the config
+name, artifact name, generation timestamp and dataset hash. No invocation tying
+fee/slippage arguments to the early single-config artifact was found in that
+scope. This is not proof that no external record exists; its costs remain unknown.
+
+An existing work-log entry dated 2026-08-01T21:10:15Z records the later sweep
+command explicitly with --fee-bps 10 --slippage-bps 5. The corresponding local
+archive_parameter_sweep/breakout_default_btcusdt_5m_sweep.latest.json reports
+12 successful variants; its best mean test return is -0.603437%, with 1/4
+non-negative windows. The associated triage has zero review candidates and
+reason=insufficient_review_candidates. These are inspected historical reports,
+not independently rerun economic results.
+
+Crucially, the sweep dataset hash is
+a773808b2690cc2106ac4dca5cab91943732cf512da9a7bcc183749638475983, not the
+single-config artifact's 6415c959... hash. Its documented cost arguments cannot
+be transferred to the earlier run. Sweep source continuity was not checked here.
+
+Do not use the early artifact alone to retire, tune, promote or expand breakout.
+Preserve both results unchanged. The source census and bounded invocation search
+are complete; do not repeat them or the already-completed sweep merely to fill
+the historical cost gap. No supported replacement parameter set emerged from
+that sweep. Any future comparison needs a distinct predeclared question and
+explicit data/cost provenance, not retroactive relabeling of these results.
+No extra campaign, ES retrospective sweep or campaign change is warranted by
+this review. Close this audit without claiming profitability or universal failure.
 
 Verification: parsed existing JSON/YAML, recomputed canonical config SHA256,
 hashed artifact bytes, and calculated endpoint slot count. Inspected CLI and
