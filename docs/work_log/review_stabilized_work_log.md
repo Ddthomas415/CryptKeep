@@ -1,5 +1,17 @@
 # Review Stabilized Work Log
 
+## 2026-09-22 - Breakout Historical Artifact Provenance
+
+Active role: AUDITOR. Objective: inspect existing breakout research before
+repeating studies or making a strategy decision. VERIFIED_ENV: clean branch
+from merged master adde462ff. Config hash matches the stored artifact; actual
+historical cost arguments remain unverified. Endpoint arithmetic spans 1520
+five-minute slots versus 1500 reported rows; complete=true is not gap proof.
+Added checkpoint with artifact hash, limits and a source-row inspection next
+step. No source, campaign, gate, archive or service changes. JSON/YAML parsing,
+config hash and timestamp arithmetic verified; tests not run (docs only).
+Acceptance: ACCEPTED for bounded audit observations, not strategy performance.
+
 ## 2026-09-22 - PR #598 CI Alignment Correction
 
 Active role: ENGINEER. Human approval received for the verifier. SHOWN: both
