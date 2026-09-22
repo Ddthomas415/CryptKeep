@@ -1,5 +1,20 @@
 # Review Stabilized Work Log
 
+## 2026-09-22 - User-Requested Research Decision Protocol
+
+Active role: ENGINEER. Objective: persist the requested corrective work rules.
+SHOWN: existing instructions prioritize hardening without a research eligibility
+contract. Added one authoritative section in AGENTS.md and a runtime_prompt.md
+reference/priority override. Requires decision-first research, input and effective
+config checks before simulation, bounded work, no silent diagnostic downgrade,
+durable reproducibility and recurrence prevention. Preserves safety and approval
+boundaries; does not authorize campaign changes or promise returns.
+Expected outcome: avoid repeating unqualified research and documentation loops.
+Verification: reviewed both instruction surfaces for the new section/reference;
+git diff --check. No runtime code changed or tests run. These are agent rules,
+not an executable research preflight; runtime enforcement remains unimplemented.
+Acceptance: ACCEPTED for the explicitly requested instruction changes only.
+
 ## 2026-09-22 - PR #598 CI Alignment Correction
 
 Active role: ENGINEER. Human approval received for the verifier. SHOWN: both
