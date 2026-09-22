@@ -1,5 +1,19 @@
 # Review Stabilized Work Log
 
+## 2026-09-22 - PR #598 CI Alignment Correction
+
+Active role: ENGINEER. Human approval received for the verifier. SHOWN: both
+failed CI jobs stopped at the legacy-state-path guard, which flagged joined
+data-path literals in the verifier and tests. Replaced those literals with
+explicit Path components under the supplied state root; no path destination,
+verification semantics, campaign configuration or runtime behavior changed.
+VERIFIED_ENV: local branch codex/es-capture-verification, initially clean.
+Verification: capture/verifier tests 25 passed; check_repo_alignment.py OK
+(23 guard tests passed). Full suite not rerun locally; replacement CI pending.
+No merge over failed checks and no host restart. Human approval does not
+substitute for CI or natural-session replay proof, which remains unverified.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-21 - Read-Only Natural Signal Capture Verifier
 
 Active role: ENGINEER. Prepared bounded verification instead of repeatedly

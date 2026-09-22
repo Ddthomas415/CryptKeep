@@ -20,7 +20,7 @@ def recorded(tmp_path, monkeypatch):
     record = dict(extra, **ref, record_type="signal", timestamp="2026-09-22T00:01:00Z",
                   signal_direction=result["signal"], regime_flag=result["regime"],
                   entry_allowed=result["entry_allowed"], sma_200=result["sma_200"], atr_ratio=result["atr_ratio"])
-    path = tmp_path / "data/evidence/es_daily_trend_v1/signal_2026-09-22.jsonl"
+    path = tmp_path / "data" / "evidence" / "es_daily_trend_v1" / "signal_2026-09-22.jsonl"
     path.parent.mkdir(parents=True)
     path.write_text(json.dumps(record)+"\n")
     return tmp_path, path, record
@@ -53,7 +53,7 @@ def test_no_records_not_success(tmp_path):
 
 def test_corrupt_artifact_fails(recorded):
     root, _, record = recorded
-    (root / "data/signal_inputs" / (record["signal_input_sha256"]+".json")).write_text("{}")
+    (root / "data" / "signal_inputs" / (record["signal_input_sha256"]+".json")).write_text("{}")
     assert check(root)["status"] == "failed"
 
 

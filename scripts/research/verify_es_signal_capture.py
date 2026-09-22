@@ -31,7 +31,7 @@ def verify(state: Path, *, since: datetime, until: datetime) -> dict:
     selected = 0
     checked = 0
     problems = []
-    for path in sorted((state / "data/evidence/es_daily_trend_v1").glob("signal_*.jsonl")):
+    for path in sorted((state / "data" / "evidence" / "es_daily_trend_v1").glob("signal_*.jsonl")):
         for number, line in enumerate(path.read_text().splitlines(), 1):
             if not line.strip():
                 continue
@@ -48,7 +48,7 @@ def verify(state: Path, *, since: datetime, until: datetime) -> dict:
                 digest = record.get("signal_input_sha256", "")
                 if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
                     raise ValueError("invalid_capture_hash")
-                artifact = state / "data/signal_inputs" / f"{digest}.json"
+                artifact = state / "data" / "signal_inputs" / f"{digest}.json"
                 if artifact.is_symlink():
                     raise ValueError("symlink_capture_refused")
                 replay = replay_es_inputs(artifact, expected_sha256=digest)
