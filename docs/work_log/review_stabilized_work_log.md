@@ -1,5 +1,17 @@
 # Review Stabilized Work Log
 
+## 2026-09-22 - Breakout Source-Row Census
+
+Active role: AUDITOR. Followed the provenance review with SQLite mode=ro and
+query_only source inspection. SHOWN: exact historical dataset hash reproduced;
+1500 unique grid-aligned rows and matching endpoints, with 20 missing slots.
+Recorded exact UTC gaps in the existing checkpoint. Loader complete means row
+count sufficiency, not contiguous chronology. No loss causation inferred.
+No archive writes, fetch, simulation, runtime edits or campaign changes.
+Verification: existing hash function plus timestamp-set census; git diff --check.
+Tests not run (documentation only). Historical cost provenance remains unknown.
+Acceptance: ACCEPTED for bounded source-data findings only.
+
 ## 2026-09-22 - Breakout Historical Artifact Provenance
 
 Active role: AUDITOR. Objective: inspect existing breakout research before

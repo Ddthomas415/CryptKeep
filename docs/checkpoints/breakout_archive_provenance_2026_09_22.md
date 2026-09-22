@@ -29,6 +29,31 @@ Artifact SHA256: ea7adea203e2d6681f649c935c2661ecd888ae9e7bdd0bf95331ddcb04ab30a
 
 ## Disposition
 
+### Completed Source-Row Inspection
+
+Subsequent read-only SQLite inspection supersedes the unverified dataset-hash
+and exact-gap questions above. Opened the artifact's archive URI with mode=ro
+and PRAGMA query_only=ON, selected ts_ms,o,h,l,cl,v from market_ohlcv for
+coinbase / BTC/USDT / 5m, ts_ms >= 1780272000000, ordered ascending, limit 1500.
+The existing ohlcv_dataset_hash function reproduced
+6415c95900ddc6a72d0a653adcee186e7207ed039464610ee7d1896c1b6ab523 exactly.
+Both endpoints also match. All 1500 timestamps are unique and on the 5m grid.
+Exactly 20 expected timestamps are absent within the recorded endpoint span:
+
+| UTC date | Missing UTC times |
+| --- | --- |
+| 2026-06-01 | 05:40, 05:55, 09:10, 09:15, 09:40, 09:45, 09:55, 11:40, 19:10, 20:55 |
+| 2026-06-02 | 00:25, 04:30, 11:15, 11:40 |
+| 2026-06-03 | 18:05, 18:25 |
+| 2026-06-05 | 05:15 |
+| 2026-06-06 | 00:35, 01:00, 01:40 |
+
+The inspected loader sets complete from row count >= requested limit, not
+timestamp continuity. No cause is established for the absent candles: upstream
+absence and collection loss remain distinct possibilities. No data was fetched,
+fabricated, inserted or changed. Gap impact on the reported losses is unverified.
+Historical cost arguments remain unknown. Do not repeat this completed census.
+
 Do not use this artifact alone to retire, tune, promote or expand breakout.
 Preserve it unchanged as a historical research result with limited provenance.
 Before any new simulation, inspect the identified archive rows read-only to
