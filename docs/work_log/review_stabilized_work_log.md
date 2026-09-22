@@ -14,6 +14,15 @@ No merge over failed checks and no host restart. Human approval does not
 substitute for CI or natural-session replay proof, which remains unverified.
 Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
 
+Follow-up host proof: Tailscale authorization succeeded. At 15:34 UTC the ES
+collector was idle, last_completed_day=2026-09-22, PID 1553065, with two capture
+files. Ran the branch verifier via SSH stdin using the existing host venv and
+checkout imports, without installing a script or restarting services, over
+2026-09-22T00:00:00Z <= timestamp < 2026-09-23T00:00:00Z. Result: passed,
+selected=15, verified=15, problems=[]. This proves replay/provenance agreement
+for those recorded signals only, not continuous session coverage, execution
+replay or profitability. No campaign/cohort/deadline changes.
+
 ## 2026-09-21 - Read-Only Natural Signal Capture Verifier
 
 Active role: ENGINEER. Prepared bounded verification instead of repeatedly
