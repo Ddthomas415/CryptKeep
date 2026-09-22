@@ -1,5 +1,17 @@
 # Review Stabilized Work Log
 
+## 2026-09-22 - Proactive Disclosure and Corrective Action
+
+Active role: ENGINEER. User requested treatment of repeated retrospective
+admissions and missing proactive disclosure. Added requirements to volunteer
+decision-changing facts before action; pair admissions with impact, containment,
+correction and verification; distinguish implemented/tested/published/deployed.
+Runtime prompt references these requirements. No claim that wording alone fixes
+research tooling. Preflight enforcement and production config-mapping regression
+remain unimplemented in this work. Verification: git diff --check and inspection
+of both instruction surfaces; tests not run (instructions only).
+Acceptance: ACCEPTED for requested protocol edit, not behavioral guarantees.
+
 ## 2026-09-22 - User-Requested Research Decision Protocol
 
 Active role: ENGINEER. Objective: persist the requested corrective work rules.

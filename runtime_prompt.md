@@ -12,6 +12,9 @@ Research and prioritization override:
 - Material input failure stops the economic run; do not silently relabel it a
   diagnostic. Investigate the smallest authorized cause and explain the treatment.
 - This is an agent-instruction requirement, not an implemented runtime preflight.
+- Disclose decision-changing facts before acting, without waiting to be asked.
+  Follow AGENTS.md's corrective-action and visible-unfinished-work requirements;
+  retrospective regret is not evidence of a fix.
 - Existing approval and independent-review boundaries remain in force.
 
 Core rules:
