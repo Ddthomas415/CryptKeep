@@ -1,5 +1,42 @@
 # Review Stabilized Work Log
 
+## 2026-09-22 - Breakout Provenance Review Closed
+
+Active role: AUDITOR. Bounded docs/research-artifact search found explicit
+10/5 bps arguments for the later August 1 sweep, not the earlier single-config
+run. Inspected sweep and triage: 12 successful variants, best mean return
+-0.603437%, zero review candidates, different dataset hash. Recorded why those
+costs cannot be assigned retrospectively to the earlier artifact. No rerun,
+tuning, retirement, data repair or campaign modification performed. Updated
+the existing checkpoint to close completed census/search steps rather than
+leave them as recurring tasks. Verification: JSON inspection, command-record
+comparison, git diff --check; tests not run for documentation-only change.
+Acceptance: ACCEPTED for bounded audit findings; earlier cost inputs unknown.
+
+## 2026-09-22 - Breakout Source-Row Census
+
+Active role: AUDITOR. Followed the provenance review with SQLite mode=ro and
+query_only source inspection. SHOWN: exact historical dataset hash reproduced;
+1500 unique grid-aligned rows and matching endpoints, with 20 missing slots.
+Recorded exact UTC gaps in the existing checkpoint. Loader complete means row
+count sufficiency, not contiguous chronology. No loss causation inferred.
+No archive writes, fetch, simulation, runtime edits or campaign changes.
+Verification: existing hash function plus timestamp-set census; git diff --check.
+Tests not run (documentation only). Historical cost provenance remains unknown.
+Acceptance: ACCEPTED for bounded source-data findings only.
+
+## 2026-09-22 - Breakout Historical Artifact Provenance
+
+Active role: AUDITOR. Objective: inspect existing breakout research before
+repeating studies or making a strategy decision. VERIFIED_ENV: clean branch
+from merged master adde462ff. Config hash matches the stored artifact; actual
+historical cost arguments remain unverified. Endpoint arithmetic spans 1520
+five-minute slots versus 1500 reported rows; complete=true is not gap proof.
+Added checkpoint with artifact hash, limits and a source-row inspection next
+step. No source, campaign, gate, archive or service changes. JSON/YAML parsing,
+config hash and timestamp arithmetic verified; tests not run (docs only).
+Acceptance: ACCEPTED for bounded audit observations, not strategy performance.
+
 ## 2026-09-22 - PR #598 CI Alignment Correction
 
 Active role: ENGINEER. Human approval received for the verifier. SHOWN: both
