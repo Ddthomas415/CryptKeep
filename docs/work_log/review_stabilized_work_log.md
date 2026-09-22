@@ -1,5 +1,68 @@
 # Review Stabilized Work Log
 
+## 2026-09-22 - PR #598 CI Alignment Correction
+
+Active role: ENGINEER. Human approval received for the verifier. SHOWN: both
+failed CI jobs stopped at the legacy-state-path guard, which flagged joined
+data-path literals in the verifier and tests. Replaced those literals with
+explicit Path components under the supplied state root; no path destination,
+verification semantics, campaign configuration or runtime behavior changed.
+VERIFIED_ENV: local branch codex/es-capture-verification, initially clean.
+Verification: capture/verifier tests 25 passed; check_repo_alignment.py OK
+(23 guard tests passed). Full suite not rerun locally; replacement CI pending.
+No merge over failed checks and no host restart. Human approval does not
+substitute for CI or natural-session replay proof, which remains unverified.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+Follow-up host proof: Tailscale authorization succeeded. At 15:34 UTC the ES
+collector was idle, last_completed_day=2026-09-22, PID 1553065, with two capture
+files. Ran the branch verifier via SSH stdin using the existing host venv and
+checkout imports, without installing a script or restarting services, over
+2026-09-22T00:00:00Z <= timestamp < 2026-09-23T00:00:00Z. Result: passed,
+selected=15, verified=15, problems=[]. This proves replay/provenance agreement
+for those recorded signals only, not continuous session coverage, execution
+replay or profitability. No campaign/cohort/deadline changes.
+
+## 2026-09-21 - Read-Only Natural Signal Capture Verifier
+
+Active role: ENGINEER. Prepared bounded verification instead of repeatedly
+polling before the next daily session. Added explicit-state/time-window CLI
+over existing replay helper; verifies linked checksums, provenance and signal
+fields with no campaign writes, fetches or order submission. Empty selection
+returns a distinct non-success status. It does not prove session coverage.
+Tests exercise real capture/replay, read-only artifact bytes, mismatches,
+corruption, malformed evidence, prior-window exclusion and timezone handling.
+Initial capture/verifier slice 23 passed in 0.33s; final CLI/input/documentation
+slice 33 passed in 0.52s. git diff --check passed; full suite not run locally.
+No host changes or forced session. Deployment proof from the preceding local
+commit is retained on this branch. Acceptance state: READY_FOR_INDEPENDENT_REVIEW;
+natural-session evidence remains pending, not simulated into existence.
+
+## 2026-09-21 - Approved ES Capture Deployment
+
+Active role: ENGINEER. Human approved one-time PR #597 admin merge plus scoped
+ES deployment/restart. All seven checks passed on 409199b8b; GitHub confirmed
+merge fceddfb82078b52fa68f5cd4734e92ea789f80a5 at 01:25:59Z.
+VERIFIED_ENV: host initially 563b12d2c, ES idle with Sep 21 already completed;
+seed SHA matched, deadline Oct 13, no existing unit drop-ins. Fast-forward to
+fceddfb8 preserved the intentional local manifest. Added only ES unit drop-in
+signal-input-capture.conf with CBP_CAPTURE_ES_SIGNAL_INPUTS=1, daemon-reloaded
+and restarted only cbp-es-corrected-prospective.service.
+
+SHOWN: new PID 1553065 has the capture environment; all preexisting evidence
+JSONL hashes, seed bytes, manifest bytes and deadline unchanged. Binance/Gate.io
+PIDs 1541539/1541537 retain their original start identities. Recovery material:
+/tmp/cryptkeep-es-capture-jpwb3wg9 on host. Rollback is removal of this exact
+drop-in, daemon-reload and an idle ES-only restart; retain collected evidence
+and absolute deadline. No entry flag, trial dates, sizing or gate change.
+Capture starts prospectively with the next natural signal session, not earlier
+history. No claim of successful persisted capture or replay until observed.
+Acceptance state: ACCEPTED for authorized deployment; natural-session capture
+and replay remain UNVERIFIED. Host preservation assertions passed; no host
+pytest/dependency installation performed. At 01:27:49Z PID 1553065 verified
+idle/waiting_for_next_day, last_completed_day=2026-09-21; zero capture files
+as expected before the next natural session. No duplicate session started.
+
 ## 2026-09-20 - Capture CI Test Isolation Repair and ES Review
 
 Active role: ENGINEER (test repair). PR #597 CI sanity/validate failed the two
