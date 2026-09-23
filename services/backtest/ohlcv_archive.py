@@ -4,6 +4,7 @@ import hashlib
 import json
 import math
 import os
+import sqlite3
 from pathlib import Path
 from typing import Any
 
@@ -85,6 +86,7 @@ def load_archived_ohlcv(
     limit: int = 500,
     since_ms: int | None = None,
     db_path: str | Path | None = None,
+    strict_raw: bool = False,
 ) -> dict[str, Any]:
     path = Path(db_path).expanduser().resolve() if db_path is not None else default_archive_db_path()
     requested_limit = max(1, int(limit))
@@ -98,17 +100,30 @@ def load_archived_ohlcv(
         }
 
     exchange = normalize_venue(venue)
-    store = MarketStore(path)
+    store = None if strict_raw else MarketStore(path)
     for stored_symbol in _symbol_candidates(exchange, canonical_symbol):
-        rows = normalize_ohlcv_rows(
-            store.load_ohlcv(
+        if strict_raw:
+            # Do not initialize a store or coerce values before research validation.
+            with sqlite3.connect(path.as_uri() + "?mode=ro", uri=True) as con:
+                con.execute("PRAGMA query_only=ON")
+                query = "SELECT ts_ms,o,h,l,cl,v FROM market_ohlcv WHERE exchange=? AND symbol=? AND timeframe=?"
+                params = [exchange, stored_symbol, str(timeframe)]
+                if since_ms is not None:
+                    query += " AND ts_ms>=?"
+                    params.append(since_ms)
+                query += " ORDER BY ts_ms " + ("ASC" if since_ms is not None else "DESC") + " LIMIT ?"
+                params.append(requested_limit)
+                rows = [list(row) for row in con.execute(query, params)]
+                if since_ms is None:
+                    rows.reverse()
+        else:
+            rows = normalize_ohlcv_rows(store.load_ohlcv(
                 exchange=exchange,
                 symbol=stored_symbol,
                 timeframe=str(timeframe),
                 limit=requested_limit,
                 since_ms=since_ms,
-            )
-        )
+            ))
         if not rows:
             continue
         complete = len(rows) >= requested_limit

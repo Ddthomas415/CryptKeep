@@ -8,9 +8,9 @@ from storage.market_store_sqlite import MarketStore
 
 def _seed_archive(db_path, *, count: int = 50) -> None:
     store = MarketStore(db_path)
-    base_ms = 1_700_000_000_000
+    base_ms = 1_699_999_200_000
     for idx in range(count):
-        ts_ms = base_ms + (idx * 60_000)
+        ts_ms = base_ms + (idx * 3_600_000)
         close = 100.0 + ((idx % 14) - 7) * 0.5
         store.upsert_ohlcv(
             ts_ms=ts_ms,
@@ -97,3 +97,12 @@ def test_runner_fail_if_not_ok_returns_2_for_missing_archive(tmp_path, capsys) -
     assert rc == 2
     assert payload["ok"] is False
     assert payload["reason"] == "archive_missing"
+
+
+def test_preflight_failure_has_nonzero_exit_without_optional_flag(tmp_path, capsys, monkeypatch):
+    cfg = tmp_path / "strategy.json"
+    cfg.write_text(json.dumps({"strategy": {"name": "ema_cross"}}))
+    monkeypatch.setattr(runner, "run_archive_backed_walk_forward", lambda **kw: {
+        "ok": False, "preflight": {"status": "failed", "reason": "archive_not_contiguous"}})
+    assert runner.main(["--config", str(cfg)]) == 2
+    assert json.loads(capsys.readouterr().out)["ok"] is False
