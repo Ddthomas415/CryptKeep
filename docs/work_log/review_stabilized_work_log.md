@@ -131,6 +131,33 @@ Verification: reviewed both instruction surfaces for the new section/reference;
 git diff --check. No runtime code changed or tests run. These are agent rules,
 not an executable research preflight; runtime enforcement remains unimplemented.
 Acceptance: ACCEPTED for the explicitly requested instruction changes only.
+## 2026-09-23 - Relocated Historical Diagnostic Reproduction
+
+Active role: ENGINEER. Completed a concrete portability repair while PR #600 CI
+ran; no new strategy experiment or campaign action. Local ignored bundle:
+`.cbp_state/data/research/breakout_economic_20260922/portable/` now contains a
+SQLite backup snapshot, frozen source config, original calculation/result,
+runtime code exported from adde462ff, SHA256 manifest, reproduction-environment
+package inventory and a checksum-verifying replay.py. Original artifacts retained.
+Wrapper changes only three path assignments in the checksum-verified original
+script, isolates CBP_STATE_DIR, and imports bundled historical runtime code.
+The original gapped-data diagnostic remains ineligible for promotion/research
+selection; historical reproduction is not a bypass for new economic experiments.
+
+SHOWN: copied the bundle to /tmp/ck-relocated-breakout-proof/bundle and ran
+`.venv/bin/python -B /tmp/ck-relocated-breakout-proof/bundle/replay.py` with output
+outside the bundle. cmp confirmed byte-identical output at SHA256
+9c61d07d02fb05a70284501058f7a4259f64fd80813011beeaa90aab51575407. Appending a newline
+to the relocated config caused exit 1 with Bundle checksum mismatch: config.yaml
+before calculation; restored original bytes afterward. No original data mutation.
+The source config canonical hash matches the historical result. This bundles
+source and package version inventory, NOT Python binaries or dependency wheels;
+other operating systems/environments and malicious manifest replacement are not
+verified. The reproduction environment inventory is not claimed as a recovered
+original execution inventory. Artifacts remain local, not uploaded or deployed.
+Independent review of the prior accounting/benchmark interpretation requested.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW for historical replay wrapper;
+relocation and tamper refusal are SHOWN, profitability remains unproven.
 
 ## 2026-09-22 - PR #598 CI Alignment Correction
 
