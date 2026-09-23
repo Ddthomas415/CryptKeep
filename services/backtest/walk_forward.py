@@ -6,7 +6,7 @@ from typing import Any
 
 from services.backtest.ohlcv_archive import ARCHIVE_SOURCE, load_archived_ohlcv
 from services.backtest.parity_engine import run_parity_backtest
-from services.backtest.research_preflight import check_research_inputs, resolve_research_config
+from services.backtest.research_preflight import check_research_history, check_research_inputs, resolve_research_config
 
 
 def _fnum(value: Any, default: float = 0.0) -> float:
@@ -352,17 +352,21 @@ def run_archive_backed_walk_forward(
         limit=requested_limit,
         since_ms=since_ms,
     )
-    strategy_name = str(((cfg or {}).get("strategy") or {}).get("name") or "ema_cross")
-    cfg_hash = _config_hash(dict(cfg or {}))
+    strategy_block = cfg.get("strategy") if isinstance(cfg, dict) else None
+    strategy_name = str(strategy_block.get("name") or "") if isinstance(strategy_block, dict) else ""
+    cfg_hash = _config_hash(cfg) if isinstance(cfg, dict) else ""
 
     preflight = {"status": "not_run"}
-    resolved_cfg = dict(cfg or {})
+    resolved_cfg = dict(cfg) if isinstance(cfg, dict) else {}
     if loaded.get("ok") and loaded.get("complete"):
         try:
             resolved_cfg = resolve_research_config(cfg)
             preflight = check_research_inputs(
                 rows, timeframe=timeframe, since_ms=since_ms,
                 initial_cash=initial_cash, fee_bps=fee_bps, slippage_bps=slippage_bps,
+            )
+            preflight["required_history_bars"] = check_research_history(
+                resolved_cfg, row_count=len(rows), warmup_bars=warmup_bars, min_train_bars=min_train_bars,
             )
         except ValueError as exc:
             preflight = {"status": "failed", "reason": str(exc)}

@@ -2,8 +2,11 @@
 from __future__ import annotations
 
 import copy
+import inspect
 import math
 import re
+
+from services.strategies import breakout_donchian, ema_cross, es_daily_trend
 
 
 def resolve_research_config(cfg: dict) -> dict:
@@ -66,6 +69,29 @@ def resolve_research_config(cfg: dict) -> dict:
         if not valid:
             raise ValueError(f"invalid_strategy_parameter:{key}")
     return resolved
+
+
+def check_research_history(cfg: dict, *, row_count: int, warmup_bars: int, min_train_bars: int) -> int:
+    st = cfg["strategy"]
+    name = st["name"]
+    fn = {"ema_cross": ema_cross.signal_from_ohlcv,
+          "breakout_donchian": breakout_donchian.signal_from_ohlcv,
+          "sma_200_trend": es_daily_trend.signal_from_ohlcv}[name]
+    params = inspect.signature(fn).parameters
+    def period(key):
+        return int(st.get(key, params[key].default))
+    if name == "ema_cross":
+        required = max(period("ema_fast"), period("ema_slow")) + 2
+    elif name == "breakout_donchian":
+        required = period("donchian_len") + 2
+    else:
+        lookback = inspect.signature(es_daily_trend.regime_stability).parameters["lookback_days"].default
+        required = max(period("sma_period"), period("atr_period") + int(lookback))
+    required = max(required, int(st.get("filter_window", 2)))
+    before_evaluation = max(int(min_train_bars), int(warmup_bars) + 1)
+    if min(row_count, before_evaluation) < required:
+        raise ValueError("insufficient_strategy_history")
+    return required
 
 
 def check_research_inputs(rows: list, *, timeframe: str, since_ms: int | None,

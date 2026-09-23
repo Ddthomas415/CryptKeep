@@ -48,10 +48,13 @@ are refused rather than reported as a successful zero-trade economic run.
 Nested EMA/Donchian signal and filter settings are resolved into registry fields;
 conflicting flat/nested settings, unknown flat parameters, unsupported nested
 settings and incompatible signal type/direction declarations are refused.
+Indicator history must be available before evaluation starts, including implicit
+strategy defaults. Insufficient-history holds are not a successful no-signal study.
 New results retain source config hash, resolved config/hash, and preflight cost
 assumptions; sweeps retain them per variant. Historical artifacts are unchanged
 and must not be assigned current defaults retroactively. Failed preflight yields
 no simulated windows; the walk-forward CLI exits 2 even without fail-if-not-ok.
+The sweep CLI also exits 2 when preflight rejects variants and none succeeds.
 Direct non-archive backtest calls are not covered by this preflight.
 
 - Select the strategy config or source artifact path.

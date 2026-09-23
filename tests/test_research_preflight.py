@@ -148,3 +148,52 @@ def test_effective_config_and_costs_retained_in_success(monkeypatch):
     assert out["resolved_config"]["strategy"]["ema_fast"] == 3
     assert out["config_hash"] != out["resolved_config_hash"]
     assert out["preflight"]["cost_assumptions"] == {"initial_cash": 10000., "fee_bps": 17, "slippage_bps": 9}
+
+
+@pytest.mark.parametrize("strategy,train", [
+    ({"name": "sma_200_trend"}, 120),
+    ({"name": "ema_cross"}, 20),
+    ({"name": "breakout_donchian"}, 20),
+    ({"name": "ema_cross", "ema_slow": 200}, 120),
+])
+def test_insufficient_indicator_history_refused(monkeypatch, strategy, train):
+    rows = [[1700000100000 + i * 300000, 100., 101., 99., 100., 10.] for i in range(150)]
+    monkeypatch.setattr(wf, "load_archived_ohlcv", lambda *a, **kw: {
+        "ok": True, "complete": True, "rows": rows})
+    monkeypatch.setattr(wf, "run_anchored_walk_forward", lambda **kw: pytest.fail("unexpected simulation"))
+    out = wf.run_archive_backed_walk_forward(cfg={"strategy": strategy}, venue="coinbase",
+        symbol="BTC/USDT", timeframe="5m", limit=150, min_train_bars=train, warmup_bars=5)
+    assert out["reason"] == "insufficient_strategy_history"
+    assert out["preflight"]["status"] == "failed"
+
+
+@pytest.mark.parametrize("cfg", [{"strategy": "ema_cross"}, {"strategy": []}, None, "bad"])
+def test_malformed_config_returns_refusal(monkeypatch, cfg):
+    monkeypatch.setattr(wf, "load_archived_ohlcv", lambda *a, **kw: {
+        "ok": True, "complete": True, "rows": candles()})
+    out = wf.run_archive_backed_walk_forward(cfg=cfg, venue="coinbase", symbol="BTC/USDT",
+        timeframe="5m", limit=30)
+    assert out["ok"] is False
+    assert out["preflight"]["status"] == "failed"
+
+
+def test_sweep_malformed_strategy_is_failed_variant(monkeypatch):
+    from services.backtest.parameter_sweep import run_archive_parameter_sweep
+    monkeypatch.setattr(wf, "load_archived_ohlcv", lambda *a, **kw: {
+        "ok": True, "complete": True, "rows": candles()})
+    out = run_archive_parameter_sweep(base_cfg={"strategy": {"name": "ema_cross"}},
+        grid={"strategy": ["ema_cross"]}, venue="coinbase", symbol="BTC/USDT", timeframe="5m", limit=30)
+    assert out["ok"] is False
+    assert out["ranked_variants"][0]["preflight"]["status"] == "failed"
+
+
+def test_sweep_cli_rejected_preflight_is_nonzero(tmp_path, monkeypatch, capsys):
+    import json
+    from scripts.research import run_archive_parameter_sweep as runner
+    config, grid = tmp_path / "cfg.json", tmp_path / "grid.json"
+    config.write_text(json.dumps({"strategy": {"name": "ema_cross"}}))
+    grid.write_text(json.dumps({"strategy.ema_fast": [3]}))
+    monkeypatch.setattr(runner, "run_archive_parameter_sweep", lambda **kw: {
+        "ok": False, "ranked_variants": [{"preflight": {"status": "failed"}}]})
+    assert runner.main(["--config", str(config), "--grid", str(grid)]) == 2
+    assert json.loads(capsys.readouterr().out)["ok"] is False

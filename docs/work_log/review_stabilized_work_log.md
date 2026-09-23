@@ -1,5 +1,19 @@
 # Review Stabilized Work Log
 
+## 2026-09-23 - Frozen-Review Corrections
+
+Active role: ENGINEER. Independent reviewer rejected 2491daf83 for insufficient
+indicator history passing, sweep CLI success after all preflight failures, and
+malformed strategy blocks crashing before refusal. Added required-history check
+using actual signal defaults before evaluation, unconditional failed-preflight
+sweep exit, and safe config handling with regressions for each supported family
+and both API consumers. Targeted neighborhood: 236 passed in 3.77s.
+Actual preserved 22704-row breakout dataset was refused by the guarded CLI with
+exit 2, archive_not_contiguous, zero simulated windows. Source/config remains
+unchanged. Full suite started against earlier head remains in progress and cannot
+be presented as final-head proof. Independent re-review required on new snapshot.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW; no merge or deployment.
+
 ## 2026-09-23 - Executable Archive Research Preflight
 
 Active role: ENGINEER. Objective: prevent the observed gapped-data and ignored-

@@ -99,7 +99,11 @@ def main(argv: list[str] | None = None) -> int:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(text + "\n", encoding="utf-8")
     print(text)
-    if args.fail_if_not_ok and not bool(result.get("ok")):
+    rejected_preflight = not result.get("ok") and any(
+        variant.get("preflight", {}).get("status") == "failed"
+        for variant in result.get("ranked_variants", [])
+    )
+    if rejected_preflight or (args.fail_if_not_ok and not bool(result.get("ok"))):
         return 2
     return 0
 
