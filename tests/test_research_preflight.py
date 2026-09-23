@@ -197,3 +197,29 @@ def test_sweep_cli_rejected_preflight_is_nonzero(tmp_path, monkeypatch, capsys):
         "ok": False, "ranked_variants": [{"preflight": {"status": "failed"}}]})
     assert runner.main(["--config", str(config), "--grid", str(grid)]) == 2
     assert json.loads(capsys.readouterr().out)["ok"] is False
+
+
+@pytest.mark.parametrize("name,periods", [
+    ("ema_cross", {"ema_fast": 2, "ema_slow": 3}),
+    ("breakout_donchian", {"donchian_len": 2}),
+])
+@pytest.mark.parametrize("explicit_window", [None, 12])
+def test_history_matches_actual_filter_window(monkeypatch, name, periods, explicit_window):
+    from services.backtest.research_preflight import check_research_history
+    from services.strategies import ema_cross, breakout_donchian
+    module = ema_cross if name == "ema_cross" else breakout_donchian
+    cfg = {"strategy": {"name": name, "min_volume_ratio": 0.95, **periods}}
+    if explicit_window is not None:
+        cfg["strategy"]["filter_window"] = explicit_window
+    observed = []
+    original = module.market_context
+    def context(**kwargs):
+        observed.append(kwargs["window"])
+        return original(**kwargs)
+    monkeypatch.setattr(module, "market_context", context)
+    strategy_registry.compute_signal(cfg=cfg, symbol="BTC/USDT", ohlcv=candles())
+    actual = observed[0]
+    assert actual == (explicit_window or 8)
+    with pytest.raises(ValueError, match="insufficient_strategy_history"):
+        check_research_history(cfg, row_count=30, warmup_bars=2, min_train_bars=actual-1)
+    assert check_research_history(cfg, row_count=30, warmup_bars=2, min_train_bars=actual) == actual

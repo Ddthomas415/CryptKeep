@@ -82,12 +82,15 @@ def check_research_history(cfg: dict, *, row_count: int, warmup_bars: int, min_t
         return int(st.get(key, params[key].default))
     if name == "ema_cross":
         required = max(period("ema_fast"), period("ema_slow")) + 2
+        filter_history = int(st.get("filter_window") or max(period("ema_fast"), period("ema_slow"), 8))
     elif name == "breakout_donchian":
         required = period("donchian_len") + 2
+        filter_history = int(st.get("filter_window") or max(period("donchian_len"), 8))
     else:
         lookback = inspect.signature(es_daily_trend.regime_stability).parameters["lookback_days"].default
         required = max(period("sma_period"), period("atr_period") + int(lookback))
-    required = max(required, int(st.get("filter_window", 2)))
+        filter_history = 0
+    required = max(required, filter_history)
     before_evaluation = max(int(min_train_bars), int(warmup_bars) + 1)
     if min(row_count, before_evaluation) < required:
         raise ValueError("insufficient_strategy_history")

@@ -1,5 +1,18 @@
 # Review Stabilized Work Log
 
+## 2026-09-23 - Effective Filter-History Boundary
+
+Active role: ENGINEER. Independent review of d47cad9fb identified omitted
+filter_window defaults requiring at least eight bars for short EMA/Donchian
+periods. Preflight now mirrors the actual max(periods, 8) filter default.
+Regressions observe the signal function's market_context window and check
+refusal one bar below, acceptance at the boundary, for implicit and explicit
+windows in both families. Neighborhood: 240 passed in 4.19s; diff check passed.
+Earlier-started full run finished 3766 passed, 33 skipped, 17 warnings in 383.76s;
+because edits occurred during that run it is not final-head full-suite proof.
+Final-head CI and independent confirmation remain required. No deployment.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-09-23 - Frozen-Review Corrections
 
 Active role: ENGINEER. Independent reviewer rejected 2491daf83 for insufficient
