@@ -131,6 +131,34 @@ Verification: reviewed both instruction surfaces for the new section/reference;
 git diff --check. No runtime code changed or tests run. These are agent rules,
 not an executable research preflight; runtime enforcement remains unimplemented.
 Acceptance: ACCEPTED for the explicitly requested instruction changes only.
+## 2026-09-23 - Discussion Coverage and Diagnostic Preservation
+
+Active role: AUDITOR. Documentation audit found the initial economic dissection
+and its prior work-log entry were still uncommitted. Preserved them with a
+closeout addendum linking subsequent isolated implementation/review/shelving.
+No economic finding changed; no new treatment acceptance. A consolidated MCB-1
+handoff is recorded separately on its docs-only branch, not on the exit branch.
+Verification: read documents, branch status and git diff --check; no runtime
+code changes or tests. These branches remain local, not merged/deployed.
+Acceptance state: ACCEPTED (documentation coverage only).
+
+## 2026-09-23 - Breakout Economic Root-Cause Dissection
+
+Active role: AUDITOR. Objective: identify a bounded treatment from existing
+economic evidence, rather than another parameter sweep. Read-only arithmetic
+on preserved trades showed 1.3309 bps mean gross closed-trade price return,
+versus approximately 30 bps modeled round-trip friction. Signal replay found
+28/42 closed positions with earlier filter-suppressed downside breaks (357
+volatility and 12 volume bars). This proves suppression, not that removing it
+improves returns. Recorded source gaps, execution/sizing limitations, primary
+research references and a single exit-policy comparison plan in
+`docs/research/breakout_economic_dissection_2026_09_23.md`.
+No runtime, campaigns, gates or deployment changed. Local JSON arithmetic and
+read-only replay completed; no full tests needed for docs-only findings.
+Remaining risk: gapped retrospective input cannot validate profitability;
+causal exit-policy comparison and independent review remain outstanding.
+Acceptance state: INCOMPLETE.
+
 ## 2026-09-23 - Relocated Historical Diagnostic Reproduction
 
 Active role: ENGINEER. Completed a concrete portability repair while PR #600 CI
