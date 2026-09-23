@@ -106,7 +106,7 @@ def main(argv: list[str] | None = None) -> int:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(text + "\n", encoding="utf-8")
     print(text)
-    if args.fail_if_not_ok and not bool(result.get("ok")):
+    if result.get("preflight", {}).get("status") == "failed" or (args.fail_if_not_ok and not bool(result.get("ok"))):
         return 2
     return 0
 

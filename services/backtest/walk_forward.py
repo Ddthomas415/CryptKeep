@@ -4,8 +4,9 @@ import hashlib
 import json
 from typing import Any
 
-from services.backtest.ohlcv_archive import ARCHIVE_SOURCE, load_archived_ohlcv, normalize_ohlcv_rows
+from services.backtest.ohlcv_archive import ARCHIVE_SOURCE, load_archived_ohlcv
 from services.backtest.parity_engine import run_parity_backtest
+from services.backtest.research_preflight import check_research_history, check_research_inputs, resolve_research_config
 
 
 def _fnum(value: Any, default: float = 0.0) -> float:
@@ -187,8 +188,8 @@ def _archive_dataset_block(
     limit: int,
     since_ms: int | None,
 ) -> dict[str, Any]:
-    first_ts = _safe_ts_ms(rows[0][0]) if rows else None
-    last_ts = _safe_ts_ms(rows[-1][0]) if rows else None
+    first_ts = _safe_ts_ms(rows[0][0]) if rows and isinstance(rows[0], (list, tuple)) and rows[0] else None
+    last_ts = _safe_ts_ms(rows[-1][0]) if rows and isinstance(rows[-1], (list, tuple)) and rows[-1] else None
     return {
         "source": str(loaded.get("source") or ARCHIVE_SOURCE),
         "dataset_hash": str(loaded.get("dataset_hash") or ""),
@@ -339,8 +340,9 @@ def run_archive_backed_walk_forward(
         limit=requested_limit,
         since_ms=since_ms,
         db_path=db_path,
+        strict_raw=True,
     )
-    rows = normalize_ohlcv_rows(list(loaded.get("rows") or []))
+    rows = list(loaded.get("rows") or [])
     dataset = _archive_dataset_block(
         loaded=loaded,
         rows=rows,
@@ -350,13 +352,30 @@ def run_archive_backed_walk_forward(
         limit=requested_limit,
         since_ms=since_ms,
     )
-    strategy_name = str(((cfg or {}).get("strategy") or {}).get("name") or "ema_cross")
-    cfg_hash = _config_hash(dict(cfg or {}))
+    strategy_block = cfg.get("strategy") if isinstance(cfg, dict) else None
+    strategy_name = str(strategy_block.get("name") or "") if isinstance(strategy_block, dict) else ""
+    cfg_hash = _config_hash(cfg) if isinstance(cfg, dict) else ""
 
-    if not (loaded.get("ok") and loaded.get("complete")):
+    preflight = {"status": "not_run"}
+    resolved_cfg = dict(cfg) if isinstance(cfg, dict) else {}
+    if loaded.get("ok") and loaded.get("complete"):
+        try:
+            resolved_cfg = resolve_research_config(cfg)
+            preflight = check_research_inputs(
+                rows, timeframe=timeframe, since_ms=since_ms,
+                initial_cash=initial_cash, fee_bps=fee_bps, slippage_bps=slippage_bps,
+            )
+            preflight["required_history_bars"] = check_research_history(
+                resolved_cfg, row_count=len(rows), warmup_bars=warmup_bars, min_train_bars=min_train_bars,
+            )
+        except ValueError as exc:
+            preflight = {"status": "failed", "reason": str(exc)}
+
+    if not (loaded.get("ok") and loaded.get("complete")) or preflight["status"] != "passed":
         return {
             "ok": False,
-            "reason": str(loaded.get("reason") or "archive_unavailable"),
+            "reason": str(preflight.get("reason") or loaded.get("reason") or "archive_unavailable"),
+            "preflight": preflight,
             "research_only": True,
             "archive_backed": False,
             "artifact_type": "archive_backed_walk_forward_v1",
@@ -374,7 +393,7 @@ def run_archive_backed_walk_forward(
         }
 
     result = run_anchored_walk_forward(
-        cfg=dict(cfg or {}),
+        cfg=resolved_cfg,
         symbol=str(symbol),
         candles=rows,
         warmup_bars=int(warmup_bars),
@@ -399,6 +418,9 @@ def run_archive_backed_walk_forward(
             "venue": str(venue),
             "timeframe": str(timeframe),
             "config_hash": cfg_hash,
+            "resolved_config": resolved_cfg,
+            "resolved_config_hash": _config_hash(resolved_cfg),
+            "preflight": preflight,
             "dataset_hash": dataset_hash,
             "dataset": dataset,
         }

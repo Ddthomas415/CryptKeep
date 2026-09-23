@@ -1,5 +1,95 @@
 # Review Stabilized Work Log
 
+## 2026-09-23 - Effective Filter-History Boundary
+
+Active role: ENGINEER. Independent review of d47cad9fb identified omitted
+filter_window defaults requiring at least eight bars for short EMA/Donchian
+periods. Preflight now mirrors the actual max(periods, 8) filter default.
+Regressions observe the signal function's market_context window and check
+refusal one bar below, acceptance at the boundary, for implicit and explicit
+windows in both families. Neighborhood: 240 passed in 4.19s; diff check passed.
+Earlier-started full run finished 3766 passed, 33 skipped, 17 warnings in 383.76s;
+because edits occurred during that run it is not final-head full-suite proof.
+Final-head CI and independent confirmation remain required. No deployment.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-23 - Frozen-Review Corrections
+
+Active role: ENGINEER. Independent reviewer rejected 2491daf83 for insufficient
+indicator history passing, sweep CLI success after all preflight failures, and
+malformed strategy blocks crashing before refusal. Added required-history check
+using actual signal defaults before evaluation, unconditional failed-preflight
+sweep exit, and safe config handling with regressions for each supported family
+and both API consumers. Targeted neighborhood: 236 passed in 3.77s.
+Actual preserved 22704-row breakout dataset was refused by the guarded CLI with
+exit 2, archive_not_contiguous, zero simulated windows. Source/config remains
+unchanged. Full suite started against earlier head remains in progress and cannot
+be presented as final-head proof. Independent re-review required on new snapshot.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW; no merge or deployment.
+
+## 2026-09-23 - Executable Archive Research Preflight
+
+Active role: ENGINEER. Objective: prevent the observed gapped-data and ignored-
+filter economic runs, not merely document them. HIGH risk: research financial
+logic. No live/paper runner, campaign, gate, deployment or archive repair edits.
+Archive walk-forward and its parameter-sweep callers now use strict raw read-only
+SQLite loading, reject invalid chronology/candles/costs before simulation, resolve
+supported nested EMA/Donchian fields, and retain effective config/hash and costs.
+Flat SMA200 is supported; unvalidated identities, disabled strategies, unknown
+parameters and conflicting declarations fail closed. CLI preflight failure exits
+2. Existing historical artifacts remain unchanged. This intentionally tightens
+the archive API; direct non-archive backtests/evidence cycles remain uncovered.
+
+Independent initial review found normalization masking invalid inputs and
+unsupported identities producing zero-trade results. Corrected with strict raw
+loading and refusal regressions. Fixtures labeled 1h now contain hour-aligned
+hourly rows rather than minute intervals. No runtime defaults changed to satisfy
+fixtures. New tests prove dispatch mapping, no simulation on failure, malformed
+raw input refusal, read-only DB bytes and stored effective cost/config evidence.
+
+Verification: 226 tests across files referencing archive/sweep/preflight surfaces
+passed in 3.61s; alignment OK (23 tests); git diff --check passed. Full suite not
+run at this checkpoint. Initial reviewer saw an evolving patch; final independent
+review requested against a frozen commit, not claimed complete here.
+
+Separate read-only source check: fresh Coinbase BTC/USDT 5m probes omitted
+2026-06-01 05:40 and 2026-06-02 00:25 UTC while returning adjacent bars.
+This supports present source omission for those two candles only, not no-trade
+causation or an explanation of all gaps. No repeated bulk fetch or fabricated bars.
+
+Remaining: no direct non-archive enforcement, general strategy-schema coverage,
+point-in-time availability proof, automated durable bundle builder or final
+independent approval of the prior economic diagnostic. Do not label these done.
+Protocol instructions are included on this branch but are not yet on master.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-22 - Proactive Disclosure and Corrective Action
+
+Active role: ENGINEER. User requested treatment of repeated retrospective
+admissions and missing proactive disclosure. Added requirements to volunteer
+decision-changing facts before action; pair admissions with impact, containment,
+correction and verification; distinguish implemented/tested/published/deployed.
+Runtime prompt references these requirements. No claim that wording alone fixes
+research tooling. Preflight enforcement and production config-mapping regression
+remain unimplemented in this work. Verification: git diff --check and inspection
+of both instruction surfaces; tests not run (instructions only).
+Acceptance: ACCEPTED for requested protocol edit, not behavioral guarantees.
+
+## 2026-09-22 - User-Requested Research Decision Protocol
+
+Active role: ENGINEER. Objective: persist the requested corrective work rules.
+SHOWN: existing instructions prioritize hardening without a research eligibility
+contract. Added one authoritative section in AGENTS.md and a runtime_prompt.md
+reference/priority override. Requires decision-first research, input and effective
+config checks before simulation, bounded work, no silent diagnostic downgrade,
+durable reproducibility and recurrence prevention. Preserves safety and approval
+boundaries; does not authorize campaign changes or promise returns.
+Expected outcome: avoid repeating unqualified research and documentation loops.
+Verification: reviewed both instruction surfaces for the new section/reference;
+git diff --check. No runtime code changed or tests run. These are agent rules,
+not an executable research preflight; runtime enforcement remains unimplemented.
+Acceptance: ACCEPTED for the explicitly requested instruction changes only.
+
 ## 2026-09-22 - PR #598 CI Alignment Correction
 
 Active role: ENGINEER. Human approval received for the verifier. SHOWN: both

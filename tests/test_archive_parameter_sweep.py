@@ -9,9 +9,9 @@ from storage.market_store_sqlite import MarketStore
 
 def _seed_archive(db_path, *, count: int = 64) -> None:
     store = MarketStore(db_path)
-    base_ms = 1_700_000_000_000
+    base_ms = 1_699_999_200_000
     for idx in range(count):
-        ts_ms = base_ms + (idx * 60_000)
+        ts_ms = base_ms + (idx * 3_600_000)
         drift = 0.08 * idx
         cycle = ((idx % 12) - 6) * 0.35
         close = 100.0 + drift + cycle

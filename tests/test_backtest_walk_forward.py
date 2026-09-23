@@ -19,10 +19,10 @@ def _candles(closes: list[float]) -> list[list[float]]:
 
 def _seed_archive(db_path, closes: list[float], *, venue: str = "coinbase", symbol: str = "BTC/USD") -> None:
     store = MarketStore(db_path)
-    base_ms = 1_700_000_000_000
+    base_ms = 1_699_999_200_000
     for idx, row in enumerate(_candles(closes)):
         store.upsert_ohlcv(
-            ts_ms=base_ms + (idx * 60_000),
+            ts_ms=base_ms + (idx * 3_600_000),
             exchange=venue,
             symbol=symbol,
             timeframe="1h",

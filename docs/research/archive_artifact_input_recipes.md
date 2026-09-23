@@ -31,6 +31,32 @@ required.
 
 ## Required Decisions Before Running
 
+New archive walk-forward runs (including sweep variants) enforce
+`strict_contiguous_v1` on raw SQLite archive rows before normalization/simulation:
+grid alignment, adjacent spacing, requested start, finite valid candles/volume,
+positive capital and finite nonnegative cost assumptions below 10000 bps.
+This intentionally refuses datasets that older row-count-only checks accepted.
+The strict read uses SQLite mode=ro without initializing or coercing the store.
+It is not point-in-time availability, recovery of duplicates already overwritten during ingestion,
+paper execution parity or evidence of an edge. Only fixed s/m/h/d intervals
+are supported by this initial preflight; no gap-filling override is provided.
+
+Initial supported research identities are EMA, Donchian and flat-config
+SMA200; other strategies (including composite/context strategies) are refused
+until their consumed parameters are explicitly validated. Disabled strategies
+are refused rather than reported as a successful zero-trade economic run.
+Nested EMA/Donchian signal and filter settings are resolved into registry fields;
+conflicting flat/nested settings, unknown flat parameters, unsupported nested
+settings and incompatible signal type/direction declarations are refused.
+Indicator history must be available before evaluation starts, including implicit
+strategy defaults. Insufficient-history holds are not a successful no-signal study.
+New results retain source config hash, resolved config/hash, and preflight cost
+assumptions; sweeps retain them per variant. Historical artifacts are unchanged
+and must not be assigned current defaults retroactively. Failed preflight yields
+no simulated windows; the walk-forward CLI exits 2 even without fail-if-not-ok.
+The sweep CLI also exits 2 when preflight rejects variants and none succeeds.
+Direct non-archive backtest calls are not covered by this preflight.
+
 - Select the strategy config or source artifact path.
 - Select the venue, symbol, timeframe, and archive row window when the producer
   reads archived market data.
