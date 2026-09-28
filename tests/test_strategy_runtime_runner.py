@@ -833,6 +833,55 @@ def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeyp
     assert "exit_stack_rule" not in queued[0]["meta"]
 
 
+@pytest.mark.parametrize("blocker", ["none", "cooldown", "intent", "restart"])
+def test_daily_flat_exit_retries_without_duplicate_enqueue(monkeypatch, tmp_path, blocker):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    emitted = []
+    calls = {"gate": 0, "queue": 0, "sleep": 0}
+    class Queue:
+        def list_intents(self, **kwargs):
+            calls['queue'] += 1
+            if blocker == 'intent' and calls['queue'] == 1:
+                return [{'source':'strategy','symbol':'BTC/USD','status':'submitted'}]
+            return emitted
+        def upsert_intent(self, row):
+            emitted.append(dict(row))
+    class Paper:
+        def get_position(self, symbol):
+            return {'qty':1.,'avg_price':100.,'symbol':symbol}
+    monkeypatch.setattr(runner,'IntentQueueSQLite',Queue)
+    monkeypatch.setattr(runner,'PaperTradingSQLite',Paper)
+    monkeypatch.setattr(runner,'collect_runtime_rows',lambda **kw:([],[]))
+    cfg = dict(enabled=True,strategy_id='sma_200_trend',strategy={'name':'sma_200_trend'},
+        strategy_preset='es_daily_trend_v1',venue='coinbase',symbol='BTC/USD',
+        fast_n=2,slow_n=4,min_bars=1,max_bars=20,loop_interval_sec=0.,qty=.5,
+        order_type='market',allow_first_signal_trade=False,use_ccxt_fallback=False,
+        max_tick_age_sec=5.,position_aware=True,sell_full_position=True,
+        signal_source='synthetic_mid_ohlcv',auto_select_best_venue=False,
+        switch_only_when_blocked=True,venue_candidates=[])
+    monkeypatch.setattr(runner,'_cfg',lambda:dict(cfg))
+    monkeypatch.setattr(runner,'_fetch_mid',lambda cfg:(90.,1))
+    monkeypatch.setattr(runner,'_strategy_signal',lambda *a,**kw:{'ok':True,'action':'hold','signal':'flat','reason':'sma200:flat'})
+    monkeypatch.setattr(runner,'evaluate_strategy_exit_stack',lambda **kw:{'action':'hold'})
+    def gate(**kw):
+        calls['gate'] += 1
+        return {'ok':not(blocker=='cooldown' and calls['gate']==1)}
+    monkeypatch.setattr(runner,'should_block_symbol',gate)
+    if blocker=='restart':
+        state=runner.StrategyStateSQLite()
+        state.set('last_action:coinbase:BTC/USD:sma_200_trend','sell')
+        state.set('warmed:coinbase:BTC/USD:sma_200_trend','1')
+    def sleep(_):
+        calls['sleep']+=1
+        if calls['sleep']>=6:
+            runner.STOP_FILE.parent.mkdir(parents=True,exist_ok=True)
+            runner.STOP_FILE.write_text('stop')
+    monkeypatch.setattr(runner.time,'sleep',sleep)
+    runner.run_forever()
+    assert len(emitted)==1
+    assert emitted[0]['side']=='sell' and emitted[0]['qty']==1.
+
+
 def test_run_forever_keeps_sma_200_trend_fixed_size_when_risk_sizing_config_present(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     qdb = runner.IntentQueueSQLite()

@@ -289,6 +289,19 @@ def request_stop() -> dict:
     return {"ok": True, "stop_file": str(STOP_FILE)}
 
 
+def _position_aware_signal_action(signal: dict, *, strategy_id: str, position_qty: float) -> str:
+    action = str(signal.get("action") or "hold").lower().strip()
+    if action not in ("buy", "sell", "hold"):
+        return "hold"
+    # The daily adapter expresses FLAT as HOLD; only an existing long may exit.
+    if (strategy_id == "sma_200_trend" and position_qty > 0
+            and signal.get("ok") is True and action == "hold"
+            and signal.get("signal") == "flat"
+            and signal.get("reason") != "insufficient_history"):
+        return "sell"
+    return action
+
+
 def _safe_positive_float(value: object, *, default: float) -> float:
     try:
         out = float(value)
@@ -1264,13 +1277,19 @@ def run_forever() -> None:
                         continue
                     signal = _strategy_signal(sym_cfg, prices, ts_ms=ts_ms)
                     bars = len(prices)
-            decision = str(signal.get("action") or "hold").lower().strip()
-            if decision not in ("buy", "sell", "hold"):
-                decision = "hold"
+            pos = pdb.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0}
+            decision = _position_aware_signal_action(
+                signal, strategy_id=str(cfg["strategy_id"]),
+                position_qty=float(pos.get("qty") or 0.0),
+            )
             changed = False
             note = None
             if not warmed:
-                if decision in ("buy", "sell") and bool(cfg["allow_first_signal_trade"]):
+                daily_position_exit = (
+                    cfg["strategy_id"] == "sma_200_trend" and decision == "sell"
+                    and float(pos.get("qty") or 0.0) > 0.0
+                )
+                if daily_position_exit or (decision in ("buy", "sell") and bool(cfg["allow_first_signal_trade"])):
                     changed = True
                 sdb.set(k_last_action, decision)
                 sdb.set(k_warm, "1")
@@ -1283,7 +1302,6 @@ def run_forever() -> None:
                     last_action = decision
                     sdb.set(k_last_action, decision)
             action = None
-            pos = pdb.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0}
             scale_count = int(str(sdb.get(k_scale_count) or "0").strip() or 0)
 
             all_positions = []
@@ -1407,7 +1425,10 @@ def run_forever() -> None:
                 action = "sell"
                 note = exit_reason
                 changed = False
-            elif changed:
+            elif changed or (
+                cfg["strategy_id"] == "sma_200_trend" and decision == "sell"
+                and signal.get("action") == "hold" and pos_qty > 0.0
+            ):
                 if decision == "buy":
                     if (not cfg["position_aware"]) or (pos_qty <= 0.0):
                         action = "buy"

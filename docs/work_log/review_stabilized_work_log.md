@@ -1,5 +1,26 @@
 # Review Stabilized Work Log
 
+## 2026-09-27 - Isolated SMA-flat exit correction
+
+Active role: ENGINEER. Objective: package the independently accepted SMA-flat
+position exit correction without unrelated capture or research changes.
+SHOWN: valid daily flat/HOLD signals translate to SELL only for an existing
+long. Startup and unchanged-decision retries retain exit eligibility after
+temporary cooldown or outstanding-intent suppression; dedup remains intact.
+Separate reviewer Boole accepted the bounded implementation before packaging.
+
+VERIFIED_ENV: clean git archive of 620bc8dbeee71cca327042902759e219e18f30b6,
+with only the exit patch applied. Using the existing local venv, ran:
+`env PYTHONDONTWRITEBYTECODE=1 /Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q -p no:cacheprovider tests/test_daily_trend_exit_translation.py tests/test_strategy_runtime_runner.py tests/test_es_daily_trend.py tests/test_es_daily_trend_backtest_baseline_runner.py`
+Result: 94 passed in 2.13s. Four capture tests from the mixed working tree are
+intentionally absent. Expected outcome: restore the configured SMA-flat exit
+without changing entries, sizing, campaign provenance or promotion policy.
+
+Acceptance state: ACCEPTED for the separately reviewed bounded local fix.
+UNVERIFIED: CI, deployed integration, real execution and recovery after an
+already-enqueued order fails. No deployment, restart or campaign reset.
+
+
 ## 2026-09-23 - Effective Filter-History Boundary
 
 Active role: ENGINEER. Independent review of d47cad9fb identified omitted
