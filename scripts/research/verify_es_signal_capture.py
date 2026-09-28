@@ -57,9 +57,14 @@ def verify(state: Path, *, since: datetime, until: datetime) -> dict:
                                    ("ohlcv_timeframe", "timeframe"), ("market_data_source", "source")]:
                     if field not in record or record[field] != payload[key]:
                         raise ValueError(f"provenance_mismatch:{field}")
-                for field, key in [("signal_direction", "signal"), ("regime_flag", "regime"),
+                comparisons = [("signal_direction", "signal"), ("regime_flag", "regime"),
                                    ("entry_allowed", "entry_allowed"), ("sma_200", "sma_200"),
-                                   ("atr_ratio", "atr_ratio")]:
+                                   ("atr_ratio", "atr_ratio")]
+                if payload["strategy"].get("entry_policy") == "completed_daily_crossover_v1":
+                    comparisons += [("entry_policy", "entry_policy"),
+                                    ("entry_crossover", "entry_crossover"),
+                                    ("final_action", "action"), ("entry_bar_ts", "entry_bar_ts")]
+                for field, key in comparisons:
                     if field not in record or key not in replay:
                         raise ValueError(f"missing_comparison_field:{field}")
                     actual, expected = record[field], replay[key]

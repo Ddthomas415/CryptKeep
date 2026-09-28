@@ -363,12 +363,25 @@ def signal_from_ohlcv(
     atr_period: int = ATR_PERIOD_DEFAULT,
     evidence_extra: dict[str, Any] | None = None,
     emit_evidence: bool = True,
+    entry_policy: str = "legacy_signal_state",
+    decision_time_ms: int | None = None,
 ) -> dict[str, Any]:
     """Adapter for strategy_registry. Accepts ohlcv rows [ts,o,h,l,c,vol].
 
     Returns the standard registry signal envelope:
       {ok, action, reason, signal, regime, sma_200, atr_ratio}
     """
+    crossover = None
+    if entry_policy != "legacy_signal_state":
+        from services.strategies.daily_crossover import POLICY, completed_crossover
+        if entry_policy != POLICY:
+            return {"ok": False, "action": "hold", "reason": "unknown_entry_policy"}
+        try:
+            ohlcv, crossover = completed_crossover(
+                ohlcv, decision_time_ms=decision_time_ms, period=sma_period,
+            )
+        except (ValueError, TypeError, OverflowError):
+            return {"ok": False, "action": "hold", "reason": "invalid_completed_daily_history"}
     if _trace_enabled():
         _LOG.debug(
             "es_daily_trend.signal_from_ohlcv bars=%s sma_period=%s atr_period=%s",
@@ -416,6 +429,8 @@ def signal_from_ohlcv(
     sma    = compute_sma(closes, sma_period)
 
     action = "buy" if (signal == "long" and reg["entry_allowed"]) else "hold"
+    if crossover is False:
+        action = "hold"
     reason = f"sma200:{signal}:regime:{reg['regime']}"
 
     # Log every signal call to evidence — this is the production signal path
@@ -431,7 +446,9 @@ def signal_from_ohlcv(
                 signal_direction=signal,
                 regime_flag=reg.get("regime", "unknown"),
                 entry_allowed=reg["entry_allowed"],
-                extra=signal_evidence_extra,
+                extra={**signal_evidence_extra, "entry_policy": entry_policy,
+                       "entry_crossover": crossover, "final_action": action,
+                       "entry_bar_ts": int(ohlcv[-1][0])},
             )
     except Exception as _ev_err:
         _LOG.warning("signal evidence logging failed (non-blocking): %s", _ev_err)
@@ -445,4 +462,7 @@ def signal_from_ohlcv(
         "sma_200": sma,
         "atr_ratio": reg.get("atr_ratio"),
         "entry_allowed": reg["entry_allowed"],
+        "entry_policy": entry_policy,
+        "entry_crossover": crossover,
+        "entry_bar_ts": int(ohlcv[-1][0]),
     }

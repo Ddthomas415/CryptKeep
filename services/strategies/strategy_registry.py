@@ -230,6 +230,8 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list, context: dict | None 
                 ohlcv=ohlcv,
                 sma_period=int(st.get("sma_period", 200)),
                 atr_period=int(st.get("atr_period", 20)),
+                entry_policy=st.get("entry_policy", "legacy_signal_state"),
+                decision_time_ms=st.get("decision_time_ms"),
                 evidence_extra=st.get("evidence_extra") if isinstance(st.get("evidence_extra"), dict) else None,
                 emit_evidence=bool(st.get("emit_evidence", True)),
             ),
