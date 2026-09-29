@@ -52,7 +52,7 @@ def test_crossover_final_decision_is_logged_and_verified(tmp_path, monkeypatch, 
     record = records[-1]
     record.update(record.pop("extra"))
     record.update(record_type="signal", timestamp="2026-09-22T00:01:00Z")
-    path = tmp_path / "data/evidence/es_daily_trend_v1/signal_test.jsonl"
+    path = tmp_path / "data" / "evidence" / "es_daily_trend_v1" / "signal_test.jsonl"
     path.parent.mkdir(parents=True)
     path.write_text(json.dumps(record) + "\n")
     assert check(tmp_path)["status"] == "passed"

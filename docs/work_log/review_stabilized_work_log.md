@@ -1,5 +1,15 @@
 # Review Stabilized Work Log
 
+## 2026-09-28 - PR602 test fixture path alignment
+
+Active role: ENGINEER. CI sanity and validate failed the alignment guard on
+the new test's literal data/ path. Replaced it with Path component joins under
+tmp_path; identical fixture destination, no runtime or trading logic changes.
+LOW risk. VERIFIED_ENV: scripts/check_repo_alignment.py passed (23tests,
+2.03s); targeted test_verify_es_signal_capture.py passed (15tests,0.27s).
+No deployment, activation or campaign changes. Acceptance state: ACCEPTED
+for test-only correction; remote CI remains unverified until rerun.
+
 ## 2026-09-28 - Crossover independent acceptance and packaging
 
 Active role: ENGINEER. User approved proceeding after the corrected handoff.
