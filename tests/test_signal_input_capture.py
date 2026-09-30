@@ -142,13 +142,14 @@ def test_replay_in_fresh_process(inputs, tmp_path):
 
     ref = capture.capture_es_inputs(**inputs)["signal_input_sha256"]
     path = tmp_path / "signal_inputs" / f"{ref}.json"
-    subprocess.run([
+    completed = subprocess.run([
         sys.executable, "-c",
         "from pathlib import Path; import sys; "
         "from services.strategies.signal_input_capture import replay_es_inputs; "
         "assert replay_es_inputs(Path(sys.argv[1]), expected_sha256=sys.argv[2])['ok']",
         str(path), ref,
-    ], check=True, capture_output=True, text=True)
+    ], check=False, capture_output=True, text=True, timeout=30)
+    assert completed.returncode == 0, completed.stderr[-4000:]
 
 
 def test_omitted_parameter_defaults_match_registry(inputs, tmp_path):

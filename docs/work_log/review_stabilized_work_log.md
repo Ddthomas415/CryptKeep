@@ -1,5 +1,41 @@
 # Review Stabilized Work Log
 
+## 2026-09-30 - Full local replay investigation result
+
+- ENGINEER for test-only diagnostics. SHOWN: full local run completed with
+  3813 passed, 33 skipped, 17 warnings in 283.10s. Command: local venv Python
+  -m pytest -q -x -p no:cacheprovider tests, PYTHONDONTWRITEBYTECODE=1.
+- CI's failure did not reproduce locally. Root cause remains UNVERIFIED;
+  passing this run is not evidence the GitHub failure is repaired.
+- Publishing only existing test diagnostics: 30-second subprocess timeout and
+  bounded stderr assertion. Runtime code, fingerprints and replay checks are
+  unchanged. Test still requires successful subprocess replay.
+- LOW-risk diagnostic-only slice ACCEPTED with local proof; encompassing
+  crossover PR remains subject to its existing review/CI requirements. No
+  merge, deployment, campaign reset or provenance weakening.
+
+## 2026-09-30 - Resume pending replay CI investigation
+
+- AUDITOR; VERIFIED_ENV isolated crossover worktree. Preserved pre-existing
+  diagnostic test edits. GitHub #603 checks pending at inspection; no wait loop.
+- Re-read #602 failed CI: fresh-process replay exits nonzero in full suite.
+  No evidence yet distinguishes identity mismatch from other subprocess errors.
+- Focused order: daily_crossover, es_daily_trend, signal_input_capture,
+  verify_es_signal_capture: 73 passed in 0.85s with local venv Python and
+  PYTHONDONTWRITEBYTECODE=1, pytest -q -p no:cacheprovider. diff check passed.
+- Full tests reproduction started with -x using existing diagnostic assertion;
+  outcome pending at this entry. No runtime fingerprint changes, merge, deploy,
+  campaigns or evidence reset. INCOMPLETE; isolated pass does not close CI failure.
+
+## 2026-09-29 - Fresh-process replay failure diagnosis
+
+Active role: ENGINEER. CI still fails fresh-process capture replay in fullsuite;
+local isolated capture+verifier tests pass28/28 in0.39s. Root cause UNVERIFIED.
+Added30second subprocess timeout and assertion exposing bounded stderr in this
+synthetic-fixture test; no identity/schema/runtime changes or weakened assertion.
+Separate investigator active. Fullsuite reproduction launched for diagnosis.
+Acceptance state: INCOMPLETE until root cause and corrected integration proof.
+
 ## 2026-09-28 - PR602 test fixture path alignment
 
 Active role: ENGINEER. CI sanity and validate failed the alignment guard on
