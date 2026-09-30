@@ -1,5 +1,132 @@
 # Review Stabilized Work Log
 
+## 2026-09-30 - Full local replay investigation result
+
+- ENGINEER for test-only diagnostics. SHOWN: full local run completed with
+  3813 passed, 33 skipped, 17 warnings in 283.10s. Command: local venv Python
+  -m pytest -q -x -p no:cacheprovider tests, PYTHONDONTWRITEBYTECODE=1.
+- CI's failure did not reproduce locally. Root cause remains UNVERIFIED;
+  passing this run is not evidence the GitHub failure is repaired.
+- Publishing only existing test diagnostics: 30-second subprocess timeout and
+  bounded stderr assertion. Runtime code, fingerprints and replay checks are
+  unchanged. Test still requires successful subprocess replay.
+- LOW-risk diagnostic-only slice ACCEPTED with local proof; encompassing
+  crossover PR remains subject to its existing review/CI requirements. No
+  merge, deployment, campaign reset or provenance weakening.
+
+## 2026-09-30 - Resume pending replay CI investigation
+
+- AUDITOR; VERIFIED_ENV isolated crossover worktree. Preserved pre-existing
+  diagnostic test edits. GitHub #603 checks pending at inspection; no wait loop.
+- Re-read #602 failed CI: fresh-process replay exits nonzero in full suite.
+  No evidence yet distinguishes identity mismatch from other subprocess errors.
+- Focused order: daily_crossover, es_daily_trend, signal_input_capture,
+  verify_es_signal_capture: 73 passed in 0.85s with local venv Python and
+  PYTHONDONTWRITEBYTECODE=1, pytest -q -p no:cacheprovider. diff check passed.
+- Full tests reproduction started with -x using existing diagnostic assertion;
+  outcome pending at this entry. No runtime fingerprint changes, merge, deploy,
+  campaigns or evidence reset. INCOMPLETE; isolated pass does not close CI failure.
+
+## 2026-09-29 - Fresh-process replay failure diagnosis
+
+Active role: ENGINEER. CI still fails fresh-process capture replay in fullsuite;
+local isolated capture+verifier tests pass28/28 in0.39s. Root cause UNVERIFIED.
+Added30second subprocess timeout and assertion exposing bounded stderr in this
+synthetic-fixture test; no identity/schema/runtime changes or weakened assertion.
+Separate investigator active. Fullsuite reproduction launched for diagnosis.
+Acceptance state: INCOMPLETE until root cause and corrected integration proof.
+
+## 2026-09-28 - PR602 test fixture path alignment
+
+Active role: ENGINEER. CI sanity and validate failed the alignment guard on
+the new test's literal data/ path. Replaced it with Path component joins under
+tmp_path; identical fixture destination, no runtime or trading logic changes.
+LOW risk. VERIFIED_ENV: scripts/check_repo_alignment.py passed (23tests,
+2.03s); targeted test_verify_es_signal_capture.py passed (15tests,0.27s).
+No deployment, activation or campaign changes. Acceptance state: ACCEPTED
+for test-only correction; remote CI remains unverified until rerun.
+
+## 2026-09-28 - Crossover independent acceptance and packaging
+
+Active role: ENGINEER. User approved proceeding after the corrected handoff.
+Separate reviewer Boole accepted the bounded implementation against 580ca31ea,
+with no remaining actionable findings. SHOWN: reviewer independently ran the
+seven-file targeted suite (141 passed in 3.64s) and diff check. The three earlier
+findings are resolved; legacy behavior remains default.
+Acceptance state: ACCEPTED by separate reviewer, bounded implementation only.
+This records external acceptance, not same-thread self-approval.
+Packaging does not authorize deployment, policy activation, service restart,
+or trial reset. Full-suite, CI, host integration and actual fills remain
+UNVERIFIED; no profitability claim is made.
+
+## 2026-09-28 - Crossover review corrections
+
+Active role: ENGINEER. Address the three independent findings without activation.
+Runtime now freezes the completed-bar cutoff before OHLCV acquisition. Startup
+suppression persists the crossover bar in existing strategy state so retries
+and restarts cannot bypass allow_first_signal_trade=false; subsequent crossing
+bars remain eligible. Signal evidence records final action, crossover outcome,
+policy and bar timestamp; verifier requires these for the new policy while
+retaining legacy-record compatibility.
+
+SHOWN / VERIFIED_ENV: same seven-file targeted pytest command documented below,
+using local venv with PYTHONDONTWRITEBYTECODE=1 and -p no:cacheprovider:
+141 passed in 3.62s; git diff --check passed. Added pre-fetch midnight cutoff
+assertion, startup suppression/restart/later-bar cases and real capture-to-replay
+BUY/HOLD verification including missing/tampered final decision fields.
+Initial test run had one fixture failure because the restarted loop stopped
+before retrying the simulated open intent; reset its loop budget, then reran.
+No host changes, campaign reset, activation, or economic benefit claimed.
+UNVERIFIED: full suite, CI, host integration, exact fill timing and profitability.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-28 - Independent crossover review findings
+
+Active role: ENGINEER. User approved proceeding; independent reviewer Boole
+subsequently returned REJECTED for the frozen candidate. Approval is not
+represented as acceptance of defects that were not yet disclosed.
+
+SHOWN by separate review: runtime assigns the completion cutoff after fetching
+OHLCV, permitting a pre-midnight snapshot to become eligible across midnight;
+the crossover retry bypass also overrides allow_first_signal_trade=false;
+capture verification does not compare the final crossover BUY/HOLD decision.
+Reviewer independently reproduced 131 passing targeted tests and a clean diff
+check, demonstrating that passing tests do not cover these defects.
+
+Required correction: freeze a conservative pre-fetch cutoff; preserve the
+explicit startup restriction while retaining permitted retries; capture and
+verify final action/crossover outcomes. Add regressions before renewed review.
+No commit, deployment, policy activation, campaign reset, or history rewrite
+performed in response to this approval. Acceptance state: INCOMPLETE.
+
+## 2026-09-28 - Explicit completed-daily crossover implementation candidate
+
+Active role: ENGINEER. User selected the documented crossover rule. HIGH risk:
+financial entry logic. Isolated worktree codex/es-completed-crossover, based on
+merged 580ca31ea; active checkout and campaigns untouched.
+Added opt-in completed_daily_crossover_v1: adjacent completed daily closes,
+each compared with its own SMA, regime permission at the crossing, malformed
+or stale history refused. Legacy default preserved. Runtime supplies as-of
+time and allows a valid crossover through startup/unchanged-action latch;
+existing position/risk/open-intent/emission guards remain. No latch resets.
+Signal capture retains policy/as-of and fingerprints new helper for replay.
+Research next-open schedule uses the same registry and preceding bars only;
+it is a signal schedule, not a fill simulator or profitability result.
+
+SHOWN: 131 passed in 2.81s using local venv Python, PYTHONDONTWRITEBYTECODE=1,
+pytest -q -p no:cacheprovider with test_daily_crossover.py,
+test_es_crossover_schedule.py, test_strategy_runtime_runner.py,
+test_es_daily_trend.py, test_signal_input_capture.py,
+test_verify_es_signal_capture.py, test_daily_trend_exit_translation.py.
+git diff --check passed. Tests include startup/restart/temporary blockers,
+duplicate suppression, forming bars, gap/stale/future refusal, regime recovery,
+capture replay and execution-bar price exclusion. No full-suite/CI/host proof.
+UNVERIFIED: actual order timing/fills, full economic comparison, deployment.
+Existing research artifacts are not relabeled. No config activation, restart,
+live action, or campaign evidence rewrite. Separate reviewer requested.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+
 ## 2026-09-27 - Isolated SMA-flat exit correction
 
 Active role: ENGINEER. Objective: package the independently accepted SMA-flat

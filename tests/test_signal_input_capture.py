@@ -41,6 +41,20 @@ def test_capture_replay_and_dedup(inputs, tmp_path):
     assert json.loads(path.read_text()) == payload
 
 
+def test_crossover_capture_preserves_policy_and_asof(inputs, tmp_path, monkeypatch):
+    from services.strategies import es_daily_trend as es
+    from services.strategies.daily_crossover import DAY_MS, POLICY
+    monkeypatch.setattr(es, "regime_stability", lambda *a, **kw: {"entry_allowed": True, "regime": "test"})
+    inputs["strategy"].update(sma_period=3, entry_policy=POLICY, decision_time_ms=5 * DAY_MS)
+    inputs["ohlcv"] = [[(i+1)*DAY_MS,c,c+1,c-1,c,10] for i,c in enumerate([10,10,10,12])]
+    ref = capture.capture_es_inputs(**inputs)["signal_input_sha256"]
+    path = tmp_path / "signal_inputs" / f"{ref}.json"
+    assert capture.replay_es_inputs(path, expected_sha256=ref)["action"] == "buy"
+    payload = json.loads(path.read_text())
+    assert payload["strategy"]["decision_time_ms"] == 5 * DAY_MS
+    assert payload["strategy"]["entry_policy"] == POLICY
+
+
 def test_disabled_and_other_strategy_no_write(inputs, monkeypatch, tmp_path):
     monkeypatch.delenv("CBP_CAPTURE_ES_SIGNAL_INPUTS")
     assert capture.capture_es_inputs(**inputs) == {}
@@ -128,13 +142,14 @@ def test_replay_in_fresh_process(inputs, tmp_path):
 
     ref = capture.capture_es_inputs(**inputs)["signal_input_sha256"]
     path = tmp_path / "signal_inputs" / f"{ref}.json"
-    subprocess.run([
+    completed = subprocess.run([
         sys.executable, "-c",
         "from pathlib import Path; import sys; "
         "from services.strategies.signal_input_capture import replay_es_inputs; "
         "assert replay_es_inputs(Path(sys.argv[1]), expected_sha256=sys.argv[2])['ok']",
         str(path), ref,
-    ], check=True, capture_output=True, text=True)
+    ], check=False, capture_output=True, text=True, timeout=30)
+    assert completed.returncode == 0, completed.stderr[-4000:]
 
 
 def test_omitted_parameter_defaults_match_registry(inputs, tmp_path):

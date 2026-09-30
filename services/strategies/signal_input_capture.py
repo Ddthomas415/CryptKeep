@@ -23,7 +23,7 @@ def _encode(value: dict) -> bytes:
 
 def _code_identity() -> dict:
     # Fingerprint loaded functions, not a checkout that may change mid-process.
-    from services.strategies import es_daily_trend, strategy_registry
+    from services.strategies import daily_crossover, es_daily_trend, strategy_registry
 
     functions = {
         name: hashlib.sha256(marshal.dumps(fn.__code__)).hexdigest()
@@ -33,10 +33,15 @@ def _code_identity() -> dict:
     functions["registry.compute_signal"] = hashlib.sha256(
         marshal.dumps(strategy_registry.compute_signal.__code__)
     ).hexdigest()
+    functions["daily_crossover.completed_crossover"] = hashlib.sha256(
+        marshal.dumps(daily_crossover.completed_crossover.__code__)
+    ).hexdigest()
     constants = {
         name: value for name, value in vars(es_daily_trend).items()
         if name.isupper() and isinstance(value, (str, int, float, bool))
     }
+    constants["daily_crossover.DAY_MS"] = daily_crossover.DAY_MS
+    constants["daily_crossover.POLICY"] = daily_crossover.POLICY
     return {"python": platform.python_version(), "functions": functions, "constants": constants}
 
 
@@ -85,6 +90,8 @@ def capture_es_inputs(*, strategy: dict, symbol: str, venue: str, ohlcv: list) -
                 "trade_enabled": bool(strategy.get("trade_enabled", True)),
                 "sma_period": int(strategy.get("sma_period", 200)),
                 "atr_period": int(strategy.get("atr_period", 20)),
+                "entry_policy": strategy.get("entry_policy", "legacy_signal_state"),
+                "decision_time_ms": strategy.get("decision_time_ms"),
             },
             "symbol": symbol,
             "venue": venue,

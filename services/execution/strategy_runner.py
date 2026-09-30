@@ -1139,6 +1139,7 @@ def run_forever() -> None:
                     f"public_ohlcv:{timeframe}" if timeframe else "tick_based",
                 )
                 if timeframe:
+                    acquisition_cutoff_ms = int(time.time() * 1000)
                     ohlcv, ohlcv_source = _fetch_public_ohlcv(sym_cfg, clients=public_clients)
                     ohlcv = ohlcv or []
                     if not ohlcv:
@@ -1228,6 +1229,8 @@ def run_forever() -> None:
                         continue
                     evidence_extra.update(_market_quality_evidence_extra(selected_venue, symbol))
                     selected_block["evidence_extra"] = evidence_extra
+                    if selected_strategy == "sma_200_trend":
+                        selected_block["decision_time_ms"] = acquisition_cutoff_ms
                     signal = _registry_signal_with_context(
                         cfg=cfg,
                         strategy_block=selected_block,
@@ -1284,7 +1287,16 @@ def run_forever() -> None:
             )
             changed = False
             note = None
+            crossover_buy = (
+                cfg["strategy_id"] == "sma_200_trend" and decision == "buy"
+                and signal.get("entry_policy") == "completed_daily_crossover_v1"
+                and signal.get("entry_crossover") is True
+            )
+            startup_bar_key = k_warm + ":suppressed_crossover_bar"
+            entry_bar = signal.get("entry_bar_ts")
             if not warmed:
+                if crossover_buy and not cfg["allow_first_signal_trade"]:
+                    sdb.set(startup_bar_key, str(entry_bar))
                 daily_position_exit = (
                     cfg["strategy_id"] == "sma_200_trend" and decision == "sell"
                     and float(pos.get("qty") or 0.0) > 0.0
@@ -1426,11 +1438,17 @@ def run_forever() -> None:
                 note = exit_reason
                 changed = False
             elif changed or (
+                crossover_buy
+            ) or (
                 cfg["strategy_id"] == "sma_200_trend" and decision == "sell"
                 and signal.get("action") == "hold" and pos_qty > 0.0
             ):
                 if decision == "buy":
-                    if (not cfg["position_aware"]) or (pos_qty <= 0.0):
+                    startup_suppressed = crossover_buy and (
+                        type(entry_bar) is not int
+                        or sdb.get(startup_bar_key) == str(entry_bar)
+                    )
+                    if not startup_suppressed and ((not cfg["position_aware"]) or (pos_qty <= 0.0)):
                         action = "buy"
                 elif decision == "sell":
                     if (not cfg["position_aware"]) or (pos_qty > 0.0):

@@ -30,6 +30,42 @@ def check(root):
     return verify(root, since=timestamp("2026-09-22T00:00:00Z"), until=timestamp("2026-09-23T00:00:00Z"))
 
 
+@pytest.mark.parametrize("closes,action", [([10, 10, 10, 12], "buy"), ([10, 11, 12, 13], "hold")])
+def test_crossover_final_decision_is_logged_and_verified(tmp_path, monkeypatch, closes, action):
+    from services.execution import strategy_runner as runner
+    from services.strategies import es_daily_trend as es
+    from services.strategies.daily_crossover import DAY_MS, POLICY
+
+    monkeypatch.setenv("CBP_CAPTURE_ES_SIGNAL_INPUTS", "1")
+    monkeypatch.setattr(capture, "data_dir", lambda: tmp_path / "data")
+    monkeypatch.setattr(es, "regime_stability", lambda *a, **kw: {"entry_allowed": True, "regime": "test"})
+    records = []
+    monkeypatch.setattr(es.EvidenceLogger, "log_signal", lambda self, **kw: records.append(kw))
+    strategy = {"name": "sma_200_trend", "sma_period": 3, "entry_policy": POLICY,
+                "decision_time_ms": 5 * DAY_MS, "evidence_extra": {
+                    "ohlcv_venue": "coinbase", "ohlcv_symbol": "BTC/USDT",
+                    "ohlcv_timeframe": "1d", "market_data_source": "public_ohlcv"}}
+    rows = [[(i+1)*DAY_MS, c, c+1, c-1, c, 10] for i, c in enumerate(closes)]
+    result = runner._registry_signal_with_context(cfg={}, strategy_block=strategy,
+        symbol="BTC/USDT", venue="coinbase", ohlcv=rows)
+    assert result["action"] == action
+    record = records[-1]
+    record.update(record.pop("extra"))
+    record.update(record_type="signal", timestamp="2026-09-22T00:01:00Z")
+    path = tmp_path / "data" / "evidence" / "es_daily_trend_v1" / "signal_test.jsonl"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(record) + "\n")
+    assert check(tmp_path)["status"] == "passed"
+    for field in ("final_action", "entry_crossover", "entry_policy", "entry_bar_ts"):
+        bad = dict(record)
+        bad.pop(field)
+        path.write_text(json.dumps(bad) + "\n")
+        assert check(tmp_path)["status"] == "failed"
+        bad[field] = "tampered"
+        path.write_text(json.dumps(bad) + "\n")
+        assert check(tmp_path)["status"] == "failed"
+
+
 def test_real_replay_is_read_only(recorded):
     root, _, _ = recorded
     before = {str(p): p.read_bytes() for p in root.rglob("*") if p.is_file()}
