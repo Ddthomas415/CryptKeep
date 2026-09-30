@@ -5,6 +5,22 @@ import sqlite3
 from services.analytics import strategy_feedback
 
 
+def test_summary_text_uses_net_win_rate_when_fees_reverse_gross_profit() -> None:
+    fills = [
+        {"side": "buy", "qty": 1.0, "price": 100.0, "fee": 1.0,
+         "symbol": "BTC/USD", "venue": "paper", "fill_ts": "2026-01-01T00:00:00Z"},
+        {"side": "sell", "qty": 1.0, "price": 101.0, "fee": 1.0,
+         "symbol": "BTC/USD", "venue": "paper", "fill_ts": "2026-01-02T00:00:00Z"},
+    ]
+    row = strategy_feedback._summary_for_fills(strategy="breakout_donchian", fills=fills)
+    assert row["gross_realized_pnl"] == 1.0
+    assert row["net_realized_pnl"] == -1.0
+    assert row["wins"] == 0
+    assert row["losses"] == 1
+    assert row["win_rate"] == 0.0
+    assert "0.0% net-of-fees win rate." in row["summary_text"]
+
+
 def test_load_strategy_feedback_ledger_reports_missing_journal(tmp_path) -> None:
     out = strategy_feedback.load_strategy_feedback_ledger(journal_path=str(tmp_path / "missing.sqlite"), symbol="BTC/USD")
 

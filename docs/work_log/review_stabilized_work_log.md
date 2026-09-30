@@ -1,5 +1,26 @@
 # Review Stabilized Work Log
 
+## 2026-09-30 - Isolated net-win summary correction
+
+- ENGINEER. VERIFIED_ENV: isolated worktree based on published master 580ca31ea.
+- SHOWN: summary text used gross win rate next to net PnL despite already
+  computing net_win_rate. Reused that existing value and labeled it net-of-fees.
+- Added a two-fill regression: gross +1, fees 2, net -1 must report zero net
+  winners and 0% net win rate. No accounting, weighting, strategy or order changes.
+- Prior mixed-tree fix preserved untouched. This isolates only the reporting
+  line, regression and work-log entry for review. Independent review remains
+  pending: the prior reviewer agent ID is no longer available in this session.
+- Verification: local venv Python, pytest -q -p no:cacheprovider
+  tests/test_strategy_feedback.py tests/test_journal_analytics.py
+  tests/test_backtest_evidence_cycle.py: 22 passed in 4.81s; git diff --check passed.
+  This is clean-base targeted source proof, not full-suite or deployed proof.
+- HIGH conservatively for financial reporting. READY_FOR_INDEPENDENT_REVIEW.
+  No deployment, campaign modification or historical evidence rewriting.
+- GATE follow-up, 2026-09-30: human explicitly approved this bounded reporting
+  correction after the 22-test handoff. ACCEPTED (human review), not independent
+  agent review or deployment authorization. Publish for GitHub checks; no CI
+  bypass or campaign changes authorized by this acceptance.
+
 ## 2026-09-27 - Isolated SMA-flat exit correction
 
 Active role: ENGINEER. Objective: package the independently accepted SMA-flat
