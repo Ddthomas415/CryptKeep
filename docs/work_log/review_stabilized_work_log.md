@@ -1,5 +1,22 @@
 # Review Stabilized Work Log
 
+## 2026-10-04 - Reviewed-record Git synchronization
+
+Active role: ENGINEER. Objective: publish reviewed records without publishing
+unfinished trading changes. SHOWN: fetched master 97c24c8e4, created isolated
+branch codex/review-sync-20261004, and preserved both unpublished documentation
+commits alongside upstream history. Work-log conflicts retain both sides.
+Copied seven existing review/handoff documents unchanged; their acceptance
+states and limitations remain authoritative. No bundled trading patch applied.
+Tracked diff and non-ignored untracked files from the dirty original checkout
+are backed up under /private/tmp/cryptkeep-git-sync.disYwN. Ignored runtime state
+was not copied or changed. Original dirty checkout remains untouched.
+Verification: git diff --check and publication status checked at handoff.
+Tests not run: this branch changes documentation only. Runtime, accounts,
+credentials, alerts and deployment are unchanged. CI remains separate proof.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW for publication integration.
+
+
 ## 2026-09-30 - Isolated net-win summary correction
 
 - ENGINEER. VERIFIED_ENV: isolated worktree based on published master 580ca31ea.
