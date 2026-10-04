@@ -1,5 +1,22 @@
 # Review Stabilized Work Log
 
+## 2026-10-04 - Reviewed-record Git synchronization
+
+Active role: ENGINEER. Objective: publish reviewed records without publishing
+unfinished trading changes. SHOWN: fetched master 97c24c8e4, created isolated
+branch codex/review-sync-20261004, and preserved both unpublished documentation
+commits alongside upstream history. Work-log conflicts retain both sides.
+Copied seven existing review/handoff documents unchanged; their acceptance
+states and limitations remain authoritative. No bundled trading patch applied.
+Tracked diff and non-ignored untracked files from the dirty original checkout
+are backed up under /private/tmp/cryptkeep-git-sync.disYwN. Ignored runtime state
+was not copied or changed. Original dirty checkout remains untouched.
+Verification: git diff --check and publication status checked at handoff.
+Tests not run: this branch changes documentation only. Runtime, accounts,
+credentials, alerts and deployment are unchanged. CI remains separate proof.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW for publication integration.
+
+
 ## 2026-09-30 - Isolated net-win summary correction
 
 - ENGINEER. VERIFIED_ENV: isolated worktree based on published master 580ca31ea.
@@ -131,6 +148,61 @@ Verification: reviewed both instruction surfaces for the new section/reference;
 git diff --check. No runtime code changed or tests run. These are agent rules,
 not an executable research preflight; runtime enforcement remains unimplemented.
 Acceptance: ACCEPTED for the explicitly requested instruction changes only.
+## 2026-09-23 - Discussion Coverage and Diagnostic Preservation
+
+Active role: AUDITOR. Documentation audit found the initial economic dissection
+and its prior work-log entry were still uncommitted. Preserved them with a
+closeout addendum linking subsequent isolated implementation/review/shelving.
+No economic finding changed; no new treatment acceptance. A consolidated MCB-1
+handoff is recorded separately on its docs-only branch, not on the exit branch.
+Verification: read documents, branch status and git diff --check; no runtime
+code changes or tests. These branches remain local, not merged/deployed.
+Acceptance state: ACCEPTED (documentation coverage only).
+
+## 2026-09-23 - Breakout Economic Root-Cause Dissection
+
+Active role: AUDITOR. Objective: identify a bounded treatment from existing
+economic evidence, rather than another parameter sweep. Read-only arithmetic
+on preserved trades showed 1.3309 bps mean gross closed-trade price return,
+versus approximately 30 bps modeled round-trip friction. Signal replay found
+28/42 closed positions with earlier filter-suppressed downside breaks (357
+volatility and 12 volume bars). This proves suppression, not that removing it
+improves returns. Recorded source gaps, execution/sizing limitations, primary
+research references and a single exit-policy comparison plan in
+`docs/research/breakout_economic_dissection_2026_09_23.md`.
+No runtime, campaigns, gates or deployment changed. Local JSON arithmetic and
+read-only replay completed; no full tests needed for docs-only findings.
+Remaining risk: gapped retrospective input cannot validate profitability;
+causal exit-policy comparison and independent review remain outstanding.
+Acceptance state: INCOMPLETE.
+
+## 2026-09-23 - Relocated Historical Diagnostic Reproduction
+
+Active role: ENGINEER. Completed a concrete portability repair while PR #600 CI
+ran; no new strategy experiment or campaign action. Local ignored bundle:
+`.cbp_state/data/research/breakout_economic_20260922/portable/` now contains a
+SQLite backup snapshot, frozen source config, original calculation/result,
+runtime code exported from adde462ff, SHA256 manifest, reproduction-environment
+package inventory and a checksum-verifying replay.py. Original artifacts retained.
+Wrapper changes only three path assignments in the checksum-verified original
+script, isolates CBP_STATE_DIR, and imports bundled historical runtime code.
+The original gapped-data diagnostic remains ineligible for promotion/research
+selection; historical reproduction is not a bypass for new economic experiments.
+
+SHOWN: copied the bundle to /tmp/ck-relocated-breakout-proof/bundle and ran
+`.venv/bin/python -B /tmp/ck-relocated-breakout-proof/bundle/replay.py` with output
+outside the bundle. cmp confirmed byte-identical output at SHA256
+9c61d07d02fb05a70284501058f7a4259f64fd80813011beeaa90aab51575407. Appending a newline
+to the relocated config caused exit 1 with Bundle checksum mismatch: config.yaml
+before calculation; restored original bytes afterward. No original data mutation.
+The source config canonical hash matches the historical result. This bundles
+source and package version inventory, NOT Python binaries or dependency wheels;
+other operating systems/environments and malicious manifest replacement are not
+verified. The reproduction environment inventory is not claimed as a recovered
+original execution inventory. Artifacts remain local, not uploaded or deployed.
+Independent review of the prior accounting/benchmark interpretation requested.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW for historical replay wrapper;
+relocation and tamper refusal are SHOWN, profitability remains unproven.
 
 ## 2026-09-22 - PR #598 CI Alignment Correction
 
