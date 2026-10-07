@@ -1,5 +1,23 @@
 # Review Stabilized Work Log
 
+## 2026-10-07 - ENGINEER - Workflow secret-condition treatment
+
+- HIGH-risk CI/release syntax correction, separate branch on merged90c9f097e.
+- Main post-merge CI/sanity/governance/PyInstaller green; four other workflows
+  fail before jobs. Unsupported direct secrets in if confirmed by source and
+  official GitHub docs; exact GitHub parser annotation not returned.
+- Changed four workflow conditions to job-level boolean readiness/step env
+  references. Raw secrets stay in prior step scope; predicates/triggers/perms/
+  commands unchanged. Eight regression tests pass in0.14s, sandboxed/no secrets.
+- Full YAML before/after reconstruction also verified before final reusable
+  tests. GitHub parser/real build/signing validation not claimed; no actionlint.
+- Added treatment note; independent review requested. No push/merge/deploy/tag/
+  release/accounts/config/credentials/process change. READY_FOR_INDEPENDENT_REVIEW.
+
+- Independent GATE Hume ACCEPTED_WITH_RISK for18 faithful condition rewrites,
+  no actionable finding, read-only/no independent tests. Required work-log entry
+  now present (added during review). PR/parser validation is next, no release.
+
 ## 2026-10-07 - ENGINEER - Accounting treatment publication candidate
 
 - HIGH-risk bounded accounting treatment, assembled from ten source/test files
