@@ -7,6 +7,8 @@ jobs:
   windows_sign_pyinstaller:
     name: Windows - Build PyInstaller + Sign (optional)
     runs-on: windows-latest
+    env:
+      WIN_SIGNING_READY: ${{ secrets.WIN_CERTIFICATE_BASE64 != '' && secrets.WIN_CERT_PASSWORD != '' && (secrets.WIN_CERT_SHA1 != '' || secrets.WIN_CERT_NAME != '') }}
 
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +35,7 @@ jobs:
           python scripts/release_checklist.py --sync-requires --pyinstaller
 
       - name: Sign dist/ with signtool (PFX base64)
-        if: ${{ secrets.WIN_CERTIFICATE_BASE64 != '' && secrets.WIN_CERT_PASSWORD != '' && (secrets.WIN_CERT_SHA1 != '' || secrets.WIN_CERT_NAME != '') }}
+        if: ${{ env.WIN_SIGNING_READY == 'true' }}
         uses: skymatic/code-sign-action@v3.0.1
         with:
           certificate: ${{ secrets.WIN_CERTIFICATE_BASE64 }}
@@ -46,7 +48,7 @@ jobs:
           recursive: true
 
       - name: Verify signatures (signtool verify)
-        if: ${{ secrets.WIN_CERTIFICATE_BASE64 != '' && secrets.WIN_CERT_PASSWORD != '' && (secrets.WIN_CERT_SHA1 != '' || secrets.WIN_CERT_NAME != '') }}
+        if: ${{ env.WIN_SIGNING_READY == 'true' }}
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
@@ -76,6 +78,10 @@ jobs:
   macos_codesign_and_notarize_briefcase:
     name: macOS - Briefcase Package + CodeSign + Notarize (optional)
     runs-on: macos-latest
+    env:
+      MAC_CERT_READY: ${{ secrets.MAC_CERT_P12_BASE64 != '' && secrets.MAC_CERT_PASSWORD != '' && secrets.MAC_KEYCHAIN_PASSWORD != '' }}
+      MAC_SIGNING_READY: ${{ secrets.MAC_CERT_P12_BASE64 != '' && secrets.MAC_CERT_PASSWORD != '' && secrets.MAC_KEYCHAIN_PASSWORD != '' && secrets.MAC_SIGN_IDENTITY != '' }}
+      MAC_NOTARY_READY: ${{ secrets.MAC_APPLE_ID != '' && secrets.MAC_APP_PASSWORD != '' && secrets.MAC_TEAM_ID != '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -100,7 +106,7 @@ jobs:
           briefcase package macOS
 
       - name: Import signing certificate (p12) into temporary keychain
-        if: ${{ secrets.MAC_CERT_P12_BASE64 != '' && secrets.MAC_CERT_PASSWORD != '' && secrets.MAC_KEYCHAIN_PASSWORD != '' }}
+        if: ${{ env.MAC_CERT_READY == 'true' }}
         shell: bash
         env:
           MAC_CERT_P12_BASE64: ${{ secrets.MAC_CERT_P12_BASE64 }}
@@ -113,7 +119,7 @@ jobs:
             --keychain-password "$MAC_KEYCHAIN_PASSWORD"
 
       - name: CodeSign .app bundles (hardened runtime)
-        if: ${{ secrets.MAC_CERT_P12_BASE64 != '' && secrets.MAC_CERT_PASSWORD != '' && secrets.MAC_KEYCHAIN_PASSWORD != '' && secrets.MAC_SIGN_IDENTITY != '' }}
+        if: ${{ env.MAC_SIGNING_READY == 'true' }}
         shell: bash
         env:
           MAC_SIGN_IDENTITY: ${{ secrets.MAC_SIGN_IDENTITY }}
@@ -121,7 +127,7 @@ jobs:
           bash packaging/signing/macos_ci_codesign_apps.sh --identity "$MAC_SIGN_IDENTITY"
 
       - name: Create notarytool keychain profile
-        if: ${{ secrets.MAC_APPLE_ID != '' && secrets.MAC_APP_PASSWORD != '' && secrets.MAC_TEAM_ID != '' }}
+        if: ${{ env.MAC_NOTARY_READY == 'true' }}
         shell: bash
         env:
           APPLE_ID: ${{ secrets.MAC_APPLE_ID }}
@@ -135,7 +141,7 @@ jobs:
             --team-id "$TEAM_ID"
 
       - name: Notarize + staple DMG(s)
-        if: ${{ secrets.MAC_APPLE_ID != '' && secrets.MAC_APP_PASSWORD != '' && secrets.MAC_TEAM_ID != '' }}
+        if: ${{ env.MAC_NOTARY_READY == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -152,7 +158,7 @@ jobs:
           done
 
       - name: Verify stapler + spctl assess
-        if: ${{ secrets.MAC_APPLE_ID != '' && secrets.MAC_APP_PASSWORD != '' && secrets.MAC_TEAM_ID != '' }}
+        if: ${{ env.MAC_NOTARY_READY == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
