@@ -21,7 +21,7 @@ def test_canonical_fill_sink_logs_schema_failure(monkeypatch, caplog):
     assert any(r.msg == "fill_sink.ensure_schema_failed exec_db=%s" for r in caplog.records)
 
 
-def test_canonical_fill_sink_logs_risk_daily_failure(monkeypatch, caplog):
+def test_canonical_fill_sink_logs_risk_daily_failure(monkeypatch, caplog, tmp_path):
     class _Journal:
         def __init__(self, exec_db: str):
             self.exec_db = exec_db
@@ -42,7 +42,7 @@ def test_canonical_fill_sink_logs_risk_daily_failure(monkeypatch, caplog):
     monkeypatch.setattr(fill_sink, "CanonicalJournal", _Journal)
     monkeypatch.setattr(fill_sink, "RiskDailyDB", _RiskDaily)
 
-    sink = fill_sink.CanonicalFillSink(exec_db=":memory:")
+    sink = fill_sink.CanonicalFillSink(exec_db=str(tmp_path / "execution.sqlite"))
 
     with caplog.at_level(logging.ERROR):
         sink.on_fill({"venue": "coinbase", "fill_id": "fill-1", "symbol": "BTC/USD", "side": "buy", "qty": 1.0, "price": 100.0})
@@ -50,7 +50,7 @@ def test_canonical_fill_sink_logs_risk_daily_failure(monkeypatch, caplog):
     assert any(r.msg == "fill_sink.risk_daily_apply_failed exec_db=%s venue=%s symbol=%s fill_id=%s" for r in caplog.records)
 
 
-def test_canonical_fill_sink_logs_record_failure(monkeypatch, caplog):
+def test_canonical_fill_sink_logs_record_failure(monkeypatch, caplog, tmp_path):
     class _Journal:
         def __init__(self, exec_db: str):
             self.exec_db = exec_db
@@ -63,7 +63,7 @@ def test_canonical_fill_sink_logs_record_failure(monkeypatch, caplog):
 
     monkeypatch.setattr(fill_sink, "CanonicalJournal", _Journal)
 
-    sink = fill_sink.CanonicalFillSink(exec_db=":memory:")
+    sink = fill_sink.CanonicalFillSink(exec_db=str(tmp_path / "execution.sqlite"))
 
     with caplog.at_level(logging.ERROR):
         sink.on_fill({"venue": "coinbase", "fill_id": "fill-2", "symbol": "BTC/USD", "side": "buy", "qty": 1.0, "price": 100.0})

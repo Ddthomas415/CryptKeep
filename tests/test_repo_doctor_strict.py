@@ -31,3 +31,25 @@ def test_repo_doctor_strict_is_clean():
     assert required.issubset(baseline_present)
     assert {"config", "desktop", "src-tauri", "tools"}.issubset(allowed_present)
     assert {"attic", "build", "crypto-trading-ai", "desktop", "src-tauri"}.isdisjoint(baseline_present)
+
+
+def test_repo_doctor_allows_research_without_requiring_it(tmp_path):
+    script = Path(__file__).resolve().parents[1] / "tools/repo_doctor.py"
+    (tmp_path / "research").mkdir()
+    proc = subprocess.run([sys.executable, str(script), "--strict", "--json"],
+                          cwd=tmp_path, capture_output=True, text=True)
+    assert proc.returncode == 0
+    payload = json.loads(proc.stdout)
+    assert "research" in payload["allowed_top_level_present"]
+    assert "research" not in payload["supported_baseline_missing"]
+    assert payload["noncanonical_top_level_dirs"] == []
+
+
+def test_repo_doctor_still_rejects_unexpected_directory(tmp_path):
+    script = Path(__file__).resolve().parents[1] / "tools/repo_doctor.py"
+    (tmp_path / "research").mkdir()
+    (tmp_path / "unexpected_duplicate_runtime").mkdir()
+    proc = subprocess.run([sys.executable, str(script), "--strict", "--json"],
+                          cwd=tmp_path, capture_output=True, text=True)
+    assert proc.returncode == 1
+    assert json.loads(proc.stdout)["noncanonical_top_level_dirs"] == ["unexpected_duplicate_runtime"]
