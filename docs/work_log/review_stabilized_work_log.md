@@ -1,5 +1,25 @@
 # Review Stabilized Work Log
 
+## 2026-10-07 - ENGINEER - Accounting treatment publication candidate
+
+- HIGH-risk bounded accounting treatment, assembled from ten source/test files
+  and separate independent corrective reviews; operator approved receipt order.
+- Durable reconcile delivery/terminal evidence, exactly-once loss cutover and
+  ordered canonical loss effects; per-intent writer refusal; optional research
+  root recognition. Other strategy/governance work deliberately excluded.
+- Old-base620bc8dbe full isolated proof:3812 passed/33 skipped/zero failures.
+  Current publication base97c24c8e4 differs: no full-suite result transferred.
+- Added accounting_treatment_release_20261007.md with proof and release limits.
+  Patch applicability passes; all ten treatment hashes match frozen manifest.
+- Current-base targeted sandbox result:110 passed,25 warnings,1.71s. Initial
+  109-pass/1-failure run put generated temporary state inside candidate root;
+  relocated it outside and reran, without changing production code or guard.
+  Clean state/null keyring, network/operator-home denied except dependency reads.
+- Prior bounded corrections independently accepted by read-only reviewer;
+  assembled current-base candidate READY_FOR_INDEPENDENT_REVIEW and CI.
+- No merge/deployment/accounts/config/credentials/process/orders changed.
+  Publication scope only, not release or historical replay authorization.
+
 ## 2026-09-30 - Isolated net-win summary correction
 
 - ENGINEER. VERIFIED_ENV: isolated worktree based on published master 580ca31ea.

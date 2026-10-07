@@ -137,12 +137,12 @@ def test_reconcile_live_shadow_mode_allows_read_only_without_live_arming(monkeyp
     assert out["observe_only"] is True
 
 
-def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
+def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(
         enabled=True,
         exchange_id="coinbase",
-        exec_db=":memory:",
+        exec_db=str(tmp_path / "execution.sqlite"),
         symbol="BTC/USD",
         reconcile_limit=5,
         reconcile_trades=True,
@@ -150,30 +150,22 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
         reconcile_trades_limit=50,
     )
 
-    class _FakeStore:
+    class _TrackingStore(ExecutionStore):
         def __init__(self):
+            super().__init__(path=cfg.exec_db)
             self.fills: list[dict] = []
             self.status_updates: list[tuple[str, str, str]] = []
-
-        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
-            if status != "submitted":
-                return []
-            return [{"intent_id": "intent-1", "symbol": symbol, "side": "buy", "reason": "remote_id=ord-1 client_id=cid-1"}]
+            self.upsert_intent(dict(intent_id="intent-1", ts_ms=1, mode="live",
+                exchange="coinbase", symbol="BTC/USD", side="buy", qty=1,
+                status="submitted", reason="remote_id=ord-1 client_id=cid-1"))
 
         def add_fill(self, **kwargs):
+            super().add_fill(**kwargs)
             self.fills.append(dict(kwargs))
 
         def set_intent_status(self, *, intent_id: str, status: str, reason: str = ""):
             self.status_updates.append((intent_id, status, reason))
-
-        def list_fill_trade_ids(self, *, intent_id: str, limit: int = 2000):
-            out: list[str] = []
-            for row in self.fills:
-                meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
-                trade_id = str(meta.get("trade_id") or "").strip()
-                if trade_id:
-                    out.append(trade_id)
-            return out[-int(limit) :]
+            return super().set_intent_status(intent_id=intent_id, status=status, reason=reason)
 
     class _FakeDedupe:
         def get_by_intent(self, exchange_id: str, intent_id: str):
@@ -215,7 +207,7 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
         def record_fill(self, **kwargs):
             self.fill_calls.append(dict(kwargs))
 
-    fake_store = _FakeStore()
+    fake_store = _TrackingStore()
     fake_latency = _FakeLatency()
     sink_fills: list[dict] = []
 
@@ -235,7 +227,7 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
     assert fake_store.fills[0]["meta"]["trade_id"] == "trade-1"
     assert len(fake_latency.fill_calls) == 1
     assert len(sink_fills) == 1
-    assert sink_fills[0]["exec_db"] == ":memory:"
+    assert sink_fills[0]["exec_db"] == cfg.exec_db
     assert sink_fills[0]["fill"]["fill_id"] == "trade-1"
     assert sink_fills[0]["fill"]["fee_usd"] == 0.01
     assert sink_fills[0]["fill"]["realized_pnl_usd"] == -1.25
@@ -247,3 +239,5 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
     assert len(fake_store.fills) == 1
     assert len(fake_latency.fill_calls) == 1
     assert len(sink_fills) == 1
+    assert fake_store.pending_reconcile_fills(intent_id="intent-1") == []
+    assert fake_store.reconcile_fill_coverage(intent_id="intent-1") == {"qty": 0.4, "complete": True}
