@@ -37,7 +37,9 @@ jobs:
 
       - name: Build app (PyInstaller)
         run: |
-          python scripts/build_desktop_app.py
+          python packaging/pyinstaller/build.py
+        env:
+          CBP_WINDOWED: '1'
         shell: bash
 
 
@@ -49,7 +51,7 @@ jobs:
           WIN_SIGN_PFX_PASSWORD: ${{ secrets.WIN_SIGN_PFX_PASSWORD }}
           WIN_SIGN_TIMESTAMP_URL: ${{ secrets.WIN_SIGN_TIMESTAMP_URL }}
         run: |
-          pwsh -File scripts/ci/sign_windows.ps1 -DistDir dist -AppName CryptoBotPro
+          pwsh -File scripts/release/ci/sign_windows.ps1 -DistDir dist -AppName CryptoBotPro
 
       - name: Sign macOS + Notarize (optional)
         if: ${{ runner.os == 'macOS' && env.MAC_SIGNING_READY == 'true' }}
@@ -62,11 +64,11 @@ jobs:
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          bash scripts/ci/sign_macos.sh dist CryptoBotPro
+          bash scripts/release/ci/sign_macos.sh dist CryptoBotPro
 
       - name: Package dist output (zip)
         run: |
-          python scripts/ci/package_dist.py
+          python scripts/release/ci/package_dist.py
         shell: bash
 
       - name: Upload artifact

@@ -1,5 +1,24 @@
 # Review Stabilized Work Log
 
+## 2026-10-07 - ENGINEER - Desktop workflow build-path correction
+
+- Independent review found the pre-existing release glob did not match the
+  downloaded artifact layout. Corrected it to artifacts/**/*.zip and added
+  a fixture-based upload/download layout regression. Twelve targeted tests
+  passed in 0.25 seconds; bounded re-review requested. Operator acceptance
+  received before this correction does not claim acceptance of a later head.
+
+- SHOWN: PR606 core CI, sanity, governance and desktop wrapper jobs passed.
+  Newly runnable desktop workflow fails on both platforms because its builder
+  does not exist. Signing/packaging references are also stale.
+- Changed two workflows to the supported configurable builder and relocated
+  helpers; windowed output supplies the macOS app expected by signing.
+  ZIP helper now resolves dist from its bootstrapped repository root.
+- Targeted verification: 11 passed in 0.24 seconds, including prior signing
+  condition regressions. No actual build, signing, release or deployment run.
+- Independent review requested. No push or merge of this follow-up.
+  HIGH risk; READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-10-07 - ENGINEER - Workflow secret-condition treatment
 
 - HIGH-risk CI/release syntax correction, separate branch on merged90c9f097e.
