@@ -1,0 +1,24 @@
+{
+  "archive_path": "/sessions/rcw-011p3wbrlhso7qjbjysguxay/mnt/crypto-bot-pro/research/coinbase_confirmation_usd_v1/public_archive.sqlite",
+  "artifact_type": "ohlcv_archive_backfill_v1",
+  "dataset_hash": "aa7b15a4b69777cda573733cabd7163a196973b180007d8b7cabf72663ea1669",
+  "exchange": "coinbase",
+  "limitations": [
+    "market_data_archive_only",
+    "not_strategy_evidence",
+    "not_promotion_evidence",
+    "not_trading"
+  ],
+  "max_bars": 24,
+  "max_pages": 1,
+  "ok": true,
+  "page_limit": 300,
+  "research_data_ingestion": true,
+  "rows_written": 24,
+  "since_ms": 1791504000000,
+  "source": "public_exchange_ohlcv",
+  "stored_symbol": "ETH/USD",
+  "symbol": "ETH/USD",
+  "timeframe": "1h",
+  "until_ms": 1791586800000
+}

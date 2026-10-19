@@ -1,0 +1,13 @@
+{
+ "model": "heavy_tail",
+ "days": 365,
+ "mean_index": 3,
+ "mean": 0.01,
+ "status_counts": {
+  "AVAILABLE": 1000
+ },
+ "positives": 810,
+ "histories": 1000,
+ "seconds": 0.44,
+ "lock_sha256": "3f5407c1be3a8f0858678f625b1aa556b0d8d9cd024a63fa2d66cec12488d1a5"
+}

@@ -1,0 +1,38 @@
+diff --git a/tests/test_review_rev34_venue.py b/tests/test_review_rev34_venue.py
+new file mode 100644
+index 000000000..d1a3e11fe
+--- /dev/null
++++ b/tests/test_review_rev34_venue.py
+@@ -0,0 +1,32 @@
++from services.execution import strategy_runner as runner
++from storage import strategy_state_sqlite as ss
++from storage import intent_queue_sqlite as qs
++from storage.exit_event_journal import ExitEventJournal
++
++
++def test_config_change_cannot_escape_existing_kill(monkeypatch, tmp_path):
++    monkeypatch.setattr(ss, 'DB_PATH', tmp_path / 'state.sqlite')
++    state, journal = ss.StrategyStateSQLite(), ExitEventJournal()
++    cfg = {'venue': 'coinbase', 'strategy_id': 'ema_cross'}
++    assert runner._venue_for_turn(state, journal, cfg, 'BTC/USD', 'coinbase') == 'coinbase'
++    state.set('kill_remaining:coinbase:BTC/USD:ema_cross', '49')
++    cfg['venue'] = 'kraken'
++    assert runner._venue_for_turn(state, journal, cfg, 'BTC/USD', 'kraken') == 'coinbase'
++
++
++def test_queue_only_exit_must_hold_old_venue_until_replayed(monkeypatch, tmp_path):
++    monkeypatch.setattr(ss, 'DB_PATH', tmp_path / 'state.sqlite')
++    monkeypatch.setattr(qs, 'DB_PATH', tmp_path / 'queue.sqlite')
++    state, journal = ss.StrategyStateSQLite(), ExitEventJournal()
++    scope = 'coinbase:BTC/USD:ema_cross'
++    state.set('active_venue:BTC/USD:ema_cross', 'coinbase')
++    state.set('loss_streak:' + scope, '2')
++    qs.IntentQueueSQLite().upsert_intent({
++        'intent_id': 'third-loss', 'ts': '2026-10-04T00:00:00Z',
++        'source': 'strategy', 'strategy_id': 'ema_cross',
++        'venue': 'coinbase', 'symbol': 'BTC/USD', 'side': 'sell',
++        'order_type': 'market', 'qty': 1, 'status': 'filled',
++        'meta': {'exit_event': {'scope': scope, 'pnl_pct': -3.85, 'is_loss': True}},
++    })
++    cfg = {'venue': 'coinbase', 'strategy_id': 'ema_cross'}
++    assert runner._venue_for_turn(state, journal, cfg, 'BTC/USD', 'kraken') == 'coinbase'

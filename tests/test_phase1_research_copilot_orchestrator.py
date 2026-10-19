@@ -19,6 +19,7 @@ if not _has_module("phase1_research_copilot.orchestrator.main"):
     pytest.skip("phase1_research_copilot.orchestrator.main surface not present in this repo checkout", allow_module_level=True)
 
 import asyncio
+import httpx
 import sys
 from types import SimpleNamespace
 from types import ModuleType
@@ -64,6 +65,11 @@ async def _noop_audit(*args, **kwargs) -> None:
     return None
 
 
+@pytest.fixture(autouse=True)
+def configured_auth(monkeypatch):
+    monkeypatch.setattr(orchestrator.settings, "service_token", "fixture-token")
+
+
 def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
     class DisabledClient:
         enabled = False
@@ -82,7 +88,7 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
             "source": "fallback",
         }
 
-    async def fake_signal(asset: str) -> dict:
+    async def fake_signal(asset: str, question: str = "") -> dict:
         return {
             "asset": asset,
             "market": {"ok": True, "latest_price": 187.42, "change_pct": 6.9, "window_samples": 14},
@@ -177,7 +183,8 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
 
     payload = asyncio.run(
         orchestrator.explain(
-            ExplainRequest(asset="SOL", question="Why is SOL moving?", lookback_minutes=60)
+            ExplainRequest(asset="SOL", question="Why is SOL moving?", lookback_minutes=60),
+            authorization="Bearer fixture-token",
         )
     )
     assert payload["asset"] == "SOL"
@@ -208,6 +215,40 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
     assert "Live Public" in payload["current_cause"]
     assert "Freshness is Recent" in payload["current_cause"]
     assert "collector loop is stopped" in payload["current_cause"]
+
+
+def test_fallback_uses_question_matches_without_claiming_causation():
+    tools = {"get_signal_summary": {"lexical_matches": [
+        {"id": 12, "title": "Bitcoin regulation announcement"}
+    ]}}
+    reasoning = orchestrator._fallback_reasoning("BTC", "regulation", tools)
+    assert "Bitcoin regulation announcement" in reasoning["current_cause"]
+    assert "keyword overlap only" in reasoning["current_cause"]
+    assert "do not establish a cause" in reasoning["current_cause"]
+    assert "No price direction or cause is established" in reasoning["current_cause"]
+    response = orchestrator._assemble_explain_response(
+        ExplainRequest(asset="BTC", question="regulation"), reasoning, tools,
+        llm_status={"provider": "fallback"})
+    assert response["question_evidence"]["match_count"] == 1
+    assert response["confidence_calibrated"] is False
+    assert response["confidence_basis"] == "context_presence_heuristic"
+    assert response["execution_disabled"] is True
+
+
+@pytest.mark.parametrize("lexical, status", [([], "NO_KEYWORD_MATCHES"), (None, "UNVERIFIED")])
+def test_fallback_distinguishes_no_matches_from_unverified_retrieval(lexical, status):
+    tools = {"get_signal_summary": {"lexical_matches": lexical}}
+    reasoning = orchestrator._fallback_reasoning("BTC", "unmatched", tools)
+    response = orchestrator._assemble_explain_response(
+        ExplainRequest(asset="BTC", question="unmatched"), reasoning, tools,
+        llm_status={"provider": "fallback"})
+    assert response["question_evidence"]["status"] == status
+    assert response["question_evidence"]["causal_relationship_verified"] is False
+    if lexical == []:
+        assert "No archived keyword matches" in response["current_cause"]
+        assert "background context" in response["current_cause"]
+    else:
+        assert "No archived keyword matches" not in response["current_cause"]
 
 
 def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
@@ -280,7 +321,7 @@ def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
             "source": "market-data",
         }
 
-    async def fake_signal(asset: str) -> dict:
+    async def fake_signal(asset: str, question: str = "") -> dict:
         return {
             "asset": asset,
             "market": {"ok": True, "latest_price": 187.42, "change_pct": 6.9, "window_samples": 14},
@@ -376,7 +417,8 @@ def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
 
     payload = asyncio.run(
         orchestrator.explain(
-            ExplainRequest(asset="SOL", question="Why is SOL moving?", lookback_minutes=60)
+            ExplainRequest(asset="SOL", question="Why is SOL moving?", lookback_minutes=60),
+            authorization="Bearer fixture-token",
         )
     )
 
@@ -416,7 +458,7 @@ def test_explain_endpoint_prioritizes_change_summary_for_while_away_question(mon
             "source": "fallback",
         }
 
-    async def fake_signal(asset: str) -> dict:
+    async def fake_signal(asset: str, question: str = "") -> dict:
         return {
             "asset": asset,
             "market": {"ok": True, "latest_price": 187.42, "change_pct": 6.9, "window_samples": 14},
@@ -508,7 +550,8 @@ def test_explain_endpoint_prioritizes_change_summary_for_while_away_question(mon
 
     payload = asyncio.run(
         orchestrator.explain(
-            ExplainRequest(asset="SOL", question="What changed while I was away on SOL?", lookback_minutes=60)
+            ExplainRequest(asset="SOL", question="What changed while I was away on SOL?", lookback_minutes=60),
+            authorization="Bearer fixture-token",
         )
     )
 

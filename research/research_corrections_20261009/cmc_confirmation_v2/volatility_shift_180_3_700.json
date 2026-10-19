@@ -1,0 +1,16 @@
+{
+  "hashes": {
+    "lock": "d0ace4434e354e299ed6446ae7dc957993f1ca346d41fe689c16105c1358bac8",
+    "runner": "599b1afc8609dffe592f6e9d01e6277978e5f3442681d45372d4a9cf103f1cb7",
+    "rate_helper": "83395d0cf804e7ecad325cae01f29ebf61032131511eb983cffa35a63c1a8672",
+    "numpy_version": "2.4.4"
+  },
+  "model": "volatility_shift",
+  "days": 180,
+  "mean_index": 3,
+  "start": 700,
+  "trials": 100,
+  "positive": 34,
+  "unavailable": 0,
+  "refused": 0
+}

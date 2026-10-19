@@ -1,0 +1,49 @@
+{
+  "kind": "COLLECTION_CHECKPOINT_NOT_PHASE_COMPLETION",
+  "cutoff_exclusive_utc": "2026-10-10T12:00:00Z",
+  "identity": {
+    "plan_sha256": "11fd2a75844081549dcd8aba45cbddff706383a464282a8a560a1bd8a793ce94",
+    "snapshot_sha256": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "fee_receipt_sha256": "92bfc29c972c0a02db8f63d70d38e65d0a63870d2d7b669984758fc75c216420",
+    "runner_sha256": "4aaac1a6473e5b25e8db1b3fd9a85769f8188f1becf9eb45180691c5566f0719"
+  },
+  "parent_checkpoint_sha256": "ef61b83053dd2750b93772aaa993c67d7e889b8e55fd7b833a5473a98fccfd53",
+  "markets": {
+    "BTC/USD": {
+      "total_bars": 312,
+      "total_rows_sha256": "b453e8b384fbb7f9f848744b430242d8a1cb502b42745ebd5851c789f7810653",
+      "evaluation_bars": 12,
+      "evaluation_rows_sha256": "62a3c1a8cc17ce563dfb4c7be29a1c032bafad50e63fba604034360b350008f5"
+    },
+    "ETH/USD": {
+      "total_bars": 312,
+      "total_rows_sha256": "cc1806c2c451d12294a960704467cf38fefcf122132a6d636dfd684524cb0462",
+      "evaluation_bars": 12,
+      "evaluation_rows_sha256": "7ae7d1308e17b41f2bb995d08f32a161554a3e857629e899768211130d31e6c6"
+    },
+    "SOL/USD": {
+      "total_bars": 312,
+      "total_rows_sha256": "89fd818c85d29fd47f503098e81e4674f0e5db08f988b0552ab22c882da78c20",
+      "evaluation_bars": 12,
+      "evaluation_rows_sha256": "8799ad81ad4aa78e8605f20da6abcfdace90961380a8220bbe10092f5d538967"
+    },
+    "ADA/USD": {
+      "total_bars": 312,
+      "total_rows_sha256": "43b32637f622c269b66a85331006d54036ed257567bacf195e28da7af160b990",
+      "evaluation_bars": 12,
+      "evaluation_rows_sha256": "e42b99bb6731a1868a016f9a3db3f650f45242c99aad4c4e427747f68939255e"
+    },
+    "XRP/USD": {
+      "total_bars": 312,
+      "total_rows_sha256": "b345b0fd94d57e6463d40e1945abddf715f5c62095603b29cd2284afadc13ffc",
+      "evaluation_bars": 12,
+      "evaluation_rows_sha256": "2d13b1f2c13d0d23a8e0a565114efe32a12555357079473f19849b958516a035"
+    }
+  },
+  "scoring_authorized": false,
+  "limits": [
+    "content_freeze_not_authenticity",
+    "not_checkpoint_or_final_phase",
+    "no_strategy_evaluation"
+  ]
+}

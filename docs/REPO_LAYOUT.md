@@ -16,6 +16,7 @@ Additional intentional top-level roots allowed by `CANON`, `CANON.txt`, and
 - companion or sidecar workspaces such as `crypto-trading-ai/` and `phase1_research_copilot/`
 - release or packaging surfaces such as `installers/`, `packaging/`, and `src-tauri/`
 - runtime-adjacent roots such as `config/`, `configs/`, `data/`, `assets/`, `attic/`, and `build/`
+- `research/` for intentional research artifacts; optional and not a required runtime root
 
 Allowed in the repo root does not mean part of the required root install/run/test baseline.
 

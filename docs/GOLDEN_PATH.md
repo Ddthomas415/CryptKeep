@@ -144,7 +144,11 @@ It summarizes active strategy, fills, round trips, and recommendation state for 
 provides an explicit window delta. When unavailable, it is `null` and the
 summary says `unavailable`; lifetime position and equity realized PnL remain in
 separate total fields.
-It also surfaces paper-stage promotion threshold progress (30 days / 10 round trips) so a local
+It also surfaces policy-specific paper-stage promotion progress. The configured
+ES `slow_daily_single_symbol_v1` policy requires 45 calendar days, 60 qualified
+bars and 5 qualified round trips; legacy policies may retain 30 days / 10 round
+trips. Read the campaign's resolved policy rather than assuming one universal
+threshold, so a local
 `recommendation=enough_evidence` event is not confused with full promotion readiness.
 Managed paper campaigns also auto-seed default paper-sim watches:
 - `next_fill`

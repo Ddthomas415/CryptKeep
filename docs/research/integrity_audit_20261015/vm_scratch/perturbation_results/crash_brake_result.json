@@ -1,0 +1,414 @@
+{
+ "artifact_type": "research_only_preregistered_test_E7",
+ "prereg_sha256": "41e40c92223dbf43c5ddc5460747c856f1a9946c5bcf63330bc2bdabf031f983",
+ "script_sha256": "785ed6e807dcaef69be92cc226709c4dd46ccb2570269680da1af8ba1f83f5ba",
+ "funding_sha256": "03f6f7655e79a39d51d75fe01aed233ce58d0540b4567c2ec209f14fbcba787e",
+ "inputs_sha256": {
+  "scripts/research/rerun_frozen_stress.py": "1f98513ae63c4f84819327746872a9dd0a73b3bc35e5e67364c57458ca395907",
+  "docs/research/majors_trend_20261009/BTC-USD_d1.json": "d5a08f3a2e93ac3315da2f5771b4b7b6a98331c37b4a5716ba3cb40aa54d6adb",
+  "docs/research/majors_trend_20261009/ETH-USD_d1.json": "5812bb076daa090dabf0c58083aa530fa811c33b6776d71815da7e2904cc4216"
+ },
+ "periods": {
+  "D": [
+   "2020-12-06",
+   "2023-12-31"
+  ],
+  "H": [
+   "2024-01-07",
+   "2026-10-08"
+  ]
+ },
+ "results": {
+  "0.005": {
+   "D": {
+    "braked": {
+     "end_usd": 3547.76,
+     "cagr_pct": 51.1,
+     "max_drawdown_pct": 32.8,
+     "longest_underwater_days": 512,
+     "vol_pct": 35.1,
+     "downside_vol_pct": 23.1,
+     "sharpe": 1.352,
+     "avg_exposure_pct": 41.8
+    },
+    "candidate": {
+     "end_usd": 3653.64,
+     "cagr_pct": 52.5,
+     "max_drawdown_pct": 32.8,
+     "longest_underwater_days": 512,
+     "vol_pct": 36.5,
+     "downside_vol_pct": 24.1,
+     "sharpe": 1.341,
+     "avg_exposure_pct": 43.2
+    },
+    "hold_btc": {
+     "end_usd": 2170.6,
+     "cagr_pct": 28.7,
+     "max_drawdown_pct": 76.7,
+     "longest_underwater_days": 783,
+     "vol_pct": 65.1,
+     "downside_vol_pct": 44.1,
+     "sharpe": 0.714
+    },
+    "mix_25_25_50": {
+     "end_usd": 2108.12,
+     "cagr_pct": 27.5,
+     "max_drawdown_pct": 48.6,
+     "longest_underwater_days": 783,
+     "vol_pct": 35.4,
+     "downside_vol_pct": 24.5,
+     "sharpe": 0.865
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0
+    },
+    "decision_weeks": 160,
+    "weeks_brake_flag_any": 11,
+    "weeks_brake_cut_exposure": 11,
+    "brake_flag_days": [
+     "2021-01-03",
+     "2021-01-10",
+     "2021-01-17",
+     "2021-01-24",
+     "2021-02-07",
+     "2021-02-14",
+     "2021-02-21",
+     "2021-03-14",
+     "2021-04-04",
+     "2021-04-11",
+     "2021-04-18"
+    ]
+   },
+   "H": {
+    "braked": {
+     "end_usd": 1355.73,
+     "cagr_pct": 11.7,
+     "max_drawdown_pct": 10.3,
+     "longest_underwater_days": 301,
+     "vol_pct": 26.8,
+     "downside_vol_pct": 18.0,
+     "sharpe": 0.547,
+     "avg_exposure_pct": 3.1
+    },
+    "candidate": {
+     "end_usd": 1384.23,
+     "cagr_pct": 12.5,
+     "max_drawdown_pct": 9.8,
+     "longest_underwater_days": 234,
+     "vol_pct": 28.1,
+     "downside_vol_pct": 18.8,
+     "sharpe": 0.561,
+     "avg_exposure_pct": 3.4
+    },
+    "hold_btc": {
+     "end_usd": 1698.78,
+     "cagr_pct": 21.2,
+     "max_drawdown_pct": 85.6,
+     "longest_underwater_days": 511,
+     "vol_pct": 955.1,
+     "downside_vol_pct": 415.8,
+     "sharpe": 3.603
+    },
+    "mix_25_25_50": {
+     "end_usd": 138491.32,
+     "cagr_pct": 499.4,
+     "max_drawdown_pct": 51.0,
+     "longest_underwater_days": 66,
+     "vol_pct": 296.5,
+     "downside_vol_pct": 175.7,
+     "sharpe": 2.028
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0
+    },
+    "decision_weeks": 144,
+    "weeks_brake_flag_any": 32,
+    "weeks_brake_cut_exposure": 20,
+    "brake_flag_days": [
+     "2024-03-31",
+     "2024-04-21",
+     "2024-05-26",
+     "2024-06-09",
+     "2024-06-16",
+     "2024-06-23",
+     "2024-06-30",
+     "2024-09-01",
+     "2024-09-08",
+     "2024-09-15",
+     "2024-10-06",
+     "2024-10-20",
+     "2025-01-05",
+     "2025-01-26",
+     "2025-03-02",
+     "2025-03-09",
+     "2025-05-11",
+     "2025-07-13",
+     "2025-07-27",
+     "2025-08-03",
+     "2025-08-24",
+     "2025-08-31",
+     "2025-11-23",
+     "2026-01-04",
+     "2026-01-25",
+     "2026-03-08",
+     "2026-04-26",
+     "2026-05-31",
+     "2026-06-14",
+     "2026-07-12",
+     "2026-08-30",
+     "2026-09-06"
+    ]
+   }
+  },
+  "0.009": {
+   "D": {
+    "braked": {
+     "end_usd": 3139.34,
+     "cagr_pct": 45.2,
+     "max_drawdown_pct": 35.3,
+     "longest_underwater_days": 520,
+     "vol_pct": 35.1,
+     "downside_vol_pct": 23.2,
+     "sharpe": 1.239,
+     "avg_exposure_pct": 41.8
+    },
+    "candidate": {
+     "end_usd": 3249.9,
+     "cagr_pct": 46.8,
+     "max_drawdown_pct": 35.3,
+     "longest_underwater_days": 520,
+     "vol_pct": 36.5,
+     "downside_vol_pct": 24.2,
+     "sharpe": 1.236,
+     "avg_exposure_pct": 43.2
+    },
+    "hold_btc": {
+     "end_usd": 2161.99,
+     "cagr_pct": 28.6,
+     "max_drawdown_pct": 76.7,
+     "longest_underwater_days": 783,
+     "vol_pct": 65.1,
+     "downside_vol_pct": 44.1,
+     "sharpe": 0.712
+    },
+    "mix_25_25_50": {
+     "end_usd": 2076.08,
+     "cagr_pct": 26.9,
+     "max_drawdown_pct": 48.7,
+     "longest_underwater_days": 783,
+     "vol_pct": 35.4,
+     "downside_vol_pct": 24.5,
+     "sharpe": 0.85
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0
+    },
+    "decision_weeks": 160,
+    "weeks_brake_flag_any": 11,
+    "weeks_brake_cut_exposure": 11,
+    "brake_flag_days": [
+     "2021-01-03",
+     "2021-01-10",
+     "2021-01-17",
+     "2021-01-24",
+     "2021-02-07",
+     "2021-02-14",
+     "2021-02-21",
+     "2021-03-14",
+     "2021-04-04",
+     "2021-04-11",
+     "2021-04-18"
+    ]
+   },
+   "H": {
+    "braked": {
+     "end_usd": 1329.93,
+     "cagr_pct": 10.9,
+     "max_drawdown_pct": 10.6,
+     "longest_underwater_days": 301,
+     "vol_pct": 26.8,
+     "downside_vol_pct": 18.0,
+     "sharpe": 0.521,
+     "avg_exposure_pct": 3.1
+    },
+    "candidate": {
+     "end_usd": 1356.79,
+     "cagr_pct": 11.7,
+     "max_drawdown_pct": 9.8,
+     "longest_underwater_days": 234,
+     "vol_pct": 28.0,
+     "downside_vol_pct": 18.8,
+     "sharpe": 0.535,
+     "avg_exposure_pct": 3.4
+    },
+    "hold_btc": {
+     "end_usd": 1692.04,
+     "cagr_pct": 21.0,
+     "max_drawdown_pct": 85.6,
+     "longest_underwater_days": 511,
+     "vol_pct": 955.1,
+     "downside_vol_pct": 415.8,
+     "sharpe": 3.603
+    },
+    "mix_25_25_50": {
+     "end_usd": 128096.83,
+     "cagr_pct": 482.7,
+     "max_drawdown_pct": 51.0,
+     "longest_underwater_days": 66,
+     "vol_pct": 296.4,
+     "downside_vol_pct": 175.7,
+     "sharpe": 2.019
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0
+    },
+    "decision_weeks": 144,
+    "weeks_brake_flag_any": 32,
+    "weeks_brake_cut_exposure": 20,
+    "brake_flag_days": [
+     "2024-03-31",
+     "2024-04-21",
+     "2024-05-26",
+     "2024-06-09",
+     "2024-06-16",
+     "2024-06-23",
+     "2024-06-30",
+     "2024-09-01",
+     "2024-09-08",
+     "2024-09-15",
+     "2024-10-06",
+     "2024-10-20",
+     "2025-01-05",
+     "2025-01-26",
+     "2025-03-02",
+     "2025-03-09",
+     "2025-05-11",
+     "2025-07-13",
+     "2025-07-27",
+     "2025-08-03",
+     "2025-08-24",
+     "2025-08-31",
+     "2025-11-23",
+     "2026-01-04",
+     "2026-01-25",
+     "2026-03-08",
+     "2026-04-26",
+     "2026-05-31",
+     "2026-06-14",
+     "2026-07-12",
+     "2026-08-30",
+     "2026-09-06"
+    ]
+   }
+  }
+ },
+ "pass_checks": {
+  "fee0.50": {
+   "D_sharpe_higher_and_dd_lower": false,
+   "H_sharpe_not_lower_by_0.05_and_dd_not_higher": false
+  },
+  "fee0.90": {
+   "D_sharpe_higher_and_dd_lower": false,
+   "H_sharpe_not_lower_by_0.05_and_dd_not_higher": false
+  }
+ },
+ "verdict": "FAIL",
+ "dsr_braked_DH_fee0.50": {
+  "N=15": 0.7549,
+  "N=120": 0.4506
+ },
+ "sensitivity_reported_only_fee0.50": [
+  {
+   "variant": "pct80",
+   "D": {
+    "end_usd": 3200.49,
+    "cagr_pct": 46.1,
+    "max_drawdown_pct": 32.4,
+    "longest_underwater_days": 511,
+    "vol_pct": 34.4,
+    "downside_vol_pct": 22.7,
+    "sharpe": 1.276
+   },
+   "H": {
+    "end_usd": 1280.18,
+    "cagr_pct": 9.4,
+    "max_drawdown_pct": 9.4,
+    "longest_underwater_days": 234,
+    "vol_pct": 24.5,
+    "downside_vol_pct": 16.3,
+    "sharpe": 0.489
+   }
+  },
+  {
+   "variant": "pct95",
+   "D": {
+    "end_usd": 3591.17,
+    "cagr_pct": 51.7,
+    "max_drawdown_pct": 32.8,
+    "longest_underwater_days": 512,
+    "vol_pct": 35.6,
+    "downside_vol_pct": 23.5,
+    "sharpe": 1.348
+   },
+   "H": {
+    "end_usd": 1371.73,
+    "cagr_pct": 12.2,
+    "max_drawdown_pct": 9.8,
+    "longest_underwater_days": 234,
+    "vol_pct": 27.9,
+    "downside_vol_pct": 18.7,
+    "sharpe": 0.551
+   }
+  },
+  {
+   "variant": "brake_to_zero",
+   "D": {
+    "end_usd": 3402.12,
+    "cagr_pct": 49.0,
+    "max_drawdown_pct": 32.8,
+    "longest_underwater_days": 512,
+    "vol_pct": 34.5,
+    "downside_vol_pct": 22.6,
+    "sharpe": 1.33
+   },
+   "H": {
+    "end_usd": 1325.38,
+    "cagr_pct": 10.8,
+    "max_drawdown_pct": 12.9,
+    "longest_underwater_days": 366,
+    "vol_pct": 26.5,
+    "downside_vol_pct": 17.8,
+    "sharpe": 0.519
+   }
+  },
+  {
+   "variant": "btc_funding_both",
+   "D": {
+    "end_usd": 3490.32,
+    "cagr_pct": 50.3,
+    "max_drawdown_pct": 32.8,
+    "longest_underwater_days": 512,
+    "vol_pct": 34.9,
+    "downside_vol_pct": 22.9,
+    "sharpe": 1.342
+   },
+   "H": {
+    "end_usd": 1361.05,
+    "cagr_pct": 11.8,
+    "max_drawdown_pct": 10.3,
+    "longest_underwater_days": 301,
+    "vol_pct": 26.3,
+    "downside_vol_pct": 17.6,
+    "sharpe": 0.558
+   }
+  }
+ ]
+}

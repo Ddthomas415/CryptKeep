@@ -1,0 +1,96 @@
+{
+  "fetched_utc": "2026-10-12T17:06:32.425721+00:00",
+  "http_status": 200,
+  "source": "CoinGecko global USD turnover, not Coinbase volume",
+  "identity_policy": "specific ID plus symbol; contract identity unverified",
+  "rows": [
+    {
+      "id": "reserve-rights-token",
+      "symbol": "rsr",
+      "name": "Reserve Rights",
+      "market_cap": 141758208,
+      "total_volume": 174616778,
+      "circulating_supply": 62553174091.0,
+      "max_supply": 100000000000.0,
+      "fully_diluted_valuation": 226620328,
+      "last_updated": "2026-10-12T17:05:49.000Z"
+    },
+    {
+      "id": "api3",
+      "symbol": "api3",
+      "name": "Api3",
+      "market_cap": 45956284,
+      "total_volume": 17070632,
+      "circulating_supply": 146942357.69770265,
+      "max_supply": null,
+      "fully_diluted_valuation": 58552162,
+      "last_updated": "2026-10-12T17:05:49.000Z"
+    },
+    {
+      "id": "osmosis",
+      "symbol": "osmo",
+      "name": "Osmosis",
+      "market_cap": 36040141,
+      "total_volume": 21302079,
+      "circulating_supply": 791854481.745379,
+      "max_supply": 1000000000.0,
+      "fully_diluted_valuation": 43537653,
+      "last_updated": "2026-10-12T17:05:49.000Z"
+    },
+    {
+      "id": "skale",
+      "symbol": "skl",
+      "name": "SKALE",
+      "market_cap": 32359374,
+      "total_volume": 22278042,
+      "circulating_supply": 6094019337.0,
+      "max_supply": 7000000000.0,
+      "fully_diluted_valuation": 34099794,
+      "last_updated": "2026-10-12T17:05:49.000Z"
+    },
+    {
+      "id": "origin-protocol",
+      "symbol": "ogn",
+      "name": "Origin Token",
+      "market_cap": 26683243,
+      "total_volume": 40152756,
+      "circulating_supply": 756580095.0,
+      "max_supply": 1409664846.0,
+      "fully_diluted_valuation": 49716388,
+      "last_updated": "2026-10-12T17:05:49.000Z"
+    },
+    {
+      "id": "gitcoin",
+      "symbol": "gtc",
+      "name": "Gitcoin",
+      "market_cap": 25820281,
+      "total_volume": 110797361,
+      "circulating_supply": 87491501.9042429,
+      "max_supply": 100000000.0,
+      "fully_diluted_valuation": 29511758,
+      "last_updated": "2026-10-12T17:05:49.000Z"
+    },
+    {
+      "id": "stader",
+      "symbol": "sd",
+      "name": "Stader",
+      "market_cap": 8956528,
+      "total_volume": 1041866,
+      "circulating_supply": 73096634.14572676,
+      "max_supply": 150000000.0,
+      "fully_diluted_valuation": 14703596,
+      "last_updated": "2026-10-12T17:05:49.000Z"
+    },
+    {
+      "id": "goldfinch",
+      "symbol": "gfi",
+      "name": "Goldfinch",
+      "market_cap": 3845568,
+      "total_volume": 115459,
+      "circulating_supply": 95242765.29565473,
+      "max_supply": 114285714.0,
+      "fully_diluted_valuation": 4614456,
+      "last_updated": "2026-10-12T17:05:49.000Z"
+    }
+  ]
+}

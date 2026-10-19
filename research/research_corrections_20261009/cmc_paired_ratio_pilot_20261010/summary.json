@@ -1,0 +1,270 @@
+{
+  "identity": {
+    "generator": "26fb3ce192f93416f215d1c8ec2e3f7bb39489ac85c9b1f20ebc7843858369d4",
+    "candidate": "9c5bca5d77c86dba1bf6017c76fe61722a1f677ed6161582036eb9bb169d6f1c",
+    "completeness": "131c815745bc7905801cbce921827fb814f74a8ae5e7c6d056818032cb7fcfe4",
+    "runner": "5a80150ae062a763147e09235a913752a981f4e5fbd29dba006356293c550aa0",
+    "contract": "29a70e8415470b065398cf7deaff7a63633f18dc321edbbe79b54ddd1f896057",
+    "manifest": "04f3258d157c9dcfe84f118604620dcf513aedbd2525bf49236cc48fcb1b1b37",
+    "python": "3.12.10",
+    "numpy": "2.4.4"
+  },
+  "status": "PILOT_SCREEN_FAILED",
+  "histories": 360,
+  "cells": [
+    {
+      "model": "iid",
+      "days": 90,
+      "histories": 20,
+      "status_counts": {
+        "CANDIDATE_INTERVAL": 20
+      },
+      "positives": 0,
+      "wilson95": [
+        0.0,
+        0.16112515805281938
+      ],
+      "flagged": false
+    },
+    {
+      "model": "iid",
+      "days": 365,
+      "histories": 20,
+      "status_counts": {
+        "CANDIDATE_INTERVAL": 20
+      },
+      "positives": 1,
+      "wilson95": [
+        0.008881448800795402,
+        0.23613119344674205
+      ],
+      "flagged": false
+    },
+    {
+      "model": "overlap7",
+      "days": 90,
+      "histories": 20,
+      "status_counts": {
+        "CANDIDATE_INTERVAL": 20
+      },
+      "positives": 6,
+      "wilson95": [
+        0.1454772448676043,
+        0.5189728183535235
+      ],
+      "flagged": true
+    },
+    {
+      "model": "overlap7",
+      "days": 365,
+      "histories": 20,
+      "status_counts": {
+        "CANDIDATE_INTERVAL": 20
+      },
+      "positives": 0,
+      "wilson95": [
+        0.0,
+        0.16112515805281938
+      ],
+      "flagged": false
+    },
+    {
+      "model": "persistent",
+      "days": 90,
+      "histories": 20,
+      "status_counts": {
+        "CANDIDATE_INTERVAL": 20
+      },
+      "positives": 3,
+      "wilson95": [
+        0.052368745896216595,
+        0.36041886474075696
+      ],
+      "flagged": true
+    },
+    {
+      "model": "persistent",
+      "days": 365,
+      "histories": 20,
+      "status_counts": {
+        "CANDIDATE_INTERVAL": 20
+      },
+      "positives": 3,
+      "wilson95": [
+        0.052368745896216595,
+        0.36041886474075696
+      ],
+      "flagged": true
+    },
+    {
+      "model": "heavy_tail",
+      "days": 90,
+      "histories": 20,
+      "status_counts": {
+        "CANDIDATE_INTERVAL": 20
+      },
+      "positives": 0,
+      "wilson95": [
+        0.0,
+        0.16112515805281938
+      ],
+      "flagged": false
+    },
+    {
+      "model": "heavy_tail",
+      "days": 365,
+      "histories": 20,
+      "status_counts": {
+        "CANDIDATE_INTERVAL": 20
+      },
+      "positives": 1,
+      "wilson95": [
+        0.008881448800795402,
+        0.23613119344674205
+      ],
+      "flagged": false
+    },
+    {
+      "model": "volatility_shift",
+      "days": 90,
+      "histories": 20,
+      "status_counts": {
+        "CANDIDATE_INTERVAL": 20
+      },
+      "positives": 0,
+      "wilson95": [
+        0.0,
+        0.16112515805281938
+      ],
+      "flagged": false
+    },
+    {
+      "model": "volatility_shift",
+      "days": 365,
+      "histories": 20,
+      "status_counts": {
+        "CANDIDATE_INTERVAL": 20
+      },
+      "positives": 2,
+      "wilson95": [
+        0.027866481213768224,
+        0.3010336452284873
+      ],
+      "flagged": false
+    },
+    {
+      "model": "shared_unequal",
+      "days": 90,
+      "histories": 20,
+      "status_counts": {
+        "CANDIDATE_INTERVAL": 20
+      },
+      "positives": 5,
+      "wilson95": [
+        0.11186170140766569,
+        0.468700877618744
+      ],
+      "flagged": true
+    },
+    {
+      "model": "shared_unequal",
+      "days": 365,
+      "histories": 20,
+      "status_counts": {
+        "CANDIDATE_INTERVAL": 20
+      },
+      "positives": 3,
+      "wilson95": [
+        0.052368745896216595,
+        0.36041886474075696
+      ],
+      "flagged": true
+    },
+    {
+      "model": "sparse",
+      "days": 90,
+      "histories": 20,
+      "status_counts": {
+        "REFUSED": 20
+      },
+      "positives": 0,
+      "wilson95": [
+        0.0,
+        0.16112515805281938
+      ],
+      "flagged": false
+    },
+    {
+      "model": "sparse",
+      "days": 365,
+      "histories": 20,
+      "status_counts": {
+        "REFUSED": 20
+      },
+      "positives": 0,
+      "wilson95": [
+        0.0,
+        0.16112515805281938
+      ],
+      "flagged": false
+    },
+    {
+      "model": "random_missing",
+      "days": 90,
+      "histories": 20,
+      "status_counts": {
+        "REFUSED": 20
+      },
+      "positives": 0,
+      "wilson95": [
+        0.0,
+        0.16112515805281938
+      ],
+      "flagged": false
+    },
+    {
+      "model": "random_missing",
+      "days": 365,
+      "histories": 20,
+      "status_counts": {
+        "REFUSED": 20
+      },
+      "positives": 0,
+      "wilson95": [
+        0.0,
+        0.16112515805281938
+      ],
+      "flagged": false
+    },
+    {
+      "model": "loss_missing",
+      "days": 90,
+      "histories": 20,
+      "status_counts": {
+        "REFUSED": 20
+      },
+      "positives": 0,
+      "wilson95": [
+        0.0,
+        0.16112515805281938
+      ],
+      "flagged": false
+    },
+    {
+      "model": "loss_missing",
+      "days": 365,
+      "histories": 20,
+      "status_counts": {
+        "REFUSED": 20
+      },
+      "positives": 0,
+      "wilson95": [
+        0.0,
+        0.16112515805281938
+      ],
+      "flagged": false
+    }
+  ],
+  "scoring_authorized": false,
+  "no_power_study": true
+}

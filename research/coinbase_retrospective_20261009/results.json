@@ -1,0 +1,390 @@
+{
+  "qualification": "CF-MODELLED_RETROSPECTIVE_NOT_LIVE_OR_CONFIRMATION",
+  "scope": "five_existing_coins_not_exchange_wide_top_gainers",
+  "snapshot_sha256": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+  "end_exclusive_utc": "2026-10-09T00:00:00Z",
+  "initial_cash_usd": 1000,
+  "entry_notional_usd": 100,
+  "fee_bps_per_side": 50,
+  "slippage_bps_per_side": 5,
+  "account_policy": "fresh_independent_account_each_retrospective_window",
+  "limits": [
+    "signal_only_not_campaign_exit_stack",
+    "no_intrabar_execution_proof",
+    "winner_selected_after_outcome",
+    "infrastructure_excluded",
+    "shorts_not_implemented"
+  ],
+  "periods": {
+    "month_to_date": {
+      "start_utc": "2026-10-01T00:00:00Z",
+      "markets": {
+        "BTC/USD": {
+          "start_open": 83556.14,
+          "end_close": 81692.79,
+          "price_change_pct": -2.230057539757113,
+          "hindsight_buy_hold_net_pct": -3.2996415209631813,
+          "hindsight_buy_hold_net_usd_on_1000_all_in": -32.99641520963181,
+          "strategies": {
+            "breakout_default": {
+              "net_quote_profit": -7.2747765945923675,
+              "fees_quote": 2.9785187105799382,
+              "closed_cycles": 3,
+              "bar_close_and_terminal_drawdown_pct": 0.8982843096506049,
+              "time_in_market_bar_fraction": 0.2864583333333333,
+              "dataset_sha256": "c20cfe5cd23f7dbcbe5650ee10596ad4bf51075d04aa4419eb4e886b06238b84",
+              "strategy_config_sha256": "e379099320b348b729a50b446a04f029b3a38757d9c758ff9f70685b2d056db3"
+            },
+            "ema_cross_default": {
+              "net_quote_profit": -6.231217227544107,
+              "fees_quote": 0.9737124762434969,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 0.6885573372337603,
+              "time_in_market_bar_fraction": 0.3177083333333333,
+              "dataset_sha256": "c20cfe5cd23f7dbcbe5650ee10596ad4bf51075d04aa4419eb4e886b06238b84",
+              "strategy_config_sha256": "6d178ff3fe779c2a5133e25c511603c0caa8763217c8af257639c7848f34b713"
+            },
+            "mean_reversion_default": {
+              "net_quote_profit": 0.0,
+              "fees_quote": 0.0,
+              "closed_cycles": 0,
+              "bar_close_and_terminal_drawdown_pct": 0.0,
+              "time_in_market_bar_fraction": 0.0,
+              "dataset_sha256": "c20cfe5cd23f7dbcbe5650ee10596ad4bf51075d04aa4419eb4e886b06238b84",
+              "strategy_config_sha256": "bab654131af69b54b7e979aa522a9ca483c7123d8b73377b00cb3c77b8b13b73"
+            }
+          }
+        },
+        "ETH/USD": {
+          "start_open": 2683.92,
+          "end_close": 2472.89,
+          "price_change_pct": -7.862752988166566,
+          "hindsight_buy_hold_net_pct": -8.870716386696309,
+          "hindsight_buy_hold_net_usd_on_1000_all_in": -88.70716386696309,
+          "strategies": {
+            "breakout_default": {
+              "net_quote_profit": -5.638776314033862,
+              "fees_quote": 1.9817146918892767,
+              "closed_cycles": 2,
+              "bar_close_and_terminal_drawdown_pct": 0.5638776314033862,
+              "time_in_market_bar_fraction": 0.4479166666666667,
+              "dataset_sha256": "96456082b97ca67ffa650f5c492516b6965f2816bc757e473b821aeedb2efe09",
+              "strategy_config_sha256": "e379099320b348b729a50b446a04f029b3a38757d9c758ff9f70685b2d056db3"
+            },
+            "ema_cross_default": {
+              "net_quote_profit": 0.0,
+              "fees_quote": 0.0,
+              "closed_cycles": 0,
+              "bar_close_and_terminal_drawdown_pct": 0.0,
+              "time_in_market_bar_fraction": 0.0,
+              "dataset_sha256": "96456082b97ca67ffa650f5c492516b6965f2816bc757e473b821aeedb2efe09",
+              "strategy_config_sha256": "6d178ff3fe779c2a5133e25c511603c0caa8763217c8af257639c7848f34b713"
+            },
+            "mean_reversion_default": {
+              "net_quote_profit": 0.0,
+              "fees_quote": 0.0,
+              "closed_cycles": 0,
+              "bar_close_and_terminal_drawdown_pct": 0.0,
+              "time_in_market_bar_fraction": 0.0,
+              "dataset_sha256": "96456082b97ca67ffa650f5c492516b6965f2816bc757e473b821aeedb2efe09",
+              "strategy_config_sha256": "bab654131af69b54b7e979aa522a9ca483c7123d8b73377b00cb3c77b8b13b73"
+            }
+          }
+        },
+        "SOL/USD": {
+          "start_open": 118.04,
+          "end_close": 109.54,
+          "price_change_pct": -7.200948830904775,
+          "hindsight_buy_hold_net_pct": -8.216152237022634,
+          "hindsight_buy_hold_net_usd_on_1000_all_in": -82.16152237022634,
+          "strategies": {
+            "breakout_default": {
+              "net_quote_profit": -5.479457979427707,
+              "fees_quote": 1.982515286535539,
+              "closed_cycles": 2,
+              "bar_close_and_terminal_drawdown_pct": 0.776775966987651,
+              "time_in_market_bar_fraction": 0.5,
+              "dataset_sha256": "9ee9e952f99d136eb991c384092b4d0921282a82ee85a02ef51a000e58cd532d",
+              "strategy_config_sha256": "e379099320b348b729a50b446a04f029b3a38757d9c758ff9f70685b2d056db3"
+            },
+            "ema_cross_default": {
+              "net_quote_profit": -3.361151628063112,
+              "fees_quote": 0.988134916441894,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 0.3361151628063112,
+              "time_in_market_bar_fraction": 0.057291666666666664,
+              "dataset_sha256": "9ee9e952f99d136eb991c384092b4d0921282a82ee85a02ef51a000e58cd532d",
+              "strategy_config_sha256": "6d178ff3fe779c2a5133e25c511603c0caa8763217c8af257639c7848f34b713"
+            },
+            "mean_reversion_default": {
+              "net_quote_profit": -3.6459151673051338,
+              "fees_quote": 0.9867039438828886,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 0.5991125634478636,
+              "time_in_market_bar_fraction": 0.046875,
+              "dataset_sha256": "9ee9e952f99d136eb991c384092b4d0921282a82ee85a02ef51a000e58cd532d",
+              "strategy_config_sha256": "bab654131af69b54b7e979aa522a9ca483c7123d8b73377b00cb3c77b8b13b73"
+            }
+          }
+        },
+        "ADA/USD": {
+          "start_open": 0.2465,
+          "end_close": 0.23219,
+          "price_change_pct": -5.805273833671398,
+          "hindsight_buy_hold_net_pct": -6.8357456503298275,
+          "hindsight_buy_hold_net_usd_on_1000_all_in": -68.35745650329828,
+          "strategies": {
+            "breakout_default": {
+              "net_quote_profit": -3.7757979611260453,
+              "fees_quote": 1.9910763921551453,
+              "closed_cycles": 2,
+              "bar_close_and_terminal_drawdown_pct": 0.840353784758122,
+              "time_in_market_bar_fraction": 0.375,
+              "dataset_sha256": "ee2ef38719228a1764637f00404367f1f61e9b1b5dbb928ffd7c0f7db48225d2",
+              "strategy_config_sha256": "e379099320b348b729a50b446a04f029b3a38757d9c758ff9f70685b2d056db3"
+            },
+            "ema_cross_default": {
+              "net_quote_profit": 5.874350907198959,
+              "fees_quote": 1.0345444769205978,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 0.718360249370327,
+              "time_in_market_bar_fraction": 0.609375,
+              "dataset_sha256": "ee2ef38719228a1764637f00404367f1f61e9b1b5dbb928ffd7c0f7db48225d2",
+              "strategy_config_sha256": "6d178ff3fe779c2a5133e25c511603c0caa8763217c8af257639c7848f34b713"
+            },
+            "mean_reversion_default": {
+              "net_quote_profit": 0.0,
+              "fees_quote": 0.0,
+              "closed_cycles": 0,
+              "bar_close_and_terminal_drawdown_pct": 0.0,
+              "time_in_market_bar_fraction": 0.0,
+              "dataset_sha256": "ee2ef38719228a1764637f00404367f1f61e9b1b5dbb928ffd7c0f7db48225d2",
+              "strategy_config_sha256": "bab654131af69b54b7e979aa522a9ca483c7123d8b73377b00cb3c77b8b13b73"
+            }
+          }
+        },
+        "XRP/USD": {
+          "start_open": 1.489,
+          "end_close": 1.3795,
+          "price_change_pct": -7.353928811282751,
+          "hindsight_buy_hold_net_pct": -8.367458646440662,
+          "hindsight_buy_hold_net_usd_on_1000_all_in": -83.67458646440662,
+          "strategies": {
+            "breakout_default": {
+              "net_quote_profit": -10.862613702952103,
+              "fees_quote": 2.960489378377126,
+              "closed_cycles": 3,
+              "bar_close_and_terminal_drawdown_pct": 1.111354850702322,
+              "time_in_market_bar_fraction": 0.3020833333333333,
+              "dataset_sha256": "5d8f548b5b05d6db853678492f992e88961a8f062dc88c49eff1a3a1d7438c58",
+              "strategy_config_sha256": "e379099320b348b729a50b446a04f029b3a38757d9c758ff9f70685b2d056db3"
+            },
+            "ema_cross_default": {
+              "net_quote_profit": -11.220170470940502,
+              "fees_quote": 1.953667485070651,
+              "closed_cycles": 2,
+              "bar_close_and_terminal_drawdown_pct": 1.5457820727607863,
+              "time_in_market_bar_fraction": 0.484375,
+              "dataset_sha256": "5d8f548b5b05d6db853678492f992e88961a8f062dc88c49eff1a3a1d7438c58",
+              "strategy_config_sha256": "6d178ff3fe779c2a5133e25c511603c0caa8763217c8af257639c7848f34b713"
+            },
+            "mean_reversion_default": {
+              "net_quote_profit": -6.913419092392132,
+              "fees_quote": 0.9702843261688839,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 1.0176753749061997,
+              "time_in_market_bar_fraction": 0.22916666666666666,
+              "dataset_sha256": "5d8f548b5b05d6db853678492f992e88961a8f062dc88c49eff1a3a1d7438c58",
+              "strategy_config_sha256": "bab654131af69b54b7e979aa522a9ca483c7123d8b73377b00cb3c77b8b13b73"
+            }
+          }
+        }
+      }
+    },
+    "week_to_date": {
+      "start_utc": "2026-10-05T00:00:00Z",
+      "markets": {
+        "BTC/USD": {
+          "start_open": 86502.65,
+          "end_close": 81692.79,
+          "price_change_pct": -5.560361445574213,
+          "hindsight_buy_hold_net_pct": -6.593512555689474,
+          "hindsight_buy_hold_net_usd_on_1000_all_in": -65.93512555689473,
+          "strategies": {
+            "breakout_default": {
+              "net_quote_profit": -3.672646511496623,
+              "fees_quote": 0.9865696155201176,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 0.36726465114966234,
+              "time_in_market_bar_fraction": 0.11458333333333333,
+              "dataset_sha256": "909fa3ebe539cbc98b072b0578fcdcb14fb28ea675a36dd826aa4d144ed4d47b",
+              "strategy_config_sha256": "e379099320b348b729a50b446a04f029b3a38757d9c758ff9f70685b2d056db3"
+            },
+            "ema_cross_default": {
+              "net_quote_profit": -6.231217227544107,
+              "fees_quote": 0.9737124762434969,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 0.6885573372337603,
+              "time_in_market_bar_fraction": 0.6354166666666666,
+              "dataset_sha256": "909fa3ebe539cbc98b072b0578fcdcb14fb28ea675a36dd826aa4d144ed4d47b",
+              "strategy_config_sha256": "6d178ff3fe779c2a5133e25c511603c0caa8763217c8af257639c7848f34b713"
+            },
+            "mean_reversion_default": {
+              "net_quote_profit": 0.0,
+              "fees_quote": 0.0,
+              "closed_cycles": 0,
+              "bar_close_and_terminal_drawdown_pct": 0.0,
+              "time_in_market_bar_fraction": 0.0,
+              "dataset_sha256": "909fa3ebe539cbc98b072b0578fcdcb14fb28ea675a36dd826aa4d144ed4d47b",
+              "strategy_config_sha256": "bab654131af69b54b7e979aa522a9ca483c7123d8b73377b00cb3c77b8b13b73"
+            }
+          }
+        },
+        "ETH/USD": {
+          "start_open": 2726.29,
+          "end_close": 2472.89,
+          "price_change_pct": -9.294682517267061,
+          "hindsight_buy_hold_net_pct": -10.286980887793284,
+          "hindsight_buy_hold_net_usd_on_1000_all_in": -102.86980887793284,
+          "strategies": {
+            "breakout_default": {
+              "net_quote_profit": 0.0,
+              "fees_quote": 0.0,
+              "closed_cycles": 0,
+              "bar_close_and_terminal_drawdown_pct": 0.0,
+              "time_in_market_bar_fraction": 0.0,
+              "dataset_sha256": "9507983d76b34e4cdfa1479338012babc6adebdfb426bb021f3ba1471152444c",
+              "strategy_config_sha256": "e379099320b348b729a50b446a04f029b3a38757d9c758ff9f70685b2d056db3"
+            },
+            "ema_cross_default": {
+              "net_quote_profit": 0.0,
+              "fees_quote": 0.0,
+              "closed_cycles": 0,
+              "bar_close_and_terminal_drawdown_pct": 0.0,
+              "time_in_market_bar_fraction": 0.0,
+              "dataset_sha256": "9507983d76b34e4cdfa1479338012babc6adebdfb426bb021f3ba1471152444c",
+              "strategy_config_sha256": "6d178ff3fe779c2a5133e25c511603c0caa8763217c8af257639c7848f34b713"
+            },
+            "mean_reversion_default": {
+              "net_quote_profit": 0.0,
+              "fees_quote": 0.0,
+              "closed_cycles": 0,
+              "bar_close_and_terminal_drawdown_pct": 0.0,
+              "time_in_market_bar_fraction": 0.0,
+              "dataset_sha256": "9507983d76b34e4cdfa1479338012babc6adebdfb426bb021f3ba1471152444c",
+              "strategy_config_sha256": "bab654131af69b54b7e979aa522a9ca483c7123d8b73377b00cb3c77b8b13b73"
+            }
+          }
+        },
+        "SOL/USD": {
+          "start_open": 121.55,
+          "end_close": 109.54,
+          "price_change_pct": -9.880707527766342,
+          "hindsight_buy_hold_net_pct": -10.866594899696846,
+          "hindsight_buy_hold_net_usd_on_1000_all_in": -108.66594899696847,
+          "strategies": {
+            "breakout_default": {
+              "net_quote_profit": -3.9245357196545,
+              "fees_quote": 0.9853038406047511,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 0.39245357196545,
+              "time_in_market_bar_fraction": 0.125,
+              "dataset_sha256": "5fee5a58725bc223d55bb11648d62fcfc0ff5e6f189ef7a3d78927d5e0984369",
+              "strategy_config_sha256": "e379099320b348b729a50b446a04f029b3a38757d9c758ff9f70685b2d056db3"
+            },
+            "ema_cross_default": {
+              "net_quote_profit": -3.361151628063112,
+              "fees_quote": 0.988134916441894,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 0.3361151628063112,
+              "time_in_market_bar_fraction": 0.11458333333333333,
+              "dataset_sha256": "5fee5a58725bc223d55bb11648d62fcfc0ff5e6f189ef7a3d78927d5e0984369",
+              "strategy_config_sha256": "6d178ff3fe779c2a5133e25c511603c0caa8763217c8af257639c7848f34b713"
+            },
+            "mean_reversion_default": {
+              "net_quote_profit": -3.6459151673051338,
+              "fees_quote": 0.9867039438828886,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 0.5991125634478636,
+              "time_in_market_bar_fraction": 0.09375,
+              "dataset_sha256": "5fee5a58725bc223d55bb11648d62fcfc0ff5e6f189ef7a3d78927d5e0984369",
+              "strategy_config_sha256": "bab654131af69b54b7e979aa522a9ca483c7123d8b73377b00cb3c77b8b13b73"
+            }
+          }
+        },
+        "ADA/USD": {
+          "start_open": 0.2597,
+          "end_close": 0.23219,
+          "price_change_pct": -10.59299191374662,
+          "hindsight_buy_hold_net_pct": -11.57108703429458,
+          "hindsight_buy_hold_net_usd_on_1000_all_in": -115.71087034294581,
+          "strategies": {
+            "breakout_default": {
+              "net_quote_profit": -6.274528011043685,
+              "fees_quote": 0.9734948341153589,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 0.730967286946672,
+              "time_in_market_bar_fraction": 0.40625,
+              "dataset_sha256": "245cbd40f8a3c5d50b05a76f59bfabcc1daf2c676444f8223cc35ebc0b11774f",
+              "strategy_config_sha256": "e379099320b348b729a50b446a04f029b3a38757d9c758ff9f70685b2d056db3"
+            },
+            "ema_cross_default": {
+              "net_quote_profit": 0.0,
+              "fees_quote": 0.0,
+              "closed_cycles": 0,
+              "bar_close_and_terminal_drawdown_pct": 0.0,
+              "time_in_market_bar_fraction": 0.0,
+              "dataset_sha256": "245cbd40f8a3c5d50b05a76f59bfabcc1daf2c676444f8223cc35ebc0b11774f",
+              "strategy_config_sha256": "6d178ff3fe779c2a5133e25c511603c0caa8763217c8af257639c7848f34b713"
+            },
+            "mean_reversion_default": {
+              "net_quote_profit": 0.0,
+              "fees_quote": 0.0,
+              "closed_cycles": 0,
+              "bar_close_and_terminal_drawdown_pct": 0.0,
+              "time_in_market_bar_fraction": 0.0,
+              "dataset_sha256": "245cbd40f8a3c5d50b05a76f59bfabcc1daf2c676444f8223cc35ebc0b11774f",
+              "strategy_config_sha256": "bab654131af69b54b7e979aa522a9ca483c7123d8b73377b00cb3c77b8b13b73"
+            }
+          }
+        },
+        "XRP/USD": {
+          "start_open": 1.5199,
+          "end_close": 1.3795,
+          "price_change_pct": -9.237449832225808,
+          "hindsight_buy_hold_net_pct": -10.230374317093316,
+          "hindsight_buy_hold_net_usd_on_1000_all_in": -102.30374317093316,
+          "strategies": {
+            "breakout_default": {
+              "net_quote_profit": -4.141458298236444,
+              "fees_quote": 0.9842137773957969,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 0.4141458298236444,
+              "time_in_market_bar_fraction": 0.11458333333333333,
+              "dataset_sha256": "23e5dc1fca8f24c7937ca22b3a46afd9f245f8fc57a48f3d4adbeb230b774381",
+              "strategy_config_sha256": "e379099320b348b729a50b446a04f029b3a38757d9c758ff9f70685b2d056db3"
+            },
+            "ema_cross_default": {
+              "net_quote_profit": -9.762137145429392,
+              "fees_quote": 0.9559691600732191,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 1.300724569805295,
+              "time_in_market_bar_fraction": 0.6145833333333334,
+              "dataset_sha256": "23e5dc1fca8f24c7937ca22b3a46afd9f245f8fc57a48f3d4adbeb230b774381",
+              "strategy_config_sha256": "6d178ff3fe779c2a5133e25c511603c0caa8763217c8af257639c7848f34b713"
+            },
+            "mean_reversion_default": {
+              "net_quote_profit": -6.913419092392132,
+              "fees_quote": 0.9702843261688839,
+              "closed_cycles": 1,
+              "bar_close_and_terminal_drawdown_pct": 1.0176753749061997,
+              "time_in_market_bar_fraction": 0.4583333333333333,
+              "dataset_sha256": "23e5dc1fca8f24c7937ca22b3a46afd9f245f8fc57a48f3d4adbeb230b774381",
+              "strategy_config_sha256": "bab654131af69b54b7e979aa522a9ca483c7123d8b73377b00cb3c77b8b13b73"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "experiment_id": "coinbase_confirmation_usd_v1",
+  "status": "DRAFT_NOT_ACTIVATED",
+  "research_only": true,
+  "venue": "coinbase",
+  "market_type": "spot",
+  "symbols": [
+    "BTC/USD",
+    "ETH/USD",
+    "SOL/USD",
+    "ADA/USD",
+    "XRP/USD"
+  ],
+  "timeframes": [
+    "1h"
+  ],
+  "strategies": [
+    "breakout_default",
+    "ema_cross_default",
+    "mean_reversion_default"
+  ],
+  "controls": [
+    "cash",
+    "same_entry_notional_buy_and_hold"
+  ],
+  "parameter_search": false,
+  "strategy_source_snapshot_path": "research/multisymbol_baseline_v1/strategies.snapshot.json",
+  "strategy_source_snapshot_sha256": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+  "prior_experiment_role": "hypothesis_generation_only_not_confirmation_evidence",
+  "archive_start_utc": "2026-09-27T12:00:00Z",
+  "warmup_bars": 300,
+  "evaluation_start_utc": "2026-10-10T00:00:00Z",
+  "descriptive_checkpoint_utc": "2027-01-08T00:00:00Z",
+  "evaluation_end_exclusive_utc": "2027-04-08T00:00:00Z",
+  "evaluation_days": 180,
+  "registration_deadline": "before_evaluation_start_utc_without_new_outcome_access",
+  "missed_registration_policy": "do_not_backdate_register_new_future_dates_before_scoring",
+  "activation_timing": "after_completed_warmup_verified_at_start_before_any_evaluation_scoring",
+  "initial_cash_per_independent_arm": 1000,
+  "entry_notional_quote": 100,
+  "split_account_policy": "carry_cash_and_positions_within_new_confirmation_account",
+  "prior_account_transfer": "none_new_independent_simulated_accounts_at_confirmation_start",
+  "execution": "completed_bar_signal_next_bar_open",
+  "exit_scope": "signal_only_not_campaign_exit_stack",
+  "terminal_liquidation_boundary": "evaluation_end_only_no_checkpoint_liquidation",
+  "fee_observation_path": "research/coinbase_fee_observation_20261008.json",
+  "fee_observation_sha256": "92bfc29c972c0a02db8f63d70d38e65d0a63870d2d7b669984758fc75c216420",
+  "primary_taker_fee_bps_per_side": 50,
+  "maker_rate_observed_bps": 25,
+  "maker_execution_authorized": false,
+  "primary_slippage_bps_per_side": 5,
+  "slippage_stress_bps_per_side": [
+    10,
+    20
+  ],
+  "cost_evidence_scope": "current_account_spot_tier_not_measured_product_specific_execution",
+  "cost_drift_policy": "preserve_primary_assumptions_record_new_observations_separately_do_not_restamp_history",
+  "executable_cost_qualification": "requires_product_specific_validation_and_no_unmodeled_higher_costs",
+  "minimum_closed_cycles_for_candidate_review": 30,
+  "cycle_count_window": "confirmation_period_only_excluding_prior_history_and_forced_terminal_closure",
+  "sample_size_scope": "30_cycles_is_screening_floor_not_power_proof",
+  "primary_metric": "full_confirmation_net_quote_equity_change_after_terminal_costs",
+  "required_outputs": [
+    "daily_equity",
+    "weekly_equity_changes",
+    "monthly_equity_changes",
+    "fees",
+    "exposure",
+    "drawdown",
+    "phase_attribution",
+    "natural_closed_cycles",
+    "terminal_adjustment",
+    "cash_and_buy_hold_controls",
+    "data_gaps",
+    "all_arms_and_cost_sensitivities"
+  ],
+  "uncertainty": {
+    "method": "exploratory_paired_circular_blocks_of_additive_daily_quote_equity_changes",
+    "blocks_days": [
+      7,
+      14,
+      28
+    ],
+    "seed": 20261010,
+    "replicates": 20000,
+    "familywise_alpha": 0.05,
+    "primary_interval_family": "15_strategy_arms_times_3_block_lengths_45_intervals",
+    "two_sided_tail_probability": "0.05/(2*45)",
+    "limits": [
+      "stationarity_unverified",
+      "increments_not_strategy_reexecution",
+      "no_future_profit_guarantee",
+      "paired_benchmark_gaps_secondary_not_selection_authority"
+    ]
+  },
+  "screening_rule": "no_early_selection;at_endpoint_positive_primary_profit_and_30_natural_confirmation_cycles_and_positive_lower_band_at_all_blocks_only_eligible_for_further_review_not_validated_edge",
+  "stopping_policy": "fixed_endpoint_no_success_peeking_or_unregistered_extensions;missing_data_or_insufficient_power_is_inconclusive",
+  "data_policy": "exact_coinbase_product_hourly_contiguous_grid_no_venue_or_symbol_substitution;freeze_acquired_prefixes_before_scoring",
+  "expected_warmup_and_evaluation_bars_per_market": 4620,
+  "collection_mode": "bounded_foreground_public_data_only_no_new_background_collector",
+  "archive_path": "research/coinbase_confirmation_usd_v1/public_archive.sqlite",
+  "activation_requires": [
+    "independent_contract_review",
+    "verified_matching_source_hashes",
+    "exact_product_and_warmup_coverage",
+    "research_runner_contract_support"
+  ],
+  "monthly_shared_infrastructure_usd_estimate": 20,
+  "portfolio_aggregation": "prohibited_without_shared_capital_model",
+  "promotion_authority": false,
+  "execution_authority": false,
+  "quote_currency": "USD",
+  "supersedes_draft": "coinbase_confirmation_v1_quote_change_user_approved_preserve_usdt_evidence"
+}

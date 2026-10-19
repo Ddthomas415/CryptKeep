@@ -1,0 +1,116 @@
+{
+ "window": [
+  "2025-10-09",
+  "2026-08-10"
+ ],
+ "results": {
+  "L1h_F1h": {
+   "n": 20456,
+   "mean_excess_pct": -0.079,
+   "median_excess_pct": -0.175,
+   "share_positive_pct": 43.5
+  },
+  "L1h_F2h": {
+   "n": 20456,
+   "mean_excess_pct": -0.141,
+   "median_excess_pct": -0.25,
+   "share_positive_pct": 43.1
+  },
+  "L1h_F4h": {
+   "n": 20456,
+   "mean_excess_pct": -0.213,
+   "median_excess_pct": -0.39,
+   "share_positive_pct": 42.1
+  },
+  "L1h_F12h": {
+   "n": 20456,
+   "mean_excess_pct": -0.397,
+   "median_excess_pct": -0.737,
+   "share_positive_pct": 41.1
+  },
+  "L1h_F24h": {
+   "n": 20456,
+   "mean_excess_pct": -0.417,
+   "median_excess_pct": -1.024,
+   "share_positive_pct": 40.9
+  },
+  "L1h_F48h": {
+   "n": 20456,
+   "mean_excess_pct": -0.471,
+   "median_excess_pct": -1.363,
+   "share_positive_pct": 41.0
+  },
+  "L4h_F1h": {
+   "n": 20338,
+   "mean_excess_pct": -0.083,
+   "median_excess_pct": -0.18,
+   "share_positive_pct": 43.5
+  },
+  "L4h_F2h": {
+   "n": 20338,
+   "mean_excess_pct": -0.146,
+   "median_excess_pct": -0.278,
+   "share_positive_pct": 42.7
+  },
+  "L4h_F4h": {
+   "n": 20338,
+   "mean_excess_pct": -0.18,
+   "median_excess_pct": -0.427,
+   "share_positive_pct": 41.9
+  },
+  "L4h_F12h": {
+   "n": 20338,
+   "mean_excess_pct": -0.408,
+   "median_excess_pct": -0.834,
+   "share_positive_pct": 40.5
+  },
+  "L4h_F24h": {
+   "n": 20338,
+   "mean_excess_pct": -0.379,
+   "median_excess_pct": -1.127,
+   "share_positive_pct": 40.7
+  },
+  "L4h_F48h": {
+   "n": 20338,
+   "mean_excess_pct": -0.412,
+   "median_excess_pct": -1.506,
+   "share_positive_pct": 40.9
+  },
+  "L24h_F1h": {
+   "n": 20245,
+   "mean_excess_pct": -0.034,
+   "median_excess_pct": -0.133,
+   "share_positive_pct": 45.5
+  },
+  "L24h_F2h": {
+   "n": 20245,
+   "mean_excess_pct": -0.078,
+   "median_excess_pct": -0.207,
+   "share_positive_pct": 44.8
+  },
+  "L24h_F4h": {
+   "n": 20245,
+   "mean_excess_pct": -0.142,
+   "median_excess_pct": -0.366,
+   "share_positive_pct": 43.5
+  },
+  "L24h_F12h": {
+   "n": 20245,
+   "mean_excess_pct": -0.483,
+   "median_excess_pct": -0.897,
+   "share_positive_pct": 40.8
+  },
+  "L24h_F24h": {
+   "n": 20245,
+   "mean_excess_pct": -0.768,
+   "median_excess_pct": -1.407,
+   "share_positive_pct": 39.3
+  },
+  "L24h_F48h": {
+   "n": 20245,
+   "mean_excess_pct": -0.796,
+   "median_excess_pct": -2.151,
+   "share_positive_pct": 38.9
+  }
+ }
+}

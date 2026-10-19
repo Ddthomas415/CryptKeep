@@ -1,0 +1,1412 @@
+diff --git a/services/execution/_executor_reconcile.py b/services/execution/_executor_reconcile.py
+index 7e1e8b8..7155e71 100644
+--- a/services/execution/_executor_reconcile.py
++++ b/services/execution/_executor_reconcile.py
+@@ -5,6 +5,7 @@ from services.risk.market_quality_guard import check_market_quality
+ 
+ import os
+ import logging
++import math
+ import threading
+ import time
+ from dataclasses import dataclass
+@@ -155,11 +156,13 @@ def _realized_pnl_usd(row: Dict[str, Any]) -> float | None:
+     return None
+ 
+ 
+-def _emit_canonical_fill(*, cfg: LiveCfg, fill: Dict[str, Any]) -> None:
++def _emit_canonical_fill(*, cfg: LiveCfg, fill: Dict[str, Any]) -> bool:
+     try:
+         out = _on_fill(fill, exec_db=cfg.exec_db)
+         if isinstance(out, dict) and not bool(out.get("ok", True)):
+             _LOG.warning("executor_reconcile.canonical_fill_emit_failed fill_id=%s result=%s", fill.get("fill_id"), out)
++            return False
++        return isinstance(out, dict) and out.get("ok") is True
+     except Exception as exc:
+         _LOG.warning(
+             "executor_reconcile.canonical_fill_emit_error fill_id=%s error=%s:%s",
+@@ -167,6 +170,32 @@ def _emit_canonical_fill(*, cfg: LiveCfg, fill: Dict[str, Any]) -> None:
+             type(exc).__name__,
+             exc,
+         )
++        return False
++
++
++def _retry_canonical_fills(*, store: Any, cfg: LiveCfg, intent_id: str) -> bool:
++    try:
++        for fill in store.pending_reconcile_fills(intent_id=intent_id):
++            if not _emit_canonical_fill(cfg=cfg, fill=fill):
++                return False
++            store.complete_reconcile_fill(venue=str(fill["venue"]), fill_id=str(fill["fill_id"]))
++        return True
++    except Exception:
++        _LOG.exception("executor_reconcile.accounting_retry_failed intent_id=%s", intent_id)
++        return False
++
++
++def _reconcile_accounting_ready(*, store: Any, cfg: LiveCfg, intent_id: str, filled: float) -> bool:
++    if not _retry_canonical_fills(store=store, cfg=cfg, intent_id=intent_id):
++        return False
++    try:
++        coverage = store.reconcile_fill_coverage(intent_id=intent_id)
++    except Exception:
++        _LOG.exception("executor_reconcile.accounting_coverage_failed intent_id=%s", intent_id)
++        return False
++    return bool(coverage["complete"]) and math.isclose(
++        float(coverage["qty"]), filled, rel_tol=1e-9, abs_tol=1e-12,
++    )
+ 
+ 
+ def _trade_matches_intent(trade: Dict[str, Any], *, remote_id: str | None, client_id: str | None) -> bool:
+@@ -192,6 +221,22 @@ def _existing_trade_ids(store: Any, *, intent_id: str) -> set[str]:
+     return set()
+ 
+ 
++def _persist_reconcile_fill(store: Any, **kwargs: Any) -> bool:
++    try:
++        store.add_fill(**kwargs)
++        return True
++    except Exception as error:
++        # A competing writer or failed transaction cannot justify terminalization.
++        intent_id = str(kwargs["intent_id"])
++        try:
++            coverage = store.reconcile_fill_coverage(intent_id=intent_id)
++        except Exception:
++            coverage = "unreadable"
++        _LOG.warning("reconcile fill persistence incomplete intent=%s coverage=%s error=%s",
++                     intent_id, coverage, error)
++        return False
++
++
+ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
+     ok, why = _hard_off_guard(cfg, operation="reconcile")
+     if not ok:
+@@ -205,12 +250,13 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
+     client = ExchangeClient(exchange_id=cfg.exchange_id, sandbox=cfg.sandbox)
+ 
+     # track intents that are "submitted" (and sometimes pending with remote_id in reason)
+-    intents = _list_intents_any(store, mode="live", exchange=cfg.exchange_id, symbol=cfg.symbol, statuses=["submitted", "pending"], limit=200)
++    intents = _list_intents_any(store, mode="live", exchange=cfg.exchange_id, symbol=cfg.symbol, statuses=["submitted", "pending", "partially_filled"], limit=200)
+ 
+     fills_added = 0
+     trade_fills_added = 0
+     latency_fills_recorded = 0
+     checked = 0
++    accounting_incomplete: list[str] = []
+     session: Any | None = None
+     session_owned = False
+     try:
+@@ -220,6 +266,14 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
+             checked += 1
+ 
+             intent_id = str(it["intent_id"])
++            try:
++                if not _retry_canonical_fills(store=store, cfg=cfg, intent_id=intent_id):
++                    accounting_incomplete.append(intent_id)
++                    continue
++                coverage = store.reconcile_fill_coverage(intent_id=intent_id)
++            except Exception:
++                accounting_incomplete.append(intent_id)
++                continue
+             reason = str(it.get("reason") or "")
+             remote_id = _remote_id_from_reason(reason)
+             if not remote_id:
+@@ -261,7 +315,18 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
+             )
+ 
+             status = str(o.get("status") or "").lower()
+-            filled = float(o.get("filled") or 0.0)
++            # Missing quantity is unknown, not affirmative evidence of no fills.
++            raw_filled = o.get("filled")
++            try:
++                if raw_filled is None or isinstance(raw_filled, bool):
++                    raise ValueError("missing or boolean filled quantity")
++                filled = float(raw_filled)
++            except (TypeError, ValueError, OverflowError):
++                accounting_incomplete.append(intent_id)
++                continue
++            if not math.isfinite(filled) or filled < 0:
++                accounting_incomplete.append(intent_id)
++                continue
+             total_qty = float(it.get("qty") or 0.0)
+             if status in ("open", "partially_filled"):
+                 if filled > 0.0 and filled < total_qty:
+@@ -274,7 +339,10 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
+                         "reconcile partial fill intent=%s filled=%.6f/%.6f",
+                         intent_id, filled, total_qty,
+                     )
+-            avg = float(o.get("average") or (o.get("price") or 0.0) or 0.0)
++            try:
++                avg = float(o.get("average") or 0.0)
++            except (TypeError, ValueError, OverflowError):
++                avg = 0.0
+             fee = o.get("fee") or {}
+             fee_cost = float(fee.get("cost") or 0.0)
+             fee_ccy = str(fee.get("currency") or "").upper() or "USD"
+@@ -314,12 +382,13 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
+                         tracker=latency_tracker,
+                     )
+ 
++                fill_write_failed = False
+                 for tr in trades:
+                     if not _trade_matches_intent(tr, remote_id=remote_id, client_id=cid):
+                         continue
+                     qty = float(tr.get("amount") or tr.get("qty") or 0.0)
+                     px = float(tr.get("price") or 0.0)
+-                    if qty <= 0.0 or px <= 0.0:
++                    if not math.isfinite(qty) or not math.isfinite(px) or qty <= 0.0 or px <= 0.0:
+                         continue
+                     trade_filled_qty += qty
+                     trade_id = _trade_id(tr)
+@@ -327,7 +396,7 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
+                         continue
+                     t_fee_cost, t_fee_ccy = _trade_fee_parts(tr)
+                     t_ts_ms = _trade_ts_ms(tr)
+-                    store.add_fill(
++                    fill_record = dict(
+                         intent_id=intent_id,
+                         ts_ms=t_ts_ms,
+                         price=px,
+@@ -365,7 +434,10 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
+                     realized_pnl = _realized_pnl_usd(tr)
+                     if realized_pnl is not None:
+                         sink_fill["realized_pnl_usd"] = realized_pnl
+-                    _emit_canonical_fill(cfg=cfg, fill=sink_fill)
++                    if not _persist_reconcile_fill(store, **fill_record, canonical_fill=sink_fill,
++                                                   max_recorded_qty=filled):
++                        fill_write_failed = True
++                        break
+                     known_trade_ids.add(trade_id)
+                     fills_added += 1
+                     trade_fills_added += 1
+@@ -382,19 +454,27 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
+                         except Exception as _silent_err:
+                             _LOG.debug("suppressed: %s", _silent_err)
+ 
++                if fill_write_failed:
++                    accounting_incomplete.append(intent_id)
++                    continue
++
+             # Trade-level reconciliation handles partial fills + fees.
+             # Keep synthetic fallback when closed fills are available but per-trade rows are not.
+-            if status in ("closed", "filled") and filled > 0 and avg > 0:
+-                if trade_filled_qty <= 0.0:
++            if status in ("closed", "filled") and filled > 0:
++                coverage = store.reconcile_fill_coverage(intent_id=intent_id)
++                if trade_filled_qty <= 0.0 and coverage["qty"] == 0:
++                    if not math.isfinite(avg) or avg <= 0:
++                        accounting_incomplete.append(intent_id)
++                        continue
+                     ts_ms = _now_ms()
+-                    store.add_fill(
++                    fill_record = dict(
+                         intent_id=intent_id,
+                         ts_ms=ts_ms,
+                         price=avg,
+                         qty=filled,
+                         fee=fee_cost,
+                         fee_ccy=fee_ccy,
+-                        meta={"remote_order_id": remote_id, "status": status, "raw_order": {"id": o.get("id"), "filled": filled, "average": avg, "fee": fee}},
++                        meta={"trade_id": f"order:{remote_id}:closed", "remote_order_id": remote_id, "status": status, "raw_order": {"id": o.get("id"), "filled": filled, "average": avg, "fee": fee}},
+                     )
+                     sink_fill = {
+                         "venue": cfg.exchange_id,
+@@ -413,7 +493,10 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
+                     realized_pnl = _realized_pnl_usd(o)
+                     if realized_pnl is not None:
+                         sink_fill["realized_pnl_usd"] = realized_pnl
+-                    _emit_canonical_fill(cfg=cfg, fill=sink_fill)
++                    if not _persist_reconcile_fill(store, **fill_record, canonical_fill=sink_fill,
++                                                   max_recorded_qty=filled):
++                        accounting_incomplete.append(intent_id)
++                        continue
+                     fills_added += 1
+                     if cid:
+                         try:
+@@ -427,6 +510,9 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
+                             latency_fills_recorded += 1
+                         except Exception as _silent_err:
+                             _LOG.debug("suppressed: %s", _silent_err)
++                if not _reconcile_accounting_ready(store=store, cfg=cfg, intent_id=intent_id, filled=filled):
++                    accounting_incomplete.append(intent_id)
++                    continue
+                 store.set_intent_status(intent_id=intent_id, status="filled", reason=f"remote_id={remote_id}")
+ 
+                 try:
+@@ -434,22 +520,29 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
+                 except Exception as _silent_err:
+                     _LOG.debug("suppressed: %s", _silent_err)
+             elif status in ("canceled", "cancelled", "rejected", "expired"):
++                if not _reconcile_accounting_ready(store=store, cfg=cfg, intent_id=intent_id, filled=filled):
++                    accounting_incomplete.append(intent_id)
++                    continue
+                 store.set_intent_status(intent_id=intent_id, status="canceled", reason=f"remote_id={remote_id}:{status}")
+                 try:
+                     store_dedupe.mark_terminal(exchange_id=cfg.exchange_id, intent_id=intent_id, terminal_status=status)
+                 except Exception as _silent_err:
+                     _LOG.debug("suppressed: %s", _silent_err)
++            else:
++                if not _retry_canonical_fills(store=store, cfg=cfg, intent_id=intent_id):
++                    accounting_incomplete.append(intent_id)
+     finally:
+         _close_reconcile_session(session, owned=session_owned)
+ 
+     return {
+-        "ok": True,
++        "ok": not accounting_incomplete,
+         "note": "reconcile complete",
+         "checked": checked,
+         "fills_added": fills_added,
+         "trade_fills_added": trade_fills_added,
+         "latency_fills_recorded": latency_fills_recorded,
+         "observe_only": _is_live_shadow(cfg),
++        "accounting_incomplete": accounting_incomplete,
+     }
+ # PHASE82_LIVE_GATES
+ 
+diff --git a/services/journal/fill_sink.py b/services/journal/fill_sink.py
+index 6ece4e5..326fced 100644
+--- a/services/journal/fill_sink.py
++++ b/services/journal/fill_sink.py
+@@ -83,6 +83,10 @@ class CanonicalFillSink:
+             if not (symbol and side and qty is not None and price is not None):
+                 return {"ok": False, "reason": "record_failed:missing_required_fields"}
+ 
++            from storage.execution_store_sqlite import ExecutionStore
++            loss_store = ExecutionStore(path=self.exec_db)
++            # Establish the legacy boundary before this delivery enters the journal.
++            loss_store.activate_symbol_loss_cutover()
+             self.j.record_fill(
+                 venue=str(venue),
+                 fill_id=str(fid),
+@@ -159,31 +163,20 @@ class CanonicalFillSink:
+ 
+             try:
+                 if fid and symbol:
+-                    from storage.execution_store_sqlite import ExecutionStore
+-                    _store = ExecutionStore(path=self.exec_db)
++                    _store = loss_store
+                     if pnl is not None:
+                         _realized_val = float(pnl)
+-                        if _realized_val < 0:
+-                            _loss_limit = int(os.environ.get("CBP_SYMBOL_LOSS_LIMIT") or "3")
+-                            _lock_ms = int(os.environ.get("CBP_SYMBOL_LOCK_MINUTES") or "60") * 60 * 1000
+-                            _count = _store.increment_symbol_loss(
+-                                str(symbol),
+-                                loss_limit=_loss_limit,
+-                                lock_duration_ms=_lock_ms,
+-                            )
+-                            _LOG.info(
+-                                "fill_sink.symbol_loss_counted symbol=%s count=%s limit=%s",
+-                                symbol, _count, _loss_limit,
+-                            )
+-                        else:
+-                            _store.set_symbol_lock(
+-                                str(symbol),
+-                                locked_until_ms=0,
+-                                loss_count=0,
+-                                reason="reset_on_profit",
+-                            )
+-            except Exception:
++                        _store.apply_symbol_loss_fill_once(
++                            venue=str(venue), fill_id=str(fid), symbol=str(symbol),
++                            realized_pnl_usd=_realized_val,
++                            loss_limit=int(os.environ.get("CBP_SYMBOL_LOSS_LIMIT") or "3"),
++                            lock_duration_ms=int(os.environ.get("CBP_SYMBOL_LOCK_MINUTES") or "60") * 60 * 1000,
++                            require_journal_order=True,
++                        )
++            except Exception as loss_err:
++                _write_risk_sink_failed({"venue": venue, "fill_id": fid, "symbol": symbol}, loss_err)
+                 _LOG.exception("fill_sink.symbol_loss_update_failed symbol=%s", symbol)
++                return {"ok": False, "reason": f"symbol_loss_update_failed:{type(loss_err).__name__}"}
+ 
+             return {"ok": True}
+         except Exception as record_err:
+diff --git a/storage/execution_store_sqlite.py b/storage/execution_store_sqlite.py
+index 3f30756..42103e8 100644
+--- a/storage/execution_store_sqlite.py
++++ b/storage/execution_store_sqlite.py
+@@ -1,6 +1,7 @@
+ from __future__ import annotations
+ 
+ import json
++import math
+ import os
+ import sqlite3
+ import time
+@@ -64,6 +65,34 @@ CREATE TABLE IF NOT EXISTS symbol_locks(
+   reason TEXT,
+   created_ts_ms INTEGER NOT NULL
+ );
++
++CREATE TABLE IF NOT EXISTS symbol_loss_fill_events(
++  venue TEXT NOT NULL,
++  fill_id TEXT NOT NULL,
++  symbol TEXT NOT NULL,
++  realized_pnl_usd REAL NOT NULL,
++  loss_count INTEGER NOT NULL,
++  PRIMARY KEY(venue, fill_id)
++);
++
++CREATE TABLE IF NOT EXISTS symbol_loss_cutover(
++  singleton INTEGER PRIMARY KEY CHECK(singleton=1),
++  activated_at_ms INTEGER NOT NULL
++);
++CREATE TABLE IF NOT EXISTS symbol_loss_legacy_fills(
++  venue TEXT NOT NULL,
++  fill_id TEXT NOT NULL,
++  PRIMARY KEY(venue, fill_id)
++);
++CREATE TABLE IF NOT EXISTS reconcile_fill_deliveries(
++  intent_id TEXT NOT NULL,
++  venue TEXT NOT NULL,
++  fill_id TEXT NOT NULL,
++  payload_json TEXT NOT NULL,
++  completed INTEGER NOT NULL DEFAULT 0 CHECK(completed IN (0,1)),
++  PRIMARY KEY(venue, fill_id),
++  UNIQUE(intent_id, fill_id)
++);
+ """
+ 
+ def _trade_id_from_meta(meta: Optional[Dict[str, Any]]) -> str | None:
+@@ -171,9 +200,47 @@ class ExecutionStore:
+             c.commit()
+             return cur.rowcount > 0
+ 
+-    def add_fill(self, *, intent_id: str, ts_ms: int, price: float, qty: float, fee: float, fee_ccy: str, meta: Optional[Dict[str, Any]] = None) -> None:
++    def add_fill(self, *, intent_id: str, ts_ms: int, price: float, qty: float, fee: float, fee_ccy: str, meta: Optional[Dict[str, Any]] = None, canonical_fill: Optional[Dict[str, Any]] = None, max_recorded_qty: float | None = None) -> None:
+         trade_id = _trade_id_from_meta(meta)
++        payload = None
++        if canonical_fill is not None:
++            if not trade_id or str(canonical_fill.get("fill_id") or "") != trade_id or not canonical_fill.get("venue"):
++                raise ValueError("invalid reconcile fill identity")
++            payload = json.dumps(canonical_fill, sort_keys=True, allow_nan=False)
+         with _conn(self.path) as c:
++            c.execute("BEGIN IMMEDIATE")
++            if max_recorded_qty is not None:
++                maximum = float(max_recorded_qty)
++                if not math.isfinite(maximum) or maximum < 0:
++                    raise ValueError("invalid reported filled quantity")
++                rows = c.execute(
++                    "SELECT qty, trade_id FROM fills WHERE intent_id=?", (intent_id,),
++                ).fetchall()
++                total = 0.0
++                duplicate = False
++                for row in rows:
++                    recorded = float(row["qty"])
++                    if not math.isfinite(recorded) or recorded <= 0:
++                        raise ValueError("invalid recorded fill quantity")
++                    total += recorded
++                    duplicate = duplicate or (trade_id is not None and row["trade_id"] == trade_id)
++                proposed = float(qty)
++                if not math.isfinite(proposed) or proposed <= 0:
++                    raise ValueError("invalid proposed fill quantity")
++                after = total if duplicate else total + proposed
++                if after > maximum and not math.isclose(after, maximum, rel_tol=1e-9, abs_tol=1e-12):
++                    raise ValueError("recorded fills exceed reported filled quantity")
++            if payload is not None:
++                existing = c.execute(
++                    "SELECT intent_id, payload_json FROM reconcile_fill_deliveries WHERE venue=? AND fill_id=?",
++                    (str(canonical_fill["venue"]), trade_id),
++                ).fetchone()
++                if existing and (existing["intent_id"] != intent_id or existing["payload_json"] != payload):
++                    raise ValueError("conflicting reconcile fill delivery")
++                c.execute(
++                    "INSERT OR IGNORE INTO reconcile_fill_deliveries(intent_id,venue,fill_id,payload_json) VALUES(?,?,?,?)",
++                    (intent_id, str(canonical_fill["venue"]), trade_id, payload),
++                )
+             c.execute(
+                 """
+                 INSERT OR IGNORE INTO fills(intent_id, ts_ms, price, qty, fee, fee_ccy, meta_json, trade_id)
+@@ -192,6 +259,41 @@ class ExecutionStore:
+             )
+             c.commit()
+ 
++    def pending_reconcile_fills(self, *, intent_id: str) -> List[Dict[str, Any]]:
++        with _conn(self.path) as c:
++            rows = c.execute(
++                "SELECT payload_json FROM reconcile_fill_deliveries WHERE intent_id=? AND completed=0 ORDER BY rowid",
++                (intent_id,),
++            ).fetchall()
++        return [json.loads(row[0]) for row in rows]
++
++    def complete_reconcile_fill(self, *, venue: str, fill_id: str) -> None:
++        with _conn(self.path) as c:
++            result = c.execute(
++                "UPDATE reconcile_fill_deliveries SET completed=1 WHERE venue=? AND fill_id=?",
++                (venue, fill_id),
++            )
++            if result.rowcount != 1:
++                raise RuntimeError("missing reconcile fill delivery")
++            c.commit()
++
++    def reconcile_fill_coverage(self, *, intent_id: str) -> Dict[str, Any]:
++        with _conn(self.path) as c:
++            rows = c.execute(
++                "SELECT f.qty, d.completed FROM fills f LEFT JOIN reconcile_fill_deliveries d "
++                "ON d.intent_id=f.intent_id AND d.fill_id=f.trade_id WHERE f.intent_id=?",
++                (intent_id,),
++            ).fetchall()
++        quantity = 0.0
++        complete = True
++        for row in rows:
++            qty = float(row["qty"])
++            if not math.isfinite(qty) or qty <= 0:
++                raise ValueError("invalid recorded fill quantity")
++            quantity += qty
++            complete = complete and row["completed"] == 1
++        return {"qty": quantity, "complete": complete}
++
+     def list_fill_trade_ids(self, *, intent_id: str, limit: int = 2000) -> List[str]:
+         with _conn(self.path) as c:
+             rows = c.execute(
+@@ -288,6 +390,107 @@ class ExecutionStore:
+             c.commit()
+         return new_count
+ 
++    def activate_symbol_loss_cutover(self) -> int:
++        with _conn(self.path) as c:
++            c.execute("BEGIN IMMEDIATE")
++            existing = c.execute(
++                "SELECT activated_at_ms FROM symbol_loss_cutover WHERE singleton=1"
++            ).fetchone()
++            if existing is not None:
++                return int(existing[0])
++            journal_exists = c.execute(
++                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='canonical_fills'"
++            ).fetchone()
++            if journal_exists:
++                # Snapshot identity, not exchange time: late arrivals remain new evidence.
++                c.execute(
++                    "INSERT INTO symbol_loss_legacy_fills(venue, fill_id) "
++                    "SELECT f.venue, f.fill_id FROM canonical_fills f WHERE NOT EXISTS "
++                    "(SELECT 1 FROM symbol_loss_fill_events e "
++                    "WHERE e.venue=f.venue AND e.fill_id=f.fill_id)"
++                )
++            activated_at = _now_ms()
++            c.execute("INSERT INTO symbol_loss_cutover VALUES(1,?)", (activated_at,))
++            c.commit()
++        return activated_at
++
++    def apply_symbol_loss_fill_once(
++        self, *, venue: str, fill_id: str, symbol: str,
++        realized_pnl_usd: float, loss_limit: int, lock_duration_ms: int,
++        require_journal_order: bool = False,
++    ) -> int:
++        pnl = float(realized_pnl_usd)
++        if not venue or not fill_id or not symbol or not math.isfinite(pnl):
++            raise ValueError("invalid symbol loss fill")
++        if loss_limit < 1 or lock_duration_ms < 0:
++            raise ValueError("invalid symbol loss policy")
++        with _conn(self.path) as c:
++            # Serialize deduplication and the counter update, including competing sinks.
++            c.execute("BEGIN IMMEDIATE")
++            if c.execute("SELECT 1 FROM symbol_loss_cutover WHERE singleton=1").fetchone() is None:
++                raise RuntimeError("symbol loss cutover not activated")
++            legacy = c.execute(
++                "SELECT 1 FROM symbol_loss_legacy_fills WHERE venue=? AND fill_id=?",
++                (venue, fill_id),
++            ).fetchone()
++            if legacy:
++                current = c.execute(
++                    "SELECT loss_count FROM symbol_locks WHERE symbol=?", (symbol,),
++                ).fetchone()
++                return int(current[0]) if current else 0
++            prior = c.execute(
++                "SELECT symbol, realized_pnl_usd, loss_count FROM symbol_loss_fill_events "
++                "WHERE venue=? AND fill_id=?", (venue, fill_id),
++            ).fetchone()
++            if prior is not None:
++                if prior["symbol"] != symbol or float(prior["realized_pnl_usd"]) != pnl:
++                    raise ValueError("conflicting symbol loss fill replay")
++                return int(prior["loss_count"])
++            if require_journal_order:
++                recorded = c.execute(
++                    "SELECT rowid, symbol FROM canonical_fills WHERE venue=? AND fill_id=?",
++                    (venue, fill_id),
++                ).fetchone()
++                if recorded is None or recorded["symbol"] != symbol:
++                    raise ValueError("missing or conflicting journal loss identity")
++                # Counter scope is per symbol across venues: use the same scope here.
++                earlier = c.execute(
++                    "SELECT 1 FROM canonical_fills f WHERE f.symbol=? AND f.rowid<? "
++                    "AND NOT EXISTS (SELECT 1 FROM symbol_loss_legacy_fills l "
++                    "WHERE l.venue=f.venue AND l.fill_id=f.fill_id) "
++                    "AND NOT EXISTS (SELECT 1 FROM symbol_loss_fill_events e "
++                    "WHERE e.venue=f.venue AND e.fill_id=f.fill_id) LIMIT 1",
++                    (symbol, recorded["rowid"]),
++                ).fetchone()
++                if earlier:
++                    raise RuntimeError("earlier journal loss event remains unapplied")
++            row = c.execute(
++                "SELECT loss_count, locked_until_ms FROM symbol_locks WHERE symbol=?",
++                (symbol,),
++            ).fetchone()
++            count = (int(row["loss_count"]) if row else 0) + 1 if pnl < 0 else 0
++            now = _now_ms()
++            locked_until = (
++                now + int(lock_duration_ms) if count >= loss_limit
++                else int(row["locked_until_ms"]) if pnl < 0 and row else 0
++            )
++            reason = (
++                f"consecutive_losses={count}" if count >= loss_limit
++                else f"loss_count={count}" if pnl < 0 else "reset_on_profit"
++            )
++            c.execute(
++                "INSERT INTO symbol_locks VALUES(?,?,?,?,?) ON CONFLICT(symbol) DO UPDATE SET "
++                "locked_until_ms=excluded.locked_until_ms, loss_count=excluded.loss_count, "
++                "reason=excluded.reason, created_ts_ms=excluded.created_ts_ms",
++                (symbol, locked_until, count, reason, now),
++            )
++            c.execute(
++                "INSERT INTO symbol_loss_fill_events VALUES(?,?,?,?,?)",
++                (venue, fill_id, symbol, pnl, count),
++            )
++            c.commit()
++        return count
++
+     def upsert_intent(self, row: Dict[str, Any]) -> None:
+         with _conn(self.path) as c:
+             c.execute(
+diff --git a/tests/test_fill_sink_logging.py b/tests/test_fill_sink_logging.py
+index 4864d42..49bde5d 100644
+--- a/tests/test_fill_sink_logging.py
++++ b/tests/test_fill_sink_logging.py
+@@ -21,7 +21,7 @@ def test_canonical_fill_sink_logs_schema_failure(monkeypatch, caplog):
+     assert any(r.msg == "fill_sink.ensure_schema_failed exec_db=%s" for r in caplog.records)
+ 
+ 
+-def test_canonical_fill_sink_logs_risk_daily_failure(monkeypatch, caplog):
++def test_canonical_fill_sink_logs_risk_daily_failure(monkeypatch, caplog, tmp_path):
+     class _Journal:
+         def __init__(self, exec_db: str):
+             self.exec_db = exec_db
+@@ -42,7 +42,7 @@ def test_canonical_fill_sink_logs_risk_daily_failure(monkeypatch, caplog):
+     monkeypatch.setattr(fill_sink, "CanonicalJournal", _Journal)
+     monkeypatch.setattr(fill_sink, "RiskDailyDB", _RiskDaily)
+ 
+-    sink = fill_sink.CanonicalFillSink(exec_db=":memory:")
++    sink = fill_sink.CanonicalFillSink(exec_db=str(tmp_path / "execution.sqlite"))
+ 
+     with caplog.at_level(logging.ERROR):
+         sink.on_fill({"venue": "coinbase", "fill_id": "fill-1", "symbol": "BTC/USD", "side": "buy", "qty": 1.0, "price": 100.0})
+@@ -50,7 +50,7 @@ def test_canonical_fill_sink_logs_risk_daily_failure(monkeypatch, caplog):
+     assert any(r.msg == "fill_sink.risk_daily_apply_failed exec_db=%s venue=%s symbol=%s fill_id=%s" for r in caplog.records)
+ 
+ 
+-def test_canonical_fill_sink_logs_record_failure(monkeypatch, caplog):
++def test_canonical_fill_sink_logs_record_failure(monkeypatch, caplog, tmp_path):
+     class _Journal:
+         def __init__(self, exec_db: str):
+             self.exec_db = exec_db
+@@ -63,7 +63,7 @@ def test_canonical_fill_sink_logs_record_failure(monkeypatch, caplog):
+ 
+     monkeypatch.setattr(fill_sink, "CanonicalJournal", _Journal)
+ 
+-    sink = fill_sink.CanonicalFillSink(exec_db=":memory:")
++    sink = fill_sink.CanonicalFillSink(exec_db=str(tmp_path / "execution.sqlite"))
+ 
+     with caplog.at_level(logging.ERROR):
+         sink.on_fill({"venue": "coinbase", "fill_id": "fill-2", "symbol": "BTC/USD", "side": "buy", "qty": 1.0, "price": 100.0})
+diff --git a/tests/test_live_executor_latency_safety_integration.py b/tests/test_live_executor_latency_safety_integration.py
+index bbef1f5..c41c852 100644
+--- a/tests/test_live_executor_latency_safety_integration.py
++++ b/tests/test_live_executor_latency_safety_integration.py
+@@ -3,6 +3,25 @@ from __future__ import annotations
+ from services.config_loader import ConfigLoadError
+ from services.execution import live_executor as le
+ from services.execution.safety_gates import SafetyConfig
++from storage.execution_store_sqlite import ExecutionStore
++
++
++class _ReconcileTrackingStore(ExecutionStore):
++    def __init__(self, path, *, intent_id="intent-1", order_id="ord-1", side="buy"):
++        super().__init__(path=path)
++        self.fills = []
++        self.status_updates = []
++        self.upsert_intent(dict(intent_id=intent_id, ts_ms=1, mode="live", exchange="coinbase",
++            symbol="BTC/USD", side=side, qty=.5, status="submitted",
++            reason=f"remote_id={order_id} client_id=cid-{intent_id.rsplit('-', 1)[-1]}"))
++
++    def add_fill(self, **kwargs):
++        super().add_fill(**kwargs)
++        self.fills.append(dict(kwargs))
++
++    def set_intent_status(self, **kwargs):
++        self.status_updates.append((kwargs["intent_id"], kwargs["status"], kwargs.get("reason", "")))
++        return super().set_intent_status(**kwargs)
+ 
+ 
+ def _guard_running(monkeypatch) -> None:
+@@ -843,25 +862,9 @@ def test_submit_pending_live_latency_breach_opens_pause_and_stops_batch(monkeypa
+     assert str(le._EXECUTION_SAFETY_CIRCUIT.last_reason).startswith("submit_to_ack_ms:")
+ 
+ 
+-def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
++def test_reconcile_live_records_ack_to_fill_latency(monkeypatch, tmp_path):
+     monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
+-    cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", reconcile_limit=5)
+-
+-    class _FakeStore:
+-        def __init__(self):
+-            self.fills: list[dict] = []
+-            self.status_updates: list[tuple[str, str, str]] = []
+-
+-        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
+-            if status != "submitted":
+-                return []
+-            return [{"intent_id": "intent-9", "symbol": symbol, "side": "sell", "reason": "remote_id=ord-9 client_id=cid-9"}]
+-
+-        def add_fill(self, **kwargs):
+-            self.fills.append(dict(kwargs))
+-
+-        def set_intent_status(self, *, intent_id: str, status: str, reason: str = ""):
+-            self.status_updates.append((intent_id, status, reason))
++    cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=str(tmp_path / "execution.sqlite"), symbol="BTC/USD", reconcile_limit=5)
+ 
+     class _FakeDedupe:
+         def get_by_intent(self, exchange_id: str, intent_id: str):
+@@ -896,7 +899,7 @@ def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
+         def record_fill(self, **kwargs):
+             self.fill_calls.append(dict(kwargs))
+ 
+-    fake_store = _FakeStore()
++    fake_store = _ReconcileTrackingStore(cfg.exec_db, intent_id="intent-9", order_id="ord-9", side="sell")
+     fake_dedupe = _FakeDedupe()
+     fake_latency = _FakeLatency()
+     sink_fills: list[dict] = []
+@@ -915,37 +918,25 @@ def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
+     assert len(fake_latency.fill_calls) == 1
+     assert fake_latency.fill_calls[0]["client_order_id"] == "cid-9"
+     assert len(sink_fills) == 1
+-    assert sink_fills[0]["exec_db"] == ":memory:"
++    assert sink_fills[0]["exec_db"] == cfg.exec_db
+     assert sink_fills[0]["fill"]["fill_id"] == "order:ord-9:closed"
+     assert sink_fills[0]["fill"]["side"] == "sell"
+     assert sink_fills[0]["fill"]["fee_usd"] == 0.1
+     assert sink_fills[0]["fill"]["realized_pnl_usd"] == 2.5
+ 
+ 
+-def test_reconcile_live_records_fetch_latency_measurements(monkeypatch):
++def test_reconcile_live_records_fetch_latency_measurements(monkeypatch, tmp_path):
+     monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
+     cfg = le.LiveCfg(
+         enabled=True,
+         exchange_id="coinbase",
+-        exec_db=":memory:",
++        exec_db=str(tmp_path / "execution.sqlite"),
+         symbol="BTC/USD",
+         reconcile_limit=1,
+         reconcile_trades=True,
+         reconcile_trades_limit=5,
+     )
+ 
+-    class _FakeStore:
+-        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
+-            if status == "submitted":
+-                return [{"intent_id": "intent-1", "symbol": symbol, "reason": "remote_id=ord-1"}]
+-            return []
+-
+-        def set_intent_status(self, *, intent_id: str, status: str, reason: str = "") -> None:
+-            return None
+-
+-        def add_fill(self, **kwargs):
+-            return None
+-
+     class _FakeDedupe:
+         def get_by_intent(self, exchange_id: str, intent_id: str):
+             return {"client_order_id": "cid-1", "remote_order_id": "ord-1"}
+@@ -989,7 +980,7 @@ def test_reconcile_live_records_fetch_latency_measurements(monkeypatch):
+         def record_measurement(self, **kwargs):
+             self.metric_calls.append(dict(kwargs))
+ 
+-    fake_store = _FakeStore()
++    fake_store = _ReconcileTrackingStore(cfg.exec_db)
+     fake_dedupe = _FakeDedupe()
+     fake_latency = _FakeLatency()
+ 
+@@ -1006,34 +997,18 @@ def test_reconcile_live_records_fetch_latency_measurements(monkeypatch):
+     assert "reconcile_fetch_trades_ms" in names
+ 
+ 
+-def test_reconcile_live_reuses_built_session_for_order_and_trade_fetches(monkeypatch):
++def test_reconcile_live_reuses_built_session_for_order_and_trade_fetches(monkeypatch, tmp_path):
+     monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
+     cfg = le.LiveCfg(
+         enabled=True,
+         exchange_id="coinbase",
+-        exec_db=":memory:",
++        exec_db=str(tmp_path / "execution.sqlite"),
+         symbol="BTC/USD",
+         reconcile_limit=1,
+         reconcile_trades=True,
+         reconcile_trades_limit=5,
+     )
+ 
+-    class _FakeStore:
+-        def __init__(self):
+-            self.fills: list[dict] = []
+-            self.status_updates: list[tuple[str, str, str]] = []
+-
+-        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
+-            if status == "submitted":
+-                return [{"intent_id": "intent-1", "symbol": symbol, "reason": "remote_id=ord-1 client_id=cid-1"}]
+-            return []
+-
+-        def set_intent_status(self, *, intent_id: str, status: str, reason: str = "") -> None:
+-            self.status_updates.append((intent_id, status, reason))
+-
+-        def add_fill(self, **kwargs):
+-            self.fills.append(dict(kwargs))
+-
+     class _FakeDedupe:
+         def get_by_intent(self, exchange_id: str, intent_id: str):
+             return {"client_order_id": "cid-1", "remote_order_id": "ord-1"}
+@@ -1087,7 +1062,7 @@ def test_reconcile_live_reuses_built_session_for_order_and_trade_fetches(monkeyp
+             self.build_calls += 1
+             return self.session
+ 
+-    fake_store = _FakeStore()
++    fake_store = _ReconcileTrackingStore(cfg.exec_db)
+     fake_dedupe = _FakeDedupe()
+     fake_latency = _FakeLatency()
+     fake_client = _FakeClient()
+diff --git a/tests/test_live_executor_shadow_and_trade_reconcile.py b/tests/test_live_executor_shadow_and_trade_reconcile.py
+index 239e553..84ab413 100644
+--- a/tests/test_live_executor_shadow_and_trade_reconcile.py
++++ b/tests/test_live_executor_shadow_and_trade_reconcile.py
+@@ -137,12 +137,12 @@ def test_reconcile_live_shadow_mode_allows_read_only_without_live_arming(monkeyp
+     assert out["observe_only"] is True
+ 
+ 
+-def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
++def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch, tmp_path):
+     monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
+     cfg = le.LiveCfg(
+         enabled=True,
+         exchange_id="coinbase",
+-        exec_db=":memory:",
++        exec_db=str(tmp_path / "execution.sqlite"),
+         symbol="BTC/USD",
+         reconcile_limit=5,
+         reconcile_trades=True,
+@@ -150,30 +150,22 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
+         reconcile_trades_limit=50,
+     )
+ 
+-    class _FakeStore:
++    class _TrackingStore(ExecutionStore):
+         def __init__(self):
++            super().__init__(path=cfg.exec_db)
+             self.fills: list[dict] = []
+             self.status_updates: list[tuple[str, str, str]] = []
+-
+-        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
+-            if status != "submitted":
+-                return []
+-            return [{"intent_id": "intent-1", "symbol": symbol, "side": "buy", "reason": "remote_id=ord-1 client_id=cid-1"}]
++            self.upsert_intent(dict(intent_id="intent-1", ts_ms=1, mode="live",
++                exchange="coinbase", symbol="BTC/USD", side="buy", qty=1,
++                status="submitted", reason="remote_id=ord-1 client_id=cid-1"))
+ 
+         def add_fill(self, **kwargs):
++            super().add_fill(**kwargs)
+             self.fills.append(dict(kwargs))
+ 
+         def set_intent_status(self, *, intent_id: str, status: str, reason: str = ""):
+             self.status_updates.append((intent_id, status, reason))
+-
+-        def list_fill_trade_ids(self, *, intent_id: str, limit: int = 2000):
+-            out: list[str] = []
+-            for row in self.fills:
+-                meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+-                trade_id = str(meta.get("trade_id") or "").strip()
+-                if trade_id:
+-                    out.append(trade_id)
+-            return out[-int(limit) :]
++            return super().set_intent_status(intent_id=intent_id, status=status, reason=reason)
+ 
+     class _FakeDedupe:
+         def get_by_intent(self, exchange_id: str, intent_id: str):
+@@ -215,7 +207,7 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
+         def record_fill(self, **kwargs):
+             self.fill_calls.append(dict(kwargs))
+ 
+-    fake_store = _FakeStore()
++    fake_store = _TrackingStore()
+     fake_latency = _FakeLatency()
+     sink_fills: list[dict] = []
+ 
+@@ -235,7 +227,7 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
+     assert fake_store.fills[0]["meta"]["trade_id"] == "trade-1"
+     assert len(fake_latency.fill_calls) == 1
+     assert len(sink_fills) == 1
+-    assert sink_fills[0]["exec_db"] == ":memory:"
++    assert sink_fills[0]["exec_db"] == cfg.exec_db
+     assert sink_fills[0]["fill"]["fill_id"] == "trade-1"
+     assert sink_fills[0]["fill"]["fee_usd"] == 0.01
+     assert sink_fills[0]["fill"]["realized_pnl_usd"] == -1.25
+@@ -247,3 +239,5 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
+     assert len(fake_store.fills) == 1
+     assert len(fake_latency.fill_calls) == 1
+     assert len(sink_fills) == 1
++    assert fake_store.pending_reconcile_fills(intent_id="intent-1") == []
++    assert fake_store.reconcile_fill_coverage(intent_id="intent-1") == {"qty": 0.4, "complete": True}
+diff --git a/tests/test_reconcile_accounting_delivery.py b/tests/test_reconcile_accounting_delivery.py
+new file mode 100644
+index 0000000..ee79362
+--- /dev/null
++++ b/tests/test_reconcile_accounting_delivery.py
+@@ -0,0 +1,318 @@
++import sqlite3
++from concurrent.futures import ThreadPoolExecutor
++from threading import Barrier
++from types import SimpleNamespace
++
++import pytest
++
++from services.execution import _executor_reconcile as reconcile
++from storage.execution_store_sqlite import ExecutionStore
++
++
++@pytest.fixture
++def rig(tmp_path, monkeypatch):
++    db = str(tmp_path / "execution.sqlite")
++    store = ExecutionStore(path=db)
++    store.upsert_intent(dict(intent_id="intent", ts_ms=1, mode="live", exchange="coinbase",
++        symbol="BTC/USD", side="buy", qty=1, status="submitted", reason="remote_id=order"))
++    state = dict(order=dict(id="order", status="closed", filled=1, average=100,
++                           fee=dict(cost=0, currency="USD")), trades=[], delivered=[], refused=False)
++    cfg = SimpleNamespace(exec_db=db, exchange_id="coinbase", sandbox=True, symbol="BTC/USD",
++        reconcile_limit=5, reconcile_trades=True, reconcile_lookback_ms=60000, reconcile_trades_limit=50)
++    # Public facade tests synchronize mocks into this module; reset our store explicitly.
++    monkeypatch.setattr(reconcile, "ExecutionStore", ExecutionStore)
++    monkeypatch.setattr(reconcile, "_now_ms", lambda: 1700000060000)
++    monkeypatch.setattr(reconcile, "_hard_off_guard", lambda *a, **kw: (True, "test"))
++    monkeypatch.setattr(reconcile, "_load_execution_safety_cfg", lambda: None)
++    monkeypatch.setattr(reconcile, "_latency_tracker", lambda _: SimpleNamespace(record_fill=lambda **kw: None))
++    monkeypatch.setattr(reconcile, "_record_execution_metric", lambda **kw: None)
++    monkeypatch.setattr(reconcile, "_is_live_shadow", lambda _: False)
++    monkeypatch.setattr(reconcile, "ExchangeClient", lambda **kw: SimpleNamespace(fetch_my_trades=lambda: None))
++    monkeypatch.setattr(reconcile, "_open_reconcile_session", lambda _: (object(), False))
++    monkeypatch.setattr(reconcile, "_close_reconcile_session", lambda *a, **kw: None)
++    monkeypatch.setattr(reconcile, "_fetch_order_for_reconcile", lambda *a, **kw: state["order"])
++    monkeypatch.setattr(reconcile, "_fetch_trades_for_reconcile", lambda *a, **kw: state["trades"])
++    monkeypatch.setattr(reconcile, "OrderDedupeStore", lambda **kw: SimpleNamespace(
++        get_by_intent=lambda *a: {}, mark_terminal=lambda **kw: None))
++
++    def sink(fill, **kw):
++        state["delivered"].append(fill["fill_id"])
++        return {"ok": not state["refused"]}
++
++    monkeypatch.setattr(reconcile, "_on_fill", sink)
++    return store, cfg, state
++
++
++def trade(qty=1, fid="trade"):
++    return dict(id=fid, order="order", side="buy", timestamp=1700000000000,
++                amount=qty, price=100, fee=dict(cost=0, currency="USD"))
++
++
++def status(store):
++    with sqlite3.connect(store.path) as c:
++        return c.execute("SELECT status FROM intents WHERE intent_id='intent'").fetchone()[0]
++
++
++@pytest.mark.parametrize("remote_status", ["canceled", "cancelled", "rejected", "expired"])
++@pytest.mark.parametrize("quantity", [None, "missing", "", "bad", float("nan"), float("inf"), -1, False])
++def test_unknown_remote_quantity_cannot_terminalize(rig, remote_status, quantity):
++    store, cfg, state = rig
++    state["order"].update(status=remote_status, filled=quantity)
++    if quantity == "missing":
++        state["order"].pop("filled")
++    out = reconcile.reconcile_live(cfg)
++    assert out["ok"] is False
++    assert out["accounting_incomplete"] == ["intent"]
++    assert status(store) == "submitted"
++    assert state["delivered"] == []
++
++
++@pytest.mark.parametrize("remote_status", ["canceled", "cancelled", "rejected", "expired"])
++@pytest.mark.parametrize("quantity", [0, "0"])
++def test_explicit_zero_quantity_can_terminalize(rig, remote_status, quantity):
++    store, cfg, state = rig
++    state["order"].update(status=remote_status, filled=quantity)
++    assert reconcile.reconcile_live(cfg)["ok"] is True
++    assert status(store) == "canceled"
++    assert state["delivered"] == []
++
++
++def test_unknown_quantity_retries_when_explicit_evidence_arrives(rig):
++    store, cfg, state = rig
++    state["order"].update(status="canceled", filled=None)
++    assert reconcile.reconcile_live(cfg)["ok"] is False
++    assert status(store) == "submitted"
++    state["order"]["filled"] = 0
++    assert reconcile.reconcile_live(cfg)["ok"] is True
++    assert status(store) == "canceled"
++
++
++@pytest.mark.parametrize("trade_path", [True, False])
++def test_competing_writer_does_not_abort_other_intents(rig, monkeypatch, trade_path):
++    store, cfg, state = rig
++    store.upsert_intent(dict(intent_id="other", ts_ms=2, mode="live", exchange="coinbase",
++        symbol="BTC/USD", side="buy", qty=1, status="submitted", reason="remote_id=other-order"))
++    monkeypatch.setattr(reconcile, "_list_intents_any", lambda *a, **kw: [
++        dict(intent_id="intent", symbol="BTC/USD", side="buy", qty=1, reason="remote_id=order"),
++        dict(intent_id="other", symbol="BTC/USD", side="buy", qty=1, reason="remote_id=other-order"),
++    ])
++    monkeypatch.setattr(reconcile, "_fetch_order_for_reconcile", lambda *a, **kw:
++        dict(id="other-order", status="canceled", filled=0) if kw["order_id"] == "other-order"
++        else state["order"])
++    state["trades"] = [trade()] if trade_path else []
++    original = ExecutionStore.add_fill
++    raced = []
++
++    def competing_write(self, **kwargs):
++        if not raced:
++            raced.append(True)
++            original(self, intent_id="intent", ts_ms=1, price=100, qty=1, fee=0,
++                fee_ccy="USD", meta={"trade_id": "winner"}, max_recorded_qty=1,
++                canonical_fill=dict(venue="coinbase", fill_id="winner", symbol="BTC/USD",
++                                    side="buy", qty=1, price=100, ts="1"))
++        return original(self, **kwargs)
++
++    monkeypatch.setattr(ExecutionStore, "add_fill", competing_write)
++    out = reconcile.reconcile_live(cfg)
++    assert out["ok"] is False
++    assert out["accounting_incomplete"] == ["intent"]
++    assert out["checked"] == 2
++    assert out["fills_added"] == 0
++    assert status(store) == "submitted"
++    with sqlite3.connect(store.path) as c:
++        assert c.execute("SELECT status FROM intents WHERE intent_id='other'").fetchone()[0] == "canceled"
++    assert store.reconcile_fill_coverage(intent_id="intent")["qty"] == 1
++    monkeypatch.setattr(ExecutionStore, "add_fill", original)
++    state["trades"] = []
++    assert reconcile.reconcile_live(cfg)["ok"] is True
++    assert status(store) == "filled"
++    assert state["delivered"] == ["winner"]
++
++
++@pytest.mark.parametrize("remote_status", ["closed", "canceled"])
++def test_failed_accounting_is_durable_and_retried_without_trade_history(rig, remote_status):
++    store, cfg, state = rig
++    state["order"].update(status=remote_status, filled=.4 if remote_status == "canceled" else 1)
++    state["trades"] = [trade(state["order"]["filled"])]
++    state["refused"] = True
++    out = reconcile.reconcile_live(cfg)
++    assert out["ok"] is False
++    assert out["accounting_incomplete"] == ["intent"]
++    assert status(store) == "submitted"
++    assert len(ExecutionStore(path=store.path).pending_reconcile_fills(intent_id="intent")) == 1
++    state["refused"] = False
++    state["trades"] = []
++    out = reconcile.reconcile_live(cfg)
++    assert out["ok"] is True
++    assert out["fills_added"] == 0
++    assert status(store) == ("filled" if remote_status == "closed" else "canceled")
++    assert store.reconcile_fill_coverage(intent_id="intent")["qty"] == state["order"]["filled"]
++
++
++def test_partial_order_remains_tracked_and_incomplete_history_does_not_close(rig):
++    store, cfg, state = rig
++    state["order"].update(status="open", filled=.4)
++    state["trades"] = [trade(.4)]
++    assert reconcile.reconcile_live(cfg)["ok"] is True
++    assert status(store) == "partially_filled"
++    state["order"].update(status="closed", filled=1)
++    assert reconcile.reconcile_live(cfg)["ok"] is False
++    assert status(store) == "partially_filled"
++    assert store.reconcile_fill_coverage(intent_id="intent")["qty"] == .4
++    state["trades"] = []
++    assert reconcile.reconcile_live(cfg)["ok"] is False
++    assert store.reconcile_fill_coverage(intent_id="intent")["qty"] == .4
++    state["trades"] = [trade(.6, "remainder")]
++    assert reconcile.reconcile_live(cfg)["ok"] is True
++    assert status(store) == "filled"
++
++
++def test_synthetic_fill_delivery_is_durable(rig):
++    store, cfg, state = rig
++    state["refused"] = True
++    assert reconcile.reconcile_live(cfg)["ok"] is False
++    assert status(store) == "submitted"
++    state["refused"] = False
++    assert reconcile.reconcile_live(cfg)["ok"] is True
++    assert store.reconcile_fill_coverage(intent_id="intent")["qty"] == 1
++    assert state["delivered"] == ["order:order:closed", "order:order:closed"]
++
++
++def test_legacy_recorded_fill_is_not_assumed_accounted(rig):
++    store, cfg, state = rig
++    store.add_fill(intent_id="intent", ts_ms=1, price=100, qty=1, fee=0, fee_ccy="USD",
++                   meta={"trade_id": "legacy"})
++    assert reconcile.reconcile_live(cfg)["ok"] is False
++    assert status(store) == "submitted"
++    assert state["delivered"] == []
++    assert store.reconcile_fill_coverage(intent_id="intent")["qty"] == 1
++
++
++def test_failed_completion_marker_keeps_delivery_for_restart(rig, monkeypatch):
++    store, cfg, state = rig
++    state["trades"] = [trade()]
++    original = ExecutionStore.complete_reconcile_fill
++    monkeypatch.setattr(ExecutionStore, "complete_reconcile_fill",
++        lambda *a, **kw: (_ for _ in ()).throw(sqlite3.OperationalError("injected marker failure")))
++    assert reconcile.reconcile_live(cfg)["ok"] is False
++    assert status(store) == "submitted"
++    assert len(store.pending_reconcile_fills(intent_id="intent")) == 1
++    monkeypatch.setattr(ExecutionStore, "complete_reconcile_fill", original)
++    state["trades"] = []
++    assert reconcile.reconcile_live(cfg)["ok"] is True
++    assert status(store) == "filled"
++
++
++def test_fill_and_delivery_rollback_together(rig):
++    store, _, _ = rig
++    with sqlite3.connect(store.path) as c:
++        c.execute("CREATE TRIGGER fail_fill BEFORE INSERT ON fills "
++                  "BEGIN SELECT RAISE(ABORT, 'injected fill failure'); END")
++    with pytest.raises(sqlite3.IntegrityError):
++        store.add_fill(intent_id="intent", ts_ms=1, price=100, qty=1, fee=0, fee_ccy="USD",
++            meta={"trade_id": "trade"}, canonical_fill=dict(venue="coinbase", fill_id="trade"))
++    assert store.pending_reconcile_fills(intent_id="intent") == []
++    assert store.reconcile_fill_coverage(intent_id="intent")["qty"] == 0
++
++
++def test_unreadable_coverage_is_not_zero(rig, monkeypatch):
++    store, cfg, state = rig
++    monkeypatch.setattr(ExecutionStore, "reconcile_fill_coverage",
++        lambda *a, **kw: (_ for _ in ()).throw(sqlite3.OperationalError("injected read failure")))
++    assert reconcile.reconcile_live(cfg)["ok"] is False
++    assert status(store) == "submitted"
++    assert state["delivered"] == []
++
++
++def test_retry_after_sink_commit_does_not_double_loss_counter(rig, monkeypatch, tmp_path):
++    from services.journal import fill_sink
++    store, cfg, state = rig
++    monkeypatch.setattr(fill_sink, "data_dir", lambda: tmp_path)
++    state["trades"] = [{**trade(), "realized_pnl_usd": -2}]
++    sink = fill_sink.CanonicalFillSink(exec_db=store.path)
++    monkeypatch.setattr(reconcile, "_on_fill", lambda fill, **kw: sink.on_fill(fill))
++    original = ExecutionStore.complete_reconcile_fill
++    calls = []
++
++    def fail_once(self, **kwargs):
++        calls.append(1)
++        if len(calls) == 1:
++            raise sqlite3.OperationalError("failure after accounting commit")
++        return original(self, **kwargs)
++
++    monkeypatch.setattr(ExecutionStore, "complete_reconcile_fill", fail_once)
++    assert reconcile.reconcile_live(cfg)["ok"] is False
++    state["trades"] = []
++    assert reconcile.reconcile_live(cfg)["ok"] is True
++    with sqlite3.connect(store.path) as c:
++        assert c.execute("SELECT loss_count FROM symbol_locks").fetchone()[0] == 1
++        assert c.execute("SELECT COUNT(*) FROM canonical_fills").fetchone()[0] == 1
++    assert status(store) == "filled"
++
++
++@pytest.mark.parametrize("average", [None, "invalid", float("nan"), float("inf"), 0, -1])
++def test_limit_price_is_not_execution_average(rig, average):
++    store, cfg, state = rig
++    state["order"].update(average=average, price=100)
++    assert reconcile.reconcile_live(cfg)["ok"] is False
++    assert status(store) == "submitted"
++    assert state["delivered"] == []
++    assert store.reconcile_fill_coverage(intent_id="intent")["qty"] == 0
++
++
++def test_complete_trade_evidence_can_close_without_order_average(rig):
++    store, cfg, state = rig
++    state["order"].update(average=None, price=999)
++    state["trades"] = [trade()]
++    assert reconcile.reconcile_live(cfg)["ok"] is True
++    assert status(store) == "filled"
++
++
++def test_stale_synthetic_snapshot_cannot_over_record_quantity(rig):
++    store, _, _ = rig
++    store.add_fill(intent_id="intent", ts_ms=1, price=100, qty=.4, fee=0, fee_ccy="USD",
++                   meta={"trade_id": "real-partial"})
++    with pytest.raises(ValueError, match="exceed reported"):
++        store.add_fill(intent_id="intent", ts_ms=2, price=100, qty=1, fee=0, fee_ccy="USD",
++            meta={"trade_id": "synthetic"}, max_recorded_qty=1,
++            canonical_fill=dict(venue="coinbase", fill_id="synthetic"))
++    assert store.reconcile_fill_coverage(intent_id="intent")["qty"] == .4
++    assert store.pending_reconcile_fills(intent_id="intent") == []
++
++
++def test_late_real_trade_cannot_duplicate_synthetic_quantity(rig):
++    store, _, _ = rig
++    store.add_fill(intent_id="intent", ts_ms=1, price=100, qty=1, fee=0, fee_ccy="USD",
++                   meta={"trade_id": "synthetic"}, max_recorded_qty=1)
++    with pytest.raises(ValueError, match="exceed reported"):
++        store.add_fill(intent_id="intent", ts_ms=2, price=100, qty=.4, fee=0, fee_ccy="USD",
++                       meta={"trade_id": "real-partial"}, max_recorded_qty=1)
++    assert store.reconcile_fill_coverage(intent_id="intent")["qty"] == 1
++
++
++def test_competing_real_and_synthetic_writers_cannot_exceed_remote_total(rig):
++    store, _, _ = rig
++    barrier = Barrier(2)
++
++    def write(fid, qty):
++        barrier.wait(timeout=5)
++        try:
++            store.add_fill(intent_id="intent", ts_ms=1, price=100, qty=qty, fee=0,
++                           fee_ccy="USD", meta={"trade_id": fid}, max_recorded_qty=1)
++            return True
++        except ValueError:
++            return False
++
++    with ThreadPoolExecutor(max_workers=2) as pool:
++        a = pool.submit(write, "synthetic", 1)
++        b = pool.submit(write, "real-partial", .4)
++        assert sorted([a.result(timeout=10), b.result(timeout=10)]) == [False, True]
++    assert store.reconcile_fill_coverage(intent_id="intent")["qty"] in {.4, 1}
++
++
++def test_duplicate_fill_does_not_consume_quantity_twice(rig):
++    store, _, _ = rig
++    for _ in range(2):
++        store.add_fill(intent_id="intent", ts_ms=1, price=100, qty=1, fee=0,
++                       fee_ccy="USD", meta={"trade_id": "same"}, max_recorded_qty=1)
++    assert store.reconcile_fill_coverage(intent_id="intent")["qty"] == 1
+diff --git a/tests/test_repo_doctor_strict.py b/tests/test_repo_doctor_strict.py
+index 61e15b6..e47acc5 100644
+--- a/tests/test_repo_doctor_strict.py
++++ b/tests/test_repo_doctor_strict.py
+@@ -31,3 +31,25 @@ def test_repo_doctor_strict_is_clean():
+     assert required.issubset(baseline_present)
+     assert {"config", "desktop", "src-tauri", "tools"}.issubset(allowed_present)
+     assert {"attic", "build", "crypto-trading-ai", "desktop", "src-tauri"}.isdisjoint(baseline_present)
++
++
++def test_repo_doctor_allows_research_without_requiring_it(tmp_path):
++    script = Path(__file__).resolve().parents[1] / "tools/repo_doctor.py"
++    (tmp_path / "research").mkdir()
++    proc = subprocess.run([sys.executable, str(script), "--strict", "--json"],
++                          cwd=tmp_path, capture_output=True, text=True)
++    assert proc.returncode == 0
++    payload = json.loads(proc.stdout)
++    assert "research" in payload["allowed_top_level_present"]
++    assert "research" not in payload["supported_baseline_missing"]
++    assert payload["noncanonical_top_level_dirs"] == []
++
++
++def test_repo_doctor_still_rejects_unexpected_directory(tmp_path):
++    script = Path(__file__).resolve().parents[1] / "tools/repo_doctor.py"
++    (tmp_path / "research").mkdir()
++    (tmp_path / "unexpected_duplicate_runtime").mkdir()
++    proc = subprocess.run([sys.executable, str(script), "--strict", "--json"],
++                          cwd=tmp_path, capture_output=True, text=True)
++    assert proc.returncode == 1
++    assert json.loads(proc.stdout)["noncanonical_top_level_dirs"] == ["unexpected_duplicate_runtime"]
+diff --git a/tests/test_symbol_loss_fill_once.py b/tests/test_symbol_loss_fill_once.py
+new file mode 100644
+index 0000000..112179f
+--- /dev/null
++++ b/tests/test_symbol_loss_fill_once.py
+@@ -0,0 +1,184 @@
++import sqlite3
++from concurrent.futures import ThreadPoolExecutor
++from threading import Event
++
++import pytest
++
++from storage.execution_store_sqlite import ExecutionStore
++from services.journal import fill_sink
++
++
++def apply(store, fid="loss", pnl=-1, venue="coinbase"):
++    store.activate_symbol_loss_cutover()
++    return store.apply_symbol_loss_fill_once(
++        venue=venue, fill_id=fid, symbol="BTC/USD", realized_pnl_usd=pnl,
++        loss_limit=3, lock_duration_ms=60000,
++    )
++
++
++def counters(path):
++    with sqlite3.connect(path) as c:
++        return c.execute("SELECT loss_count, locked_until_ms FROM symbol_locks").fetchone()
++
++
++def test_delayed_profit_cannot_clear_newer_loss_lock(tmp_path, monkeypatch):
++    path = str(tmp_path / "ordered.sqlite")
++    monkeypatch.setattr(fill_sink, "data_dir", lambda: tmp_path)
++    sink = fill_sink.CanonicalFillSink(exec_db=path)
++    paused, resume = Event(), Event()
++    original = ExecutionStore.apply_symbol_loss_fill_once
++
++    def delay_profit(self, **kwargs):
++        if kwargs["fill_id"] == "profit" and not resume.is_set():
++            paused.set()
++            assert resume.wait(timeout=5)
++        return original(self, **kwargs)
++
++    monkeypatch.setattr(ExecutionStore, "apply_symbol_loss_fill_once", delay_profit)
++    def fill(fid, pnl):
++        return dict(venue="coinbase", fill_id=fid, symbol="BTC/USD", side="sell",
++                    qty=1, price=100, ts="1", fee_usd=0, realized_pnl_usd=pnl)
++    with ThreadPoolExecutor(max_workers=1) as pool:
++        profit = pool.submit(sink.on_fill, fill("profit", 2))
++        try:
++            assert paused.wait(timeout=5)
++            for fid in ["loss1", "loss2", "loss3"]:
++                assert sink.on_fill(fill(fid, -1))["ok"] is False
++            assert counters(path) is None
++        finally:
++            resume.set()
++        assert profit.result(timeout=5)["ok"] is True
++    # Retry in deliberately wrong order after restart: no leapfrogging.
++    restarted = fill_sink.CanonicalFillSink(exec_db=path)
++    assert restarted.on_fill(fill("loss3", -1))["ok"] is False
++    for fid in ["loss1", "loss2", "loss3"]:
++        assert restarted.on_fill(fill(fid, -1))["ok"] is True
++    lock = counters(path)
++    assert lock[0] == 3 and lock[1] > 0
++    assert restarted.on_fill(fill("profit", 2))["ok"] is True
++    assert counters(path) == lock
++
++
++def test_replay_and_restart_do_not_count_twice(tmp_path):
++    path = str(tmp_path / "execution.sqlite")
++    store = ExecutionStore(path=path)
++    assert apply(store) == 1
++    assert apply(ExecutionStore(path=path)) == 1
++    assert counters(path)[0] == 1
++    assert apply(store, "second") == 2
++    assert apply(store, "third") == 3
++    lock = counters(path)
++    assert lock[1] > 0
++    assert apply(store, "third") == 3
++    assert counters(path) == lock
++
++
++def test_profit_replay_does_not_erase_later_loss(tmp_path):
++    store = ExecutionStore(path=str(tmp_path / "execution.sqlite"))
++    apply(store)
++    assert apply(store, "profit", 2) == 0
++    apply(store, "later")
++    assert apply(store, "profit", 2) == 0
++    assert counters(store.path)[0] == 1
++
++
++def test_concurrent_duplicate_is_applied_once(tmp_path):
++    store = ExecutionStore(path=str(tmp_path / "execution.sqlite"))
++    with ThreadPoolExecutor(max_workers=4) as pool:
++        assert list(pool.map(lambda _: apply(store), range(12))) == [1] * 12
++    assert counters(store.path)[0] == 1
++
++
++def test_marker_failure_rolls_back_counter(tmp_path):
++    store = ExecutionStore(path=str(tmp_path / "execution.sqlite"))
++    with sqlite3.connect(store.path) as c:
++        c.execute("CREATE TRIGGER fail_marker BEFORE INSERT ON symbol_loss_fill_events "
++                  "BEGIN SELECT RAISE(ABORT, 'injected failure'); END")
++    with pytest.raises(sqlite3.IntegrityError):
++        apply(store)
++    assert counters(store.path) is None
++    with sqlite3.connect(store.path) as c:
++        c.execute("DROP TRIGGER fail_marker")
++    assert apply(store) == 1
++
++
++def test_conflicting_replay_refused_and_venue_identity_preserved(tmp_path):
++    store = ExecutionStore(path=str(tmp_path / "execution.sqlite"))
++    apply(store)
++    with pytest.raises(ValueError, match="conflicting"):
++        apply(store, pnl=2)
++    assert counters(store.path)[0] == 1
++    assert apply(store, venue="kraken") == 2
++
++
++@pytest.mark.parametrize("pnl", [float("nan"), float("inf"), -float("inf")])
++def test_nonfinite_pnl_refused(tmp_path, pnl):
++    store = ExecutionStore(path=str(tmp_path / "execution.sqlite"))
++    with pytest.raises(ValueError):
++        apply(store, pnl=pnl)
++    assert counters(store.path) is None
++
++
++def test_sink_retries_loss_update_after_daily_commit(tmp_path, monkeypatch):
++    path = str(tmp_path / "execution.sqlite")
++    monkeypatch.setattr(fill_sink, "data_dir", lambda: tmp_path)
++    monkeypatch.setenv("CBP_SYMBOL_LOSS_LIMIT", "3")
++    monkeypatch.setenv("CBP_SYMBOL_LOCK_MINUTES", "60")
++    sink = fill_sink.CanonicalFillSink(exec_db=path)
++    original = ExecutionStore.apply_symbol_loss_fill_once
++    calls = []
++
++    def failing_once(self, **kwargs):
++        calls.append(1)
++        if len(calls) == 1:
++            raise sqlite3.OperationalError("injected loss update failure")
++        return original(self, **kwargs)
++
++    monkeypatch.setattr(ExecutionStore, "apply_symbol_loss_fill_once", failing_once)
++    fill = dict(venue="coinbase", fill_id="loss", symbol="BTC/USD", side="sell",
++                qty=1, price=100, ts="1700000000000", fee_usd=1, realized_pnl_usd=-2)
++    assert sink.on_fill(fill)["ok"] is False
++    assert (tmp_path / "risk_sink_failed.flag").exists()
++    assert sink.on_fill(fill)["ok"] is True
++    assert sink.on_fill(fill)["ok"] is True
++    assert counters(path)[0] == 1
++
++
++def test_cutover_preserves_legacy_counters_and_excludes_old_replay(tmp_path):
++    path = str(tmp_path / "execution.sqlite")
++    journal = fill_sink.CanonicalJournal(exec_db=path)
++    journal.record_fill(venue="coinbase", fill_id="old-loss", symbol="BTC/USD",
++                        side="sell", qty=1, price=100, ts="old", realized_pnl_usd=-1)
++    journal.record_fill(venue="coinbase", fill_id="old-profit", symbol="BTC/USD",
++                        side="sell", qty=1, price=100, ts="old", realized_pnl_usd=2)
++    store = ExecutionStore(path=path)
++    store.set_symbol_lock("BTC/USD", 9999999999999, 2, "legacy")
++    before = counters(path)
++    boundary = store.activate_symbol_loss_cutover()
++    assert counters(path) == before
++    assert apply(store, "old-loss") == 2
++    assert apply(store, "old-profit", 2) == 2
++    assert counters(path) == before
++    assert apply(store, "new-loss") == 3
++    reopened = ExecutionStore(path=path)
++    assert reopened.activate_symbol_loss_cutover() == boundary
++    assert apply(reopened, "old-profit", 2) == 3
++    assert counters(path)[0] == 3
++
++
++def test_cutover_failure_does_not_publish_boundary(tmp_path):
++    store = ExecutionStore(path=str(tmp_path / "execution.sqlite"))
++    with sqlite3.connect(store.path) as c:
++        c.execute("CREATE TABLE canonical_fills(venue TEXT)")
++    with pytest.raises(sqlite3.OperationalError):
++        store.activate_symbol_loss_cutover()
++    with sqlite3.connect(store.path) as c:
++        assert c.execute("SELECT COUNT(*) FROM symbol_loss_cutover").fetchone()[0] == 0
++
++
++def test_side_effect_requires_explicit_cutover(tmp_path):
++    store = ExecutionStore(path=str(tmp_path / "execution.sqlite"))
++    with pytest.raises(RuntimeError, match="not activated"):
++        store.apply_symbol_loss_fill_once(venue="coinbase", fill_id="new", symbol="BTC/USD",
++            realized_pnl_usd=-1, loss_limit=3, lock_duration_ms=60000)
++    assert counters(store.path) is None
+diff --git a/tools/repo_doctor.py b/tools/repo_doctor.py
+index 9bd9fa6..e257126 100644
+--- a/tools/repo_doctor.py
++++ b/tools/repo_doctor.py
+@@ -33,7 +33,8 @@ DEFAULT_ALLOWED_TOP_LEVEL_DIRS = {
+     "configs",
+     "core", "dashboard",
+     "data", "desktop", "docker", "docs", "logs", "packaging", "phase1_research_copilot",
+-    "requirements", "sample_data", "scripts", "services", "src-tauri", "storage",
++    # Research artifacts are an intentional capability, not a duplicate runtime.
++    "research", "requirements", "sample_data", "scripts", "services", "src-tauri", "storage",
+     "tests", "tools",
+ }
+ 

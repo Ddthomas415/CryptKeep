@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import sqlite3
 import time
@@ -63,6 +64,34 @@ CREATE TABLE IF NOT EXISTS symbol_locks(
   loss_count INTEGER NOT NULL DEFAULT 0,
   reason TEXT,
   created_ts_ms INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS symbol_loss_fill_events(
+  venue TEXT NOT NULL,
+  fill_id TEXT NOT NULL,
+  symbol TEXT NOT NULL,
+  realized_pnl_usd REAL NOT NULL,
+  loss_count INTEGER NOT NULL,
+  PRIMARY KEY(venue, fill_id)
+);
+
+CREATE TABLE IF NOT EXISTS symbol_loss_cutover(
+  singleton INTEGER PRIMARY KEY CHECK(singleton=1),
+  activated_at_ms INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS symbol_loss_legacy_fills(
+  venue TEXT NOT NULL,
+  fill_id TEXT NOT NULL,
+  PRIMARY KEY(venue, fill_id)
+);
+CREATE TABLE IF NOT EXISTS reconcile_fill_deliveries(
+  intent_id TEXT NOT NULL,
+  venue TEXT NOT NULL,
+  fill_id TEXT NOT NULL,
+  payload_json TEXT NOT NULL,
+  completed INTEGER NOT NULL DEFAULT 0 CHECK(completed IN (0,1)),
+  PRIMARY KEY(venue, fill_id),
+  UNIQUE(intent_id, fill_id)
 );
 """
 
@@ -171,9 +200,47 @@ class ExecutionStore:
             c.commit()
             return cur.rowcount > 0
 
-    def add_fill(self, *, intent_id: str, ts_ms: int, price: float, qty: float, fee: float, fee_ccy: str, meta: Optional[Dict[str, Any]] = None) -> None:
+    def add_fill(self, *, intent_id: str, ts_ms: int, price: float, qty: float, fee: float, fee_ccy: str, meta: Optional[Dict[str, Any]] = None, canonical_fill: Optional[Dict[str, Any]] = None, max_recorded_qty: float | None = None) -> None:
         trade_id = _trade_id_from_meta(meta)
+        payload = None
+        if canonical_fill is not None:
+            if not trade_id or str(canonical_fill.get("fill_id") or "") != trade_id or not canonical_fill.get("venue"):
+                raise ValueError("invalid reconcile fill identity")
+            payload = json.dumps(canonical_fill, sort_keys=True, allow_nan=False)
         with _conn(self.path) as c:
+            c.execute("BEGIN IMMEDIATE")
+            if max_recorded_qty is not None:
+                maximum = float(max_recorded_qty)
+                if not math.isfinite(maximum) or maximum < 0:
+                    raise ValueError("invalid reported filled quantity")
+                rows = c.execute(
+                    "SELECT qty, trade_id FROM fills WHERE intent_id=?", (intent_id,),
+                ).fetchall()
+                total = 0.0
+                duplicate = False
+                for row in rows:
+                    recorded = float(row["qty"])
+                    if not math.isfinite(recorded) or recorded <= 0:
+                        raise ValueError("invalid recorded fill quantity")
+                    total += recorded
+                    duplicate = duplicate or (trade_id is not None and row["trade_id"] == trade_id)
+                proposed = float(qty)
+                if not math.isfinite(proposed) or proposed <= 0:
+                    raise ValueError("invalid proposed fill quantity")
+                after = total if duplicate else total + proposed
+                if after > maximum and not math.isclose(after, maximum, rel_tol=1e-9, abs_tol=1e-12):
+                    raise ValueError("recorded fills exceed reported filled quantity")
+            if payload is not None:
+                existing = c.execute(
+                    "SELECT intent_id, payload_json FROM reconcile_fill_deliveries WHERE venue=? AND fill_id=?",
+                    (str(canonical_fill["venue"]), trade_id),
+                ).fetchone()
+                if existing and (existing["intent_id"] != intent_id or existing["payload_json"] != payload):
+                    raise ValueError("conflicting reconcile fill delivery")
+                c.execute(
+                    "INSERT OR IGNORE INTO reconcile_fill_deliveries(intent_id,venue,fill_id,payload_json) VALUES(?,?,?,?)",
+                    (intent_id, str(canonical_fill["venue"]), trade_id, payload),
+                )
             c.execute(
                 """
                 INSERT OR IGNORE INTO fills(intent_id, ts_ms, price, qty, fee, fee_ccy, meta_json, trade_id)
@@ -191,6 +258,41 @@ class ExecutionStore:
                 ),
             )
             c.commit()
+
+    def pending_reconcile_fills(self, *, intent_id: str) -> List[Dict[str, Any]]:
+        with _conn(self.path) as c:
+            rows = c.execute(
+                "SELECT payload_json FROM reconcile_fill_deliveries WHERE intent_id=? AND completed=0 ORDER BY rowid",
+                (intent_id,),
+            ).fetchall()
+        return [json.loads(row[0]) for row in rows]
+
+    def complete_reconcile_fill(self, *, venue: str, fill_id: str) -> None:
+        with _conn(self.path) as c:
+            result = c.execute(
+                "UPDATE reconcile_fill_deliveries SET completed=1 WHERE venue=? AND fill_id=?",
+                (venue, fill_id),
+            )
+            if result.rowcount != 1:
+                raise RuntimeError("missing reconcile fill delivery")
+            c.commit()
+
+    def reconcile_fill_coverage(self, *, intent_id: str) -> Dict[str, Any]:
+        with _conn(self.path) as c:
+            rows = c.execute(
+                "SELECT f.qty, d.completed FROM fills f LEFT JOIN reconcile_fill_deliveries d "
+                "ON d.intent_id=f.intent_id AND d.fill_id=f.trade_id WHERE f.intent_id=?",
+                (intent_id,),
+            ).fetchall()
+        quantity = 0.0
+        complete = True
+        for row in rows:
+            qty = float(row["qty"])
+            if not math.isfinite(qty) or qty <= 0:
+                raise ValueError("invalid recorded fill quantity")
+            quantity += qty
+            complete = complete and row["completed"] == 1
+        return {"qty": quantity, "complete": complete}
 
     def list_fill_trade_ids(self, *, intent_id: str, limit: int = 2000) -> List[str]:
         with _conn(self.path) as c:
@@ -287,6 +389,107 @@ class ExecutionStore:
                 )
             c.commit()
         return new_count
+
+    def activate_symbol_loss_cutover(self) -> int:
+        with _conn(self.path) as c:
+            c.execute("BEGIN IMMEDIATE")
+            existing = c.execute(
+                "SELECT activated_at_ms FROM symbol_loss_cutover WHERE singleton=1"
+            ).fetchone()
+            if existing is not None:
+                return int(existing[0])
+            journal_exists = c.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='canonical_fills'"
+            ).fetchone()
+            if journal_exists:
+                # Snapshot identity, not exchange time: late arrivals remain new evidence.
+                c.execute(
+                    "INSERT INTO symbol_loss_legacy_fills(venue, fill_id) "
+                    "SELECT f.venue, f.fill_id FROM canonical_fills f WHERE NOT EXISTS "
+                    "(SELECT 1 FROM symbol_loss_fill_events e "
+                    "WHERE e.venue=f.venue AND e.fill_id=f.fill_id)"
+                )
+            activated_at = _now_ms()
+            c.execute("INSERT INTO symbol_loss_cutover VALUES(1,?)", (activated_at,))
+            c.commit()
+        return activated_at
+
+    def apply_symbol_loss_fill_once(
+        self, *, venue: str, fill_id: str, symbol: str,
+        realized_pnl_usd: float, loss_limit: int, lock_duration_ms: int,
+        require_journal_order: bool = False,
+    ) -> int:
+        pnl = float(realized_pnl_usd)
+        if not venue or not fill_id or not symbol or not math.isfinite(pnl):
+            raise ValueError("invalid symbol loss fill")
+        if loss_limit < 1 or lock_duration_ms < 0:
+            raise ValueError("invalid symbol loss policy")
+        with _conn(self.path) as c:
+            # Serialize deduplication and the counter update, including competing sinks.
+            c.execute("BEGIN IMMEDIATE")
+            if c.execute("SELECT 1 FROM symbol_loss_cutover WHERE singleton=1").fetchone() is None:
+                raise RuntimeError("symbol loss cutover not activated")
+            legacy = c.execute(
+                "SELECT 1 FROM symbol_loss_legacy_fills WHERE venue=? AND fill_id=?",
+                (venue, fill_id),
+            ).fetchone()
+            if legacy:
+                current = c.execute(
+                    "SELECT loss_count FROM symbol_locks WHERE symbol=?", (symbol,),
+                ).fetchone()
+                return int(current[0]) if current else 0
+            prior = c.execute(
+                "SELECT symbol, realized_pnl_usd, loss_count FROM symbol_loss_fill_events "
+                "WHERE venue=? AND fill_id=?", (venue, fill_id),
+            ).fetchone()
+            if prior is not None:
+                if prior["symbol"] != symbol or float(prior["realized_pnl_usd"]) != pnl:
+                    raise ValueError("conflicting symbol loss fill replay")
+                return int(prior["loss_count"])
+            if require_journal_order:
+                recorded = c.execute(
+                    "SELECT rowid, symbol FROM canonical_fills WHERE venue=? AND fill_id=?",
+                    (venue, fill_id),
+                ).fetchone()
+                if recorded is None or recorded["symbol"] != symbol:
+                    raise ValueError("missing or conflicting journal loss identity")
+                # Counter scope is per symbol across venues: use the same scope here.
+                earlier = c.execute(
+                    "SELECT 1 FROM canonical_fills f WHERE f.symbol=? AND f.rowid<? "
+                    "AND NOT EXISTS (SELECT 1 FROM symbol_loss_legacy_fills l "
+                    "WHERE l.venue=f.venue AND l.fill_id=f.fill_id) "
+                    "AND NOT EXISTS (SELECT 1 FROM symbol_loss_fill_events e "
+                    "WHERE e.venue=f.venue AND e.fill_id=f.fill_id) LIMIT 1",
+                    (symbol, recorded["rowid"]),
+                ).fetchone()
+                if earlier:
+                    raise RuntimeError("earlier journal loss event remains unapplied")
+            row = c.execute(
+                "SELECT loss_count, locked_until_ms FROM symbol_locks WHERE symbol=?",
+                (symbol,),
+            ).fetchone()
+            count = (int(row["loss_count"]) if row else 0) + 1 if pnl < 0 else 0
+            now = _now_ms()
+            locked_until = (
+                now + int(lock_duration_ms) if count >= loss_limit
+                else int(row["locked_until_ms"]) if pnl < 0 and row else 0
+            )
+            reason = (
+                f"consecutive_losses={count}" if count >= loss_limit
+                else f"loss_count={count}" if pnl < 0 else "reset_on_profit"
+            )
+            c.execute(
+                "INSERT INTO symbol_locks VALUES(?,?,?,?,?) ON CONFLICT(symbol) DO UPDATE SET "
+                "locked_until_ms=excluded.locked_until_ms, loss_count=excluded.loss_count, "
+                "reason=excluded.reason, created_ts_ms=excluded.created_ts_ms",
+                (symbol, locked_until, count, reason, now),
+            )
+            c.execute(
+                "INSERT INTO symbol_loss_fill_events VALUES(?,?,?,?,?)",
+                (venue, fill_id, symbol, pnl, count),
+            )
+            c.commit()
+        return count
 
     def upsert_intent(self, row: Dict[str, Any]) -> None:
         with _conn(self.path) as c:

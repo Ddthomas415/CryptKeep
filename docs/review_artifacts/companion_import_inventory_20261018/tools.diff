@@ -1,0 +1,24 @@
+--- frozen-20261017/shared/tools.py
++++ current/shared/tools.py
+@@ -19,15 +19,17 @@
+ if str(REPO_ROOT) not in sys.path:
+     sys.path.insert(0, str(REPO_ROOT))
+ 
+-try:
+-    from dashboard.services.intelligence import build_opportunity_snapshot
+-except Exception:
+-    def build_opportunity_snapshot(*args, **kwargs):
++def build_opportunity_snapshot(*args, **kwargs):
++    """Load optional dashboard intelligence only when the ordinary route uses it."""
++    try:
++        from dashboard.services.intelligence import build_opportunity_snapshot as build
++    except Exception:
+         return {
+             "status": "unavailable",
+             "reason": "dashboard_import_failed",
+             "opportunities": [],
+         }
++    return build(*args, **kwargs)
+ 
+ _MARKET_DATA_URL = "http://market-data:8003"
+ _NEWS_INGESTION_URL = "http://news-ingestion:8004"

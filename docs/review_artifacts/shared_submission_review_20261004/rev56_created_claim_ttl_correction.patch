@@ -1,0 +1,110 @@
+diff --git a/docs/work_log/review_stabilized_work_log.md b/docs/work_log/review_stabilized_work_log.md
+index cb07759..9921d91 100644
+--- a/docs/work_log/review_stabilized_work_log.md
++++ b/docs/work_log/review_stabilized_work_log.md
+@@ -1,5 +1,18 @@
+ # Review Stabilized Work Log
+ 
++## 2026-10-04 - Bounded 0045 interrupted-claim TTL correction (Codex)
++
++- ENGINEER; HIGH risk. A created dedupe claim is possibly sent. An aged
++  intent with unresolved prior-submit evidence is held without expiry,
++  resubmission or evidence overwrite. No new reconciliation authority.
++- SHOWN original interruption probe now passes. Created/unknown/submitted
++  repeated-turn tests preserve intent reason and dedupe row with no calls.
++- VERIFIED_ENV isolated candidate Python 3.12.10; targeted five-file slice:
++  62 passed in 1.10s. No main source/config/account changes or deployment.
++- Existing error-state classification and fresh-created retry behavior remain
++  outside this correction. Full suite, CI and venue reconciliation unverified.
++- READY_FOR_INDEPENDENT_REVIEW; no same-thread acceptance.
++
+ ## 2026-10-04 - Order retry classification (live-money backlog item 3): independent review, one correction, and a correction to my 0039
+ 
+ - AUDITOR then ENGINEER (Claude). The item's 2026-07-06 typed-classification
+diff --git a/services/execution/_executor_submit.py b/services/execution/_executor_submit.py
+index 740630a..d64e042 100644
+--- a/services/execution/_executor_submit.py
++++ b/services/execution/_executor_submit.py
+@@ -258,9 +258,9 @@ def _record_shadow_would_be_fills(cfg: LiveCfg) -> dict[str, int]:
+ def _submit_may_have_reached_venue(store_dedupe: Any, exchange_id: str, intent_id: str) -> bool:
+     """True unless the dedupe store shows this intent was never sent.
+ 
+-    No row, or a row still `created` or marked `error` with no remote order
+-    id, means no order can exist. Anything else, or a store that cannot be
+-    read, is treated as possibly sent.
++    A created claim may survive interruption after venue acceptance, so it
++    cannot establish that no request was sent. Preserve uncertain claims.
++    The existing error-state classification is unchanged by this correction.
+     """
+     try:
+         row = store_dedupe.get_by_intent(exchange_id, intent_id)
+@@ -270,7 +270,7 @@ def _submit_may_have_reached_venue(store_dedupe: Any, exchange_id: str, intent_i
+         return False
+     if str(row.get("remote_order_id") or "").strip():
+         return True
+-    return str(row.get("status") or "").strip().lower() not in {"created", "error"}
++    return str(row.get("status") or "").strip().lower() != "error"
+ 
+ 
+ def _intent_created_epoch(it: dict[str, Any]) -> float | None:
+@@ -397,11 +397,12 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
+         # cannot be read. Cancelling that locally could leave a live order at
+         # the venue that nothing tracks.
+         ttl = check_intent_age(_intent_created_epoch(it))
+-        if (
+-            not bool(ttl.get("ok"))
+-            and not _remote_id_from_reason(str(it.get("reason") or ""))
+-            and not _submit_may_have_reached_venue(store_dedupe, cfg.exchange_id, intent_id)
+-        ):
++        if not bool(ttl.get("ok")) and not _remote_id_from_reason(str(it.get("reason") or "")):
++            if _submit_may_have_reached_venue(store_dedupe, cfg.exchange_id, intent_id):
++                # Neither expiry nor another submit can resolve an uncertain
++                # prior attempt. Leave its evidence intact for reconciliation.
++                _LOG.warning("intent_ttl unresolved prior submit intent=%s; held", intent_id)
++                continue
+             ttl_reason = str(ttl.get("reason") or "intent_ttl:unknown")
+             store.set_intent_status(intent_id=intent_id, status="canceled", reason=ttl_reason)
+             expired += 1
+diff --git a/tests/test_live_executor_intent_ttl.py b/tests/test_live_executor_intent_ttl.py
+index 13a3f58..bdeb4cc 100644
+--- a/tests/test_live_executor_intent_ttl.py
++++ b/tests/test_live_executor_intent_ttl.py
+@@ -177,6 +177,7 @@ def test_the_window_follows_the_shared_setting(rig, monkeypatch):
+ 
+ 
+ @pytest.mark.parametrize("row", [
++    {"status": "created", "remote_order_id": None},
+     {"status": "unknown", "remote_order_id": None},
+     {"status": "submitted", "remote_order_id": None},
+     {"status": "acked", "remote_order_id": "ord-9"},
+@@ -189,9 +190,10 @@ def test_an_aged_intent_whose_submit_may_have_reached_the_venue_is_not_cancelled
+     out = le.submit_pending_live(cfg)
+     assert out["expired"] == 0
+     assert _status(store, "maybe-sent")[0] != "canceled"
++    assert client.calls == []
+ 
+ 
+-@pytest.mark.parametrize("row", [None, {"status": "created", "remote_order_id": None}, {"status": "error", "remote_order_id": None}])
++@pytest.mark.parametrize("row", [None, {"status": "error", "remote_order_id": None}])
+ def test_an_aged_intent_that_was_never_sent_is_cancelled(rig, row):
+     cfg, store, client = rig
+     _add(store, "never-sent", 3600)
+@@ -209,3 +211,18 @@ def test_an_unreadable_dedupe_store_does_not_cancel(rig, monkeypatch):
+     out = le.submit_pending_live(cfg)
+     assert out["expired"] == 0
+     assert _status(store, "old")[0] != "canceled"
++    assert client.calls == []
++
++
++@pytest.mark.parametrize("status", ["created", "unknown", "submitted"])
++def test_aged_uncertain_intent_is_held_on_repeated_turns(rig, status):
++    cfg, store, client = rig
++    _add(store, "unresolved", 3600, reason="preserve-this-evidence")
++    row = {"client_order_id": "cid", "status": status, "remote_order_id": None}
++    _Dedupe.rows["unresolved"] = row.copy()
++    for _ in range(2):
++        out = le.submit_pending_live(cfg)
++        assert out["expired"] == 0 and out["submitted"] == 0
++        assert _status(store, "unresolved") == ("pending", "preserve-this-evidence")
++        assert _Dedupe.rows["unresolved"] == row
++        assert client.calls == []

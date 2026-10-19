@@ -12,6 +12,11 @@ must not become the identity of the system. The paper gate is one validation
 track inside the broader platform.
 
 ## North Star
+The Scope Impact Checkpoint in `docs/CODEX_REMEDIATION_PROMPTS.md` applies before
+removing, disabling, or materially narrowing an agreed capability. Present the
+impact and recommendation and obtain an explicit operator decision. Routine
+in-scope fixes continue. Record decisions in the existing visible work log.
+
 
 Build the original two-brain trading intelligence system:
 
@@ -38,8 +43,10 @@ those outcomes, it should not be prioritized.
 
 ## Near-Term Build Direction
 
-Implement the smallest useful event foundation before adding broader platform
-complexity.
+The minimal event foundation is documented in `docs/PLATFORM_EVENT_JOURNAL.md`.
+Use the existing implementation; do not restart that build from this plan.
+Further work must serve the accepted objective and a demonstrated missing
+capability, not an architecture checklist.
 
 The first event foundation is an append-only journal for events that have a
 real producer and a real consumer. Initial candidates are:
@@ -121,4 +128,3 @@ Existing deterministic safety boundaries remain:
 - live execution remains gated;
 - paper and shadow evidence remain separate from live capital deployment;
 - promotion decisions require governed evidence and accepted operator review.
-

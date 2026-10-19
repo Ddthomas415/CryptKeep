@@ -1,0 +1,123 @@
+{
+  "schema": "companion-path-repair-review-v1",
+  "reviewed_at_utc": "2026-10-18T13:59:59Z",
+  "reviewer": "Codex independent source-delta reviewer; not the source/test implementer",
+  "active_role": "GATE",
+  "prior_stage_role": "AUDITOR",
+  "objective": "Review only canonical private temporary-path handling and fixed failure-stage diagnostics against the prior independently accepted bytes",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "decision_scope": "Exact bound source/test delta only; supplemental to, not a replacement for, the preserved plan and healthcheck reviews",
+  "operational_objective_state": "INCOMPLETE",
+  "installation_authorized": false,
+  "startup_authorized": false,
+  "environment_confidence": "VERIFIED_ENV for read-only local inspection, hashing, in-memory prior-source reconstruction and six isolated local/synthetic cases only",
+  "material_assumptions": [],
+  "findings_ordered_by_severity": [],
+  "bindings": {
+    "backend": {
+      "path": "scripts/research/companion_install_docker.py",
+      "sha256": "0b482168d614c5c972b090f9a4dddd81b3b3173bf0ee4e34c56f3c2a246529c4",
+      "reconstructed_prior_sha256": "f0635e39eff1cacdba81f8c5837f505a62b2d04e932a63940e548b836b4f1ff8"
+    },
+    "installer": {
+      "path": "scripts/research/companion_installer.py",
+      "sha256": "15fb60123ce1be1f26f276360b2ec82e54cbbfc6dce626a3f09da45916dd42e2",
+      "reconstructed_prior_sha256": "c2cb24ff29412cfb1f985100ef454a131ff1245c86504f9108c242353de85eb2"
+    },
+    "tests": {
+      "path": "tests/test_companion_installer.py",
+      "sha256": "8295cdf52da11af810b76eb85290f061c459450ef50abb6b6fea2b4edf8a3318",
+      "reconstructed_prior_sha256": "14832b6825bf69cd487bc78b4b00f93ab6bdb6ba25dc6c380311506f7d574938"
+    },
+    "preserved_plan_review": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/plan_review.json",
+      "sha256": "96a834faee2c8db36d3a4470ebf7725120c5a3900fb09972409bbb37c3cd61f3"
+    },
+    "preserved_healthcheck_review": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/healthcheck_repair_review.json",
+      "sha256": "030b8978fc1963ec4582208a0a18cb82c0dd4516094564937544e1fcd4b71712"
+    },
+    "preserved_manifest": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/reviewed_stopped_plan.json",
+      "sha256": "a513c458419f01517fec5e771e5be967f85b43391de663dc55c0bcdfb8ac4af4"
+    },
+    "repair_checkpoint": {
+      "path": "docs/checkpoints/companion_install_path_repair_20261018.md",
+      "sha256": "50916abbe4ff74f4cdaab0966881971f9309e426ee7f5226328989e4d322a56a"
+    },
+    "preserved_healthcheck_checkpoint": {
+      "path": "docs/checkpoints/companion_install_healthcheck_repair_20261018.md",
+      "sha256": "198e18328cb8a4fe6fe9c45e8088b09a2824bba1686a8d545a99e32e2c629851"
+    },
+    "failed_repaired_attempt_receipt": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/installation_receipt_repaired_20261018.jsonl",
+      "sha256": "87a69ba8bfcbfae057f388b6e52c4c415f80b59428a6669b23661394b8f66c97"
+    },
+    "preserved_original_failure_receipt": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/installation_receipt_20261018.jsonl",
+      "sha256": "87a69ba8bfcbfae057f388b6e52c4c415f80b59428a6669b23661394b8f66c97"
+    },
+    "preserved_post_attempt_capture": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/post_attempt_capture/observation.json",
+      "sha256": "ce0547bc4e8e37abd11564eb53c143a5c36b5760cb43b68a9986bdaf07a3d5f0"
+    }
+  },
+  "shown": [
+    "All three current source/test hashes exactly match the requested review targets",
+    "Reversing only the canonicalization/checker/argv edits reconstructs the exact backend hash accepted by the healthcheck review",
+    "Removing only the fixed stage assignments, failed-receipt stage evidence and result failure_stage field reconstructs the exact installer hash accepted by the plan review",
+    "Removing only the two new parametrized test blocks and their three imports reconstructs the exact test hash accepted by the healthcheck review; no prior test was removed or modified",
+    "Backend resolves the newly created private temporary directory once and passes that same canonical Path to the verifier and its string form to argv; it does not canonicalize or accept arbitrary external configuration",
+    "Authorization and child guards precede temporary-directory creation; the unchanged real verifier still requires an absolute canonical empty directory, O_NOFOLLOW directory/file opens, executable regular Mach-O CLI bytes and the exact CLI hash",
+    "Symlink-root cases execute the real verifier with synthetic CLI bytes; a correct pin reaches only the intercepted runner, a bad pin refuses without any runner call, and both cases leave the real temporary root empty",
+    "Failure-stage values are nine literal codes assigned by parent control flow; neither exception strings nor backend output enter the new receipt or result fields",
+    "Four synthetic failures cover inventory_preflight, prepare, build and replacement; their receipts contain exactly the fixed stage evidence and neither receipt nor result contains the synthetic exception secret",
+    "Exact delta leaves authorization, one-use consumption, deferred startup policy, ownership checks, mutation ordering, rollback code and recovery triggers unchanged; no new retry, fallback or startup path exists",
+    "The 300-second overall deadline, 120-second recovery reserve, bounded worker/receipt calls and 55-second transport timeout are unchanged; diagnostic receipt writes retain the existing deadline checks and rollback remains in finally",
+    "Six unchanged local helper hashes match the plan review, including the runtime adapter, existing controller, environment encoder and Docker transport",
+    "All non-source/test artifact bindings in the preserved healthcheck review still match; the plan review, reviewed manifest and both checkpoints were only read",
+    "Both failed receipts contain exactly installation_reserved and installation_failed; their equal bytes reside in distinct files with different inodes, and neither receipt contains an exception or actual command trace"
+  ],
+  "independent_verification": {
+    "classification": "SHOWN",
+    "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_companion_installer.py::test_install_transport_canonicalizes_private_temp_path_before_real_verifier tests/test_companion_installer.py::test_failure_diagnostics_record_only_fixed_stage",
+    "result": "6 passed in 0.22s",
+    "exit_code": 0,
+    "scope": "Only the six new cases; no Docker CLI execution, daemon connection, private configuration or lifecycle operation",
+    "coverage_assessment": "Sufficient minimal regression coverage for this bounded delta, supported by exact prior-hash reconstruction; not exhaustive testing of all nine diagnostic stages or full rollback/deadline behavior"
+  },
+  "recorded_parent_evidence": {
+    "classification": "CLAIMED execution results; SHOWN as statements in the hash-bound repair checkpoint, not independently repeated here",
+    "before_repair": "5 failed, 1 passed for the six new cases",
+    "focused_five_files": "362 passed in 2.58s; deliberately not rerun",
+    "read_only_native_preflight": "Checkpoint records corrected backend ProcessExecutor inventory success, all seven original snapshots matching, pinned engine match and four local parent images verified; no private preparation or lifecycle",
+    "failed_attempt": "Checkpoint records one authorized stopped-only attempt returning failure before this path repair, no later retry or mutation; the generic failed receipt alone does not establish the exception or exact failure stage",
+    "diagnosis_limit": "Canonical-path refusal is a reproduced pre-transport blocker, not a retroactively proven trace of either historical failed invocation"
+  },
+  "unverified_and_residual_risks": [
+    "No native daemon or current host state was independently inspected in this review; checkpoint statements and saved captures are not fresh host proof",
+    "No repaired installation, private preparation or transfer, derivative build, replacement creation, source verification in a replacement, startup or runtime proof is established",
+    "The six cases do not directly inject reservation, baseline_preflight, inventory_recheck, postconditions or receipt_commit failures; stage placement and unchanged recovery/deadline logic were inspected, not exhaustively rerun",
+    "Existing trusted-local-filesystem/concurrent-writer limitations remain; canonicalizing a fresh temporary directory is not a new hostile-writer race guarantee",
+    "All prior plan/healthcheck review limitations and startup deferrals remain, including SDK/storage compatibility and runtime import enforcement",
+    "Hashes establish local byte identity and internal consistency, not independent authenticity of recorded execution claims"
+  ],
+  "proof_required_next": [
+    "Any further installation attempt requires new explicit bounded operational permission and fresh precondition checks; no consumed one-attempt authorization is revived by this review",
+    "Any separately authorized attempt must preserve a distinct exclusive receipt and establish stopped-state, preservation and rollback postconditions; startup remains separately gated and unauthorized"
+  ],
+  "review_actions": {
+    "docker_commands": false,
+    "private_config_access": false,
+    "installation": false,
+    "startup": false,
+    "runtime_queries": false,
+    "broad_suite": false,
+    "new_test_cases_run": 6,
+    "reviewed_source_or_test_changes": false,
+    "checkpoint_or_old_review_changes": false,
+    "work_log_changes": false
+  },
+  "handoff": "Only this independent review artifact is added. Parent owns the work-log update. No blocking finding in this exact delta; restoration remains INCOMPLETE and operational permission is not granted."
+}

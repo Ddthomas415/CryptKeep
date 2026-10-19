@@ -1,0 +1,50 @@
+{
+  "observed_at_utc": "2026-10-12T15:03:18.557038+00:00",
+  "http": 200,
+  "records": [
+    {
+      "id": "reserve-rights-token",
+      "name": "Reserve Rights",
+      "symbol": "rsr",
+      "market_cap": 154337278,
+      "total_volume": 162241641,
+      "circulating_supply": 62553174091.0,
+      "max_supply": 100000000000.0,
+      "fully_diluted_valuation": 246729730,
+      "last_updated": "2026-10-12T15:02:51.000Z"
+    },
+    {
+      "id": "safe",
+      "name": "Safe",
+      "symbol": "safe",
+      "market_cap": 99017387,
+      "total_volume": 5784459,
+      "circulating_supply": 783165161.0,
+      "max_supply": 1000000000.0,
+      "fully_diluted_valuation": 126432319,
+      "last_updated": "2026-10-12T15:02:51.000Z"
+    },
+    {
+      "id": "gitcoin",
+      "name": "Gitcoin",
+      "symbol": "gtc",
+      "market_cap": 27273072,
+      "total_volume": 109975620,
+      "circulating_supply": 87491501.9042429,
+      "max_supply": 100000000.0,
+      "fully_diluted_valuation": 31172252,
+      "last_updated": "2026-10-12T15:02:51.000Z"
+    },
+    {
+      "id": "goldfinch",
+      "name": "Goldfinch",
+      "symbol": "gfi",
+      "market_cap": 3932129,
+      "total_volume": 95931,
+      "circulating_supply": 95242765.29565473,
+      "max_supply": 114285714.0,
+      "fully_diluted_valuation": 4718323,
+      "last_updated": "2026-10-12T15:02:51.000Z"
+    }
+  ]
+}

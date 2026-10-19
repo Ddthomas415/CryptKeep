@@ -1,0 +1,2 @@
+study_id,family,measurement,candidate_configurations,baseline_configurations,verdict,evaluated_markets,market_week_observations,weekly_clusters,evidence
+VOLFC-1,VOLFC,volatility_rank_forecast,1,2,FAIL,214,4999,50,docs/research/chronos_vol_forecast_20261018/result.json

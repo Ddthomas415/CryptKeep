@@ -1,0 +1,20 @@
+{
+  "scope": "Bounded offline stopped-recipe implementation only",
+  "decision": "ACCEPTED_WITH_RISK",
+  "reviewer": "separate AUDITOR Euler, 01a14cff-3dcb-79c1-beec-11d24ec352a5",
+  "reviewed_hashes": "proof.json source_sha256",
+  "independent_verification": [
+    "306 targeted tests passed in 2.23s before the core-protection correction",
+    "3 correction tests passed, 41 deselected, in 0.23s",
+    "Only confirmed finding closed; no other concrete blocker in this review"
+  ],
+  "parent_verification_not_independently_repeated": "314 final targeted tests in 2.74s, including six native CLI fake-socket cases",
+  "installation_authorized": false,
+  "startup_authorized": false,
+  "unverified": [
+    "Actual stopped replacement behavior and real private-label transfer",
+    "Fresh paired metadata observation",
+    "Mounted import and installed dependency policy",
+    "Strict registry isolation and a genuine cited explanation"
+  ]
+}

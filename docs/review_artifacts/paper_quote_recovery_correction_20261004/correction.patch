@@ -1,0 +1,214 @@
+diff --git a/services/risk/market_quality_guard.py b/services/risk/market_quality_guard.py
+index 0d7e77e56..e451131d2 100644
+--- a/services/risk/market_quality_guard.py
++++ b/services/risk/market_quality_guard.py
+@@ -37,6 +37,15 @@ def _cfg() -> Dict[str, Any]:
+ 
+ 
+ def check(venue: str, symbol: str) -> Dict[str, Any]:
++    return _check(venue, symbol, lambda: get_best_bid_ask_last(venue, normalize_symbol(symbol)))
++
++
++def check_quote(venue: str, symbol: str, quote: Optional[dict]) -> Dict[str, Any]:
++    """Validate the supplied quote without rereading the market snapshot."""
++    return _check(venue, symbol, lambda: quote)
++
++
++def _check(venue: str, symbol: str, quote_provider) -> Dict[str, Any]:
+     cfg_base = _cfg()
+     sym = normalize_symbol(symbol)
+     cfg = dict(cfg_base)
+@@ -60,7 +69,7 @@ def check(venue: str, symbol: str) -> Dict[str, Any]:
+             return {"ok": False, "reason": f"invalid_threshold:{name}"}
+         cfg[name] = value
+ 
+-    q = get_best_bid_ask_last(venue, sym)
++    q = quote_provider()
+     if not q:
+         if cfg["block_when_unknown"]:
+             return {"ok": False, "reason": "no_quote_data"}
+diff --git a/services/execution/paper_engine.py b/services/execution/paper_engine.py
+index 3361cab8c..4536de790 100644
+--- a/services/execution/paper_engine.py
++++ b/services/execution/paper_engine.py
+@@ -14,6 +14,7 @@ from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
+ from services.market_data.symbol_router import normalize_symbol
+ from services.risk.paper_equity import quote_currency
+ from services.risk.market_quality_guard import check as check_market_quality
++from services.risk.market_quality_guard import check_quote as check_quote_quality
+ from services.risk.staleness_guard import is_snapshot_fresh
+ from services.security.exchange_factory import make_exchange
+ from storage.execution_guard_store_sqlite import ExecutionGuardStoreSQLite
+@@ -67,6 +68,7 @@ def _evidence_execution_extra(meta: dict | None = None) -> dict:
+ 
+ 
+ _EVIDENCE_BACKFILL_SINCE_KEY = "fill_evidence_backfill_since"
++_EVIDENCE_BACKFILL_CURSOR_KEY = "fill_evidence_backfill_cursor"
+ 
+ 
+ def _parse_ts(value) -> datetime | None:
+@@ -564,9 +566,14 @@ class PaperEngine:
+             from services.strategies.evidence_logger import EvidenceLogger
+ 
+             known_by_strategy: dict[str, set[str]] = {}
+-            for fill in reversed(self.db.list_fills(limit=int(limit))):
++            cursor = int(self.db.get_state(_EVIDENCE_BACKFILL_CURSOR_KEY) or "0")
++            page = self.db.list_fills_page(after_rowid=cursor, limit=int(limit))
++            if not page:
++                self.db.set_state(_EVIDENCE_BACKFILL_CURSOR_KEY, "0")
++            for fill in page:
+                 fill_dt = _parse_ts(fill.get("ts"))
+                 if fill_dt is None or fill_dt < since_dt:
++                    self.db.set_state(_EVIDENCE_BACKFILL_CURSOR_KEY, str(fill["rowid"]))
+                     continue
+                 order = self.db.get_order_by_order_id(str(fill["order_id"])) or {}
+                 meta = order.get("meta") if isinstance(order.get("meta"), dict) else None
+@@ -576,6 +583,7 @@ class PaperEngine:
+                     meta=meta,
+                 )
+                 if not strategy_id:
++                    self.db.set_state(_EVIDENCE_BACKFILL_CURSOR_KEY, str(fill["rowid"]))
+                     continue
+                 logger = EvidenceLogger(strategy_id)
+                 if strategy_id not in known_by_strategy:
+@@ -583,6 +591,7 @@ class PaperEngine:
+                 out["checked"] += 1
+                 order_id = str(fill["order_id"])
+                 if order_id in known_by_strategy[strategy_id]:
++                    self.db.set_state(_EVIDENCE_BACKFILL_CURSOR_KEY, str(fill["rowid"]))
+                     continue
+                 extra = _evidence_execution_extra(meta)
+                 extra["evidence_backfilled"] = True
+@@ -600,6 +609,7 @@ class PaperEngine:
+                 )
+                 known_by_strategy[strategy_id].add(order_id)
+                 out["backfilled"] += 1
++                self.db.set_state(_EVIDENCE_BACKFILL_CURSOR_KEY, str(fill["rowid"]))
+                 _LOG.warning("fill evidence backfilled strategy_id=%s order_id=%s", strategy_id, order_id)
+         except Exception as exc:
+             _LOG.warning("fill evidence backfill failed: %s", type(exc).__name__)
+@@ -634,7 +644,7 @@ class PaperEngine:
+             # spread). Otherwise the order waits; nothing is rejected.
+             if q.get("source") != "venue_fetch":
+                 try:
+-                    mq = check_market_quality(str(o["venue"]).lower().strip(), str(o["symbol"]).strip())
++                    mq = check_quote_quality(str(o["venue"]).lower().strip(), str(o["symbol"]).strip(), q)
+                 except Exception as exc:
+                     mq = {"ok": False, "reason": f"guard_error:{type(exc).__name__}"}
+                 if not bool(mq.get("ok")):
+diff --git a/storage/paper_trading_sqlite.py b/storage/paper_trading_sqlite.py
+index 4a10e75a1..0641a5eb6 100644
+--- a/storage/paper_trading_sqlite.py
++++ b/storage/paper_trading_sqlite.py
+@@ -240,6 +240,21 @@ class PaperTradingSQLite:
+         finally:
+             con.close()
+ 
++    def list_fills_page(self, *, after_rowid: int, limit: int = 500) -> List[Dict[str, Any]]:
++        if int(after_rowid) < 0 or int(limit) <= 0:
++            raise ValueError("invalid_fill_page")
++        con = _connect()
++        try:
++            rows = con.execute(
++                "SELECT rowid, fill_id, order_id, ts, price, qty, fee, fee_currency "
++                "FROM paper_fills WHERE rowid > ? ORDER BY rowid ASC LIMIT ?",
++                (int(after_rowid), int(limit)),
++            ).fetchall()
++            keys = ("rowid", "fill_id", "order_id", "ts", "price", "qty", "fee", "fee_currency")
++            return [dict(zip(keys, row)) for row in rows]
++        finally:
++            con.close()
++
+     def upsert_position(self, symbol: str, qty: float, avg_price: float, realized_pnl: float) -> None:
+         con = _connect()
+         try:
+diff --git a/tests/test_paper_fill_evidence_backfill.py b/tests/test_paper_fill_evidence_backfill.py
+index 07f505a5d..c1b79c7fb 100644
+--- a/tests/test_paper_fill_evidence_backfill.py
++++ b/tests/test_paper_fill_evidence_backfill.py
+@@ -125,7 +125,7 @@ def test_fills_older_than_the_first_run_are_never_rewritten(rig, monkeypatch):
+ def test_a_failing_sweep_does_not_raise(rig, monkeypatch):
+     pe, _ = rig
+     eng = pe.PaperEngine()
+-    monkeypatch.setattr(eng.db, "list_fills", lambda limit=500: (_ for _ in ()).throw(RuntimeError("db gone")))
++    monkeypatch.setattr(eng.db, "list_fills_page", lambda **kwargs: (_ for _ in ()).throw(RuntimeError("db gone")))
+     assert eng.backfill_fill_evidence() == {"ok": False, "checked": 0, "backfilled": 0,
+                                            "since": eng.db.get_state(pe._EVIDENCE_BACKFILL_SINCE_KEY), "reason": "RuntimeError"}
+ 
+diff --git a/tests/test_paper_engine_cost_config_validation.py b/tests/test_paper_engine_cost_config_validation.py
+index e36381f0d..aab0b03a9 100644
+--- a/tests/test_paper_engine_cost_config_validation.py
++++ b/tests/test_paper_engine_cost_config_validation.py
+@@ -26,6 +26,7 @@ def _engine(monkeypatch, tmp_path, paper_cfg):
+     monkeypatch.setattr(pe, "is_snapshot_fresh", lambda: (True, None))
+     monkeypatch.setattr(pe, "is_master_read_only", lambda: (False, {}))
+     monkeypatch.setattr(pe, "check_market_quality", lambda v, s: {"ok": True, "price_used": 100.0})
++    monkeypatch.setattr(pe, "check_quote_quality", lambda v, s, q: {"ok": True, "price_used": 100.0})
+     monkeypatch.setattr(pe, "should_allow_order", lambda *a, **k: (True, "ok"))
+     return pe, holder
+ 
+diff --git a/tests/test_paper_engine_integration.py b/tests/test_paper_engine_integration.py
+index 37c375487..3b3dc7690 100644
+--- a/tests/test_paper_engine_integration.py
++++ b/tests/test_paper_engine_integration.py
+@@ -22,6 +22,7 @@ def _reload_paper_modules():
+ 
+ 
+ def _allow_submit_gates(monkeypatch, paper_engine):
++    monkeypatch.setattr(paper_engine, "check_quote_quality", lambda venue, symbol, quote: {"ok": True})
+     monkeypatch.setattr(paper_engine, "is_snapshot_fresh", lambda: (True, None))
+     monkeypatch.setattr(paper_engine, "is_master_read_only", lambda: (False, {}))
+     monkeypatch.setattr(
+diff --git a/tests/test_paper_engine_currency.py b/tests/test_paper_engine_currency.py
+index 6e8ac2b38..44dfadab3 100644
+--- a/tests/test_paper_engine_currency.py
++++ b/tests/test_paper_engine_currency.py
+@@ -22,6 +22,7 @@ def _engine(monkeypatch, tmp_path, paper_trading, *, cash=1_000_000.0):
+ 
+     # The market-data gate is not what is under test; record whether it is reached.
+     monkeypatch.setattr(engine, "_pre_submit_gate", gate)
++    monkeypatch.setattr(paper_engine, "check_quote_quality", lambda venue, symbol, quote: {"ok": True})
+     return engine, gate_calls
+ 
+ 
+@@ -39,6 +40,7 @@ def _restart(monkeypatch, paper_trading):
+         return True, None
+ 
+     monkeypatch.setattr(engine, "_pre_submit_gate", gate)
++    monkeypatch.setattr(paper_engine, "check_quote_quality", lambda venue, symbol, quote: {"ok": True})
+     return engine, gate_calls
+ 
+ 
+diff --git a/tests/test_codex_0040_0044_probe.py b/tests/test_codex_0040_0044_probe.py
+index ff5f512b0..36270ddc5 100644
+--- a/tests/test_codex_0040_0044_probe.py
++++ b/tests/test_codex_0040_0044_probe.py
+@@ -30,3 +30,28 @@ def test_backfill_advances_past_already_repaired_newest_fill(evidence_rig, monke
+     engine.backfill_fill_evidence(limit=1)
+     engine.backfill_fill_evidence(limit=1)
+     assert first in {record['order_id'] for record in _fill_records(ev_dir)}
++
++
++def test_recovery_cursor_survives_restart(evidence_rig, monkeypatch):
++    pe, ev_dir = evidence_rig
++    engine = pe.PaperEngine()
++    first = _submit(engine, 'restart-first', 'buy')
++    _kill_during_evidence_write(monkeypatch, engine)
++    second = _submit(engine, 'restart-second', 'buy')
++    _kill_during_evidence_write(monkeypatch, engine)
++    assert engine.backfill_fill_evidence(limit=1)['backfilled'] == 1
++    assert pe.PaperEngine().backfill_fill_evidence(limit=1)['backfilled'] == 1
++    assert {first, second} <= {record['order_id'] for record in _fill_records(ev_dir)}
++
++
++def test_fill_pages_cover_more_than_default_limit(evidence_rig):
++    pe, _ = evidence_rig
++    engine = pe.PaperEngine()
++    for index in range(505):
++        engine.db.insert_fill({'fill_id': f'page-{index}', 'order_id': f'order-{index}',
++                              'ts': '2026-01-01T00:00:00+00:00', 'price': 1.0,
++                              'qty': 1.0, 'fee': 0.0, 'fee_currency': 'USD'})
++    first = engine.db.list_fills_page(after_rowid=0)
++    second = engine.db.list_fills_page(after_rowid=first[-1]['rowid'])
++    assert len(first) == 500 and len(second) == 5
++    assert len({row['fill_id'] for row in first + second}) == 505

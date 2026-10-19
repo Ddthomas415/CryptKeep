@@ -1,0 +1,40 @@
+{
+  "scope": "Offline Qdrant constructor deepcopy compatibility and explicit regular MinIO bash path",
+  "implementation_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "runtime_state": "INCOMPLETE",
+  "installed_state_refreshed": false,
+  "proof": {
+    "prepatch_selected_failed":6,
+    "initial_six_module_passed":335,
+    "initial_warnings":128,
+    "initial_seconds":3.83,
+    "final_shell_selection_passed":3,
+    "final_shell_selection_deselected":62,
+    "final_seconds":0.16,
+    "full_suite":false
+  },
+  "independent_review": {
+    "initial_state":"INCOMPLETE",
+    "initial_passed":335,
+    "initial_seconds":3.84,
+    "finding":"Conditional BASH_ENV startup processing when bash invoked without -p",
+    "qdrant_result":"Captured constructor copy and forwarding controls confirmed, no blocker reported",
+    "final_state":"ACCEPTED",
+    "final_scope":"BASH_ENV correction only; not installed/runtime approval",
+    "final_passed":3,
+    "final_deselected":62,
+    "final_seconds":0.19
+  },
+  "initial_reviewed_changed_sha256": {
+    "scripts/research/companion_runtime_adapter.py":"6a3414d6b5e37fed3fa5dabbcaf908d45cea9223dcc05b51fc1ea15623d687a4",
+    "tests/test_companion_runtime_adapter.py":"1bffdfccdd4c9f4f3671740d25a814086f483fdaf27802c96c54eda52a826033"
+  },
+  "sha256": {
+    "phase1_research_copilot/memory_retrieval/main.py":"35fc51165e44dba1ab8d28e783285f51f392b01f814096f3950ce720995504a3",
+    "scripts/research/companion_runtime_adapter.py":"8c7e61113f7d49d58228bb9f25cb088edb82743dfc13bc4af38b9ac8a2729ed4",
+    "scripts/research/companion_docker_transport.py":"3075199206be8176a1221dae60f96ae4b6df813f1b53db58ce54a94d1fc7a10c",
+    "tests/test_companion_probe_policy.py":"dfe36fa4394db181b9193cf6ca0c82169781204f443727657b48bab333765687",
+    "tests/test_companion_runtime_adapter.py":"2b8a4c1083cbcd84b0a0e443a4b1ad46c529b75455a601a6a962024ca10ecf41",
+    "tests/test_companion_docker_transport.py":"195a05d1cc86a31e22664e0f2d92683b8bb0496782a9f140c1e5c33628b09031"
+  }
+}

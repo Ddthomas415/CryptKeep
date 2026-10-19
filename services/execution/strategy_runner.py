@@ -25,6 +25,7 @@ from services.strategies.config_tools import build_strategy_block
 from services.strategies.presets import get_preset
 from services.strategies.strategy_registry import compute_signal
 from services.strategies.signal_input_capture import capture_es_inputs
+from services.strategies.market_context_capture import capture_call, start_capture
 from services.strategies.strategy_selector import select_strategy
 from services.risk.exposure_controls import build_risk_limits, summarize_exposure, evaluate_entry
 from services.risk.kill_conditions import build_kill_limits, should_block_symbol, evaluate_risk_block_kill
@@ -287,6 +288,19 @@ def request_stop() -> dict:
     FLAGS.mkdir(parents=True, exist_ok=True)
     STOP_FILE.write_text(_now() + "\n", encoding="utf-8")
     return {"ok": True, "stop_file": str(STOP_FILE)}
+
+
+def _position_aware_signal_action(signal: dict, *, strategy_id: str, position_qty: float) -> str:
+    action = str(signal.get("action") or "hold").lower().strip()
+    if action not in ("buy", "sell", "hold"):
+        return "hold"
+    # The daily adapter expresses FLAT as HOLD; only an existing long may exit.
+    if (strategy_id == "sma_200_trend" and position_qty > 0
+            and signal.get("ok") is True and action == "hold"
+            and signal.get("signal") == "flat"
+            and signal.get("reason") != "insufficient_history"):
+        return "sell"
+    return action
 
 
 def _safe_positive_float(value: object, *, default: float) -> float:
@@ -984,6 +998,53 @@ def _choose_venue_for_symbol(cfg: dict, symbol: str, *, candidates: Optional[lis
     return current_venue
 
 
+def _execution_identity_meta(*, cfg, strategy, venue, symbol, provenance):
+    if os.environ.get("CBP_CAPTURE_EXECUTION_IDENTITY") != "1":
+        return {}
+    try:
+        from services.strategies import es_daily_trend
+        from services.strategies.runtime_execution_identity import (
+            capture_intent_identity, loaded_functions_digest,
+        )
+        from services.execution import paper_engine
+        from services.risk import exit_controls
+
+        raw = load_user_yaml(strict=True)
+        paper = raw.get("paper_trading") or {}
+        if not isinstance(paper, dict) or not isinstance(strategy, dict):
+            raise ValueError("identity_unresolved_config")
+        implementation = {
+            "signal": loaded_functions_digest({
+                **{name: fn for name, fn in vars(es_daily_trend).items()
+                   if callable(fn) and getattr(fn, "__module__", None) == es_daily_trend.__name__},
+                "registry": compute_signal,
+            }),
+            "resolver": loaded_functions_digest({
+                "cfg": _cfg, "strategy_block": _strategy_block_from_runner_cfg,
+                "exit_controls": _resolved_exit_controls, "strategy_builder": build_strategy_block,
+            }),
+            "exits": loaded_functions_digest({
+                name: fn for name, fn in vars(exit_controls).items()
+                if callable(fn) and getattr(fn, "__module__", None) == exit_controls.__name__
+            }),
+            "paper_engine": loaded_functions_digest({
+                "cfg": paper_engine._cfg, "apply_fill": paper_engine.PaperEngine._apply_fill,
+                "store_apply_fill": PaperTradingSQLite.apply_fill,
+            }),
+        }
+        return capture_intent_identity(
+            cfg=cfg, strategy=strategy,
+            market={"venue": venue, "symbol": symbol,
+                    "timeframe": provenance.get("ohlcv_timeframe"),
+                    "source": provenance.get("market_data_source"),
+                    "sample_mode": provenance.get("ohlcv_sample_mode")},
+            paper_config=paper, implementation=implementation,
+        )
+    except Exception as exc:
+        return {"execution_identity_capture_status": "failed",
+                "execution_identity_error_type": type(exc).__name__}
+
+
 def run_forever() -> None:
     # Runner emission contract:
     # - emits at most one intent per position transition (flat->long, long->exit)
@@ -1038,6 +1099,7 @@ def run_forever() -> None:
     enqueued = 0
     checked_startup_pairs: set[tuple[str, str]] = set()
     public_clients = _PublicOHLCVClients()
+    context_capture = start_capture(cfg)
     try:
         while True:
             loops += 1
@@ -1082,6 +1144,7 @@ def run_forever() -> None:
                 # Evidence label only. Empty means explicitly invalid identity;
                 # do not invent an executable/reporting fallback.
                 selected_strategy = str(cfg.get("strategy_id") or "")
+                identity_strategy = None
 
                 k_prices = f"prices:{selected_venue}:{symbol}:{cfg['strategy_id']}"
                 k_last_action = f"last_action:{selected_venue}:{symbol}:{cfg['strategy_id']}"
@@ -1191,6 +1254,7 @@ def run_forever() -> None:
                     raw_strategy, _ = _strategy_block_from_runner_cfg(raw_runner)
 
                     selected_block = _signal_strategy_block_from_selected_name(selected_strategy, raw_strategy)
+                    identity_strategy = selected_block
                     evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe, ohlcv_source)
                     if bool(evidence_extra.get("ohlcv_source_mismatch")):
                         mismatch_note = (
@@ -1264,13 +1328,22 @@ def run_forever() -> None:
                         continue
                     signal = _strategy_signal(sym_cfg, prices, ts_ms=ts_ms)
                     bars = len(prices)
-            decision = str(signal.get("action") or "hold").lower().strip()
-            if decision not in ("buy", "sell", "hold"):
-                decision = "hold"
+            context_quote_id = None
+            if context_capture is not None:
+                context_quote_id = capture_call(context_capture, "quote", selected_venue, symbol, evidence_extra)
+            pos = pdb.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0}
+            decision = _position_aware_signal_action(
+                signal, strategy_id=str(cfg["strategy_id"]),
+                position_qty=float(pos.get("qty") or 0.0),
+            )
             changed = False
             note = None
             if not warmed:
-                if decision in ("buy", "sell") and bool(cfg["allow_first_signal_trade"]):
+                daily_position_exit = (
+                    cfg["strategy_id"] == "sma_200_trend" and decision == "sell"
+                    and float(pos.get("qty") or 0.0) > 0.0
+                )
+                if daily_position_exit or (decision in ("buy", "sell") and bool(cfg["allow_first_signal_trade"])):
                     changed = True
                 sdb.set(k_last_action, decision)
                 sdb.set(k_warm, "1")
@@ -1283,7 +1356,6 @@ def run_forever() -> None:
                     last_action = decision
                     sdb.set(k_last_action, decision)
             action = None
-            pos = pdb.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0}
             scale_count = int(str(sdb.get(k_scale_count) or "0").strip() or 0)
 
             all_positions = []
@@ -1407,7 +1479,10 @@ def run_forever() -> None:
                 action = "sell"
                 note = exit_reason
                 changed = False
-            elif changed:
+            elif changed or (
+                cfg["strategy_id"] == "sma_200_trend" and decision == "sell"
+                and signal.get("action") == "hold" and pos_qty > 0.0
+            ):
                 if decision == "buy":
                     if (not cfg["position_aware"]) or (pos_qty <= 0.0):
                         action = "buy"
@@ -1673,9 +1748,19 @@ def run_forever() -> None:
                             "ranked_candidates": selection.get("ranked_candidates") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "candidate_scores": selection.get("candidate_scores") if 'selection' in locals() and isinstance(selection, dict) else None,
                             **evidence_extra,
+                            **_execution_identity_meta(
+                                cfg=cfg, strategy=identity_strategy, venue=selected_venue,
+                                symbol=symbol, provenance=evidence_extra,
+                            ),
                         },
                     })
                     enqueued += 1
+                    if context_capture is not None:
+                        capture_call(context_capture, "entry",
+                            side=action, intent_id=intent_id, venue=selected_venue,
+                            symbol=symbol, strategy=selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                            qty=float(qty), quote_event_id=context_quote_id,
+                        )
                     last_emitted_action = action
                     sdb.set(k_last_emitted_action, last_emitted_action)
             elif not exit_action and decision == "hold" and last_emitted_action != "hold":
@@ -1688,6 +1773,7 @@ def run_forever() -> None:
                 "ts": _now(),
                 "loops": loops,
                 "enqueued_total": enqueued,
+                "market_context_capture": capture_call(context_capture, "status") if context_capture is not None else None,
                 "mid": m if 'm' in locals() else None,
                 "ts_ms": ts_ms if 'ts_ms' in locals() else None,
                 "bars": bars if 'bars' in locals() else len(prices),
@@ -1728,6 +1814,9 @@ def run_forever() -> None:
             time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
     finally:
         public_clients.close()
+        context_capture_status = capture_call(context_capture, "close") if context_capture is not None else {
+            "enabled": False, "requested": os.environ.get("CBP_CAPTURE_MARKET_CONTEXT") == "1"
+        }
         try:
             sdb.set(k_prices, json.dumps(prices))
             sdb.set(k_last_action, last_action)
@@ -1741,6 +1830,7 @@ def run_forever() -> None:
             "pid": os.getpid(),
             "ts": _now(),
             "loops": loops,
+            "market_context_capture": context_capture_status,
             "enqueued_total": enqueued,
             "mid": m if 'm' in locals() else None,
             "ts_ms": ts_ms if 'ts_ms' in locals() else None,

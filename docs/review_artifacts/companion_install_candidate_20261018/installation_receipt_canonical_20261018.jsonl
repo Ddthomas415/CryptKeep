@@ -1,0 +1,5 @@
+{"installation_evidence": {"deferred_startup_policies": ["sdk_startup_compatible", "source_imports_frozen"], "startup_authorized": false}, "phase": "installation_reserved"}
+{"phase": "rename_intended", "target": "phase1-audit-log"}
+{"phase": "detach_intended", "target": "phase1-audit-log"}
+{"phase": "create_intended", "target": "phase1-audit-log"}
+{"installation_evidence": {"stage": "replacement"}, "phase": "installation_failed"}

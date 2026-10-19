@@ -1,0 +1,36 @@
+{
+  "scope": "offline controller core, dashboard probe and opt-in service compatibility source",
+  "implementation_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "runtime_state": "INCOMPLETE",
+  "runtime_authorization": "NOT GRANTED",
+  "independent_reviews": {
+    "controller_dashboard": {"state": "ACCEPTED_WITH_RISK", "passed": 98, "deselected": 1, "scope": "offline core and probe source only"},
+    "service_storage_correction": {"state": "ACCEPTED", "passed": 63, "warnings": 126, "scope": "configured storage endpoint validation only"}
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV: Python 3.12.10, synthetic only",
+    "passed": 161,
+    "deselected": 1,
+    "warnings": 126,
+    "full_suite": false,
+    "installed_image_parity": "UNVERIFIED",
+    "runtime_adapter": "NOT_IMPLEMENTED"
+  },
+  "packaging_limit": "phase1_research_copilot is gitignored; ordinary git diff/commit omits it. Hashes identify current files, not an incremental patch against the dirty starting tree.",
+  "sha256": {
+    "scripts/research/companion_existing_controller.py": "7072da71717a0809bf8e9574a48c712061160b92a0e13b2138a647b7522066d8",
+    "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+    "phase1_research_copilot/shared/probe.py": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+    "phase1_research_copilot/shared/config.py": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+    "phase1_research_copilot/shared/tools.py": "f6e2a0cf2819c8e70f32d1ae46f051a2e858df1861a80fb3cec8180401af924f",
+    "phase1_research_copilot/shared/audit.py": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "phase1_research_copilot/memory_retrieval/main.py": "be7f7fcebb7e3f4942df4461be8e66193f91bd7348ebb8ebfcb10695f548ad0b",
+    "phase1_research_copilot/risk_stub/main.py": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6",
+    "phase1_research_copilot/audit_log/main.py": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8",
+    "tests/test_companion_existing_controller.py": "4814d680af4c324a3063c111f92a5272a329b7dfdd9befbbfd1747790dd3f47a",
+    "tests/test_companion_probe_policy.py": "bce9c1bdb22ca902b4ed3eed369188b4cab2e6dc6481460030d9a22deba4777e"
+  }
+}

@@ -152,17 +152,17 @@ high-risk surface, split the work:
 2. Open a separate scoped high-risk objective.
 3. Stop that implementation at `READY_FOR_INDEPENDENT_REVIEW`.
 
-## Current Practical Next Steps
+## Historical Planning Snapshot (2026-07-21)
 
 SHOWN from the current backlog as of 2026-07-21:
 
 - Much of the formerly safe code queue is already implemented or proof-ready.
-- The current bottleneck is mostly operator evidence: gate output, campaign
+- The bottleneck at that checkpoint was mostly operator evidence: gate output, campaign
   runtime, host drills, shadow records, and research artifacts.
 - Local code work should avoid redoing completed items and should not stack a
   large mixed-risk branch on top of pending PRs.
 
-Safe batching order:
+Lane examples, not a priority order:
 
 1. Low-risk docs/tests only: lane-map cleanup, stale backlog wording,
    classification assertions, and regression tests for already-accepted
@@ -173,7 +173,15 @@ Safe batching order:
 3. One high-risk objective at a time: Decimal migration, config authority,
    position reconciliation, daily-loss policy, or promotion qualification.
 
-Recommended next action:
+## Current Work Selection
+
+Continue the accepted objective using `runtime_prompt.md`. Lane classification
+controls how work is verified and grouped, not which outcome has priority.
+For research, select the next task that advances the economic question; docs
+and infrastructure are prerequisites only when a demonstrated dependency makes
+them necessary. Do not infer today's bottleneck from a dated snapshot.
+
+Available selectors (not mandatory prerequisites for unrelated work):
 
 - If coding locally: select one exact low-risk lane item with
   `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_BACKLOG_LANE=<lane>
@@ -185,6 +193,6 @@ Recommended next action:
 ## Executable Guard
 
 `tests/test_backlog_execution_lanes_guard.py` pins the lane definitions,
-same-lane batching rule, high-risk no-same-thread-closure rule, operator-
-evidence bottleneck, and current safe batching order. The guard is documentation
+same-lane batching rule, high-risk no-same-thread-closure rule, and objective-led
+work selection. It must not pin a dated bottleneck or scheduling order. The guard is documentation
 only; it does not decide any backlog item or authorize implementation.

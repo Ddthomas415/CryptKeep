@@ -1,0 +1,17 @@
+{
+  "status": "VERIFIED_LOCAL_QUESTION_EVIDENCE",
+  "orchestrator_source_sha256": "eb745052b22496f22e888554658e1bff0c5900d4c2af1a15cfd050540bf7d06e",
+  "source_tests_passed": 34,
+  "gateway_checks": [
+    {"question": "Bitcoin", "keyword_citations": 3, "headlines_in_answer": true},
+    {"question": "regulation", "keyword_citations": 3, "headlines_in_answer": true},
+    {"question": "zzzzzzunmatched", "keyword_citations": 0, "no_matches_explicit": true}
+  ],
+  "all_answers_label_confidence_uncalibrated": true,
+  "matched_answers_disclaim_causation": true,
+  "execution_disabled": true,
+  "environment_mounts_ports_preserved": true,
+  "unrelated_container_ids_and_start_times_preserved": true,
+  "private_rollback_directory": "/private/tmp/cryptkeep-retrieval-deploy-wumh1vc0",
+  "limits": ["Keyword-only, not semantic quality benchmark", "No causal or profitability proof", "No sustained-operation proof", "Compatibility confidence numbers remain unchanged"]
+}

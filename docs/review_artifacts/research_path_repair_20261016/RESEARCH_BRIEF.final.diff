@@ -1,0 +1,125 @@
+--- docs/review_artifacts/research_path_repair_20261016/RESEARCH_BRIEF.before.md	2026-10-16 01:18:11
++++ docs/research/RESEARCH_BRIEF.md	2026-10-16 01:21:12
+@@ -1,11 +1,11 @@
+ # CryptKeep research brief: read before any strategy or edge work
+ 
+-Last updated 2026-10-15: multi-symbol mandate adopted; E10 added (Claude, cloud session). This brief is a map. The linked files are the evidence, and they win if the two disagree. Update this brief when a result changes status.
++Last updated 2026-10-16: corrected reused-history, universe, scheduling and operational-status statements. This brief is a map. The linked files are the evidence, and they win if the two disagree. Original experiments and registered verdicts are unchanged.
+ 
+ Labels follow AGENTS.md: SHOWN (evidence in repo), CLAIMED, UNVERIFIED.
+ 
+ ## 0. Scope (read first)
+-- **CryptKeep is multi-symbol.** See `MULTI_SYMBOL_MANDATE.md`. The supported universe is the 25 symbols in `config/candidate_universe.yaml`, all tradable as Coinbase USD products.
++- **CryptKeep is multi-symbol.** See `MULTI_SYMBOL_MANDATE.md`. Project scope remains the 25 symbols in `config/candidate_universe.yaml`; this is not a current or historical trading-eligibility list. The mandate's October15 check records 24 Coinbase USD products, MATIC-USD delisted with POL-USD as successor, and XRP's historical suspension. No automatic substitution or scope change follows.
+ - **The findings below are research evidence for specific symbols and conditions. They are not the project's scope.**
+ - **Coverage (2026-10-15, after E10; `research/symbol_coverage.csv`):**
+   - The 10 Coinbase core pairs have each had a standalone slow-trend test. Results:
+@@ -16,13 +16,14 @@
+   - 15 symbols (BNB and the tier-2 and watchlist symbols) remain UNTESTED.
+ 
+ ## 1. Bottom line
+-- **No proven edge** (SHOWN).
+-  - **Candidate:** one, the BTC+ETH 28-day volatility-scaled trend rule. It has better risk-adjusted returns than BTC and fixed BTC/ETH/cash mixes at about 0.5% fees, with smaller drawdowns.
++- **No demonstrated dependable trading income or validated profitability** in the reviewed evidence. This does not reject all possible edges or the untested universe.
++  - **Candidate:** the BTC+ETH 28-day volatility-scaled trend rule has scoped historical risk-reduction evidence at the tested costs. Its registered 1.2% stress rejection stands; lower-cost results remain exploratory, not confirmation.
+   - **Return:** it has no proven return advantage over BTC, and it depends on costs.
+-- **The literature agrees:** only slow trend plus volatility scaling survives retail costs for a long-only spot account. Its benefit is mainly drawdown control, not alpha. See `crypto_trading_edges_survey_20261013.md`.
++- **Literature context:** `crypto_trading_edges_survey_20261013.md` is a research survey, not proof that only one family can survive costs. Existing negative findings apply to their tested rules, assets, periods and assumptions.
+ - **Further work:**
+   - cost reduction and risk engineering around the candidate;
+-  - systematic, pre-registered coverage of the wider universe with the families that survive costs (first: E10, the slow-trend portfolio across the Coinbase core pairs);
++  - restore the existing research/explanation path and reproducible delivery before new experiments; E10 is completed, not queued to run again;
++  - prospective, pre-registered comparisons across justified subsets of the wider universe, after data, sizing, cost and evaluation contracts are frozen;
+   - no unregistered signal hunting.
+ 
+ ## 2. Costs: confirm before trusting any backtest
+@@ -30,7 +31,7 @@
+ - **Conflicting secondary sources:**
+   - entry tier 0.40% / 0.60%;
+   - a reported Sep 2026 US change to 0.50% / 0.90%.
+-  - Both are UNVERIFIED. The operator must confirm BTC-USD and ETH-USD rates in the Coinbase app.
++  - Both are UNVERIFIED. They do not override the dated account-level observation. BTC-USD/ETH-USD product-specific all-in rates and historical applicability remain UNVERIFIED; no new credential or account action is authorized by this brief. See `maker_taker_prereg_20261011/PREREGISTRATION_draft_v3.md` for the preserved observation and remaining evidence requirements.
+ - **Round trip at 0.25/0.50:** 0.50% (maker/maker) to 1.00% (taker/taker), plus spread.
+   - Weekly full turnover costs about 26-52%/yr.
+   - Monthly full turnover costs about 6-12%/yr.
+@@ -40,12 +41,12 @@
+ - **Tax:** short-term gains are taxed as ordinary income. Brokers have issued Form 1099-DA since 2025.
+ 
+ ## 3. What the evidence says (details and sources: `crypto_trading_edges_survey_20261013.md`)
+-| Works for this account (modest) | Real but not usable here | Fails at these fees / decayed / debunked |
++| Scoped historical candidates / hypotheses | Access or execution feasibility unresolved | Rejected or inconclusive under tested conditions |
+ |---|---|---|
+-| Slow trend (20-100 day) on BTC/ETH (other symbols untested) | Futures carry / basis (needs futures) | Cross-sectional momentum, size, reversal as tested (E6 basket, leader pullback; scoped in the registry) |
+-| Volatility scaling, capped at 100%, with rebalance bands | Selling options (variance premium) | Calendar, overnight and intraday rules |
+-| Avoidance filters: no microcaps, fresh listings, big unlocks, hacked tokens | Arbitrage, order flow, MEV, liquidity-pool provision | Buying listing announcements (move happens before) |
+-| Funding/basis crash brake: tested 2026-10-13, FAILED as an overlay on the trend candidate | | Most on-chain and sentiment signals (largely repackaged price momentum) |
++| BTC/ETH slow trend and volatility scaling; E10 also tested 10 core symbols, with scoped results in the registry | Futures carry / basis; existing modeled feasibility is not verified access, fees or liquidation safety | Cross-sectional momentum, size, reversal as tested (E6 basket, leader pullback; scoped in the registry) |
++| Volatility scaling and rebalance bands have scoped historical results; E9's registered FAIL stands | Selling options (variance premium) | Calendar/overnight/intraday rejections apply only to the tested rules, assets, periods and costs |
++| Avoidance filters are research hypotheses, not established profitable rules | Arbitrage, order flow, MEV, liquidity-pool provision | Listing/event results are limited to the reviewed models and data |
++| Funding/basis crash brake: tested 2026-10-13, FAILED as this specified overlay | | Survey cautions about on-chain/sentiment signals are literature context, not exhaustive repository tests or rejection of those families |
+ 
+ ## 4. Project results to date
+ | Idea | Status | Evidence |
+@@ -56,16 +57,24 @@
+ | Top-gainer pullback dip-buying (8 variants) | FAIL: all lost before and after costs | `leader_pullback_study_20261012.md`, `leader_target_test_20261012.md` |
+ | Dip-recovery screen | Withdrawn (used future information) | `dip_recovery_screen_20261012.md` |
+ | Weekly altcoin cross-sectional momentum | FAIL; simulator defect annotated | `xs_momentum_20261012/` |
+-| Funding-rate crash brake (E7) on the candidate | FAIL: no drawdown improvement, slightly lower returns; redundant with the trend signal | `crash_brake_20261013/` |
+-| Composite v1: 20/50/100/200-day trend ensemble + 10-pt rebalance band (E8) | FAIL: better in 2017-23, much worse in the 2024-26 holdout (Sharpe 0.45 vs 0.87) | `composite_v1_20261013/` |
++| Funding-rate crash brake (E7) on the candidate | FAIL on registered condition 1: D drawdown unchanged; H drawdown modestly lower, but ending value lower in every period. Original verdict stands; redundancy is the report's scoped interpretation | `crash_brake_20261013/` |
++| Composite v1: 20/50/100/200-day trend ensemble + 10-pt rebalance band (E8) | FAIL: better in 2017-23, much worse in the reused 2024-26 historical segment (Sharpe 0.45 vs 0.87); the original result label is preserved | `composite_v1_20261013/` |
+ | Band 0.10 alone on the unchanged candidate (E9) | FAIL on the registered turnover criterion (0.90x, needed ≤ 0.75x); otherwise better Sharpe and ending value in D and H at both fees and half the trades. Criterion mis-specified; resolve with FORWARD tracking, not a re-test | `candidate_band_20261013/` |
+ | Slow-trend portfolio across 10 core pairs, equal 1/N (E10) | FAIL vs BTC+ETH incumbent (Sharpe 1.20 vs 1.46 in D, 0.51 vs 0.88 in H). Standalone: trend cut drawdowns on every symbol; per-symbol statuses in the registry | `multisymbol_trend_20261015/` |
+-| Maker vs taker execution | Pre-registration draft v2, NOT frozen; waits on fee confirmation | `maker_taker_prereg_20261011/` |
++| Maker vs taker execution | Draft v3 correction, NOT frozen; operator chose delayed execution plus arrival-book observation. Account-tier evidence exists; product fees, timestamp/coverage and inference contracts remain unresolved. No collection or scoring authorization follows | `maker_taker_prereg_20261011/PREREGISTRATION_draft_v3.md` |
+ | CMC trending | Collecting; primary analysis no earlier than 2027-02-15 | `cmc_trending_log/` |
+-| Forward tracker v2 | Built (23 tests), NOT scheduled; v1 still runs Mondays 00:47 UTC | `paper_btc_eth_trend_v2_20261012/` |
++| Forward tracker v2 | Separate research-only Codex schedule recorded ACTIVE; first delivery October18 20:47 New York remains UNVERIFIED. README records 27 tests and independent review; this brief does not rerun them. v1 artifacts/schedule are preserved, not independent evidence | `paper_btc_eth_trend_v2_20261012/README.md` |
++| Corrected ES prospective trial | Fixed endpoint completed; saved host report independently ACCEPTED_WITH_RISK. Zero orders/fills/positions, zero paper trading PnL; efficacy INCOMPLETE, no extension or promotion | `../checkpoints/es_prospective_endpoint_result_2026_10_16.md` |
+ 
+-Selection count: about 576 configurations, plus E6-E10 (about 40 more trials including sensitivities); roughly 10-20 effective trials so far. New tests add to this count and to the multiple-testing deflation.
++Selection accounting: pass2 records a convention-specific floor of 747 configurations (577+113+57), not a verified complete selection count or effective N. Its CSV has six exact family counts, two lower bounds and one unknown; symbol pooling and selection exposure still need reconciliation. The older 576 and effective-N estimates are historical, not validated current inputs. See `trial_ledger_reconciliation_20261015/pass2_findings_20261015.md` and `discovery_engine_proposal_review_20261016.md`. No DSR is recomputed from this correction.
+ 
++## 4a. Operational evidence is separate from research results
++- **SHOWN in the October16 consolidated audit:** the documented local `127.0.0.1:8002/healthz` route refused connection. Older successful disposable integration tests do not establish current service availability. Other endpoints, durable operation and external alert delivery remain UNVERIFIED unless supported by a newer receipt.
++- **Recorded point-in-time collector status:** the audit saw existing paper/context collector PIDs and fresh status files. This is not continuous health or approval to restart them.
++- **Scheduling:** the v2 tracker schedule above is recorded configuration, not proof of its first unattended run. It is Sunday20:47 New York (UTC changes with daylight saving), not a fixed Monday UTC schedule. Do not create a duplicate job.
++- **Test baseline:** the recorded broad run was 4,679 passed, 2 failed, 76 skipped and 1 collection error. A later isolated proxy test passed; that does not make the broad suite green. See `consolidated_review_20261016.md` for commands and limits.
++- The current authorized repair is local source/docs/tests and packaging only. No service, Docker, server, account, credential, schedule or trading-operation change is implied.
++
+ ## 5. Research rules (non-negotiable)
+ 1. **Write the rules down before seeing data or results.** Amendments must be dated, made before running, and never replace the original.
+ 2. **Count every variant tried.** Report all of them, losers included. Correct for selection: DSR at realistic N, with sensitivity.
+@@ -74,23 +83,22 @@
+ 5. **Execution:** decide at a close, trade at the next open (or model limit fills honestly). Executions are labelled modelled unless they are actually observed.
+ 6. **Benchmarks:** hold BTC, a fixed BTC/ETH/cash mix at comparable exposure, and cash. Label mixes fully (e.g. 25/25/50 means 50% cash).
+ 7. **Judge new ingredients against the current candidate,** not just against BTC.
+-8. **Keep the 2024-01-01 to present data as a holdout,** opened once at the end for any new combined strategy.
++8. **Previously examined history is not untouched holdout data.** In particular 2024-26 was reused in candidate selection and later studies. Preserve original D/H labels as historical artifact labels, but use those periods only for exploration, reproduction or sensitivity. Genuine confirmation requires a dated frozen protocol before unseen observations; do not backdate activation or retune after inspection.
+ 9. **Preserve originals and registered verdicts.** Exploratory results are labelled exploratory. No profitability claims; DSR is not a profit probability.
+ 10. **Universe and survivorship:**
+     - Survivorship bias is large (about 53% of tracked tokens have failed). Use datasets that include delisted coins, and say what is still missing.
+     - Every symbol tested counts as a trial.
+     - Every negative result is scoped to its symbols and conditions in `research/symbol_coverage.csv`.
+ 
+-## 6. Next steps (as of 2026-10-13) and what not to do
+-1. Operator: confirm the BTC-USD and ETH-USD maker/taker fees in the app.
+-2. Re-run the candidate at the confirmed fee (and a higher-cost tier), keeping 2024-26 as the holdout.
+-3. Operator decision, after review: switch the weekly task to tracker v2 (first decision Sunday 2026-10-18).
+-4. ~~Crash-brake test~~: done 2026-10-13, FAIL (`crash_brake_20261013/`).
+-   - Binance funding history is reachable only via the Hetzner host (US IPs are blocked).
+-   - The data file is preserved under `research/crash_brake_20261013/`.
+-5. Freeze the maker-vs-taker study once fees are confirmed.
+-6. ~~Band-only test~~: done (E9). Next: add a 'candidate + band 0.10' account to tracker v2 for forward comparison; needs code, tests and review. Note: 2024-26 was inside the candidate's selection windows, so it is not a true holdout for the candidate.
++## 6. Accepted next steps (2026-10-16)
++1. Correct this active brief without rewriting frozen registrations or results.
++2. Diagnose and repair the existing research/explanation source path; distinguish local fixture proof, endpoint availability and sustained operation. Operational changes require separate authorization.
++3. Triage the two recorded test failures and collection error in an isolated test environment; retain the 76-skip historical count and report new targeted results separately.
++4. Package one reproducible, dependency-closed multi-symbol research slice with hashes, diffs, exact commands and limitations. Preserve the 25-symbol mandate, raw archives, original verdicts and completed corrections; no failed-backtest reruns.
++5. Only after that path is usable, propose one prospectively registered comparison with universe, missingness, carry-forward sizing/cash, costs, benchmarks and acceptance criteria frozen before outcomes. No experiment is authorized by this brief.
+ 
++Completed work is not a new queue: E7/E8/E9/E10 retain their registered FAIL results; tracker v2 and its band10 account already have saved code/review/schedule records. Maker/taker draft v3 still needs its remaining evidence and independent contract review before freeze, not a repetition of earlier unqualified arrival assumptions.
++
+ **Do not:**
+ - run unregistered signal hunts on any symbol;
+ - rescue failed variants;

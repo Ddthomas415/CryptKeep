@@ -1,0 +1,11 @@
+{
+  "exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 290.5,
+  "root": "/private/tmp/cryptkeep-revised-suite-mzseu2l_",
+  "network": "denied",
+  "operator_home": "denied_except_readonly_venv",
+  "runner_slow_skips": false,
+  "base": "620bc8dbeee71cca327042902759e219e18f30b6",
+  "patch_sha256": "1299a32e2fd07be52cf1075898a675d8f7c2b3aedbacae80af16e2a3d7420c47"
+}

@@ -1,0 +1,12 @@
+{
+  "cli_sha256": "31ae2d64e51d9dfc728a2934941615cdd92f31279ed6d5c1fb2bfc0a44637a8f",
+  "commands": [
+    "selected container inspect of seven pinned IDs"
+  ],
+  "failure_category": "Refused",
+  "installation_authorized": false,
+  "observed_utc": "2026-10-18T02:46:39.144340+00:00",
+  "schema": "companion-recreation-observation-v1",
+  "source_manifest_sha256": "bac2f4636753237279858c2119630be12531d8d27f6967868d72e9cbac940093",
+  "state": "INCOMPLETE"
+}

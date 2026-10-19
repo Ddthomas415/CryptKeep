@@ -1,0 +1,404 @@
+{
+  "results": {
+    "fee_0.50pct": {
+      "D": {
+        "period": [
+          "2017-01-01",
+          "2023-12-31"
+        ],
+        "banded_0.10": {
+          "end_usd": 54794.0912,
+          "sharpe": 1.6251,
+          "max_drawdown_pct": 54.0518,
+          "turnover_per_year": 8.3923,
+          "rebalance_executions_per_year": 20.8571,
+          "rebalance_executions_total": 146,
+          "min_cash_usd": -2414.3565,
+          "nav_points": 2556
+        },
+        "incumbent_no_band": {
+          "end_usd": 42583.3124,
+          "sharpe": 1.5642,
+          "max_drawdown_pct": 51.878,
+          "turnover_per_year": 9.2498,
+          "rebalance_executions_per_year": 38.7143,
+          "rebalance_executions_total": 271,
+          "min_cash_usd": -0.0,
+          "nav_points": 2556
+        },
+        "hold_btc": {
+          "end_usd": 42354.8213,
+          "sharpe": 1.0916,
+          "max_drawdown_pct": 83.8015,
+          "turnover_per_year": 0.1421,
+          "rebalance_executions_per_year": 0.1429,
+          "rebalance_executions_total": 1,
+          "min_cash_usd": -0.0,
+          "nav_points": 2556
+        },
+        "mix_25_25_50": {
+          "end_usd": 23675.8042,
+          "sharpe": 1.3157,
+          "max_drawdown_pct": 61.178,
+          "turnover_per_year": 1.4415,
+          "rebalance_executions_per_year": 52.1429,
+          "rebalance_executions_total": 365,
+          "min_cash_usd": 498.6281,
+          "nav_points": 2556
+        }
+      },
+      "H": {
+        "period": [
+          "2024-01-07",
+          "2026-10-08"
+        ],
+        "banded_0.10": {
+          "end_usd": 1874.4045,
+          "sharpe": 0.8852,
+          "max_drawdown_pct": 32.0268,
+          "turnover_per_year": 12.007,
+          "rebalance_executions_per_year": 22.5174,
+          "rebalance_executions_total": 62,
+          "min_cash_usd": -39.8314,
+          "nav_points": 1006
+        },
+        "incumbent_no_band": {
+          "end_usd": 1845.9267,
+          "sharpe": 0.8695,
+          "max_drawdown_pct": 32.0208,
+          "turnover_per_year": 12.6899,
+          "rebalance_executions_per_year": 38.1343,
+          "rebalance_executions_total": 105,
+          "min_cash_usd": -0.0,
+          "nav_points": 1006
+        },
+        "hold_btc": {
+          "end_usd": 1848.4046,
+          "sharpe": 0.707,
+          "max_drawdown_pct": 53.0758,
+          "turnover_per_year": 0.3612,
+          "rebalance_executions_per_year": 0.3632,
+          "rebalance_executions_total": 1,
+          "min_cash_usd": -0.0,
+          "nav_points": 1006
+        },
+        "mix_25_25_50": {
+          "end_usd": 1340.7548,
+          "sharpe": 0.5256,
+          "max_drawdown_pct": 35.7612,
+          "turnover_per_year": 1.0516,
+          "rebalance_executions_per_year": 52.2985,
+          "rebalance_executions_total": 144,
+          "min_cash_usd": 495.9619,
+          "nav_points": 1006
+        }
+      }
+    },
+    "fee_0.90pct": {
+      "D": {
+        "period": [
+          "2017-01-01",
+          "2023-12-31"
+        ],
+        "banded_0.10": {
+          "end_usd": 43397.1732,
+          "sharpe": 1.5416,
+          "max_drawdown_pct": 56.0898,
+          "turnover_per_year": 8.3856,
+          "rebalance_executions_per_year": 20.8571,
+          "rebalance_executions_total": 146,
+          "min_cash_usd": -2009.5487,
+          "nav_points": 2556
+        },
+        "incumbent_no_band": {
+          "end_usd": 32851.9267,
+          "sharpe": 1.4693,
+          "max_drawdown_pct": 54.0851,
+          "turnover_per_year": 9.2414,
+          "rebalance_executions_per_year": 38.7143,
+          "rebalance_executions_total": 271,
+          "min_cash_usd": -0.0,
+          "nav_points": 2556
+        },
+        "hold_btc": {
+          "end_usd": 42186.9131,
+          "sharpe": 1.0909,
+          "max_drawdown_pct": 83.8015,
+          "turnover_per_year": 0.1415,
+          "rebalance_executions_per_year": 0.1429,
+          "rebalance_executions_total": 1,
+          "min_cash_usd": -0.0,
+          "nav_points": 2556
+        },
+        "mix_25_25_50": {
+          "end_usd": 22738.8059,
+          "sharpe": 1.3016,
+          "max_drawdown_pct": 61.4065,
+          "turnover_per_year": 1.4415,
+          "rebalance_executions_per_year": 52.1429,
+          "rebalance_executions_total": 365,
+          "min_cash_usd": 497.6351,
+          "nav_points": 2556
+        }
+      },
+      "H": {
+        "period": [
+          "2024-01-07",
+          "2026-10-08"
+        ],
+        "banded_0.10": {
+          "end_usd": 1644.7893,
+          "sharpe": 0.7325,
+          "max_drawdown_pct": 33.7927,
+          "turnover_per_year": 11.9967,
+          "rebalance_executions_per_year": 22.5174,
+          "rebalance_executions_total": 62,
+          "min_cash_usd": -38.9367,
+          "nav_points": 1006
+        },
+        "incumbent_no_band": {
+          "end_usd": 1604.6093,
+          "sharpe": 0.7057,
+          "max_drawdown_pct": 33.8559,
+          "turnover_per_year": 12.6775,
+          "rebalance_executions_per_year": 38.1343,
+          "rebalance_executions_total": 105,
+          "min_cash_usd": -0.0,
+          "nav_points": 1006
+        },
+        "hold_btc": {
+          "end_usd": 1841.0769,
+          "sharpe": 0.7041,
+          "max_drawdown_pct": 53.0758,
+          "turnover_per_year": 0.3598,
+          "rebalance_executions_per_year": 0.3632,
+          "rebalance_executions_total": 1,
+          "min_cash_usd": -0.0,
+          "nav_points": 1006
+        },
+        "mix_25_25_50": {
+          "end_usd": 1325.3151,
+          "sharpe": 0.5104,
+          "max_drawdown_pct": 35.8927,
+          "turnover_per_year": 1.0512,
+          "rebalance_executions_per_year": 52.2985,
+          "rebalance_executions_total": 144,
+          "min_cash_usd": 494.8458,
+          "nav_points": 1006
+        }
+      }
+    }
+  },
+  "pass_checks": {
+    "fee_0.50pct": {
+      "D_sharpe_banded_ge_incumbent": [
+        1.6251,
+        1.5642,
+        true
+      ],
+      "D_turnover_banded_le_0.75x_incumbent": [
+        8.3923,
+        6.9374,
+        false
+      ],
+      "H_sharpe_banded_ge_incumbent_minus_0.05": [
+        0.8852,
+        0.8195,
+        true
+      ],
+      "H_maxdd_banded_le_incumbent_plus_2pp": [
+        32.0268,
+        34.0208,
+        true
+      ],
+      "all": false
+    },
+    "fee_0.90pct": {
+      "D_sharpe_banded_ge_incumbent": [
+        1.5416,
+        1.4693,
+        true
+      ],
+      "D_turnover_banded_le_0.75x_incumbent": [
+        8.3856,
+        6.9311,
+        false
+      ],
+      "H_sharpe_banded_ge_incumbent_minus_0.05": [
+        0.7325,
+        0.6557,
+        true
+      ],
+      "H_maxdd_banded_le_incumbent_plus_2pp": [
+        33.7927,
+        35.8559,
+        true
+      ],
+      "all": false
+    }
+  },
+  "sensitivities": {
+    "fee_0.50pct": {
+      "D": {
+        "band_0.05": {
+          "end_usd": 44541.8116,
+          "sharpe": 1.5727,
+          "max_drawdown_pct": 52.0546,
+          "turnover_per_year": 8.8247,
+          "rebalance_executions_per_year": 25.7143,
+          "rebalance_executions_total": 180,
+          "min_cash_usd": -560.7514,
+          "nav_points": 2556
+        },
+        "band_0.20": {
+          "end_usd": 69539.2999,
+          "sharpe": 1.69,
+          "max_drawdown_pct": 56.1659,
+          "turnover_per_year": 7.4744,
+          "rebalance_executions_per_year": 16.0,
+          "rebalance_executions_total": 112,
+          "min_cash_usd": -3064.065,
+          "nav_points": 2556
+        },
+        "ALT_banded_0.10_no_leverage_cap": {
+          "end_usd": 53413.886,
+          "sharpe": 1.6201,
+          "max_drawdown_pct": 54.0518,
+          "turnover_per_year": 8.3659,
+          "rebalance_executions_per_year": 20.8571,
+          "rebalance_executions_total": 146,
+          "min_cash_usd": -0.0,
+          "nav_points": 2556
+        }
+      },
+      "H": {
+        "band_0.05": {
+          "end_usd": 1873.629,
+          "sharpe": 0.8859,
+          "max_drawdown_pct": 31.9859,
+          "turnover_per_year": 12.258,
+          "rebalance_executions_per_year": 25.0597,
+          "rebalance_executions_total": 69,
+          "min_cash_usd": -39.3807,
+          "nav_points": 1006
+        },
+        "band_0.20": {
+          "end_usd": 1951.7265,
+          "sharpe": 0.9066,
+          "max_drawdown_pct": 32.06,
+          "turnover_per_year": 11.8649,
+          "rebalance_executions_per_year": 20.3383,
+          "rebalance_executions_total": 56,
+          "min_cash_usd": -40.5933,
+          "nav_points": 1006
+        },
+        "ALT_banded_0.10_no_leverage_cap": {
+          "end_usd": 1868.8724,
+          "sharpe": 0.8839,
+          "max_drawdown_pct": 32.0268,
+          "turnover_per_year": 11.9547,
+          "rebalance_executions_per_year": 22.5174,
+          "rebalance_executions_total": 62,
+          "min_cash_usd": -0.0,
+          "nav_points": 1006
+        }
+      }
+    },
+    "fee_0.90pct": {
+      "D": {
+        "band_0.05": {
+          "end_usd": 34787.8297,
+          "sharpe": 1.4827,
+          "max_drawdown_pct": 54.2123,
+          "turnover_per_year": 8.8175,
+          "rebalance_executions_per_year": 25.7143,
+          "rebalance_executions_total": 180,
+          "min_cash_usd": -445.7137,
+          "nav_points": 2556
+        },
+        "band_0.20": {
+          "end_usd": 56655.4232,
+          "sharpe": 1.6173,
+          "max_drawdown_pct": 57.8259,
+          "turnover_per_year": 7.4681,
+          "rebalance_executions_per_year": 16.0,
+          "rebalance_executions_total": 112,
+          "min_cash_usd": -2623.4849,
+          "nav_points": 2556
+        },
+        "ALT_banded_0.10_no_leverage_cap": {
+          "end_usd": 42293.4666,
+          "sharpe": 1.5364,
+          "max_drawdown_pct": 56.0898,
+          "turnover_per_year": 8.3578,
+          "rebalance_executions_per_year": 20.8571,
+          "rebalance_executions_total": 146,
+          "min_cash_usd": -0.0,
+          "nav_points": 2556
+        }
+      },
+      "H": {
+        "band_0.05": {
+          "end_usd": 1639.4599,
+          "sharpe": 0.7296,
+          "max_drawdown_pct": 33.7957,
+          "turnover_per_year": 12.2475,
+          "rebalance_executions_per_year": 25.0597,
+          "rebalance_executions_total": 69,
+          "min_cash_usd": -38.383,
+          "nav_points": 1006
+        },
+        "band_0.20": {
+          "end_usd": 1715.1756,
+          "sharpe": 0.7616,
+          "max_drawdown_pct": 33.8249,
+          "turnover_per_year": 11.8551,
+          "rebalance_executions_per_year": 20.3383,
+          "rebalance_executions_total": 56,
+          "min_cash_usd": -39.6869,
+          "nav_points": 1006
+        },
+        "ALT_banded_0.10_no_leverage_cap": {
+          "end_usd": 1640.745,
+          "sharpe": 0.7313,
+          "max_drawdown_pct": 33.7927,
+          "turnover_per_year": 11.9378,
+          "rebalance_executions_per_year": 22.5174,
+          "rebalance_executions_total": 62,
+          "min_cash_usd": -0.0,
+          "nav_points": 1006
+        }
+      }
+    }
+  },
+  "verdict": "FAIL",
+  "shared_assumptions_from_auditor": [
+    "Candidate weight 0.5*min(1,0.50/vol30) if close[t]/close[t-28]-1>0 else 0; vol30 = pstdev of 30 daily simple close returns ending at t * sqrt(365).",
+    "Execution at next day's open; post-cost equity E by bisection s.t. E + sum(cost) = value at open; buy cost delta*((1+s)(1+f)-1), sell cost -delta*(1-(1-s)(1-f)).",
+    "Band current weight = asset value / NAV at decision close.",
+    "Turnover = sum(traded notional / NAV at execution) / period years.",
+    "NAV: $1000 cash at first decision close; daily close marks through period end; decision on last day not executed; Sharpe = mean/pstdev daily returns * sqrt(365); MDD on daily NAV.",
+    "Hold BTC: 100% BTC at open after first decision, same costs. 25/25/50 rebalanced weekly at every decision, same costs."
+  ],
+  "choices": [
+    "Decision days = UTC Sundays (weekday of day-start timestamp); D = 2017-01-01..2023-12-31 (both Sundays; 2023-12-31 decision not executed); H = 2024-01-07..2026-10-08.",
+    "Period length in years = (end - start) days / 365.",
+    "Band test |target - current| >= band, inclusive, exact float comparison (no tolerance).",
+    "Band applied per asset; exits to 0 and entries from 0 obey the band (a holding <band with target 0 is left untouched; a new target <band from 0 is not entered).",
+    "Band x sizing: only assets passing the band are traded; untouched assets keep units; traded assets are set to target_weight * E where E is the post-cost TOTAL portfolio equity (including untouched holdings), solved by the same bisection over traded assets only. Remainder is cash.",
+    "PRIMARY: cash is not floored: if untouched holdings + traded targets exceed E, cash goes negative (leverage); min_cash_usd is reported per run to show whether this ever happens.",
+    "Incumbent: every decision trades both assets to w*E (even tiny deltas, which incur cost); an execution is counted when traded notional > 0 (so all-zero-target weeks with no holdings are not counted).",
+    "Turnover NAV denominator = pre-trade portfolio value at the execution open.",
+    "Hold BTC counts 1 execution; its ETH target is not traded.",
+    "Bad lows in data (BTC 2017-04-15 low 0.06, ETH 2017-06-21 low 0.10) are irrelevant: only open and close are used.",
+    "ALT (not prereg, reported under sensitivities): traded targets scaled down so cash >= 0 (no leverage); reported to show whether the verdict depends on the leverage interpretation.",
+    "Cash benchmark ($1000 flat, Sharpe undefined/0) not simulated."
+  ],
+  "flags": [
+    "Prereg says 'A target of 0 is always >= 0.10 away from any holding of 0.10 or more' - true only for the inclusive boundary used here; it implies holdings below 0.10 can persist (dust) when the target goes to 0.",
+    "Prereg does not specify whether band-traded assets size to total equity or to the traded sub-portfolio; total equity chosen.",
+    "Prereg 'turnover' undefined in prereg itself; auditor convention used.",
+    "H is not a true holdout for the signal (stated in prereg).",
+    "With the band, the untouched weight may sit up to band away from target, so total gross weight can exceed 1.0 in principle; see min_cash_usd."
+  ]
+}

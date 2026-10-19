@@ -1,0 +1,19 @@
+{
+  "classification": "BTC_FULL_SEGMENT_TERMINAL_CLOSE_MODEL_NOT_MATCHED_EVENT_SUM",
+  "plan_sha256": "0489b9a1080ec862e497df6f9895db42de17b08eefc62acc2601fbc12eb61360",
+  "budget": 1000,
+  "segments": [
+    {
+      "start": 1776038400,
+      "end": 1783900800,
+      "net_pnl_usd": -112.55693909576962,
+      "terminal_close_liquidation_assumed": true
+    },
+    {
+      "start": 1783900800,
+      "end": 1791763200,
+      "net_pnl_usd": 293.25480067273634,
+      "terminal_close_liquidation_assumed": true
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 from __future__ import annotations
 import sqlite3
+import json
 from datetime import datetime, timezone
 from services.os.app_paths import data_dir
 
@@ -32,6 +33,10 @@ CREATE TABLE IF NOT EXISTS journal_fills (
 CREATE INDEX IF NOT EXISTS idx_jf_ts ON journal_fills(journal_ts);
 CREATE INDEX IF NOT EXISTS idx_jf_symbol ON journal_fills(symbol);
 CREATE INDEX IF NOT EXISTS idx_jf_intent ON journal_fills(intent_id);
+CREATE TABLE IF NOT EXISTS journal_fill_identity (
+  fill_id TEXT PRIMARY KEY,
+  evidence_json TEXT NOT NULL
+);
 """
 
 def _now() -> str:
@@ -55,7 +60,8 @@ class TradeJournalSQLite:
     def insert_fill(self, row: dict) -> None:
         con = _connect()
         try:
-            con.execute(
+            con.execute("BEGIN IMMEDIATE")
+            inserted = con.execute(
                 "INSERT OR IGNORE INTO journal_fills(fill_id, journal_ts, intent_id, source, strategy_id, client_order_id, order_id, fill_ts, venue, symbol, side, qty, price, fee, fee_currency, cash_quote, pos_qty, pos_avg_price, realized_pnl_total) "
                 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
@@ -80,6 +86,16 @@ class TradeJournalSQLite:
                     row.get("realized_pnl_total"),
                 ),
             )
+            evidence = row.get("execution_identity_evidence")
+            if inserted.rowcount and evidence is not None:
+                con.execute(
+                    "INSERT INTO journal_fill_identity(fill_id, evidence_json) VALUES(?,?)",
+                    (str(row["fill_id"]), json.dumps(evidence, sort_keys=True, allow_nan=False)),
+                )
+            con.execute("COMMIT")
+        except Exception:
+            con.rollback()
+            raise
         finally:
             con.close()
 
@@ -91,7 +107,8 @@ class TradeJournalSQLite:
         con = _connect()
         try:
             rows = con.execute(
-                "SELECT fill_id, journal_ts, intent_id, source, strategy_id, client_order_id, order_id, fill_ts, venue, symbol, side, qty, price, fee, fee_currency, cash_quote, pos_qty, pos_avg_price, realized_pnl_total "
+                "SELECT fill_id, journal_ts, intent_id, source, strategy_id, client_order_id, order_id, fill_ts, venue, symbol, side, qty, price, fee, fee_currency, cash_quote, pos_qty, pos_avg_price, realized_pnl_total, "
+                "(SELECT evidence_json FROM journal_fill_identity i WHERE i.fill_id=journal_fills.fill_id) "
                 "FROM journal_fills ORDER BY journal_ts DESC LIMIT ?",
                 (int(limit),),
             ).fetchall()
@@ -103,6 +120,11 @@ class TradeJournalSQLite:
                     "qty": r[11], "price": r[12], "fee": r[13], "fee_currency": r[14],
                     "cash_quote": r[15], "pos_qty": r[16], "pos_avg_price": r[17], "realized_pnl_total": r[18],
                 })
+                if r[19] is not None:
+                    try:
+                        out[-1]["execution_identity_evidence"] = json.loads(r[19])
+                    except (ValueError, TypeError):
+                        out[-1]["execution_identity_evidence"] = {"journal_identity_status": "invalid_storage"}
             return out
         finally:
             con.close()

@@ -1,0 +1,860 @@
+{
+  "kind": "PUBLIC_ARRIVAL_OBSERVATION_NOT_EXECUTION_PROOF",
+  "observed_at_utc": "2026-10-12T12:30:14.744855+00:00",
+  "local_target_utc_ns": 1791808214719876000,
+  "target_basis": "T0_local_receipt_plus_2s",
+  "initial": {
+    "product_id": "ETH-USD",
+    "request_utc_ns": 1791808212630460000,
+    "receive_utc_ns": 1791808212719876000,
+    "request_duration_ns": 89416083,
+    "raw_sha256": "d5b43f71fdac1840cbd42910537e007967f9a789ca6995d24559bf05fb63d4d8",
+    "raw_response_base64": "eyJwcmljZWJvb2siOnsicHJvZHVjdF9pZCI6IkVUSC1VU0QiLCAiYmlkcyI6W3sicHJpY2UiOiIyNTM3LjI4IiwgInNpemUiOiIxLjMxMjMwNTM3In0sIHsicHJpY2UiOiIyNTM3LjI2IiwgInNpemUiOiIxIn0sIHsicHJpY2UiOiIyNTM3LjI1IiwgInNpemUiOiIzLjU0NzEzNDA1In0sIHsicHJpY2UiOiIyNTM3LjA0IiwgInNpemUiOiI3LjIzNzgxNzQ1In0sIHsicHJpY2UiOiIyNTM3LjAzIiwgInNpemUiOiI4LjI3NzM4MzE2In0sIHsicHJpY2UiOiIyNTM2Ljk4IiwgInNpemUiOiIwLjAzOTM3MjQifSwgeyJwcmljZSI6IjI1MzYuOTciLCAic2l6ZSI6IjAuNiJ9LCB7InByaWNlIjoiMjUzNi45NiIsICJzaXplIjoiMS4xMDM2MTA4MiJ9LCB7InByaWNlIjoiMjUzNi45NSIsICJzaXplIjoiMS44MTYxMTI4NiJ9LCB7InByaWNlIjoiMjUzNi44NSIsICJzaXplIjoiMi4wMDUyOTcwMiJ9LCB7InByaWNlIjoiMjUzNi44MyIsICJzaXplIjoiMS4wMzY3NjgwNyJ9LCB7InByaWNlIjoiMjUzNi44MiIsICJzaXplIjoiMTAuMDY2MDM5MzMifSwgeyJwcmljZSI6IjI1MzYuOCIsICJzaXplIjoiMTYifSwgeyJwcmljZSI6IjI1MzYuNzgiLCAic2l6ZSI6IjAuMDAxOTA4MjgifSwgeyJwcmljZSI6IjI1MzYuNjkiLCAic2l6ZSI6IjkuMTYxMzA5NjcifSwgeyJwcmljZSI6IjI1MzYuNjgiLCAic2l6ZSI6IjguMjc4NTMxNjUifSwgeyJwcmljZSI6IjI1MzYuNjciLCAic2l6ZSI6IjEuODcwODUwOTcifSwgeyJwcmljZSI6IjI1MzYuNjMiLCAic2l6ZSI6IjEuNTc1In0sIHsicHJpY2UiOiIyNTM2LjYyIiwgInNpemUiOiIwLjMifSwgeyJwcmljZSI6IjI1MzYuNTYiLCAic2l6ZSI6IjAuOTg1MzQ3ODgifSwgeyJwcmljZSI6IjI1MzYuNTMiLCAic2l6ZSI6IjYuNTU5OTM1NjMifSwgeyJwcmljZSI6IjI1MzYuNTIiLCAic2l6ZSI6IjguMjc5MDMwOTEifSwgeyJwcmljZSI6IjI1MzYuNDUiLCAic2l6ZSI6IjAuOTg1MzQ3ODgifSwgeyJwcmljZSI6IjI1MzYuNDQiLCAic2l6ZSI6IjAuNjc0NDYyNjUifSwgeyJwcmljZSI6IjI1MzYuNDMiLCAic2l6ZSI6IjEuMDQ5MzI1NDQifSwgeyJwcmljZSI6IjI1MzYuNDEiLCAic2l6ZSI6IjE0Ljc0MzEyNTY2In0sIHsicHJpY2UiOiIyNTM2LjQiLCAic2l6ZSI6IjE2In0sIHsicHJpY2UiOiIyNTM2LjM5IiwgInNpemUiOiI5LjM2NzM1NzIxIn0sIHsicHJpY2UiOiIyNTM2LjM3IiwgInNpemUiOiIxLjU3NSJ9LCB7InByaWNlIjoiMjUzNi4zIiwgInNpemUiOiIwLjAwMDAwMDQifSwgeyJwcmljZSI6IjI1MzYuMjciLCAic2l6ZSI6IjIuMDM0NjczMzIifSwgeyJwcmljZSI6IjI1MzYuMjUiLCAic2l6ZSI6IjAuMDA3ODg1NjUifSwgeyJwcmljZSI6IjI1MzYuMjEiLCAic2l6ZSI6IjAuMDU5MTQzMzYifSwgeyJwcmljZSI6IjI1MzYuMTIiLCAic2l6ZSI6IjAuNTkyMDEwNTUifSwgeyJwcmljZSI6IjI1MzYuMTEiLCAic2l6ZSI6IjAuMTU3NDU4ODIifSwgeyJwcmljZSI6IjI1MzYuMSIsICJzaXplIjoiMy4yMzM4NzY5NSJ9LCB7InByaWNlIjoiMjUzNi4wOSIsICJzaXplIjoiMi4zODk1MzY0MyJ9LCB7InByaWNlIjoiMjUzNi4wNiIsICJzaXplIjoiMC45ODUzNDc4OCJ9LCB7InByaWNlIjoiMjUzNi4wMiIsICJzaXplIjoiMS41NzUifSwgeyJwcmljZSI6IjI1MzUuOTkiLCAic2l6ZSI6IjAuMzA3ODg2NDYifSwgeyJwcmljZSI6IjI1MzUuOTYiLCAic2l6ZSI6IjAuMTk2ODYyMDIifSwgeyJwcmljZSI6IjI1MzUuOTQiLCAic2l6ZSI6IjAuMDA3ODcwMTQifSwgeyJwcmljZSI6IjI1MzUuOTMiLCAic2l6ZSI6IjAuMDAxIn0sIHsicHJpY2UiOiIyNTM1Ljg2IiwgInNpemUiOiIwLjAwNzg2ODI4In0sIHsicHJpY2UiOiIyNTM1LjgiLCAic2l6ZSI6IjAuOTg2MTQ3NTcifSwgeyJwcmljZSI6IjI1MzUuNzkiLCAic2l6ZSI6IjAuOTI2NTMyNjkifSwgeyJwcmljZSI6IjI1MzUuNzciLCAic2l6ZSI6IjEuMjk0NzI2NSJ9LCB7InByaWNlIjoiMjUzNS43NiIsICJzaXplIjoiMS41NzUifSwgeyJwcmljZSI6IjI1MzUuNzMiLCAic2l6ZSI6IjAuNTkzNzIwNyJ9LCB7InByaWNlIjoiMjUzNS43IiwgInNpemUiOiIwLjAwMDAwMDQifV0sICJhc2tzIjpbeyJwcmljZSI6IjI1MzcuMzMiLCAic2l6ZSI6IjQuMTQifSwgeyJwcmljZSI6IjI1MzcuNDYiLCAic2l6ZSI6IjEuMTAzNjEwODIifSwgeyJwcmljZSI6IjI1MzcuNDgiLCAic2l6ZSI6IjEuNTc1In0sIHsicHJpY2UiOiIyNTM3LjQ5IiwgInNpemUiOiIwLjM5NDA5MDIyIn0sIHsicHJpY2UiOiIyNTM3LjUiLCAic2l6ZSI6IjAuMzYzMDQyNDIifSwgeyJwcmljZSI6IjI1MzcuNTEiLCAic2l6ZSI6IjMuNTQ2Nzg1NTYifSwgeyJwcmljZSI6IjI1MzcuNTciLCAic2l6ZSI6IjEuMjk3NjUzMjUifSwgeyJwcmljZSI6IjI1MzcuNTgiLCAic2l6ZSI6IjExLjM5ODY2NjczIn0sIHsicHJpY2UiOiIyNTM3LjYiLCAic2l6ZSI6IjE2In0sIHsicHJpY2UiOiIyNTM3LjY1IiwgInNpemUiOiIwLjI1MjI5NDI5In0sIHsicHJpY2UiOiIyNTM3Ljc1IiwgInNpemUiOiIwLjk4NTM0Nzg4In0sIHsicHJpY2UiOiIyNTM3Ljc5IiwgInNpemUiOiIxMC4xODI0MTAyOSJ9LCB7InByaWNlIjoiMjUzNy44IiwgInNpemUiOiIxNiJ9LCB7InByaWNlIjoiMjUzNy44MiIsICJzaXplIjoiOC4yNzQ4MzAxNSJ9LCB7InByaWNlIjoiMjUzNy44NCIsICJzaXplIjoiMC4wNTkwODU3In0sIHsicHJpY2UiOiIyNTM3Ljg1IiwgInNpemUiOiIwLjE1NzQ1ODgyIn0sIHsicHJpY2UiOiIyNTM3Ljg2IiwgInNpemUiOiIyLjYwOTMxMjA4In0sIHsicHJpY2UiOiIyNTM3Ljg3IiwgInNpemUiOiIwLjk4NTM0Nzg4In0sIHsicHJpY2UiOiIyNTM3Ljg4IiwgInNpemUiOiIwLjYwMTUyMzc1In0sIHsicHJpY2UiOiIyNTM3LjkiLCAic2l6ZSI6IjEuNTc1In0sIHsicHJpY2UiOiIyNTM3Ljk4IiwgInNpemUiOiIwLjk4NTM0Nzg4In0sIHsicHJpY2UiOiIyNTM3Ljk5IiwgInNpemUiOiIxNS4zMDA2MTQ0NiJ9LCB7InByaWNlIjoiMjUzOCIsICJzaXplIjoiMTYifSwgeyJwcmljZSI6IjI1MzguMDIiLCAic2l6ZSI6IjAuODkzNzU1MjEifSwgeyJwcmljZSI6IjI1MzguMDQiLCAic2l6ZSI6IjAuMSJ9LCB7InByaWNlIjoiMjUzOC4wOSIsICJzaXplIjoiMS44MzM0NDcwNCJ9LCB7InByaWNlIjoiMjUzOC4xIiwgInNpemUiOiIwLjkxNjg3MzY4In0sIHsicHJpY2UiOiIyNTM4LjExIiwgInNpemUiOiI4LjI3Mzg5NjEifSwgeyJwcmljZSI6IjI1MzguMTIiLCAic2l6ZSI6IjAuMDAwNTkxMTgifSwgeyJwcmljZSI6IjI1MzguMTQiLCAic2l6ZSI6IjMuOTAyODMxNzYifSwgeyJwcmljZSI6IjI1MzguMTUiLCAic2l6ZSI6IjAuOTg1MzQ3ODgifSwgeyJwcmljZSI6IjI1MzguMTgiLCAic2l6ZSI6IjIuMDc2Nzc1NCJ9LCB7InByaWNlIjoiMjUzOC4yMSIsICJzaXplIjoiMS41NzYifSwgeyJwcmljZSI6IjI1MzguMjQiLCAic2l6ZSI6IjEuNDcxODYwMjMifSwgeyJwcmljZSI6IjI1MzguMjYiLCAic2l6ZSI6IjAuNzkxMjgwOTgifSwgeyJwcmljZSI6IjI1MzguMjciLCAic2l6ZSI6IjguMjczMzY4NjEifSwgeyJwcmljZSI6IjI1MzguMjgiLCAic2l6ZSI6IjMuODI4MjU2OTgifSwgeyJwcmljZSI6IjI1MzguMjkiLCAic2l6ZSI6IjEuNDE1ODcxNjgifSwgeyJwcmljZSI6IjI1MzguMyIsICJzaXplIjoiMC4wMDA3OTk2OSJ9LCB7InByaWNlIjoiMjUzOC4zMiIsICJzaXplIjoiMS40NzA3OTQ3In0sIHsicHJpY2UiOiIyNTM4LjM0IiwgInNpemUiOiIwLjczMzI5OTE3In0sIHsicHJpY2UiOiIyNTM4LjM2IiwgInNpemUiOiIzLjQ4MDc5NzQyIn0sIHsicHJpY2UiOiIyNTM4LjM3IiwgInNpemUiOiIwLjU5MTI4MDk4In0sIHsicHJpY2UiOiIyNTM4LjQ2IiwgInNpemUiOiIxLjExNTg3MTY4In0sIHsicHJpY2UiOiIyNTM4LjQ5IiwgInNpemUiOiIxLjE0Mjk1ODg3In0sIHsicHJpY2UiOiIyNTM4LjUxIiwgInNpemUiOiI0LjY5MTM3Nzg2In0sIHsicHJpY2UiOiIyNTM4LjUyIiwgInNpemUiOiIxLjU0MjU4Njk5In0sIHsicHJpY2UiOiIyNTM4LjUzIiwgInNpemUiOiIwLjYxODYzMjIzIn0sIHsicHJpY2UiOiIyNTM4LjU1IiwgInNpemUiOiIwLjU5MTI4MDk4In0sIHsicHJpY2UiOiIyNTM4LjU5IiwgInNpemUiOiIxLjMyNjY5MTY5In1dLCAidGltZSI6IjIwMjYtMTAtMTJUMTI6MzA6MTEuNzU2NDI4WiJ9LCAibGFzdCI6IjI1MzcuMzA1IiwgIm1pZF9tYXJrZXQiOiIyNTM3LjMwNSIsICJzcHJlYWRfYnBzIjoiMC4xOTcwNTc1MzY4NiIsICJzcHJlYWRfYWJzb2x1dGUiOiIwLjA1In0=",
+    "raw_payload": {
+      "pricebook": {
+        "product_id": "ETH-USD",
+        "bids": [
+          {
+            "price": "2537.28",
+            "size": "1.31230537"
+          },
+          {
+            "price": "2537.26",
+            "size": "1"
+          },
+          {
+            "price": "2537.25",
+            "size": "3.54713405"
+          },
+          {
+            "price": "2537.04",
+            "size": "7.23781745"
+          },
+          {
+            "price": "2537.03",
+            "size": "8.27738316"
+          },
+          {
+            "price": "2536.98",
+            "size": "0.0393724"
+          },
+          {
+            "price": "2536.97",
+            "size": "0.6"
+          },
+          {
+            "price": "2536.96",
+            "size": "1.10361082"
+          },
+          {
+            "price": "2536.95",
+            "size": "1.81611286"
+          },
+          {
+            "price": "2536.85",
+            "size": "2.00529702"
+          },
+          {
+            "price": "2536.83",
+            "size": "1.03676807"
+          },
+          {
+            "price": "2536.82",
+            "size": "10.06603933"
+          },
+          {
+            "price": "2536.8",
+            "size": "16"
+          },
+          {
+            "price": "2536.78",
+            "size": "0.00190828"
+          },
+          {
+            "price": "2536.69",
+            "size": "9.16130967"
+          },
+          {
+            "price": "2536.68",
+            "size": "8.27853165"
+          },
+          {
+            "price": "2536.67",
+            "size": "1.87085097"
+          },
+          {
+            "price": "2536.63",
+            "size": "1.575"
+          },
+          {
+            "price": "2536.62",
+            "size": "0.3"
+          },
+          {
+            "price": "2536.56",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2536.53",
+            "size": "6.55993563"
+          },
+          {
+            "price": "2536.52",
+            "size": "8.27903091"
+          },
+          {
+            "price": "2536.45",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2536.44",
+            "size": "0.67446265"
+          },
+          {
+            "price": "2536.43",
+            "size": "1.04932544"
+          },
+          {
+            "price": "2536.41",
+            "size": "14.74312566"
+          },
+          {
+            "price": "2536.4",
+            "size": "16"
+          },
+          {
+            "price": "2536.39",
+            "size": "9.36735721"
+          },
+          {
+            "price": "2536.37",
+            "size": "1.575"
+          },
+          {
+            "price": "2536.3",
+            "size": "0.0000004"
+          },
+          {
+            "price": "2536.27",
+            "size": "2.03467332"
+          },
+          {
+            "price": "2536.25",
+            "size": "0.00788565"
+          },
+          {
+            "price": "2536.21",
+            "size": "0.05914336"
+          },
+          {
+            "price": "2536.12",
+            "size": "0.59201055"
+          },
+          {
+            "price": "2536.11",
+            "size": "0.15745882"
+          },
+          {
+            "price": "2536.1",
+            "size": "3.23387695"
+          },
+          {
+            "price": "2536.09",
+            "size": "2.38953643"
+          },
+          {
+            "price": "2536.06",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2536.02",
+            "size": "1.575"
+          },
+          {
+            "price": "2535.99",
+            "size": "0.30788646"
+          },
+          {
+            "price": "2535.96",
+            "size": "0.19686202"
+          },
+          {
+            "price": "2535.94",
+            "size": "0.00787014"
+          },
+          {
+            "price": "2535.93",
+            "size": "0.001"
+          },
+          {
+            "price": "2535.86",
+            "size": "0.00786828"
+          },
+          {
+            "price": "2535.8",
+            "size": "0.98614757"
+          },
+          {
+            "price": "2535.79",
+            "size": "0.92653269"
+          },
+          {
+            "price": "2535.77",
+            "size": "1.2947265"
+          },
+          {
+            "price": "2535.76",
+            "size": "1.575"
+          },
+          {
+            "price": "2535.73",
+            "size": "0.5937207"
+          },
+          {
+            "price": "2535.7",
+            "size": "0.0000004"
+          }
+        ],
+        "asks": [
+          {
+            "price": "2537.33",
+            "size": "4.14"
+          },
+          {
+            "price": "2537.46",
+            "size": "1.10361082"
+          },
+          {
+            "price": "2537.48",
+            "size": "1.575"
+          },
+          {
+            "price": "2537.49",
+            "size": "0.39409022"
+          },
+          {
+            "price": "2537.5",
+            "size": "0.36304242"
+          },
+          {
+            "price": "2537.51",
+            "size": "3.54678556"
+          },
+          {
+            "price": "2537.57",
+            "size": "1.29765325"
+          },
+          {
+            "price": "2537.58",
+            "size": "11.39866673"
+          },
+          {
+            "price": "2537.6",
+            "size": "16"
+          },
+          {
+            "price": "2537.65",
+            "size": "0.25229429"
+          },
+          {
+            "price": "2537.75",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2537.79",
+            "size": "10.18241029"
+          },
+          {
+            "price": "2537.8",
+            "size": "16"
+          },
+          {
+            "price": "2537.82",
+            "size": "8.27483015"
+          },
+          {
+            "price": "2537.84",
+            "size": "0.0590857"
+          },
+          {
+            "price": "2537.85",
+            "size": "0.15745882"
+          },
+          {
+            "price": "2537.86",
+            "size": "2.60931208"
+          },
+          {
+            "price": "2537.87",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2537.88",
+            "size": "0.60152375"
+          },
+          {
+            "price": "2537.9",
+            "size": "1.575"
+          },
+          {
+            "price": "2537.98",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2537.99",
+            "size": "15.30061446"
+          },
+          {
+            "price": "2538",
+            "size": "16"
+          },
+          {
+            "price": "2538.02",
+            "size": "0.89375521"
+          },
+          {
+            "price": "2538.04",
+            "size": "0.1"
+          },
+          {
+            "price": "2538.09",
+            "size": "1.83344704"
+          },
+          {
+            "price": "2538.1",
+            "size": "0.91687368"
+          },
+          {
+            "price": "2538.11",
+            "size": "8.2738961"
+          },
+          {
+            "price": "2538.12",
+            "size": "0.00059118"
+          },
+          {
+            "price": "2538.14",
+            "size": "3.90283176"
+          },
+          {
+            "price": "2538.15",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2538.18",
+            "size": "2.0767754"
+          },
+          {
+            "price": "2538.21",
+            "size": "1.576"
+          },
+          {
+            "price": "2538.24",
+            "size": "1.47186023"
+          },
+          {
+            "price": "2538.26",
+            "size": "0.79128098"
+          },
+          {
+            "price": "2538.27",
+            "size": "8.27336861"
+          },
+          {
+            "price": "2538.28",
+            "size": "3.82825698"
+          },
+          {
+            "price": "2538.29",
+            "size": "1.41587168"
+          },
+          {
+            "price": "2538.3",
+            "size": "0.00079969"
+          },
+          {
+            "price": "2538.32",
+            "size": "1.4707947"
+          },
+          {
+            "price": "2538.34",
+            "size": "0.73329917"
+          },
+          {
+            "price": "2538.36",
+            "size": "3.48079742"
+          },
+          {
+            "price": "2538.37",
+            "size": "0.59128098"
+          },
+          {
+            "price": "2538.46",
+            "size": "1.11587168"
+          },
+          {
+            "price": "2538.49",
+            "size": "1.14295887"
+          },
+          {
+            "price": "2538.51",
+            "size": "4.69137786"
+          },
+          {
+            "price": "2538.52",
+            "size": "1.54258699"
+          },
+          {
+            "price": "2538.53",
+            "size": "0.61863223"
+          },
+          {
+            "price": "2538.55",
+            "size": "0.59128098"
+          },
+          {
+            "price": "2538.59",
+            "size": "1.32669169"
+          }
+        ],
+        "time": "2026-10-12T12:30:11.756428Z"
+      },
+      "last": "2537.305",
+      "mid_market": "2537.305",
+      "spread_bps": "0.19705753686",
+      "spread_absolute": "0.05"
+    },
+    "clock_uncertainty": "UNVERIFIED",
+    "arrival_alignment": "UNVERIFIED",
+    "execution_authority": false,
+    "scoring_authorized": false
+  },
+  "arrival": {
+    "product_id": "ETH-USD",
+    "request_utc_ns": 1791808214720750000,
+    "receive_utc_ns": 1791808214744771000,
+    "request_duration_ns": 24018500,
+    "raw_sha256": "068ae1cae3ec0cb8225a8883d8f5419b8fa00fe2f357d4e0b1814574de864454",
+    "raw_response_base64": "eyJwcmljZWJvb2siOnsicHJvZHVjdF9pZCI6IkVUSC1VU0QiLCAiYmlkcyI6W3sicHJpY2UiOiIyNTM3LjM4IiwgInNpemUiOiIxIn0sIHsicHJpY2UiOiIyNTM3LjM2IiwgInNpemUiOiIxIn0sIHsicHJpY2UiOiIyNTM3LjMiLCAic2l6ZSI6IjAuMzEyMzA1MzcifSwgeyJwcmljZSI6IjI1MzcuMjkiLCAic2l6ZSI6IjMuNTQ3MDg4MTIifSwgeyJwcmljZSI6IjI1MzcuMSIsICJzaXplIjoiMC4wMDE5MDY2OCJ9LCB7InByaWNlIjoiMjUzNy4wNSIsICJzaXplIjoiMC44In0sIHsicHJpY2UiOiIyNTM3LjA0IiwgInNpemUiOiI3LjIzNzgxNzQ1In0sIHsicHJpY2UiOiIyNTM3LjAzIiwgInNpemUiOiI4LjI3NzM4MzE2In0sIHsicHJpY2UiOiIyNTM3LjAyIiwgInNpemUiOiIxLjU3NSJ9LCB7InByaWNlIjoiMjUzNi45OSIsICJzaXplIjoiMC4xMTgyNjI5NCJ9LCB7InByaWNlIjoiMjUzNi45OCIsICJzaXplIjoiMC4wMzkzNzI0In0sIHsicHJpY2UiOiIyNTM2Ljk3IiwgInNpemUiOiIwLjYifSwgeyJwcmljZSI6IjI1MzYuOTYiLCAic2l6ZSI6IjAuOTg1MzQ3ODgifSwgeyJwcmljZSI6IjI1MzYuOTUiLCAic2l6ZSI6IjEuODE2MTEyODYifSwgeyJwcmljZSI6IjI1MzYuODUiLCAic2l6ZSI6IjIuMDA1Mjk3MDIifSwgeyJwcmljZSI6IjI1MzYuODMiLCAic2l6ZSI6IjEuMDM2NzY4MDcifSwgeyJwcmljZSI6IjI1MzYuODIiLCAic2l6ZSI6IjEwLjA2NjAzOTMzIn0sIHsicHJpY2UiOiIyNTM2LjgiLCAic2l6ZSI6IjE2In0sIHsicHJpY2UiOiIyNTM2LjY5IiwgInNpemUiOiI5LjE2MTMwOTY3In0sIHsicHJpY2UiOiIyNTM2LjY4IiwgInNpemUiOiI4LjI3ODUzMTY1In0sIHsicHJpY2UiOiIyNTM2LjY3IiwgInNpemUiOiIxLjg3MDg1MDk3In0sIHsicHJpY2UiOiIyNTM2LjYzIiwgInNpemUiOiIxLjU3NSJ9LCB7InByaWNlIjoiMjUzNi42MiIsICJzaXplIjoiMC4zIn0sIHsicHJpY2UiOiIyNTM2LjU2IiwgInNpemUiOiIwLjk4NTM0Nzg4In0sIHsicHJpY2UiOiIyNTM2LjUzIiwgInNpemUiOiI2LjU1OTkzNTYzIn0sIHsicHJpY2UiOiIyNTM2LjUyIiwgInNpemUiOiI4LjI3OTAzMDkxIn0sIHsicHJpY2UiOiIyNTM2LjQ1IiwgInNpemUiOiIwLjk4NTM0Nzg4In0sIHsicHJpY2UiOiIyNTM2LjQ0IiwgInNpemUiOiIwLjY3NDQ2MjY1In0sIHsicHJpY2UiOiIyNTM2LjQzIiwgInNpemUiOiIxLjA0OTMyNTQ0In0sIHsicHJpY2UiOiIyNTM2LjQyIiwgInNpemUiOiIxLjQ4OTM4Mjg0In0sIHsicHJpY2UiOiIyNTM2LjQxIiwgInNpemUiOiIxNC43NDMxMjU2NiJ9LCB7InByaWNlIjoiMjUzNi40IiwgInNpemUiOiIxNiJ9LCB7InByaWNlIjoiMjUzNi4zOSIsICJzaXplIjoiOS4zNjczNTcyMSJ9LCB7InByaWNlIjoiMjUzNi4zNyIsICJzaXplIjoiMS41NzUifSwgeyJwcmljZSI6IjI1MzYuMyIsICJzaXplIjoiMC4wMDAwMDA0In0sIHsicHJpY2UiOiIyNTM2LjI4IiwgInNpemUiOiIxLjI1NDcxNjI5In0sIHsicHJpY2UiOiIyNTM2LjI3IiwgInNpemUiOiIzLjAwNDQ3NjU1In0sIHsicHJpY2UiOiIyNTM2LjI1IiwgInNpemUiOiIwLjAwNzg4NTY1In0sIHsicHJpY2UiOiIyNTM2LjIxIiwgInNpemUiOiIwLjA1OTE0MzM2In0sIHsicHJpY2UiOiIyNTM2LjEyIiwgInNpemUiOiIwLjU5MjAxMDU1In0sIHsicHJpY2UiOiIyNTM2LjExIiwgInNpemUiOiIxLjQ0MTM1MDEyIn0sIHsicHJpY2UiOiIyNTM2LjEiLCAic2l6ZSI6IjMuMjMzODc2OTUifSwgeyJwcmljZSI6IjI1MzYuMDkiLCAic2l6ZSI6IjIuMzg5NTM2NDMifSwgeyJwcmljZSI6IjI1MzYuMDYiLCAic2l6ZSI6IjAuOTg1MzQ3ODgifSwgeyJwcmljZSI6IjI1MzYuMDIiLCAic2l6ZSI6IjEuNTc1In0sIHsicHJpY2UiOiIyNTM1Ljk5IiwgInNpemUiOiIwLjMwNzg4NjQ2In0sIHsicHJpY2UiOiIyNTM1Ljk2IiwgInNpemUiOiIwLjE5Njg2MjAyIn0sIHsicHJpY2UiOiIyNTM1Ljk0IiwgInNpemUiOiIwLjAwNzg3MDE0In0sIHsicHJpY2UiOiIyNTM1LjkzIiwgInNpemUiOiIwLjAwMSJ9LCB7InByaWNlIjoiMjUzNS45MSIsICJzaXplIjoiMS41MjI1ODk0NCJ9XSwgImFza3MiOlt7InByaWNlIjoiMjUzNy40NiIsICJzaXplIjoiMC45ODUzNDc4OCJ9LCB7InByaWNlIjoiMjUzNy40OSIsICJzaXplIjoiMC41MTIzNTMxNiJ9LCB7InByaWNlIjoiMjUzNy41IiwgInNpemUiOiIwLjM2MzA0MjQyIn0sIHsicHJpY2UiOiIyNTM3LjU2IiwgInNpemUiOiIzLjU0NjcxNjc0In0sIHsicHJpY2UiOiIyNTM3LjU3IiwgInNpemUiOiIwLjk4NTM0Nzg4In0sIHsicHJpY2UiOiIyNTM3LjYzIiwgInNpemUiOiIwLjYzNTU2NiJ9LCB7InByaWNlIjoiMjUzNy42NCIsICJzaXplIjoiMC44MTIzMDUzNyJ9LCB7InByaWNlIjoiMjUzNy42NSIsICJzaXplIjoiMC4yNTIyOTQyOSJ9LCB7InByaWNlIjoiMjUzNy43NSIsICJzaXplIjoiMC45ODUzNDc4OCJ9LCB7InByaWNlIjoiMjUzNy43OSIsICJzaXplIjoiMTAuMTgyNDEwMjkifSwgeyJwcmljZSI6IjI1MzcuOCIsICJzaXplIjoiMTYifSwgeyJwcmljZSI6IjI1MzcuODIiLCAic2l6ZSI6IjguMjc0ODMwMTUifSwgeyJwcmljZSI6IjI1MzcuODQiLCAic2l6ZSI6IjAuMDU5MDg1NyJ9LCB7InByaWNlIjoiMjUzNy44NSIsICJzaXplIjoiMC4xNTc0NTg4MiJ9LCB7InByaWNlIjoiMjUzNy44NiIsICJzaXplIjoiMi42MDkzMTIwOCJ9LCB7InByaWNlIjoiMjUzNy44NyIsICJzaXplIjoiMC45ODUzNDc4OCJ9LCB7InByaWNlIjoiMjUzNy44OCIsICJzaXplIjoiMC42MDE1MjM3NSJ9LCB7InByaWNlIjoiMjUzNy45IiwgInNpemUiOiIxLjU3NSJ9LCB7InByaWNlIjoiMjUzNy45OCIsICJzaXplIjoiMC45ODUzNDc4OCJ9LCB7InByaWNlIjoiMjUzNy45OSIsICJzaXplIjoiMTUuMzAwNjE0NDYifSwgeyJwcmljZSI6IjI1MzgiLCAic2l6ZSI6IjE2In0sIHsicHJpY2UiOiIyNTM4LjAyIiwgInNpemUiOiIwLjg5Mzc1NTIxIn0sIHsicHJpY2UiOiIyNTM4LjA0IiwgInNpemUiOiIwLjEifSwgeyJwcmljZSI6IjI1MzguMDkiLCAic2l6ZSI6IjEuODMzNDQ3MDQifSwgeyJwcmljZSI6IjI1MzguMSIsICJzaXplIjoiMC45MTY4NzM2OCJ9LCB7InByaWNlIjoiMjUzOC4xMSIsICJzaXplIjoiOC4yNzM4OTYxIn0sIHsicHJpY2UiOiIyNTM4LjEyIiwgInNpemUiOiIwLjAwMDU5MTE4In0sIHsicHJpY2UiOiIyNTM4LjE0IiwgInNpemUiOiIzLjkwMjgzMTc2In0sIHsicHJpY2UiOiIyNTM4LjE1IiwgInNpemUiOiIwLjk4NTM0Nzg4In0sIHsicHJpY2UiOiIyNTM4LjE4IiwgInNpemUiOiIyLjA3Njc3NTQifSwgeyJwcmljZSI6IjI1MzguMjEiLCAic2l6ZSI6IjEuNTc2In0sIHsicHJpY2UiOiIyNTM4LjI0IiwgInNpemUiOiIxLjQ3MTg2MDIzIn0sIHsicHJpY2UiOiIyNTM4LjI2IiwgInNpemUiOiIxMC4zMjMxMDk2OSJ9LCB7InByaWNlIjoiMjUzOC4yNyIsICJzaXplIjoiOC4yNzMzNjg2MSJ9LCB7InByaWNlIjoiMjUzOC4yOSIsICJzaXplIjoiMS40MTU4NzE2OCJ9LCB7InByaWNlIjoiMjUzOC4zIiwgInNpemUiOiIwLjAwMDc5OTY5In0sIHsicHJpY2UiOiIyNTM4LjMyIiwgInNpemUiOiIxLjQ3MDc5NDcifSwgeyJwcmljZSI6IjI1MzguMzQiLCAic2l6ZSI6IjAuNzMzMjk5MTcifSwgeyJwcmljZSI6IjI1MzguMzYiLCAic2l6ZSI6IjIuMjQ3NTI1MDgifSwgeyJwcmljZSI6IjI1MzguMzciLCAic2l6ZSI6IjAuNTkxMjgwOTgifSwgeyJwcmljZSI6IjI1MzguNDYiLCAic2l6ZSI6IjEuMTE1ODcxNjgifSwgeyJwcmljZSI6IjI1MzguNDkiLCAic2l6ZSI6IjEuMTQyOTU4ODcifSwgeyJwcmljZSI6IjI1MzguNTEiLCAic2l6ZSI6IjYuNzc1NjU0MTMifSwgeyJwcmljZSI6IjI1MzguNTIiLCAic2l6ZSI6IjEuNTQyNTg2OTkifSwgeyJwcmljZSI6IjI1MzguNTMiLCAic2l6ZSI6IjAuNjE4NjMyMjMifSwgeyJwcmljZSI6IjI1MzguNTUiLCAic2l6ZSI6IjAuNTkxMjgwOTgifSwgeyJwcmljZSI6IjI1MzguNTkiLCAic2l6ZSI6IjEuMzI2NjkxNjkifSwgeyJwcmljZSI6IjI1MzguNiIsICJzaXplIjoiNC45MTY0NDQ2In0sIHsicHJpY2UiOiIyNTM4LjYyIiwgInNpemUiOiIwLjk0MjI4MDYzIn0sIHsicHJpY2UiOiIyNTM4LjY0IiwgInNpemUiOiI4LjY1OTE2OTM0In1dLCAidGltZSI6IjIwMjYtMTAtMTJUMTI6MzA6MTMuODc3MTAyWiJ9LCAibGFzdCI6IjI1MzcuNDIiLCAibWlkX21hcmtldCI6IjI1MzcuNDIiLCAic3ByZWFkX2JwcyI6IjAuMzE1Mjc1OTA1ODI3IiwgInNwcmVhZF9hYnNvbHV0ZSI6IjAuMDgifQ==",
+    "raw_payload": {
+      "pricebook": {
+        "product_id": "ETH-USD",
+        "bids": [
+          {
+            "price": "2537.38",
+            "size": "1"
+          },
+          {
+            "price": "2537.36",
+            "size": "1"
+          },
+          {
+            "price": "2537.3",
+            "size": "0.31230537"
+          },
+          {
+            "price": "2537.29",
+            "size": "3.54708812"
+          },
+          {
+            "price": "2537.1",
+            "size": "0.00190668"
+          },
+          {
+            "price": "2537.05",
+            "size": "0.8"
+          },
+          {
+            "price": "2537.04",
+            "size": "7.23781745"
+          },
+          {
+            "price": "2537.03",
+            "size": "8.27738316"
+          },
+          {
+            "price": "2537.02",
+            "size": "1.575"
+          },
+          {
+            "price": "2536.99",
+            "size": "0.11826294"
+          },
+          {
+            "price": "2536.98",
+            "size": "0.0393724"
+          },
+          {
+            "price": "2536.97",
+            "size": "0.6"
+          },
+          {
+            "price": "2536.96",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2536.95",
+            "size": "1.81611286"
+          },
+          {
+            "price": "2536.85",
+            "size": "2.00529702"
+          },
+          {
+            "price": "2536.83",
+            "size": "1.03676807"
+          },
+          {
+            "price": "2536.82",
+            "size": "10.06603933"
+          },
+          {
+            "price": "2536.8",
+            "size": "16"
+          },
+          {
+            "price": "2536.69",
+            "size": "9.16130967"
+          },
+          {
+            "price": "2536.68",
+            "size": "8.27853165"
+          },
+          {
+            "price": "2536.67",
+            "size": "1.87085097"
+          },
+          {
+            "price": "2536.63",
+            "size": "1.575"
+          },
+          {
+            "price": "2536.62",
+            "size": "0.3"
+          },
+          {
+            "price": "2536.56",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2536.53",
+            "size": "6.55993563"
+          },
+          {
+            "price": "2536.52",
+            "size": "8.27903091"
+          },
+          {
+            "price": "2536.45",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2536.44",
+            "size": "0.67446265"
+          },
+          {
+            "price": "2536.43",
+            "size": "1.04932544"
+          },
+          {
+            "price": "2536.42",
+            "size": "1.48938284"
+          },
+          {
+            "price": "2536.41",
+            "size": "14.74312566"
+          },
+          {
+            "price": "2536.4",
+            "size": "16"
+          },
+          {
+            "price": "2536.39",
+            "size": "9.36735721"
+          },
+          {
+            "price": "2536.37",
+            "size": "1.575"
+          },
+          {
+            "price": "2536.3",
+            "size": "0.0000004"
+          },
+          {
+            "price": "2536.28",
+            "size": "1.25471629"
+          },
+          {
+            "price": "2536.27",
+            "size": "3.00447655"
+          },
+          {
+            "price": "2536.25",
+            "size": "0.00788565"
+          },
+          {
+            "price": "2536.21",
+            "size": "0.05914336"
+          },
+          {
+            "price": "2536.12",
+            "size": "0.59201055"
+          },
+          {
+            "price": "2536.11",
+            "size": "1.44135012"
+          },
+          {
+            "price": "2536.1",
+            "size": "3.23387695"
+          },
+          {
+            "price": "2536.09",
+            "size": "2.38953643"
+          },
+          {
+            "price": "2536.06",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2536.02",
+            "size": "1.575"
+          },
+          {
+            "price": "2535.99",
+            "size": "0.30788646"
+          },
+          {
+            "price": "2535.96",
+            "size": "0.19686202"
+          },
+          {
+            "price": "2535.94",
+            "size": "0.00787014"
+          },
+          {
+            "price": "2535.93",
+            "size": "0.001"
+          },
+          {
+            "price": "2535.91",
+            "size": "1.52258944"
+          }
+        ],
+        "asks": [
+          {
+            "price": "2537.46",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2537.49",
+            "size": "0.51235316"
+          },
+          {
+            "price": "2537.5",
+            "size": "0.36304242"
+          },
+          {
+            "price": "2537.56",
+            "size": "3.54671674"
+          },
+          {
+            "price": "2537.57",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2537.63",
+            "size": "0.635566"
+          },
+          {
+            "price": "2537.64",
+            "size": "0.81230537"
+          },
+          {
+            "price": "2537.65",
+            "size": "0.25229429"
+          },
+          {
+            "price": "2537.75",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2537.79",
+            "size": "10.18241029"
+          },
+          {
+            "price": "2537.8",
+            "size": "16"
+          },
+          {
+            "price": "2537.82",
+            "size": "8.27483015"
+          },
+          {
+            "price": "2537.84",
+            "size": "0.0590857"
+          },
+          {
+            "price": "2537.85",
+            "size": "0.15745882"
+          },
+          {
+            "price": "2537.86",
+            "size": "2.60931208"
+          },
+          {
+            "price": "2537.87",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2537.88",
+            "size": "0.60152375"
+          },
+          {
+            "price": "2537.9",
+            "size": "1.575"
+          },
+          {
+            "price": "2537.98",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2537.99",
+            "size": "15.30061446"
+          },
+          {
+            "price": "2538",
+            "size": "16"
+          },
+          {
+            "price": "2538.02",
+            "size": "0.89375521"
+          },
+          {
+            "price": "2538.04",
+            "size": "0.1"
+          },
+          {
+            "price": "2538.09",
+            "size": "1.83344704"
+          },
+          {
+            "price": "2538.1",
+            "size": "0.91687368"
+          },
+          {
+            "price": "2538.11",
+            "size": "8.2738961"
+          },
+          {
+            "price": "2538.12",
+            "size": "0.00059118"
+          },
+          {
+            "price": "2538.14",
+            "size": "3.90283176"
+          },
+          {
+            "price": "2538.15",
+            "size": "0.98534788"
+          },
+          {
+            "price": "2538.18",
+            "size": "2.0767754"
+          },
+          {
+            "price": "2538.21",
+            "size": "1.576"
+          },
+          {
+            "price": "2538.24",
+            "size": "1.47186023"
+          },
+          {
+            "price": "2538.26",
+            "size": "10.32310969"
+          },
+          {
+            "price": "2538.27",
+            "size": "8.27336861"
+          },
+          {
+            "price": "2538.29",
+            "size": "1.41587168"
+          },
+          {
+            "price": "2538.3",
+            "size": "0.00079969"
+          },
+          {
+            "price": "2538.32",
+            "size": "1.4707947"
+          },
+          {
+            "price": "2538.34",
+            "size": "0.73329917"
+          },
+          {
+            "price": "2538.36",
+            "size": "2.24752508"
+          },
+          {
+            "price": "2538.37",
+            "size": "0.59128098"
+          },
+          {
+            "price": "2538.46",
+            "size": "1.11587168"
+          },
+          {
+            "price": "2538.49",
+            "size": "1.14295887"
+          },
+          {
+            "price": "2538.51",
+            "size": "6.77565413"
+          },
+          {
+            "price": "2538.52",
+            "size": "1.54258699"
+          },
+          {
+            "price": "2538.53",
+            "size": "0.61863223"
+          },
+          {
+            "price": "2538.55",
+            "size": "0.59128098"
+          },
+          {
+            "price": "2538.59",
+            "size": "1.32669169"
+          },
+          {
+            "price": "2538.6",
+            "size": "4.9164446"
+          },
+          {
+            "price": "2538.62",
+            "size": "0.94228063"
+          },
+          {
+            "price": "2538.64",
+            "size": "8.65916934"
+          }
+        ],
+        "time": "2026-10-12T12:30:13.877102Z"
+      },
+      "last": "2537.42",
+      "mid_market": "2537.42",
+      "spread_bps": "0.315275905827",
+      "spread_absolute": "0.08"
+    },
+    "clock_uncertainty": "UNVERIFIED",
+    "arrival_alignment": "UNVERIFIED",
+    "execution_authority": false,
+    "scoring_authorized": false
+  },
+  "orders_submitted": false,
+  "scoring_authorized": false
+}

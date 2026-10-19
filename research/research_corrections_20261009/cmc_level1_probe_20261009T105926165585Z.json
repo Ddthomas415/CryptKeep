@@ -1,0 +1,29 @@
+{
+  "artifact_type": "bounded_level1_capture_probe",
+  "tracked_coinbase": [],
+  "coinbase_level1_books": {
+    "BTC-USD": {
+      "product_id": "BTC-USD",
+      "request_url": "https://api.exchange.coinbase.com/products/BTC-USD/book?level=1",
+      "response": {
+        "payload": null,
+        "request_started_utc": "2026-10-09T10:59:26.072328+00:00",
+        "received_utc": "2026-10-09T10:59:26.137068+00:00",
+        "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+      },
+      "execution": "NOT_FILL_PROOF"
+    },
+    "ETH-USD": {
+      "product_id": "ETH-USD",
+      "request_url": "https://api.exchange.coinbase.com/products/ETH-USD/book?level=1",
+      "response": {
+        "payload": null,
+        "request_started_utc": "2026-10-09T10:59:26.137092+00:00",
+        "received_utc": "2026-10-09T10:59:26.165533+00:00",
+        "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+      },
+      "execution": "NOT_FILL_PROOF"
+    }
+  },
+  "book_capture_policy": "optional_l1_raw_evidence_v1; auction quotes indicative; no scoring authorization"
+}

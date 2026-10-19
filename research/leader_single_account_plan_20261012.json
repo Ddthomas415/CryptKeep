@@ -1,0 +1,31 @@
+{
+  "registered_utc": "2026-10-13T00:57:45.167644+00:00",
+  "source_sha256": "81a80def7489f543efb6642c376d870f3ab25ebad6c49465a7d6c3b6e8ec2bec",
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "inputs": {
+    "research/hourly_leader_earlier_raw_20261012.json": "3043ca96bfd439ab9b71decd1a6c8bd64cb9cd4f0fb625a303fc23fd94e47cbc",
+    "research/hourly_leader_raw_20261012.json": "1002af509769b5790782dcbf97ac4b3518ec384322b7c0b18df0724e473d33bb",
+    "research/hourly_leader_earlier_plan_20261012.json": "c776b4ff96cb19fb0052f9c57d2f7f341319433694cb606838779131aac18b3d",
+    "research/hourly_leader_plan_20261012.json": "848a1693b9fe38a921b158a7ae0fbbb5443592f5f0f85b7b875961ca03cc1fc5"
+  },
+  "start": 1786406400,
+  "boundary": 1790787600,
+  "end": 1791824400,
+  "initial_cash": 1000,
+  "dip": 0.2,
+  "target": 0.05,
+  "hold_hours": 48,
+  "wait_hours": 72,
+  "fee": 0.005,
+  "spread": 0.0025,
+  "selection": "first qualifying while flat; oldest leader then product ID tie; watchers cleared at entry; no signals while held",
+  "gap_policy": "halt on missing held/exit price, skip missing pending entry without spending cash",
+  "source_policy": "earlier bars strictly before boundary, recent bars from boundary; recent warmup never overwrites earlier bars",
+  "limits": [
+    "current_universe_rankable_subset",
+    "no_exact_historical_live_leaderboard",
+    "assumed_execution_costs",
+    "historical_research_not_holdout",
+    "new_frozen_allocation_rule_not_original_event_portfolio"
+  ]
+}

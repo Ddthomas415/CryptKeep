@@ -1,0 +1,68 @@
+{
+  "artifact_type": "bounded_level1_capture_probe",
+  "tls_trust": "installed_certifi_bundle",
+  "tracked_coinbase": [],
+  "coinbase_level1_books": {
+    "BTC-USD": {
+      "product_id": "BTC-USD",
+      "request_url": "https://api.exchange.coinbase.com/products/BTC-USD/book?level=1",
+      "response": {
+        "payload": {
+          "bids": [
+            [
+              "82492.62",
+              "0.26061193",
+              3
+            ]
+          ],
+          "asks": [
+            [
+              "82492.63",
+              "0.00766287",
+              3
+            ]
+          ],
+          "sequence": 137476836688,
+          "auction_mode": false,
+          "auction": null,
+          "time": "2026-10-09T10:59:34.747268020Z"
+        },
+        "request_started_utc": "2026-10-09T10:59:36.573090+00:00",
+        "received_utc": "2026-10-09T10:59:36.658147+00:00",
+        "response_sha256": "4a1ecda5c4509a0ed64e1b0636bff392357f760a0a0169fc7e42adb9eb9b74b1"
+      },
+      "execution": "NOT_FILL_PROOF"
+    },
+    "ETH-USD": {
+      "product_id": "ETH-USD",
+      "request_url": "https://api.exchange.coinbase.com/products/ETH-USD/book?level=1",
+      "response": {
+        "payload": {
+          "bids": [
+            [
+              "2490.85",
+              "4.00159567",
+              4
+            ]
+          ],
+          "asks": [
+            [
+              "2490.86",
+              "1",
+              1
+            ]
+          ],
+          "sequence": 103782566766,
+          "auction_mode": false,
+          "auction": null,
+          "time": "2026-10-09T10:59:36.376038649Z"
+        },
+        "request_started_utc": "2026-10-09T10:59:36.658167+00:00",
+        "received_utc": "2026-10-09T10:59:36.725529+00:00",
+        "response_sha256": "7e72ab2ec75fb14e5dc847a2d325ef3dad6f746691f172927551a16573f79c41"
+      },
+      "execution": "NOT_FILL_PROOF"
+    }
+  },
+  "book_capture_policy": "optional_l1_raw_evidence_v1; auction quotes indicative; no scoring authorization"
+}

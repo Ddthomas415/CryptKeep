@@ -1,0 +1,96 @@
+"""Synthetic tests for the DRAFT Module A simulator. No market data."""
+import math
+import random
+
+import pytest
+
+from module_a_sim import capped_weights, module_a_target, simulate, trailing_vol
+
+
+def synthetic(n_assets=6, days=400, seed=5, scramble_after=None, stop=None):
+    rng, srng = random.Random(seed), random.Random(99)
+    opens, closes = {}, {}
+    for j in range(n_assets):
+        a, p, o_l, c_l = f"A{j}", 100.0 * (j + 1), [], []
+        sig = 0.02 + 0.01 * j
+        for d in range(days):
+            o = p
+            c = p * math.exp(rng.gauss(0, sig))
+            p = c
+            if scramble_after is not None and d > scramble_after:
+                o, c = srng.uniform(1, 1000), srng.uniform(1, 1000)
+            if stop and a in stop and d >= stop[a]:
+                o = c = None
+            o_l.append(o); c_l.append(c)
+        opens[a], closes[a] = o_l, c_l
+    weekday = [d % 7 for d in range(days)]
+    return opens, closes, weekday
+
+
+def test_capped_weights_hand_case():
+    # raw 0.5/0.25/0.125/0.125 -> A capped 0.3; rest 0.7 split 2:1:1 -> B 0.35 > cap -> B 0.3; C, D share 0.4
+    w = capped_weights({"A": 4, "B": 2, "C": 1, "D": 1}, 0.30)
+    assert w == pytest.approx({"A": 0.3, "B": 0.3, "C": 0.2, "D": 0.2}, abs=1e-12)
+
+
+def test_capped_weights_random_invariants():
+    rng = random.Random(1)
+    for _ in range(500):
+        n = rng.randint(4, 12)
+        w = capped_weights({f"x{k}": rng.uniform(0.1, 10) for k in range(n)}, 0.30)
+        assert sum(w.values()) == pytest.approx(1.0, abs=1e-12)
+        assert max(w.values()) <= 0.30 + 1e-12
+
+
+def test_trailing_vol_uses_only_past():
+    _, closes, _ = synthetic()
+    _, closes2, _ = synthetic(scramble_after=200)
+    assert trailing_vol(closes["A1"], 200, 60) == trailing_vol(closes2["A1"], 200, 60)
+
+
+def _decisions(scramble_after=None, leaky=False):
+    opens, closes, wd = synthetic(scramble_after=scramble_after)
+    elig = list(closes)
+
+    def target(i):
+        if leaky:   # corrupted: peeks at the next close
+            return module_a_target({a: closes[a][: i + 2] for a in elig}, i + 1, elig)
+        return module_a_target(closes, i, elig)
+    _, _, dec = simulate(opens, closes, wd, 70, 399, target, fee=0.005, slip=0.0005)
+    return dec
+
+
+def test_future_prices_cannot_change_decisions_through_cutoff():
+    cut = 251   # a decision day (251 % 7 == 6)
+    a = [d for d in _decisions() if d[0] <= cut]
+    b = [d for d in _decisions(scramble_after=cut) if d[0] <= cut]
+    assert a[-1][0] == cut and a == b
+
+
+def test_leaky_target_is_detected_at_cutoff():
+    cut = 251
+    a = [d for d in _decisions(leaky=True) if d[0] <= cut]
+    b = [d for d in _decisions(scramble_after=cut, leaky=True) if d[0] <= cut]
+    assert a[:-1] == b[:-1] and a[-1][1] != b[-1][1]
+
+
+def test_cash_never_negative_and_full_investment():
+    opens, closes, wd = synthetic()
+    navs, turnover, dec = simulate(opens, closes, wd, 70, 399, lambda i: module_a_target(closes, i, list(closes)),
+                                   fee=0.012, slip=0.0005)
+    assert all(n > 0 for n in navs) and turnover > 0
+
+
+def test_turnover_definition_one_buy_is_one():
+    # one asset, buy 100% at the first execution and never trade again: turnover per execution = 1.0
+    opens, closes, wd = synthetic(n_assets=1, days=366)
+    _, turnover, _ = simulate(opens, closes, [0] * 366, 0, 365, lambda i: {"A0": 1.0}, fee=0.0, slip=0.0)
+    assert turnover == pytest.approx(1.0, rel=1e-9)   # 1.0 over exactly one year
+
+
+def test_delisting_recovery_zero_is_worse_than_half():
+    opens, closes, wd = synthetic(stop={"A0": 200})
+    t = lambda i: module_a_target(closes, i, [a for a in closes if closes[a][i] is not None])
+    n50, _, _ = simulate(opens, closes, wd, 70, 399, t, 0.005, 0.0005, recovery=0.5)
+    n0, _, _ = simulate(opens, closes, wd, 70, 399, t, 0.005, 0.0005, recovery=0.0)
+    assert n0[-1] < n50[-1] and n0[:129] == n50[:129]   # identical before the stop day (index 200 - 71)

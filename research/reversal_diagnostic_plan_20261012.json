@@ -1,0 +1,85 @@
+{
+  "kind": "FROZEN_HISTORICAL_DIAGNOSTIC_NOT_HOLDOUT",
+  "created_utc": "2026-10-12T14:58:34.071391+00:00",
+  "dataset": "/Users/baitus/Downloads/crypto-bot-pro/research/reversal_scan_20261012T145033Z.json",
+  "dataset_sha256": "df28a01e33c8619f2738e13ecad6531d811f4a4dc1158d8a63fbd23ffe5bc215",
+  "source_sha256": {
+    "scripts/research/run_reversal_diagnostic.py": "7c3ebdf07a4c3b22233f76796b5d22d6aebc65bead9f6f17347acbfbba7792d1",
+    "services/backtest/next_open_research.py": "4f5bb1a98be726915bca155b8ea483d5036982ed786665e504c1e444ce2d1a7f",
+    "services/strategies/presets.py": "002735111eb3eda44e940e98756a80fc5b7a571b08d05d9edf611e988386fd95",
+    "services/strategies/strategy_registry.py": "e27facd6fd05f3a89c5559194e5cc6f61bf06a3e708596b62d5603e0bbbebae1",
+    "services/strategies/mean_reversion_rsi.py": "6eebd51ae8c0ed7afbdd1d6fc4ff4d492dd51e036b9e5c5d73dd86ddbe876ed2",
+    "services/strategies/volatility_reversal.py": "465b7185b8125a17d87e3bb479daf188f233d856c5a8fdbe96a94ad18cd0d5ab",
+    "services/strategies/indicators.py": "756c04052a0fd0f403d0b1c527b64a1bed586f1897d72663b3c96972709b8f23",
+    "services/strategies/market_filters.py": "37fec0214006c94124ee5166fb469fdacc3e52f2b6caaed64f9b926d5412399a"
+  },
+  "symbols": [
+    "AVAX-USD",
+    "QNT-USD",
+    "ICP-USD"
+  ],
+  "start_index": 52,
+  "initial_cash_usd": 1000,
+  "entry_notional_usd": 100,
+  "presets": {
+    "mean_reversion_default": {
+      "name": "mean_reversion_rsi",
+      "trade_enabled": true,
+      "rsi_len": 14,
+      "rsi_buy": 30.0,
+      "rsi_sell": 70.0,
+      "sma_len": 50,
+      "filter_window": 8,
+      "max_volatility_pct": 1.5,
+      "min_volume_ratio": 0.9,
+      "max_trend_efficiency": 0.98,
+      "max_sma_distance_pct": 6.0,
+      "require_reversal_confirmation": true
+    },
+    "volatility_reversal_default": {
+      "name": "volatility_reversal",
+      "rsi_len": 14,
+      "rsi_oversold": 28.0,
+      "rsi_exit": 50.0,
+      "sma_len": 20,
+      "min_dump_bars": 3,
+      "min_dump_pct": 8.0,
+      "require_volume_spike": true
+    }
+  },
+  "costs": [
+    {
+      "name": "primary",
+      "fee_bps": 50,
+      "slippage_bps": 10
+    },
+    {
+      "name": "cost_stress",
+      "fee_bps": 100,
+      "slippage_bps": 25
+    },
+    {
+      "name": "retail_cost_sensitivity",
+      "fee_bps": 300,
+      "slippage_bps": 50
+    }
+  ],
+  "rules": [
+    "no_parameter_search",
+    "long_only_no_pyramiding",
+    "completed_candles_only",
+    "next_open_execution",
+    "terminal_close_liquidation_labelled",
+    "cash_and_equal_notional_hold_controls"
+  ],
+  "limitations": [
+    "already_explored_coin_selection_and_data",
+    "not_out_of_sample_confirmation",
+    "assumed_costs_not_actual_retail_fees",
+    "no_orderbook_fill_proof",
+    "not_max_drawdown_risk_policy_simulation",
+    "no_intrabar_stops_or_perfect_peaks"
+  ],
+  "orders_authorized": false,
+  "promotion_authorized": false
+}

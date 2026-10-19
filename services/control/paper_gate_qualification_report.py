@@ -113,6 +113,35 @@ def _filter_rows(rows: list[dict[str, Any]], row_filter: str) -> list[dict[str, 
     return [dict(row) for row in rows if str(row.get("status") or "") == selected]
 
 
+def _fill_cost_verification_status(fill: dict[str, Any]) -> str:
+    status = fill.get("execution_identity_fill_status")
+    if status is None:
+        return "no_identity_evidence"
+    return status if status in ("cost_policy_verified", "invalid") else "unrecognized"
+
+
+def _fill_cost_verification_report(
+    evidence_fills: list[dict[str, Any]], rows: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """Operator decision 2026-10-09: REPORT ONLY. Shows verified vs unverified; counting is unchanged."""
+    ordered = sorted(evidence_fills, key=_record_ts)
+    all_counts: dict[str, int] = {}
+    counted_counts: dict[str, int] = {}
+    for fill, row in zip(ordered, rows):
+        status = _fill_cost_verification_status(fill)
+        all_counts[status] = all_counts.get(status, 0) + 1
+        if row.get("status") == "counted":
+            counted_counts[status] = counted_counts.get(status, 0) + 1
+    return {
+        "affects_gate": False,
+        "all_evidence_fills": all_counts,
+        "counted_evidence_fills": counted_counts,
+        "source": "fill evidence log execution_identity_fill_status (best-effort JSONL written after accounting); "
+                  "durable status is the journal's execution_identity_evidence.fill_cost_policy_verified",
+        "meaning": "agreement with declared paper fee/slippage policy only; not real exchange costs",
+    }
+
+
 def build_paper_gate_qualification_report(
     *,
     config_path: Path = DEFAULT_CONFIG_PATH,
@@ -168,6 +197,7 @@ def build_paper_gate_qualification_report(
     ]
     all_history = all_history_rows[0] if all_history_rows else {}
     counts = _status_counts(all_rows)
+    cost_verification = _fill_cost_verification_report(evidence_fills, all_rows)
 
     return {
         "ok": True,
@@ -213,6 +243,7 @@ def build_paper_gate_qualification_report(
                 qualification.get("missing_journal_order_ids") or []
             ),
         },
+        "fill_cost_verification_report_only": cost_verification,
         "filter": str(row_filter or "all"),
         "returned_fills": len(filtered),
         "fills": filtered,

@@ -1,0 +1,2709 @@
+{
+  "applications": [
+    {
+      "dynamic_loading_sites": [],
+      "external_imports_not_resolved": [
+        "__future__",
+        "contextvars",
+        "datetime",
+        "fastapi",
+        "functools",
+        "hmac",
+        "httpx",
+        "json",
+        "logging",
+        "os",
+        "psycopg",
+        "psycopg.rows",
+        "pydantic",
+        "pydantic_settings",
+        "starlette.responses",
+        "sys",
+        "typing",
+        "urllib.parse",
+        "uuid"
+      ],
+      "missing_executable_fields": [
+        "create_options",
+        "replacement_metadata"
+      ],
+      "mounted_repo_sources": [],
+      "name": "phase1-audit-log",
+      "network_options": [
+        "--alias",
+        "phase1-audit-log",
+        "--alias",
+        "audit-log"
+      ],
+      "non_python_data_not_in_snapshot": [],
+      "observed_recreation_metadata": {
+        "BASH_ENV_matches": [
+          null
+        ],
+        "ENV_matches": [
+          null
+        ],
+        "PYTHONPATH_matches": [
+          null
+        ],
+        "auto_remove": false,
+        "command": [
+          "sh",
+          "-c",
+          "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"
+        ],
+        "cpu_period": 0,
+        "cpu_quota": 0,
+        "cpu_shares": 0,
+        "dns": [],
+        "dns_options": [],
+        "dns_search": [],
+        "entrypoint": null,
+        "extra_hosts": [],
+        "flags": [
+          {
+            "key": "MINIO_SECRET_KEY",
+            "ok": true
+          },
+          {
+            "key": "AUDIT_SERVICE_URL",
+            "ok": true
+          },
+          {
+            "key": "QDRANT_URL",
+            "ok": true
+          },
+          {
+            "key": "MINIO_BUCKET",
+            "ok": true
+          },
+          {
+            "key": "REQUEST_TIMEOUT_SECONDS",
+            "ok": false
+          },
+          {
+            "key": "MINIO_ENDPOINT",
+            "ok": true
+          },
+          {
+            "key": "OPENAI_API_KEY",
+            "ok": true
+          },
+          {
+            "key": "RISK_SERVICE_URL",
+            "ok": true
+          },
+          {
+            "key": "SERVICE_TOKEN",
+            "ok": true
+          },
+          {
+            "key": "MINIO_ACCESS_KEY",
+            "ok": true
+          },
+          {
+            "key": "QDRANT_COLLECTION",
+            "ok": true
+          },
+          {
+            "key": "MEMORY_SERVICE_URL",
+            "ok": true
+          },
+          {
+            "key": "NO_TRADING",
+            "ok": true
+          },
+          {
+            "key": "POSTGRES_PASSWORD",
+            "ok": true
+          },
+          {
+            "key": "PYTHONDONTWRITEBYTECODE",
+            "ok": true
+          },
+          null
+        ],
+        "has_cap_add": false,
+        "has_cap_drop": false,
+        "has_device_requests": false,
+        "has_devices": false,
+        "has_log_options": false,
+        "has_security_options": false,
+        "has_sysctls": false,
+        "has_tmpfs": false,
+        "has_ulimits": false,
+        "healthcheck": {
+          "Interval": 10000000000,
+          "Retries": 10,
+          "Test": [
+            "CMD-SHELL",
+            "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8009/healthz', timeout=2).read()\""
+          ],
+          "Timeout": 5000000000
+        },
+        "hostname": "fbec9f31369f",
+        "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+        "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+        "init": null,
+        "label_count": 11,
+        "log_driver": "local",
+        "memory": 0,
+        "mounts": [],
+        "name": "/phase1-audit-log",
+        "nano_cpus": 0,
+        "network_mode": "phase1_research_copilot_default",
+        "networks": {
+          "phase1_research_copilot_default": {
+            "Aliases": [
+              "phase1-audit-log",
+              "audit-log"
+            ],
+            "DNSNames": [
+              "phase1-audit-log",
+              "audit-log",
+              "fbec9f31369f"
+            ],
+            "DriverOpts": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "GwPriority": 0,
+            "IPAMConfig": null,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "Links": null,
+            "MacAddress": "",
+            "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+          }
+        },
+        "open_stdin": false,
+        "pids_limit": null,
+        "ports": {
+          "8009/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "8009"
+            }
+          ]
+        },
+        "privileged": false,
+        "readonly_rootfs": false,
+        "restart_policy": "no",
+        "restarts": 0,
+        "shm_size": 67108864,
+        "started": "2026-10-16T05:42:32.811420923Z",
+        "state": "exited",
+        "stdin_once": false,
+        "stop_signal": null,
+        "stop_timeout": null,
+        "tty": false,
+        "user": "",
+        "workdir": "/app"
+      },
+      "parent_image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "recreation_limits": [
+        "Container labels counted but values deliberately not exported",
+        "Log driver observed, not pinned by current create option allowlist",
+        "Exact replacement alias/mount representation requires verification"
+      ],
+      "snapshot_sha256": "eef1631d2fdc7941ebc3b4faadf7f88b764659c850e129322a777ff30a6a2a9e",
+      "source_snapshot": "phase1-audit-log-sources.tar",
+      "sources": [
+        {
+          "bytes": 25,
+          "destination": "/app/audit_log/__init__.py",
+          "local": "phase1_research_copilot/audit_log/__init__.py",
+          "sha256": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75"
+        },
+        {
+          "bytes": 3177,
+          "destination": "/app/audit_log/main.py",
+          "local": "phase1_research_copilot/audit_log/main.py",
+          "sha256": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8"
+        },
+        {
+          "bytes": 63,
+          "destination": "/app/shared/__init__.py",
+          "local": "phase1_research_copilot/shared/__init__.py",
+          "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+        },
+        {
+          "bytes": 1799,
+          "destination": "/app/shared/audit.py",
+          "local": "phase1_research_copilot/shared/audit.py",
+          "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+        },
+        {
+          "bytes": 3090,
+          "destination": "/app/shared/config.py",
+          "local": "phase1_research_copilot/shared/config.py",
+          "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+        },
+        {
+          "bytes": 1282,
+          "destination": "/app/shared/db.py",
+          "local": "phase1_research_copilot/shared/db.py",
+          "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+        },
+        {
+          "bytes": 1077,
+          "destination": "/app/shared/logging.py",
+          "local": "phase1_research_copilot/shared/logging.py",
+          "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+        },
+        {
+          "bytes": 1862,
+          "destination": "/app/shared/models.py",
+          "local": "phase1_research_copilot/shared/models.py",
+          "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+        },
+        {
+          "bytes": 2511,
+          "destination": "/app/shared/probe.py",
+          "local": "phase1_research_copilot/shared/probe.py",
+          "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+        }
+      ],
+      "template_only_not_runtime_proof": {
+        "environment_keys": [
+          "MINIO_ACCESS_KEY",
+          "MINIO_SECRET_KEY",
+          "NO_TRADING",
+          "POSTGRES_PASSWORD",
+          "SERVICE_MODULE",
+          "SERVICE_NAME",
+          "SERVICE_PORT",
+          "SERVICE_TOKEN"
+        ],
+        "healthcheck": {
+          "interval": "10s",
+          "retries": 10,
+          "test": [
+            "CMD-SHELL",
+            "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8009/healthz', timeout=2).read()\""
+          ],
+          "timeout": "5s"
+        },
+        "ports": [
+          "127.0.0.1:8009:8009"
+        ],
+        "service_module": "audit_log.main",
+        "volumes": []
+      }
+    },
+    {
+      "dynamic_loading_sites": [],
+      "external_imports_not_resolved": [
+        "__future__",
+        "contextvars",
+        "datetime",
+        "fastapi",
+        "functools",
+        "hmac",
+        "httpx",
+        "json",
+        "logging",
+        "os",
+        "psycopg",
+        "psycopg.rows",
+        "pydantic",
+        "pydantic_settings",
+        "starlette.responses",
+        "sys",
+        "typing",
+        "urllib.parse",
+        "uuid"
+      ],
+      "missing_executable_fields": [
+        "create_options",
+        "replacement_metadata"
+      ],
+      "mounted_repo_sources": [],
+      "name": "phase1-risk-stub",
+      "network_options": [
+        "--alias",
+        "phase1-risk-stub",
+        "--alias",
+        "risk-stub"
+      ],
+      "non_python_data_not_in_snapshot": [],
+      "observed_recreation_metadata": {
+        "BASH_ENV_matches": [
+          null
+        ],
+        "ENV_matches": [
+          null
+        ],
+        "PYTHONPATH_matches": [
+          null
+        ],
+        "auto_remove": false,
+        "command": [
+          "sh",
+          "-c",
+          "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"
+        ],
+        "cpu_period": 0,
+        "cpu_quota": 0,
+        "cpu_shares": 0,
+        "dns": [],
+        "dns_options": [],
+        "dns_search": [],
+        "entrypoint": null,
+        "extra_hosts": [],
+        "flags": [
+          {
+            "key": "AUDIT_SERVICE_URL",
+            "ok": true
+          },
+          {
+            "key": "MINIO_SECRET_KEY",
+            "ok": true
+          },
+          {
+            "key": "MINIO_ENDPOINT",
+            "ok": true
+          },
+          {
+            "key": "RISK_SERVICE_URL",
+            "ok": true
+          },
+          {
+            "key": "MEMORY_SERVICE_URL",
+            "ok": true
+          },
+          {
+            "key": "SERVICE_TOKEN",
+            "ok": true
+          },
+          {
+            "key": "REQUEST_TIMEOUT_SECONDS",
+            "ok": false
+          },
+          {
+            "key": "NO_TRADING",
+            "ok": true
+          },
+          {
+            "key": "MINIO_BUCKET",
+            "ok": true
+          },
+          {
+            "key": "QDRANT_COLLECTION",
+            "ok": true
+          },
+          {
+            "key": "QDRANT_URL",
+            "ok": true
+          },
+          {
+            "key": "POSTGRES_PASSWORD",
+            "ok": true
+          },
+          {
+            "key": "MINIO_ACCESS_KEY",
+            "ok": true
+          },
+          {
+            "key": "OPENAI_API_KEY",
+            "ok": true
+          },
+          {
+            "key": "PYTHONDONTWRITEBYTECODE",
+            "ok": true
+          },
+          null
+        ],
+        "has_cap_add": false,
+        "has_cap_drop": false,
+        "has_device_requests": false,
+        "has_devices": false,
+        "has_log_options": false,
+        "has_security_options": false,
+        "has_sysctls": false,
+        "has_tmpfs": false,
+        "has_ulimits": false,
+        "healthcheck": {
+          "Interval": 10000000000,
+          "Retries": 10,
+          "Test": [
+            "CMD-SHELL",
+            "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8008/healthz', timeout=2).read()\""
+          ],
+          "Timeout": 5000000000
+        },
+        "hostname": "b747cb34088f",
+        "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+        "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+        "init": null,
+        "label_count": 11,
+        "log_driver": "local",
+        "memory": 0,
+        "mounts": [],
+        "name": "/phase1-risk-stub",
+        "nano_cpus": 0,
+        "network_mode": "phase1_research_copilot_default",
+        "networks": {
+          "phase1_research_copilot_default": {
+            "Aliases": [
+              "phase1-risk-stub",
+              "risk-stub"
+            ],
+            "DNSNames": [
+              "phase1-risk-stub",
+              "risk-stub",
+              "b747cb34088f"
+            ],
+            "DriverOpts": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "GwPriority": 0,
+            "IPAMConfig": null,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "Links": null,
+            "MacAddress": "",
+            "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+          }
+        },
+        "open_stdin": false,
+        "pids_limit": null,
+        "ports": {
+          "8008/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "8008"
+            }
+          ]
+        },
+        "privileged": false,
+        "readonly_rootfs": false,
+        "restart_policy": "no",
+        "restarts": 0,
+        "shm_size": 67108864,
+        "started": "2026-10-16T05:42:32.916996881Z",
+        "state": "exited",
+        "stdin_once": false,
+        "stop_signal": null,
+        "stop_timeout": null,
+        "tty": false,
+        "user": "",
+        "workdir": "/app"
+      },
+      "parent_image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "recreation_limits": [
+        "Container labels counted but values deliberately not exported",
+        "Log driver observed, not pinned by current create option allowlist",
+        "Exact replacement alias/mount representation requires verification"
+      ],
+      "snapshot_sha256": "8dba6e77bd72e29e129adf7a3e772f9fd487647cd064664a71585a59d5723dbd",
+      "source_snapshot": "phase1-risk-stub-sources.tar",
+      "sources": [
+        {
+          "bytes": 54,
+          "destination": "/app/risk_stub/__init__.py",
+          "local": "phase1_research_copilot/risk_stub/__init__.py",
+          "sha256": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411"
+        },
+        {
+          "bytes": 2172,
+          "destination": "/app/risk_stub/main.py",
+          "local": "phase1_research_copilot/risk_stub/main.py",
+          "sha256": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6"
+        },
+        {
+          "bytes": 63,
+          "destination": "/app/shared/__init__.py",
+          "local": "phase1_research_copilot/shared/__init__.py",
+          "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+        },
+        {
+          "bytes": 1799,
+          "destination": "/app/shared/audit.py",
+          "local": "phase1_research_copilot/shared/audit.py",
+          "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+        },
+        {
+          "bytes": 3090,
+          "destination": "/app/shared/config.py",
+          "local": "phase1_research_copilot/shared/config.py",
+          "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+        },
+        {
+          "bytes": 1282,
+          "destination": "/app/shared/db.py",
+          "local": "phase1_research_copilot/shared/db.py",
+          "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+        },
+        {
+          "bytes": 1077,
+          "destination": "/app/shared/logging.py",
+          "local": "phase1_research_copilot/shared/logging.py",
+          "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+        },
+        {
+          "bytes": 1862,
+          "destination": "/app/shared/models.py",
+          "local": "phase1_research_copilot/shared/models.py",
+          "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+        },
+        {
+          "bytes": 2511,
+          "destination": "/app/shared/probe.py",
+          "local": "phase1_research_copilot/shared/probe.py",
+          "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+        }
+      ],
+      "template_only_not_runtime_proof": {
+        "environment_keys": [
+          "MINIO_ACCESS_KEY",
+          "MINIO_SECRET_KEY",
+          "NO_TRADING",
+          "POSTGRES_PASSWORD",
+          "SERVICE_MODULE",
+          "SERVICE_NAME",
+          "SERVICE_PORT",
+          "SERVICE_TOKEN"
+        ],
+        "healthcheck": {
+          "interval": "10s",
+          "retries": 10,
+          "test": [
+            "CMD-SHELL",
+            "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8008/healthz', timeout=2).read()\""
+          ],
+          "timeout": "5s"
+        },
+        "ports": [
+          "127.0.0.1:8008:8008"
+        ],
+        "service_module": "risk_stub.main",
+        "volumes": []
+      }
+    },
+    {
+      "dynamic_loading_sites": [],
+      "external_imports_not_resolved": [
+        "__future__",
+        "boto3",
+        "botocore.config",
+        "contextvars",
+        "datetime",
+        "fastapi",
+        "functools",
+        "hashlib",
+        "hmac",
+        "httpx",
+        "json",
+        "logging",
+        "os",
+        "pathlib",
+        "psycopg",
+        "psycopg.rows",
+        "pydantic",
+        "pydantic_settings",
+        "qdrant_client",
+        "qdrant_client.http",
+        "re",
+        "starlette.responses",
+        "sys",
+        "typing",
+        "urllib.parse",
+        "uuid"
+      ],
+      "missing_executable_fields": [
+        "create_options",
+        "replacement_metadata"
+      ],
+      "mounted_repo_sources": [],
+      "name": "phase1-memory",
+      "network_options": [
+        "--alias",
+        "phase1-memory",
+        "--alias",
+        "memory-retrieval"
+      ],
+      "non_python_data_not_in_snapshot": [
+        "article_archive and optional .required marker"
+      ],
+      "observed_recreation_metadata": {
+        "BASH_ENV_matches": [
+          null
+        ],
+        "ENV_matches": [
+          null
+        ],
+        "PYTHONPATH_matches": [
+          null
+        ],
+        "auto_remove": false,
+        "command": [
+          "sh",
+          "-c",
+          "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"
+        ],
+        "cpu_period": 0,
+        "cpu_quota": 0,
+        "cpu_shares": 0,
+        "dns": [],
+        "dns_options": [],
+        "dns_search": [],
+        "entrypoint": null,
+        "extra_hosts": [],
+        "flags": [
+          {
+            "key": "NO_TRADING",
+            "ok": true
+          },
+          {
+            "key": "OPENAI_API_KEY",
+            "ok": true
+          },
+          {
+            "key": "PYTHONDONTWRITEBYTECODE",
+            "ok": true
+          },
+          {
+            "key": "RISK_SERVICE_URL",
+            "ok": true
+          },
+          {
+            "key": "SERVICE_TOKEN",
+            "ok": true
+          },
+          {
+            "key": "MINIO_BUCKET",
+            "ok": true
+          },
+          {
+            "key": "QDRANT_COLLECTION",
+            "ok": true
+          },
+          {
+            "key": "QDRANT_URL",
+            "ok": true
+          },
+          {
+            "key": "POSTGRES_PASSWORD",
+            "ok": true
+          },
+          {
+            "key": "MINIO_ENDPOINT",
+            "ok": true
+          },
+          {
+            "key": "MEMORY_SERVICE_URL",
+            "ok": true
+          },
+          {
+            "key": "MINIO_ACCESS_KEY",
+            "ok": true
+          },
+          {
+            "key": "REQUEST_TIMEOUT_SECONDS",
+            "ok": false
+          },
+          {
+            "key": "AUDIT_SERVICE_URL",
+            "ok": true
+          },
+          {
+            "key": "MINIO_SECRET_KEY",
+            "ok": true
+          },
+          null
+        ],
+        "has_cap_add": false,
+        "has_cap_drop": false,
+        "has_device_requests": false,
+        "has_devices": false,
+        "has_log_options": false,
+        "has_security_options": false,
+        "has_sysctls": false,
+        "has_tmpfs": false,
+        "has_ulimits": false,
+        "healthcheck": {
+          "Interval": 10000000000,
+          "Retries": 10,
+          "Test": [
+            "CMD-SHELL",
+            "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8007/healthz', timeout=2).read()\""
+          ],
+          "Timeout": 5000000000
+        },
+        "hostname": "869205e8c8cf",
+        "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+        "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+        "init": null,
+        "label_count": 11,
+        "log_driver": "local",
+        "memory": 0,
+        "mounts": [],
+        "name": "/phase1-memory",
+        "nano_cpus": 0,
+        "network_mode": "phase1_research_copilot_default",
+        "networks": {
+          "phase1_research_copilot_default": {
+            "Aliases": [
+              "phase1-memory",
+              "memory-retrieval"
+            ],
+            "DNSNames": [
+              "phase1-memory",
+              "memory-retrieval",
+              "869205e8c8cf"
+            ],
+            "DriverOpts": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "GwPriority": 0,
+            "IPAMConfig": null,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "Links": null,
+            "MacAddress": "",
+            "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+          }
+        },
+        "open_stdin": false,
+        "pids_limit": null,
+        "ports": {
+          "8007/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "8007"
+            }
+          ]
+        },
+        "privileged": false,
+        "readonly_rootfs": false,
+        "restart_policy": "no",
+        "restarts": 0,
+        "shm_size": 67108864,
+        "started": "2026-10-16T05:42:33.085165007Z",
+        "state": "exited",
+        "stdin_once": false,
+        "stop_signal": null,
+        "stop_timeout": null,
+        "tty": false,
+        "user": "",
+        "workdir": "/app"
+      },
+      "parent_image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "recreation_limits": [
+        "Container labels counted but values deliberately not exported",
+        "Log driver observed, not pinned by current create option allowlist",
+        "Exact replacement alias/mount representation requires verification"
+      ],
+      "snapshot_sha256": "c444a776be6a3851b1c4a4682d00da70c7a001dc08c9d5a61ddced79d90ff256",
+      "source_snapshot": "phase1-memory-sources.tar",
+      "sources": [
+        {
+          "bytes": 37,
+          "destination": "/app/memory_retrieval/__init__.py",
+          "local": "phase1_research_copilot/memory_retrieval/__init__.py",
+          "sha256": "2402dc051be3f99818a1933b20b12a9a99db1823105e1068d015c0edc5b1d7fa"
+        },
+        {
+          "bytes": 6397,
+          "destination": "/app/memory_retrieval/article_view.py",
+          "local": "phase1_research_copilot/memory_retrieval/article_view.py",
+          "sha256": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767"
+        },
+        {
+          "bytes": 18370,
+          "destination": "/app/memory_retrieval/main.py",
+          "local": "phase1_research_copilot/memory_retrieval/main.py",
+          "sha256": "35fc51165e44dba1ab8d28e783285f51f392b01f814096f3950ce720995504a3"
+        },
+        {
+          "bytes": 1424,
+          "destination": "/app/memory_retrieval/question_query.py",
+          "local": "phase1_research_copilot/memory_retrieval/question_query.py",
+          "sha256": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07"
+        },
+        {
+          "bytes": 63,
+          "destination": "/app/shared/__init__.py",
+          "local": "phase1_research_copilot/shared/__init__.py",
+          "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+        },
+        {
+          "bytes": 1799,
+          "destination": "/app/shared/audit.py",
+          "local": "phase1_research_copilot/shared/audit.py",
+          "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+        },
+        {
+          "bytes": 3090,
+          "destination": "/app/shared/config.py",
+          "local": "phase1_research_copilot/shared/config.py",
+          "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+        },
+        {
+          "bytes": 1282,
+          "destination": "/app/shared/db.py",
+          "local": "phase1_research_copilot/shared/db.py",
+          "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+        },
+        {
+          "bytes": 1077,
+          "destination": "/app/shared/logging.py",
+          "local": "phase1_research_copilot/shared/logging.py",
+          "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+        },
+        {
+          "bytes": 1862,
+          "destination": "/app/shared/models.py",
+          "local": "phase1_research_copilot/shared/models.py",
+          "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+        },
+        {
+          "bytes": 2511,
+          "destination": "/app/shared/probe.py",
+          "local": "phase1_research_copilot/shared/probe.py",
+          "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+        }
+      ],
+      "template_only_not_runtime_proof": {
+        "environment_keys": [
+          "MINIO_ACCESS_KEY",
+          "MINIO_SECRET_KEY",
+          "NO_TRADING",
+          "POSTGRES_PASSWORD",
+          "SERVICE_MODULE",
+          "SERVICE_NAME",
+          "SERVICE_PORT",
+          "SERVICE_TOKEN"
+        ],
+        "healthcheck": {
+          "interval": "10s",
+          "retries": 10,
+          "test": [
+            "CMD-SHELL",
+            "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8007/healthz', timeout=2).read()\""
+          ],
+          "timeout": "5s"
+        },
+        "ports": [
+          "127.0.0.1:8007:8007"
+        ],
+        "service_module": "memory_retrieval.main",
+        "volumes": []
+      }
+    },
+    {
+      "dynamic_loading_sites": [
+        {
+          "kind": "import_module",
+          "line": 38,
+          "local": "scripts/__init__.py"
+        },
+        {
+          "kind": "import_module",
+          "line": 60,
+          "local": "scripts/__init__.py"
+        },
+        {
+          "kind": "import_module",
+          "line": 8,
+          "local": "services/__init__.py"
+        },
+        {
+          "kind": "__import__",
+          "line": 43,
+          "local": "services/app/preflight_wizard.py"
+        },
+        {
+          "kind": "__import__",
+          "line": 840,
+          "local": "services/execution/strategy_runner.py"
+        },
+        {
+          "kind": "__import__",
+          "line": 886,
+          "local": "services/execution/strategy_runner.py"
+        },
+        {
+          "kind": "__import__",
+          "line": 1208,
+          "local": "services/execution/strategy_runner.py"
+        }
+      ],
+      "external_imports_not_resolved": [
+        "__future__",
+        "argparse",
+        "asyncio",
+        "ccxt",
+        "collections",
+        "collections.abc",
+        "contextlib",
+        "contextvars",
+        "copy",
+        "dataclasses",
+        "datetime",
+        "decimal",
+        "email.message",
+        "enum",
+        "fastapi",
+        "functools",
+        "hashlib",
+        "hmac",
+        "httpx",
+        "importlib",
+        "importlib.abc",
+        "importlib.machinery",
+        "inspect",
+        "io",
+        "json",
+        "keyring",
+        "logging",
+        "marshal",
+        "math",
+        "multiprocessing",
+        "openai",
+        "os",
+        "pathlib",
+        "platform",
+        "psycopg",
+        "psycopg.rows",
+        "py_compile",
+        "pydantic",
+        "pydantic_settings",
+        "queue",
+        "random",
+        "re",
+        "scripts.research",
+        "secrets",
+        "select",
+        "services.analytics",
+        "services.execution",
+        "services.os",
+        "services.risk",
+        "services.strategies",
+        "shutil",
+        "signal",
+        "smtplib",
+        "socket",
+        "sqlite3",
+        "starlette.responses",
+        "statistics",
+        "streamlit",
+        "struct",
+        "subprocess",
+        "sys",
+        "tempfile",
+        "threading",
+        "time",
+        "types",
+        "typing",
+        "urllib.error",
+        "urllib.parse",
+        "urllib.request",
+        "uuid",
+        "webbrowser",
+        "yaml",
+        "zipfile"
+      ],
+      "missing_executable_fields": [
+        "create_options",
+        "replacement_metadata"
+      ],
+      "mounted_repo_sources": [
+        {
+          "bytes": 0,
+          "destination": "/repo/core/__init__.py",
+          "local": "core/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 680,
+          "destination": "/repo/core/symbol_parse.py",
+          "local": "core/symbol_parse.py",
+          "sha256": "17fb43068c6c5b0734e2e53785be8d6e7d7b0fe8c49205bb19cd2e126531c3a8"
+        },
+        {
+          "bytes": 10,
+          "destination": "/repo/dashboard/__init__.py",
+          "local": "dashboard/__init__.py",
+          "sha256": "527c668d5ae4f9e34e46c8ad88ce3c5b4a41eb27ec684ace6a4f11621fc42edf"
+        },
+        {
+          "bytes": 875,
+          "destination": "/repo/dashboard/role_guard.py",
+          "local": "dashboard/role_guard.py",
+          "sha256": "1c45ac6b1ab9e32e92585356bcc2ad35e8fae7b673751cf100cd37ad1e2bf3a5"
+        },
+        {
+          "bytes": 986,
+          "destination": "/repo/dashboard/services/__init__.py",
+          "local": "dashboard/services/__init__.py",
+          "sha256": "404a0ec2484e6a35c28e575b489c759f82f301b97487134896cc5135eade6487"
+        },
+        {
+          "bytes": 22452,
+          "destination": "/repo/dashboard/services/crypto_edge_research.py",
+          "local": "dashboard/services/crypto_edge_research.py",
+          "sha256": "d3163ca7b371dc28d60cd440d355c050abbb19f790623be78cb0d8be3dc820c1"
+        },
+        {
+          "bytes": 4803,
+          "destination": "/repo/dashboard/services/intelligence.py",
+          "local": "dashboard/services/intelligence.py",
+          "sha256": "5dbed479fbfa51076ec7895dfaa9a3c3840513c178e23c749ad3786cbe76379d"
+        },
+        {
+          "bytes": 14097,
+          "destination": "/repo/dashboard/services/operator.py",
+          "local": "dashboard/services/operator.py",
+          "sha256": "8f575fccef0f0f18d0f4d2fff98d45d0edb6c656833a60bcc6cf113de97fec9f"
+        },
+        {
+          "bytes": 1280,
+          "destination": "/repo/dashboard/services/operator_tools.py",
+          "local": "dashboard/services/operator_tools.py",
+          "sha256": "8fc96587a6dd85694de00edb430db24928d2ed614d31361aa477eba7f5eb754a"
+        },
+        {
+          "bytes": 3309,
+          "destination": "/repo/dashboard/services/view_data.py",
+          "local": "dashboard/services/view_data.py",
+          "sha256": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51"
+        },
+        {
+          "bytes": 0,
+          "destination": "/repo/dashboard/services/views/__init__.py",
+          "local": "dashboard/services/views/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 4878,
+          "destination": "/repo/dashboard/services/views/_explain_diagnostics.py",
+          "local": "dashboard/services/views/_explain_diagnostics.py",
+          "sha256": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556"
+        },
+        {
+          "bytes": 2236,
+          "destination": "/repo/dashboard/services/views/_shared.py",
+          "local": "dashboard/services/views/_shared.py",
+          "sha256": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202"
+        },
+        {
+          "bytes": 21825,
+          "destination": "/repo/dashboard/services/views/_shared_execution.py",
+          "local": "dashboard/services/views/_shared_execution.py",
+          "sha256": "38034b1b8c5794687087f769652e6358eab35a7496b3a7ed9764a8ba4c2dfec9"
+        },
+        {
+          "bytes": 9342,
+          "destination": "/repo/dashboard/services/views/_shared_http.py",
+          "local": "dashboard/services/views/_shared_http.py",
+          "sha256": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae"
+        },
+        {
+          "bytes": 15998,
+          "destination": "/repo/dashboard/services/views/_shared_market.py",
+          "local": "dashboard/services/views/_shared_market.py",
+          "sha256": "b87b95139ffae8ecc9fab99062e1873c8faca5d32f416eb5f08eb7f8de96b54c"
+        },
+        {
+          "bytes": 15874,
+          "destination": "/repo/dashboard/services/views/_shared_ops.py",
+          "local": "dashboard/services/views/_shared_ops.py",
+          "sha256": "f01c905b001281aa23cb4a6e2d3046b06a9de6d4af0907db36b3fa66e6dc3aa4"
+        },
+        {
+          "bytes": 10359,
+          "destination": "/repo/dashboard/services/views/_shared_settings.py",
+          "local": "dashboard/services/views/_shared_settings.py",
+          "sha256": "60f4f13083f5bb0d51130ee125674952ecae7293c4ace1086f81d98f808e5c71"
+        },
+        {
+          "bytes": 2469,
+          "destination": "/repo/dashboard/services/views/_shared_shared.py",
+          "local": "dashboard/services/views/_shared_shared.py",
+          "sha256": "7a68289c54688754324f149d5908708a136a30f5568de84c9fb2ed31a67a0580"
+        },
+        {
+          "bytes": 14528,
+          "destination": "/repo/dashboard/services/views/_shared_signals.py",
+          "local": "dashboard/services/views/_shared_signals.py",
+          "sha256": "098f3c879199deadfbb5aa22ce90194d0adfb0bab9bb5ebba0e3ef622999a654"
+        },
+        {
+          "bytes": 4880,
+          "destination": "/repo/dashboard/services/views/execution_view.py",
+          "local": "dashboard/services/views/execution_view.py",
+          "sha256": "0393bd885044801bd5c7ee653c01cd57e4c7378d789a054ff18f656dcb690ce5"
+        },
+        {
+          "bytes": 14115,
+          "destination": "/repo/dashboard/services/views/market_view.py",
+          "local": "dashboard/services/views/market_view.py",
+          "sha256": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75"
+        },
+        {
+          "bytes": 17445,
+          "destination": "/repo/dashboard/services/views/settings_view.py",
+          "local": "dashboard/services/views/settings_view.py",
+          "sha256": "36c186d199aeebe384db9b0a22fa23174eb2d48326b4c5afbf9aaa292185d62b"
+        },
+        {
+          "bytes": 6864,
+          "destination": "/repo/dashboard/services/views/signals_view.py",
+          "local": "dashboard/services/views/signals_view.py",
+          "sha256": "d0bc1150e8028f50a9f5778605029860b88fbbd54e9817bb3fcb65f398eda865"
+        },
+        {
+          "bytes": 3137,
+          "destination": "/repo/dashboard/services/views/summary_view.py",
+          "local": "dashboard/services/views/summary_view.py",
+          "sha256": "73f88bf1cfc82cca31612206615678708f2f5800b7c9e0c480625c8a0797a7bf"
+        },
+        {
+          "bytes": 3314,
+          "destination": "/repo/scripts/__init__.py",
+          "local": "scripts/__init__.py",
+          "sha256": "4f6c74a116e936a120e3e0bde4125140808ac8bf7a526194c2010e24d9cb5291"
+        },
+        {
+          "bytes": 19217,
+          "destination": "/repo/scripts/research/companion_existing_controller.py",
+          "local": "scripts/research/companion_existing_controller.py",
+          "sha256": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3"
+        },
+        {
+          "bytes": 329,
+          "destination": "/repo/services/__init__.py",
+          "local": "services/__init__.py",
+          "sha256": "77f3924997e026cbe6dddf4be13332cb484a35b432481b04fb0fcdc3aeb3a1ea"
+        },
+        {
+          "bytes": 0,
+          "destination": "/repo/services/admin/__init__.py",
+          "local": "services/admin/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 10128,
+          "destination": "/repo/services/admin/config_editor.py",
+          "local": "services/admin/config_editor.py",
+          "sha256": "9e38c881b78e4d062ef7ab7952c76e0c04b9075e76c83e54827fae8705adedb8"
+        },
+        {
+          "bytes": 8099,
+          "destination": "/repo/services/admin/first_run_wizard.py",
+          "local": "services/admin/first_run_wizard.py",
+          "sha256": "73182857bd792bb9862a1da722b83f9ec956df1796add2c9f8b50101387d687f"
+        },
+        {
+          "bytes": 1650,
+          "destination": "/repo/services/admin/health.py",
+          "local": "services/admin/health.py",
+          "sha256": "7d26426783a439b3c2ca828794cc296d85bbdd31aedb00148a095e563325e375"
+        },
+        {
+          "bytes": 2089,
+          "destination": "/repo/services/admin/kill_switch.py",
+          "local": "services/admin/kill_switch.py",
+          "sha256": "114fdaf7077461d4b7a046faea009b69821bdc52f8375dcb4e941b09d940c1af"
+        },
+        {
+          "bytes": 1075,
+          "destination": "/repo/services/admin/master_read_only.py",
+          "local": "services/admin/master_read_only.py",
+          "sha256": "9e08b3f1e9c344b8ed01b6230fee47fef1eec80e2fb65e7bc1112b51f88fbb78"
+        },
+        {
+          "bytes": 2841,
+          "destination": "/repo/services/admin/preflight.py",
+          "local": "services/admin/preflight.py",
+          "sha256": "5cacced5f797af1d7764da556f88947a646234ddbec8ec85a687b8bcefcef21d"
+        },
+        {
+          "bytes": 5158,
+          "destination": "/repo/services/admin/state_report.py",
+          "local": "services/admin/state_report.py",
+          "sha256": "1ebabc752255b5d315b2dc5ca746fe901d2e4eea551d9653cac138eb5dd97101"
+        },
+        {
+          "bytes": 25727,
+          "destination": "/repo/services/admin/system_diagnostics.py",
+          "local": "services/admin/system_diagnostics.py",
+          "sha256": "d6076888db5d003c7afb00f95d3fea3d5356f943a99b8f9ad72d4b61604ff591"
+        },
+        {
+          "bytes": 3400,
+          "destination": "/repo/services/admin/system_guard.py",
+          "local": "services/admin/system_guard.py",
+          "sha256": "0259e52af58ade998db8b399359232889af84f5b72c4f65ce45f0b8cffa11a3a"
+        },
+        {
+          "bytes": 17,
+          "destination": "/repo/services/ai_copilot/__init__.py",
+          "local": "services/ai_copilot/__init__.py",
+          "sha256": "e51d3f2d6c52f7624dc888de3a5695cb2ca34761e5967878df68f72b0527dc5e"
+        },
+        {
+          "bytes": 4633,
+          "destination": "/repo/services/ai_copilot/policy.py",
+          "local": "services/ai_copilot/policy.py",
+          "sha256": "114a2a94fbb69f633d58f847091bff2259c6f3d9f6c463d2dd63a924b8815215"
+        },
+        {
+          "bytes": 36,
+          "destination": "/repo/services/ai_engine/__init__.py",
+          "local": "services/ai_engine/__init__.py",
+          "sha256": "3c78788ea0fb8b468bf16f215d385ccca713e31b0d6625da9c1c4e1f920e5b92"
+        },
+        {
+          "bytes": 1959,
+          "destination": "/repo/services/ai_engine/features.py",
+          "local": "services/ai_engine/features.py",
+          "sha256": "be7aea5c22ce916c08239638c9e43221ff1d996dedc50e7a48c7a8cd6ce6fecd"
+        },
+        {
+          "bytes": 2578,
+          "destination": "/repo/services/ai_engine/model.py",
+          "local": "services/ai_engine/model.py",
+          "sha256": "598f7527619f2e7e781cfd9979ff5ae8d966c94e361145c71773f6ed0f232d66"
+        },
+        {
+          "bytes": 2751,
+          "destination": "/repo/services/ai_engine/signal_service.py",
+          "local": "services/ai_engine/signal_service.py",
+          "sha256": "cd5252c5380e4af6284ff97c78e91cd3aadff3fb605797ab2c55c80672b7e3c9"
+        },
+        {
+          "bytes": 7511,
+          "destination": "/repo/services/alerts/alert_dispatcher.py",
+          "local": "services/alerts/alert_dispatcher.py",
+          "sha256": "0b3bd33224c0a1cdfe7586944fca5bca5d0f11c097327e4d18b932ad986ccaf6"
+        },
+        {
+          "bytes": 5146,
+          "destination": "/repo/services/alerts/campaign_events.py",
+          "local": "services/alerts/campaign_events.py",
+          "sha256": "dc425517f4c0141c3b7724b9a5654204b3601215c42cb7c7e6b154b7b1295de9"
+        },
+        {
+          "bytes": 1809,
+          "destination": "/repo/services/alerts/email_notifier.py",
+          "local": "services/alerts/email_notifier.py",
+          "sha256": "b3273475ca36f6cc4b88eba51caa158efe920bf1b54f17da9d2ff0c456d54df9"
+        },
+        {
+          "bytes": 8149,
+          "destination": "/repo/services/alerts/paper_gate_events.py",
+          "local": "services/alerts/paper_gate_events.py",
+          "sha256": "fcaa09f23afbcabb40495bde659392cb7885d37c0d4e592b11211965e51c5b0f"
+        },
+        {
+          "bytes": 3182,
+          "destination": "/repo/services/alerts/strategy_decision_events.py",
+          "local": "services/alerts/strategy_decision_events.py",
+          "sha256": "e6bb2a49640d5b8a9d9b9dba7b374d7af88e41586dfefcbe9d9355d3aa7e9f75"
+        },
+        {
+          "bytes": 23717,
+          "destination": "/repo/services/analytics/crypto_edge_collector.py",
+          "local": "services/analytics/crypto_edge_collector.py",
+          "sha256": "6a62baf4d5b6904e133caa4c437fad7ddc02aba1133e0c18e13b4a2ebc263cbf"
+        },
+        {
+          "bytes": 11957,
+          "destination": "/repo/services/analytics/crypto_edge_collector_service.py",
+          "local": "services/analytics/crypto_edge_collector_service.py",
+          "sha256": "c50cbe71ebf68f63beaccc1b32f350d4c3abdac29273fd6c0bb2ef9a8506c91a"
+        },
+        {
+          "bytes": 10421,
+          "destination": "/repo/services/analytics/crypto_edges.py",
+          "local": "services/analytics/crypto_edges.py",
+          "sha256": "f82753927a2bb8a55141bfc8fb59c0d97a8523524685db37cb9e8f46b72c6bb2"
+        },
+        {
+          "bytes": 6003,
+          "destination": "/repo/services/analytics/journal_analytics.py",
+          "local": "services/analytics/journal_analytics.py",
+          "sha256": "3d8e7fc0829ddf3459d5ad4f967393a94c327ca69e0f56ca87067c3e03a66ddd"
+        },
+        {
+          "bytes": 1933,
+          "destination": "/repo/services/analytics/mtm_equity.py",
+          "local": "services/analytics/mtm_equity.py",
+          "sha256": "af1aef2cf23afccf0ecd431c5ee3c1a548c779b7efc0ea2e058e92a3089684fa"
+        },
+        {
+          "bytes": 3409,
+          "destination": "/repo/services/analytics/paper_evidence_artifacts.py",
+          "local": "services/analytics/paper_evidence_artifacts.py",
+          "sha256": "06224d73810cb4d77ea880e4999b9258abbce13fa785d020ce9cdf1459fbe4db"
+        },
+        {
+          "bytes": 50882,
+          "destination": "/repo/services/analytics/paper_sim_monitor.py",
+          "local": "services/analytics/paper_sim_monitor.py",
+          "sha256": "ac0b86950a705540525e29fb25004907773995e358c1551e0cb3f97895061f64"
+        },
+        {
+          "bytes": 55250,
+          "destination": "/repo/services/analytics/paper_strategy_evidence_service.py",
+          "local": "services/analytics/paper_strategy_evidence_service.py",
+          "sha256": "a2f34d13410bdf0003b7d76d961fb3caf1d6fb5e9f5ee015b52f9f37975f9257"
+        },
+        {
+          "bytes": 622,
+          "destination": "/repo/services/analytics/portfolio_mtm.py",
+          "local": "services/analytics/portfolio_mtm.py",
+          "sha256": "f53e5b8c9a1a903d3c9d74fa28a84ef7962722e6b25a4d8d29122169a1879ea0"
+        },
+        {
+          "bytes": 12714,
+          "destination": "/repo/services/analytics/strategy_feedback.py",
+          "local": "services/analytics/strategy_feedback.py",
+          "sha256": "2231a872fa18f5cde555cc89410b0180e7454125e1b546d992ca3df4e108b0a3"
+        },
+        {
+          "bytes": 8800,
+          "destination": "/repo/services/app/dashboard_diagnostics.py",
+          "local": "services/app/dashboard_diagnostics.py",
+          "sha256": "9eae3c281dd5ecf9e67d3a1324c8e193ca829967b2d200f8d6bc7f7db811ac38"
+        },
+        {
+          "bytes": 3911,
+          "destination": "/repo/services/app/dashboard_launch.py",
+          "local": "services/app/dashboard_launch.py",
+          "sha256": "68786626481e659c447d8b8bc4375aff124a10b7378cdbbab9f7b6f8c08b9641"
+        },
+        {
+          "bytes": 3656,
+          "destination": "/repo/services/app/diagnostics_exporter.py",
+          "local": "services/app/diagnostics_exporter.py",
+          "sha256": "0dda375e0d5540889dadcf47c134269a91ca7159579dade33346ebcc2cec5f59"
+        },
+        {
+          "bytes": 8231,
+          "destination": "/repo/services/app/preflight_wizard.py",
+          "local": "services/app/preflight_wizard.py",
+          "sha256": "584f183c2556d75740ea8af718bdaac60d486137e24c64a3ba004a74079c75e1"
+        },
+        {
+          "bytes": 2343,
+          "destination": "/repo/services/app/system_health.py",
+          "local": "services/app/system_health.py",
+          "sha256": "bb7c55ad38ae1e7051217f9e6045ab768519c09ff4c004faa53bea3597b12981"
+        },
+        {
+          "bytes": 510,
+          "destination": "/repo/services/app/versioning.py",
+          "local": "services/app/versioning.py",
+          "sha256": "877f014e3d785c4036f7a19e51ac21fe6a6f7437bc31079dd8348a4e8b4c02ef"
+        },
+        {
+          "bytes": 41,
+          "destination": "/repo/services/audit/__init__.py",
+          "local": "services/audit/__init__.py",
+          "sha256": "eb8c4fd00e06ce8407fd2aa6be1d95caf0960c9e3d0457047114918b1c8f6501"
+        },
+        {
+          "bytes": 4380,
+          "destination": "/repo/services/audit/operator_event_journal.py",
+          "local": "services/audit/operator_event_journal.py",
+          "sha256": "34756dd97f88186d3988d28025f2001bb83eff07e6104faf3f58c480d8e87e1a"
+        },
+        {
+          "bytes": 70044,
+          "destination": "/repo/services/backtest/evidence_cycle.py",
+          "local": "services/backtest/evidence_cycle.py",
+          "sha256": "47450f64bbbd302c04a1d7dc3fa4215d7f681e9d62ccb7f13b764dd149f3c13a"
+        },
+        {
+          "bytes": 10878,
+          "destination": "/repo/services/backtest/leaderboard.py",
+          "local": "services/backtest/leaderboard.py",
+          "sha256": "fa919fe7f680fb2c0550c8e0975b3bee019346cd5b4b3dfcfd662264444a9264"
+        },
+        {
+          "bytes": 7837,
+          "destination": "/repo/services/backtest/ohlcv_archive.py",
+          "local": "services/backtest/ohlcv_archive.py",
+          "sha256": "d48427debecc902360f0c0f777ab42afa086a171ed10e4e438741e26a75b9585"
+        },
+        {
+          "bytes": 13191,
+          "destination": "/repo/services/backtest/parity_engine.py",
+          "local": "services/backtest/parity_engine.py",
+          "sha256": "d48d7566c398621ef53ea9633b8f2eeb1917bb3fb57e7e3c6653ff6d3d598f30"
+        },
+        {
+          "bytes": 3962,
+          "destination": "/repo/services/backtest/regimes.py",
+          "local": "services/backtest/regimes.py",
+          "sha256": "d687d196ebeac48af15d23f033c5ffde8f676a7b26c646d51ebe79c62c2dc3bf"
+        },
+        {
+          "bytes": 6142,
+          "destination": "/repo/services/backtest/scorecard.py",
+          "local": "services/backtest/scorecard.py",
+          "sha256": "a5ace7211574beb360abcb91dff2163f33f80a038f657653e12f0c0ba0fdf898"
+        },
+        {
+          "bytes": 5475,
+          "destination": "/repo/services/backtest/signal_replay.py",
+          "local": "services/backtest/signal_replay.py",
+          "sha256": "8e19f0afbb5c31ab4e611cededf9d187204da6dd31141e8fceedf271f844228a"
+        },
+        {
+          "bytes": 14779,
+          "destination": "/repo/services/backtest/walk_forward.py",
+          "local": "services/backtest/walk_forward.py",
+          "sha256": "7d91a23585d8b93d2b2b5687e183ace9bb80ef8e65b5c6e256845a7aace15de8"
+        },
+        {
+          "bytes": 4876,
+          "destination": "/repo/services/config_loader.py",
+          "local": "services/config_loader.py",
+          "sha256": "fde5868d19f23bfe72aadca6de68324d2e76b8c0ece8496f8dd4f16f59608325"
+        },
+        {
+          "bytes": 0,
+          "destination": "/repo/services/control/__init__.py",
+          "local": "services/control/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 3777,
+          "destination": "/repo/services/control/allocator.py",
+          "local": "services/control/allocator.py",
+          "sha256": "48682a2b86113ae6976d0824f357582892ff2c4e391ffb3dfe7889c3488549a4"
+        },
+        {
+          "bytes": 4729,
+          "destination": "/repo/services/control/cognitive_budget.py",
+          "local": "services/control/cognitive_budget.py",
+          "sha256": "b219dd6f725a05f2b2c104ca83fd53ee5e3b070548f93cdcd0b8a1660637fb04"
+        },
+        {
+          "bytes": 10794,
+          "destination": "/repo/services/control/deployment_stage.py",
+          "local": "services/control/deployment_stage.py",
+          "sha256": "6f6097fb49a6aecebfbb64a28385fb8ecfb7114319256a35b302862bd668930a"
+        },
+        {
+          "bytes": 11392,
+          "destination": "/repo/services/control/kernel.py",
+          "local": "services/control/kernel.py",
+          "sha256": "952db409c8c11cb90c50f616d5493946c37b874dd82f495534817b7fd5143572"
+        },
+        {
+          "bytes": 7451,
+          "destination": "/repo/services/control/managed_component.py",
+          "local": "services/control/managed_component.py",
+          "sha256": "b735959b20e48adc6393a77e74fa3359585b4f5f56d1aae70d80862c533af2f7"
+        },
+        {
+          "bytes": 18719,
+          "destination": "/repo/services/control/paper_evidence_qualification.py",
+          "local": "services/control/paper_evidence_qualification.py",
+          "sha256": "891933dc9f0b04d43205bf5482ad0d39b3b4ad5213635c7f31845d3fc9da8af3"
+        },
+        {
+          "bytes": 12006,
+          "destination": "/repo/services/control/paper_promotion_policy.py",
+          "local": "services/control/paper_promotion_policy.py",
+          "sha256": "a51e69e601952bed9f12ed05337781c8abe8a0be50484efaf42c3931b20e1c75"
+        },
+        {
+          "bytes": 13900,
+          "destination": "/repo/services/control/paper_promotion_progress.py",
+          "local": "services/control/paper_promotion_progress.py",
+          "sha256": "b1611fdfe0a2e786f54aa91e59f22fbcdde5caebaa042fec9401ac8a5fa37552"
+        },
+        {
+          "bytes": 224,
+          "destination": "/repo/services/control/promotion_thresholds.py",
+          "local": "services/control/promotion_thresholds.py",
+          "sha256": "18eabe12208d7c5a119b9443e1bed3e180bd5b7eeaf3338c784946ada2b2c306"
+        },
+        {
+          "bytes": 2789,
+          "destination": "/repo/services/control/retirement_checker.py",
+          "local": "services/control/retirement_checker.py",
+          "sha256": "668c4ba4f1683bb5ca2571b114e2f1c7221d4da21d37462d32a79878c6ef2fe5"
+        },
+        {
+          "bytes": 74,
+          "destination": "/repo/services/events/__init__.py",
+          "local": "services/events/__init__.py",
+          "sha256": "0eddcc4ee1e7d972b1f0440dd1242196821105bd0890c7990b8698696ca54d87"
+        },
+        {
+          "bytes": 6717,
+          "destination": "/repo/services/events/platform_event_journal.py",
+          "local": "services/events/platform_event_journal.py",
+          "sha256": "9ded5bc5ad2f447356feab9654d0cdbede086c1a54b3aac56d6a79d9ff2fce18"
+        },
+        {
+          "bytes": 1017,
+          "destination": "/repo/services/execution/fill_model.py",
+          "local": "services/execution/fill_model.py",
+          "sha256": "bf2720179549bf3820d36d6b58b0c98a3f3dcad08a7492ce4eaa410e86a76d4d"
+        },
+        {
+          "bytes": 1542,
+          "destination": "/repo/services/execution/intent_audit.py",
+          "local": "services/execution/intent_audit.py",
+          "sha256": "b664aace2d18eb2d108552f2dcab59f0a1bb5d39aceb9e28c0fe2d23d5d41c82"
+        },
+        {
+          "bytes": 4546,
+          "destination": "/repo/services/execution/intent_lifecycle.py",
+          "local": "services/execution/intent_lifecycle.py",
+          "sha256": "1fe634b768b34d57a556ca7662bcf84060a0055183de321ba3de4416aa966aef"
+        },
+        {
+          "bytes": 12097,
+          "destination": "/repo/services/execution/intent_reconciler.py",
+          "local": "services/execution/intent_reconciler.py",
+          "sha256": "1ced865c36cbf568d72a52310cb117bdfd9a3f5fe70b73e9d3025f897c518fff"
+        },
+        {
+          "bytes": 10802,
+          "destination": "/repo/services/execution/live_arming.py",
+          "local": "services/execution/live_arming.py",
+          "sha256": "aa250bde68c5369d3621d30decf97623eef5e8f36f5da83fae1a25f9c4788dda"
+        },
+        {
+          "bytes": 657,
+          "destination": "/repo/services/execution/outcome_logger.py",
+          "local": "services/execution/outcome_logger.py",
+          "sha256": "67d1fea9235bfc09000686c986372e0810d28955fb38aa990a4224e286f4d7f7"
+        },
+        {
+          "bytes": 8764,
+          "destination": "/repo/services/execution/outcome_summary.py",
+          "local": "services/execution/outcome_summary.py",
+          "sha256": "4ce951c3b3c9ffc40aa160a04bc58110180f7db88b6a6246585ff339c38772d1"
+        },
+        {
+          "bytes": 18034,
+          "destination": "/repo/services/execution/paper_engine.py",
+          "local": "services/execution/paper_engine.py",
+          "sha256": "73bb1c2d45829c82ff52929b171b1e57de65b864ef06e650c5d44b87259689e7"
+        },
+        {
+          "bytes": 11128,
+          "destination": "/repo/services/execution/paper_runner.py",
+          "local": "services/execution/paper_runner.py",
+          "sha256": "24f16c35d1c2e0723e9aa92b748eabd6a08a71a008e52b109574e632d1899770"
+        },
+        {
+          "bytes": 2002,
+          "destination": "/repo/services/execution/safety.py",
+          "local": "services/execution/safety.py",
+          "sha256": "418dde203b87fee23f55d76311c359933fb0f6e4cdb8b996050a9245b8eb97eb"
+        },
+        {
+          "bytes": 736,
+          "destination": "/repo/services/execution/startup_guard.py",
+          "local": "services/execution/startup_guard.py",
+          "sha256": "ff313054e5f6d581b2fa290ff79a49482fe66ecd3e586de69ac3f98b19bfc29f"
+        },
+        {
+          "bytes": 5811,
+          "destination": "/repo/services/execution/state_authority.py",
+          "local": "services/execution/state_authority.py",
+          "sha256": "94c0cbea6bffeb9a25c08c38441d33240451c12bec70fff09c90cec884170630"
+        },
+        {
+          "bytes": 87776,
+          "destination": "/repo/services/execution/strategy_runner.py",
+          "local": "services/execution/strategy_runner.py",
+          "sha256": "7006466dcec981e20b853c26314045a7d8b346b80b2559f46d7ad880f47356ba"
+        },
+        {
+          "bytes": 1565,
+          "destination": "/repo/services/feature_gate.py",
+          "local": "services/feature_gate.py",
+          "sha256": "d4b82585ec93ace1dca8ca721243ef42bb554a9e3d840b4284125c349cc835f9"
+        },
+        {
+          "bytes": 89,
+          "destination": "/repo/services/governance/__init__.py",
+          "local": "services/governance/__init__.py",
+          "sha256": "f45aa4749c57bb77298c24f4ab8429e7a69b73f8aa587f1fcb421f6f1ee59c52"
+        },
+        {
+          "bytes": 212,
+          "destination": "/repo/services/governance/campaign_state_machine.py",
+          "local": "services/governance/campaign_state_machine.py",
+          "sha256": "0eaea6c04b281180d2e8ea23ea5b5f61502ca9ca452f145c1c7352a94602e7c1"
+        },
+        {
+          "bytes": 142,
+          "destination": "/repo/services/governance/decision_engine.py",
+          "local": "services/governance/decision_engine.py",
+          "sha256": "114073c2ead93ded32a41dbd7e7784a7fcc620f617b4b6e67880495943e62c7a"
+        },
+        {
+          "bytes": 253,
+          "destination": "/repo/services/governance/invalidation.py",
+          "local": "services/governance/invalidation.py",
+          "sha256": "50d5206dfed1ef22655eb6f61e0b5efa9c94577efb173b0a0886fa37fc8bee79"
+        },
+        {
+          "bytes": 7471,
+          "destination": "/repo/services/live_router/router.py",
+          "local": "services/live_router/router.py",
+          "sha256": "08a5bd14fb8852b7a1b026c00efd3d2dfda2a01994504af38be8350ced164988"
+        },
+        {
+          "bytes": 45,
+          "destination": "/repo/services/logging/__init__.py",
+          "local": "services/logging/__init__.py",
+          "sha256": "f965febf5539d75f20ab720a59fa44abd514617ce286887d03525905cc68ed10"
+        },
+        {
+          "bytes": 5204,
+          "destination": "/repo/services/logging/app_logger.py",
+          "local": "services/logging/app_logger.py",
+          "sha256": "eb166743cf300f95398721faf84a1ea5e3d021b204199ec7d39a796bd49f54a2"
+        },
+        {
+          "bytes": 5663,
+          "destination": "/repo/services/market_data/local_data_reader.py",
+          "local": "services/market_data/local_data_reader.py",
+          "sha256": "54d9e98249e5672a4c64609b67c5798832203ceb089629cd02b5ba96f047645a"
+        },
+        {
+          "bytes": 2269,
+          "destination": "/repo/services/market_data/multi_venue_view.py",
+          "local": "services/market_data/multi_venue_view.py",
+          "sha256": "a5082db0d9077f839c58325626862ac636c781331b26413b6bbd7f14878a988f"
+        },
+        {
+          "bytes": 1448,
+          "destination": "/repo/services/market_data/ohlcv_fetcher.py",
+          "local": "services/market_data/ohlcv_fetcher.py",
+          "sha256": "864b6ceb4db1982e70472a679200fcd2108526ad35082543e9353b5bd635bf8a"
+        },
+        {
+          "bytes": 3398,
+          "destination": "/repo/services/market_data/poller.py",
+          "local": "services/market_data/poller.py",
+          "sha256": "e229554b5e006177283fc32ea1a780b19f6b6ba639ad01f308f67caea5e7bb5e"
+        },
+        {
+          "bytes": 4313,
+          "destination": "/repo/services/market_data/regime_detector.py",
+          "local": "services/market_data/regime_detector.py",
+          "sha256": "4ad70b83185f13edbab6d53b29178d2cd5d081af25bcc0c1983cb0767bcb7a3b"
+        },
+        {
+          "bytes": 1232,
+          "destination": "/repo/services/market_data/symbol_router.py",
+          "local": "services/market_data/symbol_router.py",
+          "sha256": "deaf84276d6c441a7d3fb634fa5fd0ec9fd0eb0af69e2e8ada99d7f63a567b86"
+        },
+        {
+          "bytes": 107,
+          "destination": "/repo/services/market_data/symbol_utils.py",
+          "local": "services/market_data/symbol_utils.py",
+          "sha256": "98cab9d704957bf0bd61fdd594bc70b527b234a467aba8745c8da416813e1976"
+        },
+        {
+          "bytes": 9470,
+          "destination": "/repo/services/market_data/system_status_publisher.py",
+          "local": "services/market_data/system_status_publisher.py",
+          "sha256": "6dd2fd9b010d97c46feaefe0041bcce453156b893d350a404b83f52b05a721a5"
+        },
+        {
+          "bytes": 2068,
+          "destination": "/repo/services/market_data/tick_reader.py",
+          "local": "services/market_data/tick_reader.py",
+          "sha256": "3e51e7f7e033cff855e8b8fc588304f338745c25473aa18781aeb9f84cb88440"
+        },
+        {
+          "bytes": 5141,
+          "destination": "/repo/services/market_data/volume_surge_detector.py",
+          "local": "services/market_data/volume_surge_detector.py",
+          "sha256": "0e8c22a05b27f8b58d90bb6ca48bc79bf8ffdffb842770d5262c97a6362c551c"
+        },
+        {
+          "bytes": 27,
+          "destination": "/repo/services/markets/__init__.py",
+          "local": "services/markets/__init__.py",
+          "sha256": "47047ff7cbe6f1622d666cf10e3fff1b884398aaea7e3b96f396f8b547306981"
+        },
+        {
+          "bytes": 1040,
+          "destination": "/repo/services/markets/math_utils.py",
+          "local": "services/markets/math_utils.py",
+          "sha256": "fb84fa59c7f6905f5190ce4d50cafe2873237f3a29508cd6a4b3d8a9d566b649"
+        },
+        {
+          "bytes": 36,
+          "destination": "/repo/services/ops/__init__.py",
+          "local": "services/ops/__init__.py",
+          "sha256": "3c78788ea0fb8b468bf16f215d385ccca713e31b0d6625da9c1c4e1f920e5b92"
+        },
+        {
+          "bytes": 4906,
+          "destination": "/repo/services/ops/risk_gate_contract.py",
+          "local": "services/ops/risk_gate_contract.py",
+          "sha256": "a7f545de61ca1a8f4ae6a9f055f801fdc6dd404eeca043323516d5936d48c024"
+        },
+        {
+          "bytes": 2397,
+          "destination": "/repo/services/os/app_paths.py",
+          "local": "services/os/app_paths.py",
+          "sha256": "a4c29b40fffa423509cbfb5aee6dc7cb9da60034f7a18f8c6ed67f844b49a69e"
+        },
+        {
+          "bytes": 1300,
+          "destination": "/repo/services/os/file_utils.py",
+          "local": "services/os/file_utils.py",
+          "sha256": "58555bd8e957aecdd1f7e06bacc23fa900d1f90ab7fc498180452e4998e2537d"
+        },
+        {
+          "bytes": 1829,
+          "destination": "/repo/services/os/ports.py",
+          "local": "services/os/ports.py",
+          "sha256": "2abd546f907eb02c58a65cdc7b4cf4bf70c73c1cd9ef7363207d4d212d829087"
+        },
+        {
+          "bytes": 0,
+          "destination": "/repo/services/paper_trader/__init__.py",
+          "local": "services/paper_trader/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 1783,
+          "destination": "/repo/services/paper_trader/paper_state.py",
+          "local": "services/paper_trader/paper_state.py",
+          "sha256": "9083db11f0bcc3d5805acc82b406ede79d918e3012939cd2dc01557d438f7d0d"
+        },
+        {
+          "bytes": 5225,
+          "destination": "/repo/services/preflight/preflight.py",
+          "local": "services/preflight/preflight.py",
+          "sha256": "27010aebc35206ebc4b4cec14cdb7bc424f16942bac3445a3c1f9bf7c9bb4e71"
+        },
+        {
+          "bytes": 4092,
+          "destination": "/repo/services/risk/exit_controls.py",
+          "local": "services/risk/exit_controls.py",
+          "sha256": "a6d007500682421449cc65223bbc73689a0184e6daea379f5eb9a96b9dc3f6e0"
+        },
+        {
+          "bytes": 3563,
+          "destination": "/repo/services/risk/exposure_controls.py",
+          "local": "services/risk/exposure_controls.py",
+          "sha256": "b1b6acc1122fe97eb7dc9ddeeb79b2bfad583a4947fb775fd1bf8e8babfca881"
+        },
+        {
+          "bytes": 1655,
+          "destination": "/repo/services/risk/kill_conditions.py",
+          "local": "services/risk/kill_conditions.py",
+          "sha256": "4c9fa7c39d9be686f716ec4171c7a5913ec29280b56a8791f0092bebcc0b90e7"
+        },
+        {
+          "bytes": 4957,
+          "destination": "/repo/services/risk/market_quality_guard.py",
+          "local": "services/risk/market_quality_guard.py",
+          "sha256": "630cd3ac0b422088fe4231947f227553a64f22371277d9248010b163e9556a61"
+        },
+        {
+          "bytes": 2722,
+          "destination": "/repo/services/risk/performance_kill.py",
+          "local": "services/risk/performance_kill.py",
+          "sha256": "6dc9c26c1e3b7d068e3b6ea0ae110336f48560112921d72a4b946bcffdb64cfc"
+        },
+        {
+          "bytes": 2435,
+          "destination": "/repo/services/risk/position_scaling.py",
+          "local": "services/risk/position_scaling.py",
+          "sha256": "8f43fb464a2a0a43e5944d2f052c680d878e339a0816e31beae60eb22f6f1e3a"
+        },
+        {
+          "bytes": 756,
+          "destination": "/repo/services/risk/staleness_guard.py",
+          "local": "services/risk/staleness_guard.py",
+          "sha256": "e68aee0f568e70cec40781d7c752e2592f8deef9c2d5ae12f995bc83b70f2717"
+        },
+        {
+          "bytes": 0,
+          "destination": "/repo/services/security/__init__.py",
+          "local": "services/security/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 773,
+          "destination": "/repo/services/security/binance_guard.py",
+          "local": "services/security/binance_guard.py",
+          "sha256": "2893accec4bfee6074fea1b68755f8f08d2c964b536470bfc2f99748a856df55"
+        },
+        {
+          "bytes": 6692,
+          "destination": "/repo/services/security/credential_store.py",
+          "local": "services/security/credential_store.py",
+          "sha256": "8d8cfc283f70779bbeedddba9edd1a9365e9fd9c09e2e04d27ac900e153fa712"
+        },
+        {
+          "bytes": 2344,
+          "destination": "/repo/services/security/credentials_loader.py",
+          "local": "services/security/credentials_loader.py",
+          "sha256": "a52c0f3523e1aed7e0283bb2e62e8931e7e0fa119ea16957be6061e7454f1540"
+        },
+        {
+          "bytes": 2218,
+          "destination": "/repo/services/security/exchange_factory.py",
+          "local": "services/security/exchange_factory.py",
+          "sha256": "dae9e79ca7a2fb017e6c8b354b2ba3ef20a802549c9bc743cd25c34045a8e223"
+        },
+        {
+          "bytes": 3912,
+          "destination": "/repo/services/security/permission_probes.py",
+          "local": "services/security/permission_probes.py",
+          "sha256": "ee6a60097faf35f99d61c064cb5aaac21f4ebbfdbfb9515edcdf3feb69dfa905"
+        },
+        {
+          "bytes": 1790,
+          "destination": "/repo/services/security/private_connectivity.py",
+          "local": "services/security/private_connectivity.py",
+          "sha256": "6cee429c7515c66037138f6cdb7c8d3edaabe488c36898d2b806b6bf3681bff4"
+        },
+        {
+          "bytes": 6521,
+          "destination": "/repo/services/setup/config_manager.py",
+          "local": "services/setup/config_manager.py",
+          "sha256": "87dbe70e670f5a83ad0887329087f4bf1160d305850929b49d4f7dca566b87d3"
+        },
+        {
+          "bytes": 8462,
+          "destination": "/repo/services/signals/candidate_advisor.py",
+          "local": "services/signals/candidate_advisor.py",
+          "sha256": "d9aa1c8aad25ca628794e00421e04f6d5719b7aa4e0e6c87e044f9cb1d021cf4"
+        },
+        {
+          "bytes": 7251,
+          "destination": "/repo/services/signals/candidate_store.py",
+          "local": "services/signals/candidate_store.py",
+          "sha256": "f0fedcde52188d649c7b4929913407e54c4722707a99cb9f4c46e4269b18a4ab"
+        },
+        {
+          "bytes": 3265,
+          "destination": "/repo/services/strategies/breakout_donchian.py",
+          "local": "services/strategies/breakout_donchian.py",
+          "sha256": "c9e02234ae2a2366dce2e509f86137b28fd6869f92254cd4a68567a882fa03e0"
+        },
+        {
+          "bytes": 4015,
+          "destination": "/repo/services/strategies/breakout_volume.py",
+          "local": "services/strategies/breakout_volume.py",
+          "sha256": "9a15e45674bde317bb5739665173d70dd120a74d4adf626af67f472974302ff1"
+        },
+        {
+          "bytes": 4114,
+          "destination": "/repo/services/strategies/campaign_summary.py",
+          "local": "services/strategies/campaign_summary.py",
+          "sha256": "7ad0c80df968ca0a0eb345dbd2f93bb5f1284cabac8df10db13141bc8c66a9cc"
+        },
+        {
+          "bytes": 8665,
+          "destination": "/repo/services/strategies/composite_hybrid.py",
+          "local": "services/strategies/composite_hybrid.py",
+          "sha256": "47deddb49f10c96e1c7f39a5bbeb475f4f82837f78a84e7ebbdc6e14fd345b3d"
+        },
+        {
+          "bytes": 4200,
+          "destination": "/repo/services/strategies/config_tools.py",
+          "local": "services/strategies/config_tools.py",
+          "sha256": "50fcdb03ee344f2b480b9c112301f3554b26c4ecef601b0bb6da14e4eff7abcf"
+        },
+        {
+          "bytes": 6050,
+          "destination": "/repo/services/strategies/crypto_edge_context.py",
+          "local": "services/strategies/crypto_edge_context.py",
+          "sha256": "410fd081438655ba706df75fbb20d7d10c21848e1c46bc2b75caf50e04e7b946"
+        },
+        {
+          "bytes": 5401,
+          "destination": "/repo/services/strategies/ema_cross.py",
+          "local": "services/strategies/ema_cross.py",
+          "sha256": "cffb26005525ac141ed3eed1248582d9b34281d7aa09c968aa239e0b8ed1219e"
+        },
+        {
+          "bytes": 16433,
+          "destination": "/repo/services/strategies/es_daily_trend.py",
+          "local": "services/strategies/es_daily_trend.py",
+          "sha256": "2ba45323cdca392a321107784ee432827fbec91c16b869c9d784f7672a81b193"
+        },
+        {
+          "bytes": 19137,
+          "destination": "/repo/services/strategies/evidence_logger.py",
+          "local": "services/strategies/evidence_logger.py",
+          "sha256": "4b653590d2fbade1cefd2379dce1e79668481fb29d2ba053b8f26aa6bc0dc6a9"
+        },
+        {
+          "bytes": 5347,
+          "destination": "/repo/services/strategies/execution_identity.py",
+          "local": "services/strategies/execution_identity.py",
+          "sha256": "5e6d97381ade98b38b22435abd9208c39845c026dd371ed25080c92847c8b60a"
+        },
+        {
+          "bytes": 971,
+          "destination": "/repo/services/strategies/funding_extreme.py",
+          "local": "services/strategies/funding_extreme.py",
+          "sha256": "b60ecd07eb706c3d546d3dfafdde9a529b79d5e90b51253ca7fa867470741ab5"
+        },
+        {
+          "bytes": 3796,
+          "destination": "/repo/services/strategies/gap_fill.py",
+          "local": "services/strategies/gap_fill.py",
+          "sha256": "51799f9675118a81af9caa9b0e4e700cc2d3bc5e728db5b28a208f3f2744e343"
+        },
+        {
+          "bytes": 5238,
+          "destination": "/repo/services/strategies/hypotheses.py",
+          "local": "services/strategies/hypotheses.py",
+          "sha256": "c789e7b16cd62e29ea306766ad6090df3b1a61bfc575f3ec3616bec23695aa9d"
+        },
+        {
+          "bytes": 2421,
+          "destination": "/repo/services/strategies/indicators.py",
+          "local": "services/strategies/indicators.py",
+          "sha256": "756c04052a0fd0f403d0b1c527b64a1bed586f1897d72663b3c96972709b8f23"
+        },
+        {
+          "bytes": 6507,
+          "destination": "/repo/services/strategies/market_context_capture.py",
+          "local": "services/strategies/market_context_capture.py",
+          "sha256": "06897369945b1deabfb4e8d7b98550deaddb05119b56752cb8bc809abf879485"
+        },
+        {
+          "bytes": 2236,
+          "destination": "/repo/services/strategies/market_filters.py",
+          "local": "services/strategies/market_filters.py",
+          "sha256": "37fec0214006c94124ee5166fb469fdacc3e52f2b6caaed64f9b926d5412399a"
+        },
+        {
+          "bytes": 2994,
+          "destination": "/repo/services/strategies/mean_reversion_rsi.py",
+          "local": "services/strategies/mean_reversion_rsi.py",
+          "sha256": "6eebd51ae8c0ed7afbdd1d6fc4ff4d492dd51e036b9e5c5d73dd86ddbe876ed2"
+        },
+        {
+          "bytes": 4410,
+          "destination": "/repo/services/strategies/momentum.py",
+          "local": "services/strategies/momentum.py",
+          "sha256": "68874bbeff053af82f9635e95eef8a24a229e79d7d7e72be5187cd9e7be00bef"
+        },
+        {
+          "bytes": 14209,
+          "destination": "/repo/services/strategies/presets.py",
+          "local": "services/strategies/presets.py",
+          "sha256": "002735111eb3eda44e940e98756a80fc5b7a571b08d05d9edf611e988386fd95"
+        },
+        {
+          "bytes": 4723,
+          "destination": "/repo/services/strategies/pullback_recovery.py",
+          "local": "services/strategies/pullback_recovery.py",
+          "sha256": "cf8f26fe7806cfceebb6886e00df5e6c6f5cb7f623f29e94ea4ffb3c564ecb6c"
+        },
+        {
+          "bytes": 3935,
+          "destination": "/repo/services/strategies/runtime_execution_identity.py",
+          "local": "services/strategies/runtime_execution_identity.py",
+          "sha256": "f1f201c6c2bdf7044645ff0bcdacf52c46713c82502035b94a35b12abe36ef2b"
+        },
+        {
+          "bytes": 4824,
+          "destination": "/repo/services/strategies/signal_input_capture.py",
+          "local": "services/strategies/signal_input_capture.py",
+          "sha256": "846cd43b44ae08e0c32b5f95858f6452a4992ce5e65bc73cc01600c1ad472c9a"
+        },
+        {
+          "bytes": 10267,
+          "destination": "/repo/services/strategies/strategy_registry.py",
+          "local": "services/strategies/strategy_registry.py",
+          "sha256": "e27facd6fd05f3a89c5559194e5cc6f61bf06a3e708596b62d5603e0bbbebae1"
+        },
+        {
+          "bytes": 6043,
+          "destination": "/repo/services/strategies/strategy_selector.py",
+          "local": "services/strategies/strategy_selector.py",
+          "sha256": "f3cb3a78ff67df67da17d24428b37d5167a027401bf171e7b6874600796a7d93"
+        },
+        {
+          "bytes": 3238,
+          "destination": "/repo/services/strategies/validation.py",
+          "local": "services/strategies/validation.py",
+          "sha256": "3d20b05348df3526b6b9c28869146fdc820f7739a67be7746e06c30e328a9c4e"
+        },
+        {
+          "bytes": 4330,
+          "destination": "/repo/services/strategies/volatility_reversal.py",
+          "local": "services/strategies/volatility_reversal.py",
+          "sha256": "465b7185b8125a17d87e3bb479daf188f233d856c5a8fdbe96a94ad18cd0d5ab"
+        },
+        {
+          "bytes": 4260,
+          "destination": "/repo/services/validation/paper_multi_symbol_validation.py",
+          "local": "services/validation/paper_multi_symbol_validation.py",
+          "sha256": "0b888aba9c31d19ca5b87bb0580ba1e69bb205cb4040970c5e76faa0333d5409"
+        },
+        {
+          "bytes": 1167,
+          "destination": "/repo/services/ws/last_price_provider.py",
+          "local": "services/ws/last_price_provider.py",
+          "sha256": "76395fb24ef6bb7b999d63d1e633dadcb7a781692a318bac49a3bf9b13b2204b"
+        },
+        {
+          "bytes": 0,
+          "destination": "/repo/storage/__init__.py",
+          "local": "storage/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 27521,
+          "destination": "/repo/storage/crypto_edge_store_sqlite.py",
+          "local": "storage/crypto_edge_store_sqlite.py",
+          "sha256": "35095d8deccd786e5867240d7e45db748d50ca4c96460b7f7b72eb6fee00d540"
+        },
+        {
+          "bytes": 5019,
+          "destination": "/repo/storage/decision_audit_store_sqlite.py",
+          "local": "storage/decision_audit_store_sqlite.py",
+          "sha256": "831c5ea35a97e03ab46bc2b08b9c94735e3a176c7ebec21e2bb8bc3643672476"
+        },
+        {
+          "bytes": 12616,
+          "destination": "/repo/storage/evidence_signals_sqlite.py",
+          "local": "storage/evidence_signals_sqlite.py",
+          "sha256": "6a5cb62efab7a93989b4e886aacbb4b1936cb264cefd6395cd54a906c35a9c59"
+        },
+        {
+          "bytes": 2639,
+          "destination": "/repo/storage/execution_audit_reader.py",
+          "local": "storage/execution_audit_reader.py",
+          "sha256": "916afcaed698f383aab949a502e10b01e5e9b0b788bf97c26156cf43993f29f0"
+        },
+        {
+          "bytes": 5422,
+          "destination": "/repo/storage/execution_guard_store_sqlite.py",
+          "local": "storage/execution_guard_store_sqlite.py",
+          "sha256": "a422df8ecde6ad7477d50acc50b8377a2c553ac255aa5638eb56f73547ece7cf"
+        },
+        {
+          "bytes": 4284,
+          "destination": "/repo/storage/execution_report_sqlite.py",
+          "local": "storage/execution_report_sqlite.py",
+          "sha256": "e4c7addd894783feb6c9d72700b89016ba20bcfdbce0f8cc26dcf67d014cb77a"
+        },
+        {
+          "bytes": 14362,
+          "destination": "/repo/storage/intent_queue_sqlite.py",
+          "local": "storage/intent_queue_sqlite.py",
+          "sha256": "5b999000f5b5d8745e59dcee4cebe9cd922531c68c88240b72a78019ec84ea20"
+        },
+        {
+          "bytes": 21150,
+          "destination": "/repo/storage/live_intent_queue_sqlite.py",
+          "local": "storage/live_intent_queue_sqlite.py",
+          "sha256": "83d363a854b88b4d230cacc179c1de206a2b813b3b16a678cbfa410a64e06740"
+        },
+        {
+          "bytes": 8981,
+          "destination": "/repo/storage/live_trading_sqlite.py",
+          "local": "storage/live_trading_sqlite.py",
+          "sha256": "7b2c71c43d6fa10bf443975cc3c680231f5c0bae9a1fec2486d5d0f6cb05e39c"
+        },
+        {
+          "bytes": 2475,
+          "destination": "/repo/storage/market_data_store_sqlite.py",
+          "local": "storage/market_data_store_sqlite.py",
+          "sha256": "674d86393a536af100c63ccd3945189a2a0998a265db059d58c368bf451765b6"
+        },
+        {
+          "bytes": 8341,
+          "destination": "/repo/storage/market_store_sqlite.py",
+          "local": "storage/market_store_sqlite.py",
+          "sha256": "172b4d25efc16549ba35c7766f7f47343e1b9fb052b57dcd846bd6153e903ed7"
+        },
+        {
+          "bytes": 2710,
+          "destination": "/repo/storage/ops_event_store_sqlite.py",
+          "local": "storage/ops_event_store_sqlite.py",
+          "sha256": "027199543bd5ad07a50044bfe8f72bc679be77d774e803b11f868041b3f7e980"
+        },
+        {
+          "bytes": 3891,
+          "destination": "/repo/storage/ops_signal_store_sqlite.py",
+          "local": "storage/ops_signal_store_sqlite.py",
+          "sha256": "d2b54696cf20476d23492b95b2176735a519cc96cde2af0643c396233ae1233c"
+        },
+        {
+          "bytes": 19398,
+          "destination": "/repo/storage/paper_trading_sqlite.py",
+          "local": "storage/paper_trading_sqlite.py",
+          "sha256": "684720e504aaef479ab51dc8025df18e0f70053868314f5c0e587aa92d62fae3"
+        },
+        {
+          "bytes": 8318,
+          "destination": "/repo/storage/pnl_store_sqlite.py",
+          "local": "storage/pnl_store_sqlite.py",
+          "sha256": "66fb90dc92419c7ece158740d500937aa51687cce9ef33617f498aeac2c14375"
+        },
+        {
+          "bytes": 2864,
+          "destination": "/repo/storage/position_state_sqlite.py",
+          "local": "storage/position_state_sqlite.py",
+          "sha256": "d497735145fae6430dcbdba7fca610f2ec76c18776a88ceb070fb481ed889a42"
+        },
+        {
+          "bytes": 4114,
+          "destination": "/repo/storage/risk_blocks_store_sqlite.py",
+          "local": "storage/risk_blocks_store_sqlite.py",
+          "sha256": "18e71bd9bbca3bace053ac7ec80f25f0caa0c73722bbb74aae9e937fde58d0ec"
+        },
+        {
+          "bytes": 3984,
+          "destination": "/repo/storage/signal_inbox_sqlite.py",
+          "local": "storage/signal_inbox_sqlite.py",
+          "sha256": "383e5d77e04e099c84a8fc09e6f13b4f2cc030ed7b0a6358e633b123e25bda30"
+        },
+        {
+          "bytes": 5084,
+          "destination": "/repo/storage/signal_reliability_sqlite.py",
+          "local": "storage/signal_reliability_sqlite.py",
+          "sha256": "523132e89a3a4ca2bb53cc61a0ddfb322772306194f26585a69daa27f4a128b4"
+        },
+        {
+          "bytes": 1632,
+          "destination": "/repo/storage/strategy_state_sqlite.py",
+          "local": "storage/strategy_state_sqlite.py",
+          "sha256": "8e64a3afbbb0cc320d0fbced83312ae5d1bcfbfe3b65c711ea0da7c8dde86083"
+        },
+        {
+          "bytes": 5357,
+          "destination": "/repo/storage/trade_journal_sqlite.py",
+          "local": "storage/trade_journal_sqlite.py",
+          "sha256": "60ba6161fbb0cfc25fe5e59fd30ba55c0c8d20e370f9ebd30c81e2b38dccecb5"
+        },
+        {
+          "bytes": 6881,
+          "destination": "/repo/storage/ws_status_sqlite.py",
+          "local": "storage/ws_status_sqlite.py",
+          "sha256": "b6ee2c137f4475ea55156d2cb224c63732808876555067a5c6d89f35caf5daf1"
+        }
+      ],
+      "name": "phase1-orchestrator",
+      "network_options": [
+        "--alias",
+        "phase1-orchestrator",
+        "--alias",
+        "orchestrator"
+      ],
+      "non_python_data_not_in_snapshot": [],
+      "observed_recreation_metadata": {
+        "BASH_ENV_matches": [
+          null
+        ],
+        "ENV_matches": [
+          null
+        ],
+        "PYTHONPATH_matches": [
+          true,
+          null
+        ],
+        "auto_remove": false,
+        "command": [
+          "sh",
+          "-c",
+          "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"
+        ],
+        "cpu_period": 0,
+        "cpu_quota": 0,
+        "cpu_shares": 0,
+        "dns": [],
+        "dns_options": [],
+        "dns_search": [],
+        "entrypoint": null,
+        "extra_hosts": [],
+        "flags": [
+          {
+            "key": "RISK_SERVICE_URL",
+            "ok": true
+          },
+          {
+            "key": "AUDIT_SERVICE_URL",
+            "ok": true
+          },
+          {
+            "key": "PYTHONDONTWRITEBYTECODE",
+            "ok": true
+          },
+          {
+            "key": "SERVICE_TOKEN",
+            "ok": true
+          },
+          {
+            "key": "OPENAI_API_KEY",
+            "ok": true
+          },
+          {
+            "key": "REQUEST_TIMEOUT_SECONDS",
+            "ok": false
+          },
+          {
+            "key": "MEMORY_SERVICE_URL",
+            "ok": true
+          },
+          {
+            "key": "NO_TRADING",
+            "ok": true
+          },
+          {
+            "key": "QDRANT_COLLECTION",
+            "ok": true
+          },
+          {
+            "key": "QDRANT_URL",
+            "ok": true
+          },
+          {
+            "key": "MINIO_BUCKET",
+            "ok": true
+          },
+          {
+            "key": "POSTGRES_PASSWORD",
+            "ok": true
+          },
+          {
+            "key": "MINIO_SECRET_KEY",
+            "ok": true
+          },
+          {
+            "key": "MINIO_ENDPOINT",
+            "ok": true
+          },
+          {
+            "key": "MINIO_ACCESS_KEY",
+            "ok": true
+          },
+          null
+        ],
+        "has_cap_add": false,
+        "has_cap_drop": false,
+        "has_device_requests": false,
+        "has_devices": false,
+        "has_log_options": false,
+        "has_security_options": false,
+        "has_sysctls": false,
+        "has_tmpfs": false,
+        "has_ulimits": false,
+        "healthcheck": {
+          "Interval": 10000000000,
+          "Retries": 10,
+          "Test": [
+            "CMD-SHELL",
+            "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/healthz', timeout=2).read()\""
+          ],
+          "Timeout": 5000000000
+        },
+        "hostname": "bfaed7d1d651",
+        "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+        "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+        "init": null,
+        "label_count": 11,
+        "log_driver": "local",
+        "memory": 0,
+        "mounts": [
+          {
+            "Destination": "/repo",
+            "Mode": "ro",
+            "Propagation": "rprivate",
+            "RW": false,
+            "Source": "/Users/baitus/Downloads/crypto-bot-pro",
+            "Type": "bind"
+          }
+        ],
+        "name": "/phase1-orchestrator",
+        "nano_cpus": 0,
+        "network_mode": "phase1_research_copilot_default",
+        "networks": {
+          "phase1_research_copilot_default": {
+            "Aliases": [
+              "phase1-orchestrator",
+              "orchestrator"
+            ],
+            "DNSNames": [
+              "phase1-orchestrator",
+              "orchestrator",
+              "bfaed7d1d651"
+            ],
+            "DriverOpts": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "GwPriority": 0,
+            "IPAMConfig": null,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "Links": null,
+            "MacAddress": "",
+            "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+          }
+        },
+        "open_stdin": false,
+        "pids_limit": null,
+        "ports": {
+          "8002/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "8002"
+            }
+          ]
+        },
+        "privileged": false,
+        "readonly_rootfs": false,
+        "restart_policy": "no",
+        "restarts": 0,
+        "shm_size": 67108864,
+        "started": "2026-10-16T05:42:33.269989257Z",
+        "state": "exited",
+        "stdin_once": false,
+        "stop_signal": null,
+        "stop_timeout": null,
+        "tty": false,
+        "user": "",
+        "workdir": "/app"
+      },
+      "parent_image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "recreation_limits": [
+        "Container labels counted but values deliberately not exported",
+        "Log driver observed, not pinned by current create option allowlist",
+        "Exact replacement alias/mount representation requires verification"
+      ],
+      "snapshot_sha256": "32c9b159a26347ccdb3cfc963d88eb9f8f466ab9b1537fc72f51275c19af88d3",
+      "source_snapshot": "phase1-orchestrator-sources.tar",
+      "sources": [
+        {
+          "bytes": 28,
+          "destination": "/app/orchestrator/__init__.py",
+          "local": "phase1_research_copilot/orchestrator/__init__.py",
+          "sha256": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1"
+        },
+        {
+          "bytes": 31363,
+          "destination": "/app/orchestrator/main.py",
+          "local": "phase1_research_copilot/orchestrator/main.py",
+          "sha256": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6"
+        },
+        {
+          "bytes": 63,
+          "destination": "/app/shared/__init__.py",
+          "local": "phase1_research_copilot/shared/__init__.py",
+          "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+        },
+        {
+          "bytes": 11731,
+          "destination": "/app/shared/answer_metadata.py",
+          "local": "phase1_research_copilot/shared/answer_metadata.py",
+          "sha256": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d"
+        },
+        {
+          "bytes": 1799,
+          "destination": "/app/shared/audit.py",
+          "local": "phase1_research_copilot/shared/audit.py",
+          "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+        },
+        {
+          "bytes": 3090,
+          "destination": "/app/shared/config.py",
+          "local": "phase1_research_copilot/shared/config.py",
+          "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+        },
+        {
+          "bytes": 1282,
+          "destination": "/app/shared/db.py",
+          "local": "phase1_research_copilot/shared/db.py",
+          "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+        },
+        {
+          "bytes": 2624,
+          "destination": "/app/shared/llm_client.py",
+          "local": "phase1_research_copilot/shared/llm_client.py",
+          "sha256": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84"
+        },
+        {
+          "bytes": 1077,
+          "destination": "/app/shared/logging.py",
+          "local": "phase1_research_copilot/shared/logging.py",
+          "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+        },
+        {
+          "bytes": 1862,
+          "destination": "/app/shared/models.py",
+          "local": "phase1_research_copilot/shared/models.py",
+          "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+        },
+        {
+          "bytes": 2511,
+          "destination": "/app/shared/probe.py",
+          "local": "phase1_research_copilot/shared/probe.py",
+          "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+        },
+        {
+          "bytes": 1500,
+          "destination": "/app/shared/prompting.py",
+          "local": "phase1_research_copilot/shared/prompting.py",
+          "sha256": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903"
+        },
+        {
+          "bytes": 1122,
+          "destination": "/app/shared/retry.py",
+          "local": "phase1_research_copilot/shared/retry.py",
+          "sha256": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b"
+        },
+        {
+          "bytes": 20038,
+          "destination": "/app/shared/tools.py",
+          "local": "phase1_research_copilot/shared/tools.py",
+          "sha256": "f6e2a0cf2819c8e70f32d1ae46f051a2e858df1861a80fb3cec8180401af924f"
+        }
+      ],
+      "template_only_not_runtime_proof": {
+        "environment_keys": [
+          "MINIO_ACCESS_KEY",
+          "MINIO_SECRET_KEY",
+          "NO_TRADING",
+          "POSTGRES_PASSWORD",
+          "PYTHONPATH",
+          "SERVICE_MODULE",
+          "SERVICE_NAME",
+          "SERVICE_PORT",
+          "SERVICE_TOKEN"
+        ],
+        "healthcheck": {
+          "interval": "10s",
+          "retries": 10,
+          "test": [
+            "CMD-SHELL",
+            "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/healthz', timeout=2).read()\""
+          ],
+          "timeout": "5s"
+        },
+        "ports": [
+          "127.0.0.1:8002:8002"
+        ],
+        "service_module": "orchestrator.main",
+        "volumes": [
+          "../:/repo:ro"
+        ]
+      }
+    }
+  ],
+  "baseline": [
+    {
+      "attempt": "",
+      "foundation": "2d54e9ecef3b097d3306846b29a891b178a79ee5af5cc90f9faa12f6ffe4c5d7",
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "metadata": "9612edfd7fd751e795978960de654a31bbcf1c29a423659c411fecdac6e11fec",
+      "name": "phase1-timescaledb",
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.388611962Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "foundation": "5c82d96f7657b25aba69bc07e8fd9317bea36880d0a88a54121e8ea013288ae7",
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "metadata": "7c1fb31338b8247063918a6bcaa583b05c0b947e09fe3cbcf67772b2aa3ad03c",
+      "name": "phase1-qdrant",
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.569851379Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "foundation": "21a34cd301e95bf360bd6f30ebc5f0a008930867c8ef0730b35c42a80d0d134d",
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "metadata": "2518d27ca27ce690c0caea6c094289d3e742f307e314a8573ce653ca462cddf8",
+      "name": "phase1-minio",
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.773548546Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "foundation": "9c5c5208cf1e7de0c8aa5525e682d1329f1d058119e32b80ddfd615f21dd5583",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "metadata": "042eed2de0a18b70bb4b4baabf109c9a2094a3032c16a746d721cc92de3fd444",
+      "name": "phase1-audit-log",
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:32.811420923Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "foundation": "ce64d4550d350261c2b5d6ba747e4fc87a1c857a34e8df8d5f283ba83740ae7d",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "metadata": "1770ebb5dd080c0e6aa926afd468d562362b87e8d9e3972e19d932ae43a6f643",
+      "name": "phase1-risk-stub",
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:32.916996881Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "foundation": "21e4a4c1cb64d4863ab921aff5794f096f615b7bfd3f7ffbbc94ffcc63688257",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "metadata": "b7f8eaea6e14e9d044b398fd3ff55a07bb1cbc3b409e5caee527e327b5c377d5",
+      "name": "phase1-memory",
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:33.085165007Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "foundation": "37e8a3d4f324da8b5ef1a9983247433e276176cd98cee99e933a3cd912d76f27",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "metadata": "8de74ffcf3734db1ec43f44209df5d688ecb7924d434465e2b77dc248690a0d1",
+      "name": "phase1-orchestrator",
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:33.269989257Z",
+      "state": "exited"
+    }
+  ],
+  "baseline_evidence": {
+    "observed_at": "2026-10-16T15:55:40Z",
+    "path": "docs/review_artifacts/companion_compatibility_20261016.json",
+    "sha256": "85d226fc1e347ecd4187877f6c60a51f53fb75428f89f00d82854dbc5e764d69"
+  },
+  "baseline_observations": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image_id": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "name": "phase1-timescaledb",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "state": "exited"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image_id": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "name": "phase1-qdrant",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "state": "exited"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image_id": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "name": "phase1-minio",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "state": "exited"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image_id": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "name": "phase1-audit-log",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "state": "exited"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image_id": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "name": "phase1-risk-stub",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "state": "exited"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image_id": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "name": "phase1-memory",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "state": "exited"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image_id": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "name": "phase1-orchestrator",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "state": "exited"
+    }
+  ],
+  "compatible_with_executable_plan_loader": false,
+  "installation_authorized": false,
+  "observed_at": "2026-10-18T02:48:04.359617+00:00",
+  "policy_evidence": {
+    "builder_local_only": "UNVERIFIED as a hard no-pull guarantee",
+    "env_stdin_lossless": "SHOWN for covered native CLI fixtures",
+    "image_provenance": "SHOWN for selected prior inspections",
+    "recreation_complete": "UNVERIFIED",
+    "sdk_startup_compatible": "UNVERIFIED as a whole",
+    "source_imports_frozen": "UNVERIFIED at runtime; static bytes frozen here"
+  },
+  "schema": "companion-install-reconciled-review-v1",
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "template_sha256": "bd61e7fd7cd755594d6e56bcdca2e91ef3201074bf33e9851ba399e06aa3e4d5",
+  "unresolved": [
+    "Exact stopped-replacement recipe including ownership labels/logging and mount representation",
+    "Replacement preservation fingerprints are not observed replacement evidence",
+    "Mounted source/import isolation and complete installed dependency review",
+    "Hard registry isolation remains unverified"
+  ]
+}

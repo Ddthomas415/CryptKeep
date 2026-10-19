@@ -1,0 +1,1568 @@
+{
+  "bootstrap": [
+    {
+      "absolute_bps_per_window_ci95": [
+        -29.088057652729226,
+        -3.5579058913233124
+      ],
+      "block_days": 1,
+      "incremental_bps_per_window_ci95": [
+        58.77649844900347,
+        90.32290262750662
+      ],
+      "resamples": 10000
+    },
+    {
+      "absolute_bps_per_window_ci95": [
+        -27.11597102160901,
+        -4.926388350512426
+      ],
+      "block_days": 3,
+      "incremental_bps_per_window_ci95": [
+        62.05949528632786,
+        89.1008557638671
+      ],
+      "resamples": 10000
+    }
+  ],
+  "costs": {
+    "additional_slippage_bps": 0,
+    "fee_basis": "each leg notional; entry fee additional to $100 purchase",
+    "infrastructure": "excluded",
+    "quote_currency": "USD",
+    "taker_fee_bps_per_side": 50
+  },
+  "design": "FC-01-r1",
+  "evidence": "CF-MODELLED exploratory, not actual fills",
+  "input_content_sha256": "cd106bd53cf045d6ae10a76d439777d96e832dedceb62b2ca53ad9795f7a60f7",
+  "script_sha256": "4075d3993b51968377f86dcad39e32a2574a9b35ec2cbeeae6bbdef141034f2e",
+  "summary": {
+    "always_long_net_usd": -92.48276222569503,
+    "complete_windows": 101,
+    "entries": 17,
+    "excluded_windows": 37,
+    "gated_fees_usd": 17.005055109219956,
+    "gated_mean_midpoint_bps": 5.949589938436658,
+    "gated_net_usd": -15.994033265228797,
+    "gated_turnover_usd": 3401.0110218439913,
+    "incremental_net_usd": 76.48872896046623,
+    "rejected_opportunity_net_usd": -76.48872896046623
+  },
+  "windows": [
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.15536318880196,
+        "fees_usd": 1.0007768159440098,
+        "midpoint_bps": 15.537614471292649,
+        "net_usd": -0.8454136271420531
+      },
+      "boundary": "2026-09-01T18:00:00+00:00",
+      "entry_quote_id": 7863,
+      "exit_quote_id": 7883,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.8454136271420531,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.76664475590407,
+        "fees_usd": 0.9988332237795203,
+        "midpoint_bps": -23.334276441582258,
+        "net_usd": -1.2321884678754527
+      },
+      "boundary": "2026-09-05T18:00:00+00:00",
+      "entry_quote_id": 8435,
+      "exit_quote_id": 8515,
+      "gated_net_usd": -1.2321884678754527,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.82332206323294,
+        "fees_usd": 0.9991166103161646,
+        "midpoint_bps": -17.666543521801525,
+        "net_usd": -1.1757945470832283
+      },
+      "boundary": "2026-09-06T12:00:00+00:00",
+      "entry_quote_id": 8742,
+      "exit_quote_id": 8876,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.1757945470832283,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.64867312189389,
+        "fees_usd": 1.0032433656094695,
+        "midpoint_bps": 64.86856972957477,
+        "net_usd": -0.35457024371557666
+      },
+      "boundary": "2026-09-06T18:00:00+00:00",
+      "entry_quote_id": 8876,
+      "exit_quote_id": 9014,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.35457024371557666,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.2956912414418,
+        "fees_usd": 0.996478456207209,
+        "midpoint_bps": -70.42963484553133,
+        "net_usd": -1.7007872147654077
+      },
+      "boundary": "2026-09-07T00:00:00+00:00",
+      "entry_quote_id": 9014,
+      "exit_quote_id": 9152,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.7007872147654077,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.60188249801864,
+        "fees_usd": 0.9980094124900933,
+        "midpoint_bps": -39.810498465293605,
+        "net_usd": -1.3961269144714539
+      },
+      "boundary": "2026-09-07T06:00:00+00:00",
+      "entry_quote_id": 9152,
+      "exit_quote_id": 9292,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.3961269144714539,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.69836104548358,
+        "fees_usd": 0.9984918052274179,
+        "midpoint_bps": -30.16263810821984,
+        "net_usd": -1.300130759743838
+      },
+      "boundary": "2026-09-07T12:00:00+00:00",
+      "entry_quote_id": 9292,
+      "exit_quote_id": 9430,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.300130759743838,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.89728859316065,
+        "fees_usd": 0.9994864429658032,
+        "midpoint_bps": -10.269878280281253,
+        "net_usd": -1.1021978498051506
+      },
+      "boundary": "2026-09-07T18:00:00+00:00",
+      "entry_quote_id": 9430,
+      "exit_quote_id": 9568,
+      "gated_net_usd": -1.1021978498051506,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.197870631131,
+        "fees_usd": 0.995989353155655,
+        "midpoint_bps": -80.21167760698944,
+        "net_usd": -1.7981187220246586
+      },
+      "boundary": "2026-09-08T00:00:00+00:00",
+      "entry_quote_id": 9568,
+      "exit_quote_id": 9708,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.7981187220246586,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.91919199128904,
+        "fees_usd": 0.9995959599564452,
+        "midpoint_bps": -8.07952681172508,
+        "net_usd": -1.0804039686674054
+      },
+      "boundary": "2026-09-08T06:00:00+00:00",
+      "entry_quote_id": 9708,
+      "exit_quote_id": 9846,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.0804039686674054,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.19338170257028,
+        "fees_usd": 1.0009669085128514,
+        "midpoint_bps": 19.33944709540114,
+        "net_usd": -0.8075852059425734
+      },
+      "boundary": "2026-09-08T12:00:00+00:00",
+      "entry_quote_id": 9846,
+      "exit_quote_id": 9986,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.8075852059425734,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.88269263062985,
+        "fees_usd": 0.9994134631531492,
+        "midpoint_bps": -11.729464540968237,
+        "net_usd": -1.1167208325233018
+      },
+      "boundary": "2026-09-08T18:00:00+00:00",
+      "entry_quote_id": 9986,
+      "exit_quote_id": 10124,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.1167208325233018,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.4989824566502,
+        "fees_usd": 1.002494912283251,
+        "midpoint_bps": 49.89952348300575,
+        "net_usd": -0.5035124556330544
+      },
+      "boundary": "2026-09-09T00:00:00+00:00",
+      "entry_quote_id": 10124,
+      "exit_quote_id": 10264,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.5035124556330544,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.62630366310466,
+        "fees_usd": 1.0031315183155234,
+        "midpoint_bps": 62.63163859127063,
+        "net_usd": -0.3768278552108588
+      },
+      "boundary": "2026-09-09T06:00:00+00:00",
+      "entry_quote_id": 10264,
+      "exit_quote_id": 10402,
+      "gated_net_usd": -0.3768278552108588,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.2841600141973,
+        "fees_usd": 0.9964208000709865,
+        "midpoint_bps": -71.5827426766591,
+        "net_usd": -1.712260785873689
+      },
+      "boundary": "2026-09-09T12:00:00+00:00",
+      "entry_quote_id": 10402,
+      "exit_quote_id": 10539,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.712260785873689,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.42581682631294,
+        "fees_usd": 0.9971290841315648,
+        "midpoint_bps": -57.41705151100951,
+        "net_usd": -1.5713122578186256
+      },
+      "boundary": "2026-09-09T18:00:00+00:00",
+      "entry_quote_id": 10539,
+      "exit_quote_id": 10679,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.5713122578186256,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.2148783018115,
+        "fees_usd": 1.0010743915090574,
+        "midpoint_bps": 21.489108386505418,
+        "net_usd": -0.7861960896975619
+      },
+      "boundary": "2026-09-10T00:00:00+00:00",
+      "entry_quote_id": 10679,
+      "exit_quote_id": 10817,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.7861960896975619,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.1260851312414,
+        "fees_usd": 0.995630425656207,
+        "midpoint_bps": -87.3902183475006,
+        "net_usd": -1.8695452944148108
+      },
+      "boundary": "2026-09-10T06:00:00+00:00",
+      "entry_quote_id": 10817,
+      "exit_quote_id": 10957,
+      "gated_net_usd": -1.8695452944148108,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.33990692939629,
+        "fees_usd": 0.9966995346469816,
+        "midpoint_bps": -66.00802597442335,
+        "net_usd": -1.6567926052506892
+      },
+      "boundary": "2026-09-10T12:00:00+00:00",
+      "entry_quote_id": 10957,
+      "exit_quote_id": 11095,
+      "gated_net_usd": -1.6567926052506892,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.1844228569654,
+        "fees_usd": 0.995922114284827,
+        "midpoint_bps": -81.55642571100907,
+        "net_usd": -1.8114992573194293
+      },
+      "boundary": "2026-09-10T18:00:00+00:00",
+      "entry_quote_id": 11095,
+      "exit_quote_id": 11235,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.8114992573194293,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.74980494348415,
+        "fees_usd": 1.0037490247174208,
+        "midpoint_bps": 74.98180374684526,
+        "net_usd": -0.2539440812332703
+      },
+      "boundary": "2026-09-11T00:00:00+00:00",
+      "entry_quote_id": 11235,
+      "exit_quote_id": 11368,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.2539440812332703,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.81559471545884,
+        "fees_usd": 0.9990779735772942,
+        "midpoint_bps": -18.43923484879495,
+        "net_usd": -1.183483258118451
+      },
+      "boundary": "2026-09-11T06:00:00+00:00",
+      "entry_quote_id": 11368,
+      "exit_quote_id": 11508,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.183483258118451,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.44356148977198,
+        "fees_usd": 1.00221780744886,
+        "midpoint_bps": 44.35744904520034,
+        "net_usd": -0.5586563176768797
+      },
+      "boundary": "2026-09-11T12:00:00+00:00",
+      "entry_quote_id": 11508,
+      "exit_quote_id": 11646,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.5586563176768797,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.79968126707959,
+        "fees_usd": 0.9989984063353979,
+        "midpoint_bps": -20.030583123078483,
+        "net_usd": -1.1993171392558062
+      },
+      "boundary": "2026-09-11T18:00:00+00:00",
+      "entry_quote_id": 11646,
+      "exit_quote_id": 11786,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.1993171392558062,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.88766313174122,
+        "fees_usd": 0.9994383156587061,
+        "midpoint_bps": -11.232393498176174,
+        "net_usd": -1.1117751839174856
+      },
+      "boundary": "2026-09-12T00:00:00+00:00",
+      "entry_quote_id": 11786,
+      "exit_quote_id": 11924,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.1117751839174856,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.18229116060822,
+        "fees_usd": 1.000911455803041,
+        "midpoint_bps": 18.230412751338854,
+        "net_usd": -0.8186202951948252
+      },
+      "boundary": "2026-09-12T06:00:00+00:00",
+      "entry_quote_id": 11924,
+      "exit_quote_id": 12064,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.8186202951948252,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.7964707808389,
+        "fees_usd": 0.9989823539041944,
+        "midpoint_bps": -20.351630079834536,
+        "net_usd": -1.2025115730652922
+      },
+      "boundary": "2026-09-12T12:00:00+00:00",
+      "entry_quote_id": 12064,
+      "exit_quote_id": 12202,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.2025115730652922,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.12540648910554,
+        "fees_usd": 1.0006270324455278,
+        "midpoint_bps": 12.68124287194139,
+        "net_usd": -0.8752205433399842
+      },
+      "boundary": "2026-09-12T18:00:00+00:00",
+      "entry_quote_id": 12202,
+      "exit_quote_id": 12342,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.8752205433399842,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.0346309231367,
+        "fees_usd": 1.0001731546156836,
+        "midpoint_bps": 3.6035558017322167,
+        "net_usd": -0.9655422314789806
+      },
+      "boundary": "2026-09-13T00:00:00+00:00",
+      "entry_quote_id": 12342,
+      "exit_quote_id": 12480,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.9655422314789806,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.28362360322774,
+        "fees_usd": 0.9964181180161387,
+        "midpoint_bps": -71.63635062897744,
+        "net_usd": -1.7127945147884003
+      },
+      "boundary": "2026-09-13T06:00:00+00:00",
+      "entry_quote_id": 12480,
+      "exit_quote_id": 12618,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.7127945147884003,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.70691241033131,
+        "fees_usd": 1.0035345620516565,
+        "midpoint_bps": 70.6925486551202,
+        "net_usd": -0.29662215172034356
+      },
+      "boundary": "2026-09-13T12:00:00+00:00",
+      "entry_quote_id": 12618,
+      "exit_quote_id": 12758,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.29662215172034356,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.37436228401111,
+        "fees_usd": 0.9968718114200555,
+        "midpoint_bps": -62.56248177665347,
+        "net_usd": -1.6225095274089427
+      },
+      "boundary": "2026-09-13T18:00:00+00:00",
+      "entry_quote_id": 12758,
+      "exit_quote_id": 12896,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.6225095274089427,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 101.10291116310204,
+        "fees_usd": 1.00551455581551,
+        "midpoint_bps": 110.29242550567363,
+        "net_usd": 0.09739660728652555
+      },
+      "boundary": "2026-09-14T00:00:00+00:00",
+      "entry_quote_id": 12896,
+      "exit_quote_id": 13036,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": -0.09739660728652555,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.06815099850485,
+        "fees_usd": 1.0003407549925243,
+        "midpoint_bps": 6.816388101158477,
+        "net_usd": -0.9321897564876764
+      },
+      "boundary": "2026-09-14T06:00:00+00:00",
+      "entry_quote_id": 13036,
+      "exit_quote_id": 13174,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.9321897564876764,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 101.616762991572,
+        "fees_usd": 1.00808381495786,
+        "midpoint_bps": 161.67759649516444,
+        "net_usd": 0.6086791766141428
+      },
+      "boundary": "2026-09-14T12:00:00+00:00",
+      "entry_quote_id": 13174,
+      "exit_quote_id": 13314,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": -0.6086791766141428,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.05508246989342,
+        "fees_usd": 0.9952754123494671,
+        "midpoint_bps": -94.49049253533404,
+        "net_usd": -1.9401929424560465
+      },
+      "boundary": "2026-09-14T18:00:00+00:00",
+      "entry_quote_id": 13314,
+      "exit_quote_id": 13452,
+      "gated_net_usd": -1.9401929424560465,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.33849633244488,
+        "fees_usd": 0.9966924816622245,
+        "midpoint_bps": -66.14909244450185,
+        "net_usd": -1.6581961492173483
+      },
+      "boundary": "2026-09-15T00:00:00+00:00",
+      "entry_quote_id": 13452,
+      "exit_quote_id": 13590,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.6581961492173483,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 98.98535140098987,
+        "fees_usd": 0.9949267570049495,
+        "midpoint_bps": -101.46357937700023,
+        "net_usd": -2.009575356015079
+      },
+      "boundary": "2026-09-15T06:00:00+00:00",
+      "entry_quote_id": 13590,
+      "exit_quote_id": 13730,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 2.009575356015079,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.99114532318985,
+        "fees_usd": 0.9999557266159493,
+        "midpoint_bps": -0.8841674922688281,
+        "net_usd": -1.0088104034260945
+      },
+      "boundary": "2026-09-15T12:00:00+00:00",
+      "entry_quote_id": 13730,
+      "exit_quote_id": 13868,
+      "gated_net_usd": -1.0088104034260945,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 98.26379673481901,
+        "fees_usd": 0.9913189836740951,
+        "midpoint_bps": -173.61903744526953,
+        "net_usd": -2.727522248855085
+      },
+      "boundary": "2026-09-15T18:00:00+00:00",
+      "entry_quote_id": 13868,
+      "exit_quote_id": 14006,
+      "gated_net_usd": -2.727522248855085,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.50834661632693,
+        "fees_usd": 1.0025417330816349,
+        "midpoint_bps": 50.83598833319769,
+        "net_usd": -0.49419511675470273
+      },
+      "boundary": "2026-09-16T00:00:00+00:00",
+      "entry_quote_id": 14006,
+      "exit_quote_id": 14146,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.49419511675470273,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.29663979397162,
+        "fees_usd": 1.001483198969858,
+        "midpoint_bps": 29.665297993652917,
+        "net_usd": -0.7048434049982364
+      },
+      "boundary": "2026-09-16T06:00:00+00:00",
+      "entry_quote_id": 14146,
+      "exit_quote_id": 14284,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.7048434049982364,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 98.90726752425076,
+        "fees_usd": 0.9945363376212538,
+        "midpoint_bps": -106.49022615454973,
+        "net_usd": -2.087268813370498
+      },
+      "boundary": "2026-09-16T12:00:00+00:00",
+      "entry_quote_id": 14284,
+      "exit_quote_id": 14422,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 2.087268813370498,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 101.06733345714058,
+        "fees_usd": 1.005336667285703,
+        "midpoint_bps": 109.57634667800198,
+        "net_usd": 0.06199678985487456
+      },
+      "boundary": "2026-09-16T18:00:00+00:00",
+      "entry_quote_id": 14422,
+      "exit_quote_id": 14562,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": -0.06199678985487456,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.07701734452122,
+        "fees_usd": 1.000385086722606,
+        "midpoint_bps": 7.703047454985512,
+        "net_usd": -0.9233677422013824
+      },
+      "boundary": "2026-09-17T00:00:00+00:00",
+      "entry_quote_id": 14562,
+      "exit_quote_id": 14700,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.9233677422013824,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.25446784312307,
+        "fees_usd": 1.0012723392156153,
+        "midpoint_bps": 25.448097468154796,
+        "net_usd": -0.7468044960925488
+      },
+      "boundary": "2026-09-17T06:00:00+00:00",
+      "entry_quote_id": 14700,
+      "exit_quote_id": 14838,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.7468044960925488,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.20154791730765,
+        "fees_usd": 1.0010077395865384,
+        "midpoint_bps": 20.156101207224886,
+        "net_usd": -0.7994598222788885
+      },
+      "boundary": "2026-09-17T12:00:00+00:00",
+      "entry_quote_id": 14838,
+      "exit_quote_id": 14978,
+      "gated_net_usd": -0.7994598222788885,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.65061495527789,
+        "fees_usd": 0.9982530747763895,
+        "midpoint_bps": -34.93720122612287,
+        "net_usd": -1.3476381194985017
+      },
+      "boundary": "2026-09-17T18:00:00+00:00",
+      "entry_quote_id": 14978,
+      "exit_quote_id": 15116,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.3476381194985017,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 101.4959551200363,
+        "fees_usd": 1.0074797756001814,
+        "midpoint_bps": 149.59683190679306,
+        "net_usd": 0.48847534443611806
+      },
+      "boundary": "2026-09-18T00:00:00+00:00",
+      "entry_quote_id": 15116,
+      "exit_quote_id": 15254,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": -0.48847534443611806,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.6453324246144,
+        "fees_usd": 1.003226662123072,
+        "midpoint_bps": 64.53453742040871,
+        "net_usd": -0.3578942375086771
+      },
+      "boundary": "2026-09-18T06:00:00+00:00",
+      "entry_quote_id": 15254,
+      "exit_quote_id": 15394,
+      "gated_net_usd": -0.3578942375086771,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 103.81049986623344,
+        "fees_usd": 1.0190524993311671,
+        "midpoint_bps": 381.05129357585145,
+        "net_usd": 2.7914473669022755
+      },
+      "boundary": "2026-09-18T12:00:00+00:00",
+      "entry_quote_id": 15394,
+      "exit_quote_id": 15532,
+      "gated_net_usd": 2.7914473669022755,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.94064943161084,
+        "fees_usd": 0.9997032471580543,
+        "midpoint_bps": -5.933204044461515,
+        "net_usd": -1.0590538155472178
+      },
+      "boundary": "2026-09-18T18:00:00+00:00",
+      "entry_quote_id": 15532,
+      "exit_quote_id": 15670,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.0590538155472178,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.16778589861694,
+        "fees_usd": 1.0008389294930848,
+        "midpoint_bps": 16.780446197064425,
+        "net_usd": -0.8330530308761437
+      },
+      "boundary": "2026-09-19T00:00:00+00:00",
+      "entry_quote_id": 15670,
+      "exit_quote_id": 15810,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.8330530308761437,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.31147530868006,
+        "fees_usd": 1.0015573765434003,
+        "midpoint_bps": 31.148766893254187,
+        "net_usd": -0.6900820678633413
+      },
+      "boundary": "2026-09-19T06:00:00+00:00",
+      "entry_quote_id": 15810,
+      "exit_quote_id": 15948,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.6900820678633413,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.2543462401071,
+        "fees_usd": 1.0012717312005355,
+        "midpoint_bps": 25.43585584642294,
+        "net_usd": -0.7469254910934386
+      },
+      "boundary": "2026-09-19T12:00:00+00:00",
+      "entry_quote_id": 15948,
+      "exit_quote_id": 16088,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.7469254910934386,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.67925988146962,
+        "fees_usd": 0.9983962994073481,
+        "midpoint_bps": -32.07278667123781,
+        "net_usd": -1.319136417937729
+      },
+      "boundary": "2026-09-19T18:00:00+00:00",
+      "entry_quote_id": 16088,
+      "exit_quote_id": 16225,
+      "gated_net_usd": -1.319136417937729,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.04307969551003,
+        "fees_usd": 0.9952153984775501,
+        "midpoint_bps": -95.69080524105544,
+        "net_usd": -1.9521357029675195
+      },
+      "boundary": "2026-09-20T00:00:00+00:00",
+      "entry_quote_id": 16225,
+      "exit_quote_id": 16363,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.9521357029675195,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.93813626454163,
+        "fees_usd": 0.9996906813227082,
+        "midpoint_bps": -6.185130937769179,
+        "net_usd": -1.0615544167810822
+      },
+      "boundary": "2026-09-20T06:00:00+00:00",
+      "entry_quote_id": 16363,
+      "exit_quote_id": 16503,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.0615544167810822,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.88227484025435,
+        "fees_usd": 1.0044113742012717,
+        "midpoint_bps": 88.2287332739673,
+        "net_usd": -0.12213653394691781
+      },
+      "boundary": "2026-09-20T12:00:00+00:00",
+      "entry_quote_id": 16503,
+      "exit_quote_id": 16641,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.12213653394691781,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.22237531903961,
+        "fees_usd": 1.001111876595198,
+        "midpoint_bps": 22.238766159028422,
+        "net_usd": -0.7787365575555842
+      },
+      "boundary": "2026-09-20T18:00:00+00:00",
+      "entry_quote_id": 16641,
+      "exit_quote_id": 16781,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.7787365575555842,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.36863859467837,
+        "fees_usd": 1.001843192973392,
+        "midpoint_bps": 36.86509188379317,
+        "net_usd": -0.633204598295019
+      },
+      "boundary": "2026-09-21T00:00:00+00:00",
+      "entry_quote_id": 16781,
+      "exit_quote_id": 16919,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.633204598295019,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 104.0878566032297,
+        "fees_usd": 1.0204392830161484,
+        "midpoint_bps": 408.78691100423083,
+        "net_usd": 3.0674173202135475
+      },
+      "boundary": "2026-09-21T06:00:00+00:00",
+      "entry_quote_id": 16919,
+      "exit_quote_id": 17057,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": -3.0674173202135475,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 101.15233261898594,
+        "fees_usd": 1.0057616630949298,
+        "midpoint_bps": 115.23444617870027,
+        "net_usd": 0.14657095589100777
+      },
+      "boundary": "2026-09-21T12:00:00+00:00",
+      "entry_quote_id": 17057,
+      "exit_quote_id": 17195,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": -0.14657095589100777,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.60632347682267,
+        "fees_usd": 1.0030316173841134,
+        "midpoint_bps": 60.63351529285832,
+        "net_usd": -0.396708140561447
+      },
+      "boundary": "2026-09-21T18:00:00+00:00",
+      "entry_quote_id": 17195,
+      "exit_quote_id": 17335,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.396708140561447,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 98.79512426365781,
+        "fees_usd": 0.9939756213182891,
+        "midpoint_bps": -120.48642353897688,
+        "net_usd": -2.1988513576604776
+      },
+      "boundary": "2026-09-22T00:00:00+00:00",
+      "entry_quote_id": 17335,
+      "exit_quote_id": 17473,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 2.1988513576604776,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.7150971725448,
+        "fees_usd": 1.003575485862724,
+        "midpoint_bps": 71.5108926189445,
+        "net_usd": -0.2884783133179223
+      },
+      "boundary": "2026-09-22T06:00:00+00:00",
+      "entry_quote_id": 17473,
+      "exit_quote_id": 17611,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.2884783133179223,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.70919412676048,
+        "fees_usd": 1.0035459706338024,
+        "midpoint_bps": 70.9205796607315,
+        "net_usd": -0.2943518438733228
+      },
+      "boundary": "2026-09-22T12:00:00+00:00",
+      "entry_quote_id": 17611,
+      "exit_quote_id": 17751,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.2943518438733228,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.4900390475479,
+        "fees_usd": 0.9974501952377395,
+        "midpoint_bps": -50.9949435171897,
+        "net_usd": -1.5074111476898437
+      },
+      "boundary": "2026-09-22T18:00:00+00:00",
+      "entry_quote_id": 17751,
+      "exit_quote_id": 17889,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.5074111476898437,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.3675010036207,
+        "fees_usd": 1.0018375050181034,
+        "midpoint_bps": 36.7512630852973,
+        "net_usd": -0.6343365013974007
+      },
+      "boundary": "2026-09-23T00:00:00+00:00",
+      "entry_quote_id": 17889,
+      "exit_quote_id": 18027,
+      "gated_net_usd": -0.6343365013974007,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 98.86146677907841,
+        "fees_usd": 0.994307333895392,
+        "midpoint_bps": -113.85217233388367,
+        "net_usd": -2.1328405548169798
+      },
+      "boundary": "2026-09-23T06:00:00+00:00",
+      "entry_quote_id": 18027,
+      "exit_quote_id": 18167,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 2.1328405548169798,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 98.59746348036319,
+        "fees_usd": 0.992987317401816,
+        "midpoint_bps": -140.23319115558652,
+        "net_usd": -2.3955238370386276
+      },
+      "boundary": "2026-09-23T12:00:00+00:00",
+      "entry_quote_id": 18167,
+      "exit_quote_id": 18305,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 2.3955238370386276,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.1790469194748,
+        "fees_usd": 1.0008952345973738,
+        "midpoint_bps": 17.925488192405137,
+        "net_usd": -0.821848315122574
+      },
+      "boundary": "2026-09-23T18:00:00+00:00",
+      "entry_quote_id": 18305,
+      "exit_quote_id": 18445,
+      "gated_net_usd": -0.821848315122574,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.37611963345653,
+        "fees_usd": 0.9968805981672827,
+        "midpoint_bps": -62.38685617741879,
+        "net_usd": -1.6207609647107573
+      },
+      "boundary": "2026-09-24T00:00:00+00:00",
+      "entry_quote_id": 18445,
+      "exit_quote_id": 18583,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.6207609647107573,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.3648865520724,
+        "fees_usd": 0.996824432760362,
+        "midpoint_bps": -63.51015697189766,
+        "net_usd": -1.631937880687956
+      },
+      "boundary": "2026-09-24T06:00:00+00:00",
+      "entry_quote_id": 18583,
+      "exit_quote_id": 18721,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.631937880687956,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.61221435453244,
+        "fees_usd": 1.0030610717726622,
+        "midpoint_bps": 61.22263834530184,
+        "net_usd": -0.3908467172402217
+      },
+      "boundary": "2026-09-24T12:00:00+00:00",
+      "entry_quote_id": 18721,
+      "exit_quote_id": 18861,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.3908467172402217,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.62448464194252,
+        "fees_usd": 1.0031224232097125,
+        "midpoint_bps": 62.44965983982276,
+        "net_usd": -0.3786377812671966
+      },
+      "boundary": "2026-09-24T18:00:00+00:00",
+      "entry_quote_id": 18861,
+      "exit_quote_id": 18999,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.3786377812671966,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.71261018465347,
+        "fees_usd": 0.9985630509232674,
+        "midpoint_bps": -28.737798710206654,
+        "net_usd": -1.2859528662697963
+      },
+      "boundary": "2026-09-25T00:00:00+00:00",
+      "entry_quote_id": 18999,
+      "exit_quote_id": 19139,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.2859528662697963,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.5545543198204,
+        "fees_usd": 1.002772771599102,
+        "midpoint_bps": 55.59917606827503,
+        "net_usd": -0.4482184517787047
+      },
+      "boundary": "2026-09-25T06:00:00+00:00",
+      "entry_quote_id": 19139,
+      "exit_quote_id": 19277,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.4482184517787047,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 98.98375093061263,
+        "fees_usd": 0.9949187546530632,
+        "midpoint_bps": -101.43260859895808,
+        "net_usd": -2.011167824040434
+      },
+      "boundary": "2026-09-25T12:00:00+00:00",
+      "entry_quote_id": 19277,
+      "exit_quote_id": 19415,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 2.011167824040434,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.31648481540037,
+        "fees_usd": 1.001582424077002,
+        "midpoint_bps": 31.70115887296987,
+        "net_usd": -0.6850976086766298
+      },
+      "boundary": "2026-09-25T18:00:00+00:00",
+      "entry_quote_id": 19415,
+      "exit_quote_id": 19555,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.6850976086766298,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.84569509541207,
+        "fees_usd": 0.9992284754770603,
+        "midpoint_bps": -15.429301670329965,
+        "net_usd": -1.1535333800649918
+      },
+      "boundary": "2026-09-26T00:00:00+00:00",
+      "entry_quote_id": 19555,
+      "exit_quote_id": 19693,
+      "gated_net_usd": -1.1535333800649918,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.281728840876,
+        "fees_usd": 1.00140864420438,
+        "midpoint_bps": 28.17407731088073,
+        "net_usd": -0.7196798033283807
+      },
+      "boundary": "2026-09-26T06:00:00+00:00",
+      "entry_quote_id": 19693,
+      "exit_quote_id": 19797,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.7196798033283807,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.95400488966878,
+        "fees_usd": 0.999770024448344,
+        "midpoint_bps": -4.5983231091917265,
+        "net_usd": -1.0457651347795633
+      },
+      "boundary": "2026-09-26T12:00:00+00:00",
+      "entry_quote_id": 19797,
+      "exit_quote_id": 19915,
+      "gated_net_usd": -1.0457651347795633,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.26188024548034,
+        "fees_usd": 1.0013094012274018,
+        "midpoint_bps": 26.189214848384434,
+        "net_usd": -0.7394291557470603
+      },
+      "boundary": "2026-09-26T18:00:00+00:00",
+      "entry_quote_id": 19915,
+      "exit_quote_id": 20039,
+      "gated_net_usd": -0.7394291557470603,
+      "incremental_net_usd": 0.0,
+      "qualifying": true
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.15019670337918,
+        "fees_usd": 1.000750983516896,
+        "midpoint_bps": 15.020856867027366,
+        "net_usd": -0.850554280137716
+      },
+      "boundary": "2026-09-27T00:00:00+00:00",
+      "entry_quote_id": 20039,
+      "exit_quote_id": 20155,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.850554280137716,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.55502926384483,
+        "fees_usd": 1.0027751463192243,
+        "midpoint_bps": 55.50411353032247,
+        "net_usd": -0.4477458824743945
+      },
+      "boundary": "2026-09-27T06:00:00+00:00",
+      "entry_quote_id": 20155,
+      "exit_quote_id": 20277,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.4477458824743945,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.55105037470747,
+        "fees_usd": 0.9977552518735374,
+        "midpoint_bps": -44.89378784624299,
+        "net_usd": -1.446704877166065
+      },
+      "boundary": "2026-09-27T12:00:00+00:00",
+      "entry_quote_id": 20277,
+      "exit_quote_id": 20403,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.446704877166065,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.84189807953624,
+        "fees_usd": 0.9992094903976813,
+        "midpoint_bps": -15.808990060920403,
+        "net_usd": -1.1573114108614453
+      },
+      "boundary": "2026-09-28T06:00:00+00:00",
+      "entry_quote_id": 20643,
+      "exit_quote_id": 20757,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.1573114108614453,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 101.01558461899914,
+        "fees_usd": 1.0050779230949956,
+        "midpoint_bps": 101.55967285912837,
+        "net_usd": 0.010506695904146657
+      },
+      "boundary": "2026-09-28T12:00:00+00:00",
+      "entry_quote_id": 20757,
+      "exit_quote_id": 20873,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": -0.010506695904146657,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.58739969010549,
+        "fees_usd": 0.9979369984505274,
+        "midpoint_bps": -41.258840722230296,
+        "net_usd": -1.410537308345042
+      },
+      "boundary": "2026-09-28T18:00:00+00:00",
+      "entry_quote_id": 20873,
+      "exit_quote_id": 20993,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.410537308345042,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.90083299089977,
+        "fees_usd": 0.9995041649544989,
+        "midpoint_bps": -9.915503834608819,
+        "net_usd": -1.0986711740547266
+      },
+      "boundary": "2026-09-29T00:00:00+00:00",
+      "entry_quote_id": 20993,
+      "exit_quote_id": 21113,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.0986711740547266,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 101.1572215844298,
+        "fees_usd": 1.005786107922149,
+        "midpoint_bps": 115.72336423769426,
+        "net_usd": 0.15143547650765665
+      },
+      "boundary": "2026-09-29T06:00:00+00:00",
+      "entry_quote_id": 21113,
+      "exit_quote_id": 21223,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": -0.15143547650765665,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 98.50823674417502,
+        "fees_usd": 0.9925411837208751,
+        "midpoint_bps": -149.17514927914488,
+        "net_usd": -2.484304439545853
+      },
+      "boundary": "2026-09-29T12:00:00+00:00",
+      "entry_quote_id": 21223,
+      "exit_quote_id": 21345,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 2.484304439545853,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.6236265011692,
+        "fees_usd": 1.003118132505846,
+        "midpoint_bps": 62.363853485372104,
+        "net_usd": -0.37949163133664765
+      },
+      "boundary": "2026-09-30T06:00:00+00:00",
+      "entry_quote_id": 21586,
+      "exit_quote_id": 21710,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.37949163133664765,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.05338639386116,
+        "fees_usd": 1.0002669319693058,
+        "midpoint_bps": 5.339831897226421,
+        "net_usd": -0.9468805381081455
+      },
+      "boundary": "2026-09-30T12:00:00+00:00",
+      "entry_quote_id": 21710,
+      "exit_quote_id": 21836,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.9468805381081455,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.91501445794329,
+        "fees_usd": 1.0045750722897164,
+        "midpoint_bps": 91.749863388213,
+        "net_usd": -0.08956061434643026
+      },
+      "boundary": "2026-10-01T12:00:00+00:00",
+      "entry_quote_id": 22156,
+      "exit_quote_id": 22284,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.08956061434643026,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.09286318228644,
+        "fees_usd": 1.0004643159114321,
+        "midpoint_bps": 9.532699952941037,
+        "net_usd": -0.9076011336249961
+      },
+      "boundary": "2026-10-01T18:00:00+00:00",
+      "entry_quote_id": 22284,
+      "exit_quote_id": 22422,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.9076011336249961,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 101.49180393029671,
+        "fees_usd": 1.0074590196514837,
+        "midpoint_bps": 149.1815812962205,
+        "net_usd": 0.484344910645228
+      },
+      "boundary": "2026-10-02T00:00:00+00:00",
+      "entry_quote_id": 22422,
+      "exit_quote_id": 22544,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": -0.484344910645228,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.59329485409684,
+        "fees_usd": 0.9979664742704841,
+        "midpoint_bps": -40.66933782500115,
+        "net_usd": -1.4046716201736444
+      },
+      "boundary": "2026-10-02T18:00:00+00:00",
+      "entry_quote_id": 22782,
+      "exit_quote_id": 22922,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.4046716201736444,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 100.24066726173415,
+        "fees_usd": 1.0012033363086708,
+        "midpoint_bps": 24.067911576473033,
+        "net_usd": -0.7605360745745251
+      },
+      "boundary": "2026-10-03T00:00:00+00:00",
+      "entry_quote_id": 22922,
+      "exit_quote_id": 23060,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 0.7605360745745251,
+      "qualifying": false
+    },
+    {
+      "baseline": {
+        "entry_notional_usd": 100,
+        "exit_notional_usd": 99.70640674278553,
+        "fees_usd": 0.9985320337139277,
+        "midpoint_bps": -29.35815091063776,
+        "net_usd": -1.2921252909283956
+      },
+      "boundary": "2026-10-03T18:00:00+00:00",
+      "entry_quote_id": 23110,
+      "exit_quote_id": 23248,
+      "gated_net_usd": 0.0,
+      "incremental_net_usd": 1.2921252909283956,
+      "qualifying": false
+    }
+  ]
+}

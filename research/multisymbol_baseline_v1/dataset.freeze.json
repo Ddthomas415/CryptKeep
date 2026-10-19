@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "plan_sha256": "a920ad6ae6d9770b6b28becac8c0f9937802be92c1088d11cb3a60b2d29e0c41",
+  "snapshot_sha256": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+  "markets": {
+    "BTC/USDT": {
+      "discovery": {
+        "bars": 4644,
+        "rows_sha256": "f0f9105498efd95ef9452c6a6ff4ecccae400e104560612e24f86456657f5fc1"
+      },
+      "validation": {
+        "bars": 6132,
+        "rows_sha256": "07faef873d81122bec97c6f035a81f74d33c24280cac08f2204487f37d3ab9db"
+      },
+      "final": {
+        "bars": 6852,
+        "rows_sha256": "4c8884b5899ff0393bfb6b024b50c1bf064b121981582090143e22499a212e4c"
+      }
+    },
+    "ETH/USDT": {
+      "discovery": {
+        "bars": 4644,
+        "rows_sha256": "5680594b1fa64b80a4e698e7a16b8f6f64515944d0dc3c0940852b1aa57a174f"
+      },
+      "validation": {
+        "bars": 6132,
+        "rows_sha256": "a5f35dfc6306c57fe48963787d3b105ae4e0a09b3b78d75459e7da1527a93037"
+      },
+      "final": {
+        "bars": 6852,
+        "rows_sha256": "9f88de44cfe60b070c274bec21a58452579d017baea77dea597d637cad1006bc"
+      }
+    },
+    "SOL/USDT": {
+      "discovery": {
+        "bars": 4644,
+        "rows_sha256": "5eaf7bc23070b024234703e5c4f18d18fca9b8f41ac5a32e14d0836b82280cd3"
+      },
+      "validation": {
+        "bars": 6132,
+        "rows_sha256": "72b39531fc517fedc51d5d0efad872f8bec3565d47bc216c1a8ca4831d9894d2"
+      },
+      "final": {
+        "bars": 6852,
+        "rows_sha256": "d662a4a83fc5b11bdb3c0baadf9f2325242e4b1b59dacc39e6423376acbec5c7"
+      }
+    },
+    "ADA/USDT": {
+      "discovery": {
+        "bars": 4644,
+        "rows_sha256": "15701f9a2ca5bb370766bfbd6ba02ed4c9a158bd3f05edf0ea563f98dd3540bc"
+      },
+      "validation": {
+        "bars": 6132,
+        "rows_sha256": "0ea39200b89135fa3cd111dd5fcacc4ac2a3c110188e05d7637dfef1da959c77"
+      },
+      "final": {
+        "bars": 6852,
+        "rows_sha256": "7883f00415c4fa819eec5f10688c7b6612800c6da773f50aed7affa7c9284b55"
+      }
+    },
+    "XRP/USDT": {
+      "discovery": {
+        "bars": 4644,
+        "rows_sha256": "5e8a137efc9f7f0ad3a55403dfddab4237c85231388cf7eaf485d48f936701ae"
+      },
+      "validation": {
+        "bars": 6132,
+        "rows_sha256": "7b35914feb4c3907f65b82981a790452cbc87ac0c078e0e7be00caf0cf252fac"
+      },
+      "final": {
+        "bars": 6852,
+        "rows_sha256": "69fda534e93ae906b6f3e0da0eec911dfc8309b97d84e7147f0c1da346916f0f"
+      }
+    }
+  },
+  "qualification": "DATA_FREEZE_ONLY_NOT_PROFITABILITY"
+}

@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from decimal import Decimal
 import json
 import math
 from services.process.heartbeat import write_named_heartbeat
@@ -193,6 +195,42 @@ def _trade_fee_usd(tr: dict) -> float:
         return float(fee_obj.get("cost") or 0.0)
     except (TypeError, ValueError):
         return 0.0
+
+
+def _validated_trade_values(tr: dict) -> dict:
+    """Finite Decimal validation of a venue trade before it is recorded or accounted (fail closed).
+
+    qty and price must be finite and > 0; a USD-like fee cost and any reported realized PnL must be finite
+    (negative fee = rebate is allowed). Raises ValueError("<field>_<problem>") instead of defaulting to 0.0.
+    """
+    from services.markets.math_utils import decimal_value
+    qty = decimal_value(tr.get("amount") if tr.get("amount") is not None else tr.get("qty"), name="trade_qty")
+    price = decimal_value(tr.get("price"), name="trade_price")
+    if qty <= 0:
+        raise ValueError("trade_qty_nonpositive")
+    if price <= 0:
+        raise ValueError("trade_price_nonpositive")
+    fee_usd = Decimal("0")
+    fee_obj = tr.get("fee")
+    if isinstance(fee_obj, dict) and str(fee_obj.get("currency") or "").upper().strip() in {"USD", "USDT", "USDC"}:
+        fee_usd = decimal_value(fee_obj.get("cost"), name="trade_fee")
+    pnl = None
+    for source in (tr, tr.get("info") if isinstance(tr.get("info"), dict) else {}):
+        for key in ("realized_pnl_usd", "realized_pnl", "realizedPnl", "pnl_usd", "pnl"):
+            if source.get(key) is not None:
+                pnl = decimal_value(source.get(key), name="trade_realized_pnl")
+                break
+        if pnl is not None:
+            break
+    def stored_float(value, name):
+        converted = float(value)
+        if not math.isfinite(converted) or (value != 0 and converted == 0):
+            raise ValueError(name + "_not_float_representable")
+        return converted
+
+    return {"qty": stored_float(qty, "trade_qty"), "price": stored_float(price, "trade_price"),
+            "fee_usd": stored_float(fee_usd, "trade_fee"),
+            "realized_pnl_usd": None if pnl is None else stored_float(pnl, "trade_realized_pnl")}
 
 
 def _trade_realized_pnl_usd(tr: dict) -> float | None:
@@ -595,14 +633,23 @@ def run_forever() -> None:
                                 max_ts = max(max_ts, tr_ts)
                             if not tid:
                                 continue
+                            try:
+                                checked = _validated_trade_values(tr)
+                            except ValueError as exc:
+                                _LOG.warning(
+                                    "live_reconciler.invalid_trade_values intent_id=%s fill_id=%s reason=%s — not recorded; cursor held",
+                                    it.get("intent_id"), tid, exc,
+                                )
+                                cursor_blocked = True
+                                continue
                             fill_row = {
                                 "trade_id": tid,
                                 "ts": str(tr.get("datetime") or _now()),
                                 "venue": venue,
                                 "symbol": symbol,
                                 "side": str(tr.get("side") or it["side"]).lower(),
-                                "qty": float(tr.get("amount") or tr.get("qty") or 0.0),
-                                "price": float(tr.get("price") or 0.0),
+                                "qty": checked["qty"],
+                                "price": checked["price"],
                                 "fee": (tr.get("fee") or {}).get("cost") if isinstance(tr.get("fee"), dict) else None,
                                 "fee_currency": (tr.get("fee") or {}).get("currency") if isinstance(tr.get("fee"), dict) else None,
                                 "client_order_id": it.get("client_order_id"),
@@ -617,13 +664,13 @@ def run_forever() -> None:
                                 "qty": fill_row["qty"],
                                 "price": fill_row["price"],
                                 "ts": fill_row["ts"],
-                                "fee_usd": _trade_fee_usd(tr),
+                                "fee_usd": checked["fee_usd"],
                                 "client_order_id": it.get("client_order_id"),
                                 "order_id": ex_oid,
                                 "exchange_order_id": ex_oid,
                                 "raw_trade": tr,
                             }
-                            realized_pnl = _trade_realized_pnl_usd(tr)
+                            realized_pnl = checked["realized_pnl_usd"]
                             if realized_pnl is not None:
                                 sink_fill["realized_pnl_usd"] = realized_pnl
                             _emit_ok = _emit_canonical_fill(exec_db=exec_db, fill=sink_fill)

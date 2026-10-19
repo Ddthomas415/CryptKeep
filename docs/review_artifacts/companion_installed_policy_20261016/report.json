@@ -1,0 +1,583 @@
+{
+  "recorded_at_utc": "2026-10-16T21:49:22.395226+00:00",
+  "state": "INCOMPLETE",
+  "cli_sha256": "31ae2d64e51d9dfc728a2934941615cdd92f31279ed6d5c1fb2bfc0a44637a8f",
+  "targets": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "name": "/phase1-timescaledb",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "state": "exited",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "flags": [
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_DB",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_USER",
+          "ok": true
+        },
+        null
+      ]
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "name": "/phase1-qdrant",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "state": "exited",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "flags": [
+        null
+      ]
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "name": "/phase1-minio",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "state": "exited",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "flags": [
+        {
+          "key": "MINIO_ROOT_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ROOT_USER",
+          "ok": true
+        },
+        null
+      ]
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "name": "/phase1-audit-log",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "state": "exited",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "flags": [
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": false
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        null
+      ]
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "name": "/phase1-risk-stub",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "state": "exited",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "flags": [
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": false
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        null
+      ]
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "name": "/phase1-memory",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "state": "exited",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "flags": [
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": false
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        null
+      ]
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "name": "/phase1-orchestrator",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "state": "exited",
+      "restart_count": 0,
+      "restart_policy": "no",
+      "flags": [
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": false
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        null
+      ]
+    }
+  ],
+  "files": [
+    {
+      "container": "phase1-orchestrator",
+      "path": "/app/shared/config.py",
+      "status": "regular_file",
+      "sha256": "63f987b33792b12e5e97da53e44f550d23f9c91943cc175ce61f650951bb9097",
+      "bytes": 3047,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-orchestrator__app__shared__config.py.source.txt",
+      "matches_local": false
+    },
+    {
+      "container": "phase1-orchestrator",
+      "path": "/app/shared/tools.py",
+      "status": "regular_file",
+      "sha256": "bbf00f30ced7027a1aaef89dfc161204b50a24e7a445a014d482b7237dc2d437",
+      "bytes": 18576,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-orchestrator__app__shared__tools.py.source.txt",
+      "matches_local": false
+    },
+    {
+      "container": "phase1-orchestrator",
+      "path": "/app/shared/probe.py",
+      "status": "path_unavailable"
+    },
+    {
+      "container": "phase1-orchestrator",
+      "path": "/app/orchestrator/main.py",
+      "status": "regular_file",
+      "sha256": "c617205830376da3d6e5b4d8a33e88c5f3d16bed34ce8fee20319e951162a05b",
+      "bytes": 30336,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-orchestrator__app__orchestrator__main.py.source.txt",
+      "matches_local": false
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/app/shared/config.py",
+      "status": "regular_file",
+      "sha256": "63f987b33792b12e5e97da53e44f550d23f9c91943cc175ce61f650951bb9097",
+      "bytes": 3047,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__app__shared__config.py.source.txt",
+      "matches_local": false
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/app/shared/db.py",
+      "status": "regular_file",
+      "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "bytes": 1282,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__app__shared__db.py.source.txt",
+      "matches_local": true
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/app/shared/probe.py",
+      "status": "path_unavailable"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/app/memory_retrieval/main.py",
+      "status": "regular_file",
+      "sha256": "c9efd5ff807427ec6c89e09782a0c931902c1aa024ee0b7ec85ffa7d666a3436",
+      "bytes": 15813,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__app__memory_retrieval__main.py.source.txt",
+      "matches_local": false
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/app/memory_retrieval/article_view.py",
+      "status": "regular_file",
+      "sha256": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+      "bytes": 6397,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__app__memory_retrieval__article_view.py.source.txt",
+      "matches_local": true
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/app/memory_retrieval/question_query.py",
+      "status": "regular_file",
+      "sha256": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+      "bytes": 1424,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__app__memory_retrieval__question_query.py.source.txt",
+      "matches_local": true
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/qdrant_client/qdrant_client.py",
+      "status": "regular_file",
+      "sha256": "cb3e0ce072bc3637b4053065f0c6b4c8f6bc7f02b65cb9f5f80c966a64b552bb",
+      "bytes": 130669,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__qdrant_client__qdrant_client.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/qdrant_client/qdrant_remote.py",
+      "status": "regular_file",
+      "sha256": "c0a826d3e7ceb43031e14ed2506d6830c12c362dad12ba31173c4292468c93ab",
+      "bytes": 136641,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__qdrant_client__qdrant_remote.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/qdrant_client/http/api_client.py",
+      "status": "regular_file",
+      "sha256": "d461daecc1eda9ad9f1ac1c3f36fad78263ae9f30231fca40303760927ba011a",
+      "bytes": 8159,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__qdrant_client__http__api_client.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/httpx/_client.py",
+      "status": "regular_file",
+      "sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d",
+      "bytes": 65714,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__httpx___client.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py",
+      "status": "regular_file",
+      "sha256": "03379a454c95c0271c4f2c8d25ec437f49f57457f3cf2769748420bf0ecf2e79",
+      "bytes": 13983,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__httpx___transports__default.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py",
+      "status": "regular_file",
+      "sha256": "6be4fc2d3b14c5ceebd16c356ad7c7483a163e34347c0f1497b4b7f85d0c8fbd",
+      "bytes": 16955,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__httpcore___sync__connection_pool.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/botocore/config.py",
+      "status": "regular_file",
+      "sha256": "a7a648af44384c6089f5ab8fb06b8135e64bf6ea870c1755a0882ed2b287cbf1",
+      "bytes": 15908,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__botocore__config.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/botocore/endpoint.py",
+      "status": "regular_file",
+      "sha256": "6c9e33c2c281196f665df6df2da22f593114bf1eb4edcd14abc5454bbcedef58",
+      "bytes": 16720,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__botocore__endpoint.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/botocore/httpsession.py",
+      "status": "regular_file",
+      "sha256": "f0e0b9664e5af63fb762800ccbad17708e8f9cd97a0ca8c20faee9ab8a47157e",
+      "bytes": 18582,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__botocore__httpsession.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/botocore/retries/standard.py",
+      "status": "regular_file",
+      "sha256": "16ef091e61feb02bd2d9a48c7f54232d77285fa090df3510a0db7e0145dcc7bd",
+      "bytes": 19971,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__botocore__retries__standard.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/boto3/session.py",
+      "status": "regular_file",
+      "sha256": "41c45a3d533051bf3f5ff1785c5e2bc45f304c73a03fa666148a8da97543f483",
+      "bytes": 20720,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__boto3__session.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/urllib3/connectionpool.py",
+      "status": "regular_file",
+      "sha256": "6a147869216b94449a053e869d4311cba23294551c83ee20fe5d2f1eaff50a3e",
+      "bytes": 45250,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__urllib3__connectionpool.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/urllib3/util/retry.py",
+      "status": "regular_file",
+      "sha256": "0fdc26b67d1ecc42b0cab3972f20bb07284d783f4dc318394fe8b99098c42925",
+      "bytes": 20151,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__urllib3__util__retry.py.source.txt"
+    },
+    {
+      "container": "phase1-memory",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/connection.py",
+      "status": "regular_file",
+      "sha256": "9d19e2b9db54b4ab32e1d8b1cb8d4df853beb4daa6ae1061931415252ce68654",
+      "bytes": 15689,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__usr__local__lib__python3.11__site-packages__psycopg__connection.py.source.txt"
+    },
+    {
+      "container": "phase1-timescaledb",
+      "path": "/usr/local/bin/docker-entrypoint.sh",
+      "status": "regular_file",
+      "sha256": "ca0a956e1ee0496e437ddd6d67b3a4d59b562934d296caecadb52459cf4f1e8f",
+      "bytes": 12676,
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-timescaledb__usr__local__bin__docker-entrypoint.sh.source.txt"
+    },
+    {
+      "container": "phase1-timescaledb",
+      "path": "/var/lib/postgresql/data/PG_VERSION",
+      "status": "regular_file",
+      "sha256": "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017",
+      "bytes": 3,
+      "is_pg16": true
+    },
+    {
+      "container": "phase1-minio",
+      "path": "/usr/bin/curl",
+      "status": "read_limit"
+    },
+    {
+      "container": "phase1-minio",
+      "path": "/bin/sh",
+      "status": "link_not_executed",
+      "link_target": "bash"
+    }
+  ],
+  "operations": {
+    "start_stop": 0,
+    "exec": 0,
+    "build": 0,
+    "service_queries": 0,
+    "raw_environment_export": false
+  },
+  "build_help": {
+    "error": null,
+    "pull_flag_documented": true,
+    "network_flag_documented": true,
+    "offline_resolution_proven": false,
+    "installed_parser_proven": false
+  },
+  "final_inventory_matches_initial": true,
+  "elapsed_seconds": 1.37
+}

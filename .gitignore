@@ -71,3 +71,7 @@ config/user.yaml
 # Companion projects — not part of active trading system
 crypto-trading-ai/
 phase1_research_copilot/
+
+# CMC trending logger runtime files (temp hard links retained when sandbox denies unlink; collector lock)
+/docs/research/cmc_trending_log/snapshots/.pending_*
+/docs/research/cmc_trending_log/snapshots/.collector.lock

@@ -1,0 +1,55 @@
+{
+  "active_role": "ENGINEER",
+  "acceptance_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "evidence_class": "SHOWN",
+  "scope": "Offline diagnostic implementation/profile only; no runtime retry",
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV",
+    "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_companion_metadata_diagnostics.py tests/test_companion_installer.py tests/test_companion_network_configuration.py tests/test_companion_stopped_recipe.py",
+    "exit_code": 1,
+    "passed": 163,
+    "failed": 2,
+    "seconds": 1.37,
+    "new_diagnostic_tests_passed": 30,
+    "full_suite_run": false
+  },
+  "baseline_comparison": {
+    "preserved_root": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z_r2/restored",
+    "method": "Fresh clean-environment child in /private/tmp, PYTHONPATH to preserved root; explicitly import preserved installer, print module path, then pytest.main with importlib mode, no conftest/plugins/cache and the same two current recipe tests. Tracebacks confirm preserved prepare_companion_stopped_recipe.py and collect_companion_recreation_metadata.py were used.",
+    "tests": [
+      "tests/test_companion_stopped_recipe.py::test_legacy_evidence_not_upgraded_to_paired_proof",
+      "tests/test_companion_stopped_recipe.py::test_paired_payload_can_be_verified_offline"
+    ],
+    "failure": "reconciliation_fingerprint_mismatch",
+    "pytest_exit_code": 1,
+    "failed": 2,
+    "seconds": 0.19,
+    "reporting_wrapper_exit_code": 0,
+    "baseline_installer_sha256": "5cdd79674de562cfabfe549b8405ced060cf2ea214ba54b365e46743b2721bf2",
+    "baseline_backend_sha256": "c0425e0faa668307962eb60acda40d1883d6a6c3dc34c453330414289f1454f2",
+    "fixtures_or_historical_artifacts_modified": false
+  },
+  "sha256": {
+    "scripts/research/companion_metadata_diagnostics.py": "63fff7cbc5b9f977c53efddca5e40ef8f2bd49606efc1bde82263a4fb860ce66",
+    "scripts/research/companion_installer.py": "427fa60328438157255dda2e2a83c6a406e0b2fc90699315fa66da3f374c271d",
+    "scripts/research/companion_install_docker.py": "f599dff66e5c3770a1659cdae945bbfa4a4aa7f0f72b50118cad35886503569e",
+    "tests/test_companion_metadata_diagnostics.py": "011f38f0b602e9ae39acd447d91221892f6ba859b9131427646ba52c78f5f90a",
+    "unchanged_runtime_adapter": "83645cc36a345fcd55d1d2bd79dca982141e009456209a031c6e8513f9f03e9c",
+    "unchanged_network_projection": "c3824743fb08098a35af6966ee9e3345a63e6500f18a5fdd84a02d1114bf39d7",
+    "unchanged_reviewed_plan": "f5b044858c3d40881239b77745d0b404c4ac05d2f35a6d043fed8f6ba934bf5f",
+    "generated_public_expectations_profile": "4a04bd1ab084711f88d1fd117dca68a5482d4ce065e7bee9ab7d47863e978277"
+  },
+  "changed_artifacts": {
+    "existing_installer_added_removed_lines_vs_preserved_source": 27,
+    "existing_backend_added_removed_lines_vs_preserved_source": 18,
+    "new_module": "scripts/research/companion_metadata_diagnostics.py",
+    "new_tests": "tests/test_companion_metadata_diagnostics.py",
+    "profile": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/metadata_expectations_20261018.json"
+  },
+  "limitations": [
+    "Specific field/cause of the consumed native failure remains UNVERIFIED; no actual replacement raw metadata was retained.",
+    "The old operational code bindings no longer match these changed source files; no old attempt authority is reused.",
+    "Synthetic/saved-public-artifact proof only, not installed native transport compatibility, restored service or usable explanation proof.",
+    "No Docker/socket, credential/config read, service lifecycle, scheduler, account, network, trading or Git mutation operation."
+  ]
+}

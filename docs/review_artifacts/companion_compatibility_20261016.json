@@ -1,0 +1,56 @@
+{
+  "artifact_type": "read_only_container_source_review",
+  "recorded_at_utc": "2026-10-16T15:55:40Z",
+  "runtime_authorization": "NOT_GRANTED",
+  "docker_endpoint": "unix:///Users/baitus/.docker/run/docker.sock",
+  "cli_architecture": "arm64",
+  "cli_config": "fresh_empty_temporary_directory",
+  "inventory_observation": {"total_containers": 19, "exited": 19},
+  "targets": [
+    {"name":"phase1-timescaledb","id":"7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b","image_id":"sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43","state":"exited","restart_count":0,"restart_policy":"no"},
+    {"name":"phase1-qdrant","id":"2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4","image_id":"sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636","state":"exited","restart_count":0,"restart_policy":"no"},
+    {"name":"phase1-minio","id":"a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15","image_id":"sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa","state":"exited","restart_count":0,"restart_policy":"no"},
+    {"name":"phase1-audit-log","id":"fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe","image_id":"sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad","state":"exited","restart_count":0,"restart_policy":"no"},
+    {"name":"phase1-risk-stub","id":"b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213","image_id":"sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa","state":"exited","restart_count":0,"restart_policy":"no"},
+    {"name":"phase1-memory","id":"869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071","image_id":"sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d","state":"exited","restart_count":0,"restart_policy":"no"},
+    {"name":"phase1-orchestrator","id":"bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4","image_id":"sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7","state":"exited","restart_count":0,"restart_policy":"no"}
+  ],
+  "named_volume_mounts": [
+    {"container":"phase1-timescaledb","name":"phase1_research_copilot_phase1_timescaledb_data","destination":"/var/lib/postgresql/data","driver":"local","created_at":"2026-03-12T17:42:05Z"},
+    {"container":"phase1-qdrant","name":"phase1_research_copilot_phase1_qdrant_data","destination":"/qdrant/storage","driver":"local","created_at":"2026-03-12T17:42:05Z"},
+    {"container":"phase1-minio","name":"phase1_research_copilot_phase1_minio_data","destination":"/data","driver":"local","created_at":"2026-03-12T17:42:05Z"}
+  ],
+  "installed_source_files": [
+    {"container":"phase1-orchestrator","path":"/app/shared/tools.py","sha256":"bbf00f30ced7027a1aaef89dfc161204b50a24e7a445a014d482b7237dc2d437","matches_local_source":true,"observed_constructs":["_request_json calls retry_async with retries=1 at line181","get_market_snapshot uses _MARKET_DATA_URL at line193","get_operations_summary dispatches _request_json for its service map at line236"]},
+    {"container":"phase1-orchestrator","path":"/app/shared/retry.py","sha256":"0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b","matches_local_source":true},
+    {"container":"phase1-orchestrator","path":"/app/shared/audit.py","sha256":"70074e20d5a7adf89037be73650b8659f13de5430daef1b03cd4d5d624d30d3c","matches_local_source":true},
+    {"container":"phase1-orchestrator","path":"/app/orchestrator/main.py","sha256":"c617205830376da3d6e5b4d8a33e88c5f3d16bed34ce8fee20319e951162a05b","matches_local_source":true,"observed_constructs":["explain fallback calls _ensure_core_tool_results at line637"]},
+    {"container":"phase1-memory","path":"/app/memory_retrieval/main.py","sha256":"c9efd5ff807427ec6c89e09782a0c931902c1aa024ee0b7ec85ffa7d666a3436","matches_local_source":true,"observed_constructs":["_ensure_bucket has create_bucket at line87","_ensure_qdrant_collection has create_collection at line94","_startup invokes both ensure functions at lines154-155"]}
+  ],
+  "collection_method": "Docker metadata format allowlist and container cp archive API; single regular source file validated and statically parsed in host memory; no imports or execution of copied source",
+  "credential_values_requested_or_exported": false,
+  "container_environment_values_extracted": false,
+  "container_exec_used": false,
+  "service_http_requests": 0,
+  "container_starts_or_stops": 0,
+  "independent_source_confirmation": {
+    "role": "separate_AUDITOR",
+    "method": "independent read-only stopped-container archive extraction and static inspection",
+    "files": ["phase1-orchestrator:/app/shared/tools.py", "phase1-memory:/app/memory_retrieval/main.py"],
+    "hashes_match_parent_and_local": true,
+    "observed": ["retries=1 call site", "fixed market/news/archive origins", "conditional namespace creation on startup"],
+    "not_independently_checked": ["retry helper semantics", "orchestrator incoming dispatch", "effective settings", "namespaces", "other SDKs"]
+  },
+  "final_target_check": {
+    "checked_at_utc": "2026-10-16T15:59:27.972663Z",
+    "seven_target_ids_images_states_restart_policies_match_initial": true,
+    "targets_exited": 7
+  },
+  "limits": [
+    "Container-filesystem source, not proof of immutable image-layer equality or loaded runtime module",
+    "Effective environment, proxy configuration and SDK retry settings not inspected",
+    "Storage namespace existence, schema compatibility and data integrity not checked",
+    "Bind-mount source identity not fully collected; this is not the future pre-start baseline",
+    "No runtime response, cancellation, cleanup or relevance proof"
+  ]
+}

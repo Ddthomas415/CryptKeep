@@ -1,0 +1,275 @@
+{
+  "after": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    }
+  ],
+  "attempt": "9c4104296a464a5f853b922529800f4e",
+  "before": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    }
+  ],
+  "commands": [
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"restarts\":{{json .RestartCount}},\"policy\":{{json .HostConfig.RestartPolicy.Name}}}",
+      "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    ],
+    [
+      "image",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"volumes\":{{not (not (index .Config \"Volumes\"))}},\"loader_env\":[{{range (index .Config \"Env\")}}{{if or (and (ge (len .) 3) (eq (slice . 0 3) \"LD_\")) (eq (index (split . \"=\") 0) \"GCONV_PATH\")}}{{true}},{{end}}{{end}}false]}",
+      "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d"
+    ],
+    [
+      "image",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"volumes\":{{not (not (index .Config \"Volumes\"))}},\"loader_env\":[{{range (index .Config \"Env\")}}{{if or (and (ge (len .) 3) (eq (slice . 0 3) \"LD_\")) (eq (index (split . \"=\") 0) \"GCONV_PATH\")}}{{true}},{{end}}{{end}}false]}",
+      "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "cryptkeep-import-9c4104296a464a5f853b922529800f4e-0"
+    ],
+    [
+      "container",
+      "create",
+      "--pull=never",
+      "--name",
+      "cryptkeep-import-9c4104296a464a5f853b922529800f4e-0",
+      "--label",
+      "cryptkeep.import-proof=9c4104296a464a5f853b922529800f4e",
+      "--network",
+      "none",
+      "--read-only",
+      "--no-healthcheck",
+      "--cap-drop",
+      "ALL",
+      "--security-opt",
+      "no-new-privileges",
+      "--pids-limit",
+      "64",
+      "--memory",
+      "512m",
+      "--cpus",
+      "1",
+      "--restart",
+      "no",
+      "--user",
+      "65534:65534",
+      "--workdir",
+      "/tmp",
+      "--tmpfs",
+      "/tmp:rw,noexec,nosuid,size=16777216,mode=1777",
+      "--mount",
+      "type=bind,source=/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/companion_installed_imports_attribution_20261018/frozen/memory_retrieval,target=/frozen,readonly,bind-propagation=rprivate",
+      "--entrypoint",
+      "/usr/local/bin/python",
+      "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "-I",
+      "-S",
+      "-B",
+      "/frozen/import_check.py",
+      "memory_retrieval"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"exit\":{{json .State.ExitCode}},\"attempt\":{{json (index .Config.Labels \"cryptkeep.import-proof\")}}}",
+      "cryptkeep-import-9c4104296a464a5f853b922529800f4e-0"
+    ],
+    [
+      "container",
+      "start",
+      "--attach",
+      "91ca7426c7cb49774a2b1911c8b1104ae4eaf7c185333de2534490a677bd4ac1"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"exit\":{{json .State.ExitCode}},\"attempt\":{{json (index .Config.Labels \"cryptkeep.import-proof\")}}}",
+      "cryptkeep-import-9c4104296a464a5f853b922529800f4e-0"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"exit\":{{json .State.ExitCode}},\"attempt\":{{json (index .Config.Labels \"cryptkeep.import-proof\")}}}",
+      "cryptkeep-import-9c4104296a464a5f853b922529800f4e-0"
+    ],
+    [
+      "container",
+      "rm",
+      "91ca7426c7cb49774a2b1911c8b1104ae4eaf7c185333de2534490a677bd4ac1"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "cryptkeep-import-9c4104296a464a5f853b922529800f4e-0"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"restarts\":{{json .RestartCount}},\"policy\":{{json .HostConfig.RestartPolicy.Name}}}",
+      "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    ]
+  ],
+  "diagnostics": [
+    {
+      "cli_returncode": 1,
+      "denied": {
+        "network": 1,
+        "repository": 0
+      },
+      "exit": 1,
+      "failure_category": "forbidden_import_activity",
+      "failure_type": "RuntimeError",
+      "module": "memory_retrieval",
+      "network_events": [
+        {
+          "function": "_has_ipv6",
+          "line": 127,
+          "module": "urllib3.util.connection",
+          "operation": "bind"
+        }
+      ],
+      "stage": "source_validation"
+    }
+  ],
+  "failure_type": "RuntimeError",
+  "manifest_sha256": "973da853c3c2aabdce982c677b5b6ab9c6d7cbab5061ec27ab28197b07b3c875",
+  "observed_utc": "2026-10-18T08:59:45.087451+00:00",
+  "originals_unchanged": true,
+  "owned": [
+    "91ca7426c7cb49774a2b1911c8b1104ae4eaf7c185333de2534490a677bd4ac1"
+  ],
+  "payload_sha256": "2e110e7a1dcd9a0b1f66f157b4a4d4063c24a2520fc179c6d984feee5327aafe",
+  "removed": [
+    "91ca7426c7cb49774a2b1911c8b1104ae4eaf7c185333de2534490a677bd4ac1"
+  ],
+  "results": [],
+  "runner_sha256": "66759d5e62a82c9f31dac1127887a4c816250c2e704b03d6b55108b87eacd2e5",
+  "runtime_state": "INCOMPLETE",
+  "selected_modules": [
+    "memory_retrieval",
+    "orchestrator"
+  ],
+  "state": "INCOMPLETE"
+}

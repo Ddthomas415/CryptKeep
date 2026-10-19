@@ -1,0 +1,195 @@
+{
+  "synthetic_only": true,
+  "cells": [
+    {
+      "days": 90,
+      "model": "iid",
+      "generation_seconds": 0.010725750005804002,
+      "events": 90,
+      "observed": 90
+    },
+    {
+      "days": 90,
+      "model": "overlap7",
+      "generation_seconds": 5.574995884671807e-05,
+      "events": 90,
+      "observed": 90
+    },
+    {
+      "days": 90,
+      "model": "persistent",
+      "generation_seconds": 5.7375000324100256e-05,
+      "events": 90,
+      "observed": 90
+    },
+    {
+      "days": 90,
+      "model": "heavy_tail",
+      "generation_seconds": 7.666600868105888e-05,
+      "events": 90,
+      "observed": 90
+    },
+    {
+      "days": 90,
+      "model": "volatility_shift",
+      "generation_seconds": 3.3750024158507586e-05,
+      "events": 90,
+      "observed": 90
+    },
+    {
+      "days": 90,
+      "model": "shared_unequal",
+      "generation_seconds": 4.600000102072954e-05,
+      "events": 109,
+      "observed": 109
+    },
+    {
+      "days": 90,
+      "model": "sparse",
+      "generation_seconds": 5.179201252758503e-05,
+      "events": 22,
+      "observed": 22
+    },
+    {
+      "days": 90,
+      "model": "random_missing",
+      "generation_seconds": 4.408403765410185e-05,
+      "events": 90,
+      "observed": 70
+    },
+    {
+      "days": 90,
+      "model": "loss_missing",
+      "generation_seconds": 4.650000482797623e-05,
+      "events": 90,
+      "observed": 56
+    },
+    {
+      "days": 180,
+      "model": "iid",
+      "generation_seconds": 2.26249685510993e-05,
+      "events": 180,
+      "observed": 180
+    },
+    {
+      "days": 180,
+      "model": "overlap7",
+      "generation_seconds": 2.5874993298202753e-05,
+      "events": 180,
+      "observed": 180
+    },
+    {
+      "days": 180,
+      "model": "persistent",
+      "generation_seconds": 7.062498480081558e-05,
+      "events": 180,
+      "observed": 180
+    },
+    {
+      "days": 180,
+      "model": "heavy_tail",
+      "generation_seconds": 6.008398486301303e-05,
+      "events": 180,
+      "observed": 180
+    },
+    {
+      "days": 180,
+      "model": "volatility_shift",
+      "generation_seconds": 2.704095095396042e-05,
+      "events": 180,
+      "observed": 180
+    },
+    {
+      "days": 180,
+      "model": "shared_unequal",
+      "generation_seconds": 4.1832972783595324e-05,
+      "events": 199,
+      "observed": 199
+    },
+    {
+      "days": 180,
+      "model": "sparse",
+      "generation_seconds": 4.5291963033378124e-05,
+      "events": 37,
+      "observed": 37
+    },
+    {
+      "days": 180,
+      "model": "random_missing",
+      "generation_seconds": 4.1457999031990767e-05,
+      "events": 180,
+      "observed": 145
+    },
+    {
+      "days": 180,
+      "model": "loss_missing",
+      "generation_seconds": 4.316697595641017e-05,
+      "events": 180,
+      "observed": 90
+    },
+    {
+      "days": 365,
+      "model": "iid",
+      "generation_seconds": 2.3874978069216013e-05,
+      "events": 365,
+      "observed": 365
+    },
+    {
+      "days": 365,
+      "model": "overlap7",
+      "generation_seconds": 2.716702874749899e-05,
+      "events": 365,
+      "observed": 365
+    },
+    {
+      "days": 365,
+      "model": "persistent",
+      "generation_seconds": 0.00012558297021314502,
+      "events": 365,
+      "observed": 365
+    },
+    {
+      "days": 365,
+      "model": "heavy_tail",
+      "generation_seconds": 6.641697837039828e-05,
+      "events": 365,
+      "observed": 365
+    },
+    {
+      "days": 365,
+      "model": "volatility_shift",
+      "generation_seconds": 2.858403604477644e-05,
+      "events": 365,
+      "observed": 365
+    },
+    {
+      "days": 365,
+      "model": "shared_unequal",
+      "generation_seconds": 4.3666979763656855e-05,
+      "events": 384,
+      "observed": 384
+    },
+    {
+      "days": 365,
+      "model": "sparse",
+      "generation_seconds": 4.3291947804391384e-05,
+      "events": 70,
+      "observed": 70
+    },
+    {
+      "days": 365,
+      "model": "random_missing",
+      "generation_seconds": 4.1583029087632895e-05,
+      "events": 365,
+      "observed": 291
+    },
+    {
+      "days": 365,
+      "model": "loss_missing",
+      "generation_seconds": 4.458398325368762e-05,
+      "events": 365,
+      "observed": 176
+    }
+  ],
+  "scope": "generation_only_not_inference_runtime"
+}

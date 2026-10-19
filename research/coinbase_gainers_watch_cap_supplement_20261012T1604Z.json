@@ -1,0 +1,85 @@
+{
+  "fetched_utc": "2026-10-12T16:04:47.148144+00:00",
+  "http_status": 200,
+  "source": "CoinGecko markets; global USD volume, not Coinbase volume",
+  "identity_policy": "fixed ID and matching symbol; contract identity unverified",
+  "rows": [
+    {
+      "id": "reserve-rights-token",
+      "symbol": "rsr",
+      "name": "Reserve Rights",
+      "market_cap": 146030424,
+      "total_volume": 235285055,
+      "circulating_supply": 62553174091.0,
+      "max_supply": 100000000000.0,
+      "fully_diluted_valuation": 233450063,
+      "last_updated": "2026-10-12T16:03:57.000Z"
+    },
+    {
+      "id": "safe",
+      "symbol": "safe",
+      "name": "Safe",
+      "market_cap": 100391592,
+      "total_volume": 4386737,
+      "circulating_supply": 783165161.0,
+      "max_supply": 1000000000.0,
+      "fully_diluted_valuation": 128187000,
+      "last_updated": "2026-10-12T16:03:57.000Z"
+    },
+    {
+      "id": "gitcoin",
+      "symbol": "gtc",
+      "name": "Gitcoin",
+      "market_cap": 25985047,
+      "total_volume": 109283275,
+      "circulating_supply": 87491501.9042429,
+      "max_supply": 100000000.0,
+      "fully_diluted_valuation": 29700081,
+      "last_updated": "2026-10-12T16:03:57.000Z"
+    },
+    {
+      "id": "origin-protocol",
+      "symbol": "ogn",
+      "name": "Origin Token",
+      "market_cap": 25657122,
+      "total_volume": 26166391,
+      "circulating_supply": 756580095.0,
+      "max_supply": 1409664846.0,
+      "fully_diluted_valuation": 47804514,
+      "last_updated": "2026-10-12T16:03:57.000Z"
+    },
+    {
+      "id": "stader",
+      "symbol": "sd",
+      "name": "Stader",
+      "market_cap": 9087584,
+      "total_volume": 797205,
+      "circulating_supply": 73096634.14572676,
+      "max_supply": 150000000.0,
+      "fully_diluted_valuation": 14918745,
+      "last_updated": "2026-10-12T16:03:57.000Z"
+    },
+    {
+      "id": "goldfinch",
+      "symbol": "gfi",
+      "name": "Goldfinch",
+      "market_cap": 3853207,
+      "total_volume": 119828,
+      "circulating_supply": 95242765.29565473,
+      "max_supply": 114285714.0,
+      "fully_diluted_valuation": 4623622,
+      "last_updated": "2026-10-12T16:03:57.000Z"
+    },
+    {
+      "id": "pluton",
+      "symbol": "plu",
+      "name": "Pluton",
+      "market_cap": 2162981,
+      "total_volume": 480115,
+      "circulating_supply": 13999999.42,
+      "max_supply": 20000000.0,
+      "fully_diluted_valuation": 2162982,
+      "last_updated": "2026-10-12T16:03:57.000Z"
+    }
+  ]
+}

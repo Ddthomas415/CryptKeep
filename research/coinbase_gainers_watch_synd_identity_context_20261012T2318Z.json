@@ -1,0 +1,30 @@
+{
+  "fetched_utc": "2026-10-12T23:18:50.605472+00:00",
+  "http_status": 200,
+  "candidate_matches": [
+    {
+      "id": "syndicate-3",
+      "name": "Syndicate",
+      "api_symbol": "syndicate-3",
+      "symbol": "SYND",
+      "market_cap_rank": 1922,
+      "thumb": "https://coin-images.coingecko.com/coins/images/69122/thumb/synd.png",
+      "large": "https://coin-images.coingecko.com/coins/images/69122/large/synd.png"
+    }
+  ],
+  "classification": "IDENTITY_DIAGNOSTIC_NOT_CONTRACT_VERIFICATION",
+  "markets_http_status": 200,
+  "market_context": [
+    {
+      "id": "syndicate-3",
+      "symbol": "synd",
+      "name": "Syndicate",
+      "market_cap": 3623904,
+      "total_volume": 424692,
+      "circulating_supply": 478700000.0,
+      "max_supply": 1000000000.0,
+      "fully_diluted_valuation": 7570304,
+      "last_updated": "2026-10-12T23:17:54.000Z"
+    }
+  ]
+}

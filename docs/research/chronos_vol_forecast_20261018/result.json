@@ -1,0 +1,59 @@
+{
+  "study": "VOLFC-1",
+  "preregistration_sha256": "501723e7203da0ff975c9b97ae1514f90a18d0f44418da7e0c9ab0d92eca59e1",
+  "run_script_sha256": "699698aae8a769e27c2026dddc81d4048ff36bea36da8f215b2614be9a715136",
+  "verdict": "FAIL",
+  "rho_mean": {
+    "B1": 0.5122843990521502,
+    "B2": 0.5283426636541204,
+    "C": 0.5217477029335587
+  },
+  "delta_C_minus_B1": 0.009463303881408551,
+  "bootstrap_lower_95_one_sided": -0.006482526375086468,
+  "rho_C_minus_B2": -0.00659496072056176,
+  "criteria": {
+    "delta_ge_0.03": false,
+    "lower_gt_0": false,
+    "C_ge_B2": false
+  },
+  "weeks": 50,
+  "forecasts": 4999,
+  "stable_or_wrapped_excluded": 15,
+  "secondary": {
+    "qlike": {
+      "B1": 0.6676753008200206,
+      "B2": 0.6523262109341926,
+      "C": 0.6699265555076183
+    },
+    "qlike_zero_realized_excluded": 0,
+    "weeks_rho_C_gt_B1": 29,
+    "disclosed_sensitivity_excluding_week1_delta": 0.013306021980790334,
+    "rho_by_liquidity_tercile_mean": {
+      "top_B1": 0.627961229946524,
+      "top_C": 0.6347526737967916,
+      "mid_B1": 0.4815106951871658,
+      "mid_C": 0.4838302139037433,
+      "bottom_B1": 0.39935943468296403,
+      "bottom_C": 0.43230385790679904
+    }
+  },
+  "determinism_week1_identical": true,
+  "model": {
+    "repo": "amazon/chronos-2",
+    "revision": "29ec3766d36d6f73f0696f85560a422f50e8498c",
+    "model_safetensors_sha256": "ddcda3c7508bf2528087723e98a20707cc04b7f370ae275a9fd88078ddba4f42",
+    "cross_learning": false,
+    "device": "cpu",
+    "dtype": "float32"
+  },
+  "versions": {
+    "python": "3.13.16",
+    "torch": "2.14.1+cpu",
+    "chronos_forecasting": "2.3.2",
+    "transformers": "5.20.1",
+    "pandas": "3.0.6",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1"
+  },
+  "run_utc": "2026-10-18T23:32:24+00:00"
+}

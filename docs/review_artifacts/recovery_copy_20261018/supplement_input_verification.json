@@ -1,0 +1,28 @@
+{
+  "active_role": "ENGINEER",
+  "evidence_class": "SHOWN",
+  "environment_confidence": "VERIFIED_ENV",
+  "verification_session_id": 3249,
+  "exit_code": 0,
+  "old_restored_root": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z_r2/restored",
+  "supplement_restored_root": "/Users/baitus/Documents/cryptkeep_data_archive/recovery_supplement_20261018T192628Z/restored",
+  "method": "Read the frozen SHA256SUMS_archives.txt and SHA256SUMS_inputs.txt from the accepted earlier restored copy. For each archive, choose its supplemental restored copy if present, otherwise earlier restored copy; verify compressed archive SHA256. Stream regular TAR members without extraction, normalize paths with safe_rel, refuse duplicate expected inputs, bound reads, hash every expected input and require exact expected path/hash equality.",
+  "frozen_archives_verified": 7,
+  "frozen_inputs_verified": 2377,
+  "expected_inputs": 2377,
+  "mismatches": 0,
+  "missing": 0,
+  "sha256": {
+    "SHA256SUMS_inputs.txt": "c7f3e9cf43ac3cf196d1fd968627256d4172eb6487eae793d21ea3c194db2ebc",
+    "SHA256SUMS_archives.txt": "f153de3f681201cab84b00b3adf5d7bea186ae1b304941e0dae7bb828bf21ddd"
+  },
+  "combined_inventory_check": {
+    "supplement_paths_were_prior_exclusions": true,
+    "duplicate_recovered_paths": 0,
+    "combined_unique_selected_files": 6421,
+    "resolved_prior_exclusions": 7,
+    "remaining_recorded_exclusions": 34,
+    "previous_copy_manifest_csv_archive_hashes_unchanged": true
+  },
+  "limits": "Parent-observed verification, not independent peer proof of this entire expanded-input check. No study rerun, download, extraction, source SQLite connection, profitability or historical authenticity claim. Frozen bytes preserved, not proof that every original historical price is correct or complete."
+}

@@ -1,0 +1,22 @@
+{
+  "status": "VERIFIED_LOCAL_RETRIEVAL_DEPLOYMENT",
+  "updated_services": ["phase1-memory", "phase1-orchestrator"],
+  "keyword_document_ids": [47, 8, 25, 26, 19],
+  "keyword_citation_count": 3,
+  "unauthorized_denied": true,
+  "no_match_empty": true,
+  "environment_preserved": true,
+  "mounts_ports_commands_healthchecks_preserved": true,
+  "unrelated_container_ids_and_start_times_preserved": true,
+  "gateway_browser_route_http": 200,
+  "gateway_keyword_citations": 3,
+  "gateway_upstream_fallback": false,
+  "execution_disabled": true,
+  "private_rollback_directory": "/private/tmp/cryptkeep-retrieval-deploy-z3qbx3aw",
+  "source_hashes": {
+    "memory_retrieval/main.py": "2980dd9d1a88c096cbc402db398377608cee23740017cfbeff1dc8a116b86dd7",
+    "shared/tools.py": "c8329e02a44c4374d53410e259c7e38eff02c2ef7e40e7ca2bab44f6da4685ed",
+    "orchestrator/main.py": "eec119f9ab319ea638cc4abfcbdca9d716b4d0db2d8fbf51a714f76795e42bcb"
+  },
+  "limits": ["Local endpoint proof only", "No semantic relevance benchmark", "No sustained health or scale performance proof", "Rollback retained, successful-path rollback drill not run", "Private configuration must not be shared"]
+}

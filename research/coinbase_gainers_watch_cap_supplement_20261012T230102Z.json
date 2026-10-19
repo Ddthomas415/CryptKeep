@@ -1,0 +1,85 @@
+{
+  "fetched_utc": "2026-10-12T23:01:03.248359+00:00",
+  "http_status": 200,
+  "source": "CoinGecko global USD turnover, not venue volume or net buying",
+  "identity_policy": "Specific IDs and symbol match; contract identity unverified",
+  "rows": [
+    {
+      "id": "reserve-rights-token",
+      "symbol": "rsr",
+      "name": "Reserve Rights",
+      "market_cap": 136660037,
+      "total_volume": 183965476,
+      "circulating_supply": 62553174091.0,
+      "max_supply": 100000000000.0,
+      "fully_diluted_valuation": 218470188,
+      "last_updated": "2026-10-12T23:00:54.000Z"
+    },
+    {
+      "id": "osmosis",
+      "symbol": "osmo",
+      "name": "Osmosis",
+      "market_cap": 40230611,
+      "total_volume": 42583278,
+      "circulating_supply": 748440232.78772,
+      "max_supply": 1000000000.0,
+      "fully_diluted_valuation": 51418974,
+      "last_updated": "2026-10-12T23:00:54.000Z"
+    },
+    {
+      "id": "skale",
+      "symbol": "skl",
+      "name": "SKALE",
+      "market_cap": 33512888,
+      "total_volume": 38210225,
+      "circulating_supply": 6094019337.0,
+      "max_supply": 7000000000.0,
+      "fully_diluted_valuation": 35315349,
+      "last_updated": "2026-10-12T23:00:54.000Z"
+    },
+    {
+      "id": "origin-protocol",
+      "symbol": "ogn",
+      "name": "Origin Token",
+      "market_cap": 27934873,
+      "total_volume": 78070352,
+      "circulating_supply": 756543858.0,
+      "max_supply": 1409664846.0,
+      "fully_diluted_valuation": 52050925,
+      "last_updated": "2026-10-12T23:00:54.000Z"
+    },
+    {
+      "id": "gitcoin",
+      "symbol": "gtc",
+      "name": "Gitcoin",
+      "market_cap": 24831678,
+      "total_volume": 155303890,
+      "circulating_supply": 87491501.9042429,
+      "max_supply": 100000000.0,
+      "fully_diluted_valuation": 28381817,
+      "last_updated": "2026-10-12T23:00:54.000Z"
+    },
+    {
+      "id": "citrea",
+      "symbol": "ctr",
+      "name": "Citrea",
+      "market_cap": 20972105,
+      "total_volume": 10268542,
+      "circulating_supply": 1500000000.0,
+      "max_supply": 10000000000.0,
+      "fully_diluted_valuation": 139814033,
+      "last_updated": "2026-10-12T23:00:54.000Z"
+    },
+    {
+      "id": "shping",
+      "symbol": "shping",
+      "name": "Shping",
+      "market_cap": 0.0,
+      "total_volume": 94996,
+      "circulating_supply": 0.0,
+      "max_supply": null,
+      "fully_diluted_valuation": 6449549,
+      "last_updated": "2026-10-12T23:00:54.000Z"
+    }
+  ]
+}

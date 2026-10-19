@@ -1,0 +1,502 @@
+{
+  "after": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    }
+  ],
+  "attempt": "4a285ae8977f4b128c8059a03a6e2851",
+  "before": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    }
+  ],
+  "commands": [
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"restarts\":{{json .RestartCount}},\"policy\":{{json .HostConfig.RestartPolicy.Name}}}",
+      "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    ],
+    [
+      "image",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"volumes\":{{not (not (index .Config \"Volumes\"))}},\"loader_env\":[{{range (index .Config \"Env\")}}{{if or (and (ge (len .) 3) (eq (slice . 0 3) \"LD_\")) (eq (index (split . \"=\") 0) \"GCONV_PATH\")}}{{true}},{{end}}{{end}}false]}",
+      "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad"
+    ],
+    [
+      "image",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"volumes\":{{not (not (index .Config \"Volumes\"))}},\"loader_env\":[{{range (index .Config \"Env\")}}{{if or (and (ge (len .) 3) (eq (slice . 0 3) \"LD_\")) (eq (index (split . \"=\") 0) \"GCONV_PATH\")}}{{true}},{{end}}{{end}}false]}",
+      "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa"
+    ],
+    [
+      "image",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"volumes\":{{not (not (index .Config \"Volumes\"))}},\"loader_env\":[{{range (index .Config \"Env\")}}{{if or (and (ge (len .) 3) (eq (slice . 0 3) \"LD_\")) (eq (index (split . \"=\") 0) \"GCONV_PATH\")}}{{true}},{{end}}{{end}}false]}",
+      "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d"
+    ],
+    [
+      "image",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"volumes\":{{not (not (index .Config \"Volumes\"))}},\"loader_env\":[{{range (index .Config \"Env\")}}{{if or (and (ge (len .) 3) (eq (slice . 0 3) \"LD_\")) (eq (index (split . \"=\") 0) \"GCONV_PATH\")}}{{true}},{{end}}{{end}}false]}",
+      "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-0"
+    ],
+    [
+      "container",
+      "create",
+      "--pull=never",
+      "--name",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-0",
+      "--label",
+      "cryptkeep.import-proof=4a285ae8977f4b128c8059a03a6e2851",
+      "--network",
+      "none",
+      "--read-only",
+      "--no-healthcheck",
+      "--cap-drop",
+      "ALL",
+      "--security-opt",
+      "no-new-privileges",
+      "--pids-limit",
+      "64",
+      "--memory",
+      "512m",
+      "--cpus",
+      "1",
+      "--restart",
+      "no",
+      "--user",
+      "65534:65534",
+      "--workdir",
+      "/tmp",
+      "--tmpfs",
+      "/tmp:rw,noexec,nosuid,size=16777216,mode=1777",
+      "--mount",
+      "type=bind,source=/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/companion_installed_imports_20261018/frozen/audit_log,target=/frozen,readonly,bind-propagation=rprivate",
+      "--entrypoint",
+      "/usr/local/bin/python",
+      "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "-I",
+      "-S",
+      "-B",
+      "/frozen/import_check.py",
+      "audit_log"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"exit\":{{json .State.ExitCode}},\"attempt\":{{json (index .Config.Labels \"cryptkeep.import-proof\")}}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-0"
+    ],
+    [
+      "container",
+      "start",
+      "--attach",
+      "4c5b862c353f58c5bf3bb65a724fceb4dc7540ceed4e1056aaf1e18e2a33d578"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"exit\":{{json .State.ExitCode}},\"attempt\":{{json (index .Config.Labels \"cryptkeep.import-proof\")}}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-0"
+    ],
+    [
+      "container",
+      "rm",
+      "4c5b862c353f58c5bf3bb65a724fceb4dc7540ceed4e1056aaf1e18e2a33d578"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-0"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-1"
+    ],
+    [
+      "container",
+      "create",
+      "--pull=never",
+      "--name",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-1",
+      "--label",
+      "cryptkeep.import-proof=4a285ae8977f4b128c8059a03a6e2851",
+      "--network",
+      "none",
+      "--read-only",
+      "--no-healthcheck",
+      "--cap-drop",
+      "ALL",
+      "--security-opt",
+      "no-new-privileges",
+      "--pids-limit",
+      "64",
+      "--memory",
+      "512m",
+      "--cpus",
+      "1",
+      "--restart",
+      "no",
+      "--user",
+      "65534:65534",
+      "--workdir",
+      "/tmp",
+      "--tmpfs",
+      "/tmp:rw,noexec,nosuid,size=16777216,mode=1777",
+      "--mount",
+      "type=bind,source=/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/companion_installed_imports_20261018/frozen/risk_stub,target=/frozen,readonly,bind-propagation=rprivate",
+      "--entrypoint",
+      "/usr/local/bin/python",
+      "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "-I",
+      "-S",
+      "-B",
+      "/frozen/import_check.py",
+      "risk_stub"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"exit\":{{json .State.ExitCode}},\"attempt\":{{json (index .Config.Labels \"cryptkeep.import-proof\")}}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-1"
+    ],
+    [
+      "container",
+      "start",
+      "--attach",
+      "5057fafb539cd22377213352496f38a9bdfa6cd350b1990284df4bbb0ec2aa58"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"exit\":{{json .State.ExitCode}},\"attempt\":{{json (index .Config.Labels \"cryptkeep.import-proof\")}}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-1"
+    ],
+    [
+      "container",
+      "rm",
+      "5057fafb539cd22377213352496f38a9bdfa6cd350b1990284df4bbb0ec2aa58"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-1"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-2"
+    ],
+    [
+      "container",
+      "create",
+      "--pull=never",
+      "--name",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-2",
+      "--label",
+      "cryptkeep.import-proof=4a285ae8977f4b128c8059a03a6e2851",
+      "--network",
+      "none",
+      "--read-only",
+      "--no-healthcheck",
+      "--cap-drop",
+      "ALL",
+      "--security-opt",
+      "no-new-privileges",
+      "--pids-limit",
+      "64",
+      "--memory",
+      "512m",
+      "--cpus",
+      "1",
+      "--restart",
+      "no",
+      "--user",
+      "65534:65534",
+      "--workdir",
+      "/tmp",
+      "--tmpfs",
+      "/tmp:rw,noexec,nosuid,size=16777216,mode=1777",
+      "--mount",
+      "type=bind,source=/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/companion_installed_imports_20261018/frozen/memory_retrieval,target=/frozen,readonly,bind-propagation=rprivate",
+      "--entrypoint",
+      "/usr/local/bin/python",
+      "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "-I",
+      "-S",
+      "-B",
+      "/frozen/import_check.py",
+      "memory_retrieval"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"exit\":{{json .State.ExitCode}},\"attempt\":{{json (index .Config.Labels \"cryptkeep.import-proof\")}}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-2"
+    ],
+    [
+      "container",
+      "start",
+      "--attach",
+      "4deeb0437d3f220e755ccfdcbc369dda816fc3be2ac9019e5bdcc14dcdf112aa"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"exit\":{{json .State.ExitCode}},\"attempt\":{{json (index .Config.Labels \"cryptkeep.import-proof\")}}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-2"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"exit\":{{json .State.ExitCode}},\"attempt\":{{json (index .Config.Labels \"cryptkeep.import-proof\")}}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-2"
+    ],
+    [
+      "container",
+      "rm",
+      "4deeb0437d3f220e755ccfdcbc369dda816fc3be2ac9019e5bdcc14dcdf112aa"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "cryptkeep-import-4a285ae8977f4b128c8059a03a6e2851-2"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"restarts\":{{json .RestartCount}},\"policy\":{{json .HostConfig.RestartPolicy.Name}}}",
+      "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    ]
+  ],
+  "diagnostics": [
+    {
+      "cli_returncode": 0,
+      "exit": 0,
+      "module": "audit_log",
+      "stage": "complete"
+    },
+    {
+      "cli_returncode": 0,
+      "exit": 0,
+      "module": "risk_stub",
+      "stage": "complete"
+    },
+    {
+      "cli_returncode": 1,
+      "exit": 1,
+      "failure_type": "RuntimeError",
+      "module": "memory_retrieval",
+      "stage": "source_validation"
+    }
+  ],
+  "failure_type": "RuntimeError",
+  "manifest_sha256": "973da853c3c2aabdce982c677b5b6ab9c6d7cbab5061ec27ab28197b07b3c875",
+  "observed_utc": "2026-10-18T08:39:57.887637+00:00",
+  "originals_unchanged": true,
+  "owned": [
+    "4c5b862c353f58c5bf3bb65a724fceb4dc7540ceed4e1056aaf1e18e2a33d578",
+    "5057fafb539cd22377213352496f38a9bdfa6cd350b1990284df4bbb0ec2aa58",
+    "4deeb0437d3f220e755ccfdcbc369dda816fc3be2ac9019e5bdcc14dcdf112aa"
+  ],
+  "payload_sha256": "e2fad272202a6d9041a0ebe0afb2d9b8f254046d37a490366adc5d332b97f192",
+  "removed": [
+    "4c5b862c353f58c5bf3bb65a724fceb4dc7540ceed4e1056aaf1e18e2a33d578",
+    "5057fafb539cd22377213352496f38a9bdfa6cd350b1990284df4bbb0ec2aa58",
+    "4deeb0437d3f220e755ccfdcbc369dda816fc3be2ac9019e5bdcc14dcdf112aa"
+  ],
+  "results": [
+    {
+      "denied": {
+        "network": 0,
+        "repository": 0
+      },
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "lifespan_run": false,
+      "loaded_sources": {
+        "audit_log/__init__.py": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75",
+        "audit_log/main.py": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8",
+        "shared/__init__.py": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+        "shared/config.py": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+        "shared/db.py": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+        "shared/logging.py": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+        "shared/models.py": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+        "shared/probe.py": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+      },
+      "module": "audit_log",
+      "ok": true,
+      "python": [
+        3,
+        11
+      ],
+      "stage": "complete",
+      "synthetic_settings": true,
+      "test_id": "4c5b862c353f58c5bf3bb65a724fceb4dc7540ceed4e1056aaf1e18e2a33d578"
+    },
+    {
+      "denied": {
+        "network": 0,
+        "repository": 0
+      },
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "lifespan_run": false,
+      "loaded_sources": {
+        "risk_stub/__init__.py": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411",
+        "risk_stub/main.py": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6",
+        "shared/__init__.py": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+        "shared/audit.py": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+        "shared/config.py": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+        "shared/logging.py": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+        "shared/probe.py": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+      },
+      "module": "risk_stub",
+      "ok": true,
+      "python": [
+        3,
+        11
+      ],
+      "stage": "complete",
+      "synthetic_settings": true,
+      "test_id": "5057fafb539cd22377213352496f38a9bdfa6cd350b1990284df4bbb0ec2aa58"
+    }
+  ],
+  "runner_sha256": "761aa1e0322031cd11bb7bb3fd5e51169462ba5f0d54816192bd4ab6874453fa",
+  "runtime_state": "INCOMPLETE",
+  "state": "INCOMPLETE"
+}

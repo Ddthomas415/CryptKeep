@@ -1,0 +1,119 @@
+{
+  "schema": "bounded-recovery-copy-root-hardening-review-v1",
+  "reviewed_at_utc": "2026-10-18T19:13:57Z",
+  "active_role": "GATE",
+  "risk_level": "HIGH",
+  "objective": "Independently review the bounded directory-entry hardening and decide whether one deliberate fresh _r2 invocation may continue the existing user-authorized local recovery objective.",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scoped_disposition": {
+    "preflight_passed": true,
+    "rc03_addressed": true,
+    "blocking_findings": [],
+    "one_deliberate_fresh_r2_copy_may_proceed_at_bound_hashes": true,
+    "actual_copy_run_by_reviewer": false,
+    "actual_recovery_success": "UNVERIFIED",
+    "reason": "The prior ZIP root skip no longer accepts link/regular/payload root entries based only on a slash-suffixed name. Safe root metadata remains allowed while contained members remain screened. Nonroot directory payloads are also refused. No remaining blocker was found in this bounded correction review.",
+    "conditions": [
+      "Use the exact helper/test and unchanged scanner bindings below. Changed code requires independent re-review before relying on this disposition.",
+      "Use only the fresh exclusive _r2 sibling specified below, subject to normal filesystem approval. Preserve the original partial output without reading it as a source, overwriting it, deleting it or resuming into it.",
+      "This permits one deliberate invocation after diagnosed correction, not an automatic retry loop. Any further failure preserves partial output and requires diagnosis before another attempt.",
+      "No source/financial/operational scope expansion, publication, Git mutation, deletion, credential configuration, Docker/account/runtime actions or market-data analysis is authorized.",
+      "Actual completion requires saved zero exit status, complete parseable manifest/checkpoint receipts and hash/restore outcome evidence for bounded review; passing synthetic tests or manifest existence alone is not recovery success."
+    ]
+  },
+  "hash_bindings": {
+    "algorithm": "sha256",
+    "evidence_class": "SHOWN",
+    "method": "shasum -a 256; corrected helper/test values match the operator-supplied frozen hashes; imported scanner and its tests match the earlier reviewed values.",
+    "files": {
+      "scripts/research/build_recovery_copy.py": "8efaf5fc4e3ff508640fb038d6d2b1f74c7a30ece9ef1233449f491f051655a9",
+      "tests/test_build_recovery_copy.py": "281bf5be9942502c8801fda2216be1754303af7444a33e171c3eca247a301c60",
+      "services/audit/backup_artifact_secret_scan.py": "d87d3042307170ac43a29ff706032423fb2e9cf1c32bafcb9528e6c16af35e9f",
+      "tests/test_backup_artifact_secret_scan.py": "dfd0471e4ccf612122d1b73a500b255d1cf2d497ae262c2fbd89521f3be6c7f3",
+      "docs/checkpoints/screened_recovery_root_hardening_20261018.md": "d6bf86a7656024e70ef70affc7a221b1b889b738aa2bc1ebb1fcef20b931b8dc"
+    },
+    "limit": "Direct file bindings only, not an interpreter/import closure or real-inventory/content certification. Historical rejected revisions are not cleared by this disposition."
+  },
+  "resolved_finding": {
+    "id": "RC-03",
+    "evidence_class": "SHOWN",
+    "addressed": true,
+    "original_finding": "The ZIP './' root-entry continue preceded stored-type, encryption and payload validation.",
+    "implementation_evidence": [
+      "For names '.' or './', ZIP root metadata is skipped only when is_dir() is true, stat.S_ISDIR(external_attr >> 16) is true, file_size is zero and encryption flag bit 1 is absent. Other root entries return archive_member_refused.",
+      "The stored-type guard cannot accept symlink or regular-file mode as directory mode. A root payload cannot be silently ignored under the zero-size guard.",
+      "Nonroot ZIP entries still encounter duplicate/path/encryption/symlink refusal. A directory-labelled ZIP member with nonzero file_size is now refused before skipping its data.",
+      "TAR directories with nonzero size are refused before any conventional root metadata skip. Regular/link root entries are not skipped; safe_rel() continues to reject dot-only normalized paths.",
+      "Subsequent contained members still receive their normal bounded path/type/content screening; this is not an early acceptance of the whole archive."
+    ],
+    "source_references": [
+      "scripts/research/build_recovery_copy.py:69-81",
+      "scripts/research/build_recovery_copy.py:112-158"
+    ],
+    "targeted_verification": [
+      "Three ZIP root negative fixtures cover symlink mode plus target payload, regular-file mode with empty data, and directory mode with payload; all return archive_member_refused.",
+      "A typed empty ZIP root followed by public.json passes as the positive control.",
+      "A payload-bearing TAR root is refused; nonroot directory payloads are refused in both ZIP and TAR.",
+      "Existing TAR '.'/'./' root/public and root/.env controls, regular TAR root refusal, ZIP root followed by .env, renamed archive controls and prior scope/restore cases pass in the same gate."
+    ],
+    "test_references": ["tests/test_build_recovery_copy.py:188-263"],
+    "coverage_limit": "The root encryption flag guard is SHOWN by source inspection but has no new dedicated encrypted-root fixture in this 39-case gate. That is a bounded coverage gap, not evidence of a bypass."
+  },
+  "retained_boundaries": {
+    "evidence_class": "SHOWN",
+    "claim": "Finite companion/public-database additions and pre-read scope/credential checks, content-based container detection, bounded recursive checks, no-follow regular source reads, exclusive external destination creation, hash-verified selected-file restoration, readonly restored .sqlite quick_check and CSV-before-manifest order remain present. The retained synthetic gate passes.",
+    "source_references": ["scripts/research/build_recovery_copy.py:28-98", "scripts/research/build_recovery_copy.py:171-305"],
+    "limit": "This records retained local controls, not a broader repository re-audit or full-system/secret-clearance verdict."
+  },
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV",
+    "cwd": "/Users/baitus/Downloads/crypto-bot-pro",
+    "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_build_recovery_copy.py tests/test_backup_artifact_secret_scan.py",
+    "invocation_count": 1,
+    "exit_code": 0,
+    "result": "39 passed in 0.35s",
+    "additional_security_probes_run": false,
+    "scope": "Only the requested synthetic gate and bounded source/test/note review; no actual inventory or recovery copy.",
+    "parent_run_history": "CLAIMED in the correction note: a pre-freeze intermediate test collection syntax error was corrected before the parent's final 39-case pass. This review's own gate collected and passed without that error."
+  },
+  "single_deliberate_continuation": {
+    "authorization_basis": "The user's existing ongoing local recovery objective and explicit proposed _r2 sibling, not new publication or operational authority granted by this review.",
+    "source": "/Users/baitus/Downloads/crypto-bot-pro",
+    "fresh_exclusive_output": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z_r2",
+    "preserve_untouched": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -E -B -m scripts.research.build_recovery_copy --root /Users/baitus/Downloads/crypto-bot-pro --output /Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z_r2",
+    "environment_confidence": "ASSUMED_ENV",
+    "environment_limit": "The synthetic interpreter/test environment is verified. Real external parent/destination state, permissions, storage and source stability were not inspected. Normal filesystem approval remains required; helper canonical-parent and exclusive mkdir checks must stand without override.",
+    "run_by_reviewer": false
+  },
+  "reported_actual_outcome_to_date": {
+    "evidence_class": "CLAIMED",
+    "report": "Operator reports the first copy failed with exit 1, left 820 copied files without success archive/restore/CSV/manifest, and its partial output remains unchanged. Operator reports no _r2 invocation has run.",
+    "reported_first_attempt_state": "INCOMPLETE",
+    "independent_actual_outcome_verification": "UNVERIFIED",
+    "limit": "Neither external output was inspected. This preflight does not certify partial-file count, their contents, preservation or absence of real source/Git/runtime changes from the earlier attempt."
+  },
+  "remaining_risks_and_limits": [
+    "UNVERIFIED: actual selected/excluded paths and bytes, real destination conditions and eventual copy/archive/restore outcome. No real inventory or private configuration was accessed.",
+    "SHOWN: heuristic byte patterns, configured exclusions and supported bounded container inspection are not universal secret certification, structured scanner equivalence or publication clearance.",
+    "SHOWN: stricter root/directory handling can conservatively exclude nonconforming archives; excluded-file recoverability is not established.",
+    "SHOWN: per-file stability and restore hashing do not prove a globally atomic concurrent snapshot, full repository/history/environment/service restoration, offsite protection, hardware-failure recovery or fsync durability.",
+    "SHOWN: partial outputs may remain after failure. A final receipt can itself be incomplete on interruption; actual outcome review must require zero exit status and complete validated evidence, not mere receipt existence.",
+    "SHOWN: .sqlite-only restored quick_check does not certify arbitrary .db contents admitted through ordinary Git inventory. No database scope expansion is approved."
+  ],
+  "review_actions": {
+    "source_or_tests_edited": false,
+    "real_inventory_or_copy_run": false,
+    "private_configuration_read": false,
+    "external_outputs_inspected_or_modified": false,
+    "git_mutation_deletion_or_runtime_actions_run": false,
+    "sole_persistent_review_write": "docs/review_artifacts/recovery_copy_20261018/root_hardening_review.json",
+    "work_log_note": "No separate work-log edit under the operator's explicit write-only-new-artifact restriction. Role, objective, evidence, disposition, risks and next proof are preserved here."
+  },
+  "proof_required_next": [
+    "Parent may perform the single deliberate continuation at the bound hashes into the fresh exclusive _r2 destination after normal filesystem approval, leaving the earlier partial output untouched.",
+    "Forward saved invocation exit status/stdout, complete backup_manifest.json and refreshed_checkpoint.csv, and selected-file/archive/restore verification evidence for bounded saved-outcome review. Do not disclose file contents or credentials in reports.",
+    "Keep selected-file success separate from exclusions and broader runtime/full-backup/secret-clearance claims. Diagnose any further failure before considering another invocation; do not automatically retry or delete."
+  ],
+  "handoff": "GATE: RC-03 addressed at the bound hashes; no remaining blocker found in this bounded directory-handling review. ACCEPTED_WITH_RISK for one deliberate _r2 continuation of the ongoing authorized objective only. Actual recovery success remains UNVERIFIED. Available for saved-outcome review."
+}

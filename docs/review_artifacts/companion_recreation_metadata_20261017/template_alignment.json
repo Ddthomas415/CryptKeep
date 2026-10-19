@@ -1,0 +1,39 @@
+{
+  "observation_sha256": "13c51c9f49a1e16cd767e2f51d21c84d045f31e210d238f67fc9c7909d55a78f",
+  "source_manifest_sha256": "bac2f4636753237279858c2119630be12531d8d27f6967868d72e9cbac940093",
+  "checks": [
+    {
+      "name": "phase1-audit-log",
+      "declared_ports_match": true,
+      "health_test_matches": true,
+      "health_interval_matches": true,
+      "health_timeout_matches": true,
+      "health_retries_match": true
+    },
+    {
+      "name": "phase1-risk-stub",
+      "declared_ports_match": true,
+      "health_test_matches": true,
+      "health_interval_matches": true,
+      "health_timeout_matches": true,
+      "health_retries_match": true
+    },
+    {
+      "name": "phase1-memory",
+      "declared_ports_match": true,
+      "health_test_matches": true,
+      "health_interval_matches": true,
+      "health_timeout_matches": true,
+      "health_retries_match": true
+    },
+    {
+      "name": "phase1-orchestrator",
+      "declared_ports_match": true,
+      "health_test_matches": true,
+      "health_interval_matches": true,
+      "health_timeout_matches": true,
+      "health_retries_match": true
+    }
+  ],
+  "scope": "Selected port/health template alignment only; not full recreation acceptance"
+}

@@ -1,0 +1,23 @@
+--- /dev/null
++++ b/tests/test_review_restart_degraded.py
+@@ -0,0 +1,20 @@
++from tests.test_runner_exit_accounting_event import (
++    _holding, HOLD, KEY, _faithful_queue, _fail_state_writes,
++    _run, _long_signal_after_a_flat_turn,
++)
++
++
++def test_restart_does_not_forget_unrecorded_third_loss(monkeypatch, tmp_path):
++    runner, emitted, state = _holding(monkeypatch, tmp_path, signal=HOLD)
++    _faithful_queue(monkeypatch, runner, emitted)
++    state.set(f'loss_streak:{KEY}', '2')
++    restore = _fail_state_writes(monkeypatch, runner, apply_too=True)
++    _run(monkeypatch, runner, loops=1)
++    assert [r['side'] for r in emitted] == ['sell']
++    restore()
++    # Emulate loss of process-local memory, retaining the durable state/queue.
++    runner._EXIT_ACCOUNTING_DEGRADED.clear()
++    emitted[0]['status'] = 'filled'
++    _long_signal_after_a_flat_turn(monkeypatch, runner, state)
++    _run(monkeypatch, runner, loops=1)
++    assert [r['side'] for r in emitted] == ['sell']

@@ -1,0 +1,238 @@
+{
+  "client_date": "2026-10-17",
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "commands": [
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"restarts\":{{json .RestartCount}},\"policy\":{{json .HostConfig.RestartPolicy.Name}}}",
+      "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    ],
+    [
+      "version",
+      "--format",
+      "{{json .Server.Version}}"
+    ],
+    [
+      "image",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"layers\":{{json .RootFS.Layers}},\"onbuild\":{{json (index .Config \"OnBuild\")}}}",
+      "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad"
+    ],
+    [
+      "image",
+      "ls",
+      "--format",
+      "{{.Repository}}:{{.Tag}}"
+    ],
+    [
+      "image",
+      "tag",
+      "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "cryptkeep-proof-parent:oct17-20e49998928c4c47"
+    ],
+    [
+      "image",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"layers\":{{json .RootFS.Layers}},\"onbuild\":{{json (index .Config \"OnBuild\")}}}",
+      "cryptkeep-proof-parent:oct17-20e49998928c4c47"
+    ],
+    [
+      "build",
+      "--quiet",
+      "--pull=false",
+      "--network=none",
+      "-"
+    ],
+    [
+      "image",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"layers\":{{json .RootFS.Layers}},\"onbuild\":{{json (index .Config \"OnBuild\")}}}",
+      "sha256:9ce96d0b388a6ba1f9375fe31209c56dd5d22d27ea4cf5dd86487ba081341aa7"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"restarts\":{{json .RestartCount}},\"policy\":{{json .HostConfig.RestartPolicy.Name}}}",
+      "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    ],
+    [
+      "events",
+      "--since",
+      "2026-10-18T01:05:54.945963+00:00",
+      "--until",
+      "2026-10-18T01:05:58.190497+00:00",
+      "--filter",
+      "type=container",
+      "--format",
+      "{\"time\":{{json .TimeNano}},\"action\":{{json .Action}},\"id\":{{json .Actor.ID}}}"
+    ]
+  ],
+  "scope": "One COPY-only proof image; no installation/startup/query/credentials",
+  "cli_sha256": "31ae2d64e51d9dfc728a2934941615cdd92f31279ed6d5c1fb2bfc0a44637a8f",
+  "before": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    }
+  ],
+  "engine_version": "29.8.2",
+  "parent": {
+    "id": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+    "layers": [
+      "sha256:258ba1f62b513e7bb7492d3cc8ce445e4ef176a14980f193f789b6d7270ae61c",
+      "sha256:e608bc52e64389b35f8ddd810bd219299785ba45a063ee9571fa75cf7fd106ad",
+      "sha256:d378fb5ec83eb7b6fe50bb189f5d1933741713980ee9a81a999429c117e03832",
+      "sha256:e497a1edfdd33c45a8881175e57e55f9f520cfb306d7cbf8ae18243633edde86",
+      "sha256:272b9a970ca89e0dfb752867b88369044162a92305fd46fd92a784e231c285d1",
+      "sha256:9a025319ab0b373efc79379f650066014c94c74450efd43806fed48970624420",
+      "sha256:8eb1a55323aeeb662c07c25b3a3d374a951d4cd1e82f7e29f9fb66c3becb1c68",
+      "sha256:b0dc43d9deb6ebd1360a3abcd6d4701df20d0a666610c31f3271a53845619531"
+    ],
+    "onbuild": null
+  },
+  "source": {
+    "path": "phase1_research_copilot/shared/probe.py",
+    "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+    "bytes": 2511
+  },
+  "dockerfile": "FROM cryptkeep-proof-parent:oct17-20e49998928c4c47\nCOPY app/shared/probe.py /app/shared/probe.py\n",
+  "context_sha256": "a8d42e04694b9fc7cbdcb4a9ba6b312cb99507c4c9447a21031c65622672795e",
+  "event_start_utc": "2026-10-18T01:05:54.945963+00:00",
+  "retained_parent_tag": "cryptkeep-proof-parent:oct17-20e49998928c4c47",
+  "assumption": "No concurrent actor removes or retargets this random parent tag during the single build.",
+  "registry_isolation": "UNVERIFIED; pull=false prefers local, not a hard network prohibition.",
+  "build_attempts": 1,
+  "built": {
+    "id": "sha256:9ce96d0b388a6ba1f9375fe31209c56dd5d22d27ea4cf5dd86487ba081341aa7",
+    "layers": [
+      "sha256:258ba1f62b513e7bb7492d3cc8ce445e4ef176a14980f193f789b6d7270ae61c",
+      "sha256:e608bc52e64389b35f8ddd810bd219299785ba45a063ee9571fa75cf7fd106ad",
+      "sha256:d378fb5ec83eb7b6fe50bb189f5d1933741713980ee9a81a999429c117e03832",
+      "sha256:e497a1edfdd33c45a8881175e57e55f9f520cfb306d7cbf8ae18243633edde86",
+      "sha256:272b9a970ca89e0dfb752867b88369044162a92305fd46fd92a784e231c285d1",
+      "sha256:9a025319ab0b373efc79379f650066014c94c74450efd43806fed48970624420",
+      "sha256:8eb1a55323aeeb662c07c25b3a3d374a951d4cd1e82f7e29f9fb66c3becb1c68",
+      "sha256:b0dc43d9deb6ebd1360a3abcd6d4701df20d0a666610c31f3271a53845619531",
+      "sha256:6811ced611dc425ad8b6769261179f47727743427e6e0f05a2726073f71eb456"
+    ],
+    "onbuild": null
+  },
+  "lineage_verified": true,
+  "after": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "state": "exited",
+      "restarts": 0,
+      "policy": "no"
+    }
+  ],
+  "originals_unchanged": true,
+  "event_end_utc": "2026-10-18T01:05:58.190497+00:00",
+  "container_events": []
+}

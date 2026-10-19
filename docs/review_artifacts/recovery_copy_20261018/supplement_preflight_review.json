@@ -1,0 +1,185 @@
+{
+  "schema": "recovery-supplement-independent-preflight-v1",
+  "reviewed_utc": "2026-10-18T19:28:54Z",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "objective": "Independent bounded preflight of seven named public recovery assets; no actual copy or service operations.",
+  "acceptance_state": "ACCEPTED",
+  "acceptance_scope": "One invocation of the frozen supplement helper for the exact new output below, subject to normal external filesystem approval. This accepts preflight only, not successful preservation or publication clearance.",
+  "implementation_by_this_reviewer": false,
+  "blocking_findings": [],
+  "findings": [],
+  "reviewed_artifacts": {
+    "scripts/research/preserve_recovery_exclusions.py": {
+      "classification": "SHOWN",
+      "sha256": "78096172f85a75dde24fc371ba79bdd38e1aaf8fe8eba26a1dc549b8596c3645",
+      "matches_requested_freeze": true
+    },
+    "tests/test_preserve_recovery_exclusions.py": {
+      "classification": "SHOWN",
+      "sha256": "981514fcd279718542ceca0589a58d48236767604702e29a9a385e004c0d7b06",
+      "matches_requested_freeze": true
+    },
+    "docs/checkpoints/recovery_supplement_20261018.md": {
+      "classification": "SHOWN",
+      "reviewed": true
+    },
+    "scripts/research/build_recovery_copy.py": {
+      "classification": "SHOWN",
+      "sha256": "8efaf5fc4e3ff508640fb038d6d2b1f74c7a30ece9ef1233449f491f051655a9",
+      "scope": "Required reader, scope, screening and restoration interfaces inspected; no broad reaudit of the previously approved helper/scanner."
+    }
+  },
+  "independent_archive_diagnosis": {
+    "classification": "SHOWN",
+    "method": "Read the exact three source archives without extraction to disk; independently enumerate ordinary members and refusal reasons, verify enclosing and exception-member hashes, and compare against supplement inspection. No matching key-pattern strings were printed.",
+    "archives": [
+      {
+        "path": "docs/research/raw_archives_20261009/coinbase_hourly_last60d.tar.xz",
+        "sha256": "435220c4d778036ba1b3e8ac78b7817f1a372bba1f5435d32c94af9c9bf5caa5",
+        "members": 408,
+        "expanded_bytes": 30556000,
+        "only_exception": {
+          "member": "cb/fetch.log",
+          "bytes": 13,
+          "exact_public_bytes_description": "done 395 273 followed by newline",
+          "original_refusal": "denied_path"
+        }
+      },
+      {
+        "path": "docs/research/raw_archives_20261009/coinbase_hourly_prior10m.tar.xz",
+        "sha256": "2bb417a2033b2a4b78df56db16c4471c6e1384ef23b433e276afb9108f99e6b4",
+        "members": 406,
+        "expanded_bytes": 132054912,
+        "only_exception": {
+          "member": "cb2/fetch.log",
+          "bytes": 13,
+          "exact_public_bytes_description": "done 395 377 followed by newline",
+          "original_refusal": "denied_path"
+        }
+      },
+      {
+        "path": "docs/research/raw_archives_20261009/cmc_weekly_and_trending.tar.xz",
+        "sha256": "05223937afcfb02f4c020476c8b3380fcdd7044e5f3812e4938aff858fd41f4b",
+        "members": 423,
+        "expanded_bytes": 67757636,
+        "only_exception_members": [
+          {
+            "member": "cmc/weekly/2026-07-12.json",
+            "sha256": "c87648455214bdd7d398c62d19e4004cf258129a69637ccf8425c241023a28a1",
+            "bytes": 242656,
+            "rows": 1000
+          },
+          {
+            "member": "cmc/weekly/2026-07-19.json",
+            "sha256": "1f8a48d458d8531b379aead584212fcea02552abecd1a3bac07202bd76077fdf",
+            "bytes": 243851,
+            "rows": 1000
+          },
+          {
+            "member": "cmc/weekly/2026-07-26.json",
+            "sha256": "d6555729bdeba1410ffdc12ad790fd3617ca3528fffd51099ab0f1b721a39b90",
+            "bytes": 244297,
+            "rows": 1000
+          }
+        ],
+        "independent_match_location_check": "For each pinned member, exactly one ten-column SKHYx row was present; every raw scanner match equalled its third-column slug, which occurred once in the original serialized bytes. Masking only that value in screening memory left the original serialization clear under the existing scanner. No other ordinary member required an exception.",
+        "schema_evidence": {
+          "path": "docs/research/cmc_trending_20261009/fetch_cmc_weekly.py",
+          "sha256": "974a9a4d0a28bd0bf11c2a8708e3f2fd51830b9127ce47e621c5e27d5e5f0fb5",
+          "line": 23,
+          "third_column": "x[\"slug\"]",
+          "verified_by": "Source inspection and AST inspection without executing the fetcher."
+        }
+      }
+    ],
+    "exception_conclusion": "Finite local false positives supported by exact content and producer schema; not universal credential clearance. The helper screens an in-memory JSON representation and archives the unmodified original bytes. The independent check additionally rescreened the remaining original serialization."
+  },
+  "database_review": {
+    "classification": "SHOWN",
+    "source_sql_connections_during_review": 0,
+    "observed_source_state": [
+      {
+        "path": "research/coinbase_confirmation_usd_v1/public_archive.sqlite",
+        "bytes": 397312,
+        "read_write_versions": [2, 2],
+        "wal_regular_bytes": 0,
+        "rollback_journal": "absent"
+      },
+      {
+        "path": "research/coinbase_confirmation_v1/public_archive.sqlite",
+        "bytes": 253952,
+        "read_write_versions": [2, 2],
+        "wal_regular_bytes": 0,
+        "rollback_journal": "absent"
+      },
+      {
+        "path": "research/coinbase_retrospective_20261009/public_archive.sqlite",
+        "bytes": 454656,
+        "read_write_versions": [2, 2],
+        "wal_regular_bytes": 0,
+        "rollback_journal": "absent"
+      },
+      {
+        "path": "research/multisymbol_baseline_v1/public_archive.sqlite",
+        "bytes": 5791744,
+        "read_write_versions": [2, 2],
+        "wal_regular_bytes": 0,
+        "rollback_journal": "absent"
+      }
+    ],
+    "observation_limit": "Read-only file-header and sidecar-metadata observations, not a promise of stability at execution.",
+    "code_contract": [
+      "Only the four existing named public databases are eligible; source main files and sidecars are read through the bounded no-follow regular-file interface, never through SQLite.",
+      "Require SQLite signature and read/write versions 2/2; reject any existing rollback journal or nonempty WAL.",
+      "Compare WAL observations around repeated main-file reads, main-file bytes and identity, then repeat capture and compare state and hash before sealing.",
+      "Omit SHM; connect through mode=ro&immutable=1 only to staged/restored files and require exact integrity_check result [('ok',)].",
+      "These checks are sampled per-file consistency evidence, not a lock, online WAL snapshot, or global atomic snapshot."
+    ]
+  },
+  "verification": {
+    "classification": "SHOWN",
+    "environment": "VERIFIED_ENV",
+    "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_preserve_recovery_exclusions.py",
+    "runs": 1,
+    "exit_code": 0,
+    "result": "15 passed in 0.23s",
+    "scope": "Synthetic focused fixtures only; no additional test matrix or real recovery build was run."
+  },
+  "bounded_invocation": {
+    "environment": "ASSUMED_ENV",
+    "root": "/Users/baitus/Downloads/crypto-bot-pro",
+    "output": "/Users/baitus/Documents/cryptkeep_data_archive/recovery_supplement_20261018T192628Z",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -E -B -m scripts.research.preserve_recovery_exclusions --root /Users/baitus/Downloads/crypto-bot-pro --output /Users/baitus/Documents/cryptkeep_data_archive/recovery_supplement_20261018T192628Z",
+    "shown_destination_preflight": "Exact destination absent; existing parent is a directory and resolves canonically; destination is external to source root.",
+    "conditions": [
+      "Normal external filesystem approval is still required; this review does not grant it.",
+      "Reviewed helper, tests and relied-upon base/scanner interfaces must remain unchanged; changes invalidate this preflight.",
+      "Use only this one fresh exclusive destination; no overwrite, cleanup, automatic retry, or change to earlier recoveries.",
+      "No source SQL, source writes, collector/service stops or starts, private configuration reads, or trading operations."
+    ]
+  },
+  "unverified": [
+    {
+      "classification": "UNVERIFIED",
+      "claim": "Actual seven-file preservation, execution-time source stability, staged/restored database integrity, and successful final manifest. No actual copy was attempted."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "claim": "Offsite durability, full environment recovery and general secret/publication clearance are outside this selected-file same-disk supplement."
+    }
+  ],
+  "saved_outcome_review": {
+    "available": true,
+    "proof_required_next": [
+      "Saved exact invocation and successful exit for this destination, tied to the reviewed source hashes.",
+      "Final supplement manifest with exactly the three pinned archives and four named databases, seven restored verifications, and the expected finite archive exception receipts.",
+      "Saved capture/recheck consistency evidence and integrity success for all four staged and all four restored databases; do not treat a literal source_sql_connections field alone as independent runtime proof.",
+      "Byte-hash agreement across staged files, supplement archive members and restored files; frozen enclosing raw-archive hashes must remain exact.",
+      "No success claim if the command fails or leaves partial output; no retry or deletion under this preflight."
+    ]
+  },
+  "reviewer_changes": [
+    "Only this new review artifact; parent retains ownership of the work log and source-hash documentation receipts."
+  ]
+}

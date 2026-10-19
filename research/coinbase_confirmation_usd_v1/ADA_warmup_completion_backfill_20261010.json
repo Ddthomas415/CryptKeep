@@ -1,0 +1,24 @@
+{
+  "archive_path": "/sessions/rcw-011p3wbrlhso7qjbjysguxay/mnt/crypto-bot-pro/research/coinbase_confirmation_usd_v1/public_archive.sqlite",
+  "artifact_type": "ohlcv_archive_backfill_v1",
+  "dataset_hash": "0ad8f2ced0825e6283cbdf69d24289a66fed528e2348da878696010644f93188",
+  "exchange": "coinbase",
+  "limitations": [
+    "market_data_archive_only",
+    "not_strategy_evidence",
+    "not_promotion_evidence",
+    "not_trading"
+  ],
+  "max_bars": 24,
+  "max_pages": 1,
+  "ok": true,
+  "page_limit": 300,
+  "research_data_ingestion": true,
+  "rows_written": 24,
+  "since_ms": 1791504000000,
+  "source": "public_exchange_ohlcv",
+  "stored_symbol": "ADA/USD",
+  "symbol": "ADA/USD",
+  "timeframe": "1h",
+  "until_ms": 1791586800000
+}

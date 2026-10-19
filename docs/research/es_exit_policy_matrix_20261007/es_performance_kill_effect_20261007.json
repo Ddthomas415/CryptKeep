@@ -1,0 +1,418 @@
+{
+ "artifact_type": "research_only_es_performance_kill_effect",
+ "not_promotion_evidence": true,
+ "code_commit": "620bc8dbeee71cca327042902759e219e18f30b6",
+ "script_sha256": "9ac81389514ac0d695ad1f3e45314bcaeab1251099caabf7fb087a2f63640a49",
+ "input_rows_sha256": "c0d64661f4c09b4ca7be047694dceff46b22846ba576177f55e4464a623e28eb",
+ "limits": {
+  "max_consecutive_losing_exits": 3,
+  "max_strategy_drawdown_pct": 10.0,
+  "performance_kill_cooldown_loops": 50
+ },
+ "assumptions": {
+  "strategy": "SMA200, declared exits, runner entry rule",
+  "fee_bps": 7.5,
+  "slippage_bps": 5.0,
+  "warmup_bars": 210,
+  "initial_cash": 1000.0,
+  "pnl_pct_basis": "entry and exit bar closes, as evaluate_exit_outcome",
+  "permanent": "after the first trigger no entry is taken again (master: absolute loop number with a per-process loop counter, signal change consumed at loop 1)",
+  "countdown": "entries blocked on the exit bar and the next N bars; a blocked change is consumed (series patch 0001 semantics)"
+ },
+ "validation": {
+  "no_kill_final_equity": 9543.47,
+  "matches_matrix_cell": true
+ },
+ "runs": [
+  {
+   "mode": "none",
+   "cooldown_bars_after_exit": null,
+   "closed_trades": 31,
+   "final_equity": 9543.47,
+   "net_return_pct": 854.35,
+   "max_drawdown_pct": 64.29,
+   "kill_triggers": 17,
+   "first_kill": {
+    "date": "2020-02-26",
+    "reason": "kill:strategy_drawdown",
+    "equity": 1443.11
+   },
+   "blocked_entries": []
+  },
+  {
+   "mode": "permanent",
+   "cooldown_bars_after_exit": null,
+   "closed_trades": 3,
+   "final_equity": 1443.11,
+   "net_return_pct": 44.31,
+   "max_drawdown_pct": 45.21,
+   "kill_triggers": 1,
+   "first_kill": {
+    "date": "2020-02-26",
+    "reason": "kill:strategy_drawdown",
+    "equity": 1443.11
+   },
+   "blocked_entries": [
+    "2020-02-27",
+    "2020-03-02",
+    "2020-04-29",
+    "2020-07-27",
+    "2021-01-18",
+    "2021-05-20",
+    "2021-08-09",
+    "2021-08-13",
+    "2021-08-19",
+    "2021-09-12",
+    "2021-09-14",
+    "2021-10-01",
+    "2021-12-14",
+    "2021-12-21",
+    "2023-01-13",
+    "2023-08-29",
+    "2023-10-16",
+    "2024-07-13",
+    "2024-08-23",
+    "2024-09-24",
+    "2024-09-26",
+    "2024-10-14",
+    "2025-03-12",
+    "2025-03-14",
+    "2025-03-19",
+    "2025-03-23",
+    "2025-04-22",
+    "2025-10-19",
+    "2025-10-23",
+    "2025-10-31"
+   ]
+  },
+  {
+   "mode": "countdown",
+   "cooldown_bars_after_exit": 0,
+   "closed_trades": 31,
+   "final_equity": 9543.47,
+   "net_return_pct": 854.35,
+   "max_drawdown_pct": 64.29,
+   "kill_triggers": 17,
+   "first_kill": {
+    "date": "2020-02-26",
+    "reason": "kill:strategy_drawdown",
+    "equity": 1443.11
+   },
+   "blocked_entries": []
+  },
+  {
+   "mode": "countdown",
+   "cooldown_bars_after_exit": 1,
+   "closed_trades": 27,
+   "final_equity": 11989.07,
+   "net_return_pct": 1098.91,
+   "max_drawdown_pct": 55.77,
+   "kill_triggers": 11,
+   "first_kill": {
+    "date": "2020-02-26",
+    "reason": "kill:strategy_drawdown",
+    "equity": 1443.11
+   },
+   "blocked_entries": [
+    "2020-02-27",
+    "2021-08-13",
+    "2021-09-14",
+    "2021-12-14"
+   ]
+  },
+  {
+   "mode": "countdown",
+   "cooldown_bars_after_exit": 3,
+   "closed_trades": 26,
+   "final_equity": 11460.31,
+   "net_return_pct": 1046.03,
+   "max_drawdown_pct": 58.67,
+   "kill_triggers": 10,
+   "first_kill": {
+    "date": "2020-02-26",
+    "reason": "kill:strategy_drawdown",
+    "equity": 1443.11
+   },
+   "blocked_entries": [
+    "2020-02-27",
+    "2021-08-13",
+    "2021-09-12",
+    "2021-12-14",
+    "2025-03-23"
+   ]
+  },
+  {
+   "mode": "countdown",
+   "cooldown_bars_after_exit": 5,
+   "closed_trades": 24,
+   "final_equity": 13996.73,
+   "net_return_pct": 1299.67,
+   "max_drawdown_pct": 54.6,
+   "kill_triggers": 8,
+   "first_kill": {
+    "date": "2020-02-26",
+    "reason": "kill:strategy_drawdown",
+    "equity": 1443.11
+   },
+   "blocked_entries": [
+    "2020-02-27",
+    "2020-03-02",
+    "2021-08-13",
+    "2021-09-12",
+    "2021-09-14",
+    "2021-12-14",
+    "2025-03-23"
+   ]
+  }
+ ],
+ "trades_no_kill": [
+  {
+   "entry": "2019-04-02",
+   "exit": "2019-09-26",
+   "pnl_pct": 64.425,
+   "streak": 0,
+   "drawdown_pct": 0.0,
+   "kill": null
+  },
+  {
+   "entry": "2019-10-26",
+   "exit": "2019-11-08",
+   "pnl_pct": -5.3648,
+   "streak": 1,
+   "drawdown_pct": 5.3648,
+   "kill": null
+  },
+  {
+   "entry": "2020-01-28",
+   "exit": "2020-02-26",
+   "pnl_pct": -6.5592,
+   "streak": 2,
+   "drawdown_pct": 11.924,
+   "kill": "kill:strategy_drawdown"
+  },
+  {
+   "entry": "2020-02-27",
+   "exit": "2020-02-28",
+   "pnl_pct": -1.1756,
+   "streak": 3,
+   "drawdown_pct": 13.0996,
+   "kill": "kill:consecutive_losing_exits"
+  },
+  {
+   "entry": "2020-03-02",
+   "exit": "2020-03-08",
+   "pnl_pct": -9.84,
+   "streak": 4,
+   "drawdown_pct": 22.9396,
+   "kill": "kill:consecutive_losing_exits"
+  },
+  {
+   "entry": "2020-04-29",
+   "exit": "2021-05-19",
+   "pnl_pct": 317.7029,
+   "streak": 0,
+   "drawdown_pct": 0.0,
+   "kill": null
+  },
+  {
+   "entry": "2021-05-20",
+   "exit": "2021-05-21",
+   "pnl_pct": -8.0805,
+   "streak": 1,
+   "drawdown_pct": 8.0805,
+   "kill": null
+  },
+  {
+   "entry": "2021-08-09",
+   "exit": "2021-08-12",
+   "pnl_pct": -4.0258,
+   "streak": 2,
+   "drawdown_pct": 12.1063,
+   "kill": "kill:strategy_drawdown"
+  },
+  {
+   "entry": "2021-08-13",
+   "exit": "2021-08-17",
+   "pnl_pct": -6.6105,
+   "streak": 3,
+   "drawdown_pct": 18.7168,
+   "kill": "kill:consecutive_losing_exits"
+  },
+  {
+   "entry": "2021-08-19",
+   "exit": "2021-09-10",
+   "pnl_pct": -4.0936,
+   "streak": 4,
+   "drawdown_pct": 22.8104,
+   "kill": "kill:consecutive_losing_exits"
+  },
+  {
+   "entry": "2021-09-12",
+   "exit": "2021-09-13",
+   "pnl_pct": -2.339,
+   "streak": 5,
+   "drawdown_pct": 25.1494,
+   "kill": "kill:consecutive_losing_exits"
+  },
+  {
+   "entry": "2021-09-14",
+   "exit": "2021-09-20",
+   "pnl_pct": -8.7301,
+   "streak": 6,
+   "drawdown_pct": 33.8795,
+   "kill": "kill:consecutive_losing_exits"
+  },
+  {
+   "entry": "2021-10-01",
+   "exit": "2021-12-13",
+   "pnl_pct": -2.9853,
+   "streak": 7,
+   "drawdown_pct": 36.8648,
+   "kill": "kill:consecutive_losing_exits"
+  },
+  {
+   "entry": "2021-12-14",
+   "exit": "2021-12-17",
+   "pnl_pct": -4.5504,
+   "streak": 8,
+   "drawdown_pct": 41.4152,
+   "kill": "kill:consecutive_losing_exits"
+  },
+  {
+   "entry": "2021-12-21",
+   "exit": "2021-12-28",
+   "pnl_pct": -2.8041,
+   "streak": 9,
+   "drawdown_pct": 44.2193,
+   "kill": "kill:consecutive_losing_exits"
+  },
+  {
+   "entry": "2023-01-13",
+   "exit": "2023-08-17",
+   "pnl_pct": 33.5728,
+   "streak": 0,
+   "drawdown_pct": 10.6465,
+   "kill": "kill:strategy_drawdown"
+  },
+  {
+   "entry": "2023-08-29",
+   "exit": "2023-08-30",
+   "pnl_pct": -1.4861,
+   "streak": 1,
+   "drawdown_pct": 12.1326,
+   "kill": "kill:strategy_drawdown"
+  },
+  {
+   "entry": "2023-10-16",
+   "exit": "2024-07-04",
+   "pnl_pct": 100.0058,
+   "streak": 0,
+   "drawdown_pct": 0.0,
+   "kill": null
+  },
+  {
+   "entry": "2024-07-13",
+   "exit": "2024-08-03",
+   "pnl_pct": 2.4489,
+   "streak": 0,
+   "drawdown_pct": 0.0,
+   "kill": null
+  },
+  {
+   "entry": "2024-08-23",
+   "exit": "2024-08-26",
+   "pnl_pct": -1.9454,
+   "streak": 1,
+   "drawdown_pct": 1.9454,
+   "kill": null
+  },
+  {
+   "entry": "2024-09-24",
+   "exit": "2024-09-25",
+   "pnl_pct": -1.7769,
+   "streak": 2,
+   "drawdown_pct": 3.7223,
+   "kill": null
+  },
+  {
+   "entry": "2024-09-26",
+   "exit": "2024-09-30",
+   "pnl_pct": -2.8782,
+   "streak": 3,
+   "drawdown_pct": 6.6005,
+   "kill": "kill:consecutive_losing_exits"
+  },
+  {
+   "entry": "2024-10-14",
+   "exit": "2025-03-09",
+   "pnl_pct": 22.15,
+   "streak": 0,
+   "drawdown_pct": 0.0,
+   "kill": null
+  },
+  {
+   "entry": "2025-03-12",
+   "exit": "2025-03-13",
+   "pnl_pct": -3.0911,
+   "streak": 1,
+   "drawdown_pct": 3.0911,
+   "kill": null
+  },
+  {
+   "entry": "2025-03-14",
+   "exit": "2025-03-16",
+   "pnl_pct": -1.6884,
+   "streak": 2,
+   "drawdown_pct": 4.7795,
+   "kill": null
+  },
+  {
+   "entry": "2025-03-19",
+   "exit": "2025-03-20",
+   "pnl_pct": -3.1015,
+   "streak": 3,
+   "drawdown_pct": 7.881,
+   "kill": "kill:consecutive_losing_exits"
+  },
+  {
+   "entry": "2025-03-23",
+   "exit": "2025-03-28",
+   "pnl_pct": -1.9875,
+   "streak": 4,
+   "drawdown_pct": 9.8685,
+   "kill": "kill:consecutive_losing_exits"
+  },
+  {
+   "entry": "2025-04-22",
+   "exit": "2025-10-17",
+   "pnl_pct": 13.8778,
+   "streak": 0,
+   "drawdown_pct": 0.0,
+   "kill": null
+  },
+  {
+   "entry": "2025-10-19",
+   "exit": "2025-10-22",
+   "pnl_pct": -1.0037,
+   "streak": 1,
+   "drawdown_pct": 1.0037,
+   "kill": null
+  },
+  {
+   "entry": "2025-10-23",
+   "exit": "2025-10-30",
+   "pnl_pct": -1.6418,
+   "streak": 2,
+   "drawdown_pct": 2.6455,
+   "kill": null
+  },
+  {
+   "entry": "2025-10-31",
+   "exit": "2025-11-03",
+   "pnl_pct": -2.7359,
+   "streak": 3,
+   "drawdown_pct": 5.3814,
+   "kill": "kill:consecutive_losing_exits"
+  }
+ ]
+}

@@ -1,0 +1,36 @@
+{
+  "recorded_at_utc": "2026-10-16T21:26:11.705052+00:00",
+  "role": "AUDITOR",
+  "state": "INCOMPLETE",
+  "method": "Selected Docker metadata and five single-regular-file source archives; static AST parse and SHA256 only",
+  "baseline": "docs/review_artifacts/companion_compatibility_20261016.json",
+  "baseline_sha256": "85d226fc1e347ecd4187877f6c60a51f53fb75428f89f00d82854dbc5e764d69",
+  "inspection_script_sha256": "7945483c5f36df94e6e5d81a37d528b462bc4a5564e9e1fb8110f0574f6a7fc6",
+  "cli_sha256": "31ae2d64e51d9dfc728a2934941615cdd92f31279ed6d5c1fb2bfc0a44637a8f",
+  "cli_architecture": "arm64",
+  "daemon": "unix:///Users/baitus/.docker/run/docker.sock",
+  "targets_checked": 7,
+  "ids_images_states_restart_counts_policies_match_baseline": true,
+  "targets_exited": 7,
+  "final_inventory_matches_initial": true,
+  "source_files": [
+    {"container":"phase1-orchestrator","path":"/app/shared/tools.py","sha256":"bbf00f30ced7027a1aaef89dfc161204b50a24e7a445a014d482b7237dc2d437","matches_previous_installed":true,"matches_current_local":false},
+    {"container":"phase1-orchestrator","path":"/app/shared/retry.py","sha256":"0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b","matches_previous_installed":true,"matches_current_local":true},
+    {"container":"phase1-orchestrator","path":"/app/shared/audit.py","sha256":"70074e20d5a7adf89037be73650b8659f13de5430daef1b03cd4d5d624d30d3c","matches_previous_installed":true,"matches_current_local":false},
+    {"container":"phase1-orchestrator","path":"/app/orchestrator/main.py","sha256":"c617205830376da3d6e5b4d8a33e88c5f3d16bed34ce8fee20319e951162a05b","matches_previous_installed":true,"matches_current_local":false},
+    {"container":"phase1-memory","path":"/app/memory_retrieval/main.py","sha256":"c9efd5ff807427ec6c89e09782a0c931902c1aa024ee0b7ec85ffa7d666a3436","matches_previous_installed":true,"matches_current_local":false}
+  ],
+  "successful_collection_seconds": 3.13,
+  "real_credentials_accessed": false,
+  "container_environment_exported": false,
+  "container_exec_used": false,
+  "service_requests": 0,
+  "starts_stops_builds": 0,
+  "limitations": [
+    "Five source files, not a complete installed dependency or configuration audit",
+    "No volume contents, storage namespaces, SDK semantics, token handoff or query tested",
+    "Container filesystem hashes do not prove immutable image-layer or loaded-module identity",
+    "Initial metadata template failed; corrected selected-field template succeeded. This was an inspection error, not a daemon failure. Raw stderr was not printed.",
+    "Runtime retry and installation changes remain unauthorized"
+  ]
+}

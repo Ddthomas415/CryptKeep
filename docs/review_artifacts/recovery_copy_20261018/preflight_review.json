@@ -1,0 +1,170 @@
+{
+  "schema": "bounded-recovery-copy-preflight-review-v1",
+  "reviewed_at_utc": "2026-10-18T19:02:11Z",
+  "active_role": "GATE",
+  "risk_level": "HIGH",
+  "objective": "Independently review the frozen one-off selected-file recovery helper before one user-authorized local copy, without running that copy.",
+  "acceptance_state": "REJECTED",
+  "scoped_disposition": {
+    "preflight_passed": false,
+    "actual_copy_permitted_by_this_review": false,
+    "actual_copy_run": false,
+    "reason": "Two synthetic counterexamples violate the public-file inventory and nested credential-path screening boundaries. Do not run the planned invocation at these hashes.",
+    "planned_output": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z",
+    "publication_authorized": false,
+    "review_scope": "One-off helper and synthetic verification only; not production readiness, a new backup framework, universal secret clearance, or runtime recovery."
+  },
+  "hash_bindings": {
+    "algorithm": "sha256",
+    "verification": "SHOWN: shasum -a 256 matched all three operator-supplied hashes before testing.",
+    "files": {
+      "scripts/research/build_recovery_copy.py": "12205c3260dd0184d349822f9a129165a82d580f86e6724b9b5bd74a71120aac",
+      "tests/test_build_recovery_copy.py": "b497a708fb0736b3546fbcacb401321cb78f1c9129290f4c70354a4f373be2d4",
+      "services/audit/backup_artifact_secret_scan.py": "d87d3042307170ac43a29ff706032423fb2e9cf1c32bafcb9528e6c16af35e9f",
+      "tests/test_backup_artifact_secret_scan.py": "dfd0471e4ccf612122d1b73a500b255d1cf2d497ae262c2fbd89521f3be6c7f3",
+      "docs/checkpoints/screened_recovery_plan_20261018.md": "4b4e7208e8ae049681a7fe60c98be1488d23c4f21ef48855abc3d83880fc5ed3"
+    },
+    "limit": "These are direct file bindings, not a hash closure over the interpreter, Git, imported modules, or an eventual source inventory."
+  },
+  "findings": [
+    {
+      "id": "RC-01",
+      "priority": "P1",
+      "blocking": true,
+      "evidence_class": "SHOWN",
+      "title": "Inventory does not enforce the authorized public companion-code and database scope before reads",
+      "file": "scripts/research/build_recovery_copy.py",
+      "lines": [28, 57, 138, 148, 186, 195],
+      "evidence": "inventory() adds every file found under the ignored phase1_research_copilot tree and every research/*/public_archive.sqlite match; neither is a finite reviewed allowlist. denied() rejects selected names and suffixes but not phase1_research_copilot/config/credentials.json. An in-memory inventory probe returned that synthetic credential path and research/not-approved/public_archive.sqlite. denied() returned false for the credential path, and screened_reason() returned null for its synthetic JSON api_token value. build() therefore reaches read_regular() and can persist such content rather than excluding the credential path before opening it.",
+      "impact": "The current invocation can read and copy ignored operational or credential material outside the promised public companion-code scope. A public_archive.sqlite basename alone does not bind selection to the four authorized public databases. This is an authorization-boundary failure, not a demand for universal secret detection.",
+      "actual_repository_exposure": "UNVERIFIED: no real inventory or private configuration was inspected, and no actual credential presence is asserted.",
+      "minimum_required_change": "Bind ignored companion additions and database additions to explicit reviewed public paths, and refuse credential/runtime candidates before read_regular(). Preserve ordinary authorized repository files; do not silently expand scope from directory membership or a database basename.",
+      "proof_required": "Synthetic inventory tests must exclude a non-allowlisted companion credentials file and a fifth public_archive.sqlite path. A read spy must prove refused paths are never opened, while the approved public source and exact database paths remain selectable."
+    },
+    {
+      "id": "RC-02",
+      "priority": "P1",
+      "blocking": true,
+      "evidence_class": "SHOWN",
+      "title": "Extension-only archive dispatch permits a nested denied path to bypass screening",
+      "file": "scripts/research/build_recovery_copy.py",
+      "lines": [60, 111],
+      "evidence": "The same synthetic uncompressed TAR containing a .env member returned archive_member_refused when named bundle.tar but returned null when named bundle.txt. TAR headers and the synthetic payload decode as UTF-8, so the generic text branch accepts the container without inspecting its members. An included outer file can therefore carry a nested path the archive branch would reject.",
+      "impact": "Nested archive and secret-path exclusions are bypassable by a harmless outer rename. UTF-8 decodability is not sufficient evidence that a file is plain text, and the plan's bounded recursive inspection claim does not hold for this supported container under an alternate suffix.",
+      "actual_repository_exposure": "UNVERIFIED: no real renamed archive was searched for or inspected.",
+      "minimum_required_change": "Recognize supported archive containers independently of their outer suffix, or conservatively exclude container-like non-text content before the generic text acceptance path. Keep the existing recursive limits and member-path denial; no broader scanning framework is required.",
+      "proof_required": "Add a synthetic renamed-TAR regression proving its .env member is refused regardless of outer suffix, plus a safe plain-text control and a safe supported archive control."
+    }
+  ],
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV",
+    "environment_scope": "The authorized isolated local synthetic pytest invocation completed successfully. This does not verify the real destination, source inventory, runtime, or restoration of operational services.",
+    "cwd": "/Users/baitus/Downloads/crypto-bot-pro",
+    "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_build_recovery_copy.py tests/test_backup_artifact_secret_scan.py",
+    "exit_code": 0,
+    "result": "24 passed in 0.38s",
+    "synthetic_probe": {
+      "environment": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -c <in-memory probe>",
+      "exit_code": 0,
+      "method": "Patched subprocess.run, os.walk and Path.glob to supply synthetic inventory only. Constructed a TAR in io.BytesIO. Called inventory(), denied() and screened_reason(); did not call build(), read_regular(), any real inventory command, or any source/configuration read.",
+      "python_source": [
+        "import io, json, tarfile",
+        "from pathlib import Path",
+        "from types import SimpleNamespace",
+        "from unittest.mock import patch",
+        "from scripts.research import build_recovery_copy as r",
+        "root = Path('/synthetic-repo')",
+        "rel = 'phase1_research_copilot/config/credentials.json'",
+        "payload = b'{\"api_token\":\"synthetic-only\"}'",
+        "walk = [(str(root / 'phase1_research_copilot/config'), [], ['credentials.json'])]",
+        "public = [root / 'research/not-approved/public_archive.sqlite']",
+        "result = {}",
+        "with patch.object(r.subprocess, 'run', return_value=SimpleNamespace(stdout=b'safe.py\\0')), patch.object(r.os, 'walk', return_value=walk), patch.object(Path, 'glob', return_value=iter(public)):",
+        "    result['synthetic_inventory'] = r.inventory(root)",
+        "result['credential_path_denied_before_read'] = r.denied(rel)",
+        "result['credential_content_exclusion_reason'] = r.screened_reason(payload, rel)",
+        "b = io.BytesIO()",
+        "with tarfile.open(fileobj=b, mode='w') as a:",
+        "    m = tarfile.TarInfo('.env')",
+        "    m.size = len(payload)",
+        "    a.addfile(m, io.BytesIO(payload))",
+        "result['same_tar_named_tar_reason'] = r.screened_reason(b.getvalue(), 'bundle.tar')",
+        "result['same_tar_named_txt_reason'] = r.screened_reason(b.getvalue(), 'bundle.txt')",
+        "print(json.dumps(result, sort_keys=True))"
+      ],
+      "observed_result": {
+        "credential_content_exclusion_reason": null,
+        "credential_path_denied_before_read": false,
+        "same_tar_named_tar_reason": "archive_member_refused",
+        "same_tar_named_txt_reason": null,
+        "synthetic_inventory": [
+          "phase1_research_copilot/config/credentials.json",
+          "research/not-approved/public_archive.sqlite",
+          "safe.py"
+        ]
+      }
+    }
+  },
+  "shown_controls": [
+    {
+      "claim": "Configured denied paths are checked before read_regular(); existing tests prove this for six named credential/runtime cases.",
+      "evidence_class": "SHOWN",
+      "references": ["scripts/research/build_recovery_copy.py:186-197", "tests/test_build_recovery_copy.py:38-47"],
+      "limit": "Does not establish that all candidate credential/runtime paths are denied; see RC-01."
+    },
+    {
+      "claim": "Source reads use descriptor-relative O_NOFOLLOW on each component, require a bounded regular file, and compare file metadata around the read. Leaf and ancestor symlink fixtures are excluded.",
+      "evidence_class": "SHOWN",
+      "references": ["scripts/research/build_recovery_copy.py:114-135", "tests/test_build_recovery_copy.py:83-91"]
+    },
+    {
+      "claim": "Recognized archive suffixes receive recursive byte/member checks, limits, duplicate/path checks, and link refusal; restoration accepts only expected regular-file members with matching sizes and hashes.",
+      "evidence_class": "SHOWN",
+      "references": ["scripts/research/build_recovery_copy.py:60-111", "scripts/research/build_recovery_copy.py:151-174", "tests/test_build_recovery_copy.py:62-80", "tests/test_build_recovery_copy.py:136-144"],
+      "limit": "Suffix-independent container handling is not established; see RC-02."
+    },
+    {
+      "claim": "Destination creation is exclusive and outside the resolved source root under a canonical existing parent. Existing and in-repository destinations are rejected by synthetic tests.",
+      "evidence_class": "SHOWN",
+      "references": ["scripts/research/build_recovery_copy.py:177-184", "tests/test_build_recovery_copy.py:94-101"],
+      "limit": "No check of the planned real parent/destination was performed; no protection against a hostile concurrent replacement of destination ancestors is asserted."
+    },
+    {
+      "claim": "The helper contains source reads and destination writes, not source deletion, Git mutation commands, credential configuration, account actions, service startup, or market-data analysis. Its Git inventory subprocess uses git --no-optional-locks ls-files.",
+      "evidence_class": "SHOWN",
+      "references": ["scripts/research/build_recovery_copy.py:138-148", "scripts/research/build_recovery_copy.py:177-260"],
+      "limit": "Static command/write-surface review, not actual-copy filesystem tracing; source credential reads remain a blocker under RC-01."
+    },
+    {
+      "claim": "Synthetic fixtures demonstrate preserved selected bytes and executable mode, source-change refusal, journal deferral, and readonly immutable quick_check of a restored .sqlite copy.",
+      "evidence_class": "SHOWN",
+      "references": ["scripts/research/build_recovery_copy.py:209-249", "tests/test_build_recovery_copy.py:24-35", "tests/test_build_recovery_copy.py:104-133"],
+      "limit": "This is local selected-file proof only. The code quick_checks .sqlite restored files, not every .db file that inventory could admit."
+    }
+  ],
+  "remaining_limits_and_unverified_points": [
+    "UNVERIFIED: actual inventory, exact four public database identities, source sizes/stability, destination availability, and actual copy/restore outcome. Real-repository scanning was explicitly out of scope.",
+    "SHOWN: only _BYTE_PATTERNS is reused from backup_artifact_secret_scan; its structured JSON/JSONL sensitive-key scanning is not invoked by this helper. Passing that scanner's tests does not prove equivalent helper screening.",
+    "SHOWN: heuristic secret patterns and exclusions are not full secret clearance, permission to publish, or recoverability of excluded files.",
+    "SHOWN: per-file stability and re-read hashing do not prove a globally atomic snapshot under concurrent changes.",
+    "SHOWN: selected-file restore on the same disk is not Git-history completeness, an offsite/hardware-failure backup, clean-checkout execution, environment restoration, or runtime/service recovery.",
+    "SHOWN: failure paths can leave partial output. A late checkpoint CSV failure can occur after backup_manifest.json is written; an eventual bounded outcome review must require zero exit status and both complete receipt artifacts, not manifest existence alone. No deletion or automatic retry is authorized."
+  ],
+  "assumptions": [],
+  "review_actions": {
+    "source_or_test_files_modified": false,
+    "actual_copy_run": false,
+    "real_repository_inventory_or_secret_scan_run": false,
+    "private_configuration_read": false,
+    "git_mutation_or_deletion_run": false,
+    "runtime_account_docker_or_market_actions_run": false,
+    "sole_persistent_review_write": "docs/review_artifacts/recovery_copy_20261018/preflight_review.json",
+    "work_log_note": "No work-log edit: the operator explicitly restricted this review to one new artifact. This artifact preserves role, objective, evidence, risks, disposition and next proof."
+  },
+  "proof_required_next": [
+    "Parent engineer addresses RC-01 and RC-02 with the smallest bounded source/test changes, records new hashes and obtains independent re-review before any real copy.",
+    "Rerun only the authorized synthetic gate and focused synthetic regressions; do not treat its green result as actual-copy proof.",
+    "After a passing independent preflight, parent may perform only the already user-authorized single copy subject to normal filesystem approval, then forward saved exit status, manifest, refreshed checkpoint and hash/restore outcome for bounded review. No publication, retries, deletion, Git mutation or runtime actions follow from this artifact."
+  ],
+  "handoff": "GATE review complete at the bound hashes: REJECTED. Available for bounded re-review of corrected hashes and, only after preflight passes, the saved single-copy outcome."
+}

@@ -1,0 +1,131 @@
+{
+  "schema": "bounded-recovery-copy-corrected-preflight-review-v1",
+  "reviewed_at_utc": "2026-10-18T19:06:13Z",
+  "active_role": "GATE",
+  "risk_level": "HIGH",
+  "objective": "Independently re-review the bounded RC-01/RC-02 correction and decide whether the single already-user-authorized local recovery copy may proceed at the corrected hashes.",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scoped_disposition": {
+    "preflight_passed": true,
+    "blocking_findings": [],
+    "rc01_addressed": true,
+    "rc02_addressed": true,
+    "one_already_user_authorized_copy_may_proceed": true,
+    "actual_copy_run_by_reviewer": false,
+    "actual_recovery_outcome": "UNVERIFIED",
+    "reason": "Both previously demonstrated counterexamples are addressed by the bound implementation and synthetic regressions. No remaining blocker was found in this bounded correction review. Acceptance covers preflight for one private selected-file copy only, not successful execution or broader clearance.",
+    "conditions": [
+      "Use the exact corrected helper/test and unchanged scanner bindings below. Any change to those bindings requires review before relying on this disposition.",
+      "Use only the already-authorized source and new exclusive destination below, subject to normal external-directory filesystem approval. Do not reuse an existing output directory, override exclusivity, delete partial output, or automatically retry.",
+      "No publication, source edits, Git mutation, deletion, credential configuration, runtime/account actions, Docker actions, or market-data analysis is authorized by this review.",
+      "Forward the saved exit status and complete receipt/restore outcome for bounded outcome review. Do not report actual recovery success from this preflight or from manifest existence alone."
+    ]
+  },
+  "hash_bindings": {
+    "algorithm": "sha256",
+    "evidence_class": "SHOWN",
+    "method": "shasum -a 256; corrected source/test hashes match the operator-supplied values and scanner/test hashes match the prior reviewed values.",
+    "files": {
+      "scripts/research/build_recovery_copy.py": "13a427961bfb81296ecf112536548238aa9daedb692a8a743e292f58dca0e31e",
+      "tests/test_build_recovery_copy.py": "9266b123e072ede9066ed3063c2c969ea389c22710d077ab90878a8d709f0a35",
+      "services/audit/backup_artifact_secret_scan.py": "d87d3042307170ac43a29ff706032423fb2e9cf1c32bafcb9528e6c16af35e9f",
+      "tests/test_backup_artifact_secret_scan.py": "dfd0471e4ccf612122d1b73a500b255d1cf2d497ae262c2fbd89521f3be6c7f3",
+      "docs/checkpoints/screened_recovery_correction_20261018.md": "92a503f6489a9601d39da7550ec8980db4e409045ee0e51ec89f9090b8620b9b",
+      "docs/checkpoints/screened_recovery_plan_20261018.md": "4b4e7208e8ae049681a7fe60c98be1488d23c4f21ef48855abc3d83880fc5ed3",
+      "docs/review_artifacts/recovery_copy_20261018/preflight_review.json": "590ab817f2c06b89c76fbbd84df7cc1547d4e6a926024494cee97ddf90e0270b"
+    },
+    "limit": "Direct artifact bindings only, not a closure over all imported modules, Git, the interpreter, or an eventual real source inventory. The historical plan and rejection remain unchanged; this disposition supersedes that rejection only for the corrected bindings."
+  },
+  "resolved_findings": [
+    {
+      "id": "RC-01",
+      "evidence_class": "SHOWN",
+      "addressed": true,
+      "finding": "Unbounded ignored companion additions and basename-only public database selection could read outside the intended public scope.",
+      "implementation_evidence": [
+        "COMPANION_PUBLIC is a finite set: 34 explicitly generated/named Python paths plus named public documentation/build/original-file paths. No recursive companion walk remains.",
+        "PUBLIC_DATABASES names exactly the four research study archive paths. No database basename glob remains.",
+        "inventory() filters nonallowlisted companion paths and unapproved research public_archive.sqlite paths, including such paths returned by Git.",
+        "build() normalizes relative paths, checks denied() and outside_public_scope() before read_regular(), including explicitly supplied paths.",
+        "credentials.json, credentials.yaml and credentials.yml are added to the pre-read deny names."
+      ],
+      "source_references": [
+        "scripts/research/build_recovery_copy.py:33-58",
+        "scripts/research/build_recovery_copy.py:76-87",
+        "scripts/research/build_recovery_copy.py:184-190",
+        "scripts/research/build_recovery_copy.py:228-241"
+      ],
+      "verification_evidence": "test_inventory_adds_only_explicit_public_companion_and_database_paths passes: synthetic Git output includes the previously admitted credentials path and a fifth database; inventory excludes both while retaining approved source/database and ordinary safe.py. Direct build input is also rejected before the read spy can observe either refused path; approved source is copied and verified.",
+      "test_references": ["tests/test_build_recovery_copy.py:147-165"],
+      "limit": "Ordinary Git-known files still rely on the configured path exclusions and heuristic screening. This is not a claim that Git-known means public, or that allowlisted filenames certify their current contents. Real file contents were not inspected."
+    },
+    {
+      "id": "RC-02",
+      "evidence_class": "SHOWN",
+      "addressed": true,
+      "finding": "A TAR renamed as plaintext bypassed archive-member credential-path denial.",
+      "implementation_evidence": [
+        "archive_kind() recognizes ZIP/TAR by content, independently of the outer suffix, before generic text acceptance.",
+        "Recognized containers retain recursive member denial, size/count/depth bounds and link checks.",
+        "Recognized archive suffixes with unreadable container content are excluded; generic NUL-bearing text is excluded rather than accepted as plaintext."
+      ],
+      "source_references": ["scripts/research/build_recovery_copy.py:90-157"],
+      "verification_evidence": "The .env-bearing TAR regression passes under .tar, .txt and .bin suffixes. Safe plaintext and a safe TAR renamed .txt remain accepted. Existing unsafe nested TAR and secret-bearing ZIP tests also pass.",
+      "test_references": [
+        "tests/test_build_recovery_copy.py:62-80",
+        "tests/test_build_recovery_copy.py:168-185"
+      ],
+      "limit": "The NUL check is shown by source inspection, not a new dedicated test in this 29-case gate. Content recognition and byte patterns do not certify arbitrary formats, encoded secrets, polyglots or every possible confidential value."
+    }
+  ],
+  "additional_bounded_observation": {
+    "evidence_class": "SHOWN",
+    "claim": "refreshed_checkpoint.csv is now written and closed before backup_manifest.json is created.",
+    "source_reference": "scripts/research/build_recovery_copy.py:279-294",
+    "limit": "Receipt creation is not an atomic/fsync durability protocol. A failed or interrupted write can leave partial output; outcome acceptance still requires zero exit status, parseable complete receipts and the saved verification results."
+  },
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV",
+    "scope": "Authorized isolated local synthetic gate only, run once in this correction review. No real repository inventory or copy was run.",
+    "cwd": "/Users/baitus/Downloads/crypto-bot-pro",
+    "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_build_recovery_copy.py tests/test_backup_artifact_secret_scan.py",
+    "invocation_count": 1,
+    "exit_code": 0,
+    "result": "29 passed in 0.34s",
+    "additional_security_probes_run": false,
+    "retained_local_controls": "The same passing gate retains configured pre-read credential denial, source leaf/ancestor symlink refusal, exclusive external destination checks, selected-file byte/hash and mode preservation, source-change refusal, database journal deferral, readonly restored SQLite quick_check, and restore archive-link refusal. This is local synthetic proof, not full-system proof."
+  },
+  "single_permitted_invocation": {
+    "environment_confidence": "ASSUMED_ENV",
+    "environment_limit": "The local interpreter/test environment is verified, but the real external parent, destination availability, eventual inventory and source stability were not inspected in this review. The helper must enforce its checks; normal filesystem approval remains required.",
+    "source": "/Users/baitus/Downloads/crypto-bot-pro",
+    "output": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -E -B -m scripts.research.build_recovery_copy --root /Users/baitus/Downloads/crypto-bot-pro --output /Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z",
+    "run_by_reviewer": false,
+    "authorization_basis": "Existing explicit user authorization for this single private local recovery copy, not new operational authority granted by the reviewer."
+  },
+  "remaining_risks_and_limits": [
+    "UNVERIFIED: actual selected paths/bytes, excluded paths, public database contents, destination state, source stability and actual archive/restore results. No real-repository scan or private-file access was performed.",
+    "SHOWN: screening uses configured path exclusions, byte patterns and bounded supported archive inspection; the imported scanner's structured JSON/JSONL sensitive-key scan is not invoked. False negatives and conservative exclusions remain possible. No universal secret clearance or publication approval is given.",
+    "SHOWN: source reads retain descriptor-relative O_NOFOLLOW and regular-file/stability checks. No hostile same-user concurrent mutation safety or globally atomic snapshot is certified.",
+    "SHOWN: archive/restored selected-file hashes and restored .sqlite quick_check are implemented and synthetically exercised. Excluded files, complete Git history, environment/service restoration, offsite protection and hardware-failure recovery are outside the proof.",
+    "SHOWN: restored .db files do not receive the .sqlite-only quick_check. This correction review does not expand database scope or claim database certification for arbitrary Git-known files.",
+    "SHOWN: failures preserve partial output; no deletion, cleanup or automatic retry is authorized. Actual successful recovery remains pending a separate saved-outcome review."
+  ],
+  "review_actions": {
+    "source_or_test_files_modified": false,
+    "actual_copy_run": false,
+    "real_repository_inventory_or_secret_scan_run": false,
+    "private_configuration_read": false,
+    "git_mutation_or_deletion_run": false,
+    "runtime_account_docker_or_market_actions_run": false,
+    "sole_persistent_review_write": "docs/review_artifacts/recovery_copy_20261018/corrected_preflight_review.json",
+    "work_log_note": "The operator explicitly restricted writes to this new artifact; no work-log edit was made. Role, objective, evidence, disposition, risks and next proof are preserved here."
+  },
+  "proof_required_next": [
+    "Parent may run the single already-authorized invocation at these bindings after obtaining normal external-directory filesystem approval; no additional scan, retry or operational scope follows.",
+    "Forward saved command exit status, stdout/outcome, complete backup_manifest.json and refreshed_checkpoint.csv, and selected-file/archive/restore hash verification evidence for bounded outcome review. Keep credentials and file contents out of shared reports.",
+    "Outcome review must separate copied/verified files from exclusions and must not turn selected-file restoration into complete-repository, runtime, globally atomic backup, durability or full secret-clearance claims."
+  ],
+  "handoff": "GATE: RC-01 and RC-02 addressed at the bound hashes. ACCEPTED_WITH_RISK for one already-authorized private local copy only. Actual copy and recovery success remain UNVERIFIED. Available for the saved-outcome review."
+}

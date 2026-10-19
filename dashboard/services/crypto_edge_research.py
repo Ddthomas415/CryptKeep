@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 
@@ -120,6 +121,8 @@ def _build_collector_runtime_summary(payload: dict[str, Any]) -> str:
     if not bool(payload.get("has_status")):
         return "Collector loop has not written runtime status yet."
     status = str(payload.get("status") or "unknown").replace("_", " ")
+    if payload.get("process_liveness") == "external_namespace_unverified":
+        status += " (reported; host process liveness unverified)"
     reason = str(payload.get("reason") or payload.get("last_reason") or "unknown")
     return (
         f"Collector status {status}, source {str(payload.get('source_label') or payload.get('source') or 'Live Public')}, "
@@ -166,6 +169,8 @@ def _build_staleness_summary(live_snapshot: dict[str, Any], collector_runtime: d
     needs_attention = bool(issues)
     if not needs_attention:
         summary_text = "Live structural-edge data is fresh and the collector loop is reporting normally."
+        if collector_runtime.get("process_liveness") == "external_namespace_unverified":
+            summary_text = "Live structural-edge snapshots and collector reports are fresh; host process liveness is unverified from this container."
         action_text = "No operator action needed."
     else:
         summary_text = "Structural-edge freshness needs attention: " + "; ".join(issues) + "."
@@ -431,7 +436,9 @@ def load_crypto_edge_collector_runtime() -> dict[str, Any]:
         }
 
     try:
-        payload = dict(load_runtime_status() or {})
+        # Mounted host status contains host PIDs, which cannot be checked in Docker.
+        payload = dict(load_runtime_status(verify_process=False) if Path("/.dockerenv").exists()
+                       else load_runtime_status() or {})
         payload["freshness"] = _freshness_label(payload.get("ts"))
         payload["source_label"] = _source_label(payload.get("source"))
         payload["summary_text"] = _build_collector_runtime_summary(payload)

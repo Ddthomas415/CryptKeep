@@ -1,0 +1,11 @@
+{
+  "status": "ACCEPTED_WITH_RISK",
+  "identity": {
+    "lock_sha256": "b060fc747748ccdcaf45d3c66e6f7c4ba2f74e576c9e60628a218e3017c76cab",
+    "confirmation_runner_sha256": "a7a8622d349e5e64f4c99fdfd9d30f474d5d652765e67b97086150f323aada22"
+  },
+  "reviewer": "Hooke, separate agent 01a12349-dad6-7ce2-b9ee-0dc0b5e5f62a",
+  "scope": "confirmation runner content only; 21 tests and independent probes; not statistical certification",
+  "operator_authorization": "get it all done following fresh synthetic confirmation proposal",
+  "primary_scoring_enabled": false
+}

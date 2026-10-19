@@ -83,6 +83,10 @@ class CanonicalFillSink:
             if not (symbol and side and qty is not None and price is not None):
                 return {"ok": False, "reason": "record_failed:missing_required_fields"}
 
+            from storage.execution_store_sqlite import ExecutionStore
+            loss_store = ExecutionStore(path=self.exec_db)
+            # Establish the legacy boundary before this delivery enters the journal.
+            loss_store.activate_symbol_loss_cutover()
             self.j.record_fill(
                 venue=str(venue),
                 fill_id=str(fid),
@@ -159,31 +163,20 @@ class CanonicalFillSink:
 
             try:
                 if fid and symbol:
-                    from storage.execution_store_sqlite import ExecutionStore
-                    _store = ExecutionStore(path=self.exec_db)
+                    _store = loss_store
                     if pnl is not None:
                         _realized_val = float(pnl)
-                        if _realized_val < 0:
-                            _loss_limit = int(os.environ.get("CBP_SYMBOL_LOSS_LIMIT") or "3")
-                            _lock_ms = int(os.environ.get("CBP_SYMBOL_LOCK_MINUTES") or "60") * 60 * 1000
-                            _count = _store.increment_symbol_loss(
-                                str(symbol),
-                                loss_limit=_loss_limit,
-                                lock_duration_ms=_lock_ms,
-                            )
-                            _LOG.info(
-                                "fill_sink.symbol_loss_counted symbol=%s count=%s limit=%s",
-                                symbol, _count, _loss_limit,
-                            )
-                        else:
-                            _store.set_symbol_lock(
-                                str(symbol),
-                                locked_until_ms=0,
-                                loss_count=0,
-                                reason="reset_on_profit",
-                            )
-            except Exception:
+                        _store.apply_symbol_loss_fill_once(
+                            venue=str(venue), fill_id=str(fid), symbol=str(symbol),
+                            realized_pnl_usd=_realized_val,
+                            loss_limit=int(os.environ.get("CBP_SYMBOL_LOSS_LIMIT") or "3"),
+                            lock_duration_ms=int(os.environ.get("CBP_SYMBOL_LOCK_MINUTES") or "60") * 60 * 1000,
+                            require_journal_order=True,
+                        )
+            except Exception as loss_err:
+                _write_risk_sink_failed({"venue": venue, "fill_id": fid, "symbol": symbol}, loss_err)
                 _LOG.exception("fill_sink.symbol_loss_update_failed symbol=%s", symbol)
+                return {"ok": False, "reason": f"symbol_loss_update_failed:{type(loss_err).__name__}"}
 
             return {"ok": True}
         except Exception as record_err:

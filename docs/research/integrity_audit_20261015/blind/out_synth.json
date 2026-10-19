@@ -1,0 +1,508 @@
+{
+  "script": "e6_blind.py",
+  "data": {
+    "products_used": 30,
+    "data_end": "2026-10-11",
+    "periods": {
+      "A": [
+        "2018-01-01",
+        "2021-12-31"
+      ],
+      "B": [
+        "2022-01-01",
+        "2026-10-11"
+      ],
+      "FULL": [
+        "2018-01-01",
+        "2026-10-11"
+      ]
+    }
+  },
+  "choices": [
+    "Day index = unix_ts // 86400 (UTC calendar day). A row's open is that day's 00:00 open, its close the next 00:00 close.",
+    "Decision day d = a Sunday (UTC weekday of the candle's start date); decision uses close[d]; execution at open[d+1] (Monday).",
+    "First decision = first Sunday on/after period start; decisions whose execution day falls after the period end are skipped.",
+    "Only files named <BASE>-USD.json are used; files starting with '_' ignored. Excluded bases: exact match to the prereg list, plus any base containing 'USD'. 'PAXG' etc. are NOT excluded (exact match on 'PAX').",
+    "Rows with open or close missing/non-numeric/<=0 are dropped. Missing/negative base volume treated as 0. Duplicate day rows: the last occurrence in the file wins.",
+    "Data end L = last day present in any (non-excluded) product file. Period B and FULL end at L.",
+    "Universe eligibility at d: first valid candle <= d-90 and a candle on d; median of close*base_volume over candles in [d-29, d], at least 20 such candles; top 20 by median (ties broken by product id).",
+    "28-day return = close[d]/close[d-28]-1; universe members lacking a candle on d-28 are not rankable (strategy) but still count in the equal-weight benchmark.",
+    "Strategy: top 5 by 28d return among those with return > 0, fixed 20% weight each, unfilled slots cash. Ties broken by product id.",
+    "EW benchmark: 1/n weight on every universe member (n = universe size, may be < 20 early on), fully invested.",
+    "Every execution day is a full rebalance to target weights (continuing holdings are trimmed/topped up to target, paying cost on that traded value).",
+    "Costs: 0.75% of absolute traded value per trade, deducted from cash. Post-cost tradable NAV N' solved by fixed point N' = N_t - 0.0075*sum|w_i*N' - V_i| so cash never goes negative.",
+    "Hold BTC: all cash into BTC-USD at the first execution day of the period (cost 0.75%), then held; never sold, no exit cost.",
+    "No liquidation at period end: final NAV is marked to the last close without exit costs.",
+    "NAV series: point 0 = $1000 at the first decision day's close (all cash), then one mark per calendar day at the close from the first execution day through period end. Held products with no candle on a day are marked at their most recent prior close.",
+    "Periods A, B, FULL are independent runs each starting with $1000 (FULL is not a concatenation of A and B).",
+    "Sharpe = mean/pstdev of daily NAV returns * sqrt(365); CAGR = (end/1000)^(365/days)-1 with days = number of daily returns; max drawdown reported as a negative percentage of peak NAV.",
+    "AS_REGISTERED: product with no candle on the execution day trades at its most recent prior close (strictly before the exec day), for buys and sells, including after delisting.",
+    "CORRECTED: 'frozen' = held product with no candle on exec day; it is not traded, stays held; target weights applied to tradable NAV = NAV - frozen value (at last close). A frozen product that is also in the new target keeps its current position (its target weight is not added as cash or redistributed). A target product with no candle on exec day is skipped and its weight stays cash.",
+    "CORRECTED 'never trades again' = the product's last candle in the whole dataset is before L (dataset-wide, not per period). Sensitivities write such a held position down to 50% / 0% of its last close from the day after its last candle; trades are identical to PRIMARY (frozen value is excluded from tradable NAV either way).",
+    "DSR (Bailey & Lopez de Prado 2014): SR0 = sqrt(V)*((1-g)*Z^-1(1-1/N) + g*Z^-1(1-1/(N*e))), g = Euler-Mascheroni; DSR = Z((SR-SR0)*sqrt(T-1)/sqrt(1 - skew*SR + (kurt-1)/4*SR^2)); SR = per-day mean/pstdev (non-annualised), skew = population skewness, kurt = population (non-excess, Pearson) kurtosis of the strategy's FULL daily returns, T = number of daily returns.",
+    "Benchmark (c) not implemented (optional).",
+    "Stale/frozen event counts: AS_REGISTERED counts trades executed at a stale (prior-close) price; CORRECTED counts frozen position-instances at execution, skipped buys, and held positions that never trade again (locked)."
+  ],
+  "modes": {
+    "AS_REGISTERED": {
+      "periods": {
+        "A": {
+          "strategy": {
+            "end_usd": 14304.0767,
+            "cagr_pct": 95.01,
+            "sharpe": 1.7811,
+            "max_drawdown_pct": -29.5797,
+            "days": 1454
+          },
+          "hold_btc": {
+            "end_usd": 10452.9389,
+            "cagr_pct": 80.2441,
+            "sharpe": 1.2064,
+            "max_drawdown_pct": -63.3944,
+            "days": 1454
+          },
+          "ew_universe": {
+            "end_usd": 43474.0401,
+            "cagr_pct": 157.779,
+            "sharpe": 3.514,
+            "max_drawdown_pct": -14.0167,
+            "days": 1454
+          }
+        },
+        "B": {
+          "strategy": {
+            "end_usd": 31493.8265,
+            "cagr_pct": 105.9406,
+            "sharpe": 1.7419,
+            "max_drawdown_pct": -27.7322,
+            "days": 1743
+          },
+          "hold_btc": {
+            "end_usd": 9321.9594,
+            "cagr_pct": 59.5966,
+            "sharpe": 1.0338,
+            "max_drawdown_pct": -68.1662,
+            "days": 1743
+          },
+          "ew_universe": {
+            "end_usd": 32649.8222,
+            "cagr_pct": 107.5011,
+            "sharpe": 3.1983,
+            "max_drawdown_pct": -16.0403,
+            "days": 1743
+          }
+        },
+        "FULL": {
+          "strategy": {
+            "end_usd": 446674.2454,
+            "cagr_pct": 100.613,
+            "sharpe": 1.7527,
+            "max_drawdown_pct": -29.5797,
+            "days": 3199
+          },
+          "hold_btc": {
+            "end_usd": 106656.9509,
+            "cagr_pct": 70.3687,
+            "sharpe": 1.1278,
+            "max_drawdown_pct": -68.1662,
+            "days": 3199
+          },
+          "ew_universe": {
+            "end_usd": 1430071.0331,
+            "cagr_pct": 129.0976,
+            "sharpe": 3.3448,
+            "max_drawdown_pct": -16.0403,
+            "days": 3199
+          }
+        }
+      },
+      "events": {
+        "A.strategy": {
+          "stale_price_trades": 68,
+          "frozen_at_execution": 0,
+          "skipped_buys": 0,
+          "locked_never_trade_again": 0
+        },
+        "A.hold_btc": {
+          "stale_price_trades": 0,
+          "frozen_at_execution": 0,
+          "skipped_buys": 0,
+          "locked_never_trade_again": 0
+        },
+        "A.ew_universe": {
+          "stale_price_trades": 131,
+          "frozen_at_execution": 0,
+          "skipped_buys": 0,
+          "locked_never_trade_again": 0
+        },
+        "B.strategy": {
+          "stale_price_trades": 50,
+          "frozen_at_execution": 0,
+          "skipped_buys": 0,
+          "locked_never_trade_again": 0
+        },
+        "B.hold_btc": {
+          "stale_price_trades": 0,
+          "frozen_at_execution": 0,
+          "skipped_buys": 0,
+          "locked_never_trade_again": 0
+        },
+        "B.ew_universe": {
+          "stale_price_trades": 153,
+          "frozen_at_execution": 0,
+          "skipped_buys": 0,
+          "locked_never_trade_again": 0
+        },
+        "FULL.strategy": {
+          "stale_price_trades": 118,
+          "frozen_at_execution": 0,
+          "skipped_buys": 0,
+          "locked_never_trade_again": 0
+        },
+        "FULL.hold_btc": {
+          "stale_price_trades": 0,
+          "frozen_at_execution": 0,
+          "skipped_buys": 0,
+          "locked_never_trade_again": 0
+        },
+        "FULL.ew_universe": {
+          "stale_price_trades": 284,
+          "frozen_at_execution": 0,
+          "skipped_buys": 0,
+          "locked_never_trade_again": 0
+        }
+      },
+      "pass": {
+        "1_positive_cagr_A_and_B": true,
+        "2_sharpe_gt_btc_A_and_B": true,
+        "3_sharpe_gt_ew_A_and_B": false,
+        "4_dsr_full_N15_ge_0.90": true,
+        "checks_1_to_3": false,
+        "overall": false
+      },
+      "dsr_full": {
+        "N4": {
+          "N": 4,
+          "dsr": 0.999952,
+          "sr_daily": 0.091738,
+          "sr0_daily": 0.022654,
+          "skew": 0.033794,
+          "kurtosis_pearson": 3.562365,
+          "T": 3199,
+          "z": 3.902316
+        },
+        "N15": {
+          "N": 15,
+          "dsr": 0.998771,
+          "sr_daily": 0.091738,
+          "sr0_daily": 0.038125,
+          "skew": 0.033794,
+          "kurtosis_pearson": 3.562365,
+          "T": 3199,
+          "z": 3.028382
+        },
+        "N120": {
+          "N": 120,
+          "dsr": 0.978665,
+          "sr_daily": 0.091738,
+          "sr0_daily": 0.055855,
+          "skew": 0.033794,
+          "kurtosis_pearson": 3.562365,
+          "T": 3199,
+          "z": 2.026923
+        },
+        "N576": {
+          "N": 576,
+          "dsr": 0.921895,
+          "sr_daily": 0.091738,
+          "sr0_daily": 0.066636,
+          "skew": 0.033794,
+          "kurtosis_pearson": 3.562365,
+          "T": 3199,
+          "z": 1.417937
+        }
+      }
+    },
+    "CORRECTED": {
+      "periods": {
+        "A": {
+          "strategy": {
+            "end_usd": 11443.2251,
+            "cagr_pct": 84.3865,
+            "sharpe": 1.7153,
+            "max_drawdown_pct": -31.2807,
+            "days": 1454
+          },
+          "hold_btc": {
+            "end_usd": 10452.9389,
+            "cagr_pct": 80.2441,
+            "sharpe": 1.2064,
+            "max_drawdown_pct": -63.3944,
+            "days": 1454
+          },
+          "ew_universe": {
+            "end_usd": 37762.8819,
+            "cagr_pct": 148.8246,
+            "sharpe": 3.5658,
+            "max_drawdown_pct": -13.3614,
+            "days": 1454
+          }
+        },
+        "B": {
+          "strategy": {
+            "end_usd": 36966.4215,
+            "cagr_pct": 112.9674,
+            "sharpe": 1.83,
+            "max_drawdown_pct": -31.4186,
+            "days": 1743
+          },
+          "hold_btc": {
+            "end_usd": 9321.9594,
+            "cagr_pct": 59.5966,
+            "sharpe": 1.0338,
+            "max_drawdown_pct": -68.1662,
+            "days": 1743
+          },
+          "ew_universe": {
+            "end_usd": 29228.2496,
+            "cagr_pct": 102.746,
+            "sharpe": 3.2144,
+            "max_drawdown_pct": -15.3104,
+            "days": 1743
+          }
+        },
+        "FULL": {
+          "strategy": {
+            "end_usd": 419431.9433,
+            "cagr_pct": 99.1778,
+            "sharpe": 1.774,
+            "max_drawdown_pct": -31.4186,
+            "days": 3199
+          },
+          "hold_btc": {
+            "end_usd": 106656.9509,
+            "cagr_pct": 70.3687,
+            "sharpe": 1.1278,
+            "max_drawdown_pct": -68.1662,
+            "days": 3199
+          },
+          "ew_universe": {
+            "end_usd": 1080542.8543,
+            "cagr_pct": 121.8876,
+            "sharpe": 3.3785,
+            "max_drawdown_pct": -15.1287,
+            "days": 3199
+          }
+        }
+      },
+      "events": {
+        "A.strategy": {
+          "stale_price_trades": 0,
+          "frozen_at_execution": 54,
+          "skipped_buys": 21,
+          "locked_never_trade_again": 0
+        },
+        "A.hold_btc": {
+          "stale_price_trades": 0,
+          "frozen_at_execution": 0,
+          "skipped_buys": 0,
+          "locked_never_trade_again": 0
+        },
+        "A.ew_universe": {
+          "stale_price_trades": 0,
+          "frozen_at_execution": 166,
+          "skipped_buys": 5,
+          "locked_never_trade_again": 1
+        },
+        "B.strategy": {
+          "stale_price_trades": 0,
+          "frozen_at_execution": 27,
+          "skipped_buys": 19,
+          "locked_never_trade_again": 0
+        },
+        "B.hold_btc": {
+          "stale_price_trades": 0,
+          "frozen_at_execution": 0,
+          "skipped_buys": 0,
+          "locked_never_trade_again": 0
+        },
+        "B.ew_universe": {
+          "stale_price_trades": 0,
+          "frozen_at_execution": 214,
+          "skipped_buys": 1,
+          "locked_never_trade_again": 1
+        },
+        "FULL.strategy": {
+          "stale_price_trades": 0,
+          "frozen_at_execution": 81,
+          "skipped_buys": 40,
+          "locked_never_trade_again": 0
+        },
+        "FULL.hold_btc": {
+          "stale_price_trades": 0,
+          "frozen_at_execution": 0,
+          "skipped_buys": 0,
+          "locked_never_trade_again": 0
+        },
+        "FULL.ew_universe": {
+          "stale_price_trades": 0,
+          "frozen_at_execution": 629,
+          "skipped_buys": 6,
+          "locked_never_trade_again": 2
+        }
+      },
+      "pass": {
+        "1_positive_cagr_A_and_B": true,
+        "2_sharpe_gt_btc_A_and_B": true,
+        "3_sharpe_gt_ew_A_and_B": false,
+        "4_dsr_full_N15_ge_0.90": true,
+        "checks_1_to_3": false,
+        "overall": false
+      },
+      "dsr_full": {
+        "N4": {
+          "N": 4,
+          "dsr": 0.999964,
+          "sr_daily": 0.092854,
+          "sr0_daily": 0.022654,
+          "skew": 0.065525,
+          "kurtosis_pearson": 3.416129,
+          "T": 3199,
+          "z": 3.971655
+        },
+        "N15": {
+          "N": 15,
+          "dsr": 0.99902,
+          "sr_daily": 0.092854,
+          "sr0_daily": 0.038125,
+          "skew": 0.065525,
+          "kurtosis_pearson": 3.416129,
+          "T": 3199,
+          "z": 3.096337
+        },
+        "N120": {
+          "N": 120,
+          "dsr": 0.981838,
+          "sr_daily": 0.092854,
+          "sr0_daily": 0.055855,
+          "skew": 0.065525,
+          "kurtosis_pearson": 3.416129,
+          "T": 3199,
+          "z": 2.093292
+        },
+        "N576": {
+          "N": 576,
+          "dsr": 0.931008,
+          "sr_daily": 0.092854,
+          "sr0_daily": 0.066636,
+          "skew": 0.065525,
+          "kurtosis_pearson": 3.416129,
+          "T": 3199,
+          "z": 1.483342
+        }
+      },
+      "sensitivities_delisted_writedown": {
+        "writedown_50": {
+          "A": {
+            "strategy": {
+              "end_usd": 11443.2251,
+              "cagr_pct": 84.3865,
+              "sharpe": 1.7153,
+              "max_drawdown_pct": -31.2807,
+              "days": 1454
+            },
+            "ew_universe": {
+              "end_usd": 37209.5379,
+              "cagr_pct": 147.9042,
+              "sharpe": 3.5325,
+              "max_drawdown_pct": -13.3614,
+              "days": 1454
+            }
+          },
+          "B": {
+            "strategy": {
+              "end_usd": 36966.4215,
+              "cagr_pct": 112.9674,
+              "sharpe": 1.83,
+              "max_drawdown_pct": -31.4186,
+              "days": 1743
+            },
+            "ew_universe": {
+              "end_usd": 28928.8531,
+              "cagr_pct": 102.3094,
+              "sharpe": 3.1912,
+              "max_drawdown_pct": -15.3104,
+              "days": 1743
+            }
+          },
+          "FULL": {
+            "strategy": {
+              "end_usd": 419431.9433,
+              "cagr_pct": 99.1778,
+              "sharpe": 1.774,
+              "max_drawdown_pct": -31.4186,
+              "days": 3199
+            },
+            "ew_universe": {
+              "end_usd": 1068932.4189,
+              "cagr_pct": 121.6142,
+              "sharpe": 3.3509,
+              "max_drawdown_pct": -15.219,
+              "days": 3199
+            }
+          }
+        },
+        "writedown_0": {
+          "A": {
+            "strategy": {
+              "end_usd": 11443.2251,
+              "cagr_pct": 84.3865,
+              "sharpe": 1.7153,
+              "max_drawdown_pct": -31.2807,
+              "days": 1454
+            },
+            "ew_universe": {
+              "end_usd": 36656.1939,
+              "cagr_pct": 146.9736,
+              "sharpe": 3.4866,
+              "max_drawdown_pct": -13.5112,
+              "days": 1454
+            }
+          },
+          "B": {
+            "strategy": {
+              "end_usd": 36966.4215,
+              "cagr_pct": 112.9674,
+              "sharpe": 1.83,
+              "max_drawdown_pct": -31.4186,
+              "days": 1743
+            },
+            "ew_universe": {
+              "end_usd": 28629.4566,
+              "cagr_pct": 101.8691,
+              "sharpe": 3.1634,
+              "max_drawdown_pct": -15.3104,
+              "days": 1743
+            }
+          },
+          "FULL": {
+            "strategy": {
+              "end_usd": 419431.9433,
+              "cagr_pct": 99.1778,
+              "sharpe": 1.774,
+              "max_drawdown_pct": -31.4186,
+              "days": 3199
+            },
+            "ew_universe": {
+              "end_usd": 1057321.9835,
+              "cagr_pct": 121.3382,
+              "sharpe": 3.3147,
+              "max_drawdown_pct": -15.3104,
+              "days": 3199
+            }
+          }
+        }
+      }
+    }
+  }
+}

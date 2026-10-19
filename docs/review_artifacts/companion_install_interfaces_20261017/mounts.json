@@ -1,0 +1,41 @@
+{
+  "app_mounts": [
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "mounts": [
+        null
+      ]
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "mounts": [
+        null
+      ]
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "mounts": [
+        null
+      ]
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "mounts": [
+        {
+          "type": "bind",
+          "destination": "/repo",
+          "rw": false,
+          "source_is_repo": true
+        },
+        null
+      ]
+    }
+  ],
+  "orchestrator_changes": [
+    {
+      "kind": "A",
+      "category": "repo_mountpoint",
+      "known_path": "/repo"
+    }
+  ]
+}

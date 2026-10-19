@@ -1,0 +1,127 @@
+{
+  "schema": "companion-metadata-diagnostics-independent-review-v1",
+  "reviewed_at_utc": "2026-10-18T20:28:31Z",
+  "active_role": "GATE",
+  "risk_level": "HIGH",
+  "objective": "Bounded independent review of the pinned offline field-level metadata diagnostic delta, not an installer or runtime authorization.",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "disposition": "No blocking defect found in the reviewed delta. Accept only the pinned source/test change and public expectations profile for offline diagnostic implementation. The selected test slice is not fully green; operational installation remains INCOMPLETE and outside this review.",
+  "blocking_findings": [],
+  "material_assumptions": [],
+  "environment_confidence": "VERIFIED_ENV",
+  "scope": {
+    "source_edits_performed": false,
+    "work_log_owned_by_parent": true,
+    "reviewed_against_preserved_source": true,
+    "focused_pytest_invocations": 1,
+    "additional_check": "Read-only public-profile validation and byte-for-byte reproduction; no runtime backend invocation.",
+    "excluded": [
+      "Docker CLI, daemon or socket access",
+      "Private configuration and credential reads",
+      "Installation, build, startup, cleanup or recovery actions",
+      "Legacy fixture repairs and broad repository audit",
+      "Full suite, test matrices, market data or trading actions"
+    ]
+  },
+  "shown_bindings": {
+    "scripts/research/companion_metadata_diagnostics.py": "63fff7cbc5b9f977c53efddca5e40ef8f2bd49606efc1bde82263a4fb860ce66",
+    "scripts/research/companion_installer.py": "427fa60328438157255dda2e2a83c6a406e0b2fc90699315fa66da3f374c271d",
+    "scripts/research/companion_install_docker.py": "f599dff66e5c3770a1659cdae945bbfa4a4aa7f0f72b50118cad35886503569e",
+    "tests/test_companion_metadata_diagnostics.py": "011f38f0b602e9ae39acd447d91221892f6ba859b9131427646ba52c78f5f90a",
+    "scripts/research/companion_runtime_adapter.py": "83645cc36a345fcd55d1d2bd79dca982141e009456209a031c6e8513f9f03e9c",
+    "scripts/research/companion_network_configuration.py": "c3824743fb08098a35af6966ee9e3345a63e6500f18a5fdd84a02d1114bf39d7",
+    "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/reviewed_configured_plan.json": "f5b044858c3d40881239b77745d0b404c4ac05d2f35a6d043fed8f6ba934bf5f",
+    "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/metadata_expectations_20261018.json": "4a04bd1ab084711f88d1fd117dca68a5482d4ce065e7bee9ab7d47863e978277"
+  },
+  "preserved_comparison": {
+    "classification": "SHOWN",
+    "root": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z_r2/restored/scripts/research",
+    "companion_installer.py_sha256": "5cdd79674de562cfabfe549b8405ced060cf2ea214ba54b365e46743b2721bf2",
+    "companion_install_docker.py_sha256": "c0425e0faa668307962eb60acda40d1883d6a6c3dc34c453330414289f1454f2",
+    "method": "Direct diff -u against hash-verified preserved files, not git diff of untracked files.",
+    "delta": "Installer adds an optional validated diagnostic failure event and paired CLI profile arguments. Backend adds an optional constructor argument and read-only diagnostic method. Existing replacement acceptance checks, rollback policy and transport implementation are unchanged."
+  },
+  "review_checks": [
+    {
+      "classification": "SHOWN",
+      "check": "Profile binding and reproducibility",
+      "evidence": "Expectations.load verifies byte hash, duplicate keys, exact record/field keys, application order, plan hash and all four replacement gate digests. read_profile accepts only a canonical regular JSON path below docs/review_artifacts. The actual saved profile loaded successfully and reproduced byte-for-byte from saved public observations.",
+      "references": ["scripts/research/companion_metadata_diagnostics.py:62", "scripts/research/companion_metadata_diagnostics.py:99", "scripts/research/companion_metadata_diagnostics.py:160"]
+    },
+    {
+      "classification": "SHOWN",
+      "check": "Value-free diagnostic output",
+      "evidence": "The comparison reuses the pinned unchanged fingerprints in both substitution directions. Reports contain fixed schema/field keys and booleans, never metadata values, raw environment, credential hashes or exception text. Both child-side comparison and parent-side ingestion validate the report. Synthetic private-value and malicious-report tests pass.",
+      "references": ["scripts/research/companion_metadata_diagnostics.py:122", "scripts/research/companion_metadata_diagnostics.py:146", "scripts/research/companion_installer.py:264"]
+    },
+    {
+      "classification": "SHOWN",
+      "check": "Ownership and selected snapshot binding",
+      "evidence": "Installer requests diagnostics only after all non-metadata replacement checks pass, including new ID, expected image, attempt, created/never-started state, restart policy and network IDs. Concrete backend rechecks requested ID/name and owned stopped placeholder eligibility. compare refuses a re-inspection whose selected configured/legacy digest differs from the prior controller snapshot. Snapshot binding is to the existing normalized selected-metadata digest, not every raw inspect field.",
+      "references": ["scripts/research/companion_installer.py:242", "scripts/research/companion_installer.py:264", "scripts/research/companion_install_docker.py:102", "scripts/research/companion_install_docker.py:117", "scripts/research/companion_metadata_diagnostics.py:126"]
+    },
+    {
+      "classification": "SHOWN",
+      "check": "Bounded failure path and rollback authority",
+      "evidence": "Diagnostic invocation uses existing Installer._call with min(60, remaining work budget), preserving the separate 120-second recovery reserve. ProcessExecutor bounds child lifetime and JSON transfer, suppresses child stdout/stderr and exception details, and kills the process group. Diagnostic errors become unavailable evidence. Receipt-write failure escapes to the existing failure/finally rollback path. The unchanged metadata gate still rejects; offline tests confirm diagnostic recording precedes cleanup and no source verification follows metadata failure.",
+      "references": ["scripts/research/companion_installer.py:203", "scripts/research/companion_installer.py:264", "scripts/research/companion_installer.py:331", "scripts/research/companion_installer.py:386", "scripts/research/companion_existing_controller.py:87", "scripts/research/companion_existing_controller.py:119"]
+    },
+    {
+      "classification": "SHOWN",
+      "check": "Interface compatibility",
+      "evidence": "New backend constructor parameter is keyword-only and defaults to None. Absent profile returns unavailable without a diagnostic command; legacy backends lacking the optional method are caught without bypassing rejection. Profile CLI arguments must be paired. Validation-only return still precedes lock, receipt and concrete backend construction; --apply-install does not confer human authorization.",
+      "references": ["scripts/research/companion_install_docker.py:32", "scripts/research/companion_install_docker.py:102", "scripts/research/companion_installer.py:264", "scripts/research/companion_installer.py:453"]
+    }
+  ],
+  "verification": {
+    "classification": "SHOWN",
+    "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_companion_metadata_diagnostics.py tests/test_companion_installer.py tests/test_companion_network_configuration.py tests/test_companion_stopped_recipe.py",
+    "exit_code": 1,
+    "passed": 163,
+    "failed": 2,
+    "duration_seconds": 1.0,
+    "new_diagnostic_tests_passed": 30,
+    "failures": [
+      "tests/test_companion_stopped_recipe.py::test_legacy_evidence_not_upgraded_to_paired_proof",
+      "tests/test_companion_stopped_recipe.py::test_paired_payload_can_be_verified_offline"
+    ],
+    "failure_location": "scripts/research/collect_companion_recreation_metadata.py:134, reconciliation_fingerprint_mismatch",
+    "full_suite_run": false,
+    "profile_check_exit_code": 0,
+    "profile_check_result": {
+      "profile_pin_valid": true,
+      "plan_binding_valid": true,
+      "all_four_gate_bindings_valid": true,
+      "saved_profile_reproduced_byte_for_byte": true,
+      "runtime_actions": false
+    }
+  },
+  "accepted_risks_and_unverified_points": [
+    {
+      "classification": "SHOWN",
+      "detail": "The focused selection is red on the two exact checkpoint-listed recipe failures. No fixtures or legacy sources were repaired. This disposition is not suite-wide acceptance."
+    },
+    {
+      "classification": "CLAIMED",
+      "detail": "The checkpoint records both recipe failures reproduced against preserved pre-change source. This review confirmed the preserved installer/backend hashes and current failure signatures, but did not independently rerun that baseline experiment."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "detail": "Actual runtime inspect compatibility, concrete timeout behavior for this diagnostic call, operational rollback/restoration, and the field/cause of the consumed attempt's mismatch were not exercised. New installer failure-path tests use an inline fake executor; child timeout containment is supported here by static inspection of the unchanged executor, not a new runtime timeout test."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "Diagnostics are best effort. Unsupported metadata or changed selected snapshots may produce available:false. Per-field comparisons follow gate normalization and do not establish root cause; interactions may remain unresolved."
+    }
+  ],
+  "proof_required_next": "Parent may preserve diff/proof receipts and update its work log. Any operational step requires fresh bounded human authorization and current code/artifact bindings; this review grants none and cannot revive a consumed attempt. No further proof is required to close this bounded offline review.",
+  "operational_authorization": {
+    "granted": false,
+    "reuse_consumed_attempt": false,
+    "docker_authorized": false,
+    "installation_authorized": false,
+    "startup_authorized": false,
+    "trading_authorized": false,
+    "runtime_installation_state": "INCOMPLETE"
+  }
+}

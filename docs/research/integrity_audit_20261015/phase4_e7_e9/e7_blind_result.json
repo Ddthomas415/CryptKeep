@@ -1,0 +1,340 @@
+{
+  "spec": "PREREGISTRATION.md (E7)",
+  "funding_sha256": "15edda37d3119f1cdadcbfa8ec10ed938fe359c9dd89e920384471bd167db3a9",
+  "funding_sha256_ok": true,
+  "round_funding_times_variant": false,
+  "periods": {
+    "D": {
+      "first_decision_close_of_day": "2020-12-06",
+      "last_mark_day": "2023-12-31"
+    },
+    "H": {
+      "first_decision_close_of_day": "2024-01-07",
+      "last_mark_day": "2026-10-08"
+    }
+  },
+  "results": {
+    "0.50%": {
+      "D": {
+        "braked": {
+          "end_usd": 3547.76,
+          "sharpe": 1.3523,
+          "max_drawdown_pct": 32.77,
+          "sharpe_raw": 1.3522570377590462,
+          "max_drawdown_raw": 0.3277209732545874
+        },
+        "candidate": {
+          "end_usd": 3653.64,
+          "sharpe": 1.341,
+          "max_drawdown_pct": 32.77,
+          "sharpe_raw": 1.340990937053923,
+          "max_drawdown_raw": 0.3277209732545877
+        },
+        "hold_btc": {
+          "end_usd": 2170.6,
+          "sharpe": 0.7136,
+          "max_drawdown_pct": 76.67,
+          "sharpe_raw": 0.7135559889744135,
+          "max_drawdown_raw": 0.7667059828725817
+        },
+        "mix_25_25_50": {
+          "end_usd": 2108.12,
+          "sharpe": 0.8646,
+          "max_drawdown_pct": 48.55,
+          "sharpe_raw": 0.8645524689607752,
+          "max_drawdown_raw": 0.4855104261749006
+        },
+        "cash": {
+          "end_usd": 1000.0,
+          "sharpe": null,
+          "max_drawdown_pct": 0.0
+        }
+      },
+      "H": {
+        "braked": {
+          "end_usd": 1807.79,
+          "sharpe": 0.8532,
+          "max_drawdown_pct": 31.27,
+          "sharpe_raw": 0.8532089860414808,
+          "max_drawdown_raw": 0.31268847029390534
+        },
+        "candidate": {
+          "end_usd": 1845.93,
+          "sharpe": 0.8695,
+          "max_drawdown_pct": 32.02,
+          "sharpe_raw": 0.8694687191782228,
+          "max_drawdown_raw": 0.3202077215764183
+        },
+        "hold_btc": {
+          "end_usd": 1848.4,
+          "sharpe": 0.707,
+          "max_drawdown_pct": 53.08,
+          "sharpe_raw": 0.7070219668645392,
+          "max_drawdown_raw": 0.5307577953158948
+        },
+        "mix_25_25_50": {
+          "end_usd": 1340.75,
+          "sharpe": 0.5256,
+          "max_drawdown_pct": 35.76,
+          "sharpe_raw": 0.5256463432937336,
+          "max_drawdown_raw": 0.3576119436166443
+        },
+        "cash": {
+          "end_usd": 1000.0,
+          "sharpe": null,
+          "max_drawdown_pct": 0.0
+        }
+      }
+    },
+    "0.90%": {
+      "D": {
+        "braked": {
+          "end_usd": 3139.34,
+          "sharpe": 1.2389,
+          "max_drawdown_pct": 35.33,
+          "sharpe_raw": 1.2389000290015018,
+          "max_drawdown_raw": 0.35329348811635064
+        },
+        "candidate": {
+          "end_usd": 3249.9,
+          "sharpe": 1.2363,
+          "max_drawdown_pct": 35.33,
+          "sharpe_raw": 1.2363183780040514,
+          "max_drawdown_raw": 0.35329348811634986
+        },
+        "hold_btc": {
+          "end_usd": 2161.99,
+          "sharpe": 0.7116,
+          "max_drawdown_pct": 76.67,
+          "sharpe_raw": 0.7115619722123032,
+          "max_drawdown_raw": 0.7667059828725817
+        },
+        "mix_25_25_50": {
+          "end_usd": 2076.08,
+          "sharpe": 0.8505,
+          "max_drawdown_pct": 48.67,
+          "sharpe_raw": 0.8504651886868992,
+          "max_drawdown_raw": 0.4867397391134459
+        },
+        "cash": {
+          "end_usd": 1000.0,
+          "sharpe": null,
+          "max_drawdown_pct": 0.0
+        }
+      },
+      "H": {
+        "braked": {
+          "end_usd": 1569.47,
+          "sharpe": 0.6855,
+          "max_drawdown_pct": 33.45,
+          "sharpe_raw": 0.6855262095383418,
+          "max_drawdown_raw": 0.33451257148135016
+        },
+        "candidate": {
+          "end_usd": 1604.61,
+          "sharpe": 0.7057,
+          "max_drawdown_pct": 33.86,
+          "sharpe_raw": 0.7057024528295488,
+          "max_drawdown_raw": 0.3385593063466209
+        },
+        "hold_btc": {
+          "end_usd": 1841.08,
+          "sharpe": 0.7041,
+          "max_drawdown_pct": 53.08,
+          "sharpe_raw": 0.7040781925378445,
+          "max_drawdown_raw": 0.530757795315895
+        },
+        "mix_25_25_50": {
+          "end_usd": 1325.32,
+          "sharpe": 0.5104,
+          "max_drawdown_pct": 35.89,
+          "sharpe_raw": 0.5103640226186875,
+          "max_drawdown_raw": 0.3589269163403178
+        },
+        "cash": {
+          "end_usd": 1000.0,
+          "sharpe": null,
+          "max_drawdown_pct": 0.0
+        }
+      }
+    }
+  },
+  "brake_weeks": {
+    "D": {
+      "BTC": 10,
+      "ETH": 8,
+      "either_asset": 11,
+      "executed_decisions": 160
+    },
+    "H": {
+      "BTC": 2,
+      "ETH": 0,
+      "either_asset": 2,
+      "executed_decisions": 144
+    }
+  },
+  "pass_checks": {
+    "0.50%_detail": {
+      "D_sharpe_braked_minus_candidate": 0.011266100705123128,
+      "D_mdd_braked_minus_candidate": -3.3306690738754696e-16,
+      "H_sharpe_braked_minus_candidate": -0.016259733136742005,
+      "H_mdd_braked_minus_candidate": -0.007519251282512962
+    },
+    "0.50%": {
+      "cond1_D": false,
+      "cond2_H": true
+    },
+    "0.90%_detail": {
+      "D_sharpe_braked_minus_candidate": 0.0025816509974503354,
+      "D_mdd_braked_minus_candidate": 7.771561172376096e-16,
+      "H_sharpe_braked_minus_candidate": -0.02017624329120704,
+      "H_mdd_braked_minus_candidate": -0.00404673486527074
+    },
+    "0.90%": {
+      "cond1_D": false,
+      "cond2_H": true
+    }
+  },
+  "verdict": "FAIL",
+  "sensitivities_fee_0.50%": {
+    "q80": {
+      "D": {
+        "end_usd": 3200.49,
+        "sharpe": 1.2757,
+        "max_drawdown_pct": 32.39,
+        "sharpe_raw": 1.2756982248139106,
+        "max_drawdown_raw": 0.3239201569937489,
+        "brake_weeks": {
+          "BTC": 18,
+          "ETH": 13
+        }
+      },
+      "H": {
+        "end_usd": 1760.45,
+        "sharpe": 0.8531,
+        "max_drawdown_pct": 30.89,
+        "sharpe_raw": 0.853141325005751,
+        "max_drawdown_raw": 0.3088841080652628,
+        "brake_weeks": {
+          "BTC": 8,
+          "ETH": 6
+        }
+      }
+    },
+    "q95": {
+      "D": {
+        "end_usd": 3591.17,
+        "sharpe": 1.3481,
+        "max_drawdown_pct": 32.77,
+        "sharpe_raw": 1.3481218487874502,
+        "max_drawdown_raw": 0.3277209732545875,
+        "brake_weeks": {
+          "BTC": 6,
+          "ETH": 4
+        }
+      },
+      "H": {
+        "end_usd": 1845.93,
+        "sharpe": 0.8695,
+        "max_drawdown_pct": 32.02,
+        "sharpe_raw": 0.8694687191782228,
+        "max_drawdown_raw": 0.3202077215764183,
+        "brake_weeks": {
+          "BTC": 0,
+          "ETH": 0
+        }
+      }
+    },
+    "brake_to_zero": {
+      "D": {
+        "end_usd": 3402.12,
+        "sharpe": 1.3296,
+        "max_drawdown_pct": 32.77,
+        "sharpe_raw": 1.3296096254667518,
+        "max_drawdown_raw": 0.32772097325458716,
+        "brake_weeks": {
+          "BTC": 10,
+          "ETH": 8
+        }
+      },
+      "H": {
+        "end_usd": 1768.39,
+        "sharpe": 0.8324,
+        "max_drawdown_pct": 30.89,
+        "sharpe_raw": 0.8323896712916958,
+        "max_drawdown_raw": 0.30888410806526323,
+        "brake_weeks": {
+          "BTC": 2,
+          "ETH": 0
+        }
+      }
+    },
+    "btc_funding_both": {
+      "D": {
+        "end_usd": 3490.32,
+        "sharpe": 1.3422,
+        "max_drawdown_pct": 32.77,
+        "sharpe_raw": 1.3421825356375858,
+        "max_drawdown_raw": 0.32772097325458693,
+        "brake_weeks": {
+          "BTC": 10,
+          "ETH": 10
+        }
+      },
+      "H": {
+        "end_usd": 1784.9,
+        "sharpe": 0.8436,
+        "max_drawdown_pct": 30.89,
+        "sharpe_raw": 0.8436138387048243,
+        "max_drawdown_raw": 0.308884108065263,
+        "brake_weeks": {
+          "BTC": 2,
+          "ETH": 2
+        }
+      }
+    }
+  },
+  "dsr_braked_D_plus_H_fee_0.50%": [
+    {
+      "N": 15,
+      "dsr": 0.8351,
+      "sr_daily": 0.059159,
+      "sr0_daily": 0.038125,
+      "T": 2125,
+      "skew": 0.3406,
+      "kurtosis": 12.3213
+    },
+    {
+      "N": 120,
+      "dsr": 0.5608,
+      "sr_daily": 0.059159,
+      "sr0_daily": 0.055855,
+      "T": 2125,
+      "skew": 0.3406,
+      "kurtosis": 12.3213
+    }
+  ],
+  "shared_assumptions_from_auditor": [
+    "Frozen candidate: w=0.5*min(1,0.50/vol30) if close[t]/close[t-28]-1>0 else 0; vol30=pstdev of 30 daily simple returns ending t * sqrt(365)",
+    "Execution: bisection for post-cost E with E+cost(E)=NAV at opens; buy cost delta*((1+slip)(1+fee)-1), sell cost -delta*(1-(1-slip)(1-fee)); hold w*E/open units, cash E*(1-sum w)",
+    "NAV: $1,000 at first decision close (first NAV point), marked at every daily close through period end; decision on period's last day not executed; Sharpe=mean/pstdev daily*sqrt(365); MDD on daily NAV",
+    "Hold BTC: 100% BTC at open after first decision, same costs; mix: weekly to 25/25/50, same timing/costs",
+    "DSR: Bailey & Lopez de Prado formula, per-day SR, ordinary kurtosis, V=0.0004636024000905694"
+  ],
+  "choices": [
+    "Decision close = close of the Sunday UTC daily bar (bar start Sunday 00:00, close = Monday 00:00 UTC); trade at Monday open (same instant), mark at closes.",
+    "Funding level = mean of the last 21 prints with raw fundingTime (ms) strictly < decision close, x3x365. Raw ms timestamps jitter by up to ~50ms around the 8h slot; a variant rounding times to the slot gave identical results (same verdict, same numbers).",
+    "Percentile history = the series of rolling 21-print annualised means ending at every print strictly before the decision close (includes the current level). Ambiguous: prereg could also mean raw prints; not tested.",
+    "90th percentile = linear interpolation (type 7, numpy default); 'extreme' iff level >= that value (ties count as extreme, per 'at or above').",
+    "365-day requirement = decision close >= first print time of that asset + 365 days (BTC: from 2020-09-09 08:00; ETH: from 2020-11-26 08:00).",
+    "INCONSISTENCY: prereg says D starts when 'the BTC brake becomes available' (2020-12-01), but by the 365-day rule BTC is available from 2020-09-09; 2020-12-01 actually matches ETH availability (~2020-11-27, which the prereg also states). Both brakes are therefore available for all of D; 'before that, ETH is unbraked' never binds in D or H.",
+    "Periods: D first decision = first Sunday >= 2020-12-01 = 2020-12-06, marked through 2023-12-31 close (a Sunday; its decision not executed). H first decision = first Sunday >= 2024-01-01 = 2024-01-07 (NAV starts there; 2024-01-01..06 not in H), marked through 2026-10-08 close.",
+    "Brake weeks = executed Sunday decisions (excluding the unexecuted last-day decision) at which the asset's brake was on. INCONCLUSIVE test uses weeks with the brake on for EITHER asset in D (11); per-asset counts (BTC 10, ETH 8) are also >= 4, so the choice does not matter.",
+    "Brake multiplies the candidate target only; when candidate weight is 0 the brake still counts as 'on' in the week counts if the funding condition holds (counts reflect the signal, not binding exposure cuts).",
+    "PASS comparisons made on unrounded values with 1e-9 tolerance. D max drawdown of braked and candidate are identical (32.772097% at 0.50%, 35.329349% at 0.90%; differences ~3e-16 / 8e-16 are float noise, sign differs between fees) because the brake was not active over the D drawdown. Without tolerance, cond1 at 0.50% would spuriously read True; verdict is FAIL either way since cond1 fails at 0.90% (tie or float-noise 'higher').",
+    "Sensitivities run at the 0.50% fee for D and H, each changing one parameter of the primary setting (q=0.80; q=0.95; multiplier 0; BTC funding level and BTC percentile/availability used for ETH).",
+    "DSR on concatenated braked daily returns D then H at 0.50% fee (T=2125); population skew and ordinary (non-excess) kurtosis; gamma = Euler-Mascheroni.",
+    "Cash benchmark: $1,000 flat, Sharpe undefined (null).",
+    "ETH price file has a 3-day gap at 2016-05-20, far outside all lookbacks; any missing day needed raises an abort ('missing data refused'). No funding gaps (all spacings within 1s of 8h); no error lines."
+  ]
+}

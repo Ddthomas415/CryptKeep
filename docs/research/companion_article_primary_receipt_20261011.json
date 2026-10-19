@@ -1,0 +1,23 @@
+{
+  "status": "VERIFIED_LIVE_ARTICLE_PROJECTION",
+  "manifest_pin": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77",
+  "derived_sha256": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+  "targeted_tests_passed": 51,
+  "primary_liquidation_ids": [5, 47, 18, 7, 8],
+  "full_liquidation_question_matches": 0,
+  "unmatched_term_matches": 0,
+  "unverified_document_25_retained_in_diagnostics": true,
+  "false_visa_document_11_absent_from_checked_primary_results": true,
+  "gateway_explains_active_view": true,
+  "execution_disabled": true,
+  "environment_mounts_ports_preserved": true,
+  "unrelated_container_ids_and_start_times_preserved": true,
+  "private_rollback_directory": "/private/tmp/cryptkeep-retrieval-deploy-9xp4bkmg",
+  "source_hashes": {
+    "memory_retrieval/main.py": "06155cbf83cfb775e9409409fd4aa423239f66782366aecb412ba48698d6fe04",
+    "memory_retrieval/article_view.py": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+    "shared/tools.py": "cca92df422f7d35a72c59f37f5a73dc3552f97cbe5ae6655e572b9d5245b8668",
+    "orchestrator/main.py": "5aa9972c4492ee63924b2008010a3800bee750ea1d910dcea5cf26a765080b44"
+  },
+  "limits": ["Keyword conjunction can miss ordinary-language matches", "No semantic-quality benchmark", "Per-statement snapshot, not whole-request snapshot", "Diagnostics capped with completeness flag", "No sustained-health or rollback-drill proof", "Confidence uncalibrated"]
+}

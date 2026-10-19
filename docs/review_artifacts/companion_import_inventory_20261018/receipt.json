@@ -1,0 +1,800 @@
+{
+  "after": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    }
+  ],
+  "baseline_sha256": "85d226fc1e347ecd4187877f6c60a51f53fb75428f89f00d82854dbc5e764d69",
+  "before": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    }
+  ],
+  "commands": [
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"restarts\":{{json .RestartCount}},\"policy\":{{json .HostConfig.RestartPolicy.Name}}}",
+      "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    ],
+    [
+      "container",
+      "cp",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe:/usr/local/lib/python3.11/site-packages/fastapi/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe:/usr/local/lib/python3.11/site-packages/pydantic/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe:/usr/local/lib/python3.11/site-packages/pydantic_settings/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe:/usr/local/lib/python3.11/site-packages/httpx/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe:/usr/local/lib/python3.11/site-packages/httpcore/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe:/usr/local/lib/python3.11/site-packages/anyio/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe:/usr/local/lib/python3.11/site-packages/qdrant_client/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe:/usr/local/lib/python3.11/site-packages/boto3/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe:/usr/local/lib/python3.11/site-packages/botocore/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe:/usr/local/lib/python3.11/site-packages/psycopg/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe:/usr/local/lib/python3.11/site-packages/uvicorn/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213:/usr/local/lib/python3.11/site-packages/fastapi/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213:/usr/local/lib/python3.11/site-packages/pydantic/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213:/usr/local/lib/python3.11/site-packages/pydantic_settings/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213:/usr/local/lib/python3.11/site-packages/httpx/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213:/usr/local/lib/python3.11/site-packages/httpcore/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213:/usr/local/lib/python3.11/site-packages/anyio/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213:/usr/local/lib/python3.11/site-packages/qdrant_client/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213:/usr/local/lib/python3.11/site-packages/boto3/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213:/usr/local/lib/python3.11/site-packages/botocore/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213:/usr/local/lib/python3.11/site-packages/psycopg/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213:/usr/local/lib/python3.11/site-packages/uvicorn/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071:/usr/local/lib/python3.11/site-packages/fastapi/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071:/usr/local/lib/python3.11/site-packages/pydantic/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071:/usr/local/lib/python3.11/site-packages/pydantic_settings/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071:/usr/local/lib/python3.11/site-packages/httpx/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071:/usr/local/lib/python3.11/site-packages/httpcore/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071:/usr/local/lib/python3.11/site-packages/anyio/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071:/usr/local/lib/python3.11/site-packages/qdrant_client/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071:/usr/local/lib/python3.11/site-packages/boto3/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071:/usr/local/lib/python3.11/site-packages/botocore/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071:/usr/local/lib/python3.11/site-packages/psycopg/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071:/usr/local/lib/python3.11/site-packages/uvicorn/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/usr/local/lib/python3.11/site-packages/fastapi/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/usr/local/lib/python3.11/site-packages/pydantic/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/usr/local/lib/python3.11/site-packages/pydantic_settings/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/usr/local/lib/python3.11/site-packages/httpx/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/usr/local/lib/python3.11/site-packages/httpcore/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/usr/local/lib/python3.11/site-packages/anyio/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/usr/local/lib/python3.11/site-packages/qdrant_client/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/usr/local/lib/python3.11/site-packages/boto3/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/usr/local/lib/python3.11/site-packages/botocore/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/usr/local/lib/python3.11/site-packages/psycopg/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/usr/local/lib/python3.11/site-packages/uvicorn/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/repo/dashboard/services/__init__.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/repo/dashboard/services/intelligence.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/repo/dashboard/services/views/market_view.py",
+      "-"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"restarts\":{{json .RestartCount}},\"policy\":{{json .HostConfig.RestartPolicy.Name}}}",
+      "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    ]
+  ],
+  "observed_utc": "2026-10-18T04:03:26.655876+00:00",
+  "originals_unchanged": true,
+  "records": [
+    {
+      "bytes": 1081,
+      "container": "phase1-audit-log",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "path": "/usr/local/lib/python3.11/site-packages/fastapi/__init__.py",
+      "sha256": "b82c06a1ec7e2dbeed4bef458d9f2ad37e66ac755c8e7ff4c9f08c3e5aba0512",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 14860,
+      "container": "phase1-audit-log",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "path": "/usr/local/lib/python3.11/site-packages/pydantic/__init__.py",
+      "sha256": "909c9621d5da2ed1bb3596fa7f43e19bce8cb8d03513c5ddbf4707bcd0b1f7f0",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 1346,
+      "container": "phase1-audit-log",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "path": "/usr/local/lib/python3.11/site-packages/pydantic_settings/__init__.py",
+      "sha256": "acac0340348d42b13caf8485105920a5f01f4c76f18ea320f77ce73518996b41",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 2171,
+      "container": "phase1-audit-log",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "path": "/usr/local/lib/python3.11/site-packages/httpx/__init__.py",
+      "sha256": "0ac6997bac998f4ac783adf6d8058a587193315afdb718047c3e4fdff46bcfad",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 3445,
+      "container": "phase1-audit-log",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "path": "/usr/local/lib/python3.11/site-packages/httpcore/__init__.py",
+      "sha256": "f644ff92a0a10822544c7c30db866647f7b371d6e94585a4b03fa060dce464ff",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 7602,
+      "container": "phase1-audit-log",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "path": "/usr/local/lib/python3.11/site-packages/anyio/__init__.py",
+      "sha256": "39fae86118c8530fc9163d19c21d4901a6a331083856ab6802dd17a0e1c34701",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 128,
+      "container": "phase1-audit-log",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "path": "/usr/local/lib/python3.11/site-packages/qdrant_client/__init__.py",
+      "sha256": "e6ede3fac1b06f479376bd955077c14700f23e5969de37e032473d2ee26a20b5",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 3420,
+      "container": "phase1-audit-log",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "path": "/usr/local/lib/python3.11/site-packages/boto3/__init__.py",
+      "sha256": "753d355bbba7e499f21f4c4ae299629ccf55e5e30c0cd7ad409bbad928a3c85d",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 6648,
+      "container": "phase1-audit-log",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "path": "/usr/local/lib/python3.11/site-packages/botocore/__init__.py",
+      "sha256": "1b8b3dbebd29ba912fb9f44b2c4a2047ecf5c13dc133b2f7f8443b9909d851e4",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 3436,
+      "container": "phase1-audit-log",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/__init__.py",
+      "sha256": "8fdaa3b730cc89170400b0044d5ff354cec76ef8ce846d93bc1418ad8541f0a0",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 147,
+      "container": "phase1-audit-log",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "path": "/usr/local/lib/python3.11/site-packages/uvicorn/__init__.py",
+      "sha256": "5b7fe40712dd4f44ca88eea0e53a3107141f7b2b504074ce0d04296118c31955",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 1081,
+      "container": "phase1-risk-stub",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "path": "/usr/local/lib/python3.11/site-packages/fastapi/__init__.py",
+      "sha256": "b82c06a1ec7e2dbeed4bef458d9f2ad37e66ac755c8e7ff4c9f08c3e5aba0512",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 14860,
+      "container": "phase1-risk-stub",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "path": "/usr/local/lib/python3.11/site-packages/pydantic/__init__.py",
+      "sha256": "909c9621d5da2ed1bb3596fa7f43e19bce8cb8d03513c5ddbf4707bcd0b1f7f0",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 1346,
+      "container": "phase1-risk-stub",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "path": "/usr/local/lib/python3.11/site-packages/pydantic_settings/__init__.py",
+      "sha256": "acac0340348d42b13caf8485105920a5f01f4c76f18ea320f77ce73518996b41",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 2171,
+      "container": "phase1-risk-stub",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "path": "/usr/local/lib/python3.11/site-packages/httpx/__init__.py",
+      "sha256": "0ac6997bac998f4ac783adf6d8058a587193315afdb718047c3e4fdff46bcfad",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 3445,
+      "container": "phase1-risk-stub",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "path": "/usr/local/lib/python3.11/site-packages/httpcore/__init__.py",
+      "sha256": "f644ff92a0a10822544c7c30db866647f7b371d6e94585a4b03fa060dce464ff",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 7602,
+      "container": "phase1-risk-stub",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "path": "/usr/local/lib/python3.11/site-packages/anyio/__init__.py",
+      "sha256": "39fae86118c8530fc9163d19c21d4901a6a331083856ab6802dd17a0e1c34701",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 128,
+      "container": "phase1-risk-stub",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "path": "/usr/local/lib/python3.11/site-packages/qdrant_client/__init__.py",
+      "sha256": "e6ede3fac1b06f479376bd955077c14700f23e5969de37e032473d2ee26a20b5",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 3420,
+      "container": "phase1-risk-stub",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "path": "/usr/local/lib/python3.11/site-packages/boto3/__init__.py",
+      "sha256": "753d355bbba7e499f21f4c4ae299629ccf55e5e30c0cd7ad409bbad928a3c85d",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 6648,
+      "container": "phase1-risk-stub",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "path": "/usr/local/lib/python3.11/site-packages/botocore/__init__.py",
+      "sha256": "1b8b3dbebd29ba912fb9f44b2c4a2047ecf5c13dc133b2f7f8443b9909d851e4",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 3436,
+      "container": "phase1-risk-stub",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/__init__.py",
+      "sha256": "8fdaa3b730cc89170400b0044d5ff354cec76ef8ce846d93bc1418ad8541f0a0",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 147,
+      "container": "phase1-risk-stub",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "path": "/usr/local/lib/python3.11/site-packages/uvicorn/__init__.py",
+      "sha256": "5b7fe40712dd4f44ca88eea0e53a3107141f7b2b504074ce0d04296118c31955",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 1081,
+      "container": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "path": "/usr/local/lib/python3.11/site-packages/fastapi/__init__.py",
+      "sha256": "b82c06a1ec7e2dbeed4bef458d9f2ad37e66ac755c8e7ff4c9f08c3e5aba0512",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 14860,
+      "container": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "path": "/usr/local/lib/python3.11/site-packages/pydantic/__init__.py",
+      "sha256": "909c9621d5da2ed1bb3596fa7f43e19bce8cb8d03513c5ddbf4707bcd0b1f7f0",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 1346,
+      "container": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "path": "/usr/local/lib/python3.11/site-packages/pydantic_settings/__init__.py",
+      "sha256": "acac0340348d42b13caf8485105920a5f01f4c76f18ea320f77ce73518996b41",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 2171,
+      "container": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "path": "/usr/local/lib/python3.11/site-packages/httpx/__init__.py",
+      "sha256": "0ac6997bac998f4ac783adf6d8058a587193315afdb718047c3e4fdff46bcfad",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 3445,
+      "container": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "path": "/usr/local/lib/python3.11/site-packages/httpcore/__init__.py",
+      "sha256": "f644ff92a0a10822544c7c30db866647f7b371d6e94585a4b03fa060dce464ff",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 7602,
+      "container": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "path": "/usr/local/lib/python3.11/site-packages/anyio/__init__.py",
+      "sha256": "39fae86118c8530fc9163d19c21d4901a6a331083856ab6802dd17a0e1c34701",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 128,
+      "container": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "path": "/usr/local/lib/python3.11/site-packages/qdrant_client/__init__.py",
+      "sha256": "e6ede3fac1b06f479376bd955077c14700f23e5969de37e032473d2ee26a20b5",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 3420,
+      "container": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "path": "/usr/local/lib/python3.11/site-packages/boto3/__init__.py",
+      "sha256": "753d355bbba7e499f21f4c4ae299629ccf55e5e30c0cd7ad409bbad928a3c85d",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 6648,
+      "container": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "path": "/usr/local/lib/python3.11/site-packages/botocore/__init__.py",
+      "sha256": "1b8b3dbebd29ba912fb9f44b2c4a2047ecf5c13dc133b2f7f8443b9909d851e4",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 3436,
+      "container": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/__init__.py",
+      "sha256": "8fdaa3b730cc89170400b0044d5ff354cec76ef8ce846d93bc1418ad8541f0a0",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 147,
+      "container": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "path": "/usr/local/lib/python3.11/site-packages/uvicorn/__init__.py",
+      "sha256": "5b7fe40712dd4f44ca88eea0e53a3107141f7b2b504074ce0d04296118c31955",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 1081,
+      "container": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/usr/local/lib/python3.11/site-packages/fastapi/__init__.py",
+      "sha256": "b82c06a1ec7e2dbeed4bef458d9f2ad37e66ac755c8e7ff4c9f08c3e5aba0512",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 14860,
+      "container": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/usr/local/lib/python3.11/site-packages/pydantic/__init__.py",
+      "sha256": "909c9621d5da2ed1bb3596fa7f43e19bce8cb8d03513c5ddbf4707bcd0b1f7f0",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 1346,
+      "container": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/usr/local/lib/python3.11/site-packages/pydantic_settings/__init__.py",
+      "sha256": "acac0340348d42b13caf8485105920a5f01f4c76f18ea320f77ce73518996b41",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 2171,
+      "container": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/usr/local/lib/python3.11/site-packages/httpx/__init__.py",
+      "sha256": "0ac6997bac998f4ac783adf6d8058a587193315afdb718047c3e4fdff46bcfad",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 3445,
+      "container": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/usr/local/lib/python3.11/site-packages/httpcore/__init__.py",
+      "sha256": "f644ff92a0a10822544c7c30db866647f7b371d6e94585a4b03fa060dce464ff",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 7602,
+      "container": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/usr/local/lib/python3.11/site-packages/anyio/__init__.py",
+      "sha256": "39fae86118c8530fc9163d19c21d4901a6a331083856ab6802dd17a0e1c34701",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 128,
+      "container": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/usr/local/lib/python3.11/site-packages/qdrant_client/__init__.py",
+      "sha256": "e6ede3fac1b06f479376bd955077c14700f23e5969de37e032473d2ee26a20b5",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 3420,
+      "container": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/usr/local/lib/python3.11/site-packages/boto3/__init__.py",
+      "sha256": "753d355bbba7e499f21f4c4ae299629ccf55e5e30c0cd7ad409bbad928a3c85d",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 6648,
+      "container": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/usr/local/lib/python3.11/site-packages/botocore/__init__.py",
+      "sha256": "1b8b3dbebd29ba912fb9f44b2c4a2047ecf5c13dc133b2f7f8443b9909d851e4",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 3436,
+      "container": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/__init__.py",
+      "sha256": "8fdaa3b730cc89170400b0044d5ff354cec76ef8ce846d93bc1418ad8541f0a0",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 147,
+      "container": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/usr/local/lib/python3.11/site-packages/uvicorn/__init__.py",
+      "sha256": "5b7fe40712dd4f44ca88eea0e53a3107141f7b2b504074ce0d04296118c31955",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 986,
+      "container": "phase1-orchestrator",
+      "host_bytes_match": true,
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/repo/dashboard/services/__init__.py",
+      "sha256": "404a0ec2484e6a35c28e575b489c759f82f301b97487134896cc5135eade6487",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 4803,
+      "container": "phase1-orchestrator",
+      "host_bytes_match": true,
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/repo/dashboard/services/intelligence.py",
+      "sha256": "5dbed479fbfa51076ec7895dfaa9a3c3840513c178e23c749ad3786cbe76379d",
+      "state": "SHOWN"
+    },
+    {
+      "bytes": 14115,
+      "container": "phase1-orchestrator",
+      "host_bytes_match": true,
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "path": "/repo/dashboard/services/views/market_view.py",
+      "sha256": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+      "state": "SHOWN"
+    }
+  ],
+  "scope": "Selected public package source and mounted-source hashes only; no import/exec/start/credentials",
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

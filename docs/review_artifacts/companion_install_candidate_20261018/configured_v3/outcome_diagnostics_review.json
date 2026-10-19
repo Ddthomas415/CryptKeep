@@ -1,0 +1,167 @@
+{
+  "schema": "companion-v3-outcome-diagnostics-review-v1",
+  "reviewed_at_utc": "2026-10-18T15:56:00Z",
+  "reviewer": "Codex independent review chat 01a14fb6-3b57-7a93-b8be-e2825ca84abb; not the implementation chat",
+  "stages": [
+    {
+      "active_role": "GATE",
+      "objective": "Review the saved actual v3 attempt and paired post-state, then the exact diagnostic-only installer/test delta against prior accepted byte pins",
+      "risk": "HIGH",
+      "decision": "ACCEPTED_WITH_RISK",
+      "disposition_scope": "Saved current-v3-baseline rollback evidence and exact diagnostic source delta only; not installation success or operational approval"
+    },
+    {
+      "active_role": "AUDITOR",
+      "objective": "Record the bounded outcome without promoting historical recovery or local tests to runtime proof",
+      "installation_state": "INCOMPLETE",
+      "current_v3_baseline_rollback_evidence_state": "ACCEPTED_WITH_RISK",
+      "diagnostics_source_state": "ACCEPTED_WITH_RISK",
+      "historical_recovery_state": "INCOMPLETE"
+    }
+  ],
+  "installation_authorized": false,
+  "startup_authorized": false,
+  "network_connectivity_verified": false,
+  "storage_contents_verified": false,
+  "historical_recovery_promoted": false,
+  "environment_confidence": "VERIFIED_ENV for local file inspection, hash/diff reconstruction, guarded synthetic comparisons and the isolated six-file pytest command only; no daemon or runtime environment assessment",
+  "material_assumptions": [],
+  "bindings": {
+    "current_installer": {
+      "path": "scripts/research/companion_installer.py",
+      "sha256": "5cdd79674de562cfabfe549b8405ced060cf2ea214ba54b365e46743b2721bf2"
+    },
+    "current_tests": {
+      "path": "tests/test_companion_installer.py",
+      "sha256": "1e2639d0a9cef85d43a8b46216613882b9e0c6f8eb1548d7f8a46fa77ff1017f"
+    },
+    "checkpoint": {
+      "path": "docs/checkpoints/companion_v3_attempt_20261018.md",
+      "sha256": "8d3c6a77bce3241dc35ebb36f68d2b14f748961139709269efaa8c755b223f1b"
+    },
+    "saved_receipt": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/installation_receipt_20261018.jsonl",
+      "sha256": "04bca3641e3da4d0943e4eece1d92091ed597dfebf1ef9069a7cc7e3016bf664"
+    },
+    "saved_post_capture": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/post_attempt_snapshots.json",
+      "sha256": "9535938572b1c0f773790bb2c20b5434726d8a71bac41764410361e3ab58c674"
+    },
+    "current_reviewed_plan": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/reviewed_configured_plan.json",
+      "sha256": "f5b044858c3d40881239b77745d0b404c4ac05d2f35a6d043fed8f6ba934bf5f"
+    },
+    "current_plan_review": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/plan_review.json",
+      "sha256": "c95af5786cde131f88ab7c400a413a0b628f22f4bd007ea9bdcfc856631ad005"
+    },
+    "repository_instructions": {
+      "path": "AGENTS.md",
+      "sha256": "a42859d1531c94c4a12be66f55eebb5d146febfc9bb34110f02d6da22687dd93"
+    }
+  },
+  "prior_accepted_source_identity": {
+    "classification": "SHOWN",
+    "authority": "The bound current_plan_review contains these prior accepted hashes; it does not approve the changed current bytes",
+    "installer_sha256": "706dd12a69f4421116f764c7d4a1833aa550a5a9e8f5cea35e5adfda5e066e5b",
+    "tests_sha256": "9b29c5658e9b0ed017e230fb2aa7b274cdbdbdbcb58107bb099ef9a32e4e6333",
+    "verification": "Reversed only the two installer hunks and the test additions/expected-stage change in memory. Both reconstructed complete files hash exactly to the prior pins. Printed and reviewed unified diffs; no old source artifact was written or modified.",
+    "unchanged_support_bindings": "Rehashed 13 entries from current_plan_review: current_backend, current_network_helper, all six current_helpers and the five unchanged current_reviewed_tests. Every digest matches."
+  },
+  "findings_ordered_by_severity": [],
+  "saved_attempt_outcome": {
+    "classification": "SHOWN",
+    "decision": "INCOMPLETE",
+    "attempt": "1693bb273e564a5d9dd096a9fb8db778",
+    "exit_code": 1,
+    "failure_stage": "replacement",
+    "installed_stopped": false,
+    "rollback_verified": true,
+    "rollback_exact_baseline": true,
+    "rollback_scope": "configuration_only",
+    "receipt_complete": true,
+    "installation_evidence": null,
+    "services_started": false,
+    "startup_authorized": false,
+    "network_connectivity_verified": false,
+    "deferred_startup_policies": ["sdk_startup_compatible", "source_imports_frozen"],
+    "log_corroboration": {
+      "path": "/Users/baitus/.codex/sessions/2026/10/12/rollout-2026-10-12T11-31-47-019d4b0c-59e1-7d21-8fbd-ec12f93a29e7_01a130bd-caf9-7430-b4d8-5378de8efa64.jsonl",
+      "command_record_line": 11493,
+      "result_record_line": 11503,
+      "result_record_timestamp": "2026-10-18T15:46:54.414Z",
+      "result_record_line_sha256": "0437cd0042d90fa3a3eb5cffece47e125118a2f70c11d6d9565e7eb24fd48719",
+      "scope": "Read retained command/result records only; did not repeat any logged command. The line hash includes its trailing newline and does not bind future appended log records."
+    },
+    "receipt_conformance": "All nine saved records match the old stage vocabulary and first audit target: reservation, rename/detach/create intentions, replacement failure, owned-removal/name/network-restoration intentions, and final configuration/exact-baseline checks true. Intent records alone are not successful-operation proof; post-state independently supports the selected final-state claim.",
+    "actual_failure_cause": "UNVERIFIED: the old replacement stage covers creation, subsequent inventory/metadata checks and source verification. Neither the receipt nor post-rollback snapshots identify the failed operation or predicate."
+  },
+  "current_v3_baseline_rollback_evidence": {
+    "classification": "SHOWN",
+    "decision": "ACCEPTED_WITH_RISK",
+    "observed_utc": "2026-10-18T15:48:47.840358+00:00",
+    "paired_snapshot_payloads_equal": true,
+    "snapshot_count_per_capture": 7,
+    "comparison": "Direct first == second equality; each capture has seven unique names and IDs, and its name-keyed complete snapshot records equal all seven current reviewed-plan baseline records without field projection or value normalization",
+    "selected_attempt_objects_present": false,
+    "selected_rollback_names_present": false,
+    "audit_baseline": "The current v3 baseline already has audit-log networks=[''] and configured_only provenance. Those exact values remain in both saved post captures. This is not acceptance of earlier historical network restoration.",
+    "limit": "Retained selected sanitized snapshots, not an independently repeated daemon inventory, an atomic/current live guarantee, effective connectivity proof, full raw daemon-payload equality or storage-content verification"
+  },
+  "diagnostics_source_review": {
+    "classification": "SHOWN",
+    "decision": "ACCEPTED_WITH_RISK",
+    "exact_delta": "Only replacement predicate extraction plus fixed boolean receipt before assertion/recovery, and finite create/replacement_inventory/replacement_checks/source_verification stages with replacement reset between applications. Twelve regression cases added and one expected create-stage value updated.",
+    "predicate_equivalence": "For present validated Snapshot records, present/new_identity/created/never_started/zero_restarts/restart_disabled/image_matches/attempt_matches/metadata_matches/network_ids_match are the same prior conjunction. Configured metadata/networks are selected only when bindings exist, otherwise legacy metadata/networks. Missing row returns {'present': false} and still rejects. Final validation delegates to the same predicates.",
+    "receipt_and_failure_order": "Only fixed keys and booleans enter replacement_checks. Receipt is written before asserting all predicates, before source verification and before rollback. A diagnostic write exception still enters the unchanged failure/finally recovery path; the existing bounded receipt writer and deadlines remain in effect.",
+    "unchanged_surfaces": "No Plan/policy/schema/network projection, backend command, source-verification criterion, runtime/startup behavior, ownership/recovery guard, storage gate, deadline or authorization change in the exact diff",
+    "not_a_root_cause_fix": true,
+    "remaining_source_risk": "The new bounded receipt call adds fallible I/O and consumes the existing operation budget; fail-closed recovery is intentional, not a guarantee of successful installation or recovery under every host failure."
+  },
+  "verification": {
+    "classification": "SHOWN",
+    "environment_confidence": "VERIFIED_ENV",
+    "artifact_and_predicate_probe": {
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - <<'PY' [independent inline hash, exact reverse-diff, saved-receipt/snapshot and predicate-matrix assertions] PY",
+      "result": "PASS, exit 0",
+      "bound_artifacts_checked": 7,
+      "unchanged_support_bindings_checked": 13,
+      "predicate_equivalence_cases": 1539,
+      "matrix": "All 512 combinations of nine independent failing fields, plus absent row, for each v1/v2/v3 schema; compared hash-authenticated prior method against current predicate aggregate and required boolean diagnostics",
+      "guards": "Python audit hook denied process/socket operations and write opens; PYTHONDONTWRITEBYTECODE=1 and -B; only inert definitions and synthetic backends evaluated"
+    },
+    "additional_diagnostic_probe": {
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - <<'PY' [independent inline synthetic-stage and pre-cleanup diagnostic assertions] PY",
+      "result": "12 passed, exit 0",
+      "cases": "Post-create inventory exception, missing replacement, metadata mismatch and source false, each under v1/v2/v3; required incomplete installation, precise stage, rollback, no surviving synthetic attempt, false startup/connectivity, and pre-cleanup diagnostic ordering where reached",
+      "guards": "Process/socket operations denied; no concrete backend commands executed"
+    },
+    "targeted_pytest": {
+      "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_companion_installer.py tests/test_companion_network_configuration.py tests/test_companion_install_env.py tests/test_companion_docker_transport.py tests/test_companion_existing_controller.py tests/test_companion_runtime_adapter.py",
+      "result": "408 passed in 2.64s, exit 0",
+      "scope": "Offline/synthetic tests, isolated from repository conftest and automatic plugins; local child-process/pipe/receipt tests are not service lifecycle or Docker operations"
+    },
+    "whole_repository_suite_run": false,
+    "docker_commands_run": false,
+    "daemon_queried": false,
+    "private_config_read": false,
+    "lifecycle_operations_run": false,
+    "installation_run": false,
+    "startup_run": false,
+    "reviewed_files_checkpoint_or_old_artifacts_edited": false,
+    "work_log_update": "Parent owns the work-log entry as requested; this independent reviewer writes only the new outcome_diagnostics_review.json."
+  },
+  "claimed": [
+    "The saved post-capture is described as two native-backend inventories. Its complete retained snapshot contents and exact current-plan equality are independently SHOWN here, not freshly recaptured host state."
+  ],
+  "unverified": [
+    "The actual replacement failure cause and whether the installed replacement would satisfy metadata/source criteria",
+    "Successful stopped installation, SDK/import/startup compatibility, effective network attachment/connectivity, storage contents or full-system readiness",
+    "Earlier historical exact recovery; its INCOMPLETE disposition is unchanged"
+  ],
+  "proof_required_next": [
+    "No further operation is authorized by this review. Any later installation or startup requires separate explicit authorization and applicable fresh exact preconditions.",
+    "Do not claim a root-cause fix from diagnostic acceptance. Any future failure evidence must distinguish create, inventory, replacement predicates and source verification before cleanup, when the bounded receipt channel remains available.",
+    "Keep the accepted saved current-v3-baseline rollback evidence separate from historical recovery, connectivity and storage-content claims."
+  ]
+}

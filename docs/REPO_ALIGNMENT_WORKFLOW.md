@@ -9,6 +9,11 @@ Canonical source-root and orientation boundaries are documented in
 Alignment commands enforce that structure. They do not authorize moving source
 roots, reviving sidecars, or changing runtime scope.
 
+`research/` is an intentional, optional root for research artifacts. Repo Doctor
+allows it without making it a required runtime component. Unknown top-level
+directories still fail strict validation; deleting research capabilities is not
+an acceptable workaround for a layout-check failure.
+
 ## Primary commands
 
 1. Fast alignment gate:
@@ -104,7 +109,11 @@ Use these wrappers when running from repo root:
 
 ## Drift policy
 
-- If `repo_doctor --strict` fails, stop and fix alignment first.
+- If `repo_doctor --strict` fails, identify the failed check and its impact on
+  the accepted task. Fix it before depending on an affected setup, test or
+  runtime path. Unrelated layout/documentation drift does not block independent
+  work; report it without claiming validation passed. Required release and CI
+  checks remain required and must not be bypassed.
 - Do not add non-canonical top-level dirs/files.
 - Keep script bootstrap centralized via `scripts/_bootstrap.py`.
 - Keep tool bootstrap centralized via `tools/_bootstrap.py`.

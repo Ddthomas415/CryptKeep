@@ -1,0 +1,92 @@
+[
+ {
+  "id": 31,
+  "label": "Baur et al. via Quantpedia",
+  "url": "https://quantpedia.com/are-there-any-simple-calendar-effects-in-bitcoin-market/",
+  "claim": "A large study of day-of-week, time-of-day and month effects found **\"no consistent or persistent patterns\"** ([Baur et al. via Quantpedia])."
+ },
+ {
+  "id": 32,
+  "label": "Quantpedia",
+  "url": "https://quantpedia.com/how-to-profitably-trade-bitcoins-overnight-sessions/",
+  "claim": "Quantpedia's overnight-session BTC rule looked good out-of-sample, but it trades about three round trips a week with costs unmodeled ([Quantpedia])."
+ },
+ {
+  "id": 33,
+  "label": "Galaxy via KuCoin",
+  "url": "https://www.kucoin.com/news/flash/galaxy-research-bitcoin-s-four-year-cycle-remains-valid-halving-rule-losing-impact",
+  "claim": "Galaxy's own figures show shrinking amplitude, with peak-to-trough declines of 85%, 84% and 77% ([Galaxy via KuCoin]), so it cannot be validated statistically."
+ },
+ {
+  "id": 34,
+  "label": "The Tie 2026",
+  "url": "https://www.thetie.io/insights/what-does-an-exchange-listing-actually-deliver-in-2026",
+  "claim": "A study of 1,844 listings from 2023 to 2026 found returns accrue **before Day 0 and mean-revert within one to two weeks**, with the effect shrinking since the 2023 cohort ([The Tie 2026])."
+ },
+ {
+  "id": 35,
+  "label": "UTS",
+  "url": "https://www.uts.edu.au/news/2022/08/insider-trading-crypto-markets",
+  "claim": "Part of the pre-announcement run-up is consistent with insider leakage in an estimated **10\u201325% of Coinbase listings** ([UTS])."
+ },
+ {
+  "id": 36,
+  "label": "Xu & Livshits",
+  "url": "https://arxiv.org/pdf/1811.10109",
+  "claim": "Insider trading and pump-and-dump participation are illegal, and late pump participants lose in aggregate ([Xu & Livshits]), so neither is a strategy."
+ },
+ {
+  "id": 37,
+  "label": "BeInCrypto on Keyrock",
+  "url": "https://beincrypto.com/keyrock-research-token-unlocks/",
+  "claim": "Token unlocks show the most consistent negative drift: about 90% of 16,000+ unlocks produced price pressure, and team unlocks saw average drops of up to 25% ([BeInCrypto on Keyrock])."
+ },
+ {
+  "id": 38,
+  "label": "CSH",
+  "url": "https://csh.ac.at/news/crypto-hacks-price-drops-often-outweigh-direct-losses/",
+  "claim": "Hacks crashed prices in 12 of 22 major DeFi attacks, with an average 14% token loss ([CSH])."
+ },
+ {
+  "id": 39,
+  "label": "NY Fed SR1052",
+  "url": "https://www.newyorkfed.org/medialibrary/media/research/staff_reports/sr1052.pdf",
+  "claim": "Macro releases barely move BTC, except a CPI effect that vanishes when the sample ends in 2021 ([NY Fed SR1052])."
+ },
+ {
+  "id": 40,
+  "label": "Makarov & Schoar summary",
+  "url": "https://corpgov.law.harvard.edu/2019/09/21/trading-and-arbitrage-in-cryptocurrency-markets/",
+  "claim": "Each needs capital-controlled fiat rails, multiple venues, sub-second latency, AP status or on-chain infrastructure, and none is reachable from a single Coinbase spot account ([Makarov & Schoar summary]; [Albers et al.]; [Fritsch & Canidio])."
+ },
+ {
+  "id": 41,
+  "label": "Albers et al.",
+  "url": "https://arxiv.org/pdf/2108.09750",
+  "claim": "Each needs capital-controlled fiat rails, multiple venues, sub-second latency, AP status or on-chain infrastructure, and none is reachable from a single Coinbase spot account ([Makarov & Schoar summary]; [Albers et al.]; [Fritsch & Canidio])."
+ },
+ {
+  "id": 42,
+  "label": "Fritsch & Canidio",
+  "url": "https://arxiv.org/html/2404.05803v2",
+  "claim": "Each needs capital-controlled fiat rails, multiple venues, sub-second latency, AP status or on-chain infrastructure, and none is reachable from a single Coinbase spot account ([Makarov & Schoar summary]; [Albers et al.]; [Fritsch & Canidio])."
+ },
+ {
+  "id": 43,
+  "label": "BIS WP 1087",
+  "url": "https://www.bis.org/publ/work1087.htm",
+  "claim": "Crypto futures carry has averaged **above 10% a year and reached 60%** ([BIS WP 1087])."
+ },
+ {
+  "id": 44,
+  "label": "The Block",
+  "url": "https://www.theblock.co/news/business/2026-04-09-cme-bitcoin-futures-activity-slumps-to-14-month-low-as-basis-trade-unwind-drains-institutional-demand-396722",
+  "claim": "By April 2026 the CME basis had compressed to about 5% against a ~4.5% risk-free rate, and the ETF basis trade was unwinding ([The Block])."
+ },
+ {
+  "id": 45,
+  "label": "Deribit Insights",
+  "url": "https://insights.deribit.com/industry/bitcoin-options-finding-edge-in-four-years-of-volatility-regimes/",
+  "claim": "BTC implied volatility exceeded realized about **70% of the time** from 2019 to 2022 ([Deribit Insights])."
+ }
+]

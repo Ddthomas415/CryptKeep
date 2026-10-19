@@ -1,0 +1,15 @@
+{
+  "version": "english_conversational_scaffolding_v1",
+  "scope": "research retrieval, not trading or semantic scoring",
+  "maximum_query_characters": 2000,
+  "preserved": ["original question", "asset filters", "archive lineage and hash guards", "timestamp filters", "quoted search", "boolean operators", "negation", "numeric queries", "temporal words", "uppercase acronyms"],
+  "fixed_live_cases": [
+    {"question": "What news explains Bitcoin liquidations?", "expected_query": "Bitcoin liquidations", "expected_primary_contains": [47], "expected_primary_excludes": [11, 25]},
+    {"question": "Please explain Bitcoin liquidations.", "expected_query": "Bitcoin liquidations", "expected_primary_contains": [47]},
+    {"question": "What is Bitcoin regulation?", "expected_query": "Bitcoin regulation", "expected_primary_excludes": [11, 25]},
+    {"question": "zzzzzzunmatched", "expected_query": "zzzzzzunmatched", "expected_primary_count": 0}
+  ],
+  "semantic_relevance_verified": false,
+  "relative_time_interpreted": false,
+  "limits": ["Known-failure diagnostic cases, not an independent semantic benchmark", "No synonyms or embedding model", "Some ordinary-language questions will still miss", "Preserved explicit syntax does not gain new interpretation"]
+}

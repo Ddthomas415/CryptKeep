@@ -1,0 +1,29 @@
+{
+  "observed_at_utc": "2026-10-12T14:08:54.642153+00:00",
+  "http": 200,
+  "source": "CoinGecko public coins/markets",
+  "records": [
+    {
+      "id": "reserve-rights-token",
+      "symbol": "rsr",
+      "name": "Reserve Rights",
+      "market_cap": 154711641,
+      "total_volume": 210022854,
+      "circulating_supply": 62553174091.0,
+      "max_supply": 100000000000.0,
+      "fully_diluted_valuation": 247328203,
+      "last_updated": "2026-10-12T14:07:50.000Z"
+    },
+    {
+      "id": "gitcoin",
+      "symbol": "gtc",
+      "name": "Gitcoin",
+      "market_cap": 25877779,
+      "total_volume": 94410766,
+      "circulating_supply": 87491501.9042429,
+      "max_supply": 100000000.0,
+      "fully_diluted_valuation": 29577477,
+      "last_updated": "2026-10-12T14:07:50.000Z"
+    }
+  ]
+}

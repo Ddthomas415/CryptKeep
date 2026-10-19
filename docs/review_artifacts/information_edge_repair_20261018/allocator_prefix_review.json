@@ -1,0 +1,90 @@
+{
+  "review_type": "independent_bounded_test_only_allocator_prefix_review",
+  "reviewed_at_utc": "2026-10-18T18:47:56Z",
+  "active_role": "GATE",
+  "objective": "Close only GATE-MA-001 by reviewing the appended persistent actual-allocator prefix tests and executing their four synthetic cases once.",
+  "acceptance_state": "ACCEPTED",
+  "acceptance_scope": "Only the hash-bound appended test coverage and closure of GATE-MA-001. The prior financial implementation disposition is not broadened or upgraded.",
+  "material_assumptions": [],
+  "environment_confidence": "VERIFIED_ENV",
+  "environment_scope": "Verified repository cwd, root AGENTS.md, local .venv/bin/python, synthetic fixture, allocator call chain and relevant NAV/decision/trace indexing. The exact authorized pytest command disabled environment inheritance, external plugin autoload, conftest loading, bytecode and pytest cache writes. No runtime or deployment environment was inspected.",
+  "sha256_bindings": {
+    "docs/review_artifacts/information_edge_repair_20261018/independent_code_review.json": "c6595bf403847ae95adf3568952607ec6e869a88f335943343a1e60668d2d141",
+    "scripts/research/module_a_candidate.py": "bd7139ff115efd743239a26f6d31be09766d622f90b8c1d89e449de958e6477c",
+    "tests/test_module_a_candidate.py": "8939cbc7c3da3ce49b170af411c112e75154c86778e172a7261831c7ca4e3a03",
+    "reconstructed_old_test_prefix": "0a6e2422be327f53f5927df5ada2f93a9ccaca1adb3c57cd36313982d420fd9d"
+  },
+  "binding_verification": {
+    "evidence_status": "SHOWN",
+    "before_tests": "All four expected hashes matched.",
+    "after_tests": "All four hashes matched again; the financial source, prior review and test file remained unchanged during verification.",
+    "prefix_reconstruction": "raw.split(b'\n\ndef _allocator_prefix_case')[0].rstrip() + b'\n'",
+    "append_boundary_occurrences": 1,
+    "append_starts_at_line": 158,
+    "append_only_result": "The reconstructed prefix matches the previously reviewed test hash. The addition consists of _allocator_prefix_case and two test functions parametrized over weekly and daily_fixture, yielding four cases. Reconstruction normalizes trailing whitespace at the append boundary; this is not a separate byte-for-byte claim about that whitespace."
+  },
+  "blocking_findings": [],
+  "findings": [
+    {
+      "id": "GATE-MA-001",
+      "severity": "P3",
+      "evidence_status": "SHOWN",
+      "resolution_status": "CLOSED",
+      "disposition": "ACCEPTED",
+      "title": "Persistent actual-allocator prefix regression and next-day canary are now present and pass",
+      "references": [
+        "tests/test_module_a_candidate.py:158",
+        "tests/test_module_a_candidate.py:189",
+        "tests/test_module_a_candidate.py:201"
+      ],
+      "evidence": "The deterministic four-asset, 30-index synthetic fixture calls candidate.module_a_target with lookback=4, cap=0.30 and min_assets=4. The inspected unmodified implementation calls trailing_vol for each asset and capped_weights for the four positive-volatility assets; the tests do not substitute or monkeypatch these functions. Only opens and closes at indices 13 through 29 are replaced, strictly after cutoff 12. Both schedules include a cutoff-12 decision. The weekly fixture uses (day+1)%7 and the daily synthetic fixture sets every weekday to 6.",
+      "prefix_assertions": "Both causal cases compare NAV entries for days 5 through 12 inclusive, all decisions through day 12 including a required cutoff decision, and all trace rows through day 12, covering modeled cash, fills and holdings. simulate appends its first NAV at lo+1=5, so [:cutoff-start] includes cutoff 12.",
+      "canary_assertions": "Both deliberately next-day allocator cases require identical earlier decisions but different cutoff-12 weights after future prices change. NAV remains identical through cutoff 12 because the cutoff decision executes on the next opening. The passing cases demonstrate that the persistent decision assertion detects this deliberate leak even when NAV-prefix comparison alone does not.",
+      "limits": "One deterministic synthetic path under two schedules, not exhaustive allocator or numerical-domain proof. The daily fixture is synthetic scheduling coverage, not a production calendar change."
+    }
+  ],
+  "verification": {
+    "evidence_status": "SHOWN",
+    "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_module_a_candidate.py -k actual_allocator",
+    "invocations": 1,
+    "exit_code": 0,
+    "stdout_summary": "4 passed, 22 deselected in 0.18s",
+    "passed_cases": [
+      "test_actual_allocator_future_prices_cannot_change_prefix[weekly]",
+      "test_actual_allocator_future_prices_cannot_change_prefix[daily_fixture]",
+      "test_actual_allocator_next_day_canary_is_detected_at_cutoff[weekly]",
+      "test_actual_allocator_next_day_canary_is_detected_at_cutoff[daily_fixture]"
+    ],
+    "case_identity_basis": "Inspected test names and explicit parametrization ids; the authorized quiet pytest output reports the aggregate result, not individual node ids.",
+    "broader_tests_run": false,
+    "parent_test_run": {
+      "evidence_status": "CLAIMED",
+      "result": "The user reported a separate parent 56-test run. Its status or result was not inspected or relied upon here."
+    }
+  },
+  "unverified_or_not_approved": [
+    {"evidence_status": "UNVERIFIED", "item": "No market experiment, backtest economics, profitability, study activation or preregistration acceptance."},
+    {"evidence_status": "UNVERIFIED", "item": "No broader financial-source audit, financial-model acceptance, integration acceptance or full-suite result."},
+    {"evidence_status": "UNVERIFIED", "item": "No runtime, production, venue settlement, live trading, order routing, risk gate or operational acceptance."},
+    {"evidence_status": "SHOWN", "item": "All limitations and exclusions of the prior independent review remain outside this test-only closure; no other finding or acceptance scope is changed."}
+  ],
+  "reviewer_changes": {
+    "only_new_file": "docs/review_artifacts/information_edge_repair_20261018/allocator_prefix_review.json",
+    "method": "apply_patch",
+    "source_or_test_edits": false,
+    "market_data_access": false,
+    "network_access": false,
+    "runtime_actions": false,
+    "private_credentials_or_config_access": false,
+    "parent_docs_or_work_log_edits": false,
+    "work_log_handoff": "Per the explicit single-new-file constraint, the parent owns separate documentation and docs/work_log/review_stabilized_work_log.md updates before its handoff."
+  },
+  "handoff": {
+    "active_role": "GATE",
+    "current_objective": "Complete: bounded test-only closure of GATE-MA-001.",
+    "shown_evidence": "Exact pre/post hash matches, prior-test-prefix hash match, appended test inspection and one successful four-case synthetic pytest invocation.",
+    "acceptance_state": "ACCEPTED",
+    "active_risks": ["Synthetic test proof is not financial-model, economic, integration or operational proof; prior review limits remain unchanged."],
+    "proof_required_next": "No additional proof required for this hash-bound finding closure. Parent records this disposition and its separate test results without broadening acceptance. Changed reviewed hashes require renewed binding verification."
+  }
+}

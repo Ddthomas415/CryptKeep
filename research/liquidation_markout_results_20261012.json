@@ -1,0 +1,2765 @@
+{
+  "plan_sha256": "38b14247a4d82160d79d0e2587f170727060299348c8f3a911d02c4f03efa853",
+  "limits": [
+    "two_hour_sample_previously_observed_not_holdout",
+    "no_independence_or_significance_claim",
+    "historical_publication_latency_unknown_not_actionable_signal",
+    "partial_liquidation_feed_and_page_truncation",
+    "no_account_portfolio_or_capacity_model",
+    "fees_not_verified_for_OKX",
+    "cash_interest_infrastructure_excluded"
+  ],
+  "observed_price_changes": "OBSERVED_NOT_MID_PRICE_OR_TRADE_FILLS",
+  "cost_adjusted_references": "MODELLED_NOT_PORTFOLIO_PNL",
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "assets": {
+    "BTC": {
+      "sell_minute_anchors": [
+        1791850020000,
+        1791850080000,
+        1791850140000,
+        1791851460000,
+        1791851580000,
+        1791851640000,
+        1791851700000,
+        1791851880000,
+        1791852300000,
+        1791852480000,
+        1791852540000,
+        1791852660000,
+        1791852720000,
+        1791852780000,
+        1791852840000,
+        1791853080000,
+        1791853740000
+      ],
+      "spaced_minute_anchors": [
+        1791850020000,
+        1791851460000,
+        1791852480000,
+        1791853740000
+      ],
+      "baseline_first_anchor": 1791850020000,
+      "baseline_last_anchor": 1791857220000,
+      "markets": {
+        "spot": {
+          "1": {
+            "events": {
+              "observations": 17,
+              "observed": 17,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 8,
+              "price_declines": 9,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0004208440931980721,
+              "median_gross_return": -0.00023336391628869801,
+              "worst_gross_return": -0.0007653384011919728,
+              "best_gross_return": 0.0024614854978912692,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.00021037777847633012,
+              "mean_modeled_cost_adjusted_quote_reference": -14.473574250393522,
+              "positive_cost_adjusted_references": 0
+            },
+            "unconditioned": {
+              "observations": 121,
+              "observed": 121,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 68,
+              "price_declines": 53,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.00010363238661915126,
+              "median_gross_return": 9.462723541675544e-05,
+              "worst_gross_return": -0.0016519249343708298,
+              "best_gross_return": 0.0024614854978912692,
+              "mathematical_break_even_fee_per_side_without_adverse": 5.181350853080155e-05,
+              "mean_modeled_cost_adjusted_quote_reference": -14.786063260629998,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_minus_unconditioned_mean": 0.0003172117065789209,
+            "spaced_event_sensitivity": {
+              "observations": 4,
+              "observed": 4,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 1,
+              "price_declines": 3,
+              "price_unchanged": 0,
+              "mean_gross_return": -0.00013645625980981957,
+              "median_gross_return": -0.00039807753273812807,
+              "worst_gross_return": -0.00074907841215055,
+              "best_gross_return": 0.000999408438387528,
+              "mathematical_break_even_fee_per_side_without_adverse": null,
+              "mean_modeled_cost_adjusted_quote_reference": -15.02257743061694,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_observations": [
+              {
+                "anchor_ms": 1791850020000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81417.9,
+                "forward_close": 81398.9,
+                "gross_return": -0.00023336391628869801,
+                "gross_move_quote_reference": -0.23336391628869801,
+                "modeled_cost_adjusted_reference": -15.118042311103252
+              },
+              {
+                "anchor_ms": 1791850080000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81401.9,
+                "forward_close": 81339.6,
+                "gross_return": -0.0007653384011919728,
+                "gross_move_quote_reference": -0.7653384011919728,
+                "modeled_cost_adjusted_reference": -15.642096678614825
+              },
+              {
+                "anchor_ms": 1791850140000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81333.0,
+                "forward_close": 81533.2,
+                "gross_return": 0.0024614854978912692,
+                "gross_move_quote_reference": 2.4614854978912692,
+                "modeled_cost_adjusted_reference": -12.463314226646261
+              },
+              {
+                "anchor_ms": 1791851460000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81380.1,
+                "forward_close": 81334.3,
+                "gross_return": -0.0005627911491875581,
+                "gross_move_quote_reference": -0.5627911491875581,
+                "modeled_cost_adjusted_reference": -15.44256498103791
+              },
+              {
+                "anchor_ms": 1791851580000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81299.9,
+                "forward_close": 81269.2,
+                "gross_return": -0.00037761424060789306,
+                "gross_move_quote_reference": -0.37761424060789306,
+                "modeled_cost_adjusted_reference": -15.260145014559301
+              },
+              {
+                "anchor_ms": 1791851640000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81269.2,
+                "forward_close": 81423.1,
+                "gross_return": 0.0018937063487767247,
+                "gross_move_quote_reference": 1.8937063487767247,
+                "modeled_cost_adjusted_reference": -13.022640193058987
+              },
+              {
+                "anchor_ms": 1791851700000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81423.1,
+                "forward_close": 81568.0,
+                "gross_return": 0.001779593260389234,
+                "gross_move_quote_reference": 1.779593260389234,
+                "modeled_cost_adjusted_reference": -13.135054348355713
+              },
+              {
+                "anchor_ms": 1791851880000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81589.3,
+                "forward_close": 81550.1,
+                "gross_return": -0.00048045515772288105,
+                "gross_move_quote_reference": -0.48045515772288105,
+                "modeled_cost_adjusted_reference": -15.361454820390975
+              },
+              {
+                "anchor_ms": 1791852300000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81384.3,
+                "forward_close": 81323.4,
+                "gross_return": -0.0007483015765941126,
+                "gross_move_quote_reference": -0.7483015765941126,
+                "modeled_cost_adjusted_reference": -15.625313500863935
+              },
+              {
+                "anchor_ms": 1791852480000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81299.9,
+                "forward_close": 81239.0,
+                "gross_return": -0.00074907841215055,
+                "gross_move_quote_reference": -0.74907841215055,
+                "modeled_cost_adjusted_reference": -15.626078770774043
+              },
+              {
+                "anchor_ms": 1791852540000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81240.1,
+                "forward_close": 81296.1,
+                "gross_return": 0.000689314759583004,
+                "gross_move_quote_reference": 0.689314759583004,
+                "modeled_cost_adjusted_reference": -14.209100616299208
+              },
+              {
+                "anchor_ms": 1791852660000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81180.0,
+                "forward_close": 81157.7,
+                "gross_return": -0.00027469820152747904,
+                "gross_move_quote_reference": -0.27469820152747904,
+                "modeled_cost_adjusted_reference": -15.158761205189553
+              },
+              {
+                "anchor_ms": 1791852720000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81157.6,
+                "forward_close": 81112.2,
+                "gross_return": -0.0005594054038070562,
+                "gross_move_quote_reference": -0.5594054038070562,
+                "modeled_cost_adjusted_reference": -15.439229643151808
+              },
+              {
+                "anchor_ms": 1791852780000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81112.1,
+                "forward_close": 81278.2,
+                "gross_return": 0.0020477832530534368,
+                "gross_move_quote_reference": 2.047783253053437,
+                "modeled_cost_adjusted_reference": -12.87085720926906
+              },
+              {
+                "anchor_ms": 1791852840000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81283.6,
+                "forward_close": 81386.6,
+                "gross_return": 0.00126716828486928,
+                "gross_move_quote_reference": 1.26716828486928,
+                "modeled_cost_adjusted_reference": -13.639850262565979
+              },
+              {
+                "anchor_ms": 1791853080000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81362.7,
+                "forward_close": 81425.1,
+                "gross_return": 0.0007669362004949498,
+                "gross_move_quote_reference": 0.7669362004949498,
+                "modeled_cost_adjusted_reference": -14.132634815256505
+              },
+              {
+                "anchor_ms": 1791853740000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81648.3,
+                "forward_close": 81729.9,
+                "gross_return": 0.000999408438387528,
+                "gross_move_quote_reference": 0.9994084383875279,
+                "modeled_cost_adjusted_reference": -13.903623659552554
+              }
+            ]
+          },
+          "5": {
+            "events": {
+              "observations": 17,
+              "observed": 17,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 14,
+              "price_declines": 3,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0016511757914205612,
+              "median_gross_return": 0.002308918273631999,
+              "worst_gross_return": -0.002308735927104455,
+              "best_gross_return": 0.0036265089923626093,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0008249068625894385,
+              "mean_modeled_cost_adjusted_quote_reference": -13.2615599184303,
+              "positive_cost_adjusted_references": 0
+            },
+            "unconditioned": {
+              "observations": 121,
+              "observed": 120,
+              "immature": 1,
+              "unknown_price": 0,
+              "price_rebounds": 79,
+              "price_declines": 41,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.000542243572080713,
+              "median_gross_return": 0.0006411486927698773,
+              "worst_gross_return": -0.002966346631778971,
+              "best_gross_return": 0.004200556081762397,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0002710482989414443,
+              "mean_modeled_cost_adjusted_quote_reference": -14.353982185496504,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_minus_unconditioned_mean": 0.0011089322193398483,
+            "spaced_event_sensitivity": {
+              "observations": 4,
+              "observed": 4,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 3,
+              "price_declines": 1,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0011399422179596275,
+              "median_gross_return": 0.002201526182269098,
+              "worst_gross_return": -0.002308735927104455,
+              "best_gross_return": 0.002465452434404769,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.000569646426974105,
+              "mean_modeled_cost_adjusted_quote_reference": -13.765182168357398,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_observations": [
+              {
+                "anchor_ms": 1791850020000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81417.9,
+                "forward_close": 81588.4,
+                "gross_return": 0.0020941340909061967,
+                "gross_move_quote_reference": 2.0941340909061967,
+                "modeled_cost_adjusted_reference": -12.825196449770315
+              },
+              {
+                "anchor_ms": 1791850080000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81401.9,
+                "forward_close": 81539.0,
+                "gross_return": 0.0016842358716442352,
+                "gross_move_quote_reference": 1.6842358716442352,
+                "modeled_cost_adjusted_reference": -13.22899204173078
+              },
+              {
+                "anchor_ms": 1791850140000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81333.0,
+                "forward_close": 81557.7,
+                "gross_return": 0.002762716240640284,
+                "gross_move_quote_reference": 2.762716240640284,
+                "modeled_cost_adjusted_reference": -12.166568253209054
+              },
+              {
+                "anchor_ms": 1791851460000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81380.1,
+                "forward_close": 81568.0,
+                "gross_return": 0.002308918273631999,
+                "gross_move_quote_reference": 2.308918273631999,
+                "modeled_cost_adjusted_reference": -12.613610006765752
+              },
+              {
+                "anchor_ms": 1791851580000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81299.9,
+                "forward_close": 81589.3,
+                "gross_return": 0.0035596599749816438,
+                "gross_move_quote_reference": 3.5596599749816438,
+                "modeled_cost_adjusted_reference": -11.38148953891982
+              },
+              {
+                "anchor_ms": 1791851640000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81269.2,
+                "forward_close": 81550.1,
+                "gross_return": 0.0034564139920167936,
+                "gross_move_quote_reference": 3.4564139920167936,
+                "modeled_cost_adjusted_reference": -11.483198379918957
+              },
+              {
+                "anchor_ms": 1791851700000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81423.1,
+                "forward_close": 81476.6,
+                "gross_return": 0.0006570616937944251,
+                "gross_move_quote_reference": 0.6570616937944251,
+                "modeled_cost_adjusted_reference": -14.240873493517547
+              },
+              {
+                "anchor_ms": 1791851880000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81589.3,
+                "forward_close": 81446.8,
+                "gross_return": -0.0017465525503956858,
+                "gross_move_quote_reference": -1.7465525503956858,
+                "modeled_cost_adjusted_reference": -16.608702361682216
+              },
+              {
+                "anchor_ms": 1791852300000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81384.3,
+                "forward_close": 81296.1,
+                "gross_return": -0.0010837471109291785,
+                "gross_move_quote_reference": -1.0837471109291785,
+                "modeled_cost_adjusted_reference": -15.955764870843714
+              },
+              {
+                "anchor_ms": 1791852480000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81299.9,
+                "forward_close": 81112.2,
+                "gross_return": -0.002308735927104455,
+                "gross_move_quote_reference": -2.308735927104455,
+                "modeled_cost_adjusted_reference": -17.162515866403826
+              },
+              {
+                "anchor_ms": 1791852540000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81240.1,
+                "forward_close": 81278.2,
+                "gross_return": 0.00046898022035901654,
+                "gross_move_quote_reference": 0.46898022035901654,
+                "modeled_cost_adjusted_reference": -14.426154781246536
+              },
+              {
+                "anchor_ms": 1791852660000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81180.0,
+                "forward_close": 81474.4,
+                "gross_return": 0.0036265089923626093,
+                "gross_move_quote_reference": 3.6265089923626093,
+                "modeled_cost_adjusted_reference": -11.315635779921118
+              },
+              {
+                "anchor_ms": 1791852720000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81157.6,
+                "forward_close": 81346.1,
+                "gross_return": 0.0023226413792423184,
+                "gross_move_quote_reference": 2.3226413792423184,
+                "modeled_cost_adjusted_reference": -12.600091212848108
+              },
+              {
+                "anchor_ms": 1791852780000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81112.1,
+                "forward_close": 81364.1,
+                "gross_return": 0.003106811437504353,
+                "gross_move_quote_reference": 3.106811437504353,
+                "modeled_cost_adjusted_reference": -11.827595998197271
+              },
+              {
+                "anchor_ms": 1791852840000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81283.6,
+                "forward_close": 81425.1,
+                "gross_return": 0.00174081856610675,
+                "gross_move_quote_reference": 1.74081856610675,
+                "modeled_cost_adjusted_reference": -13.173251759066806
+              },
+              {
+                "anchor_ms": 1791853080000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81362.7,
+                "forward_close": 81603.1,
+                "gross_return": 0.002954670874983467,
+                "gross_move_quote_reference": 2.954670874983467,
+                "modeled_cost_adjusted_reference": -11.977471468783584
+              },
+              {
+                "anchor_ms": 1791853740000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81648.3,
+                "forward_close": 81849.6,
+                "gross_return": 0.002465452434404769,
+                "gross_move_quote_reference": 2.465452434404769,
+                "modeled_cost_adjusted_reference": -12.459406350489699
+              }
+            ]
+          },
+          "15": {
+            "events": {
+              "observations": 17,
+              "observed": 17,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 12,
+              "price_declines": 5,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0020552909886804942,
+              "median_gross_return": 0.0017053348579296745,
+              "worst_gross_return": -0.005847580503816174,
+              "best_gross_return": 0.0066747131439082175,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0010265905232145333,
+              "mean_modeled_cost_adjusted_quote_reference": -12.863461249956762,
+              "positive_cost_adjusted_references": 0
+            },
+            "unconditioned": {
+              "observations": 121,
+              "observed": 110,
+              "immature": 11,
+              "unknown_price": 0,
+              "price_rebounds": 81,
+              "price_declines": 29,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0016352223989797117,
+              "median_gross_return": 0.0017014770875060092,
+              "worst_gross_return": -0.005847580503816174,
+              "best_gross_return": 0.007519414630797083,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0008169432575331491,
+              "mean_modeled_cost_adjusted_quote_reference": -13.277275794327574,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_minus_unconditioned_mean": 0.00042006858970078257,
+            "spaced_event_sensitivity": {
+              "observations": 4,
+              "observed": 4,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 2,
+              "price_declines": 2,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0019335617637625813,
+              "median_gross_return": 0.0018118870016421429,
+              "worst_gross_return": -0.0006967305274878655,
+              "best_gross_return": 0.004807203579253905,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0009658471193514814,
+              "mean_modeled_cost_adjusted_quote_reference": -12.983378151579682,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_observations": [
+              {
+                "anchor_ms": 1791850020000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81417.9,
+                "forward_close": 81409.3,
+                "gross_return": -0.00010562787789902828,
+                "gross_move_quote_reference": -0.10562787789902828,
+                "modeled_cost_adjusted_reference": -14.992208026365027
+              },
+              {
+                "anchor_ms": 1791850080000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81401.9,
+                "forward_close": 81437.5,
+                "gross_return": 0.0004373362292526828,
+                "gross_move_quote_reference": 0.4373362292526828,
+                "modeled_cost_adjusted_reference": -14.45732765177954
+              },
+              {
+                "anchor_ms": 1791850140000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81333.0,
+                "forward_close": 81471.7,
+                "gross_return": 0.0017053348579296745,
+                "gross_move_quote_reference": 1.7053348579296745,
+                "modeled_cost_adjusted_reference": -13.208207180376297
+              },
+              {
+                "anchor_ms": 1791851460000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81380.1,
+                "forward_close": 81323.4,
+                "gross_return": -0.0006967305274878655,
+                "gross_move_quote_reference": -0.6967305274878655,
+                "modeled_cost_adjusted_reference": -15.574510249414253
+              },
+              {
+                "anchor_ms": 1791851580000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81299.9,
+                "forward_close": 81300.0,
+                "gross_return": 1.2300138130250104e-06,
+                "gross_move_quote_reference": 0.0012300138130250104,
+                "modeled_cost_adjusted_reference": -14.886941051267645
+              },
+              {
+                "anchor_ms": 1791851640000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81269.2,
+                "forward_close": 81239.0,
+                "gross_return": -0.00037160449469164636,
+                "gross_move_quote_reference": -0.37160449469164636,
+                "modeled_cost_adjusted_reference": -15.25422474265814
+              },
+              {
+                "anchor_ms": 1791851700000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81423.1,
+                "forward_close": 81296.1,
+                "gross_return": -0.0015597539273253247,
+                "gross_move_quote_reference": -1.5597539273253247,
+                "modeled_cost_adjusted_reference": -16.42468482504611
+              },
+              {
+                "anchor_ms": 1791851880000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81589.3,
+                "forward_close": 81112.2,
+                "gross_return": -0.005847580503816174,
+                "gross_move_quote_reference": -5.847580503816174,
+                "modeled_cost_adjusted_reference": -20.648673584490183
+              },
+              {
+                "anchor_ms": 1791852300000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81384.3,
+                "forward_close": 81446.0,
+                "gross_return": 0.0007581314823621454,
+                "gross_move_quote_reference": 0.7581314823621454,
+                "modeled_cost_adjusted_reference": -14.141308447400691
+              },
+              {
+                "anchor_ms": 1791852480000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81299.9,
+                "forward_close": 81603.1,
+                "gross_return": 0.003729401881183314,
+                "gross_move_quote_reference": 3.729401881183314,
+                "modeled_cost_adjusted_reference": -11.214274776146116
+              },
+              {
+                "anchor_ms": 1791852540000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81240.1,
+                "forward_close": 81550.1,
+                "gross_return": 0.003815849561977336,
+                "gross_move_quote_reference": 3.815849561977336,
+                "modeled_cost_adjusted_reference": -11.129114141628648
+              },
+              {
+                "anchor_ms": 1791852660000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81180.0,
+                "forward_close": 81630.6,
+                "gross_return": 0.005550628233555122,
+                "gross_move_quote_reference": 5.550628233555122,
+                "modeled_cost_adjusted_reference": -9.420163119905233
+              },
+              {
+                "anchor_ms": 1791852720000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81157.6,
+                "forward_close": 81639.5,
+                "gross_return": 0.005937829605606737,
+                "gross_move_quote_reference": 5.937829605606737,
+                "modeled_cost_adjusted_reference": -9.038726461026547
+              },
+              {
+                "anchor_ms": 1791852780000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81112.1,
+                "forward_close": 81653.5,
+                "gross_return": 0.0066747131439082175,
+                "gross_move_quote_reference": 6.6747131439082175,
+                "modeled_cost_adjusted_reference": -8.312813757404115
+              },
+              {
+                "anchor_ms": 1791852840000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81283.6,
+                "forward_close": 81648.4,
+                "gross_return": 0.004487990197284519,
+                "gross_move_quote_reference": 4.487990197284519,
+                "modeled_cost_adjusted_reference": -10.466980438771367
+              },
+              {
+                "anchor_ms": 1791853080000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81362.7,
+                "forward_close": 81819.6,
+                "gross_return": 0.005615595352661762,
+                "gross_move_quote_reference": 5.615595352661762,
+                "modeled_cost_adjusted_reference": -9.356163241191705
+              },
+              {
+                "anchor_ms": 1791853740000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81648.3,
+                "forward_close": 82040.8,
+                "gross_return": 0.004807203579253905,
+                "gross_move_quote_reference": 4.807203579253905,
+                "modeled_cost_adjusted_reference": -10.152519554393336
+              }
+            ]
+          }
+        },
+        "perpetual": {
+          "1": {
+            "events": {
+              "observations": 17,
+              "observed": 17,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 8,
+              "price_declines": 9,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.00046055043381088663,
+              "median_gross_return": -7.497090268637763e-05,
+              "worst_gross_return": -0.0008210543911660872,
+              "best_gross_return": 0.0024565793147903747,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0002302222024378405,
+              "mean_modeled_cost_adjusted_quote_reference": -14.434459063844917,
+              "positive_cost_adjusted_references": 0
+            },
+            "unconditioned": {
+              "observations": 121,
+              "observed": 121,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 70,
+              "price_declines": 50,
+              "price_unchanged": 1,
+              "mean_gross_return": 0.00010863628061806769,
+              "median_gross_return": 8.474888536791347e-05,
+              "worst_gross_return": -0.0016476735071574433,
+              "best_gross_return": 0.0024565793147903747,
+              "mathematical_break_even_fee_per_side_without_adverse": 5.431519000892203e-05,
+              "mean_modeled_cost_adjusted_quote_reference": -14.78113386536928,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_minus_unconditioned_mean": 0.00035191415319281894,
+            "spaced_event_sensitivity": {
+              "observations": 4,
+              "observed": 4,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 1,
+              "price_declines": 3,
+              "price_unchanged": 0,
+              "mean_gross_return": -0.00010887766196912563,
+              "median_gross_return": -0.00034053661719879447,
+              "worst_gross_return": -0.0007568122330391391,
+              "best_gross_return": 0.0010023748195602256,
+              "mathematical_break_even_fee_per_side_without_adverse": null,
+              "mean_modeled_cost_adjusted_quote_reference": -14.995409427153412,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_observations": [
+              {
+                "anchor_ms": 1791850020000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81364.9,
+                "forward_close": 81358.8,
+                "gross_return": -7.497090268637763e-05,
+                "gross_move_quote_reference": -0.07497090268637763,
+                "modeled_cost_adjusted_reference": -14.962007476882366
+              },
+              {
+                "anchor_ms": 1791850080000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81358.8,
+                "forward_close": 81292.0,
+                "gross_return": -0.0008210543911660872,
+                "gross_move_quote_reference": -0.8210543911660872,
+                "modeled_cost_adjusted_reference": -15.696983160419343
+              },
+              {
+                "anchor_ms": 1791850140000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81291.9,
+                "forward_close": 81491.6,
+                "gross_return": 0.0024565793147903747,
+                "gross_move_quote_reference": 2.4565793147903747,
+                "modeled_cost_adjusted_reference": -12.468147365743754
+              },
+              {
+                "anchor_ms": 1791851460000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81339.4,
+                "forward_close": 81290.1,
+                "gross_return": -0.0006061023317112113,
+                "gross_move_quote_reference": -0.6061023317112113,
+                "modeled_cost_adjusted_reference": -15.485231340060079
+              },
+              {
+                "anchor_ms": 1791851580000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81258.3,
+                "forward_close": 81228.8,
+                "gross_return": -0.00036303983716123867,
+                "gross_move_quote_reference": -0.36303983716123867,
+                "modeled_cost_adjusted_reference": -15.245787597057415
+              },
+              {
+                "anchor_ms": 1791851640000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81228.9,
+                "forward_close": 81384.2,
+                "gross_return": 0.001911881116203773,
+                "gross_move_quote_reference": 1.911881116203773,
+                "modeled_cost_adjusted_reference": -13.00473601434604
+              },
+              {
+                "anchor_ms": 1791851700000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81384.1,
+                "forward_close": 81541.0,
+                "gross_return": 0.0019278950065184652,
+                "gross_move_quote_reference": 1.9278950065184652,
+                "modeled_cost_adjusted_reference": -12.988960541276295
+              },
+              {
+                "anchor_ms": 1791851880000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81544.8,
+                "forward_close": 81512.2,
+                "gross_return": -0.0003997802434980713,
+                "gross_move_quote_reference": -0.3997802434980713,
+                "modeled_cost_adjusted_reference": -15.281981006612488
+              },
+              {
+                "anchor_ms": 1791852300000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81342.0,
+                "forward_close": 81285.7,
+                "gross_return": -0.0006921393621991401,
+                "gross_move_quote_reference": -0.6921393621991401,
+                "modeled_cost_adjusted_reference": -15.569987438095678
+              },
+              {
+                "anchor_ms": 1791852480000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81261.9,
+                "forward_close": 81200.4,
+                "gross_return": -0.0007568122330391391,
+                "gross_move_quote_reference": -0.7568122330391391,
+                "modeled_cost_adjusted_reference": -15.63369744935561
+              },
+              {
+                "anchor_ms": 1791852540000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81200.4,
+                "forward_close": 81266.1,
+                "gross_return": 0.0008091093147326589,
+                "gross_move_quote_reference": 0.8091093147326589,
+                "modeled_cost_adjusted_reference": -14.091089580785532
+              },
+              {
+                "anchor_ms": 1791852660000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81132.2,
+                "forward_close": 81116.6,
+                "gross_return": -0.00019227877464178533,
+                "gross_move_quote_reference": -0.19227877464178533,
+                "modeled_cost_adjusted_reference": -15.077568851320834
+              },
+              {
+                "anchor_ms": 1791852720000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81116.6,
+                "forward_close": 81073.5,
+                "gross_return": -0.0005313339069932255,
+                "gross_move_quote_reference": -0.5313339069932255,
+                "modeled_cost_adjusted_reference": -15.411576079070288
+              },
+              {
+                "anchor_ms": 1791852780000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81073.5,
+                "forward_close": 81240.8,
+                "gross_return": 0.0020635596094902287,
+                "gross_move_quote_reference": 2.0635596094902287,
+                "modeled_cost_adjusted_reference": -12.85531573363674
+              },
+              {
+                "anchor_ms": 1791852840000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81240.9,
+                "forward_close": 81354.5,
+                "gross_return": 0.001398310456925067,
+                "gross_move_quote_reference": 1.398310456925067,
+                "modeled_cost_adjusted_reference": -13.510660555199895
+              },
+              {
+                "anchor_ms": 1791853080000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81330.0,
+                "forward_close": 81386.7,
+                "gross_return": 0.0006971597196605561,
+                "gross_move_quote_reference": 0.6971597196605561,
+                "modeled_cost_adjusted_reference": -14.201372453185645
+              },
+              {
+                "anchor_ms": 1791853740000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81606.2,
+                "forward_close": 81688.0,
+                "gross_return": 0.0010023748195602256,
+                "gross_move_quote_reference": 1.0023748195602256,
+                "modeled_cost_adjusted_reference": -13.900701442315588
+              }
+            ]
+          },
+          "5": {
+            "events": {
+              "observations": 17,
+              "observed": 17,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 14,
+              "price_declines": 3,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0017124499480241412,
+              "median_gross_return": 0.0024088780841404756,
+              "worst_gross_return": -0.0023184296699928497,
+              "best_gross_return": 0.0038307848178651405,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0008554924799856274,
+              "mean_modeled_cost_adjusted_quote_reference": -13.20119802083,
+              "positive_cost_adjusted_references": 0
+            },
+            "unconditioned": {
+              "observations": 121,
+              "observed": 120,
+              "immature": 1,
+              "unknown_price": 0,
+              "price_rebounds": 79,
+              "price_declines": 41,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0005505643669711948,
+              "median_gross_return": 0.0006234431677772934,
+              "worst_gross_return": -0.0029518374082770915,
+              "best_gross_return": 0.004331497766380421,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.00027520642406027285,
+              "mean_modeled_cost_adjusted_quote_reference": -14.345785271871362,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_minus_unconditioned_mean": 0.0011618855810529463,
+            "spaced_event_sensitivity": {
+              "observations": 4,
+              "observed": 4,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 3,
+              "price_declines": 1,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0012500053036390846,
+              "median_gross_return": 0.0024197362858133786,
+              "worst_gross_return": -0.0023184296699928497,
+              "best_gross_return": 0.0024789783129224308,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0006246122674959983,
+              "mean_modeled_cost_adjusted_quote_reference": -13.656757718709915,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_observations": [
+              {
+                "anchor_ms": 1791850020000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81364.9,
+                "forward_close": 81557.0,
+                "gross_return": 0.0023609689190302596,
+                "gross_move_quote_reference": 2.3609689190302596,
+                "modeled_cost_adjusted_reference": -12.562334299327183
+              },
+              {
+                "anchor_ms": 1791850080000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81358.8,
+                "forward_close": 81492.0,
+                "gross_return": 0.001637192288971745,
+                "gross_move_quote_reference": 1.637192288971745,
+                "modeled_cost_adjusted_reference": -13.275335232358465
+              },
+              {
+                "anchor_ms": 1791850140000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81291.9,
+                "forward_close": 81519.4,
+                "gross_return": 0.0027985568057826704,
+                "gross_move_quote_reference": 2.7985568057826704,
+                "modeled_cost_adjusted_reference": -12.13126128787545
+              },
+              {
+                "anchor_ms": 1791851460000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81339.4,
+                "forward_close": 81541.0,
+                "gross_return": 0.0024785036525964976,
+                "gross_move_quote_reference": 2.4785036525964976,
+                "modeled_cost_adjusted_reference": -12.446549440827903
+              },
+              {
+                "anchor_ms": 1791851580000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81258.3,
+                "forward_close": 81544.9,
+                "gross_return": 0.0035270243162850434,
+                "gross_move_quote_reference": 3.5270243162850434,
+                "modeled_cost_adjusted_reference": -11.413639312944369
+              },
+              {
+                "anchor_ms": 1791851640000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81228.9,
+                "forward_close": 81512.2,
+                "gross_return": 0.0034876749531262963,
+                "gross_move_quote_reference": 3.4876749531262963,
+                "modeled_cost_adjusted_reference": -11.452402836773734
+              },
+              {
+                "anchor_ms": 1791851700000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81384.1,
+                "forward_close": 81435.9,
+                "gross_return": 0.0006364879626363784,
+                "gross_move_quote_reference": 0.6364879626363784,
+                "modeled_cost_adjusted_reference": -14.261140919823557
+              },
+              {
+                "anchor_ms": 1791851880000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81544.8,
+                "forward_close": 81412.2,
+                "gross_return": -0.0016261000088295674,
+                "gross_move_quote_reference": -1.6261000088295674,
+                "modeled_cost_adjusted_reference": -16.49004313595437
+              },
+              {
+                "anchor_ms": 1791852300000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81342.0,
+                "forward_close": 81266.1,
+                "gross_return": -0.0009330972929113557,
+                "gross_move_quote_reference": -0.9330972929113557,
+                "modeled_cost_adjusted_reference": -15.807357950328615
+              },
+              {
+                "anchor_ms": 1791852480000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81261.9,
+                "forward_close": 81073.5,
+                "gross_return": -0.0023184296699928497,
+                "gross_move_quote_reference": -2.3184296699928497,
+                "modeled_cost_adjusted_reference": -17.172065287367253
+              },
+              {
+                "anchor_ms": 1791852540000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81200.4,
+                "forward_close": 81240.8,
+                "gross_return": 0.0004975344949040839,
+                "gross_move_quote_reference": 0.49753449490408386,
+                "modeled_cost_adjusted_reference": -14.398025627102573
+              },
+              {
+                "anchor_ms": 1791852660000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81132.2,
+                "forward_close": 81443.0,
+                "gross_return": 0.0038307848178651405,
+                "gross_move_quote_reference": 3.8307848178651405,
+                "modeled_cost_adjusted_reference": -11.114401244112004
+              },
+              {
+                "anchor_ms": 1791852720000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81116.6,
+                "forward_close": 81312.0,
+                "gross_return": 0.0024088780841404756,
+                "gross_move_quote_reference": 2.4088780841404756,
+                "modeled_cost_adjusted_reference": -12.515138413185301
+              },
+              {
+                "anchor_ms": 1791852780000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81073.5,
+                "forward_close": 81330.0,
+                "gross_return": 0.0031637958149086653,
+                "gross_move_quote_reference": 3.1637958149086653,
+                "modeled_cost_adjusted_reference": -11.771460012908296
+              },
+              {
+                "anchor_ms": 1791852840000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81240.9,
+                "forward_close": 81386.7,
+                "gross_return": 0.001794662540666181,
+                "gross_move_quote_reference": 1.794662540666181,
+                "modeled_cost_adjusted_reference": -13.120209421825347
+              },
+              {
+                "anchor_ms": 1791853080000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81330.0,
+                "forward_close": 81564.9,
+                "gross_return": 0.0028882331243083037,
+                "gross_move_quote_reference": 2.8882331243083037,
+                "modeled_cost_adjusted_reference": -12.042920084078258
+              },
+              {
+                "anchor_ms": 1791853740000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81606.2,
+                "forward_close": 81808.5,
+                "gross_return": 0.0024789783129224308,
+                "gross_move_quote_reference": 2.4789783129224308,
+                "modeled_cost_adjusted_reference": -12.446081847317325
+              }
+            ]
+          },
+          "15": {
+            "events": {
+              "observations": 17,
+              "observed": 17,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 13,
+              "price_declines": 4,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0020900863310706294,
+              "median_gross_return": 0.001815679052894703,
+              "worst_gross_return": -0.0057796450540071875,
+              "best_gross_return": 0.006637187243674125,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0010439521904335564,
+              "mean_modeled_cost_adjusted_quote_reference": -12.829183945939198,
+              "positive_cost_adjusted_references": 0
+            },
+            "unconditioned": {
+              "observations": 121,
+              "observed": 110,
+              "immature": 11,
+              "unknown_price": 0,
+              "price_rebounds": 82,
+              "price_declines": 28,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0016471003619970982,
+              "median_gross_return": 0.0017171511033132747,
+              "worst_gross_return": -0.0057796450540071875,
+              "best_gross_return": 0.007624167199274723,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0008228725041987774,
+              "mean_modeled_cost_adjusted_quote_reference": -13.265574672237959,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_minus_unconditioned_mean": 0.0004429859690735312,
+            "spaced_event_sensitivity": {
+              "observations": 4,
+              "observed": 4,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 3,
+              "price_declines": 1,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0019787569950452943,
+              "median_gross_return": 0.001880319735660163,
+              "worst_gross_return": -0.0006601966574624196,
+              "best_gross_return": 0.004814585166323271,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0009884005952267912,
+              "mean_modeled_cost_adjusted_quote_reference": -12.938855793803967,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_observations": [
+              {
+                "anchor_ms": 1791850020000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81364.9,
+                "forward_close": 81367.5,
+                "gross_return": 3.195481098128283e-05,
+                "gross_move_quote_reference": 0.03195481098128283,
+                "modeled_cost_adjusted_reference": -14.856673689572887
+              },
+              {
+                "anchor_ms": 1791850080000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81358.8,
+                "forward_close": 81394.0,
+                "gross_return": 0.0004326514157042549,
+                "gross_move_quote_reference": 0.4326514157042549,
+                "modeled_cost_adjusted_reference": -14.461942717108434
+              },
+              {
+                "anchor_ms": 1791850140000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81291.9,
+                "forward_close": 81439.5,
+                "gross_return": 0.001815679052894703,
+                "gross_move_quote_reference": 1.815679052894703,
+                "modeled_cost_adjusted_reference": -13.099505806641432
+              },
+              {
+                "anchor_ms": 1791851460000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81339.4,
+                "forward_close": 81285.7,
+                "gross_return": -0.0006601966574624196,
+                "gross_move_quote_reference": -0.6601966574624196,
+                "modeled_cost_adjusted_reference": -15.538520301226487
+              },
+              {
+                "anchor_ms": 1791851580000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81258.3,
+                "forward_close": 81261.9,
+                "gross_return": 4.430316656867106e-05,
+                "gross_move_quote_reference": 0.04430316656867106,
+                "modeled_cost_adjusted_reference": -14.844509178189803
+              },
+              {
+                "anchor_ms": 1791851640000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81228.9,
+                "forward_close": 81200.4,
+                "gross_return": -0.0003508603465023352,
+                "gross_move_quote_reference": -0.3508603465023352,
+                "modeled_cost_adjusted_reference": -15.233789436515766
+              },
+              {
+                "anchor_ms": 1791851700000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81384.1,
+                "forward_close": 81266.1,
+                "gross_return": -0.0014499146639208593,
+                "gross_move_quote_reference": -1.4499146639208593,
+                "modeled_cost_adjusted_reference": -16.316480865373407
+              },
+              {
+                "anchor_ms": 1791851880000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81544.8,
+                "forward_close": 81073.5,
+                "gross_return": -0.0057796450540071875,
+                "gross_move_quote_reference": -5.7796450540071875,
+                "modeled_cost_adjusted_reference": -20.581749568035157
+              },
+              {
+                "anchor_ms": 1791852300000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81342.0,
+                "forward_close": 81403.4,
+                "gross_return": 0.0007548375992720846,
+                "gross_move_quote_reference": 0.7548375992720846,
+                "modeled_cost_adjusted_reference": -14.144553290656114
+              },
+              {
+                "anchor_ms": 1791852480000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81261.9,
+                "forward_close": 81564.9,
+                "gross_return": 0.0037286846603390433,
+                "gross_move_quote_reference": 3.7286846603390433,
+                "modeled_cost_adjusted_reference": -11.214981318896978
+              },
+              {
+                "anchor_ms": 1791852540000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81200.4,
+                "forward_close": 81517.0,
+                "gross_return": 0.0038989955714505697,
+                "gross_move_quote_reference": 3.8989955714505697,
+                "modeled_cost_adjusted_reference": -11.047206022645305
+              },
+              {
+                "anchor_ms": 1791852660000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81132.2,
+                "forward_close": 81594.8,
+                "gross_return": 0.005701805201880461,
+                "gross_move_quote_reference": 5.701805201880461,
+                "modeled_cost_adjusted_reference": -9.271236897376745
+              },
+              {
+                "anchor_ms": 1791852720000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81116.6,
+                "forward_close": 81600.7,
+                "gross_return": 0.005967952305693247,
+                "gross_move_quote_reference": 5.967952305693247,
+                "modeled_cost_adjusted_reference": -9.009052232300196
+              },
+              {
+                "anchor_ms": 1791852780000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81073.5,
+                "forward_close": 81611.6,
+                "gross_return": 0.006637187243674125,
+                "gross_move_quote_reference": 6.637187243674125,
+                "modeled_cost_adjusted_reference": -8.349780966303344
+              },
+              {
+                "anchor_ms": 1791852840000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81240.9,
+                "forward_close": 81606.2,
+                "gross_return": 0.004496503608404145,
+                "gross_move_quote_reference": 4.496503608404145,
+                "modeled_cost_adjusted_reference": -10.45859377661673
+              },
+              {
+                "anchor_ms": 1791853080000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81330.0,
+                "forward_close": 81773.0,
+                "gross_return": 0.005446944546907639,
+                "gross_move_quote_reference": 5.446944546907639,
+                "modeled_cost_adjusted_reference": -9.522303147988076
+              },
+              {
+                "anchor_ms": 1791853740000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 81606.2,
+                "forward_close": 81999.1,
+                "gross_return": 0.004814585166323271,
+                "gross_move_quote_reference": 4.814585166323271,
+                "modeled_cost_adjusted_reference": -10.145247865519513
+              }
+            ]
+          }
+        }
+      }
+    },
+    "ETH": {
+      "sell_minute_anchors": [
+        1791850020000,
+        1791850080000,
+        1791850140000,
+        1791850800000,
+        1791851460000,
+        1791851580000,
+        1791851640000,
+        1791851700000,
+        1791852180000,
+        1791852360000,
+        1791852420000,
+        1791852480000,
+        1791852540000,
+        1791852660000,
+        1791852720000,
+        1791852780000,
+        1791854760000
+      ],
+      "spaced_minute_anchors": [
+        1791850020000,
+        1791851460000,
+        1791852360000,
+        1791854760000
+      ],
+      "baseline_first_anchor": 1791850020000,
+      "baseline_last_anchor": 1791857220000,
+      "markets": {
+        "spot": {
+          "1": {
+            "events": {
+              "observations": 17,
+              "observed": 17,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 8,
+              "price_declines": 9,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.000460701918535174,
+              "median_gross_return": -0.00013241361046401057,
+              "worst_gross_return": -0.0013280267255069145,
+              "best_gross_return": 0.004213303122144296,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0002302979099231189,
+              "mean_modeled_cost_adjusted_quote_reference": -14.434309834448346,
+              "positive_cost_adjusted_references": 0
+            },
+            "unconditioned": {
+              "observations": 121,
+              "observed": 121,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 67,
+              "price_declines": 53,
+              "price_unchanged": 1,
+              "mean_gross_return": 0.00015299305099510324,
+              "median_gross_return": 5.683640452902594e-05,
+              "worst_gross_return": -0.0024738799508522424,
+              "best_gross_return": 0.00480968163512796,
+              "mathematical_break_even_fee_per_side_without_adverse": 7.649067422674031e-05,
+              "mean_modeled_cost_adjusted_quote_reference": -14.737437485365206,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_minus_unconditioned_mean": 0.0003077088675400708,
+            "spaced_event_sensitivity": {
+              "observations": 4,
+              "observed": 4,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 0,
+              "price_declines": 4,
+              "price_unchanged": 0,
+              "mean_gross_return": -0.0006890777625220834,
+              "median_gross_return": -0.0005138348868000131,
+              "worst_gross_return": -0.0013280267255069145,
+              "best_gross_return": -0.000400614550981393,
+              "mathematical_break_even_fee_per_side_without_adverse": null,
+              "mean_modeled_cost_adjusted_quote_reference": -15.566971419982313,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_observations": [
+              {
+                "anchor_ms": 1791850020000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2421.96,
+                "forward_close": 2420.5,
+                "gross_return": -0.0006028175527259538,
+                "gross_move_quote_reference": -0.6028175527259538,
+                "modeled_cost_adjusted_reference": -15.481995465366104
+              },
+              {
+                "anchor_ms": 1791850080000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.88,
+                "forward_close": 2418.53,
+                "gross_return": -0.0009707213905686407,
+                "gross_move_quote_reference": -0.9707213905686407,
+                "modeled_cost_adjusted_reference": -15.844421894672944
+              },
+              {
+                "anchor_ms": 1791850140000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2418.53,
+                "forward_close": 2428.72,
+                "gross_return": 0.004213303122144296,
+                "gross_move_quote_reference": 4.213303122144296,
+                "modeled_cost_adjusted_reference": -10.737577930777453
+              },
+              {
+                "anchor_ms": 1791850800000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2425.0,
+                "forward_close": 2425.09,
+                "gross_return": 3.71134020618058e-05,
+                "gross_move_quote_reference": 0.0371134020618058,
+                "modeled_cost_adjusted_reference": -14.851591900384097
+              },
+              {
+                "anchor_ms": 1791851460000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2421.28,
+                "forward_close": 2420.31,
+                "gross_return": -0.000400614550981393,
+                "gross_move_quote_reference": -0.400614550981393,
+                "modeled_cost_adjusted_reference": -15.282802892798596
+              },
+              {
+                "anchor_ms": 1791851580000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.56,
+                "forward_close": 2418.94,
+                "gross_return": -0.0006692666159896499,
+                "gross_move_quote_reference": -0.6692666159896499,
+                "modeled_cost_adjusted_reference": -15.54745522482548
+              },
+              {
+                "anchor_ms": 1791851640000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2418.94,
+                "forward_close": 2427.27,
+                "gross_return": 0.0034436571390774606,
+                "gross_move_quote_reference": 3.4436571390774606,
+                "modeled_cost_adjusted_reference": -11.495765306883342
+              },
+              {
+                "anchor_ms": 1791851700000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2427.28,
+                "forward_close": 2433.08,
+                "gross_return": 0.002389505949045745,
+                "gross_move_quote_reference": 2.389505949045745,
+                "modeled_cost_adjusted_reference": -12.534222132973504
+              },
+              {
+                "anchor_ms": 1791852180000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2427.4,
+                "forward_close": 2429.25,
+                "gross_return": 0.0007621323226496557,
+                "gross_move_quote_reference": 0.7621323226496557,
+                "modeled_cost_adjusted_reference": -14.137367172234573
+              },
+              {
+                "anchor_ms": 1791852360000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2424.65,
+                "forward_close": 2421.43,
+                "gross_return": -0.0013280267255069145,
+                "gross_move_quote_reference": -1.3280267255069145,
+                "modeled_cost_adjusted_reference": -16.196407613205068
+              },
+              {
+                "anchor_ms": 1791852420000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2421.44,
+                "forward_close": 2421.84,
+                "gross_return": 0.00016519096075073847,
+                "gross_move_quote_reference": 0.16519096075073847,
+                "modeled_cost_adjusted_reference": -14.725421179953347
+              },
+              {
+                "anchor_ms": 1791852480000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2421.59,
+                "forward_close": 2420.51,
+                "gross_return": -0.00044598796658390505,
+                "gross_move_quote_reference": -0.44598796658390505,
+                "modeled_cost_adjusted_reference": -15.327500782058578
+              },
+              {
+                "anchor_ms": 1791852540000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.52,
+                "forward_close": 2422.66,
+                "gross_return": 0.000884107547138635,
+                "gross_move_quote_reference": 0.884107547138635,
+                "modeled_cost_adjusted_reference": -14.017207933520016
+              },
+              {
+                "anchor_ms": 1791852660000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2416.67,
+                "forward_close": 2416.35,
+                "gross_return": -0.00013241361046401057,
+                "gross_move_quote_reference": -0.13241361046401057,
+                "modeled_cost_adjusted_reference": -15.01859496885194
+              },
+              {
+                "anchor_ms": 1791852720000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2416.23,
+                "forward_close": 2414.42,
+                "gross_return": -0.0007491008720196257,
+                "gross_move_quote_reference": -0.7491008720196257,
+                "modeled_cost_adjusted_reference": -15.626100896257045
+              },
+              {
+                "anchor_ms": 1791852780000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2414.61,
+                "forward_close": 2418.62,
+                "gross_return": 0.0016607236779437873,
+                "gross_move_quote_reference": 1.6607236779437873,
+                "modeled_cost_adjusted_reference": -13.252154182300302
+              },
+              {
+                "anchor_ms": 1791854760000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2447.91,
+                "forward_close": 2446.87,
+                "gross_return": -0.00042485222087407237,
+                "gross_move_quote_reference": -0.4248522208740724,
+                "modeled_cost_adjusted_reference": -15.306679708559479
+              }
+            ]
+          },
+          "5": {
+            "events": {
+              "observations": 17,
+              "observed": 17,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 12,
+              "price_declines": 5,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.001821009744987824,
+              "median_gross_return": 0.0018015368212067617,
+              "worst_gross_return": -0.0032870723609593755,
+              "best_gross_return": 0.0056760399183113375,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.00090967660751038,
+              "mean_modeled_cost_adjusted_quote_reference": -13.094254478706295,
+              "positive_cost_adjusted_references": 0
+            },
+            "unconditioned": {
+              "observations": 121,
+              "observed": 120,
+              "immature": 1,
+              "unknown_price": 0,
+              "price_rebounds": 76,
+              "price_declines": 43,
+              "price_unchanged": 1,
+              "mean_gross_return": 0.0007401670035973057,
+              "median_gross_return": 0.0007014161803985397,
+              "worst_gross_return": -0.0036314285126772816,
+              "best_gross_return": 0.00678954860783465,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0003699465906688997,
+              "mean_modeled_cost_adjusted_quote_reference": -14.159005468261594,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_minus_unconditioned_mean": 0.0010808427413905182,
+            "spaced_event_sensitivity": {
+              "observations": 4,
+              "observed": 4,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 3,
+              "price_declines": 1,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.002110419483990905,
+              "median_gross_return": 0.0033374960918297614,
+              "worst_gross_return": -0.0032870723609593755,
+              "best_gross_return": 0.0050537581132634735,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.001054097448099206,
+              "mean_modeled_cost_adjusted_quote_reference": -12.809153516105509,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_observations": [
+              {
+                "anchor_ms": 1791850020000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2421.96,
+                "forward_close": 2434.2,
+                "gross_return": 0.0050537581132634735,
+                "gross_move_quote_reference": 5.0537581132634735,
+                "modeled_cost_adjusted_reference": -9.909635761947587
+              },
+              {
+                "anchor_ms": 1791850080000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.88,
+                "forward_close": 2431.81,
+                "gross_return": 0.004514887148474811,
+                "gross_move_quote_reference": 4.514887148474811,
+                "modeled_cost_adjusted_reference": -10.440483933498612
+              },
+              {
+                "anchor_ms": 1791850140000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2418.53,
+                "forward_close": 2431.76,
+                "gross_return": 0.005470264995679264,
+                "gross_move_quote_reference": 5.470264995679264,
+                "modeled_cost_adjusted_reference": -9.499329897619923
+              },
+              {
+                "anchor_ms": 1791850800000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2425.0,
+                "forward_close": 2427.9,
+                "gross_return": 0.001195876288659914,
+                "gross_move_quote_reference": 1.195876288659914,
+                "modeled_cost_adjusted_reference": -13.7100808526458
+              },
+              {
+                "anchor_ms": 1791851460000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2421.28,
+                "forward_close": 2433.08,
+                "gross_return": 0.004873455362452761,
+                "gross_move_quote_reference": 4.873455362452761,
+                "modeled_cost_adjusted_reference": -10.087254137862821
+              },
+              {
+                "anchor_ms": 1791851580000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.56,
+                "forward_close": 2433.81,
+                "gross_return": 0.005473939914730552,
+                "gross_move_quote_reference": 5.473939914730552,
+                "modeled_cost_adjusted_reference": -9.495709691324627
+              },
+              {
+                "anchor_ms": 1791851640000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2418.94,
+                "forward_close": 2432.67,
+                "gross_return": 0.0056760399183113375,
+                "gross_move_quote_reference": 5.6760399183113375,
+                "modeled_cost_adjusted_reference": -9.296618583468641
+              },
+              {
+                "anchor_ms": 1791851700000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2427.28,
+                "forward_close": 2429.93,
+                "gross_return": 0.0010917570284432188,
+                "gross_move_quote_reference": 1.0917570284432188,
+                "modeled_cost_adjusted_reference": -13.812649969411561
+              },
+              {
+                "anchor_ms": 1791852180000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2427.4,
+                "forward_close": 2421.84,
+                "gross_return": -0.0022905166021257584,
+                "gross_move_quote_reference": -2.2905166021257584,
+                "modeled_cost_adjusted_reference": -17.144567793518362
+              },
+              {
+                "anchor_ms": 1791852360000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2424.65,
+                "forward_close": 2416.68,
+                "gross_return": -0.0032870723609593755,
+                "gross_move_quote_reference": -3.2870723609593755,
+                "modeled_cost_adjusted_reference": -18.1262866779881
+              },
+              {
+                "anchor_ms": 1791852420000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2421.44,
+                "forward_close": 2416.35,
+                "gross_return": -0.002102054975551826,
+                "gross_move_quote_reference": -2.102054975551826,
+                "modeled_cost_adjusted_reference": -16.95891201242872
+              },
+              {
+                "anchor_ms": 1791852480000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2421.59,
+                "forward_close": 2414.42,
+                "gross_return": -0.002960864555932252,
+                "gross_move_quote_reference": -2.960864555932252,
+                "modeled_cost_adjusted_reference": -17.804935504591278
+              },
+              {
+                "anchor_ms": 1791852540000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.52,
+                "forward_close": 2418.62,
+                "gross_return": -0.0007849552988614672,
+                "gross_move_quote_reference": -0.7849552988614672,
+                "modeled_cost_adjusted_reference": -15.661421516915407
+              },
+              {
+                "anchor_ms": 1791852660000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2416.67,
+                "forward_close": 2425.58,
+                "gross_return": 0.00368689146635659,
+                "gross_move_quote_reference": 3.68689146635659,
+                "modeled_cost_adjusted_reference": -11.256152289423337
+              },
+              {
+                "anchor_ms": 1791852720000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2416.23,
+                "forward_close": 2419.34,
+                "gross_return": 0.001287129122641506,
+                "gross_move_quote_reference": 1.287129122641506,
+                "modeled_cost_adjusted_reference": -13.620186604795581
+              },
+              {
+                "anchor_ms": 1791852780000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2414.61,
+                "forward_close": 2420.06,
+                "gross_return": 0.002257093278003497,
+                "gross_move_quote_reference": 2.257093278003497,
+                "modeled_cost_adjusted_reference": -12.664663423943123
+              },
+              {
+                "anchor_ms": 1791854760000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2447.91,
+                "forward_close": 2452.32,
+                "gross_return": 0.0018015368212067617,
+                "gross_move_quote_reference": 1.8015368212067617,
+                "modeled_cost_adjusted_reference": -13.113437486623525
+              }
+            ]
+          },
+          "15": {
+            "events": {
+              "observations": 17,
+              "observed": 17,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 15,
+              "price_declines": 2,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0022492110072967705,
+              "median_gross_return": 0.0014248661864797452,
+              "worst_gross_return": -0.0030238114855400955,
+              "best_gross_return": 0.007433912722965452,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0011233421868425816,
+              "mean_modeled_cost_adjusted_quote_reference": -12.672428342199394,
+              "positive_cost_adjusted_references": 0
+            },
+            "unconditioned": {
+              "observations": 121,
+              "observed": 110,
+              "immature": 11,
+              "unknown_price": 0,
+              "price_rebounds": 89,
+              "price_declines": 21,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0021067306551504,
+              "median_gross_return": 0.0021985684851644205,
+              "worst_gross_return": -0.007966932505002355,
+              "best_gross_return": 0.010025681548794907,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0010522569166235274,
+              "mean_modeled_cost_adjusted_quote_reference": -12.812787425098756,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_minus_unconditioned_mean": 0.0001424803521463706,
+            "spaced_event_sensitivity": {
+              "observations": 4,
+              "observed": 4,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 4,
+              "price_declines": 0,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0015816811696053867,
+              "median_gross_return": 0.0009291996789804191,
+              "worst_gross_return": 0.0003464417544798426,
+              "best_gross_return": 0.004121883565980866,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0007902156501957723,
+              "mean_modeled_cost_adjusted_quote_reference": -13.330019893700417,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_observations": [
+              {
+                "anchor_ms": 1791850020000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2421.96,
+                "forward_close": 2423.01,
+                "gross_return": 0.00043353317148109305,
+                "gross_move_quote_reference": 0.43353317148109305,
+                "modeled_cost_adjusted_reference": -14.461074089046289
+              },
+              {
+                "anchor_ms": 1791850080000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.88,
+                "forward_close": 2423.97,
+                "gross_return": 0.0012763953603647238,
+                "gross_move_quote_reference": 1.2763953603647238,
+                "modeled_cost_adjusted_reference": -13.630760561179954
+              },
+              {
+                "anchor_ms": 1791850140000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2418.53,
+                "forward_close": 2425.65,
+                "gross_return": 0.0029439370195945003,
+                "gross_move_quote_reference": 2.9439370195945003,
+                "modeled_cost_adjusted_reference": -11.98804551689381
+              },
+              {
+                "anchor_ms": 1791850800000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2425.0,
+                "forward_close": 2427.27,
+                "gross_return": 0.0009360824742268292,
+                "gross_move_quote_reference": 0.9360824742268292,
+                "modeled_cost_adjusted_reference": -13.966006817085486
+              },
+              {
+                "anchor_ms": 1791851460000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2421.28,
+                "forward_close": 2424.73,
+                "gross_return": 0.0014248661864797452,
+                "gross_move_quote_reference": 1.4248661864797452,
+                "modeled_cost_adjusted_reference": -13.484500191403459
+              },
+              {
+                "anchor_ms": 1791851580000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.56,
+                "forward_close": 2421.84,
+                "gross_return": 0.0005288032521399977,
+                "gross_move_quote_reference": 0.5288032521399977,
+                "modeled_cost_adjusted_reference": -14.367222403900758
+              },
+              {
+                "anchor_ms": 1791851640000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2418.94,
+                "forward_close": 2420.51,
+                "gross_return": 0.0006490446228513136,
+                "gross_move_quote_reference": 0.6490446228513136,
+                "modeled_cost_adjusted_reference": -14.248771205083832
+              },
+              {
+                "anchor_ms": 1791851700000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2427.28,
+                "forward_close": 2422.66,
+                "gross_return": -0.00190336508355049,
+                "gross_move_quote_reference": -1.90336508355049,
+                "modeled_cost_adjusted_reference": -16.763180245889743
+              },
+              {
+                "anchor_ms": 1791852180000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2427.4,
+                "forward_close": 2420.06,
+                "gross_return": -0.0030238114855400955,
+                "gross_move_quote_reference": -3.0238114855400955,
+                "modeled_cost_adjusted_reference": -17.86694527069599
+              },
+              {
+                "anchor_ms": 1791852360000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2424.65,
+                "forward_close": 2425.49,
+                "gross_return": 0.0003464417544798426,
+                "gross_move_quote_reference": 0.3464417544798426,
+                "modeled_cost_adjusted_reference": -14.546868875727647
+              },
+              {
+                "anchor_ms": 1791852420000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2421.44,
+                "forward_close": 2426.66,
+                "gross_return": 0.0021557420377955605,
+                "gross_move_quote_reference": 2.1557420377955605,
+                "modeled_cost_adjusted_reference": -12.764505731404974
+              },
+              {
+                "anchor_ms": 1791852480000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2421.59,
+                "forward_close": 2430.5,
+                "gross_return": 0.003679400724317494,
+                "gross_move_quote_reference": 3.679400724317494,
+                "modeled_cost_adjusted_reference": -11.263531508150738
+              },
+              {
+                "anchor_ms": 1791852540000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.52,
+                "forward_close": 2429.82,
+                "gross_return": 0.0038421496207428074,
+                "gross_move_quote_reference": 3.8421496207428074,
+                "modeled_cost_adjusted_reference": -11.103205642155833
+              },
+              {
+                "anchor_ms": 1791852660000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2416.67,
+                "forward_close": 2432.51,
+                "gross_return": 0.006554473717967246,
+                "gross_move_quote_reference": 6.554473717967246,
+                "modeled_cost_adjusted_reference": -8.431263040404758
+              },
+              {
+                "anchor_ms": 1791852720000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2416.23,
+                "forward_close": 2432.75,
+                "gross_return": 0.006837097461748209,
+                "gross_move_quote_reference": 6.837097461748209,
+                "modeled_cost_adjusted_reference": -8.152847042092738
+              },
+              {
+                "anchor_ms": 1791852780000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2414.61,
+                "forward_close": 2432.56,
+                "gross_return": 0.007433912722965452,
+                "gross_move_quote_reference": 7.433912722965452,
+                "modeled_cost_adjusted_reference": -7.564917257649406
+              },
+              {
+                "anchor_ms": 1791854760000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2447.91,
+                "forward_close": 2458.0,
+                "gross_return": 0.004121883565980866,
+                "gross_move_quote_reference": 4.121883565980866,
+                "modeled_cost_adjusted_reference": -10.827636418624277
+              }
+            ]
+          }
+        },
+        "perpetual": {
+          "1": {
+            "events": {
+              "observations": 17,
+              "observed": 17,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 8,
+              "price_declines": 9,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0004791471397734053,
+              "median_gross_return": -7.452860656342875e-05,
+              "worst_gross_return": -0.001312319710794374,
+              "best_gross_return": 0.004435121862420122,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.00023951618813846463,
+              "mean_modeled_cost_adjusted_quote_reference": -14.416139228481466,
+              "positive_cost_adjusted_references": 0
+            },
+            "unconditioned": {
+              "observations": 121,
+              "observed": 121,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 62,
+              "price_declines": 58,
+              "price_unchanged": 1,
+              "mean_gross_return": 0.0001504842170056782,
+              "median_gross_return": 3.65569821805245e-05,
+              "worst_gross_return": -0.0025452010378810286,
+              "best_gross_return": 0.004890105836155012,
+              "mathematical_break_even_fee_per_side_without_adverse": 7.523644755388888e-05,
+              "mean_modeled_cost_adjusted_quote_reference": -14.739908967450965,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_minus_unconditioned_mean": 0.0003286629227677271,
+            "spaced_event_sensitivity": {
+              "observations": 4,
+              "observed": 4,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 0,
+              "price_declines": 4,
+              "price_unchanged": 0,
+              "mean_gross_return": -0.0007149326021284597,
+              "median_gross_return": -0.0005299228359165742,
+              "worst_gross_return": -0.001312319710794374,
+              "best_gross_return": -0.00048756502588631623,
+              "mathematical_break_even_fee_per_side_without_adverse": null,
+              "mean_modeled_cost_adjusted_quote_reference": -15.592441328787343,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_observations": [
+              {
+                "anchor_ms": 1791850020000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.41,
+                "forward_close": 2419.21,
+                "gross_return": -0.0004957837721707437,
+                "gross_move_quote_reference": -0.49578377217074365,
+                "modeled_cost_adjusted_reference": -15.37655522008552
+              },
+              {
+                "anchor_ms": 1791850080000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2419.21,
+                "forward_close": 2417.07,
+                "gross_return": -0.0008845862905658697,
+                "gross_move_quote_reference": -0.8845862905658697,
+                "modeled_cost_adjusted_reference": -15.759569187196343
+              },
+              {
+                "anchor_ms": 1791850140000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2417.07,
+                "forward_close": 2427.79,
+                "gross_return": 0.004435121862420122,
+                "gross_move_quote_reference": 4.435121862420122,
+                "modeled_cost_adjusted_reference": -10.519061661790285
+              },
+              {
+                "anchor_ms": 1791850800000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2423.84,
+                "forward_close": 2424.07,
+                "gross_return": 9.489075186475127e-05,
+                "gross_move_quote_reference": 0.09489075186475127,
+                "modeled_cost_adjusted_reference": -14.794674748590865
+              },
+              {
+                "anchor_ms": 1791851460000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.19,
+                "forward_close": 2419.01,
+                "gross_return": -0.00048756502588631623,
+                "gross_move_quote_reference": -0.48756502588631623,
+                "modeled_cost_adjusted_reference": -15.36845883575133
+              },
+              {
+                "anchor_ms": 1791851580000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2419.2,
+                "forward_close": 2417.53,
+                "gross_return": -0.0006903108465606822,
+                "gross_move_quote_reference": -0.6903108465606822,
+                "modeled_cost_adjusted_reference": -15.568186145677343
+              },
+              {
+                "anchor_ms": 1791851640000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2417.52,
+                "forward_close": 2426.06,
+                "gross_return": 0.003532545749362903,
+                "gross_move_quote_reference": 3.532545749362903,
+                "modeled_cost_adjusted_reference": -11.408200083805497
+              },
+              {
+                "anchor_ms": 1791851700000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2426.07,
+                "forward_close": 2431.84,
+                "gross_return": 0.0023783320349370918,
+                "gross_move_quote_reference": 2.3783320349370918,
+                "modeled_cost_adjusted_reference": -12.5452296881422
+              },
+              {
+                "anchor_ms": 1791852180000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2426.24,
+                "forward_close": 2427.54,
+                "gross_return": 0.0005358084938011931,
+                "gross_move_quote_reference": 0.5358084938011931,
+                "modeled_cost_adjusted_reference": -14.360321457347446
+              },
+              {
+                "anchor_ms": 1791852360000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2423.19,
+                "forward_close": 2420.01,
+                "gross_return": -0.001312319710794374,
+                "gross_move_quote_reference": -1.312319710794374,
+                "modeled_cost_adjusted_reference": -16.180934446927033
+              },
+              {
+                "anchor_ms": 1791852420000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.01,
+                "forward_close": 2420.35,
+                "gross_return": 0.00014049528720949667,
+                "gross_move_quote_reference": 0.14049528720949667,
+                "modeled_cost_adjusted_reference": -14.749749180534621
+              },
+              {
+                "anchor_ms": 1791852480000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.35,
+                "forward_close": 2419.11,
+                "gross_return": -0.0005123225979712931,
+                "gross_move_quote_reference": -0.5123225979712931,
+                "modeled_cost_adjusted_reference": -15.392847813321175
+              },
+              {
+                "anchor_ms": 1791852540000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2419.11,
+                "forward_close": 2421.23,
+                "gross_return": 0.0008763553538284619,
+                "gross_move_quote_reference": 0.8763553538284619,
+                "modeled_cost_adjusted_reference": -14.024844710991857
+              },
+              {
+                "anchor_ms": 1791852660000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2415.18,
+                "forward_close": 2415.0,
+                "gross_return": -7.452860656342875e-05,
+                "gross_move_quote_reference": -0.07452860656342875,
+                "modeled_cost_adjusted_reference": -14.96157176573143
+              },
+              {
+                "anchor_ms": 1791852720000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2415.0,
+                "forward_close": 2413.06,
+                "gross_return": -0.0008033126293995885,
+                "gross_move_quote_reference": -0.8033126293995885,
+                "modeled_cost_adjusted_reference": -15.67950554071218
+              },
+              {
+                "anchor_ms": 1791852780000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2413.06,
+                "forward_close": 2417.83,
+                "gross_return": 0.0019767432222985715,
+                "gross_move_quote_reference": 1.9767432222985715,
+                "modeled_cost_adjusted_reference": -12.940839585194318
+              },
+              {
+                "anchor_ms": 1791854760000,
+                "horizon_minutes": 1,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2446.54,
+                "forward_close": 2445.16,
+                "gross_return": -0.0005640618996624047,
+                "gross_move_quote_reference": -0.5640618996624047,
+                "modeled_cost_adjusted_reference": -15.443816812385492
+              }
+            ]
+          },
+          "5": {
+            "events": {
+              "observations": 17,
+              "observed": 17,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 12,
+              "price_declines": 5,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0018304275723067221,
+              "median_gross_return": 0.0018107204460175996,
+              "worst_gross_return": -0.00330556002624649,
+              "best_gross_return": 0.0056793739038354385,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0009143769357759981,
+              "mean_modeled_cost_adjusted_quote_reference": -13.084976865439131,
+              "positive_cost_adjusted_references": 0
+            },
+            "unconditioned": {
+              "observations": 121,
+              "observed": 120,
+              "immature": 1,
+              "unknown_price": 0,
+              "price_rebounds": 75,
+              "price_declines": 44,
+              "price_unchanged": 1,
+              "mean_gross_return": 0.0007381933839851594,
+              "median_gross_return": 0.0006509374784144928,
+              "worst_gross_return": -0.003629256249357171,
+              "best_gross_return": 0.006645595599704457,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0003689605098889038,
+              "mean_modeled_cost_adjusted_quote_reference": -14.160949704323503,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_minus_unconditioned_mean": 0.0010922341883215629,
+            "spaced_event_sensitivity": {
+              "observations": 4,
+              "observed": 4,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 3,
+              "price_declines": 1,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.002110482763187066,
+              "median_gross_return": 0.003312196049948035,
+              "worst_gross_return": -0.00330556002624649,
+              "best_gross_return": 0.005123098979098684,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0010541290210290045,
+              "mean_modeled_cost_adjusted_quote_reference": -12.809091179019655,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_observations": [
+              {
+                "anchor_ms": 1791850020000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.41,
+                "forward_close": 2432.81,
+                "gross_return": 0.005123098979098684,
+                "gross_move_quote_reference": 5.123098979098684,
+                "modeled_cost_adjusted_reference": -9.841327253514942
+              },
+              {
+                "anchor_ms": 1791850080000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2419.21,
+                "forward_close": 2430.33,
+                "gross_return": 0.004596541846305202,
+                "gross_move_quote_reference": 4.596541846305202,
+                "modeled_cost_adjusted_reference": -10.360044923282796
+              },
+              {
+                "anchor_ms": 1791850140000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2417.07,
+                "forward_close": 2430.26,
+                "gross_return": 0.005457020276615987,
+                "gross_move_quote_reference": 5.457020276615987,
+                "modeled_cost_adjusted_reference": -9.512377427282503
+              },
+              {
+                "anchor_ms": 1791850800000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2423.84,
+                "forward_close": 2426.87,
+                "gross_return": 0.0012500825136971816,
+                "gross_move_quote_reference": 1.2500825136971816,
+                "modeled_cost_adjusted_reference": -13.656681658167024
+              },
+              {
+                "anchor_ms": 1791851460000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.19,
+                "forward_close": 2431.84,
+                "gross_return": 0.004813671653878471,
+                "gross_move_quote_reference": 4.813671653878471,
+                "modeled_cost_adjusted_reference": -10.14614777745182
+              },
+              {
+                "anchor_ms": 1791851580000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2419.2,
+                "forward_close": 2432.41,
+                "gross_return": 0.005460482804232836,
+                "gross_move_quote_reference": 5.460482804232836,
+                "modeled_cost_adjusted_reference": -9.508966450305634
+              },
+              {
+                "anchor_ms": 1791851640000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2417.52,
+                "forward_close": 2431.25,
+                "gross_return": 0.0056793739038354385,
+                "gross_move_quote_reference": 5.6793739038354385,
+                "modeled_cost_adjusted_reference": -9.293334234830253
+              },
+              {
+                "anchor_ms": 1791851700000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2426.07,
+                "forward_close": 2428.27,
+                "gross_return": 0.0009068163738061852,
+                "gross_move_quote_reference": 0.9068163738061852,
+                "modeled_cost_adjusted_reference": -13.994837199332588
+              },
+              {
+                "anchor_ms": 1791852180000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2426.24,
+                "forward_close": 2420.35,
+                "gross_return": -0.002427624637298842,
+                "gross_move_quote_reference": -2.427624637298842,
+                "modeled_cost_adjusted_reference": -17.279634543320043
+              },
+              {
+                "anchor_ms": 1791852360000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2423.19,
+                "forward_close": 2415.18,
+                "gross_return": -0.00330556002624649,
+                "gross_move_quote_reference": -3.30556002624649,
+                "modeled_cost_adjusted_reference": -18.144499096090282
+              },
+              {
+                "anchor_ms": 1791852420000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.01,
+                "forward_close": 2415.0,
+                "gross_return": -0.002070239379176164,
+                "gross_move_quote_reference": -2.070239379176164,
+                "modeled_cost_adjusted_reference": -16.92757009151191
+              },
+              {
+                "anchor_ms": 1791852480000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.35,
+                "forward_close": 2413.06,
+                "gross_return": -0.003011961080009118,
+                "gross_move_quote_reference": -3.011961080009118,
+                "modeled_cost_adjusted_reference": -17.855271295812546
+              },
+              {
+                "anchor_ms": 1791852540000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2419.11,
+                "forward_close": 2417.83,
+                "gross_return": -0.0005291202136323836,
+                "gross_move_quote_reference": -0.5291202136323836,
+                "modeled_cost_adjusted_reference": -15.409395343514486
+              },
+              {
+                "anchor_ms": 1791852660000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2415.18,
+                "forward_close": 2424.18,
+                "gross_return": 0.003726430328174324,
+                "gross_move_quote_reference": 3.726430328174324,
+                "modeled_cost_adjusted_reference": -11.21720208822008
+              },
+              {
+                "anchor_ms": 1791852720000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2415.0,
+                "forward_close": 2418.0,
+                "gross_return": 0.001242236024844745,
+                "gross_move_quote_reference": 1.242236024844745,
+                "modeled_cost_adjusted_reference": -13.664411327295012
+              },
+              {
+                "anchor_ms": 1791852780000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2413.06,
+                "forward_close": 2418.84,
+                "gross_return": 0.0023952989150706205,
+                "gross_move_quote_reference": 2.3952989150706205,
+                "modeled_cost_adjusted_reference": -12.528515413511743
+              },
+              {
+                "anchor_ms": 1791854760000,
+                "horizon_minutes": 5,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2446.54,
+                "forward_close": 2450.97,
+                "gross_return": 0.0018107204460175996,
+                "gross_move_quote_reference": 1.8107204460175996,
+                "modeled_cost_adjusted_reference": -13.104390589021575
+              }
+            ]
+          },
+          "15": {
+            "events": {
+              "observations": 17,
+              "observed": 17,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 15,
+              "price_declines": 2,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0022501070627558898,
+              "median_gross_return": 0.0013764824054132152,
+              "worst_gross_return": -0.0030499868108676553,
+              "best_gross_return": 0.00749670542796288,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0011237892083605543,
+              "mean_modeled_cost_adjusted_quote_reference": -12.671545627350818,
+              "positive_cost_adjusted_references": 0
+            },
+            "unconditioned": {
+              "observations": 121,
+              "observed": 110,
+              "immature": 11,
+              "unknown_price": 0,
+              "price_rebounds": 88,
+              "price_declines": 22,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0021115180155463834,
+              "median_gross_return": 0.0022568084627088147,
+              "worst_gross_return": -0.00795099490215434,
+              "best_gross_return": 0.009895567378807035,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.001054645556227197,
+              "mean_modeled_cost_adjusted_quote_reference": -12.808071339655653,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_minus_unconditioned_mean": 0.00013858904720950643,
+            "spaced_event_sensitivity": {
+              "observations": 4,
+              "observed": 4,
+              "immature": 0,
+              "unknown_price": 0,
+              "price_rebounds": 4,
+              "price_declines": 0,
+              "price_unchanged": 0,
+              "mean_gross_return": 0.0015609151155961398,
+              "median_gross_return": 0.0009048615310717212,
+              "worst_gross_return": 0.00033427011501374615,
+              "best_gross_return": 0.004099667285227371,
+              "mathematical_break_even_fee_per_side_without_adverse": 0.0007798489188154397,
+              "mean_modeled_cost_adjusted_quote_reference": -13.350476779525472,
+              "positive_cost_adjusted_references": 0
+            },
+            "event_observations": [
+              {
+                "anchor_ms": 1791850020000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.41,
+                "forward_close": 2421.8,
+                "gross_return": 0.0005742828694312863,
+                "gross_move_quote_reference": 0.5742828694312863,
+                "modeled_cost_adjusted_reference": -14.322419894098658
+              },
+              {
+                "anchor_ms": 1791850080000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2419.21,
+                "forward_close": 2422.54,
+                "gross_return": 0.0013764824054132152,
+                "gross_move_quote_reference": 1.3764824054132152,
+                "modeled_cost_adjusted_reference": -13.53216362734666
+              },
+              {
+                "anchor_ms": 1791850140000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2417.07,
+                "forward_close": 2424.34,
+                "gross_return": 0.003007773874980968,
+                "gross_move_quote_reference": 3.007773874980968,
+                "modeled_cost_adjusted_reference": -11.925159074361758
+              },
+              {
+                "anchor_ms": 1791850800000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2423.84,
+                "forward_close": 2426.06,
+                "gross_return": 0.0009159020397384587,
+                "gross_move_quote_reference": 0.9159020397384587,
+                "modeled_cost_adjusted_reference": -13.98588680218249
+              },
+              {
+                "anchor_ms": 1791851460000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.19,
+                "forward_close": 2423.18,
+                "gross_return": 0.001235440192712156,
+                "gross_move_quote_reference": 1.235440192712156,
+                "modeled_cost_adjusted_reference": -13.671105982040688
+              },
+              {
+                "anchor_ms": 1791851580000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2419.2,
+                "forward_close": 2420.35,
+                "gross_return": 0.00047536375661372254,
+                "gross_move_quote_reference": 0.47536375661372254,
+                "modeled_cost_adjusted_reference": -14.41986628405456
+              },
+              {
+                "anchor_ms": 1791851640000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2417.52,
+                "forward_close": 2419.11,
+                "gross_return": 0.0006576987987689797,
+                "gross_move_quote_reference": 0.6576987987689797,
+                "modeled_cost_adjusted_reference": -14.240245873859081
+              },
+              {
+                "anchor_ms": 1791851700000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2426.07,
+                "forward_close": 2421.23,
+                "gross_return": -0.0019949960223737406,
+                "gross_move_quote_reference": -1.9949960223737406,
+                "modeled_cost_adjusted_reference": -16.853446969299135
+              },
+              {
+                "anchor_ms": 1791852180000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2426.24,
+                "forward_close": 2418.84,
+                "gross_return": -0.0030499868108676553,
+                "gross_move_quote_reference": -3.0499868108676553,
+                "modeled_cost_adjusted_reference": -17.89273089378152
+              },
+              {
+                "anchor_ms": 1791852360000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2423.19,
+                "forward_close": 2424.0,
+                "gross_return": 0.00033427011501374615,
+                "gross_move_quote_reference": 0.33427011501374615,
+                "modeled_cost_adjusted_reference": -14.558859301966208
+              },
+              {
+                "anchor_ms": 1791852420000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.01,
+                "forward_close": 2425.31,
+                "gross_return": 0.0021900735947371075,
+                "gross_move_quote_reference": 2.1900735947371075,
+                "modeled_cost_adjusted_reference": -12.730685307927647
+              },
+              {
+                "anchor_ms": 1791852480000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2420.35,
+                "forward_close": 2429.19,
+                "gross_return": 0.0036523643274732898,
+                "gross_move_quote_reference": 3.6523643274732898,
+                "modeled_cost_adjusted_reference": -11.290165382988771
+              },
+              {
+                "anchor_ms": 1791852540000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2419.11,
+                "forward_close": 2428.36,
+                "gross_return": 0.0038237202938271597,
+                "gross_move_quote_reference": 3.8237202938271597,
+                "modeled_cost_adjusted_reference": -11.121360590437114
+              },
+              {
+                "anchor_ms": 1791852660000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2415.18,
+                "forward_close": 2431.35,
+                "gross_return": 0.0066951531562864375,
+                "gross_move_quote_reference": 6.6951531562864375,
+                "modeled_cost_adjusted_reference": -8.292678059052427
+              },
+              {
+                "anchor_ms": 1791852720000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2415.0,
+                "forward_close": 2431.33,
+                "gross_return": 0.006761904761904747,
+                "gross_move_quote_reference": 6.761904761904747,
+                "modeled_cost_adjusted_reference": -8.226920261535042
+              },
+              {
+                "anchor_ms": 1791852780000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2413.06,
+                "forward_close": 2431.15,
+                "gross_return": 0.00749670542796288,
+                "gross_move_quote_reference": 7.49670542796288,
+                "modeled_cost_adjusted_reference": -7.503059420035818
+              },
+              {
+                "anchor_ms": 1791854760000,
+                "horizon_minutes": 15,
+                "status": "OBSERVED_PRICE_PATH",
+                "reference_open": 2446.54,
+                "forward_close": 2456.57,
+                "gross_return": 0.004099667285227371,
+                "gross_move_quote_reference": 4.099667285227371,
+                "modeled_cost_adjusted_reference": -10.849521939996333
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "joint_sell_minutes": 22,
+  "shared_sell_minutes": 12
+}

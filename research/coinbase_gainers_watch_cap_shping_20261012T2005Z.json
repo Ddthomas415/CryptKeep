@@ -1,0 +1,18 @@
+{
+  "fetched_utc": "2026-10-12T20:06:07.095934+00:00",
+  "http_status": 200,
+  "identity": "specific shping ID and matching symbol",
+  "rows": [
+    {
+      "id": "shping",
+      "symbol": "shping",
+      "name": "Shping",
+      "market_cap": 0.0,
+      "total_volume": 52567,
+      "circulating_supply": 0.0,
+      "max_supply": null,
+      "fully_diluted_valuation": 6874657,
+      "last_updated": "2026-10-12T20:05:55.000Z"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+diff --git a/tests/test_review_rev39.py b/tests/test_review_rev39.py
+new file mode 100644
+index 000000000..f80fa4866
+--- /dev/null
++++ b/tests/test_review_rev39.py
+@@ -0,0 +1,31 @@
++import sqlite3
++from types import SimpleNamespace
++from services.execution import strategy_runner as r
++from storage import strategy_state_sqlite as ss, intent_queue_sqlite as qs
++from storage.exit_event_journal import ExitEventJournal
++from scripts import inspect_exit_events as inspect
++
++
++def test_ambiguous_owner_stays_ambiguous_next_turn(monkeypatch, tmp_path):
++    monkeypatch.setattr(ss, 'DB_PATH', tmp_path / 's.sqlite')
++    monkeypatch.setattr(qs, 'DB_PATH', tmp_path / 'q.sqlite')
++    s, q, j = ss.StrategyStateSQLite(), qs.IntentQueueSQLite(), ExitEventJournal()
++    for v in ('coinbase', 'kraken'):
++        s.set(f'entry_price:{v}:BTC/USD:ema_cross', '100')
++    p = SimpleNamespace(get_position=lambda symbol: {'qty': 1})
++    cfg = {'venue': 'coinbase', 'strategy_id': 'ema_cross'}
++    first = r._venue_and_entry_permission(s, j, cfg, 'BTC/USD', 'coinbase', q, p)
++    assert first[1].startswith('position_owner_ambiguous')
++    second = r._venue_and_entry_permission(s, j, cfg, 'BTC/USD', 'coinbase', q, p)
++    assert second[1].startswith('position_owner_ambiguous'), second
++
++
++def test_filtered_report_must_not_return_success_for_global_block(monkeypatch, tmp_path):
++    monkeypatch.setattr(ss, 'DB_PATH', tmp_path / 's.sqlite')
++    monkeypatch.setattr(qs, 'DB_PATH', tmp_path / 'q.sqlite')
++    qs.IntentQueueSQLite().list_intents()
++    j = ExitEventJournal()
++    j.prepare('coinbase:BTC/USD:ema_cross', 'bad', {})
++    with sqlite3.connect(tmp_path / 's.sqlite') as c:
++        c.execute("UPDATE exit_events SET scope=CAST(x'ff' AS TEXT)")
++    assert inspect.main(['--state-db', str(tmp_path / 's.sqlite'), '--queue-db', str(tmp_path / 'q.sqlite'), '--scope', 'ETH/USD']) == 1

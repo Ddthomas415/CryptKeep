@@ -1,0 +1,34 @@
+{
+ "artifact_type": "research_only_es_buy_and_hold_risk",
+ "not_promotion_evidence": true,
+ "code_commit": "620bc8dbeee71cca327042902759e219e18f30b6",
+ "script_sha256": "0c9bad79539a1c611621a607d13f8178ef2e493f7d017aadbc694ab735918db3",
+ "input_rows_sha256": "c0d64661f4c09b4ca7be047694dceff46b22846ba576177f55e4464a623e28eb",
+ "note": "equity marked at daily close; same fee and slippage; risk-free rate 0",
+ "sma200_declared_runner_rule": {
+  "final": 9543.47,
+  "net_return_pct": 854.35,
+  "years": 7.85,
+  "cagr_pct": 33.29,
+  "max_drawdown_pct": 64.29,
+  "max_drawdown_peak": "2021-04-13",
+  "max_drawdown_trough": "2023-01-13",
+  "longest_underwater_days": 1050,
+  "cagr_over_max_drawdown": 0.518,
+  "daily_vol_annualised_pct": 44.5,
+  "sharpe_like_daily_365_no_rf": 0.867
+ },
+ "buy_and_hold": {
+  "final": 7746.36,
+  "net_return_pct": 674.64,
+  "years": 7.85,
+  "cagr_pct": 29.8,
+  "max_drawdown_pct": 76.67,
+  "max_drawdown_peak": "2021-11-08",
+  "max_drawdown_trough": "2022-11-21",
+  "longest_underwater_days": 846,
+  "cagr_over_max_drawdown": 0.389,
+  "daily_vol_annualised_pct": 63.03,
+  "sharpe_like_daily_365_no_rf": 0.733
+ }
+}

@@ -1,0 +1,82 @@
+{
+  "artifact_type": "cmc_registered_and_qualified_views",
+  "as_of_utc": "2026-10-10T11:20:42+00:00",
+  "policy": {
+    "max_round_trip_seconds": "5.0",
+    "max_book_age_seconds": "10.0",
+    "illiquid_last_trade_seconds": "3600.0",
+    "entry_notional_usd": "100",
+    "source": "quote_qualification_proposal_20261009.md POLICY_ACCEPTED"
+  },
+  "registered_view": {
+    "statistics": {
+      "status": "NOT_READY_90_DAYS",
+      "scoring_authorized": false,
+      "coverage": {
+        "seven_day_status_counts": {},
+        "seven_day_records": 0,
+        "available_seven_day_returns": 0,
+        "unavailable_seven_day_returns": 0,
+        "pre_horizon_exclusions": {
+          "HISTORY_UNCERTAIN": 101
+        },
+        "scope": "record_counts_not_complete_cohort_or_missingness_adjustment"
+      }
+    },
+    "status_counts": {
+      "HISTORY_UNCERTAIN": 101
+    }
+  },
+  "qualified_view": {
+    "statistics": {
+      "status": "NOT_READY_90_DAYS",
+      "scoring_authorized": false,
+      "coverage": {
+        "seven_day_status_counts": {},
+        "seven_day_records": 0,
+        "available_seven_day_returns": 0,
+        "unavailable_seven_day_returns": 0,
+        "pre_horizon_exclusions": {},
+        "scope": "record_counts_not_complete_cohort_or_missingness_adjustment"
+      }
+    },
+    "seven_day_diagnostic_outcomes": 0,
+    "seven_day_qualified_outcomes": 0
+  },
+  "exclusions_by_horizon_leg_reason": [],
+  "qualification_rows": [],
+  "gate_condition_descriptive": {
+    "registered_all_ranges_above_zero": "NOT_EVALUABLE",
+    "qualified_all_ranges_above_zero": "NOT_EVALUABLE"
+  },
+  "primary_gate": "BLOCKED_STATISTICAL_METHOD_NOT_CERTIFIED",
+  "scoring_authorized": false,
+  "source_report_rejected_envelopes": [
+    {
+      "file": "docs/research/cmc_trending_log/snapshots/2026-10-09_0347Z.json",
+      "reason": "explicit v3 schema required; original snapshots remain preserved"
+    },
+    {
+      "file": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_041525_486478Z_d72b37e4aeab4e5d93b07cd6ab320db7.json",
+      "reason": "explicit v3 schema required; original snapshots remain preserved"
+    },
+    {
+      "file": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_041753_379018Z_3cf70d3ddf184fcaa2b8b26805bd0992.json",
+      "reason": "explicit v3 schema required; original snapshots remain preserved"
+    },
+    {
+      "file": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_043542_982724Z_5919bc49ccb4455f9bdbf90896d017df.json",
+      "reason": "explicit v3 schema required; original snapshots remain preserved"
+    },
+    {
+      "file": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_043716_411287Z_4b0b5699d7f847b5931e1c77c7d3c8f9.json",
+      "reason": "explicit v3 schema required; original snapshots remain preserved"
+    }
+  ],
+  "limits": [
+    "displayed_size_not_fill_proof",
+    "btc_benchmark_quotes_structural_only",
+    "clock_offset_unmeasured_beyond_book_age",
+    "no_profitability_acceptance"
+  ]
+}

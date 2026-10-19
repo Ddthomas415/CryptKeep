@@ -1,0 +1,36 @@
+diff --git a/tests/test_review_rev32_malformed_event.py b/tests/test_review_rev32_malformed_event.py
+new file mode 100644
+index 000000000..c4e80ef7c
+--- /dev/null
++++ b/tests/test_review_rev32_malformed_event.py
+@@ -0,0 +1,30 @@
++import pytest
++
++from services.execution import strategy_runner as runner
++from storage import intent_queue_sqlite as queue_store
++from storage import strategy_state_sqlite as state_store
++from storage.exit_event_journal import ExitEventJournal
++
++
++@pytest.mark.parametrize('event', [None, [], {'pnl_pct': -3.85, 'is_loss': True}])
++def test_explicit_malformed_event_is_not_silently_skipped(monkeypatch, tmp_path, event):
++    monkeypatch.setattr(queue_store, 'DB_PATH', tmp_path / 'queue.sqlite')
++    monkeypatch.setattr(state_store, 'DB_PATH', tmp_path / 'state.sqlite')
++    queue = queue_store.IntentQueueSQLite()
++    state = state_store.StrategyStateSQLite()
++    journal = ExitEventJournal()
++    scope = 'coinbase:BTC/USD:ema_cross'
++    queue.upsert_intent({
++        'intent_id': 'written-loss', 'ts': '2026-10-03T00:00:00Z',
++        'source': 'strategy', 'strategy_id': 'ema_cross',
++        'venue': 'coinbase', 'symbol': 'BTC/USD', 'side': 'sell',
++        'order_type': 'market', 'qty': 1, 'status': 'filled',
++        'meta': {'exit_event': event},
++    })
++    runner._reconcile_exit_events_from_queue(journal, state, queue, scope, 'BTC/USD')
++    # A second pass also must not turn unreadable evidence into settled state.
++    runner._reconcile_exit_events_from_queue(journal, state, queue, scope, 'BTC/USD')
++    assert journal.has_unresolved(scope), (
++        'malformed written event skipped; cursor=' +
++        str(state.get('exit_reconciled_position:' + scope))
++    )

@@ -1,0 +1,82 @@
+{
+  "schema": "companion-bounded-recovery-review-v1",
+  "reviewed_at_utc": "2026-10-18T14:10:37Z",
+  "active_role": "GATE",
+  "reviewer": "Codex independent recovery-script reviewer; not the script implementer",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "decision_scope": "Exact bound one-purpose script and required non-optimized launch only; bounded rollback of the failed audit replacement under the user's existing recovery authorization",
+  "bounded_rollback_approved": true,
+  "installation_authorized": false,
+  "startup_authorized": false,
+  "operational_recovery_state": "INCOMPLETE",
+  "bindings": {
+    "script": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/recover_audit_original_once.py",
+      "sha256": "e169a8780a62915cc90950767e5b65fe71997388384a49d864a4833473f29767"
+    },
+    "plan": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/reviewed_stopped_plan.json",
+      "sha256": "a513c458419f01517fec5e771e5be967f85b43391de663dc55c0bcdfb8ac4af4"
+    },
+    "failure_receipt": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/installation_receipt_canonical_20261018.jsonl",
+      "sha256": "bae423abdc5943117ceb19c779145d6046fe64f962c92cda5745cb55a441c4a2"
+    },
+    "capture_helper": {
+      "path": "scripts/research/collect_companion_recreation_metadata.py",
+      "sha256": "3e81a24397eefc770a4cfda9da7a9f74467dbde33321f542286c3431869f7a46"
+    },
+    "transport_constants": {
+      "path": "scripts/research/companion_docker_transport.py",
+      "sha256": "52b5fa4d830a51694ba88d7b27712cf3dab7e3dd5f95e0a8bfb05e8a66acb0cc"
+    },
+    "fingerprint_helper": {
+      "path": "scripts/research/companion_runtime_adapter.py",
+      "sha256": "83645cc36a345fcd55d1d2bd79dca982141e009456209a031c6e8513f9f03e9c"
+    },
+    "image_format_helper": {
+      "path": "scripts/research/companion_install_docker.py",
+      "sha256": "0b482168d614c5c972b090f9a4dddd81b3b3173bf0ee4e34c56f3c2a246529c4"
+    }
+  },
+  "required_launch": {
+    "cwd": "/Users/baitus/Downloads/crypto-bot-pro",
+    "command": "env -i PATH=/usr/bin:/bin ./.venv/bin/python -E -B -c 'import runpy, sys; sys.flags.optimize == 0 or sys.exit(\"optimized_python_refused\"); runpy.run_path(\"docs/review_artifacts/companion_install_candidate_20261018/recover_audit_original_once.py\", run_name=\"__main__\")'",
+    "reason": "All 29 assertion guards must remain enabled. Clean environment and -E exclude PYTHONOPTIMIZE/import-path injection; no -O/-OO. -B avoids bytecode writes.",
+    "additional_preconditions": [
+      "Recheck the bound artifact hashes before launch; acceptance does not cover changed source or helpers",
+      "Exclude all other lifecycle writers throughout; the shared flock excludes cooperating installers only",
+      "One invocation only with the fixed exclusive new receipt; no automatic retry after failure or timeout"
+    ]
+  },
+  "shown": [
+    "Script pins the reviewed manifest bytes, CLI bytes, explicit local daemon endpoint, canonical private temporary Docker config and same regular owner-only installation lock",
+    "Before removal, it checks all seven originals by full ID, image, exited state, started time, restart count, policy, name and foundation; the six untouched originals also require complete selected metadata fingerprints",
+    "Eight-object minimal inspection requires absent original attempt labels and exact replacement ID, image, name, created/never-started state, zero restarts, policy no and owning attempt",
+    "Only the exact known-network empty-NetworkID placeholder and exact two aliases are admitted; bridge ID/name and parent-image layer prefix plus added-layer count are checked",
+    "Only lifecycle calls are non-force non-volume container rm of the exact replacement, rename of the exact original and reconnect of that original to the manifest network/options",
+    "Selected names/IDs are checked before removal and after removal/rename; original identity/state/disconnected status is checked before reconnect",
+    "Two successive full original inspections must each match all seven baseline selected fingerprints/states/names, followed by final selected-name inventory, before a verified phase is recorded",
+    "Commands use a shared remaining-time budget and at most ten-second subprocess timeouts; command errors stop subsequent operations without retry",
+    "Exclusive phase receipt writes only fixed phase names, public IDs and fixed completion counts/booleans; no private environment or raw Docker errors are recorded"
+  ],
+  "verification": {
+    "classification": "SHOWN",
+    "environment_confidence": "VERIFIED_ENV for read-only source inspection, hashing and AST compilation only; ASSUMED_ENV for operational execution until script preconditions pass",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -E -B -c '<read source, ast.parse, compile optimize=0, count assertions; never execute script>'",
+    "result": "exit 0; syntax_valid=true, assertions=29, optimize=0, script_executed=false",
+    "tests_run": false,
+    "docker_commands_run": false,
+    "script_executed": false
+  },
+  "unverified_and_residual_risks": [
+    "Current daemon/container state is CLAIMED by the parent, not independently inspected here; actual rollback remains UNVERIFIED",
+    "Assertions are safety-critical: optimized or unbound alternative launch is outside this acceptance",
+    "Local trusted filesystem and exclusion of non-cooperating lifecycle writers remain assumptions; no atomic daemon-wide transaction exists",
+    "A client timeout does not prove daemon cancellation; failure may leave partial recovery and requires fresh read-only reconciliation, not retry",
+    "Paired sanitized metadata captures are checked in memory, not persisted in full; the phase receipt records successful checks rather than an independently replayable metadata archive",
+    "No synthetic behavior tests or live command/template validation were run in this review"
+  ],
+  "proof_required_next": "Parent executes only the required bound launch under existing recovery permission, preserves its exclusive receipt and reports verified completion or INCOMPLETE. No new installation, startup, original deletion, image cleanup, private-config access or storage mutation is approved."
+}

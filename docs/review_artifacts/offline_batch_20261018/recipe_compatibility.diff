@@ -1,0 +1,104 @@
+--- a/scripts/research/collect_companion_recreation_metadata.py
++++ b/scripts/research/collect_companion_recreation_metadata.py
+@@ -97,6 +97,11 @@
+     return re.sub(r"\.(?:Config|HostConfig)\.[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*", optional, result)
+ 
+ 
++LEGACY_SNAPSHOT_KEYS = ("attempt", "foundation", "id", "image", "metadata", "name", "networks",
++                        "policy", "restarts", "started", "state")
++LEGACY_DEFAULTS = {"configured_metadata": "", "configured_networks": (), "network_evidence": ()}
++
++
+ def reconcile(rows, *, fingerprint_version=2):
+     """Derive evidence fingerprints, not accepted replacement fingerprints."""
+     snapshots = []
+@@ -130,7 +135,13 @@
+     version = observation.get("fingerprint_version", 1)
+     if type(version) is not int or version not in (1, 2):
+         raise ValueError("reconciliation_fingerprint_version")
+-    if adapter._canonical(reconcile(rows, fingerprint_version=version)) != adapter._canonical(observation.get("snapshots")):
++    computed = reconcile(rows, fingerprint_version=version)
++    if version == 1:
++        # v1 receipts predate these fields. Never discard non-default current evidence.
++        if any(s[k] != LEGACY_DEFAULTS[k] for s in computed for k in LEGACY_DEFAULTS):
++            raise ValueError("reconciliation_fingerprint_mismatch")
++        computed = [{k: s[k] for k in LEGACY_SNAPSHOT_KEYS} for s in computed]
++    if adapter._canonical(computed) != adapter._canonical(observation.get("snapshots")):
+         raise ValueError("reconciliation_fingerprint_mismatch")
+     final = observation.get("final_observations")
+     if final is not None and final != rows:
+--- a/tests/test_companion_stopped_recipe.py
++++ b/tests/test_companion_stopped_recipe.py
+@@ -10,6 +10,7 @@
+ from scripts.research import companion_docker_transport as transport
+ from scripts.research import companion_install_env as encoder
+ from scripts.research import companion_runtime_adapter as adapter
++from scripts.research import collect_companion_recreation_metadata as capture
+ from scripts.research.collect_companion_recreation_metadata import reconcile_manifest
+ from scripts.research.prepare_companion_stopped_recipe import compile_recipe
+ 
+@@ -57,6 +58,64 @@
+     observation, source = evidence
+     observation["final_observations"] = copy.deepcopy(observation["observations"])
+     assert reconcile_manifest(observation, source)["paired_payload_verified"] is True
++
++
++@pytest.mark.parametrize("change", ["metadata", "foundation", "network", "extra_key",
++                                   "missing_key", "relabeled_v2", "observation_row"])
++def test_legacy_compatibility_still_rejects_tampered_evidence(evidence, change):
++    observation, source = evidence
++    if change in {"metadata", "foundation"}:
++        observation["snapshots"][0][change] = "0" * 64
++    elif change == "network":
++        observation["snapshots"][0]["networks"] = ["0" * 64]
++    elif change == "extra_key":
++        observation["snapshots"][0]["configured_metadata"] = ""
++    elif change == "missing_key":
++        del observation["snapshots"][0]["attempt"]
++    elif change == "relabeled_v2":
++        observation["fingerprint_version"] = 2
++    else:
++        observation["observations"][0]["mounts"] = []
++    with pytest.raises(ValueError, match="reconciliation_fingerprint_mismatch"):
++        reconcile_manifest(observation, source)
++
++
++@pytest.mark.parametrize("field,value", [("configured_metadata", "f" * 64),
++                                        ("configured_networks", ("f" * 64,)),
++                                        ("network_evidence", (("app", "net", "alias"),))])
++def test_legacy_projection_refuses_nondefault_new_evidence(evidence, monkeypatch, field, value):
++    observation, source = evidence
++    original = capture.reconcile
++
++    def changed(rows, *, fingerprint_version=2):
++        snapshots = original(rows, fingerprint_version=fingerprint_version)
++        snapshots[0][field] = value
++        return snapshots
++
++    monkeypatch.setattr(capture, "reconcile", changed)
++    with pytest.raises(ValueError, match="reconciliation_fingerprint_mismatch"):
++        reconcile_manifest(observation, source)
++
++
++@pytest.mark.parametrize("change", [None, "missing_key", "metadata", "extra_key"])
++def test_current_v2_evidence_requires_full_exact_snapshot(evidence, change):
++    observation, source = evidence
++    observation["fingerprint_version"] = 2
++    observation["snapshots"] = capture.reconcile(observation["observations"])
++    if change == "missing_key":
++        del observation["snapshots"][0]["configured_metadata"]
++    elif change == "metadata":
++        observation["snapshots"][0]["metadata"] = "0" * 64
++    elif change == "extra_key":
++        observation["snapshots"][0]["unexpected"] = ""
++    if change is None:
++        result = reconcile_manifest(observation, source)
++        assert result["fingerprint_version"] == 2
++        assert result["baseline"] == observation["snapshots"]
++        assert result["paired_payload_verified"] is False
++    else:
++        with pytest.raises(ValueError, match="reconciliation_fingerprint_mismatch"):
++            reconcile_manifest(observation, source)
+ 
+ 
+ def test_equivalent_mount_and_network_renderings_share_fingerprint():

@@ -19,6 +19,7 @@ if not _has_module("phase1_research_copilot.shared.tools"):
     pytest.skip("phase1_research_copilot.shared.tools surface not present in this repo checkout", allow_module_level=True)
 
 import asyncio
+import httpx
 import sys
 from types import ModuleType
 from pathlib import Path
@@ -76,6 +77,32 @@ def test_tool_definitions_expose_read_only_functions() -> None:
     ]
 
 
+def test_internal_requests_authenticate_without_redirects(monkeypatch):
+    calls = []
+    class Client:
+        def __init__(self, **kwargs):
+            assert kwargs["follow_redirects"] is False
+            assert kwargs["trust_env"] is False
+        async def __aenter__(self):
+            return self
+        async def __aexit__(self, *args):
+            pass
+        async def request(self, method, url, **kwargs):
+            calls.append(kwargs["headers"])
+            return httpx.Response(200, json={"ok": True}, request=httpx.Request(method, url))
+    monkeypatch.setattr(tools.settings, "service_token", "fixture-only")
+    monkeypatch.setattr(tools.httpx, "AsyncClient", Client)
+    result = asyncio.run(tools._request_json("POST", "http://memory-retrieval:8007/v1/memory/retrieve"))
+    assert result == {"ok": True}
+    assert calls == [{"Authorization": "Bearer fixture-only"}]
+    monkeypatch.setattr(tools.settings, "service_token", "")
+    assert asyncio.run(tools._request_json("POST", "http://memory-retrieval:8007/v1/memory/retrieve")) is None
+    assert len(calls) == 1
+    monkeypatch.setattr(tools.settings, "service_token", "fixture-only")
+    assert asyncio.run(tools._request_json("GET", "https://elsewhere.example")) is None
+    assert len(calls) == 1
+
+
 def test_get_market_snapshot_falls_back_without_service(monkeypatch) -> None:
     async def fake_request_json(*args, **kwargs):
         return None
@@ -84,8 +111,9 @@ def test_get_market_snapshot_falls_back_without_service(monkeypatch) -> None:
     payload = asyncio.run(tools.get_market_snapshot("SOL"))
 
     assert payload["asset"] == "SOL"
-    assert payload["source"] == "fallback"
-    assert payload["ok"] is True
+    assert payload["source"] == "unavailable"
+    assert payload["ok"] is False
+    assert payload["price"] is None
 
 
 def test_get_risk_summary_falls_back_without_service(monkeypatch) -> None:
@@ -108,11 +136,14 @@ def test_get_signal_summary_falls_back_without_service(monkeypatch) -> None:
     payload = asyncio.run(tools.get_signal_summary("BTC"))
 
     assert payload["asset"] == "BTC"
-    assert payload["source"] == "fallback"
-    assert payload["counts"]["recent_news"] == 1
+    assert payload["source"] == "unavailable"
+    assert payload["counts"]["recent_news"] == 0
+    assert payload["past_context"] == []
+    assert payload["future_context"] == []
     assert isinstance(payload["intelligence"], dict)
-    assert payload["intelligence"]["regime"] == "trend_up"
-    assert payload["intelligence"]["category"]
+    assert payload["intelligence"]["status"] == "unavailable"
+    assert payload["intelligence"]["opportunities"] == []
+    assert "category" not in payload["intelligence"]
 
 
 def test_get_signal_summary_includes_intelligence_for_live_payload(monkeypatch) -> None:

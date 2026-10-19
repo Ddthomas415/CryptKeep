@@ -1,0 +1,394 @@
+{
+ "artifact_type": "research_only_preregistered_test_E8",
+ "prereg_sha256": "6dce29e46c805e840386a5581902ccc8a8a246d84e96216832fc68d647c7f7f6",
+ "script_sha256": "42a48c5993852fd59de689ef8715a685ebb9c4535daba5a13241e7a316542182",
+ "inputs_sha256": {
+  "scripts/research/rerun_frozen_stress.py": "1f98513ae63c4f84819327746872a9dd0a73b3bc35e5e67364c57458ca395907",
+  "scripts/research/corrected_research_math.py": "d07ae7171e2293cbe60d15ae9bc0973d3ef8bd31b9c7b99105f928c029e29047",
+  "docs/research/majors_trend_20261009/BTC-USD_d1.json": "d5a08f3a2e93ac3315da2f5771b4b7b6a98331c37b4a5716ba3cb40aa54d6adb",
+  "docs/research/majors_trend_20261009/ETH-USD_d1.json": "5812bb076daa090dabf0c58083aa530fa811c33b6776d71815da7e2904cc4216"
+ },
+ "simulator_check": "new simulator reproduces reviewed harness (candidate, band 0) within 1e-6 USD in D and H",
+ "periods": {
+  "D": [
+   "2017-01-01",
+   "2023-12-31"
+  ],
+  "H": [
+   "2024-01-07",
+   "2026-10-08"
+  ]
+ },
+ "results": {
+  "0.005": {
+   "D": {
+    "composite_v1": {
+     "end_usd": 38009.97,
+     "cagr_pct": 68.2,
+     "max_drawdown_pct": 45.0,
+     "longest_underwater_days": 783,
+     "vol_pct": 37.0,
+     "downside_vol_pct": 24.1,
+     "sharpe": 1.592,
+     "turnover_per_year_x": 4.6,
+     "rebalances_per_year": 24.0
+    },
+    "candidate": {
+     "end_usd": 42583.31,
+     "cagr_pct": 70.9,
+     "max_drawdown_pct": 51.9,
+     "longest_underwater_days": 523,
+     "vol_pct": 39.2,
+     "downside_vol_pct": 25.3,
+     "sharpe": 1.564,
+     "turnover_per_year_x": 9.25,
+     "rebalances_per_year": 38.7
+    },
+    "hold_btc": {
+     "end_usd": 42354.82,
+     "cagr_pct": 70.8,
+     "max_drawdown_pct": 83.8,
+     "longest_underwater_days": 1079,
+     "vol_pct": 75.1,
+     "downside_vol_pct": 50.6,
+     "sharpe": 1.092,
+     "turnover_per_year_x": 0.14,
+     "rebalances_per_year": 0.1
+    },
+    "mix_25_25_50": {
+     "end_usd": 23675.8,
+     "cagr_pct": 57.2,
+     "max_drawdown_pct": 61.2,
+     "longest_underwater_days": 1026,
+     "vol_pct": 40.7,
+     "downside_vol_pct": 27.5,
+     "sharpe": 1.316,
+     "turnover_per_year_x": 1.44,
+     "rebalances_per_year": 52.1
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0
+    }
+   },
+   "H": {
+    "composite_v1": {
+     "end_usd": 1108.7,
+     "cagr_pct": 3.8,
+     "max_drawdown_pct": 9.6,
+     "longest_underwater_days": 511,
+     "vol_pct": 18.4,
+     "downside_vol_pct": 10.8,
+     "sharpe": 0.293,
+     "turnover_per_year_x": 0.1,
+     "rebalances_per_year": 0.7
+    },
+    "candidate": {
+     "end_usd": 1384.23,
+     "cagr_pct": 12.5,
+     "max_drawdown_pct": 9.8,
+     "longest_underwater_days": 234,
+     "vol_pct": 28.1,
+     "downside_vol_pct": 18.8,
+     "sharpe": 0.561,
+     "turnover_per_year_x": 1.82,
+     "rebalances_per_year": 49.4
+    },
+    "hold_btc": {
+     "end_usd": 1698.78,
+     "cagr_pct": 21.2,
+     "max_drawdown_pct": 85.6,
+     "longest_underwater_days": 511,
+     "vol_pct": 955.1,
+     "downside_vol_pct": 415.8,
+     "sharpe": 3.603,
+     "turnover_per_year_x": 0.36,
+     "rebalances_per_year": 0.4
+    },
+    "mix_25_25_50": {
+     "end_usd": 138491.32,
+     "cagr_pct": 499.4,
+     "max_drawdown_pct": 51.0,
+     "longest_underwater_days": 66,
+     "vol_pct": 296.5,
+     "downside_vol_pct": 175.7,
+     "sharpe": 2.028,
+     "turnover_per_year_x": 7.08,
+     "rebalances_per_year": 52.3
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0
+    }
+   }
+  },
+  "0.009": {
+   "D": {
+    "composite_v1": {
+     "end_usd": 33422.76,
+     "cagr_pct": 65.1,
+     "max_drawdown_pct": 45.9,
+     "longest_underwater_days": 783,
+     "vol_pct": 37.0,
+     "downside_vol_pct": 24.2,
+     "sharpe": 1.542,
+     "turnover_per_year_x": 4.59,
+     "rebalances_per_year": 24.0
+    },
+    "candidate": {
+     "end_usd": 32851.93,
+     "cagr_pct": 64.7,
+     "max_drawdown_pct": 54.1,
+     "longest_underwater_days": 526,
+     "vol_pct": 39.2,
+     "downside_vol_pct": 25.4,
+     "sharpe": 1.469,
+     "turnover_per_year_x": 9.24,
+     "rebalances_per_year": 38.7
+    },
+    "hold_btc": {
+     "end_usd": 42186.91,
+     "cagr_pct": 70.7,
+     "max_drawdown_pct": 83.8,
+     "longest_underwater_days": 1079,
+     "vol_pct": 75.1,
+     "downside_vol_pct": 50.6,
+     "sharpe": 1.091,
+     "turnover_per_year_x": 0.14,
+     "rebalances_per_year": 0.1
+    },
+    "mix_25_25_50": {
+     "end_usd": 22738.81,
+     "cagr_pct": 56.3,
+     "max_drawdown_pct": 61.4,
+     "longest_underwater_days": 1027,
+     "vol_pct": 40.7,
+     "downside_vol_pct": 27.5,
+     "sharpe": 1.302,
+     "turnover_per_year_x": 1.44,
+     "rebalances_per_year": 52.1
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0
+    }
+   },
+   "H": {
+    "composite_v1": {
+     "end_usd": 1107.44,
+     "cagr_pct": 3.8,
+     "max_drawdown_pct": 9.6,
+     "longest_underwater_days": 511,
+     "vol_pct": 18.4,
+     "downside_vol_pct": 10.8,
+     "sharpe": 0.291,
+     "turnover_per_year_x": 0.1,
+     "rebalances_per_year": 0.7
+    },
+    "candidate": {
+     "end_usd": 1356.79,
+     "cagr_pct": 11.7,
+     "max_drawdown_pct": 9.8,
+     "longest_underwater_days": 234,
+     "vol_pct": 28.0,
+     "downside_vol_pct": 18.8,
+     "sharpe": 0.535,
+     "turnover_per_year_x": 1.82,
+     "rebalances_per_year": 49.4
+    },
+    "hold_btc": {
+     "end_usd": 1692.04,
+     "cagr_pct": 21.0,
+     "max_drawdown_pct": 85.6,
+     "longest_underwater_days": 511,
+     "vol_pct": 955.1,
+     "downside_vol_pct": 415.8,
+     "sharpe": 3.603,
+     "turnover_per_year_x": 0.36,
+     "rebalances_per_year": 0.4
+    },
+    "mix_25_25_50": {
+     "end_usd": 128096.83,
+     "cagr_pct": 482.7,
+     "max_drawdown_pct": 51.0,
+     "longest_underwater_days": 66,
+     "vol_pct": 296.4,
+     "downside_vol_pct": 175.7,
+     "sharpe": 2.019,
+     "turnover_per_year_x": 7.08,
+     "rebalances_per_year": 52.3
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0
+    }
+   }
+  }
+ },
+ "pass_checks": {
+  "0.005": {
+   "D_sharpe_ge_incumbent": true,
+   "D_turnover_le_0.75x": true,
+   "H_sharpe_ge_incumbent_minus_0.05": false,
+   "H_maxdd_le_incumbent_plus_2pp": true
+  },
+  "0.009": {
+   "D_sharpe_ge_incumbent": true,
+   "D_turnover_le_0.75x": true,
+   "H_sharpe_ge_incumbent_minus_0.05": false,
+   "H_maxdd_le_incumbent_plus_2pp": true
+  }
+ },
+ "verdict": "FAIL",
+ "dsr_composite_DH_fee0.50": {
+  "N=15": 0.9712,
+  "N=120": 0.7979
+ },
+ "sensitivity_reported_only": [
+  {
+   "variant": "band0",
+   "D_0.005": {
+    "end_usd": 34607.68,
+    "cagr_pct": 65.9,
+    "max_drawdown_pct": 43.8,
+    "longest_underwater_days": 783,
+    "vol_pct": 36.1,
+    "downside_vol_pct": 23.3,
+    "sharpe": 1.584,
+    "turnover_per_year_x": 5.99,
+    "rebalances_per_year": 49.3
+   },
+   "D_0.009": {
+    "end_usd": 29257.88,
+    "cagr_pct": 62.0,
+    "max_drawdown_pct": 45.0,
+    "longest_underwater_days": 783,
+    "vol_pct": 36.1,
+    "downside_vol_pct": 23.4,
+    "sharpe": 1.518,
+    "turnover_per_year_x": 5.99,
+    "rebalances_per_year": 49.3
+   },
+   "H_0.005": {
+    "end_usd": 1543.83,
+    "cagr_pct": 17.1,
+    "max_drawdown_pct": 6.9,
+    "longest_underwater_days": 97,
+    "vol_pct": 25.6,
+    "downside_vol_pct": 16.8,
+    "sharpe": 0.743,
+    "turnover_per_year_x": 1.33,
+    "rebalances_per_year": 51.9
+   },
+   "H_0.009": {
+    "end_usd": 1521.39,
+    "cagr_pct": 16.5,
+    "max_drawdown_pct": 6.9,
+    "longest_underwater_days": 112,
+    "vol_pct": 25.6,
+    "downside_vol_pct": 16.8,
+    "sharpe": 0.722,
+    "turnover_per_year_x": 1.33,
+    "rebalances_per_year": 51.9
+   }
+  },
+  {
+   "variant": "band0.20",
+   "D_0.005": {
+    "end_usd": 40235.96,
+    "cagr_pct": 69.5,
+    "max_drawdown_pct": 42.6,
+    "longest_underwater_days": 783,
+    "vol_pct": 38.1,
+    "downside_vol_pct": 25.1,
+    "sharpe": 1.578,
+    "turnover_per_year_x": 2.52,
+    "rebalances_per_year": 8.9
+   },
+   "D_0.009": {
+    "end_usd": 37568.78,
+    "cagr_pct": 67.9,
+    "max_drawdown_pct": 43.0,
+    "longest_underwater_days": 783,
+    "vol_pct": 38.1,
+    "downside_vol_pct": 25.1,
+    "sharpe": 1.552,
+    "turnover_per_year_x": 2.51,
+    "rebalances_per_year": 8.9
+   },
+   "H_0.005": {
+    "end_usd": 1000.0,
+    "cagr_pct": 0.0,
+    "max_drawdown_pct": 0,
+    "longest_underwater_days": 0,
+    "vol_pct": 0.0,
+    "downside_vol_pct": 0.0,
+    "sharpe": 0,
+    "turnover_per_year_x": 0.0,
+    "rebalances_per_year": 0.0
+   },
+   "H_0.009": {
+    "end_usd": 1000.0,
+    "cagr_pct": 0.0,
+    "max_drawdown_pct": 0,
+    "longest_underwater_days": 0,
+    "vol_pct": 0.0,
+    "downside_vol_pct": 0.0,
+    "sharpe": 0,
+    "turnover_per_year_x": 0.0,
+    "rebalances_per_year": 0.0
+   }
+  },
+  {
+   "variant": "no_volscale",
+   "D_0.005": {
+    "end_usd": 189151.69,
+    "cagr_pct": 111.5,
+    "max_drawdown_pct": 57.6,
+    "longest_underwater_days": 964,
+    "vol_pct": 57.8,
+    "downside_vol_pct": 37.8,
+    "sharpe": 1.586,
+    "turnover_per_year_x": 5.88,
+    "rebalances_per_year": 28.4
+   },
+   "D_0.009": {
+    "end_usd": 160336.67,
+    "cagr_pct": 106.5,
+    "max_drawdown_pct": 58.4,
+    "longest_underwater_days": 964,
+    "vol_pct": 57.9,
+    "downside_vol_pct": 37.8,
+    "sharpe": 1.545,
+    "turnover_per_year_x": 5.88,
+    "rebalances_per_year": 28.4
+   },
+   "H_0.005": {
+    "end_usd": 29274.71,
+    "cagr_pct": 240.9,
+    "max_drawdown_pct": 64.1,
+    "longest_underwater_days": 257,
+    "vol_pct": 384.0,
+    "downside_vol_pct": 212.7,
+    "sharpe": 2.082,
+    "turnover_per_year_x": 16.87,
+    "rebalances_per_year": 42.9
+   },
+   "H_0.009": {
+    "end_usd": 24355.62,
+    "cagr_pct": 218.9,
+    "max_drawdown_pct": 65.4,
+    "longest_underwater_days": 257,
+    "vol_pct": 384.0,
+    "downside_vol_pct": 212.8,
+    "sharpe": 2.065,
+    "turnover_per_year_x": 16.85,
+    "rebalances_per_year": 42.9
+   }
+  }
+ ]
+}

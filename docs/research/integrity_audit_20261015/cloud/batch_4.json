@@ -1,0 +1,92 @@
+[
+ {
+  "id": 46,
+  "label": "BIS WP 1087",
+  "url": "https://www.bis.org/publ/work1087.htm",
+  "claim": "The spot-relevant result is BIS's finding that **high carry predicts future crashes** ([BIS WP 1087])."
+ },
+ {
+  "id": 47,
+  "label": "FTI Consulting",
+  "url": "https://www.fticonsulting.com/insights/articles/crypto-crash-october-2025-leverage-met-liquidity",
+  "claim": "Funding rose from about 10% to nearly 30% annualized four days before more than $19B of positions were liquidated, and prices kept falling for months rather than bouncing ([FTI Consulting])."
+ },
+ {
+  "id": 48,
+  "label": "Fulgur Ventures",
+  "url": "https://medium.com/@fulgur.ventures/bitcoin-funding-rates-and-price-predictability-27ce95535af1",
+  "claim": "As a direction signal, funding is nearly useless, with an R\u00b2 of about 0.3% at 8 hours ([Fulgur Ventures])."
+ },
+ {
+  "id": 49,
+  "label": "arXiv 2607.27070",
+  "url": "https://arxiv.org/abs/2607.27070",
+  "claim": "A 2026 study of seven cascades found no precursor common to all events, and none at all for the tariff-news shocks ([arXiv 2607.27070])."
+ },
+ {
+  "id": 50,
+  "label": "He et al.",
+  "url": "https://ar5iv.labs.arxiv.org/html/2212.06888",
+  "claim": "**Past return momentum explains more than 50% of the perpetual-futures premium** ([He et al.])."
+ },
+ {
+  "id": 51,
+  "label": "CF Benchmarks",
+  "url": "https://www.cfbenchmarks.com/blog/revisiting-the-bitcoin-basis-how-momentum-sentiment-impact-the-structural-drivers-of-basis-activity",
+  "claim": "The CME basis correlates 0.50\u20130.54 with momentum proxies ([CF Benchmarks])."
+ },
+ {
+  "id": 52,
+  "label": "finhacker.cz",
+  "url": "https://www.finhacker.cz/en/crypto-fear-and-greed-index-historical-data-chart/",
+  "claim": "The Fear & Greed Index is itself built from price momentum and volatility ([finhacker.cz])."
+ },
+ {
+  "id": 53,
+  "label": "Lim, SSRN 6592830",
+  "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6592830",
+  "claim": "Spot ETF flows predict next-day returns (t = 3.12), but returns predict later flows even more strongly (t = 9.75), and that history covers only one regime since January 2024 ([Lim, SSRN 6592830])."
+ },
+ {
+  "id": 54,
+  "label": "NBER w24877",
+  "url": "https://www.nber.org/system/files/working_papers/w24877/w24877.pdf",
+  "claim": "Google search attention predicted **+1.84% to +2.30% BTC returns at 1\u20132 weeks per standard deviation**, but only in data ending in 2018 ([NBER w24877]), and returns and volatility drive attention at least as much as the reverse ([Urquhart 2018])."
+ },
+ {
+  "id": 55,
+  "label": "Urquhart 2018",
+  "url": "https://ideas.repec.org/a/eee/ecolet/v166y2018icp40-44.html",
+  "claim": "Google search attention predicted **+1.84% to +2.30% BTC returns at 1\u20132 weeks per standard deviation**, but only in data ending in 2018 ([NBER w24877]), and returns and volatility drive attention at least as much as the reverse ([Urquhart 2018])."
+ },
+ {
+  "id": 56,
+  "label": "Grobys, N\u00e4sman & Sandretto 2026",
+  "url": "https://osuva.uwasa.fi/items/d5993292-4a47-4162-89d7-7ddf676ba319/full",
+  "claim": "The one peer-reviewed test reports an MVRV Z-score strategy with **Sharpe 1.28 versus 0.45 for buy-and-hold** across only about three BTC cycles, and its out-of-sample design and cost treatment were not visible ([Grobys, N\u00e4sman & Sandretto 2026])."
+ },
+ {
+  "id": 57,
+  "label": "Bitcoin Magazine",
+  "url": "https://bitcoinmagazine.com/markets/how-the-updated-mvrv-z-score-improves-bitcoin-price-predictions",
+  "claim": "Peak MVRV Z fell from about 9\u201310 to about 7 in the last cycle, and vendors have responded by redefining the metric on rolling windows ([Bitcoin Magazine])."
+ },
+ {
+  "id": 58,
+  "label": "Chi, Chu & Hao",
+  "url": "https://arxiv.org/abs/2411.06327",
+  "claim": "Exchange and stablecoin flows predict at 1\u20136 hours with R\u00b2 \u2264 0.003 ([Chi, Chu & Hao])."
+ },
+ {
+  "id": 59,
+  "label": "Jaquart et al. 2022",
+  "url": "https://doaj.org/article/cfc09801314441198e3e1c92a3914e54",
+  "claim": "The strongest after-cost result needs a daily-rebalanced long-short book ([Jaquart et al. 2022]), while intraday models with on-chain and sentiment features **turn negative after costs** ([Kraehenbuehl & Osterrieder summary])."
+ },
+ {
+  "id": 60,
+  "label": "Kraehenbuehl & Osterrieder summary",
+  "url": "https://arxiv.org/pdf/2208.07254",
+  "claim": "The strongest after-cost result needs a daily-rebalanced long-short book ([Jaquart et al. 2022]), while intraday models with on-chain and sentiment features **turn negative after costs** ([Kraehenbuehl & Osterrieder summary])."
+ }
+]

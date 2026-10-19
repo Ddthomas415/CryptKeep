@@ -1,0 +1,30 @@
+{
+  "implementation_state":"READY_FOR_INDEPENDENT_REVIEW",
+  "runtime_state":"INCOMPLETE",
+  "native_cli_sha256":"31ae2d64e51d9dfc728a2934941615cdd92f31279ed6d5c1fb2bfc0a44637a8f",
+  "proof": {
+    "pre_formatter_fix":{"failed":1,"passed":4},
+    "final_targeted":{"passed":99,"seconds":0.79,"native_fixture_cases":5},
+    "full_suite":false,
+    "real_daemon_lifecycle_operations":0,
+    "real_credentials_accessed":false
+  },
+  "independent_review": {
+    "state":"ACCEPTED",
+    "scope":"Native CLI fake-socket interface tests, optional image-field formatting, explicit create no-pull flag only",
+    "native_fixture_passed":5,
+    "native_fixture_seconds":0.42,
+    "no_pull_mocked_passed":1,
+    "no_pull_mocked_seconds":0.49,
+    "parent_99_run_independently_reproduced":false,
+    "whole_install_manifest_accepted":false
+  },
+  "sha256": {
+    "scripts/research/companion_install_docker.py":"da2c967f57646cc13084d62adf8e063ca48b0a33d7849a92e93b46b033ac7dd4",
+    "tests/test_companion_installer.py":"172aa410cc9ccfa74dc5a19ca521de687052c1d47307a49b2a7c29421dc26494",
+    "tests/test_companion_installed_cli_interfaces.py":"9bbfab9c094c90a7fa6200c7cee9ef2848d1f8a6160c0f760232a3daca27ac9c",
+    "docs/review_artifacts/companion_install_interfaces_20261017/provenance.json":"98ce96185d96bb39d0dfb536abfb504bbdce1186b731f2d4699578a8d1dddeea",
+    "docs/review_artifacts/companion_install_interfaces_20261017/mounts.json":"19ebfbe245a47208e338b45e045c6ad2b5a43ba4b3fbb9c4af0804798cfdcd9b"
+  },
+  "remaining": ["Real builder locality", "Complete reconstruction and mounted import closure", "Storage namespace/citation proof", "Real reviewed operational manifest"]
+}

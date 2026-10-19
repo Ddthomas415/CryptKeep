@@ -1,0 +1,171 @@
+--- /dev/null
++++ b/storage/exit_event_journal.py
+@@ -0,0 +1,95 @@
++"""Ordered provisional exit events; not a ledger of exchange fills.
++
++An event is prepared before enqueue. Queue confirmation belongs to the caller.
++An unresolved first event prevents later events from overtaking it.
++"""
++from __future__ import annotations
++
++import json
++from collections.abc import Callable
++
++from storage import strategy_state_sqlite as state_store
++
++
++class ExitEventJournal:
++    def _connect(self):
++        con = state_store._connect()
++        con.execute('''CREATE TABLE IF NOT EXISTS exit_events (
++            seq INTEGER PRIMARY KEY AUTOINCREMENT,
++            scope TEXT NOT NULL,
++            intent_id TEXT NOT NULL UNIQUE,
++            payload TEXT NOT NULL,
++            status TEXT NOT NULL CHECK(status IN ('pending','applied','unwritten'))
++        )''')
++        return con
++
++    def prepare(self, scope: str, intent_id: str, payload: dict) -> None:
++        if not scope or not intent_id or not isinstance(payload, dict):
++            raise ValueError('invalid_exit_event')
++        encoded = json.dumps(payload, sort_keys=True, allow_nan=False)
++        con = self._connect()
++        try:
++            con.execute('BEGIN IMMEDIATE')
++            old = con.execute('SELECT scope,payload FROM exit_events WHERE intent_id=?', (intent_id,)).fetchone()
++            if old is not None:
++                if old != (scope, encoded):
++                    raise ValueError('exit_event_identity_conflict')
++            else:
++                con.execute('INSERT INTO exit_events(scope,intent_id,payload,status) VALUES(?,?,?,?)',
++                            (scope, intent_id, encoded, 'pending'))
++            con.commit()
++        except BaseException:
++            con.rollback()
++            raise
++        finally:
++            con.close()
++
++    def pending(self, scope: str) -> list[tuple[str, dict]]:
++        con = self._connect()
++        try:
++            rows = con.execute("SELECT intent_id,payload FROM exit_events WHERE scope=? AND status='pending' ORDER BY seq", (scope,)).fetchall()
++            return [(identity, json.loads(payload)) for identity, payload in rows]
++        finally:
++            con.close()
++
++    def settle(self, scope: str, intent_id: str, *, written: bool,
++               reduce: Callable[[dict, Callable[[str], str | None]], dict[str, str]]) -> bool:
++        """Atomically reduce a confirmed event and mark it, or mark it unwritten.
++
++        The reducer must only calculate performance-counter updates, not issue
++        orders or clear stop state. It reads current counters inside this same
++        write transaction. Queue uncertainty must never be passed as False.
++        """
++        if type(written) is not bool:
++            raise ValueError('exit_confirmation_required')
++        con = self._connect()
++        try:
++            con.execute('BEGIN IMMEDIATE')
++            row = con.execute('SELECT scope,payload,status FROM exit_events WHERE intent_id=?', (intent_id,)).fetchone()
++            if row is None or row[0] != scope:
++                raise ValueError('unknown_exit_event')
++            if row[2] != 'pending':
++                con.commit()
++                return False
++            first = con.execute("SELECT intent_id FROM exit_events WHERE scope=? AND status='pending' ORDER BY seq LIMIT 1", (scope,)).fetchone()
++            if first[0] != intent_id:
++                raise ValueError('earlier_exit_unresolved')
++
++            def get(key):
++                value = con.execute('SELECT v FROM strategy_state WHERE k=?', (key,)).fetchone()
++                return value[0] if value else None
++
++            if written:
++                updates = reduce(json.loads(row[1]), get)
++                for key, value in updates.items():
++                    con.execute('INSERT OR REPLACE INTO strategy_state(k,v,updated_ts) VALUES(?,?,?)',
++                                (key, str(value), state_store._now()))
++            con.execute('UPDATE exit_events SET status=? WHERE intent_id=?',
++                        ('applied' if written else 'unwritten', intent_id))
++            con.commit()
++            return True
++        except BaseException:
++            con.rollback()
++            raise
++        finally:
++            con.close()
+--- /dev/null
++++ b/tests/test_exit_event_journal.py
+@@ -0,0 +1,70 @@
++import pytest
++from storage import strategy_state_sqlite as store
++from storage.exit_event_journal import ExitEventJournal
++
++
++@pytest.fixture
++def journal(monkeypatch, tmp_path):
++    monkeypatch.setattr(store, 'DB_PATH', tmp_path / 'state.sqlite')
++    return ExitEventJournal()
++
++
++def count_loss(event, get):
++    count = int(get('loss_streak') or '0') + 1
++    return {'loss_streak': str(count), 'kill': str(count >= 3)}
++
++
++def test_two_events_survive_restart_and_count_once(journal):
++    state = store.StrategyStateSQLite()
++    state.set('loss_streak', '1')
++    for identity in ('a', 'b'):
++        journal.prepare('btc', identity, {'loss': True})
++    restarted = ExitEventJournal()
++    assert [identity for identity, _ in restarted.pending('btc')] == ['a', 'b']
++    with pytest.raises(ValueError, match='earlier_exit_unresolved'):
++        restarted.settle('btc', 'b', written=True, reduce=count_loss)
++    assert restarted.settle('btc', 'a', written=True, reduce=count_loss)
++    assert restarted.settle('btc', 'b', written=True, reduce=count_loss)
++    assert state.get('loss_streak') == '3'
++    assert state.get('kill') == 'True'
++    assert not restarted.settle('btc', 'a', written=True, reduce=count_loss)
++    assert state.get('loss_streak') == '3'
++
++
++def test_failed_reducer_leaves_event_and_counters_unchanged(journal):
++    journal.prepare('btc', 'a', {})
++    def broken(event, get):
++        raise RuntimeError('failure')
++    with pytest.raises(RuntimeError):
++        journal.settle('btc', 'a', written=True, reduce=broken)
++    assert journal.pending('btc') == [('a', {})]
++    assert store.StrategyStateSQLite().get('loss_streak') is None
++
++
++def test_unwritten_event_not_counted(journal):
++    journal.prepare('btc', 'a', {})
++    assert journal.settle('btc', 'a', written=False, reduce=count_loss)
++    assert store.StrategyStateSQLite().get('loss_streak') is None
++    assert journal.pending('btc') == []
++
++
++def test_prepare_is_idempotent_but_conflicting_payload_rejected(journal):
++    journal.prepare('btc', 'a', {'price': 100})
++    journal.prepare('btc', 'a', {'price': 100})
++    with pytest.raises(ValueError, match='identity_conflict'):
++        journal.prepare('btc', 'a', {'price': 101})
++    assert len(journal.pending('btc')) == 1
++
++
++def test_unknown_confirmation_cannot_discard(journal):
++    journal.prepare('btc', 'a', {})
++    with pytest.raises(ValueError, match='confirmation_required'):
++        journal.settle('btc', 'a', written=None, reduce=count_loss)
++    assert journal.pending('btc') == [('a', {})]
++
++
++def test_scopes_do_not_block_each_other(journal):
++    journal.prepare('btc', 'a', {})
++    journal.prepare('eth', 'b', {})
++    assert journal.settle('eth', 'b', written=False, reduce=count_loss)
++    assert journal.pending('btc') == [('a', {})]

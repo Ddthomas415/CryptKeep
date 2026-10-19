@@ -2,7 +2,205 @@
 
 This file is a lightweight index only.
 
-## Current state
+## Current Work Selection
+
+### Off-machine backup status, 2026-10-18 (operator)
+
+- Operator is uploading encrypted copies to TeraBox and MEGA of: `screened_recovery_20261018T190049Z_r2/recovery.tar.gz`
+  (81 MB) with its manifest/CSV, `recovery_supplement_20261018T192628Z/supplement.tar.gz` (48 MB) with its manifest,
+  and `git_bundle_20261018/` (all under `~/Documents/cryptkeep_data_archive/`). Off-machine copy status is CLAIMED by
+  the operator until confirmed; it is not verified by any agent.
+- GitHub (`ls-remote`, read-only, 2026-10-18) has history only up to `adde462ff`. The two local commits `15bc4455a` and
+  `620bc8dbe` (Sep 23, branch `codex/research-bundle-proof`, never pushed) are preserved in
+  `git_bundle_20261018/research-bundle-proof_last2_20261018.bundle` (6,678 bytes, sha256 `8afa3ba5...`, `git bundle
+  verify` OK; README has the restore command). No push, commit, lock removal or repo change was made for this.
+- Uncommitted work since Sep 23 exists off-machine only inside the recovery archives above, not in Git.
+- Available for future off-machine backups: the operator has TeraBox and MEGA cloud storage. Agents cannot
+  upload there; propose what to back up (and encrypt first, especially for TeraBox, which is not end-to-end
+  encrypted) and the operator performs the upload.
+
+### Current correction scope, 2026-10-18
+
+Three-item offline batch is now CLOSED (October 18-19 UTC): backup count corrected
+in a successor workbook (original preserved); VOLFC-1 trial/data-reuse supplement
+appended without changing frozen studies or dated ledgers; v1 recipe compatibility
+repaired with 14 regressions. Focused selection: 50 tests passed. A separate GATE
+reviewer independently passed 50 and returned ACCEPTED_WITH_RISK for the code delta.
+See `docs/checkpoints/offline_correction_batch_20261018.md` for artifacts, hashes,
+scope and proof attribution. Do not reopen these items from the older v2 handoff.
+The two stopped-recipe failures are resolved in this selection, not a full-suite
+green claim. Companion installation remains INCOMPLETE, without retry/startup
+authorization. Off-machine upload remains CLAIMED. The supplied-workbook
+cross-agent comparison was delivered in chat; inaccessible Claude-hosted documents
+remain unverified. Operational restoration remains a separate unfinished item.
+
+Information-source feasibility count is now CLOSED for inspected local evidence:
+`docs/research/information_feasibility_20261018/README.md`. Frozen public-column
+extract, reproducible counts and 11 synthetic tests separately reviewed
+ACCEPTED_WITH_RISK. Live derivatives context is OKX BTC only, with material gaps;
+the original Binance file has 15,306 distinct BTC/ETH funding timestamps. Incident
+event frequency remains UNKNOWN because no verified structured ledger was found
+in the inspected sources. This is descriptive coverage, not a market strategy
+test, new hypothesis authorization or profitable-edge result. No E7/carry rerun.
+
+Existing research scout folder attachment is now saved and verified in its
+original task; schedule/instructions unchanged, no duplicate or manual run.
+See `docs/research/research_scout/README.md`. First scheduled execution and actual
+notification delivery remain unverified; do not reopen the folder setup as pending.
+
+Agent handoff v2, 2026-10-18: read `docs/checkpoints/agent_handoff_20261018_v2.md` first (mistakes to avoid,
+corrected state, ordered queue). It supersedes `docs/checkpoints/claude_cowork_handoff_20261018.md`, kept for the
+diagnosed (not applied) fix for the two stopped-recipe fingerprint failures, Claude's reviews and drafts, and
+the operator decisions still open. It grants no authorization; this scope section controls.
+
+Selected-file preservation update: the reviewed recovery helper completed one
+fresh `_r2` copy, exit0, with 6,414 restored/hash-verified files and41 exclusions.
+All34 companion Python files are included. Its original receipt excluded all4
+journaled public databases and3of7 raw input archives. Separate review independently
+verified every copied/restored/archive file and the CSV/receipt hashes:
+ACCEPTED_WITH_RISK for selected-file recovery; complete recovery INCOMPLETE. See
+`docs/checkpoints/screened_recovery_result_20261018.md`. Preserve this copy and
+the earlier failed partial output; do not repeat unchanged tests/copies or
+silently clear exclusions.
+
+The seven named database/archive gaps are now CLOSED by a separate supplemental
+copy, independently ACCEPTED with no blockers on 2026-10-18. All4 databases
+passed staged/restored integrity checks without original SQL connections; all7
+raw archives and all2377frozen input files match checksums across the two copies.
+Combined6421unique selected files;34other recorded exclusions remain, not newly
+cleared. See `docs/checkpoints/recovery_supplement_result_20261018.md` for exact
+hashes, proof attribution and same-disk limits. No further preservation rerun is
+needed for these seven paths. Full/offsite/environment recovery remains
+INCOMPLETE; no Git lock removal, commit, deletion or runtime operation follows.
+
+The operator authorized treating the two complete information-edge pastes after
+their audit. Current scope: a separate offline Module A candidate repair,
+synthetic verification, independent review, queue reconciliation and a sourced
+information-edge feasibility assessment. No market-data strategy experiment,
+startup/retry, credential read, commit, cleanup or new operating contract follows.
+See `docs/research/information_edge_repair_20261018.md` for exact evidence,
+remaining boundaries and the separate information-source assessment.
+
+- The dated account SPOT observation already records maker25bps/taker50bps:
+  `research/coinbase_fee_observation_20261008.json`. A screenshot is not a blanket
+  blocker. Current product-specific and historical all-in fees remain UNVERIFIED;
+  use explicit fee scenarios for synthetic work, never call them verified rates.
+- Original external simulator/tests and proposed operating-contract drafts remain
+  preserved. The candidate does not activate Module A or decide its parameters.
+  It must not be substituted silently into frozen studies or campaigns.
+- Automatic commits, a stop on every second repair, and mandatory new filled
+  templates were proposed, not adopted. Existing scoped continuation and
+  high-risk independent-review requirements still apply.
+- The 747 configuration floor is convention-specific, not complete selection N.
+  Old 745 counts, secret-hit clearances and checkpoint sizes are not current
+  independent safety clearance. Preserve them as historical claims below.
+- Companion installation remains INCOMPLETE with the previous attempt consumed;
+  the accepted saved rollback proof is not startup or retry authorization.
+- Its missing field-level failure diagnostic is now implemented and independently
+  ACCEPTED_WITH_RISK for offline scope. See
+  `docs/checkpoints/companion_metadata_diagnostics_20261018.md`. Exact runtime
+  mismatch/root cause remains UNVERIFIED; no Docker/install/start/query ran.
+  Focused selection163passed2baselinefailures; all30newtests pass. Those two
+  recipe failures were subsequently repaired in the closed offline batch above;
+  retain the historical163/2count, not a full-suite green claim. Any later
+  operational step needs current artifact/code bindings and a separately bounded
+  authorization; do not reuse the consumed attempt or repeat this offline repair.
+- Offline Module A candidate: independently ACCEPTED_WITH_RISK for pinned code
+  and synthetic contracts only. GATE-MA-001 follow-up now has four persistent
+  actual multi-asset allocator prefix/canary cases; the synthetic selection
+  passed56, simulator unchanged. Separate GATE accepted the test delta (4newcases
+  independently passed) and closed GATE-MA-001; see
+  `docs/checkpoints/module_a_allocator_coverage_20261018.md`.
+  Full Module A contract, benchmark, historical parity and integration remain
+  INCOMPLETE; no experiment or financial-model approval follows from this repair.
+
+### Earlier operator queue, 2026-10-18 (historical; corrected scope above controls)
+
+The following earlier wording is retained for provenance, not as a new blanket
+approval sequence or current fee blocker. Drafts below live outside the repo in
+`~/Documents/cryptkeep_data_archive/` and are not approved changes.
+
+1. APPROVED, Codex: independent read-only state audit (cross-check). Read-only, report in
+   chat only, `git --no-optional-locks`, about 15 commands, end with "Comparison values".
+   Do not touch `.git/index.lock`.
+2. Operator: compare the audit with the Oct 18 Claude audit before any change.
+3. Needs approval: remove the stale 0-byte `.git/index.lock` (dated Oct 4) after confirming
+   no git process runs. It blocks every commit.
+4. Needs approval: checkpoint commit on a new branch from
+   `checkpoint_plan_draft_20261018/` (4,062 files to commit, 9 to archive outside git,
+   33 secret-pattern hits all cleared as false positives or synthetic fixtures). Add the
+   `phase1_research_copilot/` tracked copy without its `.env`/browser files. Secret scan,
+   restore test into an empty folder, no push before operator review.
+5. Needs approval: apply the operating contract from `operating_contract_draft_20261018/`
+   (AGENTS.md, runtime_prompt.md, CODEX_REMEDIATION_PROMPTS.md diffs; prompt template).
+6. Operator: verify the Coinbase fee tier (dated screenshot). Blocks cost-sensitive results.
+7. Operator: decide the open Module A (WP5, proposed E11) values: 30% cap, top 10,
+   60-day lookback, X 5 pts, Y 2%/yr, +3%/yr minimum effect. Draft pre-registration is a
+   Claude Doc; no run before approval point A5.
+8. Needs approval: bring the draft simulator from `module_a_draft_20261018/` into the repo,
+   reproduce the reviewed harness within 1e-6 USD and pass the WP4 contracts.
+9. Later, separately: review the 199 GB `.cbp_state/audit_reports` and superseded
+   review-bundle zips for deletion; the companion install remains INCOMPLETE and paused.
+
+Still on hold: WP4 items 2-3; retry/runtime authorization NOT GRANTED; no trading.
+
+Continue the user's accepted objective under `runtime_prompt.md`. This backlog
+is an index of dispositions, not an instruction to repeat every listed task.
+Consult current code and the latest relevant work-log closure before reopening
+an issue. Dated status and projections below are historical observations, not
+current host health, credentials, gate counts or outstanding prerequisites.
+
+Accepted economic objective (2026-10-08): bounded multi-symbol baseline, frozen
+signal presets, fixed quote entries and carry-forward account across splits.
+See `research/multisymbol_baseline_v1/plan.json` and
+`docs/checkpoints/multisymbol_prefix_freeze_20261008.md`. Continue bounded public
+archive ingestion, strict grid/hash freezing and research reporting; do not
+replace this with a general production-readiness audit. This research is modeled
+and exploratory, not campaign, promotion or actual profit evidence. Keep the
+separate ES endpoint and unfinished evidence bridge visible without changing them.
+
+Baseline progress: discovery, validation and final modeled runs plus calendar/
+exploratory uncertainty reporting completed and separately audited; see
+`docs/research/multisymbol_calendar_uncertainty_20261008.md`. Do not repeat them
+or retune this frozen experiment. Coinbase is the selected confirmation venue;
+current account spot fees observed at maker25bps/taker50bps. Product-specific
+costs and a new confirmation contract remain unfinished; see
+`docs/research/multisymbol_confirmation_venue_checkpoint_20261008.md`.
+
+Historical Coinbase contract design was independently ACCEPTED_WITH_RISK:
+`docs/research/coinbase_confirmation_contract_20261008.md` and
+`research/coinbase_confirmation_v1/plan.json`. Its historical next action was
+compatible reviewed runner support and exact-product warmup preflight, now completed
+for the separately approved USD contract below. No new background
+collector, live trading or retrospective re-scoring is authorized by this pointer.
+
+Runner support independently accepted; partial warmup preflight found ADA/XRP
+USDT gaps. User approved a separate all-five USD contract; contract/runner and
+275 completed hourly bars per USD market were independently accepted with risk.
+See `docs/research/coinbase_usd_confirmation_contract_20261008.md`. The USDT
+evidence is preserved. USD preregistration completed October 9 00:01 UTC and
+was independently verified; its historical preflight verified 276 hours per market
+with 24 then remaining. The complete warmup was subsequently verified and an
+operator-authorized research-only activation
+record was saved October 10; see
+`research/coinbase_confirmation_usd_v1/activation_20261010.json`.
+The original plan retains its draft status for hash continuity; do not rewrite it
+or interpret that historical field as the current operating disposition.
+Continue reviewed bounded foreground collection, preserving prefix hashes.
+Scoring remains unauthorized before the registered phase boundaries; do not drop
+coins or manufacture missing candles. Latest consolidated status:
+`docs/research/research_queue_resolution_20261011.md`.
+
+## Historical Operating Snapshots
+
+Current evidence pointer (2026-10-08):
+`docs/checkpoints/hetzner_context_coverage_2026_10_08.md` resolves the E03 host
+context-service/series-presence unknowns with actual-host read-only proof. The
+system collector is operating; seven-day timestamp cadence is verified. This
+does not reopen FC-01 or establish profitability. Existing ES endpoint remains
+October 13 00:00 UTC; see its prepared endpoint report. Historical gate/cohort
+figures below must not substitute for the corrected-strategy identity checks.
+
 The active operating state is paper-evidence collection, not live launch.
 
 SHOWN:
@@ -2850,9 +3048,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     bps, limit-fill probability estimates, source artifact hash, and explicit
     `no_change` / `research_more` / `candidate_execution_policy_change`
     recommendation.
-16. Quarantine or fail-close the optional `ai_engine` live-router hook before
-    any capped-live exposure. `services/live_router/router.py` can enable
-    `services/ai_engine` through env/config and currently records
+16. Optional `ai_engine` live-router hook: error-path implementation exists;
+    do not repeat that fix without a current regression. Exceptions reaching the
+    enabled router hook now block regardless of strict compatibility flags.
+    Model read/parse failures caught inside `AISignalService` still return
+    `model_missing_pass_through`; that distinct path is not closed by the router
+    fix. Remaining
+    capped-live disposition/review is separate from this implementation fact.
+    Historical diagnosis, superseded by the 2026-07-05 implementation below:
+    `services/live_router/router.py` could enable
+    `services/ai_engine` through env/config and recorded
     `ai_error_ignored` with `ok=true` unless strict mode is explicitly enabled.
     That contradicts the repo's fail-closed doctrine for order-routing paths.
     Preferred resolution: remove or hard-disable the live-router AI hook until

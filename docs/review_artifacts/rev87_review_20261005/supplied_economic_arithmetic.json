@@ -1,0 +1,16 @@
+{
+  "scope": "SUPPLIED_PRICE_ARITHMETIC_ONLY",
+  "closed_net": [
+    -3.4459052891975404,
+    -2.0952688708076153,
+    -2.7315124752857827,
+    -3.819238001732998
+  ],
+  "closed_net_total": -12.091924637023936,
+  "closed_net_winners": 0,
+  "remaining_cash": 887.4080753629762,
+  "open_position": true,
+  "reported_terminal_net": 8.027153918772115,
+  "reported_terminal_equity_less_initial": 8.027153918772115,
+  "limitations": "Recorded modeled prices only; no fresh fees, archive source or live fills verified"
+}

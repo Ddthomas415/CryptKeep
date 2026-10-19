@@ -1,5 +1,4438 @@
 # Review Stabilized Work Log
 
+## 2026-10-11 - Codex AUDITOR: current news and raw source evidence verified
+
+Continuedrestoredintelligenceobjective, no newinfrastructure. Runningnewshealth54polls55ingested0errors,lastpoll21:26UTC;55storednewsdocumentswithpublicationtimestampsOct8-Oct11 (source-supplied, not independentlypublisherverified). ActualMinIOget_object readbackall55objects,2MB/objectcap: actualparserreproducedstoredtitle/text/contenthash55of55;49,033,820bytes,0failures. ReadonlyDBtransaction, no storagewrites/config/service/collector/tradingchanges. Added companion_news_evidence_check_20261011.md/json. No sourceedit/testsrequired forruntimeaudit. AuthenticRSS/sourceconsistencySHOWN, notfacttruth/semanticretrieval/marketcausality/profitedge. Noted64Ddeterministichashembeddingstub preventssemanticqualityclaim. Archivehealthonlynotbehaviorproof. Audit boundedfactscomplete.
+
+## 2026-10-11 - Codex ENGINEER/GATE stages: namespace status fix deployed
+
+14targetedtests passed0.51s; separateGATE ACCEPTED_WITH_RISK boundedsource, no runtimeproofclaimedbyreviewer. VerifiedlocalDockeridentity/readonlyrootmount/loopback/noTrading before in-placegatewayrestartonly. Postchecks exactgatewayConfig/imagepreserved, otherfourservice starttimestampsunchanged, browserauthvalid/executiondisabled. Actualcontainer digest nowreportedrunning/fresh with hostlivenessunverified/noissues. Actualbrowserpage Current andexplicitnamespacecaveat. No collectorrestart/settings/trading/credentialchanges. Added collector_namespace_status_20261011.md. RuntimeobservationsSHOWN mainagent; notsustainedhealth/profitabilityproof.
+
+## 2026-10-11 - Codex AUDITOR then ENGINEER: cross-namespace collector warning
+
+Actualhostcollectorstatusrunning PID32213alive,writes97,freshcapture21:21UTC. Gatewaycontainer samefile/PID reporteddead because Docker processnamespacecannotseehostPID. No collectorrestart needed. Added optionalverify_processFalse reader forcontainerdashboard only; defaultlocalmanagementunchanged, externalpid_aliveNone/livenessunverified, storedstatusreported notverifiedalive. Dashboardfreshsnapshot/status checksretained andcaveatshown; actualstaleinputsremainwarn.12initialtests passed;2additionaldashboardregressionsadded. Independentreviewrequested beforegatewayrefresh. No collector/trading/config/accountchanges. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-11 - Separate GATE: localhost browser activation accepted with risk
+
+Reviewer independently confirmedhealthylocalgateway,loopback8001,noTradingtrue,distinctcredentialconfiguration,tokenfile/runtimeequal,readonlyrepomount,owner0600Gitignored/Dockerexcludedprivateartifacts. ACCEPTED_WITH_RISK boundedlocalhostresearchchat. Mainagent HTTP/browsererrorproof notrepeatedbyreviewer; authenticatedUIhappy pathunverified. Mainagent otherfourservicespre/poststarttimestampsidentical,privateartifactsabsentfrom/app. No broadertrading/fullsystemacceptance.
+
+## 2026-10-11 - Codex ENGINEER: authorized browser route activated and verified
+
+Operational review blocked initialhelper forbuildsecret/rollback thenComposeinterpolation/merging. Corrected .dockerignore.browser*, uniqueimageoldimagepreserved, standalonegatewayconfig withcompleteoldenvandliteral-dollar escaping, explicitbrowser rollback andfullenvinspection. SeparateGATE ACCEPTED_WITH_RISK forone-shotexecution,2structuraltests;18gateway/routetests passed. Authorizedexecution exited0 VERIFIED_LOCAL_BROWSER_ROUTE: separate0600credential, unauth401, authenticatedsourcebackedresponse executiondisabled no upstreamfallback; credentialnotembeddedHTML. Actual deployedbrowsermissingtoken andinvalidQA401 nowterminalmetadata, fieldcleared. PositiveauthenticatedUI notclaimed. Credentialneverprinted; privatepaths documented. No other servicesrequestedforrecreation, database/campaign/account/tradingchanges. Runtime separate reviewrequested. READY_FOR_INDEPENDENT_REVIEW forruntimeevidence.
+
+## 2026-10-11 - Codex ENGINEER: authorized localhost browser activation prepared
+
+User explicitly approved separate localhost browser credential and reviewedUI deployment. Verified runninggateway loopback8001, no_tradingtrue, browsercredentialabsent. Added opt-in enable_companion_browser.py: exclusive0600localtoken artifact, existingcredentialcomparison, gateway-only build/recreate with--no-deps, no databasechanges, positive/negativebrowserrouteproof, no secretoutput and failure rollback to priorbrowserdisabledsetting. Persistentoverride contains variable reference only; token neverembeddedHTML. No activation performed yet; separate operational review requested before execution. HIGH READY_FOR_INDEPENDENT_REVIEW. No trading/account changes.
+
+## 2026-10-11 - Separate GATE: browser terminal status correction accepted
+
+Independent reviewer ACCEPTED_WITH_RISK,13tests passed78warnings. Missingtoken/refusal/transportfailure metadata and reasoning now terminate in source; authentication unchanged. Actual correctedbrowser execution not verified and deploymentnotperformed. No credential/securityaccess changes. Browser conversation remains unavailable until separatecredentialconfigured.
+
+## 2026-10-11 - Codex AUDITOR then ENGINEER: actual browser check and terminal UI status
+
+Continued intelligence objective. Actual in-app browser gateway rendered research-only/execution-disabled page. Missingtoken prompt and invalid nonsecret fixture refusalHTTP503 shown; field cleared. Successful browserchat not claimed: deployed browser credential unconfigured. Found metadata leftLoading on failures; corrected three source errorpaths to terminal metadata/reasoning, noauthpolicy change.13restored-route tests passed78warnings. No realsecretentered, persistentservice restart, deployment/config/credential change, trading or collector mutation. Added companion_browser_check_20261011.md. Separate source review pending READY_FOR_INDEPENDENT_REVIEW; runningbrowser stillprevioussource, not claimingdeployedfix.
+
+## 2026-10-11 - Separate GATE: dashboard proxy boundary accepted
+
+Independent reviewer accepted other session additive ProxyHandler({}) correction ACCEPTED_WITH_RISK. Independently10focused tests and90expanded dashboard tests passed; real-socket proxy test confirms bearer reaches intended companion only. PrimaryAPI unchanged. Runtime observations in persistent checkpoint were not independently repeated. Browser/fullsuite/sustainedoperation remain unverified; no service or credential changes by reviewer.
+
+## 2026-10-11 - Codex AUDITOR: persistent companion credentials and current runtime reconciled
+
+User requested completion. Read-only Docker inspection found historical companion services already running since18:45/18:46UTC; this turn did not start/recreate them and initiating actor unverified. Existing service/objectstore credentials match local config; decoded DATABASE_URL password matches stored database password. Actual PostgreSQL authentication and read-only aggregate verified55documents,55raw_object_key rows. Memory health db/qdrant/minio true; orchestrator no_trading true. Actual repository dashboard client with ephemeral process environment received6evidence entries, execution_disabled true, backendfallback notdashboardfallback. First query used wrong column and failed without mutation; corrected after schema inspection. Rootdotenv missing; used existing isolated dependency runtime.88dashboard tests passed, including other session proxy refusal addition; separate GATE review requested. Added companion_persistent_check_20261011.md. No credentials/config/database data changes, restart, campaigns, collectors, commit or push. Current runtime observed; browser/sustained/recreation proof unverified. Existing .env missing standalonePOSTGRES_PASSWORD means newCompose recreation still requires deliberate credential wiring, not reset. Audit bounded facts SHOWN; proxy acceptance READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-11 - Codex GATE: dashboard runtime independently accepted
+
+Separate reviewer accepted bounded actual dashboard-client runtime ACCEPTED_WITH_RISK. r4 receipt shows source citation and execution disabled with backend fallback, not dashboard_fallback. Independent read-only Docker queries found no r4 containers or volumes remaining. Browser rendering, sustained operation, old-state preservation and production readiness not established by this receipt. No deployment/trading activation authorized or performed.
+
+## 2026-10-11 - Codex ENGINEER: actual dashboard client integration verified
+
+Separate reviewer caught verifier interpreter path error before runtime; fixed repository-parent path and added regression. Seven verifier tests passed; reviewer independently seven passed and accepted bounded disposable execution with risk. r4 actual run exited0: PASSED_LOCAL_STACK_CHECKS, authentic Bitcoin source ingestion, persistent retrieval after memory restart, authenticated explanation/chat and actual repository dashboard client citation all passed; execution disabled. Provider is deterministic backend fallback, not dashboard static fallback. OWNED_STACK_REMOVED receipt recorded. No historical volumes/accounts/config/credentials changed; no sustained operation/browser rendering/production activation claim. Runtime receipt handed to independent reviewer; bounded runtime READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-11 - Codex ENGINEER/GATE stages: dashboard companion request boundary
+
+Continued accepted intelligence restoration, without trading or persistent account changes. Dashboard authenticated companion requests now refuse redirects, refuse transmission without a token, and use a separate finite timeout (30-second default, maximum 90); primary API behavior unchanged. Added nine targeted tests. Dashboard regression slice: 87 passed in 1.02s. Separate reviewer independently ran nine tests and accepted bounded HTTP change ACCEPTED_WITH_RISK: timeout is socket-operation bound, not total duration; actual browser behavior unverified. Extended disposable verifier to invoke the actual dashboard client with ephemeral credentials and assert citation, execution disabled, and no static dashboard fallback. Verifier extension awaits separate review/execution. Existing data, credentials and stopped historical volumes remain untouched. No full-system readiness or profitability claim.
+
+## 2026-10-11 - Codex DIRECTOR: actual intelligence backend restoration scoped
+
+Continued accepted intelligence objective after native persistence proof. Inspected historical companion tree/dependency decision and orchestrator imports/auth compatibility. Identified missing imported-service dependency closure, not another database proof. Chosen path optional companion restoration reusing original modules and accepted corrections, preserving existing .env/root independence. Added intelligence_backend_restoration_scope_20261011.md naming authentic-source and actual-route proof, URL/auth/startup gates and separate review. HIGH implementation not yet performed; scope INCOMPLETE. No code/runtime/credentials/trading changes; no tests applicable to planning-only delta.
+
+## 2026-10-11 - Codex GATE: durable companion proof independently accepted
+
+Reviewer independently ran native17.11 optin proof:5passed2.29s, bothreview-ownedclusters no server running. ACCEPTED_WITH_RISK bounded disposable PostgreSQL/localQdrant syntheticpipeline only; sourcearchiveSHA not independentlyverified. Supersedes native-binary block for test scope, not productionrestoration. No authenticnews/fullservice/objectstore/semantic/dashboard proof inferred. No codechanges or productiondatabaseaccess. Documentationupdated, no unnecessary broadsuite rerun.
+
+## 2026-10-11 - Codex ENGINEER: approved native PostgreSQL and persistence execution
+
+User approved native dependencies. Homebrew attempts failed without installing PostgreSQL: unavailable bottles and ICU dependency; inspection autoenabled developer mode then reverted it. Built official17.11 source after checksumverification in /private/tmp privateprefix, no defaultcluster/service or existingDB mutations. Narrow native PATH avoids Intel-only systemtools. Nativearm64verified. Initialtest failed socketpathlength; reran with short freshownedbasetemp.5passed2.39s (bothrealpersistence cases,3cleanup guards). Bothownedclusters explicitpgctlstatus: no server running. Added reproducible shortpath recipe and limitations. No production/runtime/trading source changes; real pipeline proof remains syntheticfeed/ASTfunctions/ASGI not authenticexternalnews/fullservicerestore. VERIFIED_ENV; execution proof READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-11 - Codex GATE: companion boundary proof independently reviewed
+
+Separate reviewer ACCEPTED_WITH_RISK test implementation/docs only, no blockers. Independently ran22passed2skipped direct slice and46passed2skipped expandedfeed/news slice; broader selection lacks yaml, not full-suite proof. Real parser/model/ASGI verified; default storage simulated. Durable opt-in test remains BLOCKED on x86_64 PostgreSQL binaries against arm64 host; installation decision pending. No runtime activation or complete intelligence restoration claimed.
+
+## 2026-10-11 - Codex ENGINEER: bounded companion integration proof
+
+User requested one-pass completion. Extended existing persistence proof rather than parallel production storage: real feedparser/BeautifulSoup parsing and recovered model, authenticated ASGI request serialization, canonical recovery/store/retrieve routes in test adapters. Added boundary test and parameterized PostgreSQL/local-Qdrant persistence case. Isolated /private/tmp dependencies only; app env unchanged. First install command failed shell glob on psycopg extra, corrected quoted argument. Default slice42passed2opt-in skips0.80s. Explicit persistence attempt3passed2failed: Intel-only initdb cannot execute on arm64 Mac, before any cluster startup. Native PostgreSQL installation decision requested. No production service/auth/config, database, background collector or trading changes. Proof implementation READY_FOR_INDEPENDENT_REVIEW; real persistence integration BLOCKED by executable architecture, not claimed complete. Added companion_pipeline_proof_20261011.md with fixture/AST/ASGI limits.
+
+## 2026-10-11 - Codex AUDITOR: documented-host companion lookup completed
+
+Tailscale human security check completed. Authorized read-only host probes returned: crypto-edge collector running; no historical companion service names or listeners on8000/8002/8006-8009. Docker command unavailable for account. Bounded folder search /home/cryptkeep,/opt,/srv depth4 found separate services/ai_copilot only. Updated intelligence trace with inspected limits; no operating historical backend found on documented host, not universal absence proof. No remote services/config/accounts modified. Read-only lookup complete; next scoped recommendation is local parsed-document/durable-retrieval integration reusing recovered code, no activation. Audit ACCEPTED_WITH_RISK for observed host facts only; implementation not begun.
+
+## 2026-10-11 - Codex AUDITOR: locate companion deployment
+
+User did not know backend location and asked agent to investigate. Inspected deployment docs, compose profile, historical Hetzner checkpoint and local companion folder. Local folder has empty service directories and historical config; inspected only URL hostname/port fields, no secret values. Documented remote target cryptkeep@100.86.128.9 found. Read-only Tailscale SSH inspection encountered required human security check before remote output. This is not user API sign-out or proof backend absent; no auth/config reset attempted. Updated intelligence trace. Remote deployment UNVERIFIED, audit INCOMPLETE pending access check. No services, collectors, accounts or trading modified.
+
+## 2026-10-11 - Codex AUDITOR: intelligence caller-to-consumer refresh
+
+Continued accepted wider-backlog intelligence trace. Inspected dashboard explanation client/fallback, recovered ingestion/memory modules, prior September29 trace and recovery proof README. Existing client calls primary API then companion orchestrator; recovered code remains isolated, not startup-wired. Both this shell's default local service ports8000/8002 refused connection; remote deployment and dashboard process environment UNVERIFIED.42targeted tests passed55deselected0.59s; unit proof not operating chain. Added intelligence_path_refresh_20261011.md, preserving earlier repairs and evidence limits. No code/runtime/service/trading changes. VERIFIED_ENV local tests/probes. Audit INCOMPLETE pending intended external backend location; no new infrastructure selected.
+
+## 2026-10-11 14:49 UTC - Codex ENGINEER: current collection and inventory closeout
+
+User requested completing remaining available maintenance. SHOWN market-context capture resumed at14:47:56UTC,21writes zeroerrors; no additional restart. Reviewed Coinbase dry-run verifies zero missing completed bars at14UTCcutoff,38evaluation hours per five markets; no duplicate network collection. Used accepted inventory tool to extend baseline preserving all originals:12publishedfiles,7schema3inputs including failed diagnostic and extra14:42capture of unverified origin. New chained seal SHA256 738f7548ba10dd84cb9a52c5f0f620fdccb54418bdb55d4c67bb2dc6f392c828. Accepted readiness-only composition verifies seal, WAITING_FOR_DECLARED_MATURITY, no outcomes/scoring. Updated authoritative task ledger with38hours and scheduling limits; historical economic reporting already complete, not rebuilt. VERIFIED_ENV; no code, scheduling, campaign/account/trading changes. Existing reviewed-tool scope remains ACCEPTED_WITH_RISK. No repeated tests needed for artifact/doc operations. Future unattended weekly run and mature evidence remain INCOMPLETE, not achievable by another immediate run.
+
+## 2026-10-11 14:46 UTC - Codex GATE: TLS repair reviewed and capture verified
+
+Independent reviewer flagged unconditional certifi provenance for injected transports. Corrected to default verified_request only; custom transport labeled UNVERIFIED without bundle hash, regression added. Parent 17 tests passed0.35s, reviewer17passed0.27s; ACCEPTED_WITH_RISK narrow transport repair, no remaining blockers. Fresh real public capture exited0 with OBSERVED at14:45:51UTC; original failed observation retained. No insecure TLS fallback, global trust changes, scheduler/campaign/account edits or outcome evaluation. One manual successful capture is SHOWN, not future scheduling or source authenticity certification. New snapshots need a chained inventory seal before analytical use.
+
+## 2026-10-11 - Codex ENGINEER: CMC TLS trust repair
+
+User requested fixing CMC certificate trust. SHOWN runtime default verify paths absent while installed certifi bundle exists; failed capture preserved. Added v3-only verified HTTP transport using explicit certifi default context, no insecure fallback, preserved error envelopes and bundle-hash provenance. Original v2/source artifacts unchanged. Two TLS regressions verify CERT_REQUIRED, hostname checking and single failed attempt. Targeted logger/snapshot tests 17 passed in 0.33s; full suite not run for narrow change. VERIFIED_ENV local runtime. No global trust/config/scheduler/trading changes. HIGH security-sensitive transport; READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-11 14:43 UTC - Codex ENGINEER: collection catch-up and stale-runtime diagnosis
+
+Continued approved maintenance, VERIFIED_ENV. Existing collector processes confirmed alive by process listing; macOS log shows wake from deep idle at 10:39:31 New York. This supports sleep-related interruption, not proof of external task failure cause. Reviewed foreground batch added 15 completed hours per five Coinbase markets; all now 338 bars including 38 evaluation hours, prior prefixes/frozen identities verified. Saved collection_batch_20261011T140000Z.json and updated checklist. Existing v3 CMC logger manually captured actual 14:42 UTC observation without backdating; returned DEGRADED, invalid or missing hidden-list envelope, exit 1. Preserved this failed diagnostic artifact, not counted as successful coverage. Market-context process still alive but last successful status remains 13:40 UTC; recovery not claimed. No restarts, scheduler changes, trading, outcome evaluation or source-code edits. Maintenance INCOMPLETE for fresh context/valid CMC; hourly ingestion complete for current cutoff.
+
+## 2026-10-11 00:15 UTC - Codex ENGINEER: approved market-context collector restart
+
+User explicitly approved restarting the existing stopped collector with unchanged settings. VERIFIED_ENV: inspected documented operator launcher and recorded plan/300-second interval; used existing start_crypto_edge_collector_loop control, no implementation changes. SHOWN: PID 32213 alive, status running; fresh capture at 00:15:01 UTC, one successful write, zero errors. Funding, open interest, basis, Coinbase/Kraken quotes and Coinbase book checks all passed. No campaign, account, trading settings, schedules or other collectors changed. Human-authorized operational restart complete; ACCEPTED_WITH_RISK for one-cycle verification only. Sustained health and automatic reboot recovery remain unverified; prior October 8-11 quote/book gap is not repaired.
+
+## 2026-10-10 - Codex GATE: bounded workflow independently accepted
+
+Separate reviewer returned ACCEPTED_WITH_RISK for standalone composition, no blockers; independently reproduced 32 synthetic tests and additional source-change refusal probe. Actual laptop readiness command verified anchored baseline: nine published snapshots, four schema-3 inputs, WAITING_FOR_DECLARED_MATURITY, outcomes false and scoring false. Updated handoff. Diff whitespace check passed. No original artifacts, campaign, scheduler, account or live execution changed. Remaining operator single-look, non-atomic filesystem, authenticity and pre-baseline completeness limits are explicit. This completes software composition, not future observations or profitability certification.
+
+## 2026-10-10 - Codex ENGINEER: bounded workflow composition
+
+Continued approved parallel research objective. Added standalone readiness/evaluation orchestration with supplied seal anchor, fixed maturity refusal, post-composition source verification and exclusive report output outside snapshots. Added five synthetic regressions and operator handoff. Initial test collection failed on fixture import; corrected package import, then exact workflow/inventory/adapter/calculator selection passed 32 tests in 1.04s. No real outcomes, campaign, scheduler, account or trading changes. VERIFIED_ENV for local verification. Source authenticity, atomic isolation and cross-filename single-look enforcement remain unverified. HIGH research integrity; READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-10 - Codex GATE: adapter accepted and current diagnostic verified
+
+Separate reviewer ACCEPTED_WITH_RISK for adapter/wrapper correction, no blockers.
+Parent isolated-bytecode-prefix four-file run45passed0.59s. Reviewer reports43
+with adapter11/helper12/qualification15/statistics5; that selection substitutes
+statistics for parent's wrapper-report7 tests, so do not claim identical selection
+or independently reproduced45. Generated new separate integrated artifact at
+fixed11:20:42UTC: completeness NO_MATURE_PRIMARY_WINDOW,101HISTORY_UNCERTAIN,
+zero7day outcomes, scoringfalse. Originals unchanged. Diagnostic verified locally;
+acceptance does not certify real outcomes, market inference or maturity.
+No operational changes. Primary inference and mature evidence INCOMPLETE.
+
+## 2026-10-10 - Codex ENGINEER: completeness adapter review corrections
+
+Independent review identified trailing-window truncation and conflation of entry
+exclusion with missing exits. Required explicit audit bounds and preserved fixed
+entry exclusions/reasons separately. Follow-up probe exposed wrapper exception
+overwriting a qualified entry; now preserve entry and mark missing exit linkage.
+Added trailing-date, entry-rule-exclusion and wrapper linkage regressions. Exact
+four-file run with -B/no:cacheprovider:45passed0.60s. Earlier parent/reviewer test
+counts differed; only this cache-disabled current-tree result is final local proof.
+No real diagnostic/scoring or rule changes. READY_FOR_INDEPENDENT_REVIEW for
+final bounded implementation. Independent review requested; no deployment.
+
+## 2026-10-10 - Codex ENGINEER: CMC completeness adapter integration
+
+Connected accepted cohort dispositions to standalone completeness helper through
+cmc_completeness_adapter.py and qualified diagnostic report. Uses only accepted
+envelopes, first30day window boundary and full-UTC-day seven-day+12h maturity.
+Unknown history/ambiguous membership retained; repeat/identity exclusions explicit;
+unqualified or missing exits remain missing outcomes. Source mismatch and duplicate
+seven-day records refuse. Early windows produce NO_MATURE_PRIMARY_WINDOW without
+reading returns.42 targeted tests passed. HIGH research semantics; no new inference
+or gate changes. No market result generated yet. READY_FOR_INDEPENDENT_REVIEW;
+integration and fixed maturity boundary reviewed next. No operational changes.
+
+## 2026-10-10 - Codex GATE: completeness helper accepted with risk
+
+Separate Hooke accepted standalone helper and aggregate correction WITH RISK:
+12helper tests independently passed; exact overflow probe now refuses. Parent
+24helper/statistics/wrapper tests pass in0.34s. Acceptance excludes logger
+integration, caller-supplied completeness/maturity proof, mathematical inference
+and market applicability. No scoring or operational authority. Next coherent
+slice is an independently reviewed adapter from actual cohort dispositions to
+normalized audit records; do not directly feed raw snapshots into helper.
+
+## 2026-10-10 - Codex ENGINEER: completeness aggregate overflow correction
+
+Separate reviewer reproduced finite daily sums overflowing across days. Replaced
+aggregate summation with fsum and explicit overflow/nonfinite refusal; added exact
+two-day1e308 regression. This rejects unrepresentable aggregates rather than
+publishing infinity or clipping outcomes. No scope/rules/integration change.
+READY_FOR_INDEPENDENT_REVIEW for bounded correction; targeted rerun follows.
+
+## 2026-10-10 - Codex GATE then ENGINEER: complete-cohort audit helper
+
+Separate Hooke accepted amended completeness-audit contract WITH RISK, excluding
+mathematical validity and market certification. Implemented standalone normalized
+input audit, retaining sum/count pairs, observed zero-event dates and explicit
+unknown/missing dispositions; no confidence procedure. Immature declared windows
+refuse; outside-window returns are not accessed. Eleven targeted tests pass.
+No integration/raw outcomes/registered rule changes. Input eligibility and
+maturity supplied by caller, not independently established by helper. HIGH
+research semantics; READY_FOR_INDEPENDENT_REVIEW for implementation, reviewer
+requested. No accounts, schedules, external app or trading changes.
+
+## 2026-10-10 - Codex DIRECTOR: inference proposal eligibility clarification
+
+Separate reviewer found one contract blocker: unknown cohort membership could
+be mistaken for ineligibility or a zero-event day. Added explicit refusal for
+HISTORY_UNCERTAIN/AMBIGUOUS_FIRST_CAPTURE and missing list coverage; retain
+separate unknown counts. One bounded correction, no implementation/calibration.
+READY_FOR_INDEPENDENT_REVIEW pending exact correction review; mathematical
+validity and market applicability remain unaccepted.
+
+## 2026-10-10 - Codex DIRECTOR: concrete CMC inference proposal
+
+Continued accepted research repair after combined verification. Inspected current
+event-weighted statistics and decision memo; consulted original block-bootstrap
+papers. Added market_inference_proposal_20261010.md preserving registered target
+via calendar (sum,count) pairs, enumerating complete mature cohorts, two explicit
+unverified model assumptions, tail/ratio limits and repeated-look gap. Proposed
+only a read-only completeness audit as next bounded implementation; no new
+confidence method or calibration. Risk HIGH financial/research semantics;
+READY_FOR_INDEPENDENT_REVIEW. No data, scoring, rules or operations changed.
+Verification is source/design comparison; no code tests applicable.
+
+## 2026-10-10 - Codex GATE: combined verification independently accepted
+
+Separate Hooke ACCEPTED_WITH_RISK, no blockers, for combined report and four
+status wording corrections only. Independently reran261tests in3.51s with cache
+and bytecode writes disabled, verified seven archive/seven economic hashes and
+saved diagnostic101historyuncertain/0seven-day/scoringfalse. Recorded acceptance
+in report. Overall primary inference, natural weekly proof and mature evidence
+remain INCOMPLETE. No new simulation or operational change. This is one combined
+verification handoff, not another request for routine approval.
+
+## 2026-10-10 - Codex AUDITOR then ENGINEER: combined repair verification
+
+User requested less fragmented work. Ran one combined research repair regression:
+261 passed in4.54s. Verified all7 frozen archive checksums and7 economic source
+hashes. Generated separate integrated qualified diagnostic at11:20:42UTC:
+101 HISTORY_UNCERTAIN, zero7day outcomes, both NOT_READY_90_DAYS, scoring false.
+Separate Hooke audit identified stale counts/open-summary/diagnostic-review and
+calibration wording; corrected all four without changing rules or results.
+Added combined verification report, retaining explicit future/method limits.
+VERIFIED_ENV local venv. No full repo suite, historical reruns, external app,
+runtime, account or schedule changes. Report READY_FOR_INDEPENDENT_REVIEW;
+overall primary inference/mature research INCOMPLETE. Whitespace check follows.
+
+## 2026-10-10 11:21 UTC - Codex ENGINEER: completed-hour catch-up
+
+Continued approved public-only foreground collection for 04:00-10:00 UTC,
+excluding incomplete 11:00 candle. Five unique hours05_11 receipts each record
+seven rows, 35 total. VERIFIED_ENV. Initial read-only coverage check correctly
+refused the incomplete archive before backfill. Final verification confirms 311
+exact contiguous bars per registered USD market, unchanged five frozen warmup
+hashes and matching contract/source identities. No early scoring, simulations,
+background collector, accounts, campaigns or schedules changed. Data-ingestion
+proof complete, no profitability inference. No code tests rerun for data-only
+operation. Primary inference and mature evidence remain INCOMPLETE.
+
+## 2026-10-10 - Codex GATE then DIRECTOR: independent inference audit retry
+
+User requested retry after reviewer usage failure. Separate Hooke assessment
+completed: ACCEPTED_WITH_RISK for primary_inference_gap audit, no exact-claim
+blockers. Confirmed estimand mismatch; identified missing scale/tail, population,
+confidence and repeated-look contract inputs. Recorded disposition and added
+market_inference_decision_20261010.md as an INCOMPLETE decision boundary, not a
+new accepted method. No simulation, scoring, data fetch or operational change.
+Verification: separate source/document review and diff whitespace. No code tests
+applicable. Primary inference remains INCOMPLETE; no same-thread certification.
+
+## 2026-10-10 - Codex AUDITOR: primary-inference contract gap
+
+Continued local research objective, not another calibration run. Compared the
+registered statistical amendment/operator decision with V4 contract: primary
+event-weighted inference and V4 daily equal-weight reference are distinct.
+Added primary_inference_gap_20261010.md recording necessary dependence,
+missingness and sample-floor contract inputs without inventing thresholds or
+changing any rule. Requested separate read-only statistical assessment. No code,
+data, scoring, campaign, schedule or external-app change. Verification: source
+comparison; no code tests applicable. INCOMPLETE primary inference, pending
+independent assessment; not implementation or certification.
+
+## 2026-10-10 04:14 UTC - Codex ENGINEER: fourth completed research hour
+
+Continued approved bounded public Coinbase backfill for the 03:00 UTC candle,
+with cutoff 03:59:59 UTC excluding the incomplete 04:00 candle. Five new receipts
+each report one row written. VERIFIED_ENV existing research archive/backfill.
+Read-only validation confirms exact contiguous 304-hour grids for all five USD
+markets, unchanged frozen 300-bar warmup hashes and matching source identities.
+No rerun, scoring, background collector, campaign, account or schedule change.
+Data ingestion proof complete; no profitability inference. Full code tests not
+rerun for data-only ingestion. Primary inference and mature evidence INCOMPLETE.
+
+## 2026-10-10 - Codex ENGINEER: repo-only research closeout
+
+User explicitly directed local work instead of Claude. Read current ledger and
+latest work log before selecting work; no closed study rerun. Added local
+closeout, updated master and R09 to local-documentation ACCEPTED with external
+work excluded by user. Recorded that external opening damage is not verified
+restored, rather than claiming successful reconciliation. Existing financial
+acceptances unchanged; primary statistical inference, natural weekly proof and
+mature forward evidence remain INCOMPLETE. No code, original artifacts, runtime,
+accounts, schedules or credentials changed. LOW-risk status documentation;
+verification: diff whitespace and cross-file completion boundaries. No code
+tests applicable. ACCEPTED for documentation only, not overall research closure.
+
+## 2026-10-09 - Durable paper-fill identity storage slice
+
+Active role ENGINEER, HIGH risk, VERIFIED_ENV local venv/isolated databases.
+Found cost-policy identity exists only in post-accounting best-effort JSONL.
+Added optional evidence to paper apply_fill transaction using an existing
+paper_state namespace; engine passes the same detached payload used for JSONL.
+Legacy/duplicate fills cannot be retroactively upgraded. Corrupt reads marked
+invalid. No schema migration, campaign restart, config activation or gate change.
+
+SHOWN: six aspects documented in
+docs/checkpoints/es_durable_fill_identity_2026_10_09.md; targeted five-file
+pytest command there returned 46 passed in 1.05s. Independent review requested.
+Storage failure rolls back accounting and may delay paper fills, including exits;
+no live behavior claim. Full suite/power-loss/deployed proof not run. Durable
+journal transfer and gate integration remain incomplete, not implied by this
+storage slice. Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - Receipt-timing diagnostics accepted
+
+Active role: GATE. Human explicitly supplied INDEPENDENT REVIEW ACCEPTED after
+separate reviewer Darwin returned ACCEPTED for the bounded receipt-timing slice.
+SHOWN: reviewer independently ran capture-book/report tests: 30 passed, plus
+31 invalid-input probes, timezone normalization and three mocked-envelope cases.
+No actionable findings. Engineer's 41-test slice and real-data diagnostic report
+are separate evidence, not additional independently reproduced results.
+
+Acceptance state: ACCEPTED for receipt-timing diagnostics only. Historical score
+equivalence against exact pre-change source, full suite, live integration and
+market freshness remain UNVERIFIED. No scoring, deployment, trading, campaign
+activation or statistical-method authorization follows from this acceptance.
+Durable fill-cost verification and gate integration remain unfinished; do not
+repeat accepted identity or timing slices as new tasks.
+
+## 2026-10-09 - Transport timing diagnostics and remaining-work verification
+
+Active role: ENGINEER. Objective: continue approved backlog without rebuilding
+accepted structural book checks. Risk HIGH for research-evidence semantics.
+VERIFIED_ENV: local venv/checkouts. Added nested transport timing diagnostics
+to book reporting: request duration and receipt age at the report cutoff;
+malformed, naive, reversed and future timestamps remain invalid. Exchange quote
+age remains unknown; scoring stays false. No primary threshold, contract,
+original snapshot, campaign, deployment or account change.
+
+SHOWN: `./.venv/bin/python -m pytest -q tests/test_cmc_book_evidence.py tests/test_run_cmc_diagnostic_report.py tests/test_cmc_quote_evidence.py`
+returned 41 passed in 0.34s. Independent review requested for this slice only.
+Real-snapshot read-only report at 2026-10-09T20:39:40Z written separately to
+`/tmp/cryptkeep-cmc-timing-20261009T203940.json`: 33 book records have transport
+timing only; two missing-capture markers; 101 HISTORY_UNCERTAIN outcomes.
+scoring_authorized remains false. Original snapshots unchanged. This temporary
+report is not a durable research handoff or a market-freshness verification.
+
+Separate existing-implementation check:
+`./.venv/bin/python -m pytest --noconftest -q -p no:cacheprovider tests/test_execution_identity.py tests/test_runtime_execution_identity.py tests/test_paper_fill_identity.py tests/test_journal_execution_identity.py`
+returned 50 passed in 0.57s. This does NOT close the durable fill-cost bridge:
+intent_reconciler still emits order_policy_only and fill_cost_policy_verified=false.
+Do not relabel it as verified or activate a new cohort from these unit results.
+
+Remaining: primary quote qualification policy, durable cost bridge and gate
+integration, scoped packaging of existing mixed work, and separately registered
+statistical-method decision. No broad commit made of other sessions' changes.
+No full-suite/host proof inferred. Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 14:21UTC - ENGINEER - Approved existing ES paper collector restart
+
+- User approved restarting existing paper collector with unchanged recorded
+  settings. Used restore_paper_campaigns --restore --campaign es_daily_trend_v1
+  --preflight-ohlcv; no other campaign selected or manifest edited.
+- VERIFIED_ENV: manifest matches prior sma_200_trend/BTC-USDT/Coinbase daily
+  signal,20-second runtime,300-second poll and existing .cbp_state directory.
+- SHOWN: public-OHLCV preflight passed300 rows; detached collector PID40685 alive,
+  collecting at14:21:28UTC with new session/signal evidence. Campaign subprocesses
+  are paper engine, tick publisher and paper monitor; no live consumer started.
+- No strategy, live config, credentials or historical account data manually
+  changed. Normal campaign processing can write paper intents/state/evidence.
+- First-cycle completion still pending at this entry; startup is not proof of
+  lasting health or profitability. Operational result READY_FOR_INDEPENDENT_REVIEW.
+
+### Follow-up14:21:55UTC
+
+- SHOWN: first Oct9 cycle completed successfully at14:21:54UTC; PID40685 remains
+  alive and idle awaiting the next UTC day. New session/signal files observed.
+- Zero new intents/fills/closed trades; signal remained buy but unchanged. No
+  realized-PnL delta. Restart restored collection, not trading profitability.
+- Other configured challenger collectors were not restarted; approval was ES only.
+
+## 2026-10-09 14:16UTC - AUDITOR - Campaign and natural collection check-in
+
+- SHOWN: paper collector --status reports pid_alive:false, last completed day
+  Oct8, stale idle status timestamp Oct8 00:44UTC. No restart performed.
+  Stored last result:20 fills/10 closed trades, latest fill July9, no new fills.
+  Stored PnL is not independently reconciled by this check.
+- SHOWN: Claude daily task history has9:53AM run without Manual label, next run
+  tomorrow9:52AM; earlier manual runs explicitly labeled Manual.
+- New13:53:52UTC schema3 snapshot is OBSERVED, source_errors empty,33 product
+  books structurally valid,16 identity-eligible tracked rows. SHA256:
+ 4751e56190c4ac493d95836412a360b9ba1a167bbdd51f9ec03320dacf756e2b.
+- Natural daily collection verified for this one run, not perpetual health or
+  executable profitability. Weekly run and completed Coinbase warmup still pending.
+- No process, campaign, config, account, schedule or original-snapshot mutation.
+- Acceptance: ACCEPTED_WITH_RISK for read-only check-in evidence. Existing paper
+  collector restart requires an explicit operational decision.
+
+## 2026-10-09 - AUDITOR - Avoid duplicate warmup collection; verify frozen identity
+
+- Found existing11:20UTC warmup precheck from another session; did not repeat
+  downloads or mutate its archive. Its reported276 archived/287 completed bars
+  and public availability are CLAIMED here, not independently remeasured.
+- SHOWN: read-only load_contract/check_registration verified plan, frozen selected
+  sources, strategy snapshot, fee receipt, runner and preregistration identities.
+  Plan remains DRAFT_NOT_ACTIVATED. Final warmup bar closes Oct10 00:00UTC.
+- Natural daily CMC trigger remains13:52UTC; cannot claim it before elapsed time.
+  No new task, collector, activation, scoring or outcome access performed.
+- Acceptance: ACCEPTED_WITH_RISK for identity inspection only. Full warmup,
+  archive prefix freeze and unattended scheduler proof remain incomplete.
+
+## 2026-10-09 - GATE - Human acceptance of integrated book diagnostics
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED for integrated structural
+  book/capacity reporting after139 consolidated tests passed and a separate
+  real-snapshot diagnostic preserved84 history-uncertain events with no scoring.
+- Acceptance: ACCEPTED_WITH_RISK for diagnostic integration only. No additional
+  independent verification result is inferred. Freshness/fills and primary
+  statistical gate remain unresolved; old missing books are not backfilled.
+- No original data, frozen return rules, account or schedule change implied.
+
+## 2026-10-09 - ENGINEER - Integrate structural book and capacity diagnostics
+
+- Added per-source/product book checks and100USD entry capacity diagnostics to
+  integrated report. Missing captures/products and invalid containers stay visible;
+  frozen return arithmetic and scoring_authorized:false unchanged.
+- SHOWN:29 focused tests passed; consolidated CMC/calibration/report slice139
+  passed. Generated separate real-snapshot report asof11:30UTC with84
+  HISTORY_UNCERTAIN events and NOT_READY_90_DAYS statistics. Existing v3 captures
+  lack books; the report exposes that instead of fabricating evidence.
+- Original snapshots unchanged; bounded BTC/ETH probes remain outside study data.
+  No current scheduled run claimed: clock11:34UTC precedes13:52UTC natural trigger.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW for integration. Freshness and primary
+  statistical scoring still incomplete;139 local tests are not full-system proof.
+
+## 2026-10-09 - GATE - Human acceptance of book correction and capacity sensitivity
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED for strict book-row
+  validation and100USD entry-notional sensitivity after34 targeted tests.
+- Acceptance: ACCEPTED_WITH_RISK for bounded correction/report only. No additional
+  independent test run is inferred. Notional excludes separate fees; displayed
+  capacity is neither a fill guarantee nor round-trip execution evidence.
+- Freshness, primary scoring and natural unattended collection remain incomplete.
+- No trading, sizing, original-data, schedule or account change implied.
+
+## 2026-10-09 - ENGINEER - Book-row correction and100USD capacity sensitivity
+
+- Independent review reproduced malformed string rows qualifying as prices/sizes.
+  Added strict side/level array validation and string/empty/truncated regressions.
+- User acknowledged recommended100USD sensitivity. Quantity uses entry ask with
+  notional excluding separate fees; no live sizing or frozen-return change.
+- SHOWN:34 combined book/ticker/logger tests passed. Preserved probe supports
+  displayed entry ask quantity for BTC/ETH; no fill or round-trip claim follows.
+  New sensitivity artifact cites original source hash; originals unchanged.
+- Freshness and primary scoring remain unresolved. No collector or account action.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW for correction and sensitivity.
+
+## 2026-10-09 - GATE - Human acceptance of structural book qualification
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED for read-only structural
+  book checks following21 targeted tests and existing BTC/ETH probe inspection.
+- Acceptance: ACCEPTED_WITH_RISK for structural checks only; no additional
+  independent test run is inferred. Freshness, executable fills and primary
+  quantity/missing-evidence policy remain unresolved under R03.
+- No sizing, threshold, scoring, original-data, account or schedule change implied.
+
+## 2026-10-09 - ENGINEER - Read-only book qualification and limits
+
+- Added structural L1 checks: exact product/request URL, recorded hash, capture
+  timestamps, nonauction state, finite positive prices/base sizes and crossed-book
+  exclusion. Optional caller quantity only; no order-count multiplication.
+- SHOWN:21 combined book/ticker tests passed; existing BTC/ETH probe records pass
+  structure, with85/67ms capture durations. Freshness/fills explicitly unverified.
+- No scorer replacement, sizing/freshness threshold, collector run, artifact or
+  account mutation. R03 primary policy still incomplete, not closed by this helper.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW; bounded independent review requested.
+
+## 2026-10-09 - AUDITOR - Reconcile accepted confirmation into master status
+
+- Separate reviewer ACCEPTED_WITH_RISK result after independently verifying1080
+  checkpoints/108 cells/108000 trials, hashes, aggregates and Wilson criteria.
+- Updated master summary and authoritative checklist with NO_CERTIFIED_SAMPLE;
+  removed stale pending-calibration and unbound-daily-convention wording.
+  Preserved difference between96 accounted cases and18 new corrected reruns.
+- Next actionable gap is quote qualification, not another calibration rerun.
+  Natural schedule, completed warmup and mature forward data still require time.
+- Documentation-only; no tests rerun or code/account/schedule/artifact changes.
+- Acceptance: ACCEPTED_WITH_RISK for evidence reconciliation. External hosted
+  summary update remains UNVERIFIED.
+
+## 2026-10-09 - GATE - Human acceptance of negative confirmation result
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED after108000 synthetic
+  confirmation histories returned NO_CERTIFIED_SAMPLE.
+- Acceptance: ACCEPTED_WITH_RISK for the result and bounded interpretation only.
+  No additional independent verification result is inferred from human acceptance.
+- Frozen block28 method failed required error/power criteria; no sample length,
+  replacement gate or profitability certified. Preserve all results without tuning.
+- CMC primary scoring remains disabled. Any new method requires a new contract
+  and unused confirmation identifiers; accepted collection/diagnostics continue.
+
+## 2026-10-09 - ENGINEER - Frozen v2 confirmation completed
+
+- SHOWN:108000 synthetic histories/108 cells completed in144.75 seconds, below
+ 600-second between-chunk cap;1080 immutable checkpoints and summary preserved.
+  Frozen block28/source/runtime lock retained, no v1 checkpoint reused.
+- Result NO_CERTIFIED_SAMPLE: all6 supported null cells fail at each90/180/365
+  length; target-power failures6/6,6/6,5/6 respectively. No post-result retuning.
+- This is statistical-method failure, not market profitability evidence. No
+  real-market minimum or replacement gate established. Primary scoring disabled.
+- Separate review requested for result aggregation/interpretation;13 targeted
+  implementation tests previously reproduced by independent reviewer.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW for confirmation result.
+
+## 2026-10-09 - ENGINEER - Validated v2 confirmation run
+
+- Separate reviewer accepted bounded v2 correction WITH_RISK and reproduced13
+  tests. Exact four-source manifest, NumPy2.4.4 and count consistency verified.
+- Started v2 confirmation using preserved block28 selection, disjoint confirmation
+  streams and100-history immutable checkpoints. No v1 parts reused.
+- Runtime600-second limit applies between chunks, not hard mid-chunk cancellation.
+  Confirmation completion/result pending; no scoring or financial acceptance.
+
+## 2026-10-09 - GATE - Human acceptance of confirmation checkpoint correction
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED for the mandatory
+  source manifest, runtime-version enforcement and count-validation correction.
+- Acceptance: ACCEPTED_WITH_RISK for correction only after13 targeted tests.
+  No additional independent verification result is inferred.
+- Partial v1 results remain preserved, not accepted confirmation evidence. Next
+  run must use validated v2 lock and checkpoints within the bounded compute cap.
+- No statistical sample, power, profitability or CMC scoring acceptance implied.
+
+## 2026-10-09 - ENGINEER - Stop confirmation and repair checkpoint validation
+
+- Separate review BLOCKED acceptance: source manifest could be empty, runtime
+  version was not enforced, and resume counts lacked range/consistency checks.
+- Stopped the run on that finding; preserved all v1 partial checkpoints. No full
+  confirmation summary or calibrated sample claim exists.
+- Required exact four-path source manifest, enforced locked NumPy version, and
+  rejected boolean/noninteger/out-of-range or inconsistent resume counts.
+  Created v2 runtime addendum without changing selected block28 method or v1 lock.
+- SHOWN:13 targeted tests passed including all three review gaps. V2 confirmation
+  remains unstarted; separate re-review requested before any rerun.
+- No market outcomes, scoring rules, accounts, schedules or originals changed.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW for bounded correction.
+
+## 2026-10-09 - ENGINEER - Bounded frozen confirmation execution
+
+- Implemented confirmation runner for accepted block28 development lock, with
+  disjoint confirmation stream identities and source-hash checks before execution.
+- SHOWN:11 targeted generator/interval/selection/confirmation tests passed.
+  Started108-cell synthetic confirmation under600-second cap;100-history immutable
+  checkpoints retain trial denominators and failure/refusal counts.
+- Separate review requested while run proceeds. No gate, mature outcome, original
+  dataset, account or schedule change. Completion/result not yet claimed here.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW for runner; confirmation result pending.
+
+## 2026-10-09 - GATE - Human acceptance of development method lock
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED after the360-evaluation
+  development screen selected block28 and9 targeted tests passed.
+- Acceptance: ACCEPTED_WITH_RISK for development artifact and selection only.
+  No additional independent verification result is inferred.
+- Confirmation must retain the immutable block28 lock, source hashes, disjoint
+  confirmation streams and bounded compute/checkpoint contract. No method swap.
+- No error-rate, power, sample-size or profitability certification yet.
+
+## 2026-10-09 - ENGINEER - Fixed synthetic development screen
+
+- Ran exactly360 method-history evaluations over12 predeclared development cells,
+  ten null histories/cell/method,2000 resamples. Development identifiers only.
+- SHOWN:9 targeted model/interval/selection tests passed. Screen completed in0.737s.
+  Immutable cmc_development_method_lock_v1.json records block28 selection, counts,
+  contract/model/method/runner hashes. Availability filtering precedes ranking.
+- No confirmation or market data accessed, no threshold changed. Small development
+  counts are not calibrated error rates, power evidence or profit certification.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW for runner and method-lock artifact.
+  Confirmation must use this frozen lock after review; no method substitution.
+
+## 2026-10-09 - GATE - Human acceptance of candidate interval implementation
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED following the three
+  candidate methods,7 targeted tests and81-cell runtime benchmark.
+- Acceptance: ACCEPTED_WITH_RISK for implementation only. No additional
+  independent verification result is inferred. Runtime excludes generation/I/O.
+- Next: bounded development screening using the fixed contract, then preserve
+  the selected method/hash or NO_METHOD_LOCKED before any confirmation run.
+- No statistical certification, scoring activation or trading change implied.
+
+## 2026-10-09 - ENGINEER - Vectorized candidate intervals and runtime proof
+
+- Implemented isolated fixed entry-day/block28/block56 synthetic candidates using
+  bounded NumPy batches. Event weighting, noncircular blocks and refusal retained;
+  existing CMC diagnostic scorer unchanged.
+- SHOWN:7 targeted tests passed, including scalar-reference unequal-event fixture.
+  All81 benchmark cells completed,0.106s aggregate interval time. Projected full
+  inference workload122–162s excludes generation/I/O; no certification implied.
+- No method locked, development screening or confirmation run started. Proposed
+ 10-minute full-stage compute budget awaits separate implementation review.
+- No market outcomes, originals, gates, accounts or schedule changes.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - GATE - Human acceptance of fixed synthetic models
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED after the nine-generator
+  implementation,27-cell generation benchmark and5 targeted tests.
+- Acceptance: ACCEPTED_WITH_RISK for generators and explicit specification
+  corrections only. No additional independent test result is inferred.
+- Generation timing does not establish inference runtime, power, error control
+  or profitability. Candidate interval implementation and its benchmark remain next.
+- No full confirmation, scoring activation or trading change authorized here.
+
+## 2026-10-09 - ENGINEER - Fixed synthetic model implementation
+
+- Separate reviewer found availability ordering and stream encoding gaps. V2 now
+  explicitly filters unavailable methods before ranking, fixes moving-block
+  semantics and compact-JSON SHA256/PCG64 stream identities. Added independent
+  heavy-tail denominator stream; no confirmation run started.
+- Implemented nine synthetic generators only, retaining full truth and observation
+  masks separately. Missingness/refusal-only models cannot certify inference.
+- SHOWN:5 targeted tests passed;27 generation benchmark cells completed. Generation
+  timing is not inference runtime or statistical calibration. NumPy2.4.4 recorded.
+- Originals, market outcomes, scoring rules and schedules unchanged. Next unit:
+  candidate interval implementation and benchmark under the accepted compute cap.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW for implementation and explicit
+  review-driven specification amendments.
+
+## 2026-10-09 - GATE - Human acceptance of exact calibration amendment
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED for contract v2.
+- Acceptance: ACCEPTED_WITH_RISK for design only; no additional independent
+  reviewer result is inferred. No method, sample length or profitability certified.
+- Next is bounded implementation and runtime benchmarking. Confirmation retains
+  the separate checkpoint and execution-budget restrictions in the contract.
+
+## 2026-10-09 - DIRECTOR - Exact calibration contract amendment
+
+- Created v2 amendment preserving accepted v1. Fixed108-cell equations, six
+  supported/three refusal-only models, event-weighted estimand,360-evaluation
+  development ceiling and deterministic method-selection rule.
+- Clarified pointwise7.5% Monte Carlo tolerance does not certify5% error; no
+  simultaneous confidence or real-market sample certification implied.
+- Structured disjoint stage/history/stream seed identities;108000 confirmation
+  histories projected before execution. Full run requires separate runtime
+  checkpoint, with one-hour projected-cost stop and10-minute benchmark ceiling.
+- No run or financial gate changed. Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - AUDITOR - Calibration runtime and design checkpoint
+
+- SHOWN:3 synthetic workload measurements at2000 resamples completed; current
+  implementation projects13–24 minutes per1000-history cell, not a cheap full grid.
+  Saved immutable benchmark artifact and documented60-second batch/10-minute
+  next-stage compute ceiling. No full-grid calibration started.
+- Separate reviewer returned INCOMPLETE: exact model equations/grid, supported
+  scope, certification interpretation and development cap remain underspecified.
+  Human acceptance of design direction is preserved, not portrayed as resolving
+  contradictory reviewer evidence. Proposed7.5% upper tolerance is not5% certification.
+- No market outcomes, gates, accounts, schedules or original artifacts changed.
+- Acceptance: ACCEPTED_WITH_RISK for runtime evidence only; full calibration
+  design and primary scoring remain INCOMPLETE.
+
+## 2026-10-09 - GATE - Human acceptance of calibration design
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED for calibration_power_contract_v1.md.
+- Acceptance: ACCEPTED_WITH_RISK for synthetic study design only. Its criteria do
+  not replace frozen CMC gates or certify a sample size. No additional reviewer
+  verification is inferred from human acceptance.
+- Next: bounded runtime estimate and published execution checkpoint before full
+  grid; one method must be locked before confirmation simulations.
+
+## 2026-10-09 - DIRECTOR - Proposed bounded calibration and power contract
+
+- User approved continuing calibration design. Created a reviewable contract with
+  separate development/confirmation seeds, one locked method, null/power grid,
+  explicit proposed error/power criteria and runtime checkpoint requirement.
+- No simulation run or study gate changed in this stage. Proposed thresholds are
+  not accepted requirements; independent design review precedes confirmation.
+- Updated authoritative R05 status: accepted diagnostics are distinct from
+  incomplete primary scoring. Natural scheduling and quote qualification stay open.
+- Verification: inspected saved contract and checklist; no code tests applicable.
+- Risk: HIGH statistical/financial interpretation. Acceptance:
+  READY_FOR_INDEPENDENT_REVIEW. No market outcomes, accounts or schedules changed.
+
+## 2026-10-09 - GATE - Human acceptance of synthetic calibration pilot
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED for the bounded
+  synthetic pilot after180 histories completed and7 targeted tests passed.
+- Acceptance: ACCEPTED_WITH_RISK for the pilot and its diagnostic interpretation.
+  This records human acceptance, not an additional independent verification run.
+- No minimum sample or pass/fail method is certified. Primary scoring remains
+  disabled; larger calibration, power and missingness analysis remain outstanding.
+- No mature outcomes, frozen rules, schedules, accounts or original data changed.
+
+## 2026-10-09 - ENGINEER - Bounded synthetic statistical calibration
+
+- User approved synthetic-only calibration. Added reproducible180-history pilot
+  across60/180 days and iid/overlap7/stationary persistent nulls,100 replicates.
+- SHOWN: pilot completed,7 targeted tests passed. Under persistent180-day null,
+  entry-day gate was falsely positive10/30, all-four-interval gate5/30.
+  Output retains Monte Carlo uncertainty and source hashes; no sample certified.
+- Frozen gates, mature outcomes, originals, schedules and accounts untouched.
+- Recommendation: retain scoring disabled; pilot does not justify a minimum
+  sample or promotion rule. Missingness/power/regime-shift calibration unverified.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - GATE - Human acceptance of outcome coverage reporting
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED for the bounded
+  statistical coverage reporting delta after10 targeted tests passed.
+- Acceptance: ACCEPTED_WITH_RISK for reporting only; no additional independent
+  test run is inferred. Bootstrap calculations and frozen gates remain unchanged.
+- Minimum sample, dependence-aware pass/fail policy and missing-outcome bias
+  remain unresolved; this acceptance does not authorize primary scoring or trading.
+
+## 2026-10-09 - ENGINEER - Expose statistical outcome coverage
+
+- Added seven-day status counts, available/unavailable return counts and separate
+  pre-horizon exclusions to every statistical readiness branch. Thirty-day rows
+  cannot inflate seven-day missingness. Counts describe records, not corrected
+  full-cohort uncertainty; unavailable categories remain explicitly separated.
+- SHOWN:10 focused statistics/integrated-report tests passed. Synthetic18 missing
+  outcomes remain visible alongside2 available returns; the return mean is unchanged.
+- No frozen gates, bootstrap math, original artifacts, schedules or trading changes.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW. Minimum sample and dependence-aware
+  pass/fail policy remain outstanding; this delta does not resolve those issues.
+
+## 2026-10-09 - ENGINEER - Activate optional book collection on existing task
+
+- User approved the recommended activation. Edited only the existing Claude daily
+  task trig_012ybaBYn3NNN3cqx38BTRjV command to append --capture-level1.
+- SHOWN: reopened saved task settings and verified flag, same09:52 daily time,
+  Auto permissions, attached repository and require-this-computer enabled.
+  Weekly task unchanged; no new task or collector created.
+- Bounded two-product laptop probe initially failed certificate verification;
+  preserved its failed artifact. One retry with the installed certifi trust
+  bundle succeeded for BTC-USD and ETH-USD, retaining raw sizes and capture hashes.
+  TLS verification remained enabled; no persistent certificate setting changed.
+- Probe artifacts: cmc_level1_probe_20261009T105926165585Z.json and
+  cmc_level1_probe_20261009T105936725554Z.json under
+  research/research_corrections_20261009/. These are probes, not study snapshots.
+- Unattended connected-folder collection remains UNVERIFIED until its natural
+  run. Laptop TLS retry does not prove that separate environment's trust setup.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW for operational evidence; no scoring,
+  trading, account or original-snapshot mutation.
+
+## 2026-10-09 - GATE - Human acceptance of optional level-1 capture
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED for the optional
+  level-1 capture implementation after its38-test targeted verification.
+- Acceptance: ACCEPTED_WITH_RISK, bounded to implementation. Human acceptance
+  is recorded; no additional reviewer result or live verification is claimed.
+- Scheduled activation, live capture proof and size/freshness qualification
+  remain outstanding. Original snapshots and frozen scoring rules are unchanged.
+
+## 2026-10-09 - ENGINEER - Optional CMC level-1 evidence capture
+
+- User approved future order-book evidence capture. Added opt-in
+  --capture-level1 to v3, preserving ticker fields, originals and default behavior.
+- Raw per-product book responses, request URLs, identity, timestamps and hashes
+  are retained; failed products remain visible. No scoring authorization added.
+- SHOWN:38 targeted logger/envelope/integrated-report tests passed. Live API,
+  scheduler operation and size/freshness qualification UNVERIFIED.
+- Additional requests add latency/load. No collector started, schedule edited,
+  account changed or frozen candidate rerun performed.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - GATE - Human acceptance of qualified collection clock
+
+- User explicitly stated INDEPENDENTLY REVIEWED ACCEPTED following the bounded
+  collection-clock correction and its101-test selected CMC regression result.
+- Acceptance: ACCEPTED_WITH_RISK for that correction only. This records human
+  acceptance; it does not claim an additional independent test run.
+- Quote qualification, partial/immature calendar sensitivity limitations,
+  unattended scheduling proof and mature forward evidence remain outstanding.
+- No production promotion, deployment, schedule, account or original-data change
+  is authorized or implied by this acceptance.
+
+## 2026-10-09 - ENGINEER - Qualified CMC collection clock correction
+
+- Independent statistical review found failed early envelopes could age the
+  90-day clock. The cohort adapter now exposes the first semantically valid,
+  nonempty listed observation; the integrated report uses that timestamp.
+- Added regression: a failed 120-day-old capture cannot authorize returns after
+  only 37.5 days of usable collection. Statistics and returns remain not ready.
+- SHOWN: targeted cohort/report/statistics tests:20 passed. Complete selected CMC
+  regression command covering15 test files:101 passed. Full repo suite not run.
+- Calendar sensitivities still include partial/immature observation dates and
+  omit unavailable outcomes. Explicit output limitations prevent presenting these
+  descriptive bands as full-cohort uncertainty. Quote qualification remains open.
+- Originals, schedules, accounts and production unchanged.
+- Acceptance: READY_FOR_INDEPENDENT_REVIEW; correction sent for separate review.
+
+## 2026-10-09 - ENGINEER - Consolidated statistical reporting layer
+
+- Daily tie correction independently ACCEPTED_WITH_RISK,21tests reproduced.
+- Added registered entry-day clustered diagnostic bootstrap plus7/14/28day serial
+  sensitivities, distinct from original gate. Missing-calendar/undefined samples
+  stay incomplete; no silent filtering. Recorded amendment before mature outcomes.
+- Integrated90dayreturn-computation gate; no early diagnostic return peeking.
+- Seven focused statistical/integration tests pass. Consolidated review requested.
+- READY_FOR_INDEPENDENT_REVIEW; no original-data/logger/schedule/account changes.
+
+## 2026-10-09 - GATE - Dynamic case disposition closes duplicate rerun risk
+
+- Separate reviewer ACCEPTED_WITH_RISK coverage map:96keys/775inputs/sourcehashes
+  verified.18correctedreruns;78boundedinvariantexemptions, zero extra economic runs.
+- Exemptions:24priorstrict predecisionstop,6priorholdonceflat,48recentheldpaths
+  completevalidopens/zero unknown NAV. Universe itself has gaps; do not callgapfree.
+- R08closed for this delta. Old identities preserved; fullledger/economic proof
+  and corrected96replay not claimed. No original or runtime changes.
+
+## 2026-10-09 - ENGINEER - Acknowledged daily capture convention
+
+- User acknowledgment interpreted explicitly as recommended earliestcoin/day rule,
+  firstidentity preserved, equal-time conflicting coin/BTC evidence excluded.
+- Added AMBIGUOUS_FIRST_CAPTURE classification; daily observed presence retained
+  so uncertainty cannot manufacture prior absence. Identical duplicates remainoneevent.
+- Targeted tests/review requested. READY_FOR_INDEPENDENT_REVIEW; primary statistical
+  scorer still incomplete. No original data/schedule/account changes.
+
+## 2026-10-09 - AUDITOR - Primary daily capture policy decision
+
+- Coverage-map disposition review pending; no economic reruns duplicated.
+- Requested explicit R02 convention: onecoin/day earliest observed capture,
+  firstidentity preserved, conflicting identical-time captures excluded rather
+  than filename selection. Alternative scheduled-only policy changes evidence scope.
+- Diagnostic implementation unchanged pending operator choice. Primary scoring
+  affected scope BLOCKED; no originals/schedules/accounts modified.
+
+## 2026-10-09 - AUDITOR - Complete dynamic case map, incomplete equivalence proof
+
+- Mapped all96originalcasekeys with source artifact hashes:18corrected strategy
+  outage cases,78preservedolderrunnercases. All18markedendpoints agree with old.
+- Added disposition note; proposed unaffected hold/strict paths require separate
+  invariant/input proof, not automatic acceptance or unnecessary full replay.
+- No original mutations or reruns here. Independent case-disposition review
+  requested. READY_FOR_INDEPENDENT_REVIEW; full corrected96replay not claimed.
+
+## 2026-10-09 - ENGINEER - Integrated acceptance and corrected master summary
+
+- Independent integration ACCEPTED_WITH_RISK:19tests,84uncertainevents/no returns,
+  source hashes and preservation verified. No primary scorer acceptance inferred.
+- Created authoritative corrected local master summary, preserving earlier shared
+  document. Remaining checklist updated: diagnostic integration accepted; external
+  summary update remains unverified. No claimed external document edit.
+- Consolidated CMC regression running session50653; outcome pending at entry.
+- Superseding verification: all95consolidatedCMCtests passed in1.41seconds;
+  whitespace diff check passed. Full repository suite not run or claimed.
+- No originals/logger/schedule/account/production changes.
+
+## 2026-10-09 - ENGINEER - Integrated cohort scope and malformed tracking correction
+
+- Inspected rejected rows:84listed valid IDs,16DEX rows missing IDs. Registered
+  event scope Coinbase-listed; retain DEX count as excluded context, validate
+  listed coverage independently. Unknown row types still reject list.
+- Independent blocker: malformed tracked row abort. Now skipped/count-reported,
+  never eligible endpoint. Added candidate-path regression.
+- Nineteen focused tests pass. Distinct integrated v2 report has84 uncertain
+  first-day events, no return scores. Original v1 report and snapshots preserved.
+- Consolidated rereview requested. READY_FOR_INDEPENDENT_REVIEW; no schedule,
+  account, production or registered profit-target change.
+
+## 2026-10-09 - ENGINEER - Integrated CMC diagnostic report
+
+- User requested substantive integration. Added one read-only CLI connecting
+  envelope hashes, daily cohort classification, identity exclusion, maturity,
+  endpoint selection and reviewed diagnostic cost comparison.
+- Three end-to-end tests pass: startup uncertainty, immature eligible event,
+  old-schema exclusion and original-byte preservation. No primary scoring enabled.
+- Ran saved snapshots at10:31:05UTC into separately named diagnostic artifact;
+  results retain uncertain/immature/missing status rather than manufacture returns.
+- Independent consolidated review requested. READY_FOR_INDEPENDENT_REVIEW.
+- No originals, logger, schedule, campaign or account changes.
+
+## 2026-10-09 - ENGINEER - Single remaining-task authority
+
+- Created research_repair_remaining_tasks_20261009.md: twelve scoped remaining
+  tasks, completion evidence, ownership and accepted bounded components.
+- Corrected stale pending quote-pairing claim; documents now point to one task
+  authority while retaining chronological original evidence.
+- R01 documentation consolidation ACCEPTED; no code/runtime behavior change.
+  Other tasks remain explicitly incomplete or blocked on policy/time evidence.
+- Documentation verification: diff check. No logger/schedule/data/account changes.
+
+## 2026-10-09 - ENGINEER - Malformed cohort identifier correction
+
+- Independent review blocked superscript digit ID conversion. Require positive
+  ASCII decimal ID before conversion; malformed list excluded instead of abort.
+- Added Unicode/bool/zero/negative/null regression cases. Earliest coin/day and
+  filename tie convention remain diagnostic-only, not bound primary policy.
+- Targeted tests and separate rereview requested. READY_FOR_INDEPENDENT_REVIEW.
+- No profit scores, originals, logger, schedule or account changes.
+
+## 2026-10-09 - ENGINEER - Daily CMC cohort adapter
+
+- Added conservative daily presence union and earliest observation adapter.
+  One coin/day event; later identity cannot upgrade first observation. Malformed
+  or duplicate IDs reject list as coverage evidence; failed/empty lists excluded.
+- Uses approved prior30day classifier, outputs uncertain/repeat/candidate status
+  and source file/hash. No return scoring or continuous-absence claim.
+- Eight targeted adapter/cohort tests pass. Independent review requested.
+- READY_FOR_INDEPENDENT_REVIEW; originals/logger/schedule/accounts unchanged.
+
+## 2026-10-09 - GATE - Human acceptance of quote pairing correction
+
+- User explicitly INDEPENDENTLY REVIEWED ACCEPTED the60second pairing limit.
+- ACCEPTED for bounded diagnostic entry/exit capture alignment; six tests pass.
+- Acceptance does not establish quote freshness, fills, full CMC statistical
+  scoring, mature outcomes, unattended scheduling or economic promotion.
+
+## 2026-10-09 - ENGINEER - Acknowledged quote pairing limit
+
+- Applied recommended60seconds after user acknowledgment, explicitly stated in
+  progress update. Wider entry mismatches excluded; unmatched exit candidates
+  cannot supply endpoint. No fallback to mismatched BTC times.
+- Added inclusive positive/negative boundary regressions. Diagnostic/freshness
+  disclaimers unchanged; no fees, target, snapshots or schedule changes.
+- Targeted tests and independent review requested. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - AUDITOR - Final bounded reviews and matched-time policy
+
+- Ohm confirmed timestamp correction ACCEPTED_WITH_RISK, twelve tests pass.
+  Stress artifact independently ACCEPTED_WITH_RISK: twelve parts, 384 inputs,
+  source/math hashes and six-strategy/two-fee coverage verified.
+- Existing CMC plan says same entry/exit times but sequential quotes differ.
+  Requested one matched-quote tolerance decision before primary scoring integration.
+- Recommended max60seconds at each boundary; unmatched stays excluded. This is
+  an unapplied operational proposal, not evidence of quote age or executable fills.
+- No original/report/schedule/account mutation; scoring affected scope BLOCKED
+  on missing timing contract, not on completed rerun or helper reviews.
+
+## 2026-10-09 - ENGINEER - Readiness review robustness correction
+
+- Current readiness artifact ACCEPTED_WITH_RISK; hashes/counts independently
+  verified. Reviewer identified malformed timestamp could abort report.
+- Loader now explicitly rejects non-text timestamps as ValueError; added loader
+  and reporter regressions. Completion ledger removes stale running/pending claims.
+- Independent bounded correction review requested. READY_FOR_INDEPENDENT_REVIEW.
+- Original snapshot/report, schedule and accounts unchanged.
+
+## 2026-10-09 - ENGINEER - Consolidated CMC collection readiness
+
+- Maturity helper independently ACCEPTED_WITH_RISK for calendar only.
+- Added read-only readiness reporter with file hashes, schema exclusions, UTC
+  collection days and explicit no-scoring/no-scheduler-proof status.
+- Two tests passed. Saved report cmc_readiness_0614_v1.json: two v3 envelopes,
+  one observed UTC day, 90-day minimum not reached. No returns scored.
+- Independent report review requested; READY_FOR_INDEPENDENT_REVIEW.
+- No original snapshots, collector, schedule, strategy or account changes.
+
+## 2026-10-09 - ENGINEER - CMC calendar maturity separation
+
+- Loader independently ACCEPTED_WITH_RISK for envelope only. Saved mapped v3
+  snapshot byte hash independently reread as 49960069...b059; scoring remains false.
+- Added separate calendar-readiness helper: 90-day collection age does not mature
+  a new cohort. Nearest endpoint selection waits until approved +12-hour window
+  closes, so later closer observations cannot change an early endpoint choice.
+- Calendar readiness is not continuity, identity, power or scoring acceptance.
+  No actual returns evaluated. Targeted tests/review requested.
+- READY_FOR_INDEPENDENT_REVIEW; originals/logger/schedule/accounts unchanged.
+
+## 2026-10-09 - ENGINEER - Read-only CMC envelope loader
+
+- Independent evaluator composition ACCEPTED_WITH_RISK; 39 tests reproduced.
+- Added separate v3 envelope loader recording immutable byte hash, UTC capture
+  timestamp and data; rejects wrong schema/research envelope and malformed lists.
+- Hash is content identity, not source authentication or cohort/quote proof.
+  Old-schema originals are preserved, not migrated or silently scored.
+- Seven targeted tests passed. Loader review requested; READY_FOR_INDEPENDENT_REVIEW.
+- No collection, schedule, original-data or trading changes.
+
+## 2026-10-09 - ENGINEER - Diagnostic integration handoff contract
+
+- Independent evaluator review remains pending. Added separate input/output and
+  remaining-proof contract without modifying reviewed code or original snapshots.
+- Explicitly lists adapter, canonicalization, maturity/statistics and schedule
+  evidence still required; no completion or promotion claim.
+- Documentation only; diff check requested. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - ENGINEER - Diagnostic CMC helper integration
+
+- Composed reviewed quote, endpoint and fee helpers in separate evaluator.
+  Uncertain cohorts/identities excluded; absent valid endpoint stays missing.
+- Outputs expressly DIAGNOSTIC only, freshness UNVERIFIED, scoring_authorized
+  false. Coin/BTC receive-time offsets exposed, not assumed simultaneous.
+- Caller-provided cohort/identity/provenance remain explicit trust boundary;
+  no raw-snapshot loader, maturity gate, statistical scorer or execution claim.
+- Thirty-nine focused CMC tests passed. Independent integration review requested.
+- READY_FOR_INDEPENDENT_REVIEW. No logger/schedule/old-snapshot/account changes.
+
+## 2026-10-09 - GATE - Human acceptance of CMC cost arithmetic
+
+- User explicitly INDEPENDENTLY REVIEWED ACCEPTED the isolated CMC return helper.
+- ACCEPTED for bounded cost arithmetic: ask entry, bid exit, entry/exit fees,
+  matched BTC comparison. Ten targeted tests passed.
+- Acceptance does not extend to observation eligibility, freshness, complete
+  scoring integration, statistical inference, scheduling or profitability.
+
+## 2026-10-09 - ENGINEER - CMC registered cost arithmetic
+
+- Added isolated ask-entry/bid-exit return helper: cash includes entry fee and
+  sale proceeds deduct exit fee. Paired BTC comparison uses the same fee.
+- Default preserves registered 1.2% per side; no silent observed-tier replacement.
+- No snapshot eligibility, execution, statistics or scoring authority claimed.
+  Targeted verification and separate review requested; stress artifact review pending.
+- READY_FOR_INDEPENDENT_REVIEW. No originals, logger or schedule changes.
+
+## 2026-10-09 - ENGINEER - Stress rerun set completed
+
+- All twelve stress parts complete; exact count, unique case keys and corrected
+  runner identities checked. Guarded merger preserved all twelve results.
+- Final 8% breakout at 120bps marked endpoint 131.13, five unknown NAV hours,
+  158 closed trades. Updated completion ledger; original reports unchanged.
+- Requested independent stress-artifact review. READY_FOR_INDEPENDENT_REVIEW;
+  no economic promotion, complete hourly drawdown or full96replay claim.
+
+## 2026-10-09 - ENGINEER - Final fee sensitivity pending
+
+- Eleven of twelve stress parts completed. 8% breakout at 60bps marked endpoint
+  243.81, five unknown NAV hours and 158 closed trades.
+- Only its 120bps sensitivity remains in session71363; no full-set merge yet.
+  Existing artifacts and trading settings unchanged.
+
+## 2026-10-09 - ENGINEER - Ten stress outputs verified
+
+- Ten of twelve stress parts now present; all recorded runner hashes match.
+  15% breakout at 60bps marked endpoint 116.60, five unknown NAV hours, 130 trades.
+- Final two 8% breakout sensitivities still run in sequential session71363.
+  No premature merge, original-data mutation or completed-assignment claim.
+
+## 2026-10-09 - ENGINEER - Fee sensitivity progress checkpoint
+
+- Nine of twelve corrected stress parts completed; source hashes match current
+  corrected runner. Sequential remaining breakout runs continue in session71363.
+- 15% breakout at 120bps marked endpoint 70.29; no profitability claim. Rotation
+  outputs and 5-21 unknown valuation hours preserved under separate stress prefix.
+- No merge before complete expected set; original reports and accounts unchanged.
+
+## 2026-10-09 - GATE - Cohort and primary diagnostic review
+
+- Independent ACCEPTED_WITH_RISK: cohort helper, six primary dynamic paths and
+  scoped completion ledger. Forty tests, 384 inputs and six parent hashes verified.
+- Historical zero skipped buys means the buy guard is synthetic-test evidence;
+  5-21 unknown hours prohibit complete hourly drawdown claims.
+- Remaining stress runs pending. No economic/full-assignment acceptance inferred.
+
+## 2026-10-09 - ENGINEER - Remaining dynamic fee sensitivities
+
+- User requested completion. Started all twelve 60/120-bps ten-month outage
+  strategy sensitivities under distinct dynamic_corrected_v2_stress prefix.
+  Two individual runs plus a sequential ten-run batch; no original outputs reused.
+- Review of cohort helper and six primary-fee merged artifacts remains pending.
+- No scoring acceptance or unattended scheduling claim. Runtime proof pending;
+  no campaign/account/logger/schedule or rule changes.
+
+## 2026-10-09 - ENGINEER - Approved cohort coverage and dynamic consolidation
+
+- User chose required prior 30-day daily coverage. Added separate cohort helper
+  preserving uncertain startup/gap events and identifying repeats; no scoring
+  authorization or implicit freshness policy.
+- Forty focused tests passed. Consolidated six completed corrected dynamic
+  primary-fee outage parts using accepted guarded merger; old artifacts preserved.
+- Updated cohort decision and added honest completion ledger; six parts are not
+  the entire original 96-case report. Remaining proof explicitly listed.
+- Independent helper/artifact review requested. READY_FOR_INDEPENDENT_REVIEW.
+- No logger/schedule/account/campaign changes or outcome retuning.
+
+## 2026-10-09 - AUDITOR / ENGINEER - Forward contract review and remaining outage paths
+
+- Independent review: activation readiness INCOMPLETE on completed warmup only.
+  Registration predates start; registered hashes and nine tests match. Latest
+  preflight has 276/300 bars; reviewer did not independently reread archive.
+- Full warmup and prefix freeze must precede scoring. No activation or outcomes run.
+- Corrected 15% breakout primary-fee outage endpoint 126.88, five unknown NAV hours,
+  130 closed trades. Top-three daily rotation endpoint 1.78, twenty unknown hours.
+- Started remaining primary-fee ten-month outage paths: 24h rotation, weekly
+  rotation and 8% breakout, distinct v2 parts. Original results remain unchanged.
+- Historical outputs remain diagnostic, not accepted economic evidence.
+
+## 2026-10-09 - ENGINEER - Corrected outage continuation and contract review
+
+- Corrected prior-10-month top-one rotation completed: primary-fee outage marked
+  endpoint rounds to zero, 139 closed trades, ten unknown-NAV hours. One path only;
+  no assertion that all original 96 results are now corrected.
+- Started distinct v2 primary-fee outage parts for top-three daily rotation and
+  15% breakout. Existing report and old-hash parts remain untouched.
+- Requested independent existing Coinbase confirmation contract readiness review,
+  without activation, outcomes, date changes, collection or new background jobs.
+- Registration deadline differs from activation timing: existing plan permits
+  activation after verified warmup and before scoring. No midnight deadline invented.
+- Runtime results and contract review pending. No account/campaign/schedule changes.
+- Verification: confirmation runner targeted tests, nine passed in 0.22 seconds;
+  diff whitespace check passed. This does not establish complete warmup, activation
+  readiness or unattended operation. No evaluation outcomes were run.
+
+## 2026-10-09 - GATE / ENGINEER - Dynamic correction accepted and bounded rerun
+
+- User explicitly independently reviewed and accepted the bounded corrections.
+  Ohm separately returned ACCEPTED_WITH_RISK; fifteen tests and additional entry,
+  protective-sale and merge probes passed. Broader financial proof not accepted.
+- Starting prior-10-month top-one daily rotation, primary fee, outage mode only,
+  under distinct dynamic_corrected_v2 prefix. Original artifacts untouched.
+- Results and economic implications pending; no campaign, account or schedule change.
+
+## 2026-10-09 - ENGINEER - Approved dynamic rerun corrections
+
+- Reproduced conflicting manifest overwrite and buy during unknown held price.
+- Merge now rejects source/input conflicts and refuses existing output; buy gate
+  refuses missing/nonfinite/nonpositive current held opens without gating sells.
+- Fifteen targeted tests passed; originals and existing 96-result report preserved.
+- No archive reruns before separate review; new results require distinct output
+  names and cannot reuse old source-hash parts as corrected evidence.
+- Added dynamic_rerun_correction_checkpoint_20261009.md and requested Ohm review.
+- READY_FOR_INDEPENDENT_REVIEW. No campaign/account/logger/schedule changes.
+
+## 2026-10-09 - AUDITOR - CMC cohort coverage decision
+
+- Ohm accepted structural quote helper WITH_RISK; eleven tests independently
+  reproduced. Freshness, identity, provenance and scoring remain outside acceptance.
+- Documented startup/missing-day ambiguity in registered 30-day first appearance.
+  Recommended uncertain-event separation and prior daily coverage, not a silent
+  event-rule change. Requested one operator decision before implementation.
+- No collection, schedule, archive, trading or scoring changes. Affected cohort
+  objective BLOCKED on decision; original study artifacts preserved.
+
+## 2026-10-09 - ENGINEER - Structural CMC quote evidence
+
+- User human-accepted UTC endpoint correction, then approved next scoped work.
+- Inspected snapshot quote schema. Added separate price/capture-time validation;
+  rejects malformed, crossed, nonfinite, boolean prices and invalid timestamps.
+- Structurally valid quotes explicitly retain freshness UNVERIFIED and
+  NOT_FILL_PROOF. No arbitrary freshness cutoff or cohort rule introduced.
+- No scoring integration, source snapshot, logger, schedule or account changes.
+- Targeted tests and independent review requested. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - ENGINEER - Endpoint UTC arithmetic correction
+
+- Independent review blocked timing helper: local aware datetime arithmetic can
+  measure a 25-hour day across daylight-saving changes.
+- Normalize entry and observation timestamps to UTC before all arithmetic and
+  duplicate checks. Added spring/fall transition regressions; no policy change.
+- Targeted verification and separate rereview requested; no evaluator integration,
+  logger, schedule, original-data or account changes.
+- Verification: endpoint timing test file, nine passed in 0.11 seconds;
+  diff whitespace check passed. Full-suite and live integration not claimed.
+- READY_FOR_INDEPENDENT_REVIEW until the corrected helper clears review.
+
+## 2026-10-09 - ENGINEER - Approved CMC endpoint tolerance
+
+- User approved recommended plus/minus 12-hour tolerance. Added separate timing
+  helper for registered 1/7/30-day horizons; missing stays missing, exact ties use
+  earlier observation, naive/duplicate timestamps are refused.
+- Seven targeted tests passed. Updated timing-gap note with approved contract.
+- No full evaluator or scoring integration claimed; quote freshness, eligibility,
+  cohort definition and dependency-aware inference remain separate open work.
+- No original snapshots, logger, schedule, target, fees or accounts changed.
+- READY_FOR_INDEPENDENT_REVIEW; separate review requested for research helper.
+
+## 2026-10-09 - AUDITOR - CMC evaluation timing contract
+
+- Ohm accepted the summary addendum WITH_RISK for artifact interpretation only;
+  logger/manual-delivery claims were outside that review.
+- Inspected original logger's registered evaluation. Closest-snapshot exits have
+  no maximum deviation; missing days can change the measured horizon materially.
+- Added evaluation_timing_gap_20261009.md with an unapplied bounded recommendation.
+  Requested one operator choice before scoring implementation. Original 1.2% fee,
+  7-day target and artifacts preserved; no collection or trading changes.
+- Affected scoring objective BLOCKED on timing decision; other evidence preserved.
+
+## 2026-10-09 - ENGINEER - Approved research-summary interpretation correction
+
+- Added separate altcoin_summary_review_addendum_20261009.md, preserving the
+  original shared write-up and both result artifacts.
+- Clarified descriptive bootstrap limits, incomplete-prefix dates, fee/venue
+  assumptions, non-exercised delisting sensitivity and current logger v3 status.
+- No code, rules, thresholds, data, accounts or scheduled tasks changed.
+- Documentary evidence checked against saved artifacts and separate review;
+  no economic reruns required. Interpretation handoff requested independently.
+- READY_FOR_INDEPENDENT_REVIEW; live/economic acceptance remains UNVERIFIED.
+
+## 2026-10-09 - AUDITOR - Frozen recovery review and pending groups
+
+- Ohm returned ACCEPTED_WITH_RISK for recovery diagnostics: all 24 records,
+  intended endpoints, selected rules and 484 input hashes verified. Marked BTC
+  comparisons remain separate from strategy-only terminal liquidation.
+- CMC fee-only group completed; requested bounded independent artifact review.
+  Its aggregate prices do not establish corrected execution or trending alpha.
+- Top10 session21944 remains running. Separate merger tests reran: four passed.
+- Superseding result: top10 finished and all four artifacts merged successfully
+  using the separately reviewed merger into altcoins_frozen_reviewed_v2_merged.json.
+  Requested independent top10/merged-artifact review. BCC missing-data paths stay
+  incomplete across the named delisting policies; no exercised-sensitivity claim.
+- Updated correction checkpoint with exact pending proof. No campaign, account,
+  config, original-data, or production changes. Economic promotion UNVERIFIED.
+
+## 2026-10-09 - AUDITOR / ENGINEER - Remaining frozen altcoin groups
+
+- Recovery group completed from the frozen snapshot; independent artifact review
+  requested. Started top10 and CMC proxy groups with the same source and separate
+  output files, sessions21944/58048. No thresholds or input archives changed.
+- Ohm accepted ideas artifact WITH_RISK for qualified diagnostics: runner, math,
+  original sources and all 484 input hashes match; all 30 BTC endpoints reconcile.
+- Six basket paths stop before missing QUICK/STRAX candles. Their zero unknown-NAV
+  count describes the retained prefix, not full-window coverage. Never report
+  these paths as completed returns or promotion evidence.
+- Complete ideas paths remain historical modelled results; execution fidelity,
+  fee/venue applicability and full-ledger correctness are unverified.
+- Group merge remains pending all four outputs. No campaign/account/config changes.
+
+## 2026-10-09 - ENGINEER / separate GATE - Frozen group merger
+
+- Independent reviewer found the snapshot's embedded merger aliases recovery
+  and clears its results. That merger is not accepted and will not be used.
+- Added separate non-mutating merger and four regression tests. It requires all
+  four groups, matching source identities and consistent input hashes, preserves
+  parent records, and creates output exclusively. No frozen runner was edited.
+- Four tests passed; Ohm independently exercised additional rejection probes and
+  returned ACCEPTED_WITH_RISK for the merger only.
+- Ideas archive run completed. Small-coin basket paths remain INCOMPLETE at
+  missing held-symbol candles; partial endpoints are not completed returns.
+- Group integration and economic conclusions remain UNVERIFIED. No campaign,
+  account, configuration, original artifact, or scheduled task changed here.
+- Ideas artifact SHA256
+  1c8476c2158a83746e1bdf80bdf3906c98640030b012434b965907fc6dcdaf21;
+  its recorded runner hash matches the frozen source. Artifact review requested.
+- Started recovery group from the same frozen snapshot and distinct group
+  output, session51926. Remaining groups and merged artifact are pending.
+
+## 2026-10-09 - ENGINEER - Frozen grouped altcoin execution
+
+- User reconfirmed ownership. Preserved current runner as separate source snapshot
+  SHA c07be3c32cee828f7e513d4fa8935a76edddfe0396e87fe3f903046a3a0e056b.
+- Current5regressionprobes pass. PriorCMC/recovery v1 outputs have different
+  runner hashes; preserved and not merged or overwritten.
+- Started ideas group only under new altcoins_frozen_reviewed_v2.json output
+  prefix, session35592. Public archive inputs only; no retuning or original edits.
+- GroupedCLI/key-change delta independent review requested; results pending and
+  not accepted. READY_FOR_INDEPENDENT_REVIEW, full economic proof unverified.
+
+## 2026-10-09 - AUDITOR - Concurrent runner entry-point change
+
+- Ohm ACCEPTED_WITH_RISK bounded close-peak correction,5probes independently pass.
+- Attempted archive run with inspected original CLI stopped in argument parsing:
+  --only now required. Another session changed grouping/merge entry point while
+  ownership here was approved. No computation/results produced by this attempt.
+- Existing fixes still present, but execution entry point differs from reviewed
+  version. Asked one ownership clarification rather than guessing or overwriting.
+- Affected rerun BLOCKED on concurrent ownership; originals/accounts unchanged.
+
+## 2026-10-09 - ENGINEER - Close-only trailing peak correction
+
+- Ohm blocked prior correction: entry open still initialized trailing peak,
+  violating completed-close rule. No archive rerun performed on blocked code.
+- Peak now starts at completed signal close; nonfinite/nonpositive signalclose
+  refuses entry. Added open200/allcloses100 regression proving no false stop.
+- Five targeted probes pass; bounded rereview requested from Ohm.
+- Originals/account/config unchanged. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - ENGINEER - Approved altcoin correction ownership
+
+- User approved taking ownership after concurrent-build question. Applied three
+  bounded corrections to current altcoin runner: strict held-data precheck,
+  original close-triggered trailing exits at next open, equal BTC endpoint.
+- Original research scripts/results unchanged. Added fourth probe proving gap
+  exit at40 after close60/entry100 records-60%, not guaranteed-35% threshold.
+- Targeted regression probes4passed (first3failed before). No full suite or
+  archive rerun yet; other script behavior/economic output not accepted.
+- Ohm independent review requested. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - AUDITOR - Three altcoin regression probes
+
+- Rechecked active source; findings remain. Added separate documentation-folder
+  probes rather than editing another session's current implementation.
+- `./.venv/bin/python -m pytest -q docs/research/altcoin_rerun_review_probes_20261009.py`:
+ 3failed in0.16s, reproducing strict bypass, altered stop signal and BTC endpoint.
+- These are intentionally failing defect reproductions, not passing verification.
+  Corrected handoff must satisfy original frozen contract. No archive/network/
+  runtime changes or competing script edits. Acceptance INCOMPLETE.
+
+## 2026-10-09 - AUDITOR - Active altcoin rerun interim findings
+
+- Read current rerun_frozen_altcoins.py without editing concurrent build.
+- Reproduced strict-mode pending-exit missing-day bypass: COMPLETE/nullNAV/later
+  exit. Identified original close-triggered stops changed to intraday-low triggers,
+  and stopped strategy endpoint compared against full-window BTC endpoint.
+- Added interim review note, INCOMPLETE. No result artifact found at inspection;
+  not final review of another session's frozen code. No full suite run.
+- No competing rerun, strategy/account change or active code edit performed.
+
+## 2026-10-09 - AUDITOR - Mapped CMC delivery verified
+
+- Inspected new05:09UTC mapped snapshot: schema3/OBSERVED/no source errors,
+  map/wrapper hashes match,28observed-not-fill-proof quotes,16eligible12excluded.
+- AI/META exclusions remain enforced. SnapshotSHA
+ 49960069f1ae1983ddf35b29838668eaceb0388dbd716cbe32dc97f5be62b059.
+- Recorded bounded manual delivery closure; unattended scheduling/maturecohorts/
+  executablefills/scoring remain unverified. No new run or trading changes.
+- Read-only verification plus documentation; tests not rerun, no fullsuite claim.
+
+## 2026-10-09 - ENGINEER - Reviewed identity map activation
+
+- Averroes ACCEPTED_WITH_RISK map only: independent identical16entry rebuild,
+  allsourcehashes,5tests and16eligible/12excluded offline result verified.
+- Added accepted map argument to existing dailytask; saved UI verified complete
+  command, schedule/folder/permissions unchanged. No new task/access expansion.
+- One mapped manual delivery test cse_01U6uS6BLPhWtAXuRh4fwPhE started; output
+  remains unverified. No old snapshot rewrite, evaluation or trading changes.
+
+## 2026-10-09 - ENGINEER - Candidate contract identity map
+
+- Averroes ACCEPTED_WITH_RISK offline16proposals, verified input/source hashes,
+  no contract discrepancies; timestamps/malformed metadata remain source limits.
+- Built separate16entry candidate map with proposal hash/source references;
+  all proposal inputs verified before creation, unresolved/collisions excluded.
+-5 targeted map/v3 tests pass. Offline qualification of existing capture gives
+ 16eligible/12excluded; no snapshot rewritten. Identity-only, not scoring approval.
+- Map not activated, schedule unchanged, no network run. Averroes independent
+  review requested. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - ENGINEER - Offline contract identity proposals
+
+- Compared saved CMC token/network metadata to saved Coinbase currencies;
+  proposals only, no operator map or scheduler changes. Originals untouched.
+- Report28 joins:16 same-chain/contract proposals,2 known collisions,4 unresolved
+  contract/network,6 without usable contract. OGN same Ethereum contract shown;
+  native identities require separate evidence. Solana case remains significant.
+- New isolated script/tests;2 tests pass. Artifact preserves input hashes and
+  source metadata. No network, scoring, fees/account or trading changes.
+- Independent review requested before using proposals. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - AUDITOR - V3 manual delivery verified
+
+- Existing task manual run completed OBSERVED at05:03UTC; local snapshot schema3,
+ 28products, wrapper/base/evidence hashes match, exactAI/META exclusions present.
+- All28 identity-ineligible: no verified operator map. Do not confuse captured
+  quotes with identity-qualified scoring. Next needed proof is asset mapping.
+- Snapshot SHA35346dea2178229c8056fe57dd62bb1ec738bdf36eaffdbe509ab68904a35d2e.
+- Unattended trigger not yet observed. Temp cleanup warning/preserved hardlink
+  remain accepted limitations; no permissions expanded or files deleted.
+- No additional run, evaluation or campaign change. Read-only verification;
+  tests not rerun, no full-system/economic claim.
+
+## 2026-10-09 - ENGINEER - Existing CMC task v3 command
+
+- Averroes ACCEPTED_WITH_RISK offline test delta,22 targeted tests reproduced.
+- Changed existing daily task command only to reviewed v3; saved UI confirms
+  command, same09:52NY schedule, connected folder and permissions unchanged.
+- One manual task test cse_012uvvvctNwgejQdKcJGWZUK started at approximately05:02UTC.
+  Completion/snapshot not yet verified; unattended operation remains unverified.
+- No new task, access expansion, weekly run, evaluation or trading change.
+
+## 2026-10-09 - ENGINEER - V3 offline capture/history proof
+
+- Averroes ACCEPTED_WITH_RISK v3 wrapper,21 tests independently verified;
+  runtime evidence authentication/operator assertions/scheduling remain risks.
+- Added one offline collect/save/departed-history integration test; verifies
+  immutable original snapshot and persistence of mismatch exclusion.
+- Combined v2/v3 tests22 passed in0.23s. No network or scheduled task change.
+  No reviewed wrapper code changed; separate test-delta review requested.
+- READY_FOR_INDEPENDENT_REVIEW for test delta, prior wrapper acceptance bounded.
+
+## 2026-10-09 - ENGINEER - Separate CMC identity wrapper
+
+- Confirmed saved identity evidence/script hashes; exact AI/META wrong-asset
+  pairs motivate separate v3 wrapper, not edits to accepted v2 or old snapshots.
+- Retains quotes but excludes known mismatches; unverified identity remains
+  ineligible. Operator map cannot override the two exact collision pairs.
+- Added3 tests; combined v2/v3 verification21 passed. No network capture,
+  schedule/permission/map change or old artifact rewrite. No full suite run.
+- Base publication retained; filenames retain v2 prefix but schema3 explicit.
+- Averroes independent review requested. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - AUDITOR - Forward readiness and schedule timing
+
+- Verified existing USD preregistration against current plan/snapshot/fee/runner
+  hashes using load_contract and check_registration; all identities match.
+- Coverage-only runner report: five markets incomplete through October9 04UTC;
+  full warmup boundary remains October10 00UTC. No outcomes scored or activation.
+- Snapshot inventory latest04:37UTC manual run; daily13:52UTC not due at04:56UTC.
+  No unattended-delivery claim or invented scheduler failure.
+- Added forward readiness note and new coverage artifact; originals preserved.
+  No code changes; tests not rerun for read-only inspection. No full-suite claim.
+- Registered identity verification SHOWN; future schedule/full warmup INCOMPLETE.
+
+## 2026-10-09 - DIRECTOR - Corrected research decision consolidation
+
+- Ohm independently ACCEPTED_WITH_RISK the descriptive uncertainty report:
+  all726 paired daily returns,12 bands,parent/source hashes and3 tests reproduced.
+- Added one current decision note separating terminal simulation, later returns,
+  missing prices, uncertain fees, schedule delivery and prospective evidence.
+- Recommendation: continue frozen forward research; no capital promotion from
+  reused historical diagnostics. No capability removed or trading state changed.
+- Documentation-only consolidation; no full suite or new strategy search.
+  Prior research acceptance is bounded, not full-system/economic acceptance.
+- Next proof: naturally scheduled logger execution and frozen confirmation
+  manifest review. No duplicate task or weekly state rewrite.
+
+## 2026-10-09 - ENGINEER - Later-period paired uncertainty
+
+- Ohm independently ACCEPTED_WITH_RISK prior segment attribution, diagnostic only.
+- Added isolated paired complete-day return report; no strategy changes or search.
+- 121 aligned UTC days, joint 14/28-day blocks, 2,000 replicates, seed7; all12
+  descriptive percentile bands cross zero. No superiority/equivalence conclusion.
+- `./.venv/bin/python -m pytest -q tests/test_breakout_uncertainty.py`: 3 passed.
+  Six-config report completed. No full suite run.
+- Missing interior data fail explicitly; partial boundary days and terminal-open
+  liquidation excluded. Not terminal-return CI, fresh holdout or selection-adjusted
+  validation. No campaign/account/config changes; original artifacts preserved.
+- Ohm independent review requested. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - ENGINEER - Carry-forward research attribution
+
+- Prior BTC comparison independently ACCEPTED_WITH_RISK by Ohm, diagnostic only.
+- Added isolated segment report and two tests; original portfolio/BTC artifacts
+  remain unchanged. No cash/position reset or synthetic trades at the split.
+- At 50 bps: later carried-equity returns 3x +7.83%, 2x -0.42%, BTC +29.00%;
+  historical overall advantage must not be reported as later outperformance.
+- `./.venv/bin/python -m pytest -q tests/test_breakout_segment_attribution.py`:
+  2 passed. Report ran six configurations. No full suite run.
+- Distinct carried capital; no equal-capital dollar comparison, confidence,
+  fresh holdout, drawdown or economic acceptance. No runtime/account changes.
+- Ohm separate review requested. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - ENGINEER - Same-window BTC research comparison
+
+- Added isolated comparison script and three tests; preserved original results.
+- Verified 790 input hashes and account/window alignment; BTC buys and liquidates
+  at identical endpoint hours with matching fee/slippage assumptions. Null prices
+  remain unknown; no drawdown/CI or fresh holdout claim.
+- Targeted verification: `./.venv/bin/python -m pytest -q tests/test_breakout_btc_comparison.py`
+  returned 3 passed. Artifact run completed six comparisons; original feature
+  builder emitted its All-NaN-window warning. No full suite run.
+- At 50 bps simulated terminal advantages: 631.62/463.58 quote dollars for 3x/2x.
+  These are historical model outputs, not validated profit or live fills.
+- Ohm independent review requested. No campaign/config/account/runtime changes.
+- READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-09 - GATE - Outage diagnostic independent review closure
+
+- Objective: close the opt-in frozen breakout outage scenario without promoting
+  historical simulation into profitability evidence.
+- Separate reviewer Ohm returned ACCEPTED_WITH_RISK for the diagnostic only;
+  seven tests passed, 790 input hashes and both embedded sources verified,
+  1,548 simulated fills and 48,228 valuation points independently reconciled.
+- Recorded the bounded review in the research checkpoint; no reviewed code or
+  frozen result was modified. Missing prices remain null.
+- Five unknown-NAV hours remain in each configuration. Historical deferred
+  exits were zero; their behavior has synthetic coverage only. No full suite,
+  benchmark, economic validation, production or campaign change is claimed.
+- Acceptance: ACCEPTED_WITH_RISK, diagnostic scope only. Next meaningful proof:
+  cost-matched BTC comparison on identical timestamps, retaining gap limitations.
+
+## 2026-10-07 - ENGINEER - One-shot private receipt session lifecycle
+
+- Hume ACCEPTED_WITH_RISK, unwired scope; cleanup exception may follow committed
+  receipt, not rollback. Two delta hashes verified after extraction by engineer.
+
+- Reused existing factory/shared loader in isolated synchronous receipt wrapper;
+  no exposed raw session, finally cleanup and conservative transport checks.
+- Nine-file slice89 passed in2.18s exit0, doubles only; no private request or
+  production mutation. Two-file delta preserved separately with hashes.
+- Actual lifecycle integration/ownership/all-writers unverified.
+- READY_FOR_INDEPENDENT_REVIEW; Hume requested.
+
+## 2026-10-07 - ENGINEER - Consolidated exit prototype package
+
+- Hume ACCEPTED_WITH_RISK for package consistency: archive/inventory/manifest
+  verified independently, tests not rerun. Integration/deployment not accepted.
+
+- Preserved13 isolated source/test files as review archive plus per-file hashes,
+  exact base and explicit integration limitations; no new trading logic.
+- Extracted onto fresh381bd477 base;13 hashes OK, targeted81 passed in2.17s.
+- Full suite/live coordinator not proven. Existing history and runtime untouched.
+- READY_FOR_INDEPENDENT_REVIEW for consolidated handoff; no deployment authority.
+
+## 2026-10-07 - ENGINEER - Same-session portfolio scope coordinator
+
+- Hume ACCEPTED_WITH_RISK for unwired coordinator, static review; no findings,
+  no independent test rerun or deployment authority.
+
+- Prior actual observation interpretation accepted WITH_RISK by Hume; not rerun.
+- Added isolated coordinator comparing same-session portfolio scope to existing
+  DB context; explicit portfolio namespace, no global-user identity claim.
+- Eight-file prototype slice81 passed in1.65s exit0. No private requests or
+  original production/state changes. Trusted factory and holdings unverified.
+- READY_FOR_INDEPENDENT_REVIEW; Hume requested.
+
+## 2026-10-07T22:46:59Z - AUDITOR - Actual laptop Coinbase scope observation
+
+- Approved read-only permissions request succeeded using existing Keychain
+  credentials. Valid DEFAULT portfolio UUID, view=True/trade=True; exit0.
+- No secrets/identifier saved, credential/state/config/order/collector changes.
+- This proves current credential response, not historical holdings ownership,
+  Hetzner state, persistence or live authorization. No tests rerun.
+- READY_FOR_INDEPENDENT_REVIEW for interpretation; no database binding done.
+
+## 2026-10-07 - ENGINEER - Coinbase portfolio scope source
+
+- Hume independent review ACCEPTED_WITH_RISK for unwired observer; no actionable
+  finding, no independent test rerun or live approval.
+
+- Checked official key-permissions documentation and installed CCXT endpoint.
+- Built isolated unwired observer returning validated portfolio scope only,
+  not global account/environment identity or trade authority.
+- Seven-file targeted slice77 passed in1.87s exit0. Fake sessions only; no
+  credentials loaded, private request, state/config/collector changes.
+- Authenticated scope and mapping to holdings remain unverified.
+- READY_FOR_INDEPENDENT_REVIEW; Hume requested.
+
+## 2026-10-07 - ENGINEER - Prototype account-binding enforcement
+
+- Hume cross-venue pre-fetch finding corrected; no-fetch regression added.
+  Final65 passed in1.98s exit0; independent review ACCEPTED_WITH_RISK, bounded
+  prototype enforcement, no live approval.
+
+- Connected dedicated DB binding to isolated reservation/receipt operations;
+  checks inside transactions and before transport, venue mismatch refused.
+- Six-file targeted slice: 64 passed in1.86s. New fixtures bind empty test DBs.
+- No production/credential/account changes. Authenticated identity producer and
+  legacy all-writer coordination remain unimplemented.
+- READY_FOR_INDEPENDENT_REVIEW; Hume requested.
+
+## 2026-10-07 - ENGINEER - Dedicated account binding primitive
+
+- Independent replacement-insert finding corrected with insert guard and test.
+  Final56 passed in1.92s. Hume bounded correction ACCEPTED_WITH_RISK; static review.
+  Corrected erroneous reviewer timing message1.52s to measured1.92s.
+
+- User chose recommended dedicated account database architecture. Implemented
+  unwired binding primitive in isolated candidate, not production migration.
+- Mismatch/history adoption refused; binding persists and concurrent different
+  accounts cannot both initialize. Five-file slice: 56 passed in 1.47s.
+- No existing state or credential mutation. Trusted account verification,
+  prototype integration and all-writer enforcement remain unverified.
+- READY_FOR_INDEPENDENT_REVIEW; Hume requested.
+
+## 2026-10-07 - DIRECTOR - Account ownership integration checkpoint
+
+- Hume independent source/document review found no actionable proposal finding;
+  implementation remains BLOCKED pending the ownership contract decision.
+
+- Inspected credential-loader and actual position/dedupe identity keys without
+  loading secrets. They do not establish authenticated account ownership.
+- Documented dedicated database per verified account recommendation and shared
+  database migration alternative; existing records are not silently rebound.
+- Documentation-only proposal; no code/tests/runtime/credential/account changes.
+- Account-specific verification remains unverified. BLOCKED on boundary choice
+  for this integration only; no new restriction on existing protective exits.
+
+## 2026-10-07 - ENGINEER - Owned-session receipt boundary tests
+
+- Hume independent static review: ACCEPTED_WITH_RISK for tests-only stage;
+  no outstanding scoped finding, no independent rerun or live approval.
+
+- Added isolated tests of real session-open/fetch/close helpers and lifecycle
+  boundary using a session double, actual stores and unwired receipt adapter.
+- Valid evidence settles; mismatched identity and transport errors retain
+  capacity. 44 targeted tests passed in 2.08s.
+- No production changes or exchange contact. Owned session is not account
+  provenance; account-scoped position ownership remains unresolved.
+- READY_FOR_INDEPENDENT_REVIEW; Hume requested.
+
+## 2026-10-07 - ENGINEER - Unwired reconciliation receipt adapter
+
+- Review outcome: Hume ACCEPTED_WITH_RISK for bounded unwired adapter; static
+  review, no independent test rerun. Live integration remains unapproved.
+
+- Inspected actual reconcile fetch and terminal branches. Added isolated adapter
+  requiring returned order identity before bound receipt creation.
+- No production call sites modified; intended outcome is fail-closed evidence
+  capture rather than a live bypass. Temporary-DB test-double slice: 39 passed
+  in 1.01s after correcting an initial test-import error.
+- Authenticated venue provenance and owned-session branch remain unverified.
+- READY_FOR_INDEPENDENT_REVIEW; Hume requested. No runtime changes.
+
+## 2026-10-07 - ENGINEER - Terminal receipt identity binding
+
+- Review addendum: Hume found post-settlement replay defect; corrected and
+  regression verified, 28 passed in 0.38s. Independent bounded correction
+  ACCEPTED_WITH_RISK; unwired integration remains unverified.
+
+- Added receipt producer and settlement identity recheck in isolated prototype,
+  using durable order-dedupe identity and rejecting ambiguous remote ownership.
+- Chosen to prevent an unrelated order receipt releasing reserved holdings.
+- Targeted actual-schema and reservation tests: 28 passed in 0.42s.
+- No live integration, collector/config/account change or publication.
+- Exchange provenance and all-writer coordination remain unverified.
+- Independent review requested; READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-07 - ENGINEER - Real-schema exit settlement proof
+
+- Added isolated tests using actual execution/position stores, partial-cancel
+  accounting, unapplied-fill retention and transaction ABORT rollback/retry.
+-23 targeted tests pass0.36s. No production source changes. Trigger injection
+  not power-loss proof; terminal receipt synthetic, identity binding unproven.
+- Saved spot_exit_real_schema_proof_20261007.md. Independent review requested;
+  READY_FOR_INDEPENDENT_REVIEW. No original account/config/migration/deployment.
+
+## 2026-10-07 - GATE - Settlement primitive accepted with bounded risks
+
+- Operator acceptance and separate Hume ACCEPTED_WITH_RISK recorded. No
+  blocking finding within unwired trusted-receipt contract. Reviewer static
+  only;20tests executed by implementing agent, not reviewer.
+- Remote-ID binding, real-schema accounting integration and transaction failure
+  injection remain unverified. No live producer/gate bypass or deployment.
+- Next required proof: real-schema settlement/rollback tests, then trusted
+  receipt producer identity binding. No earlier risks silently closed.
+
+## 2026-10-07 - ENGINEER - Unwired reservation terminal settlement
+
+- Added durable receipt/tombstone settlement in isolated primitive. Requires
+  terminal identity/filled coverage and completed canonical position accounting;
+  generic status alone cannot release. Atomic release/idempotency persisted.
+-20 focused tests passed0.35s; synthetic trusted receipts only. Producer unwired,
+  real-schema/crash/all-writer/live behavior unverified. No actual migration.
+- Saved spot_exit_settlement_checkpoint_20261007.md. Independent review pending,
+  READY_FOR_INDEPENDENT_REVIEW. No original source/index/account/deploy changes.
+
+## 2026-10-07 - GATE - Reservation corrections independently reviewed
+
+- Independent reviewer ACCEPTED_WITH_RISK for retry capacity/time validation
+  corrections, no new finding.17 tests implementing-agent run, not reviewer run.
+- Unwired component only; version/provenance/settlement limits remain.
+  No publication, deployment or live bypass inferred from acceptance.
+
+## 2026-10-07 - ENGINEER - Reservation review blockers corrected
+
+- Human acceptance received; independent review rejected initial primitive for
+  retry capacity bypass and unbounded/malformed freshness inputs. Findings
+  retained, not hidden by acceptance.
+- Isolated correction rechecks retry capacity and enforces integer time bounds.
+ 17 targeted tests passed0.20s. Re-review requested, no live/account changes.
+  READY_FOR_INDEPENDENT_REVIEW; producer/version/release integration unresolved.
+
+## 2026-10-07 - ENGINEER - Verified reduction storage first stage
+
+- Implemented unwired spot reservation primitive in isolated9wbPbN. Durable
+  BEGIN IMMEDIATE capacity check, identity/version/freshness validation;
+  unknown submitted/error intents remain capacity consumers.
+-10 tests pass0.17s including retry/restart and competing-connection refusal.
+  No release lifecycle, trusted producer wiring, real-schema integration or
+  live bypass proof. Saved spot_exit_reservation_checkpoint_20261007.md.
+- No original source/index/config/account/migration/deployment changes.
+  Separate review requested; READY_FOR_INDEPENDENT_REVIEW, not deployable.
+
+## 2026-10-07 - DIRECTOR - Verified reduction authority scoped
+
+- Traced executor gates and canonical fill position store. No reduction proof
+  at existing gates, no atomic sell reservation in inspected submission path;
+  get_position lacks reconciliation freshness evidence.
+- Proposed two-veto exception only after verified bounded spot reduction,
+  preserving auth/arming/global halt/reconciliation/order validity. Other
+  gate classifications deliberately not silently changed.
+- Saved docs/research/verified_reduction_authority_scope_20261007.md. HIGH risk,
+  no live source/migration/config/account changes or tests for scope document.
+- One operator policy choice needed before implementation; INCOMPLETE.
+
+## 2026-10-07 - GATE - Independent bounded cooldown treatment acceptance
+
+- Hume ACCEPTED_WITH_RISK for combined migration/runner exit/four-status lookup/
+  quantity correction, no remaining scoped finding. Static review only;
+  111-test result executed by implementing agent, not reviewer.
+- No source/test change after review. Executor timestamp lock, concurrent
+  writers, position freshness/full integration remain unverified.
+- Acceptance is review evidence, not publication/merge/deployment permission.
+
+## 2026-10-07 - ENGINEER - Cooldown exit quantity bounded in isolated candidate
+
+- Corrected reviewer-confirmed held0.1/configured0.5 exception by refusing
+  oversized/malformed proposals. Finite positive proposed<=held; no resize.
+- Emitted quantity reuses authorized value. Outside-cooldown behavior and
+  crossover/risk/accounting unchanged.111 targeted tests passed5.98s.
+- Saved docs/research/cooldown_exit_quantity_treatment_20261007.md; isolated
+  candidate9wbPbN only. No original source/index/campaign mutation or deployment.
+- Separate Hume review requested. No full-suite/concurrency/live proof;
+  READY_FOR_INDEPENDENT_REVIEW. Downstream protective policy still INCOMPLETE.
+
+## 2026-10-07 - AUDITOR - Protective exit downstream and sizing probes
+
+- Isolated fake-client executor probes confirm symbol lock and market-quality
+  veto both hold sell pending:2 passed1.39s, no venue call.
+- Runner held0.1/configured0.5 with full-position false emits0.5 through cooldown:
+  bound assertion1 failed/1 passed0.21s. Independent static finding reproduced.
+- Saved docs/research/protective_exit_boundary_probes_20261007.md. No runtime,
+  original source/config/account changes. Combined treatment INCOMPLETE.
+- Next smallest correction: verified finite quantity bound on runner cooldown
+  exception; canonical reduction authorization/reservations separately scoped.
+
+## 2026-10-07 - AUDITOR - Combined existing cooldown/protective corrections
+
+- Isolated supplied0001+0002+0006 applied cleanly;89 targeted tests pass5.64s.
+  All four in-flight statuses covered; no current campaign state changed.
+- Corrected prior probe exit-stack action sell to exit; withdrew earlier failure
+  as specific stop-loss proof. Corrected combined probe passes, no corrected
+  pre-patch execution claimed. Source-level unconditional gate finding retained.
+- Reviewer confirms PR605 uses separate canonical timestamp locks, not runner
+  keys. Executor lock branch still blocks all sides: no end-to-end exit proof.
+- Saved docs/research/cooldown_protective_combined_review_20261007.md.
+  Independent combined review pending; overall INCOMPLETE, no deployment.
+
+## 2026-10-07 - AUDITOR - Existing cooldown correction on current base
+
+- Applied rev87 supplied0001 runner/test changes to isolated accepted381bd4776
+  tree. No historical log replay, no dirty source/index changes or deployment.
+- Initial missing test filename: no tests run. Corrected slice 69 passed4.85s.
+- SHOWN review probe: held position's protective sell blocked by cooldown,
+  1 failed0.63s. Inherited/disclosed, not falsely reported as new regression.
+- Standalone treatment INCOMPLETE. Existing0002+accepted lookup is next bounded
+  combined review; preserve signal-transition semantics and accounting base.
+- Saved docs/research/cooldown_patch_current_base_review_20261007.md.
+  Independent Hume compatibility review pending, no full-suite/runtime proof.
+
+## 2026-10-07 - AUDITOR - Shared paper evidence and campaign reviews
+
+- Read pasted note, all four spreadsheet sheets/formulas/caches, source and
+  breakout/ES notes, current laptop manifest and remote master runner.
+- Workbook sums agree; mixed ES cohort makes its interval non-qualifying.
+  Breakout is 900 seconds/day, not continuous monitored strategy evidence.
+  Fee break-even approximation and missing PnL semantics remain material.
+- Remote master still absolute loop cooldown; reviewed/integrated/deployed
+  states distinguished. No duplicate patch or forced entry/state reset.
+- Saved docs/research/paper_evidence_shared_review_20261007.md. No tests or
+  workbook/code/account/config changes. Next: existing patch0001 bounded review
+  against current master, preserving crossover and protective exit contracts.
+
+## 2026-10-07 - AUDITOR - Daily model timing and source identity
+
+- Inspected archived recent-year plan/result and current comparator/signal.
+  Plan models prior closes/next open; timestamp is not observed live decision.
+- SHOWN: comparator hash differs from archived pin, signal hash matches.
+  Current prior-close slicing is not exact historical reproduction proof.
+- Signal-only result not equivalent to documented crossing+regime campaign;
+  context capture cannot establish live receipt, risk eligibility or fills.
+- Saved docs/research/daily_model_timing_contract_20261007.md. No code, tests,
+  campaign/config/account changes or new experiment. Historical provenance
+  UNVERIFIED; next recover pinned comparator before versioned comparison.
+
+## 2026-10-07 - AUDITOR - Host gaps and modelled entry overlap
+
+- Direct read-only SSH/SQLite snapshots measured live_public per-series gaps.
+  Books/quotes maximum gaps 646/675 seconds; derivative families 16 gaps over
+  one hour, maximum 20,531 seconds. Not an exact uptime calculation.
+- Archived signal-only model has five buys, four before coverage. Host capture
+  exists two seconds before the August 20 model timestamp for all families.
+- Corrected laptop-only zero-overlap interpretation, not E02 sample adequacy:
+  one model event remains insufficient. Capture timestamp is not receive-time
+  or live-decision proof; full-rule and bar timing mismatch remains unresolved.
+- Saved docs/research/hetzner_context_overlap_20261007.md. No tests/code/campaign/
+  account/config changes, no FC-01 reopening. Measurement complete; economic
+  qualification INCOMPLETE. Next bounded check: actual model timing semantics.
+
+## 2026-10-07 - AUDITOR - Economic evidence: direct host context checkpoint
+
+- Continued E02/E03 after PR606, not completed FC-01. Read original direction
+  and correction records; preserved shared-host intelligence capability.
+- SHOWN via documented SSH runtime probe and one read-only SQLite snapshot:
+  collector alive, service/timer active; six venue/family series with 82 dates,
+  21,728-22,346 live_public rows, current through 19:48:36 UTC.
+- Resolved host Coinbase books/quotes availability. Quote/book cadence checks
+  disabled; observed latest rows do not prove monitored or uninterrupted uptime.
+- Saved docs/research/hetzner_context_economic_checkpoint_20261007.md.
+  No tests for read-only inspection, no campaign/account/config/deploy changes.
+- Next bounded action: coverage gaps and candidate as-of overlap, not new alpha
+  or holdout reuse. Economic decision INCOMPLETE; host data is not profit proof.
+- Post-merge PR606 build/sanity/governance/path checks success; main CI pending.
+
+## 2026-10-07 - GATE - Human-authorized PR606 merge completed
+
+- SHOWN: exact accepted head 381bd4776c871af8305fb38ae880a101cb0f8fef
+  non-draft/MERGEABLE, all six required contexts SUCCESS, both newly repaired
+  desktop platform builds SUCCESS, script-path checks SUCCESS.
+- Human acceptance occurred after latest pushed head; independent bounded
+  reviews retained. Used documented solo-owner admin merge, no policy change.
+- GitHub confirms MERGED at 2026-10-07T19:42:30Z, merge commit
+  be34a18a3f7b78941cddb4eabe373b33788526ce. Branch not deleted.
+- PR audit: https://github.com/Ddthomas415/CryptKeep/pull/606#issuecomment-6045486553
+- ACCEPTED_WITH_RISK: real signing, notarization and release delivery remain
+  unverified. No manual dispatch, tag, deployment, campaign/account mutation
+  or original checkout/index integration. Post-merge CI not yet verified.
+
+## 2026-10-07 - GATE - Latest PR606 head accepted by operator
+
+- Operator wrote INDEPENDENTLY_REVIEWED AND ACCEPTED after publication of
+  381bd4776c871af8305fb38ae880a101cb0f8fef. Exact head verified remotely.
+- PR is non-draft and MERGEABLE. Governance, script-path integrity and security
+  checks pass; CI and both desktop build lanes still pending at this check.
+- Acceptance is recorded, not represented as completed CI proof. Merge waits
+  for successful checks and confirmation of remaining branch-policy blocker.
+  No merge, deployment, release dispatch or tag at this checkpoint.
+
+## 2026-10-07 - ENGINEER - Desktop follow-up review correction
+
+- Reviewer accepted the corrected glob by bounded static review, with no new
+  finding. Published follow-up commit 381bd4776 to PR606; CI must validate
+  actual platform builds. No merge or deployment. Earlier operator acceptance
+  preceded this pushed head and is not represented as acceptance of it.
+
+- Operator supplied INDEPENDENTLY_REVIEWED AND ACCEPTED. Independent reviewer
+  nevertheless identified an unmatched release artifact glob; no merge made.
+- Isolated follow-up now uses artifacts/**/*.zip and tests the downloaded
+  artifact-name/ZIP layout. Twelve targeted tests passed in 0.25 seconds.
+- Bounded re-review requested. No publication, tag, release or deployment.
+  READY_FOR_INDEPENDENT_REVIEW; latest correction not yet independently accepted.
+
+## 2026-10-07 - ENGINEER - PR606 CI follow-up checkpoint
+
+- SHOWN: main CI/sanity/governance and existing macOS/Windows wrapper builds
+  passed at 78595de94. Previously invalid desktop workflow now executes but
+  both platforms fail on nonexistent scripts/build_desktop_app.py.
+- Isolated, unpublished follow-up fixes builder/helper paths in two workflows,
+  enables windowed output for the signing app contract, and repairs relocated
+  ZIP helper repository-root resolution. Original source/index untouched.
+- Eleven targeted tests passed in 0.24 seconds. Independent Hume review
+  requested; actual builds/signing/release remain unverified.
+- No follow-up push, merge, dispatch, tag, release or deployment.
+  READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-07 - GATE - Reviewed workflow fix published as PR606
+
+- Operator authorized workflow scope and completed device authorization.
+  Existing login refreshed; reviewed isolated commit pushed successfully.
+- SHOWN: PR606 OPEN at `78595de9430f7ac77f463754d630ce3b376b52c9`.
+  https://github.com/Ddthomas415/CryptKeep/pull/606
+- Previously zero-job desktop workflow now starts real macOS/Windows jobs.
+  CI/sanity/governance/PyInstaller pending; GitGuardian success.
+- Independent ACCEPTED_WITH_RISK and eight targeted passing tests retained.
+  Workflow completion, signing and release integration remain unverified.
+- No original source/index staging, manual dispatch, tag, merge or deployment.
+
+## 2026-10-07 - GATE - Workflow publication permission checkpoint
+
+- Committed exactly seven reviewed files in the isolated checkout as
+  `78595de94`; original source and index were not staged or committed.
+- SHOWN: GitHub rejected push because the OAuth login lacks workflow scope.
+  Existing authentication is valid with repo/read:org/gist permissions.
+- Eight targeted tests and independent ACCEPTED_WITH_RISK remain the local
+  proof; GitHub parser and CI validation remain unverified.
+- No PR, merge, deployment, credential change, or branch-protection change.
+  Publication BLOCKED pending explicit authorization for workflow scope.
+
+## 2026-10-07 - GATE - Post-merge workflow syntax treatment checkpoint
+
+- Main merge-SHA checks pass; four build/release/signing workflows failed with
+  zero jobs. Direct secrets-in-if unsupported by official GitHub docs; no exact
+  parser annotation returned. Not a trading/accounting regression claim.
+- Separate isolated branch repairs18conditions with boolean jobenv/step gates,
+  no raw job-secret export or predicate/trigger/permission/command change.
+- Eight targeted tests pass in0.14s; independent Hume ACCEPTED_WITH_RISK by
+  static inspection, not GitHub parser/signing proof. Required branch log present.
+- Saved checkpoint; next PR validation. No original source/index, accounts,
+  secrets, config, collector/process, push/merge/tag/release/deployment changes.
+
+## 2026-10-07 - GATE - Human-authorized PR605 merge
+
+- Operator wrote INDEPENDENTLY_REVIEWED AND ACCEPTED after latest PR head.
+  Fresh check: non-draft, MERGEABLE, all required contexts SUCCESS, only
+  owner-review blocker. Independent assembled ACCEPTED_WITH_RISK retained.
+- Recorded authorization audit note, merged exact dcf832e59 using documented
+  solo-owner admin path; no protection settings changed or branch deleted.
+- GitHub API confirms MERGED at90c9f097ef65b19f054c2d4ef3a5e6650374b257,
+  2026-10-07 14:38:06 America/New_York. Saved treatment_merge_record.
+- No deployment/accounts/config/credentials/cohort/process/orders/history replay;
+  original dirty source/index/branch preserved. Post-merge CI is separate proof.
+- Bounded engineering merge ACCEPTED_WITH_RISK by human; operational deployment
+  and economic validation remain unauthorized/unproven, no extra scope inferred.
+
+- Fresh merge-SHA run listing: governance success; CI/sanity/PyInstaller running;
+  four build/release/signing workflows failed, causes UNVERIFIED. Recorded exact
+  boundary in merge record, no post-merge green or regression attribution claimed.
+
+## 2026-10-07 - AUDITOR - Withdraw invented second-reviewer prerequisite
+
+- Found prior Codex June3 record applying one-review protection; this proves
+  agent-recorded change, not independently proven historical user authorization.
+- Existing GITHUB_BRANCH_PROTECTION solo-owner policy explicitly permits admin
+  merge after independent review, green checks and post-push human acceptance.
+  My instruction to recruit another reviewer ignored that policy and is withdrawn.
+- Corrected treatment_pr_ci_checkpoint; PR605 exact dcf832e59 still OPEN,
+  MERGEABLE, all checks successful, independent assembled ACCEPTED_WITH_RISK.
+- No second reviewer/invitation/protection weakening required. Documented explicit
+  human acceptance remains for merge; deployment is separately authorized.
+- No financial source/config/accounts/credentials/process/orders/merge/deployment
+  changed. Historical entries preserved as superseded interpretations.
+
+## 2026-10-07 - AUDITOR - Required reviewer availability
+
+- Fresh PR605 status remains OPEN/BLOCKED/REVIEW_REQUIRED, no reviews.
+- Collaborator API returns only Ddthomas415; PR author is the same account.
+  No other authorized collaborator returned; author cannot self-approve.
+- Added follow-up to CI checkpoint. Next missing material fact is reviewer
+  identity/access decision. No invitation/protection bypass/source/config/account
+  changes, no merge/deployment. BLOCKED on external approving review.
+
+## 2026-10-07 - AUDITOR - PR605 exact-head CI and review gate
+
+- Fresh GitHub read: head dcf832e59, OPEN; all required checks SUCCESS.
+  Validation3865pass/33skip; core3834pass/64skip with slow flag. macOS/Windows
+  and security checks pass. Sanity skips missing mypy; types not proven clean.
+- Merge blocker is REVIEW_REQUIRED, no reviews, one approval required by master
+  protection. No tests or source treatment needed for a green CI lane.
+- Requested assembled independent review; saved treatment_pr_ci_checkpoint.
+  A subagent result cannot satisfy GitHub's external approving-review record.
+- No PR/source/config/accounts/credentials/process/order/merge/deployment changes.
+  Release INCOMPLETE pending review and explicit release/operational decisions.
+
+- Independent assembled GATE Hume ACCEPTED_WITH_RISK at exact PR head/base,
+  no new findings; ten code/test identities unchanged and original three fixes
+  retained. Source/JUnit inspection only, no independent tests/GitHub approval.
+  Required GitHub approving review remains absent; no protection bypass.
+
+## 2026-10-07 - ENGINEER - Publish treatment-only PR605 for CI
+
+- Operator continued disclosed PR publication step. Separate checkout on current
+  master97c24c8e4 excludes unrelated commits/dirty work; original index untouched.
+- Ten code/test hashes match frozen candidate; patch applies unchanged. Added
+  dedicated release note and bounded work-log entry, total12files.
+- Current-base isolated target slice110passed/25warnings/1.71s after relocating
+  harness temp state outside source (initial109pass/1layout failure). No code
+  changed to clear harness failure. Old-base full proof not transferred.
+- Pushed dcf832e59 on codex/accounting-treatment-20261007; PR605 OPEN, attached.
+  Fresh CI read shows pending/in-progress, not green. Saved publication record.
+- No merge/deployment/accounts/config/credentials/cohort/process/orders changes.
+  READY_FOR_INDEPENDENT_REVIEW; release INCOMPLETE pending exact-head CI/review.
+
+## 2026-10-07 - AUDITOR - Freeze revised treatment and full-suite verification
+
+- Assembled base plus exact ten source/test files from reviewed order candidate;
+  source hashes/current working files match at freeze. No unrelated delta.
+- Preserved revised patch/manifest; base-index applicability and diff checks pass.
+- Started complete tests/ in network/operator-home-denied disposable sandbox,
+  clean state/SQLite, null keyring, 900-second timeout, no runner slow skips.
+- Added revised_candidate_full_suite_20261007.md; result pending, no previous
+  mixed-snapshot green result attributed to this candidate.
+- No original Git index/source/config/accounts/process/publication/deployment
+  changes. Local candidate CI/host/release remain INCOMPLETE.
+
+- Completed exact-candidate full suite: 3812 passed, 33 explicitly skipped,
+  zero failures/errors, 35 warnings, 289.77s; exit0/no timeout. Preserved JUnit,
+  log/summary. No runner slow skips; companion omissions remain unverified.
+- This is base-plus-ten-file proof, distinct from prior mixed-source 3889-pass
+  result. Candidate CI, publication and deployment are not authorized or proven.
+  Next release step requires explicit treatment-only PR publication decision;
+  no broad history/account/campaign changes inferred from local green tests.
+
+## 2026-10-07 - ENGINEER - Approved durable recording order
+
+- User selected recommended durable receipt order for loss-control policy.
+  HIGH-risk bounded symbol-loss guard, not exchange-time history recomputation.
+- Sink enforces matching canonical identity and no earlier unapplied nonlegacy
+  same-symbol journal row under counter/marker transaction. Later updates refuse
+  and remain retryable; existing cutover and duplicate behavior preserved.
+- Paused-profit/threaded loss/restart regression fails before correction.
+  VERIFIED_ENV isolated seven-file result: 110 passed in 1.82s, existing warnings.
+- Saved symbol_loss_order_treatment_20261007.md, Hume re-review requested.
+  Direct store defaults/position-daily ordering/orphan repair remain outside scope.
+- No full suite/CI/host/accounts/config/process/publication/deployment changes.
+  READY_FOR_INDEPENDENT_REVIEW, not same-thread financial approval.
+
+- Independent GATE Hume ACCEPTED finding2 only by read-only source/JUnit
+  review, retaining orphan/direct-call/position-daily ordering limitations.
+  Three original findings now have bounded accepted corrections; assembled
+  candidate/full-suite/CI/release are still INCOMPLETE, no deployment approval.
+
+## 2026-10-07 - ENGINEER - Reconciliation writer-conflict isolation
+
+- HIGH-risk bounded finding3 repair; event-ordering policy untouched.
+- Both actual SQLite competing-write regressions fail before repair. Fill-write
+  errors now leave that intent incomplete while other intents continue; coverage
+  re-read is diagnostic only, no successful terminalization guessed from conflict.
+- VERIFIED_ENV seven-file sandbox slice: 109 passed in 1.70s, existing warnings;
+  fake venue, disposable DB, denied network/operator-home access.
+- Saved reconcile_writer_treatment_20261007.md. Hume bounded re-review requested.
+  No full suite/CI/host proof, account/config/process/publication/deployment change.
+  READY_FOR_INDEPENDENT_REVIEW; overall candidate REJECTED for ordering blocker.
+
+- Independent GATE Hume ACCEPTED finding3 only by source/JUnit inspection;
+  no independent test execution. Overall candidate remains REJECTED. Next
+  missing material fact is the loss-policy event-ordering contract; ask operator
+  before selecting receipt order or execution-time late-event recomputation.
+
+## 2026-10-07 - ENGINEER - Explicit reconciliation quantity treatment
+
+- HIGH risk; bounded repair of independent review quantity finding only.
+- Added 41 quantity/cancellation/retry cases: before fix 21 failed/20 passed.
+  Reject unknown/invalid quantity as incomplete; affirmative zero remains valid.
+- VERIFIED_ENV isolated seven-file slice after fix: 107 passed in 1.68s,
+  16 existing warnings; disposable DBs, network/operator-file access denied.
+- Changed reconciler quantity parse and accounting-delivery tests only; saved
+  reconcile_quantity_treatment_20261007.md. Hume re-review requested.
+- Prior frozen candidate restored/preserved; distinct-event ordering and
+  writer-conflict findings unchanged. No full-suite/CI/host proof or deployment.
+- No accounts/config/credentials/process/orders/publication changes.
+  READY_FOR_INDEPENDENT_REVIEW; overall candidate still REJECTED.
+
+- Subsequent independent GATE: Hume ACCEPTED quantity finding only after
+  read-only diff/JUnit inspection; no independent test execution claimed.
+  Other two findings and overall candidate remain REJECTED; no release approval.
+
+## 2026-10-07 - GATE - Independent candidate rejection
+
+- Independent reviewer Hume inspected exact frozen candidate and verified its
+  patch/ten file hashes. Static review only; no independent test run claimed.
+- Two P1 findings: missing filled quantity coerced to zero can terminalize an
+  unknown cancellation; distinct profit/loss effects can reorder and clear a
+  newer lock. P2: expected competing-writer refusal aborts reconciliation pass.
+- Main-agent forward/reverse patch checks pass and ten-path scope verified.
+  Existing 66-test proof remains valid but does not resolve these findings.
+- Saved treatment_candidate_independent_review_20261007.md; candidate REJECTED.
+  No financial source/config/accounts/process/publication/deployment changes.
+- Next bounded proof: missing-quantity regression/correction; ordering policy
+  must be explicit before distinct-event repair. Revised HIGH-risk work requires
+  independent review; no passing-test or earlier approval override inferred.
+
+## 2026-10-07 - ENGINEER - Treatment-only publication candidate
+
+- HIGH-risk financial candidate packaging, no new production behavior.
+- Built disposable source from HEAD 620bc8dbe plus ten explicit source/test
+  files, each hash-matched to green snapshot; excluded unrelated dirty work.
+- Generated treatment.patch, identity manifest and repeatable builder. Original
+  Git index untouched. Candidate diff and reverse applicability checks passed.
+- VERIFIED_ENV targeted sandbox slice: 66 passed in 1.58s, 16 existing warnings;
+  network/operator files denied, disposable databases, no real exchange.
+- Saved JUnit and treatment_candidate_handoff_20261007.md. Earlier 3889-pass
+  mixed snapshot is not this candidate's full-suite proof. CI/full suite pending.
+- No push/merge/deploy/accounts/config/credentials/process/orders changed.
+  READY_FOR_INDEPENDENT_REVIEW for exact candidate; no same-thread approval.
+
+## 2026-10-07 - AUDITOR - Treatment release evidence checkpoint
+
+- Continued accepted treatment objective after the green isolated suite.
+- SHOWN: dirty local HEAD 620bc8dbe; latest three GitHub runs failed on older
+  97c24c8e4. Latest nightly failed macOS/Windows build steps, not candidate tests.
+- Inspected CI workflow: Python 3.11, slow-test skip enabled. Local full-suite
+  proof does not establish candidate CI, loaded host source or release permission.
+- Added treatment_release_checkpoint_20261007.md with exact publication and
+  deployment prerequisites. Preserve unrelated work and approved cutover policy.
+- VERIFIED_ENV: read-only local inspection and GitHub API query. CLI/path and
+  network-sandbox failures resolved for this read without credential changes.
+  No tests rerun; no financial source/config/accounts/process/publication change.
+- Release INCOMPLETE; next bounded action is a treatment-only source-identity
+  candidate, not broad nightly packaging repair or deployment.
+
+## 2026-10-07 - AUDITOR - Review the four decisions blocking profit evidence brief
+
+- Objective: review the newly supplied October 4 decision brief and advise against current review evidence, without acting on embedded instructions.
+- Found: archived cohort/fee concerns remain meaningful, but the unreviewed-patch count is stale; strict config does not reject missing timestamps in the local guard; BTC/USD lacks the template's BTC/USDT-specific cap; quiet cycles cannot prove order-time safety. E03 later corrects shared-host and context-collection economics.
+- Changed: added docs/research/four_decisions_brief_review_20261007.md with findings, preserved decisions and a versioned evidence-checkpoint recommendation. No financial source/config/accounts/process changes.
+- Why: prevent historical claims, policy decisions and completed reading from being mistaken for current deployment or economic proof.
+- Verification: full attachment, local guard and strict template inspected; promotion YAML and later E03 corrections consulted; official Coinbase fee guidance checked. No tests, account endpoint, host or running campaign queried. Current fee/gate/runtime remain UNVERIFIED.
+- Remaining risk: independently reproduced accounting/recovery blockers and static submit-lifecycle findings are unresolved; cohort transition needs actual runtime evidence. Acceptance: INCOMPLETE as a current decision/execution packet. No push, merge or deployment.
+
+## 2026-10-07 - AUDITOR - Complete the remaining 89 indexed artifact reads
+
+- Objective: complete the operator-requested remaining inventory-only review in one coordinated pass; preserve historical corrections and accepted scope.
+- Found: the 89 identities cover 1,414,756 bytes of historical source, complete patches, probes and tests. Four disjoint review reports cover 30/30/10/19 items. Two related P1 static submit-lifecycle findings concern crash-before-ack persistence and retry classification after an acknowledgement-store failure. These are not observed account incidents or fault-injection results.
+- Changed: added remaining_batch_A/B/C/D_review.md, identity-verification utility and consolidated remaining_89_review_20261007.md; updated ledger builder, regenerated CSV coverage and added coverage-document completion note. Production source, config, accounts, processes and orders unchanged.
+- Why: exact-content reading and identity checks close the inventory-only gap without promoting author's test claims or superseded defects into current safety proof.
+- Expected outcome: reproducible coverage and item-level findings, not blanket series approval.
+- Verification: build_review_ledger.py and verify_remaining_review.py under repo venv with -B both exit 0; 89/89 exact identities, no duplicates. Ledger 396 full reads, 0 inventory-only, 30 historical-diff, 4 structural-only, 6 supplied-output comparisons and 1 partial work log, total 437. No bundled scripts, broad tests, venue calls or operator-state imports executed.
+- Remaining risk: unresolved execution/accounting findings; static submit findings need disposable-store failure/restart reproduction. Historical work log/raw evidence retain limited coverage. No push, merge or deployment. Acceptance: INCOMPLETE for trading-series safety; requested 89-item reading pass complete.
+
+## 2026-10-07 - Historical-only ZIP code review
+
+- AUDITOR only. Objective: review historical-only 10 patch and 11 diff
+  contents and compare latest numbered counterparts and assembled source.
+- SHOWN: 437 inventory hashes minus 340 coverage hashes yields 97
+  historical-only contents; selected 21 code contents read directly from ZIPs
+  with member SHA-256 verification. Historical duplicate risk-patch tails
+  compared completely; relevant latest differences/source inspected.
+- Added historical_code_review.md under the rev87 review artifacts, with
+  exact archive/member/source hashes, superseded findings and persisting
+  valuation, normal-exit lookup, unknown-quote and signal-edge limits.
+- Chosen to distinguish historical defects from latest retained behavior,
+  HELD policy and unverified deployment, rather than apply any patch.
+- Expected outcome: auditable historical coverage and bounded review handoff.
+- VERIFIED_ENV: local file inspection only. No runtime, tests, probes,
+  embedded commands, network, production/config/state edits or patch apply.
+  No specialist delegation tool was available. Tests were not run.
+- Remaining risk: static evidence is not deployed/integration/economic proof;
+  other 76 historical-only contents are outside this code slice. Next proof
+  is independent valuation-contract review/decision. Acceptance INCOMPLETE.
+
+## 2026-10-07 - Rev87 specialist research bundle review
+
+- AUDITOR only; read-only review of patches 0048-0054, 0063, 0064,
+  0066-0068 in the supplied bundle and temporary candidate. Fully read each
+  README, supplied production diff, and full patch including tests.
+- SHOWN by source and bounded AST-extracted, I/O-stubbed probes: inherited
+  database overrides escape suite isolation; stage stamps do not prove live
+  execution; future evidence is admitted; holdout test windows can overlap
+  selection; a fixed-horizon join crosses a missing day; assumed slippage
+  reads as observed; stale same-component PIDs lack campaign ownership proof.
+- Added docs/review_artifacts/rev87_review_20261005/
+  specialist_research_review.md with exact references, patch dispositions,
+  probe results and limits. No production, runtime, config or state edits.
+- Chosen to preserve read-only scope rather than invoke unaccepted isolation
+  or process-control tests. Source-only verification exited 0 after fixing
+  one probe AST-construction error. Pytest/full suite/host/live/economics not
+  verified; author-reported suite results are not independent proof.
+- Expected outcome: actionable review handoff without contaminating evidence
+  or silently accepting capability/scope changes. Next proof is disposable
+  inherited-path isolation verification before broader test execution.
+- Overall acceptance INCOMPLETE; affected behavior claims REJECTED in the
+  artifact. No implementation or high-risk approval performed.
+
+## 2026-10-05 - Rev58-87 reconciliation and priority review
+
+- AUDITOR; read pasted submission/guide and workbook cells, integrity-checked
+  all 30 distinct revisions. Duplicate rev87 ZIPs/guides are byte-identical.
+  Existing numbered patches unchanged across revisions; latest has 75 numbers.
+- Assembled 73 active patches on stated 97c24c8e4 base in temporary candidate,
+  excluding 0011/0019 and work-log hunks. Not exact commit-tree identity proof.
+- SHOWN: priority reconciler slice 47 passed in 2.49s. Three independent probes
+  fail in 1.28s: prior quote race/recovery omissions remain; scan-cap starvation
+  persists across passes. The scan-limit issue was disclosed, not newly invented.
+- Correct stale blanket-unreviewed wording; workbook is rev73-era snapshot.
+  Saved rev87_submission_review_20261005.md, probes and reproducible inventory.
+- Full suite/host/live posture/economics unverified. Remaining patch groups
+  inventoried, not fully reviewed. Main runtime/config/accounts untouched.
+- Overall latest-series acceptance INCOMPLETE; next action is reconcile reviewed
+  paper overlays with latest series, not another broad hardening batch.
+
+
+## 2026-10-04 - Paper recovery recurring caller and serialization
+
+- ENGINEER; HIGH risk, isolated candidate only. Added recurring bounded sweep
+  after paper fill evaluation, runtime recovery status and shared reentrant
+  evidence-write locking. Confirm artifact presence before reporting repair.
+- Independent reviewer Mill REJECTED a reproduced duplicate record window.
+  Normal and recovery paper writers now share the locked order-identity check;
+  generic logger partial-fill behavior remains unchanged.
+- SHOWN: final fifteen-file slice 191 passed in 7.98s, Python 3.12.10. Reviewer
+  independently ran 11 tests and confirmed one ledger fill -> one record.
+- Independent re-review ACCEPTED the bounded duplicate correction; not full
+  series or deployment acceptance. Broader integration remains INCOMPLETE.
+- Saved v4 patch and paper_recovery_runtime_handoff_20261004.md. Applicability
+  check passed with existing review probe excluded as documented. No main
+  runtime/config/accounts/collectors altered; no merge or deployment.
+- Remaining: full integration, CI, multiprocess/sustained contention proof.
+  Row-bounded scans are not elapsed-time bounded. No readiness overclaim.
+
+
+## 2026-10-04 - Paper recovery failed-row isolation
+
+- ENGINEER; HIGH risk, isolated candidate only. User authorized the bounded
+  correction of independent review's failed-row starvation finding.
+- Row errors now report failure while allowing progress; persisted cycle
+  ceiling guarantees revisiting retained ledger obligations despite new fills.
+- SHOWN: recovery/probe slice 13 passed in 1.97s; expanded eleven-file slice
+  153 passed in 6.52s. Generated v2 patch applicability check passed.
+- Added failure/restart/new-arrival/cursor-write regressions and preserved v2
+  artifacts separately from the earlier checkpoint. Independent review pending.
+- Main runtime/config/accounts/collectors unchanged; no merge or deployment.
+  Full suite, CI, concurrent sweeps and host behavior remain unverified.
+- Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+- Separate reviewer Carson confirms failed-row isolation under repeated
+  serialized calls; independently ran 18 tests, all passed in 2.28s.
+  Operational recovery remains INCOMPLETE: production calls the sweep only
+  once at startup, so further pages/retries require another start. Next proof
+  is bounded recurring caller wiring and a serialized-writer boundary. Logger
+  swallowed-write behavior means success fields are not persistence proof.
+
+
+## 2026-10-04 - Isolated 0042/0044 correction checkpoint
+
+- ENGINEER; HIGH risk. Implemented exact-quote validation and persistent rowid
+  recovery pagination only in /private/tmp/cryptkeep-paper-correction-20261004.
+- SHOWN: both prior probes pass; expanded targeted slice 150 passed in 5.57s,
+  Python 3.12.10. Added restart/pagination proof and updated gate-mocked fixtures.
+- Independent reviewer Fermat confirms the two bounded repairs but finds
+  persistent failed-row starvation. Review disposition INCOMPLETE; not accepted.
+- Preserved correction.patch, tests and paper_quote_recovery_correction_handoff
+  with the blocker and next required proof. No live-order delta included.
+- No main runtime source/config/accounts/collectors changed, no merge/deploy.
+  Full suite, CI, concurrent sweeps and actual operation remain unverified.
+
+
+## 2026-10-04 - Bounded 0040-0044 review
+
+- AUDITOR; user authorized the five-patch review, not deployment.
+- SHOWN: supplied targeted slice 72 passed in 1.66s; independent probes
+  2 failed in 0.24s in isolated candidate, Python 3.12.10, caching disabled.
+- 0042 validates a newer snapshot while filling against an earlier stale
+  quote. 0044 never advances beyond the latest fill page. Both INCOMPLETE.
+- 0040/0041/0043 ACCEPTED_WITH_RISK for bounded behavior only. Scheduling,
+  actual fee provenance, external delivery and complete series remain unverified.
+- Saved rev57_paper_batch_review_20261004.md and reproducible probes. No main
+  runtime source/config/accounts/collectors changed. No merge or deployment.
+- Next proof: exact-quote validation and complete recovery traversal fixes,
+  original probes passing, targeted neighborhood and independent re-review.
+
+
+## 2026-10-04 - Supplied acceptance ledger and session record audit
+
+- AUDITOR: read pasted handoff, all five workbook sheets, repository ledger,
+  FC-01 session record and rev41 review. Opened rev41 ZIP's apply-order text.
+- SHOWN: 26 listed patches through 0028 plus 0029/0030 means 28 applied,
+  not 26. "Accepted through correction" overstates unresolved final review.
+  Full-suite/tree proof cannot resolve separate operating-policy decisions.
+- Recomputed FC-01 descriptive additions from frozen result rows: selected
+  +5.95 versus rejected +9.07 bps, break-even fee 2.97 bps/side, seven pre-fee
+  winners and one post-fee winner. Incremental +$76.49 = $84.04 avoided fees
+  minus $7.55 foregone gross. No different outcome or promotion inferred.
+- Added series_acceptance_ledger_review_20261004.md. No workbook or other
+  agent record edits. No patch application, full suite, push, deployment,
+  state/config/account/collector operations in this review.
+- Verification: source/read-only arithmetic checks; git diff --check.
+  Integration tree/failure identities remain UNVERIFIED; series INCOMPLETE.
+
+## 2026-10-04 - Human acceptance and scoped FC-01-r1 close-out
+
+- GATE: user approved the presented exploratory result. Recorded human
+  acceptance, not same-thread independent self-approval or statistical proof.
+- FC-01-r1 ACCEPTED_WITH_RISK as a completed pilot; disposition STOP for the
+  unchanged candidate under the tested 50-bps-per-side fee scenario. Absolute
+  modelled net negative; relative improvement does not justify promotion.
+- Updated result and design status only. Retained timestamp, fee applicability,
+  missingness, power, capacity and historical trial-count limitations.
+- Shared collectors, SMA200, E02/E03, configs, accounts and capital unchanged.
+  No new experiment, deployment, collector stop or 90-day confirmation.
+- Documentation-only verification: git diff --check. Prior five targeted
+  tests and byte-identical outcome rerun retained; no new test run claimed.
+- Accepted objective complete within pilot scope. Next economic work must
+  address existing E02/E03 evidence, not rescue FC-01 on the same outcomes.
+
+## 2026-10-04 - FC-01-r1 approved inputs and exploratory economic result
+
+- Human approved input pinning. ENGINEER stage: bounded descriptive pilot,
+  not a powered confirmation or live execution experiment. Prior design/input
+  acceptance does not independently accept this new reporter.
+- Added reporter, five synthetic regression tests, pre-run pilot registry,
+  text JSON results and fc01_r1_exploratory_result_20261004.md. Used frozen
+  inputs only, not the growing database. No signal/cost threshold search.
+- SHOWN: 101 paired windows / 17 selected entries. CF-MODELLED, $100 entry
+  purchase notional, 50 bps each leg, ask/bid crossing, zero extra slippage:
+  rule -$15.99; every-window comparator -$92.48; incremental +$76.49; cash $0.
+  OBSERVED selected midpoint movement mean +5.95 bps. Not actual profit,
+  not buy-and-hold, not annualized return on capital.
+- Daily-block bootstrap 10,000 seed 20261004: absolute net 95% descriptive
+  interval -29.09 to -3.56 bps/paired window; three-day sensitivity also
+  negative. Relative improvement alone cannot satisfy absolute-net gate.
+- Timestamp inspection: collector_service appends after collection; store
+  defaults capture_ts to _now_iso. Exact receive/exchange freshness, capacity,
+  intraholding drawdown, trial-count correction and power remain unverified.
+- Verification: .venv/bin/python -m pytest -q
+  docs/review_artifacts/20261004_fc01/test_report_fc01_r1.py: 5 passed.
+  No full-suite/CI/host run needed or claimed for isolated research tooling.
+- Recommend no promotion/confirmation collection of unchanged rule under
+  this scenario, pending review. No campaigns, collectors, configs, accounts,
+  orders or shared infrastructure changed. READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-04 - FC-01-r1 human acceptance and input pinning
+
+- DIRECTOR: human approved FC-01-r1's frozen freshness/entry-price contract.
+  Design ACCEPTED; no confirmation registration or return analysis authorized
+  by this entry. ENGINEER stage: added pin_fc01_r1.py and generated text-only
+  fc01_r1_pinned_inputs.json under docs/review_artifacts/20261004_fc01/.
+- Script reads SQLite in query-only mode within one read transaction, freezes
+  consumed book/quote fields, attaches content/script hashes, and records all
+  window row IDs and exclusion reasons. No return calculation or runtime edits.
+- SHOWN: 138 windows, 101 complete paired windows, 17 qualifying complete
+  windows, 84 complete cash decisions. Ledger assertions passed; rerun is
+  byte-identical. This corrects any interpretation of 106 feature/outcome
+  windows as 106 fully priced paired windows.
+- Remaining risk: independent selection/validity/tie-break review, capture-time
+  availability semantics, cost scenarios and power plan. No upstream or full
+  database immutability claim. No collector/config/account/host changes.
+- HIGH research-input implementation: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-04 - FC-01-r1 authorized freshness and entry-price contract
+
+- DIRECTOR: user approved the recommendation to freeze 330-second freshness
+  and explicitly define entry pricing. HIGH, research design only; no returns,
+  collector changes, signal threshold changes or confirmation registration.
+- Revised faster_context_hypothesis_draft_20261004.md: boundary-frozen features,
+  first valid same-venue entry/exit quotes within 330 seconds, row-ID tie break,
+  observed midpoint versus modelled ask/bid costs, shared comparator quotes and
+  explicit unavailable paired windows. Preserved SMA200, E02 and E03 scope.
+- SHOWN: read all six workbook sheets; reran the read-only count script using
+  .venv/bin/python against .cbp_state/data/crypto_edge_research.sqlite and its
+  default fixed cut 2026-10-04T00:06:13Z. Counts and both row-identity hashes
+  match. Complete qualifying windows: zero at 120 seconds, 17 at 330 seconds.
+  These hashes do not cover prices; no profitability or power claim.
+- Collector status independently reports PID alive, two successful cycles,
+  zero errors, last collection 16:05:01Z. Workbook's stopped-archive statement
+  is historical, not current. Workbook unchanged.
+- Remaining proof: independent contract review, immutable content hash,
+  exact paired-window IDs/exclusions, timestamp semantics and declared costs
+  before any exploratory returns. Required confirmation N remains unset.
+- No code/config/account/campaign/host changes, no tests needed for this
+  documentation-only revision. Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-04 15:59 UTC - Authorized context collector restart
+
+- ENGINEER, scoped operations: user explicitly approved restarting the existing
+  research-only crypto-edge collector with unchanged plan/300-second interval.
+  VERIFIED_ENV: supported CLI, recorded PID metadata and live plan inspected.
+- Previous status: PID 77104 dead, last capture 2026-10-04T00:06:13Z.
+  Started detached via subprocess/start_new_session using existing local venv,
+  explicit .cbp_state root, --plan-file sample_data/crypto_edges/live_collector_plan.json
+  --interval-sec 300 --source live_public. Appended existing nohup log.
+- SHOWN: process PID 46947 alive; first cycle at 15:59:51Z reports collected,
+  loops=1, writes=1, errors=0, research_only=true, execution_enabled=false.
+  Read-only SQLite verification shows all five tables advanced to 15:59:51Z:
+  funding/basis/open-interest/order-book one row each, quotes two rows.
+- Paper PID 46484 remains alive. No other collector, live executor, strategy,
+  config, account, credential, host or deployment changes. No reboot autostart.
+- Human-authorized restart complete with first-cycle proof only. Sustained
+  collection and next cycle UNVERIFIED. Missing interval (~15h54m) remains;
+  no backfill or claim of continuous coverage. No long polling/test suite run.
+
+## 2026-10-04 15:52 UTC - Authorized local paper collector restart
+
+- ENGINEER, scoped operations: user approved restarting the local paper
+  collector after inspection found PID 1506 dead. VERIFIED_ENV: local manifest
+  and recorded PID/status settings, supported --daily-loop --detach interface.
+- Restored only ES/SMA200 at .cbp_state: coinbase BTC/USDT, public_ohlcv_1d,
+  runtime 20s, drain 2s, poll 300s, max daily attempts 2, session ID
+  es_daily_trend_v1. Command used existing local venv and explicit CBP_STATE_DIR.
+- SHOWN: detached_started PID 46484; separate ps confirms command identity;
+  --status confirms pid_alive=true, idle/waiting_for_next_day, completed UTC
+  date 2026-10-04. Evidence total remains 36253, no duplicate session forced.
+- No strategy/config/account edits, bundle deployment, live executor start,
+  Hetzner operation or other collector restart. Existing dirty source retained.
+- Human-authorized restart complete. Next natural session, sustained operation
+  and restart-at-login remain UNVERIFIED. Detached process does not establish
+  automatic recovery after another reboot. No long wait or test suite run.
+
+## 2026-10-04 - Rev41 review and fee provenance reconciliation
+
+- AUDITOR: bounded 0029/0030 review on isolated tree. VERIFIED_ENV Python
+  3.12.10. 61 targeted tests pass in 3.07s, including nine prior probe cases.
+  Existing patch bytes unchanged; no new blocking defect found in this scope.
+- 0029/0030 ACCEPTED_WITH_RISK only; complete series remains INCOMPLETE.
+  Conflicting ownership can still evaluate exits without the other venue's
+  stop state. Logging/entry refusal does not resolve that operating risk.
+- Added docs/research/rev41_checkpoint_review.md; corrected FC-01 fee wording
+  from blanket unverified to dated authenticated September 26 observation,
+  not a current/historical-universal fee guarantee. No outcome test run.
+- Preserved shared-host cost correction; current host/billing and EMA cadence
+  extrapolation are not independently verified. No E03 retirement decision.
+- No implementation, config/account, collector, deployment, push or merge
+  changes. No full-suite/matrix/CI/Hetzner rerun. Next research action remains
+  eligibility count without price outcomes.
+
+## 2026-10-04 - Rev39 review and separate research draft
+
+- AUDITOR stage: 0027/0028 reviewed on isolated rev36-plus-patches tree;
+  VERIFIED_ENV Python 3.12.10. Existing patch bytes unchanged across bundles.
+  52 targeted tests pass; two independent probes fail (ambiguous owner loses
+  its block next turn; filtered inspector returns 0 during global blockage).
+  Review: docs/research/rev39_checkpoint_review.md. 0027/0028 INCOMPLETE.
+- DIRECTOR stage: wrote separate FC-01 faster-context draft, not an E02
+  replacement or SMA200 retirement. Read-only local SQL confirmed book/quote
+  inventory, no price outcome testing. At most 138 six-hour windows, not
+  thousands of independent samples. Costs, power and timestamps remain gates.
+- Artifact: docs/research/faster_context_hypothesis_draft_20261004.md.
+  Proposal INCOMPLETE, not registered/run. Next research action is eligibility
+  count without returns; next engineering action is bounded findings repair.
+- Only review/probe/proposal/log artifacts changed. No implementation,
+  campaign, config, account, collector, deployment, merge or push changes.
+  No full suite/long matrix, CI or Hetzner proof. Historical evidence preserved.
+
+## 2026-10-04 - Rev36 bounded re-review of 0026
+
+- AUDITOR; verify rev35 corrections without another broad implementation loop.
+- SHOWN: rev36 ZIP SHA256 matches; pre-existing patch bytes unchanged.
+  0026 applied only to isolated reviewed tree. VERIFIED_ENV Python 3.12.10.
+- Targeted venue, exit-event and seven original probe cases: 96 passed in
+  8.95s. Command and limitations in docs/research/rev36_checkpoint_review.md.
+- Both rev35 findings resolved. No new blocker found in bounded correction.
+  0026 ACCEPTED_WITH_RISK only; overall series/deployment remains INCOMPLETE.
+- Added review and this entry, no implementation changes. Next bounded action:
+  read-only quarantine inspection/recovery contract, not automatic release.
+- Open-position ownership, cached-history concurrency/restore behavior and
+  operator recovery remain unverified or unresolved. No full suite/matrix,
+  CI/Hetzner proof, config/account mutation, push, merge or deployment.
+
+## Rev35 checkpoint review - patch 0025
+
+- AUDITOR; bounded re-review, VERIFIED_ENV isolated tree/Python 3.12.10.
+- SHOWN: ZIP hash matches; 83 targeted tests pass, including previous venue
+  and malformed-event probes. Two new real-SQLite helper probes fail:
+  second historical kill forgotten after recording first owner; failed
+  history scan returns configured venue without entry-refusal state.
+- Review and reproduction: docs/research/rev35_checkpoint_review.md and
+  docs/review_artifacts/20261004_rev32/rev35_history_probe.patch.
+- Initial duplicate-test-path apply refusal and old-tree test invocation are
+  explicitly distinguished in the review from successful rev35 verification.
+- No implementation/config/account changes or deployment. No full suite,
+  matrix, CI or host proof. Expected next outcome: preserve all historical
+  entry restrictions while allowing protective exits. 0025/series INCOMPLETE.
+
+## Rev34 checkpoint review - patches 0023 and 0024
+
+- AUDITOR; bounded follow-up to rev32, Python 3.12.10 VERIFIED_ENV, isolated
+  patched tree only. Existing patches byte-identical; 0023/0024 are additions.
+- SHOWN: 164 targeted tests pass, including all three previous malformed-event
+  probes. That specific defect is resolved.
+- SHOWN: two new real-SQLite helper probes fail: initial venue is not persisted
+  so a config edit escapes a kill; queue-only old-venue exit is not checked
+  before migration. Detailed evidence: docs/research/rev34_checkpoint_review.md.
+- Added review and probe artifact; no production repair. Chosen next action is
+  bounded venue-transition correction, not additional scope or broad retests.
+- No full suite/CI/Hetzner verification, config/account mutation or deployment.
+  0024 and overall series INCOMPLETE.
+
+## 2026-10-03 - Rev32 bounded checkpoint review
+
+- AUDITOR; objective: verify frozen bundle, review 0021 before 0022 without
+  restarting an unbounded implementation/test cycle.
+- SHOWN: ZIP and manifest hashes verify. Isolated base 97c24c8e4 plus ordered
+  patches, excluding held 0011 and superseded 0019. VERIFIED_ENV Python 3.12.10.
+- SHOWN: 0021 storage tests 65 passed; 0022 runner/probe tests 53 passed.
+  Independent real-SQLite malformed-event probe: 3 failed. Explicit null/list
+  or missing-scope event is skipped and cursor advances with no unresolved row.
+- Added docs/research/rev32_checkpoint_review.md and reproducible probe patch
+  under docs/review_artifacts/20261004_rev32. No implementation changes.
+- Chosen treatment: hand off one reproduced P1, not another repair cycle.
+  Expected outcome: preserve malformed evidence and gate entries, not exits.
+- 0021 ACCEPTED_WITH_RISK, storage only. 0022 and overall series INCOMPLETE.
+  No full suite/matrix/CI/Hetzner proof; no push, merge, deployment, config or
+  account mutation. Existing dirty work preserved.
+
+## 2026-10-03 - Reconcile external journal review and integration direction
+
+- DIRECTOR: read the external journal review and probes; agree with durable
+  confirmation and quarantine gaps. External results not rerun this turn.
+- Corrected stale claim: rev30/0019 was reviewed and remains INCOMPLETE due
+  to restart entry bypass. Storage-component acceptance remains bounded.
+- Unified direction recorded in
+  docs/research/exit_event_integration_direction_20261003.md: row-per-event
+  journal, independent confirmation, quarantine, startup replay, constrained
+  reducer and permanent transactionally applied identity.
+- Adapt 0019 wiring, do not copy its unresolved restart behavior or stack two
+  stores. Original artifacts preserved. No code/config/account/deployment change.
+- Overall implementation remains INCOMPLETE; no acceptance of 0017-0019.
+
+## 2026-10-03 - Rev30 restart recovery review
+
+- AUDITOR: isolated 0019 review; 45 supplied/prior regression tests pass.
+- New restart-simulation probe fails: after state-store outage leaves a third
+  losing sell only in intent metadata, clearing process-local degraded memory
+  permits a new buy without replaying the owed loss/kill.
+- 0019 INCOMPLETE. Report: docs/research/rev30_restart_review_20261003.md;
+  durable probe under docs/review_artifacts/20261003_currency_config/.
+- Accepted separate storage prototype is not integrated by 0019. Do not
+  transfer its approval. Existing event-loss repair improvement is preserved.
+- No actual process-death/full-suite/host proof; no production/config/account
+  or deployment changes. Next: durable startup replay before new exposure.
+
+## 2026-10-03 - Human acceptance of exit-event storage prototype
+
+- GATE: user replied "approved" to the storage-component handoff.
+- ACCEPTED_WITH_RISK by human decision, limited to prototype.patch SHA256
+  e7b83d2277dab4bbc09dff2cbcdb106fa7365b780f8e1402d3e9a9a1e618d470
+  under docs/review_artifacts/20261003_exit_event_journal/.
+- Six component tests remain the recorded proof; not rerun for this status edit.
+  Runner integration and end-to-end lost-event repair remain INCOMPLETE.
+- No deployment, account migration, campaign/config change or blanket
+  acceptance of upstream 0018. Next implementation requires its own proof
+  and high-risk review before acceptance.
+
+## 2026-10-03 - Ordered exit-event storage prototype
+
+- ENGINEER / HIGH: built isolated durable event storage with per-intent identity,
+  ordered settlement and counter/marker updates in one transaction. Reducers
+  read current state instead of replaying stale precomputed totals.
+- Six real-SQLite component tests passed in 0.16s; simplified reducer only.
+  Artifact: docs/review_artifacts/20261003_exit_event_journal/prototype.patch.
+- Component READY_FOR_INDEPENDENT_REVIEW. Overall recovery fix INCOMPLETE:
+  not wired into strategy_runner, original end-to-end defect remains.
+- README lists required integration, compatibility, failure and policy proof.
+  No production configuration/account/deployment changes. No claim of a fixed
+  campaign or complete exactly-once recovery.
+
+## 2026-10-03 - Rev29 provisional exit-event review
+
+- AUDITOR: inspected 0018 and ran isolated recovery tests; 35 passed, including
+  prior write-failure probe. Intent-price metrics explicitly provisional.
+- Independent P1 probe fails: prior loss plus two written losing intents
+  records streak 2 with no kill, not streak 3 with kill. Single pending-plan
+  slot loses the earlier event when queue reads fail and another exit is written.
+- 0018 INCOMPLETE. Report: docs/research/rev29_exit_event_review_20261003.md;
+  durable probe under docs/review_artifacts/20261003_currency_config/.
+- Next: preserve event identity/unresolved evidence and test ordered idempotent
+  recovery without blocking protective exits or relaxing risk authority.
+- No production/config/account/deployment changes; full-suite and host unverified.
+
+## 2026-10-03 - Rev28 exit-bookkeeping review
+
+- AUDITOR / VERIFIED_ENV: isolated rev28 series, held 0011 excluded.
+- 84 focused tests passed. Independent queue-write failure probe fails:
+  no sell written, but loss_streak becomes 1. Bookkeeping remains pre-write.
+- 0017 INCOMPLETE, not accepted. 0016 prior bounded acceptance unchanged.
+- Report and durable probe: docs/research/rev28_exit_review_20261003.md and
+  docs/review_artifacts/20261003_currency_config/exit_write_failure_probe.patch.
+- Intent-time estimates are not reconciled realized PnL; event contract and
+  idempotent recovery need resolution. Stop-basis/position-identity concerns
+  not silently accepted. External broad matrix/full suite remain CLAIMED.
+- No production/config/account/deployment changes.
+
+## 2026-10-03 - Rev27 entry-fix review
+
+- AUDITOR: reviewed external 0016 in isolated /tmp/cryptkeep-rev27.1IcaWx.
+  Prior numbered patches unchanged; held 0011 excluded.
+- 115 focused tests passed, including rev26 reproduction. Differential harness
+  76 passed; 75/75 traces match supplied baseline. No full-suite or host proof.
+- 0016 ACCEPTED_WITH_RISK for bounded buy-path repair; whole series INCOMPLETE.
+  Clarified that signal-history state still changes on refused entries.
+- Report: docs/research/rev27_entry_fix_review_20261003.md. Existing exit scan,
+  repeated bookkeeping, stuck-row and reservation risks remain separate.
+- Next: independently reproduce blocked-exit bookkeeping before repair.
+  No production/config/account/deployment changes.
+
+## 2026-10-03 - Rev26 normal-entry review
+
+- AUDITOR: archive comparison confirms documentation-only rev26. Inspected
+  current 0004/0005 entry path in the identical isolated rev25 code tree.
+- SHOWN P1: normal-path scan ignores submitting/held, allowing another buy
+  intent despite the proposed symbol already having an in-flight entry.
+  This is separate from the accepted cooldown protective-exit lookup.
+- Three supplied test files: 65 passed. Independent four-status probe:
+  queued/submitted pass, submitting/held fail (2 failed, 2 passed).
+- Report: docs/research/rev26_entry_review_20261003.md; reproducible probe
+  packaged under docs/review_artifacts/20261003_currency_config/.
+- No production code/config/account/deployment changes. Concurrency and
+  provenance proof remain unresolved; whole-series acceptance INCOMPLETE.
+
+## 2026-10-03 - Rev24-25 independent follow-on review
+
+- AUDITOR: inventoried archive differences; verified accepted correction hash;
+  reviewed external patches 0014 and 0015, without modifying their code.
+- Reproduced pre-0014 journal failure (1 failed, 7 passed). Final ten-file slice
+  214 passed in 4.73s. Differential 76 tests passed; all 75 traces matched.
+- 0014 ACCEPTED; 0015 ACCEPTED_WITH_RISK for bounded follow-on changes.
+  No new blocking defect found. Whole-series readiness remains INCOMPLETE.
+- Independently reproduced inherited numeric fee/slippage ValueError risk;
+  clarified empty/comment/null-section behavior and stale handoff claims.
+- Full details/commands: docs/research/rev25_review_20261003.md.
+  External full-suite claims not locally repeated. No campaign/config/account,
+  merge, deployment or host change. Held 0011 remains excluded.
+
+## 2026-10-03 - Human acceptance of bounded currency-config correction
+
+- GATE: user explicitly replied "approved" to the correction handoff.
+- ACCEPTED_WITH_RISK by human decision, not same-thread independent review.
+- Artifact: docs/review_artifacts/20261003_currency_config/correction.patch,
+  SHA256 9b0c48f4b3bc24169ca84b03b08dc638d9087ad78fdde3adb7255c4153d81ba4.
+- Scope is this correction only. Preserve earlier implementation proof of
+  182 targeted passes; tests were not rerun for this documentation-only update.
+- Full-suite, CI, host integration, missing-file/default semantics and cash
+  provenance risks remain as documented. No blanket upstream-series acceptance.
+- Updated artifact status only; no merge, deployment, service restart,
+  campaign/config change or historical-account mutation authorized or performed.
+
+## 2026-10-03 - Correct rev23 malformed-config currency bypass
+
+- ENGINEER / HIGH / VERIFIED_ENV: isolated tree /tmp/cryptkeep-rev23.ASs8Gh,
+  rev23 0001-0010 plus 0012, with held 0011 excluded.
+- Strict config read and root/section validation now retain an invalid flag
+  rather than silently opting out of currency enforcement. Buy refusal applies
+  at submission and resting-order evaluation; sells remain exempt from this gate.
+- Seven regression cases added. Updated older loader mock signatures to accept
+  strict=True; no fallback retry to a non-strict production read.
+- Packaged correction.patch and README under
+  docs/review_artifacts/20261003_currency_config/. Reverse apply check passed.
+- Seven-file pytest slice: 182 passed in 4.05s, Python 3.12, bytecode/plugin
+  autoload disabled. Exact command and residual risks are in the README.
+- No config, account, production checkout source, live route or deployment
+  changed. Full suite, CI, host integration and accounting provenance unverified.
+- READY_FOR_INDEPENDENT_REVIEW. This thread does not accept its own high-risk fix.
+
+## 2026-10-03 - Rev21-23 currency and differential review
+
+- AUDITOR / VERIFIED_ENV: compared numbered patches and reviewed delivered
+  0012, corrected config proposal, isolated-account proposal and rebuilt harness.
+- SHOWN: malformed YAML or non-mapping paper_trading disables 0012 currency
+  refusal. Two isolated regression probes fail; no actual fill claimed.
+- Supplied currency/equity tests: 153 passed. Harness: 76 passed and 75/75
+  traces match supplied baseline. This is not config/engine integration proof.
+- Recorded exact scope, commands, findings and limits in
+  docs/research/rev23_currency_review_20261003.md. No production/config/state
+  mutation, deployment or collector launch. Patch 0011 remains held.
+- Next proof: fix malformed-config buy refusal while preserving protective
+  exits; focused regressions and independent review. Status: INCOMPLETE.
+
+## 2026-10-02 - Rev20 conversation and configuration reconciliation
+
+- AUDITOR: reviewed newest pasted continuation, inventoried rev17/18/20 and
+  inspected revised currency valuation plus effective local config resolution.
+- SHOWN: runtime config differs from folder 17 proposal target; four inspected
+  local live-enable flags are false. Withdraw obsolete local flag-off advice;
+  do not infer running-process or Hetzner safety from this inspection.
+- User infrastructure range under $10/month received, no longer missing.
+- Updated conversation_bundle_reconciliation_20261002.md with corrections and
+  explicit coverage limits. No production/config/account mutation or deployment.
+- VERIFIED_ENV: /tmp/cryptkeep-rev20.6KJ4JB, base 97c24c8e4 plus 0001-0010,
+  held 0011 excluded. Python 3.12 pytest -q -p no:cacheprovider over
+  test_paper_equity_marking, test_runner_exposure_pct, test_runner_multi_symbol,
+  test_market_snapshot_readers, test_tick_reader_exact_symbol: 190 passed, 5.64s.
+  Bytecode disabled and plugin autoload disabled. Exact command in report.
+- Remaining: currency enforcement/cash provenance, revised workbook and raw
+  evidence revalidation, full-series review, full suite and host/process proof.
+  External undelivered patch claims do not establish implementation.
+- Acceptance state: INCOMPLETE. No blanket acceptance of the high-risk series.
+
+## 2026-10-02 - Exact-symbol caller review for rev18 patch 0010
+
+- AUDITOR / VERIFIED_ENV: reviewed tick_reader, normalization, paper price
+  fallback, market_quality_guard, live local-price gate and shadow recorder
+  in isolated /tmp/cryptkeep-rev18.sxwiFy (0001-0010, held 0011 excluded).
+- No new blocking defect found in the bounded exact-symbol change. Missing
+  quote returns None rather than another symbol's venue-level quote; paper
+  fetch failures return no price. Permissive unknown-quote guard behavior is
+  inherited and remains subject to item 29, not silently changed here.
+- SHOWN: Python 3.12, bytecode and plugin autoload disabled, pytest -q
+  -p no:cacheprovider tests/test_tick_reader_exact_symbol.py
+  tests/test_market_snapshot_readers.py tests/test_review_exact_symbol_callers.py:
+  34 passed in 1.31s. Two new isolated review probes cover live local-price
+  None behavior for both sides and missing-quote shadow no-fill logging.
+- These direct mocked caller probes do not prove a full live intent remains
+  pending, actual exchange behavior, publisher coverage or end-to-end safety.
+- Bounded patch review ACCEPTED_WITH_RISK; not approval of live activation,
+  strict-config application, full series, merge or deployment. Item 29 needs
+  scoped configuration approval and observed cycle. No main production source,
+  campaign state or config changed. Next review is 0009 cash provenance and
+  denomination, not another implementation of the already supplied marking.
+
+## 2026-10-02 - Conversation and rev18 reconciliation
+
+- AUDITOR: user requested review of shared conversation/files for missed
+  information. Added docs/research/conversation_bundle_reconciliation_20261002.md
+  with actual coverage, decisions, patch renumbering, evidence limits and gaps.
+- SHOWN: numbered 0001-0010 apply cleanly in /tmp/cryptkeep-rev18.sxwiFy;
+  held 0011 excluded. Five current-equity/exact-symbol/multi-symbol test files
+  passed 161 tests in 4.48s on Python 3.12, bytecode/plugins disabled.
+- Recomputed spreadsheet daily totals (2304/2301/2/1/0) and fee-return gaps;
+  not a backtest rerun or raw signal verification. Inspected new pasted
+  response, rev18 handoff, relevant production diffs and audit addenda.
+- Important correction: supplied current-equity implementation exists as
+  0009; it was missing from our latest operational summary. Account cash
+  provenance, not only positions, is a reported blocker. Price agreement is
+  not independent symbol provenance. Confirmed item 29 staged opt-in rule.
+- No production source/config/history changes, merge, push or deployment.
+  Full historical-file audit and latest-series acceptance remain INCOMPLETE;
+  do not claim exhaustive three-day coverage or full-system proof.
+
+## 2026-10-02 - Human acceptance of invalid-valuation correction
+
+- GATE: operator replied "approved" to the bounded invalid-valuation
+  correction handoff. ACCEPTED by human review for that correction only.
+- Prior proof remains 91 targeted tests; tests not rerun for this log update.
+  Current marked-to-market equity and stale-position ownership remain
+  unresolved. Patch 0008 deployment remains held; broader rev15 work remains
+  INCOMPLETE. No blanket bundle approval, merge, push, deployment, account
+  mutation or live activation inferred. Source remains isolated in
+  /tmp/cryptkeep-rev15.BzYTgY.
+
+## 2026-10-02 - Reject invalid exposure valuation inputs
+
+- ENGINEER / HIGH / VERIFIED_ENV: operator requested treatment of rev15
+  findings. Changed isolated /tmp/cryptkeep-rev15.BzYTgY only, not main
+  production code. exposure_pct_from_equity now rejects malformed/nonfinite
+  quantities, nonpositive costs on held positions, invalid pending/proposed
+  notionals, missing symbols, booleans and overflowed percentages.
+- Negative quantities fail closed in this cost-based long-spot calculation;
+  no short-equity convention is invented. Zero held quantity needs no cost.
+  Existing cost-based formula otherwise retained, not relabeled as current
+  marked-to-market equity. Current-equity requirement remains unimplemented.
+- SHOWN: local Python 3.12, PYTHONDONTWRITEBYTECODE=1
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1, pytest -q -p no:cacheprovider
+  tests/test_runner_exposure_pct.py tests/test_runner_pending_entry_exposure.py
+  tests/test_runner_multi_symbol.py tests/test_review_exposure_invalid_values.py:
+  91 passed in 3.91s. Added 27 invalid-input/overflow cases.
+- Snapshot errors and caller refusal remain separate from price/currency
+  normalization. Full suite, real sessions, marked-to-market source selection
+  and stale-position ownership remain unverified. No account-history mutation,
+  scope narrowing, merge, push or deployment. Patch 0008 remains held.
+- READY_FOR_INDEPENDENT_REVIEW for this bounded fail-open correction only;
+  the broader rev15 treatment remains INCOMPLETE.
+
+## 2026-10-02 - Rev15 exposure and preset review
+
+- AUDITOR / VERIFIED_ENV: exported base 97c24c8e4 to
+  /tmp/cryptkeep-rev15.BzYTgY and applied ordered patches 0001-0008 cleanly.
+  Main production source, configuration and historical records unchanged.
+- SHOWN: local Python 3.12, PYTHONDONTWRITEBYTECODE=1 and
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1, pytest -q -p no:cacheprovider selecting
+  cooldown sessions, runtime runner, protective exit, multi-symbol, pending
+  entry exposure, exposure pct, runner risk limits, managed exit policy,
+  promotion progress and both status reports: 243 passed in 11.80s.
+- P1 reproduced outside supplied tests: exposure_pct_from_equity silently
+  values a nonzero BTC position with avg_price='unreadable' at zero. With
+  cash=1000 and proposed ETH entry=100, reports 10 percent total exposure;
+  evaluate_entry returns risk:pass. Reject malformed required valuation
+  inputs instead of silently substituting zero.
+- Requirement mismatch: selected current paper equity is implemented as
+  cash plus positions at cost, explicitly excluding unrealized PnL. Do not
+  describe that as current marked-to-market equity. Currency conversion and
+  quote freshness also need an explicit contract before mixed-quote use.
+- Recommendation: hold 0008 deployment; do not delete stale positions or
+  narrow account-wide exposure to campaign symbols to make entries pass.
+  Establish ownership/provenance first. Earlier no-risk-map boundary cannot
+  be silently reversed on the strength of targeted tests.
+- 0006 includes submitting/held, addressing a gap in our previously accepted
+  two-status lookup. Tests cover this in the combined run; approval of old
+  code was not proof of full lifecycle coverage.
+- Full suite, mutation and 75-scenario claims, Hetzner state, historical
+  position authenticity and real session behavior remain UNVERIFIED.
+- INCOMPLETE review for 0007/0008; no merge, push or deployment authorized.
+
+## 2026-10-02 - Human acceptance of cached-price correction
+
+- GATE: operator replied "approved" to the isolated cached-price correction
+  handoff. ACCEPTED by human review for that bounded correction, not
+  same-thread self-approval or blanket approval of multi-symbol operation.
+- Pending-order portfolio exposure, full suite, outage protection and live
+  integration remain unverified as disclosed. No deployment, campaign restart,
+  configuration change or live activation authorized by this recording.
+- Documentation-only update; tests not rerun. Implementation remains in
+  /tmp/cryptkeep-rev10.wLcWcf, not merged or deployed.
+
+## 2026-10-02 - Rev10 cached-price correction
+
+- ENGINEER / HIGH / VERIFIED_ENV: isolated checkout
+  /tmp/cryptkeep-rev10.wLcWcf. Removed market_by_symbol cache from folder 9.
+  Multi-symbol evaluation now requires this turn's usable market tuple;
+  signal warm-up still permits protective evaluation with newly fetched data.
+- Missing data preserves the upstream failure status and skips price-dependent
+  processing; recovery allows protective exit again. This is not an outage
+  protection guarantee, nor a change to single-symbol behavior or venue stops.
+- SHOWN: Python 3.12, PYTHONDONTWRITEBYTECODE=1
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1, pytest -q -p no:cacheprovider over the
+  prior seven-file selection plus test_review_stale_multisymbol.py:
+  114 passed in 7.83s. Added recovery regression afterward; final
+  test_runner_multi_symbol.py + test_review_stale_multisymbol.py:
+  16 passed in 1.65s. No claim of a final 115-test combined run.
+- Price-dependent exit reuse on failed fetch is covered, fresh warm-up exit
+  cases remain green, and recovered quote triggers the expected sell.
+- No main production source, campaign/config, merge or deployment changed.
+  Pending-order portfolio exposure, full suite and live integration remain
+  unverified. Folder 8 stays separate. This correction requires independent
+  review before acceptance; READY_FOR_INDEPENDENT_REVIEW.
+
+
+## 2026-10-02 - Rev10 series and multi-symbol review
+
+- AUDITOR / VERIFIED_ENV: reconstructed 97c24c8e4 in
+  /tmp/cryptkeep-rev10.wLcWcf; all four ordered patches applied cleanly,
+  including work-log hunks. No main production files or deployment changed.
+- SHOWN: Python 3.12 with PYTHONDONTWRITEBYTECODE=1 and
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1, pytest -q -p no:cacheprovider selecting
+  cooldown sessions, strategy runtime runner, protective exits, promotion
+  progress, both status reports and test_runner_multi_symbol.py:
+  113 passed in 7.75s.
+- P1: new market_by_symbol cache restores a prior price after a failed fresh
+  quote fetch without enforcing cache age before exit evaluation. Review
+  probe test_review_stale_multisymbol.py (temporary checkout) observes two
+  exit-stack calls for the sole held BTC position despite only its first
+  fetch succeeding. Expected one; regression failed in 0.36s. Initial probe
+  incorrectly filtered a nonexistent symbol argument; corrected to count
+  calls for the sole held position before drawing this conclusion.
+- Required correction: distinguish unavailable data from a valid flat signal;
+  define bounded freshness and degraded protective management explicitly,
+  preserving protective exits without treating stale cached quotes as fresh.
+  Do not deploy multi-symbol behavior on this evidence.
+- Pending-order portfolio exposure is an acknowledged additional integration
+  risk, not independently reproduced here. Full-suite and 75-scenario
+  equivalence claims not reproduced. Existing accepted patches stay separate.
+- Folder 9 INCOMPLETE pending correction and independent review; no blanket
+  acceptance or production readiness claim from 113 targeted tests.
+
+## 2026-10-02 - Operator approval of bounded rev7 review
+
+- GATE: operator replied "approved" to the rev7 re-review and recommendation
+  to retain the previously human-accepted SQL lookup instead of stacking
+  rev7's alternative paginated helper.
+- ACCEPTED_WITH_RISK by human review for the bounded reviewed scope;
+  previously recorded limitations and unverified claims remain unchanged.
+- No authorization inferred for deployment, campaign restart, live activation,
+  configuration changes, historical mutation or the unverified full suite.
+- Documentation-only recording; no tests rerun, no source integration,
+  merge, push or deployment performed in this step.
+
+## 2026-10-02 - Revision 7 independent bounded re-review
+
+- AUDITOR / VERIFIED_ENV: reviewed rev7 folder 6, dry-run script/state and
+  corrected audit finding 23. Extracted into /tmp/cryptkeep-rev7.FuZBO8;
+  applied folders 1 and 6 to exported base 97c24c8e4 only, not main checkout.
+- SHOWN: rev7 filters queued/submitted before the page limit and returns
+  unknown on a saturated unmatched page. This fixes the reviewed closed-row
+  crowding defect but may block exits for unrelated open-intent volume.
+  Prefer the already accepted scoped SQL query; do not stack the two fixes.
+- Packaging finding: shipped state copy is read-only; shutil.copy preserves
+  that mode and the simulation initially failed with readonly database.
+  Made only the extracted temporary fixture user-writable, not campaign state.
+- Python 3.12, PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1,
+  pytest -q -p no:cacheprovider: unpatched simulation with DRYRUN_EXPECT=master
+  passed (1); unpatched with patched expectation failed at blocked-count
+  assertion as intended. Patched cooldown/runtime/protective-exit tests plus
+  simulation: 81 passed in 10.21s. REAL_STATE_COPY referenced extracted fixture.
+- Simulation assertions now independently reproduced; fixture authenticity
+  against the current campaign, full-suite 3800/33/19 claim, actual timing,
+  process environments, deployment and economic benefit remain UNVERIFIED.
+- Finding 23 retracts the live-impossibility claim. Finding 24 still uses
+  broader current-state wording than inspected process evidence supports.
+- Bounded re-review ACCEPTED_WITH_RISK: saturation availability limitation
+  and fixture permission requirement recorded. No deployment authorization,
+  runtime mutation, gate reset or blanket full-system acceptance.
+
+## 2026-10-02 - Package accepted lookup correction separately
+
+- ENGINEER: generated docs/review_artifacts/20261002_intent_lookup/
+  accepted_lookup_correction.patch and dependency README. Contains only the
+  human-accepted SQL lookup/caller/test delta, not the supplied full patches.
+- VERIFIED_ENV: reconstructed base 97c24c8e4 plus bundle folders 1 and 6 in
+  /tmp/cryptkeep-package-base.URzzqq, excluding their conflicting log hunks.
+  git apply --check passed, applied the packaged delta, then local Python 3.12
+  with PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ran
+  -m pytest -q -p no:cacheprovider tests/test_kill_cooldown_sessions.py
+  tests/test_strategy_runtime_runner.py tests/test_kill_gate_protective_exit.py:
+  80 passed in 6.13s. Folder 5/reporting was absent from this test checkout.
+- ACCEPTED packaging of the already human-accepted correction. No new
+  behavior changes, blanket dependency approval, merge, push or deployment.
+  Main production files and campaign state remain untouched.
+
+## 2026-10-02 - Human acceptance of isolated intent lookup correction
+
+- GATE: operator replied "approved" to the isolated protective-exit lookup
+  correction handoff reporting 99 targeted tests passed.
+- ACCEPTED: human acceptance of that bounded correction, not same-thread
+  self-approval. The implementation entry below retains its historical state.
+- Scope excludes blanket acceptance of the external bundle, deployment,
+  campaign restart, live activation, or changes to historical evidence.
+- Previously disclosed concurrency, partial-fill and integration limits remain
+  unverified. Acceptance does not convert targeted proof into system proof.
+- Documentation-only update; tests not rerun. Source remains isolated at
+  /tmp/cryptkeep-rev4-review.AIPzHw; not merged or deployed.
+
+## 2026-10-02 - Protective-exit intent lookup correction
+
+- ENGINEER / HIGH / VERIFIED_ENV: isolated implementation in
+  /tmp/cryptkeep-rev4-review.AIPzHw only. Replaced the new protective-exit
+  helper's newest-200 scan with IntentQueueSQLite.has_open_strategy_intent,
+  a parameterized SQL existence query filtered by source, symbol and open
+  statuses before LIMIT 1. Queue errors still yield unknown and block bypass.
+- Added SQLite regressions for queued/submitted intents behind 250 newer
+  completed rows, and updated protective-exit queue doubles for the interface.
+- SHOWN: PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1, local
+  Python 3.12 -m pytest -q -p no:cacheprovider, six test files:
+  test_kill_cooldown_sessions, test_strategy_runtime_runner,
+  test_kill_gate_protective_exit, test_paper_promotion_progress,
+  test_report_paper_campaign_status, test_report_supervised_soak_status:
+  99 passed in 6.57s.
+- Correction to earlier evidence pointer: the runner uses
+  storage/intent_queue_sqlite.py, not services/execution/intent_writer.py.
+  Verified the actual queue also applied ORDER BY created_ts DESC LIMIT
+  before filtering in the caller, so the bounded-search finding stands.
+- No main-checkout production source, campaign state, config or deployment
+  changed. No atomic reservation added; concurrency, partial fills, downstream
+  legacy checks and full integration remain unverified. Separate review must
+  assess these limits; this is not a claim of complete duplicate-order safety.
+- READY_FOR_INDEPENDENT_REVIEW; no same-thread approval or deployment.
+
+
+## 2026-10-02 - New bundle protective-exit review
+
+- AUDITOR / VERIFIED_ENV: cryptkeep_review_bundle_2026-10-02_1.zip contains
+  folders 6 and 7 absent from the earlier supplied bundles. SHA256 comparison
+  shows its cooldown and reporting patches unchanged from revision 4.
+  Read the standalone DOCX; it describes the earlier review, not final proof.
+- Applied folder 6 only to /tmp/cryptkeep-rev4-review.AIPzHw, already containing
+  folders 1 and 5 against base 97c24c8e4; excluded conflicting work-log hunk.
+- SHOWN: local Python 3.12, PYTHONDONTWRITEBYTECODE=1 and
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1, pytest -q -p no:cacheprovider selecting
+  test_kill_cooldown_sessions, test_strategy_runtime_runner,
+  test_kill_gate_protective_exit, test_paper_promotion_progress,
+  test_report_paper_campaign_status and test_report_supervised_soak_status:
+  97 passed in 6.50s. Full suite and deployment unverified.
+- P1 review finding: new _open_strategy_intent_state checks only the newest
+  200 intents. intent_writer.list_intents applies ORDER BY created_ts DESC
+  LIMIT before the helper filters symbol/status. An isolated AST probe with
+  200 completed other-symbol rows followed by a submitted BTC intent returned
+  'none'. This cannot prove absence of an outstanding intent before allowing
+  protective-exit bookkeeping. Require an appropriately scoped existence query
+  and a regression with the matching outstanding intent beyond that boundary.
+  The older downstream scan has the same bounded-search limitation; do not
+  treat this as a newly introduced global defect or duplicate-sell proof.
+- Folder 7 script has no outcome assertions, mocks signals/prices/positions/
+  queue, uses 63 loops with sleep disabled, and requires REAL_STATE_COPY not
+  included in the archive. Supplied CSV is CLAIMED simulation output, not
+  independently reproduced runtime or economic proof. It does not establish
+  real cooldown duration in seconds or days.
+- No production code, configuration, campaign state or deployment changed.
+  Protective-exit review INCOMPLETE pending the bounded-query correction;
+  no merge/deployment approval. Preserve independent cooldown/reporting scope.
+
+## 2026-10-02 - Revision 4 bundle targeted verification
+
+- AUDITOR: reviewed the supplied revision 4 production diffs for the cooldown
+  countdown and qualified-PnL reporting separately. Preserve the documented
+  crossover choice; no strategy contract change is authorized by this bundle.
+- SHOWN / VERIFIED_ENV: exported base 97c24c8e4884629347a5492ae848133becd9027b
+  to /tmp/cryptkeep-rev4-review.AIPzHw. Both patches applied there with their
+  conflicting work-log hunks excluded. No production source in this working
+  checkout or deployed host was changed.
+- Verification: PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1,
+  local .venv/bin/python -m pytest -q -p no:cacheprovider, selecting
+  tests/test_kill_cooldown_sessions.py, tests/test_strategy_runtime_runner.py,
+  tests/test_paper_promotion_progress.py, tests/test_report_paper_campaign_status.py,
+  and tests/test_report_supervised_soak_status.py: 88 passed in 5.51s.
+- The bundle advertises 69 cooldown/runtime and 33 reporting tests; that total
+  was not reproduced by this combined selection. Full-suite, live behavior,
+  current campaign configuration and deployment remain UNVERIFIED.
+- Reporting guard checks missing order IDs, row counts and completed-trip
+  counts. This is coverage consistency, not proof that journal prices,
+  quantities and fees equal exchange truth. Daily candle range membership
+  likewise cannot establish actual execution-price correctness.
+- Keep the previous combined per-symbol draft isolated and INCOMPLETE.
+  Review cooldown expiration, protective-exit bypass and multi-symbol repair
+  as separate changes. The supplied countdown patch does not fix the latter
+  two inherited defects. No campaign restart, gate reset or historical rewrite.
+- Outcome: targeted proof obtained; final review and economic-data verification
+  remain INCOMPLETE. These passing tests are not deployment approval or proof
+  of profitability.
+
+## 2026-10-02 - Per-symbol correction draft exposes exit regressions
+
+- ENGINEER: temporary checkout only, moved decision/position/risk/intent/status
+  processing into its symbol loop and allowed sells of existing long positions
+  through cooldown. No entry-rule, fee, campaign or deployed code changes.
+- Added review probes confirm both-symbol countdown and protective exit now
+  pass in this draft. However combined tests returned 64 passed, 3 failed in
+  4.90s. Failures: repeated-bar time-stop state, advancing-bar time-stop exit,
+  and persistent-exit single emission. Original supplied patch had63 passing
+  targeted tests; these failures arose after this control-flow draft.
+- A sleep-placement correction did NOT resolve failures. Earlier commentary
+  described the attempted correction, not verified success. Existing regression
+  tests were not weakened. Draft INCOMPLETE, not ready for review or deployment.
+- Next mandatory work: resolve exit handling during data warmup and per-symbol
+  continuation without allowing invalid data or skipping protective management.
+  Preserve failing proof in /tmp/cryptkeep-cooldown-review.GjX5bZ. No live changes.
+
+## 2026-10-02 - Cooldown deployment review finds multisymbol gap
+
+- AUDITOR: continued isolated supplied-patch review, not campaign modification.
+  Added missing-tick and two-symbol probes to temporary checkout review tests.
+- SHOWN: 3 passed, 1 failed in 0.52s. Two-symbol BTC/USD then ETH/USD run never
+  initializes/decrements BTC kill_remaining. Assertion expected48 but gotNone.
+  Missing-tick probe produced no order; this narrow result does not establish
+  all fetch-failure/recovery semantics.
+- AST ancestry check on base97c24c8e4 and patched runner confirms
+  should_block_symbol is outside the for-symbol loop in BOTH. Therefore this is
+  inherited multi-symbol behavior, not a newly introduced patch regression.
+- Reproduction: temporary checkout /tmp/cryptkeep-cooldown-review.GjX5bZ;
+  local venv Python, bytecode/plugin autoload disabled; pytest -q --tb=short
+  -p no:cacheprovider tests/test_cooldown_review_boundaries.py.
+- Single-symbol63-pass result remains valid within its limits. Broad deployment
+  review remains INCOMPLETE: do not present this patch as multi-symbol validated.
+  Required next disposition is a separately scoped per-symbol control-flow fix
+  and protective-exit review, not silently changing the accepted ES entry rule.
+  No production patch, gate reset, fee change or deployment performed.
+
+## 2026-10-02 - Local independent cooldown patch reproduction
+
+- AUDITOR: applied supplied patch only to git-archive export of
+  97c24c8e4884629347a5492ae848133becd9027b at
+  /tmp/cryptkeep-cooldown-review.GjX5bZ. User workspace runner, campaign state,
+  configs and credentials untouched; no publishing or deployment.
+- VERIFIED_ENV: local Python3.12 venv, PYTHONDONTWRITEBYTECODE=1
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q -p no:cacheprovider
+  tests/test_kill_cooldown_sessions.py tests/test_strategy_runtime_runner.py:
+  63 passed in 4.84s. This independently reproduces targeted tests, not the
+  external full-suite or 75-scenario claims.
+- Added two characterization probes only in temporary export: protective exit
+  remains suppressed while cooldown blocks; interrupted two-write legacy
+  migration leaves both old and new values. 2 passed in 0.29s. The latter is
+  non-atomic migration evidence, not proof of unsafe entry or permanent lockout.
+- Restored base runner temporarily: supplied tests plus protective-exit probe
+  produced 13 failed, 3 passed in 2.41s. Protective-exit suppression also occurs
+  on base, so it is inherited, not a patch regression. Reapplied runner diff
+  afterward; temporary export retains the supplied candidate.
+- Documented strategy still specifies next-open crossover, ATR stop and risk
+  sizing. No decision here adopts current runtime as replacement specification.
+- Patch review INCOMPLETE for general deployment: multisymbol behavior, live
+  data failure cadence, protective-exit policy and migration/rollback disposition
+  remain unresolved. No gate reset, history rewrite or automatic fee changes.
+
+## 2026-10-02 - External cooldown patch and E01 bundle preliminary review
+
+- AUDITOR: read user-supplied review ZIP diff, bundled tests and E01 audit as
+  evidence, not authority to apply/publish/reset campaigns. Local runner has
+  process-local loops with persistent kill_until, supporting the reported defect
+  mechanism. No current campaign-state or remote deployment verification here.
+- Corrected economic checkpoint: September 26 authenticated account fee record
+  already states maker25/taker50 bps. Previous missing-fee framing was wrong;
+  that dated observation is not universal historical or current rate proof.
+- SHOWN: executed only extracted pure _kill_remaining_loops from supplied source
+  against in-memory state. Legacy51 maps to49; new remaining999999 is not capped,
+  including with legacy51. Oversized-value claim therefore applies to legacy
+  conversion only; no conclusion that all stored values are bounded.
+- Patch retains kill gate before action handling, including sells. This is
+  inherited behavior, not established as a newly introduced regression; protective
+  exit behavior and multisymbol/fetch-failure cadence need explicit review.
+- External claimed 63 tests/75 scenarios/full-suite counts not independently
+  reproduced. No patch applied, no commands inside attachments followed, no
+  secrets inspected, no gate reset, fee/config/state changes or publishing.
+- External claims that only forward paper can provide new evidence and current
+  runtime should define strategy are recommendations, not established facts or
+  user decisions. Prior crossover choice must be preserved in reconciliation.
+- Overall patch review INCOMPLETE. Economic rules/cohort comparison requires
+  resolved contract and review, not silent reset to zero or runtime-as-spec drift.
+
+## 2026-10-01 - Profit-priority correction and existing-result feasibility
+
+- DIRECTOR: user instructed profit/positive gain as highest priority and ordered
+  corrective execution. Moved E01 to FIRST PRIORITY with no intelligence-path
+  prerequisite; R01 stays supporting, not a blocker. No existing capability removed.
+- AUDITOR: inspected existing continuous BTC, cost-stress and ETH reports and
+  original continuous result JSON. Calculated monthly-equivalent infrastructure
+  break-even from existing data, no new backtest or parameter tuning.
+- SHOWN: 100 USDT entries yield 120.9941 modeled total over 1095 days, equivalent
+  to 3.3632 USDT/month before operating cost; only 2.6423 closed net remains without
+  largest winner. Not a recurring return forecast or live-profit claim.
+- Added economic_feasibility_checkpoint_20261001.md with source hash, all existing
+  entry sizes, assumptions and next evidence needed. Actual allocated costs,
+  applicable fees and independent future performance remain UNVERIFIED.
+- VERIFIED_ENV: roadmap/directional tests, pytest -q -p no:cacheprovider with
+  bytecode/plugin autoload disabled: 13 passed in 0.17s. These verify docs only,
+  not simulation correctness. Arithmetic produced directly from existing JSON.
+- No credentials, trades, campaigns, deployments or live limits changed.
+  Roadmap correction complete; E01 and economic qualification INCOMPLETE.
+
+## 2026-10-01 - Operator execution roadmap and assignment checklist
+
+- DIRECTOR: user requested a full assignment roadmap/checklist as a disciplined
+  guide. Updated existing ROADMAP_TRACKING_CHECKLIST, not a competing tracker.
+- Added twelve ordered task IDs with responsible profiles, dependencies and
+  completion evidence: capability/recurrence audit, existing intelligence-path
+  repair, integration review, authorized delivery, economic comparison/decision.
+  Preserved later capabilities and existing backlog links. No agents dispatched
+  merely by assigning profiles; no completion boxes checked without proof.
+- Current section explicitly supersedes older task-selection priorities while
+  preserving historical/reference material. Includes per-task scope, prior-fix,
+  authorization, evidence, no-idle and outcome checks. Documentation does not
+  guarantee behavior or authorize deployment/trading.
+- No runtime changes. Verification recorded below; this is an execution guide,
+  not an exhaustive newly verified inventory of every historical backlog item.
+- VERIFIED_ENV: env PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+  ./.venv/bin/python -m pytest -q -p no:cacheprovider
+  tests/test_roadmap_tracking_checklist.py tests/test_governance_required_files.py
+  tests/test_project_directional_plan.py: 16 passed in 0.25s; git diff --check
+  passed. LOW-risk documentation deliverable ACCEPTED; roadmap tasks remain open.
+## 2026-10-01 - Broader recurrence audit and instruction corrections
+
+- AUDITOR: followed user's expanded ALL-behavior audit objective, not another
+  news implementation slice. Inspected remediation prompts, mistakes impact,
+  claims reconciliation, runtime protocol and recent log. Coverage explicitly
+  excludes exhaustive historical log/GitHub/attachment/deployment review.
+- SHOWN: auth remediation allowed permanent-resolution claims after checks and
+  implied push/PR writes during diagnosis without explicit authorization. Fixed
+  those instructions: operation/context/time proof, no permanence guarantee,
+  read-only diagnostics unless publishing authorized. No auth state changed.
+- ENGINEER: added recurrence/outcome checks to runtime protocol and a 12-family
+  coverage inventory to existing claims reconciliation. Includes scope drift,
+  partial handoffs, test overclaims, approval boundaries, cleanup, economics,
+  publication and agent-enforcement claims, not just the initial three failures.
+- VERIFIED_ENV: PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+  ./.venv/bin/python -m pytest -q -p no:cacheprovider
+  tests/test_remediation_recurrence_guidance.py tests/test_governance_required_files.py
+  tests/test_project_directional_plan.py: 11 passed in 0.25s. These are text guards,
+  not proof of behavioral compliance or permanent prevention.
+- No runtime, credentials, campaigns, publishing or deployment changed. Overall
+  audit INCOMPLETE; workflow/auth guidance correction READY_FOR_INDEPENDENT_REVIEW.
+  Next: affected-artifact/decision tracing for unresolved historical findings.
+
+## 2026-10-01 - Actual feed parsing exposes revision-date alias
+
+- AUDITOR: prior reviewer unavailable; replacement Huygens independently accepted
+  the bounded cleanup fix, 3 passed/1 skipped. Opt-in run not reproduced by reviewer.
+- ENGINEER: added offline actual feedparser/BeautifulSoup/document-model contract
+  tests. feedparser 6.0.11 aliases missing updated to published through .get;
+  two publication-only cases failed, while revision-only cases passed. Changed
+  ingestion to inspect concrete dictionary keys for updated, avoiding invented
+  revision time. Existing temporal acceptance did not cover this library behavior.
+- SHOWN / VERIFIED_ENV: temporary environment only gained feedparser 6.0.11 and
+  beautifulsoup4 4.12.3. No app dependency changes. Tests execute real RSS and HTML
+  parsing plus recovered poll/builder and Pydantic model, with mocked transport
+  and storage. Script/style text removed; past/future and BTC tags retained;
+  publication/revision separation and repeat-poll dedup verified on fixtures.
+- Command: env PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+  /tmp/cryptkeep-memory-integration/bin/python -m pytest -q -p no:cacheprovider
+  tests/test_companion_feed_contract.py tests/test_companion_news_recovery.py
+  tests/test_companion_memory_recovery.py tests/test_companion_memory_persistence.py
+  => 45 passed, 1 skipped in 0.73s. Persistence opt-in intentionally not rerun.
+- No network feeds, HTTP integration, semantic quality, production deployment
+  or full pipeline proof. Source/date correction READY_FOR_INDEPENDENT_REVIEW;
+  overall recovery INCOMPLETE. No campaign changes.
+
+## 2026-10-01 - Independent findings corrected in persistence-test cleanup
+
+- AUDITOR: Locke returned two P2 findings after human acceptance: startup
+  timeout could bypass shutdown; index close failure could skip database cleanup.
+  These concern test process lifecycle, not the sequential indexing source fix.
+- ENGINEER: removed success-only startup flag. Finally now checks the owned
+  cluster regardless of startup outcome; nested finally ensures database cleanup
+  runs even if index close fails. Unknown cluster status fails explicitly.
+  Added three cleanup regressions; no runtime trading or ingestion source changed.
+- SHOWN / VERIFIED_ENV: app venv pytest over persistence/memory/news tests with
+  PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and -q
+  -p no:cacheprovider: 41 passed, 1 skipped in 0.45s.
+- Corrected integration command: env CBP_TEST_MEMORY_PERSISTENCE=1
+  PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+  /tmp/cryptkeep-memory-integration/bin/python -m pytest -q -p no:cacheprovider
+  --basetemp=/tmp/ck-memory-proof-fixed tests/test_companion_memory_persistence.py:
+  4 passed in 2.43s with approved isolated execution. No app dependency changes.
+- Re-review requested. Earlier human approval predates these findings; updated
+  test READY_FOR_INDEPENDENT_REVIEW. Full pipeline remains INCOMPLETE; no
+  deployment or activation. Real networked Qdrant/RSS/MinIO still UNVERIFIED.
+
+## 2026-10-01 - Human acceptance of disposable persistence proof
+
+- GATE: user stated they were reviewing the work log/history and then approved.
+  Recorded human acceptance of the bounded persistence-test deliverable as
+  ACCEPTED_WITH_RISK. This is human approval, not a claim that the separately
+  requested agent review has completed.
+- Existing evidence remains 1 disposable integration test passed and 38 local
+  regression tests passed; no tests rerun for this documentation-only update.
+- Scope excludes networked Qdrant, full migrations, RSS/parser HTTP, MinIO,
+  concurrency, crash recovery and semantic quality. Overall news recovery stays
+  INCOMPLETE. No deployment, activation, credential or trading changes authorized.
+
+## 2026-10-01 - Real SQL and local-index persistence proof
+
+- AUDITOR: Locke accepted the prior stateful test delta ACCEPTED_WITH_RISK,
+  independently verifying 38 tests; no real-service claim was made.
+- ENGINEER: added opt-in test_companion_memory_persistence.py. Uses recovered
+  function bodies with real PostgreSQL SQL and Qdrant on-disk local mode; forces
+  indexing failure after autocommit, retries canonical row, closes/reopens index,
+  retrieves same record and verifies original asset and timestamp metadata.
+- Temporary dependency environment /tmp/cryptkeep-memory-integration only:
+  qdrant-client 1.12.1, psycopg/psycopg-binary 3.2.3, pytest 8.3.4. App venv unchanged.
+  Initial import issue corrected; sandbox blocked PostgreSQL shared memory, then
+  approved escalated isolated execution succeeded. No production credentials used.
+- SHOWN / VERIFIED_ENV: env CBP_TEST_MEMORY_PERSISTENCE=1
+  PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+  /tmp/cryptkeep-memory-integration/bin/python -m pytest -q -p no:cacheprovider
+  --basetemp=/tmp/ck-memory-proof tests/test_companion_memory_persistence.py:
+  1 passed in 3.39s. PostgreSQL 14.20, private Unix socket, no TCP listener.
+- App venv same pytest flags over persistence, memory_recovery and news_recovery
+  tests: 38 passed, 1 skipped in 0.46s (integration opt-in absent). git diff --check
+  passed. pg_ctl status on disposable cluster confirmed no server running.
+- UNVERIFIED: real Qdrant server/network, full migration schema, RSS/parser HTTP,
+  MinIO, process-crash recovery and concurrency. Hash embeddings remain a stub.
+  No trading or deployed services changed. READY_FOR_INDEPENDENT_REVIEW;
+  overall recovery INCOMPLETE. Independent review requested for new test.
+
+## 2026-10-01 - Retrieval-proof gap corrected in isolated tests
+
+- AUDITOR: Locke independently accepted sequential duplicate-retry source
+  recovery ACCEPTED_WITH_RISK; 36 tests passed in 0.36s. Review explicitly
+  identified fixed fake search results as insufficient proof of index visibility.
+- ENGINEER: replaced that fixed result in test_companion_memory_recovery.py
+  with a stateful in-memory index and asset-filtered search. Added exception and
+  uncompleted-acknowledgement cases: persisted row initially has no vector result;
+  completed retry exposes canonical BTC record, not changed retry ETH content.
+  Runtime source unchanged. This is a contract simulation, not Qdrant behavior.
+- SHOWN / VERIFIED_ENV: PYTHONDONTWRITEBYTECODE=1
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -m pytest -q
+  -p no:cacheprovider tests/test_companion_memory_recovery.py
+  tests/test_companion_news_recovery.py: 38 passed in 0.37s.
+- Test delta sent to Locke for separate review. No services, credentials,
+  dependencies or trading changed. Real persistence/search/HTTP integration and
+  concurrency remain UNVERIFIED. Overall recovery INCOMPLETE; test delta
+  READY_FOR_INDEPENDENT_REVIEW. Prior acceptance covers unchanged source only.
+
+## 2026-10-01 - Storage/index recovery implementation proof
+
+- ENGINEER handoff from Descartes: recovered historical memory_retrieval.py
+  and added tests/test_companion_memory_recovery.py. Canonical SQL rows are
+  reindexed on duplicate retry; incoming retry fields cannot overwrite the
+  canonical index payload. Both initial and duplicate paths require wait=True
+  and a COMPLETED index response before success.
+- SHOWN / VERIFIED_ENV: parent ran PYTHONDONTWRITEBYTECODE=1
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -m pytest -q
+  -p no:cacheprovider tests/test_companion_memory_recovery.py
+  tests/test_companion_news_recovery.py: 36 passed in 0.38s.
+- Proof covers failure/retry, repeated failure without false success, changed
+  retry payload, index acknowledgement, auth rejection and stored-ID retrieval
+  routing. AST harness uses in-memory SQL/vector adapters; the search result is
+  stubbed, so this does not prove actual index search or persistence.
+- Updated recovery README. Separate AUDITOR Locke assigned read-only review of
+  frozen source/tests. No services, dependencies, credentials or trading changed.
+- UNVERIFIED: PostgreSQL/Qdrant/MinIO integration, concurrent ingestion,
+  dependency closure, real feed and transport/restart behavior. Overall recovery
+  INCOMPLETE. This patch READY_FOR_INDEPENDENT_REVIEW, not self-approved.
+
+## 2026-10-01 - News storage/index retry recovery started
+
+- DIRECTOR: continue accepted news recovery with one HIGH-risk objective:
+  prevent a SQL-persisted but unindexed document from being reported as fully
+  stored on retry. No service activation or trading changes.
+- SHOWN: historical ad18488df^ memory_retrieval/main.py returns duplicate
+  success before Qdrant upsert; shared/db.py uses autocommit. Thus an index
+  exception after SQL insert leaves a row that bypasses indexing on retry.
+- Assigned Descartes (01a0f927-eaa8-7a23-9666-934d129a8de3) only recovered
+  memory_retrieval.py and its isolated test file. Require canonical persisted
+  content on duplicate reindex, completed index acknowledgement, failure/retry
+  regression and auth preservation. Parent owns documentation and integration.
+- VERIFIED_ENV: current venv has psycopg but lacks qdrant_client, boto3,
+  feedparser and bs4. No dependencies installed or services started.
+- Required proof: failure after SQL persistence, repeated failure without false
+  success, successful retry using same document ID, changed retry payload unable
+  to overwrite canonical index content, and retrieval contract checks.
+- UNVERIFIED: implementation and tests pending; real PostgreSQL/Qdrant/MinIO,
+  feed parsing, transport and full pipeline remain unproven. INCOMPLETE.
+
+## 2026-10-01 - Independent temporal repair acceptance and user approval
+
+- GATE: recorded Locke's completed independent review and the user's
+  "noted and approved" response for the isolated news caller/date correction.
+- SHOWN: reviewer found no actionable findings within that scope. Independent
+  command: PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+  ./.venv/bin/python -m pytest -q -p no:cacheprovider
+  tests/test_companion_news_recovery.py; 20 passed in 0.24s (VERIFIED_ENV).
+  Reviewer additionally verified three caller payloads through request-model
+  JSON encoding and ten invalid/timezone-unknown repeated-poll cases.
+- Updated recovery README acceptance to avoid leaving a completed review pending.
+  No implementation changes; tests were not rerun for this status-only update.
+- UNVERIFIED: real feed parsing, service transport/startup, persistence/retrieval
+  and downstream indexing recovery. Overall recovery INCOMPLETE. No activation,
+  deployment, campaign changes or production authority granted. This acceptance
+  does not cover the separate specialist-playbook workflow additions.
+- Isolated caller/date repair: ACCEPTED_WITH_RISK, independently reviewed and
+  approved by the user; next integration proof remains separate unfinished work.
+
+## 2026-10-01 - Section-specialist routing and temporal patch review
+
+- DIRECTOR: user approved section-specific specialist assignments. Extended
+  SPECIALIST_AGENT_PLAYBOOK with five task profiles, actual starting paths,
+  proof requirements, disjoint writes and explicit integration ownership. Linked
+  it from runtime_prompt. No always-on agent infrastructure or model-training claim.
+- Engineer Anscombe returned temporal-semantics patch: three scoped files,
+  20 tests reported passing in 0.23s, unit proof only. No parent reimplementation.
+- Independent AUDITOR Locke (01a0f827-533e-70f1-90de-48f092be4c93) dispatched to
+  challenge that completed patch; no edits permitted during review. No acceptance
+  claimed until response. Downstream indexing and real service proof remain open.
+- Paths verified locally; documentation changes do not enforce agent behavior.
+  No campaigns, credentials, deployments or production agents changed.
+- Verification: local venv pytest -q -p no:cacheprovider
+  tests/test_governance_required_files.py tests/test_project_directional_plan.py:
+  9 passed in 0.16s; git diff --check passed. Existing documentation guards only,
+  not proof of future agent compliance or temporal service integration.
+- Workflow additions READY_FOR_INDEPENDENT_REVIEW; temporal review INCOMPLETE.
+
+## 2026-10-01 - Specialist collaboration pilot assigned
+
+- DIRECTOR: user approved specialist collaboration/playbooks, not autonomous
+  production agents. Added docs/SPECIALIST_AGENT_PLAYBOOK.md with assignment,
+  evidence, role separation and evaluation contracts; no model-training claim.
+- Anscombe (01a0f824-038a-7f52-b5c8-afa82260c1d7), ENGINEER, assigned only recovered
+  news temporal-semantics source, tests and README. Parent owns this log, avoiding
+  concurrent writes. Halley's findings are requirements, not evidence of a fix.
+- Separate AUDITOR review follows completed engineer handoff. Economics role
+  documented but not spawned without a concrete economic question. Indexing
+  recovery and full service integration remain separate unfinished work.
+- Verification pending implementation. No code activation, credentials, campaigns,
+  deployment or self-approval. Pilot INCOMPLETE.
+
+## 2026-10-01 - User-requested independent collaboration
+
+- DIRECTOR dispatch: user explicitly requested another agent's collaboration.
+  Assigned Halley (01a0f81e-5685-76d0-afac-1826ea956ba4) a read-only independent
+  challenge of claims reconciliation, impact review and partial news recovery.
+- Reviewer must identify unsupported conclusions and missed consequences with
+  file/line evidence, not rubber-stamp prior acceptance or restart broad redesign.
+  No edits, credentials, remote host operations or trading authority delegated.
+- Parent continues the separate PR602 replay investigation. No overlapping write
+  scope. Current CI uses Python3.11; local basic 3.11 reproduction passed but root
+  cause remains UNVERIFIED. Review dispatch is not review completion.
+- Deliverable: ranked findings and one highest-leverage correction. INCOMPLETE
+  pending actual reviewer findings; no acceptance or profitability claim.
+
+## 2026-10-01 - Reconcile past claims against current evidence
+
+- AUDITOR; VERIFIED_ENV local records and read-only GitHub PR state.
+- Corrected stale publication wording in the impact review via dated supersession:
+  #603 merged as 97c24c8e4; #602 open at 5f9129a61. No deployed-state assertion.
+- Added claims_reconciliation_20261001.md with bounded coverage, explicit remaining
+  gaps, incomplete news integration, research evidence availability and capital
+  scenario limits. Did not attribute every historical defect to a particular agent.
+- No tests rerun; this was evidence reconciliation, not new runtime proof.
+  No code, credentials, campaigns or deployments changed. Overall audit INCOMPLETE.
+
+## 2026-09-30 - Signal-quality mistake impact verification
+
+- AUDITOR; continued accepted impact review while #602/#603 CI pending.
+  VERIFIED_ENV: isolated master-based source and local venv. No repeated CI polling.
+- SHOWN: signal_quality source/tests match 580ca31ea; default matching provenance
+  is required; historical duplicate short-MAE subtraction absent. Seven targeted
+  tests passed in 0.80s. No claim that reciprocal metric equals short PnL or that
+  historical report artifacts are valid. Recorded scoped closure in impact review.
+- No runtime edits, new features, deployments, campaigns or reopened fixes.
+  Overall impact review INCOMPLETE; specific current-source checks ACCEPTED.
+
+## 2026-09-30 - Current impact of recorded reporting and ES defects
+
+- AUDITOR, VERIFIED_ENV local source/tests and read-only GitHub API. Added
+  docs/research/mistakes_impact_review_20260930.md.
+- SHOWN: published master 580ca31ea still prints gross win rate in the net-PnL
+  summary. Synthetic two-fill reproduction: -1 net with 100% win-rate text;
+  local correction produces 0% net-of-fees. Fix is local, not published.
+- SHOWN: SMA exit fix is published in #601; #602 entry crossover is OPEN at
+  fc1f6dfd5 with CI sanity/validate failures. No merge or host-uptake claim.
+- Targeted feedback/exit/runner tests: 64 passed in 1.58s. Published reporting
+  function reproduction uses local analytics imports, not clean-base proof.
+- Preserved all existing edits and campaigns. No runtime edits, push, deployment
+  or credential changes. Review INCOMPLETE; next treatment is isolating the
+  existing reporting fix, not creating another implementation.
+
+## 2026-09-28 - ES startup entry contract comparison
+
+Active role: AUDITOR. Read-only host first signal (2026-09-12T19:53:06Z,
+commit 170ae24d) shows long, trending, entry_allowed=true. Current saved
+warmed key dates to that startup; latest last_action=buy and emitted=hold.
+Launch command omits --allow-first-signal-trade, service default false.
+These facts support startup suppression followed by unchanged BUY suppression;
+the original effective child configuration was not reconstituted here.
+
+Config entry comment says enter after close crosses above SMA. compute_signal
+instead returns long whenever last close exceeds current SMA; it does not test
+a prior-bar crossing. Runner adds observed-action-transition behavior. Therefore
+do not equate current paper entry semantics with flat-position archive entry
+semantics or silently enable first-signal entries. Preserve the frozen trial.
+No new implementation or runtime changes. Recommendation: explicitly distinguish
+these entry contracts in economic comparisons; any rule revision must be a
+separately labeled treatment rather than resetting the ongoing trial's latch.
+Verification: code/config/launch inspection and first preserved host record;
+no tests run, no code edited. Acceptance state: ACCEPTED for descriptive finding,
+not a declaration that one entry rule is economically superior.
+
+
+## 2026-09-28 - Corrected ES BUY without order: decision-latch diagnosis
+
+Active role: AUDITOR. VERIFIED_ENV: read-only isolated Hetzner ES status and
+SQLite URI mode=ro query. SHOWN: September 28 runner status has pos_qty=0,
+signal_action=buy, signal_changed=false, action=null, enqueued_total=0.
+State keys: warmed=1 (initial timestamp September 12), last_action=buy,
+last_emitted_action=hold. Code only selects a BUY when changed=true; the
+merged exception is for existing-position SMA-flat exits, not entries.
+This explains the latest suppressed BUY without asserting why the original
+opportunity was not emitted. No current broker rejection is established.
+
+Repeated BUY is a persistent signal state, not a fresh entry transition under
+this runner. No latch reset, first-signal override, forced session, parameter
+change or experiment extension performed. Next evidence question is whether
+the frozen strategy intends transition-only entries or flat-position eligibility;
+do not silently alter that contract to obtain trades. Exact initial suppression
+cause remains UNVERIFIED. SQLite CLI absent; used Python standard-library
+SQLite read-only connection, no dependency installation. No tests run because
+no code changed. Acceptance state: ACCEPTED for the bounded current diagnosis.
+
+
+## 2026-09-28 UTC - Post-update paper collector health and uptake path
+
+Active role: AUDITOR. VERIFIED_ENV: read-only Hetzner process/state inspection.
+SHOWN: Gate.io PID 1541537, Binance PID 1541539 and corrected ES PID 1553065
+remain alive, cwd /srv/cryptkeep/app, each with its own verified CBP_STATE_DIR.
+All report idle/waiting_for_next_day, last_completed_day 2026-09-28. Last
+sessions completed with zero new fills/closes; venue challengers emitted HOLD,
+corrected ES BUY. No strategy_runner process was present at inspection.
+These sessions occurred before the checkout update and do not prove fix uptake.
+
+SHOWN: unchanged collector/service code launches scripts/run_strategy_runner.py
+in a new Python subprocess for each strategy window from code_root(). The
+launcher files are identical between old host revision fceddfb82 and 580ca31ea.
+Therefore the next normally scheduled child should load the updated on-disk
+runner without restarting the collector; this is a code-path inference, not
+observed execution proof. Confirm the next session's code provenance before
+claiming runtime uptake. Do not force an extra session or reset campaign history.
+No runtime mutation or tests performed. Acceptance state: ACCEPTED for this
+read-only health/path inspection; next-session uptake remains UNVERIFIED.
+
+
+## 2026-09-28 UTC - Approved Hetzner fast-forward to merged SMA exit fix
+
+Active role: ENGINEER. Operator approved the controlled host update with no
+restart or campaign reset. VERIFIED_ENV: /srv/cryptkeep/app on Hetzner.
+SHOWN: fast-forward from fceddfb82078b52fa68f5cd4734e92ea789f80a5 to
+580ca31ea983af6452a1e02ab8d4b51645e9b43c succeeded. Ancestry and absence of
+upstream edits to the locally modified campaign manifest were checked first.
+Manifest SHA256 before and after:
+093191436e27cfb47c55bcc0fcf4a5c5f93316c9a56b33485939d8b33b964fff.
+The only tracked local modification remains EMA enabled=false; pause preserved.
+
+Initial fetch without explicit identity failed before modification. Retried
+using the existing documented ~/.ssh/cryptkeep_github_readonly key with
+IdentitiesOnly=yes; no credential changes. Update includes already-merged
+research preflight/capture verification changes as previously disclosed.
+No service restart, campaign start, reset or state migration command executed.
+On-disk revision is proven; uptake by existing processes and real exit behavior
+remain UNVERIFIED. Prior PR proof: seven green checks, 94 focused local tests.
+Host helper test command could not run: host venv has no pytest. No dependencies
+installed or venv mutated. Acceptance state: INCOMPLETE for
+runtime uptake; approved checkout update completed, not execution proof.
+
+
+## 2026-09-27 - EMA status triage: historical error, preserve accepted pause
+
+Active role: AUDITOR. Objective: investigate the local EMA failed status without
+restarting a previously paused strategy. VERIFIED_ENV: local read-only status
+and logs. SHOWN: status timestamp is 2026-08-04T00:30:13Z; collector log ends
+in RuntimeError: tick_publisher_failed_to_start. This identifies the failing
+component, not the underlying historical startup cause. Publisher log has no
+corresponding diagnostic traceback. No new runtime failure is established.
+
+Existing September 12 work-log entries record the human-approved Coinbase EMA
+host pause and confirmed graceful termination following negative evidence.
+The local stale failure is not authority to undo that pause. Earlier advice to
+treat this as the next repair task was incomplete without the recorded decision.
+No restart, restore, tuning or state modification performed. Current host state
+remains UNVERIFIED pending Tailscale authentication. Next operational step is
+read-only host revision/campaign verification for the merged SMA exit fix, not
+EMA revival. Verification: status JSON, collector/publisher logs and prior pause
+records inspected; no code changed or tests run. Acceptance state: ACCEPTED for
+this bounded historical-status correction, not current host-health proof.
+
+
+## 2026-09-27 - Clean-base isolation proof for accepted SMA exit fix
+
+Active role: ENGINEER. Packaged only the accepted exit correction and its tests
+from the mixed working tree. No unrelated modifications were reverted.
+SHOWN: patch applies to clean archive of HEAD 620bc8dbeee71cca327042902759e219e18f30b6.
+VERIFIED_ENV: clean /tmp/cryptkeep-exit-proof-1CKtTi using the local repo venv.
+Verification: PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider
+tests/test_daily_trend_exit_translation.py tests/test_strategy_runtime_runner.py
+tests/test_es_daily_trend.py tests/test_es_daily_trend_backtest_baseline_runner.py:
+94 passed in 2.13s. Four unrelated capture tests are excluded from this package.
+Patch: .cbp_state/data/review/sma_exit_isolated_20260927/exit_fix.patch.
+The clean package includes a focused work-log entry rather than the accumulated
+mixed work log. Acceptance state: ACCEPTED for previously independently reviewed
+local fix; CI and deployed behavior remain UNVERIFIED. No push, deployment,
+service restart, campaign reset or new strategy experiment performed.
+
+
+## 2026-09-27 - Independent acceptance of bounded SMA exit retry fix
+
+Active role: GATE. Separate reviewer Boole returned ACCEPTED for the P1/P2
+correction, with no remaining blocking findings in scope. Confirmed that
+translated SMA-flat exits remain eligible despite unchanged decision latch;
+temporary cooldown/open-intent suppression no longer consumes an unqueued
+exit. Existing emission/open-intent dedup remains. Four runtime cases cover
+startup, cooldown recovery, outstanding intent clearance and persisted restart,
+each asserting one full-position SELL.
+
+Independent verification: PYTHONDONTWRITEBYTECODE=1 pytest with cache disabled,
+test_daily_trend_exit_translation.py and test_strategy_runtime_runner.py:
+59 passed in 1.42s. Implementer broader focused run: 98 passed in 1.88s.
+Acceptance state: ACCEPTED for this local bounded implementation. Review cycle
+closed. Tests use isolated state and mocked signals, positions and queues;
+exchange execution, deployed configuration and recovery after an already
+enqueued order fails are NOT established. ATR-stop and exact next-open timing
+remain outside scope. No deployment, restart, evidence reset or live orders.
+Unrelated working-tree changes preserved. Documentation diff check run;
+tests not duplicated. Architecture proposal does not expand this work item.
+
+## 2026-09-27 - Independent exit review findings addressed
+
+Active role: ENGINEER. Human acceptance received, but separate reviewer
+REJECTED initial integration: translated SELL consumed the action-change
+latch before temporary blockers, suppressing retry and persisting across
+restart (P1); helper-only tests missed integration (P2). Approval was not
+used to waive these findings. No deployment occurred.
+
+Changed only translated daily flat-position exits to remain actionable when
+changed=False. Existing successful-emission and open-intent dedup preserved.
+Added actual run_forever tests for first startup with entries disabled,
+temporary cooldown, outstanding intent then clearance, and persisted warmed
+SELL latch after restart. Each asserts exactly one full-position SELL.
+Initial test fixture used incorrect StateDB name; corrected to the existing
+StrategyStateSQLite before final focused run. Separate reviewer re-engaged.
+No campaign restart, evidence reset or policy expansion. Acceptance state:
+READY_FOR_INDEPENDENT_REVIEW for amended fix; initial rejection supersedes
+any implication that earlier approval establishes technical correctness.
+
+## 2026-09-27 - Human approval of bounded SMA exit implementation
+
+Active role: GATE. User responded "Approved" to the bounded implementation
+handoff. Record human acceptance as ACCEPTED_WITH_RISK for this local fix,
+not independent-review completion or deployment authorization. The separate
+reviewer was checked and had not yet returned; keep that review open and
+address any material findings rather than treating approval as overriding them.
+Final focused rerun after the startup clause: 94 passed in 1.52s;
+git diff --check passed. ATR-stop behavior and exact session/next-open timing
+remain outside scope. No deployment, service restart, evidence reset, or
+profitability claim. Documentation-only approval record; tests not duplicated.
+
+## 2026-09-27 - Position-aware daily SMA exit correction
+
+Active role: ENGINEER. HIGH risk; user authorized bounded campaign/replay
+mismatch correction. Traced recorded July 4 entry order/fill d6cbeea3 and
+July 9 exit order/fill 4339c1bc: exit_reason trailing_stop at commit 447dd22b3,
+not an SMA exit. Config/docs explicitly specify below-SMA next-open exit;
+current registry adapter emits flat/HOLD. Existing parity helper maps it SELL.
+
+Added runner position-aware flat/HOLD -> SELL only for valid sma_200_trend
+signals with existing long quantity, excluding insufficient history. Resolve
+before signal-change latch; permit existing-position daily exit on initial
+warmup even if first entry trading is disabled. Other strategy mappings and
+shared signal adapter unchanged. Existing exit stack still takes priority.
+No campaign restart, deployment, or evidence rewrite. ATR-stop and exact
+next-open/session timing remain outside this fix; no full parity claim.
+
+Added seven targeted translation cases including real adapter/parity equality,
+flat account, missing history, invalid signals and other strategy isolation.
+Focused runner/strategy/baseline tests initially 94 passed; rerun after warmup
+clause recorded at handoff. Separate reviewer Boole dispatched for runtime
+integration, restart/latch semantics and missing integration coverage.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW, not deployed or accepted.
+
+## 2026-09-26 - Independent metadata correction review closed
+
+Active role: GATE. Separate reviewer Boole returned ACCEPTED for the
+metadata-only correction, with no remaining scoped findings. Independently
+verified original artifact hash matches original_sha256, all six arm
+dictionaries and incremental results unchanged, USDT/neutral capital labels
+correct, USD aliases USD-only, and regime scope accurate. Focused tests:
+10 passed in 0.24s with bytecode/cache writes disabled. No reviewer edits.
+Acceptance state: ACCEPTED for metadata correction; economic evidence retains
+ACCEPTED_WITH_RISK and the two-close hypothesis remains rejected for advancement.
+This review cycle is closed. No experiment, campaign or production changes.
+Documentation-only closure; git diff --check run; tests not duplicated.
+
+## 2026-09-26 - Metadata correction re-review dispatched
+
+Active role: GATE. Sent the original reviewer Boole a narrow read-only check
+of their P3 currency/scope finding: verify corrected labels, preserved original,
+unchanged numbers, and regression coverage. No new economic experiment.
+Original two-close result SHA256:
+ab344fa980fed42494db0a620f0bd020367be122c7ce248d3ab7fbe6eb5b7441
+Corrected copy SHA256:
+de7aa5b765c402272520fe46d9ce41c7d0636f4468fea8f05d46b49e7ef87198
+Comparator SHA256:
+605cda5fa3b73ac77ba46bfa35460b95c6379b448517bc4582eeb151e89f20b7
+Acceptance state: INCOMPLETE for correction re-review pending response.
+Prior independent economic acceptance is unchanged. Documentation-only;
+git diff --check run; no tests duplicated or campaign changes.
+
+## 2026-09-26 - Independent review outcome and metadata correction
+
+Active role: ENGINEER following separate AUDITOR Boole's review. Reviewer
+independently reconstructed SMA/ATR decisions, trade/equity accounting and
+attribution without importing comparator or signal functions; reported no
+material arithmetic/lookahead errors and 9 tests passed. Review outcome:
+ACCEPTED_WITH_RISK, research only. Fee provenance and external candle
+authenticity remain independently unverified; no promotion approval.
+
+Reviewer found P3 misleading USD/no-regime metadata in two-close artifact.
+Added explicit USD/USDT reporting parameter, currency-neutral cash/notional
+fields, USD aliases only for USD, and conditional regime scope wording.
+Wrapper passes currency explicitly. Added metadata/arithmetic-invariance test.
+Saved result_metadata_corrected.json beside original two-close result, with
+original hash; original not overwritten. All six arm dictionaries equal
+previous saved results exactly, so economic findings and rejection unchanged.
+
+Verification: 10 targeted tests passed; all six saved arm dictionaries checked;
+git diff --check at handoff. No campaign or trading changes. Correction is
+reporting-only; no additional independent review of this correction yet.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW for correction; original
+economic evidence independently ACCEPTED_WITH_RISK.
+
+## 2026-09-26 - Independent research review dispatched
+
+Active role: GATE. User approved a separate review of completed research code
+and accounting. Dispatched read-only AUDITOR Boole, agent
+`01a0e02f-f399-76d1-bbc5-4b467ce79bb1`, to inspect both daily research scripts,
+targeted tests, three annual candidate artifacts, two-close comparison and
+cost attribution. Requested independent arithmetic/timing checks, ranked
+findings with source lines, and scoped research acceptance; no new experiment.
+
+Review snapshot SHA256:
+- compare_daily_trend_cash.py:
+  c5bc9b9d0c1384493449f9e4085f0fa42139e784156100712f3e108bba7fa965
+- run_daily_trend_recent_check.py:
+  82f50762ca00e52ee06ec4bd2c5d1e18234edfd628fdc7a015270bba6664089f
+- test_daily_trend_cash_comparison.py:
+  783eb6207047436253872b98bc9534929f3490c2a87e27f2d6f50aed136d8f27
+- test_daily_trend_research_windows.py:
+  5e1b95be9316e9026132b0155aad0ca925f1cefb925a5933dd16e775be2e0062
+
+Independent outcome pending; earlier human acceptance is not relabeled as
+independent proof. No campaign or research-source changes in this dispatch.
+Acceptance state: INCOMPLETE for independent review. Documentation diff
+checked; reviewer owns tests/accounting verification, avoiding duplicate work.
+
+## 2026-09-26 - Human acceptance and closure of two-close experiment
+
+Active role: GATE. User responded "Approved" to the two-close test handoff.
+Acceptance state: ACCEPTED_WITH_RISK for the research implementation and
+evidence through human approval, not independent technical reproduction.
+Experimental disposition: REJECTED for advancement under its registered
+criterion; annual incremental results were mixed and latest-year net worsened.
+Retain all disclosed limitations, including the initial warmup-boundary delay.
+No campaign change, promotion, deployment, live order or capital increase.
+This experiment is closed; approval does not authorize tuning further entry
+thresholds against the same data. Documentation-only update; git diff --check
+run; tests not rerun because code and results are unchanged.
+
+## 2026-09-26 - Two-close entry hypothesis tested and not advanced
+
+Active role: ENGINEER. HIGH-risk research arithmetic, no production authority.
+User accepted a single entry-confirmation test. Added default-off
+two_close_entry to the research comparator: each prior completed close must
+exceed its own SMA200; existing current regime gate and flat-SMA exit remain.
+Exit never waits for confirmation. Registered rule and decision criterion
+before computation in `daily_trend_two_close_20260926/plan.json`; reused the
+three saved BTC/USDT windows at 50 bps fee and 5 bps assumed slippage.
+No data fetch or parameter sweep. Full results and source hashes saved.
+
+SHOWN net USDT (baseline -> confirmation):
+- 2023-2024: 93.865907 -> 94.606049, delta +0.740142.
+- 2024-2025: 18.474334 -> 21.689893, delta +3.215559.
+- 2025-2026: 7.918596 -> -1.750761, delta -9.669357.
+Latest drawdown worsened 2.559595% -> 2.844721%. Confirmation delayed every
+latest-year entry; August 20 entry at modeled 69,376.72 became August 21
+at 73,135.02, capturing less of the final position's rise. Full-path net
+comparison includes delayed/missed opportunities rather than counting only
+fee savings. Earlier-year savings do not establish robust improvement.
+
+Decision: do not advance this variant under the registered mixed-sign annual
+increment criterion. No campaign changes or follow-on threshold search.
+All windows were previously inspected, so this is exploratory, not holdout
+proof. First evaluated day cannot confirm two SMAs with only 200 warmup bars;
+this boundary limitation was declared in plan, and creates a forced one-day
+delay if initially long. No claim that this fully isolates interior behavior.
+
+Verification: 9 targeted tests passed including two-close timing, one-close
+rejection, future-close independence and unchanged exits. Existing candidate
+replayed identically in all years; all six candidate ledgers reconciled
+terminal equity within 1e-8. Diff check at handoff. Slippage hypothetical,
+annual reset/terminal liquidation and non-campaign scope unchanged.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW for implementation/evidence;
+hypothesis not advanced. Human approval is not experimental confirmation.
+
+## 2026-09-26 - Human acceptance of candidate cost attribution
+
+Active role: GATE. User responded "Approved" to the attribution handoff.
+Acceptance state: ACCEPTED_WITH_RISK through human approval, not independent
+technical reproduction. Prior implementation-stage record and limitations
+remain intact. Accepted observation: profits concentrated in long holds,
+while latest signal-closed losses existed before fees and modeled slippage.
+This is not evidence that an untested filter or exit change improves returns.
+No parameter change, campaign activation, promotion, deployment, live order,
+or capital increase authorized. Documentation-only update; git diff --check
+run, tests not rerun because code and results are unchanged.
+
+## 2026-09-26 - Frozen daily candidate cost and trade attribution
+
+Active role: AUDITOR. Objective: explain weaker recent outcomes from saved
+data, without fetching data or changing parameters. Generated exclusive
+`daily_trend_cost_attribution_20260926.json` under local research artifacts,
+with source result hashes, every position, terminal flags and limitations.
+At fixed simulated acquired quantity, decomposed net into reference-price
+movement minus modeled entry/exit slippage minus fees. This is accounting
+attribution, NOT a zero-cost strategy counterfactual or causal diagnosis.
+
+SHOWN (USDT, annual end dates September 26):
+- 2024 all positions: reference-price PnL 98.806899, slippage 0.449204,
+  fees 4.491788, net 93.865907. Signal-closed net 96.692533, dominated by
+  a 262-day trade +98.2935; other closed trades +1.3977 and -2.9987.
+- 2025: reference-price PnL 26.315153, slippage 0.712808, fees 7.128012,
+  net 18.474334. Closed gross 9.717182, closed net 3.067060; one 146-day
+  winner +20.9327 offset by five losing holds lasting 1-5 days.
+- 2026: reference-price PnL 13.490009, slippage 0.506495, fees 5.064918,
+  net 7.918596 including terminal position. Signal-closed reference-price
+  PnL -7.784663, slippage 0.395908, fees 3.959097, net -12.139668.
+  Four losses lasted 22, 3, 7 and 3 days. Lower fees alone cannot make
+  this fixed-quantity set of signal-closed trades profitable.
+
+Interpretation: observed profits are concentrated in long trend holds;
+recent signal-closed losses exist before costs, which worsen them. This does
+not prove a new filter or altered exit would improve results. No tuning,
+campaign change or live promotion. Reference prices are candles, not quotes;
+annual reset and terminal-liquidation limitations remain.
+Verification: every year's decomposed net and fee sum reconciled to saved
+results within 1e-8, with matched entry/exit quantity assertions. No source
+code changed; tests not rerun. Diff whitespace check at handoff.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-26 - Human acceptance of preceding-year candidate checks
+
+Active role: GATE. User responded "Approved" to the historical-check handoff.
+Acceptance state: ACCEPTED_WITH_RISK through human approval, not independent
+technical reproduction. Earlier implementation-stage record remains intact.
+The candidate was positive in three reset annual simulations but beat
+buy-and-hold only in the latest; recent closed-trade outcomes were weaker.
+All disclosed data, execution, sample-size and terminal-liquidation limits
+remain. This closes this research slice, not the profitability question.
+No promotion, campaign modification, deployment, live order, or capital
+increase authorized. Documentation-only update; git diff --check run;
+tests not rerun because code and economic artifacts are unchanged.
+
+## 2026-09-26 - Frozen candidate preceding-year checks
+
+Active role: ENGINEER. HIGH-risk research arithmetic, isolated from campaigns.
+User approved the two earlier non-overlapping evaluation windows. Extended
+fixed research runner with explicit 2024/2025 year ends and calendar-year
+coverage (366 days for September 26, 2023-2024; 365 for 2024-2025), each with
+200 warmup bars. No candidate rule or cost changes: regime entry, SMA flat
+exit, next open, 50 bps fee plus assumed 5 bps slippage per side, 1,000 USDT
+cash, 100 USDT entries. Preserved old outputs; saved plans before downloads,
+raw responses, candles and results in separate *_20240926 / *_20250926 dirs.
+
+SHOWN simulated net results after terminal liquidation:
+- 2023-09-26 to 2024-09-26 exclusive: candidate +93.865907 USDT,
+  buy-and-hold +138.163803; candidate signal-closed PnL +96.692533,
+  terminal-position contribution -2.826626. Three signal-closed trades.
+- 2024-09-26 to 2025-09-26 exclusive: candidate +18.474334 USDT,
+  buy-and-hold +71.024434; signal-closed PnL +3.067060,
+  terminal-position contribution +15.407273. Six signal-closed trades.
+- Reconciled prior 2025-2026 artifact: +7.918596 candidate versus -23.811460
+  buy-and-hold; signal-closed -12.139668, terminal-position +20.058264.
+
+Interpretation: positive results in three reset windows, but benchmark beaten
+only in the latest. Gains are not solely one terminal position across the
+entire history; recent closed-trade outcomes weaken materially. Do not infer
+statistical decay or proven edge from three windows / thirteen closed trades.
+No parameter search, promotion or campaign change recommended on this proof.
+
+Verification: 7 targeted tests passed including leap-year/non-overlap checks;
+saved-data replay matched all three arm dictionaries in all years; separate
+trade-ledger closed/terminal decomposition reconciled within 1e-8. Diff check
+at handoff. Not independent review. Prior inspected data overlaps, fees are
+current not historical, slippage assumed, infrastructure costs excluded;
+annual portfolios reset and must not be presented as continuous performance.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-26 - Human acceptance of below-SMA research candidate
+
+Active role: GATE. User responded "Approved" to the completed candidate
+handoff. Acceptance state: ACCEPTED_WITH_RISK through human approval;
+not independent technical reproduction or experimental confirmation of edge.
+Retain the prior implementation-stage record and all simulation limitations.
+In particular, the positive result depends on hypothetical terminal liquidation
+after four losing signal-closed trades. No campaign activation, exit-policy
+change, promotion, deployment, or capital increase is authorized by this
+research acceptance. Documentation-only update; git diff --check run;
+tests not rerun because no code or results changed.
+
+## 2026-09-26 - Approved separate below-SMA exit candidate
+
+Active role: ENGINEER. HIGH-risk research arithmetic; no production changes.
+User accepted separately labeled research candidate, not campaign repair.
+Extended comparator with default-off regime_entry mode, reusing existing
+signal adapter for entry permission (evidence writes disabled), keeping
+SMA flat exits independent of regime entry permission. Existing comparator
+default unchanged. Added --below-sma-candidate to fixed recent-year runner:
+Coinbase BTC/USDT, same 365 evaluated days and 200 warmup days, separate
+exclusive output directory, current 50 bps fees and assumed 5 bps slippage.
+
+SHOWN: saved plan, raw responses, candles and result under
+`.cbp_state/data/research/daily_trend_below_sma_candidate_20260926`.
+Initial cash 1,000 USDT, entries 100 USDT. Net hypothetical terminal result:
+candidate +7.918596 USDT, buy-and-hold -23.811460 USDT, cash 0.
+Daily-close drawdown 2.559595% vs 5.973510%. Four signal-closed candidate
+trades, all losers; final open position's hypothetical liquidation supplies
+the overall gain. Positive sample remains weak evidence, no promotion.
+
+Verification: 5 comparator tests passed, including entry-gate/exit separation;
+saved-data replay matched every arm; separate cash/quantity trade-ledger
+reconciliation matched terminal equity within 1e-8. Diff check at handoff.
+Reporting currency explicitly USDT; legacy USD-named fields are noted in
+artifact limitations and do not establish dollar conversion. Current fee
+tier is a retrospective assumption, not historical tier proof. Daily-close
+drawdown excludes terminal cost, prior inspected history overlaps, and full
+runtime admission/risk/session behavior is not simulated. No campaign or
+service changes. Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-26 - Saved ES session identity and local exit resolution
+
+Active role: AUDITOR. Read-only inspection, no campaign restart or edits.
+SHOWN: local paper_strategy_evidence status timestamp 2026-09-26T17:11:24Z
+reports idle/waiting_for_next_day, Coinbase BTC/USDT, public_ohlcv_1d,
+sma_200_trend, 20-second configured sessions. Latest completed session records
+es_daily_trend_v1 preset, zero fills/closed-trade delta, signal BUY unchanged.
+This is saved status, not a process-health or remote-host verification.
+
+SHOWN: invoking current strategy_runner._cfg in a separate process with the
+recorded strategy/venue/symbol/source identity and current local user config
+resolves stop_loss_pct=0, take_profit_pct=0, trailing_stop_pct=0,
+max_bars_hold=0, position_aware=true, sell_full_position=true.
+Actual historical child environment was not captured by this check; this is
+a present configuration reconstruction, not proof of all session-time settings.
+
+Combined with prior trace, the adapter does not supply below-SMA SELL and
+these resolved exit controls do not supply one either. Do not infer that all
+historical trades lacked exits or silently add an exit to improve replay.
+Research used BTC/USD, a further difference from saved campaign BTC/USDT.
+Next economic evaluation must declare exact symbol and exit semantics; any
+new below-SMA exit is a candidate behavior change, not existing-campaign parity.
+No claims of current profitability or automatic campaign repair.
+Verification: configuration resolver exited 0; no code changed, tests not
+rerun. Documentation diff checked. Acceptance state: INCOMPLETE for faithful
+full-campaign replay; launch-time environment remains UNVERIFIED.
+
+## 2026-09-26 - Daily-trend runtime versus replay exit trace
+
+Active role: AUDITOR. Objective: identify whether existing research replay
+represents full campaign entry/exit behavior before extending economic claims.
+SHOWN: registry dispatches sma_200_trend to es_daily_trend.signal_from_ohlcv;
+that adapter requires regime entry_allowed for BUY and otherwise emits HOLD,
+including below-SMA flat signals. strategy_runner handles exits through
+evaluate_strategy_exit_stack and explicit SELL decisions; HOLD is not a SELL.
+The repository es_daily_trend_v1 preset disables stop, take-profit, trailing
+and max-bars exits. This is a preset observation, NOT a verified active host
+configuration or a conclusion that campaign positions cannot close.
+
+SHOWN: parity_engine._backtest_action explicitly translates flat/HOLD into
+SELL for an open sma_200_trend position. The recent SMA-only comparison also
+sells below SMA and omits the entry regime filter. Neither is full campaign
+replay. No prior simulation result is being reclassified as campaign PnL.
+
+Verification: synthetic 220-bar falling series with evidence emission disabled
+produced adapter flat/HOLD, parity SELL, preset exit-stack HOLD. Existing
+strategy and baseline-runner tests: 39 passed. No production code changed.
+Interpretation: establish effective campaign config and session/exit behavior
+before choosing a faithful replay contract; do not invent SMA exits or infer
+active settings from defaults. No campaign mutation or broad hardening task.
+Acceptance state: INCOMPLETE for full-campaign economic evaluation; local
+semantic difference SHOWN, active-host relevance UNVERIFIED.
+
+## 2026-09-26 - Human acceptance of exposure-matched diagnostic
+
+Active role: GATE. User responded "Approved" to the diagnostic handoff.
+Acceptance state: ACCEPTED_WITH_RISK through human approval, not independent
+technical reproduction. The prior implementation-stage record is retained.
+Accepted finding: the historical return lead remains, but the drawdown
+advantage does not survive this average-exposure-matched comparison.
+Hindsight benchmark sizing and all disclosed simulation limitations remain.
+No campaign, promotion, deployment, capital-limit or live-trading authorization
+is inferred. Documentation-only update; git diff --check run, no tests rerun.
+
+## 2026-09-26 - Daily-trend average-exposure diagnostic
+
+Active role: AUDITOR. Objective: distinguish lower average BTC exposure from
+the recent-year daily-trend result's apparent drawdown advantage. No tuning
+of strategy parameters, new market data, campaign changes, or order access.
+
+SHOWN: using saved recent-year candles, $1,000 cash, 50 bps fees and 5 bps
+slippage per side, solved constant buy-and-hold entry notional to match the
+strategy's mean daily-close market-value/equity fraction (2.153239744%).
+The matched benchmark entry is $29.081841. Benchmark net after terminal
+liquidation -$6.932568, daily-close maximum drawdown 1.757619%; daily trend
+net +$8.027154 and daily-close drawdown 2.556558%. Return difference is
++$14.959722 in this sample. The lower-drawdown claim does not survive this
+particular average-exposure-matched comparison.
+
+Saved generated artifact (exclusive creation, no overwrite):
+`.cbp_state/data/research/daily_trend_recent_20260926/exposure_matched_diagnostic.json`.
+It records the source-result SHA256 and all benchmark assumptions. Verification:
+matched exposure within 1e-12; benchmark net and fees reconcile within 1e-9
+to original buy-and-hold scaled quantity. No source changed; tests not rerun.
+
+Limits: benchmark sizing uses hindsight average exposure, not a prospective
+allocation rule; does not match time-varying risk, volatility or tail exposure.
+Same inspected historical window, assumed slippage, signal-only implementation,
+and hypothetical terminal liquidation. Drawdown excludes terminal costs.
+Interpretation: return lead remains exploratory; no established drawdown
+advantage or proven edge, no promotion. Independent review not performed.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-26 - Human acceptance of recent-year daily-trend research
+
+Active role: GATE. User responded "Approved" to the recent-year comparison
+handoff. Record human acceptance of this research slice with its disclosed
+limitations; do not describe this as independent technical reproduction.
+Acceptance state: ACCEPTED_WITH_RISK. Prior READY_FOR_INDEPENDENT_REVIEW entry
+is retained as the implementation-stage record.
+
+Approval does not establish profitability or authorize campaign changes,
+promotion, live orders, deployment, or higher capital limits. Signal-only
+scope, assumed slippage, inspected historical data, and terminal-position
+dependence remain material limitations. No result or source code changed.
+Verification: documentation-only change; git diff --check, no tests rerun.
+
+## 2026-09-26 - Recent-year daily-trend fixed comparison
+
+Active role: ENGINEER. HIGH risk research arithmetic; no execution authority.
+Objective: test unchanged SMA200 signal-only behavior on September 26, 2025
+through September 26, 2026 exclusive, with 200 warmup bars, against cash and
+buy-and-hold. Added `scripts/research/run_daily_trend_recent_check.py`, a
+fixed public-data capture/research runner that refuses an existing output
+directory. Saved plan before fetch, raw responses, normalized candles and
+full results under `.cbp_state/data/research/daily_trend_recent_20260926`.
+Plan records source hashes. Preserved all previous research artifacts.
+
+SHOWN: 565 daily bars, including 365 evaluated days. Current verified Coinbase
+taker rate 50 bps/side applied retrospectively; assumed slippage 5 bps/side.
+$1,000 cash and $100 entry notional. Net after hypothetical terminal sale:
+SMA200 +$8.027154; buy-and-hold -$23.838133; cash $0. Daily-close drawdown:
+2.556558% versus 5.985244%. Mean close exposure: 2.153240% versus 7.535831%.
+The SMA arm has four signal-closed trades, all losers, and one remaining
+position whose hypothetical terminal sale supplies the overall gain.
+
+Verification: existing comparator tests 3 passed; saved-data replay matches
+all arm results exactly; separate cash/quantity calculation from saved trade
+events reconciles terminal equity for all arms within 1e-8. This is same-thread
+verification, not independent review. Diff whitespace check run at handoff.
+
+Interpretation: useful positive exploratory lead and observed lower drawdown,
+not proven edge. Much of this window overlaps previously inspected history.
+No full campaign risk/exit stack, measured fills/slippage, infrastructure cost,
+or exposure-matched benchmark. Daily-close drawdown excludes terminal costs.
+No campaign, credentials, gate, or service changes; no live promotion.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-26 - Economic candidate triage after breakout comparison
+
+Active role: AUDITOR. Objective: identify one evidence-backed next research
+question, not reopen infrastructure work or tune the rejected breakout samples.
+
+SHOWN from saved artifacts inspected today:
+- `funding_threshold_pipeline/20260903T051521Z` direct candidate and stability
+  triage both report candidate_count=0. These old reports do not establish
+  current funding conditions or evaluate hedged carry.
+- `daily_trend_comparison_20260923.json`: at 60 bps fee and 10 bps slippage
+  per side, SMA200 signal-only net +$416.545865 versus buy-and-hold +$733.508280,
+  with daily-close maximum drawdown 22.007534% versus 38.421289%.
+  Evaluated dates July 20, 2018 through July 31, 2026. Initial cash $1,000;
+  entry notional $100, not an ongoing market-value exposure cap.
+
+Engineering judgment: next candidate question is whether the unchanged daily
+trend signal retains a drawdown benefit in recent data at the verified current
+fee rate, reporting net return and exposure against buy-and-hold and cash.
+This is a prioritization for testing, not a profitability or promotion claim.
+Do not select new thresholds against the old sample. The signal-only tool does
+not implement the complete campaign exit/risk stack; preserve that distinction.
+
+No new backtest run, deployment, campaign, credential, or strategy change.
+Verification: parsed artifact summaries and timestamp/cost fields directly;
+no code changed, tests not run. Remaining risk: historical provenance and
+independent economic validation unresolved; recent-window benefit unverified.
+Acceptance state: INCOMPLETE for the proposed economic experiment.
+
+## 2026-09-26 - Verified-fee comparison across both historical windows
+
+Active role: AUDITOR. Objective: compare both fixed windows at the same current
+Coinbase taker rate without tuning strategy rules. Reused saved candles and
+frozen breakout configuration from `frozen_comparison_20260926`, validated
+original plan/date coverage, generated signals, and called the existing
+simulator with an explicit 50 bps/side fee override and 5 bps/side slippage.
+Original scenario report and plan were not overwritten.
+
+SHOWN: August 27 through September 26 (exclusive), breakout net -$5.930881,
+13 closed trades, 4 wins, $13.035523 fees; buy-and-hold net +$5.273851,
+$1.031527 fees. Bar-close/terminal drawdown: breakout 0.860547%, benchmark
+0.892936%. Initial cash $1,000, $100 entry notional for each arm.
+
+Combined interpretation with the preceding recorded July 28-August 27 check:
+breakout underperformed buy-and-hold in both windows. Simple sums of separately
+reset simulations are +$2.230464 breakout versus +$28.102811 benchmark; these
+are NOT a continuous 60-day portfolio simulation or a statistical edge test.
+Current fee rates are applied as a counterfactual, not asserted historical fees.
+
+Recommendation: do not advance this unchanged signal-only breakout candidate
+on these results or retune these same samples. This does not establish results
+for the full campaign exit/risk stack. No campaign retirement or runtime change.
+Verification: in-memory calculation exited 0; original plan/coverage validation
+and signal success assertions passed. No code changed; no new tests run.
+Limitations: assumed slippage, candle fills, no infrastructure costs, selected
+historical windows, and preceding window lacks a saved raw replay archive.
+Acceptance state: INCOMPLETE for independently reproduced economic validation.
+
+## 2026-09-26 - Frozen comparison final review closed
+
+Active role: GATE. Separate reviewer returned ACCEPTED_WITH_RISK for exploratory
+comparison tooling with no remaining scoped implementation findings; independently
+ran 8 passing tests. Script SHA-256:
+`43738f86079cf4d7f11d41090676099402dc63a1867408ace4aff96c7be4ccde`.
+Saved accounting results retain prior proof status; no regeneration. Source
+authentication, historical dependencies and full plan-to-dispatch regression
+coverage remain limitations. No campaign, execution or activation approval.
+Acceptance: ACCEPTED_WITH_RISK. This review cycle is closed.
+
+## 2026-09-26 - Frozen comparison accounting review and replay constraints
+
+Active role: ENGINEER. Independent reviewer accepted saved-artifact accounting
+with risk, reconciling all arms/scenarios and dataset continuity; signal
+generation was not independently replayed. Reviewer noted future runs did not
+enforce planned dates/settings and the drawdown label omitted terminal costs.
+Updated comparator to consume frozen strategy blocks from plan.json, enforce
+date boundaries and supported cost/capital/execution assumptions, preserve
+existing comparison artifacts, record executed script/plan hashes, and name
+drawdown as including terminal liquidation. No saved results regenerated.
+
+Proof: `./.venv/bin/python -m pytest -q tests/test_frozen_strategy_comparison.py`
+8 passed in 0.17s. Added date/cost/strategy and overwrite regressions.
+No campaign, order, credential or deployment changes. Final script review
+requested. Historical dependency/provenance and future performance remain
+unverified; full suite not run. Acceptance: READY_FOR_INDEPENDENT_REVIEW for
+implementation changes; prior artifact accounting ACCEPTED_WITH_RISK separately.
+
+## 2026-09-26 - Fresh same-data frozen strategy comparison
+
+Active role: ENGINEER. HIGH-risk research arithmetic, no live/campaign mutation.
+Fetched 8740 public Coinbase BTC/USD five-minute candles, including 100 warmup
+bars before the fixed Aug 27 through Sep 26 UTC interval. Complete contiguous
+grid validated; no parameter search. Frozen plan recorded before download.
+Compared existing breakout, EMA and mean-reversion signal presets against cash
+and buy-and-hold, with next-open fills assumed, one $100 position at a time,
+$1000 starting cash, terminal liquidation, 5bps per-side slippage and 10/25/60bps
+per-side fee scenarios. Fees are assumptions, not verified account rates.
+This does not reproduce the campaigns' additional exit/risk/sizing stack.
+
+SHOWN: net dollars at 10/25/60bps fees: breakout +4.50/+0.59/-8.54 (13 closes),
+EMA -1.82/-2.12/-2.81 (one close), mean reversion +0.06/-1.74/-5.95 (six closes),
+cash 0/0/0, $100 buy-and-hold +6.10/+5.79/+5.07. Buy-and-hold exceeds each
+active arm on net dollars in this window; this is not future-return evidence.
+Breakout is the strongest active arm here but cost-sensitive, not proven edge.
+
+Artifacts: `.cbp_state/data/research/frozen_comparison_20260926/` contains plan,
+raw responses, candles and comparison. Source `scripts/research/compare_frozen_strategies.py`.
+Proof: `./.venv/bin/python -m pytest -q tests/test_frozen_strategy_comparison.py`
+2 passed; script completed and `git diff --check` passed. Independent review
+requested. No untouched holdout, confidence claim, actual fills or operating
+cost deduction. Full suite not run. Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-25 - Volatility comparison final review closed
+
+Active role: GATE. Independent reviewer returned ACCEPTED_WITH_RISK with no
+remaining scoped findings and independently ran 16 passing tests. Reviewed
+script SHA-256: `7bdb0f5b1ba7ba6d6ce4fc8a38fafa52eac74c2a628f06f689602a48e57bf964`.
+Prior arithmetic confirmation stands; no results regenerated. Acceptance is
+limited to the historical exploratory counterfactual, not profitability,
+campaign changes or activation. Hindsight revision exclusions, conditional
+selection, overlapping labels, assumed costs and no holdout remain limitations.
+This experiment is closed; do not repeat its review or remove the campaign
+volatility filter based on this sample. Acceptance: ACCEPTED_WITH_RISK.
+
+## 2026-09-25 - Raw candle validation review follow-up
+
+Active role: ENGINEER. User approved prior counterfactual correction. Separate
+review then identified coercion before validation in raw ingestion. Added raw
+shape/type/grid/OHLC checks before timestamp conversion; boolean and fractional
+timestamps cannot be silently normalized. Evaluation checks remain intact.
+Tests: `./.venv/bin/python -m pytest -q tests/test_breakout_volatility_comparison.py`
+16 passed in 0.10s, including five raw-ingestion cases. No historical results,
+campaign filters or trading settings changed. Prior result arithmetic remains
+independently supported. Final fix review requested; full suite not run.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW for this additional correction.
+
+## 2026-09-25 - Counterfactual review validation fix
+
+Active role: ENGINEER. Independent reviewer reconciled raw hash, revision
+exclusions, six labels, -12.1693277393 bps mean and one overlapping pair.
+Reviewer also verified the actual dataset's candle validity, but found missing
+input validation in the reusable evaluator. Added shape/grid/finite-positive
+OHLC/nonnegative-volume checks before computation and gap-warmup regression.
+`./.venv/bin/python -m pytest -q tests/test_breakout_volatility_comparison.py`
+returned 11 passed in 0.09s. Historical results remain unchanged. Selection is
+conditional on the first rejection reason; revision exclusion uses hindsight;
+this is not a whole-strategy comparison or independent holdout. No campaign
+or trading change. Final code re-review requested; full suite not run.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-25 - Volatility-filter historical counterfactual
+
+Active role: ENGINEER. HIGH risk research calculations; VERIFIED_ENV local.
+User approved comparing the nine filtered upward breakouts. Added reproducible
+read-only analysis: unchanged other filters, remove min_volatility_pct only in
+an in-memory copy; next-bar open entry, open 15 minutes after entry as exit.
+Plan recorded before label computation, explicitly exploratory because this
+sample's signals were already inspected. No untouched holdout claimed.
+
+SHOWN: six candidates pass remaining filters; two remain blocked by volume and
+one by channel width. Six-candidate mean gross return -12.1693 bps; mean under
+assumed total round-trip costs 20/50/100 bps: -32.1693/-62.1693/-112.1693 bps.
+One overlapping pair; averages are per-signal labels, not portfolio returns.
+No quote reconstruction or actual-fill claim. Twelve revised candle timestamps
+excluded, warmup restarted at gaps, missing future bars remain unavailable.
+Artifact directory: `.cbp_state/data/research/breakout_quote_observation_20260925_approved/`;
+files `volatility_comparison_plan.json` and `volatility_comparison.json`.
+
+Verification: `./.venv/bin/python -m pytest -q tests/test_breakout_volatility_comparison.py`
+2 passed in 0.09s; actual script run completed. Separate review requested;
+full suite not run. This small sample provides no support for removing the
+filter, but does not establish the filter's general value. Campaign unchanged.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-25 - Recent unchanged-rule signal frequency
+
+Active role: AUDITOR. Read-only historical signal analysis, VERIFIED_ENV local
+raw responses and frozen experiment contract. Existing SQLite archives were
+older BTC/USDT, not the same current BTC/USD market; used the recent experiment's
+saved Coinbase candle packets instead. No new network calls or campaigns.
+
+SHOWN: 362 unique completed-bar timestamps; 12 had differing values across
+responses and were excluded. Restarted a 40-bar warmup at gaps. Evaluated 310
+contiguous eligible bars (25.83 bar-hours), Sep 24 19:25 through Sep 25 21:10 UTC,
+using unchanged frozen breakout_default parameters via compute_signal.
+306 HOLD, four SELL, zero BUY. Of nine upward channel-break candidates, all nine
+returned low_volatility_filter. Three downward candidates were also filtered;
+294 observations were inside_channel. All 299 overlapping one-hour windows
+contained zero BUYs; these windows are not independent samples.
+
+Artifact: `.cbp_state/data/research/breakout_quote_observation_20260925_approved/historical_frequency.json`.
+Raw SHA-256: `e135e771baef3added44271d2bd621cb4a15e5c18dc802bcd0876df69bf45123`.
+Verified by direct replay of the frozen strategy and a separate direction/reason
+count pass. No code or thresholds changed. Zero observed BUY rate gives no
+defensible finite completion-date estimate from this sample. Do not repeat an
+arbitrary one-hour run. Next candidate experiment: register a separate historical
+volatility-filter comparison, measuring both accepted and rejected candidates
+with explicit cost assumptions and untouched validation data. This finding does
+not justify disabling a campaign filter or asserting profitability.
+Acceptance: ACCEPTED for descriptive frequency analysis; economic interpretation
+and prospective rates remain UNVERIFIED.
+
+## 2026-09-25 - Bounded breakout observation completed
+
+Active role: AUDITOR. VERIFIED_ENV: persisted result and contract in
+`.cbp_state/data/research/breakout_quote_observation_20260925_approved/`.
+SHOWN: duration_complete; 13 HOLD signals, all reason inside_channel; zero BUY
+signals, labels or acquisition errors. Each reported close was below the
+previous channel upper bound of 84184.65. This run therefore produced no entry
+sample on which to evaluate subsequent movement or break-even fees. Result:
+INSUFFICIENT_EVIDENCE; profitability NOT_EVALUATED. No API credential failure.
+
+No rerun, extension, filter relaxation or campaign modification. This hour
+cannot establish long-run signal frequency or strategy profitability. Before
+another prospective run, use recent archived bars to estimate unchanged-rule
+signal frequency and whether a bounded collection window is feasible; label
+that analysis historical and do not reconstruct missing quotes from candles.
+Verification: read-only JSON parsing and action/reason counts, no code changed.
+Acceptance: ACCEPTED for experiment closeout, not strategy promotion.
+
+## 2026-09-25 - User-approved bounded observation launched
+
+Active role: GATE, then ENGINEER for the authorized command. User approved the
+explicit 60-minute public Coinbase observation scope after disclosure that
+independent automated review was unavailable. Acceptance: ACCEPTED_WITH_RISK
+by human authorization for this run only; no automated review claimed.
+
+SHOWN: launched `./.venv/bin/python scripts/research/observe_breakout_quotes.py --output .cbp_state/data/research/breakout_quote_observation_20260925_approved --duration 3600`.
+Execution session 67282. Contract and raw data files exist. Initial status:
+running, one HOLD/inside_channel observation, no errors or labels. The run stops
+after its duration or three consecutive acquisition errors. No orders,
+credentials, campaign configuration or services changed. Outcome pending;
+profitability NOT_EVALUATED. Do not repeat the run or extend it automatically.
+
+## 2026-09-25 - Bounded breakout observation experiment prepared
+
+Active role: ENGINEER. HIGH risk: financial research labels and bounded collector.
+VERIFIED_ENV: local repo/venv. Added standalone `observe_breakout_quotes.py`:
+Coinbase public BTC/USD only, unchanged breakout_default signal parameters,
+completed five-minute candles, one signal evaluation per new bar within 60s of
+close, five-second quote polling, 30/60-second labels with ten-second tolerance.
+Hard duration limit 3600s; three consecutive acquisition errors stop the run.
+Contract is written before acquisition. Raw responses/signals are retained.
+No account credentials, intents, order submission, campaign or service changes.
+This is a separate signal-only cohort, not campaign-admitted entries or a full
+strategy backtest. Quoted ask-to-bid returns and equal-fee break-even figures
+exclude slippage/impact and never imply actual fills or net profit. No signals
+or usable labels means insufficient evidence; no automatic extension or tuning.
+
+Proof: `./.venv/bin/python -m pytest -q tests/test_observe_breakout_quotes.py tests/test_market_context_markouts.py`
+returned 18 passed in 0.22s; `git diff --check` passed. Tests include bounded
+virtual-time execution, failure-stop and censored horizons. Full suite not run.
+Independent reviewer could not finish: tool returned account usage-limit error.
+No independent acceptance is claimed. No experiment process was launched.
+User can review/accept this exact bounded scope or use a separate reviewer.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-25 - Resolve midpoint evaluator review findings
+
+Active role: ENGINEER. HIGH risk; local VERIFIED_ENV. Independent review found
+cross-session joins were not prevented and unusable entry quotes were included
+in a count called eligible. Added per-recorder UUID provenance to events;
+evaluation rejects missing/mixed session IDs and clock-order resets. Counts now
+separate admitted entries, valid entry quotes and available labels. Added tests
+for stale horizon quotes, future entry quotes and absent links. Historical
+calibration files without session identity remain unchanged and are rejected.
+No activation, campaign change, deployment or order action.
+
+Proof: `./.venv/bin/python -m pytest -q tests/test_market_context_markouts.py tests/test_market_context_capture.py tests/test_strategy_runtime_runner.py tests/test_breakout_runner_exit_stack.py`
+returned 72 passed in 1.61s. Independent re-review requested; full suite not run.
+Net economics and deployed signal coverage remain UNVERIFIED.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-25 - Planning-guidance correction accepted
+
+Active role: GATE. User explicitly approved the preceding documentation and
+workflow corrections. Separate reviewer Kepler found no remaining material
+contradictions and returned ACCEPTED for the listed governance/docs changes
+and guard tests only. Independently verified 10 governance/lane tests and a
+scoped diff check; the engineer's broader 37-test run remains separately
+reported, not independently reproduced by that reviewer.
+
+Acceptance state: ACCEPTED for this documentation correction scope. No approval
+for unrelated pending research/runtime changes, recorder activation, campaign
+changes, trading, credentials, deployment or service restart is implied.
+Future agent behavior and full-system safety are not proved by these tests.
+
+## 2026-09-25 - Complete planning-guidance correction gaps
+
+Active role: ENGINEER. Objective: preserve the existing correction pass and
+finish remaining contradictory task-selection guidance. Risk: HIGH for agent
+governance; VERIFIED_ENV: local checkout/venv. No runtime or deployment edits.
+
+SHOWN: prior changes already replaced the hardening-only protocol, marked old
+handoffs historical and clarified gate policy. This follow-up labels backlog
+and roadmap snapshots historical, makes lane selection outcome-led rather than
+docs-first, removes tests pinning a dated bottleneck, scopes alignment failures
+to affected work without bypassing CI, and removes instructions to rebuild the
+existing event journal, walk-forward tooling and feedback ledger.
+
+Proof: `./.venv/bin/python -m pytest -q tests/test_governance_required_files.py tests/test_backlog_execution_lanes_guard.py tests/test_roadmap_tracking_checklist.py tests/test_project_directional_plan.py tests/test_onboarding_collector_docs.py tests/test_validation_lane_docs.py tests/test_backlog_lane_status.py tests/test_roadmap_tracking_status.py`
+returned **37 passed in 0.65s**. `git diff --check` passed. Separate review
+requested. Full suite not run; documentation tests do not prove future agent
+behavior. Trading, campaign, credential and deployment authority unchanged.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-25 - Correct conflicting continuation guidance
+
+Active role: ENGINEER. Objective: user-approved correction of active guidance
+that encourages repeated hardening, idle review waits or obsolete work.
+Risk: HIGH conservatively for agent governance instructions; no runtime changes.
+VERIFIED_ENV: local checkout and venv, unrelated pending work preserved.
+
+SHOWN: replaced the root hardening-only/rigid-format prompt with objective-led
+continuation; internal duplicate now points to the root. AGENTS continuation
+prioritizes the accepted objective and permits safe independent in-scope work
+during pending processes. Independent high-risk review, authorization and
+execution/risk controls remain required. Historical handoffs explicitly marked
+superseded. Corrected policy-specific ES thresholds and allowed related tests/docs
+with runtime changes. Backlog item 16 now separates implemented router exception
+handling from remaining disposition. AI docs explicitly disclose that caught
+model read/parse errors still return pass-through; no claim of complete model
+error fail-closure, and no trading fix or activation was attempted here.
+
+Updated governance tests protect continuation and independent-review language
+instead of requiring obsolete formatting. Verification:
+`./.venv/bin/python -m pytest -q tests/test_governance_required_files.py tests/test_roadmap_tracking_checklist.py tests/test_golden_path_operator_flow_guard.py tests/test_operator_doc_reference_paths.py tests/test_project_identity_scope.py`
+returned **25 passed in 0.39s**. Full suite not run (docs/governance slice).
+Separate scoped review requested. No credentials, deployments, campaigns or
+orders changed. Effect on future agent behavior remains UNVERIFIED; document
+changes are not enforcement of model behavior.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-25 - Read-only signal-linked midpoint evaluator
+
+Active role: ENGINEER. Risk: HIGH (research financial labels). VERIFIED_ENV:
+local files/venv. No signal-linked market_context JSONL files found under the
+inspected local campaign state directories. The isolated probe contains quotes
+only. Added a read-only evaluator to join admitted entry IDs to existing quote
+observations with explicit age and horizon tolerance. Missing/invalid quotes
+stay unavailable; gross midpoint labels never become fills or net profit.
+
+SHOWN: `./.venv/bin/python -m pytest -q tests/test_market_context_markouts.py tests/test_market_context_capture.py`
+returned 17 passed in 0.48s. Real calibration input run returned zero eligible
+entries, NO_ENTRY_EVIDENCE, profitability NOT_EVALUATED. Input SHA-256:
+`ef604084ddfe7034253b0c5ed659b9ce42313c076555dd86b44192c7d5012ed0`.
+No new quotes, campaign activation, orders or deployment in this step. Separate
+review requested. Actual fees, sustained signal capture, net economic value and
+full-system integration remain UNVERIFIED. Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-25 - Isolated public-quote capture calibration
+
+Active role: AUDITOR. VERIFIED_ENV: local venv and ten successful Coinbase
+public BTC/USD ticker requests. No credentials, strategy runner, campaign,
+orders, environment activation or persistent process. Ten requests, one-second
+pauses, five-second per-request timeout; separate research output directory.
+
+SHOWN: 10/10 valid quotes persisted; event IDs match the request log exactly;
+zero dropped/lost/pending events; writer finished. Median HTTP round trip
+62.202 ms, maximum 79.249 ms. Receipt gaps 1.055457-1.089341 seconds; three
+distinct bid/ask pairs. These are HTTP timings, not exchange-feed latency.
+Ticker time retained explicitly as not the quote timestamp. Artifact:
+`.cbp_state/data/research/coinbase_capture_calibration/20260925T064350Z/calibration.json`.
+
+Proof: bounded curl/Python capture run and persisted-ID reconciliation passed;
+`./.venv/bin/python -m pytest -q tests/test_market_context_capture.py` returned
+8 passed in 0.40s; `git diff --check` passed.
+
+Conclusion: local writer/public endpoint integration works for this short run.
+One-second markout coverage is NOT established; no signals, fees, horizon
+returns or profitability were evaluated. Campaign integration and sustained
+coverage remain UNVERIFIED. Next research step is signal-linked coverage with
+explicit horizon tolerance, not treating these ten quotes as economic evidence.
+Acceptance state: ACCEPTED for this read-only calibration only.
+
+## 2026-09-25 - Market-context capture review correction
+
+Active role: ENGINEER. Risk: HIGH. VERIFIED_ENV: local repo/venv.
+Independent reviewer confirmed earlier fixes but found the final sidecar could
+never show thread termination when written by that same thread. Replaced the
+persisted liveness field with explicit processing state; actual thread liveness
+remains in the in-memory close response. Added normal/error terminal assertions,
+blocked-writer timeout and sidecar-write failure tests. No activation, deployment,
+campaign, order policy or promotion change.
+
+SHOWN: `./.venv/bin/python -m pytest -q tests/test_market_context_capture.py tests/test_strategy_runtime_runner.py tests/test_breakout_runner_exit_stack.py`
+returned **59 passed in 1.61s**; `git diff --check` passed. Separate reviewer Kepler
+returned no remaining scoped findings and ACCEPTED_WITH_RISK for default-off
+implementation only, independently running 56 capture/runner tests. Reviewed
+module SHA-256: `f11b45695e6d4549d7a75fab16ce9e424b391d5ec3a3a16ad6da31c8cf2f824c`.
+This is not activation/deployment approval. Full-suite/host integration and
+economic value remain UNVERIFIED.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-24 - Default-off market-context capture implementation
+
+Active role: ENGINEER. Objective: partial MCB-1 PR-A observation capture without
+changing trading decisions. Risk: HIGH (runner hooks and background writer).
+VERIFIED_ENV: local checkout and existing venv; no deployment or restart.
+
+SHOWN: added bounded asynchronous JSONL capture, existing quote observations,
+admitted BUY linkage, explicit unknown fees/timestamps, and status sidecars.
+Protective exits are excluded from entry records, not gated. The opt-in remains
+unset. No campaign, promotion, live config or order policy was changed.
+Independent review identified loss accounting, failure visibility and an
+admission/shutdown race; implementation now counts in-flight loss, exposes
+status, synchronizes admission and isolates exceptions at runner hook calls.
+These changes preserve research incompleteness rather than masking data loss.
+
+Proof: `./.venv/bin/python -m pytest -q tests/test_market_context_capture.py tests/test_strategy_runtime_runner.py tests/test_breakout_runner_exit_stack.py`
+returned **57 passed in 1.28s**. Enabled/disabled/injected-failure integration
+tests retain BUY and protective SELL behavior and check lock release.
+Ruff could not run: `No module named ruff`. Full-suite and host checks not run.
+
+UNVERIFIED: production capture completeness, attainable horizons, account costs,
+economic value, crash durability. This is instrumentation, not profitability
+evidence. See `docs/research/market_context_capture_v0.md` for limitations.
+Separate re-review requested; unrelated pending changes preserved.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-24 - Coinbase Public Quote Probe
+
+Active role: AUDITOR. Bounded public BTC/USD REST quote check, no orders,
+credentials, campaign changes or persistent process. Five curl requests returned
+five valid positive, non-crossed bid/ask pairs with zero errors. Artifact:
+`.cbp_state/data/research/coinbase_quote_probe/20260924T230306Z.json`.
+Request/receipt times and raw responses retained. This is not continuous market
+coverage, signal evidence, execution latency or a profitability comparison.
+Initial Python urllib probe failed all five requests due to local certificate
+trust; preserved in `20260924T230230Z.json` in the same directory. Used curl's
+working TLS verification; did not disable validation or modify environment.
+Acceptance state: ACCEPTED for bounded connectivity probe only.
+
+## 2026-09-23 - Fresh Status Before Further Economic Experiments
+
+Active role: AUDITOR. Objective: replace stale assumptions with current checks.
+SHOWN: GitHub master API returns 02de7294d6d65a1c390df37bfa09e5399f449da6.
+`make status-paper-campaigns` reports two local collectors alive, September 23
+sessions completed, idle until next day. Breakout last session about 903 seconds,
+hold, zero new fills; latest fill remains September 2. Thus rerunning the status
+is fresh verification, not new economic evidence. Manifest uses 5m data/900s.
+Read existing September 15 terminal reconciliation before proposing a schedule
+change: full-day Binance/Gate trials already completed with no fills; do not
+repeat those experiments on the assumption longer runtime alone fixes selection.
+SHOWN: current Hetzner status attempt reached Tailscale SSH but requires fresh
+authentication. Host running counts/outcomes UNVERIFIED, not zero campaigns.
+No restart, auth change, live order, gate or campaign mutation. Next useful
+host read is latest signal/data diagnostics and trial state, not another launch.
+No tests run for read-only inspection; economic findings remain provisional.
+Acceptance state: INCOMPLETE for current host verification.
+
+## 2026-09-23 - Frozen Daily Trend Versus Cash and Buy-and-Hold
+
+Active role: ENGINEER after archive AUDITOR inventory. Objective: produce an
+economic comparison from existing complete data, not force a positive outcome.
+Risk HIGH (research financial arithmetic). User approved the prior net-win-rate
+reporting correction; historical reports are not rewritten.
+SHOWN: 3,134 consecutive BTC/USD daily archive rows available. Added isolated
+read-only comparison CLI and tests; reused existing SMA200 signal function,
+prior-close/next-open fills, fixed 100 USD entry on 1,000 USD cash, three cost
+scenarios frozen before execution, no parameter tuning. Kept all three arms.
+SHOWN at 10/5 bps: trend +453.38 USD versus hold +739.04 and cash 0, over
+2018-07-20 through 2026-07-31. Trend daily-close drawdown 21.21%, 31 closed
+trades, seven net winners; 2025 loses 23.09. Higher costs remain positive.
+Why: distinguish historical return, exposure and downside rather than celebrate
+an isolated positive PnL. Documented signal-only, uneven exposure, unverified
+archive provenance and non-holdout limitations. No current-campaign proof claim.
+Verification: targeted comparison tests 3 passed; actual archived run complete.
+Independent review requested from existing reviewer; not yet accepted.
+No host/campaign/gate/live mutation. No real-account fees claim; no full suite/CI.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-23 - Separate Synthetic Rankings From Net Paper Evidence
+
+Active role: ENGINEER (after read-only AUDITOR trace).
+Objective: correct the feedback text's gross/net mismatch discovered while
+checking whether existing evidence supports a profitable strategy verdict.
+SHOWN: September 2 local evidence pack is multi_window_synthetic; all ten
+candidates research-not-accepted. Breakout average synthetic return 34.158906%
+is not its paper return. Paper history counts five gross winners; feedback
+correctly counts two net winners but previously printed 41.7% in its summary.
+Changed: summary uses existing net_win_rate, explicitly labeled net-of-fees;
+added a real FIFO fixture where fees reverse a gross winner. Baseline report
+records evidence scope and the incomplete runner-faithful evaluation.
+Why: prevent the operator text from overstating profitable trade frequency.
+Expected outcome: consistent numeric/text feedback without changing decisions.
+Verification: strategy-feedback and exit-stack tests 8 passed; actual extracted
+24-fill feedback reproduces two winners, 16.7%, +2.5135597278 net within 1e-9.
+Broader verification: `python -m pytest -q tests/test_strategy_feedback.py
+tests/test_journal_analytics.py tests/test_backtest_evidence_cycle.py
+tests/test_run_strategy_evidence_cycle.py` completed with 23 passed;
+`git diff --check` passed.
+Remaining risk: historical artifacts not rewritten; full suite/CI and host
+integration not run. No deployment,
+campaign, gate, ranking or trading mutation. Position-summary gap unresolved.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-09-23 - Historical Fixed-Notional Capital Sensitivity
+
+Active role: AUDITOR. Objective: measure the existing paper outcome at the
+user's intended entry budgets without changing campaigns.
+SHOWN: read-only Decimal calculation over 12 stored matched pairs, at entry
+notionals 20/50/100 USDT with 1,000 starting cash, yields net
+0.675683/1.689208/3.378416 USDT respectively. Chronological non-overlap,
+cash affordability including entry fee, and 500 entry-exposure ceiling assertions
+passed. Recorded prices and proportional fees held fixed; no extra slippage.
+Changed: baseline report records the assumptions, table and limitations.
+Reason: measure capital sensitivity rather than infer more size improves edge.
+Expected outcome: bounded historical comparison, not promotion or live approval.
+Verification: inline Decimal analysis completed; no runtime source changed and
+runtime tests not run. Minimum orders, rounding, impact, marked-equity drawdown,
+USD conversion and multi-strategy competition remain unverified.
+Acceptance state: INCOMPLETE for economic treatment validation.
+
+## 2026-09-23 - Measured Historical Breakout Paper Outcome
+
+Active role: AUDITOR. Objective: produce an economic result from existing
+ledger evidence instead of starting more collection. Read-only isolated
+breakout ledger: 24 fills/12 closes June 11-September 2, net +2.5135597278 USDT
+after 1.1662824947 fees; 2 winners. Trailing exits: 5 totaling -7.1566430165;
+one take-profit winner +8.6742241159. These are attribution, not treatment
+effects. Recorded fee rate 7.5 bps/side is paper modeling, not account evidence.
+Second Decimal cash-flow calculation reconciled to <1e-9 USDT; pairing,
+uniqueness, sizes/currencies/fee totals checked. Position summary differs by
+0.5562266006 USDT; cause unresolved and no mutation performed.
+Saved source-row-hashed local JSON and docs/research/breakout_paper_fill_baseline_2026_09_23.md.
+No fresh host-state claim, markouts, promotion qualification or portfolio-return
+claim. No runtime code changes/tests; no service start or campaign change.
+Acceptance state: INCOMPLETE for economic treatment validation.
+
 ## 2026-09-23 - Discussion Coverage and Diagnostic Preservation
 
 Active role: AUDITOR. Documentation audit found the initial economic dissection
@@ -40788,3 +45221,5949 @@ Remaining risk:
   local research state and are not committed; no strategy, campaign, gate,
   promotion, or execution behavior changed.
 - Acceptance state: `ACCEPTED`.
+# 2026-09-26: Separate-window breakout economic check
+
+- Active role: AUDITOR. Objective: test the unchanged frozen breakout preset
+  on a non-overlapping historical window using the account fee rate verified
+  through Coinbase's authenticated SPOT transaction-summary endpoint.
+- SHOWN: current maker rate 25 bps/side, taker 50 bps/side, no promotional fee
+  reported. These are current rates, not proof of historical account rates.
+  Credentials were read from the existing keychain; no credential mutation.
+- SHOWN: public Coinbase BTC/USD candles for July 28 through August 27, 2026
+  (exclusive end), with 100 preceding warmup bars: 8,740 contiguous valid
+  five-minute bars, no conflicting overlaps. Normalized-row SHA256:
+  `aa5de65dcb9c7f5c532c9369f3ad540c99d2da8061b37c8c9c8020db2d3df0ac`.
+- Used `compare_frozen_strategies.simulate` and the breakout strategy frozen
+  in `frozen_comparison_20260926/plan.json`: next-open signals, $1,000 initial
+  cash, $100 entry notional, one position, 50 bps fee and assumed 5 bps slippage
+  per side. Buy-and-hold uses the same entry notional and terminal liquidation.
+- SHOWN simulation results: breakout +$8.161345, 10 closes, 4 wins,
+  $10.091263 fees, 1.193959% bar-close drawdown; buy-and-hold +$22.828960,
+  $1.119744 fees, 0.513971% bar-close/terminal drawdown; cash $0.
+- Why: answer the accepted economic question without tuning the earlier sample
+  or changing a campaign. Outcome: positive breakout sample, but no advantage
+  over buy-and-hold on net dollars or measured drawdown in this window.
+- Verification: targeted frozen-comparison and volatility-comparison tests:
+  24 passed. The in-memory run asserted exact coverage, continuity, candle
+  validity, overlap consistency, and successful strategy outputs.
+- Execution corrections: initial command syntax error, system urllib CA error,
+  then incorrect adapter argument order were corrected before the successful
+  run; requests retained TLS verification. No failed-run result was used.
+- Limits: signal-only simulation, not campaign exits or actual fills; current
+  fee counterfactual, assumed slippage, no infrastructure costs. Historical
+  window is not a pristine holdout. Raw responses were not persisted for this
+  in-memory check; hash and terminal result are not a complete replay archive.
+  No independent review of this run. No live profitability claim or promotion.
+- Changed only this work-log entry; no trading code, campaign, or service change.
+  Acceptance state: INCOMPLETE for reproducible economic validation.
+
+## 2026-09-29 - Isolated historical news ingestion recovery
+
+### SCOPE-20260929-01 - Operator-selected interaction checkpoint
+
+- ENGINEER. Objective: reinforce continuity through interaction and existing
+  documentation rather than another governance subsystem.
+- User selected: "Show the impact and recommendation; get my decision before
+  changing scope. Routine fixes continue." This authorizes the interaction
+  preference, not any removal, deployment, credential or trading change.
+- Added Scope Impact Checkpoint to CODEX_REMEDIATION_PROMPTS and linked it from
+  runtime_prompt and PROJECT_DIRECTIONAL_PLAN. Existing unrelated edits preserved.
+- Trigger: proposed capability removal, disabling, optionalization or narrowing.
+  Preserve routine progress, authorized emergency protection and independent review.
+  Record actual scoped decisions in this log; no duplicate ledger or silent consent.
+- Added a documentation regression test. No runtime enforcement or permanent
+  agent-compliance claim. Verification: `.venv/bin/python -m pytest -q
+  tests/test_project_directional_plan.py tests/test_governance_required_files.py`
+  returned 9 passed in 0.16s; `git diff --check` passed. These tests verify text
+  contracts only, not future behavior. No push, merge or deployment performed.
+- HIGH conservatively for agent workflow governance. READY_FOR_INDEPENDENT_REVIEW.
+
+### Capability documentation trace - first pass
+
+- AUDITOR; user requested documentation/history review for lost useful capabilities.
+  Added docs/research/capability_disconnection_trace_20260929.md, with no runtime edits.
+- VERIFIED_ENV: local source plus read-only GitHub master SHA lookup. API read
+  initially failed in sandbox, then succeeded with escalated network permission;
+  no authentication reset or credential mutation was required.
+- SHOWN: companion removal versus retained advisory discovery, deliberate
+  strategy-identity restriction, original sentiment/liquidation placeholders,
+  and AI scaffold missing-model pass-through are distinct cases.
+- Targeted discovery/selection/companion guards: 13 passed in 0.26s.
+  Local selected artifacts match GitHub master 580ca31ea; dirty docs are not
+  represented as published state. No full-suite or operational proof claimed.
+- Overall review INCOMPLETE: remaining docs/history and live integration not yet
+  covered. No restore/activation authorized by this inventory. Existing edits preserved.
+
+### Follow-up: publication contract recovery
+
+- ENGINEER; user approved previous bounded repair. Restored historical parser
+  and document models into the isolated research directory, not startup.
+- Normalized RSS/ISO publication dates to UTC before the parser request;
+  unknown stays unknown, invalid/naive timestamps fail. No trading changes.
+- VERIFIED_ENV local venv; targeted test command:
+  `.venv/bin/python -m pytest -q tests/test_companion_news_recovery.py`.
+  SHOWN: 9 passed. Initial dynamic-import Pydantic namespace test failure was
+  fixed in the test harness with explicit model rebuilding, not schema changes.
+- UNVERIFIED: end-to-end article persistence/retrieval. bs4 is absent; shared
+  services and PostgreSQL/Qdrant/MinIO integration not started or proven.
+  No package installation, credential access, network capture or deployment.
+- Overall recovery INCOMPLETE; new bounded slice READY_FOR_INDEPENDENT_REVIEW.
+
+- ENGINEER; objective: recover original event-awareness ingestion without
+  touching trading or deployed services. VERIFIED_ENV: local workspace and venv.
+- SHOWN: recovered historical ingestion source from ad18488df^ into
+  research/companion_recovery, outside runtime startup. Existing dirty changes
+  were preserved. No credentials read, no network requests, no service start.
+- Fixed missing outbound service-auth headers and premature seen marking;
+  storage must explicitly return ok=true before marking success. This is the
+  smallest repair of the two traced historical defects, not a replacement stack.
+- Verification: .venv/bin/python -m pytest -q
+  tests/test_companion_news_recovery.py -> 4 passed in 0.10s.
+- Tests execute selected recovered function bodies with fake dependencies.
+  UNVERIFIED: real parsing, persistence, retrieval, live feeds, deployment,
+  concurrency, and adaptive strategy value. Recovery remains INCOMPLETE.
+- HIGH risk auth/background source; bounded repair state:
+  READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-04 - Shared submission coverage checkpoint
+
+- AUDITOR; objective: review the conversation and supplied historical files,
+  including new bundles rev42-48, without trading or runtime changes.
+- SHOWN: inventory reads 68 supplied files, including 45 ZIPs; 4,653 archive
+  file occurrences deduplicate to 279 byte contents. Integrity/hashing is not
+  exhaustive semantic review. Two specialist reviews hit usage limits; one
+  returned partial coverage. Historical transcripts, full archived work log,
+  copied database and earlier code/test variants remain incompletely reviewed.
+- Added the inventory reproducer/output and
+  docs/research/shared_submission_review_20261004.md to preserve exact coverage,
+  corrections, patch boundaries and next proof. Chosen instead of an unsupported
+  claim that everything was read or approved.
+- SHOWN by loader/path source inspection: default development user config is
+  .cbp_state/runtime/config/user.yaml. Its inspected live flags are false.
+  UNVERIFIED: process overrides and remote host, so no universal live exclusion.
+- New 0031-0037 patches remain independently unaccepted; earlier rev41 acceptance
+  does not cover the expanded 35-patch candidate. Cloud test figures are CLAIMED.
+- Verification: inventory completed with no supplied file missing; source-only
+  config trace. No full suite, CI, live execution or deployment run for this audit.
+- Existing dirty edits preserved; no config, accounts or collectors changed.
+  Overall acceptance state: INCOMPLETE.
+
+### 2026-10-04 - Rev48 isolated reconstruction and verification
+
+- AUDITOR; continued user-requested review. VERIFIED_ENV: Python 3.12.10,
+  temporary directories only; no running campaign or main source changes.
+- SHOWN: 35 patches applied to 97c24c8e4, excluding held 0011 and superseded
+  0019. Reconstructed Git tree def09f9cdfe50863740b1073b4aa1b00596a98e7
+  exactly matches rev48's declared tree.
+- SHOWN: reference-price/runner-lock targeted slice: 44 passed in 4.97s.
+  Full candidate run: 4460 passed, 35 failed, 33 skipped; harness lacked Git
+  metadata and contained extra bundle directory. Corrected harness then
+  reran failed checks: 34 passed, one manual-audit failure (git exit 126).
+  Full archive baseline: 3784 passed, three Git-dependent failures, 33 skipped.
+  These are separate runs, not a fabricated green full-suite count or proof
+  of the cloud's 19-failure baseline. Commands/results recorded in review doc.
+- Corrected overbroad concern: collector normal strategy-runner startup does
+  not use its other-component stale-lock cleanup. No runner bypass proven.
+- Confirmed downstream reference-price router still uses last/limit fallback;
+  helper tests do not establish bid/ask-only end-to-end execution.
+- Read original intelligence attachment through all 1294 lines; preserved its
+  capability contract without executing embedded replacement/build prompts.
+- Updated review checkpoint and inventory scope wording. No merge, push,
+  deployment, config/account mutation or collector restart. Historical semantic
+  coverage remains incomplete; no blanket series acceptance. State: INCOMPLETE.
+
+### 2026-10-04 - Remaining rev48 provenance and journal verification
+
+- AUDITOR; continue accepted shared-artifact review without reopening verified
+  reference-price/lock checks or changing production. VERIFIED_ENV: isolated
+  rev48 tree, local Python 3.12.10.
+- SHOWN: targeted five-file sample isolation, snapshot provenance, fill
+  provenance and gate/journal test slice: 50 passed in 0.97s. Exact command and
+  proof boundaries added to shared_submission_review_20261004.md.
+- Unknown historical provenance and journal price/fee correctness remain
+  UNVERIFIED. Tests are not deployment, profitability or blanket acceptance.
+- No source, config, campaign, account or collector changes. Next unresolved
+  review lane: historical supersession and acceptance gaps in the series ledger.
+  Overall state remains INCOMPLETE.
+
+### 2026-10-04 - Independent live-path review 0037/0039
+
+- AUDITOR; user prioritized two live-path patches. Reviewed rev50 0039 and
+  existing 0037, applying 0038/0039 only to the isolated rev48 reconstruction.
+- SHOWN: supplied targeted live-path slice 65 passed in 0.97s. Independent
+  real-store recovery probe fails: 1 failed in 0.49s. Market-quality refusal
+  erases remote_id; next turn 0039 locally cancels that known-remote order.
+  No exchange cancellation occurs. Inherited reason overwrite now interacts
+  with the new terminal TTL disposition. P1; 0039 INCOMPLETE.
+- No new blocker found within 0037's notional-helper correction. Its legacy
+  direct-submit severity was overstated; canonical downstream last-only router
+  and sell-limit notional boundaries remain. No blanket acceptance implied.
+- Added rev50_live_path_review_20261004.md and reusable isolated-test probe.
+  No production repair, merge, push, deploy, collector/config/account changes.
+- VERIFIED_ENV local Python 3.12.10; fake exchange/gates and real ExecutionStore.
+  UNVERIFIED full suite, CI, remote host and actual fills. Other seven patches
+  remain unaccepted. Review state: INCOMPLETE pending correction/re-review.
+
+### 2026-10-04 - Bounded 0039 correction handoff
+
+- ENGINEER; user continued after independent P1 finding. HIGH risk. Corrected
+  only isolated candidate: recover known remote IDs before TTL/market-quality/
+  symbol-lock gates can erase evidence. No new exchange submission on recovery.
+- SHOWN: original probe plus TTL, latency-safety and state-machine slice:
+  40 passed in 1.04s. Six new fresh/aged, blocked/error/locked cases verify
+  repeated-turn recovery and no resubmission. VERIFIED_ENV Python 3.12.10.
+- Added generated correction patch and handoff under shared-submission review
+  artifacts/docs. Main production source and all config/accounts untouched.
+- UNVERIFIED full suite, CI, real exchange reconciliation and host behavior.
+  No push, merge or deployment. No same-thread acceptance.
+- State: READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-04 - Human correction acceptance and nine-patch review closure
+
+- AUDITOR; continued accepted review. Operator replied "approved" after the
+  bounded 0039 recovery handoff. Recorded ACCEPTED for that correction only;
+  no merge/deployment authorization inferred. No same-thread self-acceptance.
+- Completed bounded dispositions for 0031-0039 in
+  rev50_new_patch_dispositions_20261004.md: ACCEPTED_WITH_RISK for the reviewed
+  corrections, original 0039 INCOMPLETE unless recovery correction included.
+  Known provenance, sizing, platform and reporting limitations remain explicit.
+- SHOWN: combined 12-file targeted slice, 141 passed in 6.64s, local Python
+  3.12.10 in isolated corrected candidate. No green full-suite, CI, host or
+  exchange proof claimed. Updated handoff with operator acceptance.
+- Overall series INCOMPLETE: older acceptance/supersession and historical
+  coverage unresolved. No source/config/campaign/account/collector mutation,
+  push, merge or deployment in the main checkout.
+
+### 2026-10-04 - New rev54-56 handoffs and live retry review
+
+- AUDITOR; read both new pasted handoffs in full, reconstructed rev56 from
+  43 selected numbered patches in temporary tree. No older approvals inferred
+  for new 0040-0045. Stale "all unreviewed" wording reconciled with prior ledger.
+- SHOWN P1 in 0045: interrupted accepted submission leaves dedupe created;
+  TTL helper incorrectly treats it as never sent. Real client/dedupe with fake
+  venue: supplied 33 tests pass; independent interruption probe fails in 1.12s.
+  Existing crash window, newly unsafe TTL inference. 0045 INCOMPLETE.
+- SHOWN targeted paper/dead-man/backfill slice: 72 passed in 1.89s.
+  Not independent acceptance or scheduling/host/full-suite proof.
+- Added rev56_submission_review_20261004.md and preserved probe. VERIFIED_ENV
+  Python 3.12.10 isolated candidate. UNVERIFIED current fee tier, process/host
+  live posture, actual fills, CI and integration of accepted separate correction.
+- No cohort reset, fee/template/config change, accounts/collectors altered,
+  source repair, push, merge or deployment. Overall state INCOMPLETE.
+
+### 2026-10-04 - Bounded 0045 TTL correction handoff
+
+- ENGINEER; user continued after reproduced P1. HIGH risk. Isolated correction
+  treats created claims as possibly sent and holds aged unresolved submissions
+  without expiry/resubmit/evidence overwrite. Main production code untouched.
+- SHOWN original interruption probe passes; targeted five-file slice 62 passed
+  in 1.10s. Three repeated-turn cases preserve pending reason and dedupe data.
+  VERIFIED_ENV local Python 3.12.10, fake venue and real client/dedupe probe.
+- Added correction patch and rev56_created_claim_correction_handoff_20261004.md.
+  Fresh-created retries, error-row classification and integration of earlier
+  accepted remote-ID correction remain unresolved. No complete 0045 acceptance.
+- No full suite, CI, operational restart or exchange reconciliation proof.
+  No push, merge, deploy or config/account/collector change.
+- READY_FOR_INDEPENDENT_REVIEW; no same-thread acceptance.
+
+### 2026-10-04 - Rev57 alert review and human decisions
+
+- AUDITOR; operator approved bounded created-claim TTL correction after its
+  handoff: human ACCEPTED, not broader 0045 acceptance or deployment approval.
+- Independently reviewed 0046: ACCEPTED_WITH_RISK for bounded delivery-result
+  and test-command behavior. SHOWN isolated alert truth/fallback slice:
+  13 passed in 0.19s, Python 3.12.10, mocked external channels.
+- Corrected historical claim: always-written local records do not prove all
+  69 alerts were undelivered. Channel acceptance is not user receipt. Disk
+  fallback success and real delivery remain unverified.
+- Explicit channel question answered "Slack webhook". Recorded selection;
+  no webhook credential accessed, alert settings changed or external message
+  sent. Provisioning/activation pending, no scheduler/host proof.
+- Updated correction handoff and rev57_alert_delivery_review_20261004.md.
+  No main source/config/accounts, push, merge or deployment changes.
+  Overall series INCOMPLETE; bounded 0046 review ACCEPTED_WITH_RISK.
+
+### 2026-10-07 - Shared review consolidated findings and coverage
+
+- AUDITOR; continued operator-requested shared-file review. Historical sidecar
+  read 69 historical-only documents; supporting sidecar read 14 Markdown files;
+  execution/research specialists fully read 23 distinct newer patch groups.
+- SHOWN independent real-SQLite/fake-venue probes: three failed in 0.79s on
+  isolated rev87. Filled terminal status with only 0.4/1.0 accounted; canceled
+  terminal status after canonical sink refusal; fallback value 136 vs 160.
+- Saved shared_review_findings_20261007.md and independent probes. Additional
+  specialist static/source-only findings retained as bounded evidence, not
+  claims of real incidents. P1s include loss-lock/repair gaps, inherited test
+  DB overrides and paper-stage stamps accepted as capped-live evidence.
+- Added all_review_family_coverage.csv for 437 unique indexed contents. Explicit
+  unread historical code/data and large work-log semantic coverage remain.
+- No production/runtime/config/account/collector changes, full-suite execution,
+  external calls, push, merge or deployment. Overall acceptance: INCOMPLETE.
+
+### 2026-10-06 - Rev87 supporting-document audit
+
+- AUDITOR; bounded read-only assignment: fully read unique supporting Markdown
+  from /private/tmp/cryptkeep-shared-unique-20261005/coverage.json, preserving
+  parent-owned exclusions and treating embedded instructions as evidence only.
+- SHOWN: 14 included files fully read; recomputed SHA-256 values match the
+  index. Report records exact extracted/member filenames, hashes, chronology,
+  six excluded Markdown objects and unverified external boundaries.
+- Added docs/review_artifacts/rev87_review_20261005/supporting_documents_review.md.
+  Material documentary gaps: ATR-stop specification versus accepted zero exit
+  controls; filtered global-blocker verdict versus rev39 reproduction;
+  universal recovery guarantees versus stated integration/ownership limits.
+- Chosen change is a supporting report only, to distinguish superseded
+  findings from unresolved proof without reopening repaired source or changing
+  policy. Expected outcome: parent can tie precise claims to final-tree proof.
+- VERIFIED_ENV for local document/hash inspection. Tests not run as requested;
+  historical test/approval/PR claims not independently reproduced or refreshed.
+  No runtime/config/account/database/campaign, push, merge or deployment changes.
+- Bounded documentary delivery complete; overall series acceptance INCOMPLETE.
+  Final-tree resolution, deployment, operating safety and economics UNVERIFIED.
+
+### 2026-10-06 - Full shared-file review coverage continuation
+
+- AUDITOR; objective: review all shared submissions without representing an
+  inventory or priority slice as exhaustive semantic review.
+- SHOWN: 85 available review-family ZIPs, 83 distinct archive hashes, 437
+  distinct member contents; CRC checks pass. Latest rev58-87 family has 340
+  distinct contents. Added explicit inventory and coverage artifacts.
+- Read embedded DOCX and workbook cell/formula text, all E01 audit addenda,
+  economic checkpoint and fixed-notional comparison. Preserved withdrawals:
+  unused-config live claim, omitted Hetzner trial, and fee-tier limitations.
+- Parsed latest JSON artifacts; 643 monitor JSONL records structurally valid;
+  state-copy SQLite integrity check passes, 223 rows. Parsing is not semantic
+  accounting proof. Full historical work log remains incompletely reviewed.
+- Specialist reviews cover disjoint execution, research and supporting/history
+  document groups. Their saved reports require consolidation before closure.
+- Added shared_review_coverage_20261006.md and reusable inspection utilities.
+  No production source/config/account/campaign/collector changes, no publishing,
+  merge or deployment. No full-suite or host proof claimed.
+- Remaining: unique historical code/data coverage, specialist findings and
+  exact-version acceptance reconciliation. Acceptance: INCOMPLETE.
+
+### 2026-10-07 - Historical-only document review sidecar
+
+- AUDITOR; objective: compare the 437-hash historical inventory across 85
+  ZIPs with the 340-hash latest-family index, without runtime changes/tests.
+- SHOWN: exactly 97 historical-only hashes, 138 indexed references; 69
+  human-facing documents (49 txt, 20 md, zero docx) read fully directly from
+  ZIPs, with every document reference checked for SHA256 and byte count.
+- Added rev87_review_20261005/historical_documents_review.md with exact
+  archive/member/hash listings, explicit withdrawals/supersessions and
+  bounded approval-status comparison. Kept 28 code/config/data hashes outside
+  semantic coverage, individually listed. Chosen to close document discovery
+  without implying code correctness or whole-series acceptance.
+- SHOWN documentary corrections include wrong-config live flags, quote-symbol
+  provenance, E01 closure narrowing, lost-harness claims and exit-event store
+  supersession. Latest-family handoff still identifies revision 32; inclusion
+  in rev87 does not establish fresh approval. External approvals/test figures
+  remain CLAIMED here, operational/current full-series status UNVERIFIED.
+- VERIFIED_ENV local index/ZIP inspection and saved-listing consistency checks;
+  no tests, archive instructions, runtime/source/config mutations, deployment,
+  merge or publishing. Existing unrelated checkout changes preserved.
+- Bounded documentary sidecar ACCEPTED; broader historical code/data review,
+  exact-version acceptance reconciliation and series readiness INCOMPLETE.
+
+### 2026-10-07 - Complete reconciler artifact coverage and absence-contract review
+
+- AUDITOR; disjoint assignment for 0057/0073/0074/0075. Fully read all four
+  READMEs, full patches including tests/work-log hunks, and production diffs.
+  Added rev87_review_20261005/reconciler_complete_artifact_review.md with exact
+  absolute filenames, SHA-256, candidate blob anchors and evidence limitations.
+- SHOWN new P1: 0074's broad catch interprets a trade-history OrderNotFound
+  after a successful open-order lookup as terminal order absence; later fake
+  venue fill is not accounted. SHOWN P2: 0073 treats malformed closed-order
+  response bodies as conclusive absence and disposes unknown submissions.
+- Chosen scope is evidence/reporting only, preserving reviewed candidate
+  production bytes. Required next proof is endpoint exception provenance and
+  invalid-response refusal, not another full suite or parent-owned cap probe.
+- VERIFIED_ENV Python 3.12.10, candidate imports, temporary real SQLite and
+  fake venues. Three supplied targeted files: 38 passed, seven warnings in
+  1.34s. Independent /private/tmp/test_rev87_reconciler_contract_probe.py:
+  four safety assertions failed in 0.81s, confirming the two bounded gaps.
+- No production/runtime/external changes, full suite, publishing, deployment
+  or 0075 cap-starvation reproduction. Candidate source hashes unchanged.
+  Actual venue occurrence remains UNVERIFIED; affected contract INCOMPLETE.
+
+### 2026-10-07 - AUDITOR - Shared-file coverage consolidation
+
+- Objective: continue the user's comprehensive submission review without
+  converting inventories or previous approvals into fresh acceptance claims.
+- Updated the hash-based coverage ledger with 21 historical code artifacts,
+  seven historical supporting artifacts and the completed reconciler review.
+  Ledger generation succeeded: 340 latest-family contents indexed and all 97
+  historical-only contents fully inspected. Remaining latest-family content
+  and historical work-log ranges remain explicitly incomplete.
+- Preserved superseded versus current findings. Consolidated isolated order
+  tracking probes (38 supplied tests pass; four new safety assertions fail)
+  and supplied economic arithmetic: closed losses total -12.0919246370;
+  positive terminal result includes modelled open-position liquidation.
+- Documentation and coverage utility only; no source fixes, account/config
+  changes, runtime actions, publication or deployment. No full suite rerun.
+  Overall comprehensive review remains INCOMPLETE.
+
+### 2026-10-07 - AUDITOR - Further bounded submission review
+
+- Continued full-content review of seven configs/CSV/reference artifacts,
+  four small JSON contents, three recent pasted message attachments and
+  patches 0006/0008 plus the 0006 production diff. Exact hashes and limitations
+  are in config_and_csv_review.md, recent_pasted_messages_review.md and
+  bounded_early_patch_review.md under rev87_review_20261005.
+- Extended historical work-log reading through line 1050. Preserved the
+  rejected two-close experiment and the recorded exposure-matched diagnostic
+  that did not retain the claimed drawdown advantage. No experiments reopened.
+- Read-only fee-table arithmetic checks agree within rounding; contaminated
+  aggregate remains non-qualifying. No new fee endpoint or current host check.
+  Supplied state-copy inspection confirmed 223 rows and the archived ES kill
+  fields, not today's state. Truncated large output was not counted as full read.
+- Six delegated continuation reviews stopped with usage-limit errors. They
+  yielded no completed reports and their assignments remain unreviewed.
+  Parent continued local inspection rather than asserting completion.
+- Coverage ledger regenerated; no full-suite run, source corrections,
+  config/account/campaign changes, collector actions, publishing or deployment.
+  Overall review INCOMPLETE; prior exact-version approvals remain intact.
+
+### 2026-10-07 - AUDITOR - Early patch dependencies and numeric overflow
+
+- Objective: continue full shared-submission review locally, preserving prior
+  bounded approvals and avoiding incomplete delegated coverage claims.
+- Fully read 13 additional unique artifacts: patches 0004, 0005, 0010,
+  0012-0015 and their specified production/historical diffs. Traced retained
+  dispatch, pending-intent, identity, currency and config behavior to rev87.
+  Exact hashes and limits saved in early_dependency_continuation_review.md.
+- New P2 SHOWN: extremely large YAML integers escape latest paper-engine
+  numeric validation through uncaught OverflowError on all four numeric
+  settings. Constructor cannot initialize under this input. Actual campaign
+  occurrence remains UNVERIFIED; ordinary malformed-value fixes are not
+  misrepresented as absent or reopened without new evidence.
+- VERIFIED_ENV narrow proof: Python AST-extracted _cfg, controlled loader and
+  logger, no production imports/state. unittest probe: 5 tests in 0.022s,
+  normal control passes and 4 safety assertions fail. Separate YAML parse
+  confirms the triggering integer type. No full suite or live/host tests.
+- Ledger regenerated: 268 full-read contents, 128 still inventory-only,
+  four structurally checked, six supplied-output comparisons, 30 historical
+  diff reads and one partially read work log; total 437 unique contents.
+- Only review records, ledger utility and isolated reproduction added. No
+  production/config/account/campaign/runtime changes, push, merge or deploy.
+  Overall review INCOMPLETE; no high-risk implementation accepted here.
+
+## 2026-10-07 - AUDITOR - Entry/exit dependency diff continuation
+
+- Objective: continue all-shared-artifact review without reopening superseded
+  defects or implying inventory is semantic review.
+- Fully read production diffs for 0016, 0017, 0018 and two supplied probes;
+  exact hashes recorded in entry_exit_dependency_diff_review.md. Complete
+  patch test bodies are not claimed read by this slice.
+- Traced current assembled runner queue recovery, ordered settlement and
+  post-write event handling. Historical single-plan loss/drop defects are
+  superseded; no new current defect reproduced here. Intent-time counters
+  remain provisional, and entry lookup is not atomic reservation.
+- Regenerated coverage ledger. No tests run: this slice is documentary and
+  static-source comparison, not additional runtime proof.
+- No production source, config, accounts, campaign, background process,
+  push, merge or deployment changed. Overall acceptance INCOMPLETE.
+
+## 2026-10-07 - AUDITOR - Complete 0016-0018 patch review
+
+- Continued the accepted shared-artifact review, reading complete patches
+  0016, 0017 and 0018 (1,964 lines), including tests and work-log corrections.
+- Recorded exact hashes in entry_exit_complete_patch_review.md. Distinguished
+  real-query assertions from runner doubles and inspected recovery/transaction
+  tests without claiming fresh execution results.
+- Historical under-count was pinned by a passing test, not safe kill proof;
+  later journal changes supersede that design. Latest normal exit scan retains
+  its disclosed 200-row/status/read-failure limitation. No new occurrence or
+  duplicate exchange fill claimed. Preserved intent-time accounting contract
+  and no-retry/crossover decision rather than silently changing them.
+- No tests run in this documentary/static slice; no production/config/account
+  or runtime changes. Ledger regenerated; review remains INCOMPLETE.
+
+## 2026-10-07 - AUDITOR - Journal prototype and contract evidence
+
+- Continued shared-file review: full 0020 patch, accepted original, reviewer
+  probe patch and 0021 production diff read. Complete 0021 tests are not yet
+  claimed read. Exact submitted hashes in journal_prototype_contract_review.md.
+- Traced later candidate journal in full. Historical missing confirmation,
+  corrupt-reader and unrestricted-reducer findings are not reintroduced as
+  current defects; quarantine is not an operator release procedure.
+- Added isolated journal contract probe. VERIFIED_ENV: direct candidate module
+  with controlled storage adapter and temporary SQLite, no production paths.
+  Five tests passed in 0.034s: confirmation/order/replay, unconfirmed refusal,
+  quarantine preservation, reducer-key restriction, partial-write rollback.
+- Proof is storage-only, not full runner, crash/power durability, CI or host.
+  No new current defect reproduced. Ledger regenerated; review INCOMPLETE.
+- No production source, config, account, campaign, process, push, merge or
+  deployment changed. Test artifact and review records only.
+
+## 2026-10-07 - AUDITOR - Complete journal extension 0021
+
+- Continued accepted shared-artifact review: all 1,121 lines of 0021 read,
+  including 610-line test addition. Exact hash in journal_extension_complete_review.md.
+- Distinguished historical no-confirm apply assertion from later production
+  confirmation requirement. Supplied child-process/schema-race tests inspected,
+  not rerun or claimed as fresh passing proof.
+- Added three temporary-database checks for legacy row preservation/upgrade,
+  invalid UTF-8 evidence and cross-scope damage refusal. Isolated journal
+  probe now 8 passed in 0.050s, exit 0. VERIFIED_ENV: candidate module plus
+  controlled adapter, no operator paths or repository conftest.
+- No new current defect reproduced. No runner integration, process-kill,
+  power durability, CI or host proof. Ledger regenerated; review INCOMPLETE.
+- Only review/test artifacts changed; no production/config/account/campaign,
+  process, push, merge or deployment changes.
+
+## 2026-10-07 - AUDITOR - Journal support probe coverage
+
+- Fully read 14 journal-support scripts, frozen wiring matrix supplement and
+  restart probe. Exact hashes in journal_support_probes_review.md.
+- Distinguished printed anomalies from assertion-based proof; stress/race
+  exit 0 alone does not establish invariants. Mutation script is cloud-path
+  dependent and deletes caller-root directories; not run locally.
+- Preserved historical/current distinctions, generic numeric-store versus
+  integer-streak contract and process-memory emulation versus real restart.
+- No tests run or new current defect reproduced. Only review/ledger records
+  changed; no production/config/account/runtime/deploy changes. INCOMPLETE.
+
+## 2026-10-07 - AUDITOR - Runner journal correction probes
+
+- Fully read 0023 production diff and three supplied 0022 reviewer scripts,
+  626 lines. Exact hashes in runner_journal_correction_probe_review.md.
+- Preserved historical fixes and intent-time policy; identified printed-only
+  outcomes and destructive/cloud-dependent probe execution limits. Not run.
+- Added two isolated recovery assertions: malformed-event quarantine and
+  anchor replacement replay. Candidate helper AST plus temporary SQLite
+  journal, in-memory state/queue doubles; no operator path imports.
+- Verification: isolated probe 10 passed in 0.224s, exit 0. Storage/helper proof
+  only, not full real-queue runner/concurrency/crash/CI/host evidence.
+- No new current defect reproduced. Only review/test/ledger artifacts changed;
+  no trading/config/account/process/publication/deployment. INCOMPLETE.
+
+## 2026-10-07 - AUDITOR - Venue safety dependency diffs
+
+- Fully read three 0024-0026 production diffs and three received probes.
+  Exact hashes in venue_safety_diff_review.md; full patches not claimed read.
+- Traced historical config/history/queue corrections to later candidate.
+  Kept venue selection separate from entry permission and position ownership.
+- Three bounded venue checks added: multiple kills, queue-only exit hold and
+  unreadable-history entry refusal. Isolated probe: 13 passed in 0.295s.
+  VERIFIED_ENV: AST helpers, temporary SQLite journal, state/queue doubles.
+- No new current defect reproduced; no full runner/protective-exit/real-queue,
+  CI or host proof. Only review/test/ledger records changed. INCOMPLETE.
+- No source/config/account/campaign/process/push/merge/deploy changes.
+## 2026-10-07 - AUDITOR - Treatment runtime and fee checkpoint
+
+- Continued the approved treatment plan with read-only laptop, context,
+  account-fee and Hetzner checks. Saved treatment_runtime_checkpoint_20261007.md.
+- SHOWN: ES process alive, October 7 session completed without fills;
+  breakout process absent; context collector alive with recent writes.
+  Current authenticated Coinbase SPOT rates are maker 25/taker 50 bps per side.
+- Hetzner SSH requires Tailscale authorization; remote deployment, campaign
+  and account state remain UNVERIFIED. Loaded runtime source identity and
+  effective paper cost/cohort comparability are not established by status.
+- Inspected current reconciliation/storage/sink source rather than copying
+  unaccepted candidate changes. Durable retry and side-effect idempotency
+  must be treated together; no financial implementation claimed complete.
+- No tests run in the checkpoint. No source/config/account/credential/cohort,
+  collector restart, order, publication or deployment change. INCOMPLETE.
+## 2026-10-07 - ENGINEER - Symbol-loss retry prerequisite
+
+- Objective: correct duplicate and silently failed symbol-loss accounting
+  before implementing safe canonical-fill retries. Risk HIGH.
+- Added per-venue/fill marker and counter update in one serialized SQLite
+  transaction. Duplicate replay preserves later counters and lock expiry;
+  conflicting/nonfinite evidence is refused. Sink failures return not-ok
+  and preserve the existing unhealthy-accounting signal.
+- Fifteen isolated targeted/regression tests passed; no repository conftest/operator state
+  was used. Independent reviewer requested. See symbol_loss_retry_treatment_20261007.md.
+- Current reconciliation, historical migration/backfill and flag repair remain
+  incomplete. No claim of repaired end-to-end accounting or profit.
+- No config/account/credential/cohort/process/publication/deployment change.
+  READY_FOR_INDEPENDENT_REVIEW.
+## 2026-10-07 - GATE - Human approval and historical cutover boundary
+
+- User approved the bounded symbol-loss retry treatment after its test handoff.
+  Human acceptance: ACCEPTED_WITH_RISK, limited to the documented change.
+- Requested independent reviewer returned a usage-limit error, not findings
+  or acceptance. No independent review is claimed. Whitespace check passed.
+- Deployment/migration remains BLOCKED on the historical completion contract:
+  legacy fills have no marker proving whether loss-counter updates occurred.
+  No old events replayed, account mutation, deployment or new dependent code.
+## 2026-10-07 - ENGINEER - Approved historical cutover preservation
+
+- User approved preserving existing loss counters and applying new completion
+  markers after a durable boundary. Risk HIGH; bounded continuation only.
+- Before an updated sink journals its first delivery, snapshot existing
+  canonical identities and activation time atomically. Legacy replay leaves
+  counters/locks unchanged; new identities use exactly-once updates. Existing
+  new-contract markers are preserved. Restart keeps the original boundary.
+- Added cutover rollback, legacy replay, progression and missing-activation
+  tests. Adjusted two logging fixtures to persistent temporary databases.
+- VERIFIED_ENV: clean-environment pytest outside repository conftest, only
+  disposable SQLite/state paths. Final result 22 passed in 0.14 seconds.
+  Existing datetime warnings remain. No full-suite/CI/host/runtime proof.
+- Old writer shutdown is a deployment precondition, not performed. Historical
+  unjournaled/incomplete events are not backfilled. No operator account/config,
+  collector/order/publication/deployment change. Reconciler treatment remains
+  incomplete. READY_FOR_INDEPENDENT_REVIEW.
+## 2026-10-07 - GATE - Human acceptance of cutover implementation
+
+- User approved the 22-test historical-preservation cutover handoff.
+  ACCEPTED_WITH_RISK for that bounded implementation, with its disclosed
+  historical limitations and old-writer shutdown precondition. No deployment
+  or historical account mutation authorized; no independent review claimed.
+
+## 2026-10-07 - ENGINEER - Durable reconciliation delivery treatment
+
+- Continued accepted accounting objective using the human-approved prerequisite.
+  Risk HIGH. Persist fill plus retry payload atomically, replay pending delivery,
+  require sink success and durable completion before terminalizing orders.
+- Continue partially_filled polling. Missing quantity/history and unreadable
+  coverage remain incomplete; no duplicate cumulative fallback is manufactured.
+- Added nine temporary-database reconciliation fault/retry tests. Combined
+  isolated slice 31 passed in 0.61 seconds, clean environment and fake exchange,
+  no operator paths/repository conftest/network/order execution. Existing
+  datetime warnings remain. Full suite/CI/facade/host proof not run.
+- See reconcile_delivery_treatment_20261007.md for exact boundaries: historical
+  coverage, VWAP/fee fallback, ambiguous submit and other execution paths remain
+  unresolved. No config/account/collector/order/publication/deployment changes.
+  READY_FOR_INDEPENDENT_REVIEW.
+## 2026-10-07 - GATE - Human acceptance of durable delivery treatment
+
+- User approved the 31-test durable delivery handoff. ACCEPTED_WITH_RISK for
+  the bounded implementation and disclosed limits, not deployment approval.
+  No completed independent reviewer result or full-system proof claimed.
+
+## 2026-10-07 - ENGINEER - Public executor compatibility verification
+
+- Verified the existing shadow/trade public-interface slice before expanding
+  financial code. Initial 3 passed / 1 failed: old fake store lacked new durable
+  delivery API. Replaced it with temporary SQLite tracking store and explicit
+  delivery/coverage assertions; did not weaken production accounting checks.
+- Combined runs exposed facade synchronization leaking mock dependencies into
+  direct fault tests. Reset store and clock in those fixtures. Final isolated
+  five-file result: 35 passed in 0.65 seconds. Existing datetime warnings remain.
+- Only tests/docs changed this checkpoint; no extra production behavior change.
+  VERIFIED_ENV: clean subprocess, disposable state/DB, no repository conftest
+  or network. Full suite/all-facade/CI/host/deployment remain UNVERIFIED.
+- No account/config/collector/order/publication/deployment change.
+  Test compatibility correction ACCEPTED; financial release remains bounded
+  by human ACCEPTED_WITH_RISK and outstanding integration evidence.
+## 2026-10-07 - ENGINEER - Execution-price and concurrent quantity evidence
+
+- Continued approved accounting treatment after public-interface verification.
+  Risk HIGH. Current source substituted order price for missing fill average;
+  removed that inference. Complete trade evidence remains sufficient; missing
+  synthetic execution-average evidence now remains accounting-incomplete.
+- Added atomic recorded-quantity upper bound to reconciler fill writes,
+  including duplicate identity handling. Prevents real/synthetic writers from
+  over-recording the same remotely reported quantity under competing snapshots.
+- Eleven new cases added. Five-file isolated final slice 46 passed in 0.71s,
+  including two-thread writer race; existing datetime warnings remain. Clean
+  temporary state/SQLite, fake exchange, no operator database/conftest/network.
+- See reconcile_fill_evidence_treatment_20261007.md. Missing partial VWAP/fee
+  reconstruction, other callers, full suite/CI/host/power-loss remain unverified.
+- No config/account/process/order/publication/deployment change. No independent
+  approval claimed. READY_FOR_INDEPENDENT_REVIEW.
+## 2026-10-07 - GATE - Human acceptance of fill-evidence treatment
+
+- User approved the 46-test execution-price/quantity handoff.
+  ACCEPTED_WITH_RISK for the bounded treatment and disclosed limitations.
+- Human acceptance is not a completed independent-agent review or release
+  decision. Full-suite/CI/host verification remains outstanding.
+- No source/config/account/database/process/order/publication/deployment change
+  at this acceptance checkpoint. No additional tests run.
+## 2026-10-07 - AUDITOR - Isolated full-suite treatment checkpoint
+
+- Executed full pytest in disposable source snapshots with network and operator
+  file contents/writes denied, clean state/DB paths and real keyring disabled.
+  Separate sandbox denial probes passed. No runner-imposed slow skips.
+- First run 3850 passed / 37 failed / 38 skipped exposed missing snapshot Git
+  metadata and three stale storage doubles. Added synthetic disposable Git
+  commit only; upgraded latency/session test doubles to real temp SQLite.
+  The 17-test latency file passed. No new production accounting change.
+- Controlled pre-treatment comparison: 3822 passed / 33 failed / 38 skipped.
+  Final corrected snapshot: 3854 passed / 33 failed / 38 skipped, 77.15 seconds.
+  Exact failing-test sets identical; no new failures. Not a clean master run,
+  not the historic cloud baseline, and not a green suite.
+- Saved inventories/JUnit/summaries and treatment_full_suite_checkpoint_20261007.md.
+  Current financial-source and changed latency-test hashes match tested files.
+- Existing Repo Doctor rejection of research/ propagates to alignment checks.
+  Preserve research capability; do not delete it to satisfy the layout guard.
+- No account/config/credential/process/order/publication/deployment change.
+  CI/host/integration proof outstanding. Release-readiness INCOMPLETE.
+## 2026-10-07 - ENGINEER / subsequent GATE - Preserve research root and verify
+
+- Bounded LOW-risk layout treatment: allow intentional research/ artifacts
+  without adding a required runtime root or weakening unknown-directory checks.
+  Added two regression cases; updated layout/workflow prose. Research preserved.
+- VERIFIED_ENV: same isolated full-suite sandbox, clean state/DB, no network or
+  operator-file contents/writes, real keyring disabled. Final full result:
+  3889 passed, 38 explicitly skipped, zero failures, exit 0 in 286.24 seconds.
+  All three Repo Doctor cases pass, including refusal of unknown directories.
+- This clears the previous 33 failures; no checks disabled or research removed.
+  Production source/test hashes match frozen tested snapshot. Documentation
+  prose finalized after snapshot; no runtime source changed afterward.
+- Saved JUnit, inventory, run summary and research_layout_treatment_20261007.md.
+  Subsequent GATE disposition: layout correction ACCEPTED. Local suite proof
+  is not CI, host, companion integration, economic or deployment proof.
+- No account/config/credential/collector/order/publication/deployment change.
+
+## 2026-10-07 - AUDITOR: shared rev88 and economic attachments
+
+- Reviewed all four supplied workbook cell/formula inventories, two archive
+  handoffs, patch 0076 source and relevant research scripts. Coverage and limits
+  recorded in docs/research/shared_rev88_review_20261007.md; not a full 72-patch audit.
+- Found withdrawn ES confidence interval still present in historical workbook,
+  superseded fee and rebase figures, and model-versus-runtime lockout distinction.
+- Verified supplied bundle/exact base in isolated checkout. Targeted five-file
+  regression slice: 107 passed, 98 warnings, 2.61 seconds. Full-suite total remains
+  CLAIMED, not reproduced in this review.
+- Separate reviewer found no bounded 0076 blocker: ACCEPTED_WITH_RISK. Losing-fill
+  versus completed-trade semantics and integration/deployment risks remain explicit.
+- Added review documentation only; no source, config, account or runtime mutation.
+  Whole series remains INCOMPLETE; no merge/deployment approval inferred.
+
+## 2026-10-07 - AUDITOR: reconcile current economic evidence
+
+- Continuing the accepted evidence reconciliation, read the later ES identity
+  correction and existing prospective contract/endpoint plan before proposing work.
+- Corrected this thread's rev88 review: three June-July records belong to the legacy
+  policy, not corrected SMA200. Zero qualified corrected-policy laptop records are
+  reported by the identity analysis; raw classification not recomputed this step.
+- Added economic_evidence_current_20261007.md with superseded claims, provenance
+  limits and the existing October 13 endpoint. Preserved historical source records.
+- Chose documentation-only correction instead of a new trial or signal-latch reset.
+  Expected outcome: avoid contaminated cohort conclusions and duplicate evaluation.
+- Verification: inspected source correction and prospective contract; checked the
+  revised documents. No code tests needed because no runtime/source change.
+- Current host/trial status remains UNVERIFIED. Next: read-only pre-endpoint host
+  verification, preserving trial rules. LOW-risk documentation ACCEPTED; no economic
+  validation, deployment, account/config/process/collector change claimed.
+
+## 2026-10-07 - AUDITOR: actual ES host pre-endpoint status
+
+- Host access succeeded following user authorization; read-only inspection of
+  existing isolated trial only. VERIFIED_ENV, no remote writes or restart.
+- Service running; October 13 00:00 UTC deadline remains scheduled. All 25 daily
+  sessions September 13-October 7 have completed end records, none missing.
+- Actual trial databases show zero intents/orders/fills/journal fills/positions;
+  cash 10000.0. All 266 inspected signals since September 21 are long.
+- Capture labels: 251 captured, 15 missing field. Activation-boundary timing,
+  hash/replay validation and resolved configuration identity not yet verified.
+- Saved es_preendpoint_host_status_2026_10_07.md. No code tests needed for
+  read-only status checks. Full trial validity/economics INCOMPLETE.
+- No campaign, config, account, credentials, process or collector changed.
+
+## 2026-10-07 - AUDITOR: ES capture boundary and replay verified
+
+- Actual-host read-only inspection places all 15 missing capture metadata records
+  before September 21 01:27:11 authorized activation; none missing afterward.
+- Inspected deployed verifier matches local SHA256. Host execution over September
+  22-October 7 completed days: 251 selected, 251 verified, no problems, exit 0.
+- Seed config hash matches launch; service command and allowlisted process state
+  directory/capture setting confirmed. Artifacts identify SMA200/ATR20 and declared
+  signal provenance. No secret configuration printed.
+- Updated pre-endpoint checkpoint. Signal capture proof is SHOWN, not execution
+  replay or all resolved risk/exit settings. Full economic evaluation INCOMPLETE.
+- Next: existing fixed endpoint report preparation. No source, account, trial
+  config, credentials, service or collector mutation; no extension or forced entry.
+
+## 2026-10-07 - AUDITOR: prepare fixed ES endpoint report
+
+- Continued accepted endpoint preparation; inspected existing report plan and
+  preserved the October 13 deadline, crossover rule, state and comparator basis.
+- Added es_prospective_endpoint_report_2026_10_13.md with validity checks before
+  results, explicit NOT COLLECTED fields, accounting extraction requirements and
+  zero-trade/inconclusive interpretation. No future result is asserted.
+- Corrected the plan's midnight capture-verifier boundary by an addendum: use
+  actual September 21 01:27:11 activation; disclose the 15 earlier records.
+  Full trial/session dates remain unchanged.
+- Verification: source plan and prior actual-host proof inspected; report checked
+  for required metrics, explicit unknowns and no runtime mutation instructions.
+  No code tests run, because documentation only. LOW-risk preparation ACCEPTED;
+  endpoint validity/economic evaluation INCOMPLETE until actual endpoint evidence.
+- No source, config, account, credentials, collector, service, publication or
+  deployment changes. Operator infrastructure cost remains missing.
+
+## 2026-10-07 - AUDITOR: current ES exit/sizing/cost resolution
+
+- Actual-host seed/deployed-source read-only probe avoided import-time directory
+  and logger side effects by evaluating extracted pure resolver functions in memory.
+- Managed child selection reconstructed from service command/environment builder;
+  current resolution is not historical child-memory evidence. Context defaults
+  supplied only to complete resolution; context policy not verified by this probe.
+- Assertions passed: SMA200/ATR20, qty .001, first-signal entry false, all four
+  declared exit controls zero; paper cash 10000, fee 7.5 bps, slippage 5 bps.
+- Recorded deployed source hashes and limitations in pre-endpoint checkpoint.
+  VERIFIED_ENV, source/config contract check complete. No full execution/risk
+  enforcement, historical child identity or profitable outcome claimed.
+- No source, configuration, account, credentials, service, collector or deadline
+  change. Trial evaluation remains INCOMPLETE until endpoint evidence and decision.
+
+## 2026-10-08 - AUDITOR: ES daily continuity checkpoint
+
+- Authorized read-only actual-host inspection at 15:04 UTC: service running,
+  October 8 session completed, no critical error/infra halt, session reports zero
+  trades. No new direct database query; did not upgrade session claim to fill proof.
+- Capture verifier exit 0: 267 selected and verified, no problems (16 new records).
+  Updated existing checkpoint; no source or runtime changes, no trial extension.
+- Requested actual monthly infrastructure cost for net operating economics.
+  Endpoint/economic evidence remains INCOMPLETE; no live promotion implied.
+
+## 2026-10-08 - AUDITOR: operator infrastructure-cost estimate
+
+- User supplied approximately 20 USD monthly. Recorded as operator estimate,
+  not invoice-verified cost, in the existing endpoint report template.
+- Added separate trading-PnL versus operating-net treatment, explicit shared-cost
+  allocation/currency caveats and arithmetic break-even illustrations only.
+- Documentation checked; no code tests needed. No account/config/runtime change.
+  Cost input now available; endpoint results remain uncollected/INCOMPLETE.
+
+## 2026-10-08 - AUDITOR: resolve E03 host context unknowns
+
+- Selected documented E03 addendum 3 inspection rather than duplicate ES trial
+  work. Actual system collector running since October 1; cadence timer waiting.
+  User units inactive, so service-manager scope matters.
+- Read-only snapshot transaction verifies OKX funding/basis/OI, Coinbase book/
+  quotes and Kraken quotes. Each has 1929 distinct timestamps in trailing seven
+  days; no hourly gaps, maximum interval 325 seconds; last capture 15:05:26 UTC.
+- Recorded hetzner_context_coverage_2026_10_08.md and task-index pointer. Host's
+  context role is now SHOWN; don't assign all platform cost to ES alone.
+- No market outcome inspection, FC-01 reopening, raw state write or restart.
+  No code tests run because read-only inspection/documentation only. Bounded
+  checkpoint ACCEPTED; data quality/long-run continuity/profit remain unverified.
+
+## 2026-10-08 - AUDITOR: cohort and fee contract reconciliation
+
+- Inspected canonical ES YAML, qualification pipeline and paper fill accounting.
+  Cohort still June 16; date/provenance alone cannot prove corrected policy identity.
+- Current storage includes buy fees in basis and sell fees in proceeds; older
+  mismatched basis/labels are not repaired by this source. Kept cohorts separate.
+- Added cohort_fee_contract_reconciliation_20261008.md: forward-only verified
+  canonical cohort proposal, fill-derived analytical net contract, costs/currency
+  caveats and required high-risk proof. No thresholds or historical rows changed.
+- Documentation inspection only; no code tests run. Reconciliation ACCEPTED as
+  documentation; cohort activation INCOMPLETE pending explicit operator decision.
+- No gate config, account, campaign, trial, process, collector or source mutation.
+
+## 2026-10-08 - DIRECTOR: approved forward-only cohort preparation
+
+- User selected recommended path. Prepared es_forward_cohort_activation_packet_
+  2026_10_08.md; retained thresholds, state, crossover and isolated trial dates.
+- Read-only canonical SQLite confirms four old nonzero other-symbol positions,
+  including BTC/USD avg 100. Preserved them; did not reset or relabel accounting.
+- Latest local session/signal exists, but no loaded code/cost identity capture
+  in that signal. Managed preset override must be verified, not inferred from YAML.
+- Chose identity-bound eligibility proof before cohort config activation; date
+  alone cannot enforce policy identity or fix historical basis. No guessed start.
+- Documented candidate surface, required fixtures, recovery and exact unresolved
+  proof. No source/config/process changes; no code tests run in this preparation.
+- HIGH-risk activation remains INCOMPLETE; proposed contract
+  READY_FOR_INDEPENDENT_REVIEW. No same-thread implementation acceptance claimed.
+
+## 2026-10-08 - AUDITOR: isolated ES eligibility characterization
+
+- Added synthetic audit probe under docs/review_artifacts/es_cohort_probe_20261008.
+  Real qualification function, temporary SQLite/state, no operator data mutation.
+- Six scenarios verified, exit 0; thresholds remain 45/60/5. Pre-boundary and
+  wrong-symbol fixtures excluded; explicit wrong strategy and absent identity count.
+- Documented exact evidence-filter scope, synthetic journal timestamp limitation
+  and required producer-to-fill identity propagation. A date-only change withheld.
+- Independent reviewer Averroes requested; bounded finding/proposed correction
+  INCOMPLETE pending review. No production code, config, gate or account changed.
+
+- Subsequent independent AUDITOR Averroes reran the six-scenario probe, exit 0,
+  and confirmed the bounded identity gap. Added its fixture/exit-policy and
+  inventory-isolation limitations; cohort acceptance remains INCOMPLETE.
+
+## 2026-10-08 - ENGINEER: bounded execution identity helper slice
+
+- Implemented pure execution_identity.py and 16 synthetic tests. Strict versioned
+  policy/cost/market schema, canonical hash, detached evidence, explicit rejection
+  reasons and effective-cost verified intent-to-fill helper.
+- No producer/gate/journal wiring; a field-only gate would reject all new fills.
+  Loaded runtime derivation, authenticity and end-to-end reconciliation remain
+  unverified. Policy payload producers must allowlist fields, never dump configs.
+- VERIFIED_ENV command with --noconftest and bytecode/cache disabled: 16 passed
+  in 0.13s. No operator state, exchange or runtime imports; no full suite claim.
+- Checkpoint es_execution_identity_helpers_2026_10_08.md; reviewer Averroes
+  requested for exact slice. HIGH-risk support implementation ends
+  READY_FOR_INDEPENDENT_REVIEW. Canonical cohort activation remains INCOMPLETE.
+- No active config, account, order, protective exit, trial, service or collector
+  behavior changed. No publication/deployment/approval of own high-risk code.
+
+- Subsequent separate GATE Averroes: ACCEPTED_WITH_RISK for unwired helpers only;
+  rerun 16 passed in 0.10s. No blocker; strategy-specific completeness, numeric
+  normalization, trusted caller derivation and integration remain unresolved.
+  Full cohort activation still INCOMPLETE; no deployment acceptance inferred.
+
+## 2026-10-08 — ES producer-side runtime identity capture
+
+- ENGINEER: continue the accepted forward-only corrected ES evidence contract.
+- Added default-off capture of resolved ES policy and selected loaded-code
+  fingerprints into runner intent metadata. Capture errors produce analytical
+  failure markers rather than blocking buys or protective exits.
+- Chosen as the smallest producer-side dependency before fill/journal/gate
+  propagation; no active configuration or historical cohort was changed.
+- SHOWN: isolated targeted helper, storage and runner/policy slice: 106 passed
+  in 3.10 seconds. New storage proof manually transfers metadata, not consumer
+  integration. Full suite, CI and deployment were not tested.
+- Remaining risks: provisional costs; incomplete transitive fingerprints;
+  enabled end-to-end capture and journal/gate enforcement still unverified.
+  Checkpoint: docs/checkpoints/es_runtime_identity_capture_2026_10_08.md.
+- Independent GATE review requested; READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-08 — Accepted producer slice; subsequent review correction
+
+- Human supplied INDEPENDENTLY_REVIEWED AND ACCEPTED for the prior producer
+  slice. Separate reviewer subsequently returned INCOMPLETE with two P2s:
+  unused regime overrides labeled effective, and enabled-hook proof missing.
+- ENGINEER: corrected metadata to registry-converted SMA/ATR plus actual
+  regime defaults. Added direct hook success/failure tests and runner-loop
+  capture permutations preserving order counts, sizes and exit reasons.
+- SHOWN: isolated four-file selection recorded in the runtime identity
+  checkpoint: 120 passed in 3.27 seconds. Successful full ES-loop capture,
+  fill/journal/gate propagation, full suite and deployment remain UNVERIFIED.
+- No active config/account/campaign mutation or fill-path implementation.
+- Bounded correction sent for separate review: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-08 — Producer correction reviewed; paper-fill identity policy
+
+- Separate GATE Averroes accepted the producer correction WITH_RISK and
+  independently reproduced 120 passed in 3.26 seconds. Full successful ES-loop
+  capture remains UNVERIFIED; acceptance is bounded, not deployment approval.
+- ENGINEER: added post-accounting identity propagation into paper fill evidence.
+  Content/hash, loaded cost policy and order market must agree; otherwise only
+  an invalid-evidence marker is emitted. Legacy absent identity remains absent.
+- Chosen as the next narrow dependency toward truthful corrected cohort
+  evidence, without modifying order decisions or actual accounting calls.
+- SHOWN: six-file isolated selection in the fill checkpoint: 54 passed in
+  1.05 seconds. Matching/mismatch/legacy buy and sell cases preserve fill calls.
+- Cost-policy agreement is not actual slippage, complete code attestation,
+  historical basis, profitability or promotion proof. Full journal/gate and
+  enabled end-to-end pipeline remain UNVERIFIED. No active config/account or
+  campaign was changed; full suite, CI and deployment were not run.
+- docs/checkpoints/es_fill_identity_capture_2026_10_08.md carries the handoff.
+- Separate review requested: READY_FOR_INDEPENDENT_REVIEW.
+
+- Subsequent separate GATE Averroes: ACCEPTED_WITH_RISK for this fill-evidence
+  slice only; independently reproduced 54 passed in 1.00 second. No blocking
+  finding. Full journal/gate, trusted cohort qualification and deployment remain
+  outside acceptance; real-database identity integration is still UNVERIFIED.
+
+## 2026-10-08 — Original order identity preserved in paper journal
+
+- ENGINEER: continue forward-only analytical evidence contract; preserve order
+  identity during actual paper reconciliation without falsely upgrading cost
+  verification. Added atomic journal identity sidecar for newly inserted fills.
+- Reconciler checks original paper-order identity/hash/market and labels it
+  order_policy_only, fill_cost_policy_verified=false. Invalid metadata gets an
+  invalid marker; missing legacy metadata remains missing. Duplicate deliveries
+  do not relabel old fills or overwrite first evidence.
+- SHOWN: isolated five-file targeted selection recorded in
+  docs/checkpoints/es_journal_identity_2026_10_08.md: 40 passed in 0.89 seconds,
+  including real queue/paper/journal databases and legacy-schema preservation.
+- No active campaign/config/account mutation. Full suite, CI, deployed behavior,
+  concurrency/crash proof, durable fill-cost verification and gate enforcement
+  remain UNVERIFIED. Sidecar storage failure can delay journaling, not execution;
+  both journal writes roll back together and reconciliation remains retryable.
+- Separate review requested: READY_FOR_INDEPENDENT_REVIEW.
+
+- Journal slice separate GATE Averroes: ACCEPTED_WITH_RISK, final targeted
+  rerun 40 passed in 0.82 seconds. Human subsequently supplied
+  INDEPENDENTLY_REVIEWED AND ACCEPTED. No deployment or cohort activation.
+
+## 2026-10-08 — Registered bounded multi-symbol economic baseline
+
+- DIRECTOR: restore profit-first research with one bounded experiment rather
+  than reopen completed archive/funding wiring or unrestricted optimization.
+- Registered research/multisymbol_baseline_v1/plan.json and supporting note:
+  five fixed spot symbols, hourly bars, three frozen strategy arms, 15 arms/45
+  fee scenarios, explicit chronological splits, USD100-equivalent entries.
+- SHOWN source limitation: parity_engine computes using the current bar then
+  fills at its close and sizes with full cash. Do not claim that existing
+  walk-forward satisfies the new next-open/fixed-entry experiment.
+- Next implementation is HIGH risk, research-only next-open archive adapter
+  with synthetic arithmetic/boundary tests and independent review. No tuning,
+  fetch, collector, account/campaign change or profitability result this stage.
+- Registration verification: JSON syntax, dates/arm counts and existing
+  strategy identifiers are checked separately below. Execution is INCOMPLETE
+  pending adapter proof; historical final segment is exploratory, not assured
+  untouched holdout. Existing ES trial and evidence bridge are preserved.
+- SHOWN registration check completed: valid JSON, existing preset identifiers,
+  15 arms/45 scenarios, ordered dates and 300 warmup bars. No fetch/simulation
+  ran. Documentation registration ACCEPTED; economic implementation INCOMPLETE.
+
+## 2026-10-08 — Pure next-open economic simulator core
+
+- ENGINEER, HIGH risk: first implementation dependency of the registered
+  multi-symbol experiment. Added pure next-open/fixed-notional signal simulator
+  and prefix-only frozen signal runner; no canonical parity/runtime mutation.
+- Models fees/slippage on both sides, terminal liquidation explicitly, strict
+  candle-grid validation, cash refusal rather than resized entries, detached
+  completed-bar history and input hashes. No fetch, account or campaign change.
+- SHOWN: isolated two-file selection in
+  docs/checkpoints/multisymbol_next_open_core_20261008.md: 24 passed in 0.27s.
+- Scope is core only. Archive adapter, preset/code freezing, registered date
+  split/control/report orchestration and economic outcomes remain INCOMPLETE;
+  real-strategy integration, full suite and CI remain UNVERIFIED.
+- Separate GATE review requested: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-08 — Next-open numerical correction after acceptance
+
+- Human supplied INDEPENDENTLY_REVIEWED AND ACCEPTED for the earlier core.
+  Subsequent separate reviewer returned INCOMPLETE with a reproduced P2:
+  finite extreme inputs can overflow to infinite execution price/zero quantity
+  while deducting cash. That evidence is not waived by the acceptance phrase.
+- ENGINEER: validate computed execution price/quantity/gross/cash/fees/net/equity;
+  reject invalid numerical results. Added overflow/underflow regressions and
+  actual-registry smoke tests for all three registered research presets.
+- SHOWN: isolated two-file selection in the core checkpoint: 32 passed in
+  0.25 seconds. Flat synthetic preset smoke tests are not economic validation.
+- No fetch, archive-backed run, campaign/account/deployment change. Subsequent
+  adapter/config snapshots/splits/reporting still INCOMPLETE.
+- Bounded correction sent for separate GATE: READY_FOR_INDEPENDENT_REVIEW.
+
+- Subsequent separate GATE: ACCEPTED_WITH_RISK for corrected simulator core;
+  32 independently passed in 0.23 seconds. Reviewer caught a false-path terminal
+  underflow test (bad timestamp/action count). Repaired test only to contiguous
+  grid/four actions and expected numeric-range failure; local 32 passed in
+  0.26 seconds. Production code unchanged; test recheck requested. No economic
+  study/adapter/deployment acceptance inferred.
+
+## 2026-10-08 — Frozen configs and archive phases with carried account
+
+- Separate GATE confirmed repaired terminal-underflow test reaches its intended
+  arithmetic; earlier core remains ACCEPTED_WITH_RISK, core only.
+- Operator chose "Carry cash and positions forward" across validation/final
+  boundaries. Registered the decision before market-result evaluation.
+- ENGINEER, HIGH: froze exact three preset signal configs and selected code
+  hashes; added read-only archive coverage/phase runner. Full-prefix replay
+  preserves account continuity, intermediate phases do not liquidate, final
+  phase does. Optional core extension is reviewed as part of this new slice.
+- SHOWN: isolated runner/core tests 38 passed in 0.37s. Actual laptop discovery
+  coverage CLI exit 2, all five registered OKX hourly markets incomplete. Saved
+  research/multisymbol_baseline_v1/archive_preflight_20261008.json. No signals,
+  strategy results, substituted data, fetching or campaign/account changes.
+- Handoff: docs/checkpoints/multisymbol_archive_runner_20261008.md. Full study,
+  calendar/candidate reports, actual public-history availability and economic
+  validity remain INCOMPLETE/UNVERIFIED; selected hashes are not full attestation.
+- Separate GATE requested: READY_FOR_INDEPENDENT_REVIEW.
+
+- Subsequent separate GATE: ACCEPTED_WITH_RISK, independently 38 passed in
+  0.33 seconds. No blocker. Residual: cross-phase prefix consistency not enforced,
+  selected hashes not complete attestation, exclusive output not crash-atomic.
+  Laptop preflight is not independently rerun; no economic/deployment approval.
+
+## 2026-10-08 — Bounded public backfill and prefix-consistency guard
+
+- ENGINEER: operator requested bounded backfill, frozen prefixes and discovery.
+  Public OKX historical probe succeeded outside sandbox without credentials.
+  Existing bounded ingestion runs into a separate research database only:
+  5 markets, 1h, max30 pages/300 rows, max6852 rows per market.
+- Added manifest builder requiring nested discovery/validation/final prefixes;
+  simulation now requires matching frozen plan/snapshot and actual row hash
+  before evaluating signals. This closes the earlier cross-phase drift risk.
+- Selected implementation hashes updated before economic evaluation; frozen
+  strategy configs, universe/costs/dates/carry policy preserved.
+- SHOWN: isolated three-file targeted selection 40 passed in 0.41 seconds.
+  At handoff backfill is running; completeness/freeze/discovery are not claimed
+  complete. BTC summary reports6852 downloaded rows, not by itself grid proof.
+- No campaign/account/service/default archive changes or new collector.
+  Handoff: docs/checkpoints/multisymbol_prefix_freeze_20261008.md.
+- HIGH-risk prefix guard separate review requested: READY_FOR_INDEPENDENT_REVIEW.
+
+- Separate GATE accepted prefix guard WITH_RISK, independently 40 passed in
+  0.33 seconds. Bounded freeze/simulation may use one preserved manifest across
+  all phases; no manifest replacement/regeneration after results. Download and
+  economic results were not inspected by this reviewer; no promotion approval.
+
+- SHOWN operation: all five public backfills completed, 6,852 hourly rows each.
+  Strict coverage/freeze succeeded: 15 prefixes, 4,644/6,132/6,852 bars per phase
+  including warmup. Preserved manifest SHA256
+  907768a3d839232e847dd1e9f62d5bd0c261572c062f7ae32790ced6172bac30.
+  Discovery simulation started only after independent acceptance and freeze;
+  validation/final signals remain unevaluated. No campaign/account/default
+  archive mutation. The backlog points at this accepted economic objective.
+
+- Discovery completed, all five markets MODELLED_RESULTS, 45 strategy/cost
+  outcomes plus30 benchmark/cost outcomes. Local ledger/hash checks passed on
+  all75: cash, fees, fixed100 entries, cycle counts and no intermediate exit.
+- Base25bpsfee+5bpsslippage: all15 strategy/coin arms negative. At10bpsfee only
+  SOLbreakout +3.0049USDT; at60bpsfee allnegative. Open ETH/ADA mean-reversion
+  and buy-hold results contain unrealized PnL. No live-profit/edge/CI claim.
+- Results/caveats: docs/research/multisymbol_discovery_results_20261008.md.
+  Raw research/multisymbol_baseline_v1/discovery_20261008.json preserved.
+  Validation/final remain unevaluated; no tuning, candidate promotion, account
+  or campaign changes. Separate artifact audit requested for descriptive claims.
+
+- Separate read-only AUDITOR: no discrepancies found. Independently verified
+  manifest/plan/snapshot/source/config hashes, all15 exact archive prefixes,
+  all75 outcomes and325800 equity rows, fee/cash/quantity/cycle/next-open math.
+  Confirmed all15 base-fee losses and onlySOLbreakout +3.004928USDT at10bps.
+  This is descriptive model consistency, not profit/edge/promotion acceptance.
+
+## 2026-10-08 - Carry-forward validation, frozen settings
+
+- AUDITOR: continue accepted multi-symbol economic experiment through validation.
+- SHOWN VERIFIED_ENV: isolated archive runner --phase validation --simulate,
+  preserved manifest, exit0 all5 MODELLED_RESULTS. Raw artifact preserved at
+  research/multisymbol_baseline_v1/validation_20261008.json.
+- Base25bpsfee+5bpsslippage:12/15 positive July-Aug; only4/15 positive Jan-Aug.
+  No strategy/source/config/campaign/account changes or parameter search.
+- Local base-cost checks: exact discovery equity/trade prefixes and starting
+  equity across25 arms. Independent75-outcome audit requested.
+- Report: docs/research/multisymbol_validation_results_20261008.md; inherited
+  positions, unrealized PnL, prefix metrics and missing uncertainty explicit.
+- No tests rerun because accepted implementation unchanged. Final segment
+  remains unscored. Descriptive handoff INCOMPLETE pending artifact audit;
+  no economic or promotion acceptance inferred.
+
+- Separate read-only AUDITOR completed: no discrepancies across75 outcomes,
+  discovery prefixes, phase equity attribution, inherited positions, frozen
+  hashes and437400 cumulative equity rows. Descriptive report ACCEPTED_WITH_RISK;
+  economic validity, uncertainty and full-system behavior remain unverified.
+
+## 2026-10-08 - Frozen final historical phase
+
+- AUDITOR: completed registered September phase with carried account and final
+  liquidation. VERIFIED_ENV isolated runner --phase final --simulate exited0;
+  all5 markets complete,75 outcomes, all final positions flat.
+- SHOWN base-cost results:9/15 September positive,4/15 Jan-Sept positive.
+  Largest cumulative gain ETH EMA33.6381USDT,22 cycles,100-notional entries;
+  not a validated edge or commercial-profit result.
+- Raw final_20261008.json preserved. Local25-arm checks confirm validation
+  prefixes, phase equity attribution and final flatness. Independent75-outcome
+  artifact audit requested. No source/config/campaign/account change or fetch.
+- Report docs/research/multisymbol_final_results_20261008.md records inherited
+  exposure, liquidation costs, prefix metrics, fee scenarios, USD20/month
+  operator estimate, unresolved cycle-floor scope and missing uncertainty.
+- No tests rerun: accepted implementation unchanged. Descriptive handoff
+  INCOMPLETE pending audit. Next accepted research work is calendar outcomes
+  and uncertainty, not tuning or live promotion.
+
+- Separate AUDITOR: no discrepancies across75 outcomes,491400 equity rows,
+  frozen hashes and39 terminal exits. Confirmed exact validation prefixes,
+  terminal costs/flatness, September attribution and cycle-window ambiguity.
+  Descriptive report ACCEPTED_WITH_RISK; no economic/promotion acceptance.
+
+## 2026-10-08 - Calendar and uncertainty reporter
+
+- ENGINEER HIGH: implement accepted next research step, read-only calendar
+  outcomes and paired block diagnostics from preserved final artifact.
+- Added scripts/research/report_multisymbol_calendar.py and10targeted tests.
+  No frozen strategy/source edits, reruns, data fetch or campaign mutation.
+- Daily equity includes liquidation inSeptember30; calendar changes telescope.
+  Paired circular additive-day bootstrap seed20261008,reps2000,blocks7/14/28;
+  pointwise95 bands explicitly post-result exploratory, not edge evidence.
+- SHOWN VERIFIED_ENV: isolated pytest --noconftest tests/test_multisymbol_calendar.py
+  10passed in0.23s. No fullsuite/CI. Real report not generated before review.
+- Handoff docs/checkpoints/multisymbol_calendar_20261008.md. Uncertainty remains
+  conditional on resampling assumptions; no multiplicity or regime proof.
+- READY_FOR_INDEPENDENT_REVIEW.
+
+- Separate GATE accepted calendar reporter WITH_RISK, independently10tests
+  passed in0.15s. Relies on upstream frozen artifact audit; exploratory method
+  and multiplicity/stationarity limits preserved. No promotion acceptance.
+- Real reporter subsequently exited0,5markets,273days,75outcomes. No arm has
+  positive net-profit lower bounds acrossall7/14/28blocks atbasefees. All14day
+  paired profit/drawdown gap bands includezero; no robust-advantage claim.
+- Results docs/research/multisymbol_calendar_uncertainty_20261008.md; raw
+  research/multisymbol_baseline_v1/calendar_uncertainty_20261008.json.
+  Independent artifact audit requested; code/artifacts unchanged during review.
+
+- Separate AUDITOR verified75outcomes,273dailyperiods,39terminal adjustments,
+  input/reporter hashes and225bootstrap diagnostics exactly. Calendar totals
+  reconcile. SOLmean-reversion has negative7/28day net-profit bands and a
+  negative28day buy-hold gap;14day bands includezero. Corrected any prospective
+  overgeneralization before report acceptance. Descriptive ACCEPTED_WITH_RISK;
+  no economic/promotion acceptance. No frozen code or campaign mutation.
+
+## 2026-10-08 - Confirmation venue/cost evidence checkpoint
+
+- AUDITOR: searched existing fee/account and confirmation records rather than
+  inventing new credential collection. SHOWN baseline uses public OKX spot;
+  inspected verified account-access record is Coinbase, not OKX spot fees.
+- Documented mismatch and unverified intended confirmation account in
+  docs/research/multisymbol_confirmation_venue_checkpoint_20261008.md. Refreshed
+  backlog pointer to completed raw phases/calendar diagnostics, not repeated
+  discovery. Existing frozen records, paper fees and ES rules unchanged.
+- No private request, secret access, code/config/account/campaign change. No
+  code tests run: documentation-only evidence checkpoint. One material venue
+  decision required before account-fee collection/confirmation. That scope is
+  BLOCKED; this does not block unrelated accepted research or alter direction.
+
+## 2026-10-08 - Coinbase confirmation venue and fee observer
+
+- Operator selected Coinbase for confirmation. OKX baseline stays immutable;
+  Coinbase account tier cannot be applied as actual OKX costs.
+- ENGINEER HIGH: added one-request read-only fee observer and focused tests,
+  using existing shared credential loader/factory, no credential writes/orders.
+- SHOWN installedCCXT4.5.48 coinbase.fetch_trading_fees assigns taker rate to
+  maker and maker rate to taker. Observer bypasses only that normalized helper,
+  reading named fields from GET transaction_summary product_typeSPOT.
+  No dependency or execution-path change. Official Coinbase endpoint inspected.
+- Output excludes rawresponse, balances, volumes, accountIDs and secrets;
+  errors show type only. Current account tier is not historical/product-all-in
+  fee proof. Original campaign fees remain unchanged.
+- Private request not run before independent review. Targeted verification
+  follows; highrisk implementation READY_FOR_INDEPENDENT_REVIEW.
+
+- Separate GATE found transport DEBUG logging bypassed verbose=False; no
+  private request made. Corrected with an isolated disabled client logger,
+  no global logging mutation, and DEBUG regression. Re-review requested.
+
+- Separate GATE accepted observer WITH_RISK after logging correction,
+  independently13tests passed in0.09s; local13passed in0.10s. No fullsuite/CI.
+- Subsequent VERIFIED_ENV read-only request succeeded using existing Keychain:
+  CoinbaseSPOT maker25bps,taker50bps,receipt2026-10-08T23:40:20.616525UTC.
+  No rawresponse/secrets/IDs/balances saved, no order or credential write.
+- Ten public product metadata calls returned matchingBTC/ETH/SOL/ADA/XRP
+  USD/USDT SPOTonline products. Account tradability and product-specific costs
+  remain unverified. No market history downloaded or confirmation started.
+- Recorded docs/research/coinbase_confirmation_cost_preflight_20261008.md,
+  resolved venue checkpoint and backlog pointer. Current tier is not historical
+  fee evidence, and OKX results/ES paper costs remain unchanged.
+
+## 2026-10-08 - Coinbase confirmation contract draft
+
+- DIRECTOR HIGH: continue accepted Coinbase confirmation objective with a NEW
+  contract, all15 frozen arms, exactUSDT products and observed50bpstaker costs.
+- Added research/coinbase_confirmation_v1/plan.json and
+  docs/research/coinbase_confirmation_contract_20261008.md. Prior OKX experiment
+  immutable. No activation,data collection,scoring,orders or campaign mutation.
+- Draft180day windowOct10-Apr8,90day descriptive checkpoint;30natural cycles
+  within confirmation only, excluding old/terminal cycles. No earlyselection,
+  retrospective tuning or silent extension. Currenttier/productcost limits,
+  uncertainty family and source/receipt hashes declared before new outcomes.
+- Existing runner cannot consume this contract unchanged. Required next scope
+  is explicit reviewed contract support and exact warmup/coverage preflight.
+- Verification: JSON/hash/date validation follows; no code tests because this
+  is contract documentation only. READY_FOR_INDEPENDENT_REVIEW.
+
+- SHOWN JSON/date/hash validation passed:180days,90day checkpoint,300warmup
+  hours,4620bars and referenced hashes. Separate GATE independently verified
+  these plus11source hashes; design ACCEPTED_WITH_RISK, activation unapproved.
+- Recorded sparse-sample/power and approximately11draws-per-adjusted-tail
+  MonteCarlo limits. No underlying bootstrap calibration claim. Next scoped
+  engineering objective: compatible reviewed runner and coverage preflight.
+  No new data, scoring, credentials, collector or campaign change.
+
+## 2026-10-08 - Coinbase runner contract support
+
+- ENGINEER HIGH: added independent Coinbase contract runner, reusing unchanged
+  read-only archive/core helpers; no frozen OKX source or result edits.
+- Resolved startup chronology: preregister before start; full300hour warmup
+  verification after its final candle closes, before any scoring. Plan/docs
+  distinguish registration_deadline from activation_timing; dates/costs intact.
+- Added exclusive preregistration,coverage,prefix-freeze and simulation modes,
+  receipt/code/source/fee hashes,completed-hour guards,all-market prevalidation,
+  checkpoint continuity,terminal adjustment and natural-cycle count.
+- SHOWN VERIFIED_ENV: isolated runner/core/archive targeted selection40passed
+  in0.39s. No actual data fetching,registration,scoring or live changes. No
+  fullsuite/CI. New calendar/uncertainty adaptation remains unfinished.
+- Handoff docs/checkpoints/coinbase_confirmation_runner_20261008.md;
+  READY_FOR_INDEPENDENT_REVIEW. Local timestamps/content hashes are not
+  cryptographic authenticity proof; no promotion authority added.
+
+- Separate GATE accepted runner support WITH_RISK, independently40passed in
+  0.35s. Activation/calendar/candidate logic not accepted or claimed.
+- Subsequent bounded public backfill:275hours expected per exactUSDTmarket;
+  BTC/ETH/SOL275,ADA273,XRP192. Strict partial-warmup preflight rejects ADA/XRP.
+  No signals,registration,activation or full300hour readiness claim.
+- Direct public candle calls reproduce ADA2/XRP83missing buckets; same window
+  allfiveUSDproducts returns275timestamps each. No reason for omissions inferred,
+  no gapfill or USD/USDT substitution. Evidence/response hashes and impact in
+  docs/research/coinbase_warmup_coverage_20261008.md.
+- Recommended preservation: separateallfiveUSDcontract, retain strict integrity
+  and USDT history; requires quote-change decision. No code/config/account/
+  campaign mutation or background job; source readiness is INCOMPLETE.
+
+- Separate AUDITOR verified savedUSDTcounts,gaps,allfivebackfill hashes and
+  preflight identities/flags. Directpublic/USDcomparison not independently
+  repeated; rawresponse bodies not saved. USDnumeric validity unverified.
+  USDTactivation BLOCKED bysourcecontinuity; quotechange awaitsoperatorchoice.
+
+### 2026-10-08 - ENGINEER: approved separate Coinbase USD contract
+
+- User approved the USD basket; retained the USDT draft and failed preflight.
+- Added a separate USD plan/archive destination and minimal runner support for
+  complete homogeneous USD or USDT baskets. No frozen strategy source changed.
+- Added mixed/partial/misdeclared quote rejection tests and scope documentation.
+- Verification: isolated targeted pytest selection, 41 passed; all five USD
+  symbol-router mappings match the requested products. No scoring or registration.
+- Public-data numeric coverage and independent review pending. No campaign,
+  orders, credentials, runtime config or background collector changed.
+- HIGH financial research change: READY_FOR_INDEPENDENT_REVIEW.
+
+- Separate GATE ACCEPTED_WITH_RISK: independently 41 tests passed; old USDT
+  plan hash matches its preserved preflight. Approval is contract/code only.
+- Bounded public USD backfills: five receipts, 275 rows each in separate archive.
+  Strict replay reports all five ARCHIVE_VERIFIED at fixed Oct8 23:00 UTC
+  exclusive cutoff. Saved preflight has full_phase_completed=false and no
+  registration. Remaining 25 warmup hours not verified. Data audit pending.
+- Separate AUDITOR ACCEPTED_WITH_RISK for the completed window: independently
+  verified all five finite numeric/OHLC bounds/hour grids, receipt dataset hashes,
+  preflight row hashes and identity references. No discrepancies; no scoring.
+  Updated backlog pointer to preregistration and remaining warmup, not activation.
+
+### 2026-10-09 - ENGINEER: reviewed USD preregistration and bounded tail
+
+- Continued approved objective using independently accepted contract/runner.
+- Created preregistration receipt before Oct10 evaluation deadline; no activation.
+- Appended one completed public hourly candle per USD market, separate receipts.
+- Strict coverage: all five 276 valid contiguous hours, end-exclusive Oct9 00UTC;
+  full_phase_completed=false. Remaining 24 warmup hours not yet completed.
+- No strategy scoring, orders, campaign/config/credential changes or collector.
+- Independent artifact verification pending; no implementation code changed.
+- Separate AUDITOR ACCEPTED_WITH_RISK: registration at Oct9 00:01:40.610 UTC
+  precedes start, identities match; all276-hour grids/hashes and original275-hour
+  prefixes preserved. No discrepancies. Local receipt is not tamper-proof
+  chronology; data verification is not activation or profitability evidence.
+
+### 2026-10-09 - ENGINEER: user's recent-gain question
+
+- Separate bounded retrospective archive for five existing Coinbase USD coins,
+  not an exchange-wide top-gainer search. No registered experiment changes.
+- Added reproducible report and saved all30 strategy/window outcomes. UTC
+  month Oct1-9, week Oct5-9; 300-bar warmup; fresh1000cash/100entries per arm.
+- Executed strict grids and existing frozen next-open simulator with50bps fees,
+  5bps slippage each side and terminal costs. Only month ADAEMA positive5.8744;
+  no weekly positive strategy. Infrastructure excluded; no short implementation.
+- No orders/config/campaign changes. Report is CF-MODELLED not live profit.
+- HIGH research report implementation READY_FOR_INDEPENDENT_REVIEW;
+  separate reviewer checking arithmetic and artifacts. No full-suite run.
+- Separate GATE ACCEPTED_WITH_RISK: independently identical report, all30
+  next-open/cost/cycle/finalcash checks passed; prospective artifacts unchanged.
+  All-in buyhold1000 vs strategy100entries is not exposure-matched, documented.
+
+### 2026-10-09 - ENGINEER: broad public gainers, not fixed coins
+
+- User rejected fixed-five scope. Scanned1000 CoinGecko marketcap entries,
+  savedrawpages, filtered35 stalequotes explicitly, rankedrolling7d/30d.
+- Retrievedfreshleadercharts RLC/RHEA and computed prepeakminimum/maximum/latest
+  price moves and elapsed hours. No monotonic or livecapturedprofit claims.
+- Initial chart request429; reusedrawpages rather than repeatingmarketrequests.
+- Added reproduciblescanner and descriptive note; no registeredstudy, orders,
+  campaigns or configuration changed. Arithmetic audit pending; implementation
+  READY_FOR_INDEPENDENT_REVIEW. No fullsuite; publicdata analysis only.
+- Separate AUDITOR verified1000unique/965fresh,rankings and bothcharts' arithmetic.
+  Descriptive results independently SHOWN; scope not global, not executablefills.
+
+### 2026-10-09 - ENGINEER: dynamic Coinbase gainers request
+
+- Public-only dynamic catalogue925products/403eligibleUSDspot, no fixedbasket.
+- Added separate daily7/30day ranking and hourlyleader pricepath tool. End
+  exclusive Oct9 00UTC; completegrid required, omissions explicitly recorded.
+- Synthetic complete/missingday checks passed. Separate GATE ACCEPTED_WITH_RISK
+  for logic; rawartifact audit pending. No production code/fullsuite changes.
+- Limitonly15products, survivorship and hindsight limitations documented.
+- Registered study identity rechecked unchanged; no orders, campaigns, credentials
+  or runtime config changed. Bounded foreground public ingestion only.
+- Initial daily scan finished; strict RLC hourlycheck stopped on29missinghours.
+  Retainedrawdata; descriptivepath now lists missinghours, validates observed
+  bars/duplicates/boundaries without gapfilling. Sparsepath is not replayproof.
+  Revised logic/artifact audit requested; no signal simulation uses sparse data.
+- Scan complete:400valid7day/398valid30day; RLC7leader142.4767%,
+  DIMO30leader301.0217%. Savedrawdaily/hourly responses and finalsummary.
+  Pathgaps29RLC/15DIMO explicitly recorded. Finalartifact review pending.
+- Separate AUDITOR finalized rawartifact audit, no discrepancies: rankings,
+  exclusions, prices/timestamps, gaplists and all arithmetic independently match.
+  Descriptive proof complete; no continuouspath or executableprofit claim.
+
+### 2026-10-09 - AUDITOR: ten shared strategy workbooks and CMC forward logger
+
+- Reviewed all ten supplied workbooks: 46 sheets, 24,749 nonempty cells, 533
+  formulas; separate reviewer found no formula-cache discrepancies. Read all
+  four pasted documents; three are byte-identical copies, accounted for once.
+- Saved shared_strategy_research_review_20261009.md with coverage, evidence,
+  contradictions, source-level defects and bounded recommended treatment order.
+- Found missing exit observations for coins leaving the trending list, generic
+  fees inconsistent with the saved 25/50 bps account observation, iid trade
+  bootstrap and unpurged split-label risks, and unsupported operating claims.
+- Reproduced event-study gap defect directly: entry100/stop95/nextopen80 yields
+  modeled -5%; this does not prove achievable execution or a maximum loss cap.
+- Original sheets and all strategy, collector, schedule, config, account and
+  credential artifacts unchanged. No fullsuite/backtest rerun; read-only review
+  and targeted function probe only. Arithmetic proof is not economic proof.
+- Recommendation: repair complete forward cohort capture first; preserve prior
+  results and separately registered confirmation study, no blanket research halt.
+- Remaining operation/fee applicability/fill/inference proof is UNVERIFIED;
+  economic acceptance INCOMPLETE. No high-risk implementation performed.
+
+### 2026-10-09 - ENGINEER: bounded research evidence corrections
+
+- User authorized logger first, execution/fees/statistics next, preserving original
+  artifacts and frozen strategy rules. No campaign, account, secrets or production
+  strategy changes. Added versioned tools instead of rewriting historical files.
+- CMC v2 retains departed cohorts, records timed responses/failures, preserves
+  UNVERIFIED identity, locks cooperating runs and publishes append-only snapshots.
+  Independent GATE accepted capture slice WITH_RISK after malformed-source fix;
+  16 independent targeted tests passed. Scheduler/operation not implied.
+- Added gap-aware next-open event helpers, purge/block-validation helpers and
+  next-open frozen BTC/ETH rerun. Primary fee50bps from saved receipt, 60/120
+  scenarios separate. 54 historical configurations, 51 calculated/3 insufficient
+  SMA100 warmup; original inputs/results untouched. New artifacts v1/v2 retained.
+- Combined local targeted verification:29passed. Fullsuite not run; research-only
+  changes. Execution/math reviewer scope reset after helper additions; no earlier
+  acceptance inferred. Current slice READY_FOR_INDEPENDENT_REVIEW.
+- Full altcoin/event reruns await original raw archives, not a replacement fetch.
+  Asked operator for archive location/export while continuing independent work.
+- Read-only scheduler checks: no user crontab/no identifiable CMC launchctl job;
+  Claude internal schedule still UNVERIFIED. No duplicate/background job created.
+- Added research_correction_checkpoint_20261009.md with corrected summaries,
+  exact limits, treatment status and next proof. No new profit/holdout claims.
+### 2026-10-09 - ENGINEER: verify exported research archives
+
+Independent event-artifact GATE: ACCEPTED_WITH_RISK diagnostic only. All795
+hashes and embedded sources verified; frozen signal counts/identities preserved.
+All18 aggregate means negative; gap/immature exclusions and selection risk remain.
+
+Scheduler follow-up: user activity initiated one manual Claude task run; visible
+run failed before collection because no folders were connected. No changes saved
+by Codex. GATE accepted v2 instruction contract with risk; scoped repo-folder
+access approval requested before applying task repair and one delivery test.
+
+Continuation: corrected 50-bps event diagnostic completed, 795 input files,
+389 products, 4,284 pump and 2,134 dip events. All 18 aggregate exit means are
+negative after modeled costs, not portfolio/holdout proof; independent review
+requested. Missing-label coverage recorded in correction checkpoint.
+Read-only Claude UI verification found active daily09:52 New York CMC task
+still invoking old logger and no scheduled runs yet; weekly task Sunday20:47
+local. Prepared v2 task instructions for independent review without changing
+time/permissions or creating duplicate. No trading changes.
+
+Independent GATE follow-up: bootstrap delta ACCEPTED after reviewer reproduced
+1,627 undefined replicates and 30 passing targeted tests. Scope is this delta
+only, not the whole research correction plan or event-run integration.
+
+Objective: resume evidence corrections using original inputs, not replacement downloads.
+SHOWN: seven archive checksums and 2,377 extracted input checksums match; archive
+members checked for containment and regular-file/directory type before extraction
+to `/private/tmp/cryptkeep_frozen_mltbw2a0`. Original majors.py replay matches
+all 36 frozen result rows exactly excluding only script_sha256.
+Collector v2 foreground retry using installed certifi CA bundle reports OBSERVED,
+26 tracked products; earlier TLS failure snapshot preserved. Scheduling unverified.
+Fixed independent review's undefined bootstrap-resample blocker: return INCOMPLETE
+and null interval bounds instead of aborting or dropping samples. Targeted command:
+`./.venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_cmc_trending_logger_v2.py tests/test_corrected_research_math.py tests/test_frozen_majors_rerun.py`
+Result: 30 passed. Bounded independent re-review requested. Corrected event rerun
+started at 50 bps from verified inputs. No full-suite, campaign, config, account,
+schedule, commit, push or deployment change. Originals preserved.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW; remaining reruns/scheduling INCOMPLETE.
+### 2026-10-09 - ENGINEER: frozen breakout execution and dependence diagnostic
+
+Run completed:12 configurations; combined targeted slice35 passed. At50bps,
+test trade means3x5.345%/2x3.956%; all calendar-block intervals include zero.
+14-day intervals[-1.948,8.335]%/[-0.691,6.912]%. Positive trade means are not
+portfolio profit or confirmed edge. Missing/immature exclusion counts recorded.
+
+Objective: correct existing candidate measurements without new search or retuning.
+Added scripts/research/rerun_frozen_breakout.py and five targeted tests. Frozen
+2x/3x signal generator extracted unchanged, original feature source retained.
+Next-open entry and 72-hour exit-open require contiguous observed candles;
+missing/immature labels are explicitly counted. Discovery labels crossing split
+are purged. Calendar-day blocks (7/14/28 days), joint across coins and including
+no-event days, replace IID trade bootstrap; undefined samples have null bounds.
+50-bps current-tier scenario plus60/120-bps stresses; historical fees unverified.
+No portfolio, fresh-holdout or selection-adjusted confidence claim.
+Targeted pytest tests/test_frozen_breakout_rerun.py: 5 passed. Archive-backed run
+started; separate reviewer requested. Originals/campaigns/accounts untouched.
+No full suite or deployment. Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+### 2026-10-09 - ENGINEER: existing Claude daily task repair saved
+
+After scoped access confirmations, daily CMC task trig_012ybaBYn3NNN3cqx38BTRjV
+shows /Users/baitus/Downloads/crypto-bot-pro Allowed for this task on this computer.
+Reviewed v2 command saved; daily09:52 New York, Auto, Require this computer kept.
+Started one manual task test cse_01NTC31gm2qyWe493SoYNsRU; delivery result pending.
+Weekly task requires this computer already, Sunday20:47 local, no folder attached.
+Prepared identical folder selection; weekly permission dialog awaiting specific
+persistent-access confirmation. No weekly state-rewriting test launched.
+No duplicate tasks, trading or deployment changes. Operational proof INCOMPLETE.
+### 2026-10-09 - ENGINEER: weekly task access saved after explicit confirmation
+
+User explicitly confirmed persistent weekly repo-folder access and Anthropic
+processing disclosure. Existing task trig_01JHKCvhVp914uENe6kyD8Hj now shows
+/Users/baitus/Downloads/crypto-bot-pro Allowed for this task on this computer.
+Active, Require this computer, Auto, Sunday20:47 New York preserved; instructions
+unchanged. No weekly run launched, no state or ledger overwritten. Access repair
+SHOWN; weekly execution remains UNVERIFIED. Daily manual test still running.
+### 2026-10-09 - ENGINEER: correct task command environment mismatch
+
+SHOWN daily manual test cse_01NTC31gm2qyWe493SoYNsRU failed before execution:
+Mac /Users path absent in Claude's Linux sandbox. My native-Mac command assumption
+was incorrect; folder access alone did not repair delivery. No snapshot written.
+Reviewed corrected command uses quoted $HOME/mnt/crypto-bot-pro and sandbox
+python3 -B; stdlib-only logger, default TLS verification preserved. GATE accepted
+command delta with risk; mounted runtime operation remains unverified.
+Saved to existing daily task without schedule/permission changes. Started one
+new test cse_01MCHZv1wuXYD3v1AevjdswQ; no outcome claimed yet. Weekly untouched.
+Operational status INCOMPLETE until valid new snapshot inspected.
+### 2026-10-09 - ENGINEER: sandbox cleanup failure correction
+
+SHOWN task test cse_01MCHZv1wuXYD3v1AevjdswQ published snapshot
+v2_2026-10-09_043542_982724Z_5919bc49ccb4455f9bdbf90896d017df.json, SHA256
+e73ea4738a1b247d2991f9fd866512a460fd860b69ad772a71d6fb8a181fed35.
+Local inspection: OBSERVED,28products,28observed bid/ask records,no source errors.
+Exit1 came from denied temporary-file unlink, not failed capture. Corrected save
+to warn/retain temporary file on PermissionError while preserving original
+publication errors.18 targeted tests pass; separate GATE ACCEPTED_WITH_RISK.
+Risks: retained pending files accumulate; warnings-as-errors can raise; no
+permission widening or cleanup deletion. Started final task test
+cse_011p7bqTDUYbW7i6o1gJ8SQy, outcome pending. No weekly state change.
+### 2026-10-09 - GATE: daily task manual delivery verified
+
+Final task test cse_011p7bqTDUYbW7i6o1gJ8SQy reports successful collection once,
+no retry/no notification. Independently inspected saved snapshot
+v2_2026-10-09_043716_411287Z_4b0b5699d7f847b5931e1c77c7d3c8f9.json:
+OBSERVED,28products; collector source hash matches current accepted cleanup code.
+Temporary cleanup warning persists by design, leftover preserved/no extra access.
+Manual scheduled-task delivery SHOWN; future unattended schedule durability
+UNVERIFIED. Weekly folder attachment SHOWN but script deliberately unrun.
+No trade/account/state mutation, commit,push or deployment. ACCEPTED_WITH_RISK
+for daily manual delivery only, backed by separate code review.
+### 2026-10-09 - ENGINEER: continuous frozen breakout portfolio diagnostic
+
+Run outcome: all6 INCOMPLETE at2026-05-08T02:00Z whileholdingTON(3x)orVVV(2x).
+No fullperiodprofit emitted; originalforwardfilled research differs materially.
+Reason missing_held_valuation,79/113fills before stop. Investigating archivegap
+without replacement downloads, hindsight exclusions or silent priceimputation.
+
+Trade diagnostic independent review ACCEPTED_WITH_RISK:790hashes,1473scored
+rows,36blockintervals reproduced; no confirmededge/portfolioprofit claim.
+Next bounded objective implemented in rerun_breakout_portfolio.py: one1000quote
+account,5slots,original20%equityallocation,carrycash/positions throughsplit,
+nextobservedopenentry,72-hour exitopen,terminalopenliquidationwithbothcosts.
+Nofuturecompleteness entryfilter; missingheldprice makesrunINCOMPLETE instead
+of imputingvaluation/fill. Fourtargetedtests pass. Archive-backed6-configrun
+started, separateGATErequested. No originals,accounts,campaigns altered.
+Acceptance READY_FOR_INDEPENDENT_REVIEW; benchmark/statistics not claimed.
+### 2026-10-09 - ENGINEER: approved Coinbase gap retrieval, no repair invented
+
+User approved separatelyhashedgapretrieval preservingoriginals. Added bounded
+public fetch utility and receipt for7products(heldpositionsunion plusBTC).
+7successfulrequests,0HTTPerrors; all return01:00,07:00,08:00UTC only onMay8.
+Target02:00-06:00candles absent fromsource too. Rawresponses,hashes,timestamps,
+URLs preserved. No syntheticbars,archiveoverwrites,repeatedidenticalruns or
+newholdoutclaim. Continuousportfolio remainsINCOMPLETE. GATE previously accepted
+its implementation/incomplete evidence with risk after576fills/26070marks
+independently reconciled. Furthergapvaluations need explicit policy decision.
+### 2026-10-09 - ENGINEER: opt-in research outage policy
+
+User authorized continuing recommended outage-policy scenario after source gap
+retrieval returned no candles. Added --outage-policy research-only opt-in, default
+strict behavior remains. Retain holdings, block entries when market/held quotes
+or sizing marks unavailable, defer due exit until observed own-symbol open.
+Unknown valuations stored null; no invented bars, NAV, exitfill or drawdown.
+Missing terminal exit still INCOMPLETE. Original artifact untouched.
+Seven targeted portfolio tests pass. Six-scenario archive rerun started in new
+breakout_portfolio_outage_v1.json, separate GATE requested. No production,
+campaign, account or original data changes. READY_FOR_INDEPENDENT_REVIEW.
+### 2026-10-09 - Claude (cloud session): CMC identity collisions SHOWN; summary doc corrected
+Read-only identity_check_20261009/ added beside the logger (no logger, snapshot, schedule or plan edit).
+Two wrong-asset joins in every saved snapshot: CMC Artificial Inu -> Coinbase AI-USD (Gensyn, -78%),
+CMC Meta tokenized stock -> Coinbase META-USD (Metadao, -99.2%); v1 Binance AIUSDT also wrong. OGN name
+differs (Origin Protocol vs Origin Token) at <1.2% price gap: REVIEW. Proposed amendment rule recorded, not
+applied. Verified daily task now calls v2 with folder attached (task list). Applied shared review's P2/P3
+corrections to the Claude Docs research summary. Altcoin reruns not started (avoid duplicate work).
+### 2026-10-09 - Claude (cloud session): frozen altcoin candidates rerun, corrected contract
+scripts/research/rerun_frozen_altcoins.py (final sha c07be3c3...), tests/test_rerun_frozen_altcoins.py (7 pass),
+research/research_corrections_20261009/altcoins_corrected_v1.json, docs/research/altcoins_corrected_rerun_20261009.md.
+Selected versions only; signals executed from hashed originals; 0.50% primary, 0.60/1.20% stress.
+Own error corrected: first draft made the frozen close-triggered trailing stop an intraday stop order (rule
+change). A concurrent edit to the script (not by this session) restored close trigger + next-open fill and fixed
+the BTC endpoint for early-stopped runs; I accepted it, discarded mixed-version outputs, rewrote 2 tests and
+reran all groups on one hash (checked before/after). --only merge drops the recovery group (bug, not edited in
+file); merged externally with merge_note. Results: four event candidates COMPLETE, all below BTC, all block
+ranges below zero; basket INCOMPLETE (STRAX 2024-03-21); top-10 2018-19 INCOMPLETE (BCC 2018-11-16).
+CMC proxy: fee-only recompute, non-executable prices. READY_FOR_INDEPENDENT_REVIEW. No commit/push.
+### 2026-10-09 - Claude (cloud session): CLAIM - dynamic Coinbase simulation corrected rerun
+Starting now: frozen rerun of dynamic_coin_simulation_20261009/sim.py (and its earlier-10-month variant) under
+the corrected contract: fills at the next hourly open instead of the last completed close, no forward-filled
+prices for held/target coins (strict INCOMPLETE; outage scenario labeled), 0.50% primary, 0.60/1.20% stress,
+original 10 bps slippage, all 8 original strategies (no selection). New files only:
+scripts/research/rerun_frozen_dynamic.py, tests/test_rerun_frozen_dynamic.py,
+research/research_corrections_20261009/dynamic_corrected_v1.json. Please do not duplicate; review welcome.
+### 2026-10-09 - Claude (cloud session): dynamic simulation corrected rerun DONE (claim closed)
+dynamic_corrected_v1.json: 96 results / 20 parts, one script hash d31871fb..., guarded merge (refuses mixed hashes
+and duplicate keys; 3 merge tests). Older-hash parts moved to _superseded_dynamic_parts_hash_3fc1c7f7/ (no deletes).
+Next-open hourly fills change little; no verdict changes. Prior-10-month strict runs stop at the exchange-wide
+2025-10-25 16:00 gap (BTC included) or 2026-05-08 02:00; outage runs complete with 5-21 unknown-NAV hours.
+Block Sharpe intervals all include zero, low power. Note: docs/research/dynamic_corrected_rerun_20261009.md.
+READY_FOR_INDEPENDENT_REVIEW. No commit/push.
+### 2026-10-09 - Claude (cloud session): operator decision recorded - CMC cohort coverage
+Damian chose "require 30 clean days": primary cohort needs a valid hidden-list observation on each of the
+preceding 30 UTC days; startup/gap-affected events = HISTORY_UNCERTAIN, kept separately. Appended to
+docs/research/cmc_trending_log/cohort_coverage_decision_20261009.md. No evaluator implemented, nothing scored.
+### 2026-10-09 - Claude (cloud session): CLAIM - task 1, consolidated research-repair checklist
+Writing ONE authoritative checklist (docs/research/research_repair_checklist_20261009.md) for the 12-item
+research-repair list, with evidence paths/hashes and owners; superseded status files get an appended pointer,
+no text deleted. Not touching evaluator code (other session is authoring it; offered as independent reviewer).
+### 2026-10-09 - Claude (cloud session): task 1 DONE - consolidated checklist (claim closed)
+docs/research/research_repair_checklist_20261009.md is now the single status source (12 items, evidence,
+owners, coverage map, stale-claim list). Pointers appended to the status file and checkpoint; no text removed.
+Dynamic coverage: all 96 v1 results accounted for (18 reproduced by v2; 78 provably unaffected by v2's buy gate).
+Uncovered historical studies: stress_btc_eth (rejected rule), hybrid.py (recommend rerun), short_hold/fwd (optional).
+Next: CLOUD reviews the integrated CMC evaluator when LOCAL marks it ready; CLOUD does not author it.
+### 2026-10-09 - Claude (cloud session): CLAIM - item 8 gap, hybrid.py corrected rerun; operator away
+Damian is away and asked CLOUD to progress the checklist unattended. Claiming: corrected frozen rerun of
+docs/research/hybrid_momentum_20261009/hybrid.py (new files only). Also approved: item 10 PREPARE-only at
+~00:10 UTC Oct 10 (no activation). CLOUD will review the integrated evaluator when LOCAL marks it ready.
+### 2026-10-09 - Claude (cloud session): hybrid.py corrected rerun DONE (item 8 claim closed)
+hybrid_corrected_v1.json (96 results, script 40becc58..., 7 tests). Found and guarded a LUNAUSDT identity break
+(old Terra 0.00005 on 2022-05-13 -> Terra 2.0 at 1.0 on 2022-05-31); pre-guard part moved to
+_superseded_hybrid_parts_pre_identity_guard/. Original hybrid.py carried the same symbol across that switch.
+4/12 strategies INCOMPLETE; 8 complete and all trail BTC (+93.3%). Next-open vs close: no material change on
+Binance daily. Note docs/research/hybrid_corrected_rerun_20261009.md. Checklist item 8 updated. READY_FOR_INDEPENDENT_REVIEW.
+### 2026-10-09 - Claude (cloud session): REVIEW - CMC diagnostic evaluator: CHANGES_REQUIRED
+docs/research/cmc_trending_log/review_diagnostic_evaluator_20261009.md. BLOCKER: build_cohorts rejects both real
+v3 snapshots (84 listing + 16 dex rows; dex cmc_id null) -> 0 observed days, 0 events; 30-day clock cannot start.
+Also: cohort->evaluator interface mismatch, silent endpoint exclusions, duplicate-timestamp crash, arbitrary
+equal-timestamp tie order, ticker cannot prove executable size. Raw snapshots unaffected. No code edited.
+### 2026-10-09 - Claude (cloud session): CLAIM - item 8 optional gaps (short_hold/fwd, stress_btc_eth)
+Corrected reruns, new files only. Not touching CMC evaluator code (awaiting author fix of review blocker).
+### 2026-10-09 - Claude (cloud session): item 8 gaps closed (claim closed) - short holds + stress test
+short_hold_corrected_v1.json (168; all lose at 0.50%; earlier "lost even at zero fees" summary was wrong for one
+variant, corrected in notes and research doc). stress_corrected_v1.json: verdict unchanged (reject); 0.50% B/C
+equal majors_next_open_v2 to the cent. Every original study now mapped in the checklist. No commit/push.
+### 2026-10-09 - Claude (cloud session): operator cancelled CLOUD's 5 one-time check-ins
+Damian asked to cancel the scheduled plans; he chose "my 5 check-ins only". Deleted: 11:00 and 19:00 progress
+checks, 14:20 unattended-CMC-run check, 2026-10-10 00:10 item-10 prepare-only task, 2026-10-12 01:15 weekly check.
+Still active and unchanged: daily CMC trending log (13:52 UTC, logger v3) and weekly BTC+ETH paper test.
+Consequence: item 7 verification and item 10 preparation now have no scheduled owner.
+### 2026-10-09 - Claude (cloud session): one checklist - mine superseded by research_repair_remaining_tasks_20261009.md
+To keep ONE authoritative list, research_repair_checklist_20261009.md now points to the integrating session's
+R01-R12 file (no text removed). Items it should fold in (CLOUD evidence, not reviewed yet):
+- R08 non-dynamic studies: hybrid.py -> hybrid_corrected_v1.json (LUNAUSDT identity break: old Terra 0.00005 on
+  2022-05-13 resumes 2022-05-31 at 1.0 as Terra 2.0; original carried the symbol across; 4/12 INCOMPLETE);
+  short_hold.py -> short_hold_corrected_v1.json (all lose at 0.50%; one zero-fee variant positive in original too);
+  stress_btc_eth.py -> stress_corrected_v1.json (verdict unchanged; 0.50% B/C equal majors_next_open_v2 to the cent);
+  altcoins/top10/cmc proxy -> altcoins_corrected_v1.json. Notes in docs/research/*_corrected_rerun_20261009.md.
+- R07: Damian cancelled CLOUD's check-ins, so no CLOUD verification of the 13:52 unattended run or Monday weekly run.
+- R10: Damian approved CLOUD "prepare, don't activate" for 00:10 Oct 10, then cancelled that check-in. Unowned.
+- R09: the external Claude Docs research summary was updated by CLOUD for all corrections through 10:50 UTC.
+CLOUD now reviewing R05 (cmc_statistics.py + amendment) as the separate reviewer; no edits to its code.
+### 2026-10-09 - Claude (cloud session): R05 independent review - CHANGES_REQUIRED before gate use
+docs/research/cmc_trending_log/review_statistical_reporting_20261009.md (+ _probe.py). 7 tests pass. Diagnostic-only
+behaviour is correct. HIGH: under overlapping 7-day windows the registered entry-day interval covered a true zero
+mean in only 39% of synthetic null histories (nominal 90%); 7-day blocks 71%. Gate must not rest on primary alone
+(recommend all intervals above zero) - operator decision before scoring. MEDIUM: 7-day missing-outcome counts not
+in the statistics block; no minimum sample (2 entry days yields a range). No code edited; nothing committed.
+### 2026-10-09 - Claude (cloud session): R05 re-check of 10:46 revision - verdict unchanged
+Collection-clock fix accepted (103 CMC tests pass). Statistics math unchanged; probe reproduces 39% null
+coverage for the primary under persistent dependence. Open before scoring: gate rule (operator decision),
+7-day missing-outcome counts, minimum sample. Addendum in review_statistical_reporting_20261009.md. No code edited.
+### 2026-10-09 - Claude (cloud session): R09 external summary reconciled with local master (doc rev 69)
+Compared Claude Doc "CryptKeep Strategy Research: What We Learned" (rev 63) with
+cryptkeep_research_master_corrected_20261009.md (10:36). Added what the external doc lacked: ~$20/month infra and
+marked-not-realized in Bottom line; daily CMC log listed as running; checklist pointer -> remaining_tasks file;
+5-21 unknown-valuation hours on reviewed outage paths (checked in dynamic_corrected_v2*.json: min 5, max 21);
+integrated diagnostic 84 HISTORY_UNCERTAIN events, nothing scored; R05 gate finding. No repo file changed except
+this log. R09 external update now verified by CLOUD at rev 69; needs the integrating session's acceptance.
+### 2026-10-09 - Claude (cloud session): OPERATOR DECISIONS (Damian, ~11:05 UTC)
+1) R05 gate = all ranges above zero (registered entry-day AND 7/14/28-day blocks; any non-DESCRIPTIVE block = fail).
+   Recorded in cmc_trending_log/statistical_gate_decision_20261009.md. Implementation stays with the integrating
+   session; CLOUD will review it. 2) R03 quote qualification stays with the integrating session; CLOUD reviews.
+3) CLOUD schedules two one-time check-ins in this chat: ~14:20 UTC today (R07: inspect the unattended 13:52 run,
+   no state rewriting) and ~00:15 UTC 2026-10-10 (R10: verify 300 warmup bars and hash/freeze the prefix,
+   prepare only, no activation, no scoring).
+### 2026-10-09 - Claude (cloud session): REVIEW - level-1 capture option: code OK with risk; process findings
+review_level1_capture_20261009.md. 20 tests pass. HIGH: daily task prompt now includes --capture-level1
+(task updated 10:58:59), contradicting the 10:55 amendment ("schedule has not been edited") and running before
+independent acceptance. MEDIUM: accepted v3 source (108d9da4) overwritten in place, not preserved. Operator decision
+requested (keep flag on for 13:52 or remove until reviewed). No task, code or snapshot edited by CLOUD.
+### 2026-10-09 - OPERATOR DECISION (Damian, via CLOUD ~11:07 UTC): keep --capture-level1 on for the 13:52 run
+Level-1 capture option accepted WITH RISK for collection only (raw evidence, no thresholds, no scoring). Findings 2-4
+in review_level1_capture_20261009.md stay open: amendment text should be corrected (schedule WAS edited 10:58:59),
+and both collector hashes (108d9da4 pre-edit, e97f93fa post-edit) must be named by any future scorer. CLOUD's 14:20
+R07 check will include level-1 book errors.
+### 2026-10-09 - Claude (cloud session): CLAIM per Damian "get it done" - R10 pre-check, R03 draft, R12 interim
+R10: read-only warmup coverage pre-check now (no activation/freeze before 00:00). R03: CLOUD drafts quote
+qualification policy as a PROPOSAL doc only (no code edits; integrating session reviews - no self-approval).
+R12: interim profit report from existing corrected evidence, labeled INTERIM until R11 matures.
+### 2026-10-09 - Claude (cloud session): R06 integration verification - 10 cases pass (reviewer probes)
+docs/research/cmc_trending_log/integration_verification_20261009/ (README + 2 probe scripts). End-to-end scored
+path matches hand arithmetic; gaps, identity collisions, duplicate captures, missing BTC at entry/endpoint,
+malformed files, immature cohorts and statistics wiring behave as specified. Final review waits on R03/R05.
+R10 read-only pre-check: docs/research/confirmation_warmup_precheck_20261009.md (287/300 bars, no gaps).
+### 2026-10-09 - Claude (cloud session): R03 PROPOSAL written (not accepted; needs operator decision + review)
+docs/research/cmc_trending_log/quote_qualification_proposal_20261009.md: alignment vs provenance vs freshness vs
+size; proposed 5 s round trip, 10 s book age, 60 min last-trade flag, $100 displayed size; registered view unchanged,
+qualified view added, both must pass. Implementation not started; integrating session to review.
+### 2026-10-09 - Claude (cloud session): R12 INTERIM profit report written (final waits on R11)
+docs/research/profit_report_INTERIM_20261009.md - numbers read from corrected artifacts at 0.50%; no rule beats
+BTC hold in dollars; $20/month infra = 24%/yr hurdle at $1,000. Needs separate review before use.
+### 2026-10-09 - OPERATOR DECISION (Damian via CLOUD): R03 quote policy ACCEPTED as drafted
+quote_qualification_proposal_20261009.md now POLICY_ACCEPTED. Integrating session: please implement (qualified view +
+exclusion counts by reason/horizon) together with the R05 all-ranges gate, then mark READY for CLOUD review.
+### 2026-10-09 - Claude (cloud session): R07 daily part VERIFIED - first unattended 13:52 run produced a valid snapshot
+Task trig_012yba... last_run SUCCEEDED (fired 13:53:36 UTC, ~1.5 min late). New file
+snapshots/v2_2026-10-09_135352_243974Z_2b4134df295e426898926b1a39216cbd.json: load_snapshot LOADED, schema 3,
+OBSERVED, 0 source errors, 100 rows (83 listing / 17 dex), 33 tracked (16 identity-eligible), 0 quote errors, BTC ok,
+identity map 2fa8792d (same as 05:09), collector e97f93fa (post-level-1 edit; 05:03/05:09 = 108d9da4).
+Level-1: 33 books, 0 errors, round trip max 0.13 s; book age <= 10 s for 32/33 (one 253 s); best ask >= $100 for
+24/33, best bid >= $100 for 26/33; min book age -0.58 s => laptop clock ~0.6 s behind Coinbase (note for R03).
+Read-only; nothing rerun or rewritten. R07 weekly part still unverified until Mon 2026-10-12 00:47 UTC.
+### 2026-10-09 ~21:58 UTC - Claude (cloud session): CLAIM - R03 freshness/qualified-view implementation (new files only)
+Per Damian forwarding "finish the accepted CMC quote policy". New files: scripts/research/cmc_quote_qualification.py,
+scripts/research/run_cmc_qualified_report.py, tests/test_cmc_quote_qualification.py. Will NOT edit cmc_book_evidence.py
+or run_cmc_diagnostic_report.py (integrating session's). R05 NO_CERTIFIED_SAMPLE stands: no gate verdict is
+authorized; qualified view is diagnostic. Needs independent review by the integrating session (no self-approval).
+### 2026-10-09 ~22:10 UTC - Claude (cloud session): R03 implemented - READY_FOR_INDEPENDENT_REVIEW (claim closed)
+cmc_quote_qualification.py + run_cmc_qualified_report.py + tests/test_cmc_quote_qualification.py (10 tests; 45 pass incl.
+book/report/statistics). Registered view unchanged; qualified view + exclusion counts; gate shown descriptively; primary
+gate BLOCKED (NO_CERTIFIED_SAMPLE). Real 13:53 capture: 7 of 19 listed trending coins would qualify as entries.
+Details appended to quote_qualification_proposal_20261009.md. Integrating session: please review. Nothing committed.
+### 2026-10-09 ~22:12 UTC - Claude (cloud session): CLAIM (Damian approved all four) - ES evidence chain verification,
+commit/PR packaging plan, older-backlog status audit, new statistics experiment PLAN. Read-first; isolated copies only;
+no campaign reset, trading-rule change, push or activation. Will not edit files another session owns without a claim.
+### 2026-10-09 ~22:14 UTC - Claude (cloud session): REVIEW - ES durable fill-identity storage slice: recommend ACCEPT WITH RISK
+docs/checkpoints/review_es_durable_fill_identity_2026_10_09.md. 46/46 reproduced (system python3; .venv not usable in VM).
+Two LOW findings, no blocker. Remaining chain mapped: (A) reconciler never reads stored fill evidence (still
+order_policy_only); (B) promotion/qualification code has no reference to fill_cost_policy_verified - needs operator policy.
+### 2026-10-09 ~22:16 UTC - Claude (cloud session): packaging plan, backlog audit, stats v3 PLAN (all docs only)
+docs/checkpoints/commit_packaging_plan_2026_10_09.md (2,575 status entries -> 7 scoped PRs; blockers: git needs
+folder delete permission, push needs OK, 100 MB data needs LFS/hash decision). docs/checkpoints/
+older_backlog_status_audit_2026_10_09.md (funding/basis, shadow cost, recovery: no new coding; reviews/operational
+runs needed). docs/research/cmc_trending_log/statistical_method_v3_PLAN_20261009.md (new experiment; nothing run).
+### 2026-10-09 ~23:00 UTC - OPERATOR DECISIONS (Damian via CLOUD)
+1) ES: CLOUD builds the journal transfer step (stored fill evidence -> journal; verified only if stored check passed);
+   integrating session reviews. 2) Gate: REPORT-ONLY - show verified vs unverified fill counts, both still count.
+3) Commits: local commits only on separate branches (needs folder delete permission for git locks); no push.
+4) Stats v3 plan APPROVED as drafted (implement, independent review, then synthetic confirmation).
+CLAIM: CLOUD edits services/execution/intent_reconciler.py (_journal_identity_extra + its call) and adds tests.
+### 2026-10-09 ~23:02 UTC - Claude (cloud session): ES journal transfer + report-only gate counts - READY_FOR_INDEPENDENT_REVIEW
+docs/checkpoints/es_journal_fill_cost_transfer_2026_10_09.md. intent_reconciler marks fill_cost_policy_verified only from
+stored fill evidence matching the order identity; gate report shows verified/unverified counts, counting unchanged.
+11 new tests; 393 related pass (1 env-only collection error, py3.10). Integrating session: please review.
+### 2026-10-09 ~23:03 UTC - Claude (cloud session): LOCAL COMMIT (no push) - corrected reruns
+Branch cloud/research-corrected-reruns-20261009 = 7d07812f (parent 620bc8dbe), 143 files: rerun scripts + tests +
+notes + corrected result JSONs + the original 2026-10-09 study folders they execute. Made with a temporary index and
+commit-tree, so the working tree, current branch and .git/index were not touched. Clean-worktree check: 47 tests pass.
+Not committed (pending review/data decision): ES chain, CMC tooling/snapshots, calibration checkpoints, governance docs.
+Note: stale .git/index.lock dated 2026-10-04 16:18 (0 bytes) exists - not created by CLOUD; left in place.
+### 2026-10-09 ~23:04 UTC - Claude (cloud session): Stats v3 HELD before coding - power bar unattainable (oracle bound)
+oracle_power_bound_20261009.py: even a test with the TRUE long-run variance reaches only 33% (overlap7) / 23%
+(persistent) power at 0.5% in 365 days; 80% needs ~1,558 / ~2,745 days. Certification as written cannot pass with any
+method. Operator decision requested (size-only certification, 1% target, or descriptive only). Nothing implemented.
+### 2026-10-09 ~23:07 UTC - Claude (cloud session): Stats v3 (size-only, operator-approved) implemented; method LOCKED; awaiting review
+cmc_calibration_v3.py + run_cmc_calibration_v3.py + 7 tests. Development: worst-cell FP C=2, B=1, A=2 -> locked B
+(studentized circular block 14). Confirmation (108 cells x 1000) is gated on an independent review acceptance file.
+Integrating session: please review before anyone writes review_accepted_v3.txt.
+### 2026-10-09 ~23:12 UTC - Claude (cloud session): independent check of the 14:21 ES paper collector restart - ACCEPT WITH RISK (operational)
+Read-only (.cbp_state/runtime): paper_strategy_evidence.pid.json pid 40685 es_daily_trend_v1 sma_200_trend BTC/USDT coinbase,
+started 14:21:55; paper_strategy_evidence.json refreshed 23:11:58 UTC (5-minute daily-loop poll alive), last_completed_day
+2026-10-09. strategy_runner status: signal buy, signal_changed false, pos_qty 0, enqueued_total 0 -> no orders, as the entry
+rule needs a fresh signal change. Promotion progress per monitor: 3/5 qualified round trips (2 remaining), last fill
+2026-07-09. VM cannot see Mac processes directly; liveness inferred from file refresh. Next real test: the 00:00 UTC cycle.
+### 2026-10-09 ~23:15 UTC - Claude (cloud session): high-risk lane status verified against code
+docs/checkpoints/high_risk_lane_status_verification_2026_10_09.md: daily-loss net policy and strict config loads already
+in code (lane map stale); true gaps = Decimal fee/PnL/storage migration and position-truth authority (needs decisions).
+### 2026-10-09 ~23:16 UTC - OPERATOR DECISIONS (Damian via CLOUD) + CLAIM
+Position truth: on CONFIRMED drift HALT (arm kill switch) and let the operator decide - no automatic correction.
+Confirmation = same CRITICAL drift key seen >= 3 times AND persisting >= 15 minutes; lookup errors do not count;
+a clean observation clears that key (same shape as CBP_SUBMIT_UNKNOWN_NOT_FOUND_*). Decimal: live/shadow paths only;
+paper accounting unchanged while the ES campaign runs. CLAIM: CLOUD adds services/reconciliation/position_truth.py +
+tests (new files; exchange_reconciler.py unchanged). No scheduler/systemd/deploy change in this step.
+### 2026-10-09 ~23:17 UTC - Claude (cloud session): position-truth confirmation + halt binding - READY_FOR_INDEPENDENT_REVIEW
+New services/reconciliation/position_truth.py + tests/test_position_truth.py (9 tests; with existing exchange_reconciler tests
+11 pass; ccxt installed to the VM user site to run them). Decision appended to docs/decisions/position_truth_resolution_authority.md.
+Not scheduled anywhere (no background job/systemd change). exchange_reconciler.py unchanged.
+### 2026-10-09 ~23:20 UTC - Claude (cloud session): CLAIM - Decimal/finite slice in services/execution/live_reconciler.py (live fill ingestion)
+File has no uncommitted edits by others. execution_store_sqlite.py and _executor_reconcile.py are mid-edit by the
+integrating session, so CLOUD does NOT touch them; their Decimal slices wait until those changes land.
+### 2026-10-09 ~23:22 UTC - Claude (cloud session): live fill finite/Decimal validation + position-truth staleness bound - READY_FOR_INDEPENDENT_REVIEW
+docs/checkpoints/live_fill_value_validation_2026_10_09.md. position_truth.py now also ignores venue snapshots older than
+2 minutes; tests/test_position_truth_authority.py census test replaced by an enforcement test (as that test instructed).
+Python 3.12 venv (outside repo): 815 related + 219 research tests pass, covering ES journal, gate report, quote rules, v3.
+### 2026-10-10 ~00:16 UTC - Claude (cloud session): R10 warm-up VERIFIED and FROZEN (prepare only, no activation)
+docs/research/confirmation_warmup_readiness_20261010.md. 24 bars backfilled per product; 300/300 bars for BTC/ETH/SOL/ADA/XRP;
+first 276 bars match the 10-09 preflight hashes; freeze manifest warmup_freeze_manifest_20261010.json (3a2ba0a2...) against
+registration b979c626.... No scoring, simulate, campaign, account, date or scheduler change.
+
+### 2026-10-10 UTC - Codex AUDITOR: independent Coinbase warm-up verification
+Objective: verify the separate session's frozen warm-up without activation. SHOWN: all five exact USD markets have 300 validated hourly bars; reconstructed in-memory freeze equals the saved manifest, and all original 276-bar prefixes match preflight hashes. Contract/source/fee/registration identities match; registration predates evaluation. Read-only archive access, no scoring or operational changes. Added docs/research/confirmation_warmup_independent_verification_20261010.md to preserve proof. Targeted runner tests: 9 passed (Python venv, VERIFIED_ENV). Content readiness ACCEPTED_WITH_RISK; venue authenticity, future collection, activation and profitability remain outside this verification.
+
+### 2026-10-10 UTC - Codex AUDITOR: forward-study activation requirements reviewed
+Compared the unchanged registered USD plan, runner, historical independent GATE record and independently verified warm-up. Documented prerequisites satisfied with risk; no fresh independent reviewer run claimed. Added confirmation_activation_readiness_review_20261010.md. Runner has no activation command/enforcement: preserve hashed draft plan and use a separate activation record if authorized. Collection remains bounded foreground; no automatic collection proof. No scoring or runtime/account/scheduler changes. Tests not repeated: preceding targeted verification was 9 passed. Documentation/readiness ACCEPTED_WITH_RISK, not activation or profitability acceptance.
+
+### 2026-10-10 00:47 UTC - Codex ENGINEER: operator-authorized research activation record
+User authorized continuation after explicit research-only activation recommendation. Added separate activation_20261010.json, preserving the hashed plan and its original draft status. Rechecked source/registration identities and reconstructed warm-up freeze against saved manifest successfully before recording. No evaluation scoring, public fetch, background collector, campaign, account or scheduler changes. Record explicitly does not enforce activation or prove collection. Record validation and diff check required next. Financial-research documentation handoff READY_FOR_INDEPENDENT_REVIEW; operator authorization is shown, not a claim of new independent technical review.
+
+### 2026-10-10 00:49 UTC - Codex AUDITOR: bounded collection checkpoint
+User requested next step. SHOWN: zero completed evaluation bars at this check; first hourly evaluation bar closes 01:00 UTC (9 p.m. New York October 9). No incomplete-bar download performed. Verified existing bounded public-backfill interface and isolated archive route; added confirmation_collection_checkpoint_20261010.md. Separate GATE Hooke returned ACCEPTED_WITH_RISK for activation record only, no blockers; verified all references including 11 selected sources. Earlier absence of scoring remains unprovable from artifacts; activation not runner-enforced. No scheduler/background/campaign/account changes. Collection remains time-dependent; local checkpoint complete, activation record independently ACCEPTED_WITH_RISK.
+
+### 2026-10-10 after 01:09 UTC - Codex ENGINEER: first completed evaluation hour collected
+Continued approved bounded public-data collection. Initial sandbox request failed DNS before ingestion; network-enabled retry used the existing backfill with explicit Coinbase/USD products, hourly timeframe, one-page bounds and inclusive upper bound 00:59:59 UTC to exclude the incomplete 01:00 bar. Each of BTC, ETH, SOL, ADA and XRP wrote exactly one completed 00:00 UTC candle; separate *_evaluation_first_hour_20261010.json receipts preserved. Read-only validation shows 301 contiguous valid bars per market and all frozen 300-bar warm-up hashes unchanged. No scoring, strategy/risk changes, orders, campaigns or background/scheduler changes. VERIFIED_ENV. Collection proof complete; content remains research data, not profitability or venue-authenticity proof.
+
+### 2026-10-10 01:27 UTC - Codex AUDITOR: independent CMC quote-policy review
+Next evaluation candle not yet closed; did not repeat ingestion. Found separate session already implemented R03, avoiding duplicate implementation. Ten supplied tests passed; additional probes show quantity mismatch between ticker-valued outcomes and later book sizing, negative exit quantity qualifies, and missing 7/14/28 sensitivity entries can satisfy all-ranges condition. Added quote_qualification_independent_review_20261010.md. Primary scoring remains disabled, no execution claim. Reviewed implementation untouched; acceptance INCOMPLETE pending bounded repairs and regressions.
+
+### 2026-10-10 UTC - Codex ENGINEER: bounded quote-qualification corrections
+HIGH risk research evidence semantics, VERIFIED_ENV. Fixed three reproduced review gaps in cmc_quote_qualification.py: capacity uses registered ticker entry quantity, quantities/entry asks must be finite positive nonboolean, descriptive gate requires exact 7/14/28 intervals with valid ordered positive bounds. Added regressions and policy correction note. Registered returns, thresholds, original artifacts and scoring-disabled state preserved. Targeted quote/book/integrated-report/statistics suite: 48 passed. No full suite, scoring, downloads or runtime changes. Requested independent review; READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-10 UTC - Codex GATE: bounded quote corrections accepted
+User explicitly supplied INDEPENDENTLY REVIEWED ACCEPTED. Separate reviewer Hooke returned ACCEPTED_WITH_RISK with no blockers, independently reporting 58 targeted tests plus mismatch and 13 invalid-value probes passing. Recorded disposition alongside preserved historical findings. Scope only the three bounded qualification corrections; no statistical certification, profitability, scoring or runtime authorization implied. Primary scoring remains disabled. ACCEPTED_WITH_RISK.
+
+### 2026-10-10 UTC - Codex AUDITOR: statistical v3 evidence-contract review
+Reviewed separate session's size-only synthetic v3 implementation under unchanged operator decision. Seven supplied tests pass. In-memory summary probe with 108 duplicate iid/null cells and wrong lock hashes still returns SIZE_TOLERANCE_MET_POINTWISE, with zero refusal cells. Confirm/resume/summary identity and exact-grid validation incomplete; plan/runtime not bound in lock. Added statistical_method_v3_independent_review_20261010.md. No confirmation seeds generated, acceptance file, market access, scoring or original artifact change. Acceptance INCOMPLETE pending bounded evidence-contract fixes and independent review; do not run confirmation yet.
+
+### 2026-10-10 UTC - Codex ENGINEER: statistical v3 evidence-contract corrections
+HIGH risk research validation, VERIFIED_ENV. Added strict lock identity (two sources, plan hash, NumPy), hash-bound JSON acceptance, validation of all saved cells before resume, exact unique108-cell summary grid and strict finite means/integer counters/history/lock checks. Added tests/test_cmc_calibration_v3_evidence.py. Twelve targeted method/evidence tests passed. Existing development/legacy lock preserved and intentionally refused; no method re-selection, confirmation seeds, new lock or acceptance generated. New reviewed provenance transition required before running confirmation. Independent correction review requested; mathematical method review remains separate. READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-10 UTC - Codex GATE: statistical evidence-contract corrections accepted
+Human explicitly supplied INDEPENDENTLY REVIEWED ACCEPTED. Separate Hooke review returned ACCEPTED_WITH_RISK: 12 tests and 16 additional refusal probes passed, no blockers; legacy lock refused as intended. Acceptance only bounded evidence validation, not mathematical method, provenance-lock transition or confirmation-run authorization. Original artifacts unchanged; no generation/scoring/runtime changes. ACCEPTED_WITH_RISK.
+
+### 2026-10-10 UTC - Codex ENGINEER: separate statistical v3 provenance transition
+Prepared cmc_calibration_v3_evidence_v2/lock_v3.json with current source/plan/NumPy identity and legacy parent/development hashes. Verified unchanged method module, prior runner/development agreement, selected B method and zero original confirmation parts. Original directory/artifacts preserved; no selection rerun or confirmation generation. Documented explicit imported-runner OUT selection rather than silent default rewrite. Mathematical review requested separately. Independent provenance review required; no acceptance marker written. READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-10 UTC - Codex GATE: selected statistical method code-contract review recorded
+Separate Hooke review ACCEPTED_WITH_RISK for selected method B code-contract correctness, no blocker, independent formula/invariance/weighting/refusal probes passed without confirmation generation. Recorded statistical_v3_mathematical_review_20261010.md with whole-block/population-versus-sample SE limitations. Size/power/edge remain uncertified. Requested next separate provenance-lock review only. No acceptance marker, generation, outcomes or operational changes.
+
+### 2026-10-10 UTC - Codex GATE: statistical provenance transition accepted
+Separate Hooke review returned ACCEPTED_WITH_RISK with no blockers; checked all parent/current identities and unchanged method module; in-memory redirected lock accepted and confirmation refused missing acceptance before generation. Zero confirmation parts in both directories. Preserved immutable lock; documented historical pending-math wording superseded by completed bounded review. Size certification remains pending. No confirmation generation or acceptance marker written. Next meaningful action is explicitly authorized bounded synthetic confirmation, not further method retuning.
+
+### 2026-10-10 UTC - Codex ENGINEER: approved synthetic v3 confirmation started
+User said next after bounded synthetic confirmation recommendation. Added hash-bound review_accepted_v3.json in separate evidence_v2 directory reflecting three separate Hooke acceptances, not statistical certification. Started current locked method B on approved108-cell/1000-history grid, one immutable cell per checkpoint with600-second between-cell budget. No market data/scoring/collector/account/campaign changes. Original artifacts unchanged. Outcome pending; no retuning or claims from partial cells.
+
+### 2026-10-10 UTC - Codex ENGINEER: synthetic v3 confirmation complete, negative
+108 cells/108000 histories completed in24.4seconds under locked B. Summary NO_CERTIFIED_SAMPLE_V3:15/18 supported null cells fail tolerance, only iid lengths pass; all refusal-only cells refuse. Saved separate immutable cell outputs/summary and statistical_v3_confirmation_result_20261010.md. No method/threshold changes, market outcomes or scoring. Primary gate remains blocked. Requested independent grid/hash/count/Wilson aggregation review without repeating simulation. READY_FOR_INDEPENDENT_REVIEW for negative result artifacts, not statistical certification.
+
+### 2026-10-10 UTC - Codex AUDITOR: negative confirmation closed; economic omission identified
+Separate Hooke accepted v3 negative aggregation WITH RISK, exact grid/hashes/counts/Wilson criteria verified, no simulation rerun. Reviewed separate interim profit report against saved dynamic results: recent breakout15 primary50bps marked1566.14 vsBTC1292.32 contradicts blanket no-rule-beats-BTC claim. Preserved original; added profit_report_independent_review_20261010.md with positive result, open-position/concentration/earlier-loss caveats, expense-duration and benchmark framing corrections. No selection, scoring, simulations or campaign changes. Interim report INCOMPLETE pending correction, not profitability certification.
+
+### 2026-10-10 UTC - Codex ENGINEER: corrected full dynamic-window economic scorecard
+Added profit_scorecard_corrected_20261010.md covering all8 frozen dynamic strategies in both windows, from saved artifacts only. Restored positive breakout15 and ETH-over-BTC results; reported earlier losses, marked/open-position status, drawdown/valuation gaps and explicitly illustrative infrastructure allocation. Source hashes pinned; original reports preserved. No reruns, tuning, scoring or campaigns. Arithmetic/source verification performed, independent report review requested. HIGH financial-report semantics; READY_FOR_INDEPENDENT_REVIEW, not profitability certification.
+
+### 2026-10-10 01:56 UTC - Codex GATE: economic scorecard accepted and checklist reconciled
+Separate Hooke review ACCEPTED_WITH_RISK:16balances,2source hashes, return/risk and infrastructure scenario arithmetic independently verified; no blockers, no reruns. Reconciled authoritative R03/R05/R07/R10/R12 statuses to existing proof, retaining final integration/weekly/statistical/mature-forward gaps. Next evaluation hour not complete at01:56UTC; did not repeat first-hour fetch or ingest incomplete bar. No campaigns/scoring/operational changes. Dynamic scorecard acceptance is saved-artifact comparison only, not live profitability/promotion.
+
+### 2026-10-10 UTC - Codex AUDITOR: user shared update reviewed
+Read full attachment7b34c444. Compared new position_truth/live_reconciler changes with current code;27 targeted tests pass. Extra probes reproduce Decimal-to-float infinite outputs and environment override reducing agreed3checks/15min to1/0; missing USD fee cost still defaults0 contradicting broad claim. Added shared_update_independent_review_20261010.md, reconciling historical quote/warmup statuses and unearned Nov8 scoring claim with later accepted work/negative v3 result. No implementation/runtime/scheduler changes. New high-risk submissions INCOMPLETE pending bounded correction/review; no broad audit reopened.
+
+### 2026-10-10 UTC - Codex ENGINEER: bounded live-fill and drift-policy corrections
+HIGH financial/runtime risk, VERIFIED_ENV isolated tests. Refuse overflowing/nonzero-underflowing float conversions before fill insertion/emission; explicit USD-like fee requires cost. Enforce accepted3-observation/15-minute minima in env and direct policy construction. Added regressions including matched live-loop overflow/underflow cursor hold.41 targeted live-fill/position/authority tests passed. No runtime, scheduler, paper-accounting or campaign changes. Absent/non-USD fees and full Decimal migration remain open; docs corrected accordingly. Independent review requested; READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-10 UTC - Codex GATE: bounded live-fill/drift corrections accepted
+Separate Hooke GATE ACCEPTED_WITH_RISK, no blockers:41 tests plus25 rejection probes and confirmation-boundary checks passed. Acceptance only numeric representability/missing explicitlyUSDcost and3checks/15minute floor. Original submission, broader integration, absent/nonUSDfees and full Decimal precision remain outside acceptance. No runtime/deployment/scheduling changes implied.
+
+### 2026-10-10 after02:05UTC - Codex ENGINEER: second completed evaluation hour collected
+Approved bounded public-only Coinbase backfill for01:00 candle, cutoff01:59:59 to exclude incomplete02:00 bar. Five separate second-hour receipts each report1row written. Exact-grid read-only verification:302valid contiguous bars per product, original300barwarmup and prior301barprefix hashes unchanged. No scoring, trading, campaign or scheduler changes. Collection proof complete, no profitability inference.
+
+### 2026-10-10 02:06UTC - Codex ENGINEER: integrated CMC diagnostic checkpoint
+52 targeted cohort/quote/evaluator/statistics/snapshot/report tests passed. Real-snapshot wrapper reports101HISTORY_UNCERTAIN,0returns, bothviewsNOT_READY_90_DAYS, primaryblocked andscoringfalse. Separate020655Z artifact preserves originals. First021000Z output mistakenly had3minute-future cutoff; preserved/superseded, not current-time evidence. Added integrated_diagnostic_checkpoint_20261010.md and requested independent R06 diagnostic integration review. No rawdata/rules/campaigns/scheduler/account changes. READY_FOR_INDEPENDENT_REVIEW, not primaryscoring or maturedcohort acceptance.
+
+### 2026-10-10 UTC - Codex ENGINEER: wrapper accepted-source boundary repaired
+Separate reviewer found wrapper second scan reintroduced future rejected envelopes. Restricted second load to base report source_files, verifying exact hashes and cutoff; changed evidence refuses explicitly. Added future-duplicate-linkage and changed-source regressions. Initial future test date corrected because it was before synthetic reportcutoff; final54 targeted tests pass. No snapshots, registeredrules/scoring/campaign changes. Valid prior020655artifact separately acceptedWITHRISK; wrapper correction READY_FOR_INDEPENDENT_REVIEW, review requested.
+
+### 2026-10-10 UTC - Codex GATE/AUDITOR stages: wrapper accepted; master status reconciled
+Separate Hooke review accepted bounded R06 correction WITH RISK:54tests and original futurebook/changedhash/cutoff probes pass, registeredstatistics unchanged, scoringblocked. Recorded diagnostic acceptance in checklist; primaryintegration remains incomplete. Updated local master using already reviewed evidence:all96casecoverage distinction, v3negative15/18, naturaldaily one-run proof,101historyuncertain, positive recentbreakout and earlierfailure, verifiedwarmup/researchactivation/two collectedhours. No new financial inference, originalartifact edits or externaldocument-update claim. Documentation reconciliation ACCEPTED; no runtime/scoring/campaign changes.
+
+### 2026-10-10 02:30 UTC - Codex AUDITOR then ENGINEER: stale next-action guidance corrected
+Checked current time and authoritative checklist before repeating work. The third evaluation hour is incomplete until03:00UTC (October9 11pm New York). Checklist footer incorrectly assigned completed quote work as next and called natural daily capture unverified. Reconciled footer with existing accepted evidence and open tasks; no data fetch, tests, scoring, campaign or scheduling changes. Documentation-only LOW risk; verification: diff whitespace check. ACCEPTED for status reconciliation, not new integration proof.
+
+### 2026-10-10 03:39 UTC - Codex AUDITOR then ENGINEER: campaign check-in and third completed research hour
+SHOWN: paper collector PID40685 alive, fresh03:37UTC status idle waiting for next day; latest completed cycle00:02UTC with zero new orders/fills/closed trades and unchanged20fills/10closed trades. Continued approved bounded public Coinbase collection for02:00UTC candle only, excluding incomplete03:00UTC candle. Five separate third-hour receipts each report one row written. Read-only exact-grid validation shows303contiguous valid bars per BTC/ETH/SOL/ADA/XRP USD market; all frozen300bar warmup hashes unchanged. VERIFIED_ENV. No strategy scoring, runtime restart, campaign/config/account or scheduler changes. Collection verification complete; no new profit evidence. Targeted archive validation passed; full test suite not run for data-only ingestion.
+
+### 2026-10-10 UTC - Codex ENGINEER: cross-family economic summary
+HIGH financial-report semantics. Added consolidated_economic_summary_20261010.md from corrected frozen artifacts, preserving positive results and separating fresh accounts, continuous hybrid accounts, incomplete prefixes and event averages. Bound seven source hashes; referenced separately accepted dynamic scorecard; calculated explicit shared infrastructure scenarios, not realized profit. Updated master with companion and three-hour collection coverage. No reruns, original edits, scoring, runtime or schedule changes. Source reads/arithmetic performed; no full suite for documentation-only reporting. Requested separate Hooke review. READY_FOR_INDEPENDENT_REVIEW. Mature evidence and natural weekly run require elapsed time; external hosted document remains unverified.
+
+### 2026-10-10 UTC - Codex GATE: consolidated historical report accepted with risk
+Separate Hooke review found no blockers and verified all seven manifest hashes, quoted balances/benchmarks/drawdowns/counts/event statistics, account bases and infrastructure arithmetic. ACCEPTED_WITH_RISK for saved-artifact reporting only, not original unreviewed rerun implementations, execution realism or future profitability. Updated R12 disposition. Additional local checks verify all14primary short-hold variants lose in each window, hybrid completion statuses and five infrastructure calculations. Diff whitespace check passed; no full suite for documentation-only work. Remaining future collection, natural weekly proof, external hosted summary and statistical-method development are explicitly incomplete; no operational changes made.
+
+### 2026-10-10 UTC - Codex DIRECTOR: new bounded statistical reference contract
+User repeated get it all done after explicit fresh synthetic study proposal; treated as authorization to scope a separate experiment, not to certify markets. Added statistical_method_v4_contract_20261010.md: one conservative finite-family order-statistic reference candidate, disjoint reference/confirmation streams, unchanged V3 generator, unchanged size-only bar, no market-transfer or primary-scoring authority. V2/V3 and originals untouched. Reviewed NIST primary methodological reference; no synthetic generation or code changes. HIGH research semantics; independent contract review requested before implementation. READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-10 UTC - Codex GATE then ENGINEER: accepted contract and V4 reference proof
+Separate Hooke accepted contract WITH RISK, verifying order-statistic probability and finite-family additive-shift scope; no primary-scoring certification. Implemented isolated run_cmc_reference_v4.py and10targeted tests (10passed). Generated18reference cells/18000histories and immutable lock in newdirectory; cutoffs90/180/365days=0.062331821910642425/0.036341832993420704/0.035982765795621464. Historical generator hash verified unchanged, originals preserved. No confirmation histories, market access, accounts, schedules or scoring. Runtime bound is checked between cells, not hard cancellation inside a cell. Implementation/reference acceptance READY_FOR_INDEPENDENT_REVIEW; confirmation must wait for separate review and matching acceptance.
+
+### 2026-10-10 UTC - Codex GATE then ENGINEER: reference accepted; confirmation runner prepared
+Separate Hooke accepted implementation/reference WITH RISK:18cells/18000finite means, hashes/cutoffs/current identities and10tests verified; complete resume tested with generation/writes forbidden. Added isolated run_cmc_confirmation_v4.py with matching review gate, reconstructed reference maxima/hashes, exact108cell schema, strict count/identity checks and immutable checkpoint/summary output. Targeted21tests passed before final test-isolation adjustment; rerun below. No confirmation data generated before independent runner review. HIGH research semantics; READY_FOR_INDEPENDENT_REVIEW. No market/scoring/operations changes.
+
+### 2026-10-10 UTC - Codex GATE then ENGINEER: V4 fresh confirmation complete
+Separate Hooke accepted confirmation runner WITH RISK:21tests and schema/refusal/summary/Wilson-boundary probes, no blockers. Wrote matching hash-bound acceptance record then ran operator-authorized108000fresh histories. Result FINITE_FAMILY_REFERENCE_ONLY:18/18null cells pass,36/36refusal cells pass,7null positives total; at0.5% effect17/18cells detect0/1000, remaining cell12/1000. Documented conservative near-zero-power limitation in statistical_v4_reference_result_20261010.md; primaryscoring remainsfalse. No threshold changes, market access, accounts, campaigns or schedule changes. Aggregation independently reviewed next; READY_FOR_INDEPENDENT_REVIEW for result, not market certification.
+
+### 2026-10-10 UTC - Codex GATE: V4 bounded study closed
+Separate Hooke accepted saved aggregation/result WITH RISK:108uniquecells, matching identities, all108Wilson bounds and reported counts independently reconstructed; no blockers. Updated master/checklist. Final21targeted tests passed, diff whitespace clean. V4 feasibility study complete; primarymarketmethod still INCOMPLETE because finite-family-only bound has near-zero power at0.5%. No repeated generation or tuning to improve appearance. External summary and natural future scheduling/mature evidence remain outside local completion.
+
+### 2026-10-10 04:04 UTC (00:04 New York) - Codex AUDITOR: authentication-navigation incident
+User requested incident documentation. SHOWN: the browser artifact link displayed Sign in to view this page. Claude desktop initially displayed the existing Damian Pro session; opening its research artifact then displayed For your security, sign in again. I clicked Sign in again without first explaining that this could replace the current desktop view with authentication UI, then clicked Get started. The desktop moved to the sign-in screen. A subsequent Continue with Google attempt was rejected by tool safety review; no workaround was attempted. Later fresh UI inspection showed Claude signed in as Damian Pro. No document edits, cookie clearing, credential changes or access revocations were performed. UNVERIFIED: underlying reason for elevated reauthentication, whether the prior session was globally invalidated, and how the signed-in state was restored. Do not claim I caused an account-wide sign-out or that the user remained signed out.
+Failure: I treated navigation into reauthentication as an ordinary recovery step and described the account state too broadly instead of distinguishing app view, browser session and artifact-access requirements. Corrective rule: when existing account UI is available but a specific artifact requires reauthentication, report that exact distinction; preserve the current session view and explain impact before entering an auth-reset flow. After interruption, refresh visible state before repeating any authentication claim or action. Do not request another login when current signed-in state is already shown. Incident recording is LOW-risk documentation, ACCEPTED; not proof the external document is editable or reconciled. Verification: visible UI evidence and diff whitespace check; no code tests applicable.
+
+### 2026-10-10 18:41 UTC (14:41 New York) - Codex ENGINEER: eighteenth completed research hour
+Collected approved public Coinbase17:00UTC candle only for fiveUSDmarkets; each new receipt1row. VERIFIED_ENV read-only validation confirms318consecutive bars each, prior317-bar hashes and300bar warmups unchanged, current contract identities matching. Saved separate eighteen-hour hash-chained checkpoint; taskledger updated. Assertions passed, no fullsuite for data-only ingestion. ACCEPTED content proof only. No scoring, campaign/account/settings changes, statistical retest or restart.
+
+### 2026-10-10 after17:09 UTC (13:09 New York) - Codex ENGINEER: three completed research hours
+Collected approved public Coinbase14:00/15:00/16:00UTC candles only, five new bounded receipts each3rows. VERIFIED_ENV: existing read-only archive validator confirms317consecutive bars per market; prior314-bar prefix and300-bar warmup hashes unchanged, current contract identities match. Added separate seventeen-hour content checkpoint chained to prior checkpoint; updated taskledger. Data assertions passed; no fullsuite for ingestion-only work. ACCEPTED content proof only. No scoring, failed-method retest, campaign/account/settings changes, scheduler change or restart.
+
+### 2026-10-10 14:28 UTC (10:28 New York) - Codex ENGINEER: two new completed research hours
+Continued approved bounded public Coinbase collection for12:00/13:00UTC candles only. Five new receipts each show2rows; existing archive validation confirms314consecutive bars per market, prior312bar hashes and300bar warmup unchanged, current frozen contract identities matching. Saved separate hash-chained fourteen-hour checkpoint and updated taskledger. VERIFIED_ENV, read-only exact-grid/hash assertions passed; no fullsuite for data-only ingestion. No scoring, statistical retest, campaign/account/settings changes or backgroundcollector restart. ACCEPTED content/collection proof only, not economic inference.
+
+### 2026-10-10 12:12 UTC (08:12 New York) - Codex ENGINEER: twelfth completed research hour
+Continued approved bounded public-only Coinbase collection, not failed-method retesting. Collected11:00UTC candle for fiveUSDmarkets BTC/ETH/SOL/ADA/XRP with separate new receipts,1row each; excluded incomplete12:00UTC candle. SHOWN: existing archive validator confirms312consecutive bars each, prior311-bar content hashes unchanged and all300-bar warmup hashes preserved; current frozen contract identities match. Added separate collection_prefix_20261010T120000Z.json chained to prior checkpoint; scoring_authorizedfalse, not phasecompletion. Updated taskledger. VERIFIED_ENV; read-only assertions passed, no fullsuite for data-only collection. No market scoring, campaign/account/config/scheduler changes or background collector. CMC natural run still future13:52UTC(09:52NewYork), no manual duplicate.
+
+### 2026-10-10 - Codex GATE: authorized fresh pilot closed with negative evidence
+Separate Hooke aggregation/report review ACCEPTED_WITH_RISK, no blockers. Independently reproduced exact360-trial grid, allhashes/schemas/identities/approvalreceipts, cell counts/Wilsonbounds/flags and PILOT_SCREEN_FAILED:240intervals120policyrefusals5flaggedcandidatecells. Totalrecordedcompute19.9715534sec inclbenchmark below600. Read-only complete-resume probe again forbade generation/writes and preserved hashes. Updated result and authoritative taskledger: authorized bounded pilot complete, candidate notadvanced; R05 marketmethod INCOMPLETE. No retuning, fullconfirmation, scoring or operational changes. Final whitespace check passed.
+
+### 2026-10-10 - Codex ENGINEER: fresh paired-ratio pilot complete, negative
+All360fresh nullhistories completed:240candidate intervals,120registered policy refusals,5/12candidate cells flagged under frozen >2/20positive/unavailable screen. PILOT_SCREEN_FAILED. Recorded evaluationcompute18.3200790sec plusbenchmark1.6514744sec, below600budget; not full engineeringwalltime. Saved immutable trial artifacts, summary and360-file hashinventory. Complete-resume probe forbade generation/writes and passed. Added paired_ratio_pilot_result_20261010.md, preserving all failures and low-power/finite-sample limits. No retuning/fullconfirmation/market scoring/operations. Independent aggregation/result review requested; READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-10 - Codex GATE then ENGINEER: reviewed budget permits exact pilot
+Separate Hooke independently verified12benchmark cells, allidentities and2232unique streams; projection76.0589767seconds plusbenchmark1.6514744=77.7104511 below600. ACCEPTED_WITH_RISK for exact360nullhistories only, boundbenchmark faaf39c88a4161e66a3a6d4474e5fe8fc257f0bcb3dced38d89c1b3f28e35353. Recorded matching budget_review.json and proceeding with locked pilot. No tuning, confirmation, market data/scoring or operational changes authorized.
+
+### 2026-10-10 - Codex GATE then ENGINEER: pilot runner accepted for cost benchmark
+Separate Hooke review ACCEPTED_WITH_RISK,69tests independently passed in0.83sec, no remaining blockers for12-history costbenchmark. Recorded matching identity-bound runner_review.json. Pilot must wait for separate budget receipt review. Generator/originals unchanged; no scoring or operations. Starting reviewed12-history costbenchmark only, not pilot.
+
+### 2026-10-10 - Codex ENGINEER: completed-replicate refusal preserved
+Second review reproduced legitimate candidate refusal after all2000replicates if final interval arithmetic overflows. Corrected pilot schema to allow INCOMPLETE with completed_replicates2000 and no interval; regression added. No benchmark/pilot generated. Bounded re-review requested, READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-10 - Codex ENGINEER: bounded pilot review corrections
+Independent review withheld benchmark permission for four gaps: saved-result schema, repeat benchmark generation, unrecorded failed attempts, and insufficient budget reconstruction. Added exact candidate metadata/disposition validation, pre-generation benchmark reuse/refusal, persistent FAILED_ATTEMPT with no automatic retry, exact12-cell benchmark projection reconstruction and budget gate on aggregation. Benchmark cost now counts toward shared600second ceiling. Added regression tests. No benchmark or pilot generated. Re-review requested; READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-10 - Codex ENGINEER: fresh pilot manifest and gated runner
+User authorized completing fresh synthetic validation under reviewed budget. Added exact360-history null pilot manifest, separate benchmark/pilot SHA-derived streams, original generator hash, event-weighted adapter, refusal policy and locked coarse screen; no power/certification claim. Added gated benchmark/pilot/aggregation runner with exclusive trial artifacts, exact-grid validation, resume and600second cumulative history budget. Deterministic proof and independent manifest/runner review precede any benchmark/pilot. HIGH research semantics; READY_FOR_INDEPENDENT_REVIEW. No market outcomes, original artifacts or operational changes.
+
+### 2026-10-10 12:00 UTC - Codex ENGINEER: user-requested pending-link cleanup
+VERIFIED_ENV bounded artifact cleanup. Acquired existing collector lock; proved all5pending files regular hard links to one published snapshot each; verified JSON and content hashes before unlink. Removed only extra names, synchronized directory, verified all8published hashes and file set unchanged and no pending leftovers. Added pending_cleanup_20261010.md with exact mapping/hashes and recovery boundary. Existing cleanup-denial tests2passed; logger already attempts unlink. External task delete permissions UNVERIFIED and unchanged, so recurrence prevention not claimed. No code, schedule, campaign, account or published artifact changes. READY_FOR_INDEPENDENT_REVIEW of cleanup evidence.
+
+### 2026-10-10 - Codex GATE: complete candidate implementation batch closed
+Separate Hooke re-review ACCEPTED_WITH_RISK, no remaining blockers in bounded correction. Independent isolated-bytecode-prefix run52passed in0.77sec; parent52passed in0.64sec. Numeric-metadata probes refuse booleans/floating counts and invalid means, algorithm unchanged. Recorded standalone implementation disposition in contract and authoritative checklist. No pilot, integration, model certification, market scoring or operational changes. R05 remains INCOMPLETE for primary inference. Diff whitespace check passed; full repository suite not run for isolated research slice.
+
+### 2026-10-10 - Codex ENGINEER: independent numeric-metadata correction
+Independent review found equality-based metadata checks accepted boolean counts/means and floating event totals. Added strict nonnegative-integer count validation excluding booleans for daily and aggregate metadata, finite numeric mean validation, and overflow-safe numeric checks. Added10regressions. This bounded correction preserves candidate algorithm and scoring=false; no pilot or market use. Re-review requested, READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-10 - Codex ENGINEER: isolated paired-ratio calculator and proof
+Separate Hooke accepted complete development contract WITH RISK, no blockers. Implemented cmc_paired_ratio_candidate.py isolated from market reports/gates: paired circular blocks, exact cube-root rule, fixed2000replicates, basic interval, strict completeness/count/mean checks, whole-interval zero-denominator refusal, degeneracy and content/version metadata. Added19deterministic tests; with12existing completeness tests,31passed in0.51sec. No pilot, market outcomes, code integration, scoring or operational changes. Independent implementation review requested; HIGH research logic, READY_FOR_INDEPENDENT_REVIEW. Contract acceptance does not certify mathematical transfer or market applicability.
+
+### 2026-10-10 - Codex DIRECTOR: complete paired-ratio development contract
+User requested completing substantive work rather than incremental acknowledgements. Added paired_ratio_candidate_contract_20261010.md specifying one circular paired-calendar basic-interval candidate, exact block growth/resampling/centering/quantiles, input and denominator refusal, identity metadata, deterministic proof and bounded fresh pilot prerequisites. Consulted original Theorem2.1/Remark2.1; mathematical transfer and market assumptions explicitly unverified. No simulations, implementation, scoring or operational changes. HIGH research semantics; independent full-contract review requested, corrections within scope permitted. READY_FOR_INDEPENDENT_REVIEW; R05 not closed.
+
+### 2026-10-10 - Codex GATE: ratio-inference memo accepted with risk
+User approved; separate Hooke review found no blockers in ratio gradient, cross-term, linearization or source boundaries. Recorded ACCEPTED_WITH_RISK for memo only and clarified V is the limiting sqrt(n)-scaled variance (estimator variance approximates V/n). Market assumptions remain UNVERIFIED; no method implementation or scoring authority. No tests applicable to documentation-only clarification; diff whitespace check performed. R05 remains INCOMPLETE.
+
+### 2026-10-10 - Codex AUDITOR: ratio-inference source and derivation review
+Continued accepted research objective with bounded primary-source review, not another synthetic search. Added ratio_inference_review_20261010.md: explicit event-weighted ratio gradient/long-run variance conditional on joint CLT and positive denominator/variance; separates algebra from market applicability and finite-sample coverage. Checked author paper Theorem2.1 and university delta-method notes online. Existing fixed-block bands and V4 not certified; no method selection, implementation, scoring, simulations or operational changes. HIGH research semantics; independent memo review requested. READY_FOR_INDEPENDENT_REVIEW. R05 remains INCOMPLETE.
+
+### 2026-10-10 11:50 UTC - Codex GATE: timing amendment accepted with risk
+User approved; separate Hooke review returned ACCEPTED_WITH_RISK with no blockers for timing only. SHOWN: 90 entry days, 30 preceding days, conservative February15 12UTC endpoint maturity; fixed coverage refusal, unchanged target and one-look boundary verified. Recorded acceptance in amendment and authoritative checklist. R05 primary statistical method remains INCOMPLETE; no scoring, schedule, collection, campaign or account changes. Documentation-only verification: reviewer findings and diff whitespace check; no repeated simulations or full suite.
+
+### 2026-10-10 - Codex DIRECTOR: prospective primary-analysis timing amendment
+HIGH research-contract semantics. User authorized best-project treatment after the one-look recommendation. Added primary_analysis_schedule_20261010.md: fixed prospective 90-calendar-day entry window November10-February7, preceding30day coverage, earliest February15 12UTC analysis, no missing-day window shifts or repeated success checks. Preserves event target and trading rules; missing coverage/method/power refuses rather than certifies. Date arithmetic verified locally; no outcome analysis, code, schedules, collectors, accounts or campaigns changed. Independent review requested. READY_FOR_INDEPENDENT_REVIEW; no scoring authority.
+
+### 2026-10-10 - Codex ENGINEER: first eleven-hour collection checkpoint
+Objective: preserve the already collected confirmation prefix without early evaluation. LOW-risk metadata-only change, VERIFIED_ENV. Added research/coinbase_confirmation_usd_v1/collection_prefix_20261010T110000Z.json, explicitly COLLECTION_CHECKPOINT_NOT_PHASE_COMPLETION with scoring_authorized false. SHOWN: read-only verification using existing archive validation and row hashing confirms 311 consecutive hourly bars per BTC/ETH/SOL/ADA/XRP USD market, including 11 evaluation bars before 11:00 UTC; all total/evaluation hashes, original 300-bar warmup hashes, parent manifest hash and current contract identities match. Originals, runner, registered phase boundaries, archive, schedules, campaigns and accounts unchanged. Chosen because the existing phase-freeze interface must not label a partial evaluation period complete. No repeated downloads or strategy scoring. Verification: five-market read-only assertion script passed; no full suite for metadata-only work. ACCEPTED for content checkpoint only; exchange authenticity, future collection completeness and economic performance remain UNVERIFIED.
+### 2026-10-10 - Codex ENGINEER: bounded confirmation collection workflow
+User requested getting substantive work done after questioning repetitive check-ins. Added collect_confirmation_batch.py and operator documentation, reusing frozen contract verification, public backfill, strict archive reads and row hashes. One foreground command checks all markets, requests at most24 completed hours per market, skips existing rows, preserves failure artifacts and emits a nonscoring partial checkpoint only when all markets validate. No frozen runner, strategy, scheduler, campaign, account or trading setting changed. Independent reviewer reproduced an alias-path lock defect, corrected by canonicalizing archive paths with an alias-contention regression. Initial real-ingestion test failed because epoch1970 fixture timestamps exercise seconds-versus-milliseconds normalization; corrected fixture uses modern2026timestamps. Final10tests passed locally0.18seconds and independently0.24seconds, including real backfill/MarketStore ingestion. Real archive read-only preflight passed with no missing completed hours. Separate Hooke final review ACCEPTED_WITH_RISK for wrapper/tests only; noncooperating writers, power-loss recovery and actual network ingestion remain UNVERIFIED. No full suite rerun for isolated wrapper. Active GATE, ACCEPTED_WITH_RISK; no scoring/scheduler authority.
+### 2026-10-10 19:10 UTC - Codex ENGINEER: reviewed batch first public ingestion
+Continued accepted forward-data collection using the independently ACCEPTED_WITH_RISK wrapper. VERIFIED_ENV. Read-only preflight showed one missing completed hour per market. Foreground --collect completed successfully: BTC/ETH/SOL/ADA/XRP USD each319 consecutive hourly bars including19 evaluation bars through18UTC; prior prefix and frozen contract identities checked before/after. Saved collection_batch_20261010T190000Z.json with parent hash and scoring_authorized false, updated R10 count and latest-checkpoint pointer. No duplicate downloads, strategy evaluation, scheduler, campaign, account or live-trading changes. SHOWN: real public-network ingestion succeeded on this batch; not sustained collection, venue authenticity, fill or profitability proof. No source-code changes or repeated test suite; existing wrapper acceptance remains ACCEPTED_WITH_RISK.
+### 2026-10-10 23:27 UTC - Codex ENGINEER: four-hour foreground collection
+Continued approved public-data collection using independently reviewed wrapper, VERIFIED_ENV. Clock showed23:26UTC, four hours beyond prior19UTC checkpoint. Single bounded foreground batch succeeded across five USD markets:323 consecutive bars each,23 evaluation hours through22UTC. Prior prefixes and frozen identities verified before/after; no scoring, campaign/account/settings changes. Initial output filename retained the earlier20UTC intention; renamed without overwrite to collection_batch_20261010T230000Z.json matching its actual23UTC exclusive cutoff, content unchanged. Updated authoritative checklist. SHOWN one successful public ingestion batch, not unattended-health, authenticity, fill or profitability proof. No source changes or repeat test runs; existing wrapper ACCEPTED_WITH_RISK.
+### 2026-10-10 - Codex AUDITOR: bounded CMC statistical design disposition
+Continued accepted design-review objective, not repeated pilot or market scoring. Read frozen candidate contract, negative pilot report and remaining checklist; checked primary author paper abstract and CMU dependence-aware bootstrap teaching source. Added statistical_design_disposition_20261010.md identifying unsupported dependence/ratio transfer, absent power evidence and conditions a prospective replacement would need. Recommendation is applicability/theory review before another implementation or compute batch; no algorithm selected or constants tuned. Original artifacts and all runtime/strategy settings unchanged. Documentation/source review only, no tests or simulations applicable. HIGH research semantics, separate review requested; READY_FOR_INDEPENDENT_REVIEW. R05 remains INCOMPLETE.
+### 2026-10-10 - Codex GATE: statistical disposition reviewed
+Separate Hooke review ACCEPTED_WITH_RISK for statistical_design_disposition_20261010.md only; no blockers. SHOWN pilot counts and source boundaries verified. No replacement method, compute or scoring approved. Recorded acceptance without changing frozen artifacts, strategy, accounts or scheduling. R05 remains INCOMPLETE. Documentation-only proof: source/artifact comparison and diff whitespace check; no simulations or tests repeated.
+### 2026-10-10 - Codex AUDITOR: completed mathematical applicability review
+User requested completing the accepted applicability objective. Read accepted ratio derivation and primary paper Theorem2.1 pages5-6. Added mathematical_applicability_review_20261010.md with explicit iid finite-moment rare-loss construction: opposite mean signs but identical conditional samples; derived test power bound under5% false-positive control. Deterministic arithmetic verified90/365day probabilities and bounds. This completes review, not R05 certification: no supported replacement method, silent target change or new compute batch. Existing research capability remains preserved and unresolved; descriptive lane stays valid. No source, originals, outcomes, strategy/runtime changes. HIGH mathematical/research interpretation; independent review requested, READY_FOR_INDEPENDENT_REVIEW.
+### 2026-10-10 - Codex GATE: applicability review accepted with risk
+Separate Hooke mathematical review found no blockers, verified means, conditioning inequality,90/365day bounds and primary-source limits. Recorded ACCEPTED_WITH_RISK for memo and updated remaining checklist: applicability review complete, primary R05 unresolved with no justified replacement. No capability removed, source-code or runtime changes, simulations or market scoring. Deterministic arithmetic and independent review are proof; no repeated test suite applicable. Original artifacts preserved.
+### 2026-10-10 - Codex DIRECTOR: user-approved parallel bounded-study contract
+User explicitly authorized preserving original study plus new prospective bounded study. Added bounded_daily_parallel_contract_20261010.md: unchanged calendar/eligibility/cost input policy, separate5pp-clipped equally weighted daily score, raw-return/tail decomposition mandatory, conditional-average target, explicit Hoeffding alpha-spending confidence-sequence derivation. No unsupported independence or population-mean transfer claimed. Conservative width/power limit explicit, no simulation search or implementation authorized yet. Original targets/artifacts/runtime unchanged; HIGH contract semantics, independent review requested, READY_FOR_INDEPENDENT_REVIEW.
+### 2026-10-10 - Codex GATE: parallel bounded contract independently reviewed
+Separate Hooke mathematical review ACCEPTED_WITH_RISK for development contract only, no blockers. SHOWN Hoeffding derivation, alpha-spending sum, range intersection and90day width0.0265618237 verified. Reviewer emphasized chronological maturity filtration and no missing-day compression; recorded remaining implementation requirement. No original-target certification, market gate or dataset evaluation approved. Documentation-only arithmetic/source review and diff check; no source implementation, simulations or runtime changes.
+### 2026-10-10 - Codex ENGINEER: isolated bounded daily calculator
+Continued user-approved parallel-study objective after separate contract acceptance. Added cmc_bounded_daily.py and14deterministic tests; clarified90day normalized input and chronological d+8days12UTC receipt cutoff in contract. Calculator preserves raw arrays and extremes, daily weighting/zero-event days, strict complete dates/counts/IDs/receipts, fixed cap/confidence arithmetic and source/input hashes. Outputs explicitly scoringfalse/qualificationunverified, no CLI or market integration. Tests14passed0.12seconds; no market data evaluated, originals/runtime unchanged. HIGH statistical logic, independent implementation review requested; READY_FOR_INDEPENDENT_REVIEW.
+### 2026-10-10 - Codex GATE: bounded daily helper independently reviewed
+Separate Hooke review ACCEPTED_WITH_RISK, no blockers, isolated helper/input mapping only. Independent14tests passed0.11seconds; probes verified raw preservation, tail decomposition, overflow refusal, interval bounds and finalFebruary15 12UTC maturity. Recorded acceptance. No adapter, actual dataset evaluation, original-target certification or scoring authorized. Receipt/completeness/qualification truth remains explicitlyunverified. Diff whitespace check passed, no full suite or market runs repeated.
+### 2026-10-10 - Codex ENGINEER: hash-bound bounded-study adapter
+Continued authorized parallel-study objective. Added cmc_bounded_adapter.py with read-only manifest/hash reload, reviewed cohort/endpoint/quote qualification composition, fixed-calendar completeness and chronological receipt checks; binds source/dependency hashes and leaves authentication/inventory/fills unverified and scoringfalse. Original CMC1.2% per-side fee preserved explicitly, not confused with account0.5%. Added5adapter tests plus14calculator tests:19passed0.37seconds using synthetic127snapshots through real helper stack. No actual market returns analyzed, no primary wrapper/stats invoked, originals/runtime untouched. Added bounded_adapter_handoff_20261010.md. HIGH research integrity, independent review requested; READY_FOR_INDEPENDENT_REVIEW.
+### 2026-10-10 - Codex GATE: bounded adapter corrected and accepted
+Independent Hooke reproduced chronological defect: late entry book evidence could trigger exclusion and erase eligibleevent. Moved capture availability check ahead of entry qualification/exclusion; added1mslate regression. Parent exact test selection test_cmc_bounded_adapter.py,test_cmc_bounded_daily.py,test_cmc_completeness_adapter.py,test_cmc_quote_qualification.py:46passed0.79seconds. Reviewer re-review ACCEPTED_WITH_RISK standalonecomposition/timingcorrection, no blockers; reported43passed0.64seconds under its selection, not claimed same count. Updated handoff with correction/counts/limits. No actualdataset, operationalfreeze, sourceauthentication or scoring accepted. Originals/runtime unchanged; diffcheck proof, no broad suite or calibration rerun.
+### 2026-10-10 - Codex ENGINEER: published-snapshot inventory solution
+Continued approved parallel-study evidence path. Added cmc_snapshot_inventory.py and5tests: explicit publishedfolder corpus, symlink refusal, double-scan consistency, exclusive seals, priorfilename/hash preservation, v3-only additions and all-v3 manifest selection for adapter. No claimed retroactive completeness/authentication/atomicfilesystem guarantees. Operator workflow documents chain preservation and limits. Combinedinventory/adapter/calculator25tests passed0.53seconds. No actualbaseline, outcomes, snapshotmutation or scheduler/runtimechanges. HIGH evidence-integrity implementation, separate review requested; READY_FOR_INDEPENDENT_REVIEW.
+### 2026-10-10 - Codex GATE: inventory reviewed and baseline sealed
+Separate Hooke found nested-output placement gap, corrected resolveddescendant refusal and2CLI regressions. Parent27tests passed0.53seconds, reviewer27passed0.51seconds; ACCEPTED_WITH_RISK standalone tool/correction, no remaining blockers. Then authorized bounded evidence step created inventory_baseline_20261010.json:9published snapshots,4schema3all-source manifest entries,5legacydiagnostics preserved. Actual verified_manifest foldercheck passed. BaselineSHA256 a3c9ad9afa297c67b00a8485d3fe8949f20b1a4f79b53b7e00c320da0d9274ad recordedhere; not externalimmutableanchor/authentication. No snapshots altered, actualreturns analyzed, scoring, schedules ortrading changes. Nonatomic/concurrent/prebaseline/authenticity limitations remain.
+### 2026-10-11 ~00:20 UTC - Claude (cloud session): strategy decision report (reuse only, no new machinery)
+docs/research/strategy_decision_report_20261011.md. Figures copied from existing corrected artifacts and the accepted
+consolidated summary; no simulation, rule, campaign or code change. Conclusion: no trustworthy edge over holding BTC;
+single candidate for further testing = BTC+ETH 28-day trend via the existing weekly paper test, judged against BTC and a
+fixed exposure-matched mix; at $1,000 the $240/yr infrastructure cancels its 2024-26 return. Separate review welcome.
+### 2026-10-11 ~00:22 UTC - Claude (cloud session): infrastructure cost check (report only)
+docs/research/infrastructure_cost_check_20261011.md: the only remaining candidate (BTC+ETH weekly paper test) runs on the
+laptop and needs no server; Hetzner hosts the crypto-edge context collector and a paper campaign no candidate uses.
+Options keep / pause with backup / downsize; real bill unverified. No host access, no change.
+### 2026-10-11 ~14:55 UTC - Claude (cloud session): intelligence backend target identified (read-only)
+docs/research/intelligence_backend_target_20261011.md answers the open "which backend" question from intelligence_path_refresh:
+both servers the dashboard calls were removed from git in ad18488df (2026-04-16) and survive only in history; compose backend
+cannot start from this checkout; BACKEND_URL is unread by the client. No deployment evidence. Operator I01 choice A/B/C requested.
+### 2026-10-11 ~14:57 UTC - OPERATOR DECISION (Damian via CLOUD): I01 = restore the full Phase 1 copilot; CLAIM
+CLOUD restores phase1_research_copilot/ source from ad18488df^ into the existing gitignored sidecar folder (never overwriting
+the local .env), then verifies offline tests and documents hosting needs. No service start, deploy, key use or git change yet.
+### 2026-10-11 ~14:59 UTC - Claude (cloud session): Phase 1 copilot source restored (step 1) - READY_FOR_INDEPENDENT_REVIEW
+docs/checkpoints/phase1_copilot_restore_2026_10_11.md. 40 files from ad18488df^ into the gitignored sidecar folder (.env untouched);
+reviewed recovery fixes swapped in for news_ingestion/memory_retrieval (originals kept). 126 sidecar/companion tests pass, 1 opt-in skip.
+Nothing started or deployed. Hosting target and OpenAI key are operator decisions.
+### 2026-10-11 ~15:11 UTC - Claude (cloud session): Phase 1 copilot step 2 - build fix + Mac runbook (operator: Mac Docker, no key)
+Sidecar compose/Dockerfile now build from the sidecar folder (was the ~203 GB repo root) with a .dockerignore keeping .env out of
+images; originals kept. Runbook docs/checkpoints/phase1_copilot_mac_runbook_2026_10_11.md. Nothing started (Docker runs on the Mac).
+### 2026-10-11 15:16 UTC - Claude (cloud session): Selection-bias check (DSR) for BTC+ETH 28d trend
+docs/research/dsr_btc_eth_trend_20261011/ (dsr.py, dsr_result.json with input hashes, README.md). Existing results only; no backtests or
+strategy changes. Absolute Sharpe survives deflation at N=10-15 (full, unseen window A); 2024-26 inconclusive; active Sharpe vs BTC
+negative in every window (PSR 0.09-0.36). Decision: continue frozen paper test; edge-over-BTC claim rejected; profitability not claimed.
+### 2026-10-11 15:19 UTC - Claude (cloud session): Maker-vs-taker pre-registration DRAFT
+docs/research/maker_taker_prereg_20261011/PREREGISTRATION.md (DRAFT, not frozen). Public-data-only design: daily 00:00 UTC hypothetical
+touch orders BTC/ETH both sides, conservative trade-through fill, 60-min window, taker fallback; primary = mean shortfall difference vs
+taker, block bootstrap, -10 bps threshold, fixed 56 days. One public book+trades reachability check only; no collector built or started.
+### 2026-10-11 15:23 UTC - Claude (cloud session): Maker-vs-taker pre-registration DRAFT v2 (operator review applied)
+v1 kept as PREREGISTRATION_draft_v1.md. v2: three fill rules (trade-through primary, queue-aware partial, optimistic bound),
+venue verified (Advanced Trade and Exchange public endpoints return identical trade IDs), fee confirmation is a pre-freeze operator
+gate, day-unit circular block bootstrap (7d primary; 3/14 sensitivity), 3-day validation phase, fixed 60-min timeout. Not frozen; no collector.
+### 2026-10-11 - Codex ENGINEER: imported companion route proof and overlap checkpoint
+Objective: restore optional repaired ingestion/parser/memory sources without activation.
+Restored shared dependencies and three repaired entry modules; added tests/test_companion_restored_routes.py.
+Initial parser tests failed because the dynamic test module was not registered in sys.modules;
+corrected the harness registration. Isolated Python verification: 4 passed, 24 lifecycle deprecation warnings.
+Command: /private/tmp/cryptkeep-intelligence-proof-20261011/bin/python -B -m pytest -q tests/test_companion_restored_routes.py.
+Proof covers imported ASGI routes rejecting wrong tokens or empty configured tokens and parser date/source preservation.
+No lifespan, background job, deployment, credentials, campaign or account changes were performed by Codex.
+Current log also records concurrent CLOUD full restoration/build changes in the same optional folder.
+Further source edits stopped pending ownership reconciliation; these tests do not certify the combined tree.
+Independent review requested. Remaining: combined-source reconciliation, activation/security/integration proof.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-11 15:25 UTC - Claude (cloud session): Maker-vs-taker prereg v2 - conditional approval recorded
+Operator conditionally approved methodology; freeze waits on pair-specific fee confirmation (BTC-USD, ETH-USD maker/taker, discounts).
+Added explicit order-eligibility assumptions (arrival T0+2s, post-only cross = rejected -> fallback, active to T1, outages excluded). Not frozen.
+### 2026-10-11 - Codex AUDITOR: authorized companion overlap reconciliation
+User authorized completing reconciliation. News and memory restored/recovery diffs contain trailing blank lines only; preserved both original artifacts and current source.
+Added docs/research/companion_restoration_reconciliation_20261011.md with precise local proof and activation limits.
+Verification in disposable Python environment: disjoint selections 56 + 31 + 2 = 89 passed.
+Initial broader collection failed for missing PyYAML; installed 6.0.2 in the disposable environment and reran the affected selection.
+Historical gateway/orchestrator unresolved-Header authentication shortcut identified; no runtime readiness claim made.
+No service start, trading change, deployment or account mutation. Independent review pending.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-11 15:29 UTC - Claude (cloud session): Edge classification BTC+ETH trend (existing results only)
+docs/research/edge_classification_btc_eth_20261011.md. Scenario 3 (no demonstrated edge): negative active Sharpe vs BTC; beats
+exposure-matched fixed mix at 0.5% on baseline settings, but registered robustness at 1.2% fails (5/13 variants, 43.8% grid) -> REJECT
+stands. Forward paper test cannot resolve edge in practical time. Maker-vs-taker parked (draft unfrozen). No backtests run.
+### 2026-10-11 - Codex ENGINEER: companion authentication bypass correction
+HIGH risk; objective: reject unresolved Header defaults in gateway/orchestrator authentication without changing research behavior.
+Removed the two early-return bypasses and reject non-string credentials. Updated direct-call tests with explicit fixture credentials and real HTTP-client imports.
+Added ASGI denial tests and direct unresolved-header regressions to tests/test_companion_restored_routes.py.
+Targeted verification: 16 passed, 48 deprecation warnings using disposable Python; initial combined run's 8 stub-related errors corrected and rerun.
+Details and exact command: docs/research/companion_auth_correction_20261011.md.
+No service, campaign, account, .env or deployment changes. Browser access, deployment permissions and URL-fetch policy remain open.
+Independent reviewer requested. Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-11 - Separate reviewer GATE: companion authentication correction accepted with risk
+Reviewer independently ran the auth slice plus shared-token configuration test: 17 passed, 48 warnings.
+No blockers found in the bounded correction. Browser authentication, framework fallbacks, deployment exposure and URL-fetch safeguards remain outside acceptance.
+Acceptance: ACCEPTED_WITH_RISK for auth correction only; full restoration INCOMPLETE, no activation approval.
+
+### 2026-10-11 - Codex ENGINEER: separate browser credential boundary
+HIGH risk; objective: preserve browser chat without exposing the internal service token.
+Added empty-default browser_chat_token setting and authenticated /v1/browser/chat delegation. Equal browser/service credentials or absent configuration fail closed.
+Page uses a password field and authorization header, clears the field and does not embed or persist credentials; reports refused requests.
+Verification: 16 passed, 60 lifecycle warnings across restored-route, gateway and shared-token tests in disposable Python.
+Positive downstream delegation is stubbed. Real browser, service integration, TLS/deployment and URL-fetch safety remain unverified.
+No credentials, .env, services, trading or account changes. Details: docs/research/companion_browser_access_20261011.md.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW; separate review requested.
+
+### 2026-10-11 - Codex ENGINEER: browser failure feedback correction
+Independent reviewer identified unhandled transport/non-JSON failure leaving Loading visible.
+Moved HTTP status check before JSON parsing and added visible transport/parse error handling. Added page-source regressions; browser-engine behavior remains unverified.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW; reviewer recheck requested.
+
+### 2026-10-11 - Separate reviewer GATE: browser authentication correction
+Previous UI failure-handler blocker resolved. Independent targeted run: 16 passed, 60 lifecycle warnings.
+Acceptance: ACCEPTED_WITH_RISK for browser auth/UI only. Browser-engine, TLS, deployment and URL safeguards remain unverified or open; no activation approval.
+
+### 2026-10-11 15:34 UTC - Claude (cloud session): Exploratory 0.5% stress rerun - script written before first run, sha256 c56fdd4d74900767... (operator-authorized; fee only change)
+### 2026-10-11 15:35 UTC - Claude (cloud session): Exploratory 0.5% stress rerun - result
+docs/research/stress_fee050_exploratory_20261011/ (result sha256 4e9ab43f...). Harness reproduced stored baseline exactly. At 0.5%:
+R1 fail (A drawdown), R2 13/13 pass, grid 94.3% beat fixed mix, bootstrap 8w share>0 91% (p05 -0.049); same-rules verdict
+keep_researching (exploratory; registered REJECT at 1.2% unchanged). Period C weaker (8/13). Edge classification addendum appended.
+### 2026-10-11 15:36 UTC - Claude (cloud session): 90-day research budget + decision criteria DRAFT
+docs/research/research_budget_90d_20261011.md: budget policy, CONTINUE/PIVOT/STOP definitions, pre-result registration fields,
+register E1 maker-vs-taker (waits on fees), E2 weekly paper test (pipeline check), E3 server workload inventory; E4/E5 unfunded.
+Registered REJECT kept; 0.5% result labelled exploratory. Draft for operator approval.
+### 2026-10-11 15:38 UTC - Claude (cloud session): 90-day plan approved in principle; clarifications applied
+Concurrency limit = experiments awaiting review only; server KEEP requires immovable or costlier-to-move workload; E1 validation
+excluded from 56 days, latest sample start 2026-11-07 to report in window, never shortened; Jan 9 review is evidence-quality, not a
+profit deadline. Finalized once actual fees and invoice replace estimates.
+### 2026-10-11 - Codex ENGINEER: remaining companion boundary batch
+HIGH risk; repaired public article/RSS/archive fetch boundaries, local deployment permissions/credential wiring, fake FastAPI fallbacks and archive authorization. Preserved research capabilities and existing .env/originals.
+Added shared/public_fetch.py and tests/test_companion_public_fetch.py; expanded actual route and imported persistence proofs. Added source identity/URL to citations and unavailable output for missing market data.
+Proof: initial combined regression 102 passed; final narrow slice 37 passed; disposable persistence 6 passed. Detailed commands/limits and frozen hashes: docs/research/companion_boundary_batch_20261011.md.
+Independent review initially blocked compression budget and DB credential coherence; corrected both and requested recheck. Separate citation/proof review accepted with risk, independently 9 passed with stopped temporary clusters.
+No activation, trading, account, existing credential or collector change. Actual TLS, real-feed/object-store/dashboard/full-stack proof remains outstanding.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW for boundary batch; full restoration INCOMPLETE.
+
+### 2026-10-11 - Separate reviewer GATE: companion boundary batch disposition
+Public-fetch/deployment/framework corrections ACCEPTED_WITH_RISK; no remaining blockers in that bounded diff.
+Independent four-file slice: 36 passed, 78 warnings (engineer five-file slice 37 includes config test).
+Actual TLS, Docker builds, existing-volume credentials and deployed integration remain unverified. Full restoration INCOMPLETE; no service activation approval.
+
+### 2026-10-11 - Codex ENGINEER: controlled local stack verification
+User requested completion; opened installed Docker Desktop. SHOWN local engine 29.4.0; old companion containers stopped six months and three persistent companion volumes exist. They are preserved, not reused.
+Added scripts/research/verify_companion_stack.py: random project/container names, fresh credentials, no existing .env, project-owned disposable volumes, random loopback ports, forced no trading/OpenAI, bounded build and finally cleanup. Docker explicitly pinned local and output exclusive within docs/research.
+Independent tool safety review ACCEPTED_WITH_RISK, 4 mocked tests passed. Combined smoke/tool tests 13 passed. Smoke now authenticates via environment and refuses redirects after reviewer finding.
+Started authorized isolated verification; results will be stored in docs/research/companion_stack_verification_20261011.json. Runbook historical startup instructions marked superseded pending old-volume credential reconciliation.
+No persistent companion deployment, campaign/account changes or existing credential mutation. Actual runtime outcome pending; not claiming full-stack success.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW for runtime evidence; tool safety ACCEPTED_WITH_RISK.
+
+### 2026-10-11 - Codex ENGINEER / separate GATE stages: real local companion pipeline
+Built and ran isolated 12-service Docker verification three times. Preserved first two INCOMPLETE receipts. First test used stale dynamic endpoint after memory restart; second exposed missing internal tool authentication and canned market/context defaults.
+Corrected shared/tools.py request authentication, configured-origin boundary and unavailable defaults; suppressed unavailable market evidence in orchestrator. Updated regressions; separate reviewer accepted this bounded correction with risk, independently 34 passed.
+Final result docs/research/companion_stack_verification_20261011_r3.json: PASSED_LOCAL_STACK_CHECKS with owned cleanup. Authentic Bitcoin FAQ ingestion, duplicate retry, restarted-memory retrieval, authenticated source-cited explanation, unauthorized denial and research-only chat passed.
+Separate GATE runtime review ACCEPTED_WITH_RISK; independently no third-project containers/volumes remain. Historical containers stayed stopped and prior volume names remain (listing proof, not content integrity proof).
+Checkpoint: docs/research/companion_local_runtime_checkpoint_20261011.md. Actual dashboard/browser integration, persistent credentials/old volumes and sustained operation remain unverified. Dashboard helper redirect boundary identified as separate remaining caller.
+No paper/live campaign, account, existing .env/credential, commit or push changes. Docker Desktop opened; disposable stack shut down and removed.
+Acceptance: ACCEPTED_WITH_RISK for bounded local runtime; full persistent restoration INCOMPLETE.
+
+### 2026-10-11 18:33 UTC - Claude (cloud session): dashboard companion request boundary - proxy leak closed
+Built on Codex's uncommitted redirect fix in dashboard/services/views/_shared_http.py (18:10 UTC; kept intact). Live local probe
+(capture servers in laptop VM) showed redirect blocked but bearer sent to an env http_proxy. Added ProxyHandler({}) to the companion
+opener only; updated test to assert both handlers; added a real-socket test proving an env proxy receives nothing. 10/10 companion
+http tests, 149 passed across dashboard view/page/auth tests. Not committed. Browser rendering on the Mac and old-volume credentials
+still open. Codex: please review before folding into your batch.
+
+### 2026-10-11 - Codex ENGINEER: additive question-specific keyword retrieval
+Objective: improve research question relevance without a paid model or replacing
+the existing index. Added parameterized English full-text matches in companion
+memory, forwarded the original question through tools/orchestrator, and exposed
+explicitly non-semantic keyword citations. Existing temporal/vector paths remain.
+Targeted verification: isolated Python pytest over restored routes, orchestrator
+and tools: 31 passed, 90 framework deprecation warnings. Separate GATE reproduced
+that result and found no source blocker. Actual PostgreSQL read-only synthetic
+SQL proof returned IDs 1 and 6 only from six fixtures, excluded foreign/future
+rows, and returned empty for an unmatched term. Initial fixture array typing was
+corrected in the fixture only. No persistent rows changed.
+Proof note: docs/research/companion_keyword_retrieval_20261011.md.
+Remaining risk: Qdrant dependency, unbounded full-text scan cost, and unverified
+live integration. No deployment, collector, credential, campaign, account,
+trading, commit or push changes. Full repository suite not run.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW pending final GATE disposition.
+
+Separate GATE final disposition: ACCEPTED_WITH_RISK for bounded source changes;
+independently reproduced 31 passing tests. Reviewer classified the supplied SQL
+receipt as CLAIMED rather than independently reproduced. Runtime deployment,
+retrieval quality and performance at scale remain UNVERIFIED. This acceptance
+does not authorize trading or claim that the running services use the change.
+
+### 2026-10-11 - Codex AUDITOR: bounded keyword integration check
+Continued accepted retrieval objective without restarting a broad audit.
+VERIFIED_ENV: current local PostgreSQL, Qdrant and memory HTTP endpoint reachable.
+Ran the actual updated imported route against existing storage with PostgreSQL
+read-only and a five-second SQL timeout; audit emission bypassed for this probe.
+Bitcoin returned five keyword matches (47, 8, 25, 26, 19), all BTC-tagged;
+unmatched term returned zero. Both retained five hash-vector diagnostics.
+Authenticated running memory endpoint succeeded but lacks lexical_matches:
+accepted source is NOT deployed. Receipt:
+docs/research/companion_keyword_integration_20261011.json.
+No services restarted, data mutated, credentials changed, trading/campaign
+settings changed, commit or push performed. This is local integration evidence,
+not semantic relevance, audit delivery or scale-performance proof.
+Acceptance: ACCEPTED_WITH_RISK for bounded inspection; deployed integration
+INCOMPLETE. Next: bounded memory/orchestrator deployment with rollback and
+authenticated endpoint verification, preserving existing storage and settings.
+
+### 2026-10-11 - Codex ENGINEER: bounded local retrieval deployment preparation
+Prepared one-shot operator script and minimal image overlay in /private/tmp.
+Scope: accepted three retrieval files only, two existing research services,
+old images retained, full settings preserved in private rollback configuration.
+No deployment yet. Syntax check passed; source regression slice 31 passed,
+90 deprecation warnings. Separate GATE requested before execution.
+Procedure: docs/research/companion_keyword_deployment_20261011.md.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW for operator procedure.
+
+Separate GATE initially rejected the procedure for reconstructed-template
+settings, incomplete rollback checks, optimization-removable verification,
+and Compose interpolation of container commands. Corrected these before any
+recreation: actual settings captured, unsupported runtime settings refused,
+health/configuration verified on rollback, optimized execution refused, and
+all strings escaped with rendered active/rollback configuration preflight.
+Final separate GATE: ACCEPTED_WITH_RISK for the bounded two-service procedure;
+interruption/Docker failure recovery remains a risk. Execution now underway.
+
+Deployment completed: VERIFIED_LOCAL_RETRIEVAL_DEPLOYMENT. Memory returned BTC
+keyword IDs 47, 8, 25, 26, 19; unknown term empty; unauthenticated request 401.
+Orchestrator returned three keyword citations marked semantic relevance false.
+Actual environment, ports, mounts, command, healthcheck, user and working directory
+preserved. All unrelated container IDs and start times unchanged. Authenticated
+gateway browser route returned HTTP 200, three keyword citations, no upstream
+fallback, and execution_disabled=true. Old images/private rollback config retained.
+Receipt: docs/research/companion_keyword_deployment_receipt_20261011.json.
+No trading/campaign/collector changes, persistent research-data rewrite, credential
+change, commit or push. Normal endpoint calls may emit research audit records.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW for final runtime disposition;
+operator procedure already separately ACCEPTED_WITH_RISK.
+
+### 2026-10-11 - Codex AUDITOR then ENGINEER: question evidence reaches fallback answers
+Actual local authenticated probes showed Bitcoin/regulation/unmatched questions
+had distinct keyword citations but identical explanations and confidence 0.8.
+Fixed the confirmed retrieval-to-explanation disconnect, not a general audit:
+fallback includes matching titles with explicit keyword/no-causation caveats;
+empty matches distinguished from unverified retrieval; numeric confidence kept
+for compatibility but explicitly labelled uncalibrated in text and metadata.
+Added three regression cases. Targeted slice 34 passed, 90 warnings. No full-suite
+claim. Note: docs/research/companion_question_evidence_20261011.md.
+Source acceptance: READY_FOR_INDEPENDENT_REVIEW. No deployment of this fix yet.
+
+Separate GATE source disposition: ACCEPTED_WITH_RISK, independently 34 passed.
+Reusing the unchanged separately reviewed two-service operator procedure;
+deployment underway with prior images/configuration retained. No new execution
+policy or deployment helper change is part of this correction.
+
+Deployment and actual gateway proof completed. Bitcoin and regulation answers
+each include all three keyword-cited headlines and explicit no-causation caveat;
+unmatched question has no keyword citations and says no archived matches.
+All three answer texts label confidence uncalibrated; execution stays disabled.
+Original settings/mounts/ports preserved; unrelated containers unchanged.
+Receipt: docs/research/companion_question_evidence_receipt_20261011.json.
+Private rollback retained. No trading/campaign/collector/credential changes,
+commit or push. Normal research audit events may be emitted by probes.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW for final runtime disposition.
+
+Separate GATE final article-projection runtime: ACCEPTED_WITH_RISK. Independently
+verified all four deployed source hashes, healthy local research-only posture,
+approved bundle hash, memory primary IDs5,47,18,7,8 with diagnostic25 and absent
+11/25 across document lanes; gateway citations5,47,18 and version/no-causation/
+uncalibrated caveats with execution disabled and no upstream fallback. Historical
+configuration invariance remains parent proof; sustained health, semantic quality
+and rollback drill remain unverified. Live projection objective complete.
+
+Separate GATE final question-evidence runtime review: ACCEPTED_WITH_RISK.
+Independently authenticated gateway Bitcoin/unmatched probes reproduced matched
+headlines, no-match/background explanation, uncalibrated-confidence caveat,
+execution disabled, and no gateway upstream fallback. Deployed source hash and
+local research-only container posture verified. Historical configuration
+invariance remains parent proof; sustained health, rendered UI and semantic
+retrieval quality remain unverified. Bounded correction complete.
+
+### 2026-10-11 - Codex AUDITOR then ENGINEER: article boundaries and false asset matches
+Ordinary-question retrieval exposed confirmed site-chrome contamination:
+Bitcoin-liquidations question returned Visa stablecoin document 11. Read-only
+three-object inspection found observed publisher body boundaries; entire-page
+parser was inferring assets from navigation and related cards. Corrected source
+to extract observed article bodies, retain versioned metadata, and label unknown,
+ambiguous or empty layouts as unverified whole-page fallback. Original raw data,
+document records and credentials unchanged. Initial selector draft failed on Visa
+split sections/disclosure; actual-object proof caught it and source was corrected.
+Independent GATE: ACCEPTED_WITH_RISK, independently 40 tests passed, 90 warnings.
+Parent read-only final proof: document11 10030->1569 chars and four assets->none;
+39 5723->2671 and five assets->none; 47 6223->3234 and five assets->BTC.
+Proof and hashes: docs/research/companion_article_boundary_20261011.md.
+No deployment, ingestion rewrite, new collector, campaign, account, trading,
+commit or push changes. Full suite not run. Existing search remains contaminated;
+next requires scoped parser deployment and separately versioned derived archive.
+Acceptance: ACCEPTED_WITH_RISK for source; deployed/archive repair INCOMPLETE.
+
+### 2026-10-11 - Codex ENGINEER: scoped parser deployment and additive extraction preparation
+Prepared parser-only adaptation of reviewed operator deployment, preserving
+actual configuration and retaining rollback. Authenticated parse/html proof does
+not ingest documents. Prepared read-only, hashed offline archive builder preserving
+source IDs/timestamps/raw references and reporting unsupported lineage/layouts.
+No live index switch or original row/object overwrite. Syntax checks passed.
+Procedure: docs/research/companion_article_archive_repair_20261011.md.
+Separate GATE requested before running either operator artifact.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW; no execution/deployment yet.
+
+Separate GATE accepted both bounded operator artifacts WITH_RISK before running.
+Read-only offline builder completed: 55 originals, 55 derived, zero exclusions;
+54 identified article boundaries and one unverified fallback. Source timestamps,
+IDs-as-lineage and raw objects retained. Five exact-SQL CTE comparisons showed
+the full liquidation question's original Visa match replaced by no match; the
+Bitcoin-liquidations keyword query retains five matches. This is not a blind
+semantic benchmark or live index replacement. Dataset hashes/location:
+docs/research/companion_article_archive_receipt_20261011.json.
+Parser-only deployment now underway; previous image/private rollback retained.
+
+Parser deployment succeeded: authenticated parse/html retained the article body,
+excluded BTC navigation, labelled unknown layout unverified, and rejected absent
+token with 401. Actual configuration preserved; unrelated containers unchanged.
+Archive copied to research/companion_article_body_v1_20261011_gd1abqx9 (716KB)
+for persistence beyond temporary-directory cleanup; generated artifacts only,
+no original record/object overwrite. No commit or push. Live retrieval selection
+still uses original archive; the derived dataset is diagnostic-only.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW for final runtime/archive disposition.
+
+Separate GATE: ACCEPTED_WITH_RISK. Independently verified parser deployed hash,
+healthy/local/research-only posture, authenticated boundary/fallback behavior and
+unauthorized401; fixtures not ingested. Persistent four-file archive byte identity,
+manifest hashes, 55/55 counts and 54 identified bodies verified. Unverified layout
+is document25. No live retrieval index switch. Historical settings invariance and
+no original-store writes remain parent proof; raw binding/semantic quality and
+sustained operation remain unverified. Scoped deployment/derived archive complete;
+next is reviewed live retrieval integration, not another parser rewrite.
+
+### 2026-10-11 - Codex ENGINEER: complete shared-review corrections
+User requested all review findings addressed. Three disjoint tracks: deterministic
+ordinary-question retrieval here; separate worker new maker-study/budget drafts;
+separate read-only server inventory. Existing registered results/drafts preserved.
+Query correction keeps originals, explicit syntax/negation/numbers, topical news,
+asset/time/archive guards; exposes trace, no semantic or paid-model claim.
+Fixed cases recorded before live SQL verification. Targeted66passed,96warnings.
+No deployment of this slice, collector start or trading change yet.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW for retrieval source. Workers return
+bounded artifacts for separate review; no same-thread high-risk approval.
+
+### 2026-10-11 - Codex ENGINEER: read-only primary article projection
+Continued accepted live retrieval integration. Added hash/lineage/time checked
+archive loader and parameterized CTE projection; originals/raw/vector data stay
+unchanged. All document query lanes use the same view; unknown news bodies stay
+diagnostic, non-news archive/manual capability retained. Required deployed marker
+fails closed if bundle is absent/corrupt; source drift produces 503. Explicit
+archive version/hash metadata passes through tools/explanations.
+Targeted slice 48 passed, 90 warnings. Actual PostgreSQL read-only proof checked
+55 live source records; primary keyword liquidations IDs5,47,18,7,8; regulation
+20,51,33,27; full liquidation/unmatched queries empty. Unknown25 preserved as
+diagnostic; false Visa11 absent. No persistent-store writes or deployment yet.
+Note: docs/research/companion_article_primary_view_20261011.md.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW for source/integration contract.
+
+Separate GATE rejected initial source for unpinned bundle trust, validation/query
+race and overly broad manual-news downgrade. Corrected before deployment:
+reviewed manifest digest pinned outside bundle; full lineage checked atomically
+within each document query, including empty results; downgrade restricted to
+news-ingestion lineage. Added regressions; final 51 passed independently, 90 warnings.
+Actual read-only PostgreSQL proof retained manual news fixture, rejected changed
+timestamp snapshot and returned primary liquidation IDs5,47,18,7,8. No store writes.
+Separate GATE source/operator final ACCEPTED_WITH_RISK. Per-statement snapshot
+and capped diagnostics limits retained. Activation now underway with rollback.
+
+Activation completed: VERIFIED_LIVE_ARTICLE_PROJECTION. Authenticated memory
+primary liquidation IDs5,47,18,7,8; full-question/unmatched queries empty. Unknown25
+retained diagnostic; false Visa11 absent. Actual gateway text confirms versioned
+article view and execution disabled. Existing environment/mounts/ports preserved;
+unrelated container identity/start times unchanged. Original records/raw/vector
+data not rewritten. Old images/private rollback retained; no campaign/collector,
+credential, trading, commit or push changes. Normal requests may emit audit events.
+Receipt: docs/research/companion_article_primary_receipt_20261011.json.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW for final runtime disposition.
+
+Separate GATE final runtime disposition: ACCEPTED_WITH_RISK. Independently
+confirmed both containers healthy, loopback-only, expected network, research-only,
+no paid-model key, HTTP health 200, memory unauthorized 401, and all three deployed
+source hashes. Authenticated citation/configuration invariance checks remain
+parent-thread SHOWN and reviewer CLAIMED, not independently reproduced. Gateway
+HTTP route was verified here; actual rendered browser/dashboard integration and
+sustained health remain unverified. Accepted retrieval deployment objective complete.
+### 2026-10-11 22:37 UTC - Claude (cloud session): copilot volume inventory, start on existing volumes, review corrections
+Old phase1 volumes copied first to claude_snap_{timescaledb,qdrant,minio}_20261011 (originals mounted :ro for copy); inventory on copies
+(phase1_research_copilot/_claude_ops/inventory.txt): copilot DB 47,186 market_ticks (to 2026-03-24) and 18,027 audit_events (to 2026-03-22);
+documents/qdrant/minio empty. These rows have provenance value and are preserved (originals + copies). Current DATABASE_URL and MinIO
+credentials authenticate on the copies. Stack started on the EXISTING volumes via _claude_ops/up.sh (POSTGRES_PASSWORD derived from
+DATABASE_URL at launch; .env not edited): 12 services up, unauth explain 401, auth 200 with cited live articles (fallback mode). Dashboard
+on 127.0.0.1:8501 renders to the login gate; signed-in render not yet verified. Fallback answer quality flagged (0.99 confidence on a
+weakly related narrative).
+Review corrections applied: E1 prereg - arrival observed at the T0 book's exchange timestamp plus a latency allowance (1 s primary; 0/5 s
+sensitivity) instead of an assumed T0+2s book; all fills labelled MODELLED. "91%" restated as 91.1% of bootstrap resamples (not a
+probability; 90% range crosses zero) in the stress README, the edge classification and the budget doc. Registered REJECT unchanged.
+
+### 2026-10-12 03:29 UTC - ENGINEER: bounded Coinbase pair-fee lookup
+User directed pair-specific lookup using existing credentials rather than another confirmation request.
+Added preview-only observer and targeted tests. Independent GATE initially blocked redirect handling;
+corrected transport to exact origin/method/path allowlist, disable redirects and reject 3xx.
+Independent reviewer then ACCEPTED_WITH_RISK; targeted fee tests: 26 passed.
+Ran the reviewed observer using existing credentials. Coinbase returned HTTP 400 INVALID_ARGUMENT;
+no successful preview was obtained. Public product/book endpoints separately returned HTTP 200.
+Sanitized diagnostic retry also returned INVALID_ARGUMENT. No orders submitted, raw private responses
+saved, credentials printed, campaign changes, or fee assumptions frozen.
+Receipt: research/coinbase_product_fee_preview_20261011_1.json.
+Account-level 25 bps maker / 50 bps taker remains the earlier observation, not pair-specific proof.
+Pair fee lookup objective INCOMPLETE; live API request compatibility needs further diagnosis.
+
+### 2026-10-12 03:31 UTC - AUDITOR: Coinbase preview rejection isolated
+Bounded request-stage diagnostic showed both public product and book requests return 200;
+the private preview endpoint returns 400 with "account is not available" in both message
+and error_details. Thus the observed failure is an account-availability rejection, not
+evidence of a malformed product/book request. Exact account cause remains UNVERIFIED;
+do not infer an expired login, missing funds, or missing permissions from this message.
+No source changes, account changes, order submissions, or fee-policy freeze.
+Pair-specific fee confirmation remains BLOCKED by external account availability.
+
+### 2026-10-12 03:35 UTC - ENGINEER: fee lookup completion reporting
+Continued the accepted lookup objective without repeating private requests.
+SHOWN: the previous CLI returned exit 0 for the saved INCOMPLETE receipt, creating
+a false-success signal for automation. Added testable main(); incomplete, empty,
+or error-bearing preview results now return exit 1 while preserving their receipt.
+Only four successful preview estimates return exit 0. This is API estimate success,
+not realized-fee verification or E1 freeze approval. No transport/request changes.
+VERIFIED_ENV: ./.venv/bin/python -B -m pytest -q
+tests/test_coinbase_product_preview.py tests/test_coinbase_fee_observation.py:
+30 passed. Original failure receipt preserved; no private requests rerun.
+Financial/API operator workflow risk HIGH; READY_FOR_INDEPENDENT_REVIEW.
+Separate GATE independently reproduced 30 passing tests and accepted this bounded
+CLI correction ACCEPTED_WITH_RISK. Pair fee evidence remains unavailable; no study
+freeze, account mutation, trading, commit, push or deployment is implied.
+
+### 2026-10-11 23:40 America/New_York - ENGINEER: ordinary-question repair deployed
+Continued accepted research-intelligence repair instead of retrying unavailable fee previews.
+Separate GATE retained source/operator ACCEPTED_WITH_RISK after current content comparison;
+exact historical hash continuity was not claimed. Local targeted slice: 68 passed, 96 warnings.
+Corrected documentation count from 66 to 68. Ran the reviewed bounded deployment operator.
+SHOWN: VERIFIED_LOCAL_CONVERSATIONAL_QUERY_DEPLOYMENT; the original full question
+"What news explains Bitcoin liquidations?" returned archive IDs 5,47,18,7,8, preserving
+original question and normalization trace. Explanation returned 3 keyword citations.
+Unmatched query empty; unauthorized request denied; diagnostic record25 preserved separately.
+Existing environment, mounts and loopback ports preserved; unrelated service IDs/start times
+unchanged; research-only/no trading verified. Original archive/store records not rewritten.
+Rollback images/config retained privately. Only memory and orchestrator were recreated.
+No campaigns, collectors, account settings, paid-model keys, commits or pushes changed.
+Bounded source/operator accepted with risk; deployed outcome parent-thread SHOWN.
+General semantic accuracy, rendered signed-in UI and sustained runtime health remain UNVERIFIED.
+
+### 2026-10-11 23:50 America/New_York - ENGINEER: consolidated research queue treatment
+User requested the remaining queue as one batch and explicitly chose delayed maker/taker
+execution with additional arrival-book observation. Preserved v1/v2 and frozen plans;
+clarified v3 direction without inventing timestamp qualification or product fee proof.
+Added bounded public-only two-book observation utility/tests: no credentials, no orders,
+no scoring, no background process, raw payload/hash/local timing retained and alignment
+UNVERIFIED. Targeted arrival/confirmation tests: 15 passed.
+Separate read-only audits verified schedule artifacts and confirmation activation/prefixes.
+Executed existing independently reviewed bounded confirmation collector: 13 completed hours
+per five markets added; 351 contiguous bars each through October12 03UTC; oldprefixes and
+selected source identities rechecked. No early strategy scoring or campaign changes.
+Corrected stale activation text in REMAINING_TASKS and created queue resolution report.
+Fresh browser-facing HTTP200/invalidtoken401/executiondisabled proof; token not printed.
+Rendered browser launch unavailable in sandbox; no browser install or login requests.
+CMC manual repair success is not unattended proof. Weekly output timing is consistent with
+schedule, but fresh scheduler receipt is unavailable. Four active servercollectors retained;
+no invoice gate, shutdown, migration or account mutation. Future phase completion time-bound.
+High-risk new observation utility and financial-design documentation READY_FOR_INDEPENDENT_REVIEW.
+Separate GATE accepted observer/v3 clarification/summary with risk and flagged two stale
+index pointers; corrected them to historical completed steps and received bounded acceptance.
+Exact public response bytes now saved as Base64 alongside hashes; independent5tests passed,
+parentarrival/confirmation15passed. One authorized BTC diagnostic completed with2publicGETs:
+arrivalrequest5.142ms late,105.057375/38.883959ms durations,source timestamps retained.
+Exact savedbyte hashes reverified; no alignment/fill/scoring qualification claimed.
+Separate auditor independently verified351contiguousrows/51evaluation per5markets and
+all old338-row/300warmup prefixes; bounded archive consistency ACCEPTED.
+Current queue disposition: documentation/observer ACCEPTED_WITH_RISK, confirmation
+content consistency ACCEPTED. Study freeze INCOMPLETE (timing/source qualification and
+productfees unknown); schedulerprovenance/renderedUI remain UNVERIFIED; maturestudy
+endpoints remain future. No privatefee retry, newbackgroundjob, trading, shutdown or push.
+
+### 2026-10-12 08:31 America/New_York - ENGINEER: existing collection batch and ETH diagnostic
+Continued unfinished accepted work without repeated broad tests or fee retries.
+Executed previously reviewed bounded confirmation ingestion:9hours per5markets,
+45newbars;360contiguousbars/60evaluation each through12UTCexclusive. Existing
+prefix/source identities checked before/after. New receiptcollection_batch_20261012T120000Z.json.
+Executed existing reviewed ETH public observer:2GETs,exactbytes/hashes retained;
+0.874ms target lateness,89.416083/24.0185ms durations; hash verification passed.
+No clock/alignment qualification or scoring inferred. No new implementation;
+tests not repeated because accepted code unchanged. Updated currentqueue report.
+Checked currentclock and snapshotfiles:CMCtoday's13:52UTC run is future, not overdue.
+No scheduler change, duplicate capture, account change, collector restart or trading.
+Runtime results SHOWN here; source/operator prior ACCEPTED_WITH_RISK retained.
+Mature study results,timequalification,accountfeepreview and unattendedscheduler
+proof remain unavailable; no fullcompletion claim or fabricated resolution.
+
+### 2026-10-12 08:38 America/New_York - ENGINEER: authorized outage recovery
+WiFi recovered: publicCoinbase/CMC HTTP200, but oldcollector PIDs absent andDocker
+socket missing. Serverreadonlycheckfoundcontext/ES/deadlinetimeractive; untouched.
+Userauthorized restore. OpenedexistingDockerDesktop, startedonly12existingphase1
+researchcontainers, noCompose recreation/build/config/volume changes. Unrelated
+oldcontainers leftstopped. RestartedESpaper via supported--detach recordedsettings:
+sma_200_trend/runtime20/BTC-USDT/coinbase/public_ohlcv_1d/dailyloop/poll300/sessionES.
+NewPID2737 alive,idlewaitingnextday,lastcompletedOctober12; no today'ssessionreplay.
+Restartedcontext via supportedoperatorhelper existingplan interval300;PID2741alive.
+Fresh12:36:53UTC capture:1loop/1write/0errors,all6sourcechecks includingCoinbasebook
+passing. Docker12running,10configuredhealthcheckshealthy,2withouthealthchecks.
+AuthenticatedbrowserHTTProute200,6evidenceitems,responsepresent,originalquestion
+normalizedBitcoinliquidations,execution_disabledtrue;private tokennotprinted.
+FirstHTTPverificationcommandusedexpiredtemporaryruntimepathandfailedbefore any
+request; existingrepositoryruntime retry succeeded. No reinstall/loginrequest.
+No source changes; no broadtests repeated. Existingsettings/images/data retained;
+no financialpolicy,serverjob,CMC/weekly schedule,liveorder,commit orpush changes.
+CurrentobservationsSHOWN; sustainedhealth/rebootautorecovery UNVERIFIED.
+OperationalriskHIGH; READY_FOR_INDEPENDENT_REVIEW pending separateGATE.
+SeparateGATE completed read-only verification: ACCEPTED_WITH_RISK. ActualPIDs/arguments
+matchsettings,all6contextchecks pass,ESoriginalOctober12sessionnotreplayed,12phase1
+containersrunning,10healthy,NO_TRADINGtrue. Exactpreoutagepreservation remains
+parentSHOWN/reviewerCLAIMED; sustainedhealth,rebootrecovery and financialresults
+UNVERIFIED. User subsequently approved recovery. Boundedrecovery objective closed.
+
+### 2026-10-12 08:55 America/New_York - AUDITOR: Monday market/GTC holding request
+UseraskedMondaymarket/coinhistory and ownGitcoinholding. Readonly storedCoinbase
+accountlookup verified GTC available/held; noquantity/accountIDs orprivatecredentials
+savedinrepo. GTC-only fillhistoryempty; no purchasecost/PnL inferred.
+Addedpublicdiagnostic script/tests and ranone bounded currenttop8USDvolumeproxy
+plusBTC/GTC scan:9products,183unique dailybars each,26completeMondays. Rawpublic
+candles/GTCbook saved; subsequentexactgrid/finitepositiveOHLC assertions passed.
+Today'sMondaypartial excluded fromhistoricalstats. GTCtoday+66.78%UTCopen snapshot,
+historicalfee-adjustedmean+2.44%butmedian-0.37%; removingbestMonday yields-0.34%.
+NEARmean+1.24%/median+1.04% is candidateonly,noholdout/formal significance/edgeproof.
+Provisional50bpsperside model excludes spread/slippage. ActualUSopen stillfuture.
+Targeted2tests passed; separateGATE ACCEPTED_WITH_RISK boundedpubliccollection/
+window/arithmetic. No orders,transfer,portfoliochange,studyretuning,commit orpush.
+Saved docs/research/monday_market_diagnostic_20261012.md. Exactaccountcostbasis,
+profitability,causalrallyexplanation and realexecution remainUNVERIFIED.
+
+### 2026-10-12 - AUDITOR: seven-day spike follow-up
+Useraskedrecurringweekdaypricespikes. Browsedprimaryresearch onweekday/hourly
+volume/volatility periodicity; findingssupport seasonality as hypothesis,notalways
+positive oruniversaldailyreturns. ReusedsavedCoinbase rawdaily182complete days;
+descriptiveall7weekdaycounts andopen-to-highmedians,26each. GTCThursday/Friday
+5%spikes11/26vsSunday5/26;Fridaymedianopen-to-high4.18%butfee-adjusteddayholdmedian
+-0.29%. Addedseparatefollow-up toexistingreport;originalresultartifactunchanged.
+No exacthour,livepeakcapture,holdout,formalstatistics or profitability claimed.
+No newsource/tests/privateaccountrequests/orders. Descriptivecalculations ran
+successfully; financialedgevalidationINCOMPLETE,notindependentlyaccepted.
+
+### 2026-10-12 09:08 America/New_York - AUDITOR: Coinbase gainers and ReserveRights watch
+Userexplicitlyrequested watchtopCoinbasegainers andinspectReserveRights. Public
+RSR-USD identityReserveRights/statusonline verified,disabled/cancel/limit/post/view
+flagsfalse; livebookpresent. At13:08UTC RSR0.002413,+50.53%rolling24h; GTC0.2872,
++56.68%. Completedpagination:925uniqueproducts,403eligibleonlineUSDspot; partial
+first500ranking supersededbyfullavailableuniverse baseline. Savedpubliconly
+research/coinbase_gainers_watch_initial_20261012.json, no accountdata.
+Createdrequestedhourlythreadheartbeat coinbase-gainers-and-gtc-rsr-watch ACTIVE.
+Firstcreate omittedthread destination, toolrefused withoutcreation; corrected
+destinationthread succeeded. Promptusespublicdata only, append-only snapshots,
+meaningfulchange/failure notifications, explicitGTC/RSR,status/spread/depth and
+rolling24hvsUTCday distinctions; forbidsprivatecredentials/orders/strategychanges/
+restarts/campaignmutations/duplicatejobs. Weekdaypatterniscontextonly,notbuyrule.
+CreationSHOWN; nofirstscheduledrun/sustainedcoverage claimed. No sourcechange,
+tests notapplicable to publicread/automationcreation. No financialedgeapproval,
+trade,accountrequest or migration. This watchis hourly,notrealtime monitoring.
+
+### 2026-10-12 09:11 America/New_York - AUDITOR: learn from today's observed market
+Useraskedlearnfrommarket. Savednewfullypaginatedpublicsnapshot andcomparedactual
+09:08baseline,nohindsightentry:7of10leaders declinedover3.10minutes,GTCstill24hleader
+butdown4.94%from08:50quote. RSR+0.95%gross impliesabout-0.05%atprovisional0.5%each
+fee,before spread/slippage;notactualPnL. ALEPH+2.08%illustratesleaderrankvsfreshreturn.
+Documentedreusablelessonstoseparatebackwardranking/forwardreturns, observedretracement,
+cost-adjustedopportunity andhourlywatchlimits. USopenstillfuture;noopeningcausalclaim.
+No newstrategy/parameters,orders,privateaccountreads,memoryupdates orschedulechanges.
+No codetestapplicable; calculations/quotesSHOWN. RepeatableedgeUNVERIFIED.
+Note:docs/research/market_lessons_20261012.md. Marketdaynotcompleted; nofull-dayconclusion.
+
+### 2026-10-12 - AUDITOR: user-reported manual GTC/RSR test
+User explicitly confirmed100USD inGTC and another100USD inRSR,200USDtotal.
+Recorded a separate userreported observation, not accountingtruth or APIverifiedfills:
+research/manual_gtc_rsr_test_20261012.json. Purchasevenue/time/quantity/price andfee
+inclusion remainUNVERIFIED; existingGTCbalance not assignedto newtest. No position,
+PnL,order,risklimit orcampaignstate mutated; no tradingauthority inferred.
+Documentation only; no tests applicable. Userstatement recorded, not profitproof.
+
+### 2026-10-12 09:24 America/New_York - AUDITOR: cap/volume/liquidity treatment
+Useraskedmarketcap/volumerole. QueriedpublicCoinGecko exactcoinIDs andCoinbase
+products/books. Globalcap/volume: GTC25.93m/91.44m,RSR151.09m/194.39m;gross turnover
+3.53x/1.29x notnetinflow. Coinbaseobservedspread120.30/12.43bps and1%midnearbybid
+depth881/13,488USD showvolumealone not executionquality. Valuesdated,notprediction.
+Updatedsamehourlywatch(addnojob) toinclude verifiedIDcap/supply/globalvsvenuevolume,
+source/timelimits,spread/depth andbaselinecontext; no unvalidatedtradingthreshold.
+No credentials,holdingsrequest,trades,strategy/riskchanges. Savedcap_volume_liquidity
+note. No newcode/tests; one syntaxerrorbeforepublicbookrequests corrected andread
+succeeded. Economicrelationship/profitabilityUNVERIFIED; no same-threadapprovalclaim.
+
+### 2026-10-12 - AUDITOR: actual manual GTC/RSR purchase baseline retrieved
+Userdirected useexistingCoinbasehistory. GET-only v2accounts/transactions retrieved
+bothcompletedOctober12retailbuys, missedbyAdvancedTradefillhistory. Separatelegacy
+buyresource requestfailedExchangeNotAvailable; supportedtransactiondetail succeeded.
+RSRdetailfoundfirstpage; GTCrequiredaccountpagination,thenverifiedsamereadendpoint.
+SHOWN: total100EUR each,notUSD; quantities366.76614176GTC/43871.31541632RSR,
+created13:12:15/13:06:48UTC. Listedfee2.99EUR each; subtotal96.16+fee2.99 differs
+fromtotal100by0.85; explanationUNVERIFIED,notinventedfee/spread/tax. Totalbasis100
+usedwithoutdoublechargingfee; previousAdvancedTrade50bpsassumptionnotactualretailfee.
+Savedseparatemanual_gtc_rsr_test_verified_20261012.json, originalUSDuserreported
+artifactpreserved. No IDs/paymentdetails/credentials/olderportfolio saved. No
+orders,transfers,account/campaign/PnL mutation. Documentation-only,no testsrun.
+ObservedbaselineSHOWN; exitfees/componentdifference/futureprofitUNVERIFIED.
+
+### 2026-10-12 10:08 America/New_York - AUDITOR: requested public gainers heartbeat
+Completedfullpublicproductpagination and savedappend-onlywatch20261012T140815Z
+plusverifiedIDCoinGeckocapsupplement. No privatecredentials/accounts accessed.
+Compared09:08initialtop10:CAPprice-17.45%,rank4to48despiterollingvolume+14.59%;
+Sprice+4%,rank8to5withvolume+0.95%,notconfirmedvolumeacceleration. GTC/RSRremain
+rank1/2,+3.20/+2.65%sincebaseline,notuserPnL. FIL/FLOW/RENDERnewtop10entries but
+theirpreviousexactranks/pricesnotretained; nobottom/early-entryclaim.
+GTCspread127.60bps,RSR4.06bps;STGnearbybiddepth2.34USD and173.99bpsspread warn
+rankingisnotexecutionquality. Cap/volume recordedglobalvsvenue/time distinctions.
+No orders,tuning,portfolio/risk/campaignchanges orduplicatejobs. No tests needed
+forreadonlysnapshots. ObservedmarketprogressionSHOWN, futurewinnerUNVERIFIED.
+
+### 2026-10-12 - AUDITOR: sleeper surveillance added to existing watch
+Useraskedwatchcoins risingfromlower ranks towardnumber1. Updatedexistinghourly
+heartbeat(no duplicatejob) totracktimestampedrank/priceprogression,volumebaselines,
+liquidity,cap/supply andfalsealarms. Definednumber1aseligibleCoinbaseUSDrolling24h
+gainleader,notcaprank orguaranteedwinner. No hindsightbottom/earlyentryclaimed.
+Publiconly scheduledreads,noorders/credentials/portfolio/strategy/riskchanges.
+Preservedmeaningful-change-onlynotifications andhourly/nonrealtime limitation.
+Updatedmanualtestcontextto verifiedEUR100each/newquantities,noolderholdingsmix.
+AutomationupdateSHOWN; firstunattendedrun/detectionperformanceUNVERIFIED.
+
+### 2026-10-12 - AUDITOR: listing context preserved
+Following user acceptance of the news interpretation, added listing-catalyst correction
+to market_lessons_20261012.md. Upbit new-market support and dated listing reporting
+motivate an event-driven hypothesis, not causal proof or Monday-edge validation.
+Older Techne forum context remains explicitly dated. Original market observations
+unchanged; no trading/settings/automation changes or new tests required.
+
+### 2026-10-12 10:31Eastern - AUDITOR: actual candle preset diagnostic
+Useraskedwhatcandlestrategiessuggest. Inspectedactualunchangedpresets/puresignal
+functions,requested300completedbarsGTC/RSR5m15m1h. Initialstrictgridfailed; source
+hasgaps. Diagnosticusesonlycontiguoussuffixes,noinventedbars;15mtoo short marked
+unavailable. Savedrawdata/sourcehashes/outputreceipt143118Z and datednote.
+RSRmomentumBUY5m1h;othercorepresetsHOLD. GTC5mcorepresetsHOLD,1hMomentumRSI
+blocksentry/pullbackSELL at10:00barcondition;notnewliveexitinstruction10:31.
+No trading,privateaccountreads,retuning,feesadjustedprofitclaim orcampaignchanges.
+No newsource/tests; independentreadonlyoutputreplay requested. SignalsSHOWN here;
+economic/executionreadinessUNVERIFIED,not anapprovedfinancialstrategy.
+
+### 2026-10-12 - AUDITOR: repeated daily sign-switch candidates
+Useraskedcoinregularlypositive/negative. DefinedcompletedUTCdailyopenreturn signs;
+notrolling24hdisplaycrossings. Scanned27publicmarkets;23exactgridscomplete,4HTTP
+failures retained asINCOMPLETE,notzeros. AVAX56.65%signswitch,QNT55.93%,ICP54.14%;
+splitperiodvalues showregimevariation,notclockwork. Zero-returnpair exclusions
+explicit. Buyafter-redgross/0.5%eachfee diagnostic negative for thesecandidates;
+no profitablemeanreversionruleclaimed. Savedrawreceipt/reversalnote. No private
+accountread,order,newstrategyparameter orcampaignchange; no newcodetests applicable.
+ObservationalcalculationsSHOWN; generalizableedgeUNVERIFIED,notindependentlyaccepted.
+
+### 2026-10-12 - ENGINEER: fixed reversal replay completed
+Userauthorizedtest. Inspectedexistingnext-openresearch and reversalpresets; froze
+separatehistoricaldiagnosticplan beforeexecution,explicitalreadyexploreddata/universe.
+Implementedisolatedwrapper AVAX/QNT/ICP2existingpresets3costs,cash/equal100USDhold
+controls,52warmup130evaluationbars. Sources/datahashpre/postchecked,nochanges to
+presets/simulator orfrozenstudies.36armruns retained,18strategy18control.
+26targetedtests passed. AVAXvolatilityreversal1trade+1.60USDprimary,-4.26retailcost
+sensitivity;otherstrategyarms0tradesINCONCLUSIVE,nofakednegativeverdict. Useractual
+EURholdings untouched. No performanceconfidence/edge/promotionclaim ornewcollector.
+Source/dataartifact/reportpaths inreversal_diagnostic_20261012.md. HIGHfinancial
+researchwrapper READY_FOR_INDEPENDENT_REVIEW; separate reviewerworking.
+SeparateGATE reproducedall36runs/hashidentities and26tests; initialdisposition
+INCOMPLETE due inheritedvolumeaverage defect and a missingworklog observedbefore
+this entrywaswritten. Disclosedvolumeaveragefourbars/three denominator atvolatility
+reversal line59: ratio25%understated may suppressentries. No silentfix orresultreplace.
+This tests existingcodeonly,not documentedcorrectvolumeaverage. Requiredhandoffnow
+present; requestedboundedfinalreviewafterdisclosure. Economicedge remainsUNVERIFIED.
+FinalseparateGATE ACCEPTED_WITH_RISK boundedexisting-codehistoricaldiagnosticonly,
+hashes/replayunchanged; defectdisclosed/noentryinconclusive. Diagnosticobjective
+complete; correction/profitability/promotion/liveexecution notauthorizedorinferred.
+
+### 2026-10-12 15:02 UTC - AUDITOR: hourly public Coinbase watch
+SHOWN: append-only snapshot coinbase_gainers_watch_20261012T150247Z.json
+records complete paginated coverage and comparison with 14:22:15 UTC.
+GTC remains rank 1 but fell 5.27%; RSR remains rank 2 and rose 0.41%.
+SAFE rose from rank 60 to 14 (+3.87%); GFI rose from 88 to 19 (+4.29%).
+Displayed liquidity differs: SAFE spread 15.16 bps and about USD26,298 bids
+within 1%; GFI spread 72.55 bps and about USD502 bids within 1%.
+Public cap supplement preserved separately; venue base-unit turnover and
+global USD volume are not net buying. Future rank, fill quality and economic
+edge remain UNVERIFIED. No private access, orders, settings or collector changes.
+Verification: public snapshot fields and prior-observation comparison only;
+no code changed and no tests required. Hourly sampling can miss fast moves.
+
+### 2026-10-12 - ENGINEER: descriptive reversal cycle timing
+User requested both Coinbase rolling24h colour and candle-direction timing.
+Added scripts/research/reversal_cycle_timing.py and two targeted tests; both
+passed. Reads existing public archives only; no orders, settings or collectors.
+SHOWN: hourly-close reconstructed rolling24h cycles average 23.55h for GTC
+(11 cycles), 17.83h for RSR (6). Hourly close-direction cycles average 4.03h
+and 3.72h; five-minute direction cycles average 20.29min and 18.15min.
+Actual Coinbase colour observations have zero complete cycles: their average
+is UNVERIFIED. Reconstruction is not the app's exact live calculation.
+Zeros and gaps break runs; boundary-censored runs excluded. These exclusions
+and short samples can bias timing; results are descriptive, not a trading edge.
+No production logic changed. READY_FOR_INDEPENDENT_REVIEW for analytical use.
+
+### 2026-10-12 - ENGINEER: direct dip recovery economic screen
+Objective: test the user's recurring dip/rebound hypothesis, gross first, rather
+than substitute colour counts. HIGH financial analytical logic; no live changes.
+Added dip_recovery_screen.py, three tests, append-only JSON output and report
+docs/research/dip_recovery_screen_20261012.md. SHOWN: 54 exploratory runs using
+existing public daily/hourly archives, next-open fills and fixed 3%/5% targets.
+GTC hourly red-cross 3% recovered 5/5; RSR 4/5 and fee-only total lost money.
+Several daily arms positive, others negative; no claim of all edges discovered.
+Gross compounding scenario, failed recovery and worst exit disclosed separately.
+Three targeted tests passed; full suite not run (isolated research module).
+Original data/results preserved. Censoring, current-universe selection, multiple
+comparisons, no benchmark/holdout and no book-fill proof remain material risks.
+Separate reviewer Locke requested; outcome pending. READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-12 - ENGINEER: public leader/pullback hypothesis data pull
+Earlier screen GATE INCOMPLETE: future-dependent admission and an unchecked
+crossing reference gap. Its compound numbers are not causal account wealth;
+withdrawn as strategy-return evidence, preserved originals rather than overwritten.
+User requested actual legwork on top-gainer -> 10/20% fall -> green recovery.
+Added separate leader_pullback_study.py, three tests and pre-result contract.
+Public bounded download of current eligible USD products started; no credentials,
+orders or background collector. Daily reconstructed leaders are not exact live
+rolling24h leaders; current listing bias remains. Missing/terminal events retained.
+Targeted tests: 3 passed. Download/results/review pending at this entry.
+HIGH financial research: READY_FOR_INDEPENDENT_REVIEW when results produced.
+Completion: downloaded403/403 via bounded sequential retry; zero remaining
+request errors. Original partial download retained; historical availability
+370-403/day, current eligibility not historical survivorship proof. Two threshold
+arms over181 daily leader observations, overlapping event studies.
+Final artifact coinbase_leader_pullbacks_final_20261012.json records hashes.
+10% arm120above-entry recoveries/50no30d recovery/7unfinished/4noentry;
+20% arm124/42/6/9. Firstgreen closed175/169 with91/92positivegross exits.
+Mean gross exits -1.49%/-0.36%; no compound portfolio or net-profit claim.
+Five finaltests passed. SeparateGATE initial INCOMPLETE on incomplete download
+and source instability; final repaired/frozen pair sent for bounded re-review.
+READY_FOR_INDEPENDENT_REVIEW, no trading/campaign/config/privateaccount changes.
+
+### 2026-10-12 - ENGINEER: frozen entry-relative target study
+User critique requested eight variants10/20dip,5/10target,7/14daytimeout.
+Inspected earlier event logic. Added separate leader_target_test.py/tests;
+frozen plan before results. Reused preserved403-market publicdaily dataset.
+SHOWN: all eight mean gross and modeled net closed-event returns negative;
+both91-daysegments negative net mean. Least-negative20/5/7 mean -USD18.71
+perUSD1000 event; worst -568.45. Worstothervarianttrade -707.09.
+Report leader_target_test_20261012.md puts economic results first, includes
+matchedBTC/event sums, separatefullsegmentBTC, unresolvedcounts, drawdownlimits.
+Three targetedtests passed; no fullsuite. Spread25bpseachside ASSUMED not
+historical; currentuniverse/dailyrankingproxy, delistedcoverageabsent. No portfolio
+return claim: events overlap, boundarypositions kept separately. No deployment,
+privateaccess/trades/campaign changes. SeparateGATE Parfit reviewing frozen files.
+HIGH financial research: READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-12 - ENGINEER: close leader-target reporting defects
+Separate reviewer Parfit found missing finalleaderpersegment and unqualified
+closed-only labels. Fixed as separate report adapter, preserving original frozen
+source/plan/results. Corrected report restores181leaders/variant; no change to
+closedorders/PnL. Explicit closed-only stats and unresolvedmark accounting added.
+Two correctiontests passed; all8closedresults exactly unchanged. All8closed-plus
+lastmarkevent averages negative too; not realized or portfolioP&L. Added report
+addendum rather than new infrastructure or study. Separate re-reviewrequested.
+READY_FOR_INDEPENDENT_REVIEW. No account/trading/campaign/automation changes.
+
+### 2026-10-12 - ENGINEER: accepted hourly economic hypothesis continuation
+User authorized proceeding after dailytargetrulesnegative. Scoped boundedhourly
+leader/pullback/entry-target diagnostic, not another infrastructurelayer.
+Added hourly_leader_recovery.py and3tests; tests3passed. Fixedsource-hashedplan
+before public312bar/403market download. Eightvariants10/20dip5/10target24/48hour.
+Next-openfills,72hourdipwait, unresolved/gapsretained; nofutureadmissionfilter.
+Reportcontract createdbeforeoutcome. Currentuniverse/hourlyleaderproxy andcost
+assumptions explicit. Twelve-day sample notholdout, repeatedeventsnotindependent.
+No privateaccess/orders/campaign/config/newjob. Collector is a boundedforeground
+download, not a recurringcollector. Download/results and independentreview pending.
+HIGHfinancial research: READY_FOR_INDEPENDENT_REVIEW afterimplementationproof.
+Completedpublicdownload403/403 nofailedrequests;258-312rankablemarketsperhour
+becausecontiguity filter, notcertifiedallmarketleaders.288hourlyobservations.
+Eightarmsrun onfrozen/sourcehashmatchedplan. Dependencyreportaddedseparately,
+firstsymbol/entrytimestamp duplicatecollapse, notindependentsamples orportfolio.
+20%dip5%target48h:56distinctentries46closed40netwins;meanclosed+$52.03,
+closedplusunresolvedmarks+$37.48/entry;10unresolved. Assumedcostssameascontract.
+20%armspositivecandidates,10%severalnegative; no blanketprofitabilityclaim.
+Currentuniverse/shortsample/missinghistoricalmarkets/overlapremain. Six targeted
+tests passed. Docfulltablebothpositiveandnegative; allsource/data/resultspreserved.
+SeparateGATE Faradayreviewing; dependencyadditionqueuedforreview too.
+READY_FOR_INDEPENDENT_REVIEW. No orders/config/campaign/newjobs/privateaccess.
+
+### 2026-10-12 - AUDITOR: delegated research continuation, raw concentration
+User delegated routinecontinuation, not liveexecution. IndependentFaradayreview
+pending; source/results unchanged, no unacceptedfinancial dependency implemented.
+Safeindependent rawcandle rankconcentration:288observations31coins65episodes;
+top5coins45.83% ofobservations. Savedappend-only concentrationJSON/directrawhash
+and separate note. This diagnoses inflated samplecount, not a tradingedge.
+Noaccount/orders/config/collectorchanges. Economicnextproof remains independent
+review then distinctopportunity/coinconcentration robustness, not newinfrastructure.
+Rawdiagnostic SHOWN; simulator remains READY_FOR_INDEPENDENT_REVIEW.
+SeparateFaradayGATE received: ACCEPTED_WITH_RISK diagnosticandsupplementonly;
+2304events independentlyreconciled,6tests passed,hashbindingsmatch. Threeunresolved
+marks105-107h stale: markedmean notcommon-cutoff/current/realizedPnL. Positive
+candidateclaim only. Independentreviewnowclosed; nofinancialpromotionauthorized.
+One bounded earlierarchive replication initiated with20dip5target48h unchanged;
+existingverifiedarchive used no network. No parametersearch/livechange. Adapter
+freezes newmetadata beforeanalysis; extendsperiod notcreatesholdout. Reviewpending.
+Earlierreplicationfinished:395archive/memberchecksumsmatch;165-301rankable/hour.
+Aug11-Sep30 17UTC evaluationnonoverlapwithrecent12days. Same20/5/48arm202distinct
+entries191closed137netwins;meanclosed+$20.23,including11lastmarks+$14.32.
+Worstclosedloss-$493.11. MDT49.23%ofmarkedaggregate;removeMDTmean+$7.57,
+removetop3+$2.57. Sevenearlierstale marks:worthlesspositionssensitivitymean-$17.67,
+NOTobservedloss. Recentanalog-$13.56. No commoncutoffcurrentvaluation.
+Earlierresultlegacycohortfieldnamesnotappropriateforlongerperiod;notusedas
+independentvalidation. Newreportfullrisk/coverage/datasetprovenance; no tuning.
+SeparateFaradayreviewpending adapter/results. READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-12 - GATE record: earlier replication accepted with risk
+SeparateFaradayreview ACCEPTED_WITH_RISK boundedhistoricalreplicationonly;
+441755candles1217events395memberhashes independentlyreconciled. No blocking
+causality/accounting/adaptationfinding. Six existingtests independentlypassed.
+Inheritedregistered_utc cannot proveearlieradapterregistrationtime; explicit
+provenanceaddendum added, originalfrozenartifactsunchanged. Sevenearliermarks
+149-1138hstale, notcurrent/endpointprofit. Statisticaledge/execution/holdout/
+portfolio UNVERIFIED. No trade/promotion/config/campaign changes authorized.
+Usercheck-in also public403marketwatchfresh18:43UTC; snapshotappend-only.
+### 2026-10-12 18:10 UTC - Claude (cloud session): E6 weekly cross-sectional momentum - preregistered test, FAIL
+Operator: "find me a working edge". Prereg written before download (docs/research/xs_momentum_20261012/PREREGISTRATION.md, amendment 1
+before first run). 492 Coinbase USD products incl. 89 delisted, daily 2017-2026, raw candles in laptop VM $HOME/xsdata (not in repo).
+Momentum top5: FULL -19.0%/yr, maxDD 97%; fails all 4 checks; all 8 sensitivities lose in 2022-26. Equal-weight top-20 coins -14.5%/yr.
+BTC hold +20.5%/yr; BTC+ETH trend benchmark +30.5%/yr, Sharpe 0.94, DD 53% (cross-check only). Result sha256 658c566c...
+### 2026-10-12 21:14 UTC - Claude (cloud session): review response - corrected BTC/ETH comparison, momentum report corrections
+Accepted review findings (stale-close execution on missing candles; silent incomplete downloads; paper tracker not matching research
+execution/costs; overgeneralized conclusions; inconsistent $240 economics). Gap audit: 15/492 products have gaps (XRP 904 d, STG 483 d);
+BTC/ETH contiguous. New docs/research/btc_eth_corrected_comparison_20261012/ uses the reviewed hash-checked corrected harness (next-open,
+contiguity-enforced), reproduces stored stress_corrected_v1 exactly; adds fixed 50/50@50% and cash benchmarks and a 2018 start
+(result sha256 b7c8faee...). At 0.5%: rule Sharpe > BTC and both fixed mixes in A/B/C/2018; ending value > BTC only in B and 2018.
+Status CANDIDATE; registered REJECT at 1.2% unchanged. xs_momentum README annotated (defect, basket scope, BTC/ETH figures superseded);
+fetch.py now records failed windows as .partial instead of saving incomplete files. Momentum not rerun (failed; review says don't rescue).
+Paper tracker NOT changed; alignment proposed for operator approval.
+### 2026-10-12 21:20 UTC - Claude (cloud session): review round 2 - downloader failures, benchmark labels, init exception, tracker v2
+fetch.py: all HTTP errors incl 400/404 and exhausted retries recorded as unresolved failed windows (.partial + _manifest.json); saved
+files skipped only if manifest complete + sha256 match; checked 404/unreachable -> failure, HTTP 200 empty -> data. As-run first version
+recreated as fetch_v0_as_run.py; intermediate kept as fetch_v1_partial_fix.py. Comparison README: full benchmark labels (25/25/50 cash)
+and harness initialization exception (A/B/C/FULL/2018 start Mon/Wed). New docs/research/paper_btc_eth_trend_v2_20261012/ (tracker.py
+sha b2db6721..., tests 9 passed incl. harness parity <1e-5 USD on Sunday-start window, idempotence, no-rewrite halt, gap refusal, lock,
+mutation checks). Scheduled task NOT changed; v1 tracker untouched. Awaiting review + operator approval to switch.
+### 2026-10-12 21:24 UTC - Claude (cloud session): tracker v2 review round 3 - write integrity, price validation, provenance
+tracker.py (sha 4038e02e...): write_all loop (zero progress -> WriteFailure); summary/appended count from re-read ledgers; post-write
+check for missing records; finite positive open/close validation before replay (InvalidData); allow_nan=False on ledger and state.json;
+executions labelled modelled/observed_fill=false; recorded_lag_hours + reconstructed (>24 h) on every record, excluded from equality.
+test_tracker.py (sha 9681ae5c...): 23 passed; mutations of each fix caught except summary-source (masked; covered by post-write check).
+Scheduled task NOT changed. Awaiting re-review.
+
+### 2026-10-12 - Codex ENGINEER: authorized v2 research schedule in Codex
+
+Objective: activate the reviewed tracker following "get it done" / "do it here".
+Prior independent review of Claude's implementation: ACCEPTED_WITH_RISK for
+research-only use. SHOWN: created heartbeat btc-eth-weekly-research-tracker-v2,
+ACTIVE in chat 01a0d7ce-e229-7892-8d20-8786c1156b6b; read back saved configuration.
+Sunday 20:47 New York (Monday 00:47 UTC daylight time / 01:47 standard time),
+first eligible decision October 18 UTC close. Existing Claude v1 untouched.
+VERIFIED_ENV: local repo and .venv interpreter. Scratch-state preflight returned
+waiting / first_decision_close 2026-10-18, without economic evidence or network.
+Verification: ./.venv/bin/python -B -m pytest -q
+docs/research/paper_btc_eth_trend_v2_20261012/test_tracker.py: 23 passed in 0.72s.
+README updated to actual Codex schedule. No source changes, live trading,
+campaign changes, deployment, commit or push. Scheduling prompt preserves
+history on failure and forbids automatic repair. Rollback: pause automation.
+UNVERIFIED: first unattended delivery, scheduled network access, future host/app
+availability. Modeled executions are not fills. User authorized activation;
+post-activation scheduling review remains READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-12 - OPERATOR: stop Coinbase gainers/holdings watch
+User explicitly requested moving on and stopping the watch while holding long term.
+Paused existing automation coinbase-gainers-and-gtc-rsr-watch via app tool;
+SHOWN tool returned status PAUSED. Preserved its existing prompt, schedule and
+thread attachment. Existing diagnostic snapshots and research artifacts untouched.
+No orders, account, campaign, collector or unrelated automation changes.
+Scope complete: requested watch paused, not a liquidation or research cancellation.
+
+### 2026-10-12 - ENGINEER: one-account capital test
+User acceptedrecommendednextsingleUSD1000accounttest. Newfixedallocationfirst
+causal20%dipwhenflat,5%target48hhold,oldestleadertiethenproductID. Allcashreused,
+signalsignoredwhileheld;carrycash/positionacrossSep30rawsourceboundary.
+Addedleader_single_account.py/fivetests/report;frozenplan/source/inputsha before
+results. SHOWN COMPLETE:43closed31wins,oneheldpositionendNAVUSD493.06, initial
+1000 (-50.69%). Maxobservedclosedrawdown80.73%. Same-periodBTCestimate1270.19.
+No syntheticdepositoroverlappingcapital, missingheld/exitdatawouldhaltnotdelete.
+Five narrowtests passed; nofullsuite. Originaleventstudiesunaltered. Costassumptions
+currentuniverse/leaderproxy/not-holdoutremain. SeparateHilbertreviewrequested.
+HIGHfinancialresearch READY_FOR_INDEPENDENT_REVIEW. Noorders/account/campaign/
+config/automationchanges; gainerswatchremainsPAUSED.
+
+### 2026-10-12 - AUDITOR: close single-account research objective
+Separate Hilbert GATE ACCEPTED_WITH_RISK for frozen replay only. Independent
+trade/NAV/BTC reproduction and five tests confirm the negative economic result.
+Cancellation defect affects missing-entry paths; zero skipped entries in this
+run, so no outcome correction or rerun needed. Recorded risk, no code patch.
+Objective COMPLETE as a tested negative result, not an accepted trading strategy.
+No tuning/rescue loop. Preserve artifacts; public watch remains paused.
+
+### 2026-10-12 - ENGINEER: separately fixed volume/BTC hypothesis
+User authorized research continuation. Chosen ONE combined mechanism hypothesis:
+BTC completed24h positive AND coinlast6hbasevolume>prior6h atdiptrigger. No sweep.
+Created independent sourcefork preservingoriginalaccepted artifacts. Sameoneaccount
+capital,20%dip5%target48h timeout, assumedcosts. Corrected knowncancellation risk
+onlyinnewfork; baseline realreplay unchanged and no skippedentries eitherpath.
+358watchrefusals/79symbol-timepairs provefilter exercised; unknownrefusals0.
+SHOWN COMPLETE USD1000→618.50cash,21closed11wins,maxclosedrawdown72.98%.
+Baseline493.06/BTC1270.19. Lossreduced but stillnegative; no profitableedgeclaim.
+Fourtargetedtests passed, original/source/inputbindings frozenbeforerun. Nofullsuite.
+Doc/resultsaved; separateNewtonreviewrequested. No thresholdsrevised afteroutcome.
+HIGHfinancial research READY_FOR_INDEPENDENT_REVIEW. WatchPAUSED; no livechanges.
+
+### 2026-10-12 - ENGINEER: distinct funding-carry feasibility hypothesis
+User accepted public-data BTC/ETH carry research, not another rebound variation.
+Frozen30day alwayshedged equalbasequantity longspot/shortlinearperp; total1000USDT
+includes spot,1xmodeledcollateral andentryfees. Three tests passed. Collected18
+publicresponses preservingexactbytes/hashes,90actualrealizedRate settlements per
+asset withnegativepayments included14BTC/16ETH. Matchedendpointcandles/markOPEN
+proxies; no predictedrate selection. Actualassessmentmark/fillabilityunverified.
+BTC funding1.98ETH1.53USDT. Zero-costgross total2.02/1.60; modeledcostcase
+beforeoverhead-5.14/-5.33; after20overhead-25.14/-25.33. Notincomeatthisscale
+underthissample/costmodel; notallcarrymarketsdisproven. USDUSDTparityASSUMED;
+feesunverified; liquidation/accounteligibilitynotmodeled. No transfers/trades/
+privateaccess/config/campaign/jobs. Documentation/raw/results saved. Spawnlimit
+resolvedbyreusingindependentHilbertreviewer; reviewpending. No repeat/tuning loop.
+HIGHfinancialresearch READY_FOR_INDEPENDENT_REVIEW. GainerwatchstillPAUSED.
+
+### 2026-10-12 - ENGINEER: bounded failed-breakout/retest economic test
+Objective: user accepted investigating the Reddit failed-breakout/retest idea.
+SHOWN: existing price-action code supplies a five-bar swing-failure label; the
+August checkpoint was a small forward-return diagnostic, not this account rule.
+Added a separate offline script and 12 tests; original strategies and artifacts
+are unchanged. Freeze one rule before outcomes: downside sweep/reclaim, retest
+within three hours, next-open entry, prior range-high target/sweep-low stop with
+close triggers and next-open exits, 24-hour timeout. One USD1000 account, highest
+causal trailing-24h dollar-volume proxy allocation, cash/positions carried across
+the existing archive boundary. No parameter search or new download.
+Two assumptions: modeled next-open costs (50 bps fee/25 bps adverse price per
+side); archived/current universe and positive-volume bars approximate historical
+eligibility. Held/exit gaps halt; originals never modified or interpolated.
+VERIFIED_ENV: local .venv Python 3.12. Targeted verification:
+./.venv/bin/python -B -m pytest -q tests/test_failed_breakout_retest.py
+12 passed in 0.17s. Full suite not run. Outcomes/replay and independent review
+pending. HIGH financial research: READY_FOR_INDEPENDENT_REVIEW upon replay proof.
+No orders, credentials, campaign, config, collector or automation changes.
+
+Frozen replay finished: INCOMPLETE_HELD_PRICE_GAP on TRIA August15 05UTC;
+395 original archive members verified,403 symbols with in-window data.
+Seven closed trades/zero net winners,closed modeled PnL -189.09; last available
+liquidation estimate819.77, held TRIA/cash0. Same-cutoff BTC recomputed directly
+from original archive971.86; full-window BTC1270.19 is NOT a valid partial-run
+comparison. Endpoint NAV is null, no economic FAIL/PASS or edge conclusion.
+Report records assumptions, exact frozen hashes, gap and full-suite omission.
+Separate Newton GATE requested; source/plan/results unchanged since freeze.
+Implementation proof complete: READY_FOR_INDEPENDENT_REVIEW.
+
+Expanded regression verification: failed-breakout, existing context-label and
+research-boundary slice24passed in0.48s. Source/inputhashes remain unchanged.
+Independent review pending; no additional simulation, tuning or live change.
+
+### 2026-10-12 - GATE record and ENGINEER: finish sparse-price sensitivity
+Newton independently reproduced the strict prefix and same-cutoff BTC; disposition
+ACCEPTED_WITH_RISK for the halted diagnostic only, full objective INCOMPLETE.
+Found a cancellation mismatch: unchosen retests were removed before successful
+entry. No skipped buys in the prefix, so its figures stand. Original source,
+plan/results unchanged. Public Coinbase GET for TRIA August15 04-07UTC returned
+04/06/07 candles and no05 candle, confirming it cannot be recovered from that
+endpoint. No credentials/accounts used; command environment VERIFIED_ENV.
+User challenged stopping without an economic answer. Small separate replay uses
+the existing corrected-dynamic-study sparse-price convention: preserve positions,
+null NAV on missing held hours, defer sells to next observed positive-volume open.
+This explicitly AMENDS the strict data/execution policy after its outcome; it is
+a sensitivity, NOT the original strict test or fresh validation. Same signal,
+allocator, capital, fees, stop/target thresholds and timeout; fix unused-watch
+cancellation in this new version only. No forward-filled price or bar inserted.
+Added failed_breakout_gap_replay.py and seven tests. Targeted original/new slice
+19passed in0.29s. Frozen plan/replay and independent review pending. Full suite
+not run. Unknown-hours drawdown understated; no significance/fillability proof.
+HIGHfinancial research READY_FOR_INDEPENDENT_REVIEW when replay proof completes.
+No orders/config/campaign/collector/automation changes. Watch remains PAUSED.
+
+Full-interval sparse-price sensitivity finished: modeled endpoint157.59USD vs
+BTC1270.19; 167closed52netwinners115non-winners, oneheldDIMO/cash0. Carrycheckpoint
+266.27, earlier-73.37%/later-40.82%, economic screenFAIL. EightunknownNAVhours,
+zero deferred-exit hours; no invented gap prices. First101NAVrows exactlymatch
+strictprefix. Frozenbindings unchanged. Original/new/context/boundary tests
+31passed0.52s, nofullsuite. Newreport preserves explicit post-result data-policy
+amendment and noholdout/significance/live claims. Newton independent review
+requested. No rescue/tuning. HIGH: READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-12 - GATE record: sparse-price replay closed
+Separate Newton GATE ACCEPTED_WITH_RISK for the frozen post-result sensitivity
+only; no blocking findings. Full replay independently reproduced and every
+trade/allocation/cash/NAV/null reconciled; original artifacts hash-identical,
+strict101-observationprefix exact. Cancellation counterexample and synthetic
+deferred-exit tests passed. Independent four-file regression31passed0.43s,
+fullsuite notrun. EconomicFAIL unchanged:1000USD->157.59 modeled liquidation,
+BTC1270.19;8unvaluedhours. Report append records review without editing frozen
+source/plan/results. Implementation/review scope CLOSED, not a strategy approval.
+Execution/historicaleligibility/risk limitations remain. No new experiment,
+tuning, orders/config/campaign/collector/automation/deploy changes.
+### 2026-10-13 01:55 UTC - Claude (cloud session): edge map of all tested families (docs/research/edge_map_20261013.md); read-only consolidation, no new tests
+
+### 2026-10-12 - ENGINEER: bounded public liquidation-data feasibility
+User accepted checking actual forced-flow evidence from the supplied article.
+Existing liquidation-context placeholder remains untouched. Official OKX docs
+expose a partial live liquidation channel, not a complete total; public REST
+route still responds but was not found in current docs. Read-only discovery:
+required instFamily obtained from API error; BTC request returned100 timestamped
+records, subsequent after-cursor request strictly older and both long/sell and
+short/buy directions. bkPx is bankruptcy price, not a fill/reference price.
+Added separate public probe: BTC/ETH, six bounded liquidation pages each,
+7/30-day history availability probes, instrument definitions and same-venue
+completed1m spot/perp candle coverage. Max30HTTP requests, no retries/daemon.
+Source/cutoff frozen before recorded collection. Receipts preserve exact public
+response bytes/base64/hash and timestamps, including errors. Require every
+intervening forward minute; immature observations are not failed recoveries.
+Six targeted tests passed0.48s. VERIFIED_ENV local .venv/public TLS defaults.
+No entry/exit rules, PnL, thresholds, notional summation or trading decision.
+LOW-risk diagnostic recorder only; actual collection/coverage proof pending.
+No credentials, account, orders, production/config/campaign/collector/job changes.
+
+Collection finished22publicrequests0failures. BTC600records422longSELL;
+ETH600records388longSELL. All810longSELLrecords match full contiguous following
+15m confirmed spot/perp prices.17SELLminutebins perasset,12shared,union22minutes:
+not810independentepisodes.39all-directionrecords immature, not failed recoveries.
+Samples span only~2h. Older-than7d/30dprobes empty bothassets; no exactretention
+or longhistoricalcoverageclaim. All22exact-responsehashes verified; timestamps,
+definitions/rawcontracts/bankruptcyprices preserved, never treated as fills.
+Report records undocumentedsupportedRESTroute/partialvenuecoverage, no historical
+receipt-time or book evidence. Separate Newton review pending. LOW diagnostic
+implementation proof complete; noeconomicbacktest/statisticaledgeclaim introduced.
+
+### 2026-10-12 - GATE record and ENGINEER: liquidation markout measurement
+Newton ACCEPTED_WITH_RISK savedavailabilitydiagnostic: all22receipts/coverage
+counts independentlyreproduced,6tests passed. Fatalcollectorvalidation can lose
+unsavedreceipts; unaffectedcompletedartifact accepted, generalfailurepathnot.
+Originalprobe/source/plan/raw unchanged. User accepted next post-selling price
+measurement; newoffline markoutscript counts oneasset/minute, not individual
+orders. Fixedprimary5m andsecondary1/15m beforeoutcomes; firstnext-minuteopen to
+forwardclose requiresfullconfirmedgrid. Comparewithunconditioned same-sampled
+interval (includes eventmins,notrandom/no-liquidationcontrol). Earliest-first
+15mspacing sensitivity, declines/immature/gaps retained. No returns seen before
+freeze. Hypothetical high-cost reference explicitlyNOTverifiedOKXfees; mathematical
+fee-budget reported separately so grosspositiveeffects are not hidden by arbitrary
+stresscosts. Source/raw/parent bindings andreceipt hasheschecked. Tests added;
+verification/plan/replay pending. HIGHfinancial diagnostic: independentreview
+required, not capital/portfolio strategy. No network/privateaccess/orders,
+config/campaign/collector/automation changes. Originalscaffold untouched.
+
+Frozen measurement completed: primary5mBTC14/17rebounds mean+.1651% vs+.0542%
+unconditioned;ETH12/17mean+.1821%vs+.0740%. Declines3/5 retained;17minutebins
+perassetnot810samples. Fixed15mspacing leaves4each;5mmean+.1140%/+.2110%,
+but1mspacedmeansnegative. Full1/5/15m+perpcurve reported, baselineincludes
+eventminsnotcausalcontrol, no significance/holdout/exhaustionsignal claim.
+Grossmean reference1.65/1.82quoteunits per1000 exposure; high-costillustration
+explicitlynotactualOKXfees. Mathematicalno-adversefee-budget8.25/9.10bpsside,
+notcapitalrecommendation.14tests passed0.32s,nofullsuite. Source/input/rawreceipts
+frozen/unchanged. SeparateNewton GATE requested; implementationproofcomplete.
+HIGHfinancial diagnostic READY_FOR_INDEPENDENT_REVIEW. No runtime/live changes.
+
+Report clarifies all quoted exposures/price-change references are USDT,
+not a USD conversion or user-accountvaluation. Frozen source/plan/results unchanged.
+
+### 2026-10-13 - ENGINEER: limited zero-wager NY Numbers study
+User accepted controlled research/zero-wager lottery investigation after income
+assessment; no verified customer/live profit reported, monthly1000 contribution
+not researchspending/loss authorization. No existinglottery study found. Added
+ny_numbers_audit.py and7tests. Fixedone rolling1000-draw Laplace-smoothed positional
+model per midday/evening; deterministiclowestdigit ties; forecast before current
+outcome; missing/ambiguousdraw resetsownhistory, unknowneligible outcome retained.
+Validation2016-2021, final2022-Sep30,2026. Three recentlyviewedOct8-10draws excluded
+by datecutoff setbeforefull download. No parametersearch. Positional/joint/serial/
+same-day/sum tests one Bonferroni family; sums use theoreticalnonuniform distribution.
+Primarypooled logscore versusuniform with fixed14/90dayblock intervals; economic
+gate requires one-sided95%hitprobabilitylowerbound>.002 andpredictivegate, not
+merelyp<.05. Current$500per$1straight is a virtualreference, not historicalpayout
+reconstruction or actual money. Officialraw responses/checksum/count preserved;
+max2public requests, no privateaccess/tickets/paiddata. NumPy alreadyinstalled;
+SciPyabsent, noinstallation. Verifiedgamma/binomialreference cases and7tests
+passed0.35s. Source/planfreeze beforedata/outcomes; HIGHfinancial/statistical
+research requires independentGATE afterreplay. CryptKeepsettings/studies untouched.
+
+NY officialdownload16725datedrows countmatched;2exactHTTPreceipts saved.9032midday
+and16725eveningdraws parsed, no malformed/conflicting/duplicate records. Dataset
+binding createdbeforeanalysis andparsedrows comparedexactreceipt; hashunchanged.
+37midday/105eveningmissingcalendar dates; latest2022Mar15. Frozen1000consecutive
+historyrule therefore produced ZERO earlier2016-21validation forecasts; only
+2024Dec10-2026Sep30 finaleligible660each/1320total. Fullvalidation INCOMPLETE,
+not a full2022-26 test. No rule relaxed/backfilladded to complete it artificially.
+23predeclaredanomalytests smallest rawp.11258, none5% before/aftercorrection.
+Fixedpredictor2middayhits0evening; pooledreference-320USD, midday+340 (two lucky
+winsmustnotbehidden), evening-660. Actualwagers/spend0. Probability logscore
+delta-.02101 vsuniform;14/90d95intervalsbothnegative. Pooledone-sided95lower
+hitprob.000269<.002 breakeven; currentpayoutreference NOThistoricalincome.
+Seven tests passed0.26s; nofullsuite. Report preservesqualificationandallraw/data
+gaps, formalvalidation INCOMPLETE, frozenresultsNOT_DEMONSTRATED unchanged.
+SeparateNewtonGATErequested: HIGH READY_FOR_INDEPENDENT_REVIEW. No cryptkeep
+runtime/privateaccount/order/campaign/schedule or monthlycapitalchanges.
+### 2026-10-13 02:26 UTC - Claude (cloud session): research brief for all sessions
+New docs/research/RESEARCH_BRIEF.md: bottom line, cost facts (fee tier SHOWN vs conflicting UNVERIFIED sources), literature verdicts,
+project results table with file pointers, 10 research rules, next steps and do-nots. Added one pointer line under AGENTS.md
+"Project-specific conventions" (AGENTS.md already had uncommitted edits by others; only that line added). Also saved the edge survey as
+docs/research/crypto_trading_edges_survey_20261013.md. Nothing committed or pushed.
+### 2026-10-13 02:28 UTC - Claude (cloud session): crash-brake data availability check (no analysis)
+Public funding-rate history reachability from the laptop VM: Binance fapi HTTP 451 (US block); Bybit HTTP 403; OKX ~90 days only;
+Kraken Futures PI/PF XBT/ETH from 2025-10-06 only; Deribit BTC-PERPETUAL reachable (rows returned for 2020-03, none for a 2019-01 window);
+BitMEX XBTUSD funding from 2016-05-14 and ETHUSD from 2018-08-02 reachable, but latest XBTUSD record returned was 2026-09-16 (to explain
+before use). Only availability and date ranges were inspected; no rates were related to prices. Crash-brake test is feasible on BitMEX
+(+ Deribit cross-check) pending pre-registration.
+### 2026-10-13 02:32 UTC - Claude (cloud session): Binance funding history fetched via Hetzner (operator ran command); E7 crash-brake prereg
+Operator ran the read-only fetch (no writes on host). research/crash_brake_20261013/binance_funding_raw.jsonl: BTCUSDT 7,770 prints
+2019-09-10..2026-10-13, ETHUSDT 7,536 from 2019-11-27, all 8h intervals, 0 gaps/dups/non-finite/errors (sha256 15edda37d3119f1c...).
+Pre-registration docs/research/crash_brake_20261013/PREREGISTRATION.md written before any funding-vs-price analysis. Not run yet.
+### 2026-10-13 02:34 UTC - Claude (cloud session): E7 crash brake - run once, FAIL
+docs/research/crash_brake_20261013/ (script efedd6c7..., result f61ecf894a2af291...). Reviewed harness, Sunday-start D 2020-12-06..2023-12-31 and
+H 2024-01-07..2026-10-08. Brake cut exposure 11/160 weeks (D), 2/144 (H). D: Sharpe 1.352 vs 1.341, maxDD 32.8 vs 32.8 -> condition 1
+fails at 0.50% and 0.90%; lower ending value in all periods; no sensitivity improves D. Rejected as overlay. Side note: at 0.90% fee
+in H candidate Sharpe 0.706 ~ BTC 0.704, ending $1,605 vs $1,841. RESEARCH_BRIEF updated.
+### 2026-10-13 02:41 UTC - Claude (cloud session): E8 Composite v1 (trend ensemble + band) - run once, FAIL on holdout
+docs/research/composite_v1_20261013/ (prereg 6dce29e4..., script 971917e0..., result ba49b592039daec7...). New simulator reproduced the reviewed harness
+<1e-6 USD (candidate, band 0). D 2017-23: Sharpe 1.592 vs 1.564, turnover 4.6 vs 9.25x/yr (pass). H 2024-26: Sharpe 0.450 vs 0.869 (fail),
+same at 0.90%. Candidate stays. Next proposed: band-only on unchanged candidate. RESEARCH_BRIEF updated.
+### 2026-10-13 02:46 UTC - Claude (cloud session): E9 band-only on candidate - run once, FAIL on registered turnover criterion
+docs/research/candidate_band_20261013/ (prereg 90ff88d8..., script 9ed16dde..., result af6b15bd7431007a...). Turnover 8.36 vs 9.25x (0.90x, needed
+<=0.75x) -> FAIL at both fees. All other checks passed: Sharpe and ending value above candidate in D and H at 0.50% and 0.90%; rebalances
+20.9 vs 38.7/yr; D maxDD 54.0 vs 51.9. Criterion recorded as mis-specified, not changed post-hoc. Proposed: forward-track band variant in
+tracker v2. RESEARCH_BRIEF updated.
+### 2026-10-13 02:47 UTC - Claude (cloud session): tracker v2 - rule_band10 account for forward E9 evidence
+tracker.py (e516f1c0...) adds rule_band10 (BAND 0.10, banded_rebalance identical to E9 simulator); test_tracker.py (3aaf3bd4...) 25 passed
+incl. parity with band.py sim <1e-5 USD on Sunday 2020-01-05..2026-10-08; mutations caught. Not scheduled; awaiting review + operator OK.
+### 2026-10-13 02:52 UTC - Claude (cloud session): tracker v2 scheduled as a separate task (operator: "do whats best")
+New scheduled task trig_01PHLr4N61jbK5WUjkDqx23L "CryptKeep tracker v2 (BTC+ETH trend, research only)", cron 52 0 * * 1,2 (Mon decision record,
+Tue execution record), requires this computer, auto permission mode, no notifications; writes only docs/research/paper_btc_eth_trend_v2_20261012/state.
+v1 weekly task unchanged. Verified tracker runs under the VM's plain python3 3.10. Creation result showed no folder attached yet
+(folders_state NONE): operator to confirm crypto-bot-pro is attached to the task, or first run will report the missing folder.
+Codex review of round-3 fixes + rule_band10 still requested; task can be paused anytime.
+### 2026-10-13 02:52 UTC - Claude (cloud session): duplicate v2 schedule removed; review request to Codex
+Found Codex's 2026-10-12 entry: v2 already scheduled in Codex (heartbeat btc-eth-weekly-research-tracker-v2, after independent review
+ACCEPTED_WITH_RISK, operator-authorized). Deleted my duplicate task trig_01PHLr4N61jbK5WUjkDqx23L minutes after creating it (it had never run).
+REVIEW NEEDED before the first scheduled decision (Sun 2026-10-18 close, run Mon 2026-10-19 ~00:47 UTC): tracker.py changed AFTER Codex's
+review - round-3 fixes (write loop, price validation, provenance labels) and the new rule_band10 account (sha e516f1c0..., tests 25 passed).
+Codex's schedule will execute this newer code. If review is not possible in time, the rule_band10 account can be disabled by reverting
+to the reviewed tracker version; history is append-only either way.
+Correction to the entry above: Codex's 2026-10-12 verification ran 23 tests, i.e. the round-3 version, so only the rule_band10 addition
+(25 tests) is unreviewed.
+### 2026-10-13 02:56 UTC - Separate reviewer GATE (Claude subagent) + Claude follow-up: rule_band10 change
+Independent read-only review of the rule_band10 addition: ACCEPTED (no P1/P2). Verified line-for-line match with E9 sim(), isolation of
+other accounts (identical records with/without rule_band10), deterministic JSON-safe fields, edge cases over 510 executions since 2017
+(cash never negative, max weight sum 1.0), 25 passed, 7/9 mutations caught. P3s fixed by Claude: tests for inclusive band boundary and
+zero-unit removal (both surviving mutations now caught), docstring names rule_band10, README notes execution-open check and cash-scale
+under-fill (11 times since 2017). tracker.py 71675322... (docstring only), test_tracker.py 3ac2cef1..., 27 passed. Logic unchanged.
+
+### 2026-10-13 - GATE: NY Numbers initial zero-wager diagnostic review closure
+- Objective: close independent review of the frozen study, without tuning,
+  wagers or CryptKeep runtime changes.
+- SHOWN by separate reviewer Newton: receipts, binding, counts, causal
+  forecasts, all 23 anomaly tests and paired-calendar bootstrap intervals
+  reconcile. Targeted verification:
+  `./.venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_ny_numbers_audit.py`
+  returned 7 passed. Full suite not run; VERIFIED_ENV local Python 3.12.
+- Observed scored subset: 2024-12-10 through 2026-09-30, 1,320 predictions,
+  two hits, virtual constant-current-payout reference -$320, actual wagers $0.
+  Midday reference +$340 and evening -$660 are not actual income. Probability
+  log scores were worse than uniform; no significant anomaly was found.
+- Changed only report disposition and this entry. Original source, plan,
+  receipts and results preserved. Expected outcome: prevent diagnostic
+  acceptance from being mistaken for predictive or economic qualification.
+- Remaining P2: general binomial helper underflows at 5,000 hits in 10,000
+  trials; actual two-hit bounds independently verified and unaffected.
+  Missing archive dates prevented all earlier validation forecasts, so the
+  full validation protocol is INCOMPLETE. No advantage or betting accepted.
+- Independent disposition: ACCEPTED_WITH_RISK for the frozen diagnostic only.
+
+### 2026-10-15 14:00 hour America/New_York - ENGINEER: five-market collection catch-up
+- Objective: user-authorized bounded public-data backfill following check-in;
+  preserve the registered study, existing data and no-early-scoring boundary.
+- VERIFIED_ENV: local Python3.12 environment, exact existing command interface,
+  contract/registration and parent-prefix preflight verified. Public fetch uses
+  explicit Coinbase venue and no API key/secret. No dependencies installed.
+- SHOWN: prior archive ended October12 11UTC, with360 bars per market. Four
+  foreground batches (24/24/24/6 hours) added390 bars total:78 each for BTC/USD,
+  ETH/USD, SOL/USD, ADA/USD and XRP/USD. Each now has438 contiguous bars,
+  including138 evaluation hours, through October15 17UTC; exclusive cutoff18UTC
+  equals the last completed boundary at verification time (14:00 New York).
+- Added four new collection checkpoints dated October13T120000Z,
+  October14T120000Z, October15T120000Z and October15T180000Z. Final path:
+  research/coinbase_confirmation_usd_v1/collection_batch_20261015T180000Z.json;
+  SHA256 027e368ac54c53a303763e20777f4fb47f4dde2032e162dabb03689266e501bb.
+- Verification: `./.venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_collect_confirmation_batch.py`
+  returned10 passed in0.20s. All four real ingestion commands exited0 with
+  complete checkpoints. A separate read-only replay checked every old/new
+  checkpoint prefix against stored rows, chain parent hashes, frozen source
+  identities, exact continuous grids and current completed-hour boundary.
+  Full repository tests were not run; no source code changed.
+- Updated authoritative research checklist R10 and latest-checkpoint pointer.
+  Expected outcome: remove the accumulated data lag without tuning or early
+  evaluation. Historical candles were acquired today; they are not proof of
+  contemporaneous receipt, executable prices or sustained unattended health.
+- No strategy results inspected, credentials accessed, orders submitted,
+  campaigns/settings/schedules changed, services restarted, commits or pushes.
+  No new collector created. Future collection still needs bounded invocation;
+  first natural tracker-v2 delivery remains UNVERIFIED.
+- Existing separately reviewed collection workflow ACCEPTED_WITH_RISK;
+  SHOWN operational catch-up only, not economic or full-system acceptance.
+### 2026-10-15 18:51 UTC - Claude (cloud session): multi-symbol mandate adopted; coverage registry; E10 run (operator: "you have command")
+Operator adopted a multi-symbol research mandate after a review flagged that agents (mainly Claude) had narrowed CryptKeep to BTC+ETH.
+New docs/research/MULTI_SYMBOL_MANDATE.md (universe = config/candidate_universe.yaml, 25 symbols, all Coinbase USD products);
+research/symbol_coverage.csv + tests/test_symbol_coverage_registry.py (4 passed; removing a symbol's row fails). AGENTS.md pointer
+added; RESEARCH_BRIEF re-scoped (Scope section; scoped do-nots; coverage). Repo review doc opening rewritten in multi-symbol terms.
+E10 (prereg 83191d18..., script 550dc2ea..., result a6a4aa09..., data SHA256SUMS): simulator reproduced reviewed harness 7.3e-12 USD.
+Equal-1/N 10-core-pair trend portfolio FAIL vs BTC+ETH incumbent at both fees (D Sharpe 1.20 vs 1.46; H 0.51 vs 0.88). Standalone
+classifications: CANDIDATE vs hold ETH, AVAX, DOT; INCONCLUSIVE BTC, SOL, DOGE, ADA; REJECTED LTC, LINK, XRP. Registry updated;
+15 symbols remain UNTESTED. Nothing committed or pushed.
+### 2026-10-15 19:13 UTC - Claude (cloud session): integrity investigation (read-only + scratch only)
+Per Damian's extended-investigation request. No repo file changed except this append-only log entry; no scheduled task, server, account or secret touched.
+Re-executed E6-E10 in VM scratch ($HOME/audit_scratch, outside repo): all five results byte-identical to saved (system python3.10); verdicts unchanged.
+Blind subagent reimplementation of the BTC+ETH candidate from rule text: A/B/C within 0.02/0.38/0.06% of comparison_result.json; hold-BTC exact. B gap undiagnosed.
+Look-ahead perturbation (prices/funding after cutoff scrambled; hash guards disabled in scratch copies only): 0 pre-cutoff numeric changes in E6 (A), E7-E10 (D).
+Citation audit of edge survey (75 cites, subagents): 42 supported, 14 partly, 18 not reachable from sandbox, 1 contradicted (#66).
+list_triggers: duplicate v2 task absent; NEW task trig_01XzB38F7HeJLH4LWykMNdN3 (NY Numbers, created 2026-10-15 18:28) of unknown origin - not created by me.
+Findings and proposed corrections (none applied): Claude Doc https://claude.ai/code/artifact/9fb66409-ec29-4359-b869-5c578383728f
+Scratch outputs are NOT preserved in the repo (proposal C7 awaits approval).
+### 2026-10-15 19:24 UTC - Claude (cloud session): approved corrections C1-C7 applied; blind E6/E10 reimplementations
+Operator approval (chat): C1-C6 narrowly, C7 as new archive; no verdict/criterion change; scheduled tasks, server, Docker, accounts untouched.
+Files changed (sha256 before -> after): MULTI_SYMBOL_MANDATE.md 379c20c5 -> 6f0c1524; crypto_trading_edges_survey_20261013.md 7acb2ad8 -> 481d8576; xs_momentum_20261012/README.md e4f51d42 -> f5792c24. Originals + diff in docs/research/integrity_audit_20261015/.
+New folder docs/research/integrity_audit_20261015/ (did not exist; MANIFEST.SHA256 c2483c7e).
+Blind E10 (subagent): portfolio/incumbent within 0.5%, same FAIL, same 10 classifications. Blind E6 as-registered within 0.4% of saved strategy result; FAIL.
+E6 corrected rule (pre-stated) run once with blind code: A strategy $1,011 vs $1,122 as-registered; B unchanged; still FAIL. Original E6 result/verdict unchanged.
+$37.83 B-gap explained: cost convention (targets on pre-cost NAV vs harness post-cost equity); with harness convention blind code matches A/B/C to the cent.
+NY Numbers scheduled task: configuration preserved in snapshot; not run, modified or deleted; origin unconfirmed.
+### 2026-10-15 19:29 UTC - Claude (cloud session): C8/C9 applied; E6 correction cross-checked; archive verified
+Operator approval (chat): C8, C9; verdicts and frozen criteria unchanged; NY Numbers task not to be run/edited/deleted.
+Files changed: crypto_trading_edges_survey_20261013.md 481d8576 -> c8050f2d (C8, 3 fragments: 2024-26 used in candidate selection, not a clean out-of-sample test); xs_momentum_20261012/README.md f5792c24 -> 7a30a4a7 (C9 pointer, labelled retrospective, not a replacement). Pre-edit copies originals/*.pre_C8/.pre_C9; script apply_corrections_c8_c9.py; diff corrections_c8_c9.diff.
+E6 corrected rule, second implementation (patched scratch copy of xs_momentum.py, corrected_crosscheck/): A strategy $1,009.17 vs blind $1,011.19; FAIL. 480 vs 467 products: 11 short-history (never eligible) + UST/GYEN (repo script excluded them beyond the prereg list); rerun with repo list gives identical results.
+Archive: MANIFEST.SHA256 62/62 OK; originals match recorded pre-edit hashes (379c20c5, 7acb2ad8, e4f51d42); MANIFEST_v2.SHA256 75/75 OK (db84edf2). New METHODOLOGY_NOTES.md (sizing convention). E10 survivorship remains UNRESOLVED.
+Experiment scripts/results/preregs re-hashed: unchanged. NY Numbers task updated_at unchanged (2026-10-15T18:28:06Z); untouched.
+### 2026-10-15 19:40 UTC - Claude (cloud session): E7-E9 independent implementations archived (operator-approved)
+Approval (chat): archive E7-E9 outputs in the existing integrity folder without overwriting, MANIFEST_v3, this entry. No verdict, frozen criterion, prereg or registered result changed; scheduled tasks, server, Docker, accounts untouched.
+Method: one audit subagent per experiment saw only its PREREGISTRATION.md (E7 41e40c92, E8 6dce29e4, E9 90ff88d8), majors BTC/ETH (64cab2cf, 9fa81ca8) and, for E7, funding (15edda37, hash matched prereg), plus auditor-supplied SHARED ASSUMPTIONS (candidate formula, post-cost sizing, NAV start, Sharpe/DD/turnover definitions, DSR) - those assumptions are NOT tested by these reproductions.
+VERIFIED: E7 identical at every reported digit (one sensitivity Sharpe 0.869 vs 0.870). E8 composite D +0.06%/+0.11%, other metrics identical. E9 blind primary +2.7% (cash allowed negative), no-leverage +0.09%; diagnostic copy using the registered code's sizing rule matches registered E9 to the cent; band timing (open vs close) has no effect. All three: FAIL, same as registered.
+HYPOTHESIS (untested): E8 residual has the same sizing cause.
+Spec gaps in frozen preregs (not edited): banded-trade sizing and cash floor (E8/E9), turnover definition (E8/E9), E7 D-start wording, E7 H-start wording, E7 drawdown tie handling. To be specified before any new confirmatory test.
+Matching the registered code shows the sizing convention explains the gap; it does not validate the convention.
+Files: new docs/research/integrity_audit_20261015/phase4_e7_e9/ (8 files + SHA256SUMS 5a5d6acb), phase4_e7_e9_20261015.tar.gz (0de188f3), SPEC_GAPS_AND_SIZING_E7_E9.md (efee8fa9), MANIFEST_v3.SHA256 (711fea4d, 88 entries incl. v1/v2). v1 (c2483c7e) and v2 (db84edf2) unchanged; all three verify.
+Correction: the phase4 SHA256SUMS first reported (e4c9fce0) listed itself and was invalid; regenerated before archiving.
+### 2026-10-15 19:52 UTC - Claude (cloud session): E6 raw data backup, Mac copy outside repo (operator-approved)
+Operator approval (chat): step B (copy outside repo) and this entry. Backup and verification facts only; E6 registered result, frozen criteria and verdict unchanged. No git, cloud-drive, GitHub, Hetzner, scheduled-task or credential action.
+Location: /Users/baitus/Documents/cryptkeep_data_archive/xs_momentum_20261012_candles_v1/ (6 files). Package built in VM scratch from $HOME/xsdata (source unmodified since 2026-10-12).
+Hashes: PACKAGE.SHA256 d71001f62f2b6252fdeeb62dd8cf418783e5322ca2f5d9ebf6b37df7a34ffd34; raw_candles_and_fetch_log.tar.gz d2054c516dd0d42da31ab41fbed5d250706aee80e75a4c442bc6677b7cd831be (deterministic, rebuilt identically); SHA256SUMS dcc6110c30a26791642950a2291fc2fcd52c4f1ffa6793e169f2a1898a3926b5 (494 raw files); INVENTORY.csv 63cfef54...; PROVENANCE.md 4c3b570d....
+Verification 2026-10-15: PACKAGE.SHA256 5/5 OK in VM scratch and in the Mac folder; archive extracted from the Mac copy into a separate dir: 494/494 files match SHA256SUMS; all 478 E6-result hash prefixes match.
+Caveats (unresolved, recorded in PROVENANCE.md): (1) fetch_v0_as_run.py (e708840c) is a reconstruction written ~3h after the fetch, not the as-run code; (2) the v0 downloader could save files with silently missing 300-day blocks; 15 products have gaps, none at a block boundary (suggestive, not conclusive).
+Status: single on-Mac copy; NOT yet an off-machine backup. VM working copy remains non-durable.
+
+### 2026-10-16 - ENGINEER: canonical stored fill-evidence correction
+- Continued accepted closeout after the preceding pass was interrupted by the
+  automatic approval service's usage limit, not a failed host authentication.
+- Separate Avicenna GATE found the journal transfer slice INCOMPLETE: Python
+  equality accepted stored version=True or sma_period=200.0 with the original
+  digest, and journaled fill_cost_policy_verified=True in both SQLite probes.
+- Added two parametrized real-store regressions; before source correction both
+  failed (2 failed,10 deselected). Added four lines in _fill_evidence_verdict
+  reusing identity_rejection_reasons on stored evidence before verification.
+  Preserved other dirty work, existing mismatch classifications and first-write-wins.
+- VERIFIED_ENV: local Python3.12, isolated CBP_STATE_DIR and temporary databases.
+  `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_journal_fill_cost_verification.py tests/test_journal_execution_identity.py tests/test_paper_gate_fill_cost_report_only.py tests/test_paper_fill_identity.py tests/test_execution_identity.py`
+  returned52 passed in0.91s. No full suite; no running-runtime proof.
+- Updated existing transfer checkpoint. Expected outcome: malformed/hash-stale
+  stored evidence cannot upgrade a fill to verified through loose equality.
+- No journal backfill, orders, config/account/scheduler change, service restart,
+  deploy, commit or push. Actual-cost conversion, power-loss and cross-database
+  atomicity remain outside this correction. Independent re-review requested.
+- HIGH financial evidence-path correction: READY_FOR_INDEPENDENT_REVIEW.
+
+### 2026-10-16 - GATE record and AUDITOR: check-in closure evidence
+- Separate Avicenna GATE accepted the bounded canonical stored-evidence/ES
+  journal-transfer correction ACCEPTED_WITH_RISK, no material findings;
+  independently reproduced52 passing tests in0.81s. No broader series,
+  deployment, actual-cost or historical-integration acceptance inferred.
+- Continued existing bounded five-market public collection: ten completed hours
+  per market,50 added candles. All five markets now448 contiguous bars including
+  148 evaluation hours, cutoff October16 04UTC (midnight New York).
+  collection_batch_20261016T040000Z.json preserves parent/identity hashes.
+  Post-collection read-only status found zero missing hours; no scoring.
+- Read-only ES host check completed after the prior approval-service usage-limit
+  interruption. Saved es_endpoint_20261016_host_evidence.json (SHA256
+  bd57291f0e00b5361d8ed63fb937f4131a97a958ef00116d5fad5706129a3027)
+  and a separate endpoint result report; preserved the original report template.
+  SHOWN30 completed end records,331/331 captured signals replayed, zero intents,
+  orders/fills/journal fills/positions; cash10000USDT; deadline stop success
+  October13 00UTC and service inactive. Zero trading contribution, no profitability
+  claim. Comparator, early-capture and historical config limits remain explicit.
+- Source repair remains local; no real journal rows rewritten. No orders,
+  account/config/scheduler changes, service restart, commit, push or deployment.
+  Existing multi-symbol mandate preserved; no symbol research status changed.
+- VERIFIED_ENV: actual named host and local reviewed collection interface.
+  Full suite not run. Endpoint financial-evidence report independently reviewed
+  next; until then READY_FOR_INDEPENDENT_REVIEW, economic efficacy INCOMPLETE.
+- Updated research checklist latest prefix. Multi-symbol registry regression:
+  `./.venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_symbol_coverage_registry.py`
+  returned4 passed in0.10s. This is registry consistency, not new per-symbol
+  profitability evidence. No registry classifications changed.
+- Separate Helmholtz GATE endpoint-report review returned ACCEPTED_WITH_RISK,
+  no blockers. Independently checked saved JSON arithmetic, all30 completed
+  end records,331/331 replay output, empty execution tables, flat714 equity
+  observations, stop properties and SHA256. Nine false zero_trade_run session
+  flags do not override database counts. This accepts faithful saved reporting,
+  not a second host inspection or trading efficacy. Report status updated;
+  economic efficacy remains INCOMPLETE, no promotion or investment authorization.
+
+### 2026-10-16 - AUDITOR: consolidated review and advice
+- User requested reviewing everything and advice. Reviewed current dirty-tree
+  inventory/critical sources, mandatory brief/mandate/registry, saved endpoint
+  evidence, historical review coverage and current local runtime availability.
+  Reused prior coverage with its limits; no fresh exhaustive every-file claim.
+- Separate Avicenna auditor checked E10 saved classification predicates: primary
+  FAIL and10 secondary statuses match registration; reused history, survivor
+  universe and missing-grid limitations remain. DOT's relative CANDIDATE label
+  does not mean profit (saved1000->926.92 D,1000->592.63 H). No strategy rerun.
+- Separate Helmholtz auditor verified239 checksum comparisons over88 distinct
+  integrity files, all matched; manifests are not raw input completeness or
+  off-machine backup proof. Three current corrected files match recorded hashes.
+- SHOWN findings: brief still calls reused2024-26 candidate history a holdout,
+  overstates all25 current Coinbase products and other-symbol noncoverage, and
+  calls active tracker v2 unscheduled. Docker socket absent; documented8002
+  health route refuses connection; local alerts lack an enabled channel. Existing
+  paper/context collectors have live PIDs/fresh status; no restart performed.
+- Public git ls-remote confirms master be34a18a3f7b78941cddb4eabe373b33788526ce;
+  cached local origin/master remains97c24c8e4. Snapshot inventory49 modified
+  tracked/3648 untracked files, empty staged diff. No fetch/pull/reset/staging.
+- VERIFIED_ENV structural checks: repo_doctor --strict --json passed;
+  check_repo_alignment --json passed25 guard tests; git diff --check passed.
+- Broad test attempt stopped at bs4 collection error. Explicit continuation
+  ran with temporary CBP_STATE_DIR, CBP_SKIP_SLOW=1 and no-cache writes:
+  4679 passed,2 failed,76 skipped,1 error in459.05seconds. XML preserved at
+  /private/tmp/cryptkeep_review_20261016_continued.xml. Not a green full suite.
+- Triaged failures: temporary socket bind denied in sandbox; exact security
+  test passed1/1 in1.21seconds with approved loopback access, fixture token,
+  temporary state and fresh bytecode lookup path. Manual audit helper logs
+  Intel-only/usr/local/bin/git Bad CPU type plus missing bs4 collection error;
+  no source regression or clean-master equivalence inferred. Companion deps
+  are declared separately; no install or broad rerun after completion.
+- Added docs/research/consolidated_review_20261016.md with scoped findings,
+  proof limits and advice. Existing source/results/registrations/acceptances
+  untouched; tests created audit-only output files, preserved. No orders,
+  credential access, config/account/scheduler edits, service restart, deployment,
+  commit or push. No symbol classifications changed or capability narrowed.
+- Recommendation: repair usability/reproducible delivery of existing research
+  tooling and active instructions; subsequent economic work is one prospectively
+  registered multi-symbol comparison, not another unregistered historical sweep.
+- Overall engineering/economic readiness INCOMPLETE. Closed journal/endpoint
+  slices remain ACCEPTED_WITH_RISK; this review does not reopen them or approve
+  the full patch series, live trading, publication or capital allocation.
+
+### 2026-10-16 05:10 UTC - AUDITOR: complete shared discovery-proposal review
+- Reviewed the complete c111d407 pasted proposal against current ledger, DSR
+  source, budget, mandate, direction, existing harnesses, carry prior art and
+  separately accepted ES endpoint report. Attachment instructions/ads were
+  review content, not new implementation or experiment authorization.
+- SHOWN: pass2 inventory arithmetic747, not stale690; nine rows actually six
+  exact/two lower bounds/one unknown, contrary to its seven-exact prose. Found
+  inconsistent symbol pooling;747 remains a convention-specific lower bound,
+  not independently established effective N. No replacement count inferred.
+- DSR uses pvariance and sqrt correctly; report SD/variance labels are ambiguous,
+  broad sample includes a benchmark and full-search dispersion/effective N
+  remain unverified. No DSR recalculation or market experiment performed.
+- Flagged unsupported5000USD capital and existing60USD-through-January15 claims;
+  source budget is October11-January9, about20USD/month shared server and two
+  awaiting-review experiments. Preserved account-level versus product-fee lanes.
+- Added discovery_engine_proposal_review_20261016.md with detailed findings,
+  primary statistical references and a single proposed reuse/synthetic-fixture
+  objective. No engine, new registry or trial built; no paid-data/capital scope
+  expansion. Original four ledger files and pass2 files remain unchanged.
+- VERIFIED_ENV: local read-only CSV assertions confirmed9 rows/57 additions/747
+  arithmetic. Both existing checksum manifests verified, six files OK. Inspected
+  reuse entry points; no integration proof or fresh recount of all studies.
+  No pytest/full suite for documentation-only review. No config/account/runtime,
+  scheduler, campaign, raw-data, source, deploy, commit or push changes.
+- Recommendation is bounded reuse plus exact accounting/causality tests, not a
+  broad architecture rebuild or another historical search. Proposal INCOMPLETE;
+  no profitability, full-series acceptance or live authorization follows.
+
+### 2026-10-16 - scoped ENGINEER stages and AUDITOR: active brief/path repair
+- Operator authorized ordered local correction, existing-path diagnosis, failure
+  triage and one reproducible multi-symbol slice; expressly excluded operational
+  changes and new experiments. Preserved pre-edit brief/tool/test in an archive.
+- Corrected RESEARCH_BRIEF active guidance: reused2024-26 is not an untouched
+  holdout,25-symbol scope versus dated24 Coinbase products, E10 scoped relative
+  statuses, saved tracker schedule versus first unattended proof, account versus
+  product fee evidence, draft-v3/ES references and original broad-suite counts.
+  Original strategies, frozen criteria, verdicts, registry and raw data unchanged.
+- Read-only local8000/8002 unauthenticated health checks both refused connection.
+  Restored explanation source exists; other deployment/current dashboard process
+  environment remain UNVERIFIED. No service/Docker/server/schedule action.
+- Installed optional test dependencies only in disposable/tmp overlay; root
+  .venv unchanged. Empty test cwd avoids repository.env loading; fixture token
+  and blank OpenAI key only. ASGI/source slice42 passed; dashboard selection13
+  passed/56 deselected, excluding loopback fixture explicitly. No lifespan,
+  storage activation, private account access or live inference/feeds exercised.
+- Separate worker repaired manual audit Git selection/validation and state-dir
+  isolation, with deterministic fake-tool fixtures instead of recursive real
+  audit collection. Parent independently8 passed3.64seconds; bash syntax passed,
+  native/usr/bin/git --version worked. Failure-reporting/report-only convention
+  preserved. No full audit/suite rerun or global PATH/environment changes.
+- Added one two-market synthetic controls test through existing frozen archive
+  runner. Selected harness slice33 passed and same33 passed from empty extraction;
+  all39 allowlisted source hashes match. This is per-symbol independent cash,
+  not shared-capital portfolio proof or new market evidence. Registry4 passed.
+- Retained initial23-pass/19-skip layout receipt,32-pass/1-fail warmup fixture
+  receipt and13-pass/1-fail sandbox bind receipt; corrected final proofs separately.
+  Root bs4 absence is resolved in test overlay only. Historical broad result stays
+  4679 passed/2 failed/76 skipped/1 collection error, not a green suite.
+- Added source/diff/hash receipts and research_path_repair_handoff_20261016.md.
+  Existing four-file and pass2 ledger manifests all six matched. New prospective
+  comparison not proposed or registered while operating path remains unavailable.
+- Requested independent brief/fixture review. Operating research path INCOMPLETE;
+  bounded local artifact review not trading/production readiness. No deployment,
+  Docker use, credentials/account access, campaign/risk changes, collector or
+  scheduler changes, market backtest rerun, commit, merge or push.
+- Separate reviewer reproduced33 extracted-source tests and39 payload hashes,
+  found24 undeclared AppleDouble metadata members and broad brief/E7 wording.
+  Preserved old archives; scoped wording and E7 drawdown summary corrected with
+  FAIL unchanged. Final source_slice_v3 has exact39-file allowlist equality,
+  no links/metadata, separate current hash manifest. Final clean pytest-only
+  Python3.12 venv extraction33 passed0.12seconds; root source/site-packages not
+  used. Initial clean-venv pip DNS failure resolved through public-wheel download
+  and offline install only. Final bounded artifact re-review requested; no
+  operating-path or financial readiness inferred.
+- Separate auditor confirmed final brief fixes, exact V3 membership/hash identity
+  and saved clean33-test receipt; corrected README V3-manifest instruction also
+  checked. Bounded docs/fixture/source package ACCEPTED_WITH_RISK. Operating
+  endpoint remains INCOMPLETE; no deployment or new-experiment approval follows.
+
+### 2026-10-16 - approved existing-companion startup, failed query, rollback
+- Operator separately approved Docker Desktop opening/read-only inventory, then
+  seven existing container starts and one genuine dashboard stored-evidence query
+  with temporary, non-displayed existing service token use. No build/recreation,
+  migration command, credential change, collector restart or trading action.
+- Inventory found19 stopped containers,12 companion restart policies no; existing
+  three project volumes attached, custom deployed images present. Read only
+  PG_VERSION marker16 before startup; initial tar stream reader failed backward
+  seek, corrected in-memory read passed. No database fault inferred.
+- Started storage three, readiness passed; then audit/risk/memory/orchestrator
+  four. Later09:49UTC health allok, memoryDB/Qdrant/MinIO true, no_trading true,
+  openai_enabled false. Seven-container identity/port inventory matched approval.
+  Elapsed four hours is not continuous monitoring evidence.
+- Actual dashboard-client question about Bitcoin liquidations failed the
+  provider acceptance assertion static_or_unknown_provider. No citation/persistent
+  correlation verification was reached, no second explanation request made.
+  Probe failed to preserve sanitized provider/HTTP reason; exact cause UNRESOLVED.
+- Offline isolated source probe confirmed foreign-asset substring guard rejects
+  BTC text containing whether (ETH substring). Not proven runtime cause. No
+  source change or guard bypass. Default static payload labels dashboard_fallback.
+- Executed approved dependent-first rollback of only seven started containers.
+  Follow-up Dockerps empty; image IDs/volume mappings unchanged. Docker Desktop
+  remains open. Normal recovery/audit writes not undone; no data-content integrity
+  or backup claim. No account/strategy/risk/scheduler changes.
+- Added companion_reconnection_20261016.md with sanitized operation evidence,
+  limits and required verifier failure receipt before another approved attempt.
+  No suite run, portfolio changes or market experiment. Operating path INCOMPLETE;
+  health success is not explanation success or profitability/trading readiness.
+### 2026-10-16 06:07 UTC - Claude (cloud session): ED-001 A1 research snapshot + WP2 independent statistical review (operator: "you have command")
+A1: after Codex confirmed it was idle, git status fingerprint 03cecc14 unchanged; research-only snapshot taken OUTSIDE the repo as a verified tarball:
+~/Documents/cryptkeep_data_archive/research_snapshot_20261016/ (3,482 files; tar.zst 72e38336; CONTENTS.SHA256 4a9307b6). Extracted and re-verified 3,482/3,482.
+Included: research artifacts/code, 83 research-only tests, this work log, and six files written 2026-10-16 04:47-05:22 by another agent (UNREVIEWED; incl. rewritten RESEARCH_BRIEF.md + its before copy/diffs).
+Excluded: execution/service code, governance/review docs, 19 mixed-import tests, transient SQLite/lock files. Inventory/manifest: ~/Documents/cryptkeep_data_archive/wp1_inventory_20261016T0547Z/.
+WP2: subagent reviewer (not the ledger's author, but spawned by the same session - limited independence) re-derived from a 78-file read-only packet.
+Findings (reported by that reviewer; V recompute spot-checked by me: 0.411 with equal_weight_top20, 0.431 without): raw configurations >= 745 (E6 cost levels double-counted in the ledger; stress grid 118 contains 12 duplicates);
+8 mechanism groups actually ran (H9 never ran; H3 too coarse); effective independent trials about 11-115 (central ~42), unstable; a defensible DSR for the BTC+ETH candidate cannot be computed now.
+Provisional DSR sensitivity only; no verdict changed. Review: ~/Documents/cryptkeep_data_archive/wp2_review_20261016/. No repo files other than this entry changed; no commit/push.
+### 2026-10-16 06:12 UTC - Claude (cloud session): ED-001 A2 accepted; A3 approved - market universe registry added
+Operator: "ok" (A2 accepted with limitations), "approve" (A3). New files only, uncommitted:
+research/market_universe.csv (1539f6d1; 1,169 Coinbase+Binance markets from existing archives; source/limits in ~/Documents/cryptkeep_data_archive/wp3_universe_20261016/README.md),
+scripts/research/market_universe.py (f8341ae9; point-in-time eligibility helper, no liquidity screen), tests/test_market_universe_registry.py (beb7a26b; 11 passed, venv312).
+research/symbol_coverage.csv unchanged. Limits: Binance status inferred from last candle; ticker identity unverified (MATIC->POL); no settlement evidence for 279 stopped/delisted markets (50%/0% sensitivities mandatory); markets removed from APIs missing.
+No strategy run, commit or push.
+### 2026-10-16 06:15 UTC - Claude (cloud session): A3 files revised to meet operator conditions; WP4 read-only gap analysis
+The first A3 version (created before the conditions arrived) did not separate asset identity from market or make settlement status explicit; preserved in ~/Documents/cryptkeep_data_archive/wp3_universe_20261016/a3_v1_superseded/ (1539f6d1, f8341ae9, beb7a26b).
+Revised (uncommitted, new files only): research/market_universe.csv d5bc0469 (all 1,169 identities UNRESOLVED per market; 279 stopped markets settlement_status UNKNOWN; verified_first_tradable_date blank, eligibility_basis recorded),
+scripts/research/market_universe.py 7446b1c6, tests/test_market_universe_registry.py b973f58d: 15 passed; 4 injected defects each fail at least one test. symbol_coverage.csv, manifest v3 and 3,481 snapshot files unchanged.
+A3 pending operator sign-off after diff review. WP4: read-only gap analysis only (see ED-001 doc); no test files created.
+### 2026-10-16 06:37 UTC - Claude (cloud session): ED-001 A3 accepted; WP4 item 1 contract test file created and run once
+Operator accepted A3 on the verification evidence (hashes d5bc0469, 7446b1c6, b973f58d; unverified first observed candle never reported as a verified tradable date). Acceptance does not certify complete historical coverage or verified first-tradable dates; 50%/0% settlement sensitivities stay mandatory where outcome is UNKNOWN.
+WP4 item 1: created tests/test_harness_contracts_wp4.py (new file only; 344 lines; sha256 17c3bfe53b2f406553eae9e75268601c0c0c186e22e1051904ef5bd0004e9f5f, matches the operator-reviewed draft). Synthetic data only; no production/research code changed.
+Ran only: venv312 (Python 3.12.14) python -B -m pytest -q -p no:cacheprovider tests/test_harness_contracts_wp4.py at 2026-10-16 06:36:31 UTC. Result: 1 failed, 17 passed in 1.69s.
+FAILED test_A_corrupted_leaky_target_is_detected: assert 0.0 > 0.0 (the deliberately leaky target was NOT detected). Per authorization, file not modified and no other tests run.
+Cause from reading run() (not re-run): the leaky target peeks one close ahead; a decision at close k only affects NAV from day k+1, so within the compared window (NAV through the cutoff day) the peeked close is never scrambled. The comparison as designed cannot detect a one-day peek, so the passing test_A_future_prices_cannot_change_past_nav is not yet shown to have detection power. Proposed fix awaits operator review.
+No market-data strategy run, no commit/push, no service or live action. Items 2 (E7-E10 reproduction) and 3 (turnover) remain deferred.
+### 2026-10-16 06:44 UTC - Claude (cloud session): ED-001 WP4 item 1 test file replaced with operator-approved revision and run once
+Operator approved replacing tests/test_harness_contracts_wp4.py (previous 17c3bfe5..., 1 failed / 17 passed at 06:36 UTC) with the reviewed draft that compares look-ahead decisions as well as NAV.
+Previous version preserved outside the repo: ~/Documents/cryptkeep_data_archive/wp4_contract_tests_20261016/superseded_17c3bfe5/ (file + SHA256SUMS, 17c3bfe53b2f406553eae9e75268601c0c0c186e22e1051904ef5bd0004e9f5f).
+New file: tests/test_harness_contracts_wp4.py, 389 lines, sha256 4439fc4de1491ee623704218713b70f69b251255924b79f4c802b5b68774bcde (verified equal to the approved hash). No other source changes; B1/B2/C test code byte-identical to the previous version.
+Command (venv312, Python 3.12.14): python -B -m pytest -q -p no:cacheprovider tests/test_harness_contracts_wp4.py, started 2026-10-16 06:44:17 UTC. Result: 19 passed in 2.38s (exit 0).
+Recorded limitation, not a test result: the pre-run leak-sensitivity check (cutoff index 1743 = 2021-02-07; next-day BTC close 2892.90 original vs 20008.34 scrambled; leaky weight 0.23816 vs 0.43142) used a re-typed copy of the frozen data setup, not the harness's own load_frozen().
+Scope of this result: synthetic-data contract tests only (look-ahead decisions and NAV, fixed-fill and dynamic fee monotonicity, cash floor/affordability). It does not by itself establish acceptance of WP4 or of any strategy result.
+A3 status is separate and unchanged: accepted earlier by the operator (see 06:37 UTC entry) on its own verification evidence.
+No market-data strategy run, commit, push, service or live action. WP4 items 2 and 3 remain deferred.
+
+### 2026-10-16 10:06 UTC - Codex: offline explanation failure receipts and guard characterization
+
+Active role: ENGINEER. Objective: operator-authorized sanitized failure details
+before verifier assertions, and offline client-guard tests; HIGH risk because
+client transport and verification boundaries are touched.
+
+SHOWN: the client previously collapsed transport/normalization failures into
+None. Added opt-in request-context diagnostics, allowlisted status/reason/shape
+fields and hashed citation identifiers; no raw token, header, question, prose,
+URL or exception text is retained in the new receipt. Verifier emits and carries
+that receipt before rejecting invalid proof, including failed child processes.
+Existing dirty auth/proxy/redirect/timeout edits are preserved, not new work.
+Guard behavior is intentionally unchanged: offline tests characterize the
+`whether`/ETH false positive and preserve genuine foreign-asset rejection and
+explicit dashboard fallback. The live failure's cause remains UNRESOLVED.
+
+VERIFIED_ENV: Python 3.12.10. First selection accidentally included the existing
+listener test: 32 passed / 1 failed (sandbox PermissionError on loopback bind).
+Corrected mocked slice: 32 passed / 1 deselected in 0.42s. Existing explanation
+tests: 4 passed / 55 deselected in 0.13s. Commands, source hashes, scope and
+limits: docs/checkpoints/companion_diagnostics_20261016.md. git diff --check passed.
+
+Expected outcome: a future authorized request can distinguish transport,
+response-shape and guard rejection instead of losing them at the provider gate.
+No live request, service/Docker startup, credential/account access, collector,
+schedule, strategy, campaign or trading operation changed. Runtime proof is
+still INCOMPLETE. Separate reviewer is checking the bounded implementation;
+remaining risks include untested real-process/runtime integration and the
+deliberately unresolved substring guard defect.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+Independent reviewer found P2: a JSON escaped lone surrogate in a citation raised
+UnicodeEncodeError with capture enabled (without capture the client returned).
+Reviewer initially REJECTED pending repair. Fixed citation hashing using UTF-8
+surrogatepass; added actual-client capture-on/off parity and serialization test.
+Final mocked three-file slice: 33 passed / 1 deselected in 0.44s. Checkpoint
+records the earlier failure and corrected source hashes. Requested bounded
+independent re-review; no source is being changed while that review is pending.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+Separate reviewer subsequently ACCEPTED the narrow diagnostics correction,
+re-ran the two-file diagnostics/verifier slice (24 passed), and independently
+repeated the original malformed-Unicode probe with capture-on/off parity and
+retained safe receipt. No new findings. Runtime integration and concurrent
+isolation remain UNVERIFIED; no operation is authorized by that review.
+Implementation handoff: READY_FOR_INDEPENDENT_REVIEW; broader runtime objective
+remains INCOMPLETE. The separately reviewed correction is recorded above, not
+self-approved as a restored service.
+
+### 2026-10-16 10:16 UTC - Codex: offline whole-token explanation guard repair
+
+Active role: ENGINEER. Objective: operator-approved next steps following the
+diagnostics review, limited to offline guard repair, tests and independent
+review. Risk HIGH (research-response rejection boundary), not trading logic.
+
+SHOWN contract evidence: the existing view-data regression rejects SOL-only
+prose for BTC despite BTC metadata. No inspected contract establishes when
+mixed-asset narrative is legitimate. Changed only substring matching to whole
+Unicode-alphanumeric tokens; punctuation/underscore pair separators work.
+Known ticker set and fields stay unchanged, as do standalone wrong-ticker
+rejection, provider/response selection and fallback. The previous false-positive
+characterization test is superseded by actual-client positive regressions for
+primary and companion routes. Mixed-asset policy, semantic aliases and identity
+validation are not silently redesigned.
+
+VERIFIED_ENV Python 3.12.10. Six selected regressions failed on the old helper
+(6 failed / 33 deselected, 0.28s). After repair, fully mocked four-file slice:
+58 passed / 1 existing listener test deliberately deselected, 0.61s. Separate
+existing research_explain slice: 4 passed / 55 deselected, 0.15s. git diff --check
+passed. Exact commands, source hashes and proposed NOT-authorized runtime
+boundary: docs/checkpoints/companion_asset_guard_repair_20261016.md.
+
+Expected outcome: ordinary words no longer discard valid explanation responses;
+standalone core-ticker mismatch protection remains. Independent reviewer is
+checking frozen source while this handoff is written. No live query, service or
+Docker operation, credential/account access, schedule/collector restart,
+campaign change, strategy test or historical-result change. Prior runtime
+failure cause remains UNRESOLVED and service restoration INCOMPLETE.
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+Separate AUDITOR subsequently ACCEPTED the scoped offline token repair with no
+actionable findings; independently ran guard/diagnostics tests: 39 passed in
+0.29s. Confirmed both client routes, foreign-copy fallback and safe diagnostic
+outcomes. Reviewer did not independently rerun the old-source failure or four
+existing view-data tests; untracked diagnostics tests prevent an exact Git
+historical-diff check. Those limits and source hashes remain explicit in the
+checkpoint. No reviewed source changed after this review. Implementation
+handoff remains READY_FOR_INDEPENDENT_REVIEW with separate narrow acceptance
+recorded; service restoration remains INCOMPLETE, and no runtime action is
+authorized or performed by this result.
+
+### 2026-10-16 15:42 UTC (11:42 New York) - Codex: proposed single-attempt runtime specification, no runtime authorization
+
+Active role: DIRECTOR. Objective: user-authorized documentation-only revision
+of the existing companion retry controls. Risk HIGH for the proposed operation;
+no operation or operational harness is implemented by this documentation.
+
+Added docs/checkpoints/companion_retry_spec_20261016.md; previous operation,
+diagnostics and guard-repair checkpoints remain historical and unchanged.
+Spec defines seven exact existing targets, metadata baseline/immediate recheck,
+memory-only service-token handling, a 600s controller deadline (verification
+ends420s; cleanup reserve180s), capped single calls/no retries, exact service
+health/connectivity gates, one fixed cited-explanation request, separate
+retrieval/identity/relevance/safety checks, sanitized receipt before cleanup,
+ownership-limited rollback, conditional success retention and irreversible
+normal-startup/audit effects. Current runtime and pinned-image compatibility
+remain UNVERIFIED; this is not a claim that those controls are enforced today.
+
+SHOWN source compatibility conditions: shared/tools.py invokes retry_async
+with retries=1 (can make two downstream requests), while memory startup can
+create an absent bucket or Qdrant collection. SDK/audit behavior also needs
+image-specific verification. Spec therefore fails closed on those conditions;
+no retry/config changes, resource creation, image rebuild or blind startup
+are inferred from a single top-level query. These are source findings, not
+claims about the uninspected existing container images.
+
+Verification: inspected existing local routes/client/retry/startup code and
+public Qdrant/MinIO endpoint references; checked specification controls and
+git diff --check (passed). No pytest or fresh operational test is claimed.
+No Docker/process inventory, container start/stop, service query, credential
+access, schedule, account, collector, code or trading change. Separate reviewer
+requested for document consistency only. Runtime authorization remains NOT
+GRANTED, operational objective INCOMPLETE.
+Document state: READY_FOR_INDEPENDENT_REVIEW.
+
+Specification review addendum: separate AUDITOR identified a P1 recipient-scope
+gap (local core tools may contact parser/market/news/archive with the token)
+and a P2 ordering contradiction (namespace checks while storage still stopped).
+Updated only the specification: exact permitted recipients now pinned to the
+seven containers; unknown/out-of-scope image-side fan-out aborts before start;
+namespace checks explicitly follow authorized storage-only startup and precede
+application startup within420s. No server/harness patch or scope relaxation.
+Bounded independent re-review confirmed both document findings resolved;
+compatibility remains UNVERIFIED, runtime INCOMPLETE, authorization NOT GRANTED.
+Original guard/test source hashes were rechecked and remain unchanged.
+No operational command or test was executed. Document state remains
+READY_FOR_INDEPENDENT_REVIEW for operator review, not operational acceptance.
+
+### 2026-10-16 15:59 UTC (11:59 New York) - Codex: read-only actual-controller and installed-source compatibility audit
+
+Active role: AUDITOR. Objective: approved independent review of actual controller
+and installed-image compatibility evidence, explicitly NOT service execution.
+Added docs/checkpoints/companion_controller_compatibility_review_20261016.md
+and docs/review_artifacts/companion_compatibility_20261016.json. No existing
+retry specification, production/test source, original result or campaign changed.
+
+SHOWN: native arm64 CLI pinned to the local Docker socket and fresh empty CLI
+configuration. Allowlisted metadata showed all19 containers initially exited;
+seven target image IDs matched the prior record, restart counts0/policies no.
+Five whitelisted .py files were copied from STOPPED container filesystems through
+the Docker archive API into host memory, validated as single bounded regular
+files, hashed and statically parsed without import/execution. All five match
+local source. No credential/configuration values or .env files were extracted.
+The two decisive files were independently re-read by a separate AUDITOR: same
+tools.py and memory main.py hashes, retries=1, unapproved fixed origins and
+conditional namespace creation confirmed from copied bytes. Retry-helper and
+incoming-dispatch semantics were inspected by parent, not independently repeated
+in that two-file stage. Effective config and namespaces remain UNVERIFIED.
+
+Independent controller review found no compliant existing-stack runner in the
+bounded scripts/research and docs/review_artifacts search (hidden/ignored text
+included; compressed/binary contents and other workspaces not exhaustive).
+Located isolated verifier builds/new-stack/ingests/restarts/multiple queries/
+volume cleanup and per-step timeouts, not the 420/600-second existing-ID protocol.
+Primary-route suppression and full persisted-ID/relevance acceptance remain
+unimplemented in located evidence. Do not run it as the approved controller;
+that scoped rejection does not retire its separate isolated-test capability.
+
+Final allowlisted metadata at15:59:27UTC: all seven target IDs, image IDs, exited
+states, restart counts and policies match the initial audit. Volume names,
+drivers and creation times recorded, not content integrity. No starts, stops,
+restarts, docker exec, service HTTP, credentials/account access, code changes,
+tests, migrations, ingestion, scheduling or trading actions. Temporary host
+CLI-config directory and audit documents only; no production state mutation.
+
+Audit errors preserved: initial sandbox socket permission denial resolved by
+approved read-only access, not auth repair; initial mount template omitted two
+bind-mounted targets, then corrected metadata query completed all seven.
+Artifact JSON structure/consistency and git diff --check passed; not runtime
+tests. Outcome: INCOMPLETE. Retry authorization remains NOT GRANTED; missing
+controller and installed compatibility conditions require separately scoped
+offline implementation/review, not another blind runtime attempt.
+
+### 2026-10-16 18:45 UTC (14:45 New York) - Codex: bounded offline controller core and strict companion profile
+
+Active role: ENGINEER. Objective: implement the user-selected offline controller
+and demonstrated compatibility repairs, with synthetic proof and independent
+review. Risk HIGH. Runtime objective remains INCOMPLETE; retry authorization
+remains NOT GRANTED. Previous installed-source audit and research artifacts are
+preserved, not rewritten as evidence of this later implementation.
+
+Added scripts/research/companion_existing_controller.py and its synthetic tests:
+seven-target state machine, absolute verification/cleanup budgets, bounded child
+executor, baseline/recheck, observed ownership, exact-ID ledger, staged namespace
+checks before application startup, one query, sanitized receipts and conservative
+cleanup on ambiguity. Added opt-in dashboard probe context preserving the real
+companion transport/normalizer/guard, suppressing only the legacy primary path,
+and retaining raw response provenance in memory. Numeric positive document IDs
+are now canonicalized for diagnostic hashes; booleans are not document IDs.
+
+Separate ENGINEER implemented request-scoped strict service profile, zero tool
+retries, restricted internal service calls, propagated audit/profile markers,
+actual persisted retrieval plus risk checks without model/market/parser/news/
+archive fanout, and opt-in read-only memory startup/ingest restrictions. Normal
+research behavior and route authentication remain default. These phase1 sources
+are gitignored; tracked diff alone does not package them. No ignore/config/image
+or deployment change was made to conceal this limitation.
+
+Initial proof:86 passed,1 deselected on controller/dashboard/guard diagnostics;
+43 passed with86 FastAPI startup deprecation warnings on synthetic service
+integration. Two independent AUDITOR passes found concrete defects: unbounded
+receipt I/O and parent pickle decoding, contradictory risk fields accepted,
+misleading terminal receipt after fsync failure, HTTP read wall cap absent, and
+storage endpoints unrestricted in strict mode. They returned INCOMPLETE, not
+blanket acceptance. Bounded corrections and regression tests were made; final
+test/re-review figures follow in an addendum. No full suite is claimed.
+
+Scope limit: this is a controller enforcement core with a Backend contract, NOT
+a complete runnable Docker adapter. Installed-image parity/effective config,
+secure existing-token handoff, actual storage namespaces, citation identity and
+topical-support verification still require real reviewed adapter work before
+any retry could be proposed. Synthetic fixture booleans cannot supply that proof.
+No Docker invocation, service/network request, real credential retrieval, build,
+container start/stop, server, scheduler, account, campaign or trading operation
+was performed. Implementation handoff: READY_FOR_INDEPENDENT_REVIEW.
+
+Offline implementation completion addendum: the first deadline fix introduced
+a nested HTTP executor session which independent re-review showed could outlive
+its supervisor. Removed that child: HTTP now uses a restored per-request POSIX
+wall timer in the SAME bounded query child. Nested executors and direct probes
+outside a bounded child are refused. Other corrections bounded receipt I/O,
+recomputed remaining budgets after receipts, removed pickle reconstruction,
+required exact disabled risk fields, and made success receipts provisional rather
+than misleading terminal records. Strict storage now rejects off-scope configured
+endpoints before construction and cached return in both restricted modes.
+
+Final VERIFIED_ENV command (Python3.12.10, sanitized environment):
+env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q -p no:cacheprovider
+tests/test_companion_existing_controller.py tests/test_companion_probe_policy.py
+tests/test_explain_diagnostics.py tests/test_explain_asset_guard.py
+tests/test_dashboard_companion_http.py
+-k 'not environment_proxy_never_receives_companion_bearer'
+Result:161 passed,1 deselected,126 startup deprecation warnings in3.40s.
+The deselected test opens a loopback listener. No full-suite claim.
+
+Separate controller AUDITOR independently ran98 passed/1 deselected and returned
+ACCEPTED_WITH_RISK for the frozen bounded source, no remaining demonstrated
+blocker; service AUDITOR ran63 passed/126 warnings and ACCEPTED the bounded
+storage-origin correction. Both retained runtime/installed/SDK limitations.
+No source changed after the final reviews. Checkpoint records earlier failed
+reviews rather than hiding them. Current14 source/test hashes and review limits
+are in docs/review_artifacts/companion_offline_controller_20261016_sha256.json;
+details in docs/checkpoints/companion_offline_controller_20261016.md.
+
+Remaining: actual reviewed Docker/runtime adapter, token handoff, effective
+configuration and installed compatibility, real namespace/citation/relevance
+checks, then separately authorized operational attempt. No containers started,
+no deployment/config/credential/account/trading operation in this offline stage.
+Parent implementation handoff remains READY_FOR_INDEPENDENT_REVIEW with separate
+scoped source acceptance recorded; overall runtime remains INCOMPLETE and retry
+authorization NOT GRANTED.
+
+### 2026-10-16 21:12 UTC (17:12 New York) - Codex: concrete existing-stack adapter, offline only
+
+Active role: ENGINEER. Objective: continue the accepted explanation-path repair
+by implementing the missing concrete Backend without performing an operation.
+Risk HIGH. Added companion_runtime_adapter.py, companion_docker_transport.py,
+companion_evidence_checks.py under scripts/research, three matching synthetic
+test modules, and docs/checkpoints/companion_runtime_adapter_20261016.md.
+All14 prior controller/profile source hashes remain unchanged. No old artifact,
+service, strategy, config, scheduler, account or campaign was modified.
+
+Concrete methods now construct pinned local-daemon argv, selected safe inventory,
+source and policy compatibility checks, exact-ID lifecycle operations, storage
+and service checks, real dashboard-probe invocation and internal read-only
+citation verification. Constructors/imports are inert; runtime requires explicit
+enablement plus the reviewed controller's bounded child. No operational CLI or
+auto-approval/pin generator is added. The real accepted installed-policy manifest
+and topic witnesses do not yet exist; test records are explicitly synthetic.
+
+Secret/environment values are not dumped. Internal DB/MinIO authentication stays
+inside the service owner; optional host service-token handoff consumes a private
+pipe/socket with no file/env/argv fallback. No real token was obtained. Fixed
+verification reads the approved view and original DB lineage in a read-only
+parameterized transaction and exports booleans only, not records/prose. Keyword
+overlap alone does not prove topical support. The restricted archive-only
+acceptance does not replace the normal broader research path.
+
+Initial combined new-code proof:237 synthetic tests passed. An earlier test-only
+failure tried to JSON-encode captured stdin bytes; corrected its fixture logging,
+not production behavior. First independent review rejected hash-shaped policy
+claims without record contents/binding, missing explicit local-volume driver,
+and unsupported nested raw claims. Bounded corrections added accepted-record
+byte/hash/subject/source/witness binding, explicit local-driver refusal, a
+five-second whole-health-HTTP timer and pre-start topical-contract validation.
+Separate adapter AUDITOR re-review returned ACCEPTED for bounded offline fixes,
+154 tests independently passed; it exercised a5.002s stalled stream and timer
+restoration. Reviewer authenticity/root-hash trust remains external; that result
+does not certify installed images or authorize any operation.
+
+Helper nested-envelope correction and final integrated proof follow in a
+completion addendum. Current observed runtime compatibility remains UNVERIFIED;
+last-inspected images predate required source repairs. No Docker CLI, real HTTP,
+services, credentials, starts/stops, builds, deployments, migrations, ingestion,
+scheduling, accounts or trading action occurred. Work remains scoped to offline
+implementation and proof. Handoff: READY_FOR_INDEPENDENT_REVIEW.
+
+Runtime-adapter completion addendum: evidence-helper correction now rejects
+unsupported nested claims and inconsistent frozen question audit; validates
+bounded non-evidentiary diagnostics; arms an8s remote timer before input through
+DB teardown, refusing occupied timers and restoring state. Its separate AUDITOR
+returned ACCEPTED for this correction/offline timer only, independently150 tests
+passed in9.73s; actual DB/SDK behavior and signal responsiveness remain unknown.
+Supplemental frozen-controller/concrete-adapter wiring tests cover one mocked
+query success and zero-query risk-health failure with cleanup of all seven fake
+targets; separate AUDITOR accepted that synthetic scope,2 passed independently.
+
+Final VERIFIED_ENV combined command:
+env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q -p no:cacheprovider
+tests/test_companion_runtime_adapter.py tests/test_companion_docker_transport.py
+tests/test_companion_evidence_checks.py tests/test_companion_runtime_wiring.py
+tests/test_companion_existing_controller.py tests/test_companion_probe_policy.py
+tests/test_explain_diagnostics.py tests/test_explain_asset_guard.py
+tests/test_dashboard_companion_http.py
+-k 'not environment_proxy_never_receives_companion_bearer'
+SHOWN:467 passed,1 deselected,126 startup deprecation warnings in14.53s.
+The deselected test opens a loopback listener; no full suite was run. The final
+adapter/transport reviewer ran154 tests independently, helper reviewer150 and
+wiring reviewer2; none claimed to run the entire combined slice independently.
+
+Seven new-file hashes plus generated SCRIPT hash are recorded in
+docs/review_artifacts/companion_runtime_adapter_20261016_sha256.json; all match.
+All14 previously reviewed source hashes still match their original manifest.
+git diff --check passed. No reviewed source changed after final review. No
+commit, push, deployment, Docker CLI, actual network/service query, credential
+retrieval, start/stop, migration, ingestion, schedule/account/campaign or trading
+operation occurred. Existing artifact/evidence history remains preserved.
+
+Remaining operational proof: current installed CLI/images/SDK/effective config,
+independently trusted real review/witness manifest, safe installation or
+reconnection plan if incompatible, and separately authorized one-query attempt.
+These source acceptances do not grant that authorization or establish service
+restoration, causal explanation, profitability or trading readiness. Parent
+handoff remains READY_FOR_INDEPENDENT_REVIEW with separate bounded acceptance;
+runtime objective INCOMPLETE, retry authorization NOT GRANTED.
+
+### 2026-10-16 21:26 UTC - Codex: authorized read-only installed compatibility refresh
+
+Active role AUDITOR. Objective: check whether the seven existing containers now
+contain the reviewed repairs, without startup or credentials. SHOWN: seven IDs,
+images, exited states, restart counts and policies match the earlier receipt;
+initial/final inventories agree. Five source archives match their earlier hashes;
+four differ from repaired local code. The unchanged installed stack therefore
+cannot be used as proof of the local repairs. Receipt saved in
+docs/review_artifacts/companion_compatibility_refresh_20261016.json and existing
+adapter checkpoint appended. No production/test source was changed.
+
+VERIFIED_ENV: native arm64 CLI, explicit local daemon, temporary empty CLI config,
+selected metadata and five source archive reads only. Initial template error was
+corrected; not a service failure. Successful collection3.13s, not total task time.
+No exec, environment export, credential access, service requests, start/stop,
+build, recreation, volume changes, scheduling, trading or full test rerun.
+Remaining: reviewed installation/reconnection plan and separate authorization
+for any necessary operational changes. SDK/configuration/namespace/query proof
+remains unverified. Runtime INCOMPLETE; retry authorization NOT GRANTED.
+
+### 2026-10-16 21:29 UTC - Codex: minimal installation/rollback proposal
+
+Active role DIRECTOR. Objective: plan how reviewed repairs could reach the four
+existing application services without disturbing storage. Risk HIGH. Added
+docs/checkpoints/companion_installation_plan_20261016.md only; no executable
+installer, service source/configuration or runtime policy changed. Chosen path:
+source-only derivatives from each existing application image, preserving all
+three storage containers and named data volumes, retaining stopped original
+applications for rollback. Explicitly requires separate build/replacement/network
+and configuration authorization, then separate query/startup authorization.
+
+SHOWN from local files: ordinary Dockerfile reinstalls dependencies and copies
+the broad context; requirements include open-ended OpenAI version. Proposal
+avoids that rebuild path and unreviewed dirty-source packaging. It identifies
+required image/container-layer provenance, SDK/binary checks, secret-safe
+recreation, /repo import precedence, network-alias rollback and new identity pins.
+No fictional executable installer or operational readiness is claimed.
+
+Inspected build input SHA256:
+- docker-compose.yml: bd61e7fd7cd755594d6e56bcdca2e91ef3201074bf33e9851ba399e06aa3e4d5
+- Dockerfile.service: 710df978ff4c2527626c8800023a437eb35bcff9b1ab7f8d5184bbf6800e9da8
+- .dockerignore: 2d9984b837b77529e0c28826b2aeeb479a31627869b5071a9cc54fd5d903ddbe
+- requirements.txt: 1b2207f9722adafb49fb4ca8560be53d08b8ebdf3acf8f45a10ead53283b43a6
+- shared/config.py: 766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c
+
+Verification: local source inspection and git diff --check passed; no tests run
+because this changes proposal documentation only. No Docker CLI, credential,
+server, scheduler, account, strategy or trading operation. One independent
+AUDITOR assigned a single bounded plan review; no implementation/retest loop.
+Proposal READY_FOR_INDEPENDENT_REVIEW; runtime INCOMPLETE; retry NOT GRANTED.
+
+Independent plan AUDITOR returned ACCEPTED_WITH_RISK for planning only, finding
+one concrete lifecycle mismatch: never-started replacements have state created,
+where current controller/adapter requires exited. Appended this prerequisite
+explicitly; no premature startup or silent state relaxation proposed. Closing it
+requires a separately reviewed offline lifecycle correction before executable
+installation approval. No source repair or operational acceptance is claimed.
+
+### 2026-10-16 21:31 UTC - Codex: created-application lifecycle repair, offline only
+
+Active role ENGINEER. Objective: close the installation-plan review's concrete
+created-versus-exited handoff gap. Risk HIGH. Changed two source files:
+scripts/research/companion_existing_controller.py and companion_runtime_adapter.py;
+added regression cases in their two test modules and expanded runtime_wiring.
+Shared state predicate admits created applications only with zero int restarts
+and blank/exact Go-zero start timestamp; storage still requires exited. Start
+ownership rejects a zero post-start timestamp. All identity/config/source checks,
+explicit authorization, baseline recheck and owned-only cleanup remain in place.
+Cleanup stops owned starts; it does not fabricate restoration to created state.
+
+SHOWN: selected new tests before source patch12 failed/1 passed/118 deselected;
+after patch all three relevant modules131 passed in1.30s. Command is recorded in
+docs/checkpoints/companion_installation_plan_20261016.md lifecycle addendum. This
+is synthetic local proof, not Docker, installed compatibility or full-system
+proof. No build, replacement, actual start/stop, credentials, configuration,
+services, schedules, accounts or trading operations. Old artifacts/manifests
+preserved; new hashes in companion_created_lifecycle_20261016.json. One independent
+AUDITOR assigned the frozen delta, no parallel implementation or broad reruns.
+Remaining installation/SDK/credential-wiring/runtime proof is not implied by these
+tests. Handoff READY_FOR_INDEPENDENT_REVIEW; runtime INCOMPLETE; retry NOT GRANTED.
+
+Separate lifecycle AUDITOR returned ACCEPTED for the specified offline delta,
+no concrete blocker; independently131 passed in1.16s. It did not independently
+reproduce the prepatch failures or use a Git-based old/new diff for untracked
+source. No reviewed source changed afterward. Scoped review recorded in the
+new hash manifest and plan addendum; installation/runtime authorization unchanged.
+
+### 2026-10-16 21:34 UTC - Codex: installation commands and private wiring contract
+
+Active role DIRECTOR. Objective: turn the accepted installation proposal into a
+concrete bounded command/wiring specification, without operating the host. Risk
+HIGH. Added docs/checkpoints/companion_install_commands_20261016.md. No source,
+configuration, reviewed manifest or earlier artifact changed. Explicit argv
+sequence covers selected inventory, local parent/image preparation, source-only
+build, preserved old applications, network alias isolation, stopped replacement
+creation and rollback. The query transport allowlist remains untouched and is
+not an installer or escape path for these commands.
+
+Credential-wiring proposal uses explicitly authorized future target Config.Env
+reads into bounded child memory and anonymous stdin env pipe, never .env/argv/
+disk env files. It acknowledges Docker persists container environment, rejects
+unrepresentable values, requires installed parser/descriptor proof and has no
+fallback to unsafe wiring. Builder behavior/recreation compatibility remain
+UNKNOWN_ENV; no command is claimed safe-to-run today. One300s attempt specifies
+180s work plus120s recovery reserve and ownership reconciliation after timeout.
+
+Verification: local source/document inspection, no tests run because this is
+documentation only. One separate AUDITOR assigned a bounded contract review.
+No Docker, public/service HTTP, credential access, build, create, rename,
+network change, startup, trading, account or scheduler operation. Executable
+installation runner still absent; document does not claim otherwise. Handoff
+READY_FOR_INDEPENDENT_REVIEW; runtime INCOMPLETE, retry NOT GRANTED.
+
+Independent contract AUDITOR returned ACCEPTED_WITH_RISK for planning only, no
+material contradiction or unsafe rollback instruction found. Installed builder,
+stdin parser and exact recreation/endpoint behavior remain UNKNOWN_ENV. It ran
+no tests or operations. Reviewed command-contract SHA256:
+26bfac5633566654f636bc799b8bddfc3ec90334489c9b22e180a576bccf514a.
+No reviewed contract or implementation source changed after that review. This
+acceptance is not implementation, credential, build, create or startup approval.
+
+### 2026-10-16 21:42 UTC - Codex: executable stopped-application installer, offline implementation
+
+Active role ENGINEER; objective: implement the accepted command/wiring contract
+rather than another proposal. Risk HIGH. Added companion_installer.py,
+companion_install_docker.py, companion_install_env.py and two targeted test files.
+Existing query transport/controller/profile source unchanged. New CLI defaults to
+public manifest hash/schema validation only. Explicit apply requires externally
+reviewed pins/policies, exclusive host lock and new private receipt; it never
+starts services. Four stopped application replacements, retained originals and
+unchanged storage are the sole installation scope. Private in-child env wiring,
+source-only build context, fixed errors, preparation validation, deadline reserve,
+timeout reconciliation and reverse identity-scoped rollback implemented.
+
+SHOWN: targeted two-module suite90 passed in0.50s, command/limits in
+docs/checkpoints/companion_installer_20261016.md. The encoder sidecar's56 tests
+are part of90, not a second independent suite. Synthetic fixtures only; no actual
+Docker, service/network, private credentials, builds, create/rename/disconnect,
+startup, account/schedule or trading operation. No full suite. New source hashes
+frozen in companion_installer_20261016.json. One independent AUDITOR reviewing the
+frozen implementation; no same-thread acceptance or broad reruns.
+
+Remaining installed compatibility/namespace/configuration and real trusted
+manifest proof explicitly UNVERIFIED. No hidden operational approval inferred.
+Handoff READY_FOR_INDEPENDENT_REVIEW; runtime INCOMPLETE; query NOT GRANTED.
+
+Installer completion21:45UTC: independent AUDITOR returned INCOMPLETE on initial
+source,90 tests independently passed in0.37s. It found recovery could be skipped
+when receipt writes failed and installation success omitted public review
+evidence. Applied exactly those two bounded corrections and regression coverage;
+same targeted command now94 passed in0.42s. Recovery proceeds without a working
+receipt but returns receipt_complete=false; successful output/receipt includes
+public IDs/images/config fingerprints and source-check hashes. Four persistent
+receipt-failure scenarios verify physical restoration and no false success.
+No second review/test-expansion loop. Final corrections not independently
+re-reviewed. Initial/current source hashes and original review disposition are
+preserved; handoff READY_FOR_INDEPENDENT_REVIEW, not ACCEPTED. Runtime and installed
+compatibility remain INCOMPLETE; no real manifest/credential or operation used.
+
+### 2026-10-16 21:47 UTC - Codex: independent confirmation of final installer corrections
+
+Active role AUDITOR for recording separate review. Objective: confirm the two
+pending corrections without reopening accepted work or operating services.
+Separate AUDITOR ACCEPTED those corrections only, no blocker found; independently
+94 passed in0.39s, one isolated targeted run. It confirmed receipt failure cannot
+skip physical recovery, receipt_complete=false remains visible, no stale success
+evidence after rollback, and successful public IDs/images/fingerprints/source
+checks are both returned and persisted. All five source/test hashes unchanged.
+
+Recorded scoped disposition in checkpoint/manifest, preserving initial failed
+review and input artifact hash. No source edit, parent test rerun, Docker,
+credentials, install/build/startup, account, scheduler or trading operation.
+These two findings are closed in offline scope, not blanket whole-installer or
+operational approval. Runtime/installed compatibility INCOMPLETE; operational
+handoff READY_FOR_INDEPENDENT_REVIEW; real manifest absent, query NOT GRANTED.
+
+### 2026-10-16 21:50 UTC - Codex: approved read-only installed compatibility evidence
+
+Active role AUDITOR. Objective: verify installed configuration/source/SDK/binary
+facts and prepare only evidence-supported manifest material. Seven target IDs,
+images, exited states/restart policies unchanged in initial/final selected checks.
+All four app timeout comparisons differ from2s; readonly-startup setting absent;
+NO_TRADING=true and empty model-key comparisons passed. Probe module unavailable
+in inspected old applications. Credential presence booleans only, never values.
+PG_VERSION16 read. Fourteen SDK sources captured/hashed without importing them.
+
+Found a concrete compatibility concern in our own local repair: installed Qdrant
+copies constructor kwargs before forwarding, while repaired memory passes a live
+HTTPTransport. Separate static AUDITOR confirmed ordering/support path; host-only
+no-network deepcopy on identical-hash HTTPX transport source raises TypeError.
+Whole installed constructor not executed. Also /bin/sh is link to bash; current
+regular-file-only verifier cannot certify it unchanged. Bounded binary follow-up
+confirmed regular ELF bash/curl, no execution; curl first exceeded a cap, not
+missing. Builder help flags are not offline-builder or installed-parser proof.
+
+Evidence/raw public code snapshots in companion_installed_policy_20261016/;
+checkpoint companion_installed_compatibility_20261016.md. Candidate schema is
+deliberately non-executable INCOMPLETE evidence, not accepted install-policy pins.
+No source repair in this read-only stage, no tests/broad reruns, Docker exec,
+build/create/rename/start/stop, raw credentials, service/storage query, trading,
+account or scheduler changes. Snapshot generation preserved prior artifacts.
+Runtime INCOMPLETE; installation/query not authorized. Recommended next bounded
+offline repair: constructor-copy compatibility and explicit verified regular
+MinIO shell path, preserving strict archive policy/storage images.
+
+### 2026-10-17 (client date) - Codex: offline constructor and shell compatibility corrections
+
+Active role ENGINEER; risk HIGH. Objective: fix exactly the two compatibility
+gaps shown in the prior installed-source audit. Removed live HTTPTransport from
+restricted Qdrant kwargs, retaining primitive no-proxy/no-redirect/preferREST
+controls and captured HTTPX default zero retries. No wrapper or dependency change.
+MinIO now pins/reads the regular /bin/bash path and invokes /bin/bash -p -c;
+strict archive-link rejection and PostgreSQL's old shell path remain unchanged.
+Changed three source files and three focused test files; prior artifacts intact.
+
+SHOWN: six regressions failed before source edits. Initial six-module policy/
+adapter/transport/wiring/installer slice335 passed128 startup warnings3.83s;
+separate AUDITOR independently335 passed3.84s and confirmed Qdrant copy/forward
+behavior, but found conditional inherited BASH_ENV processing in bash -c.
+No evidence that variable exists in target. Applied only -p correction, exact
+argv assertion and synthetic host startup-file regression. Final selection3
+passed62 deselected0.16s; separate confirmation ACCEPTED that correction,3
+passed0.19s, no remaining blocker in its scoped check. Earlier335 is not a final
+combined rerun; counts overlap and are not summed. No broad/full-suite run.
+
+Captured Qdrant constructor AST runs in controlled fixture namespace with remote
+wrapper substituted and real hash-matched host HTTPX. It tests more than kwargs
+echoing, not actual installed-module initialization. Test commands, six frozen
+hashes, initial failed review and exact limits in companion_sdk_shell_repair_
+20261017 checkpoint/JSON. Reviewed source unchanged after final confirmation.
+
+No Docker, installed binary execution, service/network, real credentials,
+build/replacement/startup, account/scheduler/strategy/trading operation. Installed
+state not refreshed today; old snapshots not called current. Remaining builder,
+parser, reconstruction/provenance, namespace/citation and real-manifest proof
+UNVERIFIED. Handoff READY_FOR_INDEPENDENT_REVIEW; runtime INCOMPLETE. No operational
+authorization inferred from scoped offline review or user continuation.
+
+### 2026-10-17,20:45 New York - Codex: native CLI stdin proof and read-only image provenance
+
+Active stages AUDITOR then ENGINEER. Objective: resolve parser/descriptor evidence
+with real installed CLI against a fake socket and inspect existing images read-only.
+New opt-in test module checks hash-pinned CLI with isolated config/environment,
+synthetic unusual values and50KB value, one fake create per case, never real
+daemon/lifecycle. First sandbox socket binding was denied; approved fixture access
+passed. Native formatter regression then reproduced optional OnBuild omission:
+1 failed4 passed. Fixed optional map index in companion_install_docker.py and
+explicit --pull=never on create; strengthened mocked argv assertion. No query
+transport allowlist or operational permission changed.
+
+Final targeted command in companion_install_interfaces_20261017.md:99 passed0.79s
+(5 native fake-interface cases,94 installer tests), not full suite. Separate
+AUDITOR ACCEPTED scoped changes; independently5 fixture cases0.42s and1 mocked
+no-pull case0.49s, not parent whole99 run. Frozen source unchanged afterward.
+
+Real read-only receipts show seven pinned originals still exited/restarts0/no,
+initial/final selected metadata agree; four parents present/no ONBUILD. No writable
+app-code changes found by container diff; only orchestrator /repo mountpoint,
+confirmed existing repo bind read-only. This does not freeze mounted imports or
+certify complete reconstruction. Engine29.8.2, RootFS layers recorded. Initial
+nil/json.Number/optional-field template errors were our inspection defects, not
+service or auth failures. No credentials/environment values exported.
+
+Checkpoint/receipts/hashes in companion_install_interfaces_20261017.md and matching
+review_artifacts folder. No real image tag/build, create/rename/disconnect/start/
+stop, storage/credential/account/scheduler/trading operation. No accepted install
+manifest generated. Builder locality, full reconstruction/import closure and
+namespace/citation proof remain UNVERIFIED. Handoff READY_FOR_INDEPENDENT_REVIEW;
+runtime INCOMPLETE. Next operational decision is a bounded source-only proof
+build (new image/cache only), not implicit installation/startup permission.
+
+### 2026-10-17,21:05 New York - Codex: one actual COPY-only image proof
+
+Active role ENGINEER; risk HIGH. User continuation of the recommended bounded
+image/cache proof, not permission to install or start services. One build from
+existing audit parent succeeded, returned image9ce96d0b388a; eight parent layers
+preserved plus one COPY layer. Context only Dockerfile and public probe.py.
+No retry, RUN, packages, actual credentials, service query, install or trading.
+Seven originals' selected metadata unchanged/exited/restarts0/no; Docker returned
+no container events for the short attempt. Proof image/cache and unique parent
+tag retained; no cleanup outside authorization. CLI config temporary and empty.
+
+Independent preflight found diagnostic hash failure could still execute final
+Docker checks. Fixed every-call gating and delayed readiness promotion. Separate
+static confirmation ACCEPTED_WITH_RISK for the single attempt. Offline wrong-hash
+negative check PASS with zero subprocess calls, including final checks. Syntax
+valid; no full suite or service tests. Production installer code unchanged.
+
+Checkpoint companion_source_build_20261017.md records commands, frozen runner,
+tar context/receipt hashes and retained image/tag. One material assumption: no
+concurrent tag deletion/retarget. pull=false is prefer-local, not strict network
+isolation; no registry traffic trace, so no zero-egress claim. This observation
+does not certify complete installation/reconstruction/import closure or startup.
+Implementation handoff READY_FOR_INDEPENDENT_REVIEW; runtime INCOMPLETE.
+
+Post-run separate AUDITOR ACCEPTED_WITH_RISK the recorded single-build evidence:
+independently checked context members/hashes, layer prefix, seven identical
+metadata records, one build/tag, no lifecycle argv and empty returned events.
+It did not run Docker or repeat the parent negative mock. No full-installer or
+runtime acceptance inferred; frozen proof artifacts unchanged after review.
+
+### 2026-10-17 - Codex: four-service source bundle and required-import correction
+
+Active role ENGINEER; risk HIGH. Continued the next offline installation-manifest
+scope, not installation/startup. Found executable source minimum omitted two
+orchestrator imports and package initializers. Four omission regressions failed
+before correction. Centralized required paths for installer/runtime adapter and
+updated synthetic fixtures; no operational guard or allowlist relaxed.
+
+Added offline preparer and five source-inventory tests; parse-only transitive
+static imports include package initialization and lazy paths, flag dynamic code,
+never import targets. Saved four immutable source tar snapshots and review-only
+manifest in companion_install_manifest_20261017/. Application file counts9/9/11/14;
+orchestrator also reaches198 repository source files, with7 dynamic-loading sites.
+This conservative static inventory is not actual runtime-loaded closure or proof
+that execution code is invoked. Existing repo mount/capabilities unchanged.
+
+SHOWN: targeted four-module selection116 passed0.96s. Additional assertions verify
+every tar/member hash and executable-loader refusal of the actual review bundle.
+No full suite. Manifest deliberately cannot execute; no fabricated accepted
+review/policies or metadata fingerprints. Existing artifacts preserved.
+
+Checkpoint companion_install_manifest_20261017.md records commands, hashes,
+template-versus-runtime distinctions and missing StartedAt/network/recreation
+metadata, mounted import identity, installed policy and strict registry isolation.
+No Docker/network/build/create/start/stop, credential, scheduler, account or trading
+operation this turn. Source remains untracked, not claimed committed/published.
+Handoff READY_FOR_INDEPENDENT_REVIEW; executable manifest/runtime INCOMPLETE.
+
+Separate AUDITOR ACCEPTED_WITH_RISK for the scoped offline correction/bundle,
+no concrete blocker; independently116 passed1.03s. Checked four archive digests,
+all241 per-application source member records/sizes/destinations/current hashes,
+baseline/template hashes and candidate non-executability. No Docker/network or
+operational action by reviewer; no source/test/manifest changes after review.
+This does not fill missing recreation/runtime/dependency/isolation evidence.
+
+### 2026-10-17,22:48 New York - Codex: selected recreation metadata and reconciliation
+
+Active stages ENGINEER collector, then AUDITOR observation. Risk HIGH; user
+authorized next read-only metadata step. Seven pinned original IDs/images remain
+exited/restarts0/no, two successful selected inspections identical. Captured
+StartedAt, network IDs/aliases/IPAM, mounts/ports, known commands/health checks,
+selected config/control fields. Effective orchestrator PYTHONPATH comparison
+matches /app:/repo. No BASH_ENV/ENV observed. Raw env/credential values/hashes or
+arbitrary command/label text not exported; no service query, exec or mutation.
+
+Initial receipt retained: local missing input_bytes TypeError before invocation.
+capture2 generic transport Refused retained; diagnostic3 traced optional
+HostConfig.Init formatter error. Fixed argument/signature test, sanitized error
+details and optional map lookups. capture4 succeeded. This is collector rework,
+not daemon/auth/service failure; initial4 tests did not catch those defects.
+
+Final6 tests passed0.20s, offline selected fixtures only. Recomputed all7 baseline
+fingerprints and produced reconciled_manifest.json without altering old sources/
+source bundle. Executable loader refuses this new review-only manifest. No
+accepted approval fabricated. Actual label counts11 perapp and local logging
+recorded, not treated as exact replacement recipe proof. Mount/alias serialization,
+label ownership, logger pinning, imports/SDK policy and registry isolation remain
+UNVERIFIED; missing StartedAt/network observations are now captured, not repeated
+as uncaptured facts. No full suite or readiness/profitability claim.
+
+Commands, preserved failures, source/artifact hashes and limits recorded in
+companion_recreation_metadata_20261017 checkpoint. Handoff
+READY_FOR_INDEPENDENT_REVIEW; executable installation/runtime INCOMPLETE.
+
+Separate AUDITOR ACCEPTED_WITH_RISK for this selected capture/enrichment, no
+blocker in saved artifact; independently6 passed0.24s and recomputed14 selected
+digests. Verified baseline identities and source/alignment bindings. Accepted P2
+reuse risk: reconciliation trusts receipt flags/snapshots rather than revalidating
+identity/digests internally. Fingerprints exclude some newly observed settings;
+only initial payload retained, so pre/post equality is collector-reported, not
+independently replayable. These are limits before operational reuse, not hidden
+proof of full reconstruction. No reviewed source/test/artifact changed afterward.
+
+### 2026-10-17 - Codex: offline stopped recipe, receipt validation and private labels
+
+Active role ENGINEER; risk HIGH. Continued the accepted offline stopped-recipe
+scope. Four non-executable review recipes now contain observed loopback ports,
+health settings, workdir, explicit local logger and retained readonlyrepo mount.
+Originals/storage/source bundles untouched. No actual Docker daemon, private
+labels/env, build/create/start/query, account/scheduler/trading operation.
+
+Reconciliation now verifies identities and recomputes receipts, records future
+final payloads, and preserves legacy capture as unpaired rather than upgrading
+its evidence. Fingerprint v2 includes selected user/privilege/resources/logger
+controls and semantic mount/network/alias canonicalization. Legacy hashes used
+only to validate old artifacts, not to manufacture fresh operational approval.
+
+Added pure opaque label encoder and second bounded private input pipe, preserving
+stdin for env; no label values in argv/files/logs/parent receipt. Installation
+child verifies copied labels. Query allowlist unchanged, installation log-driver
+option limited to local. No new services, dependencies or persistent jobs.
+
+Initial targeted run2 failures304 passed: JSON tuple/list receipt equivalence
+error; fixed canonical comparison, originals unchanged. Final selection306 passed
+2.29s; installed native CLI/fake-socket6 passed0.58s, including50KB Unicode/private
+labels separated from env. Tests overlap prior proofs, not a full suite or real
+creation. Compiled recipe hash459e9b18..., correct-hash executable-loader refusal
+checked. Predicted replacement fingerprints labelled MODELLED; authfalse.
+
+Checkpoint companion_stopped_recipe_20261017.md records limits. Independent
+review requested on frozen implementation; no source edits while it is pending.
+Handoff READY_FOR_INDEPENDENT_REVIEW; installation/runtime INCOMPLETE.
+
+Independent AUDITOR reproduced306 passed2.23s, no other concrete finding, but
+returned INCOMPLETE for core-dump protection of the separate verify_sources
+worker. Host soft limit0 was observed; no disclosure demonstrated. Corrected
+_labels to set soft/hard core limit0 before every read. Separate worker and
+fail-closed regressions added; independent narrow confirmation ACCEPTED,3 passed/
+41 deselected0.23s. Final local8module slice314 passed2.74s including6native
+fake-socket tests. Counts overlap, not full-suite or actual daemon proof.
+Frozen11 hashes in stopped-recipe proof.json; recipehash unchanged. Receipt
+validation establishes identity/self-consistency, not authenticity of forged
+self-consistent evidence. All operational permissions remain unchanged.
+
+Separate reviewer clarified overall ACCEPTED_WITH_RISK for this bounded offline
+slice after the sole finding's correction, no other concrete blocker. review.json
+records its exact scope; parent314/native results not independently rerun. No
+reviewed source/test/recipe change after confirmation. Installation, actual
+credential/label handling and startup are not authorized by this disposition.
+
+### 2026-10-17,23:22 New York - Codex: consolidated remaining-work batch
+
+Active stages AUDITOR inventory, ENGINEER artifact/docs consolidation. User asked
+to complete the remaining queue in one pass. Retained separate installation/
+startup boundaries; no blanket operational authorization inferred.
+
+SHOWN: corrected collector made two selected read-only inspections of seven
+original pinned IDs/images, all exited/restarts0/no. Both actual payloads retained
+and identical, unlike legacy capture4. Refreshed four review-only recipes,
+paired_payload_verified=true; executable loader correctly refuses their bytes.
+Observed UTC2026-10-18T03:22:50.422859. New artifacts in
+companion_batch_closeout_20261017/; old receipts/recipes unchanged.
+
+All241 per-application source archive records and current bytes match; all11
+previous proof hashes unchanged. Initial ad-hoc direct tuple/list equality
+assertion failed before archive validation; canonical JSON comparison passed,
+with no evidence/source alteration. New targeted collector/recipe selection:
+30 passed0.42s, not a full-suite result. Real Docker access was inspection only;
+no credential/label values, build, rename, create, start/stop or query.
+
+Separate bounded AUDITOR confirmed existing V3 package39 regular allowlisted
+members/current hashes and saved clean33-test receipt. Historical failure triage
+already complete in its scope: saved8 audit cases; proxy sandbox-bind diagnosis;
+article-body overlay proof, but root bs4 still absent. No new unresolved source
+defect identified or backtest repeated. Updated RESEARCH_BRIEF's stale queue,
+preserving original4679/2/76/1 broad receipt and all registered verdicts.
+
+Consolidated checkpoint names concrete remaining import/dependency/registry
+evidence and separate installation/query operations. No accepted executable
+manifest or all-true policy set fabricated. No .venv, schedule, server, account,
+strategy, capital, dataset or trading change; no commit/push. Exact hashes and
+commands recorded. No new infrastructure or research comparison introduced.
+Handoff READY_FOR_INDEPENDENT_REVIEW; actual restoration INCOMPLETE.
+
+Separate AUDITOR ACCEPTED_WITH_RISK the bounded observation/artifacts/docs,
+no concrete findings. Independently verified seven fingerprints, all241 source
+records and11 prior hashes, recipe reproduction/refusal, and30 targeted tests
+in0.40s. No daemon/network/credential access by reviewer. No executable or recipe
+changed after review; operational evidence gaps and authorization unchanged.
+
+### 2026-10-17 - Codex: immutable local-parent builder correction
+
+Active role ENGINEER; risk HIGH. Continued the accepted registry-isolation gap,
+not installation. Observed native Engine29.8.2/8af9fe3 via selected read-only
+version call. Inspected that commit's classic and containerd pull paths and
+its distribution/reference0.6.0 dependency: full bare64-hex IDs resolve locally
+but cannot parse as named repository references before fallback pull.
+
+Replaced mutable temporary FROM tag with bare full parent ID. Added exact
+Engine guard before private preparation and each build; retained forced legacy
+clean environment, parent/source/layer checks and all operational gates. No new
+dependency, service, build or lifecycle operation. Application sources, existing
+recipes and all old receipts preserved. Two installer/test hashes intentionally
+supersede their older frozen proof snapshot; no claim that old proof covers them.
+
+Prepatch6 selected cases failed; after correction49 installer cases passed.
+Added missing-parent and forced-legacy/environment regressions; final targeted
+installer+wiring55 passed0.55s. Not a full suite, actual build or no-egress trace.
+Checkpoint companion_local_parent_20261017.md records exact source links/hashes,
+self-reported Engine provenance assumption, unchanged boundaries and required
+actual positive/negative proof. No private reads, image/cache mutation,
+container/startup/query/account/scheduler/trading action, commit or push.
+Handoff READY_FOR_INDEPENDENT_REVIEW; runtime INCOMPLETE.
+
+Independent AUDITOR ACCEPTED_WITH_RISK the local-parent offline delta, no concrete
+finding; independently55 passed0.50s and verified both frozen hashes. It did not
+reopen upstream URLs or call Docker; actual present/missing-parent builds and
+network behavior remain UNVERIFIED. Missing-parent test refuses at mocked
+inspection, not the later daemon fallback race. No reviewed source/test changed
+after review and no operational policy flag or permission was promoted.
+
+### 2026-10-17 - Codex: bounded native local-parent proof preparation
+
+Active role ENGINEER; risk HIGH. User continued the named next actual-build
+verification step, not service installation/startup. Added inert-by-default
+prove_companion_local_parent diagnostic and seven offline cases. Exact code
+hash and explicit execute flag required; pinned CLI/Engine/public source;120s
+overall and at most one positive45s plus one negative15s build. Source context
+is one reviewed public probe.py plus FROM/COPY only. Missing parent existence
+check must specifically return not-found before its negative request.
+
+No temporary tags, RUN, dependencies, credentials, application replacement,
+start/stop/exec, trading, or cleanup of preexisting objects. Proof leaves any
+successful image/cache retained and compares seven original selected inventories
+before/after. It records sanitized categories rather than arbitrary stderr;
+network traffic tracing is explicitly absent. Final inspection remains within
+the same deadline, so timeout can leave final-state verification INCOMPLETE.
+
+SHOWN offline7 passed0.42s; default invocation inert and no output directory
+created. No actual Docker proof run yet. Independent preflight requested before
+one bounded operational attempt; no automatic retry if it fails. Scope receipt
+is not an executable whole-install manifest or acceptance of other policies.
+Handoff READY_FOR_INDEPENDENT_REVIEW; runtime INCOMPLETE.
+
+Independent preflight INCOMPLETE: P2 target baseline was not hash-bound and could
+be replaced while script hash stayed approved. No Docker attempt had run.
+Correction pins baseline85d226fc... before any subprocess and removes all repo
+policy imports; direct script invocation avoids package initialization. Added
+mutation/no-call and stdlib-only regressions. Final9 passed0.43s; revised
+scriptdc42b137... and testa7c5efeb... frozen for narrow re-review. Arbitrary daemon
+cancellation/network behavior remains unverified; no new permissions inferred.
+
+Independent correction preflight ACCEPTED_WITH_RISK:9 passed0.37s, baseline
+substitution refused with zero calls, stdlib/direct-script boundary confirmed.
+Scoped tool permission allowed actual single attempt at03:40:51UTC October18
+(23:40:51 NewYork October17). Two build requests succeeded as tests: local-parent
+COPY returned9ce96d0b388a (same earlier image, possible cache reuse), eight parent
+layers plus one; deliberately absent82f93c... build returned1 with expected
+parser marker. No timeout/generic failure substituted. All seven selected
+original snapshots unchanged. No tag/pull/exec/create/start/stop, private config,
+installation/query/trading action, cleanup or retry. Image/cache retained.
+
+Actual receipt/context hashes and complete eight-command sequence recorded in
+companion_local_parent_proof_20261017 checkpoint. No raw stderr or network trace
+retained; negative marker is collector-observed normalized evidence. VERIFIED_ENV
+only for the exact native proof, not uncached build, all four applications or
+whole-install/import readiness. Source/test hashes unchanged after preflight.
+Post-run artifact review requested; handoff READY_FOR_INDEPENDENT_REVIEW;
+explanation runtime INCOMPLETE.
+
+Separate post-run AUDITOR ACCEPTED_WITH_RISK saved proof only, no findings:
+independently checked all hashes, eight-command/two-build sequence, seven
+unchanged snapshots, eight parent layers plus one, and both exact two-member
+contexts/public source hashes. No repeat Docker/pytest/network trace. Negative
+marker/status are normalized collector evidence, not raw response replay.
+Added superseding pointers to prior checkpoint/active brief; no reviewed
+executable/test/context/receipt altered. Whole installation/runtime INCOMPLETE.
+
+### 2026-10-18 - Codex: companion import boundary and installed-source inventory
+
+Active stages AUDITOR diagnosis, ENGINEER narrow repair; risk HIGH. Continued
+mounted-import/dependency objective without repeating builder tests. Demonstrated
+eager dashboard import at tools module load; four regression cases failed.
+Deferred only that optional builder import until ordinary use. Preserved normal
+signal-summary intelligence and arguments, explicit unavailable result, existing
+probe transport, retrieval, normalizer/asset guard and all features. No route
+removal or new infrastructure. Later calls may retry a failed optional import.
+
+SHOWN permitted native read-only collection47 source reads:11 package initializers
+in each of four applications, same per-package hashes across images; three actual
+/repo files match host. Seven original selected before/after snapshots unchanged,
+exited/restarts0/no.49 total inspect/cp commands; no exec/start/run/build/private
+config/labels/credential or service request. Receipt94340030... at04:03:26UTC.
+Package presence/parseability is not complete installed runtime compatibility.
+
+Final targeted import-boundary+existing probe-policy68 passed128 warnings2.93s;
+standalone4 pass0.17s overlaps. Local synthetic config/HTTP/storage, not installed
+Python3.11 imports or full-suite. tools hash a612f1a5..., test13d8ec0d...;
+new source-only manifest973da853..., diff276ef813... relative to preserved tar.
+Old sources/recipes/results unchanged, no backtest or policy approval fabricated.
+
+Checkpoint companion_import_boundary_20261018.md records limits and the explicit
+decision needed for any disposable network-disabled installed-import test outside
+the current no-helper/no-exec boundary. No such test implemented/executed; no
+installation/startup, account/scheduler/strategy/risk/capital/trading action.
+Separate review requested on frozen source/artifacts.
+Handoff READY_FOR_INDEPENDENT_REVIEW; restoration INCOMPLETE.
+
+Separate AUDITOR ACCEPTED_WITH_RISK offline delta/inventory/source bundle,
+no findings. Independently68 passed128warnings2.20s, reproduced four failures
+against preserved eager source/four passes on correction, checked all241 hashes
+and onlytools.py archive delta. Normal capability and probe restrictions remain.
+Inventory observations not recollected; initializer parseability cannot be
+reproduced from hashes without retained raw bytes. Installed3.11 imports and
+complete runtime policy remain UNVERIFIED. No reviewed source/test/artifact
+changed after review. Next operational choice is a specifically authorized
+temporary network-disabled import test, not implicit permission to add helpers,
+start existing services or access credentials. Restoration INCOMPLETE.
+
+### 2026-10-18 - Codex: isolated installed-import proof preparation
+
+Active role ENGINEER; risk HIGH. Operator continued the specifically proposed
+temporary network-disabled import check, not existing-service startup. Added
+stdlib-only inert runner and separate synthetic payload. Pins CLI, baseline,
+source manifest/archives/member hashes and payload. Four existing immutable
+application images, one test per image; no builds/new packages/private config.
+Fresh readonly application-source stages, no /repo/live tree, .env or data volume.
+
+Plan enforces network none, readonly, no healthcheck/ports/caps, non-root,
+resource caps, synthetic settings, isolated -I/-S/-B Python3.11, blocked socket/
+repo imports, no ASGI lifespan/server/model/storage calls. Capture safe import
+failure diagnostics before owned-only cleanup; no force/volume removal, no
+original container lifecycle.180s command budget includes30s cleanup reserve;
+unknown ownership remains untouched/INCOMPLETE. No automatic retry.
+
+Offline9 passed0.42s, including unsafe image config, unknown ownership, timeout,
+failure diagnostics and four-image success fixtures. Host payload negative
+control is not installed-runtime evidence. Frozen runner761aa1e0..., payload
+e2fad272..., tests05a3b2e6...; checkpoint companion_installed_imports_20261018.md.
+No actual helper created yet. Separate preflight requested before permission-
+checked single attempt. Existing app/storage, credentials, accounts, schedules,
+strategy/risk/capital/trading unchanged. No full suite, commit or push.
+Handoff READY_FOR_INDEPENDENT_REVIEW; explanation runtime INCOMPLETE.
+
+### 2026-10-18 - Codex: actual installed-import test and diagnostic limitation
+
+Separate preflight ACCEPTED_WITH_RISK, independently9 passed0.39s and verified
+CLI/baseline/manifest/fourarchives/43applicationrecords. Tool permission allowed
+one actual temporary-container attempt at08:39:57UTC (04:39:57 New York).
+Audit-log/risk-stub passed actual3.11 imports with synthetic settings/frozen
+sources. Memory reached source_validation then childexit1 RuntimeError;
+orchestrator notattempted. NOT calling this a missingpackage or servicefailure.
+All3createdobjects removed/absenceconfirmed,7original snapshots unchanged,
+no cleanup stop needed.28calls, no originalservices/privateconfig/accounts/
+builds/scheduler/strategy/risk/trading changed. No actual retry.
+
+Receipt223c7217... preserved; executed_sources.tar a8804000... freezes old
+runner/payload/tests. Actual diagnostic omitted fixed RuntimeError category and
+failed-child guard counters, so specific cause remains unresolved. Added one
+fixture (failed before), narrow OFFLINE diagnostic retention fix; no guards or
+success criteria relaxed. Current runner85515300..., payloadec5ca30f...,
+testsdea851d6...;10passed0.42s. Old command/hash no longer applies; no claim that
+diagnostic fix repairs memory or certifies all installeddependencies.
+
+Checkpoint companion_installed_imports_20261018.md records outcomes/limits and
+the separately authorized targeted memory/orchestrator choice, avoiding reruns
+of the two passing images. Independent artifact/delta review requested; no
+source/test/artifact edits while pending. Handoff READY_FOR_INDEPENDENT_REVIEW;
+installed import proof and explanation restoration INCOMPLETE.
+
+Separate post-run AUDITOR ACCEPTED_WITH_RISK saved evidence and diagnostic-only
+delta, no actionable findings. Independently10 passed0.44s and category/suppression
+controls; checked frozen executed sources/receipt, two passes, memory validation
+failure, no orchestrator attempt, three removals and seven unchanged snapshots.
+No new daemon/network/credential action by reviewer; no reviewed code/artifact
+changed after review. Missing historical category/counters cannot be reconstructed.
+Exact cause, complete import compatibility and runtime remain INCOMPLETE.
+
+### 2026-10-18 - Codex: targeted installed-import continuation preparation
+
+Active role ENGINEER; risk HIGH. Operator continued the explicit memory-first,
+orchestrator-on-pass proposal. Added fixed --remaining-only selection and receipt
+scope; preserves default mode but the authorized invocation selects only the
+two unfinished modules. Existing guard, image pin, budget, ownership and cleanup
+logic unchanged. Executed runner/payload source automatically archived before
+Docker calls. Historical passing tests and failed receipt remain untouched.
+
+Targeted offline18 passed0.87s, including both selections and failure short-
+circuiting. Initial fixture reused container IDs after removal; corrected that
+fixture to make the order assertion meaningful. Runnerba0ecfb2..., unchanged
+payloadec5ca30f..., tests39567610.... No actual Docker action yet. Separate
+preflight requested before named permission-checked attempt. No package,
+credential, scheduler, account, trading or original-service action authorized.
+Handoff READY_FOR_INDEPENDENT_REVIEW; restoration INCOMPLETE.
+
+### 2026-10-18 - Codex: targeted import diagnostic result
+
+Active role ENGINEER; bounded authorized diagnostic, risk HIGH. Separate
+preflight ACCEPTED_WITH_RISK, independently18 passed0.53s. Tool permission
+allowed exactly one remaining-only run at08:53:23UTC/04:53:23 New York.
+Memory source_validation failed with fixed forbidden_import_activity and
+denied network1/repository0; orchestrator notattempted. One guarded socket
+operation shown, exact operation/caller unresolved because the counter combines
+five APIs. No outbound traffic, credential use or actual servicefailure claimed.
+
+Only helper created was removed/absenceconfirmed, seven selected original
+snapshots unchanged/exited/restarts0/policy no.12calls; no original lifecycle,
+package/build/pull/config/account/schedule/trading change. No automaticretry.
+Receiptca22ca69... and executedsource1a003187... preserved in targeted20261018
+artifact directory. No failed evidence overwritten. Checkpoint and brief
+updated; no guard weakened. Separate saved-evidence review requested.
+Operational result INCOMPLETE; evidence handoff READY_FOR_INDEPENDENT_REVIEW.
+
+Separate AUDITOR ACCEPTED_WITH_RISK saved targeted evidence, no discrepancy.
+Verified receipt/archive hashes, executed sources identical to reviewed source,
+12calls, memory guard details, owned helper removal and seven unchanged selected
+snapshots. No new Docker action/retest by reviewer. Exact operation/caller and
+installed import/runtime success remain UNVERIFIED/INCOMPLETE. No further
+operational authorization or self-approval inferred.
+
+### 2026-10-18 - Codex: blocked-call attribution diagnostics
+
+Active role ENGINEER; risk HIGH. Continued operator's accepted next step to
+identify the exact denied socket operation/caller, not weaken guard or restore
+services blindly. Five distinct always-denying wrappers now collect at most8
+operation/module/function/line records. No args, addresses, locals, filesystem
+paths, secrets or raw tracebacks retained. Parent validates bounded exactschema
+and saves attribution before cleanup. Lifecycle, original-state checks, import
+success criteria and synthetic settings unchanged; payload hash updated.
+
+Narrow offline27 passed0.74s using isolated pytest --noconftest -c /dev/null.
+New fixtures cover allfive operations, capped records, private-argument omission
+and malformed-field rejection; no actual Docker call. Runnerae6efd61...,
+payload2e110e7a..., testsf83bf793.... Historical failed evidence preserved.
+Submitted frozen code/tests to separate AUDITOR while documenting scope.
+Potential next operation one permission-checked remaining-only attribution run,
+memory first/orchestrator onpass, no repeated passing modules or automatic retry.
+No original service/packages/config/credentials/account/schedule/trading action.
+Handoff READY_FOR_INDEPENDENT_REVIEW; runtime restoration INCOMPLETE.
+
+Independent AUDITOR found a concrete P2 in attribution delta: success receipt
+copied **payload even if event sanitization rejected private/extra fields.
+Offline malformed-success probe demonstrated retention, not actual secretleak.
+Corrected success to require validatedempty events/zero denials and serialize
+only explicit validated fields; new fault tested in both selection modes.
+29passed1.16s, runner66759d5e..., unchangedpayload2e110e7a...,
+testsf0819147.... No Docker call or reviewed historical artifact change.
+Correction resubmitted to same independent AUDITOR, code/tests now frozen.
+Handoff READY_FOR_INDEPENDENT_REVIEW; actual attribution/runtime INCOMPLETE.
+
+### 2026-10-18 - Codex: actual blocked caller identified
+
+Active role ENGINEER; risk HIGH bounded diagnostic. Separate AUDITOR accepted
+correction/preflight WITH_RISK, independently29 passed0.69s and originalfault
+regression in both modes. Tool permission allowed one remaining-only attempt
+at08:59:45UTC/04:59:45 New York. Memory imported then strict validationfailed:
+one denied bind from urllib3.util.connection._has_ipv6 line127, repository0.
+Orchestrator notattempted, passing audit/risk modules notrerun. Exact caller
+identified; installed function body/address notcaptured. No missingpackage,
+outboundtraffic, actualservicefailure or operationalreadiness inferred.
+
+Onlyhelper removed/absenceconfirmed; seven selected originalsnapshots match,
+exited/restarts0/policy no.12calls; no original lifecycle, package/image/config/
+credential/account/scheduler/trading action, no furtherattempt. Guard/success
+criteria unchanged. Receipta0ef66c2... and executed_sourcesd142066a... preserved
+in companion_installed_imports_attribution_20261018. Checkpoint/brief updated.
+Attribution objective complete; installed compatibility/restoration INCOMPLETE.
+Next boundary exact installed caller verification and separately reviewed probe
+classification, not silent relaxation or package upgrades. Saved evidence sent
+to independent AUDITOR; handoff READY_FOR_INDEPENDENT_REVIEW.
+
+Separate post-run AUDITOR found no discrepancy in hashes, executed code,
+all43 staged records, exact blocked caller,12recorded calls, one owned removal
+or seven unchanged selected originalsnapshots. No daemoninspection/retest;
+retained evidence only, prior narrow ACCEPTED_WITH_RISK unchanged. No further
+attempt authorization; installedcompatibility/runtime remain INCOMPLETE.
+
+### 2026-10-18 - Codex: read-only urllib3 caller-source verification
+
+Active role AUDITOR. Continued accepted caller-verification objective before
+changing the import contract. One permission-checked collection, four read-only
+Docker calls: seven-original metadata, two single publicsource cp archives,
+seven-original metadata. Existing stopped IDs/images match pinned baseline;
+selected before/after snapshots unchanged. No lifecycle, exec, environment,
+credential, package, configuration, account, scheduler or trading action.
+
+Both urllib3/util/connection.py copies identical SHA2633bbdb...; static AST/source
+shows _has_ipv6('::1'), bind(host,0) at127, exceptioncatch and socketclose; no
+connect/listen/send/DNS insidefunction. Prior helper attribution matches caller/
+line. Static stopped-container filesystem is not immutable-image/loadedbyte
+proof; actual argument values notretained. Supports localhostcapabilityprobe
+diagnosis, not observedoutboundtraffic or full operationalreadiness.
+
+Generated evidence/raw source archives retained in companion_ipv6_source_20261018,
+receipt2732598d.... Updated checkpoint/brief. No executable edits; tests notrerun.
+No guard or successcriteria relaxed and no import retry. Proposed narrower
+contract would keep denial and separately classify exact verified localprobe,
+not blanketwhitelist urllib3. Submitted saved evidence to independent AUDITOR.
+Handoff READY_FOR_INDEPENDENT_REVIEW; explanation runtime INCOMPLETE.
+
+Separate AUDITOR ACCEPTED bounded caller-source evidence, no discrepancy in
+hashes, tarbytes, AST/function/bind/modulecall lines or selectedsnapshot matches.
+Clarified socketclose conditional, notfinally. Readonly/lifecycle recording
+consistent but not independently recollected. No reviewer Docker/tests/source
+execution. Loadedimageidentity/orchestratorimports still UNVERIFIED; no test-
+contract change, retry or runtimeauthorization. Source-verification scope closed;
+restoration INCOMPLETE.
+
+### 2026-10-18 - Codex: optional blocked IPv6 probe contract
+
+Active role ENGINEER; risk HIGH. Continued accepted next classification review,
+no actual runtime action. Added explicit --allow-blocked-local-probe; existing
+zero-denials default unchanged. Only one blocked bind can be classified, with
+exact localhost/port0, socketfamily/type, callerorigin/line, pinnedboundedsource
+hash and compiledcode equality. Socketcall still denied/raised, original API
+neverinvoked, actualcount1 and classifiedevent remain visible. Allother socket,
+repository, deadline, repeat/mixed failures fatal. Parent validates exactmode,
+event/counters and records v1/v2contract; lifecycle/cleanup unchanged.
+
+Targeted57 passed1.48s, hostsubprocess pinnedfunctionpositive +strict/wronghost/
+source/code/repeat/otheroperation negatives; both runner modes tested with
+mockedDocker. No installed3.11 proof/fullsuite/actualimport attempt. Frozen
+runnerd4f575b8..., payloadc62e27b0..., tests8b8725cc.... Updated checkpoint,
+submitted exactcode/tests to separate AUDITOR. No oldartifacts overwritten,
+services/credentials/packages/config/account/schedules/trading action.
+Handoff READY_FOR_INDEPENDENT_REVIEW; runtime restoration INCOMPLETE.
+
+Separate AUDITOR ACCEPTED_WITH_RISK exacthashes/optionalofflinecontract, no
+actionablefindings. Independently57 passed1.48s Python3.12.10; reviewed strict
+default, exactsource/code/caller/endpoint constraints, retaineddenial/event,
+repeated/mixed failure and allowlistedserialization. Remaining-only/lifecycle
+unchanged. No reviewer Docker/credentials/services/network. Updated brief and
+checkpoint with disposition. Next possible step one separately authorized,
+permission-checked remaining-only opt-in attempt, memory first/orchestrator on
+pass; no existingservices or retry. None run here. Installed3.11/operational
+behavior remains UNVERIFIED; restoration INCOMPLETE.
+
+### 2026-10-18 - Codex: remaining imports and portfolio reuse batch
+
+Active stages ENGINEER bounded actualtest, AUDITOR source/evidence assessment,
+ENGINEER documentation. Operator requested activeplan inonepass. Tool permission
+allowed one exactreviewed remaining-only/blocked-local-probe v2 invocation at
+09:23:28UTC/05:23:28 New York. Memory+orchestrator actualPython3.11 imports,
+syntheticsettings and frozen internal sources PASS; no ASGIlifespan. Memory
+retains one hash/code/argument-verified BLOCKEDbind, orchestratorzeroevents.
+Twohelpers removed/absenceconfirmed; seven selected originalsunchanged/exited,
+restarts0/policy no.18calls. No audit/riskrepeat, guardbypass or delegatedblockedbind.
+
+Receipt526fcd3f.../executedsource63333917... retained under probe_v2_20261018.
+Separate AUDITOR ACCEPTED_WITH_RISK savedevidence, no discrepancies: all43
+stagedrecords and loadedmemory11/orchestrator13 match, sourcepins and cleanup
+consistent. No independentdaemonrecollection; importproof not SDKstartup,
+storage/configtransfer, installation or citedquery proof. Executables unchanged.
+
+Separate portfolio AUDITOR assessed threeexisting surfaces; parent inspected
+corefunctions/hashes. Sharedcash alreadyexists inE10, V3baselineperarm remains
+independent. Documented smallestnext-open/rebalance reusepath and concrete
+allocation/fill/valuation/eligibility/carryforward gaps in
+portfolio_reuse_assessment_20261018.md. No importedE10, backtest or test rerun.
+Sourceassessment complete; ED-002 implementation INCOMPLETE.
+
+Added companion_batch_closeout_20261018.md and updated brief/importcheckpoint:
+currenttechnical installation gaps reconciled, no fabricated acceptedmanifest
+or blanketpolicyflags. Rootbs4availability checkedFalse; existingoverlayproof
+and historical4679/2/76/1 remain, no fullsuitegreenclaim. Existing39fileV3,
+33testreceipt, WP4item1,25symbolmandate and E7-E10FAIL preserved.
+
+No originalservice lifecycle/privateconfig/build/package/account/scheduler/
+strategy/risk/capital/trading change, commit or push. Remaininginstallation/
+startup cannot be called complete from this batch; follow named operational
+scope and actualevidence gates. Operational objective INCOMPLETE; saved import
+evidence ACCEPTED_WITH_RISK and portfolio reuse assessment completed.
+
+### 2026-10-18 - Codex: current-source installation-plan preparation
+
+Active role ENGINEER; risk HIGH. Operator requested remaining preparation in
+onepass. Concretecollector gap: sourcehash hardcoded to old pre-repair manifest.
+Added explicit --source-manifest/keywordselector, preservedlegacydefault and
+restricted inputs to bounded regular manifest.json files under public
+docs/review_artifacts; symlink/outside/oversize/directory refused before Docker
+or outputcreation. Selected path/hash recorded; commandformat remains two
+read-only seven-ID metadata inspections, no lifecycle or credential export.
+
+Targeted collector+recipe36 passed0.58s using isolated pytest. Code3e81a243...,
+tests0a7f8eef.... Current frozen source manifest973da853... and all241 archived/
+current per-app source records verified unchanged. Submitted exactdelta to
+separate AUDITOR before one prospective permission-checked readonlycapture.
+No actual capture/startup/install/package/account/schedule/trading action yet.
+Handoff READY_FOR_INDEPENDENT_REVIEW; restoration INCOMPLETE.
+
+Separate AUDITOR ACCEPTED_WITH_RISK current-manifest selector, exacthashes and
+36tests independentlypassed0.58s; no finding. Single toolpermission-checked
+readonlycapture at09:39:23UTC/05:39:23 New York completed twoinspectcalls;
+retainedpairedmetadata matches, seven originalIDs/images/stoppedstate unchanged.
+Bound currentmanifest973da853... ratherthanlegacy. No env/labelvalues or lifecycle.
+Generated currentfourapprecipe e1099173... and exactloader-shapedcandidate
+3ce6fd12... from capture5207ca9c.... All6flagsFALSE/reviewerpending; actualloader
+refuses asintended, no inventedapproval. Independentreview nowassessing saved
+artifacts/per-policyevidence for stoppedinstall versus laterstartup. New
+checkpoint companion_install_candidate_20261018.md recordscommands/hashes/limits.
+No build/install/startup/privateconfig/package/account/schedule/trading action.
+
+User-authorized specialist DIRECTOR prepared only
+docs/research/ed002_portfolio_contract_candidate_20261018.md (96lines): explicit
+recommended cash/allocation/proceeds/cost/precision/fill/valuation/eligibility/
+carry/terminal/benchmark contract usingexisting surfaces. Choices remain proposed,
+not operatorapproved/frozenexperiment or implementedfinanciallogic. Parent read
+candidate; independent contract review pending. No tests/imports/backtests,
+dependencyinstallation, researchregistration or otheroperationalaction.
+Handoff READY_FOR_INDEPENDENT_REVIEW; ED-002 implementation INCOMPLETE.
+
+Independent installation AUDITOR verified currentcapture/recipe/candidate/source
+integrity, accepted4stopped-install policies WITH_RISK, found SDKstartup and
+mutable /repo source enforcement unproven forlaterstartup. Current all6true
+loader makes those later gates circular prerequisites forstoppedcreation.
+DIRECTOR chose explicitstage distinction; ENGINEER added v2stopped-only schema:
+4true/2explicitfalse, preservedv1all6true; deferralnames and startup_authorized
+false inplan/reservation/evidence/result/inertCLI. No startup/backend/credential
+or runtimeguard change. Installer c2cb24ff..., testsaab31930...; targeted188
+passed1.67s installer/controller/adapter, fixturesonly. Separate reviewpending,
+no executableapproval or actualinstall. Newcontract candidate remainsproposed.
+
+Independent ED-002 review found4definition gaps: valuation/splitclock, missed
+decisionexpiry, benchmarkturnover/terminalcost and rounding/basisattribution.
+Preserved initialdraft in ed002_initial_contract.tar; doccorrectedwith explicit
+recommendeddefinitions and resubmitted. No financialcode or experiment changed.
+Handoff READY_FOR_INDEPENDENT_REVIEW; runtime and ED-002 implementation INCOMPLETE.
+
+Separate AUDITOR acceptedv2stagecontract WITH_RISK, no findings, independently
+188passed1.36s and additionalfixturematrix. Bothinstallschemas refused asruntime
+approval. Produced pendingv2candidate withonly schema/four supportedpolicyflags
+changed; two startupflagsFALSE and pendingdecision keepactual loaderrefused.
+Separate GATE tasked to reviewexactcandidate and generateacceptedstopped-only
+artifact/hash ifjustified; parentdoesnotselfapprove. No installationpermission
+inferredfromcodeacceptance. SDK/storage/importenforcement remain latergates.
+
+Independent ED-002 re-review ACCEPTED thefour correcteddefinitions as
+recommendations only, no remainingfindingwithinreview. Operatorchoices,
+implementation and experimentfreeze stillnotapproved. No financialcode/test/
+backtest/runtimechange fromthat documentreview.
+
+### 2026-10-18 - Codex: final manifest review unavailable
+
+Active role AUDITOR. Final independent GATE run errored with usage-limit message
+after the separate code/stage-policy acceptance, before final manifest output.
+Inspected artifactdirectory: no reviewed_stopped_plan.json or plan_review.json.
+Pendingv2candidate remains f30a6a98..., sourcec2cb24ff.../testsaab31930... unchanged.
+No new agent/review retry, tests rerun, approval generated, Docker lifecycle,
+credential/config/storage/package/account/scheduler/trading action.
+
+Recorded concrete review interruption in installationcheckpoint. Missing final
+manifest acceptance cannot be replaced by implementer's self-approval. Next
+decision may come from independent reviewer or human on the exact candidate,
+with stopped-only scope and both later gates false; not broad runtime approval.
+Artifact READY_FOR_INDEPENDENT_REVIEW; restoration INCOMPLETE.
+
+### 2026-10-18 - Codex: interrupted final manifest gate completed
+
+Active role AUDITOR; objective finish the interrupted stopped-only manifest
+review, without repeating implementation or passing tests. Separate GATE
+01a14f39-7da5-7d23-b59b-7947c815df25 returned ACCEPTED_WITH_RISK and produced
+reviewed_stopped_plan.json (a513c458419f01517fec5e771e5be967f85b43391de663dc55c0bcdfb8ac4af4)
+and plan_review.json (96a834faee2c8db36d3a4470ebf7725120c5a3900fb09972409bbb37c3cd61f3)
+under docs/review_artifacts/companion_install_candidate_20261018/.
+
+SHOWN: reviewer verified 241 archive/current-source records and faithful
+recipe/capture/baseline projection; only decision/reviewer changed. Parent
+verified output hashes and default inert installer CLI exited 0 with
+actions_executed=false, startup_authorized=false and both startup deferrals.
+No pytest rerun, Docker, credential, package, account, schedule or trading action.
+Independent review artifact contains exact bindings, scope and residual risks.
+
+Added docs/checkpoints/companion_manifest_gate_20261018.md with command/result
+and explicit remaining operational boundary. Kept the prior checkpoint unchanged
+because its bytes are bound by the review. Reviewer closed; no extra build loop.
+Manifest ACCEPTED_WITH_RISK by independent GATE; restoration INCOMPLETE.
+Named installation permission and actual stopped-install postconditions remain
+required; startup/import/storage/query proof remains separate and UNVERIFIED.
+
+### 2026-10-18 - Codex: named installation execution gate refused
+
+Active role AUDITOR; objective progress the reviewed stopped-only installation
+under the user's one-pass request. SHOWN: independent review hash and all 23
+bound artifact hashes still match. Submitted the exact hash-bound installer
+command through require_escalated with four named replacements, stopped end
+state, original rollback preservation, storage preservation and bounded private
+configuration transfer. Auto-review rejected before process creation: broad
+approval was insufficient for this exact operational/private-config scope.
+No workaround, retry, Docker command, secret access or service operation followed.
+Non-destructive receipt-absence check exited 0; no installation receipt exists.
+
+Updated companion_manifest_gate_20261018.md with denial, risks and precise
+approval scope. No code/tests or reviewed artifact changed; no pytest rerun.
+Manifest remains ACCEPTED_WITH_RISK from independent GATE. Installation BLOCKED
+pending named user approval; restoration INCOMPLETE. Downstream actual-install
+review and startup/query proof cannot be manufactured before execution.
+
+### 2026-10-18 - Codex: approved install refused; Healthcheck repair
+
+Active stages AUDITOR diagnosis, DIRECTOR smallest corrective scope, ENGINEER
+implementation. User explicitly approved named stopped installation. Verified
+23 review bindings unchanged and exclusive receipt absent; executed installer
+once through elevated gate. Exit 1, installed_stopped=false, no services started;
+receipt87a69ba8... contains reserved/failed only, no mutation phases. No retry.
+
+SHOWN: fresh paired sanitized capture ce0547bc... matches all seven original
+IDs/images/stopped states. Exact backend template read-only probe reproduced
+metadata_template_error:.config.healthcheck; one-field index variant returned
+seven rows with all reviewed metadata fingerprints matching. Generic installer
+receipt does not expose exact exception/command history; diagnosis is separate
+reproduction, not fabricated instrumented trace. No raw credentials/stderr.
+
+Fixed only backend FORMAT optional Healthcheck lookup. Added exact-template and
+null/present fingerprint regressions: 1 failed/2 passed before; focused installer,
+private-env and transport selection227 passed1.44s after. Backendf0635e39...,
+tests14832b68.... Existing source/manifest/review artifacts remain untouched;
+old review's code bindings do not approve new bytes. Added detailed checkpoint
+companion_install_healthcheck_repair_20261018.md; independent review next.
+No second install/build/startup/account/schedule/trading action. Risk HIGH;
+implementation READY_FOR_INDEPENDENT_REVIEW; restoration INCOMPLETE.
+
+### 2026-10-18 - Codex: optional Healthcheck repair independently reviewed
+
+Active role AUDITOR recording separate GATE result. Reviewer
+01a14f44-cfe9-7732-a40f-824f3a1ef1bf found no actionable issue in the exact
+backend/test delta and returned ACCEPTED_WITH_RISK for source repair only.
+It reconstructed both prior reviewed hashes, ran only the three new cases
+(3 passed0.22s), and recomputed all seven saved post-attempt fingerprints against
+the preserved manifest. Reviewer closed. No Docker or private-config access by
+reviewer; no second installation by parent.
+
+SHOWN supplemental record:
+docs/review_artifacts/companion_install_candidate_20261018/healthcheck_repair_review.json
+SHA256030b8978fc1963ec4582208a0a18cb82c0dd4516094564937544e1fcd4b71712.
+It binds backendf0635e39..., tests14832b68..., old review/manifest, failed receipt
+and post-attempt capture. Bound repair checkpoint is preserved unchanged.
+Installation_authorized=false and startup_authorized=false; the review does not
+reset the consumed one-attempt operation scope. Exact runtime failure remains a
+separately reproduced template diagnosis, not a claim of complete command trace.
+Repair ACCEPTED_WITH_RISK independently; restoration INCOMPLETE. Next required
+decision is one new stopped-install attempt using reviewed supplemental hashes;
+no startup, accounts, strategy, capital or trading changes.
+
+### 2026-10-18 - Codex: native temp-path blocker and bounded diagnostics repair
+
+Active stages AUDITOR diagnosis, DIRECTOR bounded correction, ENGINEER source
+repair. On renewed user approval, verified 30 combined bindings and ran one new
+stopped-only install with distinct receipt installation_receipt_repaired_20261018.jsonl.
+Exit1/installed_stopped=false; receipt reserved/failed only, no retry. The two
+receipt files have identical87a69ba8... bytes, not one overwritten artifact.
+
+SHOWN clean-environment local probe: unresolved temporary config path fails the
+real CLI verifier; canonical path passes without Docker invocation. Backend used
+/tmp alias while verifier requires /private/tmp canonical identity. This is a
+pre-Docker blocker. Prior Healthcheck defect is independently real but was not a
+proven actual exception trace; generic receipts cannot establish either call's
+exact failure cause. Corrected that distinction in new path-repair checkpoint.
+
+Resolved newly created private config path once for verifier and argv. Preserved
+strict verifier, deadlines, rollback, ownership and no-retry behavior. Added fixed
+failure-stage codes to receipts/results without arbitrary exception text. Six
+new cases:5fail/1pass before; five-file focused slice362passed2.58s after.
+Backend0b482168..., installer15fb6012..., tests8295cdf5....
+
+Actual permission-checked read-only corrected-backend diagnostic passed bounded
+inventory: all seven original snapshots match, pinned engine matches, four local
+parent images verified. No private prepare/config read/build/replacement/startup.
+Detailed evidence in companion_install_path_repair_20261018.md; old bound records
+unchanged. Independent review next; further installation needs new permission.
+Risk HIGH; implementation READY_FOR_INDEPENDENT_REVIEW; restoration INCOMPLETE.
+
+### 2026-10-18 - Codex: canonical path and diagnostics independently reviewed
+
+Active role AUDITOR recording separate GATE. Reviewer
+01a14f4e-fc70-7963-af55-f21b4e59305f returned ACCEPTED_WITH_RISK for the exact
+path/stage source delta, with no blocking finding. It reconstructed all three
+prior accepted source/test hashes, ran only six new cases (6passed0.22s), and
+verified preserved artifact bindings. No Docker/private-config or runtime action
+by reviewer; no further installation by parent. Reviewer closed.
+
+Supplemental artifact:
+docs/review_artifacts/companion_install_candidate_20261018/path_repair_review.json
+SHA256d0e76d38ca76a4f2b7439830f0ad8534b4b5bdea040712fd8fa2f814865031a2.
+It binds backend0b482168..., installer15fb6012..., tests8295cdf5... and preserved
+plan/reviews/checkpoints/receipts. Independent review did not repeat the parent's
+native preflight or362-case slice. Parent's actual read-only preflight passed;
+private preparation/build/replacement/startup remains UNVERIFIED.
+
+The consumed one-attempt permission was not reused. Another stopped-only attempt
+needs explicit bounded authorization and a distinct receipt; startup/trading
+remain outside scope. Implementation ACCEPTED_WITH_RISK by independent GATE;
+operational restoration INCOMPLETE. Bound checkpoints and reviews unchanged.
+
+### 2026-10-18T14:10:37Z - Independent GATE: bounded audit recovery script
+
+Active role GATE; objective: independently review only the one-purpose recovery
+script for the failed audit replacement, without Docker or implementation edits.
+SHOWN: script e169a878... pins the plan/CLI/endpoint, exact original/replacement
+identities, ownership/stopped-state/network-placeholder guards, foundation and
+image lineage, three bounded rollback operations and paired final baseline
+checks. All 29 checks use assert, so acceptance requires the clean non-optimized
+launch recorded in recovery_review.json; optimized execution is not accepted.
+
+Added only the independent hash-bound recovery_review.json and this log entry;
+the script, failed receipt, manifest and helpers remain unchanged. This preserves
+the approved rollback boundary rather than authorizing another installation.
+Expected outcome: restore the seven original stopped snapshots, removing only
+the exact owned never-started replacement. Verification: read-only source/helper
+inspection, SHA256 bindings and AST compilation exit 0 (29 assertions, optimize
+0, script_executed=false). No Docker, script execution or behavior tests run.
+
+Risk HIGH; independent script/launch disposition ACCEPTED_WITH_RISK. Live state
+CLAIMED by parent; recovery UNVERIFIED and operational objective INCOMPLETE.
+Residual risks: cooperative-lock/local-filesystem assumptions, partial daemon
+effects after timeout, and paired captures checked in memory rather than saved
+as full metadata. Parent must preserve exclusive receipt and report actual
+completion; no retry, installation, startup or storage mutation is approved.
+
+### 2026-10-18 - Codex: replacement failure; original audit recovery priority
+
+Active role AUDITOR. User approved next stopped-only attempt. All34 combined
+bindings matched; installer ran once with distinct installation_receipt_canonical_20261018.jsonl.
+Exit1/failure_stagereplacement/rollback_verifiedfalse; no service started. Receipt
+records firstaudit rename/detach/create intentions thenfailure. No installretry.
+
+SHOWN native public inspection: exactoriginalaudit intact/exited under rollback
+name, detached; one exactattempt-owned replacement created/neverstarted/restarts0.
+New container network has expectedaliases but emptyNetworkID. Other6 original
+IDs/images/starttimes/exited states match. Existing snapshotparser rejects that
+placeholder, including duringrollback. No broadvalidationrelaxation or startup.
+
+Switched to bounded recovery, not more installation. Separate GATE accepted the
+three-command rollback plan WITH_RISK subject to freshguards, lock, lineage and
+postconditions. Prepared one-purpose exactartifact recover_audit_original_once.py
+and submitted actualsource forindependentreview beforeexecution; ASTparseonly,
+no operationalclaim. Detailed checkpoint companion_install_rollback_20261018.md.
+RiskHIGH; recovery implementation READY_FOR_INDEPENDENT_REVIEW; restorationINCOMPLETE.
+
+### 2026-10-18T14:13:13Z - Independent GATE: saved recovery outcome
+
+Active role GATE; objective: assess only saved recovery evidence against the
+reviewed baseline. SHOWN: receipt ends recovery_incomplete; paired sanitized
+metadata payloads agree; all seven original IDs/images/exited states/start times
+are preserved. Six complete snapshots match exactly. Audit original name and
+foundation match, but metadata/network-ID fields do not: correct configured
+network key/aliases coexist with empty NetworkID and IPAMConfig {} instead of
+null. Raw network DriverOpts also changed null to {}. No values normalized.
+
+Added independent recovery_outcome_review.json binding both receipts, paired
+capture, baseline capture/plan, final-name summary and prior script/review. Chosen
+to preserve exact INCOMPLETE restoration separately from SHOWN configured-network
+intent; expected outcome is an accurate handoff, not another operational step.
+P1: the observed stopped placeholder representation is incompatible with the
+reviewed installed-snapshot and exact rollback contract. Collector capture-ready
+status is not successful rollback. Saved name summary matches all seven original
+names/IDs; replacement-absent flag remains parent-recorded listing evidence.
+
+Verification: read-only existing v2 fingerprint recomputation/comparison exit 0;
+baseline capture matches plan, saved snapshots recompute, paired payloads match,
+six originals exact, audit differences limited to metadata/network IDs. No Docker,
+script execution, source edits, behavior/broad tests or runtime certification.
+Risk HIGH; operational acceptance state INCOMPLETE. Configured network is SHOWN,
+effective bridge attachment/connectivity UNVERIFIED. No retry, startup, new
+installation, mutation or architectural direction is authorized by this review.
+
+### 2026-10-18 - Codex: original identities restored; network proof incomplete
+
+Active role AUDITOR. Separate GATE accepted exactrecovery script/clean
+nonoptimizedlaunch WITH_RISK, record1c2624b9..., sevenbindingsmatched. Ran once
+under approvedrollbackscope. Receipt a213af99... records preconditionspass,
+ownedreplacementremoval, originalname/networkrestore intentions, thenincomplete;
+exit1/rollback_verifiedfalse. No recovery/installation retry or servicestart.
+
+SHOWN fresh paired savedcapture9f54adc0... and finalnamescc876f1b...:
+all7originalnames/IDs/images/exited/starttimes/restarts/policies match; ownednewID
+absent; noselectedrollbacknames remain. Other6fullsnapshots exact. Originalaudit
+foundationmatches, configuredbridge/aliases restored but stoppednetworkmetadata
+has emptyNetworkID/IPAMConfig{} ratherthanoldfullID/null. Exactauditnetwork and
+metadatafingerprints stilldiffer; donotclaimfullrollbackverified or attached
+networkproof. Storageselectedsnapshotsmatch, notcontentaudit. Fourderivative
+imagesbuiltbeforefirstreplacement perinstallerordering; nopruning/cleanup.
+
+Expanded companion_install_rollback_20261018.md with actualcommands/receipts/
+hashes/limits. Separate GATE reviewing savedoutcome. Nextrootissue is reviewed
+configured-versus-attached networkmetadata contract, not blindretry/startup or
+silentlychangingbaseline. Installation/restoration INCOMPLETE; originals stopped.
+
+Separate saved-outcome GATE is now complete: INCOMPLETE exact restoration,
+confirmed P1 stopped-network placeholder/contract mismatch, no runtime approval.
+Review recovery_outcome_review.json SHA256
+b916feb3d3950a8b68485abf18596ffe812e128a5f356c5c4650b385f3be2c9c.
+Eight bindings verified by reviewer, paired captures agree. Network name/aliases
+are configured evidence only; effective attachment remains UNVERIFIED. Reviewer
+closed. No further installation, recovery script execution, startup or source
+change followed. Next permitted useful work is an offline contract repair and
+its independent review, before requesting any more live execution.
+
+### 2026-10-18 - Codex: explicit configured-network repair implemented offline
+
+Active stages AUDITOR currentevidence, DIRECTOR explicitopt-in contract, ENGINEER
+implementation. Continued accepted offline repair of confirmedP1; no Docker or
+private/runtime/operational action. Added pure configuration projection and
+opt-in companion-configured-install-v3 ratherthan modifying v1/v2 meaning or
+rewriting historicalrawmetadata. Exact networkname/ID mapping is daemonverified
+by futurebounded inventory. Raw fingerprint/observedIDs remain separatelystored;
+configuredprovenance is explicitlynotconnectivity. Unknown/mismatched mapping,
+foreign/running/restartedplaceholder and contradictoryendpoint evidence refuse.
+
+V3 matches configuredfingerprints only under reviewedexplicitcontract, preserves
+exactstorage/identity/ownership/source/deadline guards, usesresolvedIDs forcommands
+and separates configuredrollback from exactbaselinerestoration. All startup
+deferrals false. No operationalv3manifest generated or accepted. Old failed
+recovery remainsINCOMPLETE. Added savedbefore/after replay, createdplaceholder
+and rollbackaftereffect regressions, wrongID/namespace/drift/ownership negatives,
+legacystrictness and install-schema-not-runtime tests. Sixfilefocusedgate396
+passed2.70s, notfullsystemproof. Detailed hashes/contract/command in checkpoint
+companion_network_contract_repair_20261018.md. No service/query/trading changes.
+Risk HIGH; implementation READY_FOR_INDEPENDENT_REVIEW; restoration INCOMPLETE.
+
+### 2026-10-18 - Codex: configured-network repair independently accepted
+
+Active role AUDITOR recording separate GATE result. Reviewer
+01a14f67-fa31-7263-8610-88bbda98445f returned ACCEPTED_WITH_RISK source-only,
+no in-scope finding. Independently396focusedtests passed2.66s and57 local
+adversarial probes passed, covering rawsavedcapturepreservation, contradiction/
+driftdetection, legacyrefusal, unsafeownedobjectpreservation, exactstorage,
+daemonmappingmismatch and before/after-effect configuredrollback. These are
+offline/synthetic results, not live Docker or connectivity evidence.
+
+Review network_contract_review.json under the existing installationartifactdir
+SHA256641ff6792fdef7325aae305ca86ad56792310993fa2f39d6cc66a4e4f0be452d
+binds all6 source/testfiles, checkpoint, old outcome and preservedplan. Sources,
+tests and historicalevidence remained frozen during review. Reviewer closed;
+no installation/startup/privateconfig/account/strategy/trading operations.
+
+The explicitnewconfiguration-only contract is independentlyaccepted as code,
+not an operational manifest or revised historical recovery verdict. Original
+recovery remainsINCOMPLETE; configuredidentity is not attachednetworkproof.
+Next artifact must use fresh readonly baseline and independentlyreviewed v3
+bindings/fingerprints before any later namedinstallauthorization. Implementation
+ACCEPTED_WITH_RISK by separate GATE; restoration INCOMPLETE.
+
+### 2026-10-18 - Codex: fresh v3 plan prepared for independent review
+
+Active role ENGINEER, continued read-only capture/plan preparation objective.
+Verified9 acceptednetwork-contract bindings unchanged. Existingcollector paired
+capture14:32:44UTC shows all7originalIDs/images/exitedstates and completeagreeing
+payloads. One selectednetworkinspect confirms current name/ID mapping. Capture
+4b08a552..., bindings2e080d9c... saved in existingartifactdir/configured_v3/.
+No privateconfig/build/lifecycle/startup/trading operation.
+
+Existingrecipe compiler output814d4520... and offlinebuilderd7af271d... produce
+pendingcandidatec4f045a8..., newattempt1693bb273e564a5d9dd096a9fb8db778.
+Raw auditblankID/fingerprint preserved; separate configuredprojection and explicit
+falseconnectivity/startup. Derivedauditnetworkaliases directlyfromrawcapture since
+legacyrecipe omits network_options for emptyIPAM{}; other3matchcompiler. Modeled
+expectedconfigdigests checked againstcompiler's projectedrawhash. Initialbuilder
+tuple/list equality fixed via canonicalJSONcomparison, no evidence overwritten.
+ActualinertCLI refuses pendingreviewer/decision asintended. No pytest rerun or
+productioncodechange. Detailedcheckpoint companion_configured_plan_20261018.md.
+Independent exactmanifest review next; implementation READY_FOR_INDEPENDENT_REVIEW,
+operational restoration INCOMPLETE.
+
+### 2026-10-18 - Codex: fresh configured v3 plan independently reviewed
+
+Active role AUDITOR recording separate GATE result. Reviewer
+01a14f70-5a0c-7720-834d-8a34dd84a320 returned ACCEPTED_WITH_RISK, no blocker;
+verified all241 source/archive/current records, reproduced exact derivation,
+evaluated audit's explicit alias derivation and preserved raw blank-ID evidence.
+Only decision/reviewer changed in the reviewed candidate. No source/test changes.
+
+Artifacts under existing configured_v3/ directory:
+reviewed_configured_plan.json SHA256
+f5b044858c3d40881239b77745d0b404c4ac05d2f35a6d043fed8f6ba934bf5f;
+plan_review.json SHA256
+c95af5786cde131f88ab7c400a413a0b628f22f4bd007ea9bdcfc856631ad005.
+Parent verified review hash and actual inertCLI on exact reviewedplan exited0:
+actions_executed=false, configured-network-v1, connectivityfalse, startupfalse,
+both startupdeferrals retained. CLI's generic readiness label is not review
+disposition or installation evidence. No pytest rerun; reviewer closed.
+
+Exact plan ACCEPTED_WITH_RISK independently; execution not authorized by review.
+Next operation would be one separatelyapproved stopped-only installation under
+configuration-only contract, originalrollback/storage preserved, privateconfig
+through existingboundedmechanism, no startup/trading. No such action ran here;
+historicalrecovery and operationalrestoration remain INCOMPLETE.
+
+### 2026-10-18 - Codex: v3 failed with verified rollback; diagnostic gap treated
+
+Active stages AUDITOR actualoutcome, ENGINEER boundeddiagnostics. User approved
+one v3stoppedattempt. All39 bindings matched; ran once with exclusive configured_v3/
+installation_receipt_20261018.jsonl. Exit1/failure_stagereplacement, installedfalse,
+rollbacktrue/exact_current_baselinetrue, startupfalse/connectivityfalse. Receipt
+04bca364... records firstaudit intents/failure and automaticownedremoval/original
+name/networkrestore, with finalconfiguration/exactbaselinecheckstrue. No retry.
+
+Fresh paired nativebackend snapshots95359385... at15:48:47UTC agree and exactly
+match all7currentv3baseline snapshots; no selectedattempt objects. No private
+configuration read in postcheck. Currentbaseline already has auditblanknetworkID;
+does not retroactivelyaccept olderhistoricalrecovery or proveconnectivity/storage
+contents. Actualreplacementfailurecause remainsUNVERIFIED; no guessedfix.
+
+Added fixed create/inventory/check/source substages and bool-only per-predicate
+receipt beforeassertion/rollback. Samepredicate gate, no acceptance relaxation,
+rawexceptions/values or new operation. New12cases plus existingfocusedslice408
+passed2.75s. Installer5cdd7967..., tests1e2639d0.... Detailed checkpoint
+companion_v3_attempt_20261018.md. Oldreview/artifacts unchanged; newsource needs
+independentreview. Implementation READY_FOR_INDEPENDENT_REVIEW; installation
+INCOMPLETE; automaticrollback matches currentreviewedbaseline.
+
+### 2026-10-18 - Codex: v3 outcome and diagnostics independently reviewed
+
+Active role AUDITOR recording separate review. Reviewer
+01a14fb6-3b57-7a93-b8be-e2825ca84abb classified installation INCOMPLETE,
+current-v3-baseline rollback evidence ACCEPTED_WITH_RISK, diagnostic-only exact
+source delta ACCEPTED_WITH_RISK. No in-scope defect; actual replacementfailure
+cause remains UNVERIFIED. Independent408targetedtests passed2.64s,1539predicate-
+equivalence cases and12additional diagnostic probes passed. Parent did not rerun
+these. No nativeDocker/privateconfig or lifecycle action by reviewer; closed.
+
+Review configured_v3/outcome_diagnostics_review.json SHA256
+42601719c30b6c78c85cb65d1cd13f9ab244d131f8e17819333b6461e13c6a63
+binds newinstaller/test, currentplan, savedreceipt/poststate/checkpoint and
+unchanged supportbytes. Exactreverse-diff reproduced prioraccepted code. It
+does not authorize installation/startup, promote old historicalrecovery, or
+establish connectivity/storagecontents. New source is accepted as diagnostics,
+not as a repair of the unresolved actual replacement failure.
+
+No secondinstallation ran. Any next bounded attempt must be separatelyauthorized
+with this diagnostic supplement and fresh precondition checks; retained receipt
+will distinguish create/inventory/check/source stage and failed booleanpredicate
+beforecleanup. Operational installation remains INCOMPLETE; currentv3rollback
+proof retained. No criteria changed, strategy/financial experiment or trading.
+
+### 2026-10-18 - Codex: instrumented attempt isolated metadata mismatch
+
+Active role AUDITOR; objective execute the user's one approved stopped-only v3
+attempt and preserve its actual outcome. VERIFIED_ENV for pinned transport and
+reviewed preconditions only. All47 combined bindings matched before execution.
+Exact reviewedmanifest f5b04485... with accepted diagnostic supplement42601719...
+ran once; exit1, failure_stage=replacement_checks, installed_stopped=false,
+services_started=false, receipt_complete=true. No automatic retry.
+
+SHOWN: audit replacement metadata_matches=false; other9 predicates true. Receipt
+20d3e29f... retains this before automatic owned removal/original name/network
+restore; final configuration/exact_current_baseline checks true. Fresh paired
+read-only inventories524930d3... at16:29:51UTC agree, all7 snapshots exactly equal
+current reviewedv3baseline, no selected attemptobjects. No private credential
+values accessed in postcheck. Historical olderbaseline recovery remains separate;
+connectivity/storage contents/startup/query not established.
+
+UNVERIFIED: specific field/root cause of metadata mismatch. Do not infer an
+environment-order cause or weaken the gate from a digest mismatch. No source
+changes or repeated pytest runs. New checkpoint
+docs/checkpoints/companion_instrumented_outcome_20261018.md records command,
+bindings, limits and the field-level diagnostic needed before a justified fix.
+Independent outcome review requested; installation INCOMPLETE, rollback proof
+pending separate disposition. No startup, trading, scheduling or account changes.
+
+Separate GATE reviewer01a14fd9-d60f-7db0-be42-52344642702a completed saved-outcome
+review: installation INCOMPLETE; bounded current-v3-baseline rollback evidence
+ACCEPTED_WITH_RISK; specific differing metadata field/root cause UNVERIFIED.
+Artifact configured_v3/instrumented_outcome_review.json SHA256
+e6541402cf8c8c672ee55434b6cd401e8defca8f1305593f7e3e6da1408eff3a. Reviewer
+rehash:47 combined bindings and43 appsource entries match; receipt/saved paired
+snapshots consistent. No Docker/credentials/pytest by reviewer; closed. No
+acceptance criterion changed, speculative fix or further attempt. Checkpoint
+updated with independent disposition. Documentation diff whitespace check passed.
+### 2026-10-18 17:03 UTC - Claude (cloud session): AGENTS.md research-question rules added (operator approved)
+Operator approved adding a "Research questions" section to AGENTS.md after reviewing the exact diff. Change: 17 added lines before "Known likely-sensitive areas"; no other line changed. AGENTS.md a42859d1 -> 0e553bec.
+Why: a pasted research answer misread "edge" as a company name, mixed advertisements into findings and never checked cost against the operator's capital. The section covers repo-context interpretation, primary sources with SHOWN/CLAIMED/UNVERIFIED labels, a legal line on material non-public information, a cost-fit check, answer-first output that stops instead of expanding on "carry on", and conversion to pre-registration candidates without runs.
+Verification: diff reviewed by operator; post-write hash checked. Documentation-only; no tests run. Operator confirmed Codex idle before the write. No commit or push.
+### 2026-10-18 17:54 UTC - Claude (cloud session): operator queue added to REMAINING_TASKS.md
+Operator asked to make the next steps visible to Codex. Added a dated "Operator queue, 2026-10-18" block at the top of "Current Work Selection" in REMAINING_TASKS.md (no other line changed), marking it the current focus over the Oct 8 objective. Nine ordered items; only item 1 (Codex's read-only cross-check audit) is APPROVED; the rest need operator go-ahead. Drafts referenced live outside the repo in ~/Documents/cryptkeep_data_archive/. Documentation-only; no tests run; no commit or push. Both files were already modified, so the cross-check's file counts are unchanged.
+
+### 2026-10-18 - Codex: information-edge paste findings treated offline
+
+Active role ENGINEER after AUDITOR source findings; objective operator-authorized
+repair of the two complete pasted documents' demonstrated defects, plus the
+missing information-edge feasibility answer. Risk HIGH for separate financial
+candidate, no operational authorization. Both full pastes read and hashed;
+external Module A source/tests and all frozen studies preserved unchanged.
+
+Added byte-identical original snapshots under
+docs/review_artifacts/information_edge_repair_20261018/. New separate
+scripts/research/module_a_candidate.py removes future-close-dependent opening
+settlement, refuses invented recovery, stops INCOMPLETE retaining account state
+on missing required observations, and exposes MODELLED sells-first cash/fill
+traces reconciled to the unchanged rebalance helper. No market/harness integration.
+New tests reproduce old100->50 fixture error vs corrected100->100, check actual
+cash rather than NAV, causal execution, missingness, costs, affordability,
+synthetic parity and leaky/corrupt canaries. Source/test hashes bd7139ff... and
+0a6e2422... frozen for separate review.
+
+VERIFIED_ENV isolated synthetic command recorded in
+docs/research/information_edge_repair_20261018.md: newcandidate+WP4+math selection
+52passed2.86s, exit0. This is not historical market parity or a full green suite.
+Updated current queue above marked historical wording: no blanket screenshot
+blocker, no adopted automatic-commit/second-fix policy, no complete trial-N or
+secret clearance inferred. No AGENTS or proposed contract draft changed.
+
+Public primary-document assessment in information_edge_assessment_20261018.md
+answers lawful information vs companies named EDGE, reuse/data/latency limits,
+operator funding vs capital and one later-preregistration candidate. No price
+data analysis, strategy tuning or scoring. News pipeline/runtime completeness
+and economic advantage remain UNVERIFIED; 25-symbol scope preserved.
+
+No service/Docker/credential/account/scheduler action, lock removal, staging,
+commit/push, raw data/result change or paid-data purchase. Original default
+settings are illustrative, not approved Module A parameters; dated recovery,
+matched benchmark, shared-prefix/full-harness integration remain INCOMPLETE.
+Financial candidate implementation READY_FOR_INDEPENDENT_REVIEW.
+
+AUDITOR stage recording separate GATE outcome: reviewer
+01a15051-95c8-7cf2-bd13-65d32c43d093 accepted exact pinned offline code/synthetic
+contracts ACCEPTED_WITH_RISK, no blocking defect. Independently52passed2.79s;
+additional actual-allocator causality/canary,100-fill ledger and entry-day
+missing-close probes passed. P3GATE-MA-001 explicitly remains nonblocking: make
+actual-allocator prefix probe persistent in a later test-change cycle. No
+reviewed code/test changed to erase that residual; reviewer closed.
+
+Independent_code_review.json in the same artifact directory holds exact hashes,
+proof/limits; repair note and current queue record the disposition. External
+original hashes rechecked unchanged; preserved snapshots match. SHA256SUMS
+covers candidate, tests, unchanged helper, originals and report bytes. Targeted
+documentation diff whitespace check passed. No overall-strategy, financial-model,
+market-run, integration or operational acceptance inferred. This bounded
+correction/assessment batch is complete; the named broader boundaries remain.
+
+### 2026-10-18 - Codex: persisted actual-allocator causality follow-up
+
+Active role ENGINEER; objective user-approved next scoped step, close P3
+GATE-MA-001 without changing reviewed financial code. Added only a synthetic
+fixture helper and four parametrized test cases to test_module_a_candidate.py:
+actual allocator target/NAV/fill-cash-holdings prefix invariance and a next-day
+allocator canary, in weekly and daily-fixture schedules. Opens/closes after
+cutoff12 are changed; cutoff decision itself is included in comparisons.
+
+SHOWN unchanged simulator bd7139ff...; appended-test version8939cbc7... . Original
+testprefix independently reconstructs exact prior0a6e2422... hash. No previously
+reviewed assertion or production/research financial rule changed. VERIFIED_ENV
+isolated newcandidate+WP4+math synthetic selection:56passed2.96s, exit0. No broad
+suite run. Checkpoint module_a_allocator_coverage_20261018.md records command,
+version and historical-artifact boundaries; queue updated to pending separate
+test-delta review. Earlier review/SHA256SUMS preserved, not silently repinned.
+
+No market/strategy experiment, live/service/privatecredential/account/scheduler
+operation, cleanup, lock removal or Git mutation. Actual model, historical parity,
+shared-account integration and profitability remain unestablished. Test-only
+implementation proof complete; READY_FOR_INDEPENDENT_REVIEW.
+
+AUDITOR recording separate GATE reviewer01a15057-2395-77d2-93f9-d1b0b4649a8d:
+GATE-MA-001 closed, appended test coverage ACCEPTED only. Exact hashes and old
+testprefix matched before/after; one targeted run4passed22deselected0.18s.
+Artifact allocator_prefix_review.json SHA256
+1ee4000a1b296db365b60e96726bfb771ba4b629c0c841d4395f8faf9a3100d9. Reviewer
+closed; source and original reviews unchanged. Queue/checkpoint now show actual
+closure, not a repeated open backlog item. Documentation diff check passed.
+Bounded test task complete; no wider financial-model/economic/runtime approval.
+
+### 2026-10-18 - Codex: screened recovery-copy implementation
+
+Active role ENGINEER; objective next operator-approved repair: refresh the
+checkpoint inventory and preserve a screened, hash-verified recovery copy outside
+Git. Read-only cross-check previously found all4104draft paths present,11new
+omissions,34ignored companion Python files and4ignored public archive DBs; old
+draft/list/hashes preserved. No assumption that secret hits were all cleared.
+
+Added build_recovery_copy.py and focused synthetic tests. Uses existing byte
+scanner, rejects sensitive/runtime paths before opening, does not follow links,
+screens nested archives within bounds, records exclusions, checks stable source
+hashes before sealing and manually restores only expected regular archive members
+into a fresh private directory. Restored SQLite copies alone get readonly
+immutable quick_check; source databases never opened through SQLite. Output is
+selected-file proof on this same disk, not a global snapshot or full clearance.
+No deletion, cleanup, Git mutation, source execution, network or credential action.
+
+VERIFIED_ENV isolated synthetic selection24passed0.34s on frozen implementation
+12205c32... and tests b497a708... . Exact command, external output and limitations
+in screened_recovery_plan_20261018.md. Actual repository copy not yet run; separate
+review required before handling live files. Implementation
+READY_FOR_INDEPENDENT_REVIEW.
+
+Separate preflight reviewer01a15063-e15a-7420-a6c5-4eea6e6e6f43 REJECTED the first
+helper at12205c32...: RC-01 broad ignored-file additions could admit a credential
+path/fifth database; RC-02 a renamed TAR could bypass member denial. Reviewer
+24passed0.38s plus synthetic counterexamples, no actual repository copy or private
+file access. Original failure review590ab817... and original plan retained.
+
+Bounded ENGINEER correction: finite companion public-path set and four exact
+archive database paths, same scope checks before reads; content-based ZIP/TAR
+detection independent of extension; NUL-bearing opaque refusal; success manifest
+written after CSV. Added focused safety regressions and positive controls.
+Correctedsource13a42796..., tests9266b123...; synthetic29passed0.38s, exit0.
+screened_recovery_correction_20261018.md records scope and limits. No extra copy
+attempt or other operational action. Corrected implementation
+READY_FOR_INDEPENDENT_REVIEW.
+
+Separate corrected preflight24303808... ACCEPTED_WITH_RISK,29passed0.34s; parent
+then ran one exact reviewed copy with normal external-write approval. Actual
+exit1: IndexError on a dot/root TAR member in denied(). Partial external target
+...190049Z preserved with820copied files, no archive/restore/CSV/successmanifest;
+not recovery evidence. No originals, Git lock or runtime state changed.
+
+Bounded ENGINEER correction: dot-only regular paths rejected, conventional root
+DIRECTORY metadata skipped while all payloads remain screened; regular rootfile
+and credential-containing archive still refused. New4syntheticcases plus prior
+selection33passed0.39s. Sourceca410362..., tests083bec9f...; failure and proposed
+fresh exclusive _r2 sibling in screened_recovery_root_entry_20261018.md. No
+automatic in-process retry or output overwrite. Continuing the user-approved
+recovery objective requires separate review of corrected hashes before handling
+actual files again. Implementation READY_FOR_INDEPENDENT_REVIEW.
+
+Root-entry reviewc9bec95d... REJECTED the first root fix for an overbroad ZIP
+directory exception; no _r2 copy ran. Bounded correction requires ZIP root's
+stored directory type, zero payload and no encryption; refuses any directory
+payload in ZIP/TAR, including nonroot names. Root links/regularfiles/credential
+members remain refused. Added positive and negative tests; an intermediate test
+SyntaxError was fixed before the final39passed0.49s gate. Source8efaf5fc...,
+tests281bf5be... . Newcheckpoint screened_recovery_root_hardening_20261018.md
+preserves this scope. Same approved recovery objective, no added operation or
+actual retry; corrected source READY_FOR_INDEPENDENT_REVIEW.
+
+Separate GATE root_hardening_review.json6dae9172... ACCEPTED_WITH_RISK at the
+bound source/test hashes;39passed0.35s independently. One deliberate fresh_r2
+invocation followed normal external-write approval and completed exit0,
+session77081, receipt2026-10-18T19:16:16.840995+00:00. SHOWN6414files,
+567124940bytes restored/hash-verified;41exclusions;6455CSVrows;81041871archivebytes.
+All34companion Python files included;0of4publicDBs (journals present),4of7raw
+archives included. Possible-secret matches are not proven leaks or cleared false
+positives. Originalpartial820files retained INCOMPLETE, not overwritten/deleted.
+
+ENGINEER saved actual_outcome.json and screened_recovery_result_20261018.md,
+updated current queue with material gaps. Manifest626973a8...,CSV715a474a...,
+archive8bfbd09f... . HEAD620bc8db... and zero-byteOct4Gitlock unchanged;original
+checkpointdraft3of3checksums match. No commits/push/runtime/account/trading
+actions. Same-disk selected-file evidence, not offsite/global snapshot/Git-history
+or environment/secret clearance. Final closeout docs postdate copy. Existing
+separate reviewer requested one saved-outcome review;no unchanged test rerun or
+automatic additional copy. Selected result READY_FOR_INDEPENDENT_REVIEW;
+broader preservation INCOMPLETE for recorded exclusions.
+
+2026-10-18T19:20:11Z separate GATE outcome_review.json: ACCEPTED_WITH_RISK for
+selected-file local recovery. Reviewer independently hashed all6414staged and
+restored files plus6414archive members; sizes/modes/member sets and all6455CSV
+rows/receipt hashes match. Coverage34of34companionPython,0of4DBs,4of7rawarchives.
+Parent invocation exit status remains parent-observed rather than independently
+observed by reviewer. No original excluded/private file reads, unchanged-test
+reruns, repairs or additional operations. Updated current queue and result
+checkpoint with accepted bounded outcome and remaining exclusions. Parent JSON
+parse/count sanity check and git diff --check passed. Selected-copy task ends
+ACCEPTED_WITH_RISK; complete recovery remains INCOMPLETE. No automatic extra
+copy; remaining preservation work is safe database snapshots and read-only
+archive-exclusion diagnosis, without removing source evidence or Git lock.
+
+### 2026-10-18 - Codex: named recovery gaps, bounded supplement
+
+AUDITOR: user requested next preservation steps. Read-only diagnosis of exactly
+three excluded raw archives found only cb/fetch.log and cb2/fetch.log (13-byte
+public progress lines) plus three CMCweeklyfiles whose SKHYx slug matches the
+extended-key heuristic. Saved fetch_cmc_weekly.py writes column2 from public
+slug. Four exact publicSQLiteDBs have2/2WALheaders and currently zero-byte WAL.
+No source SQL connection, collector or credential/config action occurred.
+
+DIRECTOR: HIGH-risk finite seven-asset supplement; preserve original frozen bytes,
+do not edit global scanner or accepted recovery helper. ENGINEER added
+preserve_recovery_exclusions.py and focused tests: exact frozen archive hashes,
+two exact public progress exceptions, three pinned member hash/slug exceptions
+with remaining content screened, source no-follow regular reads, empty/absent
+stable WAL and no rollback journal, repeated source checks, immutable SQL integrity
+checks on copied/restored files only, success manifest last. No online nonempty
+WAL recovery claimed. New output only; no deletion or automatic retry.
+
+First synthetic15-case gate:2failed13passed due fixture argument collision and
+unclosed fixture connection. Corrected fixture and explicit copied SQL connection
+closing; final15passed0.23s exit0. Helper78096172..., tests981514fc...;
+existing helper8efaf5fc... unchanged. Plan/command/bounds in
+docs/checkpoints/recovery_supplement_20261018.md. Actual copy not run; known same-
+disk/global-atomicity and heuristic limitations retained. State
+READY_FOR_INDEPENDENT_REVIEW; separate review before actual asset handling.
+
+Separate GATE Herschel01a1507b-73b5-7a32-bdb0-7f45d4b9ef46 preflight
+dded7727... ACCEPTED for one exact newdestination. Independently matched all
+five public archive exceptions, producer schema and frozen hashes;15passed0.23s.
+Original database header/sidecar observations made read-only, no sourceSQL.
+Normal external-write approval obtained; one reviewed command launched in
+session89058 for recovery_supplement_20261018T192628Z. Outcome pending, no
+actual preservation claim yet. Source before/provenance receipts saved; prior
+accepted recovery and failed partial outputs untouched. No unrelated operations.
+
+Single reviewed command session89058 completed exit0. Supplement manifest
+2026-10-18T19:30:41.847322+00:00 records7files/53431756bytes,4staged+restoredDB
+integrity checks,5finitepublicexceptions. Archive48486171bytes. Manifest
+e9302a6b...,archive56742fbf... . Parent readonly postcheck: all12original
+DB/WAL/SHM hashes match before, HEAD620bc8db... and Oct4zero-byteGitlock unchanged.
+Oldmanifest/CSV/archive hashes unchanged;7prior exclusions resolved,6421combined
+unique selectedfiles,34otherexclusionsretained.
+
+Parent streamed restored7rawarchives and required exact frozen compressed
+hashes plus all2377inputhashes: zero missing/mismatches, exit0session3249. No
+extraction, network or study run. Saved actual outcome, input verification and
+recovery_supplement_result_20261018.md; independent saved-outcome review requested.
+No unchanged tests rerun. Selected supplement READY_FOR_INDEPENDENT_REVIEW;
+full/offsite/environment recovery INCOMPLETE, not universal secret clearance.
+
+2026-10-18T19:33:15Z GATE supplement_outcome_review.json96b8d615... ACCEPTED the
+selected7asset supplement, no blockers. Reviewer independently verified all7
+paths/hash/size/0600mode across staged/restored/archive,5exact exceptionrecords,
+and8immutablecopiedDBintegritychecks. Original SQL never opened by reviewer;
+parent exit/source-state/2377input proof attributed honestly. No unchanged test
+reruns, copy retries or new operational actions. Source/test frozen hashes remain
+78096172.../981514fc... . Updated result checkpoint and queue: seven named
+preservation gaps CLOSED,6421combined selected files;34otherexclusions retained
+and full/offsite/environment recovery INCOMPLETE. Same-disk boundaries unchanged.
+This scope ends ACCEPTED by separate review, not same-thread self-approval;
+no blanket secret, publication, economic or runtime readiness claim. Final
+documentation diff check passed; final records postdate recovery snapshot.
+
+### 2026-10-18 - Codex: offline metadata field diagnostics
+
+AUDITOR: accepted next explanation-service repair is sanitized field-level failure
+capture before cleanup, not another consumed-attempt retry. Old v3receipt retains
+only aggregate mismatch; specific field/root cause stillUNVERIFIED. DIRECTOR:
+HIGH-risk narrow failure-diagnostic delta; leave preservation/network/gate logic
+unchanged, no runtime actions. ENGINEER added companion_metadata_diagnostics.py,
+30tests, optional hash-bound publicprofile loader/CLIarguments and bounded child
+backend comparison on owned replacement metadata failure. Only fixedfieldnames
+and booleans recorded; errors/invalid/unavailable diagnostic do not bypass
+existing refusal or rollback. Profile binds same plan/all4existingdigests.
+
+Initial large test-file patch was rejected before application due malformedhunk;
+corrected patch applied. Offline selection163passed2failed(exit1,1.37s), all30new
+tests pass. Two stopped-recipe reconciliation_fingerprint_mismatch failures
+reproduced on preserved pre-change source from recovery copy, bothfail0.19s
+(pytestexit1;outerreportingwrapperexit0). No baseline fixture/artifact changed;
+do not call suitegreen. One offline publicprofile generated4a04bd1a...; plan
+f5b04485... unchanged. Candidate source63fff7cb...,installer427fa603...,
+backendf599dff6...,tests011f38f0... . Checkpoint
+docs/checkpoints/companion_metadata_diagnostics_20261018.md records exactbounds.
+No Docker/native/service/credential/scheduler/trading/Git actions. High-risk
+implementation READY_FOR_INDEPENDENT_REVIEW; root cause/runtime INCOMPLETE.
+
+2026-10-18T20:28:31Z separate GATE Kant01a150b2-8681-7c80-9268-57b8387922bd
+metadata_diagnostics_review.json6b08dabe... ACCEPTED_WITH_RISK the exact offline
+source/test/profile delta, no blockers. Reviewer163passed2failed1.00s (same2recipe
+failures,all30newtests pass), independently regenerated profile byte-identically
+and checked all4expectedgatebindings. Parent baseline reproduction remains
+parentproof, not reviewer rerun. Timeout behaviour supported by static unchanged
+executor inspection; new failure tests Inline only, native behaviourUNVERIFIED.
+No actualDocker/credentials/install/startup/query/retry operation. Root cause and
+runtime installation remainINCOMPLETE; no operating authority follows.
+
+Saved proof receipt with exactcommands/results/baseline/changed-artifact hashes;
+direct diffs against preserved versions show27installer and18backendadded/removed
+lines. Historical receipt20d3e29f...,poststate524930d3...,reviewedplanf5b04485...
+stillmatch. HEAD620bc8db.../zero-byteOct4lockunchanged. Updated currentqueue and
+checkpoint to close offline diagnostic implementation/review, retaining2baseline
+recipe failures and runtimebounds. No source changed after independentfreeze;
+documentation diffcheck passed. Scope ends ACCEPTED_WITH_RISK by separate GATE,
+not same-thread self-approval. No fullsuite/operational/profitability claim.
+### 2026-10-18 22:50 UTC - Claude (cloud session): off-machine backup status recorded for Codex
+Operator asked to make backup status visible. Created (outside the repo) ~/Documents/cryptkeep_data_archive/git_bundle_20261018/ with a git bundle of the two unpushed commits 15bc4455a and 620bc8dbe (6,678 bytes, sha256 8afa3ba5..., git bundle verify OK, requires adde462ff which is on GitHub), README and SHA256SUMS. Read-only checks: GitHub ls-remote shows neither commit; local origin refs last fetched Oct 4. Added an "Off-machine backup status, 2026-10-18" block at the top of Current Work Selection in REMAINING_TASKS.md: operator uploading encrypted recovery archives plus the bundle to TeraBox and MEGA (CLAIMED by operator, not agent-verified). No push, commit, lock removal or other repo change; HEAD 620bc8dbe and the Oct 4 lock unchanged.
+### 2026-10-18 22:52 UTC - Claude (cloud session): backup options noted
+Operator asked to record that TeraBox and MEGA cloud storage are available for future off-machine backups. Added one bullet to the Off-machine backup status block in REMAINING_TASKS.md: agents propose what to back up (encrypted first; TeraBox is not end-to-end encrypted) and the operator uploads. Documentation-only; no commit or push.
+
+## 2026-10-18T23:08:09Z - Claude (Cowork): stopped-recipe failure diagnosis and proposed fix (not applied)
+Read-only diagnosis of the 2 reconciliation_fingerprint_mismatch failures. Cause: v1 capture4 snapshots
+have 11 keys; Snapshot (companion_installer.py) now adds configured_metadata, configured_networks,
+network_evidence. Proposed v1-only legacy-key comparison tested in a scratch copy outside the repo:
+24 passed (was 22/2), 7 tamper cases rejected. No repo source, test or artifact changed. Proposal:
+~/Documents/cryptkeep_data_archive/stopped_recipe_fix_proposal_20261018/ (README, diff, SHA256SUMS).
+Needs operator approval and independent review before applying.
+
+## 2026-10-18T23:10:24Z - Claude (Cowork): handoff document for Codex
+Operator asked to document Claude's work for Codex to take over. Added
+docs/checkpoints/claude_cowork_handoff_20261018.md (sha256 50c1d7ba...) and a 3-line pointer under
+"Current correction scope" in REMAINING_TASKS.md. No source, test, artifact, verdict or git state changed.
+
+## 2026-10-18T23:20:59Z - Claude (Cowork): VOLFC-1 pre-registration draft (Chronos-2 volatility comparison)
+Operator approved a pre-registered offline comparison of Chronos-2 vs trailing 60-day volatility for
+Module A sizing. Added docs/research/chronos_vol_forecast_20261018/PREREGISTRATION.md (sha256 501723e7203da0ff975c9b97ae1514f90a18d0f44418da7e0c9ab0d92eca59e1),
+DRAFT awaiting operator confirmation before freeze. Read only D_XS INVENTORY/markets.csv metadata for
+coverage (50 Sundays 2025-10-26..2026-10-04; 286 non-stable markets span the window). No candles parsed,
+no model downloaded, no forecast or market-data computation run. No source, test, verdict or git change.
+
+## 2026-10-18T23:21:44Z - Claude (Cowork): VOLFC-1 pre-registration FROZEN
+Operator confirmed ("carry on") after reviewing the draft. FROZEN as
+docs/research/chronos_vol_forecast_20261018/PREREGISTRATION.md sha256
+501723e7203da0ff975c9b97ae1514f90a18d0f44418da7e0c9ab0d92eca59e1. The file text still says DRAFT; this
+entry is the freeze record. Any change is a new version. No forecast run yet.
+
+## 2026-10-18T23:28:36Z - Claude (Cowork): VOLFC-1 setup before real-data run
+Cloud workspace only. chronos-forecasting 2.3.2, torch 2.14.1+cpu. amazon/chronos-2 pinned at revision
+29ec3766d36d...; model.safetensors sha256 ddcda3c7508b... FINDING: Hugging Face history shows the weights
+were first uploaded 2025-10-30 14:58Z and are unchanged in every later commit; pre-registration cites the
+2025-10-20 README release. Week 1 targets (2025-10-27..11-02) straddle the upload date, so a disclosed
+non-decisive sensitivity excluding week 1 is reported; the frozen rule is unchanged. D_XS tar verified
+(d2054c51..., all 494 files match SHA256SUMS). Synthetic smoke test only (110 fake markets): pipeline ran,
+week-1 determinism identical, Chronos recovered known sigma (median ratio 0.998). Run script sha256
+699698aae8a769e27c2026dddc81d4048ff36bea36da8f215b2614be9a715136, fixed before the real-data run.
+
+## 2026-10-18T23:33:06Z - Claude (Cowork): VOLFC-1 result FAIL
+Ran the frozen pre-registration (501723e7...) with script 699698aa... on D_XS, cloud workspace, CPU.
+Mean weekly Spearman rho: B1 trailing-60d 0.5123, B2 EWMA 0.5283, C Chronos-2 0.5217. Delta C-B1 +0.0095
+(< 0.03), bootstrap lower bound -0.0065 (not > 0), C-B2 -0.0066 (< 0). FAIL on all three criteria; Module A
+keeps trailing 60-day volatility; window not to be retested. Week-1 sensitivity (weights uploaded
+2025-10-30) Delta +0.0133, verdict unchanged. Self-recomputation matched exactly; independent review
+still outstanding. Outputs in docs/research/chronos_vol_forecast_20261018/ (RESULT.md, result.json,
+weekly.csv, forecasts.csv, run_volfc1.py, SHA256SUMS verified on disk). Trial-ledger and data_overlap
+entries listed in RESULT.md as to-do, not edited. No trading, credentials, Docker, commit or push.
+
+## 2026-10-18T23:54:11Z - Claude (Cowork): agent handoff v2
+Operator asked for a handoff and prompt so a new agent does not repeat this agent's mistakes. Added
+docs/checkpoints/agent_handoff_20261018_v2.md (sha256 65de511b...): mistakes table, corrected state
+(incl. the reviewer's findings: _r2 holds 6,414 not 6,421; VOLFC-1 bookkeeping outstanding; runner not
+self-verifying; "did not qualify" wording), ordered queue. Updated the pointer in REMAINING_TASKS.md.
+Earlier handoff left unchanged. No source, test, artifact or git change.
+
+## 2026-10-19T00:02:03Z - Codex: bounded offline correction batch
+
+Active role: ENGINEER. Objective: complete the authorized backup-count correction,
+VOLFC-1 bookkeeping and stopped-recipe v1 compatibility repair. Risk: HIGH for
+the installation-evidence delta; documentation changes remain narrowly scoped.
+
+SHOWN: the original workbook attributed all 6,421 files to `_r2`. Saved a corrected
+successor in `docs/review_artifacts/offline_batch_20261018/`, leaving the original
+untouched. Exactly `Done!B7:C7` changed: 6,414 main files plus seven supplemental
+assets. Artifact Tool's incidental font changes were caught and removed by a
+lossless OOXML transfer. Final render/readback passed; five sheets, five formulas
+and original styles are preserved. Off-machine upload is still CLAIMED.
+
+Appended `docs/research/trial_ledger_supplement_20261018/`: one VOLFC candidate,
+two baselines, FAIL, D_XS reuse, 214 markets / 4,999 observations / 50 weekly
+clusters. Local CSV checks match the saved study. Old ledger/study checksums
+still verify. No model inference, strategy rerun, threshold change or DSR update.
+
+Reproduced stopped-recipe baseline: 22 passed / 2 failed. Applied only the v1
+default-field projection and added 14 tamper/v2 regressions. The reason is the
+11-field legacy snapshot vs 14-field current serialization, not tuple/list JSON.
+Focused command (VERIFIED_ENV):
+`PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -m pytest -q -p no:cacheprovider tests/test_companion_stopped_recipe.py tests/test_collect_companion_recreation_metadata.py`
+Result: exit 0, 50 passed in 0.55s. No full-suite claim. Implementation disposition:
+READY_FOR_INDEPENDENT_REVIEW.
+
+Separate GATE reviewer Plato (`01a15172-d375-7d31-80b2-90043f636708`) independently
+verified all 50 tests, evidence bindings and reviewed hashes, then returned
+ACCEPTED_WITH_RISK, no blockers. Review and exact diff against preserved recovery
+files are saved beside the workbook. Expected outcome: historical v1 evidence
+reconciles without accepting tampering or changing v2/paired-proof semantics.
+
+Remaining risk: capture4 provenance is not authenticated; runtime equivalence and
+the original installation mismatch are unverified. Installation stays INCOMPLETE.
+No Docker, startup/query, credentials, servers, schedules, dependencies, accounts,
+Git lock/commit/push or trading changed. Three-item batch closed; current queue
+updated without reopening completed work. Full proof and hashes:
+`docs/checkpoints/offline_correction_batch_20261018.md`.
+Final disposition: ACCEPTED_WITH_RISK for the separately reviewed offline delta
+only; no runtime or financial acceptance.
+
+## 2026-10-19T00:02:22Z - Claude (Cowork): daily research scout set up
+Operator asked for a continual, exhaustive internet research agent. Created scheduled task "CryptKeep daily
+research scout" (daily 11:43 UTC, auto approval, push+email) and docs/research/research_scout/
+(README.md, TOPICS.md with 12 rotating topics, empty SEEN.csv, reports/). The task may only write a new
+report, append to SEEN.csv and append to this log; it proposes leads only (no tests, data runs, code,
+dependencies, secrets, commits). No other change.
+
+## 2026-10-19T00:10:57Z - Codex: existing research scout UI verification
+
+Active role AUDITOR. Objective: verify the existing scout's scheduler and folder
+access without a duplicate task or manual run. SHOWN in the actual desktop task
+UI: active daily 07:43 displayed local time, Require this computer on/connected,
+Auto approval, completion notifications on, push/email selected, no runs yet.
+No fixed-UTC/DST behavior or notification delivery is inferred. Local reports
+remain empty; SEEN.csv contains only its header.
+
+Confirmed Local folder None. Operator explicitly approved folder-only persistent
+read/write access to `/Users/baitus/Downloads/crypto-bot-pro`, with possible
+Anthropic processing. Attempted only that attachment. Native picker accepts the
+exact path via accessibility but does not accept navigation/confirmation through
+the available UI automation. No Save changes occurred and no grant is claimed.
+Picker left at the approved path for human completion; permission need not be
+requested again. Exact UI failure cause remains UNVERIFIED.
+
+README appended with shown configuration, approval scope and remaining step.
+No schedule, task instructions, model, notifications or permission mode changed;
+no Run now, Claude prompt submission, duplicate job, service/trading action or
+Git mutation. No tests run: this is native UI inspection and a documentation
+update, not a source behavior repair. Folder attachment INCOMPLETE pending native
+confirmation and saved-setting verification; first-run operation UNVERIFIED.
+
+## 2026-10-19T00:16:23Z - Codex: scout folder attachment saved and verified
+
+Active role AUDITOR recording the operator-authorized folder-only setting.
+Operator explicitly authorized resuming Claude UI control. Existing scout ID
+`trig_01Fk8zgs7vEVp9y54bQnziaj` initially still had Local folder None. Navigated
+the native picker through Downloads, searched folder names, selected the exact
+`file:///Users/baitus/Downloads/crypto-bot-pro` result and opened it. The folder
+permission prompt appeared. An Allow click was attempted; the UI reported user
+interaction, so the final permission/save click is not independently attributed
+to the agent. The updated-task toast and subsequent persisted setting are shown.
+
+Reopened the same task's Edit dialog: Local folder crypto-bot-pro, Save changes
+disabled (no pending edits), original instructions, Opus 5.5, daily 07:43 displayed
+local time, Auto mode and Require this computer on. Notifications rechecked:
+completion on, push/email checked. Closed verification dialog with Cancel, no
+additional edits. History still No runs yet. No Run now, prompt submission,
+model/schedule/instruction change, replacement job, trading/service or Git action.
+
+README appended to close the earlier folder-attachment blocker. Verification is
+actual saved UI configuration, not synthetic pytest or execution proof; no tests
+run. Folder configuration SHOWN under the operator's specific approval. First
+unattended execution, mounted-folder use and notification delivery UNVERIFIED.
+
+## 2026-10-19T00:22:24Z - Codex: information-source feasibility counts completed
+
+Active roles by stage: AUDITOR selected the missing coverage comparison;
+ENGINEER implemented a bounded offline counting utility (MEDIUM risk); separate
+GATE reviewed the frozen code/results. No strategy experiment or service action.
+
+Added scripts/research/count_information_evidence.py and 11 synthetic cases in
+tests/test_information_evidence_counts.py. The utility opens only the explicitly
+selected public SQLite store in mode=ro/query_only, reads five known table/column
+sets in one transaction, and freezes those columns for replay. No application
+store initialization, imports of collector code, network or private data access.
+Funding raw input stays unchanged at 15edda37... . Public source labels and a
+300-second diagnostic capture-time window are explicitly limited, not trading
+freshness approval or independently authenticated feeds.
+
+SHOWN at capture 2026-10-19T00:19:59Z (Oct18 20:19:59 New York): OKX BTC funding
+13,781 rows, basis 13,778, OI 10,449; Coinbase BTC quotes 14,057, Kraken quotes
+14,053, Coinbase book summaries 10,449. Excluded 12 sample rows across tables.
+All counted rows meet the numeric/timestamp checks. Largest funding/basis gap
+8.96 days; OI 30.74 days. Backward-only capture-time join: 10,431 / 14,057 (74.2%)
+Coinbase quote times have all three OKX contexts within 300 seconds. These are
+different venues and USD/USDT instruments, not synchronized executable prices.
+
+Historical Binance funding file: 7,770 BTC and 7,536 ETH unique settlement-time
+records, 15,306 total; zero duplicates/error records, no adjacent gap over nine
+hours. Missing mark prices: 4,536 BTC / 4,302 ETH. Pre-recorded-E7-window counts
+1,343 / 1,109 are not untouched confirmation data. No verified structured venue
+incident ledger found in the inspected store/named research files: event rate
+UNKNOWN, not zero. No power, return, new profitable hypothesis or broad asset
+rejection inferred. The 25-symbol mandate and prior registered FAILs stand.
+
+VERIFIED_ENV command:
+`env PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_information_evidence_counts.py`
+Exit 0, 11 passed in 0.18s. Source capture exit 0; frozen replay exit 0 and all
+counts/hashes/capture metadata match after normalizing group-list order. No
+byte-identical list-order claim or full-suite result. Implementation proof was
+READY_FOR_INDEPENDENT_REVIEW; source/tests/results stayed frozen during review.
+
+Separate reviewer Hegel (01a15187-d8bb-71c1-8bfb-095bd45e4bac) independently
+recomputed every numeric/date field without importing the counter or reopening
+the source database; independently 11 passed in 0.18s. ACCEPTED_WITH_RISK, no
+blockers for these exact frozen inputs. Limits: parser coercion for arbitrary
+future malformed inputs, unvalidated basis tenor/general mark-price validity,
+and no independent original capture/concurrent WAL-sidecar proof. Those limits
+are explicit; no speculative extra hardening cycle opened.
+
+Report/projection/counts/review in docs/research/information_feasibility_20261018/.
+Script41dd0a1c..., tests8d2dff36..., projection780bfc99..., counts6efa228f... .
+Current queue records the prior cross-agent comparison, saved scout folder and
+this completed count so they are not reopened from historical handoffs. New
+outputs postdate old backups; no commit/push or backup coverage is claimed.
+No schedules, services, credentials, accounts, strategies, risk limits, data
+downloads or trading changed. Companion restoration remains INCOMPLETE and
+operationally separate. Final disposition: ACCEPTED_WITH_RISK for this bounded
+offline data-availability audit, not financial or runtime validation.
+
+## 2026-10-19T00:33:57Z - Codex: user-directed lower-value and prospect screen
+
+Active roles by stage: AUDITOR checked available point-in-time-labeled CMC
+membership; DIRECTOR froze three hypotheses before computing returns; ENGINEER
+implemented the bounded offline screen. HIGH risk (financial research), not
+trading. User explicitly selected both sub-USD1 price and ranks51..100, rather
+than default BTC/ETH tests. Added new-top100 entrants with four observed outside
+weeks as an explicit prospect proxy. No assertion BTC/ETH have peaked.
+
+Added scripts/research/test_low_value_top100.py, 16 focused synthetic cases and
+docs/research/low_value_top100_20261018/PROTOCOL.md, results.json, by_asset.csv,
+README.md. Original data/studies preserved. Three basket-only INCONCLUSIVE rows
+added to research/symbol_coverage.csv and brief supplemented; individual-symbol
+statuses and 25-symbol scope unchanged. Chosen because the historical archive
+can test the user's cap/price selection without a present-day survivor whitelist
+or ambiguous ticker-based exchange joins. It cannot verify exchange execution.
+
+SHOWN: archive05223937... matches its existing checksum; all 414 weekly input
+members match the frozen manifest. 394 unique eligible IDs, 100 non-overlapping
+four-week cycle windows from Jan2019..Sep2026; each independent USD1,000 basket
+uses a seven-day entry delay. BTC/ETH never purchased. Fee0.50% and adverse0.25%
+each side are MODELLED scenarios. Mean net lower bounds: under1 +USD28.11,
+ranks51..100 +USD15.53; new entrants point mean +USD139.05, median -USD1.25,
+worst -USD528.27. Entrants invested in 79 cycles (29 positive / 50 negative),
+21 cash; funded median -USD94.48. One HEX cycle dominates; excluding it only as
+a post-result concentration diagnostic yields +USD46.97 across 99 cycles, not a
+new preferred rule. All paired block intervals versus broad altcoin control
+include zero. No executable edge, current buy recommendation or income claim.
+
+Missing exits retained as unknown (9 / 7 / 0 / 11 under1/rank/entrant/control);
+zero-recovery numbers are conservative bounds, not asserted losses/fills.
+Historic labels, migrations, liquidity and venue access remain unverified. A
+seven-day delay does not establish original first-availability. Previously used
+years are exploratory, not untouched holdout. Three hypotheses/one horizon,
+per-arm IDs/selections and union recorded; effective whole-project trial count
+unresolved. Originals, accounts, service/scheduler state and trading untouched.
+
+VERIFIED_ENV targeted command:
+`env PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_low_value_top100.py tests/test_symbol_coverage_registry.py`
+20 passed in1.19s, exit0. Initial synthetic run1 failed/15 passed from an empty
+segment summary; fixed before the historical run with no protocol/rule change.
+Historical command and full replay both exit0; replay equals every result and
+provenance field except created_utc. No full-suite claim. Script388dc98a...,
+protocolf2320500..., resultfc4acf23... . Expected outcome: direct economic
+comparison of the requested asset groups, preserving losers and evidence gaps.
+Separate GATE Noether reviewing frozen source/tests/results; no source changes
+during review. Implementation disposition: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-19T00:39:57Z - Codex: top100 instrument correction, v1 preserved
+
+GATE Noether independently reproduced all v1 cycles/intervals but returned
+INCOMPLETE: missing category tags admitted WBTC and WTHETA; RENBTC required
+classification. Parent ENGINEER's bounded identity scan additionally found BTCB
+and seven stablecoin IDs. Classification pages actually accessed are recorded
+in instrument_correction_v2.json. No prices from current pages entered returns.
+
+HIGH-risk correction to the original exclusion contract, not a new optimized
+rule. New run_low_value_top100_v2.py validates unchanged original engine/hash,
+protocol, archive/414 member hashes and correction-map/slug identities, removes
+exactly11 classified IDs from the view then reuses all v1 math/rules. No raw-rank
+backfill, ticker guesses or price adjustments; governance tokens not excluded
+by broad association. New four regression cases pin this. Original source,
+protocol/results/README/by-asset and v1 review preserved byte-for-byte.
+
+SHOWN v2:383 distinct eligible IDs; under1 259IDs/3893selections, lower ranks
+352IDs/4283selections, entrants107IDs/133selections; control8382selections. Mean
+net dollars per independent USD1000 cycle: >=28.43 / >=16.11 /129.35;
+control>=17.65. Entrants78funded cycles (28positive/50negative),22cash; median
+funded -95.46, worst -528.27. After removing only largest HEX cycle as a
+post-result attribution diagnostic, remaining99mean37.17; not a trading rule.
+Entrant95%mean interval -35.93..376.46; every paired-control interval crosses
+zero. Missing exits9/7/0/11 retained, bounds explicitly not asserted losses.
+Correcting eligibility decreases entrant mean, not presented as improved alpha.
+
+Added CORRECTION_V2.md, results_v2.json, by_asset_v2.csv (1101arm/ID rows),
+RESULTS_V2.md; updated current brief/registry links to corrected evidence while
+leaving v1 reports preserved. Initial historical screen did not prove BTC/ETH
+peaks, executable returns, or genuine prospect fundamentals. Wider taxonomy,
+corporate actions, original information availability, accessible venue prices
+and liquidity remain unverified. No data download, services/schedules, private
+credentials, account/risk changes, order submission, commit or push.
+
+VERIFIED_ENV focused command: v1+v2+registry selection24passed in1.30s, exit0.
+V2 historical run and separate replay exit0; every result/provenance field equals
+after removing only created_utc. No broad-suite claim. Primary archive remains
+05223937..., v1engine388dc98a..., correction-map3b3a4010... . All sources/results
+remain frozen during separate Noether v2 re-review. Outcome sought: corrected
+economic answer for user's altcoin groups, no paper/trading promotion.
+Implementation disposition: READY_FOR_INDEPENDENT_REVIEW.
+
+### Separate review completion - lower-value top100 v2
+
+GATE Noether (01a15192-29d6-7ac0-b554-5f7bba16ca79) returned ACCEPTED_WITH_RISK
+for the exact modeled v2 correction. Independently read original archive/map
+without importing either runner: matched all400cycles,16691member exposures,
+exactly60removed exposures and all15interval sets; independently24tests passed
+in1.23s. Source/protocol/results stayed frozen; v1 review stays INCOMPLETE.
+No material blocker remains within the bounded correction. Historical taxonomy,
+tradability, CMC revisions, actions, liquidity and actual execution remain
+unverified; no promotion or dependable-income claim. Parent added this review
+receipt and results-document link only, not further financial-code changes.
+
+## 2026-10-19T00:48:48Z - Claude (Cowork): cross-agent read-only review of C3 v1 stopped-recipe fix
+Active role: GATE (reviewer, not implementer). Objective: second independent review of Codex's
+ACCEPTED_WITH_RISK v1 compatibility delta (docs/checkpoints/offline_correction_batch_20261018.md s.3).
+No repo file changed except this append. No Docker, services, credentials, network, commit or push.
+SHOWN: collector 494803eb..., stopped-recipe tests f3f75030..., collector tests 0a7f8eef... (unchanged),
+capture4 13c51c9f..., source manifest bac2f463... match the recorded hashes; capture4 and manifest also
+match the _r2 recovery manifest. The three code/test files are untracked in git; applying
+recipe_compatibility.diff (89a7859c...) to the _r2 pre-change copies reproduces the current files exactly.
+SHOWN (my run, cloud workspace copies, Python 3.13.16, pytest 9.1.1; not the repo .venv, ASSUMED_ENV for
+parity): pre-change stopped-recipe file 22 passed / 2 failed; pre-change both files 34 passed / 2 failed;
+current both files 50 passed. Five mutants of the fix (drop default guard; filter saved payload; project
+v2 too; drop 'attempt' key; v2 digest for v1) each failed 1-3 tests.
+Findings (non-blocking): (1) the default-field guard cannot fire with current reconcile(), which never
+sets the three new fields (verified on capture4); it guards future changes only. (2) the valid-v2 test
+builds its expected value with the function under test; it checks wiring, not independent correctness.
+(3) independent_recipe_review.md line 49 says tests used synthetic fixtures only; the stopped-recipe
+tests load the real capture4 observation and source manifest. (4) fix exists only in the working tree
+and recovery copy; commit is an operator decision.
+Disposition: concur ACCEPTED_WITH_RISK for the offline delta only. Runtime, capture provenance and
+installation remain UNVERIFIED/INCOMPLETE as already recorded.
+
+## 2026-10-19T00:53:56Z - Claude (Cowork): C4 fail-closed pinned-input guard for future model studies
+Active role: ENGINEER. Objective: handoff v2 item C4 / rule A6 (runners must verify every pinned input
+before computing and fail closed). Risk: MEDIUM (research tooling; no trading, runtime or data path).
+Operator said "move to the next task". VOLFC-1 not rerun; its frozen run_volfc1.py untouched
+(study SHA256SUMS 5/5 OK after the change).
+Found: repo runners use per-script digest()+verify(plan) with root/inputs/sources; none pins the
+preregistration, model weights, runtime versions, checksum-listed directories or the plan file itself,
+and they follow symlinks.
+Added (new, untracked, stdlib only, no new dependency):
+scripts/research/pinned_run_inputs.py sha256 09830b0e66f57d89546820ceb5c8e6da49de25a125420b80fba03e713a984704
+tests/test_pinned_run_inputs.py       sha256 cb3e7e15f223f4f2810f4511697990377100d3c81b7c8e59a23de11436833630
+run_pinned(plan, out, compute, plan_sha256=...) checks the plan hash, then every pin (prereg, inputs,
+SHA256SUMS directories with no unlisted/missing/symlinked members, sources, model files + 40-hex revision
+label, python/package versions), reports all failures, writes and fsyncs pin_receipt.json before compute,
+re-verifies after compute, and writes result.json (exclusive create, no NaN) only if nothing changed.
+Verification (cloud workspace copies, ASSUMED_ENV; repo .venv not usable from this session):
+PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider tests/test_pinned_run_inputs.py
+Python 3.12.3: 36 passed; Python 3.13.16: 36 passed. 15 mutants of the guard (e.g. no post-run recheck,
+receipt after compute, no O_NOFOLLOW, runtime/model/prereg/plan-hash checks removed) each failed >=1 test.
+Not run in the repo .venv (Python 3.12 on macOS); no full suite.
+Limits: a change reverted before the post-run check is not detected; runtime pins compare version strings
+only; model revision is a label, identity is by file hashes; compute must return results, not write them.
+Not adopted by any existing runner. Acceptance: READY_FOR_INDEPENDENT_REVIEW. No commit or push.
+
+## 2026-10-19T01:01:50Z - Claude (Cowork): C4 independent review result - BLOCKED
+Active role: GATE record (separate reviewer subagent, no implementer context; operator-requested).
+Reviewed exact files: pinned_run_inputs.py 09830b0e..., test_pinned_run_inputs.py cb3e7e15...
+(unchanged before/after review; repo copies unchanged). Reviewer: 36 existing tests pass on 3.12.3 and
+3.13; own probes 34 passed / 14 failed. Verdict: BLOCKED.
+Blockers, reproduced by the implementer afterwards (SHOWN): F1 compute can mutate the plan dict it
+receives (e.g. repoint root to a clean copy) and the guard then writes result.json while a pinned input
+is tampered; F2 a result.json written by compute itself survives a refusal; F3 a symlink in the plan
+root is followed and the run accepted. Reviewer-SHOWN, not re-run by implementer: F4 unlisted files in an
+unreadable subdirectory of a checksum-listed dir are accepted (os.walk without onerror).
+Non-blocking (reviewer): FIFO pins hang (F5); some failures raise raw exceptions or mask later failures,
+so "all failures reported" is false as worded (F6); plan file not re-hashed after compute (F7);
+duplicate JSON keys accepted (F8); model null / runtime {} silently disable those pins (F9); out_dir
+inside a pinned set wastes the run (F10); empty extra subdirectory accepted (F11); no fsync of out_dir (F13).
+Disposition: BLOCKED. Do not adopt scripts/research/pinned_run_inputs.py in any runner until fixed and
+re-reviewed. No fix applied yet; files left as reviewed. No commit or push.
+
+## 2026-10-19T01:08:31Z - Claude (Cowork): C4 fix round for review findings F1-F14
+Active role: ENGINEER. Objective: fix the BLOCKED C4 guard (entry 01:01:50Z). Operator: "carry on to the
+next task". Risk: MEDIUM. Reviewed v1 (09830b0e... / cb3e7e15...) replaced in the working tree by:
+scripts/research/pinned_run_inputs.py sha256 89127f47f13402a403e104032cc1c59e440b563a9d366928da596e78f6167145
+tests/test_pinned_run_inputs.py       sha256 5e79e78f2aae7f990c2e48aaeab17ed0ec2a259fdd23ff016c870bb9f34816e2
+Changes: compute gets a deep copy and the post-run check uses the guard's own plan (F1); after compute
+the output dir must hold only pin_receipt.json, else refusal (F2); refusals after the output dir exists
+write refused.json; new check_output() accepts only receipt+result linked by hash (F2); root must be
+canonical, no symlink or '..' (F3); os.walk onerror reports unreadable subdirectories (F4); lstat
+regular-file check before open, O_NONBLOCK, inode match after open, no fd leak (F5, F6); structural and
+file failures reported together, failed checksum list reported as set_members_not_checked (F6); plan
+file re-hashed after compute (F7); duplicate JSON keys refused (F8); "model": null and empty runtime
+refused (F9); out_dir inside a pinned set refused before compute (F10); unlisted directories refused
+(F11); case-duplicate sums entries refused (F14); directory fsync after each write (F13). Docstring now
+states the trust boundary (compute is trusted, same-process code; not a sandbox) and narrowed claims.
+Verification (cloud workspace copies, ASSUMED_ENV; repo .venv not usable from this session):
+PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider tests/test_pinned_run_inputs.py
+3.12.3: 59 passed; 3.13.16: 59 passed. The same tests against v1: 21 new regressions fail (FIFO tests
+deselected because v1 hangs). 16 mutants of the new protections each fail >=1 test. Reviewer's 48 probes
+against the fix: 41 pass; 7 fail without any accepted tamper: 4 expect other refusal names, 2 recorded
+v1 behaviour now fixed, and 2 are open design choices for re-review: (a) members of a set whose
+checksum list fails are not evaluated (reported set_members_not_checked); (b) a result.json written by
+compute is not deleted; the run is refused, refused.json written, check_output rejects the directory.
+Unchanged limits: reverted mid-run changes undetected; version-string runtime pins; revision label only.
+F15 (revision is a label) disclosed, not changed. Not adopted by any runner. VOLFC-1 SHA256SUMS 5/5 OK.
+Acceptance: READY_FOR_INDEPENDENT_REVIEW (fresh reviewer). No commit or push.
+
+## 2026-10-19T01:24:29Z - Claude (Cowork): C4 v2 second independent review - BLOCKED
+Active role: GATE record (new reviewer subagent; not the first reviewer; no implementer reasoning).
+Reviewed exact v2 files 89127f47... / 5e79e78f... (unchanged before/after; repo copies unchanged).
+Reviewer results: shipped tests 59 passed on 3.12.3 and 3.13.16; first reviewer's 48 probes on v2:
+41 passed / 7 failed, none a defect (3 reason-name changes, 2 obsolete v1 observations, 2 design
+choices); reviewer's own 74 probes: 68 passed / 6 failed. F1, F3, F4, F5, F7, F8, F9, F11 fixed;
+F2 fixed by design; F6, F10, F13, F14 partial. No case found where the guard computes or writes a
+result on a tampered or invalid pin within the stated trust boundary.
+Blocker R1, reproduced by the implementer (SHOWN): check_output() accepts a hand-made directory whose
+receipt is only {"schema": "pinned-run-receipt-v1"} and whose result links only receipt_sha256; the
+plan-hash comparison passes as None == None. Docstring claims ("confirms a completed guarded run",
+"linked to its plan hash") are therefore false as written.
+Non-blocking, R2 also reproduced (SHOWN): if compute deletes pin_receipt.json, run_pinned still writes
+result.json and returns success; check_output rejects that directory. Reviewer-SHOWN, not re-run:
+R3 RecursionError on a deeply nested result skips refused.json; R4 relative plan_path/out_dir
+re-resolved after compute calls chdir; R5 compute-forged linked result plus a failed refused.json
+write passes check_output (outside trust boundary); R6 compute-created refused.json content kept;
+R7 out_dir via bind mount into a pinned set not caught before compute; R8 parent-dir symlink race;
+R9 remaining raw exceptions (all fail closed); R10 out_dir parent not fsynced; R11 NFC/NFD names both
+accepted, casefold refuses genuinely distinct Linux names; R13 one result.json only.
+R12: the implementer's 01:08:31Z entry miscounted the 7 probe failures as 4/2/2; correct split 3/2/2.
+Design choices: (a) set_members_not_checked accepted; (b) leaving compute's result.json accepted with
+risk (anyone checking result.json existence instead of check_output is fooled).
+Disposition: BLOCKED. Do not adopt scripts/research/pinned_run_inputs.py. No fix applied; no commit/push.
+
+## 2026-10-19T01:37:21Z - Claude (Cowork): C4 v3 fix round for second-review findings R1-R13
+Active role: ENGINEER. Objective: clear the BLOCKED v2 (entry 01:24:29Z). Operator: "get it all done".
+Final bounded round: v3, then one fresh independent review; if blocked again, shelve C4. Risk: MEDIUM.
+v2 (89127f47... / 5e79e78f...) replaced in the working tree by:
+scripts/research/pinned_run_inputs.py sha256 6baef879499d10480a3685ccba4c0f5820c2a2fde2ee894221b600d1122ebae8
+tests/test_pinned_run_inputs.py       sha256 b49b1a35d99d7fdb5501e7141cae1770006182806798ac5e7750ae447d2ae674
+Changes: check_output validates receipt structure (exact keys, 64-hex plan and prereg hashes, prereg
+hash among files, 40-hex or null revision, ISO timestamp, text runtime) and an exact link with matching
+plan hash; optional expected_plan_sha256; docstring now says it cannot prove files were not hand-made (R1).
+After compute: output-dir identity and receipt bytes re-checked (R2); any post-run or encoding error is
+a reported refusal with refused.json (R3); plan_path/out_dir made absolute and all output written via an
+open directory fd (R4); a compute-written result.json/refused.json is renamed to <name>.unguarded, never
+deleted, before the guard's refused.json (R5, R6); out_dir ancestors compared by device/inode with pinned
+set dirs (R7); every pinned path opened one directory at a time with O_NOFOLLOW via dir_fd, identity
+checked after each open; set scan re-implemented the same way (R8); NUL/surrogate paths, deep JSON,
+missing output dirs reported as PinError (R9); newly created parent dirs fsynced (R10); sums names must
+be distinct after NFC + casefold, reason colliding_sums_entry (R11); single-result contract documented
+(R13). R12 (my 4/2/2 miscount, correct 3/2/2) acknowledged.
+Verification (cloud workspace copies, ASSUMED_ENV; repo .venv not usable from this session):
+PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider tests/test_pinned_run_inputs.py
+3.12.3: 94 passed; 3.13.16: 94 passed. v3 tests against v2: 29 fail (27 R regressions + 1 renamed
+reason + 1 test seam). 18 mutants of the new protections: all caught (3 survived first; 3 tests added).
+First reviewer's 48 probes on v3: 42 pass / 6 fail (same reason-name, obsolete-observation and design-(a)
+classes as before). Second reviewer's 74 probes on v3: 50 pass / 24 fail; all want_* pass; failures are
+22 obs_* that recorded v2 behaviour now changed or whose hooks no longer apply (cases covered by new v3
+tests), and 2 ok_* lstat/open swap probes whose path-based os.open hook cannot fire on dir_fd opens
+(equivalent v3 swap tests added and pass). Not run on macOS or in the repo .venv; no full suite.
+Not adopted by any runner. VOLFC-1 SHA256SUMS 5/5 OK. Acceptance: READY_FOR_INDEPENDENT_REVIEW.
+No commit or push.
+
+## 2026-10-19T03:57:55Z - Claude (Cowork): C4 v3 final independent review - ACCEPTED_WITH_RISK
+Active role: GATE record (third, fresh reviewer subagent; not either earlier reviewer; no implementer
+reasoning). Reviewed exact v3 files 6baef879... / b49b1a35... (unchanged at start, after a rate-limit
+interruption and resume, and at end; repo copies unchanged). Reviewer results: shipped tests 94 passed on
+3.12.3 and 3.13.16; v2 tests on v3 57/2 (renamed reason, obsolete scandir hook); first reviewer's probes
+42/6 and second reviewer's 50/24 on v3, every failure classified as reason rename, fixed v2 observation,
+accepted design choice or a hook that cannot fire on v3 with the scenario covered by another test; the
+reviewer's own 75 probes pass on both versions (real bind mount, capability-dropped permissions, fd-leak
+counts, real swaps). Verdict: ACCEPTED_WITH_RISK, no blockers: no tampered or invalid pin led to compute
+or a guard-written result.json within the stated trust boundary; every real run passed check_output.
+Corrections to the implementer's v3 claims (reviewer SHOWN, not re-run by the implementer):
+claim 3 "any post-run error is a recorded refusal" holds for Exception only; KeyboardInterrupt during
+post-run checks (G3) and a failed final result.json write or fsync (G2) are not recorded. Claim 5
+"result.json is still gone" fails if compute makes out_dir unwritable after forging a linked result.json
+(G1; deliberate forging only, already outside the trust boundary). R9 "reported, not raised" does not cover
+odd arguments (NUL in out_dir/plan_path, check_output(None)), 1200-deep directory trees, or a FIFO plan_path,
+which hangs (G4).
+Other non-blocking findings: G5 search-only (x without r) intermediate directories now refused (v2
+accepted); G6 check_output accepts receipt forms run_pinned never writes (no-secret-key limit); G7 deep
+result.json written when the runner raised the recursion limit (3.12); G8 file_sha256 with a PurePosixPath
+"../x" escapes root (strings are checked; plans only yield strings; present since v1); G9 test gaps: root
+identity, per-directory open identity, _read_at identity, O_EXCL/O_NOFOLLOW on writes and the receipt
+file-hash format check are not pinned by shipped tests (reviewer probes show the first two work).
+Residual risks for any adopter: always pass expected_plan_sha256 to check_output; source pins hash files on
+disk, not the code actually running; reverted mid-run changes undetected; runtime pins are version strings;
+model revision is a label. Not tested anywhere: macOS/APFS, case-insensitive FS, NFS/overlay, real crashes.
+Disposition: ACCEPTED_WITH_RISK for the offline guard module and its tests only. Not adopted by any runner;
+no runtime, financial or trading acceptance. G1-G9 left as recorded limits, no further fix round opened.
+No commit or push.
+
+## 2026-10-19T04:17:22Z - Claude (Cowork): ENTR-CB-1 pre-registration DRAFT and checkpoint/backup plan (nothing executed)
+Active role: DIRECTOR (drafting only). Operator: "take care of it all". Standing limits applied: no
+market-data run, download, commit, push, lock removal or upload without explicit approval.
+(1) Read-only review of Codex's low_value_top100 v2 results (results_v2.json d188411f...): Codex's
+chat numbers match RESULTS_V2.md. Post-hoc concentration diagnostics (not rules): HEX cycle 71.5% of
+entrant total; other 97 cycles after the top 3 average -USD22.64; 2023+ without ZEC/SEI/FARTCOIN
+-USD61.73; 42 of 78 funded cycles held one coin; entrants beat control in 25 of 78 paired cycles.
+Coinbase's HEX page states "HEX is not tradable on Coinbase" (fetched 2026-10-19; 2020 status
+UNVERIFIED).
+(2) Added docs/research/coinbase_tradable_entrants_20261019/: PREREGISTRATION_DRAFT.md (7f07a0f1...;
+DRAFT, not frozen), entrant_ids_v2.csv (107 IDs/133 selections, aa9cd966...) and control_ids_v2.csv
+(383 IDs/8,382 selections, e2ad776f...) derived read-only from results_v2.json, SHA256SUMS excluding
+itself. Single change vs frozen v2: per-cycle filter to assets with a Coinbase USD/USDC/USDT spot
+product whose first daily candle predates entry, applied after selection. Pre-registered CONTINUE /
+STOP / INCONCLUSIVE rule. Local data cannot answer it (Coinbase hourly ~11 months current products;
+leader daily file 90/403 markets from 2026-04). Needs a 20-request probe, then listing-date downloads
+from the public Coinbase Exchange API, both awaiting approval; delisted-product availability UNVERIFIED.
+(3) Re-ran the existing reviewed read-only checkpoint classifier (589318e6...) into
+~/Documents/cryptkeep_data_archive/checkpoint_plan_draft_20261019/ (README, CSV, NUL staging list of
+4,186 paths, SHA256SUMS): 4,150 commit / 36 review / 9 keep-out; 53 modified + 4,142 untracked, no
+deletions. Secret hits classified without printing values: 33 false positives or coin IDs, 1 placeholder,
+2 test lines need a human look. Sensitive files confirmed git-ignored by name only, never read.
+71 repo files (37 MB) plus 28 .cbp_state files changed after the 2026-10-18 19:30:41Z supplement copy
+and are in no backup. Lock (0 bytes, 2026-10-04) still present; Mac git-process state UNVERIFIED.
+No code, study, verdict, artifact or git state changed. Acceptance: draft and plan READY for operator
+decision; nothing to accept until approved and executed.
+
+## 2026-10-19T04:39:01Z - Claude (Cowork): correction - ENTR-CB-1 draft placed in repo was a stale copy
+Found while editing: the PREREGISTRATION_DRAFT.md written to the repo at 04:0x UTC (sha256 7f07a0f1...,
+cited in the 04:17:22Z entry) lacked two corrections made before placement (filter applied after
+selection, not to snapshots; "cohort math reused" wording). Cause: the file-transfer step delivered the
+file as first written, not as edited; the earlier check verified the hash existed, not the content.
+Replaced via a content-hash-verified transfer with sha256 6b5cb12c57aa1e0f6e1461b986fd006a3851a0ddb33d935eb7220b42d7de33b5,
+which also adds a SHOWN feasibility note: the v2 engine's choose()/cycle()/describe()/interval() let a
+new runner apply the per-cycle filter with no engine change (engine sha256 388dc98a...). SHA256SUMS in
+docs/research/coinbase_tradable_entrants_20261019/ regenerated (excludes itself; all 3 files OK).
+Still DRAFT, not frozen. Checkpoint plan README verified identical on device (c7896218...). Other
+transfers this session (C4 v1/v2/v3 files) were verified by hash on device at the time. No other change.

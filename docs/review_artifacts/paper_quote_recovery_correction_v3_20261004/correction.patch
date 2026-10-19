@@ -1,0 +1,571 @@
+diff --git a/services/risk/market_quality_guard.py b/services/risk/market_quality_guard.py
+index 0d7e77e56..e451131d2 100644
+--- a/services/risk/market_quality_guard.py
++++ b/services/risk/market_quality_guard.py
+@@ -37,6 +37,15 @@ def _cfg() -> Dict[str, Any]:
+ 
+ 
+ def check(venue: str, symbol: str) -> Dict[str, Any]:
++    return _check(venue, symbol, lambda: get_best_bid_ask_last(venue, normalize_symbol(symbol)))
++
++
++def check_quote(venue: str, symbol: str, quote: Optional[dict]) -> Dict[str, Any]:
++    """Validate the supplied quote without rereading the market snapshot."""
++    return _check(venue, symbol, lambda: quote)
++
++
++def _check(venue: str, symbol: str, quote_provider) -> Dict[str, Any]:
+     cfg_base = _cfg()
+     sym = normalize_symbol(symbol)
+     cfg = dict(cfg_base)
+@@ -60,7 +69,7 @@ def check(venue: str, symbol: str) -> Dict[str, Any]:
+             return {"ok": False, "reason": f"invalid_threshold:{name}"}
+         cfg[name] = value
+ 
+-    q = get_best_bid_ask_last(venue, sym)
++    q = quote_provider()
+     if not q:
+         if cfg["block_when_unknown"]:
+             return {"ok": False, "reason": "no_quote_data"}
+diff --git a/services/execution/paper_engine.py b/services/execution/paper_engine.py
+index 3361cab8c..728f97a07 100644
+--- a/services/execution/paper_engine.py
++++ b/services/execution/paper_engine.py
+@@ -14,6 +14,7 @@ from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
+ from services.market_data.symbol_router import normalize_symbol
+ from services.risk.paper_equity import quote_currency
+ from services.risk.market_quality_guard import check as check_market_quality
++from services.risk.market_quality_guard import check_quote as check_quote_quality
+ from services.risk.staleness_guard import is_snapshot_fresh
+ from services.security.exchange_factory import make_exchange
+ from storage.execution_guard_store_sqlite import ExecutionGuardStoreSQLite
+@@ -67,6 +68,8 @@ def _evidence_execution_extra(meta: dict | None = None) -> dict:
+ 
+ 
+ _EVIDENCE_BACKFILL_SINCE_KEY = "fill_evidence_backfill_since"
++_EVIDENCE_BACKFILL_CURSOR_KEY = "fill_evidence_backfill_cursor"
++_EVIDENCE_BACKFILL_CEILING_KEY = "fill_evidence_backfill_ceiling"
+ 
+ 
+ def _parse_ts(value) -> datetime | None:
+@@ -536,6 +539,15 @@ class PaperEngine:
+         return result
+ 
+     def backfill_fill_evidence(self, *, limit: int = 500) -> dict:
++        from services.strategies.evidence_write_lock import serialized_evidence_write
++        try:
++            with serialized_evidence_write():
++                return self._backfill_fill_evidence_serialized(limit=limit)
++        except Exception as exc:
++            return {"ok": False, "checked": 0, "backfilled": 0, "since": None,
++                    "reason": type(exc).__name__}
++
++    def _backfill_fill_evidence_serialized(self, *, limit: int = 500) -> dict:
+         """Write the fill evidence record for ledger fills that have none.
+ 
+         The ledger fill is committed first and the evidence record is written
+@@ -564,43 +576,60 @@ class PaperEngine:
+             from services.strategies.evidence_logger import EvidenceLogger
+ 
+             known_by_strategy: dict[str, set[str]] = {}
+-            for fill in reversed(self.db.list_fills(limit=int(limit))):
+-                fill_dt = _parse_ts(fill.get("ts"))
+-                if fill_dt is None or fill_dt < since_dt:
+-                    continue
+-                order = self.db.get_order_by_order_id(str(fill["order_id"])) or {}
+-                meta = order.get("meta") if isinstance(order.get("meta"), dict) else None
+-                strategy_id = _evidence_strategy_id(
+-                    cfg=self.cfg,
+-                    strategy_id=str(order.get("strategy_id") or self.cfg.get("strategy_id") or ""),
+-                    meta=meta,
+-                )
+-                if not strategy_id:
+-                    continue
+-                logger = EvidenceLogger(strategy_id)
+-                if strategy_id not in known_by_strategy:
+-                    known_by_strategy[strategy_id] = _evidence_fill_order_ids(logger.log_dir)
+-                out["checked"] += 1
+-                order_id = str(fill["order_id"])
+-                if order_id in known_by_strategy[strategy_id]:
+-                    continue
+-                extra = _evidence_execution_extra(meta)
+-                extra["evidence_backfilled"] = True
+-                logger.log_fill(
+-                    timestamp=str(fill["ts"]),
+-                    fill_price=float(fill["price"]),
+-                    slippage_points=0.0,
+-                    slippage_pct=0.0,
+-                    fees_paid=round(float(fill["fee"]), 6),
+-                    side=str(order.get("side", "buy")),
+-                    size=float(fill["qty"]),
+-                    pnl_usd=None,
+-                    order_id=order_id,
+-                    extra=extra,
+-                )
+-                known_by_strategy[strategy_id].add(order_id)
+-                out["backfilled"] += 1
+-                _LOG.warning("fill evidence backfilled strategy_id=%s order_id=%s", strategy_id, order_id)
++            cursor = int(self.db.get_state(_EVIDENCE_BACKFILL_CURSOR_KEY) or "0")
++            ceiling = int(self.db.get_state(_EVIDENCE_BACKFILL_CEILING_KEY) or "0")
++            if ceiling == 0:
++                ceiling = self.db.latest_fill_rowid()
++                self.db.set_state(_EVIDENCE_BACKFILL_CEILING_KEY, str(ceiling))
++            page = self.db.list_fills_page(after_rowid=cursor, through_rowid=ceiling, limit=int(limit))
++            if not page:
++                self.db.set_state(_EVIDENCE_BACKFILL_CURSOR_KEY, "0")
++                self.db.set_state(_EVIDENCE_BACKFILL_CEILING_KEY, "0")
++            for fill in page:
++                try:
++                    fill_dt = _parse_ts(fill.get("ts"))
++                    if fill_dt is None or fill_dt < since_dt:
++                        continue
++                    order = self.db.get_order_by_order_id(str(fill["order_id"])) or {}
++                    meta = order.get("meta") if isinstance(order.get("meta"), dict) else None
++                    strategy_id = _evidence_strategy_id(
++                        cfg=self.cfg,
++                        strategy_id=str(order.get("strategy_id") or self.cfg.get("strategy_id") or ""),
++                        meta=meta,
++                    )
++                    if not strategy_id:
++                        continue
++                    logger = EvidenceLogger(strategy_id)
++                    if strategy_id not in known_by_strategy:
++                        known_by_strategy[strategy_id] = _evidence_fill_order_ids(logger.log_dir)
++                    out["checked"] += 1
++                    order_id = str(fill["order_id"])
++                    if order_id in known_by_strategy[strategy_id]:
++                        continue
++                    extra = _evidence_execution_extra(meta)
++                    extra["evidence_backfilled"] = True
++                    logger.log_fill(
++                        timestamp=str(fill["ts"]), fill_price=float(fill["price"]),
++                        slippage_points=0.0, slippage_pct=0.0,
++                        fees_paid=round(float(fill["fee"]), 6),
++                        side=str(order.get("side", "buy")), size=float(fill["qty"]),
++                        pnl_usd=None, order_id=order_id, extra=extra,
++                    )
++                    if order_id not in _evidence_fill_order_ids(logger.log_dir):
++                        raise OSError("evidence_write_not_confirmed")
++                    known_by_strategy[strategy_id].add(order_id)
++                    out["backfilled"] += 1
++                except Exception as exc:
++                    out["ok"] = False
++                    out.setdefault("failed_order_ids", []).append(str(fill["order_id"]))
++                    out["reason"] = type(exc).__name__
++                finally:
++                    # Ledger rows remain the retry obligation. Fixed cycle bounds
++                    # ensure failures are revisited even as new fills arrive.
++                    self.db.set_state(_EVIDENCE_BACKFILL_CURSOR_KEY, str(fill["rowid"]))
++            if page and int(page[-1]["rowid"]) >= ceiling:
++                self.db.set_state(_EVIDENCE_BACKFILL_CURSOR_KEY, "0")
++                self.db.set_state(_EVIDENCE_BACKFILL_CEILING_KEY, "0")
+         except Exception as exc:
+             _LOG.warning("fill evidence backfill failed: %s", type(exc).__name__)
+             return {**out, "ok": False, "reason": type(exc).__name__}
+@@ -634,7 +663,7 @@ class PaperEngine:
+             # spread). Otherwise the order waits; nothing is rejected.
+             if q.get("source") != "venue_fetch":
+                 try:
+-                    mq = check_market_quality(str(o["venue"]).lower().strip(), str(o["symbol"]).strip())
++                    mq = check_quote_quality(str(o["venue"]).lower().strip(), str(o["symbol"]).strip(), q)
+                 except Exception as exc:
+                     mq = {"ok": False, "reason": f"guard_error:{type(exc).__name__}"}
+                 if not bool(mq.get("ok")):
+diff --git a/services/execution/paper_runner.py b/services/execution/paper_runner.py
+index f99b7a62d..27afccdfc 100644
+--- a/services/execution/paper_runner.py
++++ b/services/execution/paper_runner.py
+@@ -281,6 +281,7 @@ def run_forever() -> None:
+                 break
+             queue_cycle = _consume_queued_intents_once(qdb=qdb, eng=eng, limit=max_intents_per_loop)
+             rec = eng.evaluate_open_orders()
++            backfill = eng.backfill_fill_evidence()
+             recon = reconcile_once(qdb=qdb, pdb=eng.db, jdb=jdb, max_intents=max_intents_per_loop)
+             mtm_by_symbol = {}
+             for symbol in symbols:
+@@ -297,6 +298,7 @@ def run_forever() -> None:
+                 "venue": venue,
+                 "symbols": symbols,
+                 "queue": queue_cycle,
++                "fill_evidence_recovery": backfill,
+                 "reconcile": {"open_seen": rec.get("open_orders_seen"), "filled": rec.get("filled"), "rejected": rec.get("rejected")},
+                 "intent_reconcile": recon,
+                 "mtm": mtm_by_symbol,
+diff --git a/services/strategies/evidence_logger.py b/services/strategies/evidence_logger.py
+index 2b520b492..50ec79698 100644
+--- a/services/strategies/evidence_logger.py
++++ b/services/strategies/evidence_logger.py
+@@ -308,6 +308,16 @@ class EvidenceLogger:
+         return self.log_dir
+ 
+     def _append(self, record_type: str, record: dict) -> None:
++        from services.strategies.evidence_write_lock import serialized_evidence_write
++        try:
++            with serialized_evidence_write():
++                self._append_serialized(record_type, record)
++        except Exception as exc:
++            path = self.log_dir / f"{record_type}_{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.jsonl"
++            _record_evidence_write_failure(self.strategy_id, record_type, path, exc)
++            _LOG.error("evidence_logger lock failed type=%s err=%s", record_type, exc)
++
++    def _append_serialized(self, record_type: str, record: dict) -> None:
+         date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+         path = self.log_dir / f"{record_type}_{date}.jsonl"
+         record.setdefault("_logged_at", _now_iso())
+diff --git a/storage/paper_trading_sqlite.py b/storage/paper_trading_sqlite.py
+index 4a10e75a1..8d394650c 100644
+--- a/storage/paper_trading_sqlite.py
++++ b/storage/paper_trading_sqlite.py
+@@ -240,6 +240,28 @@ class PaperTradingSQLite:
+         finally:
+             con.close()
+ 
++    def latest_fill_rowid(self) -> int:
++        con = _connect()
++        try:
++            return int(con.execute("SELECT COALESCE(MAX(rowid), 0) FROM paper_fills").fetchone()[0])
++        finally:
++            con.close()
++
++    def list_fills_page(self, *, after_rowid: int, limit: int = 500, through_rowid: int | None = None) -> List[Dict[str, Any]]:
++        if int(after_rowid) < 0 or int(limit) <= 0:
++            raise ValueError("invalid_fill_page")
++        con = _connect()
++        try:
++            rows = con.execute(
++                "SELECT rowid, fill_id, order_id, ts, price, qty, fee, fee_currency "
++                "FROM paper_fills WHERE rowid > ? AND (? IS NULL OR rowid <= ?) ORDER BY rowid ASC LIMIT ?",
++                (int(after_rowid), through_rowid, through_rowid, int(limit)),
++            ).fetchall()
++            keys = ("rowid", "fill_id", "order_id", "ts", "price", "qty", "fee", "fee_currency")
++            return [dict(zip(keys, row)) for row in rows]
++        finally:
++            con.close()
++
+     def upsert_position(self, symbol: str, qty: float, avg_price: float, realized_pnl: float) -> None:
+         con = _connect()
+         try:
+diff --git a/tests/test_paper_fill_evidence_backfill.py b/tests/test_paper_fill_evidence_backfill.py
+index 07f505a5d..c1b79c7fb 100644
+--- a/tests/test_paper_fill_evidence_backfill.py
++++ b/tests/test_paper_fill_evidence_backfill.py
+@@ -125,7 +125,7 @@ def test_fills_older_than_the_first_run_are_never_rewritten(rig, monkeypatch):
+ def test_a_failing_sweep_does_not_raise(rig, monkeypatch):
+     pe, _ = rig
+     eng = pe.PaperEngine()
+-    monkeypatch.setattr(eng.db, "list_fills", lambda limit=500: (_ for _ in ()).throw(RuntimeError("db gone")))
++    monkeypatch.setattr(eng.db, "list_fills_page", lambda **kwargs: (_ for _ in ()).throw(RuntimeError("db gone")))
+     assert eng.backfill_fill_evidence() == {"ok": False, "checked": 0, "backfilled": 0,
+                                            "since": eng.db.get_state(pe._EVIDENCE_BACKFILL_SINCE_KEY), "reason": "RuntimeError"}
+ 
+diff --git a/tests/test_paper_engine_cost_config_validation.py b/tests/test_paper_engine_cost_config_validation.py
+index e36381f0d..aab0b03a9 100644
+--- a/tests/test_paper_engine_cost_config_validation.py
++++ b/tests/test_paper_engine_cost_config_validation.py
+@@ -26,6 +26,7 @@ def _engine(monkeypatch, tmp_path, paper_cfg):
+     monkeypatch.setattr(pe, "is_snapshot_fresh", lambda: (True, None))
+     monkeypatch.setattr(pe, "is_master_read_only", lambda: (False, {}))
+     monkeypatch.setattr(pe, "check_market_quality", lambda v, s: {"ok": True, "price_used": 100.0})
++    monkeypatch.setattr(pe, "check_quote_quality", lambda v, s, q: {"ok": True, "price_used": 100.0})
+     monkeypatch.setattr(pe, "should_allow_order", lambda *a, **k: (True, "ok"))
+     return pe, holder
+ 
+diff --git a/tests/test_paper_engine_integration.py b/tests/test_paper_engine_integration.py
+index 37c375487..3b3dc7690 100644
+--- a/tests/test_paper_engine_integration.py
++++ b/tests/test_paper_engine_integration.py
+@@ -22,6 +22,7 @@ def _reload_paper_modules():
+ 
+ 
+ def _allow_submit_gates(monkeypatch, paper_engine):
++    monkeypatch.setattr(paper_engine, "check_quote_quality", lambda venue, symbol, quote: {"ok": True})
+     monkeypatch.setattr(paper_engine, "is_snapshot_fresh", lambda: (True, None))
+     monkeypatch.setattr(paper_engine, "is_master_read_only", lambda: (False, {}))
+     monkeypatch.setattr(
+diff --git a/tests/test_paper_engine_currency.py b/tests/test_paper_engine_currency.py
+index 6e8ac2b38..44dfadab3 100644
+--- a/tests/test_paper_engine_currency.py
++++ b/tests/test_paper_engine_currency.py
+@@ -22,6 +22,7 @@ def _engine(monkeypatch, tmp_path, paper_trading, *, cash=1_000_000.0):
+ 
+     # The market-data gate is not what is under test; record whether it is reached.
+     monkeypatch.setattr(engine, "_pre_submit_gate", gate)
++    monkeypatch.setattr(paper_engine, "check_quote_quality", lambda venue, symbol, quote: {"ok": True})
+     return engine, gate_calls
+ 
+ 
+@@ -39,6 +40,7 @@ def _restart(monkeypatch, paper_trading):
+         return True, None
+ 
+     monkeypatch.setattr(engine, "_pre_submit_gate", gate)
++    monkeypatch.setattr(paper_engine, "check_quote_quality", lambda venue, symbol, quote: {"ok": True})
+     return engine, gate_calls
+ 
+ 
+diff --git a/services/strategies/evidence_write_lock.py b/services/strategies/evidence_write_lock.py
+new file mode 100644
+index 000000000..fe7337c12
+--- /dev/null
++++ b/services/strategies/evidence_write_lock.py
+@@ -0,0 +1,34 @@
++from contextlib import contextmanager
++import sqlite3
++import threading
++
++from services.os.app_paths import data_dir
++
++_THREAD_LOCK = threading.RLock()
++_LOCAL = threading.local()
++
++
++@contextmanager
++def serialized_evidence_write():
++    """Serialize cooperating evidence writers across threads and processes."""
++    if not _THREAD_LOCK.acquire(timeout=0.1):
++        raise TimeoutError("evidence_writer_busy")
++    try:
++        if getattr(_LOCAL, "active", False):
++            yield
++            return
++        path = data_dir() / "evidence" / "write_lock.sqlite"
++        path.parent.mkdir(parents=True, exist_ok=True)
++        con = sqlite3.connect(str(path), timeout=0.1)
++        try:
++            con.execute("BEGIN IMMEDIATE")
++            _LOCAL.active = True
++            try:
++                yield
++            finally:
++                _LOCAL.active = False
++                con.rollback()
++        finally:
++            con.close()
++    finally:
++        _THREAD_LOCK.release()
+diff --git a/tests/test_paper_recovery_runtime.py b/tests/test_paper_recovery_runtime.py
+new file mode 100644
+index 000000000..8bf3346c4
+--- /dev/null
++++ b/tests/test_paper_recovery_runtime.py
+@@ -0,0 +1,102 @@
++import importlib
++import sqlite3
++from concurrent.futures import ThreadPoolExecutor
++import threading
++
++from tests.test_paper_fill_evidence_backfill import (
++    rig, _submit, _kill_during_evidence_write, _fill_records,
++)
++
++
++def test_runner_continues_recovery_without_restart(rig, monkeypatch):
++    pe, ev_dir = rig
++    engine = pe.PaperEngine()
++    first = _submit(engine, 'runtime-first', 'buy')
++    _kill_during_evidence_write(monkeypatch, engine)
++    second = _submit(engine, 'runtime-second', 'buy')
++    _kill_during_evidence_write(monkeypatch, engine)
++    from services.strategies.evidence_logger import EvidenceLogger
++    original_log = EvidenceLogger.log_fill
++    attempted = []
++
++    def once_bad(self, **kwargs):
++        attempted.append(kwargs['order_id'])
++        if len(attempted) == 1:
++            raise OSError('temporary storage fault')
++        return original_log(self, **kwargs)
++
++    monkeypatch.setattr(EvidenceLogger, 'log_fill', once_bad)
++    original_sweep = engine.backfill_fill_evidence
++    monkeypatch.setattr(engine, 'backfill_fill_evidence', lambda: original_sweep(limit=1))
++    monkeypatch.setattr(engine, 'evaluate_open_orders', lambda: {})
++    monkeypatch.setattr(engine, 'mark_to_market', lambda *args: {})
++    from services.execution import paper_runner
++    importlib.reload(paper_runner)
++    monkeypatch.setattr(paper_runner, 'PaperEngine', lambda: engine)
++    monkeypatch.setattr(paper_runner, 'load_user_yaml', lambda: {})
++    monkeypatch.setattr(paper_runner, '_consume_queued_intents_once', lambda **kwargs: {})
++    monkeypatch.setattr(paper_runner, 'reconcile_once', lambda **kwargs: {})
++    loops = []
++
++    def sleep(_seconds):
++        loops.append(1)
++        if len(loops) == 2:
++            paper_runner.STOP_FILE.write_text('stop', encoding='utf-8')
++
++    monkeypatch.setattr(paper_runner.time, 'sleep', sleep)
++    paper_runner.run_forever()
++    assert {first, second} <= {r['order_id'] for r in _fill_records(ev_dir)}
++    assert attempted == [first, second, first]
++    assert not paper_runner.LOCK_FILE.exists()
++
++
++def test_contended_write_lock_defers_then_recovers(rig, monkeypatch):
++    pe, ev_dir = rig
++    engine = pe.PaperEngine()
++    first = _submit(engine, 'locked', 'buy')
++    _kill_during_evidence_write(monkeypatch, engine)
++    from services.os.app_paths import data_dir
++    path = data_dir() / 'evidence' / 'write_lock.sqlite'
++    con = sqlite3.connect(str(path))
++    try:
++        con.execute('BEGIN IMMEDIATE')
++        assert engine.backfill_fill_evidence()['ok'] is False
++        assert _fill_records(ev_dir) == []
++    finally:
++        con.rollback()
++        con.close()
++    assert engine.backfill_fill_evidence()['backfilled'] == 1
++    assert [r['order_id'] for r in _fill_records(ev_dir)] == [first]
++
++
++def test_silent_logger_failure_is_not_reported_as_recovered(rig, monkeypatch):
++    pe, ev_dir = rig
++    engine = pe.PaperEngine()
++    first = _submit(engine, 'silent', 'buy')
++    _kill_during_evidence_write(monkeypatch, engine)
++    from services.strategies.evidence_logger import EvidenceLogger
++    with monkeypatch.context() as patch:
++        patch.setattr(EvidenceLogger, 'log_fill', lambda *args, **kwargs: None)
++        result = engine.backfill_fill_evidence()
++        assert result['ok'] is False and result['backfilled'] == 0
++        assert result['failed_order_ids'] == [first]
++    assert engine.backfill_fill_evidence()['backfilled'] == 1
++
++
++def test_concurrent_logger_appends_preserve_both_records(rig, monkeypatch):
++    _, ev_dir = rig
++    from services.strategies import evidence_logger
++    monkeypatch.setattr(evidence_logger, '_version_stamp', lambda *args: {})
++    monkeypatch.setattr(evidence_logger, '_sample_provenance_stamp', lambda: {})
++    barrier = threading.Barrier(2)
++
++    def write(index):
++        barrier.wait()
++        evidence_logger.EvidenceLogger('es_daily_trend_v1').log_fill(
++            timestamp='2026-10-04T00:00:00+00:00', fill_price=100.0,
++            slippage_points=0.0, slippage_pct=0.0, fees_paid=0.0,
++            order_id=f'concurrent-{index}', size=1.0)
++
++    with ThreadPoolExecutor(max_workers=2) as pool:
++        list(pool.map(write, range(2)))
++    assert {r['order_id'] for r in _fill_records(ev_dir)} == {'concurrent-0', 'concurrent-1'}
+diff --git a/tests/test_codex_0040_0044_probe.py b/tests/test_codex_0040_0044_probe.py
+new file mode 100644
+index 000000000..5ef68ff64
+--- /dev/null
++++ b/tests/test_codex_0040_0044_probe.py
+@@ -0,0 +1,113 @@
++import pytest
++
++from tests.test_paper_fill_quote_freshness import rig as quote_rig, _buy, _write
++from tests.test_paper_fill_evidence_backfill import (
++    rig as evidence_rig, _submit, _kill_during_evidence_write, _fill_records,
++)
++
++
++def test_fill_checks_the_quote_it_actually_uses(quote_rig, monkeypatch):
++    engine, path = quote_rig
++    _buy(engine)
++    _write(path, price=40000.0, tick_age_s=10800)
++    original = type(engine)._price
++
++    def read_then_refresh(self, venue, symbol):
++        stale = original(self, venue, symbol)
++        _write(path, price=61000.0)
++        return stale
++
++    monkeypatch.setattr(type(engine), '_price', read_then_refresh)
++    result = engine.evaluate_open_orders()
++    assert result['filled'] == 0, engine.db.list_fills()
++
++
++def test_backfill_advances_past_already_repaired_newest_fill(evidence_rig, monkeypatch):
++    pe, ev_dir = evidence_rig
++    engine = pe.PaperEngine()
++    first = _submit(engine, 'missing-first', 'buy')
++    _kill_during_evidence_write(monkeypatch, engine)
++    _submit(engine, 'missing-second', 'buy')
++    _kill_during_evidence_write(monkeypatch, engine)
++    engine.backfill_fill_evidence(limit=1)
++    engine.backfill_fill_evidence(limit=1)
++    assert first in {record['order_id'] for record in _fill_records(ev_dir)}
++
++
++def test_recovery_cursor_survives_restart(evidence_rig, monkeypatch):
++    pe, ev_dir = evidence_rig
++    engine = pe.PaperEngine()
++    first = _submit(engine, 'restart-first', 'buy')
++    _kill_during_evidence_write(monkeypatch, engine)
++    second = _submit(engine, 'restart-second', 'buy')
++    _kill_during_evidence_write(monkeypatch, engine)
++    assert engine.backfill_fill_evidence(limit=1)['backfilled'] == 1
++    assert pe.PaperEngine().backfill_fill_evidence(limit=1)['backfilled'] == 1
++    assert {first, second} <= {record['order_id'] for record in _fill_records(ev_dir)}
++
++
++def test_fill_pages_cover_more_than_default_limit(evidence_rig):
++    pe, _ = evidence_rig
++    engine = pe.PaperEngine()
++    for index in range(505):
++        engine.db.insert_fill({'fill_id': f'page-{index}', 'order_id': f'order-{index}',
++                              'ts': '2026-01-01T00:00:00+00:00', 'price': 1.0,
++                              'qty': 1.0, 'fee': 0.0, 'fee_currency': 'USD'})
++    first = engine.db.list_fills_page(after_rowid=0)
++    second = engine.db.list_fills_page(after_rowid=first[-1]['rowid'])
++    assert len(first) == 500 and len(second) == 5
++    assert len({row['fill_id'] for row in first + second}) == 505
++
++
++@pytest.mark.parametrize('other_strategy', [False, True])
++def test_failed_row_does_not_starve_later_fills_and_retries_after_restart(evidence_rig, monkeypatch, other_strategy):
++    pe, ev_dir = evidence_rig
++    from services.strategies.evidence_logger import EvidenceLogger
++    engine = pe.PaperEngine()
++    first = _submit(engine, 'failed-row', 'buy')
++    _kill_during_evidence_write(monkeypatch, engine)
++    second = engine.submit_order(client_order_id='later-row', venue='coinbase', symbol='BTC/USD',
++                                 side='buy', order_type='market', qty=1.0,
++                                 strategy_id='other' if other_strategy else 'es_daily_trend_v1')['order']['order_id']
++    _kill_during_evidence_write(monkeypatch, engine)
++    original = EvidenceLogger.log_fill
++
++    def fail_first(self, **kwargs):
++        if kwargs['order_id'] == first:
++            raise OSError('first strategy unavailable')
++        return original(self, **kwargs)
++
++    with monkeypatch.context() as patch:
++        patch.setattr(EvidenceLogger, 'log_fill', fail_first)
++        result = engine.backfill_fill_evidence(limit=1)
++        assert result['ok'] is False and result['failed_order_ids'] == [first]
++        third = _submit(engine, 'new-arrival', 'buy')
++        _kill_during_evidence_write(monkeypatch, engine)
++        assert pe.PaperEngine().backfill_fill_evidence(limit=1)['backfilled'] == 1
++        directory = EvidenceLogger('other').log_dir if other_strategy else ev_dir
++        assert second in {r['order_id'] for r in _fill_records(directory)}
++
++    assert pe.PaperEngine().backfill_fill_evidence(limit=1)['backfilled'] == 1
++    assert first in {r['order_id'] for r in _fill_records(ev_dir)}
++    pe.PaperEngine().backfill_fill_evidence(limit=100)
++    assert third in {r['order_id'] for r in _fill_records(ev_dir)}
++    assert sum(r['order_id'] == first for r in _fill_records(ev_dir)) == 1
++
++
++def test_cursor_write_failure_retries_without_duplicate_evidence(evidence_rig, monkeypatch):
++    pe, ev_dir = evidence_rig
++    engine = pe.PaperEngine()
++    first = _submit(engine, 'cursor-failure', 'buy')
++    _kill_during_evidence_write(monkeypatch, engine)
++    original = engine.db.set_state
++
++    def fail_cursor(key, value):
++        if key == pe._EVIDENCE_BACKFILL_CURSOR_KEY:
++            raise OSError('cursor unavailable')
++        return original(key, value)
++
++    with monkeypatch.context() as patch:
++        patch.setattr(engine.db, 'set_state', fail_cursor)
++        assert engine.backfill_fill_evidence()['ok'] is False
++    pe.PaperEngine().backfill_fill_evidence()
++    assert sum(r['order_id'] == first for r in _fill_records(ev_dir)) == 1

@@ -1,0 +1,365 @@
+{
+  "distinct_entry_count": 202,
+  "distinct_closed_count": 191,
+  "distinct_closed_net_winners": 137,
+  "distinct_mean_closed_net_usd": 20.23058417924431,
+  "distinct_closed_plus_marks_mean_usd": 14.315558506806475,
+  "unpriced_entries": 0,
+  "remaining_limit": "Different entries still overlap/correlate; not independent trials or portfolio PnL",
+  "primary_sha256": "7bbea07a8afed907f7ec38f3601716d54a2d2599de5f8abe3b235b5f18a81c50",
+  "stale_marks": [
+    {
+      "symbol": "NOICE-USD",
+      "age_hours": 1138.0,
+      "mark_usd": -147.3687115202215
+    },
+    {
+      "symbol": "RNBW-USD",
+      "age_hours": 515.0,
+      "mark_usd": -75.15556938919315
+    },
+    {
+      "symbol": "SYND-USD",
+      "age_hours": 415.0,
+      "mark_usd": -161.6089616620004
+    },
+    {
+      "symbol": "GEOD-USD",
+      "age_hours": 225.0,
+      "mark_usd": -27.18717299597256
+    },
+    {
+      "symbol": "ZETA-USD",
+      "age_hours": 149.0,
+      "mark_usd": -59.293461684124736
+    },
+    {
+      "symbol": "ZETA-USD",
+      "age_hours": 149.0,
+      "mark_usd": -45.05884994652081
+    },
+    {
+      "symbol": "ZETA-USD",
+      "age_hours": 149.0,
+      "mark_usd": -23.224158807912886
+    }
+  ],
+  "coin_contributions": {
+    "BICO-USD": {
+      "n": 3,
+      "sum_usd": -398.0278990192354
+    },
+    "COOKIE-USD": {
+      "n": 2,
+      "sum_usd": 85.34083420245133
+    },
+    "INX-USD": {
+      "n": 1,
+      "sum_usd": -145.27549460535909
+    },
+    "GODS-USD": {
+      "n": 1,
+      "sum_usd": 167.00277328132324
+    },
+    "NOICE-USD": {
+      "n": 1,
+      "sum_usd": -147.3687115202215
+    },
+    "APR-USD": {
+      "n": 3,
+      "sum_usd": -54.11876119400006
+    },
+    "COTI-USD": {
+      "n": 3,
+      "sum_usd": 25.333951851225606
+    },
+    "IMU-USD": {
+      "n": 4,
+      "sum_usd": 588.3486362084752
+    },
+    "ROBO-USD": {
+      "n": 2,
+      "sum_usd": -37.845927964329235
+    },
+    "COW-USD": {
+      "n": 7,
+      "sum_usd": -264.8279861440873
+    },
+    "CHIP-USD": {
+      "n": 1,
+      "sum_usd": 57.202554636630566
+    },
+    "DOGINME-USD": {
+      "n": 3,
+      "sum_usd": 203.4518511353699
+    },
+    "00-USD": {
+      "n": 4,
+      "sum_usd": 203.2468268028224
+    },
+    "RSC-USD": {
+      "n": 1,
+      "sum_usd": 79.54723744427383
+    },
+    "KEYCAT-USD": {
+      "n": 3,
+      "sum_usd": 45.84620162601959
+    },
+    "HFT-USD": {
+      "n": 2,
+      "sum_usd": 92.22293573229604
+    },
+    "AVT-USD": {
+      "n": 4,
+      "sum_usd": -159.63546737386264
+    },
+    "PYR-USD": {
+      "n": 3,
+      "sum_usd": -65.5974699979862
+    },
+    "PRCL-USD": {
+      "n": 3,
+      "sum_usd": -385.54458334266087
+    },
+    "B3-USD": {
+      "n": 1,
+      "sum_usd": -47.31817088983837
+    },
+    "LMTS-USD": {
+      "n": 2,
+      "sum_usd": 220.73727634975035
+    },
+    "LCX-USD": {
+      "n": 3,
+      "sum_usd": 259.00498162011877
+    },
+    "TRUMP-USD": {
+      "n": 1,
+      "sum_usd": 57.6623360176834
+    },
+    "AERGO-USD": {
+      "n": 2,
+      "sum_usd": 135.0717563411215
+    },
+    "TRAC-USD": {
+      "n": 1,
+      "sum_usd": 50.02009141021972
+    },
+    "FARM-USD": {
+      "n": 4,
+      "sum_usd": 152.623090917014
+    },
+    "SPK-USD": {
+      "n": 1,
+      "sum_usd": 80.01767106741954
+    },
+    "BLZ-USD": {
+      "n": 1,
+      "sum_usd": 103.24517852317399
+    },
+    "AMP-USD": {
+      "n": 2,
+      "sum_usd": 50.22835962735485
+    },
+    "MDT-USD": {
+      "n": 8,
+      "sum_usd": 1423.5571451856706
+    },
+    "HONEY-USD": {
+      "n": 7,
+      "sum_usd": 211.10730546504908
+    },
+    "NCT-USD": {
+      "n": 9,
+      "sum_usd": 227.24719003689097
+    },
+    "DRB-USD": {
+      "n": 5,
+      "sum_usd": 404.8622331510189
+    },
+    "SWELL-USD": {
+      "n": 1,
+      "sum_usd": 39.84028320575021
+    },
+    "SKR-USD": {
+      "n": 3,
+      "sum_usd": -44.46825624324276
+    },
+    "HNT-USD": {
+      "n": 2,
+      "sum_usd": 229.22077496904558
+    },
+    "GHST-USD": {
+      "n": 2,
+      "sum_usd": 198.9943838307438
+    },
+    "BASECAT-USD": {
+      "n": 3,
+      "sum_usd": -173.12863362591736
+    },
+    "ZORA-USD": {
+      "n": 1,
+      "sum_usd": -57.789184740823885
+    },
+    "POND-USD": {
+      "n": 7,
+      "sum_usd": 331.6771477410032
+    },
+    "AST-USD": {
+      "n": 4,
+      "sum_usd": 320.0276602218537
+    },
+    "USELESS-USD": {
+      "n": 3,
+      "sum_usd": -95.16261097869301
+    },
+    "TROLL-USD": {
+      "n": 3,
+      "sum_usd": -323.9147497734216
+    },
+    "FLOCK-USD": {
+      "n": 2,
+      "sum_usd": 158.76150725537173
+    },
+    "RAY-USD": {
+      "n": 2,
+      "sum_usd": 58.83532948153527
+    },
+    "RNBW-USD": {
+      "n": 3,
+      "sum_usd": 103.17572202050235
+    },
+    "DOOD-USD": {
+      "n": 1,
+      "sum_usd": -95.57246564267268
+    },
+    "KAT-USD": {
+      "n": 2,
+      "sum_usd": -130.63045370325847
+    },
+    "OXT-USD": {
+      "n": 4,
+      "sum_usd": 383.54903414210173
+    },
+    "VTHO-USD": {
+      "n": 3,
+      "sum_usd": 223.79722666223734
+    },
+    "UP-USD": {
+      "n": 1,
+      "sum_usd": 44.93240724707857
+    },
+    "SYND-USD": {
+      "n": 3,
+      "sum_usd": -79.38478186498514
+    },
+    "MET-USD": {
+      "n": 2,
+      "sum_usd": -58.068019275418465
+    },
+    "MINA-USD": {
+      "n": 1,
+      "sum_usd": -109.27662269797258
+    },
+    "REZ-USD": {
+      "n": 1,
+      "sum_usd": -71.57176998917566
+    },
+    "FORTH-USD": {
+      "n": 4,
+      "sum_usd": -511.6314613172992
+    },
+    "CVC-USD": {
+      "n": 3,
+      "sum_usd": -128.55498652367487
+    },
+    "CAP-USD": {
+      "n": 2,
+      "sum_usd": 96.77915842664311
+    },
+    "L3-USD": {
+      "n": 2,
+      "sum_usd": -7.804066863657226
+    },
+    "ALIGN-USD": {
+      "n": 1,
+      "sum_usd": 36.80437296519085
+    },
+    "DRV-USD": {
+      "n": 1,
+      "sum_usd": 38.02850835488812
+    },
+    "HIGH-USD": {
+      "n": 1,
+      "sum_usd": 52.37364929745104
+    },
+    "BLUECHIP-USD": {
+      "n": 2,
+      "sum_usd": -391.6628971673954
+    },
+    "DRIFT-USD": {
+      "n": 1,
+      "sum_usd": 55.08875777617254
+    },
+    "GEOD-USD": {
+      "n": 3,
+      "sum_usd": -193.80625438345908
+    },
+    "G-USD": {
+      "n": 2,
+      "sum_usd": -229.58753740445957
+    },
+    "CELR-USD": {
+      "n": 3,
+      "sum_usd": 211.32356097908087
+    },
+    "ZETA-USD": {
+      "n": 3,
+      "sum_usd": -127.57647043855843
+    },
+    "VARA-USD": {
+      "n": 1,
+      "sum_usd": 119.82502211850806
+    },
+    "AURORA-USD": {
+      "n": 5,
+      "sum_usd": 164.07177973297826
+    },
+    "SHDW-USD": {
+      "n": 1,
+      "sum_usd": -124.50742358859918
+    },
+    "ALEO-USD": {
+      "n": 2,
+      "sum_usd": -246.06435672798932
+    },
+    "NEON-USD": {
+      "n": 2,
+      "sum_usd": -429.02569576531505
+    },
+    "QI-USD": {
+      "n": 4,
+      "sum_usd": 369.5554687250776
+    },
+    "QNT-USD": {
+      "n": 2,
+      "sum_usd": 103.7856522921154
+    },
+    "HBAR-USD": {
+      "n": 1,
+      "sum_usd": 38.51522895423045
+    },
+    "KAIO-USD": {
+      "n": 2,
+      "sum_usd": -74.03213233334304
+    },
+    "NMR-USD": {
+      "n": 1,
+      "sum_usd": -43.564353785338085
+    },
+    "DIMO-USD": {
+      "n": 1,
+      "sum_usd": 42.19742022822561
+    }
+  }
+}

@@ -1,0 +1,452 @@
+[
+ {
+  "id": 1,
+  "label": "GOBankingRates, Nov 2024",
+  "url": "https://www.gobankingrates.com/investing/crypto/coinbase-fees/",
+  "claim": "In that older table, 0.25%/0.40% is the $10K\u201350K tier ([GOBankingRates, Nov 2024]; [Datawallet, Aug 2026])."
+ },
+ {
+  "id": 2,
+  "label": "Datawallet, Aug 2026",
+  "url": "https://www.datawallet.com/crypto/coinbase-fees",
+  "claim": "In that older table, 0.25%/0.40% is the $10K\u201350K tier ([GOBankingRates, Nov 2024]; [Datawallet, Aug 2026])."
+ },
+ {
+  "id": 3,
+  "label": "CryptoDaily, Sep 2026",
+  "url": "https://cryptodaily.co.uk/2026/09/coinbase-advanced-fees-usdc-vip-tiers",
+  "claim": "A September 2026 report says Coinbase cut fees from 16 September 2026 and gives the lowest US tier as **0.50% maker / 0.90% taker**, with 0.25%/0.50% as the EU/UK rate ([CryptoDaily, Sep 2026])."
+ },
+ {
+  "id": 4,
+  "label": "ConductAtlas",
+  "url": "https://conductatlas.com/platform/coinbase/coinbase-fee-schedule/advanced-trade-makertaker-fee-schedule",
+  "claim": "A fee-schedule mirror marks Coinbase's provisions \"Withheld, Unverifiable\" ([ConductAtlas])."
+ },
+ {
+  "id": 5,
+  "label": "Coinbase Advanced",
+  "url": "https://www.coinbase.com/Advanced-trade",
+  "claim": "Coinbase itself says tiers can depend on 30-day volume \"or your total USD asset balance\" ([Coinbase Advanced]), which is one plausible reason an account could sit on a different tier than the published entry rate."
+ },
+ {
+  "id": 6,
+  "label": "Zarattini et al. via CXO",
+  "url": "https://www.cxoadvisory.com/technical-trading/crypto-asset-trend-following-strategies/",
+  "claim": "Most academic rule studies assume 0.10\u20130.25% one-way ([Zarattini et al. via CXO]), and the most cost-aware cross-sectional study uses 15 bps per trade ([Han, Kang & Ryu, ACFR])."
+ },
+ {
+  "id": 7,
+  "label": "Han, Kang & Ryu, ACFR",
+  "url": "https://acfr.aut.ac.nz/__data/assets/pdf_file/0009/918729/Time_Series_and_Cross_Sectional_Momentum_in_the_Cryptocurrency_Market_with_IA.pdf",
+  "claim": "Most academic rule studies assume 0.10\u20130.25% one-way ([Zarattini et al. via CXO]), and the most cost-aware cross-sectional study uses 15 bps per trade ([Han, Kang & Ryu, ACFR])."
+ },
+ {
+  "id": 8,
+  "label": "Datawallet",
+  "url": "https://www.datawallet.com/crypto/coinbase-fees",
+  "claim": "Coinbase's simple buy/sell flow is far worse than Advanced, with a **0.5\u20132% spread** built into the price plus fees ([Datawallet]), so it should never be used for execution."
+ },
+ {
+  "id": 9,
+  "label": "TurboTax",
+  "url": "https://turbotax.intuit.com/tax-tips/investments-and-taxes/what-is-form-1099-da-and-what-does-it-mean-for-crypto-investors/c1NcDG7kh",
+  "claim": "Gains on crypto held a year or less are taxed at ordinary income rates, and brokers have issued Form 1099-DA for sales since 1 January 2025 ([TurboTax])."
+ },
+ {
+  "id": 10,
+  "label": "Albers et al., arXiv 2502.18625",
+  "url": "https://arxiv.org/html/2502.18625v2",
+  "claim": "Live experiments on Binance found that maker fills are **adversely selected**: the orders that fill easily are the ones followed by adverse moves ([Albers et al., arXiv 2502.18625])."
+ },
+ {
+  "id": 11,
+  "label": "NBER w24877",
+  "url": "https://www.nber.org/papers/w24877",
+  "claim": "Liu and Tsyvinski report a **\"strong time-series momentum effect\"** in BTC, ETH and XRP ([NBER w24877])."
+ },
+ {
+  "id": 12,
+  "label": "CXO summary",
+  "url": "https://www.cxoadvisory.com/currency-trading/timing-bitcoin-with-smas/",
+  "claim": "The rules cut maximum drawdown from **\u221289.5% to about \u221266% to \u221270%** and lifted Sharpe from 2.0 to 2.2\u20132.6, while leaving raw annual return slightly *below* buy-and-hold ([CXO summary])."
+ },
+ {
+  "id": 13,
+  "label": "Reading repository",
+  "url": "https://reading-clone.eprints-hosting.org/85715",
+  "claim": "Hudson and Urquhart tested almost 15,000 rules with data-snooping corrections and found strong in-sample results, **\"however there is no predictability for Bitcoin in the out-of-sample period,\"** while less mature coins stayed predictable ([Reading repository])."
+ },
+ {
+  "id": 14,
+  "label": "IREF 2024",
+  "url": "https://ideas.repec.org/a/eee/reveco/v93y2024ipbp858-874.html",
+  "claim": "On the other side, Deprez and Fr\u00f6mmel selected rules from 75,360 candidates on *after-cost* performance with multiple-testing control and found that rule portfolios **can outperform buy-and-hold out-of-sample, \"especially risk\u2013return wise\"** ([IREF 2024])."
+ },
+ {
+  "id": 15,
+  "label": "Quantpedia",
+  "url": "https://quantpedia.com/revisiting-trend-following-and-mean-reversion-strategies-in-bitcoin/",
+  "claim": "Quantpedia's out-of-sample window (Feb 2022 to Aug 2024) found buying BTC at new 10\u201350-day highs \"remains very effective,\" with costs unmodeled ([Quantpedia])."
+ },
+ {
+  "id": 16,
+  "label": "CXO",
+  "url": "https://www.cxoadvisory.com/technical-trading/crypto-asset-trend-following-strategies/",
+  "claim": "However, its headline **Sharpe above 1.5 and 10.8% alpha versus BTC** is for a rotational top-20 altcoin book that uses up to 200% leverage, which this account cannot use ([CXO])."
+ },
+ {
+  "id": 17,
+  "label": "SSRN",
+  "url": "https://papers.ssrn.com/sol3/Delivery.cfm/7405060.pdf?abstractid=7405060&mirid=1",
+  "claim": "An SSRN preprint titled \"Time-series Momentum in Cryptocurrency: A Published Edge that has Aged\" points the other way, but its numbers could not be verified ([SSRN])."
+ },
+ {
+  "id": 18,
+  "label": "ACFR",
+  "url": "https://acfr.aut.ac.nz/__data/assets/pdf_file/0009/918729/Time_Series_and_Cross_Sectional_Momentum_in_the_Cryptocurrency_Market_with_IA.pdf",
+  "claim": "The authors themselves flag in-sample parameter selection and call ~1.5 an optimistic maximum ([ACFR])."
+ },
+ {
+  "id": 19,
+  "label": "Man Group",
+  "url": "https://www.man.com/insights/crypto-too-hot-to-handle",
+  "claim": "Man Group found that scaling BTC to a 30% volatility target from 2012 to 2024 raised Sharpe by **\"around 40 Sharpe points\"** whatever half-life was used, and improved expected shortfall ([Man Group])."
+ },
+ {
+  "id": 20,
+  "label": "\u00c4ij\u00f6 et al. 2025",
+  "url": "https://link.springer.com/article/10.1007/s11408-025-00474-9",
+  "claim": "Academic vol-managed crypto *momentum* raised payoffs but **did not change the tail exponent** ([\u00c4ij\u00f6 et al. 2025])."
+ },
+ {
+  "id": 21,
+  "label": "NBER w25882",
+  "url": "https://www.nber.org/papers/w25882.pdf",
+  "claim": "Their own caveat is that the results ignore \"trading costs and the feasibility of short selling.\" When BTC replaces the short leg, most momentum strategies lose significance ([NBER w25882])."
+ },
+ {
+  "id": 22,
+  "label": "Fieberg, Liedtke & Zaremba, IRFA 2024",
+  "url": "https://open.icm.edu.pl/handle/123456789/25544",
+  "claim": "Size and volume anomalies **\"originate from micro-cap coins of negligible economic importance,\"** momentum alpha comes \"largely from short positions,\" and anomaly returns cluster in bull markets and weaken over time ([Fieberg, Liedtke & Zaremba, IRFA 2024])."
+ },
+ {
+  "id": 23,
+  "label": "\u00c4ij\u00f6 et al. 2025",
+  "url": "https://link.springer.com/article/10.1007/s11408-025-00474-9",
+  "claim": "Value-weighted across ~2,500 coins it was significantly negative at \u22123.40% a week, and a single coin's jump produced a \u2212255% week ([\u00c4ij\u00f6 et al. 2025])."
+ },
+ {
+  "id": 24,
+  "label": "Ammann et al. 2022",
+  "url": "https://alexandria.unisg.ch/handle/20.500.14171/108037",
+  "claim": "That bias runs at **62% a year for equal-weighted portfolios versus 0.93% for value-weighted ones** ([Ammann et al. 2022])."
+ },
+ {
+  "id": 25,
+  "label": "K33",
+  "url": "https://k33.com/research/articles/bitcoin-vs-altcoins-what-has-been-the-most-profitable",
+  "claim": "The altcoin book ended near **$7,000 against $50,000 for BTC**, and about 700 of 1,009 entrants ended inactive or worthless ([K33])."
+ },
+ {
+  "id": 26,
+  "label": "Quantpedia",
+  "url": "https://quantpedia.com/revisiting-trend-following-and-mean-reversion-strategies-in-bitcoin/",
+  "claim": "So does the failure of top-gainer pullback dip-buying, which is consistent with two further findings: buying new N-day lows decayed out-of-sample after 2022 ([Quantpedia]), and crypto momentum flips to reversal at roughly 4\u20136 weeks, especially in small coins ([HSE/Dobrynskaya])."
+ },
+ {
+  "id": 27,
+  "label": "HSE/Dobrynskaya",
+  "url": "https://www.hse.ru/en/news/research/559533243.html",
+  "claim": "So does the failure of top-gainer pullback dip-buying, which is consistent with two further findings: buying new N-day lows decayed out-of-sample after 2022 ([Quantpedia]), and crypto momentum flips to reversal at roughly 4\u20136 weeks, especially in small coins ([HSE/Dobrynskaya])."
+ },
+ {
+  "id": 28,
+  "label": "Falkenstein",
+  "url": "https://efalken.substack.com/p/the-low-vol-effect-in-crypto",
+  "claim": "It is insignificant in Liu et al., and its support is a non-peer-reviewed 2018\u20132024 blog result ([Falkenstein])."
+ },
+ {
+  "id": 29,
+  "label": "INFORMS",
+  "url": "https://pubsonline.informs.org/doi/10.1287/mnsc.2024.05875",
+  "claim": "The MVRV-style \"value\" factor of Cong et al. is promising, but its magnitudes were not verifiable ([INFORMS])."
+ },
+ {
+  "id": 30,
+  "label": "Kitron & Wengrowicz 2026",
+  "url": "https://arxiv.org/pdf/2608.21888",
+  "claim": "Fifteen-minute mean reversion in BTC and ETH is statistically certain but worth **at most ~1.3 bp gross per trade**, against 50\u2013100 bp for this account ([Kitron & Wengrowicz 2026])."
+ },
+ {
+  "id": 31,
+  "label": "Baur et al. via Quantpedia",
+  "url": "https://quantpedia.com/are-there-any-simple-calendar-effects-in-bitcoin-market/",
+  "claim": "A large study of day-of-week, time-of-day and month effects found **\"no consistent or persistent patterns\"** ([Baur et al. via Quantpedia])."
+ },
+ {
+  "id": 32,
+  "label": "Quantpedia",
+  "url": "https://quantpedia.com/how-to-profitably-trade-bitcoins-overnight-sessions/",
+  "claim": "Quantpedia's overnight-session BTC rule looked good out-of-sample, but it trades about three round trips a week with costs unmodeled ([Quantpedia])."
+ },
+ {
+  "id": 33,
+  "label": "Galaxy via KuCoin",
+  "url": "https://www.kucoin.com/news/flash/galaxy-research-bitcoin-s-four-year-cycle-remains-valid-halving-rule-losing-impact",
+  "claim": "Galaxy's own figures show shrinking amplitude, with peak-to-trough declines of 85%, 84% and 77% ([Galaxy via KuCoin]), so it cannot be validated statistically."
+ },
+ {
+  "id": 34,
+  "label": "The Tie 2026",
+  "url": "https://www.thetie.io/insights/what-does-an-exchange-listing-actually-deliver-in-2026",
+  "claim": "A study of 1,844 listings from 2023 to 2026 found returns accrue **before Day 0 and mean-revert within one to two weeks**, with the effect shrinking since the 2023 cohort ([The Tie 2026])."
+ },
+ {
+  "id": 35,
+  "label": "UTS",
+  "url": "https://www.uts.edu.au/news/2022/08/insider-trading-crypto-markets",
+  "claim": "Part of the pre-announcement run-up is consistent with insider leakage in an estimated **10\u201325% of Coinbase listings** ([UTS])."
+ },
+ {
+  "id": 36,
+  "label": "Xu & Livshits",
+  "url": "https://arxiv.org/pdf/1811.10109",
+  "claim": "Insider trading and pump-and-dump participation are illegal, and late pump participants lose in aggregate ([Xu & Livshits]), so neither is a strategy."
+ },
+ {
+  "id": 37,
+  "label": "BeInCrypto on Keyrock",
+  "url": "https://beincrypto.com/keyrock-research-token-unlocks/",
+  "claim": "Token unlocks show the most consistent negative drift: about 90% of 16,000+ unlocks produced price pressure, and team unlocks saw average drops of up to 25% ([BeInCrypto on Keyrock])."
+ },
+ {
+  "id": 38,
+  "label": "CSH",
+  "url": "https://csh.ac.at/news/crypto-hacks-price-drops-often-outweigh-direct-losses/",
+  "claim": "Hacks crashed prices in 12 of 22 major DeFi attacks, with an average 14% token loss ([CSH])."
+ },
+ {
+  "id": 39,
+  "label": "NY Fed SR1052",
+  "url": "https://www.newyorkfed.org/medialibrary/media/research/staff_reports/sr1052.pdf",
+  "claim": "Macro releases barely move BTC, except a CPI effect that vanishes when the sample ends in 2021 ([NY Fed SR1052])."
+ },
+ {
+  "id": 40,
+  "label": "Makarov & Schoar summary",
+  "url": "https://corpgov.law.harvard.edu/2019/09/21/trading-and-arbitrage-in-cryptocurrency-markets/",
+  "claim": "Each needs capital-controlled fiat rails, multiple venues, sub-second latency, AP status or on-chain infrastructure, and none is reachable from a single Coinbase spot account ([Makarov & Schoar summary]; [Albers et al.]; [Fritsch & Canidio])."
+ },
+ {
+  "id": 41,
+  "label": "Albers et al.",
+  "url": "https://arxiv.org/pdf/2108.09750",
+  "claim": "Each needs capital-controlled fiat rails, multiple venues, sub-second latency, AP status or on-chain infrastructure, and none is reachable from a single Coinbase spot account ([Makarov & Schoar summary]; [Albers et al.]; [Fritsch & Canidio])."
+ },
+ {
+  "id": 42,
+  "label": "Fritsch & Canidio",
+  "url": "https://arxiv.org/html/2404.05803v2",
+  "claim": "Each needs capital-controlled fiat rails, multiple venues, sub-second latency, AP status or on-chain infrastructure, and none is reachable from a single Coinbase spot account ([Makarov & Schoar summary]; [Albers et al.]; [Fritsch & Canidio])."
+ },
+ {
+  "id": 43,
+  "label": "BIS WP 1087",
+  "url": "https://www.bis.org/publ/work1087.htm",
+  "claim": "Crypto futures carry has averaged **above 10% a year and reached 60%** ([BIS WP 1087])."
+ },
+ {
+  "id": 44,
+  "label": "The Block",
+  "url": "https://www.theblock.co/news/business/2026-04-09-cme-bitcoin-futures-activity-slumps-to-14-month-low-as-basis-trade-unwind-drains-institutional-demand-396722",
+  "claim": "By April 2026 the CME basis had compressed to about 5% against a ~4.5% risk-free rate, and the ETF basis trade was unwinding ([The Block])."
+ },
+ {
+  "id": 45,
+  "label": "Deribit Insights",
+  "url": "https://insights.deribit.com/industry/bitcoin-options-finding-edge-in-four-years-of-volatility-regimes/",
+  "claim": "BTC implied volatility exceeded realized about **70% of the time** from 2019 to 2022 ([Deribit Insights])."
+ },
+ {
+  "id": 46,
+  "label": "BIS WP 1087",
+  "url": "https://www.bis.org/publ/work1087.htm",
+  "claim": "The spot-relevant result is BIS's finding that **high carry predicts future crashes** ([BIS WP 1087])."
+ },
+ {
+  "id": 47,
+  "label": "FTI Consulting",
+  "url": "https://www.fticonsulting.com/insights/articles/crypto-crash-october-2025-leverage-met-liquidity",
+  "claim": "Funding rose from about 10% to nearly 30% annualized four days before more than $19B of positions were liquidated, and prices kept falling for months rather than bouncing ([FTI Consulting])."
+ },
+ {
+  "id": 48,
+  "label": "Fulgur Ventures",
+  "url": "https://medium.com/@fulgur.ventures/bitcoin-funding-rates-and-price-predictability-27ce95535af1",
+  "claim": "As a direction signal, funding is nearly useless, with an R\u00b2 of about 0.3% at 8 hours ([Fulgur Ventures])."
+ },
+ {
+  "id": 49,
+  "label": "arXiv 2607.27070",
+  "url": "https://arxiv.org/abs/2607.27070",
+  "claim": "A 2026 study of seven cascades found no precursor common to all events, and none at all for the tariff-news shocks ([arXiv 2607.27070])."
+ },
+ {
+  "id": 50,
+  "label": "He et al.",
+  "url": "https://ar5iv.labs.arxiv.org/html/2212.06888",
+  "claim": "**Past return momentum explains more than 50% of the perpetual-futures premium** ([He et al.])."
+ },
+ {
+  "id": 51,
+  "label": "CF Benchmarks",
+  "url": "https://www.cfbenchmarks.com/blog/revisiting-the-bitcoin-basis-how-momentum-sentiment-impact-the-structural-drivers-of-basis-activity",
+  "claim": "The CME basis correlates 0.50\u20130.54 with momentum proxies ([CF Benchmarks])."
+ },
+ {
+  "id": 52,
+  "label": "finhacker.cz",
+  "url": "https://www.finhacker.cz/en/crypto-fear-and-greed-index-historical-data-chart/",
+  "claim": "The Fear & Greed Index is itself built from price momentum and volatility ([finhacker.cz])."
+ },
+ {
+  "id": 53,
+  "label": "Lim, SSRN 6592830",
+  "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6592830",
+  "claim": "Spot ETF flows predict next-day returns (t = 3.12), but returns predict later flows even more strongly (t = 9.75), and that history covers only one regime since January 2024 ([Lim, SSRN 6592830])."
+ },
+ {
+  "id": 54,
+  "label": "NBER w24877",
+  "url": "https://www.nber.org/system/files/working_papers/w24877/w24877.pdf",
+  "claim": "Google search attention predicted **+1.84% to +2.30% BTC returns at 1\u20132 weeks per standard deviation**, but only in data ending in 2018 ([NBER w24877]), and returns and volatility drive attention at least as much as the reverse ([Urquhart 2018])."
+ },
+ {
+  "id": 55,
+  "label": "Urquhart 2018",
+  "url": "https://ideas.repec.org/a/eee/ecolet/v166y2018icp40-44.html",
+  "claim": "Google search attention predicted **+1.84% to +2.30% BTC returns at 1\u20132 weeks per standard deviation**, but only in data ending in 2018 ([NBER w24877]), and returns and volatility drive attention at least as much as the reverse ([Urquhart 2018])."
+ },
+ {
+  "id": 56,
+  "label": "Grobys, N\u00e4sman & Sandretto 2026",
+  "url": "https://osuva.uwasa.fi/items/d5993292-4a47-4162-89d7-7ddf676ba319/full",
+  "claim": "The one peer-reviewed test reports an MVRV Z-score strategy with **Sharpe 1.28 versus 0.45 for buy-and-hold** across only about three BTC cycles, and its out-of-sample design and cost treatment were not visible ([Grobys, N\u00e4sman & Sandretto 2026])."
+ },
+ {
+  "id": 57,
+  "label": "Bitcoin Magazine",
+  "url": "https://bitcoinmagazine.com/markets/how-the-updated-mvrv-z-score-improves-bitcoin-price-predictions",
+  "claim": "Peak MVRV Z fell from about 9\u201310 to about 7 in the last cycle, and vendors have responded by redefining the metric on rolling windows ([Bitcoin Magazine])."
+ },
+ {
+  "id": 58,
+  "label": "Chi, Chu & Hao",
+  "url": "https://arxiv.org/abs/2411.06327",
+  "claim": "Exchange and stablecoin flows predict at 1\u20136 hours with R\u00b2 \u2264 0.003 ([Chi, Chu & Hao])."
+ },
+ {
+  "id": 59,
+  "label": "Jaquart et al. 2022",
+  "url": "https://doaj.org/article/cfc09801314441198e3e1c92a3914e54",
+  "claim": "The strongest after-cost result needs a daily-rebalanced long-short book ([Jaquart et al. 2022]), while intraday models with on-chain and sentiment features **turn negative after costs** ([Kraehenbuehl & Osterrieder summary])."
+ },
+ {
+  "id": 60,
+  "label": "Kraehenbuehl & Osterrieder summary",
+  "url": "https://arxiv.org/pdf/2208.07254",
+  "claim": "The strongest after-cost result needs a daily-rebalanced long-short book ([Jaquart et al. 2022]), while intraday models with on-chain and sentiment features **turn negative after costs** ([Kraehenbuehl & Osterrieder summary])."
+ },
+ {
+  "id": 61,
+  "label": "arXiv 2606.00071",
+  "url": "https://arxiv.org/pdf/2606.00071",
+  "claim": "A June 2026 survey reports that **naive models beat 12 complex models including LSTM and XGBoost** in walk-forward tests ([arXiv 2606.00071])."
+ },
+ {
+  "id": 62,
+  "label": "cryptint.io",
+  "url": "https://cryptint.io/compare/cryptoquant",
+  "claim": "Paid on-chain APIs cost roughly $109\u2013$999 a month ([cryptint.io]), more than any plausible edge on $1,000 earns in a year."
+ },
+ {
+  "id": 63,
+  "label": "Coin Metrics docs",
+  "url": "https://docs.coinmetrics.io/packages/coin-metrics-community-data",
+  "claim": "Free sources such as Coin Metrics Community, alternative.me and Binance/Bybit funding history cover what a low-frequency overlay needs ([Coin Metrics docs]; [athenum])."
+ },
+ {
+  "id": 64,
+  "label": "athenum",
+  "url": "https://athenum.mataroa.blog/blog/how-much-crypto-funding-rate-history-can-you-actually-get-four-venues-four-silent-limits/",
+  "claim": "Free sources such as Coin Metrics Community, alternative.me and Binance/Bybit funding history cover what a low-frequency overlay needs ([Coin Metrics docs]; [athenum])."
+ },
+ {
+  "id": 65,
+  "label": "IREF 2024",
+  "url": "https://ideas.repec.org/a/eee/reveco/v93y2024ipbp858-874.html",
+  "claim": "Deprez and Fr\u00f6mmel's out-of-sample gains came from *portfolios* of rules chosen after costs, not from a single optimized rule ([IREF 2024])."
+ },
+ {
+  "id": 66,
+  "label": "arXiv 2606.00071",
+  "url": "https://arxiv.org/pdf/2606.00071",
+  "claim": "Simpler models consistently beat complex ones out-of-sample in BTC ([arXiv 2606.00071])."
+ },
+ {
+  "id": 67,
+  "label": "NBER w20592",
+  "url": "https://nber.org/papers/w20592",
+  "claim": "Harvey, Liu and Zhu argue that a new factor needs a **t-ratio above 3.0, not 2.0**, and that most claimed findings are likely false ([NBER w20592])."
+ },
+ {
+  "id": 68,
+  "label": "Bailey & L\u00f3pez de Prado",
+  "url": "https://papers.ssrn.com/abstract=2460551",
+  "claim": "The Deflated Sharpe Ratio adjusts a backtest Sharpe for the number of trials and for fat tails ([Bailey & L\u00f3pez de Prado])."
+ },
+ {
+  "id": 69,
+  "label": "Bailey et al.",
+  "url": "https://papers.ssrn.com/abstract=2326253",
+  "claim": "The Probability of Backtest Overfitting estimates, via combinatorial cross-validation, how often the in-sample winner underperforms out of sample ([Bailey et al.]), and an R implementation exists ([CRAN pbo])."
+ },
+ {
+  "id": 70,
+  "label": "CRAN pbo",
+  "url": "https://ftp.fau.de/cran/web/packages/pbo/vignettes/pbo.html",
+  "claim": "The Probability of Backtest Overfitting estimates, via combinatorial cross-validation, how often the in-sample winner underperforms out of sample ([Bailey et al.]), and an R implementation exists ([CRAN pbo])."
+ },
+ {
+  "id": 71,
+  "label": "The Block citing Kaiko",
+  "url": "https://www.theblock.co/news/ecosystems/2024-06-30-bitcoin-sees-all-time-low-weekend-trading-levels-following-etf-approvals-kaiko-302705",
+  "claim": "The post-ETF period from January 2024 to the present should be a final holdout opened once: volume has shifted toward US weekday hours since the ETFs ([The Block citing Kaiko]), and that is the regime the strategy will trade in."
+ },
+ {
+  "id": 72,
+  "label": "Concretum guide",
+  "url": "https://concretumgroup.com/building-a-survivorship-bias-free-crypto-dataset-with-coinmarketcap-api/",
+  "claim": "If an altcoin sleeve is ever revisited, the data must include delisted coins, or the backtest inherits the equal-weighted survivorship bias of tens of percent a year described above ([Concretum guide])."
+ },
+ {
+  "id": 73,
+  "label": "Hedgeweek",
+  "url": "https://www.hedgeweek.com/bitcoin-surges-ahead-of-crypto-in-2024/",
+  "claim": "Crypto hedge funds returned about **40% in 2024 against roughly 120% for BTC** ([Hedgeweek])."
+ },
+ {
+  "id": 74,
+  "label": "Opalesque",
+  "url": "https://www.opalesque.com/673477/150_surviving_crypto_hedge_funds_post_median347.html",
+  "claim": "Their typical value has been smaller drawdowns, such as \u221246% against about \u221272% for BTC in 2018 ([Opalesque])."
+ },
+ {
+  "id": 75,
+  "label": "BIS Bulletin 69",
+  "url": "https://www.bis.org/publ/bisbull69.htm",
+  "claim": "BIS found most crypto-app users lost money on BTC, largely by buying after rallies ([BIS Bulletin 69]), and a pre-committed rule guards against that behaviour even when it adds no alpha."
+ }
+]

@@ -1,0 +1,38 @@
+{
+  "dataset": "/Users/baitus/Downloads/crypto-bot-pro/research/coinbase_leader_daily_repaired_20261012.json",
+  "dataset_sha256": "c986dfc217c42456755316840efb421b6b810fb028fa6ff3acd7e29be40a5925",
+  "source_sha256": "6b1aa67bd3d7c8a6dfa97c9d4716d3c770588eb3b142413a9505f0483455c7ad",
+  "fee_per_side": 0.005,
+  "adverse_price_per_side": 0.0025,
+  "budget_per_event_usd": 1000,
+  "pullbacks": [
+    0.1,
+    0.2
+  ],
+  "targets": [
+    0.05,
+    0.1
+  ],
+  "hold_days": [
+    7,
+    14
+  ],
+  "windows": [
+    [
+      1776038400,
+      1783900800
+    ],
+    [
+      1783900800,
+      1791763200
+    ]
+  ],
+  "rules": "UTC daily leader; closing running peak; 30d wait for dip; next-open entry; close-triggered target; next-open exit; terminal open events retained; event overlap allowed, not a portfolio",
+  "limitations": [
+    "current_universe_no_delisted_coverage",
+    "daily_proxy_not_exact_live_leaderboard",
+    "spread_assumption_not_historical_quotes",
+    "already_explored_history_not_holdout",
+    "eight_comparisons_no_multiple_testing_adjustment"
+  ]
+}

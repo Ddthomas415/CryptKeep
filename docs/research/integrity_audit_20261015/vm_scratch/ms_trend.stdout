@@ -1,0 +1,49 @@
+new simulator reproduces reviewed harness (BTC+ETH, Sunday 2020-01-05..2026-10-08) max diff 3.27e-11 USD
+{
+ "periods": {
+  "D": [
+   "2019-01-06",
+   "2023-12-31"
+  ],
+  "H": [
+   "2024-01-07",
+   "2026-10-11"
+  ]
+ },
+ "pass_checks": {
+  "0.005": {
+   "D_sharpe_ge_incumbent": false,
+   "D_maxdd_le_incumbent_plus_2": true,
+   "H_sharpe_ge_incumbent_minus_0.05": false,
+   "H_maxdd_le_incumbent_plus_2": false
+  },
+  "0.009": {
+   "D_sharpe_ge_incumbent": false,
+   "D_maxdd_le_incumbent_plus_2": true,
+   "H_sharpe_ge_incumbent_minus_0.05": false,
+   "H_maxdd_le_incumbent_plus_2": false
+  }
+ },
+ "verdict": "FAIL",
+ "dsr_portfolio_DH_fee0.50": {
+  "N=26": 0.6656,
+  "N=120": 0.4061
+ }
+}
+0.005 D portfolio_core10: $5,742 SR 1.204 DD 42.4% TO 8.42 | incumbent_btc_eth: $11,603 SR 1.459 DD 44.8% TO 9.18 | hold_btc: $10,402 SR 1.035 DD 76.7% | equal_weight_core: $12,798 SR 1.041 DD 76.3% TO 2.98
+0.005 H portfolio_core10: $1,331 SR 0.51 DD 38.9% TO 11.14 | incumbent_btc_eth: $1,858 SR 0.876 DD 32.3% TO 12.65 | hold_btc: $1,892 SR 0.724 DD 53.1% | equal_weight_core: $1,058 SR 0.367 DD 75.4% TO 2.4
+0.009 D portfolio_core10: $4,853 SR 1.103 DD 45.1% TO 8.42 | incumbent_btc_eth: $9,659 SR 1.365 DD 46.1% TO 9.17 | hold_btc: $10,361 SR 1.034 DD 76.7% | equal_weight_core: $12,165 SR 1.027 DD 76.3% TO 2.98
+0.009 H portfolio_core10: $1,177 SR 0.351 DD 41.5% TO 11.13 | incumbent_btc_eth: $1,615 SR 0.712 DD 34.1% TO 12.64 | hold_btc: $1,885 SR 0.721 DD 53.1% | equal_weight_core: $1,030 SR 0.353 DD 75.6% TO 2.4
+BTC INCONCLUSIVE {'D': ('2019-01-06', 1.499, 1.035, 40.1, 76.7), 'H': ('2024-01-07', 0.509, 0.724, 32.8, 53.1)}
+ETH CANDIDATE {'D': ('2019-01-06', 1.21, 1.061, 50.2, 79.4), 'H': ('2024-01-07', 1.001, 0.403, 36.9, 67.6)}
+SOL INCONCLUSIVE {'D': ('2021-08-22', 1.083, 0.686, 49.0, 96.3), 'H': ('2024-01-07', 0.441, 0.489, 43.6, 76.3)}
+DOGE INCONCLUSIVE {'D': ('2021-08-08', -0.032, -0.016, 52.6, 84.5), 'H': ('2024-01-07', 0.657, 0.485, 47.0, 85.2)}
+LTC REJECTED_UNDER_TESTED_CONDITIONS {'D': ('2019-01-06', 0.366, 0.612, 60.6, 88.8), 'H': ('2024-01-07', 0.147, 0.355, 58.3, 70.2)}
+LINK REJECTED_UNDER_TESTED_CONDITIONS {'D': ('2019-09-01', 0.892, 1.005, 58.4, 90.2), 'H': ('2024-01-07', 0.328, 0.422, 40.7, 75.4)}
+AVAX CANDIDATE {'D': ('2021-12-05', 0.677, 0.108, 44.9, 92.9), 'H': ('2024-01-07', 0.297, -0.025, 59.1, 90.3)}
+ADA INCONCLUSIVE {'D': ('2021-05-23', 0.595, 0.072, 61.8, 91.8), 'H': ('2024-01-07', -0.172, 0.169, 64.7, 88.3)}
+XRP REJECTED_UNDER_TESTED_CONDITIONS {'D': ('2019-04-28', 0.309, 0.516, 47.2, 70.8), 'H': ('2024-01-07', 0.62, 0.81, 47.1, 72.1)}
+DOT CANDIDATE {'D': ('2021-08-15', 0.095, -0.057, 58.8, 93.2), 'H': ('2024-01-07', -0.324, -0.327, 66.9, 93.5)}
+band0.05 {'D': (6925.96, 1.265, 44.1), 'H': (1247.53, 0.42, 40.7)}
+no_volscale {'D': (8606.51, 1.051, 54.7), 'H': (1226.23, 0.386, 51.8)}
+4.18 s

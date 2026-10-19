@@ -1,0 +1,40 @@
+{
+  "scope": "new concrete companion adapter, pinned Docker transport, read-only evidence verifier and synthetic wiring",
+  "implementation_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "runtime_state": "INCOMPLETE",
+  "runtime_authorization": "NOT GRANTED",
+  "real_runtime_manifest": "NOT_SUPPLIED_OR_GENERATED",
+  "independent_reviews": {
+    "adapter_and_transport_fixes": {"state": "ACCEPTED", "passed": 154, "scope": "bounded offline source fixes; root trust remains external"},
+    "evidence_correction_and_timer": {"state": "ACCEPTED", "passed": 150, "scope": "frozen nested-envelope correction and offline timer only"},
+    "controller_adapter_wiring": {"state": "ACCEPTED", "passed": 2, "scope": "synthetic wiring only"}
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV: Python 3.12.10, synthetic only",
+    "passed": 467,
+    "deselected": 1,
+    "warnings": 126,
+    "seconds": 14.53,
+    "full_suite": false,
+    "previously_reviewed_files_unchanged": 14,
+    "docker_cli_invocations": 0,
+    "real_service_requests": 0,
+    "real_credentials_retrieved": false
+  },
+  "sha256": {
+    "scripts/research/companion_runtime_adapter.py": "024d7a6176b7659701efe87bd647d97e9fb1b4624c1a7335349397408d08070c",
+    "scripts/research/companion_docker_transport.py": "4d991d75191b7d986f33dad6f4c25465236d1c377ff3d67f0af6ad815b7ed863",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "tests/test_companion_runtime_adapter.py": "7c238c8e21912c9ca6dc1a33778b6f36b2680fa813defb325495f24888064251",
+    "tests/test_companion_docker_transport.py": "26cfbaf0c498d8f20941a991a495d71e86fd9d69ec1185ff2fa493b3ee69b032",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f",
+    "tests/test_companion_runtime_wiring.py": "f602196d6c11af0067692ebda397057a8874aa978e2d836bfdb853c081a7489e"
+  },
+  "generated_evidence_script_sha256": "4d8e5352e21c903487b16b5eb757eca632001e85a2e730d7b76c86796d288e94",
+  "limits": [
+    "Hash/record binding does not authenticate a reviewer; expected root manifest must be independently trusted.",
+    "Test manifests and content witnesses are synthetic, not operational acceptance.",
+    "Installed CLI, SDK, configuration, namespaces and runtime behavior remain UNVERIFIED.",
+    "This is a focused test slice, not a full repository suite or live query."
+  ]
+}

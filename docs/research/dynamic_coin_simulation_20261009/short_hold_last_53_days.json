@@ -1,0 +1,946 @@
+{
+ "window": [
+  "2026-08-10",
+  "2026-10-09"
+ ],
+ "products": 391,
+ "script_sha256": "0c68bf1c9f5ab479b914a035107b574c64be5dce686946636eaf8f374de89ffa",
+ "results": [
+  {
+   "strategy": "top3_by_1h_gain_hold_1h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 26.76,
+   "net_pct": -97.32,
+   "max_drawdown_pct": 97.74,
+   "trades": 3097,
+   "trades_per_day": 58.43,
+   "win_rate_pct": 36.3,
+   "avg_trade_pct": -0.334,
+   "median_trade_pct": -0.466,
+   "mean_daily_pct": -6.161,
+   "positive_days_pct": 20.8,
+   "monthly_pct": {
+    "2026-08": -41.64,
+    "2026-09": -89.99,
+    "2026-10": -54.21
+   },
+   "exit_reasons": {
+    "rotated_out": 3097
+   }
+  },
+  {
+   "strategy": "top3_by_1h_gain_hold_4h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 309.57,
+   "net_pct": -69.04,
+   "max_drawdown_pct": 80.3,
+   "trades": 799,
+   "trades_per_day": 15.08,
+   "win_rate_pct": 43.6,
+   "avg_trade_pct": -0.379,
+   "median_trade_pct": -0.485,
+   "mean_daily_pct": -1.779,
+   "positive_days_pct": 37.7,
+   "monthly_pct": {
+    "2026-08": -30.1,
+    "2026-09": -31.85,
+    "2026-10": -35.02
+   },
+   "exit_reasons": {
+    "rotated_out": 799
+   }
+  },
+  {
+   "strategy": "top3_by_1h_gain_hold_12h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 448.68,
+   "net_pct": -55.13,
+   "max_drawdown_pct": 70.25,
+   "trades": 260,
+   "trades_per_day": 4.91,
+   "win_rate_pct": 43.1,
+   "avg_trade_pct": -0.777,
+   "median_trade_pct": -0.794,
+   "mean_daily_pct": -1.324,
+   "positive_days_pct": 41.5,
+   "monthly_pct": {
+    "2026-08": -14.97,
+    "2026-09": -24.16,
+    "2026-10": -30.42
+   },
+   "exit_reasons": {
+    "rotated_out": 260
+   }
+  },
+  {
+   "strategy": "top3_by_1h_gain_hold_24h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 749.71,
+   "net_pct": -25.03,
+   "max_drawdown_pct": 60.54,
+   "trades": 136,
+   "trades_per_day": 2.57,
+   "win_rate_pct": 37.5,
+   "avg_trade_pct": 0.075,
+   "median_trade_pct": -1.585,
+   "mean_daily_pct": -0.158,
+   "positive_days_pct": 47.2,
+   "monthly_pct": {
+    "2026-08": -13.34,
+    "2026-09": 16.83,
+    "2026-10": -25.95
+   },
+   "exit_reasons": {
+    "rotated_out": 136
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_hold_1h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 137.09,
+   "net_pct": -86.29,
+   "max_drawdown_pct": 91.06,
+   "trades": 1703,
+   "trades_per_day": 32.13,
+   "win_rate_pct": 36.2,
+   "avg_trade_pct": -0.328,
+   "median_trade_pct": -0.623,
+   "mean_daily_pct": -3.354,
+   "positive_days_pct": 26.4,
+   "monthly_pct": {
+    "2026-08": -28.01,
+    "2026-09": -68.68,
+    "2026-10": -39.2
+   },
+   "exit_reasons": {
+    "rotated_out": 1703
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_hold_4h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 775.4,
+   "net_pct": -22.46,
+   "max_drawdown_pct": 60.62,
+   "trades": 759,
+   "trades_per_day": 14.32,
+   "win_rate_pct": 43.1,
+   "avg_trade_pct": -0.039,
+   "median_trade_pct": -0.459,
+   "mean_daily_pct": -0.025,
+   "positive_days_pct": 47.2,
+   "monthly_pct": {
+    "2026-08": -24.24,
+    "2026-09": 32.95,
+    "2026-10": -23.01
+   },
+   "exit_reasons": {
+    "rotated_out": 759
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_hold_12h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 629.82,
+   "net_pct": -37.02,
+   "max_drawdown_pct": 58.86,
+   "trades": 263,
+   "trades_per_day": 4.96,
+   "win_rate_pct": 41.8,
+   "avg_trade_pct": -0.293,
+   "median_trade_pct": -0.757,
+   "mean_daily_pct": -0.604,
+   "positive_days_pct": 54.7,
+   "monthly_pct": {
+    "2026-08": 1.14,
+    "2026-09": -19.78,
+    "2026-10": -22.37
+   },
+   "exit_reasons": {
+    "rotated_out": 263
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_hold_24h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 867.36,
+   "net_pct": -13.26,
+   "max_drawdown_pct": 45.96,
+   "trades": 129,
+   "trades_per_day": 2.43,
+   "win_rate_pct": 40.3,
+   "avg_trade_pct": 0.487,
+   "median_trade_pct": -1.074,
+   "mean_daily_pct": 0.161,
+   "positive_days_pct": 45.3,
+   "monthly_pct": {
+    "2026-08": 6.92,
+    "2026-09": -0.74,
+    "2026-10": -18.27
+   },
+   "exit_reasons": {
+    "rotated_out": 129
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_hold_1h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 728.14,
+   "net_pct": -27.19,
+   "max_drawdown_pct": 51.73,
+   "trades": 656,
+   "trades_per_day": 12.38,
+   "win_rate_pct": 34.6,
+   "avg_trade_pct": -0.074,
+   "median_trade_pct": -0.776,
+   "mean_daily_pct": -0.121,
+   "positive_days_pct": 43.4,
+   "monthly_pct": {
+    "2026-08": -25.44,
+    "2026-09": 33.8,
+    "2026-10": -27.01
+   },
+   "exit_reasons": {
+    "rotated_out": 656
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_hold_4h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 906.74,
+   "net_pct": -9.33,
+   "max_drawdown_pct": 52.92,
+   "trades": 318,
+   "trades_per_day": 6.0,
+   "win_rate_pct": 36.8,
+   "avg_trade_pct": -0.035,
+   "median_trade_pct": -0.95,
+   "mean_daily_pct": 0.396,
+   "positive_days_pct": 49.1,
+   "monthly_pct": {
+    "2026-08": -38.29,
+    "2026-09": 82.19,
+    "2026-10": -19.35
+   },
+   "exit_reasons": {
+    "rotated_out": 318
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_hold_12h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 1379.47,
+   "net_pct": 37.95,
+   "max_drawdown_pct": 49.67,
+   "trades": 187,
+   "trades_per_day": 3.53,
+   "win_rate_pct": 43.3,
+   "avg_trade_pct": 0.96,
+   "median_trade_pct": -0.951,
+   "mean_daily_pct": 1.125,
+   "positive_days_pct": 56.6,
+   "monthly_pct": {
+    "2026-08": 6.07,
+    "2026-09": 80.21,
+    "2026-10": -27.83
+   },
+   "exit_reasons": {
+    "rotated_out": 187
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_hold_24h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 623.43,
+   "net_pct": -37.66,
+   "max_drawdown_pct": 58.51,
+   "trades": 137,
+   "trades_per_day": 2.58,
+   "win_rate_pct": 36.5,
+   "avg_trade_pct": -0.678,
+   "median_trade_pct": -1.648,
+   "mean_daily_pct": -0.473,
+   "positive_days_pct": 45.3,
+   "monthly_pct": {
+    "2026-08": -13.39,
+    "2026-09": -4.38,
+    "2026-10": -24.73
+   },
+   "exit_reasons": {
+    "rotated_out": 137
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_tp5_sl3_max24h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 872.83,
+   "net_pct": -12.72,
+   "max_drawdown_pct": 54.38,
+   "trades": 568,
+   "trades_per_day": 10.72,
+   "win_rate_pct": 38.9,
+   "avg_trade_pct": 0.021,
+   "median_trade_pct": -3.235,
+   "mean_daily_pct": 0.059,
+   "positive_days_pct": 50.9,
+   "monthly_pct": {
+    "2026-08": -12.42,
+    "2026-09": 10.83,
+    "2026-10": -10.07
+   },
+   "exit_reasons": {
+    "stop_loss": 320,
+    "take_profit": 199,
+    "time_stop": 49
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_tp10_sl5_max48h",
+   "fee_bps_per_side": 0.0,
+   "final_usd": 663.62,
+   "net_pct": -33.64,
+   "max_drawdown_pct": 48.17,
+   "trades": 268,
+   "trades_per_day": 5.06,
+   "win_rate_pct": 32.8,
+   "avg_trade_pct": -0.258,
+   "median_trade_pct": -5.298,
+   "mean_daily_pct": -0.35,
+   "positive_days_pct": 45.3,
+   "monthly_pct": {
+    "2026-08": -31.6,
+    "2026-09": 35.45,
+    "2026-10": -28.37
+   },
+   "exit_reasons": {
+    "stop_loss": 161,
+    "take_profit": 78,
+    "time_stop": 29
+   }
+  },
+  {
+   "strategy": "top3_by_1h_gain_hold_1h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 3.44,
+   "net_pct": -99.66,
+   "max_drawdown_pct": 99.66,
+   "trades": 3097,
+   "trades_per_day": 58.43,
+   "win_rate_pct": 31.4,
+   "avg_trade_pct": -0.533,
+   "median_trade_pct": -0.665,
+   "mean_daily_pct": -9.716,
+   "positive_days_pct": 15.1,
+   "monthly_pct": {
+    "2026-08": -66.9,
+    "2026-09": -96.86,
+    "2026-10": -66.92
+   },
+   "exit_reasons": {
+    "rotated_out": 3097
+   }
+  },
+  {
+   "strategy": "top3_by_1h_gain_hold_4h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 181.96,
+   "net_pct": -81.8,
+   "max_drawdown_pct": 87.78,
+   "trades": 799,
+   "trades_per_day": 15.08,
+   "win_rate_pct": 40.6,
+   "avg_trade_pct": -0.578,
+   "median_trade_pct": -0.684,
+   "mean_daily_pct": -2.757,
+   "positive_days_pct": 34.0,
+   "monthly_pct": {
+    "2026-08": -39.59,
+    "2026-09": -49.63,
+    "2026-10": -40.2
+   },
+   "exit_reasons": {
+    "rotated_out": 799
+   }
+  },
+  {
+   "strategy": "top3_by_1h_gain_hold_12h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 377.14,
+   "net_pct": -62.29,
+   "max_drawdown_pct": 74.55,
+   "trades": 260,
+   "trades_per_day": 4.91,
+   "win_rate_pct": 42.3,
+   "avg_trade_pct": -0.975,
+   "median_trade_pct": -0.992,
+   "mean_daily_pct": -1.647,
+   "positive_days_pct": 41.5,
+   "monthly_pct": {
+    "2026-08": -19.06,
+    "2026-09": -31.27,
+    "2026-10": -32.21
+   },
+   "exit_reasons": {
+    "rotated_out": 260
+   }
+  },
+  {
+   "strategy": "top3_by_1h_gain_hold_24h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 684.53,
+   "net_pct": -31.55,
+   "max_drawdown_pct": 62.16,
+   "trades": 136,
+   "trades_per_day": 2.57,
+   "win_rate_pct": 36.8,
+   "avg_trade_pct": -0.125,
+   "median_trade_pct": -1.782,
+   "mean_daily_pct": -0.329,
+   "positive_days_pct": 47.2,
+   "monthly_pct": {
+    "2026-08": -15.48,
+    "2026-09": 10.99,
+    "2026-10": -27.03
+   },
+   "exit_reasons": {
+    "rotated_out": 136
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_hold_1h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 44.96,
+   "net_pct": -95.5,
+   "max_drawdown_pct": 96.71,
+   "trades": 1703,
+   "trades_per_day": 32.13,
+   "win_rate_pct": 31.9,
+   "avg_trade_pct": -0.528,
+   "median_trade_pct": -0.822,
+   "mean_daily_pct": -5.359,
+   "positive_days_pct": 22.6,
+   "monthly_pct": {
+    "2026-08": -47.05,
+    "2026-09": -83.26,
+    "2026-10": -49.29
+   },
+   "exit_reasons": {
+    "rotated_out": 1703
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_hold_4h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 470.13,
+   "net_pct": -52.99,
+   "max_drawdown_pct": 69.03,
+   "trades": 759,
+   "trades_per_day": 14.32,
+   "win_rate_pct": 41.1,
+   "avg_trade_pct": -0.238,
+   "median_trade_pct": -0.658,
+   "mean_daily_pct": -0.959,
+   "positive_days_pct": 41.5,
+   "monthly_pct": {
+    "2026-08": -34.33,
+    "2026-09": 0.38,
+    "2026-10": -28.68
+   },
+   "exit_reasons": {
+    "rotated_out": 759
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_hold_12h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 529.03,
+   "net_pct": -47.1,
+   "max_drawdown_pct": 64.84,
+   "trades": 263,
+   "trades_per_day": 4.96,
+   "win_rate_pct": 41.8,
+   "avg_trade_pct": -0.493,
+   "median_trade_pct": -0.955,
+   "mean_daily_pct": -0.929,
+   "positive_days_pct": 50.9,
+   "monthly_pct": {
+    "2026-08": -3.86,
+    "2026-09": -27.16,
+    "2026-10": -24.46
+   },
+   "exit_reasons": {
+    "rotated_out": 263
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_hold_24h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 796.06,
+   "net_pct": -20.39,
+   "max_drawdown_pct": 47.97,
+   "trades": 129,
+   "trades_per_day": 2.43,
+   "win_rate_pct": 40.3,
+   "avg_trade_pct": 0.286,
+   "median_trade_pct": -1.272,
+   "mean_daily_pct": -0.001,
+   "positive_days_pct": 45.3,
+   "monthly_pct": {
+    "2026-08": 4.38,
+    "2026-09": -5.23,
+    "2026-10": -19.53
+   },
+   "exit_reasons": {
+    "rotated_out": 129
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_hold_1h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 481.32,
+   "net_pct": -51.87,
+   "max_drawdown_pct": 61.06,
+   "trades": 656,
+   "trades_per_day": 12.38,
+   "win_rate_pct": 31.6,
+   "avg_trade_pct": -0.274,
+   "median_trade_pct": -0.974,
+   "mean_daily_pct": -0.894,
+   "positive_days_pct": 43.4,
+   "monthly_pct": {
+    "2026-08": -33.89,
+    "2026-09": 6.37,
+    "2026-10": -31.55
+   },
+   "exit_reasons": {
+    "rotated_out": 656
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_hold_4h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 742.82,
+   "net_pct": -25.72,
+   "max_drawdown_pct": 54.63,
+   "trades": 318,
+   "trades_per_day": 6.0,
+   "win_rate_pct": 35.2,
+   "avg_trade_pct": -0.235,
+   "median_trade_pct": -1.148,
+   "mean_daily_pct": 0.024,
+   "positive_days_pct": 47.2,
+   "monthly_pct": {
+    "2026-08": -41.99,
+    "2026-09": 63.6,
+    "2026-10": -21.72
+   },
+   "exit_reasons": {
+    "rotated_out": 318
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_hold_12h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 1221.66,
+   "net_pct": 22.17,
+   "max_drawdown_pct": 51.1,
+   "trades": 187,
+   "trades_per_day": 3.53,
+   "win_rate_pct": 40.1,
+   "avg_trade_pct": 0.757,
+   "median_trade_pct": -1.149,
+   "mean_daily_pct": 0.895,
+   "positive_days_pct": 54.7,
+   "monthly_pct": {
+    "2026-08": 2.33,
+    "2026-09": 68.95,
+    "2026-10": -29.34
+   },
+   "exit_reasons": {
+    "rotated_out": 187
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_hold_24h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 570.13,
+   "net_pct": -42.99,
+   "max_drawdown_pct": 60.94,
+   "trades": 137,
+   "trades_per_day": 2.58,
+   "win_rate_pct": 35.8,
+   "avg_trade_pct": -0.876,
+   "median_trade_pct": -1.844,
+   "mean_daily_pct": -0.64,
+   "positive_days_pct": 43.4,
+   "monthly_pct": {
+    "2026-08": -15.56,
+    "2026-09": -8.91,
+    "2026-10": -25.87
+   },
+   "exit_reasons": {
+    "rotated_out": 137
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_tp5_sl3_max24h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 308.73,
+   "net_pct": -69.13,
+   "max_drawdown_pct": 73.28,
+   "trades": 577,
+   "trades_per_day": 10.89,
+   "win_rate_pct": 35.4,
+   "avg_trade_pct": -0.537,
+   "median_trade_pct": -3.386,
+   "mean_daily_pct": -1.855,
+   "positive_days_pct": 34.0,
+   "monthly_pct": {
+    "2026-08": -36.66,
+    "2026-09": -36.27,
+    "2026-10": -23.51
+   },
+   "exit_reasons": {
+    "stop_loss": 348,
+    "take_profit": 180,
+    "time_stop": 49
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_tp10_sl5_max48h",
+   "fee_bps_per_side": 10.0,
+   "final_usd": 584.41,
+   "net_pct": -41.56,
+   "max_drawdown_pct": 54.29,
+   "trades": 269,
+   "trades_per_day": 5.08,
+   "win_rate_pct": 31.6,
+   "avg_trade_pct": -0.41,
+   "median_trade_pct": -5.228,
+   "mean_daily_pct": -0.7,
+   "positive_days_pct": 54.7,
+   "monthly_pct": {
+    "2026-08": -14.77,
+    "2026-09": 1.95,
+    "2026-10": -32.75
+   },
+   "exit_reasons": {
+    "stop_loss": 168,
+    "take_profit": 72,
+    "time_stop": 29
+   }
+  },
+  {
+   "strategy": "top3_by_1h_gain_hold_1h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 0.0,
+   "net_pct": -100.0,
+   "max_drawdown_pct": 100.0,
+   "trades": 3097,
+   "trades_per_day": 58.43,
+   "win_rate_pct": 14.9,
+   "avg_trade_pct": -1.523,
+   "median_trade_pct": -1.653,
+   "mean_daily_pct": -25.546,
+   "positive_days_pct": 0.0,
+   "monthly_pct": {
+    "2026-08": -98.05,
+    "2026-09": -99.99,
+    "2026-10": -93.48
+   },
+   "exit_reasons": {
+    "rotated_out": 3097
+   }
+  },
+  {
+   "strategy": "top3_by_1h_gain_hold_4h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 12.79,
+   "net_pct": -98.72,
+   "max_drawdown_pct": 98.88,
+   "trades": 799,
+   "trades_per_day": 15.08,
+   "win_rate_pct": 30.2,
+   "avg_trade_pct": -1.567,
+   "median_trade_pct": -1.672,
+   "mean_daily_pct": -7.5,
+   "positive_days_pct": 13.2,
+   "monthly_pct": {
+    "2026-08": -70.86,
+    "2026-09": -88.89,
+    "2026-10": -60.51
+   },
+   "exit_reasons": {
+    "rotated_out": 799
+   }
+  },
+  {
+   "strategy": "top3_by_1h_gain_hold_12h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 158.29,
+   "net_pct": -84.17,
+   "max_drawdown_pct": 88.34,
+   "trades": 260,
+   "trades_per_day": 4.91,
+   "win_rate_pct": 32.3,
+   "avg_trade_pct": -1.961,
+   "median_trade_pct": -1.977,
+   "mean_daily_pct": -3.242,
+   "positive_days_pct": 35.8,
+   "monthly_pct": {
+    "2026-08": -36.74,
+    "2026-09": -57.98,
+    "2026-10": -40.45
+   },
+   "exit_reasons": {
+    "rotated_out": 260
+   }
+  },
+  {
+   "strategy": "top3_by_1h_gain_hold_24h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 434.46,
+   "net_pct": -56.55,
+   "max_drawdown_pct": 71.56,
+   "trades": 136,
+   "trades_per_day": 2.57,
+   "win_rate_pct": 33.1,
+   "avg_trade_pct": -1.119,
+   "median_trade_pct": -2.759,
+   "mean_daily_pct": -1.178,
+   "positive_days_pct": 37.7,
+   "monthly_pct": {
+    "2026-08": -25.41,
+    "2026-09": -14.12,
+    "2026-10": -32.17
+   },
+   "exit_reasons": {
+    "rotated_out": 136
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_hold_1h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 0.17,
+   "net_pct": -99.98,
+   "max_drawdown_pct": 99.98,
+   "trades": 1703,
+   "trades_per_day": 32.13,
+   "win_rate_pct": 18.1,
+   "avg_trade_pct": -1.517,
+   "median_trade_pct": -1.809,
+   "mean_daily_pct": -14.738,
+   "positive_days_pct": 3.8,
+   "monthly_pct": {
+    "2026-08": -88.55,
+    "2026-09": -99.26,
+    "2026-10": -79.45
+   },
+   "exit_reasons": {
+    "rotated_out": 1703
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_hold_4h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 38.63,
+   "net_pct": -96.14,
+   "max_drawdown_pct": 96.76,
+   "trades": 759,
+   "trades_per_day": 14.32,
+   "win_rate_pct": 27.3,
+   "avg_trade_pct": -1.231,
+   "median_trade_pct": -1.646,
+   "mean_daily_pct": -5.494,
+   "positive_days_pct": 24.5,
+   "monthly_pct": {
+    "2026-08": -67.83,
+    "2026-09": -75.34,
+    "2026-10": -51.31
+   },
+   "exit_reasons": {
+    "rotated_out": 759
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_hold_12h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 221.34,
+   "net_pct": -77.87,
+   "max_drawdown_pct": 83.96,
+   "trades": 263,
+   "trades_per_day": 4.96,
+   "win_rate_pct": 32.3,
+   "avg_trade_pct": -1.483,
+   "median_trade_pct": -1.94,
+   "mean_daily_pct": -2.535,
+   "positive_days_pct": 30.2,
+   "monthly_pct": {
+    "2026-08": -25.38,
+    "2026-09": -55.01,
+    "2026-10": -34.08
+   },
+   "exit_reasons": {
+    "rotated_out": 263
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_hold_24h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 518.53,
+   "net_pct": -48.15,
+   "max_drawdown_pct": 64.47,
+   "trades": 129,
+   "trades_per_day": 2.43,
+   "win_rate_pct": 37.2,
+   "avg_trade_pct": -0.711,
+   "median_trade_pct": -2.254,
+   "mean_daily_pct": -0.808,
+   "positive_days_pct": 39.6,
+   "monthly_pct": {
+    "2026-08": -7.46,
+    "2026-09": -24.78,
+    "2026-10": -25.51
+   },
+   "exit_reasons": {
+    "rotated_out": 129
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_hold_1h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 62.63,
+   "net_pct": -93.74,
+   "max_drawdown_pct": 93.77,
+   "trades": 656,
+   "trades_per_day": 12.38,
+   "win_rate_pct": 21.3,
+   "avg_trade_pct": -1.27,
+   "median_trade_pct": -1.959,
+   "mean_daily_pct": -4.609,
+   "positive_days_pct": 22.6,
+   "monthly_pct": {
+    "2026-08": -63.57,
+    "2026-09": -65.46,
+    "2026-10": -50.23
+   },
+   "exit_reasons": {
+    "rotated_out": 656
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_hold_4h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 275.57,
+   "net_pct": -72.44,
+   "max_drawdown_pct": 75.21,
+   "trades": 318,
+   "trades_per_day": 6.0,
+   "win_rate_pct": 27.7,
+   "avg_trade_pct": -1.23,
+   "median_trade_pct": -2.132,
+   "mean_daily_pct": -1.8,
+   "positive_days_pct": 32.1,
+   "monthly_pct": {
+    "2026-08": -57.4,
+    "2026-09": -4.09,
+    "2026-10": -32.55
+   },
+   "exit_reasons": {
+    "rotated_out": 318
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_hold_12h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 665.79,
+   "net_pct": -33.42,
+   "max_drawdown_pct": 57.66,
+   "trades": 187,
+   "trades_per_day": 3.53,
+   "win_rate_pct": 36.4,
+   "avg_trade_pct": -0.249,
+   "median_trade_pct": -2.132,
+   "mean_daily_pct": -0.247,
+   "positive_days_pct": 43.4,
+   "monthly_pct": {
+    "2026-08": -14.47,
+    "2026-09": 22.39,
+    "2026-10": -36.4
+   },
+   "exit_reasons": {
+    "rotated_out": 187
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_hold_24h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 364.79,
+   "net_pct": -63.52,
+   "max_drawdown_pct": 71.12,
+   "trades": 137,
+   "trades_per_day": 2.58,
+   "win_rate_pct": 32.8,
+   "avg_trade_pct": -1.862,
+   "median_trade_pct": -2.821,
+   "mean_daily_pct": -1.471,
+   "positive_days_pct": 39.6,
+   "monthly_pct": {
+    "2026-08": -25.64,
+    "2026-09": -28.55,
+    "2026-10": -31.35
+   },
+   "exit_reasons": {
+    "rotated_out": 137
+   }
+  },
+  {
+   "strategy": "top3_by_4h_gain_tp5_sl3_max24h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 37.94,
+   "net_pct": -96.21,
+   "max_drawdown_pct": 96.62,
+   "trades": 659,
+   "trades_per_day": 12.43,
+   "win_rate_pct": 27.6,
+   "avg_trade_pct": -1.43,
+   "median_trade_pct": -3.479,
+   "mean_daily_pct": -5.587,
+   "positive_days_pct": 22.6,
+   "monthly_pct": {
+    "2026-08": -58.92,
+    "2026-09": -82.55,
+    "2026-10": -47.08
+   },
+   "exit_reasons": {
+    "stop_loss": 457,
+    "take_profit": 159,
+    "time_stop": 43
+   }
+  },
+  {
+   "strategy": "top3_by_24h_gain_tp10_sl5_max48h",
+   "fee_bps_per_side": 60.0,
+   "final_usd": 190.78,
+   "net_pct": -80.92,
+   "max_drawdown_pct": 84.54,
+   "trades": 324,
+   "trades_per_day": 6.11,
+   "win_rate_pct": 28.1,
+   "avg_trade_pct": -1.344,
+   "median_trade_pct": -5.436,
+   "mean_daily_pct": -2.641,
+   "positive_days_pct": 32.1,
+   "monthly_pct": {
+    "2026-08": -34.48,
+    "2026-09": -47.43,
+    "2026-10": -44.61
+   },
+   "exit_reasons": {
+    "stop_loss": 216,
+    "take_profit": 81,
+    "time_stop": 27
+   }
+  }
+ ]
+}

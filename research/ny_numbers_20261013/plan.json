@@ -1,0 +1,35 @@
+{
+  "registered_utc": "2026-10-13T17:06:49.440326+00:00",
+  "source_sha256": "aae412f1d1ce0feec808f9fdbea220d703ff102bbf3fbbffbd6488211d9252ab",
+  "source_url": "https://data.ny.gov/resource/hsys-3def.json",
+  "data_end_exclusive": "2026-10-01",
+  "validation_start": "2016-01-01",
+  "test_start": "2022-01-01",
+  "window_draws": 1000,
+  "smoothing": 1.0,
+  "tie_rule": "lowest digit independently per position",
+  "prediction_rule": "product of three Laplace-smoothed positional frequencies from previous 1000 consecutive known daily draws of the same session; predict before current outcome; no fitting or threshold selection",
+  "unknown_rule": "missing/ambiguous session outcome resets its history; eligible prediction with unknown outcome remains unresolved, never a loss or zero return",
+  "reference_stake": 1.0,
+  "reference_prize": 500.0,
+  "reference_payout_policy": "current base straight-play reference only, not historical payout reconstruction; no bonuses, add-ons or taxes; no tickets purchased",
+  "fair_null_probability": 0.001,
+  "break_even_probability": 0.002,
+  "primary": "pooled final held-out mean log-score improvement over uniform; lower 95% paired-calendar-day circular block-bootstrap bound above zero for both 14-day and 90-day blocks, and positive validation mean",
+  "economic_gate": "at least 1000 observed final predictions, no eligible unknown outcomes, and pooled one-sided 95% binomial lower bound for selected-number hit probability strictly above .002",
+  "bootstrap_repetitions": 2000,
+  "bootstrap_seed": 20261013,
+  "exploratory_tests": "positional uniformity, within-draw positional independence, same-position lag-one dependence, midday/evening same-day dependence, digit-sum distribution; one Bonferroni family across all tests",
+  "assumptions": [
+    "numeric strings shorter than three digits represent omitted leading zeroes in a three-digit game",
+    "fair iid draws define the null; binomial intervals assume independent equal-probability successes, not demonstrated properties of actual draws"
+  ],
+  "limits": [
+    "one_fixed_model_does_not_test_every_possible_bias",
+    "historical_not_live_prospective_validation",
+    "drawing_equipment_and_procedure_history_unverified",
+    "bootstrap_is_block_length_dependent",
+    "no_capital_or_wager_authorization",
+    "no_claim_that_p_values_are_profit_probabilities"
+  ]
+}

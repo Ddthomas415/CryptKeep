@@ -1,0 +1,14 @@
+{
+  "attempt_replacement_id_absent": true,
+  "selected": {
+    "phase1-audit-log": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+    "phase1-memory": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+    "phase1-minio": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+    "phase1-orchestrator": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+    "phase1-qdrant": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+    "phase1-risk-stub": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+    "phase1-timescaledb": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b"
+  },
+  "selected_original_names_ids_match": true,
+  "services_started": false
+}

@@ -1,0 +1,120 @@
+{
+  "review_type": "independent_bounded_offline_financial_code_review",
+  "reviewed_at_utc": "2026-10-18T18:42:45Z",
+  "active_role": "GATE",
+  "risk_level": "HIGH",
+  "objective": "Review the frozen Module A candidate repair and the adequacy of its synthetic regression, settlement-ledger and shared-cost-parity proof, without implementing or approving the rest of Module A.",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "disposition": "No blocking correctness defect identified in the bounded repaired candidate. Accept only the hash-bound offline implementation and its demonstrated synthetic contracts, with the nonblocking persistent-test gap below. This is not approval of a strategy, financial model, preregistration, market experiment, integration or operation.",
+  "material_assumptions": [],
+  "environment_confidence": "VERIFIED_ENV",
+  "environment_scope": "Verified repository cwd, applicable root AGENTS.md, readable frozen sources, local .venv/bin/python, inspected test imports and synthetic harness inputs. The pytest invocation disabled environment inheritance, external pytest plugin autoload, conftest loading, bytecode and pytest cache writes. Confidence applies only to the inspection and synthetic commands actually executed.",
+  "sha256_bindings": {
+    "scripts/research/module_a_candidate.py": "bd7139ff115efd743239a26f6d31be09766d622f90b8c1d89e449de958e6477c",
+    "tests/test_module_a_candidate.py": "0a6e2422be327f53f5927df5ada2f93a9ccaca1adb3c57cd36313982d420fd9d",
+    "docs/review_artifacts/information_edge_repair_20261018/original_module_a_sim.py.txt": "2be805171d14b37b232197974bc45de95fa289db528172990fe52bebb6896f12",
+    "docs/review_artifacts/information_edge_repair_20261018/original_test_module_a_sim.py.txt": "e93b9cfccd9f17fc7ed9163094cab7add1609eb425cf4d45da65ac3a2ce4ac44",
+    "scripts/research/corrected_research_math.py": "d07ae7171e2293cbe60d15ae9bc0973d3ef8bd31b9c7b99105f928c029e29047",
+    "tests/test_harness_contracts_wp4.py": "4439fc4de1491ee623704218713b70f69b251255924b79f4c802b5b68774bcde",
+    "tests/test_corrected_research_math.py": "9483f7077ee715d1642bae66653cada7808dbbdfefa192591193db89633a32d1",
+    "scripts/research/rerun_frozen_stress.py": "1f98513ae63c4f84819327746872a9dd0a73b3bc35e5e67364c57458ca395907",
+    "scripts/research/rerun_frozen_events.py": "d5a7d84fdd406c9de1e2cae811cfbaecdd58ccb17869fe251941b690f87cbadc",
+    "docs/research/btc_eth_stress_test_20261009/stress_btc_eth.py": "dacafe828b80c76c8c675cca6c3728bd4a090c5873a49cdbe13173c86edc7e37"
+  },
+  "binding_verification": {
+    "evidence_status": "SHOWN",
+    "result": "All five user-supplied hashes matched before review and were unchanged after tests and probes. Additional bindings identify the supporting test/dependency sources inspected.",
+    "external_original_files": {
+      "evidence_status": "CLAIMED",
+      "result": "The user states that the external originals are unchanged. Only the preserved repository copies were read and hashed in this review; external original paths were not inspected. No source was edited by this reviewer."
+    }
+  },
+  "blocking_findings": [],
+  "findings": [
+    {
+      "id": "GATE-MA-001",
+      "severity": "P3",
+      "evidence_status": "SHOWN",
+      "resolution_status": "OPEN_NONBLOCKING",
+      "title": "Persist a prefix-causality regression that invokes the actual allocator",
+      "file": "tests/test_module_a_candidate.py",
+      "line_start": 126,
+      "line_end": 140,
+      "evidence": "The stored prefix test supplies a simple close-derived lambda rather than module_a_target. The allocation convention test at lines 143-148 covers a capped-weight hand case, zero/missing volatility and one-asset allocation, but not the multi-asset allocator's prefix invariance. The frozen original tests exercised the actual allocator at the cutoff; that exact coverage was not ported into the candidate test suite.",
+      "impact": "The stored candidate prefix test can remain green after a future look-ahead regression inside module_a_target or trailing_vol. This is a regression-coverage gap, not a demonstrated current allocator leak.",
+      "verification": "An independent in-memory probe in this review exercised module_a_target on four synthetic assets, preserved NAV and decisions through cutoff day 12 after future opens/closes were changed, and detected a deliberately next-day allocator at the cutoff. Current behavior passed, but this probe is not a persistent repository test.",
+      "recommendation": "In a later source-change cycle, persist the actual-allocator prefix probe with its next-day canary. No source or tests were changed in this GATE review.",
+      "blocks_narrow_acceptance": false
+    }
+  ],
+  "shown_contracts": [
+    {
+      "evidence_status": "SHOWN",
+      "claim": "The preserved original counterexample loses half the account when the sale-day future close is missing; the candidate sale and trace are unchanged by that missing unheld close.",
+      "references": ["tests/test_module_a_candidate.py:20-42", "scripts/research/module_a_candidate.py:125-166"]
+    },
+    {
+      "evidence_status": "SHOWN",
+      "claim": "Missing required execution opens refuse before that day's execution; missing held closes refuse after opening execution and retain cash/units. No undated recovery argument is accepted.",
+      "references": ["scripts/research/module_a_candidate.py:14-20", "scripts/research/module_a_candidate.py:110-111", "scripts/research/module_a_candidate.py:127-165", "tests/test_module_a_candidate.py:45-76"]
+    },
+    {
+      "evidence_status": "SHOWN",
+      "claim": "The candidate reconstructs sells-first cash credits/debits using multiplicative per-side fee and slippage, rejects material unaffordability or cash mismatch, and labels trace rows MODELLED. Numerical reconciliation allows the explicit scale-relative tolerance; it is not exact-decimal settlement proof.",
+      "references": ["scripts/research/module_a_candidate.py:121-158", "tests/test_module_a_candidate.py:79-123"]
+    },
+    {
+      "evidence_status": "SHOWN",
+      "claim": "Candidate/helper state parity passed at fee/slippage pairs (0,0), (0.005,0.0005) and (0.012,0.0005). Since parity uses the same shared helper, it is not an independent oracle by itself. Independent cash reconstruction, hand-calculated round trips and corruption canaries supply additional cost evidence.",
+      "references": ["tests/test_module_a_candidate.py:79-123", "tests/test_harness_contracts_wp4.py:146-389", "tests/test_corrected_research_math.py:20-25"]
+    }
+  ],
+  "verification": {
+    "pytest": {
+      "evidence_status": "SHOWN",
+      "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_module_a_candidate.py tests/test_harness_contracts_wp4.py tests/test_corrected_research_math.py",
+      "invocations": 1,
+      "exit_code": 0,
+      "result": "52 passed in 2.79s",
+      "limits": "Synthetic tests only. The existing harness writes synthetic fixtures under pytest temporary directories and reads frozen code, not a market archive. Supporting harness tests are not E10/ED002 integration proof."
+    },
+    "additional_in_memory_probes": {
+      "evidence_status": "SHOWN",
+      "command_prefix": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -",
+      "exit_code": 0,
+      "fixture": "random.Random(31), four synthetic assets, 30 daily indices, initial prices 80+20*j, opens perturbed by uniform(-0.01,0.01), closes advanced by exp(gauss(0,0.01+0.01*j)); lo=4, hi=29, all decision weekdays=6, allocator lookback=4/cap=0.30/min_assets=4, cash0=1000, fee=0.012, slip=0.0005; future observations after cutoff 12 replaced with uniform(30,300).",
+      "results": [
+        "PASS: actual allocator NAV and decisions unchanged through cutoff 12; deliberately next-day allocator differed at cutoff 12.",
+        "PASS: separate chained cash/holdings/NAV reconstruction reconciled 100 multi-asset modeled fills with nonnegative cash within 1e-7 numerical tolerance.",
+        "PASS: missing entry-day held close raised IncompleteSimulation only after the paid opening fill, retaining zero cash and units 100/(100*1.005*1.0005); trace contained fill then open, not close."
+      ],
+      "limits": "One deterministic synthetic path plus an entry-day refusal case; not exhaustive numerical-domain, liquidity or financial-model validation. Probes were not persisted as source/test files."
+    }
+  },
+  "unverified_or_not_approved": [
+    {"evidence_status": "UNVERIFIED", "item": "No actual backtest or economic/profitability result was produced or validated."},
+    {"evidence_status": "UNVERIFIED", "item": "No E10/ED002 integration, frozen-market parity or shared-prefix integration was performed."},
+    {"evidence_status": "UNVERIFIED", "item": "No carryforward, partial-fill, capacity, delisting or dated recovery-settlement model was implemented or validated."},
+    {"evidence_status": "SHOWN", "item": "matched_vol_exposure is absent from this candidate and is not claimed implemented."},
+    {"evidence_status": "SHOWN", "item": "The 60-day lookback, 30% cap, sizing/default cash and full-fill/sells-first model remain illustrative; this review does not approve a preregistration or new financial model."},
+    {"evidence_status": "UNVERIFIED", "item": "Point-in-time eligibility, real calendar alignment, data provenance and caller target causality remain caller/integration obligations, not established by these synthetic tests."},
+    {"evidence_status": "UNVERIFIED", "item": "No production, runtime, venue settlement, order routing, configuration or operational readiness was reviewed."}
+  ],
+  "reviewer_changes": {
+    "only_new_file": "docs/review_artifacts/information_edge_repair_20261018/independent_code_review.json",
+    "method": "apply_patch",
+    "source_edits": false,
+    "market_data_access": false,
+    "network_access": false,
+    "private_config_access": false,
+    "docker_or_ops_actions": false,
+    "work_log": "Not edited under the explicit single-new-file constraint. Parent is responsible for recording this independent disposition in docs/work_log/review_stabilized_work_log.md before its handoff."
+  },
+  "handoff": {
+    "active_role": "GATE",
+    "current_objective": "Complete; independent review of the frozen offline candidate and bounded synthetic proof only.",
+    "acceptance_state": "ACCEPTED_WITH_RISK",
+    "active_risks": ["GATE-MA-001: actual-allocator prefix regression is currently an ephemeral review probe, not a persistent test.", "Synthetic proof must not be promoted to strategy, integration, financial-model or operations approval."],
+    "proof_required_next": "No additional proof required to record this narrow hash-bound disposition. Persisting the P3 regression requires a later source/test change cycle. Any market experiment, integration or financial-model acceptance needs its own explicit authorization and scoped review; altered reviewed source hashes invalidate this binding."
+  }
+}

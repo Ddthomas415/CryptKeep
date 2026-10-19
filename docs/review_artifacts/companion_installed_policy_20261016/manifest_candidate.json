@@ -1,0 +1,30 @@
+{
+  "schema": "companion-install-evidence-v1",
+  "state": "INCOMPLETE",
+  "operational_manifest_accepted": false,
+  "compatible_with_executable_plan_loader": false,
+  "evidence": ["report.json", "binary_followup.json", "host_copy_probe.json"],
+  "shown": [
+    "Seven original target IDs/images/exited states/restart policies unchanged during collection",
+    "All four applications have NO_TRADING=true and empty OPENAI_API_KEY comparisons",
+    "Required credential fields are present; no values exported or validity established",
+    "All four application timeout comparisons differ from required 2 seconds",
+    "Read-only-startup variable is absent; old config/source lacks reviewed profile",
+    "Probe source unavailable at inspected installed application paths",
+    "PostgreSQL version marker is 16",
+    "curl and bash are regular ELF files; /bin/sh is a link to bash",
+    "Installed Qdrant constructor deep-copies kwargs before HTTPX forwarding",
+    "Identical host HTTPX transport source yields TypeError when deep-copied"
+  ],
+  "unresolved": {
+    "qdrant_transport_construction": "Repair live transport copying before certifying SDK startup",
+    "shell_source_verification": "Reviewed regular-file reader rejects installed /bin/sh link; retain strict link policy and use an explicit verified binary path or separately reviewed solution",
+    "builder_local_only": "Help flags exist; registry-free builder resolution not demonstrated",
+    "env_stdin_lossless": "Installed parser/descriptor behavior not demonstrated",
+    "image_provenance": "Container filesystem samples are not full immutable-image/writable-layer proof",
+    "recreation_complete": "Complete metadata/import-path reconstruction not verified",
+    "sdk_policy_complete": "Selected sources only; no blanket SDK retry/startup certification",
+    "namespace_and_citation": "No storage query or genuine explanation request authorized in this stage"
+  },
+  "authorization": {"installation": false, "startup": false, "query": false}
+}

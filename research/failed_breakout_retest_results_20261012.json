@@ -1,0 +1,798 @@
+{
+  "plan_sha256": "20da91156d437bc20416c35eab103c4b728d2d3ba37fac000240c8def7a66863",
+  "evidence": "MODELLED",
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "members_verified": 395,
+  "symbols": 403,
+  "assumptions": [
+    "next-open fills with 50 bps fee and 25 bps adverse price per side are modeled, not measured executions",
+    "current archived universe and positive-volume bars are a historical eligibility proxy, not point-in-time listing/status proof"
+  ],
+  "limits": [
+    "previously_explored_data_not_holdout",
+    "single_fixed_rule_no_parameter_search",
+    "no_depth_or_capacity_proof",
+    "close_based_drawdown_not_intrabar",
+    "no_statistical_significance_claim",
+    "cash_interest_and_infrastructure_excluded"
+  ],
+  "single_account": {
+    "status": "INCOMPLETE_HELD_PRICE_GAP",
+    "halted_at": 1786770000,
+    "ending_nav": null,
+    "last_known_nav": {
+      "time": 1786770000,
+      "nav": 819.774420347343,
+      "cash": 0.0,
+      "kind": "MODELED_LIQUIDATION_NOT_FILL"
+    },
+    "ending_cash": 0.0,
+    "position": {
+      "sweep_time": 1786723200,
+      "floor": 0.008056,
+      "ceiling": 0.008585,
+      "stop": 0.00795,
+      "symbol": "TRIA-USD",
+      "decision_time": 1786730400,
+      "dollar_volume_proxy": 85433.0275,
+      "entry_time": 1786730400,
+      "entry_price": 0.0081072175,
+      "cash_at_entry": 810.905972765065,
+      "quantity": 99525.09781458399
+    },
+    "pending": null,
+    "checkpoint": null,
+    "closed_trade_count": 7,
+    "closed_winners": 0,
+    "max_observed_close_drawdown": -0.20625591415830158,
+    "counts": {
+      "sweeps": 292,
+      "confirmed_retests": 28,
+      "unknown_liquidity": 6
+    },
+    "trades": [
+      {
+        "sweep_time": 1786406400,
+        "floor": 0.1607,
+        "ceiling": 0.1634,
+        "stop": 0.1603,
+        "symbol": "CFG-USD",
+        "decision_time": 1786413600,
+        "dollar_volume_proxy": 225005.79046,
+        "entry_time": 1786413600,
+        "entry_price": 0.16230474999999997,
+        "cash_at_entry": 1000.0,
+        "quantity": 6130.59615089448,
+        "exit_time": 1786431600,
+        "exit_price": 0.159201,
+        "exit_reason": "STOP_CLOSE",
+        "cash_after_exit": 971.1170526294594,
+        "net_pnl_usd": -28.88294737054059
+      },
+      {
+        "sweep_time": 1786431600,
+        "floor": 75.59,
+        "ceiling": 76.17,
+        "stop": 75.36,
+        "symbol": "SOL-USD",
+        "decision_time": 1786438800,
+        "dollar_volume_proxy": 44081540.43089634,
+        "entry_time": 1786438800,
+        "entry_price": 76.059675,
+        "cash_at_entry": 971.1170526294594,
+        "quantity": 12.704309142879257,
+        "exit_time": 1786460400,
+        "exit_price": 74.942175,
+        "exit_reason": "STOP_CLOSE",
+        "cash_after_exit": 947.3281162445586,
+        "net_pnl_usd": -23.788936384900808
+      },
+      {
+        "sweep_time": 1786460400,
+        "floor": 0.33287,
+        "ceiling": 0.34083,
+        "stop": 0.33057,
+        "symbol": "ONDO-USD",
+        "decision_time": 1786467600,
+        "dollar_volume_proxy": 3353364.2521637,
+        "entry_time": 1786467600,
+        "entry_price": 0.334163325,
+        "cash_at_entry": 947.3281162445586,
+        "quantity": 2820.821348480902,
+        "exit_time": 1786554000,
+        "exit_price": 0.3326463,
+        "exit_reason": "TIMEOUT",
+        "cash_after_exit": 933.6441056105168,
+        "net_pnl_usd": -13.684010634041783
+      },
+      {
+        "sweep_time": 1786554000,
+        "floor": 0.00201,
+        "ceiling": 0.00216,
+        "stop": 0.00196,
+        "symbol": "IMU-USD",
+        "decision_time": 1786561200,
+        "dollar_volume_proxy": 234519.09197,
+        "entry_time": 1786561200,
+        "entry_price": 0.002015025,
+        "cash_at_entry": 933.6441056105168,
+        "quantity": 461036.0219154679,
+        "exit_time": 1786590000,
+        "exit_price": 0.001945125,
+        "exit_reason": "STOP_CLOSE",
+        "cash_after_exit": 892.288828667683,
+        "net_pnl_usd": -41.355276942833825
+      },
+      {
+        "sweep_time": 1786590000,
+        "floor": 1.393,
+        "ceiling": 1.409,
+        "stop": 1.392,
+        "symbol": "ATOM-USD",
+        "decision_time": 1786597200,
+        "dollar_volume_proxy": 318219.70848,
+        "entry_time": 1786597200,
+        "entry_price": 1.4004925,
+        "cash_at_entry": 892.288828667683,
+        "quantity": 633.955255571782,
+        "exit_time": 1786608000,
+        "exit_price": 1.4054775000000002,
+        "exit_reason": "RANGE_TARGET_CLOSE",
+        "cash_after_exit": 886.5547984743249,
+        "net_pnl_usd": -5.73403019335808
+      },
+      {
+        "sweep_time": 1786608000,
+        "floor": 0.0002376,
+        "ceiling": 0.000298,
+        "stop": 0.00021,
+        "symbol": "BNKR-USD",
+        "decision_time": 1786615200,
+        "dollar_volume_proxy": 1494870.1574752,
+        "entry_time": 1786615200,
+        "entry_price": 0.0002584445,
+        "cash_at_entry": 886.5547984743249,
+        "quantity": 3413282.4574866383,
+        "exit_time": 1786701600,
+        "exit_price": 0.00023940000000000002,
+        "exit_reason": "TIMEOUT",
+        "cash_after_exit": 813.0541212206898,
+        "net_pnl_usd": -73.5006772536351
+      },
+      {
+        "sweep_time": 1786701600,
+        "floor": 6.35,
+        "ceiling": 6.431,
+        "stop": 6.344,
+        "symbol": "AVAX-USD",
+        "decision_time": 1786708800,
+        "dollar_volume_proxy": 3076247.5446749586,
+        "entry_time": 1786708800,
+        "entry_price": 6.3708875,
+        "cash_at_entry": 813.0541212206898,
+        "quantity": 126.98530241532008,
+        "exit_time": 1786723200,
+        "exit_price": 6.417915000000001,
+        "exit_reason": "RANGE_TARGET_CLOSE",
+        "cash_after_exit": 810.905972765065,
+        "net_pnl_usd": -2.148148455624778
+      }
+    ],
+    "decisions": [],
+    "equity": [
+      {
+        "time": 1786410000,
+        "nav": 1000.0,
+        "cash": 1000.0,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786413600,
+        "nav": 1000.0,
+        "cash": 1000.0,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786417200,
+        "nav": 985.111847247553,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786420800,
+        "nav": 983.2864392538887,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786424400,
+        "nav": 979.63562326656,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786428000,
+        "nav": 977.8102152728957,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786431600,
+        "nav": 970.508583298238,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786435200,
+        "nav": 971.1170526294594,
+        "cash": 971.1170526294594,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786438800,
+        "nav": 971.1170526294594,
+        "cash": 971.1170526294594,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786442400,
+        "nav": 956.0284543279971,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786446000,
+        "nav": 956.9110973219692,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786449600,
+        "nav": 960.0633937290122,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786453200,
+        "nav": 955.7762706154336,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786456800,
+        "nav": 957.6676484596596,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786460400,
+        "nav": 947.4542081008402,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786464000,
+        "nav": 947.3281162445586,
+        "cash": 947.3281162445586,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786467600,
+        "nav": 947.3281162445586,
+        "cash": 947.3281162445586,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786471200,
+        "nav": 930.2284710631832,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786474800,
+        "nav": 934.2320427047299,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786478400,
+        "nav": 939.6914585795666,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786482000,
+        "nav": 938.9635364629218,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786485600,
+        "nav": 938.9635364629218,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786489200,
+        "nav": 938.9915334674081,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786492800,
+        "nav": 939.1595154943261,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786496400,
+        "nav": 939.1035214853534,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786500000,
+        "nav": 943.8630122480315,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786503600,
+        "nav": 942.0712039609057,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786507200,
+        "nav": 940.1954046603207,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786510800,
+        "nav": 932.6082164445223,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786514400,
+        "nav": 936.8357641219596,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786518000,
+        "nav": 934.400024731648,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786521600,
+        "nav": 933.8400846419212,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786525200,
+        "nav": 928.9406088568114,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786528800,
+        "nav": 942.8831170910096,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786532400,
+        "nav": 941.371278848747,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786536000,
+        "nav": 944.9268984185125,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786539600,
+        "nav": 945.206868463376,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786543200,
+        "nav": 942.1551949743646,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786546800,
+        "nav": 930.1444800497243,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786550400,
+        "nav": 935.1559438527792,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786554000,
+        "nav": 933.3081415566808,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786557600,
+        "nav": 933.6441056105168,
+        "cash": 933.6441056105168,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786561200,
+        "nav": 933.6441056105168,
+        "cash": 933.6441056105168,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786564800,
+        "nav": 924.3197096967793,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786568400,
+        "nav": 933.4713899908069,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786572000,
+        "nav": 928.8955498437931,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786575600,
+        "nav": 919.7438695497656,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786579200,
+        "nav": 924.3197096967793,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786582800,
+        "nav": 910.5921892557379,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786586400,
+        "nav": 906.0163491087242,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786590000,
+        "nav": 896.8646688146966,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786593600,
+        "nav": 892.288828667683,
+        "cash": 892.288828667683,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786597200,
+        "nav": 892.288828667683,
+        "cash": 892.288828667683,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786600800,
+        "nav": 880.8919218339636,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786604400,
+        "nav": 885.2963814431334,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786608000,
+        "nav": 886.5547984743248,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786611600,
+        "nav": 886.5547984743249,
+        "cash": 886.5547984743249,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786615200,
+        "nav": 886.5547984743249,
+        "cash": 886.5547984743249,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786618800,
+        "nav": 966.518086601095,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786622400,
+        "nav": 895.0370784437762,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786626000,
+        "nav": 893.3432156912329,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786629600,
+        "nav": 898.7635764993707,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786633200,
+        "nav": 890.2942627366551,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786636800,
+        "nav": 927.8980158431121,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786640400,
+        "nav": 923.1552001359915,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786644000,
+        "nav": 918.7511569793794,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786647600,
+        "nav": 934.6734668532846,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786651200,
+        "nav": 907.571662812595,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786654800,
+        "nav": 914.0083412722588,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786658400,
+        "nav": 903.1676196559828,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786662000,
+        "nav": 888.6003999841121,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786665600,
+        "nav": 849.6415566756209,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786669200,
+        "nav": 848.9640115746037,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786672800,
+        "nav": 842.5273331149398,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786676400,
+        "nav": 875.7270430647845,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786680000,
+        "nav": 848.9640115746037,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786683600,
+        "nav": 853.7068272817243,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786687200,
+        "nav": 837.1069723068018,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786690800,
+        "nav": 824.2336153874743,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786694400,
+        "nav": 793.7440858416984,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786698000,
+        "nav": 809.3276231650949,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786701600,
+        "nav": 813.3928937711984,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786705200,
+        "nav": 813.0541212206898,
+        "cash": 813.0541212206898,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786708800,
+        "nav": 813.0541212206898,
+        "cash": 813.0541212206898,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786712400,
+        "nav": 803.7220062671462,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786716000,
+        "nav": 804.982351266781,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786719600,
+        "nav": 803.7220062671462,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786723200,
+        "nav": 810.5278692651744,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786726800,
+        "nav": 810.905972765065,
+        "cash": 810.905972765065,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786730400,
+        "nav": 810.905972765065,
+        "cash": 810.905972765065,
+        "kind": "MODELED_CASH"
+      },
+      {
+        "time": 1786734000,
+        "nav": 800.8086788475609,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786737600,
+        "nav": 808.2171716209133,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786741200,
+        "nav": 805.0562147042829,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786744800,
+        "nav": 808.1183917172687,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786748400,
+        "nav": 813.0573868995034,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786752000,
+        "nav": 808.9086309464262,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786755600,
+        "nav": 813.3537266104375,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786759200,
+        "nav": 817.0085830452914,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786762800,
+        "nav": 815.3293246833314,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786766400,
+        "nav": 815.5268844906208,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      },
+      {
+        "time": 1786770000,
+        "nav": 819.774420347343,
+        "cash": 0.0,
+        "kind": "MODELED_LIQUIDATION_NOT_FILL"
+      }
+    ]
+  },
+  "btc_hold": {
+    "status": "COMPLETE",
+    "ending_liquidation_estimate": 1270.185519923918,
+    "checkpoint_nav": 1299.518208146921,
+    "max_close_drawdown": -0.07800548573239974
+  },
+  "economic_screen": "INCOMPLETE"
+}

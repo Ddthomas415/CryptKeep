@@ -1,0 +1,1063 @@
+{
+ "base_commit": "97c24c8e4884629347a5492ae848133becd9027b",
+ "method": "static import graph (ast) over git-tracked *.py; roots = dashboard/app.py, dashboard/pages/*, scripts/**, services modules with a __main__ guard; tests excluded as roots",
+ "not_reachable": [
+  {
+   "has_main": false,
+   "loc": 41,
+   "module": "core.interfaces",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 61,
+   "module": "core.ipc",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 44,
+   "module": "services.admin.build_runner",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 49,
+   "module": "services.admin.connectivity",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 163,
+   "module": "services.admin.live_enable_wizard",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 22,
+   "module": "services.admin.safe_mode_recovery",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 46,
+   "module": "services.admin.safety_policy",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 112,
+   "module": "services.admin.service_controls",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 35,
+   "module": "services.admin.watchdog",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/admin/service_controls.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 63,
+   "module": "services.ai_engine.trainer",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 126,
+   "module": "services.alerts.alert_router",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 63,
+   "module": "services.alerts.rate_limiter",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/alerts/alert_router.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 9,
+   "module": "services.analytics.equity_curve",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 25,
+   "module": "services.analytics.overlay_impact",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 28,
+   "module": "services.analytics.paper_pnl",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 40,
+   "module": "services.analytics.price_probe",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 81,
+   "module": "services.app.update_checker",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 188,
+   "module": "services.backtest.evidence_paper",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/backtest/evidence_run.py"
+   ],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 459,
+   "module": "services.backtest.evidence_persist",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 181,
+   "module": "services.backtest.evidence_run",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 222,
+   "module": "services.backtest.evidence_shared",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/backtest/evidence_paper.py",
+    "services/backtest/evidence_persist.py",
+    "services/backtest/evidence_run.py",
+    "services/backtest/evidence_windows.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 565,
+   "module": "services.backtest.evidence_windows",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/backtest/evidence_run.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 120,
+   "module": "services.control.canonical_strategy",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 36,
+   "module": "services.data.unified_view",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 63,
+   "module": "services.desktop.service_manager",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 44,
+   "module": "services.diagnostics.config_restore",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 107,
+   "module": "services.diagnostics.preflight",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 65,
+   "module": "services.evidence.quarantine_review",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 117,
+   "module": "services.evidence.scoring",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 63,
+   "module": "services.evidence.webhook_processor",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 3,
+   "module": "services.execution.adapters.base",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 13,
+   "module": "services.execution.adapters.live_ccxt",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 3,
+   "module": "services.execution.adapters.live_stub",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 34,
+   "module": "services.execution.audit_monitor",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 86,
+   "module": "services.execution.ccxt_fills",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 14,
+   "module": "services.execution.ccxt_private_factory",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 219,
+   "module": "services.execution.compat.intent_executor",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 15,
+   "module": "services.execution.event_hooks",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/execution/order_manager.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 22,
+   "module": "services.execution.exec_metrics",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 156,
+   "module": "services.execution.execution_plan_writer",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 60,
+   "module": "services.execution.execution_throttle",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 31,
+   "module": "services.execution.fill_confirmation",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 57,
+   "module": "services.execution.handoff_pack",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 31,
+   "module": "services.execution.held_intents",
+   "nonpy_refs": [
+    ".github/workflows/ci.yml"
+   ],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 4,
+   "module": "services.execution.idempotency",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "dashboard/pages/60_Operations.py"
+   ],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 99,
+   "module": "services.execution.intent_executor_supervisor",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 25,
+   "module": "services.execution.latency",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 26,
+   "module": "services.execution.latency_slippage_guard",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 88,
+   "module": "services.execution.live_enable",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/admin/resume_gate.py",
+    "services/execution/live_arming.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 4,
+   "module": "services.execution.live_fill_mapper",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 8,
+   "module": "services.execution.normalize_ccxt",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/execution/order_manager.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 109,
+   "module": "services.execution.order_intents",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 113,
+   "module": "services.execution.order_manager",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 181,
+   "module": "services.execution.order_router",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 32,
+   "module": "services.execution.orderbook_sanity",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 16,
+   "module": "services.execution.paper_fees",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 65,
+   "module": "services.execution.plan_price_resolver",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 77,
+   "module": "services.execution.reconciliation",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/execution/startup_reconcile.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 99,
+   "module": "services.execution.retry_policy",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/execution/fill_confirmation.py",
+    "services/execution/order_router.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 48,
+   "module": "services.execution.sizing",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 38,
+   "module": "services.execution.startup_reconcile",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 88,
+   "module": "services.execution.startup_status",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 10,
+   "module": "services.governance.campaign_fingerprint",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 13,
+   "module": "services.governance.campaign_state",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/analytics/paper_strategy_evidence_service.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 10,
+   "module": "services.governance.campaign_validation",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 17,
+   "module": "services.governance.claims_guard",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 21,
+   "module": "services.governance.deployment_truth",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 11,
+   "module": "services.governance.operator_overrides",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 51,
+   "module": "services.imitation.external_signal_store",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 33,
+   "module": "services.imitation.overlay_guard",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 67,
+   "module": "services.imitation.signal_overlay",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 31,
+   "module": "services.learning.canary_enforcer",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 99,
+   "module": "services.learning.consensus_signal_engine",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/strategies/live_consensus_filter.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 107,
+   "module": "services.learning.feature_store",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 33,
+   "module": "services.learning.guardrail_logger",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 45,
+   "module": "services.learning.guardrails",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 26,
+   "module": "services.learning.runtime_policy",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/learning/canary_enforcer.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 29,
+   "module": "services.market_data.ws_clients",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 39,
+   "module": "services.markets.quantize",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "tools/phase83_apply.py"
+   ],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 10,
+   "module": "services.meta.version",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 56,
+   "module": "services.net.retry",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 33,
+   "module": "services.onboarding.first_run_checks",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 22,
+   "module": "services.portfolio.fill_event_store",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 4,
+   "module": "services.portfolio.pnl_engine",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 43,
+   "module": "services.portfolio.portfolio_store",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 177,
+   "module": "services.portfolio.position_accounting",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 154,
+   "module": "services.profiles.bundles",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/governance/operator_overrides.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 65,
+   "module": "services.profiles.guardrails",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 243,
+   "module": "services.reconciliation.exchange_reconciler",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 31,
+   "module": "services.reconciliation.symbol_mapping",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/reconciliation/exchange_reconciler.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 35,
+   "module": "services.release.local_build",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/admin/build_runner.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 4,
+   "module": "services.risk.exit_rules",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 22,
+   "module": "services.risk.live_safety_state",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 81,
+   "module": "services.risk.pnl_harvester",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 70,
+   "module": "services.risk.position_sizing",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 0,
+   "module": "services.risk.risk_gate",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 59,
+   "module": "services.runbooks.drift_repair_planner",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/reconciliation/exchange_reconciler.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 35,
+   "module": "services.security.direct_origin_guard",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 66,
+   "module": "services.signals.routing",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/trading/signal_router.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 41,
+   "module": "services.strategies.base",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/strategies/impl_breakout_donchian.py",
+    "services/strategies/impl_ema_cross.py",
+    "services/strategies/impl_mean_reversion_rsi.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 30,
+   "module": "services.strategies.ema_crossover_live",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/strategies/live_factory.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 40,
+   "module": "services.strategies.impl_breakout_donchian",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 34,
+   "module": "services.strategies.impl_ema_cross",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 51,
+   "module": "services.strategies.impl_mean_reversion_rsi",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 27,
+   "module": "services.strategies.live_base",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/strategies/ema_crossover_live.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 36,
+   "module": "services.strategies.live_consensus_filter",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 16,
+   "module": "services.strategies.live_factory",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 26,
+   "module": "services.trading.signal_router",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 44,
+   "module": "services.update.update_state",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 37,
+   "module": "services.utils.config_diff",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 100,
+   "module": "storage.daily_limits_sqlite",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/risk/pnl_harvester.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 95,
+   "module": "storage.exec_metrics_sqlite",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/execution/exec_metrics.py",
+    "services/execution/handoff_pack.py",
+    "services/execution/latency_slippage_guard.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 41,
+   "module": "storage.execution_audit_load",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 94,
+   "module": "storage.fill_reconciler_store_sqlite",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 95,
+   "module": "storage.idempotency_sqlite",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/execution/order_router.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 142,
+   "module": "storage.latency_metrics_sqlite",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 101,
+   "module": "storage.order_idempotency_sqlite",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 170,
+   "module": "storage.order_manager_store_sqlite",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/execution/order_manager.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 164,
+   "module": "storage.order_tracker_store_sqlite",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": false
+  },
+  {
+   "has_main": false,
+   "loc": 184,
+   "module": "storage.portfolio_store_sqlite",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/portfolio/portfolio_store.py",
+    "services/reconciliation/exchange_reconciler.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 94,
+   "module": "storage.reconciliation_store_sqlite",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/reconciliation/exchange_reconciler.py"
+   ],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 226,
+   "module": "storage.risk_ledger_store_sqlite",
+   "nonpy_refs": [],
+   "py_string_refs": [],
+   "tests_import_it": true
+  },
+  {
+   "has_main": false,
+   "loc": 184,
+   "module": "storage.trade_history_sqlite",
+   "nonpy_refs": [],
+   "py_string_refs": [
+    "services/portfolio/fill_event_store.py"
+   ],
+   "tests_import_it": true
+  }
+ ],
+ "production_modules": 582
+}

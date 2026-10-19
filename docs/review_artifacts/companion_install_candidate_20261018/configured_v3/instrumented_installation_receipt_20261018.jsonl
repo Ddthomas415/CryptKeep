@@ -1,0 +1,10 @@
+{"installation_evidence": {"deferred_startup_policies": ["sdk_startup_compatible", "source_imports_frozen"], "network_connectivity_verified": false, "network_contract": "configured-network-v1", "startup_authorized": false}, "phase": "installation_reserved"}
+{"phase": "rename_intended", "target": "phase1-audit-log"}
+{"phase": "detach_intended", "target": "phase1-audit-log"}
+{"phase": "create_intended", "target": "phase1-audit-log"}
+{"installation_evidence": {"checks": {"attempt_matches": true, "created": true, "image_matches": true, "metadata_matches": false, "network_ids_match": true, "never_started": true, "new_identity": true, "present": true, "restart_disabled": true, "zero_restarts": true}}, "phase": "replacement_checks", "target": "phase1-audit-log"}
+{"installation_evidence": {"stage": "replacement_checks"}, "phase": "installation_failed"}
+{"phase": "remove_replacement_intended", "target": "phase1-audit-log"}
+{"phase": "restore_name_intended", "target": "phase1-audit-log"}
+{"phase": "restore_network_intended", "target": "phase1-audit-log"}
+{"installation_evidence": {"configuration_restored": true, "exact_baseline_restored": true, "network_connectivity_verified": false}, "phase": "rollback_checks_completed"}

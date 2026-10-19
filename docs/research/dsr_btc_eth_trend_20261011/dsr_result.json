@@ -1,0 +1,374 @@
+{
+ "sources_sha256": {
+  "majors": "71e10660b400d2c73346ad2071ef9d4bb00342335787f7e32560875250dc6f36",
+  "stress": "18033c9b18370ed341650e87097020eba7a2c8679ab0ff6cb59d70785c35164c",
+  "hybrid": "c0ee996cfebd7c7a8dabeff07fbcdb82c59e9ccffe239f8427e454524c8bca48",
+  "search": "8b635e7bb324beb4912e08d1540d6fc46345b63afb9858c0bfe3fc5bdf386529"
+ },
+ "trial_counts": {
+  "strategy_search_altcoin_events": 448,
+  "binance_hybrid_non_control": 11,
+  "majors_rules_non_benchmark": 4,
+  "top10_trend_rules": 4,
+  "recovery": 16,
+  "recovery_regime": 32,
+  "cmc_proxy": 20,
+  "dynamic_coinbase": 8,
+  "short_hold": 14,
+  "three_ideas": 9,
+  "stress_neighbourhood_post_selection": 105,
+  "stress_one_at_a_time_variants": 13
+ },
+ "V_per_day": {
+  "narrow_105_setting_neighbourhood": 3.935331929301401e-05,
+  "broad_11_binance_strategy_family": 0.0004636024000905694
+ },
+ "V_annual_sharpe_sd": {
+  "narrow_105_setting_neighbourhood": 0.12,
+  "broad_11_binance_strategy_family": 0.411
+ },
+ "results": {
+  "full_2016-07_to_2026-10 | absolute": {
+   "daily_SR": 0.073,
+   "annualised_SR": 1.395,
+   "skew": 0.385,
+   "kurtosis_raw": 12.5,
+   "T_days": 3749,
+   "cells": {
+    "narrow_105_setting_neighbourhood | N=1 (no selection; PSR)": {
+     "SR0_annualised": 0.0,
+     "DSR": 1.0
+    },
+    "narrow_105_setting_neighbourhood | N=4 majors rules in the pre-registered study": {
+     "SR0_annualised": 0.126,
+     "DSR": 1.0
+    },
+    "narrow_105_setting_neighbourhood | N=10 effective: one per strategy family searched Oct 8-9": {
+     "SR0_annualised": 0.189,
+     "DSR": 0.9999
+    },
+    "narrow_105_setting_neighbourhood | N=15 selection chain: 11 Binance strategies + 4 majors rules": {
+     "SR0_annualised": 0.212,
+     "DSR": 0.9999
+    },
+    "narrow_105_setting_neighbourhood | N=120: chain + 105-setting neighbourhood": {
+     "SR0_annualised": 0.311,
+     "DSR": 0.9998
+    },
+    "narrow_105_setting_neighbourhood | N=~576 raw: every configuration tested Oct 8-9": {
+     "SR0_annualised": 0.371,
+     "DSR": 0.9995
+    },
+    "broad_11_binance_strategy_family | N=1 (no selection; PSR)": {
+     "SR0_annualised": 0.0,
+     "DSR": 1.0
+    },
+    "broad_11_binance_strategy_family | N=4 majors rules in the pre-registered study": {
+     "SR0_annualised": 0.433,
+     "DSR": 0.999
+    },
+    "broad_11_binance_strategy_family | N=10 effective: one per strategy family searched Oct 8-9": {
+     "SR0_annualised": 0.648,
+     "DSR": 0.992
+    },
+    "broad_11_binance_strategy_family | N=15 selection chain: 11 Binance strategies + 4 majors rules": {
+     "SR0_annualised": 0.728,
+     "DSR": 0.9842
+    },
+    "broad_11_binance_strategy_family | N=120: chain + 105-setting neighbourhood": {
+     "SR0_annualised": 1.067,
+     "DSR": 0.8546
+    },
+    "broad_11_binance_strategy_family | N=~576 raw: every configuration tested Oct 8-9": {
+     "SR0_annualised": 1.273,
+     "DSR": 0.6525
+    }
+   }
+  },
+  "full_2016-07_to_2026-10 | active_vs_btc": {
+   "daily_SR": -0.01829,
+   "annualised_SR": -0.349,
+   "skew": 0.271,
+   "kurtosis_raw": 22.96,
+   "T_days": 3749,
+   "cells": {
+    "narrow_105_setting_neighbourhood | N=1 (no selection; PSR)": {
+     "SR0_annualised": 0.0,
+     "DSR": 0.1322
+    },
+    "narrow_105_setting_neighbourhood | N=4 majors rules in the pre-registered study": {
+     "SR0_annualised": 0.126,
+     "DSR": 0.0644
+    },
+    "narrow_105_setting_neighbourhood | N=10 effective: one per strategy family searched Oct 8-9": {
+     "SR0_annualised": 0.189,
+     "DSR": 0.0428
+    },
+    "narrow_105_setting_neighbourhood | N=15 selection chain: 11 Binance strategies + 4 majors rules": {
+     "SR0_annualised": 0.212,
+     "DSR": 0.0364
+    },
+    "narrow_105_setting_neighbourhood | N=120: chain + 105-setting neighbourhood": {
+     "SR0_annualised": 0.311,
+     "DSR": 0.0175
+    },
+    "narrow_105_setting_neighbourhood | N=~576 raw: every configuration tested Oct 8-9": {
+     "SR0_annualised": 0.371,
+     "DSR": 0.0107
+    },
+    "broad_11_binance_strategy_family | N=1 (no selection; PSR)": {
+     "SR0_annualised": 0.0,
+     "DSR": 0.1322
+    },
+    "broad_11_binance_strategy_family | N=4 majors rules in the pre-registered study": {
+     "SR0_annualised": 0.433,
+     "DSR": 0.0062
+    },
+    "broad_11_binance_strategy_family | N=10 effective: one per strategy family searched Oct 8-9": {
+     "SR0_annualised": 0.648,
+     "DSR": 0.0007
+    },
+    "broad_11_binance_strategy_family | N=15 selection chain: 11 Binance strategies + 4 majors rules": {
+     "SR0_annualised": 0.728,
+     "DSR": 0.0003
+    },
+    "broad_11_binance_strategy_family | N=120: chain + 105-setting neighbourhood": {
+     "SR0_annualised": 1.067,
+     "DSR": 0.0
+    },
+    "broad_11_binance_strategy_family | N=~576 raw: every configuration tested Oct 8-9": {
+     "SR0_annualised": 1.273,
+     "DSR": 0.0
+    }
+   }
+  },
+  "window_A_2016-07_to_2019 (pre-declared unseen) | absolute": {
+   "daily_SR": 0.07518,
+   "annualised_SR": 1.436,
+   "skew": 0.564,
+   "kurtosis_raw": 15.8,
+   "T_days": 1278,
+   "cells": {
+    "narrow_105_setting_neighbourhood | N=1 (no selection; PSR)": {
+     "SR0_annualised": 0.0,
+     "DSR": 0.9967
+    },
+    "narrow_105_setting_neighbourhood | N=4 majors rules in the pre-registered study": {
+     "SR0_annualised": 0.126,
+     "DSR": 0.9934
+    },
+    "narrow_105_setting_neighbourhood | N=10 effective: one per strategy family searched Oct 8-9": {
+     "SR0_annualised": 0.189,
+     "DSR": 0.9908
+    },
+    "narrow_105_setting_neighbourhood | N=15 selection chain: 11 Binance strategies + 4 majors rules": {
+     "SR0_annualised": 0.212,
+     "DSR": 0.9897
+    },
+    "narrow_105_setting_neighbourhood | N=120: chain + 105-setting neighbourhood": {
+     "SR0_annualised": 0.311,
+     "DSR": 0.9833
+    },
+    "narrow_105_setting_neighbourhood | N=~576 raw: every configuration tested Oct 8-9": {
+     "SR0_annualised": 0.371,
+     "DSR": 0.978
+    },
+    "broad_11_binance_strategy_family | N=1 (no selection; PSR)": {
+     "SR0_annualised": 0.0,
+     "DSR": 0.9967
+    },
+    "broad_11_binance_strategy_family | N=4 majors rules in the pre-registered study": {
+     "SR0_annualised": 0.433,
+     "DSR": 0.9711
+    },
+    "broad_11_binance_strategy_family | N=10 effective: one per strategy family searched Oct 8-9": {
+     "SR0_annualised": 0.648,
+     "DSR": 0.9321
+    },
+    "broad_11_binance_strategy_family | N=15 selection chain: 11 Binance strategies + 4 majors rules": {
+     "SR0_annualised": 0.728,
+     "DSR": 0.9097
+    },
+    "broad_11_binance_strategy_family | N=120: chain + 105-setting neighbourhood": {
+     "SR0_annualised": 1.067,
+     "DSR": 0.7575
+    },
+    "broad_11_binance_strategy_family | N=~576 raw: every configuration tested Oct 8-9": {
+     "SR0_annualised": 1.273,
+     "DSR": 0.6213
+    }
+   }
+  },
+  "window_A_2016-07_to_2019 (pre-declared unseen) | active_vs_btc": {
+   "daily_SR": -0.03662,
+   "annualised_SR": -0.7,
+   "skew": -0.631,
+   "kurtosis_raw": 11.11,
+   "T_days": 1278,
+   "cells": {
+    "narrow_105_setting_neighbourhood | N=1 (no selection; PSR)": {
+     "SR0_annualised": 0.0,
+     "DSR": 0.0932
+    },
+    "narrow_105_setting_neighbourhood | N=4 majors rules in the pre-registered study": {
+     "SR0_annualised": 0.126,
+     "DSR": 0.0594
+    },
+    "narrow_105_setting_neighbourhood | N=10 effective: one per strategy family searched Oct 8-9": {
+     "SR0_annualised": 0.189,
+     "DSR": 0.0467
+    },
+    "narrow_105_setting_neighbourhood | N=15 selection chain: 11 Binance strategies + 4 majors rules": {
+     "SR0_annualised": 0.212,
+     "DSR": 0.0425
+    },
+    "narrow_105_setting_neighbourhood | N=120: chain + 105-setting neighbourhood": {
+     "SR0_annualised": 0.311,
+     "DSR": 0.0281
+    },
+    "narrow_105_setting_neighbourhood | N=~576 raw: every configuration tested Oct 8-9": {
+     "SR0_annualised": 0.371,
+     "DSR": 0.0216
+    },
+    "broad_11_binance_strategy_family | N=1 (no selection; PSR)": {
+     "SR0_annualised": 0.0,
+     "DSR": 0.0932
+    },
+    "broad_11_binance_strategy_family | N=4 majors rules in the pre-registered study": {
+     "SR0_annualised": 0.433,
+     "DSR": 0.0162
+    },
+    "broad_11_binance_strategy_family | N=10 effective: one per strategy family searched Oct 8-9": {
+     "SR0_annualised": 0.648,
+     "DSR": 0.0055
+    },
+    "broad_11_binance_strategy_family | N=15 selection chain: 11 Binance strategies + 4 majors rules": {
+     "SR0_annualised": 0.728,
+     "DSR": 0.0035
+    },
+    "broad_11_binance_strategy_family | N=120: chain + 105-setting neighbourhood": {
+     "SR0_annualised": 1.067,
+     "DSR": 0.0004
+    },
+    "broad_11_binance_strategy_family | N=~576 raw: every configuration tested Oct 8-9": {
+     "SR0_annualised": 1.273,
+     "DSR": 0.0001
+    }
+   }
+  },
+  "window_C_2024_to_2026-10 | absolute": {
+   "daily_SR": 0.04295,
+   "annualised_SR": 0.821,
+   "skew": 0.93,
+   "kurtosis_raw": 11.4,
+   "T_days": 1011,
+   "cells": {
+    "narrow_105_setting_neighbourhood | N=1 (no selection; PSR)": {
+     "SR0_annualised": 0.0,
+     "DSR": 0.9177
+    },
+    "narrow_105_setting_neighbourhood | N=4 majors rules in the pre-registered study": {
+     "SR0_annualised": 0.126,
+     "DSR": 0.8802
+    },
+    "narrow_105_setting_neighbourhood | N=10 effective: one per strategy family searched Oct 8-9": {
+     "SR0_annualised": 0.189,
+     "DSR": 0.8577
+    },
+    "narrow_105_setting_neighbourhood | N=15 selection chain: 11 Binance strategies + 4 majors rules": {
+     "SR0_annualised": 0.212,
+     "DSR": 0.8486
+    },
+    "narrow_105_setting_neighbourhood | N=120: chain + 105-setting neighbourhood": {
+     "SR0_annualised": 0.311,
+     "DSR": 0.806
+    },
+    "narrow_105_setting_neighbourhood | N=~576 raw: every configuration tested Oct 8-9": {
+     "SR0_annualised": 0.371,
+     "DSR": 0.7768
+    },
+    "broad_11_binance_strategy_family | N=1 (no selection; PSR)": {
+     "SR0_annualised": 0.0,
+     "DSR": 0.9177
+    },
+    "broad_11_binance_strategy_family | N=4 majors rules in the pre-registered study": {
+     "SR0_annualised": 0.433,
+     "DSR": 0.7443
+    },
+    "broad_11_binance_strategy_family | N=10 effective: one per strategy family searched Oct 8-9": {
+     "SR0_annualised": 0.648,
+     "DSR": 0.6151
+    },
+    "broad_11_binance_strategy_family | N=15 selection chain: 11 Binance strategies + 4 majors rules": {
+     "SR0_annualised": 0.728,
+     "DSR": 0.562
+    },
+    "broad_11_binance_strategy_family | N=120: chain + 105-setting neighbourhood": {
+     "SR0_annualised": 1.067,
+     "DSR": 0.3382
+    },
+    "broad_11_binance_strategy_family | N=~576 raw: every configuration tested Oct 8-9": {
+     "SR0_annualised": 1.273,
+     "DSR": 0.2217
+    }
+   }
+  },
+  "window_C_2024_to_2026-10 | active_vs_btc": {
+   "daily_SR": -0.01099,
+   "annualised_SR": -0.21,
+   "skew": -0.01,
+   "kurtosis_raw": 10.64,
+   "T_days": 1011,
+   "cells": {
+    "narrow_105_setting_neighbourhood | N=1 (no selection; PSR)": {
+     "SR0_annualised": 0.0,
+     "DSR": 0.3635
+    },
+    "narrow_105_setting_neighbourhood | N=4 majors rules in the pre-registered study": {
+     "SR0_annualised": 0.126,
+     "DSR": 0.2881
+    },
+    "narrow_105_setting_neighbourhood | N=10 effective: one per strategy family searched Oct 8-9": {
+     "SR0_annualised": 0.189,
+     "DSR": 0.2537
+    },
+    "narrow_105_setting_neighbourhood | N=15 selection chain: 11 Binance strategies + 4 majors rules": {
+     "SR0_annualised": 0.212,
+     "DSR": 0.2413
+    },
+    "narrow_105_setting_neighbourhood | N=120: chain + 105-setting neighbourhood": {
+     "SR0_annualised": 0.311,
+     "DSR": 0.1932
+    },
+    "narrow_105_setting_neighbourhood | N=~576 raw: every configuration tested Oct 8-9": {
+     "SR0_annualised": 0.371,
+     "DSR": 0.167
+    },
+    "broad_11_binance_strategy_family | N=1 (no selection; PSR)": {
+     "SR0_annualised": 0.0,
+     "DSR": 0.3635
+    },
+    "broad_11_binance_strategy_family | N=4 majors rules in the pre-registered study": {
+     "SR0_annualised": 0.433,
+     "DSR": 0.1425
+    },
+    "broad_11_binance_strategy_family | N=10 effective: one per strategy family searched Oct 8-9": {
+     "SR0_annualised": 0.648,
+     "DSR": 0.0769
+    },
+    "broad_11_binance_strategy_family | N=15 selection chain: 11 Binance strategies + 4 majors rules": {
+     "SR0_annualised": 0.728,
+     "DSR": 0.0593
+    },
+    "broad_11_binance_strategy_family | N=120: chain + 105-setting neighbourhood": {
+     "SR0_annualised": 1.067,
+     "DSR": 0.0168
+    },
+    "broad_11_binance_strategy_family | N=~576 raw: every configuration tested Oct 8-9": {
+     "SR0_annualised": 1.273,
+     "DSR": 0.0068
+    }
+   }
+  }
+ }
+}

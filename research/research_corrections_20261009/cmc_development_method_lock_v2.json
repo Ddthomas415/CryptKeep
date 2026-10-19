@@ -1,0 +1,275 @@
+{
+  "artifact_type": "synthetic_development_method_lock",
+  "synthetic_only": true,
+  "method": "block28",
+  "cells": [
+    {
+      "model": "iid",
+      "days": 90,
+      "methods": {
+        "entry_day": {
+          "available": 10,
+          "positive": 0,
+          "unavailable": 0
+        },
+        "block28": {
+          "available": 10,
+          "positive": 0,
+          "unavailable": 0
+        },
+        "block56": {
+          "available": 0,
+          "positive": 0,
+          "unavailable": 10
+        }
+      }
+    },
+    {
+      "model": "iid",
+      "days": 365,
+      "methods": {
+        "entry_day": {
+          "available": 10,
+          "positive": 3,
+          "unavailable": 0
+        },
+        "block28": {
+          "available": 10,
+          "positive": 2,
+          "unavailable": 0
+        },
+        "block56": {
+          "available": 10,
+          "positive": 3,
+          "unavailable": 0
+        }
+      }
+    },
+    {
+      "model": "overlap7",
+      "days": 90,
+      "methods": {
+        "entry_day": {
+          "available": 10,
+          "positive": 3,
+          "unavailable": 0
+        },
+        "block28": {
+          "available": 10,
+          "positive": 0,
+          "unavailable": 0
+        },
+        "block56": {
+          "available": 0,
+          "positive": 0,
+          "unavailable": 10
+        }
+      }
+    },
+    {
+      "model": "overlap7",
+      "days": 365,
+      "methods": {
+        "entry_day": {
+          "available": 10,
+          "positive": 3,
+          "unavailable": 0
+        },
+        "block28": {
+          "available": 10,
+          "positive": 1,
+          "unavailable": 0
+        },
+        "block56": {
+          "available": 10,
+          "positive": 1,
+          "unavailable": 0
+        }
+      }
+    },
+    {
+      "model": "persistent",
+      "days": 90,
+      "methods": {
+        "entry_day": {
+          "available": 10,
+          "positive": 1,
+          "unavailable": 0
+        },
+        "block28": {
+          "available": 10,
+          "positive": 0,
+          "unavailable": 0
+        },
+        "block56": {
+          "available": 0,
+          "positive": 0,
+          "unavailable": 10
+        }
+      }
+    },
+    {
+      "model": "persistent",
+      "days": 365,
+      "methods": {
+        "entry_day": {
+          "available": 10,
+          "positive": 4,
+          "unavailable": 0
+        },
+        "block28": {
+          "available": 10,
+          "positive": 1,
+          "unavailable": 0
+        },
+        "block56": {
+          "available": 10,
+          "positive": 2,
+          "unavailable": 0
+        }
+      }
+    },
+    {
+      "model": "heavy_tail",
+      "days": 90,
+      "methods": {
+        "entry_day": {
+          "available": 10,
+          "positive": 3,
+          "unavailable": 0
+        },
+        "block28": {
+          "available": 10,
+          "positive": 2,
+          "unavailable": 0
+        },
+        "block56": {
+          "available": 0,
+          "positive": 0,
+          "unavailable": 10
+        }
+      }
+    },
+    {
+      "model": "heavy_tail",
+      "days": 365,
+      "methods": {
+        "entry_day": {
+          "available": 10,
+          "positive": 2,
+          "unavailable": 0
+        },
+        "block28": {
+          "available": 10,
+          "positive": 1,
+          "unavailable": 0
+        },
+        "block56": {
+          "available": 10,
+          "positive": 1,
+          "unavailable": 0
+        }
+      }
+    },
+    {
+      "model": "volatility_shift",
+      "days": 90,
+      "methods": {
+        "entry_day": {
+          "available": 10,
+          "positive": 2,
+          "unavailable": 0
+        },
+        "block28": {
+          "available": 10,
+          "positive": 2,
+          "unavailable": 0
+        },
+        "block56": {
+          "available": 0,
+          "positive": 0,
+          "unavailable": 10
+        }
+      }
+    },
+    {
+      "model": "volatility_shift",
+      "days": 365,
+      "methods": {
+        "entry_day": {
+          "available": 10,
+          "positive": 3,
+          "unavailable": 0
+        },
+        "block28": {
+          "available": 10,
+          "positive": 1,
+          "unavailable": 0
+        },
+        "block56": {
+          "available": 10,
+          "positive": 1,
+          "unavailable": 0
+        }
+      }
+    },
+    {
+      "model": "shared_unequal",
+      "days": 90,
+      "methods": {
+        "entry_day": {
+          "available": 10,
+          "positive": 2,
+          "unavailable": 0
+        },
+        "block28": {
+          "available": 10,
+          "positive": 1,
+          "unavailable": 0
+        },
+        "block56": {
+          "available": 0,
+          "positive": 0,
+          "unavailable": 10
+        }
+      }
+    },
+    {
+      "model": "shared_unequal",
+      "days": 365,
+      "methods": {
+        "entry_day": {
+          "available": 10,
+          "positive": 3,
+          "unavailable": 0
+        },
+        "block28": {
+          "available": 10,
+          "positive": 2,
+          "unavailable": 0
+        },
+        "block56": {
+          "available": 10,
+          "positive": 2,
+          "unavailable": 0
+        }
+      }
+    }
+  ],
+  "method_history_evaluations": 360,
+  "elapsed_seconds": 0.7365463750320487,
+  "source_hashes": {
+    "scripts/research/run_cmc_calibration_development.py": "6cf3afd99a50dd2fc174cbd9fcae0b5bcfa5a595800190331816f987546317b6",
+    "scripts/research/cmc_calibration_models.py": "a6e8cc43b36f98bc4c64b9c0f2d339f8f34a41fa3583d4d88a69780cc2605f30",
+    "scripts/research/cmc_calibration_intervals.py": "674cd02b5a7f4280d996be53a03dc0d87c2d3a0afab7464be831294686b33498",
+    "docs/research/cmc_trending_log/calibration_power_contract_v2.md": "556eec831a5fba5cd8728cff9aef1d4525f1dbd181ebc596feaea5bbaa80b773"
+  },
+  "scoring_authorized": false,
+  "confirmation_started": false,
+  "limits": [
+    "development_selection_not_confirmation",
+    "no_market_sample_certified"
+  ],
+  "numpy_version": "2.4.4",
+  "runtime_addendum": "Current inspected runtime; original development result preserved; no reselection"
+}

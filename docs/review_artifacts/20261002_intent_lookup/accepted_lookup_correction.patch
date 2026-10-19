@@ -1,0 +1,94 @@
+--- a/storage/intent_queue_sqlite.py
++++ b/storage/intent_queue_sqlite.py
+@@ -218,6 +218,17 @@
+         finally:
+             con.close()
+ 
++    def has_open_strategy_intent(self, symbol: str) -> bool:
++        con = _connect()
++        try:
++            return con.execute(
++                "SELECT 1 FROM trade_intents WHERE source='strategy' AND symbol=? "
++                "AND status IN ('queued', 'submitted') LIMIT 1",
++                (str(symbol),),
++            ).fetchone() is not None
++        finally:
++            con.close()
++
+     def list_intents(self, limit: int = 500, status: str | None = None) -> List[Dict[str, Any]]:
+         con = _connect()
+         try:
+--- a/services/execution/strategy_runner.py
++++ b/services/execution/strategy_runner.py
+@@ -305,16 +305,9 @@
+ def _open_strategy_intent_state(qdb, symbol: str) -> str:
+     """"open", "none", or "unknown" for queued/submitted strategy intents on a symbol."""
+     try:
+-        for row in qdb.list_intents(limit=200):
+-            if (
+-                row.get("source") == "strategy"
+-                and row.get("symbol") == symbol
+-                and row.get("status") in ("queued", "submitted")
+-            ):
+-                return "open"
++        return "open" if qdb.has_open_strategy_intent(symbol) else "none"
+     except Exception:
+         return "unknown"
+-    return "none"
+ 
+ 
+ def _kill_remaining_loops(sdb, k_kill_remaining: str, k_kill_until: str, *, max_cooldown_loops: int) -> int:
+--- a/tests/test_kill_gate_protective_exit.py
++++ b/tests/test_kill_gate_protective_exit.py
+@@ -2,8 +2,29 @@
+ from __future__ import annotations
+ 
+ import pytest
++import sqlite3
+ 
+ from tests.test_kill_cooldown_sessions import BUY, HOLD, KEY, _run_session, _setup
++
++
++@pytest.mark.parametrize("status", ["queued", "submitted"])
++def test_pending_intent_beyond_recent_history_is_found(monkeypatch, tmp_path, status):
++    from storage import intent_queue_sqlite as queue_module
++
++    path = tmp_path / "queue.sqlite"
++    with sqlite3.connect(path) as con:
++        con.execute("CREATE TABLE trade_intents (source TEXT, symbol TEXT, status TEXT, created_ts TEXT)")
++    # Minimal schema isolates the existence query from queue lifecycle writes.
++    with sqlite3.connect(path) as con:
++        con.executemany(
++            "INSERT INTO trade_intents(source, symbol, status, created_ts) VALUES (?, ?, ?, ?)",
++            [("strategy", "ETH/USD", "filled", "2026-10-02")] * 250
++            + [("strategy", "BTC/USD", status, "2026-10-01")],
++        )
++    monkeypatch.setattr(queue_module, "_connect", lambda: sqlite3.connect(path))
++    queue = object.__new__(queue_module.IntentQueueSQLite)
++    assert queue.has_open_strategy_intent("BTC/USD")
++    assert not queue.has_open_strategy_intent("ETH/USD")
+ 
+ 
+ def _hold_long(monkeypatch, runner, emitted, *, qty=1.0, fills=True):
+@@ -14,6 +35,9 @@
+             return {"qty": position["qty"], "avg_price": 100.0, "symbol": symbol}
+ 
+     class Queue:
++        def has_open_strategy_intent(self, symbol):
++            return False
++
+         def list_intents(self, **kwargs):
+             return []
+ 
+@@ -138,6 +162,11 @@
+             return {"qty": 1.0, "avg_price": 100.0, "symbol": symbol}
+ 
+     class Queue:
++        def has_open_strategy_intent(self, symbol):
++            if intent_listing == "error":
++                raise RuntimeError("queue unavailable")
++            return True
++
+         def list_intents(self, **kwargs):
+             if intent_listing == "error":
+                 raise RuntimeError("queue unavailable")

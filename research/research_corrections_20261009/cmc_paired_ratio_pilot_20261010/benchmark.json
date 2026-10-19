@@ -1,0 +1,80 @@
+{
+  "identity": {
+    "generator": "26fb3ce192f93416f215d1c8ec2e3f7bb39489ac85c9b1f20ebc7843858369d4",
+    "candidate": "9c5bca5d77c86dba1bf6017c76fe61722a1f677ed6161582036eb9bb169d6f1c",
+    "completeness": "131c815745bc7905801cbce921827fb814f74a8ae5e7c6d056818032cb7fcfe4",
+    "runner": "5a80150ae062a763147e09235a913752a981f4e5fbd29dba006356293c550aa0",
+    "contract": "29a70e8415470b065398cf7deaff7a63633f18dc321edbbe79b54ddd1f896057",
+    "manifest": "04f3258d157c9dcfe84f118604620dcf513aedbd2525bf49236cc48fcb1b1b37",
+    "python": "3.12.10",
+    "numpy": "2.4.4"
+  },
+  "stage": "paired_ratio_benchmark_20261010",
+  "status": "BENCHMARK_COMPLETE",
+  "durations": [
+    {
+      "model": "iid",
+      "days": 90,
+      "seconds": 0.052872334024868906
+    },
+    {
+      "model": "iid",
+      "days": 365,
+      "seconds": 0.12132487498456612
+    },
+    {
+      "model": "overlap7",
+      "days": 90,
+      "seconds": 0.03413091698894277
+    },
+    {
+      "model": "overlap7",
+      "days": 365,
+      "seconds": 0.11959166696760803
+    },
+    {
+      "model": "persistent",
+      "days": 90,
+      "seconds": 0.034146541031077504
+    },
+    {
+      "model": "persistent",
+      "days": 365,
+      "seconds": 0.11908383300760761
+    },
+    {
+      "model": "heavy_tail",
+      "days": 90,
+      "seconds": 0.034547500021290034
+    },
+    {
+      "model": "heavy_tail",
+      "days": 365,
+      "seconds": 0.11775216704700142
+    },
+    {
+      "model": "volatility_shift",
+      "days": 90,
+      "seconds": 0.03625287499744445
+    },
+    {
+      "model": "volatility_shift",
+      "days": 365,
+      "seconds": 0.18669325002701953
+    },
+    {
+      "model": "shared_unequal",
+      "days": 90,
+      "seconds": 0.2534662089892663
+    },
+    {
+      "model": "shared_unequal",
+      "days": 365,
+      "seconds": 0.5416122499736957
+    }
+  ],
+  "unique_stream_seeds": 2232,
+  "projected_seconds": 76.05897672241554,
+  "within_budget": true,
+  "scoring_authorized": false
+}

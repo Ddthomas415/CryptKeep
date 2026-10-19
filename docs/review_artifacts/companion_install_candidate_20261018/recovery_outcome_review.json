@@ -1,0 +1,101 @@
+{
+  "schema": "companion-recovery-outcome-review-v1",
+  "reviewed_at_utc": "2026-10-18T14:13:13Z",
+  "active_role": "GATE",
+  "reviewer": "Codex independent saved-evidence outcome reviewer",
+  "objective": "Assess only saved recovery receipts, paired metadata and selected-name summary against the preserved reviewed baseline",
+  "risk": "HIGH",
+  "decision": "INCOMPLETE",
+  "exact_restoration": "INCOMPLETE",
+  "configured_network_assessment": "SHOWN: original audit has the expected configured network key and original two aliases; effective network attachment and runtime connectivity remain UNVERIFIED",
+  "installation_authorized": false,
+  "startup_authorized": false,
+  "additional_mutation_authorized": false,
+  "bindings": {
+    "recovery_receipt": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/manual_recovery_receipt_20261018.jsonl",
+      "sha256": "a213af99367e505ac18367c2bdc16c7fe7fba40eb2c9578bbdfbb0deaf7cd7f0"
+    },
+    "installation_failure_receipt": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/installation_receipt_canonical_20261018.jsonl",
+      "sha256": "bae423abdc5943117ceb19c779145d6046fe64f962c92cda5745cb55a441c4a2"
+    },
+    "paired_recovery_capture": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/recovery_after_capture/observation.json",
+      "sha256": "9f54adc0321e60958b54721c5f1afd41ffb953ed99aa157f8208a0181c707b09"
+    },
+    "plan": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/reviewed_stopped_plan.json",
+      "sha256": "a513c458419f01517fec5e771e5be967f85b43391de663dc55c0bcdfb8ac4af4"
+    },
+    "baseline_capture": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/capture/observation.json",
+      "sha256": "5207ca9c190e23f639cec5359508d56aed7ec237b1e8c0571d5748f0401f11ec"
+    },
+    "final_name_summary": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/recovery_final_names.json",
+      "sha256": "cc876f1bc0208093a5ea692b7f76175a599d470f3ff53d8f733aa2cbe0f3ae0b"
+    },
+    "reviewed_recovery_script": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/recover_audit_original_once.py",
+      "sha256": "e169a8780a62915cc90950767e5b65fe71997388384a49d864a4833473f29767"
+    },
+    "independent_script_review": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/recovery_review.json",
+      "sha256": "1c2624b9aac281f93449c2aa80cdba6b4a93aadd5bd0a3b30eb57b704fc9dee8"
+    }
+  },
+  "findings_ordered_by_severity": [
+    {
+      "priority": "P1",
+      "classification": "SHOWN",
+      "title": "Stopped network placeholders are incompatible with the reviewed replacement/rollback snapshot contract",
+      "evidence": "Installer _rows requires every network ID to be a full 64-character ID, while replacement validation requires baseline network IDs and the expected preservation digest. The saved recovery capture shows the reconnected stopped original with the expected network key and aliases but NetworkID empty and IPAMConfig {} instead of null. Recovery's exact final preservation check therefore cannot match the baseline. The recovery receipt ends recovery_incomplete, not rollback_verified.",
+      "consequence": "Exact rollback remains INCOMPLETE despite evidence of restored original identity/name and configured network aliases. The earlier replacement-placeholder report and inspected rejection path explain the same contract incompatibility for created replacements; no fresh raw pre-recovery replacement capture is independently established by this outcome review.",
+      "limit": "This is an observed stopped-metadata incompatibility, not evidence that every Docker deployment behaves this way and not proof of failed or successful runtime networking. No normalization or gate relaxation is approved."
+    }
+  ],
+  "shown": [
+    "Recovery receipt records preconditions_passed, replacement-removal intention, original-name-restoration intention, original-network-restoration intention, then recovery_incomplete; intentions alone are not operation-success receipts",
+    "The two saved recovery metadata payloads agree exactly; recomputed current fingerprint-version-2 snapshots match the saved snapshots",
+    "Recomputed original baseline-capture snapshots match all seven reviewed plan baselines",
+    "Six originals match their complete baseline snapshots exactly",
+    "Audit original full ID, image, restored name, exited state, started timestamp, zero restart count, restart policy no, empty attempt field in the reconciled snapshot and non-network foundation are unchanged; the collector does not independently capture the attempt label in these paired payloads",
+    "Audit raw metadata differs from baseline only within networks: NetworkID is empty instead of the full bridge ID, IPAMConfig is {} instead of null, and DriverOpts is {} instead of null; configured network key, aliases and DNSNames are unchanged",
+    "The saved selected-name summary maps all seven original names to their original IDs and contains no rollback name; its replacement-absent boolean is recorded parent evidence, not an independently repeated daemon listing",
+    "Collector READY_FOR_INDEPENDENT_REVIEW describes capture completeness and matching paired payloads, not successful exact rollback or runtime readiness"
+  ],
+  "audit_comparison": {
+    "original_id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+    "foundation_unchanged": "64be30f8003a07dfb87c0f576672526d50c57d75a83fb66766137261389cb86d",
+    "baseline_metadata_sha256": "4d5aa875420ff08d946ce8fcea19bb347291dc9ebf5ceda88fb4343ccd6eee03",
+    "observed_metadata_sha256": "b26b7e8dc9978efa19f9c65a286d9118731654ce3bb87ce9566edac29620a79a",
+    "baseline_network_ids": ["dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"],
+    "observed_network_ids": [""],
+    "configured_network_key": "phase1_research_copilot_default",
+    "configured_aliases": ["phase1-audit-log", "audit-log"],
+    "snapshot_differing_fields": ["metadata", "networks"]
+  },
+  "verification": {
+    "classification": "SHOWN",
+    "environment_confidence": "VERIFIED_ENV for local saved-JSON inspection, SHA256 bindings and read-only fingerprint recomputation only",
+    "command": "env -i PATH=/usr/bin:/bin ./.venv/bin/python -E -B - <<'PY' ... read saved JSON; recompute existing v2 fingerprints; compare paired payloads, baseline and selected-name map; assert only audit metadata/networks differ ... PY",
+    "result": "exit 0; paired payloads equal; saved snapshots recomputed; original capture matches plan; six complete baseline matches; audit differences limited to metadata/network IDs; saved selected-name map matches plan",
+    "comparison_representation": "Existing tuple fields serialized to JSON arrays solely to compare with persisted JSON. No network field, null/object value, fingerprint input or gate was normalized or changed.",
+    "behavior_tests_run": false,
+    "docker_commands_run": false,
+    "recovery_script_executed_by_reviewer": false,
+    "source_edits": false
+  },
+  "claimed": [
+    "Parent reports exactly one reviewed recovery launch, false return, no additional operations/retry and no service startup",
+    "Saved final-name summary reports attempt_replacement_id_absent=true and services_started=false; raw full listing is not included"
+  ],
+  "remaining_risks": [
+    "Expected network key and aliases demonstrate configured intent, not resolution to the original bridge ID or effective connectivity while NetworkID is empty",
+    "No startup, runtime DNS/connectivity, health, query or full-system readiness is certified",
+    "Saved snapshots show unchanged original started timestamps and exited states at capture time; they are not continuous runtime/event-history proof",
+    "Private environment and storage contents are outside this sanitized selected-metadata review",
+    "No further operational action or architectural change follows from this assessment; preserve the exact mismatch and INCOMPLETE outcome"
+  ]
+}

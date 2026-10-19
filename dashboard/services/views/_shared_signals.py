@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -368,5 +369,7 @@ def _explain_mentions_foreign_asset(payload: dict[str, Any], asset_symbol: str) 
         for key in ("current_cause", "past_precedent", "future_catalyst")
     ).upper()
     known_assets = {"BTC", "ETH", "SOL"}
-    return any(symbol in text for symbol in known_assets if symbol != asset_symbol)
+    # Match whole alphanumeric tokens; punctuation/underscores can separate market pairs.
+    tokens = set(re.findall(r"[^\W_]+", text))
+    return bool(tokens & (known_assets - {asset_symbol}))
 

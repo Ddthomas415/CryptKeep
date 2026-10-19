@@ -1,0 +1,825 @@
+{
+  "status": "FINITE_FAMILY_REFERENCE_ONLY",
+  "identity": {
+    "lock_sha256": "b060fc747748ccdcaf45d3c66e6f7c4ba2f74e576c9e60628a218e3017c76cab",
+    "confirmation_runner_sha256": "a7a8622d349e5e64f4c99fdfd9d30f474d5d652765e67b97086150f323aada22"
+  },
+  "null_cells": [
+    {
+      "model": "heavy_tail",
+      "days": 90,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "heavy_tail",
+      "days": 180,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "heavy_tail",
+      "days": 365,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "iid",
+      "days": 90,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "iid",
+      "days": 180,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "iid",
+      "days": 365,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "overlap7",
+      "days": 90,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "overlap7",
+      "days": 180,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "overlap7",
+      "days": 365,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "persistent",
+      "days": 90,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "persistent",
+      "days": 180,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "persistent",
+      "days": 365,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "shared_unequal",
+      "days": 90,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "shared_unequal",
+      "days": 180,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "shared_unequal",
+      "days": 365,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "volatility_shift",
+      "days": 90,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "volatility_shift",
+      "days": 180,
+      "mean": 0.0,
+      "positives": 7,
+      "wilson95_upper": 0.014378315465766588,
+      "passes": true
+    },
+    {
+      "model": "volatility_shift",
+      "days": 365,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    }
+  ],
+  "descriptive_power": [
+    {
+      "model": "heavy_tail",
+      "days": 90,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "heavy_tail",
+      "days": 90,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "heavy_tail",
+      "days": 90,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "heavy_tail",
+      "days": 180,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "heavy_tail",
+      "days": 180,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "heavy_tail",
+      "days": 180,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "heavy_tail",
+      "days": 365,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "heavy_tail",
+      "days": 365,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "heavy_tail",
+      "days": 365,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "iid",
+      "days": 90,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "iid",
+      "days": 90,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "iid",
+      "days": 90,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "iid",
+      "days": 180,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "iid",
+      "days": 180,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "iid",
+      "days": 180,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "iid",
+      "days": 365,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "iid",
+      "days": 365,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "iid",
+      "days": 365,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "overlap7",
+      "days": 90,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "overlap7",
+      "days": 90,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "overlap7",
+      "days": 90,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "overlap7",
+      "days": 180,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "overlap7",
+      "days": 180,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "overlap7",
+      "days": 180,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "overlap7",
+      "days": 365,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "overlap7",
+      "days": 365,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "overlap7",
+      "days": 365,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "persistent",
+      "days": 90,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "persistent",
+      "days": 90,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "persistent",
+      "days": 90,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "persistent",
+      "days": 180,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "persistent",
+      "days": 180,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "persistent",
+      "days": 180,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "persistent",
+      "days": 365,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "persistent",
+      "days": 365,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "persistent",
+      "days": 365,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "shared_unequal",
+      "days": 90,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "shared_unequal",
+      "days": 90,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "shared_unequal",
+      "days": 90,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "shared_unequal",
+      "days": 180,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "shared_unequal",
+      "days": 180,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "shared_unequal",
+      "days": 180,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "shared_unequal",
+      "days": 365,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "shared_unequal",
+      "days": 365,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "shared_unequal",
+      "days": 365,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "volatility_shift",
+      "days": 90,
+      "mean": 0.0025,
+      "positives": 1,
+      "wilson95_upper": 0.0056425585979579355
+    },
+    {
+      "model": "volatility_shift",
+      "days": 90,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "volatility_shift",
+      "days": 90,
+      "mean": 0.01,
+      "positives": 4,
+      "wilson95_upper": 0.010239556277262253
+    },
+    {
+      "model": "volatility_shift",
+      "days": 180,
+      "mean": 0.0025,
+      "positives": 7,
+      "wilson95_upper": 0.014378315465766588
+    },
+    {
+      "model": "volatility_shift",
+      "days": 180,
+      "mean": 0.005,
+      "positives": 12,
+      "wilson95_upper": 0.02085726847549828
+    },
+    {
+      "model": "volatility_shift",
+      "days": 180,
+      "mean": 0.01,
+      "positives": 26,
+      "wilson95_upper": 0.03782382884268993
+    },
+    {
+      "model": "volatility_shift",
+      "days": 365,
+      "mean": 0.0025,
+      "positives": 1,
+      "wilson95_upper": 0.0056425585979579355
+    },
+    {
+      "model": "volatility_shift",
+      "days": 365,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234
+    },
+    {
+      "model": "volatility_shift",
+      "days": 365,
+      "mean": 0.01,
+      "positives": 2,
+      "wilson95_upper": 0.007262807863492177
+    }
+  ],
+  "refusal_cells": [
+    {
+      "model": "loss_missing",
+      "days": 90,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 90,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 90,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 90,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 180,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 180,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 180,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 180,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 365,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 365,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 365,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 365,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "random_missing",
+      "days": 90,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "random_missing",
+      "days": 90,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "random_missing",
+      "days": 90,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "random_missing",
+      "days": 90,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "random_missing",
+      "days": 180,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "random_missing",
+      "days": 180,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "random_missing",
+      "days": 180,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "random_missing",
+      "days": 180,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "random_missing",
+      "days": 365,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "random_missing",
+      "days": 365,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "random_missing",
+      "days": 365,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "random_missing",
+      "days": 365,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "sparse",
+      "days": 90,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "sparse",
+      "days": 90,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "sparse",
+      "days": 90,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "sparse",
+      "days": 90,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "sparse",
+      "days": 180,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "sparse",
+      "days": 180,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "sparse",
+      "days": 180,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "sparse",
+      "days": 180,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "sparse",
+      "days": 365,
+      "mean": 0.0,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "sparse",
+      "days": 365,
+      "mean": 0.0025,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "sparse",
+      "days": 365,
+      "mean": 0.005,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    },
+    {
+      "model": "sparse",
+      "days": 365,
+      "mean": 0.01,
+      "positives": 0,
+      "wilson95_upper": 0.0038267584855551234,
+      "passes": true
+    }
+  ],
+  "primary_scoring_enabled": false,
+  "not_market_inference": true
+}

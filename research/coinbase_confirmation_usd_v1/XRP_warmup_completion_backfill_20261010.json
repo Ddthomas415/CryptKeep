@@ -1,0 +1,24 @@
+{
+  "archive_path": "/sessions/rcw-011p3wbrlhso7qjbjysguxay/mnt/crypto-bot-pro/research/coinbase_confirmation_usd_v1/public_archive.sqlite",
+  "artifact_type": "ohlcv_archive_backfill_v1",
+  "dataset_hash": "d07f7acaad1809ae617d6614185bd239982cf70aaff5ac552dac1387a010e897",
+  "exchange": "coinbase",
+  "limitations": [
+    "market_data_archive_only",
+    "not_strategy_evidence",
+    "not_promotion_evidence",
+    "not_trading"
+  ],
+  "max_bars": 24,
+  "max_pages": 1,
+  "ok": true,
+  "page_limit": 300,
+  "research_data_ingestion": true,
+  "rows_written": 24,
+  "since_ms": 1791504000000,
+  "source": "public_exchange_ohlcv",
+  "stored_symbol": "XRP/USD",
+  "symbol": "XRP/USD",
+  "timeframe": "1h",
+  "until_ms": 1791586800000
+}

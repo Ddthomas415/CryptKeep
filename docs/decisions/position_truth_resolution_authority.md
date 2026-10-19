@@ -118,3 +118,22 @@ This is a **capability requirement**, not a specific remediation. The audit demo
 | the not-found precedent still carries hysteresis + min-age | the pattern the position lane should adopt is not lost |
 
 **On resolution:** these become enforcement tests for the chosen policy — scheduled reconciliation exists, drift persistence is required before escalation, and `CRITICAL` is bound to the chosen halt authority.
+
+---
+
+## Decision 2026-10-09 (operator: Damian, recorded by Claude cloud session)
+
+- **A. Resolution authority:** HALT AND ADJUDICATE. Confirmed drift arms the canonical kill switch
+  (services/admin/kill_switch.py via services/execution/kill_switch.set_kill_switch); no automatic correction,
+  and nothing in this path ever disarms the kill switch. exchange_reconciler may still DRAFT a repair runbook;
+  drafts are not executed.
+- **B. Trust policy / hysteresis:** per drift key (exchange:cash:<quote>, exchange:position:<base>), CRITICAL means
+  |drift| > 3x tolerance (unchanged rule). Confirmed only when the same key is observed >= 3 times AND its first
+  observation is >= 15 minutes old (CBP_POSITION_DRIFT_MIN_OBS / _MIN_PERSIST_MS; invalid env values fall back to the
+  defaults, never looser). Venue lookup errors are not observations, nor is a venue balance snapshot whose own
+  timestamp is older than 2 minutes (CBP_POSITION_DRIFT_MAX_SNAPSHOT_AGE_MS). A completed clean observation clears the key.
+  tests/test_position_truth_authority.py: the dormant-importer census test was replaced by an enforcement test.
+- **C. Halt authority:** the kill switch, reason "position_truth_drift_confirmed:<keys>".
+- Implementation: services/reconciliation/position_truth.py (run_position_truth_once), tests/test_position_truth.py.
+  READY_FOR_INDEPENDENT_REVIEW. Still open before capped live: a scheduled loop that calls run_position_truth_once
+  while the live lane is enabled (background-job change: separate approval), and alert routing.

@@ -1,0 +1,36 @@
+{
+  "status": "OFFLINE_DERIVED_ARCHIVE_NOT_LIVE_INDEX",
+  "directory": "/private/tmp/cryptkeep-article-derived-v1-gd1abqx9",
+  "persistent_workspace_copy": "/Users/baitus/Downloads/crypto-bot-pro/research/companion_article_body_v1_20261011_gd1abqx9",
+  "source_document_count": 55,
+  "derived_document_count": 55,
+  "extraction_methods": {"observed_article_body_v1": 54, "whole_page_fallback_unverified": 1},
+  "unverified_document_ids": [25],
+  "excluded": [],
+  "file_sha256": {
+    "original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "derived_article_body_v1.json": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+    "query_comparison.json": "88bb8e5a79d711d4339807e34caed4f3b20d89308c3eb4eb13300e397911fb5b"
+  },
+  "parser_source_sha256": "8f35fa96a320766cde343133e8a5ff50775cab1077874cd4f0ce68972124284f",
+  "original_timestamps_preserved": true,
+  "persistent_stores_written": false,
+  "diagnostic_only": true,
+  "parser_deployment": {
+    "status": "VERIFIED_LOCAL_PARSER_DEPLOYMENT",
+    "authenticated_boundary_proof": true,
+    "unknown_layout_unverified": true,
+    "unauthorized_denied": true,
+    "environment_mounts_ports_preserved": true,
+    "unrelated_container_ids_and_start_times_preserved": true,
+    "private_rollback_directory": "/private/tmp/cryptkeep-retrieval-deploy-nubiq_zp"
+  },
+  "query_counts": [
+    {"question": "regulation", "original": 5, "derived": 5},
+    {"question": "What regulation events affect Bitcoin?", "original": 5, "derived": 1},
+    {"question": "Bitcoin liquidations", "original": 5, "derived": 5},
+    {"question": "What news explains Bitcoin liquidations?", "original": 1, "derived": 0},
+    {"question": "zzzzzzunmatched", "original": 0, "derived": 0}
+  ],
+  "limits": ["Files are hashed, not filesystem immutable", "One extraction remains unverified", "Original confidence retained", "No live index switch", "Descriptive comparison, not blind semantic-quality benchmark"]
+}

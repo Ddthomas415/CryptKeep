@@ -1,0 +1,222 @@
+{
+ "stage": "v3_development",
+ "histories_per_cell": 10,
+ "cells": [
+  [
+   "iid",
+   90
+  ],
+  [
+   "iid",
+   365
+  ],
+  [
+   "overlap7",
+   90
+  ],
+  [
+   "overlap7",
+   365
+  ],
+  [
+   "persistent",
+   90
+  ],
+  [
+   "persistent",
+   365
+  ],
+  [
+   "heavy_tail",
+   90
+  ],
+  [
+   "heavy_tail",
+   365
+  ],
+  [
+   "volatility_shift",
+   90
+  ],
+  [
+   "volatility_shift",
+   365
+  ],
+  [
+   "shared_unequal",
+   90
+  ],
+  [
+   "shared_unequal",
+   365
+  ]
+ ],
+ "results": {
+  "C_weekly_t": {
+   "worst_cell_false_positives": 2,
+   "available_in_every_cell": true,
+   "cells": {
+    "iid|90": {
+     "false_positives": 2,
+     "available": 10
+    },
+    "iid|365": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "overlap7|90": {
+     "false_positives": 1,
+     "available": 10
+    },
+    "overlap7|365": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "persistent|90": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "persistent|365": {
+     "false_positives": 1,
+     "available": 10
+    },
+    "heavy_tail|90": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "heavy_tail|365": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "volatility_shift|90": {
+     "false_positives": 1,
+     "available": 10
+    },
+    "volatility_shift|365": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "shared_unequal|90": {
+     "false_positives": 2,
+     "available": 10
+    },
+    "shared_unequal|365": {
+     "false_positives": 1,
+     "available": 10
+    }
+   }
+  },
+  "B_studentized_circular_block14": {
+   "worst_cell_false_positives": 1,
+   "available_in_every_cell": true,
+   "cells": {
+    "iid|90": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "iid|365": {
+     "false_positives": 1,
+     "available": 10
+    },
+    "overlap7|90": {
+     "false_positives": 1,
+     "available": 10
+    },
+    "overlap7|365": {
+     "false_positives": 1,
+     "available": 10
+    },
+    "persistent|90": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "persistent|365": {
+     "false_positives": 1,
+     "available": 10
+    },
+    "heavy_tail|90": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "heavy_tail|365": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "volatility_shift|90": {
+     "false_positives": 1,
+     "available": 10
+    },
+    "volatility_shift|365": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "shared_unequal|90": {
+     "false_positives": 1,
+     "available": 10
+    },
+    "shared_unequal|365": {
+     "false_positives": 0,
+     "available": 10
+    }
+   }
+  },
+  "A_fixed_b_hac": {
+   "worst_cell_false_positives": 2,
+   "available_in_every_cell": true,
+   "cells": {
+    "iid|90": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "iid|365": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "overlap7|90": {
+     "false_positives": 1,
+     "available": 10
+    },
+    "overlap7|365": {
+     "false_positives": 1,
+     "available": 10
+    },
+    "persistent|90": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "persistent|365": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "heavy_tail|90": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "heavy_tail|365": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "volatility_shift|90": {
+     "false_positives": 1,
+     "available": 10
+    },
+    "volatility_shift|365": {
+     "false_positives": 0,
+     "available": 10
+    },
+    "shared_unequal|90": {
+     "false_positives": 2,
+     "available": 10
+    },
+    "shared_unequal|365": {
+     "false_positives": 0,
+     "available": 10
+    }
+   }
+  }
+ },
+ "locked_method": "B_studentized_circular_block14",
+ "selection_rule": "lowest worst-cell false positives; ties C, B, A; unavailable methods filtered first",
+ "module_sha256": "26fb3ce192f93416f215d1c8ec2e3f7bb39489ac85c9b1f20ebc7843858369d4",
+ "runner_sha256": "7a39dedeb157419c7d301dc53625652aa6afc49b80497f6398b03b6e04179357"
+}

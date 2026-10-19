@@ -1,0 +1,141 @@
+diff --git a/tests/test_review_exit_event_journal_claude.py b/tests/test_review_exit_event_journal_claude.py
+new file mode 100644
+index 00000000..2c42eee3
+--- /dev/null
++++ b/tests/test_review_exit_event_journal_claude.py
+@@ -0,0 +1,135 @@
++import json, os, signal, sqlite3, subprocess, sys, textwrap, time
++import pytest
++from storage import strategy_state_sqlite as store
++from storage.exit_event_journal import ExitEventJournal
++
++@pytest.fixture
++def journal(monkeypatch, tmp_path):
++    monkeypatch.setattr(store, 'DB_PATH', tmp_path / 'state.sqlite')
++    return ExitEventJournal()
++
++def loss(event, get):
++    n = int(get('loss_streak') or '0') + 1
++    return {'loss_streak': str(n)}
++
++def rows(tmp_path):
++    con = sqlite3.connect(tmp_path / 'state.sqlite')
++    try: return con.execute('select seq,scope,intent_id,status from exit_events order by seq').fetchall()
++    finally: con.close()
++
++def test_p1_commit_really_commits(journal, tmp_path):
++    journal.prepare('s', 'a', {'x': 1})
++    assert rows(tmp_path) == [(1, 's', 'a', 'pending')]
++    journal.settle('s', 'a', written=True, reduce=loss)
++    assert rows(tmp_path)[0][3] == 'applied'
++    assert store.StrategyStateSQLite().get('loss_streak') == '1'
++
++def test_p2_reducer_failure_rolls_back_partial_updates(journal, tmp_path):
++    journal.prepare('s', 'a', {})
++    class Boom(dict):
++        def items(self):
++            yield 'loss_streak', '9'
++            raise RuntimeError('mid')
++    with pytest.raises(RuntimeError):
++        journal.settle('s', 'a', written=True, reduce=lambda e, g: Boom())
++    assert store.StrategyStateSQLite().get('loss_streak') is None
++    assert rows(tmp_path)[0][3] == 'pending'
++
++def test_p3_nan_payload(journal):
++    with pytest.raises(ValueError):
++        journal.prepare('s', 'a', {'pnl': float('nan')})
++    assert journal.pending('s') == []
++
++def test_p4_unwritten_is_permanent(journal, tmp_path):
++    journal.prepare('s', 'a', {})
++    assert journal.settle('s', 'a', written=False, reduce=loss)
++    assert journal.settle('s', 'a', written=True, reduce=loss) is False
++    assert store.StrategyStateSQLite().get('loss_streak') is None
++
++def test_p5_confirmed_later_event_cannot_be_recorded_as_confirmed(journal, tmp_path):
++    # a: outcome unknown. b: caller KNOWS it was written (upsert returned).
++    journal.prepare('s', 'a', {}); journal.prepare('s', 'b', {})
++    with pytest.raises(ValueError, match='earlier_exit_unresolved'):
++        journal.settle('s', 'b', written=True, reduce=loss)
++    # nothing durable says b was confirmed
++    assert [r[3] for r in rows(tmp_path)] == ['pending', 'pending']
++
++def test_p6_corrupt_payload_blocks_pending_listing(journal, tmp_path):
++    journal.prepare('s', 'a', {}); journal.prepare('s', 'b', {})
++    con = sqlite3.connect(tmp_path / 'state.sqlite'); con.execute("update exit_events set payload='{bad' where intent_id='a'"); con.commit(); con.close()
++    with pytest.raises(Exception) as ei:
++        journal.pending('s')
++    print('pending raises', type(ei.value).__name__)
++    with pytest.raises(Exception) as ei2:
++        journal.settle('s', 'a', written=True, reduce=loss)
++    print('settle raises', type(ei2.value).__name__)
++    # can it be marked unwritten to get past it?
++    assert journal.settle('s', 'a', written=False, reduce=loss)
++
++def test_p7_same_intent_other_scope(journal):
++    journal.prepare('s', 'a', {})
++    with pytest.raises(ValueError, match='exit_event_identity_conflict'):
++        journal.prepare('t', 'a', {})
++
++def test_p8_locked_database(journal, tmp_path):
++    journal.prepare('s', 'a', {})
++    other = sqlite3.connect(tmp_path / 'state.sqlite', isolation_level=None); other.execute('BEGIN IMMEDIATE')
++    t = time.time()
++    with pytest.raises(sqlite3.OperationalError) as ei:
++        journal.settle('s', 'a', written=True, reduce=loss)
++    print('locked after', round(time.time() - t, 1), 's:', ei.value)
++    other.execute('ROLLBACK'); other.close()
++    assert journal.settle('s', 'a', written=True, reduce=loss)
++
++def test_p9_kill_mid_transaction(journal, tmp_path):
++    journal.prepare('s', 'a', {})
++    code = textwrap.dedent(f'''
++        import os, signal, sys
++        sys.path.insert(0, {os.getcwd()!r})
++        from pathlib import Path
++        from storage import strategy_state_sqlite as store
++        store.DB_PATH = Path({str(tmp_path / 'state.sqlite')!r})
++        from storage.exit_event_journal import ExitEventJournal
++        def die(event, get):
++            os.kill(os.getpid(), signal.SIGKILL)
++        ExitEventJournal().settle('s', 'a', written=True, reduce=lambda e, g: ({{'loss_streak': '1'}}, die(e, g))[0])
++    ''')
++    p = subprocess.run([sys.executable, '-B', '-c', code]); assert p.returncode == -9
++    assert rows(tmp_path)[0][3] == 'pending'
++    assert store.StrategyStateSQLite().get('loss_streak') is None
++    assert journal.settle('s', 'a', written=True, reduce=loss)
++
++def test_p10_growth(journal, tmp_path):
++    for i in range(3000):
++        journal.prepare('s', f'i{i}', {})
++    t = time.time()
++    for i in range(3000):
++        journal.settle('s', f'i{i}', written=True, reduce=loss)
++    print('3000 settles', round(time.time() - t, 2), 's')
++    t = time.time(); journal.pending('s'); print('pending() over 3000 applied rows', round((time.time() - t) * 1000, 2), 'ms')
++    assert store.StrategyStateSQLite().get('loss_streak') == '3000'
++
++def test_p11_reducer_can_write_arbitrary_keys(journal):
++    journal.prepare('s', 'a', {})
++    journal.settle('s', 'a', written=True, reduce=lambda e, g: {'entry_price:x': '0'})
++    assert store.StrategyStateSQLite().get('entry_price:x') == '0'
++
++def test_p12_reducer_cannot_delete(journal):
++    st = store.StrategyStateSQLite(); st.set('k', 'v'); journal.prepare('s', 'a', {})
++    journal.settle('s', 'a', written=True, reduce=lambda e, g: {'k': None})
++    print('None value stored as', repr(st.get('k')))
++
++def test_p13_interrupt_after_commit(journal, tmp_path, monkeypatch):
++    journal.prepare('s', 'a', {})
++    real = journal._connect
++    class Con:
++        def __init__(s, c): s.c = c
++        def execute(s, *a): return s.c.execute(*a)
++        def commit(s):
++            s.c.commit(); raise KeyboardInterrupt()
++        def rollback(s): return s.c.rollback()
++        def close(s): return s.c.close()
++    monkeypatch.setattr(journal, '_connect', lambda: Con(real()))
++    with pytest.raises(KeyboardInterrupt):
++        journal.settle('s', 'a', written=True, reduce=loss)
++    assert rows(tmp_path)[0][3] == 'applied' and store.StrategyStateSQLite().get('loss_streak') == '1'

@@ -1,0 +1,18 @@
+--- /dev/null
++++ b/tests/test_review_exit_write_failure.py
+@@ -0,0 +1,15 @@
++from tests.test_runner_blocked_exit_bookkeeping import _holding, HOLD, _run, KEY
++
++
++def test_failed_sell_write_does_not_record_loss(monkeypatch, tmp_path):
++    runner, emitted, state = _holding(monkeypatch, tmp_path, signal=HOLD)
++    def failed_write(self, row):
++        raise RuntimeError('injected queue write failure')
++    monkeypatch.setattr(runner.IntentQueueSQLite, 'upsert_intent', failed_write)
++    try:
++        _run(monkeypatch, runner, loops=1)
++    except RuntimeError as exc:
++        assert str(exc) == 'injected queue write failure'
++    assert emitted == []
++    assert state.get(f'loss_streak:{KEY}') is None
++    assert state.get(f'cum_pnl:{KEY}') is None

@@ -1,0 +1,38 @@
+{
+  "scope": "Offline created-application lifecycle admission only",
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "runtime_state": "INCOMPLETE",
+  "runtime_authorization": "NOT_GRANTED",
+  "independent_review": {
+    "state": "ACCEPTED",
+    "scope": "Specified offline lifecycle delta only",
+    "passed": 131,
+    "seconds": 1.16,
+    "prepatch_failures_independently_reproduced": false,
+    "runtime_authorization": false
+  },
+  "prior_manifests_preserved": [
+    "docs/review_artifacts/companion_offline_controller_20261016_sha256.json",
+    "docs/review_artifacts/companion_runtime_adapter_20261016_sha256.json"
+  ],
+  "proof": {
+    "prepatch_selected": {"failed":12,"passed":1,"deselected":118},
+    "postpatch_targeted": {"passed":131,"seconds":1.30},
+    "full_suite": false,
+    "environment": "VERIFIED_ENV: Python 3.12.10 and synthetic local fixtures only",
+    "docker_or_service_calls": 0
+  },
+  "sha256": {
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_runtime_adapter.py": "67ef50ce076d903c470f881be7851abe78e4c60c7c2044ff1664149e0b82b9a9",
+    "tests/test_companion_existing_controller.py": "984a9a911d5af5e0ba90bdbed839efa711b0115271b2cbeb227ac63e9fd04325",
+    "tests/test_companion_runtime_adapter.py": "361a8021bdeb3a4c59754eb1e59bd55d29d2e8509e16fd9d3b01779eeb2f6187",
+    "tests/test_companion_runtime_wiring.py": "544f296c1453e45eea8c4bffe03242d27c96c9c88562a7ab435367cb23ebdafd"
+  },
+  "limits": [
+    "Prior source acceptances do not automatically apply to these changed files",
+    "Synthetic wiring uses an inline executor and fake Docker state, not actual Docker lifecycle proof",
+    "Cleanup stops confirmed owned starts; it cannot return a once-started application to never-started created state",
+    "No images built, containers replaced, credentials accessed or query attempted"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "fetched_utc": "2026-10-12T19:10:51.739284+00:00",
+  "http_status": 200,
+  "source": "CoinGecko global USD volume; not venue volume or net buying",
+  "identity_policy": "Specific IDs plus symbol match; contract verification absent",
+  "rows": [
+    {
+      "id": "reserve-rights-token",
+      "symbol": "rsr",
+      "name": "Reserve Rights",
+      "market_cap": 142045174,
+      "total_volume": 181768126,
+      "circulating_supply": 62553174091.0,
+      "max_supply": 100000000000.0,
+      "fully_diluted_valuation": 227079083,
+      "last_updated": "2026-10-12T19:09:55.000Z"
+    },
+    {
+      "id": "osmosis",
+      "symbol": "osmo",
+      "name": "Osmosis",
+      "market_cap": 40867537,
+      "total_volume": 32784085,
+      "circulating_supply": 791854481.745379,
+      "max_supply": 1000000000.0,
+      "fully_diluted_valuation": 49369302,
+      "last_updated": "2026-10-12T19:09:55.000Z"
+    },
+    {
+      "id": "origin-protocol",
+      "symbol": "ogn",
+      "name": "Origin Token",
+      "market_cap": 31145413,
+      "total_volume": 71179281,
+      "circulating_supply": 756554180.0,
+      "max_supply": 1409664846.0,
+      "fully_diluted_valuation": 58032319,
+      "last_updated": "2026-10-12T19:09:55.000Z"
+    },
+    {
+      "id": "gitcoin",
+      "symbol": "gtc",
+      "name": "Gitcoin",
+      "market_cap": 27802270,
+      "total_volume": 127372398,
+      "circulating_supply": 87491501.9042429,
+      "max_supply": 100000000.0,
+      "fully_diluted_valuation": 31777109,
+      "last_updated": "2026-10-12T19:09:55.000Z"
+    },
+    {
+      "id": "citrea",
+      "symbol": "ctr",
+      "name": "Citrea",
+      "market_cap": 21026139,
+      "total_volume": 8358835,
+      "circulating_supply": 1500000000.0,
+      "max_supply": 10000000000.0,
+      "fully_diluted_valuation": 140174257,
+      "last_updated": "2026-10-12T19:09:55.000Z"
+    }
+  ]
+}

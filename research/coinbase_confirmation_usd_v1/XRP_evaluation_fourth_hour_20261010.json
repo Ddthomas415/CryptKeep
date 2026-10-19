@@ -1,0 +1,24 @@
+{
+  "archive_path": "/Users/baitus/Downloads/crypto-bot-pro/research/coinbase_confirmation_usd_v1/public_archive.sqlite",
+  "artifact_type": "ohlcv_archive_backfill_v1",
+  "dataset_hash": "6a97ac2dfce6f824ee39e37cd951c73247534dc6efb192de156d290b2993c7a3",
+  "exchange": "coinbase",
+  "limitations": [
+    "market_data_archive_only",
+    "not_strategy_evidence",
+    "not_promotion_evidence",
+    "not_trading"
+  ],
+  "max_bars": 5,
+  "max_pages": 1,
+  "ok": true,
+  "page_limit": 5,
+  "research_data_ingestion": true,
+  "rows_written": 1,
+  "since_ms": 1791601200000,
+  "source": "public_exchange_ohlcv",
+  "stored_symbol": "XRP/USD",
+  "symbol": "XRP/USD",
+  "timeframe": "1h",
+  "until_ms": 1791604799000
+}

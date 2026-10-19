@@ -1,0 +1,124 @@
+{"revision": 58, "sha256": "b151a5359d5068a9fcdfbd96b91b311e2d27a7be83cb2a4eb551a6215f69172c", "patches": 47, "added": ["0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0010", "0011", "0012", "0013", "0014", "0015", "0016", "0017", "0018", "0019", "0020", "0021", "0022", "0023", "0024", "0025", "0026", "0027", "0028", "0029", "0030", "0031", "0032", "0033", "0034", "0035", "0036", "0037", "0038", "0039", "0040", "0041", "0042", "0043", "0044", "0045", "0046", "0047"], "changed": []}
+{"revision": 59, "sha256": "eb7eb67433a3b3379f18c6dac98f764b6355cbff41ea7568b30e3e7f71c6bbe9", "patches": 48, "added": ["0048"], "changed": []}
+{"revision": 60, "sha256": "1d67d0a48b035634c9de71d0cba884f7b7d5ffb1b45016cb769b90d4a369d7de", "patches": 49, "added": ["0049"], "changed": []}
+{"revision": 61, "sha256": "9d3d68b1806d7167930d33365f1d40bca4ac1097fae5b0b71f168c9970632916", "patches": 50, "added": ["0050"], "changed": []}
+{"revision": 62, "sha256": "0da40f3169a8dfc82897fb44a5442ceb2e993a1bc23ef7d31d590bf4ca88c27e", "patches": 51, "added": ["0051"], "changed": []}
+{"revision": 63, "sha256": "ff688bf5d3dab76276996f87e700777edf69f5b2824a3692e48626f8a712e931", "patches": 52, "added": ["0052"], "changed": []}
+{"revision": 64, "sha256": "f9b6276e75a24905c855493fe7d16dfcbac9db84371093ca48f457f747f9fcab", "patches": 53, "added": ["0053"], "changed": []}
+{"revision": 65, "sha256": "cbbab81783d79ad7a8e07e31ae0bc8a1a3daf7059c0451c460c9385111b52433", "patches": 54, "added": ["0054"], "changed": []}
+{"revision": 66, "sha256": "2769d283f24dd52fc05e055c33e2d2365ee66be5f00be36b6ae5cc6ad8272692", "patches": 55, "added": ["0055"], "changed": []}
+{"revision": 67, "sha256": "ea8ae4baeac6e0cdaf996adae6552277f5234a76365f05b9308188ffcf137203", "patches": 56, "added": ["0056"], "changed": []}
+{"revision": 68, "sha256": "af4648fedfe1b8996a725d0c9db3037f113e95713670e81f343e3d40893447dc", "patches": 57, "added": ["0057"], "changed": []}
+{"revision": 69, "sha256": "88cf6ae6fe0e0e91d422ca90f55e8184bf462cbc090e106836266ff17cddbba4", "patches": 58, "added": ["0058"], "changed": []}
+{"revision": 70, "sha256": "b6b7cf1ac0420dd26524f0bf2f9a717de0320c6c6f60f82ef83476790a7588c4", "patches": 59, "added": ["0059"], "changed": []}
+{"revision": 71, "sha256": "9143fc221951bf789ff1f1057735dea66ea4486efcf3bc06b9ab8c1e5a6132ea", "patches": 60, "added": ["0060"], "changed": []}
+{"revision": 72, "sha256": "0c048f6062547fac5fedba35a39ffa6f18a3552334988927a9e7570e6c50b9b8", "patches": 61, "added": ["0061"], "changed": []}
+{"revision": 73, "sha256": "6a50766ad4f0cf789fac28b2e4f28d5661c210aae9eb225465dfa9a652460439", "patches": 62, "added": ["0062"], "changed": []}
+{"revision": 74, "sha256": "336b528e3a6373e0a29d0032b9ce54da23ce036248a00a39a7d84e59ccb69301", "patches": 63, "added": ["0063"], "changed": []}
+{"revision": 75, "sha256": "cf689a28f8a81dddd8bd8364ef0e32b836735f1cd66c1d8bd0585388c2e8815c", "patches": 64, "added": ["0064"], "changed": []}
+{"revision": 76, "sha256": "d40a0ed18d02c1941c296f2c467d17638870339eac85e0463adc28061e75d241", "patches": 65, "added": ["0065"], "changed": []}
+{"revision": 77, "sha256": "d9b6ffe10f231014a50d623d384d90fea94d3c5948cb10702226c1ea80c08209", "patches": 66, "added": ["0066"], "changed": []}
+{"revision": 78, "sha256": "2f5278bcca42273458a9b1624bbbf086084e99fdb50c04206696cf01b21c160a", "patches": 67, "added": ["0067"], "changed": []}
+{"revision": 79, "sha256": "ccd19aca5ebf682fc4e9bbf449e927db7b4ffbf958fd131b78bd79e09bf6aa47", "patches": 68, "added": ["0068"], "changed": []}
+{"revision": 80, "sha256": "b4e66e2b13b83f7d2d0fd3e04a249fce6c27eed00c7e429fe2ceebef3efa61d6", "patches": 69, "added": ["0069"], "changed": []}
+{"revision": 81, "sha256": "4f5d0561ada11b7b3db8a1dfde04b27ec4069bcc866698a0c14ff8c50d5d7c95", "patches": 70, "added": ["0070"], "changed": []}
+{"revision": 82, "sha256": "dd98b39d0a5819311344bf3d4afba189fa680c1a02f5b419af218d51a21c173d", "patches": 71, "added": ["0071"], "changed": []}
+{"revision": 83, "sha256": "e6e01a982d441104e2f070a6cd5acb2a9fa5dd6ad689270f9d83d329795dfe3d", "patches": 72, "added": ["0072"], "changed": []}
+{"revision": 84, "sha256": "f5f668571a96818f9e85f5cf791a3506724f27bd55a994653fb80e89a92cfca7", "patches": 73, "added": ["0073"], "changed": []}
+{"revision": 85, "sha256": "9b55e30b0bc68001293ac94459b61e851550d19cfa8db9c660cfbfe054d836d1", "patches": 74, "added": ["0074"], "changed": []}
+{"revision": 86, "sha256": "dadf3614635b510db564b6b18406f435e476ad1fe1772f6aedc3ce24da3a391e", "patches": 75, "added": ["0075"], "changed": []}
+{"revision": 87, "sha256": "0540eeec764923a91d422e7401e5f1db9bfb5361a05a9651cc2ac35d7ab5a1e2", "patches": 75, "added": [], "changed": []}
+WORKBOOK SHEETS ['Summary', 'Backlog']
+xl/worksheets/sheet1.xml
+A1=CryptKeep backlog: where each item stands
+A2=As of 2026-10-05. Source: REMAINING_TASKS.md at checkout 620bc8dbe and my review of the unpushed series (patches 0031-0062, bundle rev73).
+A4=Status | B4=Active | C4=Deferred live-money | D4=Deferred structure | E4=Total
+A5=Reviewed, patch waiting for your review | B5=12 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Active",Backlog!$D$2:$D$75,$A5)] | C5=9 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Deferred live-money",Backlog!$D$2:$D$75,$A5)] | D5=2 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Deferred structure",Backlog!$D$2:$D$75,$A5)] | E5=23 [formula:SUM(B5:D5)]
+A6=Reviewed, no defect found | B6=1 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Active",Backlog!$D$2:$D$75,$A6)] | C6=0 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Deferred live-money",Backlog!$D$2:$D$75,$A6)] | D6=3 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Deferred structure",Backlog!$D$2:$D$75,$A6)] | E6=4 [formula:SUM(B6:D6)]
+A7=Docs/test guard slice, tests pass | B7=1 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Active",Backlog!$D$2:$D$75,$A7)] | C7=1 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Deferred live-money",Backlog!$D$2:$D$75,$A7)] | D7=16 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Deferred structure",Backlog!$D$2:$D$75,$A7)] | E7=18 [formula:SUM(B7:D7)]
+A8=Closed in the backlog | B8=3 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Active",Backlog!$D$2:$D$75,$A8)] | C8=3 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Deferred live-money",Backlog!$D$2:$D$75,$A8)] | D8=2 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Deferred structure",Backlog!$D$2:$D$75,$A8)] | E8=8 [formula:SUM(B8:D8)]
+A9=Needs you, the host or time | B9=8 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Active",Backlog!$D$2:$D$75,$A9)] | C9=6 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Deferred live-money",Backlog!$D$2:$D$75,$A9)] | D9=2 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Deferred structure",Backlog!$D$2:$D$75,$A9)] | E9=16 [formula:SUM(B9:D9)]
+A10=Standing rule | B10=5 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Active",Backlog!$D$2:$D$75,$A10)] | C10=0 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Deferred live-money",Backlog!$D$2:$D$75,$A10)] | D10=0 [formula:COUNTIFS(Backlog!$A$2:$A$75,"Deferred structure",Backlog!$D$2:$D$75,$A10)] | E10=5 [formula:SUM(B10:D10)]
+A11=Total | B11=30 [formula:SUM(B5:B10)] | C11=19 [formula:SUM(C5:C10)] | D11=25 [formula:SUM(D5:D10)] | E11=74 [formula:SUM(E5:E10)]
+A13=Notes
+A14=Each item has one status. Four items (Active 25 and 27, Deferred live-money 7 and 8) have a document whose guard tests pass but still need a rehearsal or host drill; they are counted under 'Needs you, the host or time'. | B14= | C14= | D14= | E14=
+A15='Reviewed, patch waiting for your review' means I found something and wrote a patch. None of the 32 patches is applied, merged or pushed. | B15= | C15= | D15= | E15=
+A16='Docs/test guard slice, tests pass' means the 306 guard tests passed at the head of the series. I did not read each document line by line against its test. | B16= | C16= | D16= | E16=
+A17='Closed in the backlog' is the backlog's own text, not my verification. | B17= | C17= | D17= | E17=
+A18=Not on the backlog but blocking: nothing feeds either live order path; and the open decisions on the gate cohort, the paper fee, market-quality strictness and funding_extreme. | B18= | C18= | D18= | E18=
+xl/worksheets/sheet2.xml
+A1=Section | B1=# | C1=Item | D1=Status | E1=Patches | F1=What it needs / note
+A2=Active | B2=1 | C2=Paper evidence collection until es_daily_trend_v1 meets its gate | D2=Needs you, the host or time | E2=0043, 0044, 0050 | F2=Calendar time: more qualified round trips (last count seen 3 of 5)
+A3=Active | B3=2 | C3=Manual strategy performance decision after the gate | D3=Needs you, the host or time | E3= | F3=Item 1 first, then your decision
+A4=Active | B4=3 | C4=Shadow would-be-fill recorder | D4=Reviewed, patch waiting for your review | E4=0051 | F4=
+A5=Active | B5=4 | C5=Private lifecycle proof on a sandbox venue | D5=Needs you, the host or time | E5= | F5=Sandbox or testnet credentials, or your written exception
+A6=Active | B6=5 | C6=Launch evidence packet | D6=Needs you, the host or time | E6= | F6=Host drills: restart, kill switch, halt/resume, rollback
+A7=Active | B7=6 | C7=Remaining PR #43 rebuild candidates | D7=Standing rule | E7= | F7=Only if a gap is reproduced on current master
+A8=Active | B8=7 | C8=Pullback Stage 0 proof | D8=Docs/test guard slice, tests pass | E8= | F8=Proof passed in July; decision recorded as isolated research candidate
+A9=Active | B9=8 | C9=Keep composite/hybrid advancement blocked | D9=Standing rule | E9= | F9=
+A10=Active | B10=9 | C10=Short/context follow-through (crypto-edge store) | D10=Reviewed, patch waiting for your review | E10=0053 | F10=
+A11=Active | B11=10 | C11=Strategy registry fail closed | D11=Closed in the backlog | E11= | F11=Accepted in the backlog text
+A12=Active | B12=11 | C12=Archive-first backtesting | D12=Reviewed, patch waiting for your review | E12=0049 | F12=
+A13=Active | B13=12 | C13=Wire funding_extreme into research/paper | D13=Reviewed, patch waiting for your review | E13=0052 | F13=Thresholds never reached in 86 days: your decision
+A14=Active | B14=13 | C14=Crypto-edge paper qualification | D14=Closed in the backlog | E14= | F14=Accepted by you 2026-07-18
+A15=Active | B15=14 | C15=Scheduled crypto-edge collection | D15=Reviewed, patch waiting for your review | E15=0054 | F15=Alert threshold decision open
+A16=Active | B16=15 | C16=Derivatives roadmap (read-only) | D16=Reviewed, patch waiting for your review | E16=0055 | F16=
+A17=Active | B17=16 | C17=Hetzner host follow-through | D17=Needs you, the host or time | E17= | F17=Access to the Hetzner host
+A18=Active | B18=17 | C18=Keep scripts and golden-path docs aligned | D18=Standing rule | E18= | F18=
+A19=Active | B19=18 | C19=Retired-family regression guard | D19=Standing rule | E19= | F19=
+A20=Active | B20=19 | C20=Candidate-advisor coverage | D20=Closed in the backlog | E20= | F20=Marked done 2026-07-03
+A21=Active | B21=20 | C21=Strategy-runner lock | D21=Reviewed, patch waiting for your review | E21=0031 | F21=
+A22=Active | B22=21 | C22=Sample-mode provenance | D22=Reviewed, patch waiting for your review | E22=0032, 0033, 0034 | F22=
+A23=Active | B23=22 | C23=Per-strategy governance configs | D23=Standing rule | E23= | F23=Open until baselines and campaign manifests exist
+A24=Active | B24=23 | C24=Paper/gate alerting | D24=Reviewed, patch waiting for your review | E24=0046 | F24=Alerts are off on the laptop: your decision
+A25=Active | B25=24 | C25=Stop and retirement criteria | D25=Reviewed, patch waiting for your review | E25=0036 | F25=
+A26=Active | B26=25 | C26=First-hour paper-to-shadow runbook | D26=Needs you, the host or time | E26= | F26=A rehearsal; the runbook exists and its guard tests pass
+A27=Active | B27=26 | C27=Widen the paper universe? | D27=Needs you, the host or time | E27= | F27=Your decision
+A28=Active | B28=27 | C28=Single-operator absence runbook | D28=Needs you, the host or time | E28= | F28=Host drills; the runbook exists and its guard tests pass
+A29=Active | B29=28 | C29=Paper fee/PnL semantics | D29=Reviewed, patch waiting for your review | E29=0035, 0036 | F29=Paper fee decision open
+A30=Active | B30=29 | C30=Market-quality defaults fail closed | D30=Reviewed, patch waiting for your review | E30=0042 | F30=Strictness decision open
+A31=Active | B31=30 | C31=Dormant risk-based sizing | D31=Reviewed, no defect found | E31= | F31=
+A32=Deferred live-money | B32=1 | C32=Decimal order math | D32=Needs you, the host or time | E32= | F32=Accepted slices are closed; the wider Decimal migration is a capped-live prerequisite
+A33=Deferred live-money | B33=2 | C33=Trading config fail closed | D33=Closed in the backlog | E33=0040 | F33=Accepted 2026-08-13; 0040 adds paper cost config
+A34=Deferred live-money | B34=3 | C34=Typed retry classification | D34=Reviewed, patch waiting for your review | E34=0045 | F34=
+A35=Deferred live-money | B35=4 | C35=Crash-consistency tests (live reconcile) | D35=Reviewed, patch waiting for your review | E35=0044, 0057, 0058 | F35=Review 0057 first
+A36=Deferred live-money | B36=5 | C36=Deployment units | D36=Reviewed, patch waiting for your review | E36=0060 | F36=Host install still open
+A37=Deferred live-money | B37=6 | C37=Loop heartbeats and dead-man | D37=Reviewed, patch waiting for your review | E37=0043 | F37=
+A38=Deferred live-money | B38=7 | C38=State-store consolidation decision | D38=Needs you, the host or time | E38= | F38=Scheduled position reconciliation is a capped-live prerequisite; guard tests pass
+A39=Deferred live-money | B39=8 | C39=Backup/restore drill | D39=Needs you, the host or time | E39= | F39=An executed drill on the host; guard tests pass
+A40=Deferred live-money | B40=9 | C40=Surface evidence-write failures | D40=Closed in the backlog | E40= | F40=Accepted in the backlog text
+A41=Deferred live-money | B41=10 | C41=Consolidate config authority | D41=Docs/test guard slice, tests pass | E41= | F41=
+A42=Deferred live-money | B42=11 | C42=Clock sanity | D42=Reviewed, patch waiting for your review | E42=0047 | F42=
+A43=Deferred live-money | B43=12 | C43=Server secrets and rotation | D43=Needs you, the host or time | E43= | F43=A secrets injection and rotation drill on the host
+A44=Deferred live-money | B44=13 | C44=Supply-chain verification | D44=Needs you, the host or time | E44= | F44=A host vulnerability audit or your waiver
+A45=Deferred live-money | B45=14 | C45=Operator action audit coverage | D45=Reviewed, patch waiting for your review | E45=0062 | F45=Kill-switch part only; other action families not reviewed
+A46=Deferred live-money | B46=15 | C46=Execution-cost research | D46=Needs you, the host or time | E46= | F46=Shadow data with price paths, which does not exist yet
+A47=Deferred live-money | B47=16 | C47=AI gate in the live router | D47=Reviewed, patch waiting for your review | E47=0056 | F47=
+A48=Deferred live-money | B48=17 | C48=Resume-hard live governance | D48=Closed in the backlog | E48= | F48=Accepted 2026-07-05
+A49=Deferred live-money | B49=18 | C49=Intent TTL | D49=Reviewed, patch waiting for your review | E49=0039 | F49=Review together with 0045
+A50=Deferred live-money | B50=19 | C50=Reference-price fallbacks | D50=Reviewed, patch waiting for your review | E50=0037, 0038 | F50=
+A51=Deferred structure | B51=1 | C51=Resolve run-mode / bot-process stubs | D51=Docs/test guard slice, tests pass | E51= | F51=
+A52=Deferred structure | B52=2 | C52=Reduce duplicate modules | D52=Docs/test guard slice, tests pass | E52= | F52=
+A53=Deferred structure | B53=3 | C53=Walk-forward over the archive | D53=Closed in the backlog | E53= | F53=Folded into Active 11
+A54=Deferred structure | B54=4 | C54=Document websocket surfaces | D54=Docs/test guard slice, tests pass | E54= | F54=
+A55=Deferred structure | B55=5 | C55=Backtest-to-paper fill parity test | D55=Reviewed, no defect found | E55= | F55=
+A56=Deferred structure | B56=6 | C56=Synthetic-mid OHLCV branch | D56=Reviewed, no defect found | E56= | F56=
+A57=Deferred structure | B57=7 | C57=Paper-ledger invariant tests | D57=Reviewed, patch waiting for your review | E57=0041 | F57=
+A58=Deferred structure | B58=8 | C58=Classify paper execution surfaces | D58=Docs/test guard slice, tests pass | E58= | F58=
+A59=Deferred structure | B59=9 | C59=Classify signal-discovery modules | D59=Reviewed, no defect found | E59= | F59=
+A60=Deferred structure | B60=10 | C60=Classify storage orphans | D60=Docs/test guard slice, tests pass | E60= | F60=
+A61=Deferred structure | B61=11 | C61=Extract promotion-gate logic into a library | D61=Needs you, the host or time | E61= | F61=The backlog says not to change the gate script mid-campaign
+A62=Deferred structure | B62=12 | C62=Triage the broader product objective | D62=Docs/test guard slice, tests pass | E62= | F62=
+A63=Deferred structure | B63=13 | C63=Pattern/candlestick research behind gates | D63=Docs/test guard slice, tests pass | E63= | F63=
+A64=Deferred structure | B64=14 | C64=Dashboard wiring triage | D64=Docs/test guard slice, tests pass | E64= | F64=
+A65=Deferred structure | B65=15 | C65=Companion-repo dependency | D65=Docs/test guard slice, tests pass | E65= | F65=Touches Docker startup: review as deploy scope
+A66=Deferred structure | B66=16 | C66=Risk-tiered governance lanes | D66=Docs/test guard slice, tests pass | E66= | F66=
+A67=Deferred structure | B67=17 | C67=Operational core and quarantine policy | D67=Docs/test guard slice, tests pass | E67= | F67=
+A68=Deferred structure | B68=18 | C68=Protect operator attention | D68=Docs/test guard slice, tests pass | E68= | F68=
+A69=Deferred structure | B69=19 | C69=Clarify repo identity in docs | D69=Docs/test guard slice, tests pass | E69= | F69=
+A70=Deferred structure | B70=20 | C70=AI-copilot context governance | D70=Docs/test guard slice, tests pass | E70= | F70=
+A71=Deferred structure | B71=21 | C71=Operator briefing agent | D71=Needs you, the host or time | E71= | F71=Future scope: a regular advisory briefing agent
+A72=Deferred structure | B72=22 | C72=Ignored CI tests | D72=Reviewed, patch waiting for your review | E72=0061 | F72=Changes required CI; not yet run on GitHub
+A73=Deferred structure | B73=23 | C73=Retention policy for stores | D73=Docs/test guard slice, tests pass | E73= | F73=
+A74=Deferred structure | B74=24 | C74=Scheduled strategy-review ritual | D74=Docs/test guard slice, tests pass | E74= | F74=
+A75=Deferred structure | B75=25 | C75=Stock-options requirements | D75=Closed in the backlog | E75= | F75=Ends with a merged-and-closed status note

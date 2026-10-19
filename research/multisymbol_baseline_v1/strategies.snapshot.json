@@ -1,0 +1,41 @@
+{
+  "snapshot_version": 1,
+  "plan_sha256": "a920ad6ae6d9770b6b28becac8c0f9937802be92c1088d11cb3a60b2d29e0c41",
+  "source_commit_context": "620bc8dbeee71cca327042902759e219e18f30b6",
+  "checkout_is_dirty": true,
+  "strategies": {
+    "breakout_default": {
+      "name": "breakout_donchian", "trade_enabled": true,
+      "donchian_len": 20, "filter_window": 8, "min_volatility_pct": 0.2,
+      "min_volume_ratio": 0.95, "min_trend_efficiency": 0.1,
+      "min_channel_width_pct": 0.25, "breakout_buffer_pct": 0.05,
+      "require_directional_confirmation": true
+    },
+    "ema_cross_default": {
+      "name": "ema_cross", "trade_enabled": true, "ema_fast": 12,
+      "ema_slow": 26, "filter_window": 8, "min_volatility_pct": 0.2,
+      "min_volume_ratio": 0.95, "min_trend_efficiency": 0.15,
+      "min_cross_gap_pct": 0.02
+    },
+    "mean_reversion_default": {
+      "name": "mean_reversion_rsi", "trade_enabled": true, "rsi_len": 14,
+      "rsi_buy": 30.0, "rsi_sell": 70.0, "sma_len": 50, "filter_window": 8,
+      "max_volatility_pct": 1.5, "min_volume_ratio": 0.9,
+      "max_trend_efficiency": 0.98, "max_sma_distance_pct": 6.0,
+      "require_reversal_confirmation": true
+    }
+  },
+  "selected_source_sha256": {
+    "services/strategies/presets.py": "002735111eb3eda44e940e98756a80fc5b7a571b08d05d9edf611e988386fd95",
+    "services/strategies/strategy_registry.py": "e27facd6fd05f3a89c5559194e5cc6f61bf06a3e708596b62d5603e0bbbebae1",
+    "services/backtest/next_open_research.py": "4f5bb1a98be726915bca155b8ea483d5036982ed786665e504c1e444ce2d1a7f",
+    "scripts/research/run_multisymbol_baseline.py": "d6ddce6d69a755db67c542e6e29f3e68f06612bd2fc95373490f671e3ead2e78",
+    "scripts/research/freeze_multisymbol_archive.py": "e22abd0b251ed7a3f4ab6bb1947aa075d70a7b72d7708e4c548eb4c10ea795bc",
+    "services/backtest/research_prefix_freeze.py": "5af4a5fb8390644dc846ee47851ff222c127e51ab8852a15b595b5a6a147b74f",
+    "services/strategies/indicators.py": "756c04052a0fd0f403d0b1c527b64a1bed586f1897d72663b3c96972709b8f23",
+    "services/strategies/market_filters.py": "37fec0214006c94124ee5166fb469fdacc3e52f2b6caaed64f9b926d5412399a",
+    "services/strategies/breakout_donchian.py": "c9e02234ae2a2366dce2e509f86137b28fd6869f92254cd4a68567a882fa03e0",
+    "services/strategies/ema_cross.py": "cffb26005525ac141ed3eed1248582d9b34281d7aa09c968aa239e0b8ed1219e",
+    "services/strategies/mean_reversion_rsi.py": "6eebd51ae8c0ed7afbdd1d6fc4ff4d492dd51e036b9e5c5d73dd86ddbe876ed2"
+  }
+}

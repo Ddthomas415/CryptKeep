@@ -1,0 +1,49 @@
+{
+  "base": "620bc8dbeee71cca327042902759e219e18f30b6",
+  "candidate_root": "/private/tmp/cryptkeep-treatment-candidate-5n68179x",
+  "files": [
+    {
+      "path": "storage/execution_store_sqlite.py",
+      "sha256": "a2065f660b12aad962bb5ca66051546fa316ee0150f38d24fb35326ccc032119"
+    },
+    {
+      "path": "services/execution/_executor_reconcile.py",
+      "sha256": "b1741a2fbab0badd7b63b02f3b932da2c824968e5a02518889f9560793617864"
+    },
+    {
+      "path": "services/journal/fill_sink.py",
+      "sha256": "b7a3a7934b5358a450828dbe3b61ddeaa8722cd4285d0f9eb8d4c8b7d512c42e"
+    },
+    {
+      "path": "tools/repo_doctor.py",
+      "sha256": "7b2b4e3c5cdd45719e99adcfdd8162d2406d252f76bdbcc1429dbfc242489ceb"
+    },
+    {
+      "path": "tests/test_fill_sink_logging.py",
+      "sha256": "e8f84314d8064fadd70c3aa3aaa782139171c95155bbcbcb1c3fe7cc26eef16b"
+    },
+    {
+      "path": "tests/test_live_executor_latency_safety_integration.py",
+      "sha256": "c2cdca055177006861465a0d0a8e3c8490ae3b55416bc3e3270cc3061ce8fc03"
+    },
+    {
+      "path": "tests/test_live_executor_shadow_and_trade_reconcile.py",
+      "sha256": "91c2daee8d4341efa88ee4792186f03caa8798bb3e180e7b78502e0b08dc3af7"
+    },
+    {
+      "path": "tests/test_repo_doctor_strict.py",
+      "sha256": "cd88fab9b1553016b8c64d76261c27f76dec9fcc476a44fda4f9f9047ae18094"
+    },
+    {
+      "path": "tests/test_reconcile_accounting_delivery.py",
+      "sha256": "5c54f0264dc4d48b4462a5bfab5dcb7429d56e761dce18110860f424124eb34b"
+    },
+    {
+      "path": "tests/test_symbol_loss_fill_once.py",
+      "sha256": "2c18db8832e96a191d423005f6dcf2957544de8d9388643709fedbe7602b6f6e"
+    }
+  ],
+  "patch_sha256": "b92ebcc95d02e720e0e472628207b1cd5a6bb604e290114c9f357f3ed57791fa",
+  "scope": "10 source/test files only; unrelated work and documentation excluded",
+  "full_suite": "not run on this candidate; prior working snapshot proof is separate"
+}

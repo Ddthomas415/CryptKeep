@@ -1,0 +1,131 @@
+{
+ "products_used": 467,
+ "data_first_day": "2017-01-01",
+ "data_last_day": "2026-10-11",
+ "primary": {
+  "A": {
+   "xs_momentum": {
+    "end_usd": 1009.17,
+    "cagr_pct": 0.2,
+    "sharpe": 0.415,
+    "max_drawdown_pct": 71.3,
+    "days": 1454,
+    "annual_turnover_x": 25.4
+   },
+   "hold_btc": {
+    "end_usd": 2835.66,
+    "cagr_pct": 29.9,
+    "sharpe": 0.761,
+    "max_drawdown_pct": 78.8,
+    "days": 1454,
+    "annual_turnover_x": 0.3
+   },
+   "equal_weight_top20": {
+    "end_usd": 1006.0,
+    "cagr_pct": 0.2,
+    "sharpe": 0.502,
+    "max_drawdown_pct": 90.7,
+    "days": 1454,
+    "annual_turnover_x": 5.9
+   },
+   "btc_eth_trend": {
+    "end_usd": 4652.5,
+    "cagr_pct": 47.1,
+    "sharpe": 1.206,
+    "max_drawdown_pct": 53.0,
+    "days": 1454,
+    "annual_turnover_x": 8.7
+   }
+  },
+  "B": {
+   "xs_momentum": {
+    "end_usd": 132.67,
+    "cagr_pct": -34.5,
+    "sharpe": -0.197,
+    "max_drawdown_pct": 92.0,
+    "days": 1743,
+    "annual_turnover_x": 35.4
+   },
+   "hold_btc": {
+    "end_usd": 1755.86,
+    "cagr_pct": 12.5,
+    "sharpe": 0.497,
+    "max_drawdown_pct": 66.8,
+    "days": 1743,
+    "annual_turnover_x": 0.2
+   },
+   "equal_weight_top20": {
+    "end_usd": 223.68,
+    "cagr_pct": -26.9,
+    "sharpe": -0.081,
+    "max_drawdown_pct": 85.8,
+    "days": 1743,
+    "annual_turnover_x": 9.0
+   },
+   "btc_eth_trend": {
+    "end_usd": 2218.9,
+    "cagr_pct": 18.2,
+    "sharpe": 0.676,
+    "max_drawdown_pct": 33.0,
+    "days": 1743,
+    "annual_turnover_x": 11.8
+   }
+  },
+  "FULL": {
+   "xs_momentum": {
+    "end_usd": 142.37,
+    "cagr_pct": -19.9,
+    "sharpe": 0.103,
+    "max_drawdown_pct": 96.8,
+    "days": 3199,
+    "annual_turnover_x": 30.7
+   },
+   "hold_btc": {
+    "end_usd": 5134.76,
+    "cagr_pct": 20.5,
+    "sharpe": 0.631,
+    "max_drawdown_pct": 78.8,
+    "days": 3199,
+    "annual_turnover_x": 0.1
+   },
+   "equal_weight_top20": {
+    "end_usd": 323.27,
+    "cagr_pct": -12.1,
+    "sharpe": 0.271,
+    "max_drawdown_pct": 90.7,
+    "days": 3199,
+    "annual_turnover_x": 7.5
+   },
+   "btc_eth_trend": {
+    "end_usd": 10323.44,
+    "cagr_pct": 30.5,
+    "sharpe": 0.935,
+    "max_drawdown_pct": 53.0,
+    "days": 3199,
+    "annual_turnover_x": 10.4
+   }
+  }
+ },
+ "dsr_full_broad_V": {
+  "N=1": 0.6195,
+  "N=4": 0.1643,
+  "N=15": 0.032,
+  "N=120": 0.0022,
+  "N=576": 0.0003
+ },
+ "pass_checks": {
+  "1_positive_cagr_A_and_B": false,
+  "2_sharpe_above_btc_A_and_B": false,
+  "3_sharpe_above_equal_weight_A_and_B": false,
+  "4_dsr_N15_ge_0.90": false
+ },
+ "verdict": "FAIL"
+}
+L14 {'A': (27.2, 0.708, 85.5), 'B': (-45.8, -0.457, 97.4), 'FULL': (-19.5, 0.108, 99.5)}
+L56 {'A': (6.0, 0.515, 72.6), 'B': (-33.5, -0.108, 92.2), 'FULL': (-17.6, 0.187, 97.4)}
+K3 {'A': (-16.1, 0.271, 82.7), 'B': (-40.9, -0.194, 95.9), 'FULL': (-30.2, 0.039, 98.8)}
+K10 {'A': (24.8, 0.679, 67.1), 'B': (-26.9, -0.23, 84.3), 'FULL': (-6.4, 0.215, 93.5)}
+N10 {'A': (15.6, 0.584, 72.9), 'B': (-25.9, -0.191, 81.2), 'FULL': (-9.2, 0.201, 90.8)}
+N40 {'A': (-8.4, 0.306, 77.6), 'B': (-53.0, -0.477, 98.4), 'FULL': (-35.9, -0.118, 99.5)}
+cost0.5 {'A': (6.8, 0.494, 70.9), 'B': (-28.4, -0.079, 88.0), 'FULL': (-13.5, 0.202, 94.9)}
+cost1.0 {'A': (-6.0, 0.336, 71.7), 'B': (-40.1, -0.315, 94.7), 'FULL': (-25.9, 0.003, 98.0)}

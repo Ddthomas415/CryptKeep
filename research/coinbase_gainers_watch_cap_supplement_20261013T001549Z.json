@@ -1,0 +1,74 @@
+{
+  "fetched_utc": "2026-10-13T00:15:49.664621+00:00",
+  "http_status": 200,
+  "source": "CoinGecko global USD turnover, not venue volume or net buying",
+  "identity_policy": "Specific IDs and symbol match; contract identity unverified",
+  "rows": [
+    {
+      "id": "reserve-rights-token",
+      "symbol": "rsr",
+      "name": "Reserve Rights",
+      "market_cap": 132760049,
+      "total_volume": 245060297,
+      "circulating_supply": 62553174091.0,
+      "max_supply": 100000000000.0,
+      "fully_diluted_valuation": 212235512,
+      "last_updated": "2026-10-13T00:14:53.000Z"
+    },
+    {
+      "id": "osmosis",
+      "symbol": "osmo",
+      "name": "Osmosis",
+      "market_cap": 38369919,
+      "total_volume": 43369695,
+      "circulating_supply": 748440232.78772,
+      "max_supply": 1000000000.0,
+      "fully_diluted_valuation": 49040813,
+      "last_updated": "2026-10-13T00:14:53.000Z"
+    },
+    {
+      "id": "origin-protocol",
+      "symbol": "ogn",
+      "name": "Origin Token",
+      "market_cap": 26446081,
+      "total_volume": 75134604,
+      "circulating_supply": 756543858.0,
+      "max_supply": 1409664846.0,
+      "fully_diluted_valuation": 49276866,
+      "last_updated": "2026-10-13T00:14:53.000Z"
+    },
+    {
+      "id": "gitcoin",
+      "symbol": "gtc",
+      "name": "Gitcoin",
+      "market_cap": 24455034,
+      "total_volume": 160436932,
+      "circulating_supply": 87491501.9042429,
+      "max_supply": 100000000.0,
+      "fully_diluted_valuation": 27951325,
+      "last_updated": "2026-10-13T00:14:53.000Z"
+    },
+    {
+      "id": "citrea",
+      "symbol": "ctr",
+      "name": "Citrea",
+      "market_cap": 20509439,
+      "total_volume": 10831557,
+      "circulating_supply": 1500000000.0,
+      "max_supply": 10000000000.0,
+      "fully_diluted_valuation": 136729594,
+      "last_updated": "2026-10-13T00:14:53.000Z"
+    },
+    {
+      "id": "shping",
+      "symbol": "shping",
+      "name": "Shping",
+      "market_cap": 0.0,
+      "total_volume": 96864,
+      "circulating_supply": 0.0,
+      "max_supply": null,
+      "fully_diluted_valuation": 6362277,
+      "last_updated": "2026-10-13T00:14:53.000Z"
+    }
+  ]
+}

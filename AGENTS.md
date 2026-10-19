@@ -103,12 +103,17 @@ Architecture decision:
 - If user-facing behavior, setup, or workflow changes, update docs/tests.
 
 ## No-direction default loop
-If no direction is given:
+First continue the user's accepted objective. Brief acknowledgements do not
+restart a general production-readiness audit. Consult current code and the work
+log; do not reopen completed issues without new contradictory evidence.
+Use `runtime_prompt.md` for continuation and safe work during pending processes.
+
+If no accepted objective remains, use this selection loop:
 
 1. **AUDITOR**
-   - assess visible repo for production readiness
+   - assess current evidence against the user's objective
    - classify findings by severity and evidence
-   - choose exactly one highest-leverage next action
+   - choose exactly one highest-leverage next action; for research, prioritize a meaningful economic answer
 
 2. **DIRECTOR**
    - convert that into exactly one scoped objective
@@ -127,7 +132,7 @@ If no direction is given:
    - HIGH risk: stop at **READY_FOR_INDEPENDENT_REVIEW**
 
 5. **AUDITOR**
-   - reassess repo after accepted change
+   - reassess progress toward the objective after accepted change
    - identify what improved
    - identify the next highest-leverage blocker or weakness
 
@@ -144,11 +149,17 @@ The repo is production-ready enough when:
 
 ## Stop conditions
 Stop when any of these is true:
-1. Production baseline is satisfied
+1. The accepted objective is complete (for a hardening objective, the production baseline is satisfied)
 2. The next blocker requires human decision
 3. The next blocker requires missing external information
 4. The current task is high-risk and has reached **READY_FOR_INDEPENDENT_REVIEW**
-5. Further work would be low-value cleanup rather than meaningful production hardening
+5. Further work would be low-value cleanup rather than meaningful progress on the accepted objective
+
+These stops apply to the affected objective. While tests, CI or independent
+review are pending, continue safe non-conflicting work within accepted scope.
+Do not modify the reviewed artifacts or use unaccepted changes as dependencies.
+Do not invent new work solely to avoid waiting; report pending proof when no
+useful independent work remains.
 
 ## Command rules
 - Treat command confidence as:
@@ -188,6 +199,8 @@ Stop when any of these is true:
   - `[fill in if used]`
 
 ## Project-specific conventions
+- Before any strategy, edge or backtest research, read `docs/research/RESEARCH_BRIEF.md` (results to date, costs, research rules).
+- CryptKeep is multi-symbol: follow `docs/research/MULTI_SYMBOL_MANDATE.md`. Keep `research/symbol_coverage.csv` current, and keep project scope, research evidence and trading eligibility separate.
 - Python environment:
   - `source .venv/bin/activate`
 - Do not edit:
@@ -198,6 +211,23 @@ Stop when any of these is true:
 - Prefer changing source `.py` files, not compiled `.pyc` files.
 - Prefer targeted tests over broad rewrites.
 - Update docs when changing setup, runtime behavior, operator workflow, or supported surfaces.
+
+## Research questions
+- Restate the question in one line using repo context. In this repo "edge" means
+  a trading advantage, not a company or product name. Ask one question only when
+  two readings would lead to materially different research.
+- Open each primary source before citing it, and label claims SHOWN, CLAIMED or
+  UNVERIFIED. Vendor marketing and press releases are CLAIMED at best. Never
+  include advertisements or sponsored results as findings.
+- Separate legal information advantages from material non-public information.
+  Never propose obtaining or using confidential or misappropriated information.
+- Check fit before depth: state data, infrastructure and time costs against the
+  operator's capital and the data the repo already collects. Say plainly when
+  costs exceed plausible returns.
+- Answer first, then at most one table, then sources. Stop after the first
+  useful answer and ask whether to go deeper; do not keep expanding on "carry on".
+- Turn any surviving idea into a candidate hypothesis for pre-registration
+  (signal, data, costs, pass/fail). Run nothing on market data without approval.
 
 ## Known likely-sensitive areas
 - `services/security/auth_runtime_guard.py`

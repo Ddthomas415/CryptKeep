@@ -1,0 +1,42 @@
+# Result: weekly cross-sectional momentum (E6), 2026-10-12. Verdict: FAIL
+
+> **Review correction (2026-10-12).**
+> - **Simulator defect:** this simulator executes at the last recorded close when a candle is missing, including after delisting. A missing candle is not an executable price.
+>   - 15 of 492 products have gaps. The largest are XRP (904 days, its US suspension) and STG (483 days).
+>   - BTC and ETH have none.
+>   - The defect is believed to flatter the coins that stop trading, so it is unlikely to reverse the FAIL. That remains UNVERIFIED until a corrected rerun.
+> - **Downloader defect:** the original downloader could silently save incomplete files. It now records failures (see fetch.py).
+> - **The equal-weight top-20 benchmark** is weekly-rotated and includes BTC/ETH. Its losses show that this rotating basket lost money; they do not show that altcoins generally cannot work.
+> - **The BTC/ETH figures** below come from this simulator. Use `../btc_eth_corrected_comparison_20261012/` instead.
+
+Pre-registered in `PREREGISTRATION.md` before any download. Amendment 1 (delisted coins, valuation after trading stops) was added before the first run.
+- **Data:** Coinbase public daily candles, 2017-01-01 to 2026-10-11, for 492 USD products: 403 online and 89 delisted. 467 were used after excluding stablecoins and products with less than 90 days of history.
+- **Files:** script `xs_momentum.py`; result `xs_momentum_result.json` (sha256 658c566c...), which contains the prereg/script hashes and a hash of each candle file.
+- **Costs:** 0.50% fee plus 0.25% slippage per side, on every strategy and benchmark.
+
+| Period | Strategy | $1,000 → | CAGR | Sharpe | Max drawdown | Turnover/yr |
+|---|---|---|---|---|---|---|
+| A 2018-21 | **Momentum top 5** | $1,120 | 2.9% | 0.45 | 71% | 25x |
+| A | Hold BTC | $2,836 | 29.9% | 0.76 | 79% | |
+| A | Equal-weight top-20 alts+majors | $1,092 | 2.2% | 0.53 | 90% | 6x |
+| A | BTC+ETH 28d trend | $4,653 | 47.1% | 1.21 | 53% | 9x |
+| B 2022-26 | **Momentum top 5** | $133 | −34.5% | −0.20 | 92% | 35x |
+| B | Hold BTC | $1,756 | 12.5% | 0.50 | 67% | |
+| B | Equal-weight top 20 | $219 | −27.2% | −0.04 | 87% | 9x |
+| B | BTC+ETH 28d trend | $2,219 | 18.2% | 0.68 | 33% | 12x |
+| FULL 2018-26 | **Momentum top 5** | $158 | −19.0% | 0.12 | 97% | 31x |
+| FULL | Hold BTC | $5,135 | 20.5% | 0.63 | 79% | |
+| FULL | Equal-weight top 20 | $254 | −14.5% | 0.26 | 94% | 8x |
+| FULL | BTC+ETH 28d trend | $10,323 | 30.5% | 0.94 | 53% | 10x |
+
+- **Pass checks:** all four failed.
+- **DSR (FULL, broad V):** 0.64 at N=1, 0.18 at N=4, 0.04 at N=15.
+- **Sensitivity (reported only):** every variant lost money in period B. This covers lookback 14/56, top 3/10, universe 10/40 and costs 0.5%/1.0%.
+
+## Reading
+- **DISPROVEN** for this rule and its eight reported variants on Coinbase. Weekly alt momentum lost almost everything, even with the survivorship bias in its favour.
+- **Equal-weight basket:** a weekly-rotated equal-weight basket of the 20 most-traded Coinbase coins (which includes BTC/ETH) lost about 75% since 2018 in this simulator, while BTC rose about 5x. This describes that basket only, not all altcoin strategies.
+- **BTC+ETH 28d trend (a benchmark here, not the test subject):** beat BTC hold on CAGR, Sharpe and drawdown in both A and B from 2018.
+  - This differs from the earlier majors windows that start in 2016, where it trailed BTC on return. The 2016-17 BTC run dominates those.
+  - Its advantage is start-date and regime dependent: it mostly comes from sidestepping the 2018 and 2022 crashes.
+  - This cross-check is not new confirmatory evidence. The earlier DSR and registered-REJECT findings still apply.

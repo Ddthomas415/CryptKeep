@@ -1,0 +1,46 @@
+# CryptKeep multi-symbol research mandate
+
+Adopted 2026-10-15 by operator decision. This mandate can only be changed by an explicit, documented project-level decision. No experiment result or summary rewrite changes it.
+
+## Project scope
+CryptKeep is a multi-symbol cryptocurrency research, portfolio-construction and paper-trading platform. BTC and ETH are individual research subjects and benchmarks, not the project's exclusive scope.
+
+**Supported universe:** the symbols in `config/candidate_universe.yaml`.
+- tier1, tier2 and watchlist: 25 symbols.
+- coinbase_pairs (USD), the Coinbase-spot core: BTC, ETH, SOL, DOGE, LTC, LINK, AVAX, ADA, XRP, DOT.
+- Checked on 2026-10-15: all 25 trade as Coinbase USD products. MATIC is delisted (successor POL), and XRP has a 904-day trading suspension gap.
+
+## Three layers that must not be mixed
+1. **Project scope:** the supported universe and this mandate.
+2. **Research evidence:** results for a specific symbol, strategy family, period, cost model and evaluation protocol.
+3. **Trading eligibility:** whether a specific candidate is approved for paper trading, and separately whether it is eligible to be considered for live trading.
+
+- Success on BTC/ETH does not make them the only viable assets.
+- Failure on selected altcoins does not reject all altcoins, symbols or strategy families.
+- Researching a symbol does not authorize trading it. All safety gates, pre-registration rules and paper-trading requirements stay in force.
+
+## Coverage registry (enforced)
+`research/symbol_coverage.csv` holds one row per symbol × strategy family.
+- **Allowed statuses:** UNTESTED, IN_PROGRESS, REJECTED_UNDER_TESTED_CONDITIONS, INCONCLUSIVE, CANDIDATE, APPROVED_FOR_PAPER.
+- **Every row that is not UNTESTED** records its scope (period, cost model, execution) and an evidence path.
+- **Basket-level tests** (a strategy run across many symbols at once) are recorded as their own rows under a `UNIVERSE:` name. They do not change any single symbol's status.
+- **Exclusions** are recorded with a reason type: data quality, venue, liquidity, cost, risk or research priority. An exclusion is never a conclusion about profitability.
+- `tests/test_symbol_coverage_registry.py` fails if any universe symbol has no row, a status is not allowed, or a non-UNTESTED row lacks scope or evidence.
+
+## Required behaviour
+- **Consider the universe:** when proposing research, portfolio construction or architecture, consider the supported universe and explain any restriction to a subset. Do not default to BTC+ETH only because the latest brief names a BTC+ETH candidate.
+- **Scope every negative finding:** symbols, strategy family, period, data coverage, costs, liquidity filters, execution model and criteria. Never promote it into a universal claim.
+- **Judge portfolio value, not only standalone results:** a symbol can be weak alone but useful in a portfolio. More symbols are not automatic diversification when crash correlations are high.
+- **Count every symbol tested as a trial:** symbol expansion adds to the project's trial count and the selection-bias (DSR) correction.
+
+## Research integrity (unchanged)
+- No invented positive results, relaxed costs, holdout tuning, or revived rejected variants without a documented new hypothesis and protocol.
+- Multi-symbol scope does not require finding a profitable strategy for every symbol. Negative results are valid and preserved.
+
+## Reporting requirement
+Every research summary reports separately:
+- universe coverage (evaluated vs not yet evaluated);
+- results by symbol and strategy family;
+- limitations and the conditions of each rejection;
+- current paper candidates and why they are eligible;
+- the next justified research action across the broader universe.

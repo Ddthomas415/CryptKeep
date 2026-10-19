@@ -1,0 +1,438 @@
+{
+  "raw_sha256": "1002af509769b5790782dcbf97ac4b3518ec384322b7c0b18df0724e473d33bb",
+  "scope": "raw leadership concentration; no trade analysis",
+  "leader_observations": 288,
+  "unique_leader_coins": 31,
+  "leader_counts": {
+    "GTC-USD": 34,
+    "DIMO-USD": 29,
+    "SAND-USD": 25,
+    "OGN-USD": 23,
+    "STRK-USD": 21,
+    "MAGIC-USD": 20,
+    "HONEY-USD": 19,
+    "MET-USD": 16,
+    "RLC-USD": 14,
+    "NMR-USD": 12,
+    "W-USD": 8,
+    "FORT-USD": 7,
+    "DNT-USD": 7,
+    "NOM-USD": 6,
+    "HFT-USD": 6,
+    "BASECAT-USD": 5,
+    "LCX-USD": 4,
+    "CAP-USD": 4,
+    "S-USD": 4,
+    "ALEPH-USD": 3,
+    "CT-USD": 3,
+    "QI-USD": 3,
+    "ORCA-USD": 3,
+    "PYR-USD": 3,
+    "AST-USD": 2,
+    "RAD-USD": 2,
+    "STX-USD": 1,
+    "MEGA-USD": 1,
+    "MDT-USD": 1,
+    "KAIO-USD": 1,
+    "RSR-USD": 1
+  },
+  "top5_observation_share": 0.4583333333333333,
+  "leadership_episodes": [
+    {
+      "symbol": "AST-USD",
+      "first_time": 1790791200,
+      "last_time": 1790794800,
+      "hours": 2
+    },
+    {
+      "symbol": "ALEPH-USD",
+      "first_time": 1790798400,
+      "last_time": 1790802000,
+      "hours": 2
+    },
+    {
+      "symbol": "LCX-USD",
+      "first_time": 1790805600,
+      "last_time": 1790805600,
+      "hours": 1
+    },
+    {
+      "symbol": "ALEPH-USD",
+      "first_time": 1790809200,
+      "last_time": 1790809200,
+      "hours": 1
+    },
+    {
+      "symbol": "DIMO-USD",
+      "first_time": 1790812800,
+      "last_time": 1790812800,
+      "hours": 1
+    },
+    {
+      "symbol": "LCX-USD",
+      "first_time": 1790816400,
+      "last_time": 1790820000,
+      "hours": 2
+    },
+    {
+      "symbol": "DIMO-USD",
+      "first_time": 1790823600,
+      "last_time": 1790834400,
+      "hours": 4
+    },
+    {
+      "symbol": "STX-USD",
+      "first_time": 1790838000,
+      "last_time": 1790838000,
+      "hours": 1
+    },
+    {
+      "symbol": "NOM-USD",
+      "first_time": 1790841600,
+      "last_time": 1790859600,
+      "hours": 6
+    },
+    {
+      "symbol": "CT-USD",
+      "first_time": 1790863200,
+      "last_time": 1790863200,
+      "hours": 1
+    },
+    {
+      "symbol": "CAP-USD",
+      "first_time": 1790866800,
+      "last_time": 1790877600,
+      "hours": 4
+    },
+    {
+      "symbol": "MEGA-USD",
+      "first_time": 1790881200,
+      "last_time": 1790881200,
+      "hours": 1
+    },
+    {
+      "symbol": "GTC-USD",
+      "first_time": 1790884800,
+      "last_time": 1790924400,
+      "hours": 12
+    },
+    {
+      "symbol": "CT-USD",
+      "first_time": 1790928000,
+      "last_time": 1790931600,
+      "hours": 2
+    },
+    {
+      "symbol": "SAND-USD",
+      "first_time": 1790935200,
+      "last_time": 1790953200,
+      "hours": 6
+    },
+    {
+      "symbol": "MDT-USD",
+      "first_time": 1790956800,
+      "last_time": 1790956800,
+      "hours": 1
+    },
+    {
+      "symbol": "SAND-USD",
+      "first_time": 1790960400,
+      "last_time": 1790960400,
+      "hours": 1
+    },
+    {
+      "symbol": "GTC-USD",
+      "first_time": 1790964000,
+      "last_time": 1790964000,
+      "hours": 1
+    },
+    {
+      "symbol": "SAND-USD",
+      "first_time": 1790967600,
+      "last_time": 1791021600,
+      "hours": 16
+    },
+    {
+      "symbol": "HFT-USD",
+      "first_time": 1791025200,
+      "last_time": 1791025200,
+      "hours": 1
+    },
+    {
+      "symbol": "DIMO-USD",
+      "first_time": 1791028800,
+      "last_time": 1791028800,
+      "hours": 1
+    },
+    {
+      "symbol": "QI-USD",
+      "first_time": 1791032400,
+      "last_time": 1791032400,
+      "hours": 1
+    },
+    {
+      "symbol": "DIMO-USD",
+      "first_time": 1791036000,
+      "last_time": 1791046800,
+      "hours": 4
+    },
+    {
+      "symbol": "QI-USD",
+      "first_time": 1791050400,
+      "last_time": 1791054000,
+      "hours": 2
+    },
+    {
+      "symbol": "HFT-USD",
+      "first_time": 1791057600,
+      "last_time": 1791057600,
+      "hours": 1
+    },
+    {
+      "symbol": "STRK-USD",
+      "first_time": 1791061200,
+      "last_time": 1791061200,
+      "hours": 1
+    },
+    {
+      "symbol": "HFT-USD",
+      "first_time": 1791064800,
+      "last_time": 1791075600,
+      "hours": 4
+    },
+    {
+      "symbol": "DIMO-USD",
+      "first_time": 1791079200,
+      "last_time": 1791082800,
+      "hours": 2
+    },
+    {
+      "symbol": "HONEY-USD",
+      "first_time": 1791086400,
+      "last_time": 1791090000,
+      "hours": 2
+    },
+    {
+      "symbol": "DIMO-USD",
+      "first_time": 1791093600,
+      "last_time": 1791097200,
+      "hours": 2
+    },
+    {
+      "symbol": "HONEY-USD",
+      "first_time": 1791100800,
+      "last_time": 1791158400,
+      "hours": 17
+    },
+    {
+      "symbol": "GTC-USD",
+      "first_time": 1791162000,
+      "last_time": 1791198000,
+      "hours": 11
+    },
+    {
+      "symbol": "DIMO-USD",
+      "first_time": 1791201600,
+      "last_time": 1791201600,
+      "hours": 1
+    },
+    {
+      "symbol": "GTC-USD",
+      "first_time": 1791205200,
+      "last_time": 1791216000,
+      "hours": 4
+    },
+    {
+      "symbol": "DIMO-USD",
+      "first_time": 1791219600,
+      "last_time": 1791244800,
+      "hours": 8
+    },
+    {
+      "symbol": "KAIO-USD",
+      "first_time": 1791248400,
+      "last_time": 1791248400,
+      "hours": 1
+    },
+    {
+      "symbol": "DIMO-USD",
+      "first_time": 1791252000,
+      "last_time": 1791270000,
+      "hours": 6
+    },
+    {
+      "symbol": "RAD-USD",
+      "first_time": 1791273600,
+      "last_time": 1791277200,
+      "hours": 2
+    },
+    {
+      "symbol": "RLC-USD",
+      "first_time": 1791280800,
+      "last_time": 1791306000,
+      "hours": 8
+    },
+    {
+      "symbol": "ORCA-USD",
+      "first_time": 1791309600,
+      "last_time": 1791313200,
+      "hours": 2
+    },
+    {
+      "symbol": "NMR-USD",
+      "first_time": 1791316800,
+      "last_time": 1791316800,
+      "hours": 1
+    },
+    {
+      "symbol": "ORCA-USD",
+      "first_time": 1791320400,
+      "last_time": 1791320400,
+      "hours": 1
+    },
+    {
+      "symbol": "FORT-USD",
+      "first_time": 1791324000,
+      "last_time": 1791331200,
+      "hours": 3
+    },
+    {
+      "symbol": "NMR-USD",
+      "first_time": 1791334800,
+      "last_time": 1791370800,
+      "hours": 11
+    },
+    {
+      "symbol": "FORT-USD",
+      "first_time": 1791374400,
+      "last_time": 1791385200,
+      "hours": 4
+    },
+    {
+      "symbol": "SAND-USD",
+      "first_time": 1791388800,
+      "last_time": 1791388800,
+      "hours": 1
+    },
+    {
+      "symbol": "LCX-USD",
+      "first_time": 1791392400,
+      "last_time": 1791392400,
+      "hours": 1
+    },
+    {
+      "symbol": "SAND-USD",
+      "first_time": 1791396000,
+      "last_time": 1791396000,
+      "hours": 1
+    },
+    {
+      "symbol": "MET-USD",
+      "first_time": 1791399600,
+      "last_time": 1791453600,
+      "hours": 16
+    },
+    {
+      "symbol": "OGN-USD",
+      "first_time": 1791457200,
+      "last_time": 1791536400,
+      "hours": 23
+    },
+    {
+      "symbol": "RLC-USD",
+      "first_time": 1791540000,
+      "last_time": 1791558000,
+      "hours": 6
+    },
+    {
+      "symbol": "MAGIC-USD",
+      "first_time": 1791561600,
+      "last_time": 1791615600,
+      "hours": 16
+    },
+    {
+      "symbol": "DNT-USD",
+      "first_time": 1791619200,
+      "last_time": 1791630000,
+      "hours": 4
+    },
+    {
+      "symbol": "MAGIC-USD",
+      "first_time": 1791633600,
+      "last_time": 1791633600,
+      "hours": 1
+    },
+    {
+      "symbol": "DNT-USD",
+      "first_time": 1791637200,
+      "last_time": 1791644400,
+      "hours": 3
+    },
+    {
+      "symbol": "PYR-USD",
+      "first_time": 1791648000,
+      "last_time": 1791655200,
+      "hours": 3
+    },
+    {
+      "symbol": "STRK-USD",
+      "first_time": 1791658800,
+      "last_time": 1791727200,
+      "hours": 20
+    },
+    {
+      "symbol": "BASECAT-USD",
+      "first_time": 1791730800,
+      "last_time": 1791734400,
+      "hours": 2
+    },
+    {
+      "symbol": "S-USD",
+      "first_time": 1791738000,
+      "last_time": 1791748800,
+      "hours": 4
+    },
+    {
+      "symbol": "BASECAT-USD",
+      "first_time": 1791752400,
+      "last_time": 1791759600,
+      "hours": 3
+    },
+    {
+      "symbol": "MAGIC-USD",
+      "first_time": 1791763200,
+      "last_time": 1791770400,
+      "hours": 3
+    },
+    {
+      "symbol": "W-USD",
+      "first_time": 1791774000,
+      "last_time": 1791777600,
+      "hours": 2
+    },
+    {
+      "symbol": "RSR-USD",
+      "first_time": 1791781200,
+      "last_time": 1791781200,
+      "hours": 1
+    },
+    {
+      "symbol": "W-USD",
+      "first_time": 1791784800,
+      "last_time": 1791802800,
+      "hours": 6
+    },
+    {
+      "symbol": "GTC-USD",
+      "first_time": 1791806400,
+      "last_time": 1791824400,
+      "hours": 6
+    }
+  ],
+  "episode_count": 65,
+  "limitations": [
+    "reconstructed_rankable_current_universe",
+    "episodes_not_independent",
+    "no_profitability_inference"
+  ]
+}

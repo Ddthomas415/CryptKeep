@@ -1,0 +1,49 @@
+{
+  "base": "620bc8dbeee71cca327042902759e219e18f30b6",
+  "candidate_root": "/private/tmp/cryptkeep-revised-suite-mzseu2l_",
+  "files": [
+    {
+      "path": "storage/execution_store_sqlite.py",
+      "sha256": "98e444954ae85b6935c2999ee917b078991ba5df18ed70de01785f8bc853b538"
+    },
+    {
+      "path": "services/execution/_executor_reconcile.py",
+      "sha256": "5e488002bd9881cc33407afcc9ee26a14a1839fc21b7afed82707641f5c7c235"
+    },
+    {
+      "path": "services/journal/fill_sink.py",
+      "sha256": "e46a8479af2b38da66520c778a80fc8e63cf59fd100d0c5401350983ca7293bf"
+    },
+    {
+      "path": "tools/repo_doctor.py",
+      "sha256": "7b2b4e3c5cdd45719e99adcfdd8162d2406d252f76bdbcc1429dbfc242489ceb"
+    },
+    {
+      "path": "tests/test_fill_sink_logging.py",
+      "sha256": "e8f84314d8064fadd70c3aa3aaa782139171c95155bbcbcb1c3fe7cc26eef16b"
+    },
+    {
+      "path": "tests/test_live_executor_latency_safety_integration.py",
+      "sha256": "c2cdca055177006861465a0d0a8e3c8490ae3b55416bc3e3270cc3061ce8fc03"
+    },
+    {
+      "path": "tests/test_live_executor_shadow_and_trade_reconcile.py",
+      "sha256": "91c2daee8d4341efa88ee4792186f03caa8798bb3e180e7b78502e0b08dc3af7"
+    },
+    {
+      "path": "tests/test_repo_doctor_strict.py",
+      "sha256": "cd88fab9b1553016b8c64d76261c27f76dec9fcc476a44fda4f9f9047ae18094"
+    },
+    {
+      "path": "tests/test_reconcile_accounting_delivery.py",
+      "sha256": "9d169a4d61dd5dad0b820d623710862906c27c369753e7449becaec6f0edb6bf"
+    },
+    {
+      "path": "tests/test_symbol_loss_fill_once.py",
+      "sha256": "1df2a868b135ab0305d547380e66ff8ddbcbd58d202d3a4550965ed17eeb248a"
+    }
+  ],
+  "patch_sha256": "1299a32e2fd07be52cf1075898a675d8f7c2b3aedbacae80af16e2a3d7420c47",
+  "scope": "10 source/test files only; unrelated work and documentation excluded",
+  "full_suite": "3812 passed, 33 skipped, zero failures; see run_summary.json and results.xml"
+}

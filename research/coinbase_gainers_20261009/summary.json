@@ -1,0 +1,180 @@
+{
+  "observed_utc": "2026-10-09T01:08:50.421726+00:00",
+  "end_exclusive_utc": "2026-10-09T00:00:00Z",
+  "catalogue_products": 925,
+  "eligible_usd_products": 403,
+  "scope": "current_online_USD_spot_not_all_quote_currencies_or_delisted_markets",
+  "ranking_method": "completed_daily_first_open_to_last_close",
+  "windows": {
+    "7": {
+      "ranked_markets": 400,
+      "excluded": {
+        "DATA-USD": "incomplete_grid",
+        "PONS-USD": "incomplete_grid",
+        "WHUF-USD": "incomplete_grid"
+      },
+      "top_five": [
+        {
+          "product_id": "RLC-USD",
+          "gain_pct": 142.47666117517846,
+          "start_open": 0.3642,
+          "end_close": 0.8831
+        },
+        {
+          "product_id": "OGN-USD",
+          "gain_pct": 117.73962804005724,
+          "start_open": 0.02097,
+          "end_close": 0.04566
+        },
+        {
+          "product_id": "HONEY-USD",
+          "gain_pct": 112.73801707156927,
+          "start_open": 0.001523,
+          "end_close": 0.00324
+        },
+        {
+          "product_id": "DIMO-USD",
+          "gain_pct": 56.84315684315684,
+          "start_open": 0.02002,
+          "end_close": 0.0314
+        },
+        {
+          "product_id": "SAND-USD",
+          "gain_pct": 47.45011086474502,
+          "start_open": 0.0451,
+          "end_close": 0.0665
+        }
+      ],
+      "leader_path": {
+        "pre_peak_minimum": [
+          1791111600000,
+          0.3607
+        ],
+        "peak": [
+          1791288000000,
+          1.0226
+        ],
+        "latest": [
+          1791504000000,
+          0.8831
+        ],
+        "missing_hour_count": 29,
+        "missing_hour_timestamps": [
+          1790917200000,
+          1790928000000,
+          1790935200000,
+          1790938800000,
+          1790974800000,
+          1790978400000,
+          1791010800000,
+          1791018000000,
+          1791021600000,
+          1791032400000,
+          1791039600000,
+          1791054000000,
+          1791057600000,
+          1791064800000,
+          1791068400000,
+          1791075600000,
+          1791079200000,
+          1791082800000,
+          1791090000000,
+          1791097200000,
+          1791104400000,
+          1791115200000,
+          1791122400000,
+          1791129600000,
+          1791140400000,
+          1791151200000,
+          1791162000000,
+          1791176400000,
+          1791187200000
+        ],
+        "rise_pct": 183.50429719988907,
+        "rise_hours": 49.0,
+        "peak_to_end_pct": -13.641697633483274,
+        "hours_since_peak": 60.0,
+        "basis": "observed_hourly_closes_plus_initial_open_gaps_not_filled_not_intrahour_extremes"
+      }
+    },
+    "30": {
+      "ranked_markets": 398,
+      "excluded": {
+        "BLUECHIP-USD": "incomplete_grid",
+        "CT-USD": "incomplete_grid",
+        "DATA-USD": "incomplete_grid",
+        "PONS-USD": "incomplete_grid",
+        "WHUF-USD": "incomplete_grid"
+      },
+      "top_five": [
+        {
+          "product_id": "DIMO-USD",
+          "gain_pct": 301.0217113665389,
+          "start_open": 0.00783,
+          "end_close": 0.0314
+        },
+        {
+          "product_id": "AURORA-USD",
+          "gain_pct": 258.33585843282225,
+          "start_open": 0.016501,
+          "end_close": 0.059129
+        },
+        {
+          "product_id": "QNT-USD",
+          "gain_pct": 250.84594835262695,
+          "start_open": 67.38,
+          "end_close": 236.4
+        },
+        {
+          "product_id": "RLC-USD",
+          "gain_pct": 185.1469163706813,
+          "start_open": 0.3097,
+          "end_close": 0.8831
+        },
+        {
+          "product_id": "DRV-USD",
+          "gain_pct": 167.65835517893066,
+          "start_open": 0.16403,
+          "end_close": 0.43904
+        }
+      ],
+      "leader_path": {
+        "pre_peak_minimum": [
+          1789257600000,
+          0.00763
+        ],
+        "peak": [
+          1791234000000,
+          0.05342
+        ],
+        "latest": [
+          1791504000000,
+          0.0314
+        ],
+        "missing_hour_count": 15,
+        "missing_hour_timestamps": [
+          1788922800000,
+          1788998400000,
+          1789020000000,
+          1789120800000,
+          1789174800000,
+          1789189200000,
+          1789441200000,
+          1789524000000,
+          1789542000000,
+          1789578000000,
+          1789700400000,
+          1789783200000,
+          1790064000000,
+          1790348400000,
+          1790485200000
+        ],
+        "rise_pct": 600.1310615989515,
+        "rise_hours": 549.0,
+        "peak_to_end_pct": -41.22051666042681,
+        "hours_since_peak": 75.0,
+        "basis": "observed_hourly_closes_plus_initial_open_gaps_not_filled_not_intrahour_extremes"
+      }
+    }
+  }
+}

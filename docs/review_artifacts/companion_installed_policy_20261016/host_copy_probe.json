@@ -1,0 +1,9 @@
+{
+  "scope": "Host-only no-network deepcopy probe; no copied installed code executed",
+  "host_httpx_transport_matches_installed_source": true,
+  "expression": "copy.deepcopy({'transport': httpx.HTTPTransport(retries=0, trust_env=False)})",
+  "result": "TypeError",
+  "network_connections": 0,
+  "installed_qdrant_constructor_executed": false,
+  "limits": "This isolates the uncopyable transport; it is not a whole installed SDK/runtime test"
+}

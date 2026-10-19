@@ -1,0 +1,39 @@
+{
+  "experiment_id": "multisymbol_baseline_v1",
+  "phase": "discovery",
+  "snapshot_sha256": "20b8915f551223cc8f0f87670555ebc9a6a7c351dab8a0efe5d9673aa873db56",
+  "plan_sha256": "a920ad6ae6d9770b6b28becac8c0f9937802be92c1088d11cb3a60b2d29e0c41",
+  "archive_path": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/market_raw.sqlite",
+  "simulation_requested": false,
+  "qualification": "MODELLED_EXPLORATORY_NOT_PROMOTION_EVIDENCE",
+  "split_account_policy": "carry_cash_and_positions_forward",
+  "markets": {
+    "BTC/USDT": {
+      "status": "INCOMPLETE",
+      "error_type": "ValueError",
+      "reason": "archive_incomplete"
+    },
+    "ETH/USDT": {
+      "status": "INCOMPLETE",
+      "error_type": "ValueError",
+      "reason": "archive_incomplete"
+    },
+    "SOL/USDT": {
+      "status": "INCOMPLETE",
+      "error_type": "ValueError",
+      "reason": "archive_incomplete"
+    },
+    "ADA/USDT": {
+      "status": "INCOMPLETE",
+      "error_type": "ValueError",
+      "reason": "archive_incomplete"
+    },
+    "XRP/USDT": {
+      "status": "INCOMPLETE",
+      "error_type": "ValueError",
+      "reason": "archive_incomplete"
+    }
+  },
+  "source_fingerprint_scope": "selected_files_not_complete_attestation",
+  "all_markets_complete": false
+}

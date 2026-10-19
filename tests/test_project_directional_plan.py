@@ -81,3 +81,21 @@ def test_readme_links_directional_plan() -> None:
     assert "neither document authorizes campaign, promotion-gate, broker, or live-execution changes" in readme
     assert "make operator-status-json" in readme
     assert "combined roadmap, backlog, research, read-only command, and proof status bundle" in normalized
+
+
+def test_scope_impact_checkpoint_preserves_operator_choice() -> None:
+    text = _normalized("docs/CODEX_REMEDIATION_PROMPTS.md")
+    for phrase in (
+        "get my decision before changing scope. Routine fixes continue.",
+        "Do not disguise scope reduction as cleanup",
+        "Do not preselect an answer as authorization",
+        "show the impact",
+        "the user's actual decision and scope",
+        "materially changed proposals need a new decision",
+        "not agent compliance",
+    ):
+        assert phrase in text
+    for path in ("runtime_prompt.md", "docs/PROJECT_DIRECTIONAL_PLAN.md"):
+        linked = _normalized(path)
+        assert "Scope Impact Checkpoint" in linked
+        assert "docs/CODEX_REMEDIATION_PROMPTS.md" in linked

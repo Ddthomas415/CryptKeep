@@ -1,0 +1,15 @@
+{
+  "status": "ACCEPTED_WITH_RISK",
+  "reviewer": "Hooke, separate GATE subagent",
+  "scope": "evidence contract, selected method code-contract correctness, provenance transition",
+  "lock_sha256": "3f5407c1be3a8f0858678f625b1aa556b0d8d9cd024a63fa2d66cec12488d1a5",
+  "identity": {
+    "module_sha256": "26fb3ce192f93416f215d1c8ec2e3f7bb39489ac85c9b1f20ebc7843858369d4",
+    "runner_sha256": "43396ea5a558be12121f214fa85224006671f08b5e630ea6f5fe8900dcabfb72",
+    "plan_sha256": "7b0a850cbcf52af62059a8d62eac00f4ac8d1f57c75fcf3e49297e364f3dd7c4",
+    "numpy_version": "2.4.4"
+  },
+  "operator_run_authorization": "User said next after explicit bounded synthetic confirmation recommendation",
+  "statistical_size_certified": false,
+  "profitability_certified": false
+}

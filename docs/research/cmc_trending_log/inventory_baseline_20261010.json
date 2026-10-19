@@ -1,0 +1,50 @@
+{
+  "directory": "/Users/baitus/Downloads/crypto-bot-pro/docs/research/cmc_trending_log/snapshots",
+  "files": {
+    "2026-10-09_0347Z.json": {
+      "classification": "LEGACY_BASELINE_ONLY_NOT_PRIMARY_INPUT",
+      "sha256": "e28b49db62776a6be7fe4431268e59df3d4a886567aba1c7886b4dbc9279a3fa"
+    },
+    "v2_2026-10-09_041525_486478Z_d72b37e4aeab4e5d93b07cd6ab320db7.json": {
+      "classification": "LEGACY_BASELINE_ONLY_NOT_PRIMARY_INPUT",
+      "sha256": "46346a402097b92331fc2d800199a1b0ab54bfe88cf35c3d3a1108779343e795"
+    },
+    "v2_2026-10-09_041753_379018Z_3cf70d3ddf184fcaa2b8b26805bd0992.json": {
+      "classification": "LEGACY_BASELINE_ONLY_NOT_PRIMARY_INPUT",
+      "sha256": "917050abad36595d1ae3b842ede5068c71105aadb7f3f310bc7e0a523c543a90"
+    },
+    "v2_2026-10-09_043542_982724Z_5919bc49ccb4455f9bdbf90896d017df.json": {
+      "classification": "LEGACY_BASELINE_ONLY_NOT_PRIMARY_INPUT",
+      "sha256": "e73ea4738a1b247d2991f9fd866512a460fd860b69ad772a71d6fb8a181fed35"
+    },
+    "v2_2026-10-09_043716_411287Z_4b0b5699d7f847b5931e1c77c7d3c8f9.json": {
+      "classification": "LEGACY_BASELINE_ONLY_NOT_PRIMARY_INPUT",
+      "sha256": "1b1a1e6f62a695ad4cee2ade703e9bb4b74afe0390ff52117e40fe22333e12f6"
+    },
+    "v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json": {
+      "classification": "V3_STRUCTURAL_ENVELOPE",
+      "sha256": "35346dea2178229c8056fe57dd62bb1ec738bdf36eaffdbe509ab68904a35d2e"
+    },
+    "v2_2026-10-09_050913_251289Z_f445dabfb38d49af82fe081dde3f8f91.json": {
+      "classification": "V3_STRUCTURAL_ENVELOPE",
+      "sha256": "49960069f1ae1983ddf35b29838668eaceb0388dbd716cbe32dc97f5be62b059"
+    },
+    "v2_2026-10-09_135352_243974Z_2b4134df295e426898926b1a39216cbd.json": {
+      "classification": "V3_STRUCTURAL_ENVELOPE",
+      "sha256": "4751e56190c4ac493d95836412a360b9ba1a167bbdd51f9ec03320dacf756e2b"
+    },
+    "v2_2026-10-10_135252_177827Z_74f0cf4d93bb493db286f4dd6bc21adb.json": {
+      "classification": "V3_STRUCTURAL_ENVELOPE",
+      "sha256": "5d7ed917ad2497b6b29a1695b01d7332db53ff446ee47b54915cfea115be8df9"
+    }
+  },
+  "implementation_sha256": "a16be85289e205d9a47adfcb0c47306376d8f3bf330776b4657e7a57ab4dd96d",
+  "inventory_consistency": "TWO_EQUAL_SCANS_NOT_ATOMIC_DIRECTORY_SNAPSHOT",
+  "kind": "CMC_PUBLISHED_SNAPSHOT_INVENTORY",
+  "parent_sha256": null,
+  "past_completeness_before_baseline": "UNVERIFIED",
+  "scope": "PUBLISHED_NONHIDDEN_TOP_LEVEL_JSON_IN_DECLARED_DIRECTORY",
+  "scoring_authorized": false,
+  "sealed_at_ms": 1791677179561,
+  "source_authentication": "UNVERIFIED"
+}

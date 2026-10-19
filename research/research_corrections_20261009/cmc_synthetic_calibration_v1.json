@@ -1,0 +1,365 @@
+{
+  "artifact_type": "synthetic_null_calibration",
+  "synthetic_only": true,
+  "scoring_authorized": false,
+  "trials_per_cell": 30,
+  "bootstrap_repeats": 100,
+  "results": [
+    {
+      "days": 60,
+      "mode": "iid",
+      "false_positive": {
+        "entry_day": {
+          "count": 5,
+          "trials": 30,
+          "rate": 0.16666666666666666,
+          "wilson95": [
+            0.07336434240351683,
+            0.33564705185680177
+          ]
+        },
+        "7": {
+          "count": 4,
+          "trials": 30,
+          "rate": 0.13333333333333333,
+          "wilson95": [
+            0.05309569424218104,
+            0.2968168394441695
+          ]
+        },
+        "14": {
+          "count": 4,
+          "trials": 30,
+          "rate": 0.13333333333333333,
+          "wilson95": [
+            0.05309569424218104,
+            0.2968168394441695
+          ]
+        },
+        "28": {
+          "count": 6,
+          "trials": 30,
+          "rate": 0.2,
+          "wilson95": [
+            0.09504978102401235,
+            0.37306047381027446
+          ]
+        },
+        "all_intervals": {
+          "count": 4,
+          "trials": 30,
+          "rate": 0.13333333333333333,
+          "wilson95": [
+            0.05309569424218104,
+            0.2968168394441695
+          ]
+        }
+      },
+      "unavailable_intervals": {
+        "entry_day": 0,
+        "7": 0,
+        "14": 0,
+        "28": 0,
+        "all_intervals": 0
+      }
+    },
+    {
+      "days": 60,
+      "mode": "overlap7",
+      "false_positive": {
+        "entry_day": {
+          "count": 10,
+          "trials": 30,
+          "rate": 0.3333333333333333,
+          "wilson95": [
+            0.19230295526846194,
+            0.5122027418616973
+          ]
+        },
+        "7": {
+          "count": 4,
+          "trials": 30,
+          "rate": 0.13333333333333333,
+          "wilson95": [
+            0.05309569424218104,
+            0.2968168394441695
+          ]
+        },
+        "14": {
+          "count": 5,
+          "trials": 30,
+          "rate": 0.16666666666666666,
+          "wilson95": [
+            0.07336434240351683,
+            0.33564705185680177
+          ]
+        },
+        "28": {
+          "count": 8,
+          "trials": 30,
+          "rate": 0.26666666666666666,
+          "wilson95": [
+            0.14182495553910618,
+            0.4444830204431169
+          ]
+        },
+        "all_intervals": {
+          "count": 4,
+          "trials": 30,
+          "rate": 0.13333333333333333,
+          "wilson95": [
+            0.05309569424218104,
+            0.2968168394441695
+          ]
+        }
+      },
+      "unavailable_intervals": {
+        "entry_day": 0,
+        "7": 0,
+        "14": 0,
+        "28": 0,
+        "all_intervals": 0
+      }
+    },
+    {
+      "days": 60,
+      "mode": "persistent",
+      "false_positive": {
+        "entry_day": {
+          "count": 10,
+          "trials": 30,
+          "rate": 0.3333333333333333,
+          "wilson95": [
+            0.19230295526846194,
+            0.5122027418616973
+          ]
+        },
+        "7": {
+          "count": 4,
+          "trials": 30,
+          "rate": 0.13333333333333333,
+          "wilson95": [
+            0.05309569424218104,
+            0.2968168394441695
+          ]
+        },
+        "14": {
+          "count": 4,
+          "trials": 30,
+          "rate": 0.13333333333333333,
+          "wilson95": [
+            0.05309569424218104,
+            0.2968168394441695
+          ]
+        },
+        "28": {
+          "count": 5,
+          "trials": 30,
+          "rate": 0.16666666666666666,
+          "wilson95": [
+            0.07336434240351683,
+            0.33564705185680177
+          ]
+        },
+        "all_intervals": {
+          "count": 4,
+          "trials": 30,
+          "rate": 0.13333333333333333,
+          "wilson95": [
+            0.05309569424218104,
+            0.2968168394441695
+          ]
+        }
+      },
+      "unavailable_intervals": {
+        "entry_day": 0,
+        "7": 0,
+        "14": 0,
+        "28": 0,
+        "all_intervals": 0
+      }
+    },
+    {
+      "days": 180,
+      "mode": "iid",
+      "false_positive": {
+        "entry_day": {
+          "count": 2,
+          "trials": 30,
+          "rate": 0.06666666666666667,
+          "wilson95": [
+            0.01847663532769335,
+            0.21323817721072091
+          ]
+        },
+        "7": {
+          "count": 3,
+          "trials": 30,
+          "rate": 0.1,
+          "wilson95": [
+            0.03459925995971615,
+            0.25621441315266624
+          ]
+        },
+        "14": {
+          "count": 4,
+          "trials": 30,
+          "rate": 0.13333333333333333,
+          "wilson95": [
+            0.05309569424218104,
+            0.2968168394441695
+          ]
+        },
+        "28": {
+          "count": 5,
+          "trials": 30,
+          "rate": 0.16666666666666666,
+          "wilson95": [
+            0.07336434240351683,
+            0.33564705185680177
+          ]
+        },
+        "all_intervals": {
+          "count": 2,
+          "trials": 30,
+          "rate": 0.06666666666666667,
+          "wilson95": [
+            0.01847663532769335,
+            0.21323817721072091
+          ]
+        }
+      },
+      "unavailable_intervals": {
+        "entry_day": 0,
+        "7": 0,
+        "14": 0,
+        "28": 0,
+        "all_intervals": 0
+      }
+    },
+    {
+      "days": 180,
+      "mode": "overlap7",
+      "false_positive": {
+        "entry_day": {
+          "count": 9,
+          "trials": 30,
+          "rate": 0.3,
+          "wilson95": [
+            0.16664562643958933,
+            0.4787612101166018
+          ]
+        },
+        "7": {
+          "count": 3,
+          "trials": 30,
+          "rate": 0.1,
+          "wilson95": [
+            0.03459925995971615,
+            0.25621441315266624
+          ]
+        },
+        "14": {
+          "count": 4,
+          "trials": 30,
+          "rate": 0.13333333333333333,
+          "wilson95": [
+            0.05309569424218104,
+            0.2968168394441695
+          ]
+        },
+        "28": {
+          "count": 4,
+          "trials": 30,
+          "rate": 0.13333333333333333,
+          "wilson95": [
+            0.05309569424218104,
+            0.2968168394441695
+          ]
+        },
+        "all_intervals": {
+          "count": 3,
+          "trials": 30,
+          "rate": 0.1,
+          "wilson95": [
+            0.03459925995971615,
+            0.25621441315266624
+          ]
+        }
+      },
+      "unavailable_intervals": {
+        "entry_day": 0,
+        "7": 0,
+        "14": 0,
+        "28": 0,
+        "all_intervals": 0
+      }
+    },
+    {
+      "days": 180,
+      "mode": "persistent",
+      "false_positive": {
+        "entry_day": {
+          "count": 10,
+          "trials": 30,
+          "rate": 0.3333333333333333,
+          "wilson95": [
+            0.19230295526846194,
+            0.5122027418616973
+          ]
+        },
+        "7": {
+          "count": 8,
+          "trials": 30,
+          "rate": 0.26666666666666666,
+          "wilson95": [
+            0.14182495553910618,
+            0.4444830204431169
+          ]
+        },
+        "14": {
+          "count": 5,
+          "trials": 30,
+          "rate": 0.16666666666666666,
+          "wilson95": [
+            0.07336434240351683,
+            0.33564705185680177
+          ]
+        },
+        "28": {
+          "count": 5,
+          "trials": 30,
+          "rate": 0.16666666666666666,
+          "wilson95": [
+            0.07336434240351683,
+            0.33564705185680177
+          ]
+        },
+        "all_intervals": {
+          "count": 5,
+          "trials": 30,
+          "rate": 0.16666666666666666,
+          "wilson95": [
+            0.07336434240351683,
+            0.33564705185680177
+          ]
+        }
+      },
+      "unavailable_intervals": {
+        "entry_day": 0,
+        "7": 0,
+        "14": 0,
+        "28": 0,
+        "all_intervals": 0
+      }
+    }
+  ],
+  "script_sha256": "83395d0cf804e7ecad325cae01f29ebf61032131511eb983cffa35a63c1a8672",
+  "statistics_sha256": "85e61eadf93cea578642af1e42a5dc9341da5b1c6daaa8b374ca5f73f3561ee4",
+  "limits": [
+    "pilot_not_sample_size_certification",
+    "no_alternative_power_test",
+    "one_event_per_day_no_missingness_or_regime_shift",
+    "no_market_data_access_or_frozen_rule_change"
+  ]
+}

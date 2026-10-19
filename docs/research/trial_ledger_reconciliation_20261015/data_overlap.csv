@@ -1,0 +1,15 @@
+dataset_id,venue,symbols,timeframe,period,artifact_or_location,used_by,status_for_future_tests
+D_CB_MAJ,Coinbase,"BTC-USD, ETH-USD",daily,2015-07-20 / 2016-05-18 .. 2026-10-09,"docs/research/majors_trend_20261009/*_d1.json (64cab2cf, 9fa81ca8)",MAJORS;STRESS_NEIGHBOURHOOD;STRESS_FEE050;CORRECTED_COMPARISON;DSR;E7;E8;E9;E10 (incumbent + simulator check),FULLY SEEN. No untouched historical BTC/ETH daily data remains; only data after the rule froze (2026-10-12) is new
+D_XS,Coinbase,492 USD products incl. 89 delisted,daily,2017-01-01 .. 2026-10-11,VM $HOME/xsdata/candles; backup ~/Documents/cryptkeep_data_archive (PACKAGE d71001f6),E6 (incl. corrected rerun and blind reimplementations),SEEN 2018-2026 by E6 for its top-20-by-volume universe
+D_E10,Coinbase,BTC ETH SOL DOGE LTC LINK AVAX ADA XRP DOT,daily,"to 2026-10-11 (D 2019+, H 2024+)",research/multisymbol_trend_20261015/data/ (SHA256SUMS),E10,SEEN 2019-2026 for these 10
+D_FUND,Binance USDT-M,"BTCUSDT, ETHUSDT funding",8-hourly,2019-09-10 / 2019-11-27 .. 2026-10-13,research/crash_brake_20261013/binance_funding_raw.jsonl (15edda37),E7,SEEN 2020-12 .. 2026-10
+D_BN484,Binance,484 USDT pairs trading on 2026-10-09 (survivors),daily,2019-01-01 .. 2026-10-09,raw_archives_20261009/binance_daily_current484.tar.xz,HYBRID;RECOVERY;RECOVERY_REGIME;THREE_IDEAS;RERUN_JUP_SUPER_SYRUP,"SEEN; train 2020-2023, test 2024-2026-10 (hybrid)"
+D_BN677,Binance,677 USDT pairs incl. delisted,daily,2017-08-01 .. 2026-10-09,raw_archives_20261009/binance_daily_all_incl_delisted.tar.xz,TOP10 (+3 coins in RERUN),SEEN
+D_CB_H1_60D,Coinbase,395 USD products (current),hourly,~2026-08-09 .. 2026-10-08,raw_archives_20261009/coinbase_hourly_last60d.tar.xz,ALT_EVENT_SEARCH;DYNAMIC;SHORT_HOLD;LEADER_HOURLY;FAILED_BREAKOUT (to be confirmed),HEAVILY SEEN by altcoin studies
+D_CB_H1_PRIOR10M,Coinbase,~384-391 USD products,hourly,~2025-10 .. 2026-08,raw_archives_20261009/coinbase_hourly_prior10m.tar.xz,DYNAMIC (earlier);SHORT_HOLD (earlier);ALT_EVENT_SEARCH (to be confirmed),SEEN
+D_CB_D403,Coinbase,403 current USD products,daily,2026-04-13 .. 2026-10-12,research/ (leader plans),LEADER_DAILY_PULLBACK;LEADER_TARGET,SEEN
+D_CMC,CoinMarketCap,weekly top-1000 snapshots,weekly,2018-11-04 .. 2026-10-04,raw_archives_20261009/cmc_weekly_and_trending.tar.xz,CMC_PROXY,SEEN
+D_OKX_H1,OKX,BTC ETH SOL ADA XRP (USDT),hourly,2026-01-01 .. 2026-10-01 (+300 warm-up bars),manifest 907768a3 (per multisymbol_discovery_results_20261008.md),MULTISYMBOL_OKX,"SEEN (discovery, validation, final phases)"
+D_HS,Coinbase / OKX,"BTC (Coinbase 5m, 1h, 1d last 12m); BTC, ETH (OKX 5m)",5m / 1h / 1d,17-426 days ending ~2026-10-08,strategy_horizon_scan_20261008/,HORIZON_SCAN,SEEN
+D_ES,Coinbase,BTC (ES strategy pair; exact product to confirm),daily,"2018-01-01 .. 2026-06-04 (3,077 rows)",es_exit_policy_matrix_20261007/ (input sha c0d64661),ES_EXIT_MATRIX,SEEN
+D_PROSPECTIVE,Coinbase public,"BTC-USD, ETH-USD (trackers); CMC trending",daily / daily snapshots,2026-10-09 onward,paper trackers v1/v2; cmc_trending_log/snapshots,Forward paper tracking; CMC log,NEW DATA: the only genuinely out-of-sample observations for the candidate

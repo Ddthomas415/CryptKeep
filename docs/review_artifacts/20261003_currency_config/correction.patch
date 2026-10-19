@@ -1,0 +1,249 @@
+--- a/services/execution/paper_engine.py
++++ b/services/execution/paper_engine.py
+@@ -59,8 +59,19 @@
+ 
+ 
+ def _cfg() -> dict:
+-    cfg = load_user_yaml()
+-    p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
++    # Invalid configuration must not look like a valid opt-out. Keep the
++    # engine available for sells, but refuse new and resting buys.
++    config_invalid = False
++    try:
++        cfg = load_user_yaml(strict=True)
++        if not isinstance(cfg, dict):
++            raise ValueError("config_not_mapping")
++        p = cfg.get("paper_trading", {})
++        if not isinstance(p, dict):
++            raise ValueError("paper_trading_not_mapping")
++    except Exception:
++        p = {}
++        config_invalid = True
+ 
+     def _float_cfg(key: str, default: float) -> float:
+         value = p.get(key, default)
+@@ -79,8 +90,10 @@
+         # The key is present but is not a usable currency (a list, a number,
+         # a YAML boolean, an empty string). Buys are refused rather than the
+         # check being dropped. A missing key or an explicit null is undeclared.
+-        "quote_currency_invalid": p.get("quote_currency") is not None
+-        and not (isinstance(p.get("quote_currency"), str) and bool(p.get("quote_currency").strip())),
++        "quote_currency_invalid": config_invalid or (
++            p.get("quote_currency") is not None
++            and not (isinstance(p.get("quote_currency"), str) and bool(p.get("quote_currency").strip()))
++        ),
+         "starting_cash_quote": _float_cfg("starting_cash_quote", 10000.0),
+         "fee_bps": _float_cfg("fee_bps", 7.5),
+         "slippage_bps": _float_cfg("slippage_bps", 5.0),
+--- /dev/null
++++ b/tests/test_review_currency_config_failure.py
+@@ -0,0 +1,59 @@
++import pytest
++
++from services.admin import config_editor
++from services.execution import paper_engine
++
++
++@pytest.mark.parametrize('content', ['paper_trading: [unterminated\n', '[]\n', 'paper_trading: []\n', 'paper_trading: null\n'])
++def test_invalid_yaml_does_not_disable_currency_guard(monkeypatch, tmp_path, content):
++    path = tmp_path / 'user.yaml'
++    path.write_text(content)
++    monkeypatch.setattr(config_editor, 'CONFIG_PATH', path)
++    engine = object.__new__(paper_engine.PaperEngine)
++    engine.cfg = paper_engine._cfg()
++    assert engine._currency_refusal('buy', 'ADA/EUR') is not None
++    assert engine._currency_refusal('sell', 'ADA/EUR') is None
++
++
++def test_invalid_section_does_not_disable_currency_guard(monkeypatch):
++    monkeypatch.setattr(paper_engine, 'load_user_yaml', lambda **kwargs: {'paper_trading': ['USDT']})
++    engine = object.__new__(paper_engine.PaperEngine)
++    engine.cfg = paper_engine._cfg()
++    assert engine._currency_refusal('buy', 'ADA/EUR') is not None
++
++
++def test_unreadable_file_refuses_buys(monkeypatch, tmp_path):
++    from pathlib import Path
++    path = tmp_path / 'user.yaml'
++    path.write_text('paper_trading:\n  quote_currency: USDT\n')
++    monkeypatch.setattr(config_editor, 'CONFIG_PATH', path)
++    original = Path.open
++    def denied(self, *args, **kwargs):
++        if self == path:
++            raise PermissionError('test read failure')
++        return original(self, *args, **kwargs)
++    monkeypatch.setattr(Path, 'open', denied)
++    engine = object.__new__(paper_engine.PaperEngine)
++    engine.cfg = paper_engine._cfg()
++    assert engine._currency_refusal('buy', 'BTC/USDT') == 'quote_currency_invalid'
++    assert engine._currency_refusal('sell', 'BTC/USDT') is None
++
++
++def test_invalid_restart_rejects_resting_buy_but_fills_sell(monkeypatch, tmp_path):
++    from tests.test_paper_engine_currency import _engine, _buy
++    engine, _ = _engine(monkeypatch, tmp_path, None)
++    engine.db.upsert_position('ADA/EUR', 0.001, 9.0, 0.0)
++    assert _buy(engine, 'ADA/EUR')['ok']
++    assert engine.submit_order(client_order_id='s1', venue='coinbase', symbol='ADA/EUR', side='sell', order_type='market', qty=0.001)['ok']
++    # Resolve the reloaded module used by the fixture.
++    from services.execution import paper_engine as current
++    monkeypatch.setattr(current, 'load_user_yaml', lambda **kwargs: {'paper_trading': []})
++    restarted = current.PaperEngine()
++    monkeypatch.setattr(restarted, '_price', lambda *args: {'ts_ms': 1, 'bid': 9.0, 'ask': 9.1, 'last': 9.05})
++    assert _buy(restarted, 'ADA/EUR', coid='new') == {'ok': False, 'reason': 'quote_currency_invalid'}
++    assert restarted.db.get_order_by_client_id('new') is None
++    result = restarted.evaluate_open_orders()
++    assert result['rejected'] == 1
++    assert result['filled'] == 1
++    assert restarted.db.get_order_by_client_id('c1')['status'] == 'rejected'
++    assert restarted.db.get_order_by_client_id('s1')['status'] == 'filled'
+--- a/tests/test_paper_engine_honesty.py
++++ b/tests/test_paper_engine_honesty.py
+@@ -11,7 +11,7 @@
+ 
+     monkeypatch.setattr(
+         "services.execution.paper_engine.load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "enabled": True,
+                 "starting_cash_quote": 10000.0,
+@@ -71,7 +71,7 @@
+ 
+     monkeypatch.setattr(
+         "services.execution.paper_engine.load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "enabled": True,
+                 "starting_cash_quote": 10000.0,
+--- a/tests/test_paper_engine_integration.py
++++ b/tests/test_paper_engine_integration.py
+@@ -39,7 +39,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 1000.0,
+                 "fee_bps": 0.0,
+@@ -114,7 +114,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 50.0,
+                 "fee_bps": 0.0,
+@@ -154,7 +154,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 1000.0,
+                 "fee_bps": 0.0,
+@@ -238,7 +238,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 1000.0,
+                 "fee_bps": 0.0,
+@@ -284,7 +284,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 1000.0,
+                 "fee_bps": 10.0,
+@@ -356,7 +356,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 1000.0,
+                 "fee_bps": 0.0,
+@@ -406,7 +406,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 1000.0,
+                 "fee_bps": 0.0,
+@@ -444,7 +444,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 1000.0,
+                 "fee_bps": 0.0,
+@@ -478,7 +478,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 1000.0,
+                 "fee_bps": 0.0,
+@@ -516,7 +516,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 1000.0,
+                 "fee_bps": 0.0,
+@@ -554,7 +554,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 1000.0,
+                 "fee_bps": 0.0,
+@@ -605,7 +605,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 1000.0,
+                 "fee_bps": 0.0,
+@@ -648,7 +648,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {
++        lambda *, strict=False: {
+             "paper_trading": {
+                 "starting_cash_quote": 1000.0,
+                 "fee_bps": 0.0,
+--- a/tests/test_paper_engine_limit_and_status.py
++++ b/tests/test_paper_engine_limit_and_status.py
+@@ -112,7 +112,7 @@
+     monkeypatch.setattr(
+         paper_engine,
+         "load_user_yaml",
+-        lambda: {"paper_trading": {"starting_cash_quote": 100.0, "fee_bps": 100.0, "slippage_bps": 0.0, "use_ccxt_fallback": False}},
++        lambda *, strict=False: {"paper_trading": {"starting_cash_quote": 100.0, "fee_bps": 100.0, "slippage_bps": 0.0, "use_ccxt_fallback": False}},
+     )
+ 
+     eng = paper_engine.PaperEngine()

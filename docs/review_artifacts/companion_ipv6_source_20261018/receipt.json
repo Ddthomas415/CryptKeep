@@ -1,0 +1,177 @@
+{
+  "after": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    }
+  ],
+  "before": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "policy": "no",
+      "restarts": 0,
+      "state": "exited"
+    }
+  ],
+  "commands": [
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"restarts\":{{json .RestartCount}},\"policy\":{{json .HostConfig.RestartPolicy.Name}}}",
+      "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    ],
+    [
+      "container",
+      "cp",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071:/usr/local/lib/python3.11/site-packages/urllib3/util/connection.py",
+      "-"
+    ],
+    [
+      "container",
+      "cp",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4:/usr/local/lib/python3.11/site-packages/urllib3/util/connection.py",
+      "-"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"restarts\":{{json .RestartCount}},\"policy\":{{json .HostConfig.RestartPolicy.Name}}}",
+      "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    ]
+  ],
+  "lifecycle_actions": 0,
+  "limits": [
+    "Stopped-container filesystem source, not direct immutable-image-layer or loaded-byte identity."
+  ],
+  "observed_utc": "2026-10-18T09:11:24.240773+00:00",
+  "originals_unchanged": true,
+  "sources": [
+    {
+      "archive_sha256": "c54e55beb7f65bbcd477310bcdc1f47aebe35a0f44989164b91d7dcdc8895478",
+      "container": "phase1-memory",
+      "function_end": 134,
+      "function_source": "def _has_ipv6(host: str) -> bool:\n    \"\"\"Returns True if the system can bind an IPv6 address.\"\"\"\n    sock = None\n    has_ipv6 = False\n\n    if socket.has_ipv6:\n        # has_ipv6 returns true if cPython was compiled with IPv6 support.\n        # It does not tell us if the system has IPv6 support enabled. To\n        # determine that we must bind to an IPv6 address.\n        # https://github.com/urllib3/urllib3/pull/611\n        # https://bugs.python.org/issue658327\n        try:\n            sock = socket.socket(socket.AF_INET6)\n            sock.bind((host, 0))\n            has_ipv6 = True\n        except Exception:\n            pass\n\n    if sock:\n        sock.close()\n    return has_ipv6",
+      "function_start": 114,
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "local": "memory_connection.py",
+      "path": "/usr/local/lib/python3.11/site-packages/urllib3/util/connection.py",
+      "sha256": "2633bbdb69731e5ccb5cf4e4afd65605d86c7979cc5633126f50c92d5ad74a74"
+    },
+    {
+      "archive_sha256": "c54e55beb7f65bbcd477310bcdc1f47aebe35a0f44989164b91d7dcdc8895478",
+      "container": "phase1-orchestrator",
+      "function_end": 134,
+      "function_source": "def _has_ipv6(host: str) -> bool:\n    \"\"\"Returns True if the system can bind an IPv6 address.\"\"\"\n    sock = None\n    has_ipv6 = False\n\n    if socket.has_ipv6:\n        # has_ipv6 returns true if cPython was compiled with IPv6 support.\n        # It does not tell us if the system has IPv6 support enabled. To\n        # determine that we must bind to an IPv6 address.\n        # https://github.com/urllib3/urllib3/pull/611\n        # https://bugs.python.org/issue658327\n        try:\n            sock = socket.socket(socket.AF_INET6)\n            sock.bind((host, 0))\n            has_ipv6 = True\n        except Exception:\n            pass\n\n    if sock:\n        sock.close()\n    return has_ipv6",
+      "function_start": 114,
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "local": "orchestrator_connection.py",
+      "path": "/usr/local/lib/python3.11/site-packages/urllib3/util/connection.py",
+      "sha256": "2633bbdb69731e5ccb5cf4e4afd65605d86c7979cc5633126f50c92d5ad74a74"
+    }
+  ],
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

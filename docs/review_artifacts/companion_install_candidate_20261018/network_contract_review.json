@@ -1,0 +1,167 @@
+{
+  "schema": "companion-network-contract-review-v1",
+  "reviewed_at_utc": "2026-10-18T14:28:13Z",
+  "active_role": "GATE",
+  "preceding_stage_role": "AUDITOR",
+  "reviewer": "Codex independent offline source and gate reviewer",
+  "objective": "Review the frozen explicit configured-install-v3 repair for stopped-network placeholders, without operational acceptance or changes to reviewed sources, tests or checkpoint",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "disposition_scope": "source_only",
+  "installation_authorized": false,
+  "startup_authorized": false,
+  "additional_mutation_authorized": false,
+  "new_manifest_accepted": false,
+  "network_connectivity_verified": false,
+  "prior_recovery_outcome": "INCOMPLETE",
+  "exact_operational_restoration": "INCOMPLETE",
+  "material_assumptions": [],
+  "bindings": {
+    "reviewed_files": [
+      {
+        "path": "scripts/research/companion_install_docker.py",
+        "sha256": "c0425e0faa668307962eb60acda40d1883d6a6c3dc34c453330414289f1454f2"
+      },
+      {
+        "path": "scripts/research/companion_installer.py",
+        "sha256": "706dd12a69f4421116f764c7d4a1833aa550a5a9e8f5cea35e5adfda5e066e5b"
+      },
+      {
+        "path": "scripts/research/companion_network_configuration.py",
+        "sha256": "c3824743fb08098a35af6966ee9e3345a63e6500f18a5fdd84a02d1114bf39d7"
+      },
+      {
+        "path": "tests/test_companion_installer.py",
+        "sha256": "9b29c5658e9b0ed017e230fb2aa7b274cdbdbdbcb58107bb099ef9a32e4e6333"
+      },
+      {
+        "path": "tests/test_companion_network_configuration.py",
+        "sha256": "83e5dea37145496cda901db03cc89b62e10c701922f8bbf5fbbad5bf22aac77a"
+      },
+      {
+        "path": "tests/test_companion_runtime_adapter.py",
+        "sha256": "af957957660fdae466edd3783146643db7cfedd42c030c14fd3e1923a71103ba"
+      }
+    ],
+    "checkpoint": {
+      "path": "docs/checkpoints/companion_network_contract_repair_20261018.md",
+      "sha256": "37c88e7f73b759b5649203f9c20f78eceba6a32ad276358df30400f9abb13cf7"
+    },
+    "saved_outcome_review": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/recovery_outcome_review.json",
+      "sha256": "b916feb3d3950a8b68485abf18596ffe812e128a5f356c5c4650b385f3be2c9c"
+    },
+    "saved_plan": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/reviewed_stopped_plan.json",
+      "sha256": "a513c458419f01517fec5e771e5be967f85b43391de663dc55c0bcdfb8ac4af4"
+    }
+  },
+  "supporting_bindings": [
+    {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/capture/observation.json",
+      "sha256": "5207ca9c190e23f639cec5359508d56aed7ec237b1e8c0571d5748f0401f11ec"
+    },
+    {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/recovery_after_capture/observation.json",
+      "sha256": "9f54adc0321e60958b54721c5f1afd41ffb953ed99aa157f8208a0181c707b09"
+    },
+    {
+      "path": "scripts/research/companion_runtime_adapter.py",
+      "sha256": "83645cc36a345fcd55d1d2bd79dca982141e009456209a031c6e8513f9f03e9c"
+    },
+    {
+      "path": "tests/test_companion_install_env.py",
+      "sha256": "9b9cbe65eb684f8a64a15c348e7ba07a73f8851a541a8c7183dea1ea83d8978e"
+    },
+    {
+      "path": "tests/test_companion_docker_transport.py",
+      "sha256": "195a05d1cc86a31e22664e0f2d92683b8bb0496782a9f140c1e5c33628b09031"
+    },
+    {
+      "path": "tests/test_companion_existing_controller.py",
+      "sha256": "984a9a911d5af5e0ba90bdbed839efa711b0115271b2cbeb227ac63e9fd04325"
+    }
+  ],
+  "findings_ordered_by_severity": [],
+  "shown": [
+    "All six source/test SHA256 values match the frozen checkpoint. This review assesses their current contents, not an inferred clean-checkout diff.",
+    "Plan.load requires the explicit companion-configured-install-v3 schema and configured-network-v1 contract, validated unique name/ID mappings, connectivity_verified=false and both startup deferrals false. Legacy schemas cannot acquire nonempty configuration fields or accept blank network IDs.",
+    "The pure projection rejects unknown network names, wrong or missing reported IDs and contradictory endpoint/address fields on blank-ID entries. It substitutes only the declared ID and empty IPAMConfig for the separate configuration digest, leaving caller input unchanged.",
+    "The backend verifies the complete declared name/ID mapping with bounded network-inspect command construction before projecting selected inventory. Placeholder allowance is restricted to attempt-owned created never-started replacements or exact stopped original applications with preserved image/start/restart history and no attempt label.",
+    "Selected raw-observation preservation digests and observed ID tuples remain distinct from configured digests, resolved ID tuples and reported_id/configured_only provenance. The observed audit mismatch remains present; all seven saved configuration projections match their respective original projections.",
+    "Aliases, nonempty static IPAM requests, healthchecks, mounts, safety flags and network-mode drift remain visible in the configuration digest. Unknown or conflicting network identities are refused rather than projected away.",
+    "Create, disconnect and reconnect commands use the configured full ID rather than a blank observed ID. No start/exec path was added to the installer.",
+    "Rollback checks attempt ownership, built image, created state, never-started history and zero restarts before deleting a replacement. Independent v3 probes preserve running, foreign-labeled, previously started, restarted and wrong-image replacements without removal.",
+    "Storage snapshots remain exact at installation and rollback postconditions. Independent storage-drift probes cannot produce installation success or verified rollback.",
+    "V3 rollback records configuration_restored separately from exact_baseline_restored, exposes rollback_scope=configuration_only and rollback_exact_baseline, and keeps network_connectivity_verified=false. Configured rollback success with a raw mismatch is not labeled exact restoration.",
+    "The saved reviewed_stopped_plan loads only under its original v2 contract, with no configured bindings and with startup deferrals preserved. Runtime-policy tests reject all three installation schemas even when other runtime-review fields are valid. No old manifest is promoted or rewritten."
+  ],
+  "verification": {
+    "classification": "SHOWN",
+    "environment_confidence": "VERIFIED_ENV for local source inspection, saved public JSON, hashing and isolated offline tests/probes only; live environment not assessed",
+    "focused_tests": {
+      "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_companion_installer.py tests/test_companion_network_configuration.py tests/test_companion_install_env.py tests/test_companion_docker_transport.py tests/test_companion_existing_controller.py tests/test_companion_runtime_adapter.py",
+      "result": "396 passed in 2.66s",
+      "exit_code": 0,
+      "independently_executed": true,
+      "whole_repository_suite_run": false
+    },
+    "adversarial_probes": {
+      "launcher": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - <<'PY' ... independent inline assertions ... PY",
+      "fixture_source": "runpy.run_path('tests/test_companion_installer.py') supplies manifest/load, ConfiguredBackend, Receipt and Inline fixtures; independent loops and assertions exercise these and the production projection/mapping methods",
+      "transport_guards": "socket connect/connect_ex/getaddrinfo, subprocess.Popen and the real DockerInstallBackend._command were replaced with immediate assertion failures; per-instance command stubs return only synthetic mapping JSON",
+      "result": "PASS",
+      "exit_code": 0,
+      "total_cases": 57,
+      "checks": {
+        "saved_pairs_raw_preserved_configuration_matches": 7,
+        "contradictions_refused": 10,
+        "configuration_drifts_visible": 10,
+        "legacy_promotions_refused": 10,
+        "unsafe_replacements_preserved": 5,
+        "storage_drift_never_accepted": 2,
+        "daemon_mapping_mismatches_refused": 4,
+        "configured_before_after_effect_rollback_cases": 8,
+        "saved_plan_not_promoted": 1
+      },
+      "case_details": [
+        "Compare seven saved before/after projections without modifying either input; separately assert the audit preservation digest still differs.",
+        "Reject wrong, absent and null NetworkID, an added unknown network name, and each nonempty EndpointID/IPAddress/IPv6Address/GlobalIPv6Address/Gateway/IPv6Gateway on a blank-ID row.",
+        "Require different configuration digests for alias replacement, alias addition, healthcheck/mount/safety/network-mode drift and nonempty IPv4Address/IPv6Address/LinkLocalIPs/unknown-key IPAM requests.",
+        "For each v1/v2 schema, refuse a network_contract, each nonempty configured snapshot field, and a blank observed network ID.",
+        "Mutate the first v3 replacement during source verification to running, foreign-labeled, previously started, restarted or wrong-image; require incomplete installation/rollback and no remove call.",
+        "Mutate a storage metadata digest during the final source verification, once returning true and once false; require neither installation nor rollback acceptance and an exact-baseline mismatch.",
+        "Stub daemon mapping responses as absent, wrong name, wrong ID or duplicated row; require refusal in every case.",
+        "Fail rename/disconnect/create/verify_sources before and after effects in the v3 fake backend; require successful configuration rollback, no surviving attempt objects, exact storage and false startup/connectivity authorization.",
+        "Hash-load the saved original v2 plan; require empty configured bindings, unchanged v2 schema and both startup deferrals."
+      ]
+    },
+    "docker_commands_run": false,
+    "daemon_queried": false,
+    "private_config_read": false,
+    "lifecycle_operations_run": false,
+    "source_or_test_edits": false,
+    "checkpoint_or_prior_evidence_edits": false,
+    "new_operational_manifest_generated": false,
+    "work_log_update": "Delegated to parent as explicitly requested; reviewer writes only this review artifact"
+  },
+  "claimed": [
+    "Checkpoint reports a parent focused run of 396 passed in 2.70s; the independent run above, not that report, is this review's local test proof."
+  ],
+  "unverified": [
+    "No actual daemon acceptance, live placeholder behavior, effective endpoint attachment, DNS, routing or connectivity is established by these configuration projections or simulated commands.",
+    "No installation, operational retry, private configuration transfer, storage-content inspection, service startup, runtime policy completion or full-system readiness is reviewed or authorized.",
+    "The historical recovery remains INCOMPLETE; this source-only decision does not change its recorded exact-restoration outcome."
+  ],
+  "remaining_risks": [
+    "The configuration digest is deliberately weaker than exact historical observed metadata. The existing raw preservation digest is itself a selected-field digest, not a byte-for-byte hash of the complete daemon payload; endpoint/address changes and unselected metadata are not new network proof.",
+    "The declared mapping is checked against the daemon by code, but only stubbed responses were tested here. Future operational use still requires freshly observed mapping/baseline evidence and separately reviewed expected v3 configuration fingerprints.",
+    "Inventory, identity checks and lifecycle commands are not an atomic transaction. Trusted local inputs and quiescent external lifecycle writers remain operational prerequisites; no new concurrent-writer guarantee is certified.",
+    "Exact storage proof here means equality of selected Snapshot fields, not filesystem/database content integrity.",
+    "A green focused suite and source-only acceptance do not authorize operations or satisfy the deferred startup policies."
+  ],
+  "proof_required_next": [
+    "Before any future operation, independently review a new explicit v3 manifest bound to a fresh raw baseline, verified name/ID mappings, separately derived expected configuration digests, reviewed source hashes and unchanged false startup deferrals.",
+    "Obtain separate explicit installation authorization; this review grants none. Effective networking and any later startup require their own evidence and authorization, not a configured-only digest or reuse of an old manifest."
+  ]
+}

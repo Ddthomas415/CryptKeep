@@ -1,0 +1,12 @@
+{
+  "exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 286.92,
+  "root": "/private/tmp/cryptkeep-full-suite-4sde8h5z",
+  "head": "620bc8dbeee71cca327042902759e219e18f30b6",
+  "files": 2524,
+  "slow_tests_skipped_by_runner": false,
+  "pre_treatment": false,
+  "network": "denied",
+  "operator_home": "denied_except_readonly_venv"
+}

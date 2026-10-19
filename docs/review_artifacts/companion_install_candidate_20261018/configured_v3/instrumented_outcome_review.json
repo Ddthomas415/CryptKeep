@@ -1,0 +1,188 @@
+{
+  "schema": "companion-instrumented-outcome-review-v1",
+  "reviewed_at_utc": "2026-10-18T16:31:55Z",
+  "active_role": "GATE",
+  "reviewer": "Codex independent outcome reviewer, not the installer implementation or attempt execution chat",
+  "objective": "Review only the retained instrumented stopped-install outcome and evidence sufficiency",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "disposition_scope": "Acceptance of bounded saved current-v3-baseline rollback evidence only; not installation, root cause, historical recovery or operational readiness",
+  "installation_state": "INCOMPLETE",
+  "current_v3_baseline_rollback_evidence_state": "ACCEPTED_WITH_RISK",
+  "root_cause_state": "INCOMPLETE",
+  "material_assumptions": [],
+  "environment_confidence": "VERIFIED_ENV for read-only local artifact parsing, hashing and saved-record comparisons only; no fresh daemon or runtime assessment",
+  "authorization": {
+    "operational_authorization": false,
+    "installation_authorized": false,
+    "retry_authorized": false,
+    "startup_authorized": false,
+    "acceptance_criteria_changed": false,
+    "approved_instrumented_attempt_consumed": true
+  },
+  "bindings": {
+    "reviewed_plan": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/reviewed_configured_plan.json",
+      "sha256": "f5b044858c3d40881239b77745d0b404c4ac05d2f35a6d043fed8f6ba934bf5f"
+    },
+    "diagnostic_supplement": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/outcome_diagnostics_review.json",
+      "sha256": "42601719c30b6c78c85cb65d1cd13f9ab244d131f8e17819333b6461e13c6a63"
+    },
+    "prior_plan_review": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/plan_review.json",
+      "sha256": "c95af5786cde131f88ab7c400a413a0b628f22f4bd007ea9bdcfc856631ad005"
+    },
+    "instrumented_receipt": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/instrumented_installation_receipt_20261018.jsonl",
+      "sha256": "20d3e29f73a50108a7cbeb817289bdb88fabb86fd38c0703da45430b1e7627ca"
+    },
+    "instrumented_post_capture": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/instrumented_post_attempt_snapshots.json",
+      "sha256": "524930d38f4809c904e23f57441974bb1b1e0280b8827647aa518ca593073577"
+    },
+    "repository_instructions": {
+      "path": "AGENTS.md",
+      "sha256": "a42859d1531c94c4a12be66f55eebb5d146febfc9bb34110f02d6da22687dd93"
+    }
+  },
+  "source_binding_verification": {
+    "classification": "SHOWN",
+    "combined_binding_entries_checked": 47,
+    "distinct_paths_checked": 43,
+    "mismatches": [],
+    "method": "SHA256 of all eight diagnostic-supplement binding entries and all 39 direct/list prior-plan-review binding entries. Override only the installer and installer-test paths with the accepted diagnostic-supplement pins; all other pins remain unchanged.",
+    "source_and_test_entries_checked": 15,
+    "current_installer": {
+      "path": "scripts/research/companion_installer.py",
+      "sha256": "5cdd79674de562cfabfe549b8405ced060cf2ea214ba54b365e46743b2721bf2"
+    },
+    "current_installer_tests": {
+      "path": "tests/test_companion_installer.py",
+      "sha256": "1e2639d0a9cef85d43a8b46216613882b9e0c6f8eb1548d7f8a46fa77ff1017f"
+    },
+    "unchanged_source_and_test_pins": "The 13 other entries are current_backend, current_network_helper, all six current_helpers and the five other current_reviewed_tests in the bound prior_plan_review. Every current file matches its exact recorded SHA256.",
+    "application_source_entries_checked": 43,
+    "distinct_application_source_paths_checked": 22,
+    "application_source_result": "Every local source file matches its exact reviewed-plan applications[].sources[].sha256 pin. This is local-file identity, not replacement-container source verification.",
+    "limit": "Current local identity does not independently attest which bytes the earlier process loaded. Prior diagnostic acceptance is not rerun or broadened here."
+  },
+  "findings": [
+    {
+      "classification": "SHOWN",
+      "finding": "Stopped installation failed its unchanged metadata gate",
+      "evidence": "Receipt record 5 for phase1-audit-log has metadata_matches=false and all nine other fixed boolean predicates true. Record 6 reports replacement_checks failure. No installation-success record exists.",
+      "disposition": "INCOMPLETE"
+    },
+    {
+      "classification": "UNVERIFIED",
+      "finding": "Specific differing metadata field and underlying cause are not recoverable from the retained replacement evidence",
+      "evidence": "The receipt retains comparison booleans, not the rejected replacement's configured metadata digest or sanitized component payload. Post-rollback snapshots describe restored originals, not the removed replacement.",
+      "consequence": "The failed aggregate predicate is localized, but no field-level or causal diagnosis is established. Environment ordering is not a confirmed cause. No inferred fix or comparison weakening is accepted."
+    }
+  ],
+  "saved_attempt_outcome": {
+    "classification": "SHOWN",
+    "attempt": "1693bb273e564a5d9dd096a9fb8db778",
+    "exit_code": 1,
+    "failure_stage": "replacement_checks",
+    "installed_stopped": false,
+    "services_started": false,
+    "receipt_complete": true,
+    "rollback_verified": true,
+    "rollback_exact_baseline": true,
+    "rollback_scope": "configuration_only",
+    "network_connectivity_verified": false,
+    "installation_evidence": null,
+    "source_verification_reached": false,
+    "command_result_corroboration": {
+      "path": "/Users/baitus/.codex/sessions/2026/10/12/rollout-2026-10-12T11-31-47-019d4b0c-59e1-7d21-8fbd-ec12f93a29e7_01a130bd-caf9-7430-b4d8-5378de8efa64.jsonl",
+      "result_record_line": 11653,
+      "result_record_timestamp": "2026-10-18T16:27:17.310Z",
+      "result_record_line_sha256_with_trailing_newline": "eea27f8f9175a299ee4fe4d6f0d3b533004406cfeee8af88cb71f5ad0cd78531",
+      "scope": "Retained command/result record corroborates the exact reviewed manifest/hash, instrumented receipt path, exit code and returned fields. The command was not repeated. No parent checkpoint or work-log conclusion is a dependency."
+    },
+    "limit": "services_started=false is a retained installer result, corroborated by the replacement never_started predicate and unchanged selected post-state; not independent complete host-wide lifecycle tracing."
+  },
+  "receipt_chain_verification": {
+    "classification": "SHOWN",
+    "records": 10,
+    "phases_in_exact_order": [
+      "installation_reserved",
+      "rename_intended",
+      "detach_intended",
+      "create_intended",
+      "replacement_checks",
+      "installation_failed",
+      "remove_replacement_intended",
+      "restore_name_intended",
+      "restore_network_intended",
+      "rollback_checks_completed"
+    ],
+    "all_targeted_records": "phase1-audit-log",
+    "replacement_predicates": {
+      "present": true,
+      "new_identity": true,
+      "created": true,
+      "never_started": true,
+      "zero_restarts": true,
+      "restart_disabled": true,
+      "image_matches": true,
+      "attempt_matches": true,
+      "metadata_matches": false,
+      "network_ids_match": true
+    },
+    "final_configuration_restored": true,
+    "final_exact_baseline_restored": true,
+    "source_conformance": "Bound installer lines 243-258 compare configured_metadata to the reviewed replacement_configured_metadata. Lines 367-378 record the fixed booleans before rejection and before source verification. Recovery and returned fields conform to this retained sequence.",
+    "limit": "Logical sequence conformance, not a cryptographically chained operation journal. Intent records alone do not prove successful operations; saved post-state corroborates the bounded final-state claim."
+  },
+  "saved_rollback_evidence": {
+    "classification": "SHOWN",
+    "decision": "ACCEPTED_WITH_RISK",
+    "observed_utc": "2026-10-18T16:29:51.763077+00:00",
+    "paired_payloads_equal": true,
+    "snapshot_count_per_capture": 7,
+    "unique_names_and_ids_per_capture": 7,
+    "complete_name_keyed_equality_to_reviewed_baseline": true,
+    "selected_attempt_objects_present": false,
+    "selected_rollback_names_present": false,
+    "comparison": "Recomputed direct first==second and full name-keyed equality of each seven-record capture to all seven reviewed-plan baseline records. No field projection, normalization or reliance on summary booleans.",
+    "audit_baseline_boundary": "The current-v3 audit baseline already has raw networks=[''] and configured_only provenance; these exact values remain. This does not accept older historical network restoration.",
+    "limit": "Saved selected sanitized metadata only. Not a fresh live/atomic inventory, complete raw daemon equality, host-wide absence guarantee, storage-content verification or effective connectivity proof."
+  },
+  "claimed": [
+    "The post-capture is described as paired native-backend inventories. This review independently verifies its retained contents and baseline equality, not capture execution or fresh host state."
+  ],
+  "unverified": [
+    "Rejected replacement metadata values, specific differing field and causal explanation",
+    "Successful stopped installation or replacement-container source verification",
+    "Effective connectivity, storage contents, SDK/import/startup compatibility, query behavior and full-system readiness",
+    "Earlier historical recovery; no prior historical disposition is promoted"
+  ],
+  "smallest_useful_next_diagnostic": {
+    "proposal_only": true,
+    "objective": "Offline design and targeted verification of a credential-safe per-field equality diagnostic over the same configured-metadata projection, retained before cleanup without changing the aggregate acceptance gate",
+    "reason": "No retained rejected replacement payload exists for a field-level comparison now. Saved baseline data cannot replace it.",
+    "constraints": "No retry, daemon access, credential access, raw secret values, secret-derived hashes, acceptance weakening or operational authorization. Any future diagnostic implementation requires its own scoped verification and independent review. Future runtime evidence collection requires separate explicit authorization.",
+    "implemented_or_executed": false
+  },
+  "verification": {
+    "command_family": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - with inline standard-library hashlib/json/pathlib assertions only",
+    "result": "PASS, exit 0: exact bindings, application source hashes, receipt ordering/booleans and saved snapshot comparisons",
+    "pytest_run": false,
+    "new_probe_matrix_run": false,
+    "installer_run": false,
+    "docker_commands_or_daemon_queries_run": false,
+    "credentials_accessed": false,
+    "implementation_or_test_changes": false,
+    "parent_checkpoint_or_work_log_used_as_proof": false,
+    "only_written_artifact": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/instrumented_outcome_review.json",
+    "work_log_owner": "Parent chat, per explicit user instruction; no other files changed by this reviewer"
+  },
+  "proof_required_next": [
+    "Keep installation INCOMPLETE; accepted rollback evidence cannot satisfy installation acceptance.",
+    "Obtain reviewed field-level evidence before claiming a metadata root cause or accepting a corrective change.",
+    "No further operation follows from this review; the approved instrumented attempt is consumed."
+  ]
+}

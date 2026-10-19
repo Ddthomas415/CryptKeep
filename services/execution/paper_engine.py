@@ -56,6 +56,29 @@ def _evidence_execution_extra(meta: dict | None = None) -> dict:
     return {key: payload[key] for key in _EVIDENCE_EXECUTION_EXTRA_KEYS if key in payload}
 
 
+def _fill_identity_extra(order: dict, cfg: dict) -> dict:
+    """Analytical policy agreement only; never decide whether a fill proceeds."""
+    meta = order.get("meta")
+    if not isinstance(meta, dict) or not any(key in meta for key in (
+        "execution_identity", "execution_identity_sha256", "execution_identity_capture_status")):
+        return {}
+    try:
+        from services.strategies.execution_identity import fill_identity_evidence
+
+        evidence = fill_identity_evidence(meta, effective_costs={
+            "fee_bps": cfg["fee_bps"], "slippage_bps": cfg["slippage_bps"],
+            "quote_currency": cfg["quote_currency"],
+            "basis_version": "paper_fee_inclusive_average_v1",
+        })
+        market = evidence["execution_identity"]["market"]
+        if market["venue"] != order.get("venue") or market["symbol"] != order.get("symbol"):
+            raise ValueError("execution_identity_order_market_mismatch")
+        return {**evidence, "execution_identity_fill_status": "cost_policy_verified"}
+    except Exception as exc:
+        return {"execution_identity_fill_status": "invalid",
+                "execution_identity_fill_error_type": type(exc).__name__}
+
+
 def _cfg() -> dict:
     cfg = load_user_yaml()
     p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
@@ -303,6 +326,9 @@ class PaperEngine:
         fee = (price * qty) * (fee_bps / 10000.0)
         fee_ccy = self.cfg["quote_currency"]
         fill_ts = self._clock()
+        identity_extra = _fill_identity_extra(order, self.cfg)
+        identity_kwargs = ({"execution_identity_evidence": identity_extra}
+                           if identity_extra else {})
         result = self.db.apply_fill(
             order=order,
             ts=fill_ts,
@@ -310,6 +336,7 @@ class PaperEngine:
             qty=float(qty),
             fee=float(fee),
             fee_currency=str(fee_ccy),
+            **identity_kwargs,
         )
         if not result.get("ok"):
             return result
@@ -333,6 +360,7 @@ class PaperEngine:
                 if order.get("side") == "sell":
                     pnl = round(float(result.get("realized_pnl_usd") or 0.0), 4)
                 extra = _evidence_execution_extra(meta)
+                extra.update(identity_extra)
                 if result.get("pnl_usd_semantics"):
                     extra["pnl_usd_semantics"] = str(result["pnl_usd_semantics"])
                 EvidenceLogger(evidence_strategy_id).log_fill(

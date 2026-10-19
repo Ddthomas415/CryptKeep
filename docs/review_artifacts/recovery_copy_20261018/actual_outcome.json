@@ -1,0 +1,57 @@
+{
+  "active_role": "ENGINEER",
+  "acceptance_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "objective": "Selected-file local recovery copy with explicit exclusions, not complete repository recovery",
+  "evidence_class": "SHOWN",
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -E -B -m scripts.research.build_recovery_copy --root /Users/baitus/Downloads/crypto-bot-pro --output /Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z_r2",
+  "environment_confidence": "VERIFIED_ENV",
+  "exit_code": 0,
+  "exec_session_id": 77081,
+  "stdout": {
+    "output": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z_r2",
+    "restored_verified": 6414,
+    "excluded": 41,
+    "complete_repository_or_secret_clearance": false
+  },
+  "receipt_created_utc": "2026-10-18T19:16:16.840995+00:00",
+  "included_files": 6414,
+  "included_bytes": 567124940,
+  "checkpoint_rows": 6455,
+  "archive_bytes": 81041871,
+  "companion_python_files": 34,
+  "public_databases_copied": 0,
+  "public_databases_excluded": 4,
+  "raw_input_archives_copied": 4,
+  "raw_input_archives_excluded": 3,
+  "exclusion_reason_counts": {
+    "credential_or_runtime_path": 2,
+    "opaque_content_not_cleared": 26,
+    "possible_secret:extended_openai_key": 3,
+    "archive_member_refused": 2,
+    "database_journal_present": 4,
+    "possible_secret:github_fine_grained_token": 1,
+    "possible_secret:literal_secret_assignment": 3
+  },
+  "sha256": {
+    "scripts/research/build_recovery_copy.py": "8efaf5fc4e3ff508640fb038d6d2b1f74c7a30ece9ef1233449f491f051655a9",
+    "tests/test_build_recovery_copy.py": "281bf5be9942502c8801fda2216be1754303af7444a33e171c3eca247a301c60",
+    "backup_manifest.json": "626973a8544fe244cd79870c99f0585147bc5d70f9ed9669d543f1f838782941",
+    "refreshed_checkpoint.csv": "715a474ab241d39edc9f1a138a7b0669f41f17e661e0f49e3ab6038d640457e4",
+    "recovery.tar.gz": "8bfbd09f782bed2be705ac5001731cfb7e154a5b444802b3e0e8466e266b6d44"
+  },
+  "post_copy_checks": {
+    "head": "620bc8dbeee71cca327042902759e219e18f30b6",
+    "index_lock_unchanged": "0 bytes, modified 2026-10-04T12:18:30-0400; not removed",
+    "original_checkpoint_draft_checksums": "3 of 3 match",
+    "previous_partial_output": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z",
+    "previous_partial_disposition": "INCOMPLETE; 820 copied files, no success receipts; retained without overwrite or deletion"
+  },
+  "limits": [
+    "All four selected public SQLite databases excluded because journals were present; their contents were not opened through SQLite.",
+    "Three of seven raw input archives excluded. Pattern matches indicate possible secrets, not independently established credentials or leaks.",
+    "Same laptop and disk, not offsite or hardware-failure protection.",
+    "Per-file stability and restored hash checks, not a globally atomic snapshot or full environment/runtime restore.",
+    "No Git history, full secret clearance, service, profitability or trading-readiness proof.",
+    "This outcome record and later closeout documents postdate the copy and are not included in it."
+  ]
+}

@@ -45,17 +45,12 @@ def _py_sources(*roots: str):
             yield p
 
 
-def test_exchange_reconciler_has_no_production_importers():
-    """The module that computes venue drift severity is DORMANT.
+def test_exchange_reconciler_is_wired_only_through_the_decided_policy():
+    """ENFORCEMENT (decision 2026-10-09, replaces the dormant-module census test).
 
-    Pinning this makes wiring it a DELIBERATE, VISIBLE act. Without the pin, it could be
-    quietly enabled — or, worse, mistaken for live protection *because it exists and
-    looks complete*. It fetches balances and positions, applies tolerances, escalates to
-    CRITICAL, and builds a repair plan. Nothing imports it.
-
-    A FAILURE HERE IS GOOD NEWS — it means position reconciliation is being wired. When
-    that happens, this test must be replaced with enforcement tests for the chosen
-    resolution policy (see the decision record).
+    exchange_reconciler may be imported ONLY by services/reconciliation/position_truth.py, which carries the
+    decided trust policy (3 observations, 15-minute persistence, errors and stale snapshots are not observations,
+    clean observation clears) and binds confirmed drift to the NAMED halt authority (kill switch), never disarming.
     """
     importers = []
     for p in _py_sources("services", "scripts", "dashboard"):
@@ -64,15 +59,14 @@ def test_exchange_reconciler_has_no_production_importers():
         src = p.read_text(encoding="utf-8", errors="ignore")
         if re.search(r"(from\s+services\.reconciliation\.exchange_reconciler\s+import|import\s+exchange_reconciler)", src):
             importers.append(str(p.relative_to(REPO)))
-
-    assert importers == [], (
-        f"exchange_reconciler now has importers: {importers}. Position reconciliation is "
-        "being wired — GOOD. Now confirm the decision record's requirements are met: a "
-        "defined resolution authority, a trust policy (drift persistence, minimum age, "
-        "exceptions-are-not-observations, snapshot-staleness bound), and CRITICAL bound "
-        "to a NAMED halt authority. Replace this census test with those enforcement "
-        "tests. See docs/decisions/position_truth_resolution_authority.md"
-    )
+    assert importers == ["services/reconciliation/position_truth.py"], importers
+    policy = (REPO / "services/reconciliation/position_truth.py").read_text(encoding="utf-8")
+    for token in ("MIN_OBS_DEFAULT, MIN_PERSIST_MS_DEFAULT = 3, 900_000", "error_not_counted",
+                  "stale_snapshot_not_counted", "set_kill_switch(True", "position_truth_drift_confirmed"):
+        assert token in policy, token
+    assert "set_kill_switch(False" not in policy
+    record = (REPO / "docs/decisions/position_truth_resolution_authority.md").read_text(encoding="utf-8")
+    assert "## Decision 2026-10-09" in record
 
 
 def test_critical_drift_reaches_no_halt_authority():

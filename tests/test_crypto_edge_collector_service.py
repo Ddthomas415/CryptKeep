@@ -160,6 +160,12 @@ def test_load_runtime_status_marks_dead_process(tmp_path, monkeypatch) -> None:
     assert out["pid_alive"] is False
     assert out["poll_interval_sec"] == 300.0
 
+    monkeypatch.setattr(svc, "_process_alive", lambda pid: pytest.fail("must not check host PID"))
+    external = svc.load_runtime_status(verify_process=False)
+    assert external["status"] == "running"
+    assert external["pid_alive"] is None
+    assert external["process_liveness"] == "external_namespace_unverified"
+
 
 @pytest.mark.slow
 def test_run_forever_refuses_duplicate_running_instance(tmp_path, monkeypatch) -> None:

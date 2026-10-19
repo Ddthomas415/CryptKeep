@@ -76,7 +76,7 @@ def _process_alive(pid: int) -> bool:
         return False
 
 
-def load_runtime_status() -> Dict[str, Any]:
+def load_runtime_status(*, verify_process: bool = True) -> Dict[str, Any]:
     payload: Dict[str, Any]
     if status_file().exists():
         try:
@@ -108,23 +108,24 @@ def load_runtime_status() -> Dict[str, Any]:
     pid = int(pid_state.get("pid") or 0) if pid_state else 0
     if status_pid > 0 and (pid <= 0 or payload.get("status") == "running"):
         pid = status_pid
-    pid_alive = _process_alive(pid) if pid > 0 else False
+    pid_alive = (_process_alive(pid) if pid > 0 else False) if verify_process else None
 
     payload["ok"] = bool(payload.get("ok", True))
     payload["has_status"] = bool(payload.get("has_status")) if "has_status" in payload else True
     payload["pid"] = pid or None
     payload["pid_alive"] = pid_alive
+    payload["process_liveness"] = "local_verified" if verify_process else "external_namespace_unverified"
     payload["has_pid_file"] = bool(pid_state)
     payload["started_ts"] = str(pid_state.get("started_ts") or "")
     payload["poll_interval_sec"] = float(pid_state.get("poll_interval_sec") or 0.0) if pid_state else 0.0
     payload["source"] = str(payload.get("source") or pid_state.get("source") or "live_public")
     payload["plan_file"] = str(payload.get("plan_file") or pid_state.get("plan_file") or "")
 
-    if pid_state and payload.get("status") == "running" and not pid_alive:
+    if verify_process and pid_state and payload.get("status") == "running" and not pid_alive:
         payload["status"] = "dead"
         payload["reason"] = "process_not_running"
         payload["last_reason"] = str(payload.get("last_reason") or payload.get("reason") or "process_not_running")
-    elif pid_state and not payload.get("has_status") and pid_alive:
+    elif verify_process and pid_state and not payload.get("has_status") and pid_alive:
         payload["status"] = "starting"
         payload["reason"] = "pid_alive_waiting_for_status"
         payload["has_status"] = True

@@ -1,0 +1,49 @@
+{
+  "cutoff_exclusive_utc": "2026-10-12T03:00:00Z",
+  "identity": {
+    "fee_receipt_sha256": "92bfc29c972c0a02db8f63d70d38e65d0a63870d2d7b669984758fc75c216420",
+    "plan_sha256": "11fd2a75844081549dcd8aba45cbddff706383a464282a8a560a1bd8a793ce94",
+    "runner_sha256": "4aaac1a6473e5b25e8db1b3fd9a85769f8188f1becf9eb45180691c5566f0719",
+    "snapshot_sha256": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc"
+  },
+  "kind": "COLLECTION_CHECKPOINT_NOT_PHASE_COMPLETION",
+  "limits": [
+    "content_freeze_not_authenticity",
+    "not_checkpoint_or_final_phase",
+    "no_strategy_evaluation"
+  ],
+  "markets": {
+    "ADA/USD": {
+      "evaluation_bars": 51,
+      "evaluation_rows_sha256": "b3adad691ba35eb3143cf68e6d1ef98d37c9e5464c0f26b583466cf3ccdc33a2",
+      "total_bars": 351,
+      "total_rows_sha256": "30826fb18637a9f3c1e2bda773f61a24cb518c9051afee41fe72c39f037cd1fc"
+    },
+    "BTC/USD": {
+      "evaluation_bars": 51,
+      "evaluation_rows_sha256": "6195b008d876c77344baea3b65ef1d9d9c55c16f7cad361d863af2c51e5d2839",
+      "total_bars": 351,
+      "total_rows_sha256": "fb18089eff9a9b4dd6558a5bd1354a4c1fd8ef2f3747cb3440c061d0c7f40cf1"
+    },
+    "ETH/USD": {
+      "evaluation_bars": 51,
+      "evaluation_rows_sha256": "7ec145bbe670f4e1ab28a86ded7ecfaaecdb0119e307a46d01486700427e94f8",
+      "total_bars": 351,
+      "total_rows_sha256": "fafb6bb2b6795b1091705ff70848e7252b2b8d3fec234bb461563387019e634e"
+    },
+    "SOL/USD": {
+      "evaluation_bars": 51,
+      "evaluation_rows_sha256": "20ba0ccedaa4f9a29f946f491fde11ea9ca578cc17a491351e4c2204f3a52c91",
+      "total_bars": 351,
+      "total_rows_sha256": "82d5df4043562deb4b03c4f74f64f3ef14cf1ae143303fc6f821ff0b10738790"
+    },
+    "XRP/USD": {
+      "evaluation_bars": 51,
+      "evaluation_rows_sha256": "5c9a78e1f03e223ec4c5edfdd753d2e1d25d43dc5c5564d09106abda020d81f1",
+      "total_bars": 351,
+      "total_rows_sha256": "db463258c47da91358d2abee30f0e74dfd56878f9983e2f6cb3d9e90323b47b3"
+    }
+  },
+  "parent_checkpoint_sha256": "b9d73779d438de41f65aa47738ac9f47abe941e7fd812d01d9311bcd6d028491",
+  "scoring_authorized": false
+}

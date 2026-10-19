@@ -1,0 +1,794 @@
+{
+  "artifact_type": "dynamic_case_coverage_not_profitability",
+  "sources": [
+    {
+      "file": "research/research_corrections_20261009/dynamic_corrected_v1.json",
+      "sha256": "84e54be010d946199ca81b7de0b7756df5e59e19f1b5e26017eb6c7ca1b0e0d3",
+      "runner_sha256": "d31871fbe6ce89fffcadfafeb47ba1e041c96972197f5fde41ddefee8db62712"
+    },
+    {
+      "file": "research/research_corrections_20261009/dynamic_corrected_v2.json",
+      "sha256": "550972e9ec3f5e32a0f3de40ed394735878225f31f29e826dfd2bcf119c4f6df",
+      "runner_sha256": "8efef35cb47d1b01ecff5ceadf822559fb84f58cbe0c1f1abe4e9667896f2e96"
+    },
+    {
+      "file": "research/research_corrections_20261009/dynamic_corrected_v2_stress.json",
+      "sha256": "723acf1033467db271e98ef4e604e256cf95be40da457d10bf6e10a49b293f63",
+      "runner_sha256": "8efef35cb47d1b01ecff5ceadf822559fb84f58cbe0c1f1abe4e9667896f2e96"
+    }
+  ],
+  "original_cases": 96,
+  "corrected_cases": 18,
+  "older_runner_cases": 78,
+  "rows": [
+    {
+      "case": "last_60d|breakout_7d_high_vol3x_trail15_hold7d|primary_50bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1566.14,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|breakout_7d_high_vol3x_trail15_hold7d|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1566.14,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|breakout_7d_high_vol3x_trail15_hold7d|stress_120bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1406.39,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|breakout_7d_high_vol3x_trail15_hold7d|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1406.39,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|breakout_7d_high_vol3x_trail15_hold7d|stress_60bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1542.22,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|breakout_7d_high_vol3x_trail15_hold7d|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1542.22,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|breakout_7d_high_vol3x_trail8_hold7d|primary_50bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1025.18,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|breakout_7d_high_vol3x_trail8_hold7d|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1025.18,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|breakout_7d_high_vol3x_trail8_hold7d|stress_120bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 854.19,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|breakout_7d_high_vol3x_trail8_hold7d|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 854.19,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|breakout_7d_high_vol3x_trail8_hold7d|stress_60bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 998.74,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|breakout_7d_high_vol3x_trail8_hold7d|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 998.74,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|hold_BTC|primary_50bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1292.32,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|hold_BTC|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1292.32,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|hold_BTC|stress_120bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1283.38,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|hold_BTC|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1283.38,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|hold_BTC|stress_60bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1291.04,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|hold_BTC|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1291.04,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|hold_ETH|primary_50bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1311.63,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|hold_ETH|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1311.63,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|hold_ETH|stress_120bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1302.56,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|hold_ETH|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1302.56,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|hold_ETH|stress_60bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1310.33,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|hold_ETH|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1310.33,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_24h_top3_daily|primary_50bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 578.85,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_24h_top3_daily|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 578.85,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_24h_top3_daily|stress_120bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 310.17,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_24h_top3_daily|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 310.17,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_24h_top3_daily|stress_60bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 529.45,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_24h_top3_daily|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 529.45,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top1_daily|primary_50bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 304.13,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top1_daily|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 304.13,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top1_daily|stress_120bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 228.26,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top1_daily|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 228.26,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top1_daily|stress_60bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 291.92,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top1_daily|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 291.92,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top3_daily|primary_50bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1145.96,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top3_daily|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1145.96,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top3_daily|stress_120bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 916.96,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top3_daily|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 916.96,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top3_daily|stress_60bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1110.0,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top3_daily|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1110.0,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top3_weekly|primary_50bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 558.43,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top3_weekly|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 558.43,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top3_weekly|stress_120bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 502.79,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top3_weekly|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 502.79,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top3_weekly|stress_60bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 550.12,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "last_60d|rotation_7d_top3_weekly|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 550.12,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|breakout_7d_high_vol3x_trail15_hold7d|primary_50bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 126.88,
+      "corrected_marked_endpoint": 126.88,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|breakout_7d_high_vol3x_trail15_hold7d|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 182.13,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|breakout_7d_high_vol3x_trail15_hold7d|stress_120bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 70.29,
+      "corrected_marked_endpoint": 70.29,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|breakout_7d_high_vol3x_trail15_hold7d|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 119.28,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|breakout_7d_high_vol3x_trail15_hold7d|stress_60bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 116.6,
+      "corrected_marked_endpoint": 116.6,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|breakout_7d_high_vol3x_trail15_hold7d|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 171.43,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|breakout_7d_high_vol3x_trail8_hold7d|primary_50bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 270.44,
+      "corrected_marked_endpoint": 270.44,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|breakout_7d_high_vol3x_trail8_hold7d|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 390.57,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|breakout_7d_high_vol3x_trail8_hold7d|stress_120bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 131.13,
+      "corrected_marked_endpoint": 131.13,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|breakout_7d_high_vol3x_trail8_hold7d|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 232.69,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|breakout_7d_high_vol3x_trail8_hold7d|stress_60bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 243.81,
+      "corrected_marked_endpoint": 243.81,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|breakout_7d_high_vol3x_trail8_hold7d|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 362.65,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|hold_BTC|primary_50bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 581.76,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|hold_BTC|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 999.97,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|hold_BTC|stress_120bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 577.74,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|hold_BTC|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 993.05,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|hold_BTC|stress_60bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 581.18,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|hold_BTC|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 998.98,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|hold_ETH|primary_50bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 475.94,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|hold_ETH|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 980.0,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|hold_ETH|stress_120bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 472.65,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|hold_ETH|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 973.22,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|hold_ETH|stress_60bps|outage",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 475.46,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|hold_ETH|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 979.03,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|rotation_24h_top3_daily|primary_50bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1.86,
+      "corrected_marked_endpoint": 1.86,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|rotation_24h_top3_daily|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 669.66,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|rotation_24h_top3_daily|stress_120bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 0.06,
+      "corrected_marked_endpoint": 0.06,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|rotation_24h_top3_daily|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 592.01,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|rotation_24h_top3_daily|stress_60bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1.15,
+      "corrected_marked_endpoint": 1.15,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|rotation_24h_top3_daily|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 657.97,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|rotation_7d_top1_daily|primary_50bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 0.0,
+      "corrected_marked_endpoint": 0.0,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|rotation_7d_top1_daily|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 619.45,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|rotation_7d_top1_daily|stress_120bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 0.0,
+      "corrected_marked_endpoint": 0.0,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|rotation_7d_top1_daily|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 589.86,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|rotation_7d_top1_daily|stress_60bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 0.0,
+      "corrected_marked_endpoint": 0.0,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|rotation_7d_top1_daily|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 615.13,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|rotation_7d_top3_daily|primary_50bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1.78,
+      "corrected_marked_endpoint": 1.78,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|rotation_7d_top3_daily|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 682.68,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|rotation_7d_top3_daily|stress_120bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 0.46,
+      "corrected_marked_endpoint": 0.46,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|rotation_7d_top3_daily|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 631.35,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|rotation_7d_top3_daily|stress_60bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 1.47,
+      "corrected_marked_endpoint": 1.47,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|rotation_7d_top3_daily|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 675.1,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|rotation_7d_top3_weekly|primary_50bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 15.27,
+      "corrected_marked_endpoint": 15.27,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|rotation_7d_top3_weekly|primary_50bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 948.4,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|rotation_7d_top3_weekly|stress_120bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 8.99,
+      "corrected_marked_endpoint": 8.99,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|rotation_7d_top3_weekly|stress_120bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 928.74,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    },
+    {
+      "case": "prior_10m|rotation_7d_top3_weekly|stress_60bps|outage",
+      "status": "CORRECTED_DIAGNOSTIC_RERUN",
+      "old_status": "COMPLETE",
+      "old_marked_endpoint": 14.16,
+      "corrected_marked_endpoint": 14.16,
+      "marked_endpoint_matches": true
+    },
+    {
+      "case": "prior_10m|rotation_7d_top3_weekly|stress_60bps|strict",
+      "status": "PRESERVED_OLDER_RUNNER_NOT_REVERIFIED",
+      "old_status": "INCOMPLETE",
+      "old_marked_endpoint": 945.56,
+      "corrected_marked_endpoint": null,
+      "marked_endpoint_matches": null
+    }
+  ],
+  "complete_corrected_96_case_replay": false
+}

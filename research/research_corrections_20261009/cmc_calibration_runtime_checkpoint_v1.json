@@ -1,0 +1,24 @@
+{
+  "synthetic_only": true,
+  "benchmark_only": true,
+  "bootstrap_repeats": 2000,
+  "cells": [
+    {
+      "entry_days": 90,
+      "one_history_seconds": 1.0222278329893015,
+      "projected_1000_histories_seconds": 1022.2278329893015
+    },
+    {
+      "entry_days": 180,
+      "one_history_seconds": 0.7834960829932243,
+      "projected_1000_histories_seconds": 783.4960829932243
+    },
+    {
+      "entry_days": 365,
+      "one_history_seconds": 1.4231863340246491,
+      "projected_1000_histories_seconds": 1423.186334024649
+    }
+  ],
+  "statistics_sha256": "85e61eadf93cea578642af1e42a5dc9341da5b1c6daaa8b374ca5f73f3561ee4",
+  "full_grid_started": false
+}

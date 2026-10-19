@@ -1,0 +1,11 @@
+{
+  "observed_at_utc": "2026-10-12T03:28:43.111536+00:00",
+  "venue": "coinbase",
+  "orders_submitted": false,
+  "preview_only": true,
+  "raw_response_saved": false,
+  "requests": [],
+  "product_specific_realized_fees": "UNVERIFIED",
+  "status": "PREVIEW_LOOKUP_INCOMPLETE",
+  "error_type": "BadRequest"
+}

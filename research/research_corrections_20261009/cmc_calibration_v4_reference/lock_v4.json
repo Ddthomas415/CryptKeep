@@ -1,0 +1,37 @@
+{
+  "status": "REFERENCE_LOCKED_NOT_CERTIFIED",
+  "identity": {
+    "generator_sha256": "26fb3ce192f93416f215d1c8ec2e3f7bb39489ac85c9b1f20ebc7843858369d4",
+    "runner_sha256": "369cf8344743121d717a486ff200527b7eb013491f598e847608d0c880f0ddc5",
+    "contract_sha256": "c34a399036b2981081883550fd86577cc3d80a5b51951cce5b7c309501ec8c9a",
+    "numpy_version": "2.4.4"
+  },
+  "cutoffs": {
+    "90": 0.062331821910642425,
+    "180": 0.036341832993420704,
+    "365": 0.035982765795621464
+  },
+  "histories_per_cell": 1000,
+  "reference_sha256": {
+    "iid_90.json": "144257f6970e2b938692ea66c254d2363b1afff2eb99fb694dff942402b97470",
+    "iid_180.json": "8f1a437d196ae0c34428aeab50dfa7b9d89532626a6723f158fa1b9e1771ded6",
+    "iid_365.json": "456e5120c7b0661325fb9bf41254954c36e0c66a4ddb58fd73fac2df92539762",
+    "overlap7_90.json": "3d4872271187e039ea19a5102b3885ab7509a267426928b507db202405f2cfe8",
+    "overlap7_180.json": "793a606124206e012b8bb77175ed5c9df643df9bd6ecfd97ad0cd4323a004660",
+    "overlap7_365.json": "3577b0d76e75f4ab1ca4752dc0a33eaeb9a814b0f201261b44a1236c01320c3e",
+    "persistent_90.json": "6e2cfb016aa0b7355e15e905a9c097fa47d4cd1976c12a8932afbf9d3595fe5e",
+    "persistent_180.json": "d2663ab43138e2efa37221f9aedf24affefc57ef442e220071eaffdadc6f3573",
+    "persistent_365.json": "2d84b9e5165662ee891959ddadc2d5795892877ca30ffaf5ee29f2dd9aed7c97",
+    "heavy_tail_90.json": "ed4ce3d6a95d8f6fc1761ca862c878be68eb26ae8140f0deacb456c61a822282",
+    "heavy_tail_180.json": "32f3efce9d554c0be15a74405d5d138e5d698f5f04a3920dffdd0ddb54e99a26",
+    "heavy_tail_365.json": "6299c3ec1ef220d378b01804ef3b2822cc3bff3169ea5869fa56ba9f62fb7482",
+    "volatility_shift_90.json": "283a75728f5b5689e3295faaa8ee1910ddf7044e06acc4d12c46b1a56c44e2df",
+    "volatility_shift_180.json": "525ae59225ea42e22c5383441396dbe145b74698325ea4e3a3add7b018e895b9",
+    "volatility_shift_365.json": "9f6f70929102b84125800fa9a0b9dd756af256b623be14a4f2ee47dafa41239a",
+    "shared_unequal_90.json": "c44c3603e3064d8c4f5bb9cf9a45ea67bbe241435c568eb907410e0d777c6a7d",
+    "shared_unequal_180.json": "6f488f3fabd68a38b0f9783b2cfdb20bde31916039c819d4b9d2161f2a8d67d6",
+    "shared_unequal_365.json": "57f80f8f31309085265d05c35bc9524f58645477ae3bcb2f3769f705f85969df"
+  },
+  "confirmation_stage": "v4_confirmation_20261010",
+  "primary_scoring_enabled": false
+}

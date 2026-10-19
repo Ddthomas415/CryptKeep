@@ -160,6 +160,32 @@ def test_load_crypto_edge_staleness_summary_flags_attention(monkeypatch) -> None
     assert "freshness needs attention" in payload["summary_text"]
 
 
+def test_container_status_does_not_probe_host_pid(monkeypatch):
+    from services.analytics import crypto_edge_collector_service as collector
+    from types import SimpleNamespace
+    monkeypatch.setattr(crypto_edge_research, "Path", lambda path: SimpleNamespace(exists=lambda: True))
+    calls = []
+    def status(**kwargs):
+        calls.append(kwargs)
+        return {"status": "running", "has_status": True, "process_liveness": "external_namespace_unverified"}
+    monkeypatch.setattr(collector, "load_runtime_status", status)
+    result = crypto_edge_research.load_crypto_edge_collector_runtime()
+    assert calls == [{"verify_process": False}]
+    assert "host process liveness unverified" in result["summary_text"]
+
+
+def test_unknown_host_liveness_preserves_snapshot_staleness():
+    runtime = {"status": "running", "has_status": True, "freshness": "Fresh",
+               "process_liveness": "external_namespace_unverified"}
+    snapshot = {"has_live_data": True, "freshness_summary": "Fresh"}
+    fresh = crypto_edge_research._build_staleness_summary(snapshot, runtime)
+    assert not fresh["needs_attention"]
+    assert "liveness is unverified" in fresh["summary_text"]
+    stale = crypto_edge_research._build_staleness_summary(dict(snapshot, freshness_summary="Stale"), runtime)
+    assert stale["needs_attention"]
+    assert "stale" in stale["summary_text"]
+
+
 def test_load_crypto_edge_staleness_digest_includes_change_and_action(monkeypatch) -> None:
     monkeypatch.setattr(
         crypto_edge_research,

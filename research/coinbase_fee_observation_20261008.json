@@ -1,0 +1,17 @@
+{
+  "venue": "coinbase",
+  "product_type": "SPOT",
+  "research_only": true,
+  "observed_at_utc": "2026-10-08T23:40:20.616525+00:00",
+  "private_request_attempted": true,
+  "orders_submitted": false,
+  "credential_source": "keyring",
+  "status": "OBSERVED_ACCOUNT_SPOT_FEE_TIER",
+  "maker_bps": 25.0,
+  "taker_bps": 50.0,
+  "has_promo_fee": false,
+  "has_cost_plus_commission": false,
+  "product_specific_all_in_fees": "UNVERIFIED",
+  "historical_fee_tier": "UNVERIFIED",
+  "raw_response_saved": false
+}

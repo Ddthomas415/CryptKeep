@@ -1,0 +1,162 @@
+{
+  "5117": {
+    "coinbase_product": "OGN-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "36507": {
+    "coinbase_product": "PUMP-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "40938": {
+    "coinbase_product": "PONS-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "35509": {
+    "coinbase_product": "VVV-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "11165": {
+    "coinbase_product": "ORCA-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "38353": {
+    "coinbase_product": "MET-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "35014": {
+    "coinbase_product": "DRV-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "35336": {
+    "coinbase_product": "TRUMP-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "36341": {
+    "coinbase_product": "ASTER-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "21159": {
+    "coinbase_product": "ONDO-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "34466": {
+    "coinbase_product": "PENGU-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "29420": {
+    "coinbase_product": "VIRTUAL-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "3155": {
+    "coinbase_product": "QNT-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "1975": {
+    "coinbase_product": "LINK-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "6945": {
+    "coinbase_product": "AMP-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  },
+  "28177": {
+    "coinbase_product": "PYTH-USD",
+    "evidence": {
+      "proposal_path": "research/research_corrections_20261009/cmc_contract_identity_proposals_v1.json",
+      "proposal_sha256": "6a0ad1c397bf633b3db684b302b38605d9925a4eb50f9d393c02dbe32479f4ae",
+      "source_snapshot": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "basis": "same_chain_and_contract_saved_metadata",
+      "scope": "identity_only_not_execution_or_scoring_authorization"
+    }
+  }
+}

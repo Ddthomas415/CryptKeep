@@ -1,0 +1,149 @@
+{
+  "observed_utc": "2026-10-09T01:04:03.440052+00:00",
+  "scope": "first_four_market_cap_pages_not_all_listed_coins",
+  "unique_coins": 1000,
+  "windows": {
+    "7d": [
+      {
+        "id": "iexec-rlc",
+        "symbol": "rlc",
+        "name": "iExec RLC",
+        "price_change_percentage_7d_in_currency": 137.7071,
+        "market_cap_rank": 354,
+        "total_volume": 138828112,
+        "last_updated": "2026-10-09T01:02:53.000Z",
+        "sampled_path": {
+          "window_start": [
+            1790906400000,
+            0.3712695995463127
+          ],
+          "pre_peak_minimum": [
+            1791133200000,
+            0.3612719931150253
+          ],
+          "peak": [
+            1791288000000,
+            1.0249884346671287
+          ],
+          "latest": [
+            1791507740000,
+            0.859677545795358
+          ],
+          "rise_minimum_to_peak_pct": 183.71654991279186,
+          "rise_hours": 43.0,
+          "peak_to_latest_pct": -16.128073574357593,
+          "hours_since_peak": 61.03888888888889,
+          "limit": "sampled_aggregate_prices_not_executable_fills_or_exact_intrahour_extremes"
+        }
+      },
+      {
+        "id": "hivemapper",
+        "symbol": "honey",
+        "name": "Hivemapper",
+        "price_change_percentage_7d_in_currency": 126.2132,
+        "market_cap_rank": 803,
+        "total_volume": 2706564,
+        "last_updated": "2026-10-09T01:02:53.000Z"
+      },
+      {
+        "id": "origin-protocol",
+        "symbol": "ogn",
+        "name": "Origin Token",
+        "price_change_percentage_7d_in_currency": 103.576,
+        "market_cap_rank": 648,
+        "total_volume": 223018877,
+        "last_updated": "2026-10-09T01:02:53.000Z"
+      },
+      {
+        "id": "dolphin-2",
+        "symbol": "pod",
+        "name": "Dolphin",
+        "price_change_percentage_7d_in_currency": 92.6793,
+        "market_cap_rank": 472,
+        "total_volume": 5697738,
+        "last_updated": "2026-10-09T01:02:53.000Z"
+      },
+      {
+        "id": "quantus",
+        "symbol": "qtc",
+        "name": "Quantus",
+        "price_change_percentage_7d_in_currency": 79.3403,
+        "market_cap_rank": 503,
+        "total_volume": 38634969,
+        "last_updated": "2026-10-09T01:02:53.000Z"
+      }
+    ],
+    "30d": [
+      {
+        "id": "rhea-2",
+        "symbol": "rhea",
+        "name": "RHEA",
+        "price_change_percentage_30d_in_currency": 322.0293,
+        "market_cap_rank": 757,
+        "total_volume": 3941796,
+        "last_updated": "2026-10-09T01:02:53.000Z",
+        "sampled_path": {
+          "window_start": [
+            1788919200000,
+            0.01448462695373941
+          ],
+          "pre_peak_minimum": [
+            1789052400000,
+            0.014120551085495932
+          ],
+          "peak": [
+            1790553600000,
+            0.19641561714700106
+          ],
+          "latest": [
+            1791507770000,
+            0.06091899878975558
+          ],
+          "rise_minimum_to_peak_pct": 1290.9911586152707,
+          "rise_hours": 417.0,
+          "peak_to_latest_pct": -68.98464609147517,
+          "hours_since_peak": 265.0472222222222,
+          "limit": "sampled_aggregate_prices_not_executable_fills_or_exact_intrahour_extremes"
+        }
+      },
+      {
+        "id": "quant-network",
+        "symbol": "qnt",
+        "name": "Quant",
+        "price_change_percentage_30d_in_currency": 260.8682,
+        "market_cap_rank": 34,
+        "total_volume": 213770458,
+        "last_updated": "2026-10-09T01:01:49.000Z"
+      },
+      {
+        "id": "paradex",
+        "symbol": "dime",
+        "name": "Paradex",
+        "price_change_percentage_30d_in_currency": 259.126,
+        "market_cap_rank": 756,
+        "total_volume": 48365,
+        "last_updated": "2026-10-09T01:02:53.000Z"
+      },
+      {
+        "id": "aurora-near",
+        "symbol": "aurora",
+        "name": "Aurora",
+        "price_change_percentage_30d_in_currency": 257.1319,
+        "market_cap_rank": 521,
+        "total_volume": 1937958,
+        "last_updated": "2026-10-09T01:02:53.000Z"
+      },
+      {
+        "id": "pearl-2",
+        "symbol": "prl",
+        "name": "Pearl",
+        "price_change_percentage_30d_in_currency": 252.0619,
+        "market_cap_rank": 123,
+        "total_volume": 6249494,
+        "last_updated": "2026-10-09T01:01:49.000Z"
+      }
+    ]
+  },
+  "freshness_filter": "last_updated_within_24_hours_at_analysis",
+  "fresh_coins": 965
+}

@@ -5,6 +5,7 @@ from services.risk.market_quality_guard import check_market_quality
 
 import os
 import logging
+import math
 import threading
 import time
 from dataclasses import dataclass
@@ -155,11 +156,13 @@ def _realized_pnl_usd(row: Dict[str, Any]) -> float | None:
     return None
 
 
-def _emit_canonical_fill(*, cfg: LiveCfg, fill: Dict[str, Any]) -> None:
+def _emit_canonical_fill(*, cfg: LiveCfg, fill: Dict[str, Any]) -> bool:
     try:
         out = _on_fill(fill, exec_db=cfg.exec_db)
         if isinstance(out, dict) and not bool(out.get("ok", True)):
             _LOG.warning("executor_reconcile.canonical_fill_emit_failed fill_id=%s result=%s", fill.get("fill_id"), out)
+            return False
+        return isinstance(out, dict) and out.get("ok") is True
     except Exception as exc:
         _LOG.warning(
             "executor_reconcile.canonical_fill_emit_error fill_id=%s error=%s:%s",
@@ -167,6 +170,32 @@ def _emit_canonical_fill(*, cfg: LiveCfg, fill: Dict[str, Any]) -> None:
             type(exc).__name__,
             exc,
         )
+        return False
+
+
+def _retry_canonical_fills(*, store: Any, cfg: LiveCfg, intent_id: str) -> bool:
+    try:
+        for fill in store.pending_reconcile_fills(intent_id=intent_id):
+            if not _emit_canonical_fill(cfg=cfg, fill=fill):
+                return False
+            store.complete_reconcile_fill(venue=str(fill["venue"]), fill_id=str(fill["fill_id"]))
+        return True
+    except Exception:
+        _LOG.exception("executor_reconcile.accounting_retry_failed intent_id=%s", intent_id)
+        return False
+
+
+def _reconcile_accounting_ready(*, store: Any, cfg: LiveCfg, intent_id: str, filled: float) -> bool:
+    if not _retry_canonical_fills(store=store, cfg=cfg, intent_id=intent_id):
+        return False
+    try:
+        coverage = store.reconcile_fill_coverage(intent_id=intent_id)
+    except Exception:
+        _LOG.exception("executor_reconcile.accounting_coverage_failed intent_id=%s", intent_id)
+        return False
+    return bool(coverage["complete"]) and math.isclose(
+        float(coverage["qty"]), filled, rel_tol=1e-9, abs_tol=1e-12,
+    )
 
 
 def _trade_matches_intent(trade: Dict[str, Any], *, remote_id: str | None, client_id: str | None) -> bool:
@@ -192,6 +221,22 @@ def _existing_trade_ids(store: Any, *, intent_id: str) -> set[str]:
     return set()
 
 
+def _persist_reconcile_fill(store: Any, **kwargs: Any) -> bool:
+    try:
+        store.add_fill(**kwargs)
+        return True
+    except Exception as error:
+        # A competing writer or failed transaction cannot justify terminalization.
+        intent_id = str(kwargs["intent_id"])
+        try:
+            coverage = store.reconcile_fill_coverage(intent_id=intent_id)
+        except Exception:
+            coverage = "unreadable"
+        _LOG.warning("reconcile fill persistence incomplete intent=%s coverage=%s error=%s",
+                     intent_id, coverage, error)
+        return False
+
+
 def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
     ok, why = _hard_off_guard(cfg, operation="reconcile")
     if not ok:
@@ -205,12 +250,13 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
     client = ExchangeClient(exchange_id=cfg.exchange_id, sandbox=cfg.sandbox)
 
     # track intents that are "submitted" (and sometimes pending with remote_id in reason)
-    intents = _list_intents_any(store, mode="live", exchange=cfg.exchange_id, symbol=cfg.symbol, statuses=["submitted", "pending"], limit=200)
+    intents = _list_intents_any(store, mode="live", exchange=cfg.exchange_id, symbol=cfg.symbol, statuses=["submitted", "pending", "partially_filled"], limit=200)
 
     fills_added = 0
     trade_fills_added = 0
     latency_fills_recorded = 0
     checked = 0
+    accounting_incomplete: list[str] = []
     session: Any | None = None
     session_owned = False
     try:
@@ -220,6 +266,14 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
             checked += 1
 
             intent_id = str(it["intent_id"])
+            try:
+                if not _retry_canonical_fills(store=store, cfg=cfg, intent_id=intent_id):
+                    accounting_incomplete.append(intent_id)
+                    continue
+                coverage = store.reconcile_fill_coverage(intent_id=intent_id)
+            except Exception:
+                accounting_incomplete.append(intent_id)
+                continue
             reason = str(it.get("reason") or "")
             remote_id = _remote_id_from_reason(reason)
             if not remote_id:
@@ -261,7 +315,18 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
             )
 
             status = str(o.get("status") or "").lower()
-            filled = float(o.get("filled") or 0.0)
+            # Missing quantity is unknown, not affirmative evidence of no fills.
+            raw_filled = o.get("filled")
+            try:
+                if raw_filled is None or isinstance(raw_filled, bool):
+                    raise ValueError("missing or boolean filled quantity")
+                filled = float(raw_filled)
+            except (TypeError, ValueError, OverflowError):
+                accounting_incomplete.append(intent_id)
+                continue
+            if not math.isfinite(filled) or filled < 0:
+                accounting_incomplete.append(intent_id)
+                continue
             total_qty = float(it.get("qty") or 0.0)
             if status in ("open", "partially_filled"):
                 if filled > 0.0 and filled < total_qty:
@@ -274,7 +339,10 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                         "reconcile partial fill intent=%s filled=%.6f/%.6f",
                         intent_id, filled, total_qty,
                     )
-            avg = float(o.get("average") or (o.get("price") or 0.0) or 0.0)
+            try:
+                avg = float(o.get("average") or 0.0)
+            except (TypeError, ValueError, OverflowError):
+                avg = 0.0
             fee = o.get("fee") or {}
             fee_cost = float(fee.get("cost") or 0.0)
             fee_ccy = str(fee.get("currency") or "").upper() or "USD"
@@ -314,12 +382,13 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                         tracker=latency_tracker,
                     )
 
+                fill_write_failed = False
                 for tr in trades:
                     if not _trade_matches_intent(tr, remote_id=remote_id, client_id=cid):
                         continue
                     qty = float(tr.get("amount") or tr.get("qty") or 0.0)
                     px = float(tr.get("price") or 0.0)
-                    if qty <= 0.0 or px <= 0.0:
+                    if not math.isfinite(qty) or not math.isfinite(px) or qty <= 0.0 or px <= 0.0:
                         continue
                     trade_filled_qty += qty
                     trade_id = _trade_id(tr)
@@ -327,7 +396,7 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                         continue
                     t_fee_cost, t_fee_ccy = _trade_fee_parts(tr)
                     t_ts_ms = _trade_ts_ms(tr)
-                    store.add_fill(
+                    fill_record = dict(
                         intent_id=intent_id,
                         ts_ms=t_ts_ms,
                         price=px,
@@ -365,7 +434,10 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                     realized_pnl = _realized_pnl_usd(tr)
                     if realized_pnl is not None:
                         sink_fill["realized_pnl_usd"] = realized_pnl
-                    _emit_canonical_fill(cfg=cfg, fill=sink_fill)
+                    if not _persist_reconcile_fill(store, **fill_record, canonical_fill=sink_fill,
+                                                   max_recorded_qty=filled):
+                        fill_write_failed = True
+                        break
                     known_trade_ids.add(trade_id)
                     fills_added += 1
                     trade_fills_added += 1
@@ -382,19 +454,27 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                         except Exception as _silent_err:
                             _LOG.debug("suppressed: %s", _silent_err)
 
+                if fill_write_failed:
+                    accounting_incomplete.append(intent_id)
+                    continue
+
             # Trade-level reconciliation handles partial fills + fees.
             # Keep synthetic fallback when closed fills are available but per-trade rows are not.
-            if status in ("closed", "filled") and filled > 0 and avg > 0:
-                if trade_filled_qty <= 0.0:
+            if status in ("closed", "filled") and filled > 0:
+                coverage = store.reconcile_fill_coverage(intent_id=intent_id)
+                if trade_filled_qty <= 0.0 and coverage["qty"] == 0:
+                    if not math.isfinite(avg) or avg <= 0:
+                        accounting_incomplete.append(intent_id)
+                        continue
                     ts_ms = _now_ms()
-                    store.add_fill(
+                    fill_record = dict(
                         intent_id=intent_id,
                         ts_ms=ts_ms,
                         price=avg,
                         qty=filled,
                         fee=fee_cost,
                         fee_ccy=fee_ccy,
-                        meta={"remote_order_id": remote_id, "status": status, "raw_order": {"id": o.get("id"), "filled": filled, "average": avg, "fee": fee}},
+                        meta={"trade_id": f"order:{remote_id}:closed", "remote_order_id": remote_id, "status": status, "raw_order": {"id": o.get("id"), "filled": filled, "average": avg, "fee": fee}},
                     )
                     sink_fill = {
                         "venue": cfg.exchange_id,
@@ -413,7 +493,10 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                     realized_pnl = _realized_pnl_usd(o)
                     if realized_pnl is not None:
                         sink_fill["realized_pnl_usd"] = realized_pnl
-                    _emit_canonical_fill(cfg=cfg, fill=sink_fill)
+                    if not _persist_reconcile_fill(store, **fill_record, canonical_fill=sink_fill,
+                                                   max_recorded_qty=filled):
+                        accounting_incomplete.append(intent_id)
+                        continue
                     fills_added += 1
                     if cid:
                         try:
@@ -427,6 +510,9 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                             latency_fills_recorded += 1
                         except Exception as _silent_err:
                             _LOG.debug("suppressed: %s", _silent_err)
+                if not _reconcile_accounting_ready(store=store, cfg=cfg, intent_id=intent_id, filled=filled):
+                    accounting_incomplete.append(intent_id)
+                    continue
                 store.set_intent_status(intent_id=intent_id, status="filled", reason=f"remote_id={remote_id}")
 
                 try:
@@ -434,22 +520,29 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                 except Exception as _silent_err:
                     _LOG.debug("suppressed: %s", _silent_err)
             elif status in ("canceled", "cancelled", "rejected", "expired"):
+                if not _reconcile_accounting_ready(store=store, cfg=cfg, intent_id=intent_id, filled=filled):
+                    accounting_incomplete.append(intent_id)
+                    continue
                 store.set_intent_status(intent_id=intent_id, status="canceled", reason=f"remote_id={remote_id}:{status}")
                 try:
                     store_dedupe.mark_terminal(exchange_id=cfg.exchange_id, intent_id=intent_id, terminal_status=status)
                 except Exception as _silent_err:
                     _LOG.debug("suppressed: %s", _silent_err)
+            else:
+                if not _retry_canonical_fills(store=store, cfg=cfg, intent_id=intent_id):
+                    accounting_incomplete.append(intent_id)
     finally:
         _close_reconcile_session(session, owned=session_owned)
 
     return {
-        "ok": True,
+        "ok": not accounting_incomplete,
         "note": "reconcile complete",
         "checked": checked,
         "fills_added": fills_added,
         "trade_fills_added": trade_fills_added,
         "latency_fills_recorded": latency_fills_recorded,
         "observe_only": _is_live_shadow(cfg),
+        "accounting_incomplete": accounting_incomplete,
     }
 # PHASE82_LIVE_GATES
 

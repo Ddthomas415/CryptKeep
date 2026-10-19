@@ -1,0 +1,172 @@
+{
+  "schema": "bounded-selected-file-recovery-outcome-review-v1",
+  "reviewed_at_utc": "2026-10-18T19:20:11Z",
+  "active_role": "GATE",
+  "risk_level": "HIGH",
+  "objective": "Independently verify saved _r2 selected-file recovery artifacts without original private configuration/database access, source writes, new copies, runtime actions or broad test reruns.",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "full_recovery_acceptance_state": "INCOMPLETE",
+  "scoped_disposition": {
+    "selected_file_local_recovery_verified": true,
+    "blocking_findings_for_selected_file_outcome": [],
+    "full_recovery_verified": false,
+    "reason": "Independent read-only checks found matching receipt hashes, exact manifest/CSV consistency, and complete hash/size/mode agreement for every included staged file, restored file and recovery archive member. Forty-one exclusions, including all four selected public databases and three of seven represented raw input archives, prevent a full-recovery verdict.",
+    "process_exit_status_independently_observed": false,
+    "no_new_operational_authority": "Acceptance covers the existing selected-file local artifact outcome only. No publication, cleanup, deletion, Git mutation, source changes, new copy, runtime/account action or financial readiness is authorized."
+  },
+  "reviewed_output": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z_r2",
+  "artifact_bindings": {
+    "algorithm": "sha256",
+    "evidence_class": "SHOWN",
+    "parent_receipt": {
+      "path": "docs/review_artifacts/recovery_copy_20261018/actual_outcome.json",
+      "sha256": "8f916494e6d8852f21eec0d5fb4eb310c3be0320a08f1846efb4b1ea17b16148"
+    },
+    "accepted_preflight": {
+      "path": "docs/review_artifacts/recovery_copy_20261018/root_hardening_review.json",
+      "sha256": "6dae9172ec57ad87253376aaddbfb08aaa07e1ef7689786a3d424a9a8a983f15"
+    },
+    "external_output_files": {
+      "backup_manifest.json": "626973a8544fe244cd79870c99f0585147bc5d70f9ed9669d543f1f838782941",
+      "refreshed_checkpoint.csv": "715a474ab241d39edc9f1a138a7b0669f41f17e661e0f49e3ab6038d640457e4",
+      "recovery.tar.gz": "8bfbd09f782bed2be705ac5001731cfb7e154a5b444802b3e0e8466e266b6d44"
+    },
+    "recovered_reviewed_code": {
+      "scripts/research/build_recovery_copy.py": "8efaf5fc4e3ff508640fb038d6d2b1f74c7a30ece9ef1233449f491f051655a9",
+      "tests/test_build_recovery_copy.py": "281bf5be9942502c8801fda2216be1754303af7444a33e171c3eca247a301c60",
+      "services/audit/backup_artifact_secret_scan.py": "d87d3042307170ac43a29ff706032423fb2e9cf1c32bafcb9528e6c16af35e9f"
+    },
+    "method": "Manifest and CSV hashed from their read bytes; compressed recovery archive streamed through SHA256. Recovered code bindings are manifest entries independently matched to bytes in files/, restored/ and archive members. Parent receipt's artifact hashes and helper/test bindings match.",
+    "limit": "Binding recovered helper/test/scanner bytes does not independently prove which process executed them, the initial environment, or equality to original files at the time of copying."
+  },
+  "independent_checks": {
+    "evidence_class": "SHOWN",
+    "environment_confidence": "VERIFIED_ENV",
+    "review_verification_session_id": 27723,
+    "review_verification_exit_code": 0,
+    "verification_command_form": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - <read-only standard-library verification program>",
+    "method": [
+      "Read only the parent receipt and explicit _r2 output. Validate canonical output root and relative manifest paths. Use descriptor-relative O_NOFOLLOW reads through each component, require regular files and check metadata stability around streamed file hashing.",
+      "Reject duplicate included/excluded paths and intersecting dispositions. Check exact CSV header and every ordered CSV row against manifest path, disposition, byte count, SHA256 and exclusion reason, including blank excluded size/hash fields.",
+      "Compare all parent-receipt counts, included byte total, archive size, exclusion-reason counts and artifact hashes to independently read artifacts. Validate manifest schema/source root, output binding, creation timestamp and scope flags.",
+      "Enumerate only files/ and restored/ under this external output. Require each tree's exact manifest file set, without unexpected files or symlink directories. Independently hash every included file and check its byte count and permission mode.",
+      "Stream recovery.tar.gz without extracting or executing contents. Require only expected regular members, no duplicates, exact complete membership, and matching member sizes, modes and independently calculated payload hashes.",
+      "Reconstruct the reviewed 34 companion Python paths and exact four public database paths independently of the helper. Check their manifest coverage and enumerate the represented raw input archive dispositions."
+    ],
+    "manifest_schema": "screened-selected-recovery-v1",
+    "manifest_source_root": "/Users/baitus/Downloads/crypto-bot-pro",
+    "manifest_created_utc": "2026-10-18T19:16:16.840995+00:00",
+    "receipt_artifact_hashes_match": true,
+    "receipt_counts_match": true,
+    "csv_exact_manifest_match": true,
+    "manifest_paths_unique_and_disjoint": true,
+    "included_files": 6414,
+    "included_bytes": 567124940,
+    "excluded_files": 41,
+    "checkpoint_data_rows": 6455,
+    "compressed_archive_bytes": 81041871,
+    "archive_members_verified": 6414,
+    "archive_payload_bytes_verified": 567124940,
+    "staged_files": {
+      "files_verified": 6414,
+      "bytes_verified": 567124940,
+      "all_hashes_sizes_modes_match": true,
+      "exact_manifest_file_set": true
+    },
+    "restored_files": {
+      "files_verified": 6414,
+      "bytes_verified": 567124940,
+      "all_hashes_sizes_modes_match": true,
+      "exact_manifest_file_set": true
+    },
+    "output_root_mode": "0700",
+    "tests_rerun": false,
+    "test_note": "The unchanged 39-case synthetic gate was not repeated; this review verifies actual saved bytes and artifact consistency, not runtime execution of recovered code."
+  },
+  "coverage": {
+    "evidence_class": "SHOWN",
+    "denominator_limit": "Coverage is against the reviewed named companion/database sets and seven raw archives represented by these manifest/CSV dispositions. No original-repository inventory was performed, so this does not establish coverage of every original file or raw archive.",
+    "companion_python": {
+      "expected": 34,
+      "included_and_verified": 34,
+      "exact_expected_path_set_matches": true
+    },
+    "public_databases": {
+      "expected": 4,
+      "included": 0,
+      "excluded": 4,
+      "recorded_exclusions": {
+        "research/coinbase_confirmation_usd_v1/public_archive.sqlite": "database_journal_present",
+        "research/coinbase_confirmation_v1/public_archive.sqlite": "database_journal_present",
+        "research/coinbase_retrospective_20261009/public_archive.sqlite": "database_journal_present",
+        "research/multisymbol_baseline_v1/public_archive.sqlite": "database_journal_present"
+      },
+      "restored_databases_checked": [],
+      "limit": "The exclusions and empty restored-database check list are SHOWN in bound receipts. Actual journal presence at copy time and original database state were not independently checked; no original database was opened and no public database recovery is demonstrated."
+    },
+    "raw_input_archives": {
+      "represented": 7,
+      "included_and_verified": 4,
+      "excluded": 3,
+      "verified_included_paths": [
+        "docs/research/raw_archives_20261009/binance_daily_all_incl_delisted.tar.xz",
+        "docs/research/raw_archives_20261009/binance_daily_current484.tar.xz",
+        "docs/research/raw_archives_20261009/blast_vara.tar.xz",
+        "docs/research/raw_archives_20261009/coinbase_btc_eth_daily.tar.xz"
+      ],
+      "recorded_exclusions": {
+        "docs/research/raw_archives_20261009/cmc_weekly_and_trending.tar.xz": "possible_secret:extended_openai_key",
+        "docs/research/raw_archives_20261009/coinbase_hourly_last60d.tar.xz": "archive_member_refused",
+        "docs/research/raw_archives_20261009/coinbase_hourly_prior10m.tar.xz": "archive_member_refused"
+      },
+      "limit": "Included raw archive files were independently verified byte-for-byte as recovery payloads, not re-screened recursively for secrets or analyzed as market data."
+    },
+    "exclusion_reason_counts": {
+      "credential_or_runtime_path": 2,
+      "opaque_content_not_cleared": 26,
+      "possible_secret:extended_openai_key": 3,
+      "archive_member_refused": 2,
+      "database_journal_present": 4,
+      "possible_secret:github_fine_grained_token": 1,
+      "possible_secret:literal_secret_assignment": 3
+    },
+    "exclusion_interpretation": "These are recorded conservative exclusions, not independently confirmed live credentials, leaks or corruption. Reasons and counts were verified against CSV/manifest only; excluded original contents were not read."
+  },
+  "parent_supplied_process_and_preservation_claims": {
+    "evidence_class": "CLAIMED",
+    "reported_invocation_exit_code": 0,
+    "reported_invocation_session_id": 77081,
+    "reported_invocation_observed_by_parent": true,
+    "reported_invocation_independently_observed_by_reviewer": false,
+    "note": "The operator supplies the parent-observed tool exit and session identity. The saved receipt self-report is not independent proof of exit 0. Review session 27723 is the independent artifact-check process, not the copy invocation.",
+    "other_parent_claims_not_independently_verified": [
+      "The command/environment recorded in the receipt was the actual copy invocation and the invocation ran once.",
+      "Original files, original checkpoint drafts, Git HEAD/index lock and runtime state remained unchanged.",
+      "The first failed output remains unchanged with 820 copied files and no success receipts.",
+      "Original database journals were present when the helper excluded the four public databases."
+    ],
+    "historical_partial_output": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z",
+    "historical_partial_acceptance_state": "INCOMPLETE",
+    "historical_preservation_note": "The reviewer did not inspect or modify the failed output, and did not overwrite prior plans, failures or review artifacts. Historical failure evidence remains distinct from accepted _r2 selected-file restoration."
+  },
+  "remaining_unverified_and_limits": [
+    "UNVERIFIED: original-source fidelity at capture, exact invocation provenance/exit status independently of the parent, source/Git/runtime immutability and preservation/count of the failed partial output.",
+    "UNVERIFIED: excluded-file recovery, all four selected database contents/recovery, three excluded raw archives, full original inventory coverage and current source-to-copy equality.",
+    "SHOWN: the manifest's complete_repository_or_secret_clearance and runtime_or_environment_restore_tested flags are false. The outcome does not establish universal secret clearance, publication permission, usable clean checkout, full Git history, dependency/environment recovery or operational service restoration.",
+    "The result is a local selected-file archive and matching staged/restored bytes on the same machine/storage location, not offsite or hardware-failure protection, global atomicity under concurrent changes or fsync durability proof.",
+    "No code from the recovery copy was executed, no SQL health check or market-data analysis was performed in this review, and no financial or trading-readiness claim follows.",
+    "The parent outcome receipt and this later review postdate the copy and are not included in its verified file set. The parent outcome receipt's absence from that set was checked explicitly."
+  ],
+  "review_actions": {
+    "real_original_repository_inventory_run": false,
+    "original_private_configuration_or_database_read": false,
+    "original_source_files_written": false,
+    "code_repairs_or_tests_run": false,
+    "new_copy_extract_or_runtime_operations_run": false,
+    "git_mutation_or_deletion_run": false,
+    "historical_outputs_or_reviews_modified": false,
+    "sole_persistent_review_write": "docs/review_artifacts/recovery_copy_20261018/outcome_review.json",
+    "work_log_owner": "Parent thread; no work-log edit performed by this reviewer."
+  },
+  "handoff": "GATE saved-outcome review complete: ACCEPTED_WITH_RISK for 6,414 selected-file local recovery artifacts with independently verified bytes, coverage and receipt consistency. Full recovery remains INCOMPLETE because exclusions are not recovered. No further copy, repair or operation is requested or authorized by this disposition."
+}

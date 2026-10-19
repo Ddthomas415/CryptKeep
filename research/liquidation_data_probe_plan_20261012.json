@@ -1,0 +1,26 @@
+{
+  "created_utc": "2026-10-13T02:11:19.484900+00:00",
+  "source_sha256": "4d0b1e342d2d667078746e446ccdd1935416abc98c5f17e2b11acbe74957fee8",
+  "assets": [
+    "BTC",
+    "ETH"
+  ],
+  "cutoff_ms": 1791857460000,
+  "liquidation_pages_per_asset": 6,
+  "candle_pages_per_market": 3,
+  "max_requests": 30,
+  "horizons_minutes": [
+    1,
+    5,
+    15
+  ],
+  "purpose": "availability only; no returns, entries, threshold selection, scoring, orders or profitability claim",
+  "limits": [
+    "recent_public_records_not_complete_venue_liquidations",
+    "REST_route_reachable_but_not_found_in_current_documentation",
+    "no_stable_venue_order_id",
+    "bkPx_not_trade_or_fill_price",
+    "candles_not_bid_ask_or_executable_books",
+    "no_new_recurring_job"
+  ]
+}

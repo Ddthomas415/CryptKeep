@@ -1,0 +1,14 @@
+{
+  "status": "PASSED_READ_ONLY_SOURCE_CHECK",
+  "documents_checked": 55,
+  "verified_raw_text_and_hash": 55,
+  "raw_bytes_read": 49033820,
+  "failures": [],
+  "news_polls_observed": 54,
+  "news_errors_observed": 0,
+  "last_poll_utc": "2026-10-11T21:26:02.962951+00:00",
+  "publication_timestamp_missing": 0,
+  "read_only": true,
+  "semantic_retrieval_validated": false,
+  "profitability_validated": false
+}

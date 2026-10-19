@@ -1,0 +1,38 @@
+{
+  "registered_utc": "2026-10-13T01:28:20.714451+00:00",
+  "source_sha256": "9de0cdc0405421207a04ffb4d80c264743a0ab761e5bd8940f4b5a93ecf5b92f",
+  "instruments": [
+    "BTC",
+    "ETH"
+  ],
+  "funding_start": 1789228800000,
+  "funding_end": 1791820800000,
+  "entry_time": 1789232400000,
+  "exit_time": 1791824400000,
+  "initial_quote_capital": 1000,
+  "quote_currency": "USDT",
+  "overhead_per_30d": 20,
+  "overhead_currency_assumption": "USD_USDT_PARITY_NOT_VERIFIED",
+  "scenarios": [
+    {
+      "name": "zero_cost_upper_reference",
+      "spot_fee": 0,
+      "perp_fee": 0,
+      "adverse": 0
+    },
+    {
+      "name": "assumed_cost_case",
+      "spot_fee": 0.005,
+      "perp_fee": 0.001,
+      "adverse": 0.0005
+    }
+  ],
+  "rule": "Always long spot and equal base-quantity short linear perpetual; all settled funding signs included, fixed quantity, one entry/exit",
+  "limits": [
+    "no_account_eligibility",
+    "no_historical_fee_verification",
+    "mark_candle_open_proxy_not_exact_assessment_price",
+    "no_liquidation_or_margin_tier_model",
+    "no_forecast_or_holdout_claim"
+  ]
+}

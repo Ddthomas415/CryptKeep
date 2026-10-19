@@ -1,0 +1,40 @@
+{
+  "experiment_id": "coinbase_confirmation_usd_v1",
+  "identity": {
+    "plan_sha256": "11fd2a75844081549dcd8aba45cbddff706383a464282a8a560a1bd8a793ce94",
+    "snapshot_sha256": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "fee_receipt_sha256": "92bfc29c972c0a02db8f63d70d38e65d0a63870d2d7b669984758fc75c216420",
+    "runner_sha256": "4aaac1a6473e5b25e8db1b3fd9a85769f8188f1becf9eb45180691c5566f0719"
+  },
+  "phase": "warmup",
+  "mode": "coverage",
+  "archive_path": "/Users/baitus/Downloads/crypto-bot-pro/research/coinbase_confirmation_usd_v1/public_archive.sqlite",
+  "requested_end_ms": 1791518400000,
+  "target_end_ms": 1791590400000,
+  "full_phase_completed": false,
+  "registration_sha256": null,
+  "qualification": "RESEARCH_ONLY_NOT_PROMOTION",
+  "markets": {
+    "BTC/USD": {
+      "status": "INCOMPLETE",
+      "reason": "archive_incomplete"
+    },
+    "ETH/USD": {
+      "status": "INCOMPLETE",
+      "reason": "archive_incomplete"
+    },
+    "SOL/USD": {
+      "status": "INCOMPLETE",
+      "reason": "archive_incomplete"
+    },
+    "ADA/USD": {
+      "status": "INCOMPLETE",
+      "reason": "archive_incomplete"
+    },
+    "XRP/USD": {
+      "status": "INCOMPLETE",
+      "reason": "archive_incomplete"
+    }
+  },
+  "all_markets_complete": false
+}

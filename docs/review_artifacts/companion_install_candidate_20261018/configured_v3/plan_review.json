@@ -1,0 +1,498 @@
+{
+  "schema": "companion-configured-plan-review-v1",
+  "reviewed_at_utc": "2026-10-18T14:37:54.350656+00:00",
+  "active_role": "GATE",
+  "reviewer": "Codex independent GATE (current review chat; not the candidate implementer)",
+  "objective": "Independent review of the exact fresh configured_v3 manifest only; no implementation, operational action, or new architecture audit",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "disposition_scope": "exact_manifest_configuration_only",
+  "environment_confidence": "VERIFIED_ENV for fresh local file hashing, archive inspection, read-only offline derivation and inert Plan.load only; daemon/runtime environment not assessed",
+  "material_assumptions": [],
+  "installation_authorized": false,
+  "startup_authorized": false,
+  "network_connectivity_verified": false,
+  "historical_recovery_promoted": false,
+  "prior_recovery_outcome": "INCOMPLETE",
+  "exact_operational_restoration": "INCOMPLETE",
+  "operational_objective_state": "INCOMPLETE",
+  "bindings": {
+    "reviewed_plan": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/reviewed_configured_plan.json",
+      "sha256": "f5b044858c3d40881239b77745d0b404c4ac05d2f35a6d043fed8f6ba934bf5f"
+    },
+    "candidate": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/plan_candidate_v3.json",
+      "sha256": "c4f045a8f151ded4ed11d5160260be7c7381aa1641298c07e6198d3619966e60"
+    },
+    "capture": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/capture/observation.json",
+      "sha256": "4b08a5529c4bd7b3a462ba83eb7fae0b076f1b49b69fb9282787e0219e597076"
+    },
+    "network_bindings": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/network_bindings.json",
+      "sha256": "2e080d9c6c864b8dc47c488df56f937f6efb515ea7e1a12d995fdb62e575af08"
+    },
+    "recipe": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/recipe.json",
+      "sha256": "814d4520617faceb19abcb3298a06d4f55df08d387dd1d31e8ef63d37ad540b3"
+    },
+    "builder": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/build_candidate.py",
+      "sha256": "d7af271da8fe15102ac54a893db1fa580a1c3dc81ee33d5761a0bbce458f099d"
+    },
+    "source_manifest": {
+      "path": "docs/review_artifacts/companion_import_inventory_20261018/source_bundle/manifest.json",
+      "sha256": "973da853c3c2aabdce982c677b5b6ab9c6d7cbab5061ec27ab28197b07b3c875"
+    },
+    "source_archives": [
+      {
+        "path": "docs/review_artifacts/companion_import_inventory_20261018/source_bundle/phase1-audit-log-sources.tar",
+        "sha256": "eef1631d2fdc7941ebc3b4faadf7f88b764659c850e129322a777ff30a6a2a9e"
+      },
+      {
+        "path": "docs/review_artifacts/companion_import_inventory_20261018/source_bundle/phase1-memory-sources.tar",
+        "sha256": "c444a776be6a3851b1c4a4682d00da70c7a001dc08c9d5a61ddced79d90ff256"
+      },
+      {
+        "path": "docs/review_artifacts/companion_import_inventory_20261018/source_bundle/phase1-orchestrator-sources.tar",
+        "sha256": "e12549f244e065d19ff95e418685a28b96e46450a99f1d99924168f0a3fa943e"
+      },
+      {
+        "path": "docs/review_artifacts/companion_import_inventory_20261018/source_bundle/phase1-risk-stub-sources.tar",
+        "sha256": "8dba6e77bd72e29e129adf7a3e772f9fd487647cd064664a71585a59d5723dbd"
+      }
+    ],
+    "network_code_review": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/network_contract_review.json",
+      "sha256": "641ff6792fdef7325aae305ca86ad56792310993fa2f39d6cc66a4e4f0be452d"
+    },
+    "current_installer": {
+      "path": "scripts/research/companion_installer.py",
+      "sha256": "706dd12a69f4421116f764c7d4a1833aa550a5a9e8f5cea35e5adfda5e066e5b"
+    },
+    "current_backend": {
+      "path": "scripts/research/companion_install_docker.py",
+      "sha256": "c0425e0faa668307962eb60acda40d1883d6a6c3dc34c453330414289f1454f2"
+    },
+    "current_network_helper": {
+      "path": "scripts/research/companion_network_configuration.py",
+      "sha256": "c3824743fb08098a35af6966ee9e3345a63e6500f18a5fdd84a02d1114bf39d7"
+    },
+    "current_helpers": [
+      {
+        "path": "scripts/research/collect_companion_recreation_metadata.py",
+        "sha256": "3e81a24397eefc770a4cfda9da7a9f74467dbde33321f542286c3431869f7a46"
+      },
+      {
+        "path": "scripts/research/companion_docker_transport.py",
+        "sha256": "52b5fa4d830a51694ba88d7b27712cf3dab7e3dd5f95e0a8bfb05e8a66acb0cc"
+      },
+      {
+        "path": "scripts/research/companion_existing_controller.py",
+        "sha256": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3"
+      },
+      {
+        "path": "scripts/research/companion_install_env.py",
+        "sha256": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b"
+      },
+      {
+        "path": "scripts/research/companion_runtime_adapter.py",
+        "sha256": "83645cc36a345fcd55d1d2bd79dca982141e009456209a031c6e8513f9f03e9c"
+      },
+      {
+        "path": "scripts/research/prepare_companion_stopped_recipe.py",
+        "sha256": "e332b66c40c3647c039a57abd4b2a8db7a05e1ced1d02ab6d35be5f049735257"
+      }
+    ],
+    "current_reviewed_tests": [
+      {
+        "path": "tests/test_companion_docker_transport.py",
+        "sha256": "195a05d1cc86a31e22664e0f2d92683b8bb0496782a9f140c1e5c33628b09031"
+      },
+      {
+        "path": "tests/test_companion_existing_controller.py",
+        "sha256": "984a9a911d5af5e0ba90bdbed839efa711b0115271b2cbeb227ac63e9fd04325"
+      },
+      {
+        "path": "tests/test_companion_install_env.py",
+        "sha256": "9b9cbe65eb684f8a64a15c348e7ba07a73f8851a541a8c7183dea1ea83d8978e"
+      },
+      {
+        "path": "tests/test_companion_installer.py",
+        "sha256": "9b29c5658e9b0ed017e230fb2aa7b274cdbdbdbcb58107bb099ef9a32e4e6333"
+      },
+      {
+        "path": "tests/test_companion_network_configuration.py",
+        "sha256": "83e5dea37145496cda901db03cc89b62e10c701922f8bbf5fbbad5bf22aac77a"
+      },
+      {
+        "path": "tests/test_companion_runtime_adapter.py",
+        "sha256": "af957957660fdae466edd3783146643db7cfedd42c030c14fd3e1923a71103ba"
+      }
+    ],
+    "native_cli": {
+      "path": "/Applications/Docker.app/Contents/Resources/bin/docker",
+      "sha256": "31ae2d64e51d9dfc728a2934941615cdd92f31279ed6d5c1fb2bfc0a44637a8f"
+    },
+    "prior_reviewed_plan": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/reviewed_stopped_plan.json",
+      "sha256": "a513c458419f01517fec5e771e5be967f85b43391de663dc55c0bcdfb8ac4af4"
+    },
+    "prior_plan_review": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/plan_review.json",
+      "sha256": "96a834faee2c8db36d3a4470ebf7725120c5a3900fb09972409bbb37c3cd61f3"
+    },
+    "historical_outcome_review": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/recovery_outcome_review.json",
+      "sha256": "b916feb3d3950a8b68485abf18596ffe812e128a5f356c5c4650b385f3be2c9c"
+    },
+    "checkpoints": [
+      {
+        "path": "docs/checkpoints/companion_configured_plan_20261018.md",
+        "sha256": "c784153e2baf0b88ccaa069cc7ea0222d8cd199f7698c62daf4c40dbdc69efae"
+      },
+      {
+        "path": "docs/checkpoints/companion_install_candidate_20261018.md",
+        "sha256": "83649155da543557240801587efdd8a4d0a1efeaea0968145154baea1cb25d96"
+      },
+      {
+        "path": "docs/checkpoints/companion_network_contract_repair_20261018.md",
+        "sha256": "37c88e7f73b759b5649203f9c20f78eceba6a32ad276358df30400f9abb13cf7"
+      }
+    ],
+    "repository_instructions": {
+      "path": "AGENTS.md",
+      "sha256": "a42859d1531c94c4a12be66f55eebb5d146febfc9bb34110f02d6da22687dd93"
+    },
+    "baseline": {
+      "path": "docs/review_artifacts/companion_compatibility_20261016.json",
+      "sha256": "85d226fc1e347ecd4187877f6c60a51f53fb75428f89f00d82854dbc5e764d69"
+    },
+    "compose_template": {
+      "path": "phase1_research_copilot/docker-compose.yml",
+      "sha256": "bd61e7fd7cd755594d6e56bcdca2e91ef3201074bf33e9851ba399e06aa3e4d5"
+    },
+    "additional_verified_evidence": [
+      {
+        "path": "docs/review_artifacts/companion_install_candidate_20261018/capture/observation.json",
+        "sha256": "5207ca9c190e23f639cec5359508d56aed7ec237b1e8c0571d5748f0401f11ec"
+      },
+      {
+        "path": "docs/review_artifacts/companion_install_candidate_20261018/recovery_after_capture/observation.json",
+        "sha256": "9f54adc0321e60958b54721c5f1afd41ffb953ed99aa157f8208a0181c707b09"
+      }
+    ]
+  },
+  "findings_ordered_by_severity": [],
+  "shown": [
+    "Exact candidate, builder, paired capture, binding observation, recipe and configured-network code-review SHA256 values match the user-specified pins.",
+    "All nine primary bindings of the accepted source-only network-contract review and all its supporting bindings match fresh current file hashes. Earlier helper, native CLI, baseline, template and source-archive pins were also rechecked; superseded backend/installer bytes are bound to the newer accepted code review, not the old v2 implementation.",
+    "Four source archives contain only regular members, with unique names and exact declared member sets. All 43 application and 198 mounted-repository source records match archive bytes, declared sizes/digests and current regular, non-symlink checkout files. This is current static identity, not runtime import enforcement.",
+    "builder.derive() ran with write/process/socket guards and reproduced the candidate byte-for-byte under its existing JSON serialization. main() was not called. compile_recipe reproduces the saved recipe via canonical JSON, resolving only Python tuple versus JSON array representation in the comparison.",
+    "Both seven-row retained capture payloads are exactly equal without semantic normalization. Recomputed selected raw preservation/foundation digests, baseline identities/images/names/states/start/restart history and raw network-ID tuples match the candidate. No raw row, blank ID, IPAM value, old plan or historical receipt was rewritten.",
+    "The separately retained name/ID mapping observation binds the exact fresh container-capture hash and the same native CLI identity, contains exactly one matching observed row, follows the paired capture in time and declares no connectivity, installation or startup authorization.",
+    "Each baseline configuration digest was independently reconstructed with the declared configured-network-v1 projection and compared to the production helper; six rows retain reported_id provenance and audit-log retains configured_only provenance with raw networks=[''].",
+    "Application commands, mount/port/health/create options, aliases and all 43 source records match the compiled fresh recipe or the explicitly reviewed audit alias exception, and remain equal to the prior reviewed stopped-plan application settings.",
+    "All four expected replacement configuration fingerprints were independently derived from fresh metadata and safety-flag projection. The compiler's pre-configuration modeled raw digest was checked first. Expected fingerprints are MODELLED, not observed replacements.",
+    "Policies remain exactly four true installation flags and two false startup flags. The pending candidate is refused by Plan.load; reviewed in-memory bytes load inertly with both startup deferrals and the exact configured mapping retained.",
+    "The fresh attempt 1693bb273e564a5d9dd096a9fb8db778 is absent from prior top-level plan/evidence/receipt/recovery-script bytes. This review does not reuse or promote any historical failure/recovery.",
+    "Reviewed plan differs from the exact candidate only in decision and this reviewer's actual Codex identity; all other fields and byte formatting are preserved."
+  ],
+  "alias_exception_disposition": {
+    "classification": "SHOWN",
+    "decision": "ACCEPTED_WITH_RISK",
+    "compiler_behavior": "reconcile_manifest supplies network_options only for IPAMConfig is None; the audit-log raw IPAMConfig is {}, so the stored compiled recipe omits that field",
+    "exact_exception": "For audit-log only, builder derives ['--alias','phase1-audit-log','--alias','audit-log'] from the fresh raw Aliases list after requiring exactly one network, no nonempty static IPAM request, and nonempty unique aliases",
+    "independent_evaluation": "The exact raw row has empty IPAMConfig with no static request, the two aliases match the pending plan and prior reviewed stopped plan, and Plan.load accepts their syntax. The other three alias-option lists equal the compiler output. This is a justified explicit derivation, not silent compiler equivalence or a production-source change.",
+    "raw_evidence_policy": "Empty IPAMConfig and the blank NetworkID remain untouched in retained raw data and raw baseline digests. Substitution/empty-IPAM equivalence applies only inside the already accepted explicit configuration projection.",
+    "limitation": "Does not prove actual Docker alias/IPAM behavior, effective endpoint attachment, or connectivity; those remain operational postconditions or later evidence."
+  },
+  "policy_dispositions": {
+    "builder_local_only": {
+      "basis": "Recorded separate AUDITOR stopped-install policy disposition in checkpoint lines 80-86; hard registry isolation and zero egress are not certified",
+      "decision": "ACCEPTED_WITH_RISK",
+      "value": true
+    },
+    "env_stdin_lossless": {
+      "basis": "Recorded separate AUDITOR disposition in checkpoint lines 80-86; covered native CLI fixtures, not actual private-value transfer or full daemon-side environment equality",
+      "decision": "ACCEPTED_WITH_RISK",
+      "value": true
+    },
+    "image_provenance": {
+      "basis": "Recorded separate AUDITOR disposition in checkpoint lines 80-86; derivative-image and replacement checks remain installation postconditions",
+      "decision": "ACCEPTED_WITH_RISK",
+      "value": true
+    },
+    "recreation_complete": {
+      "basis": "Recorded separate AUDITOR disposition in checkpoint lines 80-86; recipe projection verified here, actual reconstruction and child-side label equality remain postconditions",
+      "decision": "ACCEPTED_WITH_RISK",
+      "value": true
+    },
+    "sdk_startup_compatible": {
+      "basis": "Explicitly deferred startup/lifespan/storage proof; checkpoint lines 88-102 and 116-120",
+      "decision": "INCOMPLETE",
+      "value": false
+    },
+    "source_imports_frozen": {
+      "basis": "Explicitly deferred ordinary mutable-host /repo import enforcement; archived bytes do not establish runtime import isolation",
+      "decision": "INCOMPLETE",
+      "value": false
+    }
+  },
+  "scope": {
+    "attempt": "1693bb273e564a5d9dd096a9fb8db778",
+    "plan_schema": "companion-configured-install-v3",
+    "replacement_applications": [
+      "phase1-audit-log",
+      "phase1-risk-stub",
+      "phase1-memory",
+      "phase1-orchestrator"
+    ],
+    "replacement_terminal_state": "created, never started, restart policy no, only under separately authorized installation",
+    "original_applications": "Must retain originals under exact attempt-bound rollback names; no original deletion authorized",
+    "rollback_names": {
+      "phase1-audit-log": "phase1-audit-log-rollback-1693bb273e564a5d9dd096a9fb8db778",
+      "phase1-risk-stub": "phase1-risk-stub-rollback-1693bb273e564a5d9dd096a9fb8db778",
+      "phase1-memory": "phase1-memory-rollback-1693bb273e564a5d9dd096a9fb8db778",
+      "phase1-orchestrator": "phase1-orchestrator-rollback-1693bb273e564a5d9dd096a9fb8db778"
+    },
+    "unchanged_storage_containers": [
+      "phase1-timescaledb",
+      "phase1-qdrant",
+      "phase1-minio"
+    ],
+    "storage_boundary": "Exact selected storage snapshots required; no volume/content mutation or integrity proof authorized",
+    "private_configuration": "No private configuration accessed here. Future installation remains confined to the previously reviewed bounded child-memory stdin/descriptor mechanism.",
+    "excluded": [
+      "pytest rerun",
+      "Docker or daemon command",
+      "private configuration or credential access",
+      "build",
+      "installation",
+      "recovery execution",
+      "container lifecycle",
+      "startup or query",
+      "dependency installation",
+      "exchange/account/trading operations",
+      "candidate/source/test/checkpoint edits"
+    ]
+  },
+  "fingerprint_evidence": {
+    "classification": "MODELLED expected replacement configuration only",
+    "capture_observed_utc": "2026-10-18T14:32:44.734854+00:00",
+    "mapping_observed_utc": "2026-10-18T14:32:46.317847+00:00",
+    "raw_baseline_preserved": true,
+    "baseline": [
+      {
+        "name": "phase1-timescaledb",
+        "raw_metadata": "93cdf0d7d6d20661a725759d50b301da4a66dc417420d8a94ce26980c0a41cb8",
+        "raw_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "configured_metadata": "6bf915cc8f9d5d22b2167ff4d0d50327021190617699a825a193ab1cfab341b4",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      },
+      {
+        "name": "phase1-qdrant",
+        "raw_metadata": "4f51ad0eddc6747c5ba8414c8aec7a7df7c4d514bd3b87d9df2f72287ca82d7b",
+        "raw_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "configured_metadata": "ba696e8f5d36fe053b13105b8aadd508856a36e1d94a540850a799fa7b32560f",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      },
+      {
+        "name": "phase1-minio",
+        "raw_metadata": "8ebdf954631024d01eae198e4482d7dc4c0fcf1b1d4fbf32f4c533903e85340c",
+        "raw_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "configured_metadata": "b1873d406edfc223025678c7038687ab5ead0423690708dbe132673e1d0693ca",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      },
+      {
+        "name": "phase1-audit-log",
+        "raw_metadata": "b26b7e8dc9978efa19f9c65a286d9118731654ce3bb87ce9566edac29620a79a",
+        "raw_networks": [
+          ""
+        ],
+        "configured_metadata": "98d4b952379d6bb3efa917500deef4909b5e1dc201a6519281a8dc1ecfd5218c",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "configured_only"
+          ]
+        ]
+      },
+      {
+        "name": "phase1-risk-stub",
+        "raw_metadata": "4497081f1db4d3c3536100157643385463bc6368a73963b5aaeb54090186b3f6",
+        "raw_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "configured_metadata": "b27c6a57b91bbebd16fd18230e237d624591bfdf7c7d61cb48056266415346e8",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      },
+      {
+        "name": "phase1-memory",
+        "raw_metadata": "915778a1c785c7a88d5c2d06b73024bd92d8ff0868e8fdd679b787a8c14d3a9d",
+        "raw_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "configured_metadata": "33f3683f5af749b02490cdbe30f32381dfe8d7ab488253b0d4733e1c93bde291",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      },
+      {
+        "name": "phase1-orchestrator",
+        "raw_metadata": "b9e462e7e8e49ed1e835f73e1501793f708eb6c462fe9bd2ce0c97c2b4fcee72",
+        "raw_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "configured_metadata": "ddfb23881f9d8dfe01c98008a5f00e7f4b33bd22e446dd34ae2254fa529d5012",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      }
+    ],
+    "expected_replacements": [
+      {
+        "name": "phase1-audit-log",
+        "replacement_configured_metadata": "568009e848e00ff5471c2768712091d58a3bcb47b8014a44a416915038fa2462",
+        "classification": "MODELLED, not observed after creation"
+      },
+      {
+        "name": "phase1-risk-stub",
+        "replacement_configured_metadata": "b75f2b057456ff3ec0993cb7462d9446e445844a4860f43db49532ea4e8aa72d",
+        "classification": "MODELLED, not observed after creation"
+      },
+      {
+        "name": "phase1-memory",
+        "replacement_configured_metadata": "d3bfbd1aa8d235cf718a0e8e22ba53304c6bfaa7b6b3ffd02c110ac5b605082c",
+        "classification": "MODELLED, not observed after creation"
+      },
+      {
+        "name": "phase1-orchestrator",
+        "replacement_configured_metadata": "f95a5f5ee0fa89c1fb5059f8b854c85d30dadf70e968a80c88604ffee6b01399",
+        "classification": "MODELLED, not observed after creation"
+      }
+    ]
+  },
+  "verification": {
+    "classification": "SHOWN",
+    "launcher": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - <<'PY' [independent inline read-only artifact assertions] PY",
+    "result": "PASS, exit 0",
+    "checks": [
+      "exact requested artifact and accepted current-code pins",
+      "43 application plus 198 mounted-repository archive/current byte records",
+      "guarded builder.derive byte-exact candidate reproduction",
+      "canonical JSON compiler/recipe equality without raw semantic normalization",
+      "exact paired payload equality and seven raw baseline reconstructions",
+      "capture/native-CLI/name-ID observation binding",
+      "seven separate configured projections and four modeled expected replacement projections",
+      "explicit audit IPAM{} alias exception and three compiler-equal alias lists",
+      "four true/two false policy flags",
+      "historically unused fresh attempt",
+      "pending Plan.load refusal and inert reviewed Plan.load success"
+    ],
+    "transport_guards": "Popen, socket connect/connect_ex/getaddrinfo denied; Python audit hook rejected write-open flags/modes and process/socket operations during imports/derive/projection/load.",
+    "reviewed_plan_changed_fields": [
+      "decision",
+      "reviewer"
+    ],
+    "application_source_records": 43,
+    "mounted_repo_source_records": 198,
+    "pytest_run": false,
+    "whole_repository_suite_run": false,
+    "prior_tests": "Prior code-review test results are retained evidence only; no pytest executed or new runtime test claim made here.",
+    "docker_commands_run": false,
+    "daemon_queried": false,
+    "native_cli_executed": false,
+    "private_config_read": false,
+    "lifecycle_operations_run": false,
+    "installation_run": false,
+    "startup_run": false,
+    "source_or_test_edits": false,
+    "candidate_or_checkpoint_edits": false,
+    "work_log_update": "Parent owns work-log update as expressly requested; this GATE emits only the two review artifacts."
+  },
+  "claimed": [
+    "The retained capture and network-binding records report read-only Docker observations at their recorded times; fresh local consistency and code/hash checks were performed here, not a new independent daemon capture."
+  ],
+  "unverified": [
+    "No build, created-container fingerprint, private-label/environment transfer, daemon-side equality, SDK/lifespan/storage startup, runtime query or full-system readiness is established by this review.",
+    "Reported full network IDs do not prove effective connectivity; the configured-only audit row is explicitly weaker than runtime attachment evidence.",
+    "Mutable host /repo imports are not frozen at runtime by static archive identity. Both startup policies remain INCOMPLETE and explicitly false.",
+    "No hard registry isolation, zero-egress proof, genuine credential validation, hostile concurrent-writer guarantee, or storage-content integrity proof.",
+    "Historical exact recovery and operational restoration remain INCOMPLETE."
+  ],
+  "remaining_risks": [
+    "Configuration comparison deliberately permits the accepted blank-ID/empty-IPAM projection; it is weaker than exact historical raw metadata. The audit raw metadata differs from the historical stopped plan and has not been promoted to exact restoration.",
+    "Raw preservation fingerprints cover selected sanitized fields, not complete daemon payload or storage contents. Capture byte identity establishes preservation of retained evidence, not independent authenticity of self-consistent local evidence.",
+    "Paired captures and mapping observations are retained snapshots, not an atomic transaction or a current live guarantee. Separately authorized installation must recheck exact host preconditions, mapping, source hashes and required postconditions and fail closed on drift.",
+    "Source-only code acceptance and exact-manifest acceptance do not authorize installation or startup. Four installation flags retain their prior ACCEPTED_WITH_RISK limitations; the two startup deferrals are not resolved.",
+    "Private buffers are not guaranteed forensically zeroized; no private values were accessed here."
+  ],
+  "proof_required_next": [
+    "Separate explicit bounded installation authorization before any build, replacement or lifecycle action; this review grants none.",
+    "On a separately authorized operation, verify fresh exact host/mapping/source preconditions, preserve originals and all storage, and record actual stopped replacement, image/source/private-preservation postconditions distinctly from MODELLED expectations.",
+    "Keep configuration restoration distinct from exact raw historical recovery and connectivity; do not promote the prior INCOMPLETE outcome.",
+    "Separate independent SDK/startup/import-policy evidence and explicit startup authorization before any startup or runtime query."
+  ]
+}

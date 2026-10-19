@@ -296,6 +296,7 @@ class PaperTradingSQLite:
         qty: float,
         fee: float,
         fee_currency: str,
+        execution_identity_evidence: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         con = _connect()
         try:
@@ -385,6 +386,12 @@ class PaperTradingSQLite:
             )
             if inserted != 1:
                 raise RuntimeError("paper_fill_insert_failed")
+            if execution_identity_evidence is not None:
+                # Commit fill-time evidence with accounting, never backfill on retry.
+                self._set_state_conn(
+                    con, "fill_execution_identity:" + fill_id,
+                    json.dumps(execution_identity_evidence, sort_keys=True, allow_nan=False),
+                )
             self._update_order_status_conn(con, order_id, "filled", None)
             con.execute("COMMIT")
             return {
@@ -403,6 +410,18 @@ class PaperTradingSQLite:
             raise
         finally:
             con.close()
+
+    def get_fill_execution_identity(self, fill_id: str) -> Optional[Dict[str, Any]]:
+        raw = self.get_state("fill_execution_identity:" + str(fill_id))
+        if raw is None:
+            return None
+        try:
+            evidence = json.loads(raw)
+            if not isinstance(evidence, dict):
+                raise ValueError("invalid evidence shape")
+            return evidence
+        except (TypeError, ValueError):
+            return {"execution_identity_fill_status": "invalid_storage"}
 
    
     def get_order_by_order_id(self, order_id: str) -> Optional[dict]:

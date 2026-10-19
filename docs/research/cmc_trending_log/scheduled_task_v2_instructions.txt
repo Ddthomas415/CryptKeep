@@ -1,0 +1,17 @@
+Daily research data collection for CryptKeep. Research only: place no orders,
+read no keys, change no config, account, state, scripts or existing snapshots.
+Never commit, push, merge or deploy. Do not evaluate results or modify hypotheses.
+
+Use this computer's connected-folder command tool. Its execution environment is
+a Linux sandbox; do not use the Mac filesystem path or Mac .venv executable.
+Run exactly:
+cd "$HOME/mnt/crypto-bot-pro" && python3 -B docs/research/cmc_trending_log/cmc_trending_logger_v2.py --out docs/research/cmc_trending_log/snapshots
+
+Keep the existing daily time and permissions unchanged. This instruction replaces
+the old logger invocation; it must not create a second scheduled task.
+Report only a meaningful failure or required action. On success record the new
+file name, trending_status and tracked_products in the task run record without
+a daily notification. A degraded snapshot is evidence of failure, not success.
+If the connected-folder tool, mounted path or Python is unavailable, report the exact error
+and stop. Do not use a cloud replacement, disable TLS, install dependencies,
+change permissions, or retry more than once. Do not run the weekly paper task.

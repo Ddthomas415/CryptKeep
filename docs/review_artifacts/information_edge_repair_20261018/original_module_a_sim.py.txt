@@ -1,0 +1,117 @@
+"""DRAFT multi-asset simulator for Module A (capped inverse-volatility). Not in the repo; not run on market data.
+
+Conventions follow the pre-registration template, Section 6:
+- decide at the close of a decision day (Sunday UTC) using closes up to and including that day;
+- execute at the next day's open with the reviewed post-cost rebalance();
+- mark NAV at closes; cash never negative;
+- an asset with no price on a day cannot be traded or marked; a stopped market is settled at
+  `recovery` x its last close on its first missing day (mandatory sensitivities 0.5 and 0.0).
+"""
+from __future__ import annotations
+
+import math
+
+from corrected_research_math import rebalance
+
+
+def capped_weights(inv_vol: dict[str, float], cap: float) -> dict[str, float]:
+    """Normalize 1/vol scores to sum 1, capping each at `cap` and redistributing the excess pro rata."""
+    if not inv_vol:
+        return {}
+    if cap * len(inv_vol) < 1 - 1e-12:
+        raise ValueError("cap too low for the number of assets")
+    fixed: dict[str, float] = {}
+    free = dict(inv_vol)
+    remaining = 1.0
+    while free:
+        total = sum(free.values())
+        trial = {a: remaining * s / total for a, s in free.items()}
+        over = {a for a, w in trial.items() if w > cap + 1e-12}
+        if not over:
+            fixed.update(trial)
+            break
+        for a in over:
+            fixed[a] = cap
+            remaining -= cap
+            del free[a]
+    return fixed
+
+
+def trailing_vol(closes: list[float | None], i: int, lookback: int) -> float | None:
+    """Annualized std of daily log returns over the `lookback` returns ending at index i (inclusive)."""
+    if i - lookback < 0:
+        return None
+    window = closes[i - lookback: i + 1]
+    if any(c is None or c <= 0 for c in window):
+        return None
+    rets = [math.log(window[k + 1] / window[k]) for k in range(lookback)]
+    m = sum(rets) / lookback
+    var = sum((r - m) ** 2 for r in rets) / (lookback - 1)
+    return math.sqrt(var) * math.sqrt(365)
+
+
+def module_a_target(closes, i, eligible, lookback=60, cap=0.30, min_assets=4):
+    """Target weights decided at close i. `eligible` is the point-in-time list of assets at i."""
+    inv = {}
+    for a in eligible:
+        v = trailing_vol(closes[a], i, lookback)
+        if v and v > 0:
+            inv[a] = 1.0 / v
+    if not inv:
+        return {}
+    if len(inv) < min_assets:
+        w = min(cap, 1.0 / len(inv))
+        return {a: w for a in inv}
+    return capped_weights(inv, cap)
+
+
+def simulate(opens, closes, weekday, lo, hi, target_fn, fee, slip, recovery=0.5, cash0=5000.0):
+    """Run one strategy from index lo to hi. Returns (nav list, turnover per year, decisions list).
+
+    opens/closes: {asset: [price or None per day]}; weekday: [0..6 per day]; target_fn(i) -> weights.
+    """
+    cash, units = cash0, {}
+    navs, decisions, traded = [], [], 0.0
+    last_close: dict[str, float] = {}
+    pending = target_fn(lo)
+    decisions.append((lo, pending))
+    for k in range(lo + 1, hi + 1):
+        # settle stopped markets (no close today, still held)
+        for a in list(units):
+            if closes[a][k] is None and units[a] > 0:
+                cash += units[a] * last_close[a] * recovery
+                del units[a]
+        if pending is not None:
+            prices = {a: opens[a][k] for a in set(pending) | set(units) if opens[a][k] is not None}
+            hold = {a: q for a, q in units.items() if a in prices}
+            keep = {a: q for a, q in units.items() if a not in prices}   # untradable today: units kept
+            w = {a: x for a, x in pending.items() if a in prices}
+            nav_before = cash + sum(q * prices[a] for a, q in hold.items())
+            new_cash, new_units = rebalance(cash, hold, prices, w, fee, slip)
+            traded += sum(abs(new_units.get(a, 0.0) - hold.get(a, 0.0)) * prices[a] for a in prices) / nav_before
+            cash, units = new_cash, {**{a: q for a, q in new_units.items() if q > 0}, **keep}
+            for a in new_units:
+                last_close.setdefault(a, prices[a])   # mark at execution price until a close exists
+            pending = None
+        for a in units:
+            if closes[a][k] is not None:
+                last_close[a] = closes[a][k]
+        navs.append(cash + sum(q * last_close[a] for a, q in units.items()))
+        if k < hi and weekday[k] == 6:
+            pending = target_fn(k)
+            decisions.append((k, pending))
+    years = (hi - lo) / 365.0
+    return navs, (traded / years if years > 0 else 0.0), decisions
+
+
+def matched_vol_exposure(module_navs: list[float], bench_navs: list[float], lookback=60) -> float:
+    """Exposure e = min(1, vol_A / vol_bench) from trailing NAV returns known at the decision close."""
+    if len(module_navs) <= lookback or len(bench_navs) <= lookback:
+        return 1.0
+
+    def vol(x):
+        r = [math.log(x[j + 1] / x[j]) for j in range(len(x) - lookback - 1, len(x) - 1)]
+        m = sum(r) / len(r)
+        return math.sqrt(sum((v - m) ** 2 for v in r) / (len(r) - 1))
+    vb = vol(bench_navs)
+    return 1.0 if vb <= 0 else min(1.0, vol(module_navs) / vb)

@@ -1,0 +1,190 @@
+{
+  "schema": "recovery-supplement-independent-outcome-review-v1",
+  "verified_utc": "2026-10-18T19:33:15.719730+00:00",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "objective": "Bounded independent saved-outcome review of the seven-asset preservation supplement previously accepted at preflight.",
+  "acceptance_state": "ACCEPTED",
+  "acceptance_scope": "Selected seven-asset supplement at the exact output below; not whole-repository, offsite, environment, global atomic snapshot, or full secret/publication clearance.",
+  "output": "/Users/baitus/Documents/cryptkeep_data_archive/recovery_supplement_20261018T192628Z",
+  "blocking_findings": [],
+  "environment_confidence": "VERIFIED_ENV",
+  "independent_saved_artifact_evidence": {
+    "classification": "SHOWN",
+    "actual_outcome_receipt": {
+      "path": "docs/review_artifacts/recovery_copy_20261018/supplement_actual_outcome.json",
+      "sha256": "8a66a56cc0fe99389542286edd4f40b7cd964e6c6b31fc9cecf3511d933e3e50"
+    },
+    "all_five_receipt_hashes_recomputed_and_matched": {
+      "scripts/research/preserve_recovery_exclusions.py": "78096172f85a75dde24fc371ba79bdd38e1aaf8fe8eba26a1dc549b8596c3645",
+      "tests/test_preserve_recovery_exclusions.py": "981514fcd279718542ceca0589a58d48236767604702e29a9a385e004c0d7b06",
+      "supplement_manifest.json": "e9302a6bd89575e60cf508c03fedeece275f47e75eb79a8e404e92efd74b988d",
+      "supplement.tar.gz": "56742fbf4d1ebfb2dcd98632267faae3b8744003dc49a803a8dfb2cfd8faf687",
+      "preflight_review": "dded77278525be6f337c4d25b8cafa61104acfddcf6a8dbf63b46d9018d850fd"
+    },
+    "manifest_schema": "named-public-recovery-supplement-v1",
+    "manifest_created_utc": "2026-10-18T19:30:41.847322+00:00",
+    "exact_paths_per_representation": 7,
+    "representations_checked": ["files/", "restored/", "supplement.tar.gz members"],
+    "total_asset_bytes_per_representation": 53431756,
+    "supplement_archive_bytes": 48486171,
+    "verification_method": "Enumerated both copied trees without following links; required exactly the seven expected regular files, no extra files, and matching manifest byte counts, SHA256s and 0600 modes. Streamed the seven regular supplement archive members without extraction; rejected duplicate, unknown or nonregular members and required matching byte counts, hashes and modes. Rechecked manifest/archive receipt hashes after verification.",
+    "verified_assets": [
+      {
+        "path": "docs/research/raw_archives_20261009/cmc_weekly_and_trending.tar.xz",
+        "bytes": 13729480,
+        "sha256": "05223937afcfb02f4c020476c8b3380fcdd7044e5f3812e4938aff858fd41f4b",
+        "mode_in_all_three_representations": "0600"
+      },
+      {
+        "path": "docs/research/raw_archives_20261009/coinbase_hourly_last60d.tar.xz",
+        "bytes": 6367608,
+        "sha256": "435220c4d778036ba1b3e8ac78b7817f1a372bba1f5435d32c94af9c9bf5caa5",
+        "mode_in_all_three_representations": "0600"
+      },
+      {
+        "path": "docs/research/raw_archives_20261009/coinbase_hourly_prior10m.tar.xz",
+        "bytes": 26437004,
+        "sha256": "2bb417a2033b2a4b78df56db16c4471c6e1384ef23b433e276afb9108f99e6b4",
+        "mode_in_all_three_representations": "0600"
+      },
+      {
+        "path": "research/coinbase_confirmation_usd_v1/public_archive.sqlite",
+        "bytes": 397312,
+        "sha256": "697013e85517d8151f1fffa478fbdb5ea60899739ba0dccb4b4b34c95008bee7",
+        "mode_in_all_three_representations": "0600",
+        "staged_integrity_check": "ok",
+        "restored_integrity_check": "ok"
+      },
+      {
+        "path": "research/coinbase_confirmation_v1/public_archive.sqlite",
+        "bytes": 253952,
+        "sha256": "bdcb520e69c4269beedb1b114fd93446e0be656e1e109d441b0301a6287ef334",
+        "mode_in_all_three_representations": "0600",
+        "staged_integrity_check": "ok",
+        "restored_integrity_check": "ok"
+      },
+      {
+        "path": "research/coinbase_retrospective_20261009/public_archive.sqlite",
+        "bytes": 454656,
+        "sha256": "27a9c84055bc29a2554101e03eaa1663461ff966005ab904aba6d8033dce9d66",
+        "mode_in_all_three_representations": "0600",
+        "staged_integrity_check": "ok",
+        "restored_integrity_check": "ok"
+      },
+      {
+        "path": "research/multisymbol_baseline_v1/public_archive.sqlite",
+        "bytes": 5791744,
+        "sha256": "e74aa3780570fbd685d6e8f10dbd0e9465a603647294d03a84a7705f21368334",
+        "mode_in_all_three_representations": "0600",
+        "staged_integrity_check": "ok",
+        "restored_integrity_check": "ok"
+      }
+    ],
+    "copied_database_checks": {
+      "connections": 8,
+      "uri_options": "mode=ro&immutable=1",
+      "statement": "PRAGMA integrity_check",
+      "required_result_each_time": [["ok"]],
+      "all_results_match": true,
+      "all_copied_headers_have_sqlite_signature_and_versions_2_2": true,
+      "copied_database_hashes_unchanged_after_checks": true,
+      "no_wal_shm_or_rollback_journal_found_beside_copied_databases_after_checks": true,
+      "original_database_sql_connections_by_reviewer": 0
+    },
+    "expected_five_exception_records": {
+      "classification": "SHOWN",
+      "exact_record_set_and_count_match": true,
+      "records": [
+        {
+          "archive": "coinbase_hourly_last60d.tar.xz",
+          "member": "cb/fetch.log",
+          "basis": "exact_public_progress_log",
+          "sha256": "047a88a4036ea0bfe46bef7629565f6a871135ce467d06f18446a2128b727eec"
+        },
+        {
+          "archive": "coinbase_hourly_prior10m.tar.xz",
+          "member": "cb2/fetch.log",
+          "basis": "exact_public_progress_log",
+          "sha256": "10edf07ad9b71d9101e76bcd3628e39147d62dd7811a2586c46c3bc038ce37b1"
+        },
+        {
+          "archive": "cmc_weekly_and_trending.tar.xz",
+          "member": "cmc/weekly/2026-07-12.json",
+          "basis": "pinned_public_coin_slug",
+          "sha256": "c87648455214bdd7d398c62d19e4004cf258129a69637ccf8425c241023a28a1"
+        },
+        {
+          "archive": "cmc_weekly_and_trending.tar.xz",
+          "member": "cmc/weekly/2026-07-19.json",
+          "basis": "pinned_public_coin_slug",
+          "sha256": "1f8a48d458d8531b379aead584212fcea02552abecd1a3bac07202bd76077fdf"
+        },
+        {
+          "archive": "cmc_weekly_and_trending.tar.xz",
+          "member": "cmc/weekly/2026-07-26.json",
+          "basis": "pinned_public_coin_slug",
+          "sha256": "d6555729bdeba1410ffdc12ad790fd3617ca3528fffd51099ab0f1b721a39b90"
+        }
+      ],
+      "boundary": "Validated saved manifest records against preflight exceptions, with frozen enclosing raw-archive hashes independently matching in all three representations. Did not repeat nested archive expansion, content screening or the already completed public-slug diagnosis."
+    },
+    "source_evidence_receipt_consistency": "Manifest has exactly seven source-evidence entries; the four database entries report empty WAL with zero-byte WAL identity and main-file sizes matching their copied assets. This validates saved receipt structure, not independent observation of execution-time originals."
+  },
+  "parent_proof_not_independently_reproduced": [
+    {
+      "classification": "CLAIMED",
+      "origin": "Parent-observed process result in actual-outcome receipt and user handoff",
+      "claim": "Single reviewed invocation exited 0 in session 89058. Reviewer independently verified saved output, not that original process exit."
+    },
+    {
+      "classification": "CLAIMED",
+      "origin": "Parent source post-check receipt fields",
+      "claim": "All 12 original main/WAL/SHM files matched before hashes. Originals were not reread during this outcome review."
+    },
+    {
+      "classification": "CLAIMED",
+      "origin": "User-forwarded parent verification completion; supplement_input_verification.json",
+      "claim": "All seven restored raw archives and all 2377 expected input hashes matched, with zero missing or mismatched inputs. This expanded verification was not duplicated."
+    },
+    {
+      "classification": "CLAIMED",
+      "origin": "User-forwarded parent reconciliation",
+      "claim": "Three earlier receipt hashes unchanged; seven supplement paths are within the earlier 41 exclusions and disjoint from 6414 previously recovered paths, yielding 6421 combined paths and 34 remaining exclusions. This broader accounting was not independently repeated."
+    }
+  ],
+  "nonblocking_permission_observation": {
+    "classification": "SHOWN",
+    "output_and_files_and_restored_root_modes": "0700",
+    "intermediate_directories_at_0755": [
+      "files/docs",
+      "files/docs/research",
+      "files/research",
+      "restored/docs",
+      "restored/docs/research",
+      "restored/research"
+    ],
+    "assessment": "No blocker for this target: the outer recovery directory and both copied-tree roots restrict traversal, every asset is 0600, and leaf asset directories are 0700. This does not claim that every intermediate directory is 0700 or that protection is unchanged if directories are moved outside the private root.",
+    "verification_note": "Initial read-only verifier stopped on an extra assertion that all intermediate directories must be 0700, before asset hash/integrity checks. That assertion exceeded the reviewed file-mode contract. After recording actual directory modes, the bounded verification completed exit 0 without changing any filesystem permissions or assets."
+  },
+  "limits": [
+    "Acceptance is for these seven saved assets and their staged/archive/restored byte agreement and copied-database integrity at review time.",
+    "Selected-file same-disk preservation is not offsite durability, complete repository/environment recovery, a global atomic snapshot, or support for copying nonempty WAL databases.",
+    "No independent runtime tracing proves the original invocation made zero source SQL connections or source writes; those boundaries rely on reviewed code and parent-reported source-state evidence, not the manifest's literal counter alone.",
+    "Heuristic screening plus five finite public-content exceptions is not full secret or publication clearance. No key-pattern match strings were printed.",
+    "Later outcome/closeout documents postdate the snapshot; earlier receipts and remaining exclusions are not rewritten or cleared by this acceptance."
+  ],
+  "reviewer_actions": {
+    "code_or_environment_edits": false,
+    "new_copies_or_disk_extractions": false,
+    "original_private_configuration_reads": false,
+    "source_database_sql": false,
+    "runtime_operations": false,
+    "unchanged_tests_rerun": false,
+    "new_test_matrix_or_archive_rescreen": false,
+    "only_written_artifact": "docs/review_artifacts/recovery_copy_20261018/supplement_outcome_review.json",
+    "work_log_owner": "parent"
+  },
+  "proof_required_next_for_this_selected_supplement": [],
+  "disposition": "ACCEPTED: no blockers for the bounded seven-asset saved supplement. Broader recovery and security claims remain outside scope."
+}

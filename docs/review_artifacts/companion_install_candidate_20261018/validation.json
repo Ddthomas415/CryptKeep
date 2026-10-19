@@ -1,0 +1,23 @@
+{
+  "application_source_records": 43,
+  "applications": 4,
+  "candidate_refused_by_executable_loader": true,
+  "files": {
+    "capture/observation.json": "5207ca9c190e23f639cec5359508d56aed7ec237b1e8c0571d5748f0401f11ec",
+    "plan_candidate.json": "3ce6fd12cd29ba3a47b774f03b5c2e4e1a916d79b9a7f6bd7bbdedffdd5a3141",
+    "recipe.json": "e1099173c1c4c3f190dd3875e60df6b0670d1feb4abf5a6fb15d67f980a50479"
+  },
+  "installation_authorized": false,
+  "policy_acceptance_generated": false,
+  "policy_decisions_pending": [
+    "builder_local_only",
+    "env_stdin_lossless",
+    "image_provenance",
+    "recreation_complete",
+    "sdk_startup_compatible",
+    "source_imports_frozen"
+  ],
+  "source_manifest_sha256": "973da853c3c2aabdce982c677b5b6ab9c6d7cbab5061ec27ab28197b07b3c875",
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "whole_runtime_state": "INCOMPLETE"
+}

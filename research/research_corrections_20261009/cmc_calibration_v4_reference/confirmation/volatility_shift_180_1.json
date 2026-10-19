@@ -1,0 +1,16 @@
+{
+  "model": "volatility_shift",
+  "days": 180,
+  "mean_index": 1,
+  "mean": 0.0025,
+  "stage": "v4_confirmation_20261010",
+  "histories": 1000,
+  "identity": {
+    "lock_sha256": "b060fc747748ccdcaf45d3c66e6f7c4ba2f74e576c9e60628a218e3017c76cab",
+    "confirmation_runner_sha256": "a7a8622d349e5e64f4c99fdfd9d30f474d5d652765e67b97086150f323aada22"
+  },
+  "status_counts": {
+    "AVAILABLE": 1000
+  },
+  "positives": 7
+}

@@ -1,0 +1,102 @@
+{
+  "primary_result_sha256": "4438042681553a92aead9596a8ba6708b76a6173cfa5fe5d211e41bd635273da",
+  "method": "First chronological leader per same symbol and entry time; diagnostic audit only, no rule tuning",
+  "runs": [
+    {
+      "dip": 0.1,
+      "target": 0.05,
+      "hold_hours": 24,
+      "distinct_entry_count": 79,
+      "distinct_closed_count": 74,
+      "distinct_closed_net_winners": 41,
+      "distinct_mean_closed_net_usd": -4.353629308565804,
+      "distinct_closed_plus_marks_mean_usd": -12.308160202435909,
+      "unpriced_entries": 0,
+      "remaining_limit": "Different entries still overlap/correlate; not independent trials or portfolio PnL"
+    },
+    {
+      "dip": 0.1,
+      "target": 0.05,
+      "hold_hours": 48,
+      "distinct_entry_count": 79,
+      "distinct_closed_count": 71,
+      "distinct_closed_net_winners": 50,
+      "distinct_mean_closed_net_usd": 14.903975033068289,
+      "distinct_closed_plus_marks_mean_usd": -0.055757614363795005,
+      "unpriced_entries": 0,
+      "remaining_limit": "Different entries still overlap/correlate; not independent trials or portfolio PnL"
+    },
+    {
+      "dip": 0.1,
+      "target": 0.1,
+      "hold_hours": 24,
+      "distinct_entry_count": 79,
+      "distinct_closed_count": 71,
+      "distinct_closed_net_winners": 25,
+      "distinct_mean_closed_net_usd": -28.525456048228836,
+      "distinct_closed_plus_marks_mean_usd": -34.9031254949734,
+      "unpriced_entries": 0,
+      "remaining_limit": "Different entries still overlap/correlate; not independent trials or portfolio PnL"
+    },
+    {
+      "dip": 0.1,
+      "target": 0.1,
+      "hold_hours": 48,
+      "distinct_entry_count": 79,
+      "distinct_closed_count": 68,
+      "distinct_closed_net_winners": 34,
+      "distinct_mean_closed_net_usd": -7.169124405720652,
+      "distinct_closed_plus_marks_mean_usd": -20.65760741761616,
+      "unpriced_entries": 0,
+      "remaining_limit": "Different entries still overlap/correlate; not independent trials or portfolio PnL"
+    },
+    {
+      "dip": 0.2,
+      "target": 0.05,
+      "hold_hours": 24,
+      "distinct_entry_count": 56,
+      "distinct_closed_count": 51,
+      "distinct_closed_net_winners": 35,
+      "distinct_mean_closed_net_usd": 29.09973462590882,
+      "distinct_closed_plus_marks_mean_usd": 23.624559686038033,
+      "unpriced_entries": 0,
+      "remaining_limit": "Different entries still overlap/correlate; not independent trials or portfolio PnL"
+    },
+    {
+      "dip": 0.2,
+      "target": 0.05,
+      "hold_hours": 48,
+      "distinct_entry_count": 56,
+      "distinct_closed_count": 46,
+      "distinct_closed_net_winners": 40,
+      "distinct_mean_closed_net_usd": 52.03331183630917,
+      "distinct_closed_plus_marks_mean_usd": 37.48021313123886,
+      "unpriced_entries": 0,
+      "remaining_limit": "Different entries still overlap/correlate; not independent trials or portfolio PnL"
+    },
+    {
+      "dip": 0.2,
+      "target": 0.1,
+      "hold_hours": 24,
+      "distinct_entry_count": 56,
+      "distinct_closed_count": 51,
+      "distinct_closed_net_winners": 23,
+      "distinct_mean_closed_net_usd": 5.185812486129407,
+      "distinct_closed_plus_marks_mean_usd": 1.8458091658817832,
+      "unpriced_entries": 0,
+      "remaining_limit": "Different entries still overlap/correlate; not independent trials or portfolio PnL"
+    },
+    {
+      "dip": 0.2,
+      "target": 0.1,
+      "hold_hours": 48,
+      "distinct_entry_count": 56,
+      "distinct_closed_count": 44,
+      "distinct_closed_net_winners": 31,
+      "distinct_mean_closed_net_usd": 55.22595254450033,
+      "distinct_closed_plus_marks_mean_usd": 36.26761732170613,
+      "unpriced_entries": 0,
+      "remaining_limit": "Different entries still overlap/correlate; not independent trials or portfolio PnL"
+    }
+  ]
+}

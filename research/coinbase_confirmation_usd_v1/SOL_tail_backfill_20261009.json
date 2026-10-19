@@ -1,0 +1,24 @@
+{
+  "archive_path": "/Users/baitus/Downloads/crypto-bot-pro/research/coinbase_confirmation_usd_v1/public_archive.sqlite",
+  "artifact_type": "ohlcv_archive_backfill_v1",
+  "dataset_hash": "e01363ab9cf7da469fdb93b8f0400d57a0a6617cd7301755cc2adc97376ed5cc",
+  "exchange": "coinbase",
+  "limitations": [
+    "market_data_archive_only",
+    "not_strategy_evidence",
+    "not_promotion_evidence",
+    "not_trading"
+  ],
+  "max_bars": 1,
+  "max_pages": 1,
+  "ok": true,
+  "page_limit": 300,
+  "research_data_ingestion": true,
+  "rows_written": 1,
+  "since_ms": 1791500400000,
+  "source": "public_exchange_ohlcv",
+  "stored_symbol": "SOL/USD",
+  "symbol": "SOL/USD",
+  "timeframe": "1h",
+  "until_ms": 1791500400000
+}

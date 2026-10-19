@@ -285,15 +285,10 @@ Priority searches:
 - `trailing stop exit policy python trading system`
 - `order flow imbalance crypto python websocket`
 
-## Recommended next implementation target
+## Selecting the Next Research Task
 
-If only one next build starts now, choose:
-
-1. walk-forward validation
-
-If two can be carried together, choose:
-
-1. walk-forward validation
-2. strategy feedback ledger
-
-That sequence best fits the current repo maturity and the questions still unanswered by the existing evidence cycle.
+Walk-forward validation and the strategy feedback ledger already exist, as
+recorded above. Use them where relevant; do not rebuild them from this roadmap.
+Continue the accepted economic question under `runtime_prompt.md`, checking
+current code and later work-log dispositions before selecting a missing piece.
+This document describes research options, not a second active execution queue.

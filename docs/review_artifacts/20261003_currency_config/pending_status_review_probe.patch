@@ -1,0 +1,22 @@
+--- /dev/null
++++ b/tests/test_review_pending_statuses.py
+@@ -0,0 +1,19 @@
++import pytest
++from tests.test_runner_pending_entry_exposure import _three, _run, BUY, HOLD
++
++
++@pytest.mark.parametrize('status', ['queued', 'submitted', 'submitting', 'held'])
++def test_own_pending_entry_is_not_duplicated(monkeypatch, tmp_path, status):
++    runner, emitted, _ = _three(
++        monkeypatch, tmp_path, risk={'max_concurrent_positions': 1},
++        signals={'BTC/USD': BUY, 'ETH/USD': HOLD, 'SOL/USD': HOLD},
++    )
++    queue = runner.IntentQueueSQLite
++    monkeypatch.setattr(queue, 'open_strategy_entry_symbols', lambda self: ['BTC/USD'])
++    monkeypatch.setattr(queue, 'open_strategy_entry_notionals', lambda self: {'BTC/USD': 50.0})
++    monkeypatch.setattr(queue, 'has_open_strategy_intent', lambda self, symbol: symbol == 'BTC/USD')
++    monkeypatch.setattr(queue, 'list_intents', lambda self, **kw: [
++        {'source': 'strategy', 'symbol': 'BTC/USD', 'status': status, 'side': 'buy'}
++    ])
++    _run(monkeypatch, runner, loops=3)
++    assert emitted == []

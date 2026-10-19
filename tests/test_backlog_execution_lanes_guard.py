@@ -92,7 +92,10 @@ def test_backlog_execution_lanes_preserves_batching_rule_and_next_order() -> Non
     assert "Batch only items from the same lane." in text
     assert "If a patch starts in the low-risk lane and discovers it needs to modify a high-risk surface, split the work:" in text
     assert "Stop that implementation at `READY_FOR_INDEPENDENT_REVIEW`." in text
-    assert "The current bottleneck is mostly operator evidence" in text
+    assert "Lane classification controls how work is verified and grouped, not which outcome has priority." in text
+    assert "Do not infer today's bottleneck from a dated snapshot." in text
+    assert "The current bottleneck is mostly operator evidence" not in text
+    assert "Safe batching order:" not in text
     assert "Low-risk docs/tests only" in text
     assert "Medium-risk read-only research/reporting only" in text
     assert "One high-risk objective at a time" in text

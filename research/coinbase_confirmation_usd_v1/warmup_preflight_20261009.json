@@ -1,0 +1,45 @@
+{
+  "experiment_id": "coinbase_confirmation_usd_v1",
+  "identity": {
+    "plan_sha256": "11fd2a75844081549dcd8aba45cbddff706383a464282a8a560a1bd8a793ce94",
+    "snapshot_sha256": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "fee_receipt_sha256": "92bfc29c972c0a02db8f63d70d38e65d0a63870d2d7b669984758fc75c216420",
+    "runner_sha256": "4aaac1a6473e5b25e8db1b3fd9a85769f8188f1becf9eb45180691c5566f0719"
+  },
+  "phase": "warmup",
+  "mode": "coverage",
+  "archive_path": "/Users/baitus/Downloads/crypto-bot-pro/research/coinbase_confirmation_usd_v1/public_archive.sqlite",
+  "requested_end_ms": 1791504000000,
+  "target_end_ms": 1791590400000,
+  "full_phase_completed": false,
+  "registration_sha256": null,
+  "qualification": "RESEARCH_ONLY_NOT_PROMOTION",
+  "markets": {
+    "BTC/USD": {
+      "status": "ARCHIVE_VERIFIED",
+      "bars": 276,
+      "rows_sha256": "19e596ca77afd503b97cbb61cadac9edef9b49e87611b01cc3302a5ef447eca4"
+    },
+    "ETH/USD": {
+      "status": "ARCHIVE_VERIFIED",
+      "bars": 276,
+      "rows_sha256": "7f4a00fe2b3fbb51051e4d4314db8deda250e938150026c582600e946e37f041"
+    },
+    "SOL/USD": {
+      "status": "ARCHIVE_VERIFIED",
+      "bars": 276,
+      "rows_sha256": "b49d10923ab5d14bff1a4aa0d6c182bd525b8d5d973df7604760c2df833d32e2"
+    },
+    "ADA/USD": {
+      "status": "ARCHIVE_VERIFIED",
+      "bars": 276,
+      "rows_sha256": "528837924d475839d93a9dbaec9c87343c02d3010c8589aef1bdcf3d5ad8e9e0"
+    },
+    "XRP/USD": {
+      "status": "ARCHIVE_VERIFIED",
+      "bars": 276,
+      "rows_sha256": "0f7d422c5ecee735ed1a7b1689e40eba572e4b8b2b763f3c4954db221d12fe7b"
+    }
+  },
+  "all_markets_complete": true
+}

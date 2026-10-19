@@ -1,4 +1,8 @@
 # Chat Handoff Snapshot
+> HISTORICAL / SUPERSEDED: January snapshot, not current instructions.
+> Do not resume Phase 282 solely from this file. Use the accepted objective,
+> current code, `AGENTS.md`, `runtime_prompt.md` and the latest entries in
+> `docs/work_log/review_stabilized_work_log.md`.
 Updated: 2026-01-22T12:44:29.363256Z
 
 ## What exists

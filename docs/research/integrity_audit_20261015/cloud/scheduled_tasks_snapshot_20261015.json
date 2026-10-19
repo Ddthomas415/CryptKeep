@@ -1,0 +1,274 @@
+{
+ "data": [
+  {
+   "id": "trig_01XzB38F7HeJLH4LWykMNdN3",
+   "name": "Score frozen NY Numbers prospective test",
+   "cron_expression": "",
+   "enabled": true,
+   "next_run_at": "2027-04-01T13:00:00Z",
+   "created_at": "2026-10-15T18:28:06.078595Z",
+   "updated_at": "2026-10-15T18:28:06.078595Z",
+   "persist_session": false,
+   "mcp_connections": [
+    {
+     "connector_uuid": "1a59c906-04da-521d-bda7-7f71b9f9e01c",
+     "name": "Claude_Docs",
+     "url": "",
+     "permitted_tools": [],
+     "transport_type": "http",
+     "tool_policy_overrides": [],
+     "clear_tool_policy_overrides": false
+    },
+    {
+     "connector_uuid": "bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a",
+     "name": "Claude_Code_Remote",
+     "url": "",
+     "permitted_tools": [],
+     "transport_type": "http",
+     "tool_policy_overrides": [],
+     "clear_tool_policy_overrides": false
+    }
+   ],
+   "api_token_hint": "",
+   "enabled_plugins": [],
+   "extra_marketplaces": [],
+   "run_once_at": "2027-04-01T13:00:00Z",
+   "ended_reason": "",
+   "notifications": {
+    "channel": {
+     "push": true,
+     "email": true
+    }
+   },
+   "created_via": "meta_mcp",
+   "suspension_reason": "",
+   "derived_state": {
+    "folders_state": "FOLDERS_STATE_NONE",
+    "folders": [],
+    "permission_mode": "auto",
+    "prompt": "Score Damian's pre-registered NY Lottery Numbers prospective test, frozen on 2026-10-15. Do not change any rule below; the point is a single, untouched analysis.\n\n1. Download the official dataset: https://data.ny.gov/api/views/hsys-3def/rows.csv?accessType=DOWNLOAD (columns \"Draw Date\", \"Midday Daily #\", \"Evening Daily #\"; read as strings to keep leading zeros).\n2. Frozen predictions (most frequent digit per position, window 2021-10-15..2026-10-14): midday = (5, 0, 8), evening = (5, 4, 2) for positions 1, 2, 3.\n3. Take draws dated on or after 2026-10-16 in chronological order, midday before evening on each date, skipping blanks. Use exactly the first 307 draws (921 digit trials). If fewer than 307 exist, report NOT READY with the count and stop.\n4. Hits = number of positions where the drawn digit equals the frozen digit for that draw time. H0: hit probability 0.10. Reject only if hits > 107 (one-sided exact binomial, alpha 0.05, 80% power at 12.6%). Report hits, hit rate, exact one-sided p, first/last dates, and the verdict.\n5. Verdict meaning: fail to reject -> the recent-window bias hypothesis is not supported; recommend closing the study. Reject -> a lead only, not an edge: straight-play break-even needs about 12.6% per position (official $500 prize per $1, 1-in-1,000 odds) and front-pair needs about 14.1% (official $50 per $1, 1 in 100); a reject needs replication on new draws before any money is spent. Do not recommend buying tickets either way.\n6. No interim looks, no extra tests, no re-specification. Send the result to the user as a short message.",
+    "model": "claude-opus-5-5",
+    "files": []
+   },
+   "created_surface": "ROUTINE_CREATED_SURFACE_UNSPECIFIED",
+   "created_kind": "ROUTINE_CREATED_KIND_UNSPECIFIED"
+  },
+  {
+   "id": "trig_01P1cNcsHVYfNtomn9fknWaD",
+   "name": "R10: verify warm-up, prepare only",
+   "cron_expression": "",
+   "enabled": false,
+   "next_run_at": "2026-10-11T00:15:22.388272375Z",
+   "created_at": "2026-10-09T11:04:06.236441Z",
+   "updated_at": "2026-10-10T00:15:22.773505Z",
+   "persist_session": true,
+   "persistent_session_id": "session_011p3WBrLHso7qjbJYsguxAY",
+   "mcp_connections": [],
+   "creator": {
+    "account_uuid": "06dbd508-d5c7-4b36-921a-630c00880306"
+   },
+   "api_token_hint": "",
+   "enabled_plugins": [],
+   "extra_marketplaces": [],
+   "run_once_at": "2026-10-10T00:15:00Z",
+   "ended_reason": "run_once_fired",
+   "last_fired_at": "2026-10-10T00:15:22.742038Z",
+   "created_via": "meta_mcp",
+   "suspension_reason": "",
+   "bound_device_uuid": "7e41ea68-7c51-4773-bf80-79a568d8f526",
+   "bound_device": {
+    "id": "7e41ea68-7c51-4773-bf80-79a568d8f526",
+    "display_name": "Claude Desktop (macOS)"
+   },
+   "derived_state": {
+    "folders_state": "FOLDERS_STATE_NONE",
+    "folders": [],
+    "prompt": "Approved check-in (R10, prepare only). The coinbase_confirmation_usd_v1 300-hour warm-up ended 2026-10-10 00:00 UTC. In crypto-bot-pro, follow docs/research/forward_readiness_check_20261009.md and coinbase_usd_confirmation_contract_20261008.md: under the existing public-data ingestion contract, collect the completed warm-up candles for the five registered USD products, verify all 300 bars per product, hash and freeze the exact-product prefix against the unchanged registration, and write a readiness record. Do NOT activate, score, change dates, start campaigns/accounts, or create schedulers. Check the work log first so the other session hasn't already done it. Log it and report concisely to Damian.",
+    "model": "",
+    "files": []
+   },
+   "last_run": {
+    "status": "ROUTINE_RUN_STATUS_SUCCEEDED",
+    "fired_at": "2026-10-10T00:15:22.729189515Z",
+    "finished_at": "2026-10-10T00:15:22.739263Z",
+    "session_id": "cse_011p3WBrLHso7qjbJYsguxAY",
+    "failure_reason": "ROUTINE_RUN_FAILURE_REASON_UNSPECIFIED"
+   },
+   "created_surface": "ROUTINE_CREATED_SURFACE_UNSPECIFIED",
+   "created_kind": "ROUTINE_CREATED_KIND_REMINDER"
+  },
+  {
+   "id": "trig_01CKTxELMCbpV4VJdNuT2aHP",
+   "name": "R07: verify 13:52 unattended CMC run",
+   "cron_expression": "",
+   "enabled": false,
+   "next_run_at": "2026-10-10T14:22:02.854862813Z",
+   "created_at": "2026-10-09T11:04:03.650633Z",
+   "updated_at": "2026-10-09T14:22:03.299152Z",
+   "persist_session": true,
+   "persistent_session_id": "session_011p3WBrLHso7qjbJYsguxAY",
+   "mcp_connections": [],
+   "creator": {
+    "account_uuid": "06dbd508-d5c7-4b36-921a-630c00880306"
+   },
+   "api_token_hint": "",
+   "enabled_plugins": [],
+   "extra_marketplaces": [],
+   "run_once_at": "2026-10-09T14:20:00Z",
+   "ended_reason": "run_once_fired",
+   "last_fired_at": "2026-10-09T14:22:03.263260Z",
+   "created_via": "meta_mcp",
+   "suspension_reason": "",
+   "bound_device_uuid": "7e41ea68-7c51-4773-bf80-79a568d8f526",
+   "bound_device": {
+    "id": "7e41ea68-7c51-4773-bf80-79a568d8f526",
+    "display_name": "Claude Desktop (macOS)"
+   },
+   "derived_state": {
+    "folders_state": "FOLDERS_STATE_NONE",
+    "folders": [],
+    "prompt": "Approved check-in (R07). Verify today's unattended 13:52 UTC daily CMC trending run on the laptop repo (crypto-bot-pro): use list_triggers for trig_012ybaBYn3NNN3cqx38BTRjV last_run, find the new v3 snapshot in the CMC log folder, validate it with the repo's load_snapshot (schema v3, identity map sha, trending_status OBSERVED, row counts), and compare with the 04:37/05:03/05:09 manual captures. Read-only: no state rewriting, no rerun, no new collector. Write findings to docs/work_log/review_stabilized_work_log.md and update the external Claude Doc's 'unattended runs not yet observed' line only if proven. Then report concisely to Damian.",
+    "model": "",
+    "files": []
+   },
+   "last_run": {
+    "status": "ROUTINE_RUN_STATUS_SUCCEEDED",
+    "fired_at": "2026-10-09T14:22:03.250332570Z",
+    "finished_at": "2026-10-09T14:22:03.264516Z",
+    "session_id": "cse_011p3WBrLHso7qjbJYsguxAY",
+    "failure_reason": "ROUTINE_RUN_FAILURE_REASON_UNSPECIFIED"
+   },
+   "created_surface": "ROUTINE_CREATED_SURFACE_UNSPECIFIED",
+   "created_kind": "ROUTINE_CREATED_KIND_REMINDER"
+  },
+  {
+   "id": "trig_012ybaBYn3NNN3cqx38BTRjV",
+   "name": "CryptKeep daily CMC trending log",
+   "cron_expression": "52 13 * * *",
+   "enabled": true,
+   "next_run_at": "2026-10-16T13:52:00Z",
+   "created_at": "2026-10-09T03:48:10.570580Z",
+   "updated_at": "2026-10-13T17:00:38.820495Z",
+   "persist_session": false,
+   "mcp_connections": [
+    {
+     "connector_uuid": "1a59c906-04da-521d-bda7-7f71b9f9e01c",
+     "name": "Claude_Docs",
+     "url": "",
+     "permitted_tools": [],
+     "transport_type": "http",
+     "tool_policy_overrides": [],
+     "clear_tool_policy_overrides": false
+    },
+    {
+     "connector_uuid": "bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a",
+     "name": "Claude_Code_Remote",
+     "url": "",
+     "permitted_tools": [],
+     "transport_type": "http",
+     "tool_policy_overrides": [],
+     "clear_tool_policy_overrides": false
+    }
+   ],
+   "api_token_hint": "",
+   "enabled_plugins": [],
+   "extra_marketplaces": [],
+   "ended_reason": "",
+   "last_fired_at": "2026-10-15T13:52:47.103706Z",
+   "notifications": {
+    "channel": {
+     "push": false,
+     "email": false
+    }
+   },
+   "created_via": "meta_mcp",
+   "suspension_reason": "",
+   "derived_state": {
+    "folders_state": "FOLDERS_STATE_PRESENT",
+    "folders": [
+     "/Users/baitus/Downloads/crypto-bot-pro"
+    ],
+    "permission_mode": "auto",
+    "prompt": "Daily research data collection for CryptKeep. Research only: place no orders, read no keys, change no config, account, state, scripts or existing snapshots. Never commit, push, merge or deploy. Do not evaluate results or modify hypotheses.\n\nUse this computer's connected-folder command tool. Its execution environment is a Linux sandbox; do not use the Mac filesystem path or Mac .venv executable. Run exactly:\ncd \"$HOME/mnt/crypto-bot-pro\" && python3 -B docs/research/cmc_trending_log/cmc_trending_logger_v3.py --out docs/research/cmc_trending_log/snapshots --identity-map docs/research/cmc_trending_log/identity_map_contract_v1.json --capture-level1\n\nKeep the existing daily time and permissions unchanged. Do not create a second task. Report only a meaningful failure or required action. On success record the new file name, schema_version, trending_status and identity_excluded in the task record without a daily notification. Schema 3 is authoritative; filenames retain the legacy v2 prefix. A degraded snapshot is failure, not success. If the connected-folder tool, mounted path or Python is unavailable, report the exact error and stop. Do not use a cloud replacement dataset, disable TLS, install dependencies, change permissions, or retry more than once. Do not run the weekly paper task.",
+    "model": "claude-opus-5-5",
+    "files": []
+   },
+   "last_run": {
+    "status": "ROUTINE_RUN_STATUS_SUCCEEDED",
+    "fired_at": "2026-10-15T13:52:47.090632140Z",
+    "finished_at": "2026-10-15T13:52:53.683409Z",
+    "session_id": "cse_017SAkarxJdLrBvKdLyCwDsa",
+    "failure_reason": "ROUTINE_RUN_FAILURE_REASON_UNSPECIFIED"
+   },
+   "created_surface": "ROUTINE_CREATED_SURFACE_UNSPECIFIED",
+   "created_kind": "ROUTINE_CREATED_KIND_UNSPECIFIED"
+  },
+  {
+   "id": "trig_01JHKCvhVp914uENe6kyD8Hj",
+   "name": "CryptKeep weekly BTC+ETH paper test",
+   "cron_expression": "47 0 * * 1",
+   "enabled": true,
+   "next_run_at": "2026-10-19T00:47:00Z",
+   "created_at": "2026-10-09T03:06:45.477482Z",
+   "updated_at": "2026-10-09T04:33:56.984081Z",
+   "persist_session": false,
+   "mcp_connections": [
+    {
+     "connector_uuid": "1a59c906-04da-521d-bda7-7f71b9f9e01c",
+     "name": "Claude_Docs",
+     "url": "",
+     "permitted_tools": [],
+     "transport_type": "http",
+     "tool_policy_overrides": [],
+     "clear_tool_policy_overrides": false
+    },
+    {
+     "connector_uuid": "bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a",
+     "name": "Claude_Code_Remote",
+     "url": "",
+     "permitted_tools": [],
+     "transport_type": "http",
+     "tool_policy_overrides": [],
+     "clear_tool_policy_overrides": false
+    }
+   ],
+   "api_token_hint": "",
+   "enabled_plugins": [],
+   "extra_marketplaces": [],
+   "ended_reason": "",
+   "last_fired_at": "2026-10-12T00:47:29.812672Z",
+   "notifications": {
+    "channel": {
+     "push": true,
+     "email": true
+    }
+   },
+   "created_via": "meta_mcp",
+   "suspension_reason": "",
+   "derived_state": {
+    "folders_state": "FOLDERS_STATE_PRESENT",
+    "folders": [
+     "/Users/baitus/Downloads/crypto-bot-pro"
+    ],
+    "permission_mode": "auto",
+    "prompt": "Weekly research report for Damian's CryptKeep forward paper test. Research only: place NO orders, read no keys, change no CryptKeep config, state, account, git branch or file other than the two output files below. Never commit, push, merge or deploy.\n\n1. Using the shell on Damian's computer (connected folder crypto-bot-pro, mounted at $HOME/mnt/crypto-bot-pro), run:\n   cd $HOME/mnt/crypto-bot-pro/docs/research/paper_btc_eth_trend_20261009 && python3 paper_btc_eth_trend.py --out .\n   This rewrites paper_state.json and paper_ledger.csv in that folder from public Coinbase prices. If the computer is unreachable or the command fails, report the exact error and stop; do not run it anywhere else and do not edit the script.\n2. Read paper_state.json and paper_ledger.csv and report, briefly and with numbers only from those files:\n   - this week's rebalance (the most recent row with rebalance=True): new BTC and ETH weights, cash %, cost in $;\n   - the inputs behind it (28-day return and 30-day volatility for BTC and ETH);\n   - paper account: equity $, total % since start, last 7 days %, last 30 days %, worst drop %;\n   - BTC buy-and-hold $ over the same period, and whether the paper account is ahead or behind it;\n   - if paper status is \"waiting\", say so and give the current signal only.\n3. Do not add recommendations to trade real money. End with one line: \"Paper test only - no orders placed.\"",
+    "model": "claude-opus-5-5",
+    "files": []
+   },
+   "last_run": {
+    "status": "ROUTINE_RUN_STATUS_SUCCEEDED",
+    "fired_at": "2026-10-12T00:47:29.800120248Z",
+    "finished_at": "2026-10-12T00:47:34.778297Z",
+    "session_id": "cse_01M8suVfZEQy2vvrWLZRh29y",
+    "failure_reason": "ROUTINE_RUN_FAILURE_REASON_UNSPECIFIED"
+   },
+   "created_surface": "ROUTINE_CREATED_SURFACE_UNSPECIFIED",
+   "created_kind": "ROUTINE_CREATED_KIND_UNSPECIFIED"
+  }
+ ],
+ "has_more": false,
+ "_captured": {
+  "tool": "list_triggers(include_completed=true,limit=100)",
+  "transcript_timestamp": "2026-10-15T19:02:14.968Z"
+ }
+}

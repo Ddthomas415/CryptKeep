@@ -26,6 +26,38 @@ def _load_smoke_module():
     return module
 
 
+def test_request_auth_is_required_before_submission(monkeypatch):
+    smoke = _load_smoke_module()
+    monkeypatch.delenv("SERVICE_TOKEN", raising=False)
+    with pytest.raises(RuntimeError, match="service_auth_not_configured"):
+        smoke._request_json("http://localhost:8002/v1/explain", method="POST", payload={})
+
+
+def test_request_sends_token_without_query_or_output(monkeypatch):
+    smoke = _load_smoke_module()
+    monkeypatch.setenv("SERVICE_TOKEN", "fixture-only")
+    class Response:
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            pass
+        def read(self):
+            return b'{"ok":true}'
+    def send(request, **kwargs):
+        assert request.get_header("Authorization") == "Bearer fixture-only"
+        assert "fixture-only" not in request.full_url
+        return Response()
+    from types import SimpleNamespace
+    monkeypatch.setattr(smoke.urllib.request, "build_opener", lambda *args: SimpleNamespace(open=send))
+    assert smoke._request_json("http://localhost:8002/v1/explain", method="POST", payload={}) == {"ok": True}
+
+
+def test_authenticated_redirect_is_not_followed():
+    smoke = _load_smoke_module()
+    request = smoke.urllib.request.Request("http://localhost:8002/v1/explain", headers={"Authorization": "Bearer fixture-only"})
+    assert smoke.NoRedirect().redirect_request(request, None, 302, "Found", {}, "https://elsewhere.example/") is None
+
+
 def test_summary_is_ok_without_openai_requirement() -> None:
     smoke = _load_smoke_module()
     summary = {

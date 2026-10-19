@@ -1,0 +1,837 @@
+{
+  "after": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "mounts": [
+        {
+          "Destination": "/docker-entrypoint-initdb.d",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/host_mnt/Users/baitus/Downloads/crypto-bot-pro/phase1_research_copilot/db/init",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "Name": "phase1_research_copilot_phase1_timescaledb_data",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/phase1_research_copilot_phase1_timescaledb_data/_data",
+          "Type": "volume"
+        }
+      ],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-timescaledb",
+            "timescaledb"
+          ],
+          "DNSNames": [
+            "phase1-timescaledb",
+            "timescaledb",
+            "7895bb197b94"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "5432"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.388611962Z",
+      "state": "exited"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "mounts": [
+        {
+          "Destination": "/qdrant/storage",
+          "Driver": "local",
+          "Mode": "rw",
+          "Name": "phase1_research_copilot_phase1_qdrant_data",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/phase1_research_copilot_phase1_qdrant_data/_data",
+          "Type": "volume"
+        }
+      ],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-qdrant",
+            "qdrant"
+          ],
+          "DNSNames": [
+            "phase1-qdrant",
+            "qdrant",
+            "2b5b140608bb"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "6333/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "6333"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.569851379Z",
+      "state": "exited"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "mounts": [
+        {
+          "Destination": "/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "Name": "phase1_research_copilot_phase1_minio_data",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/phase1_research_copilot_phase1_minio_data/_data",
+          "Type": "volume"
+        }
+      ],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-minio",
+            "minio"
+          ],
+          "DNSNames": [
+            "phase1-minio",
+            "minio",
+            "a75c14f29235"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "9000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "9000"
+          }
+        ],
+        "9001/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "9001"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.773548546Z",
+      "state": "exited"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "mounts": [],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-audit-log",
+            "audit-log"
+          ],
+          "DNSNames": [
+            "phase1-audit-log",
+            "audit-log",
+            "fbec9f31369f"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "8009/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8009"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:32.811420923Z",
+      "state": "exited"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "mounts": [],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-risk-stub",
+            "risk-stub"
+          ],
+          "DNSNames": [
+            "phase1-risk-stub",
+            "risk-stub",
+            "b747cb34088f"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "8008/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8008"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:32.916996881Z",
+      "state": "exited"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "mounts": [],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-memory",
+            "memory-retrieval"
+          ],
+          "DNSNames": [
+            "phase1-memory",
+            "memory-retrieval",
+            "869205e8c8cf"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "8007/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8007"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:33.085165007Z",
+      "state": "exited"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "mounts": [
+        {
+          "Destination": "/repo",
+          "Mode": "ro",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/Users/baitus/Downloads/crypto-bot-pro",
+          "Type": "bind"
+        }
+      ],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-orchestrator",
+            "orchestrator"
+          ],
+          "DNSNames": [
+            "phase1-orchestrator",
+            "orchestrator",
+            "bfaed7d1d651"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "8002/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8002"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:33.269989257Z",
+      "state": "exited"
+    }
+  ],
+  "baseline_sha256": "85d226fc1e347ecd4187877f6c60a51f53fb75428f89f00d82854dbc5e764d69",
+  "before": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "mounts": [
+        {
+          "Destination": "/docker-entrypoint-initdb.d",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/host_mnt/Users/baitus/Downloads/crypto-bot-pro/phase1_research_copilot/db/init",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "Name": "phase1_research_copilot_phase1_timescaledb_data",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/phase1_research_copilot_phase1_timescaledb_data/_data",
+          "Type": "volume"
+        }
+      ],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-timescaledb",
+            "timescaledb"
+          ],
+          "DNSNames": [
+            "phase1-timescaledb",
+            "timescaledb",
+            "7895bb197b94"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "5432"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.388611962Z",
+      "state": "exited"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "mounts": [
+        {
+          "Destination": "/qdrant/storage",
+          "Driver": "local",
+          "Mode": "rw",
+          "Name": "phase1_research_copilot_phase1_qdrant_data",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/phase1_research_copilot_phase1_qdrant_data/_data",
+          "Type": "volume"
+        }
+      ],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-qdrant",
+            "qdrant"
+          ],
+          "DNSNames": [
+            "phase1-qdrant",
+            "qdrant",
+            "2b5b140608bb"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "6333/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "6333"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.569851379Z",
+      "state": "exited"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "mounts": [
+        {
+          "Destination": "/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "Name": "phase1_research_copilot_phase1_minio_data",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/phase1_research_copilot_phase1_minio_data/_data",
+          "Type": "volume"
+        }
+      ],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-minio",
+            "minio"
+          ],
+          "DNSNames": [
+            "phase1-minio",
+            "minio",
+            "a75c14f29235"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "9000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "9000"
+          }
+        ],
+        "9001/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "9001"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.773548546Z",
+      "state": "exited"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "mounts": [],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-audit-log",
+            "audit-log"
+          ],
+          "DNSNames": [
+            "phase1-audit-log",
+            "audit-log",
+            "fbec9f31369f"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "8009/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8009"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:32.811420923Z",
+      "state": "exited"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "mounts": [],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-risk-stub",
+            "risk-stub"
+          ],
+          "DNSNames": [
+            "phase1-risk-stub",
+            "risk-stub",
+            "b747cb34088f"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "8008/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8008"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:32.916996881Z",
+      "state": "exited"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "mounts": [],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-memory",
+            "memory-retrieval"
+          ],
+          "DNSNames": [
+            "phase1-memory",
+            "memory-retrieval",
+            "869205e8c8cf"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "8007/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8007"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:33.085165007Z",
+      "state": "exited"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "mounts": [
+        {
+          "Destination": "/repo",
+          "Mode": "ro",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/Users/baitus/Downloads/crypto-bot-pro",
+          "Type": "bind"
+        }
+      ],
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-orchestrator",
+            "orchestrator"
+          ],
+          "DNSNames": [
+            "phase1-orchestrator",
+            "orchestrator",
+            "bfaed7d1d651"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "ports": {
+        "8002/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8002"
+          }
+        ]
+      },
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:33.269989257Z",
+      "state": "exited"
+    }
+  ],
+  "build_requests": 2,
+  "built": {
+    "id": "sha256:9ce96d0b388a6ba1f9375fe31209c56dd5d22d27ea4cf5dd86487ba081341aa7",
+    "layers": [
+      "sha256:258ba1f62b513e7bb7492d3cc8ce445e4ef176a14980f193f789b6d7270ae61c",
+      "sha256:e608bc52e64389b35f8ddd810bd219299785ba45a063ee9571fa75cf7fd106ad",
+      "sha256:d378fb5ec83eb7b6fe50bb189f5d1933741713980ee9a81a999429c117e03832",
+      "sha256:e497a1edfdd33c45a8881175e57e55f9f520cfb306d7cbf8ae18243633edde86",
+      "sha256:272b9a970ca89e0dfb752867b88369044162a92305fd46fd92a784e231c285d1",
+      "sha256:9a025319ab0b373efc79379f650066014c94c74450efd43806fed48970624420",
+      "sha256:8eb1a55323aeeb662c07c25b3a3d374a951d4cd1e82f7e29f9fb66c3becb1c68",
+      "sha256:b0dc43d9deb6ebd1360a3abcd6d4701df20d0a666610c31f3271a53845619531",
+      "sha256:6811ced611dc425ad8b6769261179f47727743427e6e0f05a2726073f71eb456"
+    ],
+    "onbuild": null
+  },
+  "cli_sha256": "31ae2d64e51d9dfc728a2934941615cdd92f31279ed6d5c1fb2bfc0a44637a8f",
+  "commands": [
+    [
+      "version",
+      "--format",
+      "{\"version\":{{json .Server.Version}},\"commit\":{{json .Server.GitCommit}}}"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"started\":{{json .State.StartedAt}},\"restarts\":{{json .RestartCount}},\"restart_policy\":{{json .HostConfig.RestartPolicy.Name}},\"mounts\":{{json .Mounts}},\"networks\":{{json .NetworkSettings.Networks}},\"ports\":{{json .HostConfig.PortBindings}}}",
+      "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    ],
+    [
+      "image",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"layers\":{{json .RootFS.Layers}},\"onbuild\":{{json (index .Config \"OnBuild\")}}}",
+      "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad"
+    ],
+    [
+      "image",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "sha256:82f93c26710b05c544c902cf731e49808a3cd674105dd7a7fb446f59eb7e36c9"
+    ],
+    [
+      "build",
+      "--quiet",
+      "--pull=false",
+      "--network=none",
+      "-"
+    ],
+    [
+      "image",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"layers\":{{json .RootFS.Layers}},\"onbuild\":{{json (index .Config \"OnBuild\")}}}",
+      "sha256:9ce96d0b388a6ba1f9375fe31209c56dd5d22d27ea4cf5dd86487ba081341aa7"
+    ],
+    [
+      "build",
+      "--quiet",
+      "--pull=false",
+      "--network=none",
+      "-"
+    ],
+    [
+      "container",
+      "inspect",
+      "--format",
+      "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"state\":{{json .State.Status}},\"started\":{{json .State.StartedAt}},\"restarts\":{{json .RestartCount}},\"restart_policy\":{{json .HostConfig.RestartPolicy.Name}},\"mounts\":{{json .Mounts}},\"networks\":{{json .NetworkSettings.Networks}},\"ports\":{{json .HostConfig.PortBindings}}}",
+      "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    ]
+  ],
+  "engine": {
+    "commit": "8af9fe3",
+    "version": "29.8.2"
+  },
+  "missing_context_sha256": "ce780c9861f0c1fd29d0eb40d9505fad61ff411bd9b6f48d7d0bd68d63f12e75",
+  "missing_parent": "sha256:82f93c26710b05c544c902cf731e49808a3cd674105dd7a7fb446f59eb7e36c9",
+  "negative_parser_refusal": true,
+  "negative_returncode": 1,
+  "network_trace_collected": false,
+  "observed_utc": "2026-10-18T03:40:51.698296+00:00",
+  "originals_unchanged": true,
+  "parent": {
+    "id": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+    "layers": [
+      "sha256:258ba1f62b513e7bb7492d3cc8ce445e4ef176a14980f193f789b6d7270ae61c",
+      "sha256:e608bc52e64389b35f8ddd810bd219299785ba45a063ee9571fa75cf7fd106ad",
+      "sha256:d378fb5ec83eb7b6fe50bb189f5d1933741713980ee9a81a999429c117e03832",
+      "sha256:e497a1edfdd33c45a8881175e57e55f9f520cfb306d7cbf8ae18243633edde86",
+      "sha256:272b9a970ca89e0dfb752867b88369044162a92305fd46fd92a784e231c285d1",
+      "sha256:9a025319ab0b373efc79379f650066014c94c74450efd43806fed48970624420",
+      "sha256:8eb1a55323aeeb662c07c25b3a3d374a951d4cd1e82f7e29f9fb66c3becb1c68",
+      "sha256:b0dc43d9deb6ebd1360a3abcd6d4701df20d0a666610c31f3271a53845619531"
+    ],
+    "onbuild": null
+  },
+  "present_context_sha256": "fffb3182e330ee1f38cd9642131ad911d3552e25aa07057075b871cc21ef7ad0",
+  "runner_sha256": "dc42b137346f70c763fa17db2ee0797c49dffa8347a568b72ee4f360dfdd3fa9",
+  "runtime_state": "INCOMPLETE",
+  "scope": "One present-parent and one missing-parent build; image/cache only",
+  "source_sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

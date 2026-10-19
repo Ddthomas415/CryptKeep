@@ -1,0 +1,133 @@
+{
+  "schema": "bounded-recovery-copy-root-entry-review-v1",
+  "reviewed_at_utc": "2026-10-18T19:10:26Z",
+  "active_role": "GATE",
+  "risk_level": "HIGH",
+  "objective": "Independently review the bounded root-entry correction and a fresh exclusive _r2 destination within the existing user-authorized recovery objective, without inspecting or running actual recovery outputs.",
+  "acceptance_state": "REJECTED",
+  "scoped_disposition": {
+    "root_entry_crash_addressed": true,
+    "root_metadata_exception_accepted": false,
+    "preflight_passed": false,
+    "fresh_sibling_destination_design_acceptable": true,
+    "fresh_copy_may_proceed_at_these_hashes": false,
+    "actual_copy_run_by_reviewer": false,
+    "reason": "The dot-path crash is addressed and 33 synthetic cases pass, but the new ZIP root-entry continue precedes symlink/encryption refusal and payload inspection. ZipInfo.is_dir() recognizes a trailing slash, not the stored file type. The exception is therefore broader than genuine payload-free directory metadata.",
+    "authorization_limit": "The ongoing user recovery objective and proposed fresh sibling are acknowledged, not replaced by new scope. This review withholds clearance for the current correction; it grants no publication, Git mutation, deletion, cleanup, runtime or account authority."
+  },
+  "hash_bindings": {
+    "algorithm": "sha256",
+    "evidence_class": "SHOWN",
+    "method": "shasum -a 256; source and test hashes match the operator-supplied frozen values; scanner and scanner-test hashes match the earlier review.",
+    "files": {
+      "scripts/research/build_recovery_copy.py": "ca410362768aa094c1de85b72a163793605e06f207a6b7ab12dc0cd4c8632bf6",
+      "tests/test_build_recovery_copy.py": "083bec9f3d28ea7ba74c9da7e4c62e1cdf69ca283bac0a20648b290ccbec7eac",
+      "services/audit/backup_artifact_secret_scan.py": "d87d3042307170ac43a29ff706032423fb2e9cf1c32bafcb9528e6c16af35e9f",
+      "tests/test_backup_artifact_secret_scan.py": "dfd0471e4ccf612122d1b73a500b255d1cf2d497ae262c2fbd89521f3be6c7f3",
+      "docs/checkpoints/screened_recovery_root_entry_20261018.md": "4ad8d594ffa557e17a4f599a9e98a62e4b019cbe59ffca763e9a89ee4d81b330"
+    },
+    "limit": "Direct reviewed artifact bindings, not interpreter/import closure or eventual real-inventory/content hashes."
+  },
+  "reported_first_copy_outcome": {
+    "evidence_class": "CLAIMED",
+    "source": "Operator message and docs/checkpoints/screened_recovery_root_entry_20261018.md:3-15; no external output or real inventory was inspected by this reviewer.",
+    "reported_exit_code": 1,
+    "reported_failure": "IndexError in denied() from indexing the empty PurePosixPath.parts tuple for a TAR dot/root entry.",
+    "reported_partial_file_count": 820,
+    "reported_missing_success_outputs": ["recovery.tar.gz", "restored/", "refreshed_checkpoint.csv", "backup_manifest.json"],
+    "reported_acceptance_state": "INCOMPLETE",
+    "preserved_partial_output": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z",
+    "reported_no_original_git_or_runtime_change": true,
+    "reviewer_limit": "Partial contents, count, preservation and absence of original/Git/runtime changes were not independently verified. The reviewer did not read, overwrite, delete or otherwise operate on this output. No successful recovery is claimed."
+  },
+  "findings": [
+    {
+      "id": "RC-03",
+      "priority": "P1",
+      "blocking": true,
+      "evidence_class": "SHOWN",
+      "title": "ZIP root-entry skip bypasses type/security refusal and payload inspection",
+      "file": "scripts/research/build_recovery_copy.py",
+      "lines": [119, 120, 121, 123, 126, 127],
+      "evidence": "The branch continues for m.is_dir() and m.filename in ('.', './') before the flag_bits encryption check, external_attr symlink check, or archive.read(). Inspection of the running interpreter's zipfile.ZipInfo.is_dir implementation shows that a filename ending in '/' returns True independently of external_attr and file_size. Thus a './' member carrying symlink mode bits reaches the continue instead of archive_member_refused, and a './' entry with nonzero payload is not recursively screened.",
+      "impact": "The new metadata exception weakens the existing ZIP link-refusal boundary and does not establish the stated all-payloads-checked condition. This concerns acceptance of nested archive contents in the copied outer file, not extraction of a ZIP link during restore.",
+      "proof_level": "Confirmed by helper control-flow and local standard-library source inspection. No additional malicious-ZIP probe was executed; the single requested 33-case gate does not cover this case.",
+      "actual_exposure": "UNVERIFIED: no real archive or private configuration was inspected; no actual symlink-bearing or payload-bearing ZIP root entry is asserted.",
+      "minimum_required_change": "Apply link/encryption/type refusal before the ZIP root-entry exception and skip only demonstrably safe payload-free directory metadata. Reject payload-bearing root entries rather than ignoring their bytes. Keep the corresponding TAR exception limited to conventional payload-free directory metadata, preserve member limits and continue checking subsequent members. No scanner framework expansion is required.",
+      "proof_required": "Add focused synthetic regressions for a ZIP './' entry with symlink external_attr and a payload-bearing './' entry, plus a safe ZIP root-directory/public-member control. Retain existing root-directory followed by .env, regular-root-file refusal, TAR root controls and prior scope/restore gates. Confirm refusal is a fixed exclusion reason, not a crash."
+    }
+  ],
+  "shown_correction_evidence": [
+    {
+      "evidence_class": "SHOWN",
+      "claim": "safe_rel() now rejects empty normalized parts, preventing denied() from indexing an empty tuple for dot-only input.",
+      "references": ["scripts/research/build_recovery_copy.py:69-81", "tests/test_build_recovery_copy.py:203-211"]
+    },
+    {
+      "evidence_class": "SHOWN",
+      "claim": "TAR root directory entries '.' and './' can precede safe public data without crashing, and a subsequent .env is still refused. Regular TAR root files are refused instead of skipped.",
+      "references": ["scripts/research/build_recovery_copy.py:132-151", "tests/test_build_recovery_copy.py:188-211"],
+      "limit": "The new tests exercise ordinary zero-size directory metadata, not payload-bearing or deceptive ZIP directory attributes."
+    },
+    {
+      "evidence_class": "SHOWN",
+      "claim": "A ZIP './' directory followed by .env remains refused in the new regression.",
+      "references": ["tests/test_build_recovery_copy.py:214-219"],
+      "limit": "This does not test security attributes or content on the root entry itself; see RC-03."
+    },
+    {
+      "evidence_class": "SHOWN",
+      "claim": "Finite companion/database scope checks, content-based archive detection, no-follow source reads, exclusive destination creation, hash-verified restore and final-manifest-after-CSV ordering remain present. Their retained synthetic cases pass.",
+      "references": ["scripts/research/build_recovery_copy.py:28-98", "scripts/research/build_recovery_copy.py:164-298", "tests/test_build_recovery_copy.py:24-185"],
+      "limit": "This does not reopen RC-01/02 or turn local synthetic proof into actual recovery proof."
+    }
+  ],
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV",
+    "cwd": "/Users/baitus/Downloads/crypto-bot-pro",
+    "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_build_recovery_copy.py tests/test_backup_artifact_secret_scan.py",
+    "invocation_count": 1,
+    "exit_code": 0,
+    "result": "33 passed in 0.36s",
+    "additional_synthetic_probes_run": false,
+    "stdlib_inspection": {
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -c 'import inspect,zipfile; print(inspect.getsource(zipfile.ZipInfo.is_dir))'",
+      "exit_code": 0,
+      "observed_implementation": "if self.filename.endswith('/'): return True; otherwise optional alternative-separator check, then False. No external_attr or file_size validation."
+    },
+    "limit": "Synthetic gate and code inspection only. No real inventory, actual copy, destination inspection, private-file access or broad tests were performed."
+  },
+  "fresh_destination_review": {
+    "proposed_output": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z_r2",
+    "must_preserve_untouched": "/Users/baitus/Documents/cryptkeep_data_archive/screened_recovery_20261018T190049Z",
+    "evidence_class": "SHOWN",
+    "design_assessment": "The proposed sibling is lexically distinct and outside the source repository. build() still requires a canonical existing parent and exclusive output.mkdir(), so an existing _r2 must fail rather than be overwritten.",
+    "source_reference": "scripts/research/build_recovery_copy.py:223-227",
+    "actual_destination_environment": "UNKNOWN_ENV",
+    "actual_destination_limit": "Neither real output nor the external parent was inspected. Existence, permissions and available storage are unverified. Normal filesystem approval and helper checks remain required after a passing re-review.",
+    "may_run_at_current_hashes": false,
+    "no_blind_retry": true
+  },
+  "remaining_risks": [
+    "RC-03 blocks execution clearance at these hashes despite the green 33-case gate.",
+    "The reported first attempt is an incomplete partial copy, not a verified checkpoint; old preflight acceptance is not actual-copy success proof.",
+    "Heuristic screening and path exclusions do not provide universal secret clearance or permission to publish.",
+    "Selected-file hash restoration is not a globally atomic snapshot, full Git-history/environment/service recovery, offsite backup or durability proof.",
+    "Any subsequent failure must preserve partial output without deletion, overwrite or automatic retry; acceptance of an actual result requires zero exit status, complete parseable receipts and saved verification evidence."
+  ],
+  "review_actions": {
+    "source_or_tests_edited": false,
+    "real_inventory_or_copy_run": false,
+    "external_recovery_outputs_inspected_or_modified": false,
+    "private_configuration_read": false,
+    "git_mutation_deletion_or_runtime_actions_run": false,
+    "sole_persistent_review_write": "docs/review_artifacts/recovery_copy_20261018/root_entry_review.json",
+    "work_log_note": "No separate work-log edit under the operator's write-only-new-artifact restriction. This artifact preserves the handoff minimum."
+  },
+  "proof_required_next": [
+    "Parent applies only the bounded safe-root-metadata correction and focused regressions, supplies frozen updated hashes and obtains independent re-review before running a copy.",
+    "After passing review and normal filesystem approval, continue the existing authorized objective only into the fresh exclusive _r2 sibling, leaving the original partial output untouched.",
+    "Forward the saved invocation outcome and verification receipts for bounded review; no actual recovery success, broader clearance, publication or operational authority follows from this artifact."
+  ],
+  "handoff": "GATE: dot-root crash addressed, but root metadata exception remains too broad for ZIP security attributes/payload. REJECTED at the bound hashes. Fresh _r2 design is acceptable in principle, not cleared to run yet. Available for bounded corrected-hash and subsequent saved-outcome review."
+}

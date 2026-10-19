@@ -1,0 +1,25 @@
+{
+  "kind": "OPERATOR_AUTHORIZED_RESEARCH_ACTIVATION_RECORD",
+  "experiment_id": "coinbase_confirmation_usd_v1",
+  "recorded_at_utc": "2026-10-10T00:47:10Z",
+  "authorization": "User said carry on after the explicit research-only activation recommendation",
+  "status": "RESEARCH_ONLY_ACTIVATED",
+  "registered_evaluation_start_utc": "2026-10-10T00:00:00Z",
+  "activation_timing": "after_verified_completed_warmup_before_evaluation_scoring",
+  "plan_sha256": "11fd2a75844081549dcd8aba45cbddff706383a464282a8a560a1bd8a793ce94",
+  "registration_sha256": "b979c626f1cdad97798241214ff338a2ced308edd4c2212993deac69aafadb7a",
+  "warmup_manifest_sha256": "3a2ba0a2414f4211cdd0b2f957cfcec9501272bfd2e0b01642b72b8e25a6ef19",
+  "readiness_review": "docs/research/confirmation_activation_readiness_review_20261010.md",
+  "collection_mode": "bounded_foreground_public_data_only_no_new_background_collector",
+  "evaluation_scoring_performed": false,
+  "execution_authority": false,
+  "promotion_authority": false,
+  "campaign_changes": false,
+  "scheduler_changes": false,
+  "limitations": [
+    "record_is_not_runner_enforced_activation",
+    "record_does_not_start_or_prove_ongoing_collection",
+    "registered_plan_preserved_with_original_draft_status",
+    "no_profitability_or_execution_validation_claim"
+  ]
+}

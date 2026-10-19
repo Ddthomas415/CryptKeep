@@ -1,0 +1,25 @@
+{
+  "kind": "USER_REPORTED_MANUAL_PURCHASE_TEST",
+  "reported_date_local": "2026-10-12",
+  "timezone": "America/New_York",
+  "evidence_status": "CLAIMED_BY_USER_CONFIRMED",
+  "allocations": [
+    {"asset": "GTC", "name": "Gitcoin", "reported_purchase_usd": 100},
+    {"asset": "RSR", "name": "Reserve Rights", "reported_purchase_usd": 100}
+  ],
+  "reported_total_purchase_usd": 200,
+  "venue": "UNVERIFIED",
+  "fee_inclusion": "UNVERIFIED",
+  "purchase_times": "UNVERIFIED",
+  "executed_quantities": "UNVERIFIED",
+  "entry_prices": "UNVERIFIED",
+  "actual_fills_verified": false,
+  "realized_pnl": null,
+  "automated_execution_authority": false,
+  "accounting_mutation": false,
+  "limitations": [
+    "Existing GTC balance is not assumed to be this new test purchase.",
+    "Rolling 24-hour market gains are not the user's investment return.",
+    "No stop, target, holding period or further purchase is inferred."
+  ]
+}

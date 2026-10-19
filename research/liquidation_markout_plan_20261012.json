@@ -1,0 +1,37 @@
+{
+  "registered_utc": "2026-10-13T02:28:07.030681+00:00",
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "source_sha256": "42e26d4ebac939285a5b6339a6aacfaed26df45c6a9c299f4c5a2ba6aaa07b98",
+  "inputs": {
+    "research/liquidation_data_probe_raw_20261012.json": "32c7fd8f5b64826d4d8f6d3283d6800901518a4aa4f175311b7427a90a258efa",
+    "research/liquidation_data_probe_plan_20261012.json": "dcef4481bf0de8334dc99a0cdf1d8ce91661fd287c092eed79561885bf242301"
+  },
+  "cutoff_ms": 1791857460000,
+  "assets": [
+    "BTC",
+    "ETH"
+  ],
+  "primary_minutes": 5,
+  "horizons_minutes": [
+    1,
+    5,
+    15
+  ],
+  "reference_quote": 1000.0,
+  "assumed_fee_per_side": 0.005,
+  "assumed_adverse_price_per_side": 0.0025,
+  "cost_reference": "high-cost hypothetical sensitivity only, NOT verified OKX fees or an executable strategy; also report mathematical fee budget without adverse price adjustment",
+  "event": "one observation per asset per UTC minute containing at least one recorded long/sell liquidation; no size threshold or inferred end of selling",
+  "markout": "first next-minute candle open to last completed candle close at fixed horizon, requiring every intervening completed minute; not a fill model",
+  "baseline": "all minute anchors from oldest sampled liquidation minute + 1 through newest sampled liquidation minute + 1, matured per horizon; includes event minutes, not a randomized or no-liquidation control",
+  "dependence": "report serial overlap and BTC/ETH co-occurrence; separately retain earliest event then only events at least 15 minutes apart per asset, no outcome-dependent selection",
+  "limits": [
+    "two_hour_sample_previously_observed_not_holdout",
+    "no_independence_or_significance_claim",
+    "historical_publication_latency_unknown_not_actionable_signal",
+    "partial_liquidation_feed_and_page_truncation",
+    "no_account_portfolio_or_capacity_model",
+    "fees_not_verified_for_OKX",
+    "cash_interest_infrastructure_excluded"
+  ]
+}

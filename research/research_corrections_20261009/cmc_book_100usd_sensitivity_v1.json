@@ -1,0 +1,44 @@
+{
+  "artifact_type": "displayed_entry_capacity_sensitivity",
+  "source_sha256": "fe637df01dfb74301898db1cc0b0344af7ccbaa0c339ebfcbe82479c0fa20a57",
+  "quote_notional_excluding_fees": "100",
+  "scoring_authorized": false,
+  "products": {
+    "BTC-USD": {
+      "status": "STRUCTURALLY_VALID",
+      "product_id": "BTC-USD",
+      "bid": "82492.62",
+      "ask": "82492.63",
+      "bid_base_size": "0.26061193",
+      "ask_base_size": "0.00766287",
+      "capture_seconds": 0.085057,
+      "displayed_size_covers_buy": true,
+      "displayed_size_covers_sell": true,
+      "response_hash_status": "RECORDED_NOT_RECOMPUTED",
+      "freshness": "UNVERIFIED",
+      "execution": "NOT_FILL_PROOF",
+      "scoring_authorized": false,
+      "quote_notional_excluding_fees": "100",
+      "hypothetical_base_quantity": "0.001212229504623625165060199923",
+      "scope": "entry_snapshot_only_not_round_trip_or_fill"
+    },
+    "ETH-USD": {
+      "status": "STRUCTURALLY_VALID",
+      "product_id": "ETH-USD",
+      "bid": "2490.85",
+      "ask": "2490.86",
+      "bid_base_size": "4.00159567",
+      "ask_base_size": "1",
+      "capture_seconds": 0.067362,
+      "displayed_size_covers_buy": true,
+      "displayed_size_covers_sell": true,
+      "response_hash_status": "RECORDED_NOT_RECOMPUTED",
+      "freshness": "UNVERIFIED",
+      "execution": "NOT_FILL_PROOF",
+      "scoring_authorized": false,
+      "quote_notional_excluding_fees": "100",
+      "hypothetical_base_quantity": "0.04014677661530555711681909060",
+      "scope": "entry_snapshot_only_not_round_trip_or_fill"
+    }
+  }
+}

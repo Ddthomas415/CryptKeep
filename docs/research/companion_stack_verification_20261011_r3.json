@@ -1,0 +1,31 @@
+{
+  "project": "cbp-proof-e2f525e51f99",
+  "status": "PASSED_LOCAL_STACK_CHECKS",
+  "existing_state_used": false,
+  "trading_enabled": false,
+  "checks": {
+    "storage_health": {
+      "service": "memory-retrieval",
+      "ok": true,
+      "db": true,
+      "qdrant": true,
+      "minio": true
+    },
+    "source": {
+      "url": "https://bitcoin.org/en/faq",
+      "content_hash": "a2abe8de6b956ab7a9a5dbb884106ab3f9020763c2c6994c7bb17bf817b6d6e6",
+      "document_id": 1,
+      "duplicate_retry": true,
+      "publication_date": null,
+      "asset_hint": "operator-specified BTC"
+    },
+    "retrieved_after_service_restart": true,
+    "explanation": {
+      "source_cited": true,
+      "unauthorized_denied": true,
+      "provider": "fallback",
+      "chat_response_present": true
+    }
+  },
+  "cleanup": "OWNED_STACK_REMOVED"
+}

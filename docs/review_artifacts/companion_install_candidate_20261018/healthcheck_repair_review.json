@@ -1,0 +1,98 @@
+{
+  "schema": "companion-healthcheck-repair-review-v1",
+  "reviewed_at_utc": "2026-10-18T13:48:44Z",
+  "reviewer": "Codex independent supplemental review; not the source/test implementer",
+  "active_role": "GATE",
+  "prior_stage_role": "AUDITOR",
+  "objective": "Review only the optional Healthcheck inventory-template source repair and its three new regression cases",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "decision_scope": "Exact source repair only; supplements but does not rewrite or expand the preserved plan review",
+  "operational_objective_state": "INCOMPLETE",
+  "installation_authorized": false,
+  "startup_authorized": false,
+  "environment_confidence": "VERIFIED_ENV for isolated local hashing, in-memory reconstruction, saved-evidence checks and three synthetic tests only",
+  "material_assumptions": [],
+  "findings_ordered_by_severity": [],
+  "bindings": {
+    "backend": {
+      "path": "scripts/research/companion_install_docker.py",
+      "sha256": "f0635e39eff1cacdba81f8c5837f505a62b2d04e932a63940e548b836b4f1ff8",
+      "reconstructed_prior_sha256": "8912c438204c87b15c081b72ccfbe016a8150b17abc9867ec1b253585a4ee22d"
+    },
+    "tests": {
+      "path": "tests/test_companion_installer.py",
+      "sha256": "14832b6825bf69cd487bc78b4b00f93ab6bdb6ba25dc6c380311506f7d574938",
+      "reconstructed_prior_sha256": "aab319308245b8779d219fbc64147bf717c7d7e07c2504bd4540f60912555c7f"
+    },
+    "preserved_plan_review": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/plan_review.json",
+      "sha256": "96a834faee2c8db36d3a4470ebf7725120c5a3900fb09972409bbb37c3cd61f3"
+    },
+    "preserved_manifest": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/reviewed_stopped_plan.json",
+      "sha256": "a513c458419f01517fec5e771e5be967f85b43391de663dc55c0bcdfb8ac4af4"
+    },
+    "failure_receipt": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/installation_receipt_20261018.jsonl",
+      "sha256": "87a69ba8bfcbfae057f388b6e52c4c415f80b59428a6669b23661394b8f66c97"
+    },
+    "post_attempt_capture": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/post_attempt_capture/observation.json",
+      "sha256": "ce0547bc4e8e37abd11564eb53c143a5c36b5760cb43b68a9986bdaf07a3d5f0",
+      "observed_utc": "2026-10-18T13:45:23.821566+00:00"
+    },
+    "repair_checkpoint": {
+      "path": "docs/checkpoints/companion_install_healthcheck_repair_20261018.md",
+      "sha256": "198e18328cb8a4fe6fe9c45e8088b09a2824bba1686a8d545a99e32e2c629851"
+    }
+  },
+  "shown": [
+    "Current backend and test bytes match the requested exact SHA256 values",
+    "Removing the added comment and reversing only the Healthcheck replacement reconstructs the backend hash bound by the preserved plan review",
+    "Removing only the contiguous 33-line new test block reconstructs the installer-test hash bound by the preserved plan review; the block contains one exact-template case and two parametrized fingerprint cases",
+    "The only executable source delta replaces .Config.Healthcheck with (index .Config \"Healthcheck\") in installation inventory FORMAT; the existing attempt-label projection remains unchanged",
+    "Installer, runtime adapter, environment transport, Docker transport and remaining local helper hashes still match their preserved plan-review bindings",
+    "Healthcheck remains included in preservation digests; the new null/present synthetic cases detect changed healthcheck content without executing Docker",
+    "The preserved receipt contains exactly installation_reserved and installation_failed, with no rename/detach/create phase; its reservation explicitly forbids startup",
+    "All seven saved post-attempt snapshots exactly equal the preserved manifest baseline; both observation payloads agree, and metadata/foundation fingerprints and network identities independently recompute to the baseline",
+    "The saved post-attempt capture contains null healthchecks for qdrant/minio and present healthchecks for the other five originals; all seven are exited with zero restarts and restart policy no",
+    "The post-attempt source-manifest hash matches its recorded binding"
+  ],
+  "recorded_parent_evidence": {
+    "classification": "SHOWN as statements recorded in the bound checkpoint; execution not independently repeated in this review",
+    "native_probe": "Checkpoint records exact old-template failure metadata_template_error:.config.healthcheck and seven matching metadata fingerprints with the proposed fixed template",
+    "regression_slice": "Checkpoint records 227 passed in 1.44s for installer/install_env/docker_transport; not rerun here",
+    "failed_attempt": "Checkpoint records one authorized stopped-install invocation returning failure before container mutation phases; no retry authorization is inferred"
+  },
+  "independent_verification": {
+    "classification": "SHOWN",
+    "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_companion_installer.py::test_inventory_format_handles_absent_healthcheck_without_relaxing_fields tests/test_companion_installer.py::test_inventory_keeps_null_and_present_healthchecks_fingerprinted",
+    "result": "3 passed in 0.22s",
+    "exit_code": 0,
+    "scope": "Synthetic command interception and exact-template assertions, not Go-template execution or daemon integration"
+  },
+  "unverified_and_residual_risks": [
+    "No live Docker state or native template probe was independently observed here; saved captures establish recorded selected-field consistency, not current host state or storage-content integrity",
+    "The generic failure receipt does not identify the exception or enumerate build/prepare commands; absence of container mutation phases is not a complete command-history proof",
+    "Synthetic tests do not execute Docker's template engine; native missing-key behavior and seven-row fixed-template output rely on the recorded parent diagnostic",
+    "No actual repaired installation, private-configuration transfer, replacement creation, startup, runtime behavior or full-environment proof is established",
+    "Prior plan-review limitations remain unchanged, including SDK/storage startup compatibility and runtime source-import enforcement",
+    "Local hashes bind bytes and internal consistency, not independent authenticity of recorded observations"
+  ],
+  "proof_required_next": [
+    "Any further installation attempt requires separate explicit operational permission and fresh bounded precondition checks; this supplement does not reset the consumed one-attempt authorization",
+    "Any separately authorized operation must preserve its receipt and stopped-state postconditions; startup requires separate proof and explicit permission"
+  ],
+  "review_actions": {
+    "docker_commands": false,
+    "private_config_access": false,
+    "installation": false,
+    "startup": false,
+    "broad_suite": false,
+    "reviewed_source_or_test_changes": false,
+    "old_plan_artifact_changes": false,
+    "new_test_cases_run": 3
+  },
+  "handoff": "Only this supplemental review artifact is emitted; parent owns the work-log entry and any request for next operational permission"
+}

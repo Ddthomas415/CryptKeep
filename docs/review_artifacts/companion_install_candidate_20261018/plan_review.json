@@ -1,0 +1,225 @@
+{
+  "active_role": "GATE",
+  "bindings": {
+    "baseline": {
+      "path": "docs/review_artifacts/companion_compatibility_20261016.json",
+      "sha256": "85d226fc1e347ecd4187877f6c60a51f53fb75428f89f00d82854dbc5e764d69"
+    },
+    "candidate": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/plan_candidate_v2.json",
+      "sha256": "f30a6a9831b8c306ecc8e44adfc9edc976800057e4332a15ea7f2f6ee824e281"
+    },
+    "capture": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/capture/observation.json",
+      "sha256": "5207ca9c190e23f639cec5359508d56aed7ec237b1e8c0571d5748f0401f11ec"
+    },
+    "compose_template": {
+      "path": "phase1_research_copilot/docker-compose.yml",
+      "sha256": "bd61e7fd7cd755594d6e56bcdca2e91ef3201074bf33e9851ba399e06aa3e4d5"
+    },
+    "installer": {
+      "path": "scripts/research/companion_installer.py",
+      "sha256": "c2cb24ff29412cfb1f985100ef454a131ff1245c86504f9108c242353de85eb2"
+    },
+    "installer_tests": {
+      "path": "tests/test_companion_installer.py",
+      "sha256": "aab319308245b8779d219fbc64147bf717c7d7e07c2504bd4540f60912555c7f"
+    },
+    "local_review_helpers": [
+      {
+        "path": "scripts/research/prepare_companion_stopped_recipe.py",
+        "sha256": "e332b66c40c3647c039a57abd4b2a8db7a05e1ced1d02ab6d35be5f049735257"
+      },
+      {
+        "path": "scripts/research/collect_companion_recreation_metadata.py",
+        "sha256": "3e81a24397eefc770a4cfda9da7a9f74467dbde33321f542286c3431869f7a46"
+      },
+      {
+        "path": "scripts/research/companion_runtime_adapter.py",
+        "sha256": "83645cc36a345fcd55d1d2bd79dca982141e009456209a031c6e8513f9f03e9c"
+      },
+      {
+        "path": "scripts/research/companion_existing_controller.py",
+        "sha256": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3"
+      },
+      {
+        "path": "scripts/research/companion_install_docker.py",
+        "sha256": "8912c438204c87b15c081b72ccfbe016a8150b17abc9867ec1b253585a4ee22d"
+      },
+      {
+        "path": "scripts/research/companion_install_env.py",
+        "sha256": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b"
+      },
+      {
+        "path": "scripts/research/companion_docker_transport.py",
+        "sha256": "52b5fa4d830a51694ba88d7b27712cf3dab7e3dd5f95e0a8bfb05e8a66acb0cc"
+      }
+    ],
+    "native_cli": {
+      "path": "/Applications/Docker.app/Contents/Resources/bin/docker",
+      "sha256": "31ae2d64e51d9dfc728a2934941615cdd92f31279ed6d5c1fb2bfc0a44637a8f"
+    },
+    "previous_candidate": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/plan_candidate.json",
+      "sha256": "3ce6fd12cd29ba3a47b774f03b5c2e4e1a916d79b9a7f6bd7bbdedffdd5a3141"
+    },
+    "recipe": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/recipe.json",
+      "sha256": "e1099173c1c4c3f190dd3875e60df6b0670d1feb4abf5a6fb15d67f980a50479"
+    },
+    "recorded_independent_dispositions": {
+      "path": "docs/checkpoints/companion_install_candidate_20261018.md",
+      "sha256": "83649155da543557240801587efdd8a4d0a1efeaea0968145154baea1cb25d96"
+    },
+    "reviewed_plan": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/reviewed_stopped_plan.json",
+      "sha256": "a513c458419f01517fec5e771e5be967f85b43391de663dc55c0bcdfb8ac4af4"
+    },
+    "source_archives": [
+      {
+        "path": "docs/review_artifacts/companion_import_inventory_20261018/source_bundle/phase1-audit-log-sources.tar",
+        "sha256": "eef1631d2fdc7941ebc3b4faadf7f88b764659c850e129322a777ff30a6a2a9e"
+      },
+      {
+        "path": "docs/review_artifacts/companion_import_inventory_20261018/source_bundle/phase1-risk-stub-sources.tar",
+        "sha256": "8dba6e77bd72e29e129adf7a3e772f9fd487647cd064664a71585a59d5723dbd"
+      },
+      {
+        "path": "docs/review_artifacts/companion_import_inventory_20261018/source_bundle/phase1-memory-sources.tar",
+        "sha256": "c444a776be6a3851b1c4a4682d00da70c7a001dc08c9d5a61ddced79d90ff256"
+      },
+      {
+        "path": "docs/review_artifacts/companion_import_inventory_20261018/source_bundle/phase1-orchestrator-sources.tar",
+        "sha256": "e12549f244e065d19ff95e418685a28b96e46450a99f1d99924168f0a3fa943e"
+      }
+    ],
+    "source_manifest": {
+      "path": "docs/review_artifacts/companion_import_inventory_20261018/source_bundle/manifest.json",
+      "sha256": "973da853c3c2aabdce982c677b5b6ab9c6d7cbab5061ec27ab28197b07b3c875"
+    }
+  },
+  "decision": "ACCEPTED_WITH_RISK",
+  "environment_confidence": "VERIFIED_ENV for isolated local artifact hashing, archive inspection, JSON projection and inert Plan.load only",
+  "handoff": "Parent owns checkpoint/work-log updates; only the two review artifacts are emitted by this independent GATE",
+  "installation_authorized": false,
+  "objective": "Independent final manifest review of exact current-source stopped-install candidate only",
+  "operational_objective_state": "INCOMPLETE",
+  "policy_dispositions": {
+    "builder_local_only": {
+      "basis": "Recorded separate AUDITOR stopped-install policy disposition in checkpoint lines 80-86; hard registry isolation and zero egress are not certified",
+      "decision": "ACCEPTED_WITH_RISK",
+      "value": true
+    },
+    "env_stdin_lossless": {
+      "basis": "Recorded separate AUDITOR disposition in checkpoint lines 80-86; covered native CLI fixtures, not actual private-value transfer or full daemon-side environment equality",
+      "decision": "ACCEPTED_WITH_RISK",
+      "value": true
+    },
+    "image_provenance": {
+      "basis": "Recorded separate AUDITOR disposition in checkpoint lines 80-86; derivative-image and replacement checks remain installation postconditions",
+      "decision": "ACCEPTED_WITH_RISK",
+      "value": true
+    },
+    "recreation_complete": {
+      "basis": "Recorded separate AUDITOR disposition in checkpoint lines 80-86; recipe projection verified here, actual reconstruction and child-side label equality remain postconditions",
+      "decision": "ACCEPTED_WITH_RISK",
+      "value": true
+    },
+    "sdk_startup_compatible": {
+      "basis": "Explicitly deferred startup/lifespan/storage proof; checkpoint lines 88-102 and 116-120",
+      "decision": "INCOMPLETE",
+      "value": false
+    },
+    "source_imports_frozen": {
+      "basis": "Explicitly deferred ordinary mutable-host /repo import enforcement; archived bytes do not establish runtime import isolation",
+      "decision": "INCOMPLETE",
+      "value": false
+    }
+  },
+  "prior_test_evidence": {
+    "checkpoint_lines": "109-119",
+    "classification": "SHOWN as recorded prior evidence, not independently rerun in this final manifest review",
+    "parent_result": "188 passed in 1.67s, mocked/local fixtures",
+    "pytest_run_this_review": false,
+    "separate_reviewer_result": "188 passed in 1.36s plus fixture-only matrix"
+  },
+  "proof_required_next": [
+    "Separate explicit scoped installation authorization before any operation",
+    "Installer live precondition checks and recorded stopped replacement/image/source/private-preservation postconditions while retaining originals and leaving all storage untouched",
+    "Separate independent startup-policy proof and explicit startup approval before startup or runtime queries"
+  ],
+  "residual_limitations": [
+    "Saved capture is dated 2026-10-18T09:39:23.970123+00:00, not a fresh live-host observation in this review; drift must fail closed during any separately authorized operation",
+    "Replacement preservation fingerprints are MODELLED, not observed image/container installation evidence",
+    "No actual build, replacement creation, label/private-environment transfer, effective credential validation or full daemon-side environment preservation proof",
+    "No complete SDK/lifespan/storage startup proof, ordinary /repo runtime import enforcement, genuine query or full-system readiness proof",
+    "No hard registry isolation or zero-egress proof; local-build controls are not equivalent to an enforced no-pull boundary",
+    "Existing controller ownership labels and coexistence of rollback containers do not establish safety of external controller interactions",
+    "No hostile concurrent writer assumed for local evidence validation; artifacts and host must be rechecked by the bounded operational mechanism before use",
+    "Hashes establish local byte identity and consistency, not independent authenticity of arbitrarily forged self-consistent evidence",
+    "Private worker buffers are not guaranteed forensically zeroized; no credential buffers were accessed by this review"
+  ],
+  "review_actions": {
+    "code_changes": false,
+    "credential_access": false,
+    "docker_commands": false,
+    "inert_plan_load": true,
+    "installation": false,
+    "package_changes": false,
+    "pytest_run": false,
+    "startup": false,
+    "test_changes": false
+  },
+  "reviewed_at_utc": "2026-10-18T13:38:07.949096+00:00",
+  "reviewer": "Codex independent GATE (chat 01a14f39-7da5-7d23-b59b-7947c815df25)",
+  "risk": "HIGH",
+  "schema": "companion-stopped-plan-review-v1",
+  "scope": {
+    "attempt": "477659164ab646d6ad658d7d987f699b",
+    "excluded": [
+      "installation execution in this review",
+      "startup or service query",
+      "dependency installation",
+      "Compose or other controller operation",
+      "model operation",
+      "exchange/account access",
+      "trading operation",
+      "storage or volume mutation"
+    ],
+    "execution_condition": "Any later installation requires separate explicit scoped permission and live installer pre/postcondition checks; this artifact is not that permission",
+    "original_applications": "Retain original stopped containers under attempt-bound rollback names; no deletion of originals",
+    "plan_schema": "companion-stopped-install-v2",
+    "private_configuration": "Only the previously reviewed bounded child-memory stdin/descriptor mechanism; no credentials or raw private environment/labels accessed in this review",
+    "replacement_applications": [
+      "phase1-audit-log",
+      "phase1-risk-stub",
+      "phase1-memory",
+      "phase1-orchestrator"
+    ],
+    "replacement_terminal_state": "created, never started, restart policy no",
+    "rollback_names": {
+      "phase1-audit-log": "phase1-audit-log-rollback-477659164ab646d6ad658d7d987f699b",
+      "phase1-memory": "phase1-memory-rollback-477659164ab646d6ad658d7d987f699b",
+      "phase1-orchestrator": "phase1-orchestrator-rollback-477659164ab646d6ad658d7d987f699b",
+      "phase1-risk-stub": "phase1-risk-stub-rollback-477659164ab646d6ad658d7d987f699b"
+    },
+    "storage_volumes": "All three existing storage volumes remain unchanged; no content integrity proof claimed",
+    "unchanged_storage_containers": [
+      "phase1-timescaledb",
+      "phase1-qdrant",
+      "phase1-minio"
+    ]
+  },
+  "shown": [
+    "Exact pending candidate, installer and installer test bytes match the requested SHA256 values",
+    "Four source archive hashes and all 241 regular application/repository archive members match their declared sizes, digests and current checkout bytes; 43 application source records project into the plan",
+    "Paired retained seven-target capture payloads agree; source baseline identities/images/stopped states and recomputed baseline fingerprints match the candidate",
+    "Existing compile_recipe reproduces stored recipe byte-for-byte under its JSON serialization; in-memory tuples normalize to JSON arrays",
+    "Candidate baseline and six-field application projection match recipe; previous candidate differs only in schema and four installation policy flags",
+    "Recorded independent stopped-install policy and exact v2 code dispositions support four true installation flags and two explicitly false startup flags",
+    "Pending exact candidate is refused by Plan.load; reviewed exact in-memory bytes load with both deferred startup policy names retained",
+    "Final plan changes only decision and actual independent reviewer identity; all other fields and byte formatting are preserved",
+    "Native CLI file hash matches the plan without executing that file"
+  ],
+  "startup_authorized": false
+}

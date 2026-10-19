@@ -19,6 +19,7 @@ if not _has_module("phase1_research_copilot.gateway.main"):
     pytest.skip("phase1_research_copilot.gateway.main surface not present in this repo checkout", allow_module_level=True)
 
 import asyncio
+import httpx
 import sys
 from types import SimpleNamespace
 from types import ModuleType
@@ -61,6 +62,11 @@ import phase1_research_copilot.gateway.main as gateway  # noqa: E402
 
 async def _noop_audit(*args, **kwargs) -> None:
     return None
+
+
+@pytest.fixture(autouse=True)
+def configured_auth(monkeypatch):
+    monkeypatch.setattr(gateway.settings, "service_token", "fixture-token")
 
 
 def test_chat_endpoint_adds_assistant_response(monkeypatch) -> None:
@@ -107,7 +113,8 @@ def test_chat_endpoint_adds_assistant_response(monkeypatch) -> None:
 
     payload = asyncio.run(
         gateway.chat(
-            gateway.ChatRequest(asset="BTC", question="Why is BTC moving?", lookback_minutes=60)
+            gateway.ChatRequest(asset="BTC", question="Why is BTC moving?", lookback_minutes=60),
+            authorization="Bearer fixture-token",
         )
     )
     assert payload["assistant_response"].startswith("BTC is firming")
@@ -128,7 +135,8 @@ def test_chat_endpoint_falls_back_when_orchestrator_is_unavailable(monkeypatch) 
 
     payload = asyncio.run(
         gateway.chat(
-            gateway.ChatRequest(asset="ETH", question="Why is ETH moving?", lookback_minutes=60)
+            gateway.ChatRequest(asset="ETH", question="Why is ETH moving?", lookback_minutes=60),
+            authorization="Bearer fixture-token",
         )
     )
 

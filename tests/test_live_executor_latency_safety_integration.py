@@ -3,6 +3,25 @@ from __future__ import annotations
 from services.config_loader import ConfigLoadError
 from services.execution import live_executor as le
 from services.execution.safety_gates import SafetyConfig
+from storage.execution_store_sqlite import ExecutionStore
+
+
+class _ReconcileTrackingStore(ExecutionStore):
+    def __init__(self, path, *, intent_id="intent-1", order_id="ord-1", side="buy"):
+        super().__init__(path=path)
+        self.fills = []
+        self.status_updates = []
+        self.upsert_intent(dict(intent_id=intent_id, ts_ms=1, mode="live", exchange="coinbase",
+            symbol="BTC/USD", side=side, qty=.5, status="submitted",
+            reason=f"remote_id={order_id} client_id=cid-{intent_id.rsplit('-', 1)[-1]}"))
+
+    def add_fill(self, **kwargs):
+        super().add_fill(**kwargs)
+        self.fills.append(dict(kwargs))
+
+    def set_intent_status(self, **kwargs):
+        self.status_updates.append((kwargs["intent_id"], kwargs["status"], kwargs.get("reason", "")))
+        return super().set_intent_status(**kwargs)
 
 
 def _guard_running(monkeypatch) -> None:
@@ -843,25 +862,9 @@ def test_submit_pending_live_latency_breach_opens_pause_and_stops_batch(monkeypa
     assert str(le._EXECUTION_SAFETY_CIRCUIT.last_reason).startswith("submit_to_ack_ms:")
 
 
-def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
+def test_reconcile_live_records_ack_to_fill_latency(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
-    cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", reconcile_limit=5)
-
-    class _FakeStore:
-        def __init__(self):
-            self.fills: list[dict] = []
-            self.status_updates: list[tuple[str, str, str]] = []
-
-        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
-            if status != "submitted":
-                return []
-            return [{"intent_id": "intent-9", "symbol": symbol, "side": "sell", "reason": "remote_id=ord-9 client_id=cid-9"}]
-
-        def add_fill(self, **kwargs):
-            self.fills.append(dict(kwargs))
-
-        def set_intent_status(self, *, intent_id: str, status: str, reason: str = ""):
-            self.status_updates.append((intent_id, status, reason))
+    cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=str(tmp_path / "execution.sqlite"), symbol="BTC/USD", reconcile_limit=5)
 
     class _FakeDedupe:
         def get_by_intent(self, exchange_id: str, intent_id: str):
@@ -896,7 +899,7 @@ def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
         def record_fill(self, **kwargs):
             self.fill_calls.append(dict(kwargs))
 
-    fake_store = _FakeStore()
+    fake_store = _ReconcileTrackingStore(cfg.exec_db, intent_id="intent-9", order_id="ord-9", side="sell")
     fake_dedupe = _FakeDedupe()
     fake_latency = _FakeLatency()
     sink_fills: list[dict] = []
@@ -915,36 +918,24 @@ def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
     assert len(fake_latency.fill_calls) == 1
     assert fake_latency.fill_calls[0]["client_order_id"] == "cid-9"
     assert len(sink_fills) == 1
-    assert sink_fills[0]["exec_db"] == ":memory:"
+    assert sink_fills[0]["exec_db"] == cfg.exec_db
     assert sink_fills[0]["fill"]["fill_id"] == "order:ord-9:closed"
     assert sink_fills[0]["fill"]["side"] == "sell"
     assert sink_fills[0]["fill"]["fee_usd"] == 0.1
     assert sink_fills[0]["fill"]["realized_pnl_usd"] == 2.5
 
 
-def test_reconcile_live_records_fetch_latency_measurements(monkeypatch):
+def test_reconcile_live_records_fetch_latency_measurements(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(
         enabled=True,
         exchange_id="coinbase",
-        exec_db=":memory:",
+        exec_db=str(tmp_path / "execution.sqlite"),
         symbol="BTC/USD",
         reconcile_limit=1,
         reconcile_trades=True,
         reconcile_trades_limit=5,
     )
-
-    class _FakeStore:
-        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
-            if status == "submitted":
-                return [{"intent_id": "intent-1", "symbol": symbol, "reason": "remote_id=ord-1"}]
-            return []
-
-        def set_intent_status(self, *, intent_id: str, status: str, reason: str = "") -> None:
-            return None
-
-        def add_fill(self, **kwargs):
-            return None
 
     class _FakeDedupe:
         def get_by_intent(self, exchange_id: str, intent_id: str):
@@ -989,7 +980,7 @@ def test_reconcile_live_records_fetch_latency_measurements(monkeypatch):
         def record_measurement(self, **kwargs):
             self.metric_calls.append(dict(kwargs))
 
-    fake_store = _FakeStore()
+    fake_store = _ReconcileTrackingStore(cfg.exec_db)
     fake_dedupe = _FakeDedupe()
     fake_latency = _FakeLatency()
 
@@ -1006,33 +997,17 @@ def test_reconcile_live_records_fetch_latency_measurements(monkeypatch):
     assert "reconcile_fetch_trades_ms" in names
 
 
-def test_reconcile_live_reuses_built_session_for_order_and_trade_fetches(monkeypatch):
+def test_reconcile_live_reuses_built_session_for_order_and_trade_fetches(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(
         enabled=True,
         exchange_id="coinbase",
-        exec_db=":memory:",
+        exec_db=str(tmp_path / "execution.sqlite"),
         symbol="BTC/USD",
         reconcile_limit=1,
         reconcile_trades=True,
         reconcile_trades_limit=5,
     )
-
-    class _FakeStore:
-        def __init__(self):
-            self.fills: list[dict] = []
-            self.status_updates: list[tuple[str, str, str]] = []
-
-        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
-            if status == "submitted":
-                return [{"intent_id": "intent-1", "symbol": symbol, "reason": "remote_id=ord-1 client_id=cid-1"}]
-            return []
-
-        def set_intent_status(self, *, intent_id: str, status: str, reason: str = "") -> None:
-            self.status_updates.append((intent_id, status, reason))
-
-        def add_fill(self, **kwargs):
-            self.fills.append(dict(kwargs))
 
     class _FakeDedupe:
         def get_by_intent(self, exchange_id: str, intent_id: str):
@@ -1087,7 +1062,7 @@ def test_reconcile_live_reuses_built_session_for_order_and_trade_fetches(monkeyp
             self.build_calls += 1
             return self.session
 
-    fake_store = _FakeStore()
+    fake_store = _ReconcileTrackingStore(cfg.exec_db)
     fake_dedupe = _FakeDedupe()
     fake_latency = _FakeLatency()
     fake_client = _FakeClient()

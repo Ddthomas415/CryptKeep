@@ -1,0 +1,33 @@
+{
+  "independent_review": {
+    "correction_disposition": "ACCEPTED for that delta only",
+    "correction_seconds": 0.23,
+    "correction_targeted_passed": 3,
+    "finding": "verify_sources worker did not independently disable core dumps before labels",
+    "initial_selection_passed": 306,
+    "seconds": 2.23
+  },
+  "runtime_state": "INCOMPLETE",
+  "scope": "Offline stopped-recipe implementation; no installation/startup authorization",
+  "source_sha256": {
+    "docs/review_artifacts/companion_stopped_recipe_20261017/recipe.json": "459e9b1864157be09a05d15d13b7928df3af6f2dc2ed32df490cad8561015154",
+    "scripts/research/collect_companion_recreation_metadata.py": "31f18bb999da19c2f96c8b5eb9b3ab044fa60606ecac1bb3f820c1a31a3144e4",
+    "scripts/research/companion_docker_transport.py": "52b5fa4d830a51694ba88d7b27712cf3dab7e3dd5f95e0a8bfb05e8a66acb0cc",
+    "scripts/research/companion_install_docker.py": "53a1ee4a8787050c56b42a5060924173027619d042612b7469b8face68397515",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "d0ebe142642332b112d84a2ba83a73b300a64d7217836b5b474790210245a0c4",
+    "scripts/research/companion_runtime_adapter.py": "83645cc36a345fcd55d1d2bd79dca982141e009456209a031c6e8513f9f03e9c",
+    "scripts/research/prepare_companion_stopped_recipe.py": "e332b66c40c3647c039a57abd4b2a8db7a05e1ced1d02ab6d35be5f049735257",
+    "tests/test_companion_installed_cli_interfaces.py": "c1d438c84987d567f9085a3ccd3dd1b8f4ba85989ee14905b632e088f6b96358",
+    "tests/test_companion_installer.py": "efc245964d20c3e8bb2ed46c0682b942503defc67f1a81dc9eccd2cbf2a5cf1a",
+    "tests/test_companion_stopped_recipe.py": "bfeffdd0c9c11b8bbd2c569710fdce5a32ef7e184e89858fbd6984a1302cdbe9"
+  },
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "verification": {
+    "final_targeted_tests": 314,
+    "full_repo_suite": false,
+    "native_cli_fake_socket_only": true,
+    "real_daemon_used": false,
+    "seconds": 2.74
+  }
+}

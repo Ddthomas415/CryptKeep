@@ -1,0 +1,92 @@
+[
+ {
+  "id": 61,
+  "label": "arXiv 2606.00071",
+  "url": "https://arxiv.org/pdf/2606.00071",
+  "claim": "A June 2026 survey reports that **naive models beat 12 complex models including LSTM and XGBoost** in walk-forward tests ([arXiv 2606.00071])."
+ },
+ {
+  "id": 62,
+  "label": "cryptint.io",
+  "url": "https://cryptint.io/compare/cryptoquant",
+  "claim": "Paid on-chain APIs cost roughly $109\u2013$999 a month ([cryptint.io]), more than any plausible edge on $1,000 earns in a year."
+ },
+ {
+  "id": 63,
+  "label": "Coin Metrics docs",
+  "url": "https://docs.coinmetrics.io/packages/coin-metrics-community-data",
+  "claim": "Free sources such as Coin Metrics Community, alternative.me and Binance/Bybit funding history cover what a low-frequency overlay needs ([Coin Metrics docs]; [athenum])."
+ },
+ {
+  "id": 64,
+  "label": "athenum",
+  "url": "https://athenum.mataroa.blog/blog/how-much-crypto-funding-rate-history-can-you-actually-get-four-venues-four-silent-limits/",
+  "claim": "Free sources such as Coin Metrics Community, alternative.me and Binance/Bybit funding history cover what a low-frequency overlay needs ([Coin Metrics docs]; [athenum])."
+ },
+ {
+  "id": 65,
+  "label": "IREF 2024",
+  "url": "https://ideas.repec.org/a/eee/reveco/v93y2024ipbp858-874.html",
+  "claim": "Deprez and Fr\u00f6mmel's out-of-sample gains came from *portfolios* of rules chosen after costs, not from a single optimized rule ([IREF 2024])."
+ },
+ {
+  "id": 66,
+  "label": "arXiv 2606.00071",
+  "url": "https://arxiv.org/pdf/2606.00071",
+  "claim": "Simpler models consistently beat complex ones out-of-sample in BTC ([arXiv 2606.00071])."
+ },
+ {
+  "id": 67,
+  "label": "NBER w20592",
+  "url": "https://nber.org/papers/w20592",
+  "claim": "Harvey, Liu and Zhu argue that a new factor needs a **t-ratio above 3.0, not 2.0**, and that most claimed findings are likely false ([NBER w20592])."
+ },
+ {
+  "id": 68,
+  "label": "Bailey & L\u00f3pez de Prado",
+  "url": "https://papers.ssrn.com/abstract=2460551",
+  "claim": "The Deflated Sharpe Ratio adjusts a backtest Sharpe for the number of trials and for fat tails ([Bailey & L\u00f3pez de Prado])."
+ },
+ {
+  "id": 69,
+  "label": "Bailey et al.",
+  "url": "https://papers.ssrn.com/abstract=2326253",
+  "claim": "The Probability of Backtest Overfitting estimates, via combinatorial cross-validation, how often the in-sample winner underperforms out of sample ([Bailey et al.]), and an R implementation exists ([CRAN pbo])."
+ },
+ {
+  "id": 70,
+  "label": "CRAN pbo",
+  "url": "https://ftp.fau.de/cran/web/packages/pbo/vignettes/pbo.html",
+  "claim": "The Probability of Backtest Overfitting estimates, via combinatorial cross-validation, how often the in-sample winner underperforms out of sample ([Bailey et al.]), and an R implementation exists ([CRAN pbo])."
+ },
+ {
+  "id": 71,
+  "label": "The Block citing Kaiko",
+  "url": "https://www.theblock.co/news/ecosystems/2024-06-30-bitcoin-sees-all-time-low-weekend-trading-levels-following-etf-approvals-kaiko-302705",
+  "claim": "The post-ETF period from January 2024 to the present should be a final holdout opened once: volume has shifted toward US weekday hours since the ETFs ([The Block citing Kaiko]), and that is the regime the strategy will trade in."
+ },
+ {
+  "id": 72,
+  "label": "Concretum guide",
+  "url": "https://concretumgroup.com/building-a-survivorship-bias-free-crypto-dataset-with-coinmarketcap-api/",
+  "claim": "If an altcoin sleeve is ever revisited, the data must include delisted coins, or the backtest inherits the equal-weighted survivorship bias of tens of percent a year described above ([Concretum guide])."
+ },
+ {
+  "id": 73,
+  "label": "Hedgeweek",
+  "url": "https://www.hedgeweek.com/bitcoin-surges-ahead-of-crypto-in-2024/",
+  "claim": "Crypto hedge funds returned about **40% in 2024 against roughly 120% for BTC** ([Hedgeweek])."
+ },
+ {
+  "id": 74,
+  "label": "Opalesque",
+  "url": "https://www.opalesque.com/673477/150_surviving_crypto_hedge_funds_post_median347.html",
+  "claim": "Their typical value has been smaller drawdowns, such as \u221246% against about \u221272% for BTC in 2018 ([Opalesque])."
+ },
+ {
+  "id": 75,
+  "label": "BIS Bulletin 69",
+  "url": "https://www.bis.org/publ/bisbull69.htm",
+  "claim": "BIS found most crypto-app users lost money on BTC, largely by buying after rallies ([BIS Bulletin 69]), and a pre-committed rule guards against that behaviour even when it adds no alpha."
+ }
+]

@@ -1,0 +1,24 @@
+{
+  "archive_path": "/Users/baitus/Downloads/crypto-bot-pro/research/multisymbol_baseline_v1/public_archive.sqlite",
+  "artifact_type": "ohlcv_archive_backfill_v1",
+  "dataset_hash": "b2089dcb986a49fb110297e5ccef9250e3efc6686803ed2816a3b82f7c45182b",
+  "exchange": "okx",
+  "limitations": [
+    "market_data_archive_only",
+    "not_strategy_evidence",
+    "not_promotion_evidence",
+    "not_trading"
+  ],
+  "max_bars": 6852,
+  "max_pages": 30,
+  "ok": true,
+  "page_limit": 300,
+  "research_data_ingestion": true,
+  "rows_written": 6852,
+  "since_ms": 1766145600000,
+  "source": "public_exchange_ohlcv",
+  "stored_symbol": "SOL/USDT",
+  "symbol": "SOL/USDT",
+  "timeframe": "1h",
+  "until_ms": 1790809200000
+}

@@ -73,6 +73,69 @@ def _cfg() -> dict:
     }
 
 
+_NO_FILL_EVIDENCE = object()
+
+
+def _fill_evidence_verdict(order_evidence: dict, fill_evidence) -> dict:
+    """Upgrade only from evidence the paper engine stored atomically with the fill (never inferred here)."""
+    if fill_evidence is _NO_FILL_EVIDENCE or fill_evidence is None:
+        return {"fill_evidence_status": "missing_fill_evidence"}
+    if type(fill_evidence) is not dict:
+        return {"fill_evidence_status": "invalid_fill_evidence"}
+    status = fill_evidence.get("execution_identity_fill_status")
+    if status == "invalid_storage":
+        return {"fill_evidence_status": "invalid_storage"}
+    if status != "cost_policy_verified":
+        return {"fill_evidence_status": "invalid_fill_evidence"}
+    if (fill_evidence.get("execution_identity_sha256") != order_evidence.get("execution_identity_sha256")
+            or fill_evidence.get("execution_identity") != order_evidence.get("execution_identity")):
+        return {"fill_evidence_status": "fill_evidence_identity_mismatch"}
+    from services.strategies.execution_identity import identity_rejection_reasons
+    if identity_rejection_reasons(
+            fill_evidence, expected_sha256=order_evidence["execution_identity_sha256"]):
+        return {"fill_evidence_status": "invalid_fill_evidence"}
+    return {"fill_evidence_status": "cost_policy_verified",
+            "journal_identity_status": "fill_cost_policy_verified",
+            "fill_cost_policy_verified": True}
+
+
+def _journal_identity_extra(order: dict, fill_evidence=_NO_FILL_EVIDENCE) -> dict:
+    """Carry order policy; mark cost-verified only from stored fill-time evidence that matches the order."""
+    meta = order.get("meta")
+    if not isinstance(meta, dict) or not any(key in meta for key in (
+        "execution_identity", "execution_identity_sha256", "execution_identity_capture_status")):
+        return {}
+    try:
+        from services.strategies.execution_identity import identity_evidence, identity_rejection_reasons
+        reasons = identity_rejection_reasons(meta, expected_sha256=meta.get("execution_identity_sha256"))
+        if reasons:
+            raise ValueError("invalid_order_identity")
+        evidence = identity_evidence(meta["execution_identity"])
+        market = evidence["execution_identity"]["market"]
+        if market["venue"] != order.get("venue") or market["symbol"] != order.get("symbol"):
+            raise ValueError("identity_order_market_mismatch")
+        return {"execution_identity_evidence": {
+            **evidence, "journal_identity_status": "order_policy_only",
+            "fill_cost_policy_verified": False,
+            **_fill_evidence_verdict(evidence, fill_evidence),
+        }}
+    except Exception as exc:
+        return {"execution_identity_evidence": {
+            "journal_identity_status": "invalid", "error_type": type(exc).__name__,
+            "fill_cost_policy_verified": False,
+        }}
+
+
+def _stored_fill_evidence(pdb, fill_id):
+    getter = getattr(pdb, "get_fill_execution_identity", None)
+    if getter is None:
+        return _NO_FILL_EVIDENCE
+    try:
+        return getter(fill_id)
+    except Exception:
+        return {"execution_identity_fill_status": "invalid_storage"}
+
+
 def reconcile_once(
     *,
     qdb: IntentQueueSQLite | None = None,
@@ -143,6 +206,7 @@ def reconcile_once(
                     "pos_qty": pos.get("qty"),
                     "pos_avg_price": pos.get("avg_price"),
                     "realized_pnl_total": realized,
+                    **_journal_identity_extra(order, _stored_fill_evidence(pdb, f["fill_id"])),
                 }
                 jdb.insert_fill(journal_row)
                 log_strategy_outcome({

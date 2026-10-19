@@ -3,14 +3,15 @@ set -u
 
 # Manual repo audit helper
 # Read-only by default
-# Writes timestamped outputs under .cbp_state/audit_reports/
+# Writes timestamped outputs under ${CBP_STATE_DIR:-.cbp_state}/audit_reports/
+# GIT_BIN may name an executable Git path (or a command on the existing PATH).
 # Human Review Required:
 # - interpreting findings
 # - deciding what to delete, keep, or refactor
 
 TS="$(date +%Y%m%d_%H%M%S)"
 BASE_DIR=".cbp_state/audit_reports"
-STATE_ROOT=".cbp_state/audit_reports"
+STATE_ROOT="${CBP_STATE_DIR:-.cbp_state}/audit_reports"
 STAMP="$(date +%Y%m%d_%H%M%S)"
 OUT_DIR="$STATE_ROOT/repo_audit_$STAMP"
 mkdir -p "$OUT_DIR" || exit 1
@@ -210,9 +211,39 @@ run_shell_check() {
   return 0
 }
 
+resolve_git_bin() {
+  local requested="$1"
+  local native_git="${2:-/usr/bin/git}"
+  local candidate
+
+  if [ -n "$requested" ]; then
+    candidate="$(command -v -- "$requested" 2>/dev/null)" || candidate=""
+  elif [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ] && [ -x "$native_git" ]; then
+    # Avoid an Intel Homebrew Git earlier on PATH on Apple Silicon.
+    candidate="$native_git"
+  else
+    candidate="$(command -v git 2>/dev/null)" || candidate=""
+  fi
+
+  if [ ! -f "$candidate" ] || [ ! -x "$candidate" ]; then
+    echo "Git executable not found or not executable: ${requested:-$candidate}" >&2
+    return 1
+  fi
+  if ! "$candidate" --version >/dev/null; then
+    echo "Git executable failed --version: $candidate" >&2
+    return 1
+  fi
+  printf '%s\n' "$candidate"
+}
+
+GIT_BIN="$(resolve_git_bin "${GIT_BIN:-}")" || {
+  record_failure git_executable 1
+  exit 1
+}
+
 # -------- 1. Repo / tree hygiene --------
-run_check git_status 20 git status --short
-run_check git_log 20 git log --oneline --decorate -10
+run_check git_status 20 "$GIT_BIN" status --short
+run_check git_log 20 "$GIT_BIN" log --oneline --decorate -10
 run_shell_check repo_doctor_strict 60 'python3 tools/repo_doctor.py --strict'
 run_shell_check find_bak 20 'find . \( -path "./.git" -o -path "./.venv" -o -path "./attic" -o -path "./.cbp_state/audit_reports" -o -path "./.venv_x86_backup_20260224_133111" \) -prune -o -type f -name "*.bak" -print | sort'
 run_shell_check find_pycache 20 'find . \( -path "./.git" -o -path "./.venv" -o -path "./attic" -o -path "./.cbp_state/audit_reports" -o -path "./.venv_x86_backup_20260224_133111" \) -prune -o -type d -name "__pycache__" -print | sort'

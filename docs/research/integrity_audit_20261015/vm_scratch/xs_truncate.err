@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/sessions/rcw-011p3wbrlhso7qjbjysguxay/audit_scratch/repo/docs/research/xs_momentum_20261012/xs_momentum.py", line 128, in <module>
+    s, r = stats(c, lo, hi); s["annual_turnover_x"] = round(to / (len(c) / 365), 1)
+  File "/sessions/rcw-011p3wbrlhso7qjbjysguxay/audit_scratch/repo/docs/research/xs_momentum_20261012/xs_momentum.py", line 104, in stats
+    sd = statistics.pstdev(r)
+  File "/usr/lib/python3.10/statistics.py", line 847, in pstdev
+    var = pvariance(data, mu)
+  File "/usr/lib/python3.10/statistics.py", line 811, in pvariance
+    raise StatisticsError('pvariance requires at least one data point')
+statistics.StatisticsError: pvariance requires at least one data point

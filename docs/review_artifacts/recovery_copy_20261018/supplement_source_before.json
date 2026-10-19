@@ -1,0 +1,20 @@
+{
+  "active_role": "ENGINEER",
+  "evidence_class": "SHOWN",
+  "method": "Bounded descriptor-relative no-follow reads only; no SQL connections to original databases. Main/WAL/SHM contents hashed before supplemental copy.",
+  "database_sha256": {
+    "research/coinbase_confirmation_usd_v1/public_archive.sqlite": "697013e85517d8151f1fffa478fbdb5ea60899739ba0dccb4b4b34c95008bee7",
+    "research/coinbase_confirmation_v1/public_archive.sqlite": "bdcb520e69c4269beedb1b114fd93446e0be656e1e109d441b0301a6287ef334",
+    "research/coinbase_retrospective_20261009/public_archive.sqlite": "27a9c84055bc29a2554101e03eaa1663461ff966005ab904aba6d8033dce9d66",
+    "research/multisymbol_baseline_v1/public_archive.sqlite": "e74aa3780570fbd685d6e8f10dbd0e9465a603647294d03a84a7705f21368334"
+  },
+  "wal_files": {
+    "all_four_bytes": 0,
+    "all_four_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "shm_files": {
+    "all_four_bytes": 32768,
+    "all_four_sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+  },
+  "limits": "Per-file observations, not a globally atomic source snapshot. Byte/mtime/ctime evidence is visible in the tool output; this receipt does not grant source mutation, runtime startup or cleanup."
+}

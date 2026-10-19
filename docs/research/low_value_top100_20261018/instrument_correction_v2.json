@@ -1,0 +1,27 @@
+{
+  "reason": "Repair the original stable/wrapped exclusion, not select on returns. Do not exclude related governance tokens by shared tags.",
+  "created_utc_date": "2026-10-19",
+  "sources_accessed": [
+    "https://coinmarketcap.com/currencies/wrapped-bitcoin/",
+    "https://coinmarketcap.com/currencies/bitcoin-bep2/",
+    "https://coinmarketcap.com/currencies/renbtc/",
+    "https://coinmarketcap.com/currencies/wrapped-theta/",
+    "https://coinmarketcap.com/view/stablecoin/",
+    "https://coinmarketcap.com/currencies/single-collateral-dai/",
+    "https://coinmarketcap.com/currencies/terrausd/"
+  ],
+  "exclusions": [
+    {"id": 3717, "slug": "wrapped-bitcoin", "class": "wrapped_bitcoin"},
+    {"id": 4023, "slug": "bitcoin-bep2", "class": "bitcoin_backed_representation"},
+    {"id": 5777, "slug": "renbtc", "class": "bitcoin_backed_representation"},
+    {"id": 27077, "slug": "wrapped-theta", "class": "wrapped_asset"},
+    {"id": 825, "slug": "tether", "class": "stablecoin"},
+    {"id": 2308, "slug": "single-collateral-dai", "class": "stablecoin"},
+    {"id": 2563, "slug": "trueusd", "class": "stablecoin"},
+    {"id": 3330, "slug": "paxos-standard", "class": "stablecoin"},
+    {"id": 3408, "slug": "usd-coin", "class": "stablecoin"},
+    {"id": 4943, "slug": "multi-collateral-dai", "class": "stablecoin"},
+    {"id": 7129, "slug": "terrausd", "class": "stablecoin_even_after_depeg"}
+  ],
+  "limits": "Identity follows archived numeric IDs and slugs. Current pages support instrument type, not historical availability or redeemability. This repairs demonstrated omissions; it is not an exhaustive independent security-master audit. No new performance filters. RSR, FXS, REN and MKR are not excluded merely for association with stablecoins or bridges."
+}

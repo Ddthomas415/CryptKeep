@@ -1,0 +1,15 @@
+{
+  "hashes": {
+    "lock": "e2052c738aac7ff2503ebdab96aaa641b7a36fa5845166c150dad1131f433d2e",
+    "runner": "01c3d4c500e7c6c77d26858235c16299dac67c1fc695e5c5c762fc944161e442",
+    "rate_helper": "83395d0cf804e7ecad325cae01f29ebf61032131511eb983cffa35a63c1a8672"
+  },
+  "model": "persistent",
+  "days": 90,
+  "mean_index": 3,
+  "start": 0,
+  "trials": 100,
+  "positive": 53,
+  "unavailable": 0,
+  "refused": 0
+}

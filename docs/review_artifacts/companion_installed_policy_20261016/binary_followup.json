@@ -1,0 +1,22 @@
+{
+  "recorded_at_utc": "2026-10-16T21:50:05.517843+00:00",
+  "container_id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+  "reads": [
+    {
+      "path": "/usr/bin/curl",
+      "status": "regular_file",
+      "bytes": 3346056,
+      "sha256": "21ce44fcae8ddd56447777fd18db82f76cc6316637e71f54333f39b03323c71c",
+      "elf_header": true
+    },
+    {
+      "path": "/bin/bash",
+      "status": "regular_file",
+      "bytes": 1366952,
+      "sha256": "7e3a3f9d6715ccab40ba328d2220f59f70133ac164ac491a07c5cff2dc035753",
+      "elf_header": true
+    }
+  ],
+  "final_state": "exited",
+  "executed_binaries": false
+}

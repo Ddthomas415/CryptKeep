@@ -1,0 +1,49 @@
+{
+  "registered_utc": "2026-10-13T01:50:48.393570+00:00",
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "inputs": {
+    "docs/research/raw_archives_20261009/coinbase_hourly_last60d.tar.xz": "435220c4d778036ba1b3e8ac78b7817f1a372bba1f5435d32c94af9c9bf5caa5",
+    "research/hourly_leader_raw_20261012.json": "1002af509769b5790782dcbf97ac4b3518ec384322b7c0b18df0724e473d33bb",
+    "docs/research/raw_archives_20261009/SHA256SUMS_archives.txt": "f153de3f681201cab84b00b3adf5d7bea186ae1b304941e0dae7bb828bf21ddd",
+    "docs/research/raw_archives_20261009/SHA256SUMS_inputs.txt": "c7f3e9cf43ac3cf196d1fd968627256d4172eb6487eae793d21ea3c194db2ebc",
+    "research/hourly_leader_earlier_plan_20261012.json": "c776b4ff96cb19fb0052f9c57d2f7f341319433694cb606838779131aac18b3d",
+    "research/hourly_leader_plan_20261012.json": "848a1693b9fe38a921b158a7ae0fbbb5443592f5f0f85b7b875961ca03cc1fc5",
+    "research/failed_breakout_retest_plan_20261012.json": "20da91156d437bc20416c35eab103c4b728d2d3ba37fac000240c8def7a66863"
+  },
+  "sources": {
+    "scripts/research/failed_breakout_retest.py": "cf2dea6e037a8134545d0c0d77d79c840cb2983e320824d3cf9292b08accdedf",
+    "services/backtest/price_action_context.py": "9b772d2b0e232df919a124480065a5e5eaf6be216c8cf8b49750e89747dcf8f4",
+    "scripts/research/failed_breakout_gap_replay.py": "022c7c55a2f70330c7ef4e3f175494b1863c51e0aebbcbb35ab1c3e903cae01d"
+  },
+  "start": 1786406400,
+  "boundary": 1790787600,
+  "end": 1791824400,
+  "initial_cash": 1000.0,
+  "lookback": 5,
+  "retest_hours": 3,
+  "hold_hours": 24,
+  "fee": 0.005,
+  "adverse_price": 0.0025,
+  "rule": "existing bullish swing_failure of prior five bars; freeze prior low/high and sweep low; subsequent retest within three bars with low <= prior low, low > sweep low, and prior low < close < prior high; next-open buy only if sweep low < adverse fill < prior high",
+  "exit": "completed close <= sweep low or >= prior high, or 24 completed holding bars; next-open sale, never a guaranteed stop-price fill",
+  "allocation": "one account all available cash; highest contemporaneous trailing-24h sum(close * base volume), ascending product ID tie; no signals while held; carry across boundary",
+  "watch_policy": "all confirmed but unselected watches remain until invalidation/expiry or a successful buy; no same-bar retest; skip missing buy without spending cash",
+  "gap_policy": "same recorded data; missing/nontrading held bars produce null NAV and no close decision; keep cash/position; pending sells defer to first recorded positive-volume open; no stale or invented prices; null endpoint remains incomplete",
+  "economic_screen": "ending liquidation estimate exceeds initial cash and same-period BTC; each carried segment positive; this is not statistical validation or promotion",
+  "assumptions": [
+    "next-open fills with 50 bps fee and 25 bps adverse price per side are modeled, not measured executions",
+    "current archived universe and positive-volume bars are a historical eligibility proxy, not point-in-time listing/status proof"
+  ],
+  "limits": [
+    "previously_explored_data_not_holdout",
+    "single_fixed_rule_no_parameter_search",
+    "no_depth_or_capacity_proof",
+    "close_based_drawdown_not_intrabar",
+    "no_statistical_significance_claim",
+    "cash_interest_and_infrastructure_excluded",
+    "post_strict_result_data_policy_amendment_not_fresh_evidence",
+    "unknown_nav_hours_make_drawdown_a_lower_bound_on_sampled_drawdown",
+    "deferred_sells_change_modeled_execution_timing_not_signal_thresholds"
+  ],
+  "version": "gap_sensitivity_v2_not_original_strict_test"
+}

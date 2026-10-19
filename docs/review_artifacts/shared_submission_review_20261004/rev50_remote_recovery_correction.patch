@@ -1,0 +1,94 @@
+diff --git a/docs/work_log/review_stabilized_work_log.md b/docs/work_log/review_stabilized_work_log.md
+index 60b8765..c48a47d 100644
+--- a/docs/work_log/review_stabilized_work_log.md
++++ b/docs/work_log/review_stabilized_work_log.md
+@@ -1,5 +1,19 @@
+ # Review Stabilized Work Log
+ 
++## 2026-10-04 - Bounded 0039 remote-order recovery correction (Codex)
++
++- ENGINEER; HIGH risk live-order lifecycle. Recover remote_id evidence before
++  TTL, market-quality and symbol-lock checks. Recovery updates local status
++  only and never submits a new order. Entry policy and TTL window unchanged.
++- Original independent recovery probe now passes. Six added fresh/aged cases
++  cover market-quality refusal, guard exceptions and symbol locks, repeated
++  turns, retained remote ID and no new exchange submissions.
++- VERIFIED_ENV isolated candidate, local Python 3.12.10. Targeted TTL, latency
++  safety, state-machine and original probe slice: 40 passed in 1.04s.
++- UNVERIFIED: full suite, CI, actual exchange reconciliation, host operation.
++  No main checkout source/config/accounts or deployment changed.
++- READY_FOR_INDEPENDENT_REVIEW. No same-thread acceptance.
++
+ ## 2026-10-04 - Intent TTL (live-money backlog item 18): independent review, one correction, and a correction to my 0037 entry
+ 
+ - AUDITOR then ENGINEER (Claude). The item's 2026-07-05 and 2026-07-11
+diff --git a/services/execution/_executor_submit.py b/services/execution/_executor_submit.py
+index 204b310..09f37df 100644
+--- a/services/execution/_executor_submit.py
++++ b/services/execution/_executor_submit.py
+@@ -365,17 +365,20 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
+             break
+ 
+         intent_id = str(it["intent_id"])
++        # Recover an already-sent order before pre-submit gates can replace
++        # its remote-order evidence. This does not submit a new order.
++        rid0 = _remote_id_from_reason(str(it.get("reason") or ""))
++        if rid0:
++            store.set_intent_status(intent_id=intent_id, status="submitted", reason=f"remote_id={rid0}")
++            continue
+         # Intent TTL. A blocked intent stays "pending" and is retried every
+         # tick, so without this an intent sized on old context is submitted
+         # whenever its block clears - hours or days later. An intent whose
+         # age cannot be established is treated as aged. The disposition is
+         # the existing terminal status "canceled" with an intent_ttl reason;
+         # the pinned execution-store state machine is not changed.
+-        # An intent whose reason already records a remote order id was sent
+-        # before a crash; it is left for the recovery step below, never
+-        # cancelled here.
+         ttl = check_intent_age(_intent_created_epoch(it))
+-        if not bool(ttl.get("ok")) and not _remote_id_from_reason(str(it.get("reason") or "")):
++        if not bool(ttl.get("ok")):
+             ttl_reason = str(ttl.get("reason") or "intent_ttl:unknown")
+             store.set_intent_status(intent_id=intent_id, status="canceled", reason=ttl_reason)
+             expired += 1
+@@ -412,11 +415,6 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
+             continue
+ 
+         meta = dict(it.get("meta") or {})
+-        reason0 = str(it.get("reason") or "")
+-        rid0 = _remote_id_from_reason(reason0)
+-        if rid0:
+-            store.set_intent_status(intent_id=intent_id, status="submitted", reason=f"remote_id={rid0}")
+-            continue
+         cid = make_client_order_id(cfg.exchange_id, intent_id)
+         try:
+             # PHASE82_LIVE_GATES enforce
+diff --git a/tests/test_live_executor_intent_ttl.py b/tests/test_live_executor_intent_ttl.py
+index 07b9fb0..dada42c 100644
+--- a/tests/test_live_executor_intent_ttl.py
++++ b/tests/test_live_executor_intent_ttl.py
+@@ -167,3 +167,24 @@ def test_the_window_follows_the_shared_setting(rig, monkeypatch):
+     monkeypatch.setenv("CBP_MAX_INTENT_AGE_SEC", "7200")
+     _add(store, "hour-old", 3600)
+     assert le.submit_pending_live(cfg)["submitted"] == 1
++
++
++@pytest.mark.parametrize("gate", ["market_quality", "market_quality_error", "symbol_lock"])
++@pytest.mark.parametrize("age_s", [5, 3600])
++def test_remote_order_is_recovered_before_pre_submit_blocks(rig, monkeypatch, gate, age_s):
++    cfg, store, client = rig
++    _add(store, "sent-blocked", age_s, reason="remote_id=ord-77")
++    if gate == "market_quality":
++        monkeypatch.setattr(le, "check_market_quality", lambda *_a, **_k: (False, "stale"))
++    elif gate == "market_quality_error":
++        def broken_quality(*_args, **_kwargs):
++            raise RuntimeError("quote unavailable")
++        monkeypatch.setattr(le, "check_market_quality", broken_quality)
++    else:
++        store.set_symbol_lock("BTC/USD", int((time.time() + 3600) * 1000), 1, "test")
++    for _ in range(2):
++        out = le.submit_pending_live(cfg)
++        assert out["expired"] == 0
++        assert out["submitted"] == 0
++        assert _status(store, "sent-blocked") == ("submitted", "remote_id=ord-77")
++        assert client.calls == []

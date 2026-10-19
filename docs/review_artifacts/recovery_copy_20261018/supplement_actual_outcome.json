@@ -1,0 +1,41 @@
+{
+  "active_role": "ENGINEER",
+  "acceptance_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "evidence_class": "SHOWN",
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -E -B -m scripts.research.preserve_recovery_exclusions --root /Users/baitus/Downloads/crypto-bot-pro --output /Users/baitus/Documents/cryptkeep_data_archive/recovery_supplement_20261018T192628Z",
+  "environment_confidence": "VERIFIED_ENV",
+  "exec_session_id": 89058,
+  "exit_code": 0,
+  "stdout": {
+    "output": "/Users/baitus/Documents/cryptkeep_data_archive/recovery_supplement_20261018T192628Z",
+    "restored_verified": 7,
+    "databases_integrity_checked": 4,
+    "complete_repository_or_secret_clearance": false
+  },
+  "manifest_created_utc": "2026-10-18T19:30:41.847322+00:00",
+  "files": 7,
+  "bytes": 53431756,
+  "archive_bytes": 48486171,
+  "exact_public_archive_exceptions": 5,
+  "sha256": {
+    "scripts/research/preserve_recovery_exclusions.py": "78096172f85a75dde24fc371ba79bdd38e1aaf8fe8eba26a1dc549b8596c3645",
+    "tests/test_preserve_recovery_exclusions.py": "981514fcd279718542ceca0589a58d48236767604702e29a9a385e004c0d7b06",
+    "supplement_manifest.json": "e9302a6bd89575e60cf508c03fedeece275f47e75eb79a8e404e92efd74b988d",
+    "supplement.tar.gz": "56742fbf4d1ebfb2dcd98632267faae3b8744003dc49a803a8dfb2cfd8faf687",
+    "preflight_review": "dded77278525be6f337c4d25b8cafa61104acfddcf6a8dbf63b46d9018d850fd"
+  },
+  "source_post_checks": {
+    "database_wal_shm_files_checked": 12,
+    "all_match_before_hashes": true,
+    "before_receipt": "docs/review_artifacts/recovery_copy_20261018/supplement_source_before.json",
+    "head": "620bc8dbeee71cca327042902759e219e18f30b6",
+    "index_lock": "0 bytes; unchanged 2026-10-04T12:18:30-0400; not removed"
+  },
+  "limits": [
+    "Parent observed invocation exit0; reviewer must distinguish that from independently verifying saved bytes.",
+    "Selected-file same-disk supplement, not a complete/offsite/atomic/environment backup or publication clearance.",
+    "Database copied only under observed empty WAL; no source SQL or online nonempty WAL recovery.",
+    "Earlier recovery receipts/exclusions remain unchanged; this supplement resolves seven named paths, not all original exclusions.",
+    "Outcome and later closeout records postdate the supplement snapshot."
+  ]
+}

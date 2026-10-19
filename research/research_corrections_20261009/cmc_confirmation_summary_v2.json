@@ -1,0 +1,2073 @@
+{
+  "status": "COMPLETE",
+  "synthetic_only": true,
+  "method": "block28",
+  "trials": 108000,
+  "hashes": {
+    "lock": "d0ace4434e354e299ed6446ae7dc957993f1ca346d41fe689c16105c1358bac8",
+    "runner": "599b1afc8609dffe592f6e9d01e6277978e5f3442681d45372d4a9cf103f1cb7",
+    "rate_helper": "83395d0cf804e7ecad325cae01f29ebf61032131511eb983cffa35a63c1a8672",
+    "numpy_version": "2.4.4"
+  },
+  "cells": [
+    {
+      "model": "iid",
+      "days": 90,
+      "mean": 0.0,
+      "positive": 130,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 130,
+        "trials": 1000,
+        "rate": 0.13,
+        "wilson95": [
+          0.11056344299877965,
+          0.1522684619551494
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "iid",
+      "days": 90,
+      "mean": 0.0025,
+      "positive": 368,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 368,
+        "trials": 1000,
+        "rate": 0.368,
+        "wilson95": [
+          0.3386672562042704,
+          0.3983430450225368
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "iid",
+      "days": 90,
+      "mean": 0.005,
+      "positive": 610,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 610,
+        "trials": 1000,
+        "rate": 0.61,
+        "wilson95": [
+          0.5794029516134263,
+          0.6397551306975677
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "iid",
+      "days": 90,
+      "mean": 0.01,
+      "positive": 938,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 938,
+        "trials": 1000,
+        "rate": 0.938,
+        "wilson95": [
+          0.9213116000993365,
+          0.9513360367389853
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "iid",
+      "days": 180,
+      "mean": 0.0,
+      "positive": 113,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 113,
+        "trials": 1000,
+        "rate": 0.113,
+        "wilson95": [
+          0.0948400509652163,
+          0.13412196854065
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "iid",
+      "days": 180,
+      "mean": 0.0025,
+      "positive": 382,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 382,
+        "trials": 1000,
+        "rate": 0.382,
+        "wilson95": [
+          0.3523909215155227,
+          0.41251222655086556
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "iid",
+      "days": 180,
+      "mean": 0.005,
+      "positive": 742,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 742,
+        "trials": 1000,
+        "rate": 0.742,
+        "wilson95": [
+          0.7139913530592009,
+          0.7681564280249861
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "iid",
+      "days": 180,
+      "mean": 0.01,
+      "positive": 993,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 993,
+        "trials": 1000,
+        "rate": 0.993,
+        "wilson95": [
+          0.9856215030730511,
+          0.996605174920768
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "iid",
+      "days": 365,
+      "mean": 0.0,
+      "positive": 74,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 74,
+        "trials": 1000,
+        "rate": 0.074,
+        "wilson95": [
+          0.05935475135620055,
+          0.09190576623940419
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "iid",
+      "days": 365,
+      "mean": 0.0025,
+      "positive": 532,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 532,
+        "trials": 1000,
+        "rate": 0.532,
+        "wilson95": [
+          0.5010097421245853,
+          0.5627453363658858
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "iid",
+      "days": 365,
+      "mean": 0.005,
+      "positive": 939,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 939,
+        "trials": 1000,
+        "rate": 0.939,
+        "wilson95": [
+          0.922419543452788,
+          0.9522204395883611
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": true
+    },
+    {
+      "model": "iid",
+      "days": 365,
+      "mean": 0.01,
+      "positive": 1000,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 1000,
+        "trials": 1000,
+        "rate": 1.0,
+        "wilson95": [
+          0.9961731014136095,
+          1.0
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "overlap7",
+      "days": 90,
+      "mean": 0.0,
+      "positive": 170,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 170,
+        "trials": 1000,
+        "rate": 0.17,
+        "wilson95": [
+          0.14799121463156065,
+          0.19453453843545718
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "overlap7",
+      "days": 90,
+      "mean": 0.0025,
+      "positive": 234,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 234,
+        "trials": 1000,
+        "rate": 0.234,
+        "wilson95": [
+          0.20880755932590186,
+          0.26122835072205797
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "overlap7",
+      "days": 90,
+      "mean": 0.005,
+      "positive": 305,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 305,
+        "trials": 1000,
+        "rate": 0.305,
+        "wilson95": [
+          0.2772547779089377,
+          0.33423771253975465
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "overlap7",
+      "days": 90,
+      "mean": 0.01,
+      "positive": 513,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 513,
+        "trials": 1000,
+        "rate": 0.513,
+        "wilson95": [
+          0.48202970090916764,
+          0.5438707997275862
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "overlap7",
+      "days": 180,
+      "mean": 0.0,
+      "positive": 84,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 84,
+        "trials": 1000,
+        "rate": 0.084,
+        "wilson95": [
+          0.068358553811171,
+          0.10282542581270594
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "overlap7",
+      "days": 180,
+      "mean": 0.0025,
+      "positive": 190,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 190,
+        "trials": 1000,
+        "rate": 0.19,
+        "wilson95": [
+          0.16688886767222819,
+          0.21548380945133397
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "overlap7",
+      "days": 180,
+      "mean": 0.005,
+      "positive": 327,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 327,
+        "trials": 1000,
+        "rate": 0.327,
+        "wilson95": [
+          0.2986340029941519,
+          0.3566901039167394
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "overlap7",
+      "days": 180,
+      "mean": 0.01,
+      "positive": 641,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 641,
+        "trials": 1000,
+        "rate": 0.641,
+        "wilson95": [
+          0.6107798878280525,
+          0.6701409267705855
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "overlap7",
+      "days": 365,
+      "mean": 0.0,
+      "positive": 95,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 95,
+        "trials": 1000,
+        "rate": 0.095,
+        "wilson95": [
+          0.07834495566471479,
+          0.11475483219026154
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "overlap7",
+      "days": 365,
+      "mean": 0.0025,
+      "positive": 183,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 183,
+        "trials": 1000,
+        "rate": 0.183,
+        "wilson95": [
+          0.1602624460409235,
+          0.20816380766284814
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "overlap7",
+      "days": 365,
+      "mean": 0.005,
+      "positive": 390,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 390,
+        "trials": 1000,
+        "rate": 0.39,
+        "wilson95": [
+          0.36024486930243227,
+          0.42059704838657375
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "overlap7",
+      "days": 365,
+      "mean": 0.01,
+      "positive": 828,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 828,
+        "trials": 1000,
+        "rate": 0.828,
+        "wilson95": [
+          0.8033655734021719,
+          0.850123981125156
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "persistent",
+      "days": 90,
+      "mean": 0.0,
+      "positive": 186,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 186,
+        "trials": 1000,
+        "rate": 0.186,
+        "wilson95": [
+          0.16310078087999175,
+          0.21130251143226153
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "persistent",
+      "days": 90,
+      "mean": 0.0025,
+      "positive": 252,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 252,
+        "trials": 1000,
+        "rate": 0.252,
+        "wilson95": [
+          0.22607425342832418,
+          0.2798238882705255
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "persistent",
+      "days": 90,
+      "mean": 0.005,
+      "positive": 309,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 309,
+        "trials": 1000,
+        "rate": 0.309,
+        "wilson95": [
+          0.2811363607125768,
+          0.3383255145474245
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "persistent",
+      "days": 90,
+      "mean": 0.01,
+      "positive": 479,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 479,
+        "trials": 1000,
+        "rate": 0.479,
+        "wilson95": [
+          0.44817658770904456,
+          0.5099841420315839
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "persistent",
+      "days": 180,
+      "mean": 0.0,
+      "positive": 118,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 118,
+        "trials": 1000,
+        "rate": 0.118,
+        "wilson95": [
+          0.0994512436719432,
+          0.13947250684805915
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "persistent",
+      "days": 180,
+      "mean": 0.0025,
+      "positive": 189,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 189,
+        "trials": 1000,
+        "rate": 0.189,
+        "wilson95": [
+          0.1659414607063728,
+          0.21443887021436217
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "persistent",
+      "days": 180,
+      "mean": 0.005,
+      "positive": 306,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 306,
+        "trials": 1000,
+        "rate": 0.306,
+        "wilson95": [
+          0.278224938136047,
+          0.33525989851547255
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "persistent",
+      "days": 180,
+      "mean": 0.01,
+      "positive": 543,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 543,
+        "trials": 1000,
+        "rate": 0.543,
+        "wilson95": [
+          0.5120186331754513,
+          0.5736522535461193
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "persistent",
+      "days": 365,
+      "mean": 0.0,
+      "positive": 82,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 82,
+        "trials": 1000,
+        "rate": 0.082,
+        "wilson95": [
+          0.06655169717368087,
+          0.10064759004454163
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "persistent",
+      "days": 365,
+      "mean": 0.0025,
+      "positive": 196,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 196,
+        "trials": 1000,
+        "rate": 0.196,
+        "wilson95": [
+          0.17257859664901237,
+          0.22174815769151313
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "persistent",
+      "days": 365,
+      "mean": 0.005,
+      "positive": 326,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 326,
+        "trials": 1000,
+        "rate": 0.326,
+        "wilson95": [
+          0.29766062459508447,
+          0.3556711361129795
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "persistent",
+      "days": 365,
+      "mean": 0.01,
+      "positive": 649,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 649,
+        "trials": 1000,
+        "rate": 0.649,
+        "wilson95": [
+          0.618898642317261,
+          0.6779609419039948
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "heavy_tail",
+      "days": 90,
+      "mean": 0.0,
+      "positive": 171,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 171,
+        "trials": 1000,
+        "rate": 0.171,
+        "wilson95": [
+          0.1489334730570256,
+          0.1955846262128194
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "heavy_tail",
+      "days": 90,
+      "mean": 0.0025,
+      "positive": 233,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 233,
+        "trials": 1000,
+        "rate": 0.233,
+        "wilson95": [
+          0.20785017685964136,
+          0.26019338698549127
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "heavy_tail",
+      "days": 90,
+      "mean": 0.005,
+      "positive": 357,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 357,
+        "trials": 1000,
+        "rate": 0.357,
+        "wilson95": [
+          0.32790322726742654,
+          0.38719126572828116
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "heavy_tail",
+      "days": 90,
+      "mean": 0.01,
+      "positive": 534,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 534,
+        "trials": 1000,
+        "rate": 0.534,
+        "wilson95": [
+          0.5030102405760234,
+          0.5647295303201022
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "heavy_tail",
+      "days": 180,
+      "mean": 0.0,
+      "positive": 98,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 98,
+        "trials": 1000,
+        "rate": 0.098,
+        "wilson95": [
+          0.08108172764860938,
+          0.11799509881484863
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "heavy_tail",
+      "days": 180,
+      "mean": 0.0025,
+      "positive": 210,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 210,
+        "trials": 1000,
+        "rate": 0.21,
+        "wilson95": [
+          0.18588849743514332,
+          0.23633110374496322
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "heavy_tail",
+      "days": 180,
+      "mean": 0.005,
+      "positive": 316,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 316,
+        "trials": 1000,
+        "rate": 0.316,
+        "wilson95": [
+          0.287935120952589,
+          0.34547317772720276
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "heavy_tail",
+      "days": 180,
+      "mean": 0.01,
+      "positive": 634,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 634,
+        "trials": 1000,
+        "rate": 0.634,
+        "wilson95": [
+          0.6036833061797525,
+          0.6632910849990948
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "heavy_tail",
+      "days": 365,
+      "mean": 0.0,
+      "positive": 82,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 82,
+        "trials": 1000,
+        "rate": 0.082,
+        "wilson95": [
+          0.06655169717368087,
+          0.10064759004454163
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "heavy_tail",
+      "days": 365,
+      "mean": 0.0025,
+      "positive": 205,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 205,
+        "trials": 1000,
+        "rate": 0.205,
+        "wilson95": [
+          0.18112966926299381,
+          0.23112820090297662
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "heavy_tail",
+      "days": 365,
+      "mean": 0.005,
+      "positive": 409,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 409,
+        "trials": 1000,
+        "rate": 0.409,
+        "wilson95": [
+          0.378931880862837,
+          0.43976461467988615
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "heavy_tail",
+      "days": 365,
+      "mean": 0.01,
+      "positive": 826,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 826,
+        "trials": 1000,
+        "rate": 0.826,
+        "wilson95": [
+          0.8012668269449458,
+          0.8482380351767277
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "volatility_shift",
+      "days": 90,
+      "mean": 0.0,
+      "positive": 186,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 186,
+        "trials": 1000,
+        "rate": 0.186,
+        "wilson95": [
+          0.16310078087999175,
+          0.21130251143226153
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "volatility_shift",
+      "days": 90,
+      "mean": 0.0025,
+      "positive": 200,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 200,
+        "trials": 1000,
+        "rate": 0.2,
+        "wilson95": [
+          0.17637667806123578,
+          0.2259194610905986
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "volatility_shift",
+      "days": 90,
+      "mean": 0.005,
+      "positive": 270,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 270,
+        "trials": 1000,
+        "rate": 0.27,
+        "wilson95": [
+          0.24340189633576415,
+          0.29835847701397555
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "volatility_shift",
+      "days": 90,
+      "mean": 0.01,
+      "positive": 333,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 333,
+        "trials": 1000,
+        "rate": 0.333,
+        "wilson95": [
+          0.30447739268635393,
+          0.3628007914415006
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "volatility_shift",
+      "days": 180,
+      "mean": 0.0,
+      "positive": 119,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 119,
+        "trials": 1000,
+        "rate": 0.119,
+        "wilson95": [
+          0.10037486818688018,
+          0.14054122853594941
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "volatility_shift",
+      "days": 180,
+      "mean": 0.0025,
+      "positive": 158,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 158,
+        "trials": 1000,
+        "rate": 0.158,
+        "wilson95": [
+          0.1367072897211659,
+          0.18191030891192525
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "volatility_shift",
+      "days": 180,
+      "mean": 0.005,
+      "positive": 209,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 209,
+        "trials": 1000,
+        "rate": 0.209,
+        "wilson95": [
+          0.18493627231405968,
+          0.23529098266321963
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "volatility_shift",
+      "days": 180,
+      "mean": 0.01,
+      "positive": 313,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 313,
+        "trials": 1000,
+        "rate": 0.313,
+        "wilson95": [
+          0.28502043956271916,
+          0.34241082050859095
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "volatility_shift",
+      "days": 365,
+      "mean": 0.0,
+      "positive": 82,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 82,
+        "trials": 1000,
+        "rate": 0.082,
+        "wilson95": [
+          0.06655169717368087,
+          0.10064759004454163
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "volatility_shift",
+      "days": 365,
+      "mean": 0.0025,
+      "positive": 141,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 141,
+        "trials": 1000,
+        "rate": 0.141,
+        "wilson95": [
+          0.1208007805062944,
+          0.163946932678734
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "volatility_shift",
+      "days": 365,
+      "mean": 0.005,
+      "positive": 226,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 226,
+        "trials": 1000,
+        "rate": 0.226,
+        "wilson95": [
+          0.20115424829035228,
+          0.25294289213498977
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "volatility_shift",
+      "days": 365,
+      "mean": 0.01,
+      "positive": 364,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 364,
+        "trials": 1000,
+        "rate": 0.364,
+        "wilson95": [
+          0.3347511248747743,
+          0.39428979154072397
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "shared_unequal",
+      "days": 90,
+      "mean": 0.0,
+      "positive": 181,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 181,
+        "trials": 1000,
+        "rate": 0.181,
+        "wilson95": [
+          0.15837154743410886,
+          0.2060700138640083
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "shared_unequal",
+      "days": 90,
+      "mean": 0.0025,
+      "positive": 254,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 254,
+        "trials": 1000,
+        "rate": 0.254,
+        "wilson95": [
+          0.2279966157390137,
+          0.2818862183654905
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "shared_unequal",
+      "days": 90,
+      "mean": 0.005,
+      "positive": 327,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 327,
+        "trials": 1000,
+        "rate": 0.327,
+        "wilson95": [
+          0.2986340029941519,
+          0.3566901039167394
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "shared_unequal",
+      "days": 90,
+      "mean": 0.01,
+      "positive": 511,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 511,
+        "trials": 1000,
+        "rate": 0.511,
+        "wilson95": [
+          0.4800343958421962,
+          0.5418814123889033
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "shared_unequal",
+      "days": 180,
+      "mean": 0.0,
+      "positive": 126,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 126,
+        "trials": 1000,
+        "rate": 0.126,
+        "wilson95": [
+          0.10685258457167218,
+          0.14800993557094794
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "shared_unequal",
+      "days": 180,
+      "mean": 0.0025,
+      "positive": 189,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 189,
+        "trials": 1000,
+        "rate": 0.189,
+        "wilson95": [
+          0.1659414607063728,
+          0.21443887021436217
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "shared_unequal",
+      "days": 180,
+      "mean": 0.005,
+      "positive": 306,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 306,
+        "trials": 1000,
+        "rate": 0.306,
+        "wilson95": [
+          0.278224938136047,
+          0.33525989851547255
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "shared_unequal",
+      "days": 180,
+      "mean": 0.01,
+      "positive": 571,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 571,
+        "trials": 1000,
+        "rate": 0.571,
+        "wilson95": [
+          0.540109552848234,
+          0.6013470275524984
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "shared_unequal",
+      "days": 365,
+      "mean": 0.0,
+      "positive": 87,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 87,
+        "trials": 1000,
+        "rate": 0.087,
+        "wilson95": [
+          0.07107415624980785,
+          0.10608686198255073
+        ]
+      },
+      "criterion": "POINTWISE_NULL_TOLERANCE",
+      "criterion_met": false
+    },
+    {
+      "model": "shared_unequal",
+      "days": 365,
+      "mean": 0.0025,
+      "positive": 209,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 209,
+        "trials": 1000,
+        "rate": 0.209,
+        "wilson95": [
+          0.18493627231405968,
+          0.23529098266321963
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "shared_unequal",
+      "days": 365,
+      "mean": 0.005,
+      "positive": 383,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 383,
+        "trials": 1000,
+        "rate": 0.383,
+        "wilson95": [
+          0.3533721971089626,
+          0.4135232971602528
+        ]
+      },
+      "criterion": "TARGET_POWER",
+      "criterion_met": false
+    },
+    {
+      "model": "shared_unequal",
+      "days": 365,
+      "mean": 0.01,
+      "positive": 770,
+      "unavailable": 0,
+      "refused": 0,
+      "positive_rate": {
+        "count": 770,
+        "trials": 1000,
+        "rate": 0.77,
+        "wilson95": [
+          0.7429127286442809,
+          0.7950207461190684
+        ]
+      },
+      "criterion": "DESCRIPTIVE_OTHER_EFFECT",
+      "criterion_met": null
+    },
+    {
+      "model": "sparse",
+      "days": 90,
+      "mean": 0.0,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "sparse",
+      "days": 90,
+      "mean": 0.0025,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "sparse",
+      "days": 90,
+      "mean": 0.005,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "sparse",
+      "days": 90,
+      "mean": 0.01,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "sparse",
+      "days": 180,
+      "mean": 0.0,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "sparse",
+      "days": 180,
+      "mean": 0.0025,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "sparse",
+      "days": 180,
+      "mean": 0.005,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "sparse",
+      "days": 180,
+      "mean": 0.01,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "sparse",
+      "days": 365,
+      "mean": 0.0,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "sparse",
+      "days": 365,
+      "mean": 0.0025,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "sparse",
+      "days": 365,
+      "mean": 0.005,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "sparse",
+      "days": 365,
+      "mean": 0.01,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "random_missing",
+      "days": 90,
+      "mean": 0.0,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "random_missing",
+      "days": 90,
+      "mean": 0.0025,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "random_missing",
+      "days": 90,
+      "mean": 0.005,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "random_missing",
+      "days": 90,
+      "mean": 0.01,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "random_missing",
+      "days": 180,
+      "mean": 0.0,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "random_missing",
+      "days": 180,
+      "mean": 0.0025,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "random_missing",
+      "days": 180,
+      "mean": 0.005,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "random_missing",
+      "days": 180,
+      "mean": 0.01,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "random_missing",
+      "days": 365,
+      "mean": 0.0,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "random_missing",
+      "days": 365,
+      "mean": 0.0025,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "random_missing",
+      "days": 365,
+      "mean": 0.005,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "random_missing",
+      "days": 365,
+      "mean": 0.01,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 90,
+      "mean": 0.0,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 90,
+      "mean": 0.0025,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 90,
+      "mean": 0.005,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 90,
+      "mean": 0.01,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 180,
+      "mean": 0.0,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 180,
+      "mean": 0.0025,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 180,
+      "mean": 0.005,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 180,
+      "mean": 0.01,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 365,
+      "mean": 0.0,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 365,
+      "mean": 0.0025,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 365,
+      "mean": 0.005,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    },
+    {
+      "model": "loss_missing",
+      "days": 365,
+      "mean": 0.01,
+      "positive": 0,
+      "unavailable": 1000,
+      "refused": 1000,
+      "positive_rate": {
+        "count": 0,
+        "trials": 1000,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.003826898586390522
+        ]
+      },
+      "criterion": "REFUSAL_ONLY",
+      "criterion_met": true
+    }
+  ],
+  "synthetic_candidate_days": "NO_CERTIFIED_SAMPLE",
+  "elapsed_seconds": 144.7489015419851,
+  "scoring_authorized": false,
+  "limits": [
+    "pointwise_tolerance_not_error_rate_le_5_percent",
+    "no_real_market_sample_or_profitability_certification"
+  ]
+}

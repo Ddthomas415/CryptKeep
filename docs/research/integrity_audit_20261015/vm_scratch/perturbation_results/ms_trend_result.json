@@ -1,0 +1,668 @@
+{
+ "artifact_type": "research_only_preregistered_test_E10",
+ "prereg_sha256": "83191d18ea36d6250d72b746edefd43d0ac9e38905f7441dbf78b7812e5986a6",
+ "script_sha256": "605e6ecaa7dc543bbb72e6adac729276b063f4b7b8dfb38eb81c3ca132f4e3f8",
+ "inputs_sha256": {
+  "scripts/research/rerun_frozen_stress.py": "1f98513ae63c4f84819327746872a9dd0a73b3bc35e5e67364c57458ca395907",
+  "scripts/research/corrected_research_math.py": "d07ae7171e2293cbe60d15ae9bc0973d3ef8bd31b9c7b99105f928c029e29047",
+  "docs/research/majors_trend_20261009/BTC-USD_d1.json": "d5a08f3a2e93ac3315da2f5771b4b7b6a98331c37b4a5716ba3cb40aa54d6adb",
+  "docs/research/majors_trend_20261009/ETH-USD_d1.json": "5812bb076daa090dabf0c58083aa530fa811c33b6776d71815da7e2904cc4216"
+ },
+ "data_sha256": {
+  "ADA-USD.json": "f53450e644e60991c62b31df7228531dd0f5659064505392e6bf9bcca8dee422",
+  "AVAX-USD.json": "7d967b08567b60dbce15097425645ca4cc2c356cd32ecbc8967771ff5cfc6c2a",
+  "BTC-USD.json": "cb187efb1aeb24b1680c879264bcdb2a316f61ba9568d2d4348c0e0454403d4f",
+  "DOGE-USD.json": "a668996378f3d0ce3c9ff6222b1ff8086d86e7493911319c12862bf30a5d088c",
+  "DOT-USD.json": "d407728f45451756f83d6a3c8f877e4bb4822c6d966557f1e2cf6ad5ecb0acca",
+  "ETH-USD.json": "35f261ce2d922720a87fcbb38cd3c65a5ff7e89b5a8ffd7e22bdde90ed9ee19d",
+  "LINK-USD.json": "9654745ab59ff4843b526b9af8fe9ffc92f882a10500e46356770f93802397c3",
+  "LTC-USD.json": "99825086e6baebb9146d74414ba05c4b041f721b81e1da17f2519dbfbd5f1527",
+  "SOL-USD.json": "e4b44a9b842daa664e12ce949aaca8c052a82eafdbea6544527782629169cee8",
+  "XRP-USD.json": "e096fcbb55aedfb628d4ca3d4230475d38b16d16c4a1224248b3308f70308456"
+ },
+ "simulator_check": "new simulator reproduces reviewed harness (BTC+ETH, Sunday 2020-01-05..2026-10-08) max diff 7.28e-12 USD",
+ "slippage": 0.001,
+ "periods": {
+  "D": [
+   "2019-01-06",
+   "2023-12-31"
+  ],
+  "H": [
+   "2024-01-07",
+   "2026-10-11"
+  ]
+ },
+ "results": {
+  "0.005": {
+   "D": {
+    "portfolio_core10": {
+     "end_usd": 5741.84,
+     "cagr_pct": 42.0,
+     "sharpe": 1.204,
+     "max_drawdown_pct": 42.4,
+     "days": 1820,
+     "turnover_per_year_x": 8.42,
+     "days_with_frozen_holding": 0
+    },
+    "incumbent_btc_eth": {
+     "end_usd": 11603.12,
+     "cagr_pct": 63.5,
+     "sharpe": 1.459,
+     "max_drawdown_pct": 44.8,
+     "days": 1820,
+     "turnover_per_year_x": 9.18
+    },
+    "hold_btc": {
+     "end_usd": 10402.34,
+     "cagr_pct": 60.0,
+     "sharpe": 1.035,
+     "max_drawdown_pct": 76.7,
+     "days": 1820
+    },
+    "equal_weight_core": {
+     "end_usd": 12798.09,
+     "cagr_pct": 66.7,
+     "sharpe": 1.041,
+     "max_drawdown_pct": 76.3,
+     "days": 1820,
+     "turnover_per_year_x": 2.98
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0
+    }
+   },
+   "H": {
+    "portfolio_core10": {
+     "end_usd": 1538.71,
+     "cagr_pct": 16.9,
+     "sharpe": 1.314,
+     "max_drawdown_pct": 3.5,
+     "days": 1008,
+     "turnover_per_year_x": 1.75,
+     "days_with_frozen_holding": 0
+    },
+    "incumbent_btc_eth": {
+     "end_usd": 1550.39,
+     "cagr_pct": 17.2,
+     "sharpe": 0.722,
+     "max_drawdown_pct": 9.3,
+     "days": 1008,
+     "turnover_per_year_x": 1.76
+    },
+    "hold_btc": {
+     "end_usd": 1250.12,
+     "cagr_pct": 8.4,
+     "sharpe": 3.763,
+     "max_drawdown_pct": 92.5,
+     "days": 1008
+    },
+    "equal_weight_core": {
+     "end_usd": 148088124.81,
+     "cagr_pct": 7351.8,
+     "sharpe": 2.874,
+     "max_drawdown_pct": 50.2,
+     "days": 1008,
+     "turnover_per_year_x": 17.21
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0
+    }
+   }
+  },
+  "0.009": {
+   "D": {
+    "portfolio_core10": {
+     "end_usd": 4852.78,
+     "cagr_pct": 37.3,
+     "sharpe": 1.103,
+     "max_drawdown_pct": 45.1,
+     "days": 1820,
+     "turnover_per_year_x": 8.42,
+     "days_with_frozen_holding": 0
+    },
+    "incumbent_btc_eth": {
+     "end_usd": 9658.78,
+     "cagr_pct": 57.6,
+     "sharpe": 1.365,
+     "max_drawdown_pct": 46.1,
+     "days": 1820,
+     "turnover_per_year_x": 9.17
+    },
+    "hold_btc": {
+     "end_usd": 10361.1,
+     "cagr_pct": 59.8,
+     "sharpe": 1.034,
+     "max_drawdown_pct": 76.7,
+     "days": 1820
+    },
+    "equal_weight_core": {
+     "end_usd": 12164.76,
+     "cagr_pct": 65.1,
+     "sharpe": 1.027,
+     "max_drawdown_pct": 76.3,
+     "days": 1820,
+     "turnover_per_year_x": 2.98
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0
+    }
+   },
+   "H": {
+    "portfolio_core10": {
+     "end_usd": 1509.22,
+     "cagr_pct": 16.1,
+     "sharpe": 1.258,
+     "max_drawdown_pct": 3.6,
+     "days": 1008,
+     "turnover_per_year_x": 1.75,
+     "days_with_frozen_holding": 0
+    },
+    "incumbent_btc_eth": {
+     "end_usd": 1520.51,
+     "cagr_pct": 16.4,
+     "sharpe": 0.696,
+     "max_drawdown_pct": 9.4,
+     "days": 1008,
+     "turnover_per_year_x": 1.76
+    },
+    "hold_btc": {
+     "end_usd": 1245.16,
+     "cagr_pct": 8.3,
+     "sharpe": 3.763,
+     "max_drawdown_pct": 92.5,
+     "days": 1008
+    },
+    "equal_weight_core": {
+     "end_usd": 122421167.09,
+     "cagr_pct": 6855.5,
+     "sharpe": 2.85,
+     "max_drawdown_pct": 50.4,
+     "days": 1008,
+     "turnover_per_year_x": 17.2
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0
+    }
+   }
+  }
+ },
+ "pass_checks": {
+  "0.005": {
+   "D_sharpe_ge_incumbent": false,
+   "D_maxdd_le_incumbent_plus_2": true,
+   "H_sharpe_ge_incumbent_minus_0.05": true,
+   "H_maxdd_le_incumbent_plus_2": true
+  },
+  "0.009": {
+   "D_sharpe_ge_incumbent": false,
+   "D_maxdd_le_incumbent_plus_2": true,
+   "H_sharpe_ge_incumbent_minus_0.05": true,
+   "H_maxdd_le_incumbent_plus_2": true
+  }
+ },
+ "verdict": "FAIL",
+ "standalone_fee0.50": {
+  "BTC": {
+   "D": {
+    "start": "2019-01-06",
+    "trend": {
+     "end_usd": 12934.96,
+     "cagr_pct": 67.1,
+     "sharpe": 1.499,
+     "max_drawdown_pct": 40.1,
+     "days": 1820,
+     "turnover_per_year_x": 9.44,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 10402.34,
+     "cagr_pct": 60.0,
+     "sharpe": 1.035,
+     "max_drawdown_pct": 76.7,
+     "days": 1820
+    }
+   },
+   "H": {
+    "start": "2024-01-07",
+    "trend": {
+     "end_usd": 1446.85,
+     "cagr_pct": 14.3,
+     "sharpe": 0.542,
+     "max_drawdown_pct": 15.3,
+     "days": 1008,
+     "turnover_per_year_x": 1.75,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 1250.12,
+     "cagr_pct": 8.4,
+     "sharpe": 3.763,
+     "max_drawdown_pct": 92.5,
+     "days": 1008
+    }
+   },
+   "classification": "INCONCLUSIVE"
+  },
+  "ETH": {
+   "D": {
+    "start": "2019-01-06",
+    "trend": {
+     "end_usd": 9183.96,
+     "cagr_pct": 56.0,
+     "sharpe": 1.21,
+     "max_drawdown_pct": 50.2,
+     "days": 1820,
+     "turnover_per_year_x": 8.57,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 14543.35,
+     "cagr_pct": 71.1,
+     "sharpe": 1.061,
+     "max_drawdown_pct": 79.4,
+     "days": 1820
+    }
+   },
+   "H": {
+    "start": "2024-01-07",
+    "trend": {
+     "end_usd": 1605.87,
+     "cagr_pct": 18.7,
+     "sharpe": 0.633,
+     "max_drawdown_pct": 16.1,
+     "days": 1008,
+     "turnover_per_year_x": 1.74,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 880.3,
+     "cagr_pct": -4.5,
+     "sharpe": 3.712,
+     "max_drawdown_pct": 92.3,
+     "days": 1008
+    }
+   },
+   "classification": "INCONCLUSIVE"
+  },
+  "SOL": {
+   "D": {
+    "start": "2021-08-22",
+    "trend": {
+     "end_usd": 2302.46,
+     "cagr_pct": 42.4,
+     "sharpe": 1.083,
+     "max_drawdown_pct": 49.0,
+     "days": 861,
+     "turnover_per_year_x": 7.3,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 1388.29,
+     "cagr_pct": 14.9,
+     "sharpe": 0.686,
+     "max_drawdown_pct": 96.3,
+     "days": 861
+    }
+   },
+   "H": {
+    "start": "2024-01-07",
+    "trend": {
+     "end_usd": 1659.0,
+     "cagr_pct": 20.1,
+     "sharpe": 0.661,
+     "max_drawdown_pct": 14.3,
+     "days": 1008,
+     "turnover_per_year_x": 1.58,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 1190.97,
+     "cagr_pct": 6.5,
+     "sharpe": 3.803,
+     "max_drawdown_pct": 96.4,
+     "days": 1008
+    }
+   },
+   "classification": "INCONCLUSIVE"
+  },
+  "DOGE": {
+   "D": {
+    "start": "2021-08-08",
+    "trend": {
+     "end_usd": 816.5,
+     "cagr_pct": -8.1,
+     "sharpe": -0.032,
+     "max_drawdown_pct": 52.6,
+     "days": 875,
+     "turnover_per_year_x": 8.5,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 370.77,
+     "cagr_pct": -33.9,
+     "sharpe": -0.016,
+     "max_drawdown_pct": 84.5,
+     "days": 875
+    }
+   },
+   "H": {
+    "start": "2024-01-07",
+    "trend": {
+     "end_usd": 1258.52,
+     "cagr_pct": 8.7,
+     "sharpe": 0.419,
+     "max_drawdown_pct": 17.4,
+     "days": 1008,
+     "turnover_per_year_x": 1.56,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 699.46,
+     "cagr_pct": -12.1,
+     "sharpe": 3.665,
+     "max_drawdown_pct": 94.9,
+     "days": 1008
+    }
+   },
+   "classification": "REJECTED_UNDER_TESTED_CONDITIONS"
+  },
+  "LTC": {
+   "D": {
+    "start": "2019-01-06",
+    "trend": {
+     "end_usd": 1385.36,
+     "cagr_pct": 6.8,
+     "sharpe": 0.366,
+     "max_drawdown_pct": 60.6,
+     "days": 1820,
+     "turnover_per_year_x": 8.26,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 1861.51,
+     "cagr_pct": 13.3,
+     "sharpe": 0.612,
+     "max_drawdown_pct": 88.8,
+     "days": 1820
+    }
+   },
+   "H": {
+    "start": "2024-01-07",
+    "trend": {
+     "end_usd": 1700.78,
+     "cagr_pct": 21.2,
+     "sharpe": 0.68,
+     "max_drawdown_pct": 16.4,
+     "days": 1008,
+     "turnover_per_year_x": 1.75,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 617.02,
+     "cagr_pct": -16.0,
+     "sharpe": 3.661,
+     "max_drawdown_pct": 90.9,
+     "days": 1008
+    }
+   },
+   "classification": "REJECTED_UNDER_TESTED_CONDITIONS"
+  },
+  "LINK": {
+   "D": {
+    "start": "2019-09-01",
+    "trend": {
+     "end_usd": 3695.29,
+     "cagr_pct": 35.2,
+     "sharpe": 0.892,
+     "max_drawdown_pct": 58.4,
+     "days": 1582,
+     "turnover_per_year_x": 6.48,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 8347.4,
+     "cagr_pct": 63.2,
+     "sharpe": 1.005,
+     "max_drawdown_pct": 90.2,
+     "days": 1582
+    }
+   },
+   "H": {
+    "start": "2024-01-07",
+    "trend": {
+     "end_usd": 1624.51,
+     "cagr_pct": 19.2,
+     "sharpe": 0.647,
+     "max_drawdown_pct": 16.1,
+     "days": 1008,
+     "turnover_per_year_x": 1.72,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 2771.9,
+     "cagr_pct": 44.7,
+     "sharpe": 3.793,
+     "max_drawdown_pct": 91.8,
+     "days": 1008
+    }
+   },
+   "classification": "REJECTED_UNDER_TESTED_CONDITIONS"
+  },
+  "AVAX": {
+   "D": {
+    "start": "2021-12-05",
+    "trend": {
+     "end_usd": 1461.36,
+     "cagr_pct": 20.1,
+     "sharpe": 0.677,
+     "max_drawdown_pct": 44.9,
+     "days": 756,
+     "turnover_per_year_x": 6.06,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 443.09,
+     "cagr_pct": -32.5,
+     "sharpe": 0.108,
+     "max_drawdown_pct": 92.9,
+     "days": 756
+    }
+   },
+   "H": {
+    "start": "2024-01-07",
+    "trend": {
+     "end_usd": 1357.04,
+     "cagr_pct": 11.7,
+     "sharpe": 0.471,
+     "max_drawdown_pct": 14.4,
+     "days": 1008,
+     "turnover_per_year_x": 1.95,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 176.05,
+     "cagr_pct": -46.7,
+     "sharpe": 3.57,
+     "max_drawdown_pct": 96.8,
+     "days": 1008
+    }
+   },
+   "classification": "INCONCLUSIVE"
+  },
+  "ADA": {
+   "D": {
+    "start": "2021-05-23",
+    "trend": {
+     "end_usd": 1496.04,
+     "cagr_pct": 16.7,
+     "sharpe": 0.595,
+     "max_drawdown_pct": 61.8,
+     "days": 952,
+     "turnover_per_year_x": 7.02,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 447.83,
+     "cagr_pct": -26.5,
+     "sharpe": 0.072,
+     "max_drawdown_pct": 91.8,
+     "days": 952
+    }
+   },
+   "H": {
+    "start": "2024-01-07",
+    "trend": {
+     "end_usd": 1006.49,
+     "cagr_pct": 0.2,
+     "sharpe": 0.17,
+     "max_drawdown_pct": 18.9,
+     "days": 1008,
+     "turnover_per_year_x": 1.4,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 331.29,
+     "cagr_pct": -33.0,
+     "sharpe": 3.74,
+     "max_drawdown_pct": 95.5,
+     "days": 1008
+    }
+   },
+   "classification": "INCONCLUSIVE"
+  },
+  "XRP": {
+   "D": {
+    "start": "2019-04-28",
+    "trend": {
+     "end_usd": 1272.03,
+     "cagr_pct": 5.3,
+     "sharpe": 0.309,
+     "max_drawdown_pct": 47.2,
+     "days": 1708,
+     "turnover_per_year_x": 4.94,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 2102.15,
+     "cagr_pct": 17.2,
+     "sharpe": 0.516,
+     "max_drawdown_pct": 70.8,
+     "days": 1708
+    }
+   },
+   "H": {
+    "start": "2024-01-07",
+    "trend": {
+     "end_usd": 1770.64,
+     "cagr_pct": 23.0,
+     "sharpe": 0.679,
+     "max_drawdown_pct": 18.0,
+     "days": 1008,
+     "turnover_per_year_x": 2.03,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 3094.19,
+     "cagr_pct": 50.5,
+     "sharpe": 3.746,
+     "max_drawdown_pct": 93.5,
+     "days": 1008
+    }
+   },
+   "classification": "REJECTED_UNDER_TESTED_CONDITIONS"
+  },
+  "DOT": {
+   "D": {
+    "start": "2021-08-15",
+    "trend": {
+     "end_usd": 926.92,
+     "cagr_pct": -3.1,
+     "sharpe": 0.095,
+     "max_drawdown_pct": 58.8,
+     "days": 868,
+     "turnover_per_year_x": 7.57,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 351.76,
+     "cagr_pct": -35.6,
+     "sharpe": -0.057,
+     "max_drawdown_pct": 93.2,
+     "days": 868
+    }
+   },
+   "H": {
+    "start": "2024-01-07",
+    "trend": {
+     "end_usd": 1679.84,
+     "cagr_pct": 20.7,
+     "sharpe": 0.667,
+     "max_drawdown_pct": 16.0,
+     "days": 1008,
+     "turnover_per_year_x": 1.71,
+     "days_with_frozen_holding": 0
+    },
+    "hold": {
+     "end_usd": 82.3,
+     "cagr_pct": -59.5,
+     "sharpe": 3.673,
+     "max_drawdown_pct": 97.8,
+     "days": 1008
+    }
+   },
+   "classification": "INCONCLUSIVE"
+  }
+ },
+ "dsr_portfolio_DH_fee0.50": {
+  "N=26": 0.8072,
+  "N=120": 0.5789
+ },
+ "sensitivity_reported_only_fee0.50": [
+  {
+   "variant": "band0.05",
+   "D": {
+    "end_usd": 6925.96,
+    "cagr_pct": 47.4,
+    "sharpe": 1.265,
+    "max_drawdown_pct": 44.1,
+    "days": 1820,
+    "turnover_per_year_x": 6.97
+   },
+   "H": {
+    "end_usd": 1000.0,
+    "cagr_pct": 0.0,
+    "sharpe": 0.0,
+    "max_drawdown_pct": 0,
+    "days": 1008,
+    "turnover_per_year_x": 0.0
+   }
+  },
+  {
+   "variant": "no_volscale",
+   "D": {
+    "end_usd": 8606.51,
+    "cagr_pct": 54.0,
+    "sharpe": 1.051,
+    "max_drawdown_pct": 54.7,
+    "days": 1820,
+    "turnover_per_year_x": 11.49
+   },
+   "H": {
+    "end_usd": 469999.42,
+    "cagr_pct": 828.1,
+    "sharpe": 2.093,
+    "max_drawdown_pct": 44.6,
+    "days": 1008,
+    "turnover_per_year_x": 28.02
+   }
+  }
+ ]
+}

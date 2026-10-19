@@ -249,6 +249,9 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
 
 
 def get_research_explain(asset: str, question: str | None = None) -> dict[str, Any]:
+    from dashboard.services.views._explain_diagnostics import record_explain_event
+    from dashboard.services.views._shared_http import companion_request_base
+
     vd = _view_data()
     asset_symbol = str(asset or "").strip().upper() or "SOL"
     resolved_question = question or f"Why is {asset_symbol} moving?"
@@ -259,17 +262,21 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
         *,
         default_provider: str,
         default_fallback: bool,
+        route: str,
     ) -> dict[str, Any] | None:
         if isinstance(envelope, dict) and isinstance(envelope.get("data"), dict):
             data = dict(envelope["data"])
         elif isinstance(envelope, dict):
             data = dict(envelope)
         else:
+            record_explain_event(route, "normalization", "invalid_envelope")
             return None
 
         if not any(key in data for key in ("current_cause", "past_precedent", "future_catalyst")):
+            record_explain_event(route, "normalization", "missing_explanation_fields", payload=envelope)
             return None
         if vd._explain_mentions_foreign_asset(data, asset_symbol):
+            record_explain_event(route, "normalization", "foreign_asset", payload=envelope)
             return None
 
         data["asset"] = asset_symbol
@@ -282,6 +289,7 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
             "fallback": bool(assistant_status.get("fallback")) if "fallback" in assistant_status else default_fallback,
             "message": assistant_message or None,
         }
+        record_explain_event(route, "normalization", "accepted", payload=data)
         return data
 
     primary_envelope = vd._request_envelope(
@@ -293,19 +301,21 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
         primary_envelope,
         default_provider="backend_api",
         default_fallback=False,
+        route="primary",
     )
     if primary is not None:
         return primary
 
     phase1 = _normalize_explain(
         vd._request_envelope_from_base(
-            vd.PHASE1_ORCHESTRATOR_URL,
+            companion_request_base(vd.PHASE1_ORCHESTRATOR_URL),
             "/v1/explain",
             method="POST",
             payload={"asset": asset_symbol, "question": resolved_question, "lookback_minutes": 60},
         ),
         default_provider="phase1_copilot",
         default_fallback=False,
+        route="companion",
     )
     if phase1 is not None:
         return phase1
@@ -321,6 +331,8 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
             "fallback": True,
             "message": "Static asset-aware dashboard fallback used because no valid explain response was available.",
         }
+        record_explain_event("dashboard", "selection", "static_fallback", payload=data)
         return data
 
+    record_explain_event("dashboard", "selection", "static_fallback", payload=fallback)
     return fallback

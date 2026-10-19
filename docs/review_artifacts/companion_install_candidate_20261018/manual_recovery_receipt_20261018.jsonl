@@ -1,0 +1,5 @@
+{"original_id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe", "phase": "preconditions_passed", "replacement_id": "709958bfca10891d324809686c31f82afec8f1121674138dda4af600fa24a4f4"}
+{"phase": "remove_owned_never_started_replacement_intended"}
+{"phase": "restore_original_name_intended"}
+{"phase": "restore_original_network_intended"}
+{"phase": "recovery_incomplete"}

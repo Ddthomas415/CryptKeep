@@ -1,0 +1,412 @@
+{
+ "results": {
+  "fee_0.50pct": {
+   "D": {
+    "period": [
+     "2017-01-01",
+     "2023-12-31"
+    ],
+    "composite": {
+     "end_usd": 38033.552661,
+     "sharpe": 1.59151,
+     "max_drawdown_pct": 45.005345,
+     "turnover_per_year": 4.596717,
+     "rebalance_count": 168
+    },
+    "incumbent": {
+     "end_usd": 42583.312399,
+     "sharpe": 1.564158,
+     "max_drawdown_pct": 51.878042,
+     "turnover_per_year": 9.249778,
+     "rebalance_count": 271
+    },
+    "hold_btc": {
+     "end_usd": 42354.821262,
+     "sharpe": 1.091607,
+     "max_drawdown_pct": 83.801535,
+     "turnover_per_year": 0.142075,
+     "rebalance_count": 1
+    },
+    "mix_25_25_50": {
+     "end_usd": 23675.80422,
+     "sharpe": 1.315722,
+     "max_drawdown_pct": 61.178039,
+     "turnover_per_year": 1.441533,
+     "rebalance_count": 365
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0,
+     "turnover_per_year": 0.0,
+     "rebalance_count": 0
+    }
+   },
+   "H": {
+    "period": [
+     "2024-01-07",
+     "2026-10-08"
+    ],
+    "composite": {
+     "end_usd": 1278.299347,
+     "sharpe": 0.450113,
+     "max_drawdown_pct": 34.004673,
+     "turnover_per_year": 6.321472,
+     "rebalance_count": 84
+    },
+    "incumbent": {
+     "end_usd": 1845.926704,
+     "sharpe": 0.869469,
+     "max_drawdown_pct": 32.020772,
+     "turnover_per_year": 12.689931,
+     "rebalance_count": 105
+    },
+    "hold_btc": {
+     "end_usd": 1848.404563,
+     "sharpe": 0.707022,
+     "max_drawdown_pct": 53.07578,
+     "turnover_per_year": 0.361197,
+     "rebalance_count": 1
+    },
+    "mix_25_25_50": {
+     "end_usd": 1340.754779,
+     "sharpe": 0.525646,
+     "max_drawdown_pct": 35.761194,
+     "turnover_per_year": 1.051575,
+     "rebalance_count": 144
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0,
+     "turnover_per_year": 0.0,
+     "rebalance_count": 0
+    }
+   }
+  },
+  "fee_0.90pct": {
+   "D": {
+    "period": [
+     "2017-01-01",
+     "2023-12-31"
+    ],
+    "composite": {
+     "end_usd": 33457.83655,
+     "sharpe": 1.541588,
+     "max_drawdown_pct": 45.861197,
+     "turnover_per_year": 4.594915,
+     "rebalance_count": 168
+    },
+    "incumbent": {
+     "end_usd": 32851.926745,
+     "sharpe": 1.46929,
+     "max_drawdown_pct": 54.085138,
+     "turnover_per_year": 9.241404,
+     "rebalance_count": 271
+    },
+    "hold_btc": {
+     "end_usd": 42186.91315,
+     "sharpe": 1.090852,
+     "max_drawdown_pct": 83.801535,
+     "turnover_per_year": 0.141512,
+     "rebalance_count": 1
+    },
+    "mix_25_25_50": {
+     "end_usd": 22738.805877,
+     "sharpe": 1.30163,
+     "max_drawdown_pct": 61.406492,
+     "turnover_per_year": 1.441508,
+     "rebalance_count": 365
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0,
+     "turnover_per_year": 0.0,
+     "rebalance_count": 0
+    }
+   },
+   "H": {
+    "period": [
+     "2024-01-07",
+     "2026-10-08"
+    ],
+    "composite": {
+     "end_usd": 1192.223543,
+     "sharpe": 0.363821,
+     "max_drawdown_pct": 35.502932,
+     "turnover_per_year": 6.316679,
+     "rebalance_count": 84
+    },
+    "incumbent": {
+     "end_usd": 1604.60934,
+     "sharpe": 0.705702,
+     "max_drawdown_pct": 33.855931,
+     "turnover_per_year": 12.677539,
+     "rebalance_count": 105
+    },
+    "hold_btc": {
+     "end_usd": 1841.076894,
+     "sharpe": 0.704078,
+     "max_drawdown_pct": 53.07578,
+     "turnover_per_year": 0.359765,
+     "rebalance_count": 1
+    },
+    "mix_25_25_50": {
+     "end_usd": 1325.315147,
+     "sharpe": 0.510364,
+     "max_drawdown_pct": 35.892692,
+     "turnover_per_year": 1.051217,
+     "rebalance_count": 144
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "sharpe": 0.0,
+     "max_drawdown_pct": 0.0,
+     "turnover_per_year": 0.0,
+     "rebalance_count": 0
+    }
+   }
+  }
+ },
+ "sensitivities": {
+  "fee_0.50pct": {
+   "D": {
+    "band_0_ensemble_only": {
+     "end_usd": 34607.68281,
+     "sharpe": 1.584331,
+     "max_drawdown_pct": 43.836688,
+     "turnover_per_year": 5.993858,
+     "rebalance_count": 345
+    },
+    "band_0_20": {
+     "end_usd": 40300.241484,
+     "sharpe": 1.577866,
+     "max_drawdown_pct": 42.578847,
+     "turnover_per_year": 2.516283,
+     "rebalance_count": 62
+    },
+    "no_vol_scaling_band_0_10": {
+     "end_usd": 189146.012367,
+     "sharpe": 1.585465,
+     "max_drawdown_pct": 57.625285,
+     "turnover_per_year": 5.885039,
+     "rebalance_count": 199
+    }
+   },
+   "H": {
+    "band_0_ensemble_only": {
+     "end_usd": 1255.849287,
+     "sharpe": 0.429505,
+     "max_drawdown_pct": 35.523312,
+     "turnover_per_year": 7.929391,
+     "rebalance_count": 135
+    },
+    "band_0_20": {
+     "end_usd": 1482.103033,
+     "sharpe": 0.616419,
+     "max_drawdown_pct": 34.205749,
+     "turnover_per_year": 3.023133,
+     "rebalance_count": 26
+    },
+    "no_vol_scaling_band_0_10": {
+     "end_usd": 1253.968729,
+     "sharpe": 0.41473,
+     "max_drawdown_pct": 39.242364,
+     "turnover_per_year": 7.357067,
+     "rebalance_count": 91
+    }
+   }
+  },
+  "fee_0.90pct": {
+   "D": {
+    "band_0_ensemble_only": {
+     "end_usd": 29257.881371,
+     "sharpe": 1.517759,
+     "max_drawdown_pct": 45.032781,
+     "turnover_per_year": 5.991208,
+     "rebalance_count": 345
+    },
+    "band_0_20": {
+     "end_usd": 37670.72369,
+     "sharpe": 1.551857,
+     "max_drawdown_pct": 42.994437,
+     "turnover_per_year": 2.515296,
+     "rebalance_count": 62
+    },
+    "no_vol_scaling_band_0_10": {
+     "end_usd": 160324.756089,
+     "sharpe": 1.544304,
+     "max_drawdown_pct": 58.451596,
+     "turnover_per_year": 5.882304,
+     "rebalance_count": 199
+    }
+   },
+   "H": {
+    "band_0_ensemble_only": {
+     "end_usd": 1150.754726,
+     "sharpe": 0.320226,
+     "max_drawdown_pct": 37.195176,
+     "turnover_per_year": 7.924595,
+     "rebalance_count": 135
+    },
+    "band_0_20": {
+     "end_usd": 1350.124128,
+     "sharpe": 0.514574,
+     "max_drawdown_pct": 37.501267,
+     "turnover_per_year": 3.305797,
+     "rebalance_count": 28
+    },
+    "no_vol_scaling_band_0_10": {
+     "end_usd": 1156.167987,
+     "sharpe": 0.32393,
+     "max_drawdown_pct": 40.857664,
+     "turnover_per_year": 7.351881,
+     "rebalance_count": 91
+    }
+   }
+  }
+ },
+ "checks": {
+  "pass_criteria": {
+   "fee_0.50pct": {
+    "D_sharpe_ge_incumbent": [
+     true,
+     1.59151,
+     1.564158
+    ],
+    "D_turnover_le_0.75x": [
+     true,
+     4.596717,
+     6.937333499999999
+    ],
+    "H_sharpe_ge_incumbent_minus_0.05": [
+     false,
+     0.450113,
+     0.819469
+    ],
+    "H_mdd_le_incumbent_plus_2pp": [
+     true,
+     34.004673,
+     34.020772
+    ]
+   },
+   "fee_0.90pct": {
+    "D_sharpe_ge_incumbent": [
+     true,
+     1.541588,
+     1.46929
+    ],
+    "D_turnover_le_0.75x": [
+     true,
+     4.594915,
+     6.9310529999999995
+    ],
+    "H_sharpe_ge_incumbent_minus_0.05": [
+     false,
+     0.363821,
+     0.655702
+    ],
+    "H_mdd_le_incumbent_plus_2pp": [
+     true,
+     35.502932,
+     35.855931
+    ]
+   }
+  },
+  "simulator_internal_check_max_abs_usd_diff_band0_vs_noband_incumbent": {
+   "fee_0.50pct_D": 0.0,
+   "fee_0.50pct_H": 0.0,
+   "fee_0.90pct_D": 0.0,
+   "fee_0.90pct_H": 0.0
+  },
+  "simulator_check_vs_reviewed_harness": "NOT PERFORMED: reviewed harness curve not available in blind scope",
+  "band_overallocation_clamp_events": [
+   "primary_fee_0.50pct_D:2020-10-26",
+   "novol_fee_0.50pct_D:2017-02-20",
+   "novol_fee_0.50pct_D:2017-08-21",
+   "novol_fee_0.50pct_D:2017-10-09",
+   "novol_fee_0.50pct_D:2017-12-11",
+   "novol_fee_0.50pct_D:2020-10-26",
+   "novol_fee_0.50pct_D:2020-12-21",
+   "novol_fee_0.50pct_D:2021-03-15",
+   "novol_fee_0.50pct_D:2021-05-10",
+   "novol_fee_0.50pct_D:2021-11-08",
+   "primary_fee_0.50pct_H:2024-02-12",
+   "band020_fee_0.50pct_H:2024-02-12",
+   "band020_fee_0.50pct_H:2026-09-21",
+   "novol_fee_0.50pct_H:2024-02-12",
+   "novol_fee_0.50pct_H:2024-11-11",
+   "primary_fee_0.90pct_D:2020-10-26",
+   "novol_fee_0.90pct_D:2017-02-20",
+   "novol_fee_0.90pct_D:2017-08-21",
+   "novol_fee_0.90pct_D:2017-10-09",
+   "novol_fee_0.90pct_D:2017-12-11",
+   "novol_fee_0.90pct_D:2020-10-26",
+   "novol_fee_0.90pct_D:2020-12-21",
+   "novol_fee_0.90pct_D:2021-03-15",
+   "novol_fee_0.90pct_D:2021-05-10",
+   "novol_fee_0.90pct_D:2021-11-08",
+   "novol_fee_0.90pct_D:2023-11-13",
+   "primary_fee_0.90pct_H:2024-02-12",
+   "band020_fee_0.90pct_H:2024-02-12",
+   "band020_fee_0.90pct_H:2026-09-21",
+   "novol_fee_0.90pct_H:2024-02-12",
+   "novol_fee_0.90pct_H:2024-11-11"
+  ]
+ },
+ "verdict": "FAIL",
+ "dsr_composite_DplusH_fee_0.50pct": [
+  {
+   "N": 15,
+   "dsr": 0.9663577797378686,
+   "sr_daily": 0.0687310467107769,
+   "sr0_daily": 0.03812534643517381,
+   "T": 3560,
+   "skew": 0.210425121752012,
+   "kurtosis": 9.627486688735592
+  },
+  {
+   "N": 120,
+   "dsr": 0.7792967551498379,
+   "sr_daily": 0.0687310467107769,
+   "sr0_daily": 0.0558546204492068,
+   "T": 3560,
+   "skew": 0.210425121752012,
+   "kurtosis": 9.627486688735592
+  }
+ ],
+ "shared_conventions_assumed": [
+  "Incumbent: per asset w=0.5*min(1,0.50/vol30) if close[t]/close[t-28]-1>0 else 0 (auditor-supplied, shared with original code).",
+  "vol30 = pstdev of 30 daily simple close-to-close returns ending at t * sqrt(365) (auditor-supplied).",
+  "Execution at next open; post-cost equity E found by bisection s.t. E + cost = value available; buy cost delta*((1+slip)(1+fee)-1), sell cost -delta*(1-(1-slip)(1-fee)) (auditor-supplied).",
+  "Current weight = asset value / NAV at decision close (auditor-supplied).",
+  "Turnover = sum(traded notional / NAV at execution open, pre-cost) / period years (auditor-supplied).",
+  "NAV $1000 cash at first decision close; marked every daily close to period end; decision on last day not executed; Sharpe = mean/pstdev daily returns*sqrt(365); MDD on daily NAV (auditor-supplied).",
+  "Hold BTC 100% at open after first decision; 25/25/50 weekly; same timing/costs (auditor-supplied).",
+  "DSR formula with V=0.0004636024000905694, per-day SR, ordinary (non-excess) kurtosis, population moments (auditor-supplied)."
+ ],
+ "choices": [
+  "Decision days = UTC calendar Sundays (row timestamp = UTC day start); execution at Monday's open.",
+  "D = 2017-01-01 (a Sunday) .. 2023-12-31; H = 2024-01-07 .. 2026-10-08. H starts from fresh $1000 cash (not carried from D).",
+  "Lookbacks are calendar days via date-keyed lookup (close L days earlier = close on day t-L). ETH file has a gap 2016-05-21..22; it is before every lookback used, so index vs calendar makes no difference here.",
+  "Vote = 1 iff close[t] > close[t-L] strictly. ETH 200d lookback exists from 2016-12-04; all 4 lookbacks available for both assets at every decision, so no missing-vote rule was exercised (rule coded: missing -> weight 0).",
+  "Composite target = 0.5*score*min(1,0.50/vol30) with the same vol30 as incumbent; vol30==0 treated as scale 1 (never occurs).",
+  "Band: per asset, trade iff |target - current| >= band (inclusive, no epsilon); traded assets go fully to target weight * post-cost equity E; untouched assets keep units and their open value counts in E. If no asset passes the band, no execution that week.",
+  "Band edge: an asset with target 0 but current weight < band is NOT forced out (literal rule). Initial entry needs target >= band.",
+  "Band + sizing: costs only from traded assets; if untouched sleeve + traded targets would exceed E (cash<0, leverage), traded targets are scaled down until cash=0 (clamp events listed in checks).",
+  "Rebalance count = executions with nonzero traded notional (incumbent/mix: weekly unless exactly zero change; hold BTC: 1).",
+  "Turnover denominator NAV = pre-trade value at the execution open; period years = (number of daily NAV points - 1)/365.",
+  "Sensitivities run at both fees and both periods: band 0 (ensemble+vol scaling, trade every week), band 0.20, and no vol scaling (0.5*score) with the primary 0.10 band.",
+  "Composite DSR uses concatenated D and H daily return series (fee 0.50%), T = number of returns; D->H boundary return not included (separate periods).",
+  "Cash benchmark reported as constant $1000 (no interest)."
+ ],
+ "ambiguities_flagged": [
+  "Prereg's 'simulator check' against the reviewed harness cannot be run blind; only an internal band=0 vs no-band equivalence check is reported.",
+  "Band interaction with the shared sizing is unspecified in prereg (whether untouched assets' drift can force over-allocation); clamp rule chosen above.",
+  "Prereg says 'close > close L days earlier' without saying calendar vs trading-row offset; crypto trades daily so identical here.",
+  "Whether the no-vol-scaling sensitivity keeps the 0.10 band is not stated; assumed yes (only one ingredient changed).",
+  "A target of exactly 0 inside the band leaves a small residual position, which conflicts with 'rest is cash' only in spirit; literal rule applied.",
+  "Last data row is 2026-10-09; H ends 2026-10-08 as stated."
+ ]
+}

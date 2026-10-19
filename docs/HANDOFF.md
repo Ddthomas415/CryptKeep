@@ -1,5 +1,11 @@
 # Handoff (copy into a new chat if needed)
 
+> HISTORICAL / SUPERSEDED: the scaffold-era status and next steps below are not
+> the current execution queue. Do not restart these tasks from this document.
+> Resume the accepted objective using `AGENTS.md`, `runtime_prompt.md`, current
+> code and `docs/work_log/review_stabilized_work_log.md`. Consult
+> `REMAINING_TASKS.md` for current disposition, including later closure notes.
+
 ## Objective (standing orders)
 - Build an installable **Mac + Windows** desktop app for an **advanced crypto trading bot**.
 - Start **read-only first** (collect/normalize/store market data) before any live trading.

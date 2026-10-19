@@ -107,7 +107,7 @@ def _summary_for_fills(*, strategy: str, fills: list[dict[str, Any]]) -> dict[st
             f"{closed_trade_count} closed trade(s), "
             f"{_fnum(summary.get('net_realized_pnl'), 0.0):+.2f} net realized PnL, "
             f"{expectancy:+.2f} expectancy per closed trade, "
-            f"{float(summary.get('win_rate') or 0.0) * 100.0:.1f}% win rate."
+            f"{net_win_rate * 100.0:.1f}% net-of-fees win rate."
         ),
     }
 

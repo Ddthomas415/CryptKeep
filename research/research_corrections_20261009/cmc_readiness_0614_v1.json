@@ -1,0 +1,51 @@
+{
+  "artifact_type": "cmc_collection_readiness_not_profit",
+  "as_of_utc": "2026-10-09T06:14:25+00:00",
+  "v3_envelopes": 2,
+  "observed_nonempty_list_utc_days": [
+    "2026-10-09"
+  ],
+  "first_qualified_schema_list_utc": "2026-10-09T05:02:59.715124+00:00",
+  "elapsed_collection_days": 0.04959820458333333,
+  "minimum_90_days_reached": false,
+  "source_files": [
+    {
+      "file": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050303_654181Z_bf398b1b055541549443deec1815a660.json",
+      "sha256": "35346dea2178229c8056fe57dd62bb1ec738bdf36eaffdbe509ab68904a35d2e"
+    },
+    {
+      "file": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_050913_251289Z_f445dabfb38d49af82fe081dde3f8f91.json",
+      "sha256": "49960069f1ae1983ddf35b29838668eaceb0388dbd716cbe32dc97f5be62b059"
+    }
+  ],
+  "excluded_envelopes": [
+    {
+      "file": "docs/research/cmc_trending_log/snapshots/2026-10-09_0347Z.json",
+      "reason": "explicit v3 schema required; original snapshots remain preserved"
+    },
+    {
+      "file": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_041525_486478Z_d72b37e4aeab4e5d93b07cd6ab320db7.json",
+      "reason": "explicit v3 schema required; original snapshots remain preserved"
+    },
+    {
+      "file": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_041753_379018Z_3cf70d3ddf184fcaa2b8b26805bd0992.json",
+      "reason": "explicit v3 schema required; original snapshots remain preserved"
+    },
+    {
+      "file": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_043542_982724Z_5919bc49ccb4455f9bdbf90896d017df.json",
+      "reason": "explicit v3 schema required; original snapshots remain preserved"
+    },
+    {
+      "file": "docs/research/cmc_trending_log/snapshots/v2_2026-10-09_043716_411287Z_4b0b5699d7f847b5931e1c77c7d3c8f9.json",
+      "reason": "explicit v3 schema required; original snapshots remain preserved"
+    }
+  ],
+  "scoring_authorized": false,
+  "unattended_schedule": "UNVERIFIED_BY_SNAPSHOTS",
+  "limits": [
+    "list_rows_not_semantically_validated",
+    "no_cohort_or_return_scoring",
+    "no_quote_freshness_or_scheduler_proof",
+    "old_schemas_preserved"
+  ]
+}

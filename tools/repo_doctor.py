@@ -33,7 +33,8 @@ DEFAULT_ALLOWED_TOP_LEVEL_DIRS = {
     "configs",
     "core", "dashboard",
     "data", "desktop", "docker", "docs", "logs", "packaging", "phase1_research_copilot",
-    "requirements", "sample_data", "scripts", "services", "src-tauri", "storage",
+    # Research artifacts are an intentional capability, not a duplicate runtime.
+    "research", "requirements", "sample_data", "scripts", "services", "src-tauri", "storage",
     "tests", "tools",
 }
 

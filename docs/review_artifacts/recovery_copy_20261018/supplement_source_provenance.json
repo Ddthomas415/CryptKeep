@@ -1,0 +1,18 @@
+{
+  "active_role": "AUDITOR",
+  "evidence_class": "SHOWN",
+  "scope": "Existing source path/schema only, not runtime writer/process health",
+  "writer_path": [
+    "scripts/research/collect_confirmation_batch.py calls services.backtest.ohlcv_archive.backfill_archive",
+    "services/backtest/ohlcv_archive.py uses storage.market_store_sqlite.MarketStore",
+    "storage/market_store_sqlite.py:_connect enables journal_mode=WAL and synchronous=NORMAL"
+  ],
+  "runtime_writer_processes": "UNVERIFIED; no process or collector operation performed",
+  "cmc_schema": "docs/research/cmc_trending_20261009/fetch_cmc_weekly.py:23 writes column 2 from provider slug",
+  "sha256": {
+    "docs/research/raw_archives_20261009/SHA256SUMS_archives.txt": "f153de3f681201cab84b00b3adf5d7bea186ae1b304941e0dae7bb828bf21ddd",
+    "docs/research/raw_archives_20261009/SHA256SUMS_inputs.txt": "c7f3e9cf43ac3cf196d1fd968627256d4172eb6487eae793d21ea3c194db2ebc",
+    "docs/research/cmc_trending_20261009/fetch_cmc_weekly.py": "974a9a4d0a28bd0bf11c2a8708e3f2fd51830b9127ce47e621c5e27d5e5f0fb5"
+  },
+  "limits": "No provider request, study rerun, code execution from archives, original SQL connection, service operation, credential access or new data collection. No historical authenticity claim follows from hashes alone."
+}

@@ -1,0 +1,13 @@
+{
+ "model": "persistent",
+ "days": 365,
+ "mean_index": 0,
+ "mean": 0.0,
+ "status_counts": {
+  "AVAILABLE": 1000
+ },
+ "positives": 86,
+ "histories": 1000,
+ "seconds": 0.47,
+ "lock_sha256": "3f5407c1be3a8f0858678f625b1aa556b0d8d9cd024a63fa2d66cec12488d1a5"
+}

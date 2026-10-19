@@ -1,0 +1,377 @@
+{
+  "attempt_objects_present": false,
+  "exact_reviewed_baseline_match": true,
+  "first": [
+    {
+      "attempt": "",
+      "configured_metadata": "ddfb23881f9d8dfe01c98008a5f00e7f4b33bd22e446dd34ae2254fa529d5012",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "200136aa17daceafc5c39b1499bd8fb3299af672bf1cd0267f19947aa6f0f03f",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "metadata": "b9e462e7e8e49ed1e835f73e1501793f708eb6c462fe9bd2ce0c97c2b4fcee72",
+      "name": "phase1-orchestrator",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:33.269989257Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "33f3683f5af749b02490cdbe30f32381dfe8d7ab488253b0d4733e1c93bde291",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "c876e4098a1eda99b081db42aed5a2e909986bb377deaf24472be6d6af6b9017",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "metadata": "915778a1c785c7a88d5c2d06b73024bd92d8ff0868e8fdd679b787a8c14d3a9d",
+      "name": "phase1-memory",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:33.085165007Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "b27c6a57b91bbebd16fd18230e237d624591bfdf7c7d61cb48056266415346e8",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "3494c978290e99588bc55971808ae95cf96459e48df1c69182fdfec92b1e43b1",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "metadata": "4497081f1db4d3c3536100157643385463bc6368a73963b5aaeb54090186b3f6",
+      "name": "phase1-risk-stub",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:32.916996881Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "98d4b952379d6bb3efa917500deef4909b5e1dc201a6519281a8dc1ecfd5218c",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "64be30f8003a07dfb87c0f576672526d50c57d75a83fb66766137261389cb86d",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "metadata": "b26b7e8dc9978efa19f9c65a286d9118731654ce3bb87ce9566edac29620a79a",
+      "name": "phase1-audit-log",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ],
+      "networks": [
+        ""
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:32.811420923Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "6bf915cc8f9d5d22b2167ff4d0d50327021190617699a825a193ab1cfab341b4",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "183874266013ae3c90e3ab4985755814e5a32081f1b7f1d04a7bd07ae7801732",
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "metadata": "93cdf0d7d6d20661a725759d50b301da4a66dc417420d8a94ce26980c0a41cb8",
+      "name": "phase1-timescaledb",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.388611962Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "ba696e8f5d36fe053b13105b8aadd508856a36e1d94a540850a799fa7b32560f",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "5b3fce46958b16a4e74f06b7519760a502a847d0c7a08055618f5392895a938a",
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "metadata": "4f51ad0eddc6747c5ba8414c8aec7a7df7c4d514bd3b87d9df2f72287ca82d7b",
+      "name": "phase1-qdrant",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.569851379Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "b1873d406edfc223025678c7038687ab5ead0423690708dbe132673e1d0693ca",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "142a998361c6c564a614def0e7c06f08f39191cebedaab245bf6765cd2815733",
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "metadata": "8ebdf954631024d01eae198e4482d7dc4c0fcf1b1d4fbf32f4c533903e85340c",
+      "name": "phase1-minio",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.773548546Z",
+      "state": "exited"
+    }
+  ],
+  "network_connectivity_verified": false,
+  "observed_utc": "2026-10-18T15:48:47.840358+00:00",
+  "paired_match": true,
+  "schema": "companion-v3-post-attempt-snapshots-v1",
+  "second": [
+    {
+      "attempt": "",
+      "configured_metadata": "ddfb23881f9d8dfe01c98008a5f00e7f4b33bd22e446dd34ae2254fa529d5012",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "200136aa17daceafc5c39b1499bd8fb3299af672bf1cd0267f19947aa6f0f03f",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "metadata": "b9e462e7e8e49ed1e835f73e1501793f708eb6c462fe9bd2ce0c97c2b4fcee72",
+      "name": "phase1-orchestrator",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:33.269989257Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "33f3683f5af749b02490cdbe30f32381dfe8d7ab488253b0d4733e1c93bde291",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "c876e4098a1eda99b081db42aed5a2e909986bb377deaf24472be6d6af6b9017",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "metadata": "915778a1c785c7a88d5c2d06b73024bd92d8ff0868e8fdd679b787a8c14d3a9d",
+      "name": "phase1-memory",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:33.085165007Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "b27c6a57b91bbebd16fd18230e237d624591bfdf7c7d61cb48056266415346e8",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "3494c978290e99588bc55971808ae95cf96459e48df1c69182fdfec92b1e43b1",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "metadata": "4497081f1db4d3c3536100157643385463bc6368a73963b5aaeb54090186b3f6",
+      "name": "phase1-risk-stub",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:32.916996881Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "98d4b952379d6bb3efa917500deef4909b5e1dc201a6519281a8dc1ecfd5218c",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "64be30f8003a07dfb87c0f576672526d50c57d75a83fb66766137261389cb86d",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "metadata": "b26b7e8dc9978efa19f9c65a286d9118731654ce3bb87ce9566edac29620a79a",
+      "name": "phase1-audit-log",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ],
+      "networks": [
+        ""
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:42:32.811420923Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "6bf915cc8f9d5d22b2167ff4d0d50327021190617699a825a193ab1cfab341b4",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "183874266013ae3c90e3ab4985755814e5a32081f1b7f1d04a7bd07ae7801732",
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "metadata": "93cdf0d7d6d20661a725759d50b301da4a66dc417420d8a94ce26980c0a41cb8",
+      "name": "phase1-timescaledb",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.388611962Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "ba696e8f5d36fe053b13105b8aadd508856a36e1d94a540850a799fa7b32560f",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "5b3fce46958b16a4e74f06b7519760a502a847d0c7a08055618f5392895a938a",
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "metadata": "4f51ad0eddc6747c5ba8414c8aec7a7df7c4d514bd3b87d9df2f72287ca82d7b",
+      "name": "phase1-qdrant",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.569851379Z",
+      "state": "exited"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "b1873d406edfc223025678c7038687ab5ead0423690708dbe132673e1d0693ca",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "142a998361c6c564a614def0e7c06f08f39191cebedaab245bf6765cd2815733",
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "metadata": "8ebdf954631024d01eae198e4482d7dc4c0fcf1b1d4fbf32f4c533903e85340c",
+      "name": "phase1-minio",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-16T05:41:57.773548546Z",
+      "state": "exited"
+    }
+  ],
+  "services_started": false
+}

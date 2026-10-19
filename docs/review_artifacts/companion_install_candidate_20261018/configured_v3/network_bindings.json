@@ -1,0 +1,19 @@
+{
+  "bindings": {
+    "phase1_research_copilot_default": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+  },
+  "cli_sha256": "31ae2d64e51d9dfc728a2934941615cdd92f31279ed6d5c1fb2bfc0a44637a8f",
+  "command": "network inspect selected IDs with name/id format",
+  "connectivity_verified": false,
+  "container_capture_sha256": "4b08a5529c4bd7b3a462ba83eb7fae0b076f1b49b69fb9282787e0219e597076",
+  "installation_authorized": false,
+  "observed_rows": [
+    {
+      "id": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+      "name": "phase1_research_copilot_default"
+    }
+  ],
+  "observed_utc": "2026-10-18T14:32:46.317847+00:00",
+  "schema": "companion-network-binding-observation-v1",
+  "startup_authorized": false
+}

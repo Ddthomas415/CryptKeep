@@ -1,0 +1,716 @@
+{
+ "artifact_type": "research_only_corrected_comparison",
+ "not_promotion_evidence": true,
+ "inputs_sha256": {
+  "scripts/research/rerun_frozen_stress.py": "1f98513ae63c4f84819327746872a9dd0a73b3bc35e5e67364c57458ca395907",
+  "docs/research/majors_trend_20261009/BTC-USD_d1.json": "64cab2cf912244babb251485a9949a266be30fb80840e95b80d4478a9cde07c0",
+  "docs/research/majors_trend_20261009/ETH-USD_d1.json": "9fa81ca8395321dddc5453a2144b5081ada012e74ed3132c9c2c039e5e6206b8"
+ },
+ "script_sha256": "6cb61b52e7bc7dc34f3d797b6be7f7b7f5cdd5080863e5613a9470388d962bb6",
+ "periods": {
+  "A": [
+   "2016-08-01",
+   "2019-12-31"
+  ],
+  "B": [
+   "2020-01-01",
+   "2023-12-31"
+  ],
+  "C": [
+   "2024-01-01",
+   "2026-10-08"
+  ],
+  "FULL": [
+   "2016-08-01",
+   "2026-10-08"
+  ],
+  "S2018": [
+   "2018-01-01",
+   "2026-10-08"
+  ]
+ },
+ "results": {
+  "0.005": {
+   "A": {
+    "rule": {
+     "end_usd": 5555.39,
+     "cagr_pct": 65.2,
+     "max_drawdown_pct": 51.9,
+     "longest_underwater_days": 523,
+     "vol_pct": 38.7,
+     "downside_vol_pct": 24.7,
+     "sharpe": 1.49,
+     "avg_exposure_pct": 37.2
+    },
+    "fixed_mix_matched": {
+     "end_usd": 4013.92,
+     "cagr_pct": 50.2,
+     "max_drawdown_pct": 49.5,
+     "longest_underwater_days": 717,
+     "vol_pct": 32.1,
+     "downside_vol_pct": 21.0,
+     "sharpe": 1.426
+    },
+    "fixed_mix_50": {
+     "end_usd": 5893.86,
+     "cagr_pct": 68.1,
+     "max_drawdown_pct": 61.2,
+     "longest_underwater_days": 717,
+     "vol_pct": 43.1,
+     "downside_vol_pct": 28.1,
+     "sharpe": 1.421
+    },
+    "hold_btc": {
+     "end_usd": 11781.88,
+     "cagr_pct": 105.8,
+     "max_drawdown_pct": 83.8,
+     "longest_underwater_days": 745,
+     "vol_pct": 79.5,
+     "downside_vol_pct": 52.3,
+     "sharpe": 1.303
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   },
+   "B": {
+    "rule": {
+     "end_usd": 9919.59,
+     "cagr_pct": 77.5,
+     "max_drawdown_pct": 32.8,
+     "longest_underwater_days": 512,
+     "vol_pct": 38.1,
+     "downside_vol_pct": 24.8,
+     "sharpe": 1.697,
+     "avg_exposure_pct": 45.6
+    },
+    "fixed_mix_matched": {
+     "end_usd": 3831.61,
+     "cagr_pct": 39.9,
+     "max_drawdown_pct": 45.3,
+     "longest_underwater_days": 783,
+     "vol_pct": 33.8,
+     "downside_vol_pct": 23.8,
+     "sharpe": 1.165
+    },
+    "fixed_mix_50": {
+     "end_usd": 4268.43,
+     "cagr_pct": 43.7,
+     "max_drawdown_pct": 48.6,
+     "longest_underwater_days": 783,
+     "vol_pct": 37.1,
+     "downside_vol_pct": 26.0,
+     "sharpe": 1.167
+    },
+    "hold_btc": {
+     "end_usd": 5862.1,
+     "cagr_pct": 55.6,
+     "max_drawdown_pct": 76.7,
+     "longest_underwater_days": 783,
+     "vol_pct": 67.9,
+     "downside_vol_pct": 46.9,
+     "sharpe": 1.0
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   },
+   "C": {
+    "rule": {
+     "end_usd": 1779.58,
+     "cagr_pct": 23.1,
+     "max_drawdown_pct": 32.0,
+     "longest_underwater_days": 421,
+     "vol_pct": 31.3,
+     "downside_vol_pct": 19.5,
+     "sharpe": 0.821,
+     "avg_exposure_pct": 47.7
+    },
+    "fixed_mix_matched": {
+     "end_usd": 1308.72,
+     "cagr_pct": 10.2,
+     "max_drawdown_pct": 34.4,
+     "longest_underwater_days": 367,
+     "vol_pct": 26.1,
+     "downside_vol_pct": 17.5,
+     "sharpe": 0.502
+    },
+    "fixed_mix_50": {
+     "end_usd": 1320.13,
+     "cagr_pct": 10.5,
+     "max_drawdown_pct": 35.8,
+     "longest_underwater_days": 367,
+     "vol_pct": 27.4,
+     "downside_vol_pct": 18.3,
+     "sharpe": 0.503
+    },
+    "hold_btc": {
+     "end_usd": 1837.28,
+     "cagr_pct": 24.6,
+     "max_drawdown_pct": 53.1,
+     "longest_underwater_days": 367,
+     "vol_pct": 47.4,
+     "downside_vol_pct": 31.3,
+     "sharpe": 0.7
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   },
+   "FULL": {
+    "rule": {
+     "end_usd": 102425.63,
+     "cagr_pct": 57.5,
+     "max_drawdown_pct": 51.9,
+     "longest_underwater_days": 523,
+     "vol_pct": 36.6,
+     "downside_vol_pct": 23.4,
+     "sharpe": 1.424,
+     "avg_exposure_pct": 43.4
+    },
+    "fixed_mix_matched": {
+     "end_usd": 23160.48,
+     "cagr_pct": 36.1,
+     "max_drawdown_pct": 55.5,
+     "longest_underwater_days": 961,
+     "vol_pct": 32.1,
+     "downside_vol_pct": 21.6,
+     "sharpe": 1.123
+    },
+    "fixed_mix_50": {
+     "end_usd": 34135.43,
+     "cagr_pct": 41.4,
+     "max_drawdown_pct": 61.2,
+     "longest_underwater_days": 1026,
+     "vol_pct": 36.9,
+     "downside_vol_pct": 24.9,
+     "sharpe": 1.123
+    },
+    "hold_btc": {
+     "end_usd": 134319.33,
+     "cagr_pct": 61.7,
+     "max_drawdown_pct": 83.8,
+     "longest_underwater_days": 1079,
+     "vol_pct": 67.4,
+     "downside_vol_pct": 45.2,
+     "sharpe": 1.053
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   },
+   "S2018": {
+    "rule": {
+     "end_usd": 13433.9,
+     "cagr_pct": 34.5,
+     "max_drawdown_pct": 51.9,
+     "longest_underwater_days": 523,
+     "vol_pct": 35.3,
+     "downside_vol_pct": 23.1,
+     "sharpe": 1.014,
+     "avg_exposure_pct": 42.5
+    },
+    "fixed_mix_matched": {
+     "end_usd": 3486.7,
+     "cagr_pct": 15.3,
+     "max_drawdown_pct": 54.7,
+     "longest_underwater_days": 961,
+     "vol_pct": 30.1,
+     "downside_vol_pct": 21.1,
+     "sharpe": 0.625
+    },
+    "fixed_mix_50": {
+     "end_usd": 4022.71,
+     "cagr_pct": 17.2,
+     "max_drawdown_pct": 61.2,
+     "longest_underwater_days": 1026,
+     "vol_pct": 35.4,
+     "downside_vol_pct": 24.9,
+     "sharpe": 0.627
+    },
+    "hold_btc": {
+     "end_usd": 6027.13,
+     "cagr_pct": 22.7,
+     "max_drawdown_pct": 81.4,
+     "longest_underwater_days": 1045,
+     "vol_pct": 64.5,
+     "downside_vol_pct": 44.6,
+     "sharpe": 0.644
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   }
+  },
+  "0.006": {
+   "A": {
+    "rule": {
+     "end_usd": 5394.49,
+     "cagr_pct": 63.8,
+     "max_drawdown_pct": 52.4,
+     "longest_underwater_days": 524,
+     "vol_pct": 38.7,
+     "downside_vol_pct": 24.7,
+     "sharpe": 1.468,
+     "avg_exposure_pct": 37.2
+    },
+    "fixed_mix_matched": {
+     "end_usd": 3993.18,
+     "cagr_pct": 50.0,
+     "max_drawdown_pct": 49.6,
+     "longest_underwater_days": 717,
+     "vol_pct": 32.1,
+     "downside_vol_pct": 21.0,
+     "sharpe": 1.422
+    },
+    "fixed_mix_50": {
+     "end_usd": 5857.86,
+     "cagr_pct": 67.8,
+     "max_drawdown_pct": 61.2,
+     "longest_underwater_days": 717,
+     "vol_pct": 43.1,
+     "downside_vol_pct": 28.1,
+     "sharpe": 1.417
+    },
+    "hold_btc": {
+     "end_usd": 11770.17,
+     "cagr_pct": 105.8,
+     "max_drawdown_pct": 83.8,
+     "longest_underwater_days": 745,
+     "vol_pct": 79.5,
+     "downside_vol_pct": 52.3,
+     "sharpe": 1.303
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   },
+   "B": {
+    "rule": {
+     "end_usd": 9562.05,
+     "cagr_pct": 75.8,
+     "max_drawdown_pct": 33.4,
+     "longest_underwater_days": 517,
+     "vol_pct": 38.1,
+     "downside_vol_pct": 24.8,
+     "sharpe": 1.673,
+     "avg_exposure_pct": 45.6
+    },
+    "fixed_mix_matched": {
+     "end_usd": 3813.62,
+     "cagr_pct": 39.7,
+     "max_drawdown_pct": 45.3,
+     "longest_underwater_days": 783,
+     "vol_pct": 33.8,
+     "downside_vol_pct": 23.8,
+     "sharpe": 1.161
+    },
+    "fixed_mix_50": {
+     "end_usd": 4247.64,
+     "cagr_pct": 43.6,
+     "max_drawdown_pct": 48.6,
+     "longest_underwater_days": 783,
+     "vol_pct": 37.1,
+     "downside_vol_pct": 26.0,
+     "sharpe": 1.164
+    },
+    "hold_btc": {
+     "end_usd": 5856.27,
+     "cagr_pct": 55.6,
+     "max_drawdown_pct": 76.7,
+     "longest_underwater_days": 783,
+     "vol_pct": 67.9,
+     "downside_vol_pct": 46.9,
+     "sharpe": 1.0
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   },
+   "C": {
+    "rule": {
+     "end_usd": 1716.63,
+     "cagr_pct": 21.5,
+     "max_drawdown_pct": 32.5,
+     "longest_underwater_days": 421,
+     "vol_pct": 31.3,
+     "downside_vol_pct": 19.5,
+     "sharpe": 0.779,
+     "avg_exposure_pct": 47.7
+    },
+    "fixed_mix_matched": {
+     "end_usd": 1305.0,
+     "cagr_pct": 10.1,
+     "max_drawdown_pct": 34.4,
+     "longest_underwater_days": 367,
+     "vol_pct": 26.1,
+     "downside_vol_pct": 17.5,
+     "sharpe": 0.498
+    },
+    "fixed_mix_50": {
+     "end_usd": 1316.3,
+     "cagr_pct": 10.4,
+     "max_drawdown_pct": 35.8,
+     "longest_underwater_days": 367,
+     "vol_pct": 27.4,
+     "downside_vol_pct": 18.3,
+     "sharpe": 0.499
+    },
+    "hold_btc": {
+     "end_usd": 1835.45,
+     "cagr_pct": 24.5,
+     "max_drawdown_pct": 53.1,
+     "longest_underwater_days": 367,
+     "vol_pct": 47.4,
+     "downside_vol_pct": 31.3,
+     "sharpe": 0.699
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   },
+   "FULL": {
+    "rule": {
+     "end_usd": 92573.45,
+     "cagr_pct": 55.9,
+     "max_drawdown_pct": 52.4,
+     "longest_underwater_days": 524,
+     "vol_pct": 36.6,
+     "downside_vol_pct": 23.4,
+     "sharpe": 1.397,
+     "avg_exposure_pct": 43.4
+    },
+    "fixed_mix_matched": {
+     "end_usd": 22881.24,
+     "cagr_pct": 36.0,
+     "max_drawdown_pct": 55.5,
+     "longest_underwater_days": 1025,
+     "vol_pct": 32.1,
+     "downside_vol_pct": 21.7,
+     "sharpe": 1.119
+    },
+    "fixed_mix_50": {
+     "end_usd": 33697.02,
+     "cagr_pct": 41.2,
+     "max_drawdown_pct": 61.2,
+     "longest_underwater_days": 1026,
+     "vol_pct": 36.9,
+     "downside_vol_pct": 25.0,
+     "sharpe": 1.12
+    },
+    "hold_btc": {
+     "end_usd": 134185.82,
+     "cagr_pct": 61.7,
+     "max_drawdown_pct": 83.8,
+     "longest_underwater_days": 1079,
+     "vol_pct": 67.4,
+     "downside_vol_pct": 45.2,
+     "sharpe": 1.053
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   },
+   "S2018": {
+    "rule": {
+     "end_usd": 12262.18,
+     "cagr_pct": 33.1,
+     "max_drawdown_pct": 52.4,
+     "longest_underwater_days": 524,
+     "vol_pct": 35.3,
+     "downside_vol_pct": 23.1,
+     "sharpe": 0.985,
+     "avg_exposure_pct": 42.5
+    },
+    "fixed_mix_matched": {
+     "end_usd": 3454.04,
+     "cagr_pct": 15.2,
+     "max_drawdown_pct": 54.7,
+     "longest_underwater_days": 961,
+     "vol_pct": 30.0,
+     "downside_vol_pct": 21.1,
+     "sharpe": 0.621
+    },
+    "fixed_mix_50": {
+     "end_usd": 3982.47,
+     "cagr_pct": 17.1,
+     "max_drawdown_pct": 61.2,
+     "longest_underwater_days": 1026,
+     "vol_pct": 35.4,
+     "downside_vol_pct": 24.9,
+     "sharpe": 0.623
+    },
+    "hold_btc": {
+     "end_usd": 6021.14,
+     "cagr_pct": 22.7,
+     "max_drawdown_pct": 81.4,
+     "longest_underwater_days": 1045,
+     "vol_pct": 64.5,
+     "downside_vol_pct": 44.6,
+     "sharpe": 0.644
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   }
+  },
+  "0.012": {
+   "A": {
+    "rule": {
+     "end_usd": 4522.22,
+     "cagr_pct": 55.5,
+     "max_drawdown_pct": 55.7,
+     "longest_underwater_days": 528,
+     "vol_pct": 38.8,
+     "downside_vol_pct": 24.9,
+     "sharpe": 1.333,
+     "avg_exposure_pct": 37.2
+    },
+    "fixed_mix_matched": {
+     "end_usd": 3870.9,
+     "cagr_pct": 48.6,
+     "max_drawdown_pct": 50.0,
+     "longest_underwater_days": 717,
+     "vol_pct": 32.2,
+     "downside_vol_pct": 21.0,
+     "sharpe": 1.393
+    },
+    "fixed_mix_50": {
+     "end_usd": 5646.39,
+     "cagr_pct": 66.0,
+     "max_drawdown_pct": 61.6,
+     "longest_underwater_days": 717,
+     "vol_pct": 43.1,
+     "downside_vol_pct": 28.2,
+     "sharpe": 1.392
+    },
+    "hold_btc": {
+     "end_usd": 11700.39,
+     "cagr_pct": 105.4,
+     "max_drawdown_pct": 83.8,
+     "longest_underwater_days": 745,
+     "vol_pct": 79.6,
+     "downside_vol_pct": 52.4,
+     "sharpe": 1.3
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   },
+   "B": {
+    "rule": {
+     "end_usd": 7671.12,
+     "cagr_pct": 66.4,
+     "max_drawdown_pct": 37.2,
+     "longest_underwater_days": 756,
+     "vol_pct": 38.1,
+     "downside_vol_pct": 25.0,
+     "sharpe": 1.528,
+     "avg_exposure_pct": 45.6
+    },
+    "fixed_mix_matched": {
+     "end_usd": 3707.41,
+     "cagr_pct": 38.8,
+     "max_drawdown_pct": 45.5,
+     "longest_underwater_days": 783,
+     "vol_pct": 33.8,
+     "downside_vol_pct": 23.8,
+     "sharpe": 1.14
+    },
+    "fixed_mix_50": {
+     "end_usd": 4124.95,
+     "cagr_pct": 42.5,
+     "max_drawdown_pct": 48.8,
+     "longest_underwater_days": 783,
+     "vol_pct": 37.1,
+     "downside_vol_pct": 26.1,
+     "sharpe": 1.144
+    },
+    "hold_btc": {
+     "end_usd": 5821.55,
+     "cagr_pct": 55.3,
+     "max_drawdown_pct": 76.7,
+     "longest_underwater_days": 783,
+     "vol_pct": 67.9,
+     "downside_vol_pct": 46.9,
+     "sharpe": 0.998
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   },
+   "C": {
+    "rule": {
+     "end_usd": 1382.83,
+     "cagr_pct": 12.4,
+     "max_drawdown_pct": 35.3,
+     "longest_underwater_days": 421,
+     "vol_pct": 31.3,
+     "downside_vol_pct": 19.8,
+     "sharpe": 0.529,
+     "avg_exposure_pct": 47.7
+    },
+    "fixed_mix_matched": {
+     "end_usd": 1282.91,
+     "cagr_pct": 9.4,
+     "max_drawdown_pct": 34.6,
+     "longest_underwater_days": 367,
+     "vol_pct": 26.1,
+     "downside_vol_pct": 17.5,
+     "sharpe": 0.475
+    },
+    "fixed_mix_50": {
+     "end_usd": 1293.53,
+     "cagr_pct": 9.7,
+     "max_drawdown_pct": 36.0,
+     "longest_underwater_days": 367,
+     "vol_pct": 27.3,
+     "downside_vol_pct": 18.4,
+     "sharpe": 0.476
+    },
+    "hold_btc": {
+     "end_usd": 1824.57,
+     "cagr_pct": 24.2,
+     "max_drawdown_pct": 53.1,
+     "longest_underwater_days": 367,
+     "vol_pct": 47.4,
+     "downside_vol_pct": 31.3,
+     "sharpe": 0.694
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   },
+   "FULL": {
+    "rule": {
+     "end_usd": 50447.62,
+     "cagr_pct": 46.9,
+     "max_drawdown_pct": 55.7,
+     "longest_underwater_days": 756,
+     "vol_pct": 36.6,
+     "downside_vol_pct": 23.6,
+     "sharpe": 1.233,
+     "avg_exposure_pct": 43.4
+    },
+    "fixed_mix_matched": {
+     "end_usd": 21274.71,
+     "cagr_pct": 35.0,
+     "max_drawdown_pct": 55.9,
+     "longest_underwater_days": 1026,
+     "vol_pct": 32.1,
+     "downside_vol_pct": 21.7,
+     "sharpe": 1.097
+    },
+    "fixed_mix_50": {
+     "end_usd": 31181.8,
+     "cagr_pct": 40.1,
+     "max_drawdown_pct": 61.6,
+     "longest_underwater_days": 1027,
+     "vol_pct": 37.0,
+     "downside_vol_pct": 25.0,
+     "sharpe": 1.099
+    },
+    "hold_btc": {
+     "end_usd": 133390.25,
+     "cagr_pct": 61.6,
+     "max_drawdown_pct": 83.8,
+     "longest_underwater_days": 1079,
+     "vol_pct": 67.4,
+     "downside_vol_pct": 45.3,
+     "sharpe": 1.052
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   },
+   "S2018": {
+    "rule": {
+     "end_usd": 7090.2,
+     "cagr_pct": 25.0,
+     "max_drawdown_pct": 55.7,
+     "longest_underwater_days": 756,
+     "vol_pct": 35.4,
+     "downside_vol_pct": 23.3,
+     "sharpe": 0.808,
+     "avg_exposure_pct": 42.5
+    },
+    "fixed_mix_matched": {
+     "end_usd": 3264.36,
+     "cagr_pct": 14.4,
+     "max_drawdown_pct": 55.1,
+     "longest_underwater_days": 1026,
+     "vol_pct": 30.0,
+     "downside_vol_pct": 21.1,
+     "sharpe": 0.6
+    },
+    "fixed_mix_50": {
+     "end_usd": 3749.35,
+     "cagr_pct": 16.3,
+     "max_drawdown_pct": 61.6,
+     "longest_underwater_days": 1027,
+     "vol_pct": 35.4,
+     "downside_vol_pct": 24.9,
+     "sharpe": 0.604
+    },
+    "hold_btc": {
+     "end_usd": 5985.44,
+     "cagr_pct": 22.6,
+     "max_drawdown_pct": 81.4,
+     "longest_underwater_days": 1045,
+     "vol_pct": 64.5,
+     "downside_vol_pct": 44.6,
+     "sharpe": 0.643
+    },
+    "cash": {
+     "end_usd": 1000.0,
+     "cagr_pct": 0.0,
+     "max_drawdown_pct": 0.0,
+     "sharpe": 0.0
+    }
+   }
+  }
+ },
+ "harness_check_vs_stored_stress_corrected_v1": true
+}

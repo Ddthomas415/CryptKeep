@@ -1,0 +1,45 @@
+{
+  "identity": {
+    "generator": "26fb3ce192f93416f215d1c8ec2e3f7bb39489ac85c9b1f20ebc7843858369d4",
+    "candidate": "9c5bca5d77c86dba1bf6017c76fe61722a1f677ed6161582036eb9bb169d6f1c",
+    "completeness": "131c815745bc7905801cbce921827fb814f74a8ae5e7c6d056818032cb7fcfe4",
+    "runner": "5a80150ae062a763147e09235a913752a981f4e5fbd29dba006356293c550aa0",
+    "contract": "29a70e8415470b065398cf7deaff7a63633f18dc321edbbe79b54ddd1f896057",
+    "manifest": "04f3258d157c9dcfe84f118604620dcf513aedbd2525bf49236cc48fcb1b1b37",
+    "python": "3.12.10",
+    "numpy": "2.4.4"
+  },
+  "stage": "paired_ratio_pilot_20261010",
+  "model": "heavy_tail",
+  "days": 90,
+  "trial": 3,
+  "mean_index": 0,
+  "seconds": 0.034048207977321,
+  "result": {
+    "status": "CANDIDATE_INTERVAL",
+    "positive": false,
+    "candidate_result": {
+      "status": "CANDIDATE_INTERVAL",
+      "event_weighted_mean": 0.0021904533904388403,
+      "interval": [
+        -0.00983248728835789,
+        0.014361204780373275
+      ],
+      "calendar_days": 90,
+      "eligible_events": 90,
+      "block_length": 7,
+      "replicates": 2000,
+      "seed": 135698782031088859823672383131293907305,
+      "input_sha256": "0be4a074855c0bdd6d00b5555704a209469d8dc28d772acf95b30cf01be028b9",
+      "contract_sha256": "29a70e8415470b065398cf7deaff7a63633f18dc321edbbe79b54ddd1f896057",
+      "implementation_sha256": "9c5bca5d77c86dba1bf6017c76fe61722a1f677ed6161582036eb9bb169d6f1c",
+      "numpy_version": "2.4.4",
+      "python_version": "3.12.10",
+      "scoring_authorized": false,
+      "qualification": "UNVALIDATED_CONDITIONAL_METHOD_CANDIDATE",
+      "completed_replicates": 2000,
+      "reason": "not_statistical_certification"
+    }
+  },
+  "scoring_authorized": false
+}

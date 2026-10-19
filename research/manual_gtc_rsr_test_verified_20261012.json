@@ -1,0 +1,43 @@
+{
+  "kind": "API_OBSERVED_RETAIL_PURCHASE_BASELINE",
+  "source": "Coinbase v2 read-only transaction detail",
+  "supersedes_for_tracking": "manual_gtc_rsr_test_20261012.json",
+  "original_user_report_preserved": true,
+  "currency": "EUR",
+  "total_purchase_cost": "200.00",
+  "purchases": [
+    {
+      "asset": "GTC",
+      "transaction_status": "completed",
+      "created_at_utc": "2026-10-12T13:12:15Z",
+      "quantity_received": "366.76614176",
+      "total": "100.00",
+      "subtotal": "96.16",
+      "listed_fee": "2.99",
+      "total_minus_subtotal_minus_listed_fee": "0.85"
+    },
+    {
+      "asset": "RSR",
+      "transaction_status": "completed",
+      "created_at_utc": "2026-10-12T13:06:48Z",
+      "quantity_received": "43871.31541632",
+      "total": "100.00",
+      "subtotal": "96.16",
+      "listed_fee": "2.99",
+      "total_minus_subtotal_minus_listed_fee": "0.85"
+    }
+  ],
+  "component_difference_explanation": "UNVERIFIED",
+  "exit_fee": "UNVERIFIED",
+  "actual_orders_submitted_by_agent": false,
+  "accounting_mutation": false,
+  "realized_pnl": null,
+  "limitations": [
+    "Do not apply the Advanced Trade 0.50% fee assumption to these observed retail purchases.",
+    "Use EUR 100 total per asset as the full purchase-cost baseline; do not add the listed fee again.",
+    "Older holdings are not part of the new test quantities.",
+    "Do not invent a reason for the EUR 0.85 difference in each returned breakdown.",
+    "USD quotes require dated FX conversion before comparing with this EUR baseline.",
+    "No transaction IDs, account IDs, payment method names or credentials are saved."
+  ]
+}

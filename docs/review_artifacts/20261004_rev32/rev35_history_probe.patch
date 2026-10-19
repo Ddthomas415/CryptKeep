@@ -1,0 +1,35 @@
+diff --git a/tests/test_review_rev35_history.py b/tests/test_review_rev35_history.py
+new file mode 100644
+index 000000000..329f7e0b5
+--- /dev/null
++++ b/tests/test_review_rev35_history.py
+@@ -0,0 +1,29 @@
++from services.execution import strategy_runner as runner
++from storage import strategy_state_sqlite as ss
++from storage import intent_queue_sqlite as qs
++from storage.exit_event_journal import ExitEventJournal
++
++
++def test_second_historical_kill_is_not_forgotten(monkeypatch, tmp_path):
++    monkeypatch.setattr(ss, 'DB_PATH', tmp_path / 'state.sqlite')
++    monkeypatch.setattr(qs, 'DB_PATH', tmp_path / 'queue.sqlite')
++    state, journal, queue = ss.StrategyStateSQLite(), ExitEventJournal(), qs.IntentQueueSQLite()
++    cfg = {'venue': 'binance', 'strategy_id': 'ema_cross'}
++    for venue in ('coinbase', 'kraken'):
++        state.set(f'kill_remaining:{venue}:BTC/USD:ema_cross', '49')
++    assert runner._venue_for_turn(state, journal, cfg, 'BTC/USD', 'binance', queue) == 'coinbase'
++    state.set('kill_remaining:coinbase:BTC/USD:ema_cross', '0')
++    assert runner._venue_for_turn(state, journal, cfg, 'BTC/USD', 'binance', queue) == 'kraken'
++
++
++def test_unreadable_history_does_not_select_unverified_venue(monkeypatch, tmp_path):
++    monkeypatch.setattr(ss, 'DB_PATH', tmp_path / 'state.sqlite')
++    monkeypatch.setattr(qs, 'DB_PATH', tmp_path / 'queue.sqlite')
++    state, journal, queue = ss.StrategyStateSQLite(), ExitEventJournal(), qs.IntentQueueSQLite()
++    state.set('kill_remaining:coinbase:BTC/USD:ema_cross', '49')
++    def unreadable(suffix):
++        raise OSError('history unavailable')
++    monkeypatch.setattr(state, 'keys_ending', unreadable)
++    cfg = {'venue': 'kraken', 'strategy_id': 'ema_cross'}
++    selected = runner._venue_for_turn(state, journal, cfg, 'BTC/USD', 'kraken', queue)
++    assert selected != 'kraken', 'unknown venue history returned a normal tradable venue'

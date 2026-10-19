@@ -1,0 +1,37 @@
+--- /sessions/rcw-011p3wbrlhso7qjbjysguxay/audit_scratch/repo/docs/research/xs_momentum_20261012/xs_momentum.py	2026-10-15 18:57:46.098000860 +0000
++++ corrected_crosscheck/xs_momentum_corrected.py	2026-10-15 19:28:18.431005944 +0000
+@@ -80,17 +80,18 @@
+     pending = tfun(start, **kw)
+     for day in range(start + 1, hi + 1):
+         if pending is not None:
+-            prices = {}
+-            for p in set(units) | set(pending):
+-                o = px[p][day][0] if (p in px and day in px[p]) else last_close(p, day - 1)
+-                if o: prices[p] = o
+-            nav = cash + sum(q * prices.get(p, 0) for p, q in units.items())
+-            want = {p: nav * w / prices[p] for p, w in pending.items() if p in prices}
+-            traded = sum(abs(want.get(p, 0) - units.get(p, 0)) * prices[p] for p in set(want) | set(units) if p in prices)
++            # CORRECTED (pre-stated rule, integrity audit 2026-10-15): trade only at real opens.
++            frozen = {p: q for p, q in units.items() if not (p in px and day in px[p])}
++            prices = {p: px[p][day][0] for p in set(units) | set(pending) if p in px and day in px[p]}
++            nav = cash + sum(q * prices[p] for p, q in units.items() if p not in frozen)   # tradable NAV
++            tw = {p: w for p, w in pending.items() if p in prices and p not in frozen}
++            want = {p: nav * w / prices[p] for p, w in tw.items()}
++            traded = sum(abs(want.get(p, 0) - units.get(p, 0)) * prices[p] for p in (set(want) | set(units)) - set(frozen))
+             fee = traded * cost; turnover += traded / nav if nav > 0 else 0
+             nav -= fee
+-            units = {p: nav * pending[p] / prices[p] for p in want}
++            units = {p: nav * tw[p] / prices[p] for p in tw}
+             cash = nav - sum(units[p] * prices[p] for p in units)
++            units.update(frozen)
+             pending = None
+         nav = cash + sum(q * (last_close(p, day) or 0) for p, q in units.items())
+         curve.append(nav)
+@@ -145,6 +146,6 @@
+         lo, hi = PER[per]; c, _ = simulate(target_xs, lo, hi, cost=cost, **kw); row[per] = stats(c, lo, hi)[0]
+     sens.append(row)
+ out["sensitivity_reported_only"] = sens
+-json.dump(out, open(OUT, "x"), indent=1)
++json.dump(out, open(OUT, "x"), indent=1)  # scratch copy, corrected execution
+ print(json.dumps({k: out[k] for k in ("products_used", "data_first_day", "data_last_day", "primary", "dsr_full_broad_V", "pass_checks", "verdict")}, indent=1))
+ for row in sens: print(row["variant"], {p: (row[p]["cagr_pct"], row[p]["sharpe"], row[p]["max_drawdown_pct"]) for p in ("A", "B", "FULL")})

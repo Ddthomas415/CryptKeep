@@ -1,0 +1,88 @@
+{
+  "fetched_utc": "2026-10-12T18:07:35.045258+00:00",
+  "http_status": 200,
+  "source": "CoinGecko global USD turnover; not venue net buying",
+  "identity_policy": "specific ID plus symbol/name cross-check, no contract-level verification",
+  "unverified_identity_exclusions": [
+    "CTR-USD"
+  ],
+  "rows": [
+    {
+      "id": "reserve-rights-token",
+      "symbol": "rsr",
+      "name": "Reserve Rights",
+      "market_cap": 143438621,
+      "total_volume": 180128141,
+      "circulating_supply": 62553174091.0,
+      "max_supply": 100000000000.0,
+      "fully_diluted_valuation": 229306703,
+      "last_updated": "2026-10-12T18:06:53.000Z"
+    },
+    {
+      "id": "linea",
+      "symbol": "linea",
+      "name": "Linea",
+      "market_cap": 74158993,
+      "total_volume": 17285634,
+      "circulating_supply": 24527101521.37352,
+      "max_supply": 72009990000.0,
+      "fully_diluted_valuation": 216467704,
+      "last_updated": "2026-10-12T18:06:53.000Z"
+    },
+    {
+      "id": "osmosis",
+      "symbol": "osmo",
+      "name": "Osmosis",
+      "market_cap": 38007339,
+      "total_volume": 25284714,
+      "circulating_supply": 791854481.745379,
+      "max_supply": 1000000000.0,
+      "fully_diluted_valuation": 45914091,
+      "last_updated": "2026-10-12T18:06:53.000Z"
+    },
+    {
+      "id": "skale",
+      "symbol": "skl",
+      "name": "SKALE",
+      "market_cap": 34086043,
+      "total_volume": 30081997,
+      "circulating_supply": 6094019337.0,
+      "max_supply": 7000000000.0,
+      "fully_diluted_valuation": 35919331,
+      "last_updated": "2026-10-12T18:06:53.000Z"
+    },
+    {
+      "id": "metis-token",
+      "symbol": "metis",
+      "name": "Metis",
+      "market_cap": 30887416,
+      "total_volume": 22770952,
+      "circulating_supply": 8118684.478,
+      "max_supply": 10000000.0,
+      "fully_diluted_valuation": 38044853,
+      "last_updated": "2026-10-12T18:06:53.000Z"
+    },
+    {
+      "id": "origin-protocol",
+      "symbol": "ogn",
+      "name": "Origin Token",
+      "market_cap": 28463983,
+      "total_volume": 53077766,
+      "circulating_supply": 756580095.0,
+      "max_supply": 1409664846.0,
+      "fully_diluted_valuation": 53034274,
+      "last_updated": "2026-10-12T18:06:53.000Z"
+    },
+    {
+      "id": "gitcoin",
+      "symbol": "gtc",
+      "name": "Gitcoin",
+      "market_cap": 27396914,
+      "total_volume": 153617890,
+      "circulating_supply": 87491501.9042429,
+      "max_supply": 100000000.0,
+      "fully_diluted_valuation": 31313800,
+      "last_updated": "2026-10-12T18:06:53.000Z"
+    }
+  ]
+}
