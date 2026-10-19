@@ -1,0 +1,96 @@
+{
+ "v2_member_net_max_abs_err": 1.8189894035458565e-12,
+ "accounting": {
+  "new_entrants": {
+   "never_listed": 71,
+   "before": 133,
+   "not_yet_listed": 21,
+   "tradable": 41
+  },
+  "altcoin_control": {
+   "tradable": 4152,
+   "before": 8382,
+   "not_yet_listed": 1125,
+   "never_listed": 3057,
+   "unknown": 18,
+   "delisted_before_entry": 30,
+   "rule3_applied": 1
+  }
+ },
+ "c1_mean": 11.45092502448045,
+ "c2_mean_wo_largest": -29.999756769418227,
+ "largest": {
+  "entry": "2025-09-14",
+  "net": 4115.068422620449,
+  "members": [
+   [
+    1437,
+    "ZEC",
+    4115.068422620449
+   ]
+  ]
+ },
+ "c3_paired_mean": -7.622249815128512,
+ "c3_pairs": 96,
+ "excluded_pairs": 4,
+ "c4_funded_cycles": 34,
+ "funded_selections": 41,
+ "unresolved_exits": 0,
+ "unknown_share": 0.0,
+ "unresolved_share": 0.0,
+ "verdict": "STOP",
+ "control_mean": 17.573590438833993,
+ "control_funded_cycles": 100,
+ "control_unresolved_exits": 5,
+ "control_cycles_with_unresolved": 4,
+ "entrant_cash_cycles": 66,
+ "entrant_profitable": 8,
+ "entrant_median": [
+  0.0,
+  0.0
+ ],
+ "robust_c3_funded_only": {
+  "mean": 90.02318163758724,
+  "n": 31,
+  "wins": 9
+ },
+ "entrant_total": 1145.092502448045,
+ "top5": [
+  [
+   "2025-09-14",
+   4115.07,
+   [
+    "ZEC"
+   ]
+  ],
+  [
+   "2023-12-10",
+   1536.7,
+   [
+    "SEI"
+   ]
+  ],
+  [
+   "2023-10-15",
+   400.83,
+   [
+    "BAT",
+    "OCEAN"
+   ]
+  ],
+  [
+   "2019-03-10",
+   318.0,
+   [
+    "LOOM"
+   ]
+  ],
+  [
+   "2025-06-22",
+   182.03,
+   [
+    "AERO"
+   ]
+  ]
+ ]
+}

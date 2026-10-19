@@ -1,0 +1,4811 @@
+{
+  "assets": {
+    "10603": {
+      "cmc_slug": "immutable-x",
+      "cmc_symbol": "IMX",
+      "contracts": [
+        "0xf57e7e7c23978c3caec3c3548e3d615c346e79ff"
+      ],
+      "platforms": [
+        {
+          "address": "0xf57e7e7c23978c3caec3c3548e3d615c346e79ff",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0125_10603.json",
+      "source_sha256": "55975cd0258107d564ab1ed9506c587e9f088e254a6158dbf54ce15d0a3ff4b6"
+    },
+    "10804": {
+      "cmc_slug": "floki-inu",
+      "cmc_symbol": "FLOKI",
+      "contracts": [
+        "0xcf0c122c6b73ff809c693db761e7baebe62b6a2e",
+        "0xfb5b838b6cfeedc2873ab27866079ac55363d37e"
+      ],
+      "platforms": [
+        {
+          "address": "0xcf0c122c6b73ff809c693db761e7baebe62b6a2e",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xfb5b838b6cfeedc2873ab27866079ac55363d37e",
+          "platform": "BNB Smart Chain (BEP20)"
+        }
+      ],
+      "source_file": "raw/0126_10804.json",
+      "source_sha256": "01e1a3a2987bb8cf6e9f249e3d9240829acebcb697e176ba329516ab635fa7e2"
+    },
+    "1104": {
+      "cmc_slug": "augur",
+      "cmc_symbol": "REP",
+      "contracts": [
+        "0x1985365e9f78359a9B6AD760e32412f4a445E862"
+      ],
+      "platforms": [
+        {
+          "address": "0x1985365e9f78359a9B6AD760e32412f4a445E862",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0009_1104.json",
+      "source_sha256": "74b710c388fa5f8ca377e2880c5aa5e58f417d041f8d155fa04e1689211dba22"
+    },
+    "11156": {
+      "cmc_slug": "dydx-ethdydx",
+      "cmc_symbol": "ETHDYDX",
+      "contracts": [
+        "0x92d6c1e31e14520e676a687f0a93788b716beff5",
+        "4Hx6Bj56eGyw8EJrrheM6LBQAvVYRikYCWsALeTrwyRU"
+      ],
+      "platforms": [
+        {
+          "address": "0x92d6c1e31e14520e676a687f0a93788b716beff5",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "4Hx6Bj56eGyw8EJrrheM6LBQAvVYRikYCWsALeTrwyRU",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0127_11156.json",
+      "source_sha256": "f5a014ab2630ac90e459b4f2c1a49114ac4e7f0f493d0df139a17ede8da2452f"
+    },
+    "11221": {
+      "cmc_slug": "bitdao",
+      "cmc_symbol": "BIT",
+      "contracts": [
+        "0x1A4b46696b2bB4794Eb3D4c26f1c55F9170fa4C5"
+      ],
+      "platforms": [
+        {
+          "address": "0x1A4b46696b2bB4794Eb3D4c26f1c55F9170fa4C5",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0128_11221.json",
+      "source_sha256": "5a68701b42ababd9e910a8e8427af762be92ecec60417ffd55ae545e19d6059b"
+    },
+    "11419": {
+      "cmc_slug": "gram",
+      "cmc_symbol": "GRAM",
+      "contracts": [
+        "0x582d872a1b094fc48f5de31d3b73f2d9be47def1",
+        "0x76a797a59ba2c17726896976b7b3747bfd1d220f",
+        "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c"
+      ],
+      "platforms": [
+        {
+          "address": "0x582d872a1b094fc48f5de31d3b73f2d9be47def1",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x76a797a59ba2c17726896976b7b3747bfd1d220f",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c",
+          "platform": "TON"
+        }
+      ],
+      "source_file": "raw/0129_11419.json",
+      "source_sha256": "a7873b0e47ce04f780acdad19ddf729febb571484dbe4efd8173f77e43a7e91d"
+    },
+    "11840": {
+      "cmc_slug": "optimism-ethereum",
+      "cmc_symbol": "OP",
+      "contracts": [
+        "0x4200000000000000000000000000000000000042"
+      ],
+      "platforms": [
+        {
+          "address": "0x4200000000000000000000000000000000000042",
+          "platform": "Optimism"
+        }
+      ],
+      "source_file": "raw/0130_11840.json",
+      "source_sha256": "7671de15b6543393d58aef742ed093006cf91108a4c30c865b243b5815d784cc"
+    },
+    "11841": {
+      "cmc_slug": "arbitrum",
+      "cmc_symbol": "ARB",
+      "contracts": [
+        "0x912CE59144191C1204E64559FE8253a0e49E6548",
+        "0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1"
+      ],
+      "platforms": [
+        {
+          "address": "0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x912CE59144191C1204E64559FE8253a0e49E6548",
+          "platform": "Arbitrum"
+        }
+      ],
+      "source_file": "raw/0131_11841.json",
+      "source_sha256": "a91fad1016cf80c7db21dabe3b93150e51f4dc6a8340774fa77adaa7afceb8b4"
+    },
+    "12220": {
+      "cmc_slug": "osmosis",
+      "cmc_symbol": "OSMO",
+      "contracts": [
+        "uosmo"
+      ],
+      "platforms": [
+        {
+          "address": "uosmo",
+          "platform": "Osmosis"
+        }
+      ],
+      "source_file": "raw/0132_12220.json",
+      "source_sha256": "be3a248dd007dc996b9467d888f65060057b733c7127a712eb88c3867112b772"
+    },
+    "131": {
+      "cmc_slug": "dash",
+      "cmc_symbol": "DASH",
+      "contracts": [
+        "dash.omft.near"
+      ],
+      "platforms": [
+        {
+          "address": "dash.omft.near",
+          "platform": "Near"
+        }
+      ],
+      "source_file": "raw/0006_131.json",
+      "source_sha256": "9e789a40399afb0b493c906c738322b3f8b101cf9e8d11119c2769c10f80f7cb"
+    },
+    "1321": {
+      "cmc_slug": "ethereum-classic",
+      "cmc_symbol": "ETC",
+      "contracts": [
+        "0x1953cab0E5bFa6D4a9BaD6E05fD46C1CC6527a5a",
+        "0x3d6545b08693dae087e957cb1180ee38b9e3c25e"
+      ],
+      "platforms": [
+        {
+          "address": "0x3d6545b08693dae087e957cb1180ee38b9e3c25e",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x1953cab0E5bFa6D4a9BaD6E05fD46C1CC6527a5a",
+          "platform": "Ethereum Classic"
+        }
+      ],
+      "source_file": "raw/0010_1321.json",
+      "source_sha256": "634865a32cedd5275b67aa32daa9889faa56b36de172a6cc33b8975f9589e926"
+    },
+    "13502": {
+      "cmc_slug": "worldcoin-org",
+      "cmc_symbol": "WLD",
+      "contracts": [
+        "0x163f8c2467924be0ae7b5347228cabf260318753",
+        "0x2cFc85d8E48F8EAB294be644d9E25C3030863003",
+        "0xdc6ff44d5d932cbd77b52e5612ba0529dc6226f1"
+      ],
+      "platforms": [
+        {
+          "address": "0x163f8c2467924be0ae7b5347228cabf260318753",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xdc6ff44d5d932cbd77b52e5612ba0529dc6226f1",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0x2cFc85d8E48F8EAB294be644d9E25C3030863003",
+          "platform": "World Chain Mainnet"
+        }
+      ],
+      "source_file": "raw/0133_13502.json",
+      "source_sha256": "20924567f33ad8ef8e2117337b1db90180e792edc04a1124ac27cae76175402e"
+    },
+    "1376": {
+      "cmc_slug": "neo",
+      "cmc_symbol": "NEO",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0011_1376.json",
+      "source_sha256": "a1f2070ee79aa820d18d04d665c40db6cc31ad71ba1afc1538331d3e6753148c"
+    },
+    "13855": {
+      "cmc_slug": "ethereum-name-service",
+      "cmc_symbol": "ENS",
+      "contracts": [
+        "0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72",
+        "CLQsDGoGibdNPnVCFp8BAsN2unvyvb41Jd5USYwAnzAg"
+      ],
+      "platforms": [
+        {
+          "address": "0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "CLQsDGoGibdNPnVCFp8BAsN2unvyvb41Jd5USYwAnzAg",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0134_13855.json",
+      "source_sha256": "aa4c85204011a1def1fa3a701fd5d2731ef4466ee6118643b71f5fded8e34728"
+    },
+    "14101": {
+      "cmc_slug": "ronin",
+      "cmc_symbol": "RON",
+      "contracts": [
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "platforms": [
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Ronin"
+        }
+      ],
+      "source_file": "raw/0135_14101.json",
+      "source_sha256": "e8504981f21beaaaeed9ee1c3a5a5f3eb3dea43c61fe8f60ae153c2e0af91040"
+    },
+    "1437": {
+      "cmc_slug": "zcash",
+      "cmc_symbol": "ZEC",
+      "contracts": [
+        "0x1ba42e5193dfa8b03d15dd1b86a3113bbbef8eeb",
+        "0x5ce53b9b68fb8e9ecab9283a96d97948914733fd6ed8d9a53a276a419497841",
+        "zec.omft.near"
+      ],
+      "platforms": [
+        {
+          "address": "0x1ba42e5193dfa8b03d15dd1b86a3113bbbef8eeb",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "zec.omft.near",
+          "platform": "Near"
+        },
+        {
+          "address": "0x5ce53b9b68fb8e9ecab9283a96d97948914733fd6ed8d9a53a276a419497841",
+          "platform": "Starknet"
+        }
+      ],
+      "source_file": "raw/0012_1437.json",
+      "source_sha256": "adb2ba8e85d1954a29955195a508abb4ffccad65fe9e1c183bd0f693cbbbea17"
+    },
+    "1455": {
+      "cmc_slug": "golem-network-tokens",
+      "cmc_symbol": "GLM",
+      "contracts": [
+        "0x0B220b82F3eA3B7F6d9A1D8ab58930C064A2b5Bf",
+        "0x7DD9c5Cba05E151C895FDe1CF355C9A1D5DA6429"
+      ],
+      "platforms": [
+        {
+          "address": "0x7DD9c5Cba05E151C895FDe1CF355C9A1D5DA6429",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x0B220b82F3eA3B7F6d9A1D8ab58930C064A2b5Bf",
+          "platform": "Polygon"
+        }
+      ],
+      "source_file": "raw/0013_1455.json",
+      "source_sha256": "1defac60304d0b7dc0994b37f7fcee1e19121fb4bfd5dad0763145c4e4ed6415"
+    },
+    "1518": {
+      "cmc_slug": "maker",
+      "cmc_symbol": "MKR",
+      "contracts": [
+        "0x5f0da599bb2cccfcf6fdfd7d81743b6020864350",
+        "0x88128fd4b259552A9A1D457f435a6527AAb72d42",
+        "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2"
+      ],
+      "platforms": [
+        {
+          "address": "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x5f0da599bb2cccfcf6fdfd7d81743b6020864350",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x88128fd4b259552A9A1D457f435a6527AAb72d42",
+          "platform": "Avalanche C-Chain"
+        }
+      ],
+      "source_file": "raw/0014_1518.json",
+      "source_sha256": "8cb086b91b5f1ea085a52560cd40471be4ba1811bfd6e3beaa48ad44619d8651"
+    },
+    "1586": {
+      "cmc_slug": "ark",
+      "cmc_symbol": "ARK",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0015_1586.json",
+      "source_sha256": "ee8b262c303ff0c8e7e3628dbd95b78e376a4d255c086329acaf3d7368c118a7"
+    },
+    "1637": {
+      "cmc_slug": "rlc",
+      "cmc_symbol": "RLC",
+      "contracts": [
+        "0x607f4c5bb672230e8672085532f7e901544a7375",
+        "0xe649e6a1F2afc63ca268C2363691ceCAF75CF47C"
+      ],
+      "platforms": [
+        {
+          "address": "0x607f4c5bb672230e8672085532f7e901544a7375",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xe649e6a1F2afc63ca268C2363691ceCAF75CF47C",
+          "platform": "Arbitrum"
+        }
+      ],
+      "source_file": "raw/0016_1637.json",
+      "source_sha256": "f3f574574326e589ee70da694b92eb5e9ac9019df0ab48aa30d701448c71e0e8"
+    },
+    "1659": {
+      "cmc_slug": "gnosis-gno",
+      "cmc_symbol": "GNO",
+      "contracts": [
+        "0x6810e776880c02933d47db1b9fc05908e5386b96",
+        "0x9c58bacc331c9aa871afd802db6379a98e80cedb",
+        "0xa0b862f60edef4452f25b4160f177db44deb6cf1"
+      ],
+      "platforms": [
+        {
+          "address": "0x6810e776880c02933d47db1b9fc05908e5386b96",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x9c58bacc331c9aa871afd802db6379a98e80cedb",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "0xa0b862f60edef4452f25b4160f177db44deb6cf1",
+          "platform": "Arbitrum"
+        }
+      ],
+      "source_file": "raw/0017_1659.json",
+      "source_sha256": "b9ca5a5a1fe8bd3bd33624b9bd069fd78a93fd83ea1c3e52c875ad52e1a903f0"
+    },
+    "1680": {
+      "cmc_slug": "aragon",
+      "cmc_symbol": "ANT",
+      "contracts": [
+        "0xa117000000f279d81a1d3cc75430faa017fa5a2e"
+      ],
+      "platforms": [
+        {
+          "address": "0xa117000000f279d81a1d3cc75430faa017fa5a2e",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0018_1680.json",
+      "source_sha256": "ef28313fdc3910419ed02910fcfc60b5351b09d76e126fe3c7754485baa79ea8"
+    },
+    "1697": {
+      "cmc_slug": "basic-attention-token",
+      "cmc_symbol": "BAT",
+      "contracts": [
+        "0d8775f648430679a709e98d2b0cb6250d2887ef.factory.bridge.near",
+        "0x0d8775f648430679a709e98d2b0cb6250d2887ef",
+        "0x101d82428437127bf1608f699cd651e6abf9766e",
+        "0x98443B96EA4b0858FDF3219Cd13e98C7A4690588",
+        "0xC6cC63f4AA25BBD4453eB5F3a0DfE546feF9b2f3",
+        "EPeUFDgHRxs9xxEPVaL6kfGQvCon7jmAWKVUHuux1Tpz"
+      ],
+      "platforms": [
+        {
+          "address": "0x0d8775f648430679a709e98d2b0cb6250d2887ef",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x101d82428437127bf1608f699cd651e6abf9766e",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "EPeUFDgHRxs9xxEPVaL6kfGQvCon7jmAWKVUHuux1Tpz",
+          "platform": "Solana"
+        },
+        {
+          "address": "0xC6cC63f4AA25BBD4453eB5F3a0DfE546feF9b2f3",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "0x98443B96EA4b0858FDF3219Cd13e98C7A4690588",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "0d8775f648430679a709e98d2b0cb6250d2887ef.factory.bridge.near",
+          "platform": "Near"
+        }
+      ],
+      "source_file": "raw/0019_1697.json",
+      "source_sha256": "7ca0d80584f44c9193c90c64b9705fdd41f86a8f7e72630128e41a24350f169e"
+    },
+    "1698": {
+      "cmc_slug": "horizen",
+      "cmc_symbol": "ZEN",
+      "contracts": [
+        "0xf43eb8de897fbc7f2502483b2bef7bb9ea179229"
+      ],
+      "platforms": [
+        {
+          "address": "0xf43eb8de897fbc7f2502483b2bef7bb9ea179229",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0020_1698.json",
+      "source_sha256": "29457d7963a27d6dd473a5678f3d9914334f43d8f80b5da6f4e433725b28dbb7"
+    },
+    "1727": {
+      "cmc_slug": "bancor",
+      "cmc_symbol": "BNT",
+      "contracts": [
+        "0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c",
+        "0x9a495a281D959192343B0e007284bf130bd05F86",
+        "EDVVEYW4fPJ6vKw5LZXRGUSPzxoHrv6eWvTqhCr8oShs"
+      ],
+      "platforms": [
+        {
+          "address": "0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "EDVVEYW4fPJ6vKw5LZXRGUSPzxoHrv6eWvTqhCr8oShs",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x9a495a281D959192343B0e007284bf130bd05F86",
+          "platform": "Gnosis Chain"
+        }
+      ],
+      "source_file": "raw/0021_1727.json",
+      "source_sha256": "6b7c250035fb43d57c6cb50ab0009fc0d1c62e1638fead0d90fb6a8df2bb3092"
+    },
+    "1732": {
+      "cmc_slug": "numeraire",
+      "cmc_symbol": "NMR",
+      "contracts": [
+        "0x1776e1F26f98b1A5dF9cD347953a26dd3Cb46671"
+      ],
+      "platforms": [
+        {
+          "address": "0x1776e1F26f98b1A5dF9cD347953a26dd3Cb46671",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0022_1732.json",
+      "source_sha256": "1f67ee32f94a019195c061b0e3e619d6f7303ed6d71d4971f55545efa2ce4e32"
+    },
+    "1759": {
+      "cmc_slug": "status",
+      "cmc_symbol": "SNT",
+      "contracts": [
+        "0x744d70fdbe2ba4cf95131626614a1763df805b9e"
+      ],
+      "platforms": [
+        {
+          "address": "0x744d70fdbe2ba4cf95131626614a1763df805b9e",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0023_1759.json",
+      "source_sha256": "bc89988e332e89635fae704fd52dca91ff8444b232b0eadb1aec139ae43acd67"
+    },
+    "1765": {
+      "cmc_slug": "eos",
+      "cmc_symbol": "EOS",
+      "contracts": [
+        "0x56b6fb708fc5732dec1afc8d8556423a2edccbd6",
+        "0xae3a94a6dc7fce46b40d63bbf355a3ab2aa2a588",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "platforms": [
+        {
+          "address": "0x56b6fb708fc5732dec1afc8d8556423a2edccbd6",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xae3a94a6dc7fce46b40d63bbf355a3ab2aa2a588",
+          "platform": "HECO"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "EOS EVM"
+        }
+      ],
+      "source_file": "raw/0024_1765.json",
+      "source_sha256": "d63d3f0eb31bf314547e0e1d6929986dd62d9945a666f4e6a1aa5465e024c68f"
+    },
+    "1772": {
+      "cmc_slug": "storj",
+      "cmc_symbol": "STORJ",
+      "contracts": [
+        "0xb64ef51c888972c908cfacf59b47c1afbc0ab8ac"
+      ],
+      "platforms": [
+        {
+          "address": "0xb64ef51c888972c908cfacf59b47c1afbc0ab8ac",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0025_1772.json",
+      "source_sha256": "52f6a837c5889c7869c4d90806882ec2da1030b0a74ddb93b7f2a73befae4c2b"
+    },
+    "17751": {
+      "cmc_slug": "threshold",
+      "cmc_symbol": "T",
+      "contracts": [
+        "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5"
+      ],
+      "platforms": [
+        {
+          "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0136_17751.json",
+      "source_sha256": "d41a6aeea0131982addffdd7ed3b3c2ec294cdd5fd5649b7fb9cec84dba9b8db"
+    },
+    "1776": {
+      "cmc_slug": "crypto-com",
+      "cmc_symbol": "MCO",
+      "contracts": [
+        "0xb63b606ac810a52cca15e44bb630fd42d8d1d83d"
+      ],
+      "platforms": [
+        {
+          "address": "0xb63b606ac810a52cca15e44bb630fd42d8d1d83d",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0026_1776.json",
+      "source_sha256": "61b64d1adc5a59fe4d07f8699162cb2ec3ab4c1cf49dc441182717fcdd8b9f45"
+    },
+    "17799": {
+      "cmc_slug": "axelar",
+      "cmc_symbol": "AXL",
+      "contracts": [
+        "0x23ee2343B892b1BB63503a4FAbc840E0e2C6810f",
+        "0x44c784266cf024a60e8acf2427b9857ace194c5d",
+        "0x467719aD09025FcC6cF6F8311755809d45a5E5f3",
+        "0x6e4E624106Cb12E168E6533F8ec7c82263358940",
+        "0x8b1f4432F943c465A973FeDC6d7aa50Fc96f1f65",
+        "ibc/903A61A498756EA560B85A85132D3AEE21B5DEDD41213725D22ABF276EA6945E"
+      ],
+      "platforms": [
+        {
+          "address": "0x467719aD09025FcC6cF6F8311755809d45a5E5f3",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x8b1f4432F943c465A973FeDC6d7aa50Fc96f1f65",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x6e4E624106Cb12E168E6533F8ec7c82263358940",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0x44c784266cf024a60e8acf2427b9857ace194c5d",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "0x23ee2343B892b1BB63503a4FAbc840E0e2C6810f",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "ibc/903A61A498756EA560B85A85132D3AEE21B5DEDD41213725D22ABF276EA6945E",
+          "platform": "Osmosis"
+        },
+        {
+          "address": "0x23ee2343B892b1BB63503a4FAbc840E0e2C6810f",
+          "platform": "Base"
+        },
+        {
+          "address": "0x23ee2343B892b1BB63503a4FAbc840E0e2C6810f",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0x23ee2343B892b1BB63503a4FAbc840E0e2C6810f",
+          "platform": "Mantle"
+        },
+        {
+          "address": "0x23ee2343B892b1BB63503a4FAbc840E0e2C6810f",
+          "platform": "Linea"
+        },
+        {
+          "address": "0x8b1f4432F943c465A973FeDC6d7aa50Fc96f1f65",
+          "platform": "Fantom"
+        },
+        {
+          "address": "0x23ee2343B892b1BB63503a4FAbc840E0e2C6810f",
+          "platform": "Scroll"
+        }
+      ],
+      "source_file": "raw/0137_17799.json",
+      "source_sha256": "a4394675c1ef49c6dc75fe3a2f00e0126019eba720a648f8598ba6ff89debe91"
+    },
+    "18069": {
+      "cmc_slug": "green-metaverse-token",
+      "cmc_symbol": "GMT",
+      "contracts": [
+        "0x3019BF2a2eF8040C242C9a4c5c4BD4C81678b2A1",
+        "0x714DB550b574b3E927af3D93E26127D15721D4C2",
+        "0xe3c408bd53c31c085a1746af401a4042954ff740",
+        "7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx"
+      ],
+      "platforms": [
+        {
+          "address": "0xe3c408bd53c31c085a1746af401a4042954ff740",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x3019BF2a2eF8040C242C9a4c5c4BD4C81678b2A1",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x714DB550b574b3E927af3D93E26127D15721D4C2",
+          "platform": "Polygon"
+        }
+      ],
+      "source_file": "raw/0138_18069.json",
+      "source_sha256": "6d19f433eb3dbd802a8fb0691e012354aeaef45b8ec7a3eefd20e5e94f431342"
+    },
+    "1808": {
+      "cmc_slug": "omg",
+      "cmc_symbol": "OMG",
+      "contracts": [
+        "0xd26114cd6ee289accf82350c8d8487fedb8a0c07"
+      ],
+      "platforms": [
+        {
+          "address": "0xd26114cd6ee289accf82350c8d8487fedb8a0c07",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0027_1808.json",
+      "source_sha256": "9f5e9e3339eb453b31cb667ae2c5abfcd13a47d59dccafd7f1c3f2d43b28fe0d"
+    },
+    "1817": {
+      "cmc_slug": "vgx-token",
+      "cmc_symbol": "VGX",
+      "contracts": [
+        "0x3C4B6E6e1eA3D4863700D7F76b36B7f3D3f13E3d"
+      ],
+      "platforms": [
+        {
+          "address": "0x3C4B6E6e1eA3D4863700D7F76b36B7f3D3f13E3d",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0028_1817.json",
+      "source_sha256": "c22bd50bc1237fe832fec4c342bd55694396efad2269e1907584de936fb4cc4a"
+    },
+    "1831": {
+      "cmc_slug": "bitcoin-cash",
+      "cmc_symbol": "BCH",
+      "contracts": [
+        "0x8fF795a6F4D97E7887C79beA79aba5cc76444aDf",
+        "0xef3cebd77e0c52cb6f60875d9306397b5caca375"
+      ],
+      "platforms": [
+        {
+          "address": "0x8fF795a6F4D97E7887C79beA79aba5cc76444aDf",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xef3cebd77e0c52cb6f60875d9306397b5caca375",
+          "platform": "HECO"
+        }
+      ],
+      "source_file": "raw/0029_1831.json",
+      "source_sha256": "c923447ef4d400e20b4542291dec1872d280834e4840da77206c65d6bb7c6f65"
+    },
+    "1839": {
+      "cmc_slug": "bnb",
+      "cmc_symbol": "BNB",
+      "contracts": [
+        "0xb8c77482e45f1f44de1745f52c74426c631bdd52",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "platforms": [
+        {
+          "address": "0xb8c77482e45f1f44de1745f52c74426c631bdd52",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "opBNB"
+        }
+      ],
+      "source_file": "raw/0030_1839.json",
+      "source_sha256": "d1202bab4c1f1ece02710702a613767b7ffdbd685fcce4f7fb5e337e7d4033e9"
+    },
+    "18679": {
+      "cmc_slug": "onyxcoin",
+      "cmc_symbol": "XCN",
+      "contracts": [
+        "0x1a0Da75ADf091a69E7285e596bB27218D77E17a9",
+        "0x7324c7C0d95CEBC73eEa7E85CbAac0dBdf88a05b",
+        "0x9c632e6aaa3ea73f91554f8a3cb2ed2f29605e0c",
+        "0xA2cd3D43c775978A96BdBf12d733D5A1ED94fb18"
+      ],
+      "platforms": [
+        {
+          "address": "0xA2cd3D43c775978A96BdBf12d733D5A1ED94fb18",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x7324c7C0d95CEBC73eEa7E85CbAac0dBdf88a05b",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x9c632e6aaa3ea73f91554f8a3cb2ed2f29605e0c",
+          "platform": "Base"
+        },
+        {
+          "address": "0x1a0Da75ADf091a69E7285e596bB27218D77E17a9",
+          "platform": "Onyx"
+        }
+      ],
+      "source_file": "raw/0139_18679.json",
+      "source_sha256": "d73953203f37a26c772d47157873400036adee22462424119820c1b3da749ab5"
+    },
+    "18876": {
+      "cmc_slug": "apecoin-ape",
+      "cmc_symbol": "APE",
+      "contracts": [
+        "0x4d224452801aced8b2f0aebe155379bb5d594381",
+        "0x8f86a15EC17cb3369d8b3E666dAdBC11daA82b79",
+        "0x8f86a15ec17cb3369d8b3e666dadbc11daa82b79",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "platforms": [
+        {
+          "address": "0x4d224452801aced8b2f0aebe155379bb5d594381",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x8f86a15EC17cb3369d8b3E666dAdBC11daA82b79",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "ApeChain"
+        },
+        {
+          "address": "0x8f86a15ec17cb3369d8b3e666dadbc11daa82b79",
+          "platform": "Robinhood Chain"
+        }
+      ],
+      "source_file": "raw/0140_18876.json",
+      "source_sha256": "41866a490548073f1c211b6b5ba00c698e9d5b84054a91ae6ed89ff30bdd7d87"
+    },
+    "1896": {
+      "cmc_slug": "0x",
+      "cmc_symbol": "ZRX",
+      "contracts": [
+        "0xe41d2489571d322189246dafa5ebde1f4699f498"
+      ],
+      "platforms": [
+        {
+          "address": "0xe41d2489571d322189246dafa5ebde1f4699f498",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0031_1896.json",
+      "source_sha256": "bbeffeb002e1877510b54c5e90080a37b40ff3215711527c6984ddeb7528f8af"
+    },
+    "1934": {
+      "cmc_slug": "loopring",
+      "cmc_symbol": "LRC",
+      "contracts": [
+        "0xbbbbca6a901c926f240b89eacb641d8aec7aeafd",
+        "HCTVFTzHL21a1dPzKxAUeWwqbE8QMUyvgChFDL4XYoi1"
+      ],
+      "platforms": [
+        {
+          "address": "0xbbbbca6a901c926f240b89eacb641d8aec7aeafd",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "HCTVFTzHL21a1dPzKxAUeWwqbE8QMUyvgChFDL4XYoi1",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0032_1934.json",
+      "source_sha256": "a90530cb7470f0dea709fd870b8bea5fdd2d4f3c007a383194570afe30024699"
+    },
+    "1966": {
+      "cmc_slug": "decentraland",
+      "cmc_symbol": "MANA",
+      "contracts": [
+        "0x0f5d2fb29fb7d3cfee444a200298f468908cc942",
+        "0x61be5df5459573a7c25673e74281cef4cef81e7d",
+        "0x7838796B6802B18D7Ef58fc8B757705D6c9d12b3",
+        "7dgHoN8wBZCc5wbnQ2C47TDnBMAxG4Q5L3KjP67z8kNi"
+      ],
+      "platforms": [
+        {
+          "address": "0x0f5d2fb29fb7d3cfee444a200298f468908cc942",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x7838796B6802B18D7Ef58fc8B757705D6c9d12b3",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "7dgHoN8wBZCc5wbnQ2C47TDnBMAxG4Q5L3KjP67z8kNi",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x61be5df5459573a7c25673e74281cef4cef81e7d",
+          "platform": "Fusion Network"
+        }
+      ],
+      "source_file": "raw/0033_1966.json",
+      "source_sha256": "b33b941feb9033918343c33d64184eebb39b25a742d8b6f8ee0ee8655f170d69"
+    },
+    "1975": {
+      "cmc_slug": "chainlink",
+      "cmc_symbol": "LINK",
+      "contracts": [
+        "0x15C03488B29e27d62BAf10E30b0c474bf60E0264",
+        "0x183E3691EfF3524B2315D3703D94F922CbE51F54",
+        "0x1AC2EE68b8d038C982C1E1f73F596927dd70De59",
+        "0x2Ea38D6cDb6774992d4A62fe622f4405663729Dd",
+        "0x31efb841d5e0b4082f7e1267dab8de1b853f2a9d",
+        "0x350a791bfc2c21f9ed5d10980dad2e2638ffa7f6",
+        "0x3902228D6A3d2Dc44731fD9d45FeE6a61c722D0b",
+        "0x492641f648a4986844848e0befe66d14817bce34",
+        "0x514910771af9ca656af840dff83e8264ecf986ca",
+        "0x51e2A24742Db77604B881d6781Ee16B5b8fcBE29",
+        "0x53e0bca35ec356bd5dddfebbd1fc0fd03fabad39",
+        "0x56B275c0Ec034a229a1deD8DB17089544bc276D9",
+        "0x587d19DDF735D6B536aAdB1a2A92938eB23B8d5C",
+        "0x5947bb275c521040051d82396192181b413227a3",
+        "0x5D6d033B4FbD2190D99D930719fAbAcB64d2439a",
+        "0x5aB885CDa7216b163fb6F813DEC1E1532516c833",
+        "0x61170ca9fB9cF98d4c7d684e07be6D969D59667E",
+        "0x63dbE12A6381D64adE47bc3D92aBF4393DFF4BC8",
+        "0x709229D9587886a1eDFeE6b5cE636E1D70d1cE39",
+        "0x71052BAe71C25C78E37fD12E5ff1101A71d9018F",
+        "0x7311DED199CC28D80E58e81e8589aa160199FCD2",
+        "0x76a443768A5e3B8d1AED0105FC250877841Deb40",
+        "0x76a443768a5e3b8d1aed0105fc250877841deb40",
+        "0x76f257B1DDA5cC71bee4eF637Fbdde4C801310A9",
+        "0x80f1FcdC96B55e459BF52b998aBBE2c364935d69",
+        "0x88Fb150BDc53A65fe94Dea0c9BA0a6dAf8C6e196",
+        "0x8aF9711B44695a5A081F25AB9903DDB73aCf8FA9",
+        "0x8c80A01F461f297Df7F9DA3A4f740D7297C8Ac85",
+        "0x8ce7618E8f8E514d13889283F58FF03B794e6CC3",
+        "0x915b648e994d5f31059B38223b9fbe98ae185473",
+        "0x93202eC683288a9EA75BB829c6baCFb2BfeA9013",
+        "0x99f0d88B81b758AB07E22C7AbA00E0121a882dEA",
+        "0xC74eAEf00bE07C6C8A28feAa54e50942efEDF02A",
+        "0xE27dd9BF01B55ce6803c0d81386A04212c718b95",
+        "0xE2e73A1c69ecF83F464EFCE6A5be353a37cA09b2",
+        "0xEF66491eab4bbB582c57b14778afd8dFb70D8A1A",
+        "0xa18152629128738a5c081eb226335FEd4B9C95e9",
+        "0xb549B375dA0c76f8b3877B9aDfDD28378f087A64",
+        "0xc2C447b04e0ED3476DdbDae8E9E39bE7159d27b6",
+        "0xd07294e6E917e07dfDcee882dd1e2565085C2ae0",
+        "0xd6A6ba37fAaC229B9665E86739ca501401f5a940",
+        "0xf575731b78981B86d34321d875A3D25a48479be6",
+        "0xf8a0bf9cf54bb92f17374d9e9a321e6a111a51bd",
+        "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4",
+        "LinkhB3afbBKb2EQQu7s7umdZceV3wcvAUJhQAfQ23L"
+      ],
+      "platforms": [
+        {
+          "address": "0x514910771af9ca656af840dff83e8264ecf986ca",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xf8a0bf9cf54bb92f17374d9e9a321e6a111a51bd",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "LinkhB3afbBKb2EQQu7s7umdZceV3wcvAUJhQAfQ23L",
+          "platform": "Solana"
+        },
+        {
+          "address": "0xE2e73A1c69ecF83F464EFCE6A5be353a37cA09b2",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "0x53e0bca35ec356bd5dddfebbd1fc0fd03fabad39",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0x5947bb275c521040051d82396192181b413227a3",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "0xd07294e6E917e07dfDcee882dd1e2565085C2ae0",
+          "platform": "Celo"
+        },
+        {
+          "address": "0x350a791bfc2c21f9ed5d10980dad2e2638ffa7f6",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0x8c80A01F461f297Df7F9DA3A4f740D7297C8Ac85",
+          "platform": "Cronos"
+        },
+        {
+          "address": "0x31efb841d5e0b4082f7e1267dab8de1b853f2a9d",
+          "platform": "Astar"
+        },
+        {
+          "address": "0x80f1FcdC96B55e459BF52b998aBBE2c364935d69",
+          "platform": "Wemix"
+        },
+        {
+          "address": "0xE27dd9BF01B55ce6803c0d81386A04212c718b95",
+          "platform": "XDC Network"
+        },
+        {
+          "address": "0x3902228D6A3d2Dc44731fD9d45FeE6a61c722D0b",
+          "platform": "Core"
+        },
+        {
+          "address": "0xa18152629128738a5c081eb226335FEd4B9C95e9",
+          "platform": "Linea"
+        },
+        {
+          "address": "0x88Fb150BDc53A65fe94Dea0c9BA0a6dAf8C6e196",
+          "platform": "Base"
+        },
+        {
+          "address": "0x99f0d88B81b758AB07E22C7AbA00E0121a882dEA",
+          "platform": "opBNB"
+        },
+        {
+          "address": "0x93202eC683288a9EA75BB829c6baCFb2BfeA9013",
+          "platform": "Blast"
+        },
+        {
+          "address": "0x71052BAe71C25C78E37fD12E5ff1101A71d9018F",
+          "platform": "Merlin"
+        },
+        {
+          "address": "0x8aF9711B44695a5A081F25AB9903DDB73aCf8FA9",
+          "platform": "X Layer"
+        },
+        {
+          "address": "0x709229D9587886a1eDFeE6b5cE636E1D70d1cE39",
+          "platform": "B\u00b2 Network"
+        },
+        {
+          "address": "0x183E3691EfF3524B2315D3703D94F922CbE51F54",
+          "platform": "Mode"
+        },
+        {
+          "address": "0x587d19DDF735D6B536aAdB1a2A92938eB23B8d5C",
+          "platform": "Metal"
+        },
+        {
+          "address": "0x61170ca9fB9cF98d4c7d684e07be6D969D59667E",
+          "platform": "Cronos zkEVM Mainnet"
+        },
+        {
+          "address": "0x915b648e994d5f31059B38223b9fbe98ae185473",
+          "platform": "World Chain Mainnet"
+        },
+        {
+          "address": "0xf575731b78981B86d34321d875A3D25a48479be6",
+          "platform": "ApeChain"
+        },
+        {
+          "address": "0x71052BAe71C25C78E37fD12E5ff1101A71d9018F",
+          "platform": "Bera Chain"
+        },
+        {
+          "address": "0xd6A6ba37fAaC229B9665E86739ca501401f5a940",
+          "platform": "Fraxtal"
+        },
+        {
+          "address": "0xC74eAEf00bE07C6C8A28feAa54e50942efEDF02A",
+          "platform": "Treasure"
+        },
+        {
+          "address": "0xEF66491eab4bbB582c57b14778afd8dFb70D8A1A",
+          "platform": "Unichain"
+        },
+        {
+          "address": "0x2Ea38D6cDb6774992d4A62fe622f4405663729Dd",
+          "platform": "Abstract Chain"
+        },
+        {
+          "address": "0x1AC2EE68b8d038C982C1E1f73F596927dd70De59",
+          "platform": "HyperEVM"
+        },
+        {
+          "address": "0x76f257B1DDA5cC71bee4eF637Fbdde4C801310A9",
+          "platform": "Monad"
+        },
+        {
+          "address": "0x8ce7618E8f8E514d13889283F58FF03B794e6CC3",
+          "platform": "Etherlink"
+        },
+        {
+          "address": "0x7311DED199CC28D80E58e81e8589aa160199FCD2",
+          "platform": "Corn"
+        },
+        {
+          "address": "0x71052BAe71C25C78E37fD12E5ff1101A71d9018F",
+          "platform": "Hashkey Chain"
+        },
+        {
+          "address": "0x76a443768A5e3B8d1AED0105FC250877841Deb40",
+          "platform": "Plasma"
+        },
+        {
+          "address": "0x71052BAe71C25C78E37fD12E5ff1101A71d9018F",
+          "platform": "Ink"
+        },
+        {
+          "address": "0xb549B375dA0c76f8b3877B9aDfDD28378f087A64",
+          "platform": "Plume"
+        },
+        {
+          "address": "0xc2C447b04e0ED3476DdbDae8E9E39bE7159d27b6",
+          "platform": "Katana"
+        },
+        {
+          "address": "0x5aB885CDa7216b163fb6F813DEC1E1532516c833",
+          "platform": "BOB"
+        },
+        {
+          "address": "0x56B275c0Ec034a229a1deD8DB17089544bc276D9",
+          "platform": "Bitlayer"
+        },
+        {
+          "address": "0x76a443768A5e3B8d1AED0105FC250877841Deb40",
+          "platform": "Morph"
+        },
+        {
+          "address": "0x15C03488B29e27d62BAf10E30b0c474bf60E0264",
+          "platform": "Tempo"
+        },
+        {
+          "address": "0x492641f648a4986844848e0befe66d14817bce34",
+          "platform": "Robinhood Chain"
+        },
+        {
+          "address": "0x76a443768a5e3b8d1aed0105fc250877841deb40",
+          "platform": "Arc"
+        },
+        {
+          "address": "0x51e2A24742Db77604B881d6781Ee16B5b8fcBE29",
+          "platform": "Pharos"
+        },
+        {
+          "address": "0x63dbE12A6381D64adE47bc3D92aBF4393DFF4BC8",
+          "platform": "Hemi"
+        },
+        {
+          "address": "0x76a443768A5e3B8d1AED0105FC250877841Deb40",
+          "platform": "AB"
+        },
+        {
+          "address": "0x71052BAe71C25C78E37fD12E5ff1101A71d9018F",
+          "platform": "Lisk"
+        },
+        {
+          "address": "0x5D6d033B4FbD2190D99D930719fAbAcB64d2439a",
+          "platform": "Zircuit"
+        }
+      ],
+      "source_file": "raw/0034_1975.json",
+      "source_sha256": "d5197acecdcfab703241fffbd68570706762c72a413759de0003cb517f892ff3"
+    },
+    "1982": {
+      "cmc_slug": "kyber-network-crystal-legacy",
+      "cmc_symbol": "KNCL",
+      "contracts": [
+        "0xdd974d5c2e2928dea5f71b9825b8b646686bd200"
+      ],
+      "platforms": [
+        {
+          "address": "0xdd974d5c2e2928dea5f71b9825b8b646686bd200",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0035_1982.json",
+      "source_sha256": "b226f8fee66bfd4e777eec1baac073a1e3ba43837a2cf0be55ed5ebd59305f92"
+    },
+    "2": {
+      "cmc_slug": "litecoin",
+      "cmc_symbol": "LTC",
+      "contracts": [
+        "0x13e93721dc992b3e14333dbdb48c0e7ec55431c3",
+        "0x4338665cbb7b2485a8855a139b75d5e34ab0db94",
+        "0xecb56cf772b5c9a6907fb7d32387da2fcbfb63b4"
+      ],
+      "platforms": [
+        {
+          "address": "0xecb56cf772b5c9a6907fb7d32387da2fcbfb63b4",
+          "platform": "HECO"
+        },
+        {
+          "address": "0x4338665cbb7b2485a8855a139b75d5e34ab0db94",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x13e93721dc992b3e14333dbdb48c0e7ec55431c3",
+          "platform": "Hoo Smart Chain"
+        }
+      ],
+      "source_file": "raw/0003_2.json",
+      "source_sha256": "e42df5adb8cd345fed00d709342f566e66d58c3bd1fef84ce434eceaa980395f"
+    },
+    "2010": {
+      "cmc_slug": "cardano",
+      "cmc_symbol": "ADA",
+      "contracts": [
+        "0x3ee2200efb3400fabb9aacf31297cbdd1d435d47"
+      ],
+      "platforms": [
+        {
+          "address": "0x3ee2200efb3400fabb9aacf31297cbdd1d435d47",
+          "platform": "BNB Smart Chain (BEP20)"
+        }
+      ],
+      "source_file": "raw/0036_2010.json",
+      "source_sha256": "d385e4995846a6fb1dd3b573db8fdd3fd592f471a1d1bff4502d224ec0b87c4d"
+    },
+    "2011": {
+      "cmc_slug": "tezos",
+      "cmc_symbol": "XTZ",
+      "contracts": [
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "Tez"
+      ],
+      "platforms": [
+        {
+          "address": "Tez",
+          "platform": "Tezos"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Etherlink"
+        }
+      ],
+      "source_file": "raw/0037_2011.json",
+      "source_sha256": "fc5964596db9b3c5001b83080e6525e03851f0c6bcc52db47ebcdbc83b111586"
+    },
+    "20314": {
+      "cmc_slug": "terra-luna-v2",
+      "cmc_symbol": "LUNA",
+      "contracts": [
+        "ibc/785AFEC6B3741100D15E7AF01374E3C4C36F24888E96479B1C33F5C71F364EF9"
+      ],
+      "platforms": [
+        {
+          "address": "ibc/785AFEC6B3741100D15E7AF01374E3C4C36F24888E96479B1C33F5C71F364EF9",
+          "platform": "Osmosis"
+        }
+      ],
+      "source_file": "raw/0141_20314.json",
+      "source_sha256": "df4ce0032c0f19dfa534848d0fff3a0bfcf5d23cdeee753ee3fc4fc72a6b4e5d"
+    },
+    "2083": {
+      "cmc_slug": "bitcoin-gold",
+      "cmc_symbol": "BTG",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0038_2083.json",
+      "source_sha256": "ed59eef23f239ffb87aba5605ad23a1e4e0680f350e1c71cb3c0c6a386f84139"
+    },
+    "2090": {
+      "cmc_slug": "latoken",
+      "cmc_symbol": "LA",
+      "contracts": [
+        "0xe50365f5d679cb98a1dd62d6f6e58e59321bcddf"
+      ],
+      "platforms": [
+        {
+          "address": "0xe50365f5d679cb98a1dd62d6f6e58e59321bcddf",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0039_2090.json",
+      "source_sha256": "5b1f2efd3d643576dec88b14ec834ffe637dbd7f3534d4204aa36ad3af3d3598"
+    },
+    "20947": {
+      "cmc_slug": "sui",
+      "cmc_symbol": "SUI",
+      "contracts": [
+        "0x2::sui::SUI",
+        "suifhC9gU1VbJAPYPTBkHJyyyStKGLLYPVDTmPoqbvA"
+      ],
+      "platforms": [
+        {
+          "address": "0x2::sui::SUI",
+          "platform": "Sui Network"
+        },
+        {
+          "address": "suifhC9gU1VbJAPYPTBkHJyyyStKGLLYPVDTmPoqbvA",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0142_20947.json",
+      "source_sha256": "6b102d6157c5458d3d69a5685236fe745e5832d2e549ae38fa431d73f8bca04b"
+    },
+    "21159": {
+      "cmc_slug": "ondo-finance",
+      "cmc_symbol": "ONDO",
+      "contracts": [
+        "0xfaba6f8e4a5e8ab82f62fe7c39859fa577269be3"
+      ],
+      "platforms": [
+        {
+          "address": "0xfaba6f8e4a5e8ab82f62fe7c39859fa577269be3",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0143_21159.json",
+      "source_sha256": "1b5e7748955b8cfbbc6cb3d3e399af5003ddaad68d0ab8c0917b248159e676c3"
+    },
+    "213": {
+      "cmc_slug": "monacoin",
+      "cmc_symbol": "MONA",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0007_213.json",
+      "source_sha256": "56bc18cda2b110be2240eebcdcaad200d682fd2c5369c4ab7eaaaf4fccb18115"
+    },
+    "2130": {
+      "cmc_slug": "enjin-coin",
+      "cmc_symbol": "ENJ",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0040_2130.json",
+      "source_sha256": "6546c1a8c1c1905dd4e0cf8550660e7c5dedadebd81b6cc4ce05d582cf76971d"
+    },
+    "2132": {
+      "cmc_slug": "power-ledger",
+      "cmc_symbol": "POWR",
+      "contracts": [
+        "0x595832f8fc6bf59c85c527fec3740a1b7a361269"
+      ],
+      "platforms": [
+        {
+          "address": "0x595832f8fc6bf59c85c527fec3740a1b7a361269",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0041_2132.json",
+      "source_sha256": "58ccc28f32e951e9fa67812fe6e70d8f5e33981bac30cbd02a3511ebd0babdcb"
+    },
+    "21794": {
+      "cmc_slug": "aptos",
+      "cmc_symbol": "APT",
+      "contracts": [
+        "0x1::aptos_coin::AptosCoin"
+      ],
+      "platforms": [
+        {
+          "address": "0x1::aptos_coin::AptosCoin",
+          "platform": "Aptos"
+        }
+      ],
+      "source_file": "raw/0144_21794.json",
+      "source_sha256": "1553cc90a3b0bcb60612c684bac2ef31c9a563c7ec8eed1faaf7d35d8e2d9df1"
+    },
+    "2222": {
+      "cmc_slug": "bitcoin-diamond",
+      "cmc_symbol": "BCD",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0042_2222.json",
+      "source_sha256": "3378592f74f4c35592f5b0c72480a1dc9bdc77fab1142c7f6d443d9632df3129"
+    },
+    "2239": {
+      "cmc_slug": "aave-old",
+      "cmc_symbol": "LEND",
+      "contracts": [
+        "0x80fB784B7eD66730e8b1DBd9820aFD29931aab03"
+      ],
+      "platforms": [
+        {
+          "address": "0x80fB784B7eD66730e8b1DBd9820aFD29931aab03",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0043_2239.json",
+      "source_sha256": "eb03e26254fcb8fcb6983b8561d7d540b9556d7e24701b790205efccf82c3fbd"
+    },
+    "22691": {
+      "cmc_slug": "starknet-token",
+      "cmc_symbol": "STRK",
+      "contracts": [
+        "0x4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "0xCa14007Eff0dB1f8135f4C25B34De49AB0d42766",
+        "HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz"
+      ],
+      "platforms": [
+        {
+          "address": "0xCa14007Eff0dB1f8135f4C25B34De49AB0d42766",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+          "platform": "Starknet"
+        },
+        {
+          "address": "HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0145_22691.json",
+      "source_sha256": "78f34c2ce48ddee30d847ae361b31c67832ec9530251025cb6975d723cfc91c9"
+    },
+    "2280": {
+      "cmc_slug": "filecoin",
+      "cmc_symbol": "FIL",
+      "contracts": [
+        "0x0bf85d3b0c9ebcc282fde0591882d12e57e700b3",
+        "0x0d8ce2a99bb6e3b7db580ed848240e4a0f9ae153",
+        "0xae3a768f9ab104c69a7cd6041fe16ffa235d1810"
+      ],
+      "platforms": [
+        {
+          "address": "0x0d8ce2a99bb6e3b7db580ed848240e4a0f9ae153",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xae3a768f9ab104c69a7cd6041fe16ffa235d1810",
+          "platform": "HECO"
+        },
+        {
+          "address": "0x0bf85d3b0c9ebcc282fde0591882d12e57e700b3",
+          "platform": "Hoo Smart Chain"
+        }
+      ],
+      "source_file": "raw/0044_2280.json",
+      "source_sha256": "bbf0038595b4e09c3a0a365d003f3e522a81b414784d2715a9fbe6c8e210d504"
+    },
+    "22861": {
+      "cmc_slug": "celestia",
+      "cmc_symbol": "TIA",
+      "contracts": [
+        "ibc/D79E7D83AB399BFFF93433E54FAA480C191248FC556924A2A8351AE2638B3877",
+        "ibc/F51BB221BAA275F2EBF654F70B005627D7E713AFFD6D86AFD1E43CAA886149F4"
+      ],
+      "platforms": [
+        {
+          "address": "ibc/D79E7D83AB399BFFF93433E54FAA480C191248FC556924A2A8351AE2638B3877",
+          "platform": "Osmosis"
+        },
+        {
+          "address": "ibc/F51BB221BAA275F2EBF654F70B005627D7E713AFFD6D86AFD1E43CAA886149F4",
+          "platform": "Injective"
+        }
+      ],
+      "source_file": "raw/0146_22861.json",
+      "source_sha256": "6fe39eb4f0e83114a0ddd58279182a94f184031e53b92c645895e0a5af4d46a1"
+    },
+    "22974": {
+      "cmc_slug": "bittensor",
+      "cmc_symbol": "TAO",
+      "contracts": [
+        "0",
+        "0xf3081494b87e8d5fb7960f066e931d1d0e6e3d67",
+        "taoC6xyv2v8tDLcev4uaGUgV4vdQsWJrGft2kcBRrBY"
+      ],
+      "platforms": [
+        {
+          "address": "0",
+          "platform": "Bittensor"
+        },
+        {
+          "address": "taoC6xyv2v8tDLcev4uaGUgV4vdQsWJrGft2kcBRrBY",
+          "platform": "Solana"
+        },
+        {
+          "address": "0xf3081494b87e8d5fb7960f066e931d1d0e6e3d67",
+          "platform": "Base"
+        },
+        {
+          "address": "0xf3081494b87e8d5fb7960f066e931d1d0e6e3d67",
+          "platform": "Robinhood Chain"
+        }
+      ],
+      "source_file": "raw/0147_22974.json",
+      "source_sha256": "8c87c8400977f1ac4ad0bb2c88a65908d137ea34e55cb8a80e92faa420066deb"
+    },
+    "23095": {
+      "cmc_slug": "bonk1",
+      "cmc_symbol": "BONK",
+      "contracts": [
+        "0x09199d9a5f4448d0848e4395d065e1ad9c4a1f74",
+        "0x1151CB3d861920e07a38e03eEAd12C32178567F6",
+        "0x2a90fae71afc7460ee42b20ee49a9c9b29272905ad71fef92fbd8b3905a24b56",
+        "0xA697e272a73744b343528C3Bc4702F2565b2F422",
+        "0xdf1cf211d38e7762c9691be4d779a441a17a6cfc",
+        "0xe5b49820e5a1063f6f4ddf851327b5e8b2301048",
+        "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+        "inj14rry9q6dym3dgcwzq79yay0e9azdz55jr465ch"
+      ],
+      "platforms": [
+        {
+          "address": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x1151CB3d861920e07a38e03eEAd12C32178567F6",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xA697e272a73744b343528C3Bc4702F2565b2F422",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xe5b49820e5a1063f6f4ddf851327b5e8b2301048",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0x09199d9a5f4448d0848e4395d065e1ad9c4a1f74",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0x2a90fae71afc7460ee42b20ee49a9c9b29272905ad71fef92fbd8b3905a24b56",
+          "platform": "Aptos"
+        },
+        {
+          "address": "inj14rry9q6dym3dgcwzq79yay0e9azdz55jr465ch",
+          "platform": "Injective"
+        },
+        {
+          "address": "0xdf1cf211d38e7762c9691be4d779a441a17a6cfc",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0148_23095.json",
+      "source_sha256": "3cd4d7f90177d476ba8f140a7b5d47d3a5748e5aa4044c99993d627da5a5c744"
+    },
+    "23121": {
+      "cmc_slug": "blur-token",
+      "cmc_symbol": "BLUR",
+      "contracts": [
+        "0x5283d291dbcf85356a21ba090e6db59121208b44"
+      ],
+      "platforms": [
+        {
+          "address": "0x5283d291dbcf85356a21ba090e6db59121208b44",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0149_23121.json",
+      "source_sha256": "ab9c4c14a18ca4de064967de94abbe1aa3dcec87960e5820296a3fef834df290"
+    },
+    "23149": {
+      "cmc_slug": "sei",
+      "cmc_symbol": "SEI",
+      "contracts": [
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "ibc/71F11BC0AF8E526B80E44172EBA9D3F0A8E03950BB882325435691EBC9450B1D",
+        "usei"
+      ],
+      "platforms": [
+        {
+          "address": "ibc/71F11BC0AF8E526B80E44172EBA9D3F0A8E03950BB882325435691EBC9450B1D",
+          "platform": "Osmosis"
+        },
+        {
+          "address": "usei",
+          "platform": "Sei Network"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Sei v2"
+        }
+      ],
+      "source_file": "raw/0150_23149.json",
+      "source_sha256": "99c65fa4e46a5c606a5f7d5d1f31b3d9a50ddfcc20ecfb7e41519303ed3a82d0"
+    },
+    "23254": {
+      "cmc_slug": "core-dao",
+      "cmc_symbol": "CORE",
+      "contracts": [
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "platforms": [
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Core"
+        }
+      ],
+      "source_file": "raw/0151_23254.json",
+      "source_sha256": "133b47e2135730b536aefb6b226d0fafb45bd65e35d6df8422996b4c615ac372"
+    },
+    "24478": {
+      "cmc_slug": "pepe",
+      "cmc_symbol": "PEPE",
+      "contracts": [
+        "0x6982508145454ce325ddbe47a25d4ec3d2311933",
+        "PEPEqnuuCDbBC89p1u9vpnP1KQ2oj1xTcQBsjt9X55m"
+      ],
+      "platforms": [
+        {
+          "address": "0x6982508145454ce325ddbe47a25d4ec3d2311933",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "PEPEqnuuCDbBC89p1u9vpnP1KQ2oj1xTcQBsjt9X55m",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0152_24478.json",
+      "source_sha256": "6bc4ee6d4e28817c4e43bddbde0155af99fd8243052a40ae1e36da8f6f7a3cdf"
+    },
+    "24647": {
+      "cmc_slug": "berachain",
+      "cmc_symbol": "BERA",
+      "contracts": [
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "platforms": [
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Bera Chain"
+        }
+      ],
+      "source_file": "raw/0153_24647.json",
+      "source_sha256": "f21b9f080ff05f4dac5b7cad1c3f902378b7c920c02d8c8e7a58bd9a87a909c6"
+    },
+    "2492": {
+      "cmc_slug": "elastos",
+      "cmc_symbol": "ELA",
+      "contracts": [
+        "0xa1ecfc2bec06e4b43ddd423b94fef84d0dbc8f5c",
+        "0xe6fd75ff38adca4b97fbcd938c86b98772431867",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "platforms": [
+        {
+          "address": "0xe6fd75ff38adca4b97fbcd938c86b98772431867",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xa1ecfc2bec06e4b43ddd423b94fef84d0dbc8f5c",
+          "platform": "HECO"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Elastos"
+        }
+      ],
+      "source_file": "raw/0045_2492.json",
+      "source_sha256": "f0be700ec15838d567df2e291aca25a876dc3324fbf4f17b1af1ebc88635e27f"
+    },
+    "2496": {
+      "cmc_slug": "polymath-network",
+      "cmc_symbol": "POLY",
+      "contracts": [
+        "0x9992ec3cf6a55b00978cddf2b27bc6882d88d1ec"
+      ],
+      "platforms": [
+        {
+          "address": "0x9992ec3cf6a55b00978cddf2b27bc6882d88d1ec",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0046_2496.json",
+      "source_sha256": "099fc55257f0a1210d928110c916aaef9f99ba82086c021c772a06c95378b45b"
+    },
+    "2539": {
+      "cmc_slug": "ren",
+      "cmc_symbol": "REN",
+      "contracts": [
+        "0x00e8a7823b8207e4cab2e46cd10b54d1be6b82c284037b6ee76afd52c0dceba6",
+        "0x0da1a02cdf84c44021671d183d616925164e08aa",
+        "0x408e41876cccdc0f92210600ef50372656052a38",
+        "408e41876cccdc0f92210600ef50372656052a38.factory.bridge.near"
+      ],
+      "platforms": [
+        {
+          "address": "0x408e41876cccdc0f92210600ef50372656052a38",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x0da1a02cdf84c44021671d183d616925164e08aa",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "0x408e41876cccdc0f92210600ef50372656052a38",
+          "platform": "Fantom"
+        },
+        {
+          "address": "0x00e8a7823b8207e4cab2e46cd10b54d1be6b82c284037b6ee76afd52c0dceba6",
+          "platform": "Sora"
+        },
+        {
+          "address": "408e41876cccdc0f92210600ef50372656052a38.factory.bridge.near",
+          "platform": "Near"
+        }
+      ],
+      "source_file": "raw/0047_2539.json",
+      "source_sha256": "48552a06275ff13a3e3e9ef43dd272c0b969915d4051f18952140c0955ce6720"
+    },
+    "2586": {
+      "cmc_slug": "synthetix",
+      "cmc_symbol": "SNX",
+      "contracts": [
+        "0x50b728d8d964fd00c2d0aad81718b71311fef68a",
+        "0x56ee926bD8c72B2d5fa1aF4d9E4Cbb515a1E3Adc",
+        "0x777850281719d5a96c29812ab72f822e0e09f3da",
+        "0x8700daec35af8ff88c16bdf0418774cb3d7599b4",
+        "0x9ac983826058b8a9c7aa1c9171441191232e8404",
+        "0xBeC243C995409E6520D7C41E404da5dEba4b209B",
+        "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",
+        "8cTNUtcV2ueC3royJ642uRnvTxorJAWLZc58gxAo7y56",
+        "c011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f.factory.bridge.near"
+      ],
+      "platforms": [
+        {
+          "address": "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x9ac983826058b8a9c7aa1c9171441191232e8404",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "8cTNUtcV2ueC3royJ642uRnvTxorJAWLZc58gxAo7y56",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x777850281719d5a96c29812ab72f822e0e09f3da",
+          "platform": "HECO"
+        },
+        {
+          "address": "0x56ee926bD8c72B2d5fa1aF4d9E4Cbb515a1E3Adc",
+          "platform": "Fantom"
+        },
+        {
+          "address": "0x50b728d8d964fd00c2d0aad81718b71311fef68a",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0xBeC243C995409E6520D7C41E404da5dEba4b209B",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "0x8700daec35af8ff88c16bdf0418774cb3d7599b4",
+          "platform": "Optimism"
+        },
+        {
+          "address": "c011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f.factory.bridge.near",
+          "platform": "Near"
+        }
+      ],
+      "source_file": "raw/0048_2586.json",
+      "source_sha256": "a70cb9d07ba4d5d1456cd3809e18014b092baacd8a48cca2856d73085db74676"
+    },
+    "2588": {
+      "cmc_slug": "loom-network",
+      "cmc_symbol": "LOOM",
+      "contracts": [
+        "0x42476F744292107e34519F9c357927074Ea3F75D",
+        "0xe6ce27025f13f5213bbc560dc275e292965a392f"
+      ],
+      "platforms": [
+        {
+          "address": "0x42476F744292107e34519F9c357927074Ea3F75D",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xe6ce27025f13f5213bbc560dc275e292965a392f",
+          "platform": "BNB Smart Chain (BEP20)"
+        }
+      ],
+      "source_file": "raw/0049_2588.json",
+      "source_sha256": "66493ba50e6e1cd18673d5de40d32652b2884b9e66be6c21e84c5b71c28012d9"
+    },
+    "2603": {
+      "cmc_slug": "pundi-x",
+      "cmc_symbol": "NPXS",
+      "contracts": [
+        "0xa15c7ebe1f07caf6bff097d8a589fb8ac49ae5b3"
+      ],
+      "platforms": [
+        {
+          "address": "0xa15c7ebe1f07caf6bff097d8a589fb8ac49ae5b3",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0050_2603.json",
+      "source_sha256": "df3f86b2ffa9bd130748f33351c85a11bf1fcf795c5bc0b0ad2aee58bb2b170d"
+    },
+    "2631": {
+      "cmc_slug": "odem",
+      "cmc_symbol": "ODE",
+      "contracts": [
+        "0xbf52f2ab39e26e0951d2a02b49b7702abe30406a"
+      ],
+      "platforms": [
+        {
+          "address": "0xbf52f2ab39e26e0951d2a02b49b7702abe30406a",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0051_2631.json",
+      "source_sha256": "b8d04043d87810208d9eb8e7e8925e6e97e1528d50fe852606e1bb34c816ba67"
+    },
+    "26997": {
+      "cmc_slug": "layerzero",
+      "cmc_symbol": "ZRO",
+      "contracts": [
+        "0x6985884C4392D348587B19cb9eAAf157F13271cd",
+        "0x6985884c4392d348587b19cb9eaaf157f13271cd"
+      ],
+      "platforms": [
+        {
+          "address": "0x6985884C4392D348587B19cb9eAAf157F13271cd",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x6985884c4392d348587b19cb9eaaf157f13271cd",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x6985884c4392d348587b19cb9eaaf157f13271cd",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0x6985884c4392d348587b19cb9eaaf157f13271cd",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "0x6985884c4392d348587b19cb9eaaf157f13271cd",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0x6985884c4392d348587b19cb9eaaf157f13271cd",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0x6985884c4392d348587b19cb9eaaf157f13271cd",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0154_26997.json",
+      "source_sha256": "ce3c6bb057f4037c8b5b047198a79bd3aa2d3972de9cc2dd833299ad23074dd7"
+    },
+    "2700": {
+      "cmc_slug": "celsius",
+      "cmc_symbol": "CEL",
+      "contracts": [
+        "0x0aCD91f92Fe07606ab51EA97d8521E29D110fD09",
+        "0xaaaebe6fe48e54f431b0c390cfaf0b017d09d42d",
+        "nRtfwU9G82CSHhHGJNxFhtn7FLvWP2rqvQvje1WtL69"
+      ],
+      "platforms": [
+        {
+          "address": "0xaaaebe6fe48e54f431b0c390cfaf0b017d09d42d",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x0aCD91f92Fe07606ab51EA97d8521E29D110fD09",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "nRtfwU9G82CSHhHGJNxFhtn7FLvWP2rqvQvje1WtL69",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0052_2700.json",
+      "source_sha256": "0e21fc4bdf7719691e0b0fcd002e85d5bd91994150162bf73116da5937e457a5"
+    },
+    "27075": {
+      "cmc_slug": "mantle",
+      "cmc_symbol": "MNT",
+      "contracts": [
+        "0x3c3a81e81dc49a522a592e7622a7e711c06bf354",
+        "0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000",
+        "4SoQ8UkWfeDH47T56PA53CZCeW4KytYCiU65CwBWoJUt"
+      ],
+      "platforms": [
+        {
+          "address": "0x3c3a81e81dc49a522a592e7622a7e711c06bf354",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000",
+          "platform": "Mantle"
+        },
+        {
+          "address": "4SoQ8UkWfeDH47T56PA53CZCeW4KytYCiU65CwBWoJUt",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0155_27075.json",
+      "source_sha256": "ee20e9c7e2d1c99b44aeed9b691ea0aead0da13bab5f7626707953818f10aa13"
+    },
+    "27659": {
+      "cmc_slug": "mog-coin",
+      "cmc_symbol": "MOG",
+      "contracts": [
+        "0x1D0A4821FDEf156b0d051D08A166DE5DF2788Cf7",
+        "0x2Da56AcB9Ea78330f947bD57C54119Debda7AF71",
+        "0xaaeE1A9723aaDB7afA2810263653A34bA2C21C7a",
+        "26VfKb7jjtdEdvfovoBijScoZmJbWWasFZkgfUD5w7cy"
+      ],
+      "platforms": [
+        {
+          "address": "0xaaeE1A9723aaDB7afA2810263653A34bA2C21C7a",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x2Da56AcB9Ea78330f947bD57C54119Debda7AF71",
+          "platform": "Base"
+        },
+        {
+          "address": "26VfKb7jjtdEdvfovoBijScoZmJbWWasFZkgfUD5w7cy",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x1D0A4821FDEf156b0d051D08A166DE5DF2788Cf7",
+          "platform": "BNB Smart Chain (BEP20)"
+        }
+      ],
+      "source_file": "raw/0156_27659.json",
+      "source_sha256": "2baaa9531c4459048812fa63061074443770f3bd4c6ab14598e1abb9d300ac80"
+    },
+    "2777": {
+      "cmc_slug": "iotex",
+      "cmc_symbol": "IOTX",
+      "contracts": [
+        "0x6fb3e0a217407efff7ca062d46c26e5d60a14d69",
+        "0x9678e42cebeb63f23197d726b29b1cb20d0064e5",
+        "0xbcbaf311cec8a4eac0430193a528d9ff27ae38c1",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "0xf6372cdb9c1d3674e83842e3800f2a62ac9f3c66"
+      ],
+      "platforms": [
+        {
+          "address": "0x6fb3e0a217407efff7ca062d46c26e5d60a14d69",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x9678e42cebeb63f23197d726b29b1cb20d0064e5",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xf6372cdb9c1d3674e83842e3800f2a62ac9f3c66",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0xbcbaf311cec8a4eac0430193a528d9ff27ae38c1",
+          "platform": "Base"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "IoTex"
+        }
+      ],
+      "source_file": "raw/0053_2777.json",
+      "source_sha256": "1240482afa85e0cab65c5f69c59475a41dad42d2ffa546b80161c8d3965ba24e"
+    },
+    "28081": {
+      "cmc_slug": "spx6900",
+      "cmc_symbol": "SPX",
+      "contracts": [
+        "0x50dA645f148798F68EF2d7dB7C1CB22A6819bb2C",
+        "0xe0f63a424a4439cbe457d80e4f4b51ad25b2c56c",
+        "J3NKxxXZcnNiMjKw9hYb2K4LUxgwB6t1FtPtQVsv3KFr"
+      ],
+      "platforms": [
+        {
+          "address": "0xe0f63a424a4439cbe457d80e4f4b51ad25b2c56c",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "J3NKxxXZcnNiMjKw9hYb2K4LUxgwB6t1FtPtQVsv3KFr",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x50dA645f148798F68EF2d7dB7C1CB22A6819bb2C",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0157_28081.json",
+      "source_sha256": "121a060bba9c8f7c8478f21b02f29e3e030b86b93f87dba2ba1147a0b2bf1e66"
+    },
+    "28177": {
+      "cmc_slug": "pyth-network",
+      "cmc_symbol": "PYTH",
+      "contracts": [
+        "HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3"
+      ],
+      "platforms": [
+        {
+          "address": "HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0158_28177.json",
+      "source_sha256": "a38f8f1f1e0746df957a0422bc047a8db0b8c8479ac1fe149898cad398e3e33f"
+    },
+    "28298": {
+      "cmc_slug": "onbeam",
+      "cmc_symbol": "BEAM",
+      "contracts": [
+        "0x2a66d51407b84b82b5aff3dec4d49f72cbcd322a",
+        "0x62D0A8458eD7719FDAF978fe5929C6D342B0bFcE",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "platforms": [
+        {
+          "address": "0x62D0A8458eD7719FDAF978fe5929C6D342B0bFcE",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x62D0A8458eD7719FDAF978fe5929C6D342B0bFcE",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x2a66d51407b84b82b5aff3dec4d49f72cbcd322a",
+          "platform": "Base"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Beam"
+        }
+      ],
+      "source_file": "raw/0159_28298.json",
+      "source_sha256": "4b6a974a2da274edfc8376c7a9a50f0c2632eafa9bbd9db01d14684091053be6"
+    },
+    "28321": {
+      "cmc_slug": "polygon-ecosystem-token",
+      "cmc_symbol": "POL",
+      "contracts": [
+        "0x0000000000000000000000000000000000001010",
+        "0x455e53cbb86018ac2b8092fdcd39d8444affc3f6"
+      ],
+      "platforms": [
+        {
+          "address": "0x455e53cbb86018ac2b8092fdcd39d8444affc3f6",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x0000000000000000000000000000000000001010",
+          "platform": "Polygon"
+        }
+      ],
+      "source_file": "raw/0160_28321.json",
+      "source_sha256": "97e5f598d7cb9562ad9d53ad9bfbfe04622e732563a90361eb02c82953ed3e77"
+    },
+    "28324": {
+      "cmc_slug": "dydx-chain",
+      "cmc_symbol": "DYDX",
+      "contracts": [
+        "ibc/831F0B1BBB1D08A2B75311892876D71565478C532967545476DF4C2D7492E48C"
+      ],
+      "platforms": [
+        {
+          "address": "ibc/831F0B1BBB1D08A2B75311892876D71565478C532967545476DF4C2D7492E48C",
+          "platform": "Osmosis"
+        }
+      ],
+      "source_file": "raw/0161_28324.json",
+      "source_sha256": "9e31817aa48e9744935a66a65601c4d94431d7456e9e4ba032d9e7a25c375b09"
+    },
+    "2874": {
+      "cmc_slug": "aurora",
+      "cmc_symbol": "AOA",
+      "contracts": [
+        "0x9ab165d795019b6d8b3e971dda91071421305e5a"
+      ],
+      "platforms": [
+        {
+          "address": "0x9ab165d795019b6d8b3e971dda91071421305e5a",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0054_2874.json",
+      "source_sha256": "9457cb0dc97617c5b2ff35768d58ac9029185d1e12270e4de0a3ac798ee54cac"
+    },
+    "28752": {
+      "cmc_slug": "dogwifhat",
+      "cmc_symbol": "WIF",
+      "contracts": [
+        "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm"
+      ],
+      "platforms": [
+        {
+          "address": "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0162_28752.json",
+      "source_sha256": "01eb5a5559c4fa1f674b29cc2afac62d7f8558952354c101437c47ad8c71e795"
+    },
+    "28782": {
+      "cmc_slug": "popcat-sol",
+      "cmc_symbol": "POPCAT",
+      "contracts": [
+        "7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr"
+      ],
+      "platforms": [
+        {
+          "address": "7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0163_28782.json",
+      "source_sha256": "7d5eddf51da49427b226b623ae3548d8d9a61fe4b0cf1716ab2d121decb34961"
+    },
+    "29073": {
+      "cmc_slug": "altlayer",
+      "cmc_symbol": "ALT",
+      "contracts": [
+        "0x8457CA5040ad67fdebbCC8EdCE889A335Bc0fbFB",
+        "0x8457ca5040ad67fdebbcc8edce889a335bc0fbfb"
+      ],
+      "platforms": [
+        {
+          "address": "0x8457CA5040ad67fdebbCC8EdCE889A335Bc0fbFB",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x8457ca5040ad67fdebbcc8edce889a335bc0fbfb",
+          "platform": "BNB Smart Chain (BEP20)"
+        }
+      ],
+      "source_file": "raw/0164_29073.json",
+      "source_sha256": "4466debe00f11fad6d7509d1d6bf8471dcae59cd52fbeff3725bc04b84cbbc36"
+    },
+    "29210": {
+      "cmc_slug": "jupiter-ag",
+      "cmc_symbol": "JUP",
+      "contracts": [
+        "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"
+      ],
+      "platforms": [
+        {
+          "address": "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0002_29210.json",
+      "source_sha256": "c337dcbd3b32ae336c3006ab8873265301e1cfc8f3b67b222c73468b662d4aee"
+    },
+    "29270": {
+      "cmc_slug": "aerodrome-finance",
+      "cmc_symbol": "AERO",
+      "contracts": [
+        "0x940181a94a35a4569e4529a3cdfb74e38fd98631"
+      ],
+      "platforms": [
+        {
+          "address": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0165_29270.json",
+      "source_sha256": "79f481870e41416edacd824f1c44daae94a0d6fa68fd84abf020c96037318162"
+    },
+    "29420": {
+      "cmc_slug": "virtual-protocol",
+      "cmc_symbol": "VIRTUAL",
+      "contracts": [
+        "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
+        "0x44ff8620b8cA30902395A7bD3F2407e1A091BF73",
+        "0xc6911796042b15d7fa4f6cde69e245ddcd3d9c31",
+        "3iQL8BFS2vE7mww4ehAqQHAsbmRNCrPxizWAT2Zfyr9y"
+      ],
+      "platforms": [
+        {
+          "address": "0x44ff8620b8cA30902395A7bD3F2407e1A091BF73",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "3iQL8BFS2vE7mww4ehAqQHAsbmRNCrPxizWAT2Zfyr9y",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
+          "platform": "Base"
+        },
+        {
+          "address": "0xc6911796042b15d7fa4f6cde69e245ddcd3d9c31",
+          "platform": "Robinhood Chain"
+        }
+      ],
+      "source_file": "raw/0166_29420.json",
+      "source_sha256": "ee1bdc9d140605a53fd30fb3a0a93102349ee7c0501cd5df7b22005c8a25e7ae"
+    },
+    "29587": {
+      "cmc_slug": "wormhole",
+      "cmc_symbol": "W",
+      "contracts": [
+        "0xB0fFa8000886e57F86dd5264b9582b2Ad87b2b91",
+        "85VBFQZC9TZkfaptBWjvUw7YbZjy52A6mjtPGjstQAmQ"
+      ],
+      "platforms": [
+        {
+          "address": "0xB0fFa8000886e57F86dd5264b9582b2Ad87b2b91",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "85VBFQZC9TZkfaptBWjvUw7YbZjy52A6mjtPGjstQAmQ",
+          "platform": "Solana"
+        },
+        {
+          "address": "0xB0fFa8000886e57F86dd5264b9582b2Ad87b2b91",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0xB0fFa8000886e57F86dd5264b9582b2Ad87b2b91",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0xB0fFa8000886e57F86dd5264b9582b2Ad87b2b91",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0167_29587.json",
+      "source_sha256": "ab64b143ad888d9ffbbc7f7782ea9a2503b4896932907fd256bf5ffeab35c310"
+    },
+    "29814": {
+      "cmc_slug": "ether-fi-ethfi",
+      "cmc_symbol": "ETHFI",
+      "contracts": [
+        "0x6C240DDA6b5c336DF09A4D011139beAAa1eA2Aa2",
+        "0x7189fb5B6504bbfF6a852B13B7B82a3c118fDc27",
+        "0xFe0c30065B384F05761f15d0CC899D4F9F9Cc0eB",
+        "0xe0080d2F853ecDdbd81A643dC10DA075Df26fD3f"
+      ],
+      "platforms": [
+        {
+          "address": "0xFe0c30065B384F05761f15d0CC899D4F9F9Cc0eB",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xe0080d2F853ecDdbd81A643dC10DA075Df26fD3f",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0x7189fb5B6504bbfF6a852B13B7B82a3c118fDc27",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0x6C240DDA6b5c336DF09A4D011139beAAa1eA2Aa2",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0168_29814.json",
+      "source_sha256": "939a7018243b52babbc917b255d08ced6e7382dee88ba03b50e17dbd1923f573"
+    },
+    "30171": {
+      "cmc_slug": "ethena",
+      "cmc_symbol": "ENA",
+      "contracts": [
+        "0x57e114B691Db790C35207b2e685D4A43181e6061"
+      ],
+      "platforms": [
+        {
+          "address": "0x57e114B691Db790C35207b2e685D4A43181e6061",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0169_30171.json",
+      "source_sha256": "1d5b963b78c8121b0e74b6c1fb2cd2c5aa98d8153b8ad5de2de0f73e41cb2c05"
+    },
+    "30495": {
+      "cmc_slug": "monad",
+      "cmc_symbol": "MON",
+      "contracts": [
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "CrAr4RRJMBVwRsZtT62pEhfA9H5utymC2mVx8e7FreP2"
+      ],
+      "platforms": [
+        {
+          "address": "CrAr4RRJMBVwRsZtT62pEhfA9H5utymC2mVx8e7FreP2",
+          "platform": "Solana"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Monad"
+        }
+      ],
+      "source_file": "raw/0170_30495.json",
+      "source_sha256": "450ba6af6de80fc8a70b15429e96d50ec89fa5e7437c599301bd580b3713f45c"
+    },
+    "3077": {
+      "cmc_slug": "vechain",
+      "cmc_symbol": "VET",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0055_3077.json",
+      "source_sha256": "37858100243b18d1dd8cf8cdb50a3d9bfbb07abd27355bc0b25015863274fbde"
+    },
+    "3155": {
+      "cmc_slug": "quant",
+      "cmc_symbol": "QNT",
+      "contracts": [
+        "0x4a220e6096b25eadb88358cb44068a3248254675",
+        "qntUzPUsJ51abNP7VYNxkmsQ4RnvEZAhavUxsCxpxH4"
+      ],
+      "platforms": [
+        {
+          "address": "0x4a220e6096b25eadb88358cb44068a3248254675",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "qntUzPUsJ51abNP7VYNxkmsQ4RnvEZAhavUxsCxpxH4",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0056_3155.json",
+      "source_sha256": "6908e0f78dcb92a54929e29bde8cba2f224c2d42853647412f28a92d74ecbd2d"
+    },
+    "32196": {
+      "cmc_slug": "hyperliquid",
+      "cmc_symbol": "HYPE",
+      "contracts": [
+        "0x0d01dc56dcaaca66ad901c959b4011ec"
+      ],
+      "platforms": [
+        {
+          "address": "0x0d01dc56dcaaca66ad901c959b4011ec",
+          "platform": "Hyperliquid"
+        }
+      ],
+      "source_file": "raw/0171_32196.json",
+      "source_sha256": "7d4232101425842e7837fe480a8bcd020b8a18a7b59b45648342ac5a893c8d59"
+    },
+    "32452": {
+      "cmc_slug": "movement",
+      "cmc_symbol": "MOVE",
+      "contracts": [
+        "0x1::aptos_coin::AptosCoin",
+        "0x3073f7aAA4DB83f95e9FFf17424F71D4751a3073",
+        "0x3073f7aaa4db83f95e9fff17424f71d4751a3073",
+        "0xedfb8d993ee8cb935338601d8673dfcf"
+      ],
+      "platforms": [
+        {
+          "address": "0x3073f7aAA4DB83f95e9FFf17424F71D4751a3073",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x3073f7aaa4db83f95e9fff17424f71d4751a3073",
+          "platform": "Base"
+        },
+        {
+          "address": "0x1::aptos_coin::AptosCoin",
+          "platform": "Movement Network"
+        },
+        {
+          "address": "0xedfb8d993ee8cb935338601d8673dfcf",
+          "platform": "Hyperliquid"
+        }
+      ],
+      "source_file": "raw/0172_32452.json",
+      "source_sha256": "ecb4a429046ba593821f4da58ec769a70d28e19a068c56d904adfe2354f0e9d6"
+    },
+    "32684": {
+      "cmc_slug": "sonic",
+      "cmc_symbol": "S",
+      "contracts": [
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "platforms": [
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Sonic"
+        }
+      ],
+      "source_file": "raw/0173_32684.json",
+      "source_sha256": "759d7c5eddc7c8d4c5ba1cfa3ec777b596785345f57eb96ac399929991bb17e4"
+    },
+    "3296": {
+      "cmc_slug": "mindol",
+      "cmc_symbol": "MIN",
+      "contracts": [
+        "0x5d64d850c8368008afb39224e92ad0dceff3cf38"
+      ],
+      "platforms": [
+        {
+          "address": "0x5d64d850c8368008afb39224e92ad0dceff3cf38",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0057_3296.json",
+      "source_sha256": "9f052d9fe057993be709af1eb4659975dfc111abf659aa330e0e2eaa4efb4cb0"
+    },
+    "33038": {
+      "cmc_slug": "sky",
+      "cmc_symbol": "SKY",
+      "contracts": [
+        "0x56072C95FAA701256059aa122697B133aDEd9279"
+      ],
+      "platforms": [
+        {
+          "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0174_33038.json",
+      "source_sha256": "301e44ca805275432d2495de97e87798c4a8e2931bb4add5b046f730006c71a3"
+    },
+    "33251": {
+      "cmc_slug": "world-liberty-financial-wlfi",
+      "cmc_symbol": "WLFI",
+      "contracts": [
+        "0x47474747477b199288bF72a1D702f7Fe0Fb1DEeA",
+        "0xdA5e1988097297dCdc1f90D4dFE7909e847CBeF6",
+        "WLFinEv6ypjkczcS83FZqFpgFZYwQXutRbxGe7oC16g"
+      ],
+      "platforms": [
+        {
+          "address": "0xdA5e1988097297dCdc1f90D4dFE7909e847CBeF6",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x47474747477b199288bF72a1D702f7Fe0Fb1DEeA",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "WLFinEv6ypjkczcS83FZqFpgFZYwQXutRbxGe7oC16g",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0175_33251.json",
+      "source_sha256": "f1a2a76127cde69c7b05a718bdae9f60b559a401d91030872a99c25549e6175c"
+    },
+    "33597": {
+      "cmc_slug": "fartcoin",
+      "cmc_symbol": "FARTCOIN",
+      "contracts": [
+        "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump"
+      ],
+      "platforms": [
+        {
+          "address": "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0176_33597.json",
+      "source_sha256": "d60cfe839591786c24042b821414013eeeaf66dcff845fe73f20bd24cf87d090"
+    },
+    "33788": {
+      "cmc_slug": "peanut-the-squirrel",
+      "cmc_symbol": "PNUT",
+      "contracts": [
+        "2qEHjDLDLbuBgRYvsxhc5D6uDWAivNFZGan56P1tpump"
+      ],
+      "platforms": [
+        {
+          "address": "2qEHjDLDLbuBgRYvsxhc5D6uDWAivNFZGan56P1tpump",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0177_33788.json",
+      "source_sha256": "3325c56673f92f1767b9ab010c81ad0179a96279de0d1f6fa8a196ec9f33974c"
+    },
+    "34104": {
+      "cmc_slug": "morpho",
+      "cmc_symbol": "MORPHO",
+      "contracts": [
+        "0x40BD670A58238e6E230c430BBb5cE6ec0d40df48",
+        "0x58D97B57BB95320F9a05dC918Aef65434969c2B2",
+        "0xBAa5CC21fd487B8Fcc2F632f3F4E8D37262a0842",
+        "Morpho2VPeTr2E1Jx6monxCzF7mqwUnjz74RdwLXYyP"
+      ],
+      "platforms": [
+        {
+          "address": "0x58D97B57BB95320F9a05dC918Aef65434969c2B2",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x40BD670A58238e6E230c430BBb5cE6ec0d40df48",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0xBAa5CC21fd487B8Fcc2F632f3F4E8D37262a0842",
+          "platform": "Base"
+        },
+        {
+          "address": "Morpho2VPeTr2E1Jx6monxCzF7mqwUnjz74RdwLXYyP",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0178_34104.json",
+      "source_sha256": "13302f967b0a0633422dc0e3b2ee12d2105a0ce8a914f77436077e636cd229ac"
+    },
+    "34466": {
+      "cmc_slug": "pudgy-penguins",
+      "cmc_symbol": "PENGU",
+      "contracts": [
+        "0x6418c0dd099a9fda397c766304cdd918233e8847",
+        "0x74BE72AFFAFbC8de30F0C11247814036314D625f",
+        "0x9ebe3a824ca958e4b3da772d2065518f009cba62",
+        "0xfa44c2634ff17cbe26dc3007d36bd61c79068c14",
+        "2zMMhcVQEXDtdE6vsFS7S7D5oUodfJHE8vd1gnBouauv"
+      ],
+      "platforms": [
+        {
+          "address": "2zMMhcVQEXDtdE6vsFS7S7D5oUodfJHE8vd1gnBouauv",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x9ebe3a824ca958e4b3da772d2065518f009cba62",
+          "platform": "Abstract Chain"
+        },
+        {
+          "address": "0x6418c0dd099a9fda397c766304cdd918233e8847",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xfa44c2634ff17cbe26dc3007d36bd61c79068c14",
+          "platform": "HyperEVM"
+        },
+        {
+          "address": "0x6418c0dd099a9fda397c766304cdd918233e8847",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x74BE72AFFAFbC8de30F0C11247814036314D625f",
+          "platform": "Robinhood Chain"
+        }
+      ],
+      "source_file": "raw/0179_34466.json",
+      "source_sha256": "70128d8b6f87604964d4fccd9de3fe84d51259a31ce128e7110c8308652b73fd"
+    },
+    "35336": {
+      "cmc_slug": "official-trump",
+      "cmc_symbol": "TRUMP",
+      "contracts": [
+        "6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"
+      ],
+      "platforms": [
+        {
+          "address": "6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0180_35336.json",
+      "source_sha256": "d8d87a0fe3c34341309e92b4dc98598ab572baac284755dca750708b630d9a98"
+    },
+    "35509": {
+      "cmc_slug": "venice-token",
+      "cmc_symbol": "VVV",
+      "contracts": [
+        "0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf"
+      ],
+      "platforms": [
+        {
+          "address": "0xacfE6019Ed1A7Dc6f7B508C02d1b04ec88cC21bf",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0181_35509.json",
+      "source_sha256": "d862ed2f3226b97ccbf4daafaf65dfcef9a2837b63ce8b58411a16681eb5bc2d"
+    },
+    "35626": {
+      "cmc_slug": "data-network",
+      "cmc_symbol": "DATA",
+      "contracts": [
+        "0xA37EDed373c5cdF88644db7C6b89f222e756aFB2",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "platforms": [
+        {
+          "address": "0xA37EDed373c5cdF88644db7C6b89f222e756aFB2",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Story"
+        }
+      ],
+      "source_file": "raw/0182_35626.json",
+      "source_sha256": "4b19025656a82a7999cc50ff44385da62cbac8e470e46b1b09d19ee1bc5e1955"
+    },
+    "3602": {
+      "cmc_slug": "bitcoin-sv",
+      "cmc_symbol": "BSV",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0058_3602.json",
+      "source_sha256": "e67671c1d55192d06127e59698fd03238aa540be0fad5f5a67cfc1efbdbbfb58"
+    },
+    "36119": {
+      "cmc_slug": "walrus-xyz",
+      "cmc_symbol": "WAL",
+      "contracts": [
+        "0x356a26eb9e012a68958082340d4c4116e7f55615cf27affcff209cf0ae544f59::wal::WAL"
+      ],
+      "platforms": [
+        {
+          "address": "0x356a26eb9e012a68958082340d4c4116e7f55615cf27affcff209cf0ae544f59::wal::WAL",
+          "platform": "Sui Network"
+        }
+      ],
+      "source_file": "raw/0183_36119.json",
+      "source_sha256": "613ca4a19dedb45a54de50fbba39abb7f8a0cb10bd4f2ca3e55e6b18df22af81"
+    },
+    "36341": {
+      "cmc_slug": "aster",
+      "cmc_symbol": "ASTER",
+      "contracts": [
+        "0x000Ae314E2A2172a039B26378814C252734f556A",
+        "ASTERYpc2EhivYWSbtuWPuCMdXtZGmHwtH93NqYVw45Z"
+      ],
+      "platforms": [
+        {
+          "address": "0x000Ae314E2A2172a039B26378814C252734f556A",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "ASTERYpc2EhivYWSbtuWPuCMdXtZGmHwtH93NqYVw45Z",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0184_36341.json",
+      "source_sha256": "edcfbf4a7de0a9e37f75a6a273ea9dcacd1a3c1df0d72bc33a2a5bc9c16a7d33"
+    },
+    "3635": {
+      "cmc_slug": "cronos",
+      "cmc_symbol": "CRO",
+      "contracts": [
+        "0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "DvjMYMVeXgKxaixGKpzQThLoG98nc7HSU7eanzsdCboA",
+        "ibc/E6931F78057F7CC5DA0FD6CEF82FF39373A6E0452BF1FD76910B93292CF356C1"
+      ],
+      "platforms": [
+        {
+          "address": "0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "DvjMYMVeXgKxaixGKpzQThLoG98nc7HSU7eanzsdCboA",
+          "platform": "Solana"
+        },
+        {
+          "address": "ibc/E6931F78057F7CC5DA0FD6CEF82FF39373A6E0452BF1FD76910B93292CF356C1",
+          "platform": "Osmosis"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Cronos"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Cronos zkEVM Mainnet"
+        }
+      ],
+      "source_file": "raw/0059_3635.json",
+      "source_sha256": "017ce85c00da1c77cc8804ceeda0a1aacc7f1dba51ce9e97325d514f2bd39819"
+    },
+    "3640": {
+      "cmc_slug": "livepeer",
+      "cmc_symbol": "LPT",
+      "contracts": [
+        "0x58b6a8a3302369daec383334672404ee733ab239",
+        "0xbd3e698b51d340cc53b0cc549b598c13e0172b7c"
+      ],
+      "platforms": [
+        {
+          "address": "0x58b6a8a3302369daec383334672404ee733ab239",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xbd3e698b51d340cc53b0cc549b598c13e0172b7c",
+          "platform": "Harmony"
+        }
+      ],
+      "source_file": "raw/0060_3640.json",
+      "source_sha256": "262490c89b75d7d6ac58d137b432e625cb4ae261c7f8aa449a6221509f08edec"
+    },
+    "36507": {
+      "cmc_slug": "pump-fun",
+      "cmc_symbol": "PUMP",
+      "contracts": [
+        "pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn"
+      ],
+      "platforms": [
+        {
+          "address": "pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0185_36507.json",
+      "source_sha256": "4b189d119c24191d8ae3e15760bfeb2511e1e87b09e650ae9a8b0b5f9fe8ea3a"
+    },
+    "36645": {
+      "cmc_slug": "plasma-xpl",
+      "cmc_symbol": "XPL",
+      "contracts": [
+        "0x405FBc9004D857903bFD6b3357792D71a50726b0",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "XPLTrL1ZH3tZJBdFWbbtrNjK9qoqZWfuhQJnXibbdfT"
+      ],
+      "platforms": [
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Plasma"
+        },
+        {
+          "address": "0x405FBc9004D857903bFD6b3357792D71a50726b0",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "XPLTrL1ZH3tZJBdFWbbtrNjK9qoqZWfuhQJnXibbdfT",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0186_36645.json",
+      "source_sha256": "5cab5a8b96b67043daedb5d8737d5d8e2146bb88ff4ea9c4ebaafaee71fcec46"
+    },
+    "3701": {
+      "cmc_slug": "rsk-infrastructure-framework",
+      "cmc_symbol": "RIF",
+      "contracts": [
+        "0x01b603be3D545F096015741e6503440282BF45fb",
+        "0x2acc95758f8b5f583470ba265eb685a8f45fc9d5",
+        "0xe5e851b01DD3Eda24FDe709a407dB44555B6d1E0",
+        "AAeENcfHbTExuTvs4q7r9Bjax98Dg6BGX3aMph4bTLdK"
+      ],
+      "platforms": [
+        {
+          "address": "0x01b603be3D545F096015741e6503440282BF45fb",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "AAeENcfHbTExuTvs4q7r9Bjax98Dg6BGX3aMph4bTLdK",
+          "platform": "Solana"
+        },
+        {
+          "address": "0xe5e851b01DD3Eda24FDe709a407dB44555B6d1E0",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0x2acc95758f8b5f583470ba265eb685a8f45fc9d5",
+          "platform": "RSK RBTC"
+        },
+        {
+          "address": "0xe5e851b01DD3Eda24FDe709a407dB44555B6d1E0",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0061_3701.json",
+      "source_sha256": "e1ae764088e31e95bc053de62b2eda0718e6b59b5dbdd6e4eee8ef34cc12031b"
+    },
+    "3773": {
+      "cmc_slug": "artificial-superintelligence-alliance",
+      "cmc_symbol": "FET",
+      "contracts": [
+        "0x031b41e504677879370e9dbcf937283a8691fa7f",
+        "0xaea46A60368A7bD060eec7DF8CBa43b7EF41Ad85",
+        "fetch1qxxlalvsdjd07p07y3rc5fu6ll8k4tmetpha8n",
+        "ibc/5D1F516200EE8C6B2354102143B78A2DEDA25EDE771AC0F8DC3C1837C8FD4447"
+      ],
+      "platforms": [
+        {
+          "address": "0xaea46A60368A7bD060eec7DF8CBa43b7EF41Ad85",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x031b41e504677879370e9dbcf937283a8691fa7f",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "fetch1qxxlalvsdjd07p07y3rc5fu6ll8k4tmetpha8n",
+          "platform": "Cosmos"
+        },
+        {
+          "address": "ibc/5D1F516200EE8C6B2354102143B78A2DEDA25EDE771AC0F8DC3C1837C8FD4447",
+          "platform": "Osmosis"
+        }
+      ],
+      "source_file": "raw/0062_3773.json",
+      "source_sha256": "ca2023764cd2c58b129d47ef935254249dec4355c6e7aa4e7521e2340ef7de9e"
+    },
+    "3783": {
+      "cmc_slug": "ankr",
+      "cmc_symbol": "ANKR",
+      "contracts": [
+        "0x101a023270368c0d50bffb62780f4afd4ea79c35",
+        "0x3580ac35BED2981d6bDD671a5982c2467d301241",
+        "0x8290333cef9e6d528dd5618fb97a76f268f3edd4",
+        "0xAeAeeD23478c3a4b798e4ed40D8B7F41366Ae861",
+        "0xDF474B7109b73b7D57926d43598D5934131136b2",
+        "0xdf474b7109b73b7d57926d43598d5934131136b2",
+        "0xf307910a4c7bbc79691fd374889b36d8531b08e3",
+        "Gq2norJ1kBemBp3mPfkgAUMhMMmnFmY4zEyi26tRcxFB"
+      ],
+      "platforms": [
+        {
+          "address": "0x8290333cef9e6d528dd5618fb97a76f268f3edd4",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xf307910a4c7bbc79691fd374889b36d8531b08e3",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "Gq2norJ1kBemBp3mPfkgAUMhMMmnFmY4zEyi26tRcxFB",
+          "platform": "Solana"
+        },
+        {
+          "address": "0xDF474B7109b73b7D57926d43598D5934131136b2",
+          "platform": "Fantom"
+        },
+        {
+          "address": "0x101a023270368c0d50bffb62780f4afd4ea79c35",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0xDF474B7109b73b7D57926d43598D5934131136b2",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "0xAeAeeD23478c3a4b798e4ed40D8B7F41366Ae861",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0xAeAeeD23478c3a4b798e4ed40D8B7F41366Ae861",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0xdf474b7109b73b7d57926d43598d5934131136b2",
+          "platform": "Polygon zkEVM"
+        },
+        {
+          "address": "0x3580ac35BED2981d6bDD671a5982c2467d301241",
+          "platform": "Blast"
+        }
+      ],
+      "source_file": "raw/0063_3783.json",
+      "source_sha256": "ee0358a969bd03e791f8390d9fbec7efe9dac79218a31bdf0c44f8988106cea1"
+    },
+    "3794": {
+      "cmc_slug": "cosmos",
+      "cmc_symbol": "ATOM",
+      "contracts": [
+        "0x0eb3a705fc54725037cc9e008bdede697f62f335",
+        "0x8D983cb9388EaC77af0474fA441C4815500Cb7BB",
+        "0xac51C4c48Dc3116487eD4BC16542e27B5694Da1b",
+        "0xb888d8dd1733d72681b30c00ee76bde93ae7aa93",
+        "0xecEEEfCEE421D8062EF8d6b4D814efe4dc898265",
+        "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+        "ibc/c4cff46fd6de35ca4cf4ce031e643c8fdc9ba4b99ae598e9b0ed98fe3a2319f9"
+      ],
+      "platforms": [
+        {
+          "address": "0x0eb3a705fc54725037cc9e008bdede697f62f335",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+          "platform": "Osmosis"
+        },
+        {
+          "address": "0x8D983cb9388EaC77af0474fA441C4815500Cb7BB",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xac51C4c48Dc3116487eD4BC16542e27B5694Da1b",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0xb888d8dd1733d72681b30c00ee76bde93ae7aa93",
+          "platform": "Cronos"
+        },
+        {
+          "address": "0xecEEEfCEE421D8062EF8d6b4D814efe4dc898265",
+          "platform": "Canto"
+        },
+        {
+          "address": "ibc/c4cff46fd6de35ca4cf4ce031e643c8fdc9ba4b99ae598e9b0ed98fe3a2319f9",
+          "platform": "Injective"
+        }
+      ],
+      "source_file": "raw/0064_3794.json",
+      "source_sha256": "6c40c8c448e97e9f08674d69d56a6fb1d53d43e29161ac932d98241884d74efd"
+    },
+    "3829": {
+      "cmc_slug": "nash",
+      "cmc_symbol": "NEX",
+      "contracts": [
+        "0xA486c6BC102f409180cCB8a94ba045D39f8fc7cB",
+        "0xe2dc070524a6e305ddb64d8513dc444b6a1ec845",
+        "3a4acd3647086e7c44398aac0349802e6a171129"
+      ],
+      "platforms": [
+        {
+          "address": "3a4acd3647086e7c44398aac0349802e6a171129",
+          "platform": "Neo"
+        },
+        {
+          "address": "0xe2dc070524a6e305ddb64d8513dc444b6a1ec845",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xA486c6BC102f409180cCB8a94ba045D39f8fc7cB",
+          "platform": "Polygon"
+        }
+      ],
+      "source_file": "raw/0065_3829.json",
+      "source_sha256": "422a6341d8727d40bbf60fdc34fcfecb12c6a1797a40bceff90998e5cf5a34f8"
+    },
+    "38515": {
+      "cmc_slug": "doublezero",
+      "cmc_symbol": "2Z",
+      "contracts": [
+        "J6pQQ3FAcJQeWPPGppWRb4nM8jU3wLyYbRrLh7feMfvd"
+      ],
+      "platforms": [
+        {
+          "address": "J6pQQ3FAcJQeWPPGppWRb4nM8jU3wLyYbRrLh7feMfvd",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0187_38515.json",
+      "source_sha256": "150ebc038fe0d9397a83612e08f6e50f233dd0599033fd08e3fc641a08dacf60"
+    },
+    "3871": {
+      "cmc_slug": "newton",
+      "cmc_symbol": "AB",
+      "contracts": [
+        "0x95034f653d5d161890836ad2b6b8cc49d14e029a"
+      ],
+      "platforms": [
+        {
+          "address": "0x95034f653d5d161890836ad2b6b8cc49d14e029a",
+          "platform": "BNB Smart Chain (BEP20)"
+        }
+      ],
+      "source_file": "raw/0066_3871.json",
+      "source_sha256": "df370741bc9c9077fece4c2e2f6180e57ff8aebc34e5e9c243e73dcee772dd67"
+    },
+    "38828": {
+      "cmc_slug": "kite",
+      "cmc_symbol": "KITE",
+      "contracts": [
+        "0x118B70dF4F06Fa5678E7d543e6066e028C8ea0c0",
+        "0x1ea14af5f4e13431ceda398ec7823441",
+        "0x904567252D8F48555b7447c67dCA23F0372E16be",
+        "0xbc28beac0b6765429c8ee7a6acab2af5a4e7a679"
+      ],
+      "platforms": [
+        {
+          "address": "0x118B70dF4F06Fa5678E7d543e6066e028C8ea0c0",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x904567252D8F48555b7447c67dCA23F0372E16be",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x904567252D8F48555b7447c67dCA23F0372E16be",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "0x1ea14af5f4e13431ceda398ec7823441",
+          "platform": "Hyperliquid"
+        },
+        {
+          "address": "0xbc28beac0b6765429c8ee7a6acab2af5a4e7a679",
+          "platform": "HyperEVM"
+        }
+      ],
+      "source_file": "raw/0188_38828.json",
+      "source_sha256": "e6f2bb64b5a5b113dce0fe2b12014f501144155f04400ea08cd3f9ed5e092fc2"
+    },
+    "3890": {
+      "cmc_slug": "polygon",
+      "cmc_symbol": "MATIC",
+      "contracts": [
+        "0x3405a1bd46b85c5c029483fbecf2f3e611026e45",
+        "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+        "0xa2036f0538221a77a3937f1379699f44945018d0",
+        "0xcc42724c6683b7e57334c4e856f4c9965ed682bd",
+        "C7NNPWuZCNjZBfW5p6JvGsR8pUdsRpEdP1ZAhnoDwj7h"
+      ],
+      "platforms": [
+        {
+          "address": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xcc42724c6683b7e57334c4e856f4c9965ed682bd",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "C7NNPWuZCNjZBfW5p6JvGsR8pUdsRpEdP1ZAhnoDwj7h",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x3405a1bd46b85c5c029483fbecf2f3e611026e45",
+          "platform": "Moonbeam"
+        },
+        {
+          "address": "0xa2036f0538221a77a3937f1379699f44945018d0",
+          "platform": "Polygon zkEVM"
+        }
+      ],
+      "source_file": "raw/0067_3890.json",
+      "source_sha256": "3bdcb6d0ee9d2016d39c8183d6085e5a24957c1929047c11d4a72ada0e5b404d"
+    },
+    "3911": {
+      "cmc_slug": "ocean-protocol",
+      "cmc_symbol": "OCEAN",
+      "contracts": [
+        "0x002ca40397c794e25dba18cf807910eeb69eb8e81b3f07bb54f7c5d1d8ab76b9",
+        "0x967da4048cd07ab37855c090aaf366e4ce1b9f48"
+      ],
+      "platforms": [
+        {
+          "address": "0x967da4048cd07ab37855c090aaf366e4ce1b9f48",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x002ca40397c794e25dba18cf807910eeb69eb8e81b3f07bb54f7c5d1d8ab76b9",
+          "platform": "Sora"
+        }
+      ],
+      "source_file": "raw/0068_3911.json",
+      "source_sha256": "37dac29ddea7f5700aa45d997d74c686bd9702cd2310ed61ccf0ce60ade6e477"
+    },
+    "39125": {
+      "cmc_slug": "lighter",
+      "cmc_symbol": "LIT",
+      "contracts": [
+        "0x232ce3bd40fcd6f80f3d55a522d03f25df784ee2"
+      ],
+      "platforms": [
+        {
+          "address": "0x232ce3bd40fcd6f80f3d55a522d03f25df784ee2",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0189_39125.json",
+      "source_sha256": "a2dd397e6a4dbe063c28ba069ff0bf88b44ad4f072cd2310694b39b862e5edf3"
+    },
+    "3945": {
+      "cmc_slug": "harmony",
+      "cmc_symbol": "ONE",
+      "contracts": [
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "0xff74317e948695297acb79cb2de06111f5cc16b3"
+      ],
+      "platforms": [
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Harmony"
+        },
+        {
+          "address": "0xff74317e948695297acb79cb2de06111f5cc16b3",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0069_3945.json",
+      "source_sha256": "e30307732d87a17b4a3f47b42c3b63cdfa2bd10d180309c1e999311c64028f5c"
+    },
+    "3957": {
+      "cmc_slug": "unus-sed-leo",
+      "cmc_symbol": "LEO",
+      "contracts": [
+        "0x2af5d2ad76741191d15dfe7bf6ac92d4bd912ca3"
+      ],
+      "platforms": [
+        {
+          "address": "0x2af5d2ad76741191d15dfe7bf6ac92d4bd912ca3",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0070_3957.json",
+      "source_sha256": "e05ad2eb1dde31dcc625a306cb6e59d714aefb96647bf0ad3a534912a2746f03"
+    },
+    "3964": {
+      "cmc_slug": "reserve-rights",
+      "cmc_symbol": "RSR",
+      "contracts": [
+        "0x320623b8e4ff03373931769a31fc52a4e78b5d70",
+        "0xab36452dbac151be02b16ca17d8919826072f64a"
+      ],
+      "platforms": [
+        {
+          "address": "0x320623b8e4ff03373931769a31fc52a4e78b5d70",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xab36452dbac151be02b16ca17d8919826072f64a",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0071_3964.json",
+      "source_sha256": "edfdef429d0cec8bd97b6451d75a4b465ac2989393cc8eea87e7790449230209"
+    },
+    "39720": {
+      "cmc_slug": "edgex",
+      "cmc_symbol": "EDGE",
+      "contracts": [
+        "0x70f2eadf1ca1969ff42b0c78e9da519e8937cbaf",
+        "0xB0076DE78Dc50581770BBa1D211dDc0aD4F2a241"
+      ],
+      "platforms": [
+        {
+          "address": "0xB0076DE78Dc50581770BBa1D211dDc0aD4F2a241",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x70f2eadf1ca1969ff42b0c78e9da519e8937cbaf",
+          "platform": "BNB Smart Chain (BEP20)"
+        }
+      ],
+      "source_file": "raw/0190_39720.json",
+      "source_sha256": "9567543600179cb3ef2a946b4769ab5d8458140f6932b54db3d1178554dd45b2"
+    },
+    "4030": {
+      "cmc_slug": "algorand",
+      "cmc_symbol": "ALGO",
+      "contracts": [
+        "0"
+      ],
+      "platforms": [
+        {
+          "address": "0",
+          "platform": "Algorand"
+        }
+      ],
+      "source_file": "raw/0072_4030.json",
+      "source_sha256": "eba74a08af569f2420b6fb3fe31f404ed868012d58a9c58f28501409d5f9fdf6"
+    },
+    "4056": {
+      "cmc_slug": "ampleforth",
+      "cmc_symbol": "AMPL",
+      "contracts": [
+        "0x027dbcA046ca156De9622cD1e2D907d375e53aa7",
+        "0x1cf09d1b5da9d9d24365d87b932a7c4bd018a419",
+        "0xDB021b1B247fe2F1fa57e0A87C748Cc1E321F07F",
+        "0xd46ba6d942050d489dbd938a2c909a5d5039a161"
+      ],
+      "platforms": [
+        {
+          "address": "0xd46ba6d942050d489dbd938a2c909a5d5039a161",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xDB021b1B247fe2F1fa57e0A87C748Cc1E321F07F",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x027dbcA046ca156De9622cD1e2D907d375e53aa7",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "0x1cf09d1b5da9d9d24365d87b932a7c4bd018a419",
+          "platform": "Meter"
+        }
+      ],
+      "source_file": "raw/0073_4056.json",
+      "source_sha256": "a96a601a1a912a92891099e8ea9c8deaa4548d26878a37373cbf1b4de7376df1"
+    },
+    "4066": {
+      "cmc_slug": "chiliz",
+      "cmc_symbol": "CHZ",
+      "contracts": [
+        "0x3506424f91fd33084466f402d5d97f05f8e3b4af",
+        "0x70c8392DE9b39a1E48d12A70Af6FF4Be25D6D0A2",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "6eftxVbSAunVEoxUWdGhPdxg5UdsJ8Wkwy5w5YFuxouw"
+      ],
+      "platforms": [
+        {
+          "address": "0x3506424f91fd33084466f402d5d97f05f8e3b4af",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "6eftxVbSAunVEoxUWdGhPdxg5UdsJ8Wkwy5w5YFuxouw",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x70c8392DE9b39a1E48d12A70Af6FF4Be25D6D0A2",
+          "platform": "Base"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Chiliz Chain"
+        }
+      ],
+      "source_file": "raw/0074_4066.json",
+      "source_sha256": "2aa102f63cce164c445d8be19aeade93801931abb8940f6972f3d6607d59db74"
+    },
+    "4172": {
+      "cmc_slug": "terra-luna",
+      "cmc_symbol": "LUNC",
+      "contracts": [
+        "0x156ab3346823B651294766e23e6Cf87254d68962",
+        "0x70928E5B188def72817b7775F0BF6325968e563B",
+        "0x9cd6746665D9557e1B9a775819625711d0693439",
+        "0xbd31ea8212119f94a611fa969881cba3ea06fa3d",
+        "F6v4wfAdJB8D8p77bMXZgYt8TDKsYxLYxH5AFhUkYx9W",
+        "ibc/0EF15DF2F02480ADE0BB6E85D9EBB5DAEA2836D3860E9F97F9AADE4F57A31AA0",
+        "secret1ra7avvjh9fhr7dtr3djutugwj59ptctsrakyyw",
+        "uluna"
+      ],
+      "platforms": [
+        {
+          "address": "0xbd31ea8212119f94a611fa969881cba3ea06fa3d",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x156ab3346823B651294766e23e6Cf87254d68962",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "F6v4wfAdJB8D8p77bMXZgYt8TDKsYxLYxH5AFhUkYx9W",
+          "platform": "Solana"
+        },
+        {
+          "address": "uluna",
+          "platform": "Terra Classic"
+        },
+        {
+          "address": "0x9cd6746665D9557e1B9a775819625711d0693439",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0x70928E5B188def72817b7775F0BF6325968e563B",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "ibc/0EF15DF2F02480ADE0BB6E85D9EBB5DAEA2836D3860E9F97F9AADE4F57A31AA0",
+          "platform": "Osmosis"
+        },
+        {
+          "address": "secret1ra7avvjh9fhr7dtr3djutugwj59ptctsrakyyw",
+          "platform": "Secret"
+        }
+      ],
+      "source_file": "raw/0075_4172.json",
+      "source_sha256": "c521f3965383411a56acba699175d8e68189eb1b3523385db01e4a2cc41347f5"
+    },
+    "4558": {
+      "cmc_slug": "flow",
+      "cmc_symbol": "FLOW",
+      "contracts": [
+        "0x5c147e74D63B1D31AA3Fd78Eb229B65161983B2b",
+        "A.1654653399040a61.FlowToken.Vault"
+      ],
+      "platforms": [
+        {
+          "address": "0x5c147e74D63B1D31AA3Fd78Eb229B65161983B2b",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "A.1654653399040a61.FlowToken.Vault",
+          "platform": "Flow"
+        }
+      ],
+      "source_file": "raw/0076_4558.json",
+      "source_sha256": "71c0112b2bf6887dc075d8d2bf21a30c76fdff505e8404f5d362afe6d3b10af8"
+    },
+    "4642": {
+      "cmc_slug": "hedera",
+      "cmc_symbol": "HBAR",
+      "contracts": [
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "platforms": [
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Hedera Hashgraph"
+        }
+      ],
+      "source_file": "raw/0077_4642.json",
+      "source_sha256": "c60ddcea5e908972170174204e6a4e321d0f3e80d5a1532039ed9dc48f908eee"
+    },
+    "4679": {
+      "cmc_slug": "band-protocol",
+      "cmc_symbol": "BAND",
+      "contracts": [
+        "0x46E7628E8b4350b2716ab470eE0bA1fa9e76c6C5",
+        "0xad6caeb32cd2c308980a548bd0bc5aa4306c6c18",
+        "0xba11d00c5f74255f56a5e366f4f77f5a186d7f55",
+        "0xe154A435408211AC89757B76C4FbE4Dc9ED2Ef27"
+      ],
+      "platforms": [
+        {
+          "address": "0xba11d00c5f74255f56a5e366f4f77f5a186d7f55",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xad6caeb32cd2c308980a548bd0bc5aa4306c6c18",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xe154A435408211AC89757B76C4FbE4Dc9ED2Ef27",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "0x46E7628E8b4350b2716ab470eE0bA1fa9e76c6C5",
+          "platform": "Fantom"
+        }
+      ],
+      "source_file": "raw/0078_4679.json",
+      "source_sha256": "aecde12f5dc89ad22378a24ac75a29e4ebddca8a9ab69a439a584303299843ce"
+    },
+    "4748": {
+      "cmc_slug": "dimension-chain",
+      "cmc_symbol": "EON",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0079_4748.json",
+      "source_sha256": "264d2d7d4b6e4e3e74bbd7bc60372840e6a064981befd0c2134cf317b57520eb"
+    },
+    "4846": {
+      "cmc_slug": "kava",
+      "cmc_symbol": "KAVA",
+      "contracts": [
+        "0x0C356B7fD36a5357E5A017EF11887ba100C9AB76",
+        "0x87D32F2C0A3D6D091772890C81E321026454a125",
+        "0x9BAFC8d4b487cEBff201721702507a3E2C67ad79",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "ibc/57AA1A70A4BC9769C525EBF6386F7A21536E04A79D62E1981EFCEF9428EBB205"
+      ],
+      "platforms": [
+        {
+          "address": "0x0C356B7fD36a5357E5A017EF11887ba100C9AB76",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x9BAFC8d4b487cEBff201721702507a3E2C67ad79",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x87D32F2C0A3D6D091772890C81E321026454a125",
+          "platform": "Polygon"
+        },
+        {
+          "address": "ibc/57AA1A70A4BC9769C525EBF6386F7A21536E04A79D62E1981EFCEF9428EBB205",
+          "platform": "Osmosis"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Kava"
+        }
+      ],
+      "source_file": "raw/0080_4846.json",
+      "source_sha256": "013d303d7fc0d82270ab89ad0eb8bbc2b99c1d28da94cba4baa4ad8d135295aa"
+    },
+    "4847": {
+      "cmc_slug": "stacks",
+      "cmc_symbol": "STX",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0081_4847.json",
+      "source_sha256": "c15f37316a1db890e1072634c51c9324de58d6c3ef28aa3e8eda7d4240d671d5"
+    },
+    "5026": {
+      "cmc_slug": "orchid",
+      "cmc_symbol": "OXT",
+      "contracts": [
+        "0x4575f41308EC1483f3d399aa9a2826d74Da13Deb"
+      ],
+      "platforms": [
+        {
+          "address": "0x4575f41308EC1483f3d399aa9a2826d74Da13Deb",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0082_5026.json",
+      "source_sha256": "93718ff3f9a00afcd58409d9c65ed950c13218368e1f4801004b6ba01dbc203f"
+    },
+    "5034": {
+      "cmc_slug": "kusama",
+      "cmc_symbol": "KSM",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0083_5034.json",
+      "source_sha256": "0aa029d5c71b136c41da3af472b72ffcb55148df89345c95db006168f629e795"
+    },
+    "512": {
+      "cmc_slug": "stellar",
+      "cmc_symbol": "XLM",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0008_512.json",
+      "source_sha256": "906f36d3d211ae4a3958aea8c62bf33afc76c66240afb8e735b5555c35e754ad"
+    },
+    "52": {
+      "cmc_slug": "xrp",
+      "cmc_symbol": "XRP",
+      "contracts": [
+        "0x1d2f0da169ceb9fc7b3144628db156f3f6c60dbe",
+        "0x9eaefb09fe4aabfbe6b1ca316a3c36afc83a393f",
+        "6UpQcMAb5xMzxc7ZfPaVMgx3KqsvKZdT5U718BzD5We2",
+        "xrp"
+      ],
+      "platforms": [
+        {
+          "address": "0x1d2f0da169ceb9fc7b3144628db156f3f6c60dbe",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "6UpQcMAb5xMzxc7ZfPaVMgx3KqsvKZdT5U718BzD5We2",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x9eaefb09fe4aabfbe6b1ca316a3c36afc83a393f",
+          "platform": "KAIA"
+        },
+        {
+          "address": "xrp",
+          "platform": "XRP Ledger"
+        }
+      ],
+      "source_file": "raw/0004_52.json",
+      "source_sha256": "a59fb0fdf933db291519874798d5473994fca80f4310eb04ac0271635b8d01fc"
+    },
+    "5268": {
+      "cmc_slug": "energy-web-token",
+      "cmc_symbol": "EWT",
+      "contracts": [
+        "0xB66a5D30D04f076E78ffB0d045C55846Fdcde928"
+      ],
+      "platforms": [
+        {
+          "address": "0xB66a5D30D04f076E78ffB0d045C55846Fdcde928",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0084_5268.json",
+      "source_sha256": "e2854cab0a6ad7a0cf4be4bea6a1fcf86a0f7a51cbd5b7287e563c72a5aa02b4"
+    },
+    "5426": {
+      "cmc_slug": "solana",
+      "cmc_symbol": "SOL",
+      "contracts": [
+        "So11111111111111111111111111111111111111111"
+      ],
+      "platforms": [
+        {
+          "address": "So11111111111111111111111111111111111111111",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0085_5426.json",
+      "source_sha256": "0030649da351cb8c866935c8844d7fdd8ccc2ee7d3aa34c65be87c28ecbf0d7f"
+    },
+    "5567": {
+      "cmc_slug": "celo",
+      "cmc_symbol": "CELO",
+      "contracts": [
+        "0x471ece3750da237f93b8e339c536989b8978a438",
+        "celo.token.a11bd.near"
+      ],
+      "platforms": [
+        {
+          "address": "0x471ece3750da237f93b8e339c536989b8978a438",
+          "platform": "Celo"
+        },
+        {
+          "address": "celo.token.a11bd.near",
+          "platform": "Near"
+        }
+      ],
+      "source_file": "raw/0086_5567.json",
+      "source_sha256": "6e3fcae7a935645a73d941362230903929a369ea1018a6ace157b3d43c90d42d"
+    },
+    "5617": {
+      "cmc_slug": "uma",
+      "cmc_symbol": "UMA",
+      "contracts": [
+        "0x04Fa0d235C4abf4BcF4787aF4CF447DE572eF828",
+        "0x3Bd2B1c7ED8D396dbb98DED3aEbb41350a5b2339"
+      ],
+      "platforms": [
+        {
+          "address": "0x04Fa0d235C4abf4BcF4787aF4CF447DE572eF828",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x3Bd2B1c7ED8D396dbb98DED3aEbb41350a5b2339",
+          "platform": "Avalanche C-Chain"
+        }
+      ],
+      "source_file": "raw/0087_5617.json",
+      "source_sha256": "cd6c9bf8d384d4d5db3d430c1812449564836f99cdc43ed135715b06341f9ea8"
+    },
+    "5665": {
+      "cmc_slug": "helium",
+      "cmc_symbol": "HNT",
+      "contracts": [
+        "hntyVP6YFm1Hg25TN9WGLqM12b8TQmcknKrdu1oxWux"
+      ],
+      "platforms": [
+        {
+          "address": "hntyVP6YFm1Hg25TN9WGLqM12b8TQmcknKrdu1oxWux",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0088_5665.json",
+      "source_sha256": "3eb02be1ae745f54f479c7cb7ea7aeec26003d0dfb1efb22dd7cd16b2d851eda"
+    },
+    "5690": {
+      "cmc_slug": "render",
+      "cmc_symbol": "RENDER",
+      "contracts": [
+        "0x6de037ef9ad2725eb40118bb1702ebb27e4aeb24",
+        "rndrizKT3MK1iimdxRdWabcF7Zg7AR5T4nud4EkHBof"
+      ],
+      "platforms": [
+        {
+          "address": "0x6de037ef9ad2725eb40118bb1702ebb27e4aeb24",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "rndrizKT3MK1iimdxRdWabcF7Zg7AR5T4nud4EkHBof",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0001_5690.json",
+      "source_sha256": "b18c87d0372e1d95b3b115acac087d19f0d2144ee29291038a7a4c421ab95eff"
+    },
+    "5692": {
+      "cmc_slug": "compound",
+      "cmc_symbol": "COMP",
+      "contracts": [
+        "0x00dbd45af9f2ea406746f9025110297469e9d29efc60df8d88efb9b0179d6c2c",
+        "0x52ce071bd9b1c4b00a0b92d298c512478cad67e8",
+        "0xDf6FF92bfDC1e8bE45177DC1f4845d391D3ad8fD",
+        "0xc00e94cb662c3520282e6f5717214004a7f26888",
+        "0xc3048E19E76CB9a3Aa9d77D8C03c29Fc906e2437",
+        "AwEauVaTMQRB71WeDnwf1DWSBxaMKjEPuxyLr1uixFom",
+        "c00e94cb662c3520282e6f5717214004a7f26888.factory.bridge.near"
+      ],
+      "platforms": [
+        {
+          "address": "0xc00e94cb662c3520282e6f5717214004a7f26888",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xDf6FF92bfDC1e8bE45177DC1f4845d391D3ad8fD",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "0x52ce071bd9b1c4b00a0b92d298c512478cad67e8",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x00dbd45af9f2ea406746f9025110297469e9d29efc60df8d88efb9b0179d6c2c",
+          "platform": "Sora"
+        },
+        {
+          "address": "0xc3048E19E76CB9a3Aa9d77D8C03c29Fc906e2437",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "AwEauVaTMQRB71WeDnwf1DWSBxaMKjEPuxyLr1uixFom",
+          "platform": "Solana"
+        },
+        {
+          "address": "c00e94cb662c3520282e6f5717214004a7f26888.factory.bridge.near",
+          "platform": "Near"
+        }
+      ],
+      "source_file": "raw/0089_5692.json",
+      "source_sha256": "80a0b821cf6ffd603e8bafdd5c4930265fc03c6c77a38295799d2cbd41a2e2c2"
+    },
+    "5728": {
+      "cmc_slug": "balancer",
+      "cmc_symbol": "BAL",
+      "contracts": [
+        "0x040d1edc9569d4bab2d15287dc5a4f10f56a56b8",
+        "0x045de15ca76e76426e8fc7cba8392a3138078d0f",
+        "0x7c6b91D9Be155A6Db01f749217d76fF02A7227F2",
+        "0x7eF541E2a22058048904fE5744f9c7E4C57AF717",
+        "0x9a71012b13ca4d3d0cdc72a177df3ef03b0e76a3",
+        "0xFE8B128bA8C78aabC59d4c64cEE7fF28e9379921",
+        "0xba100000625a3754423978a60c9317c58a424e3D",
+        "ba100000625a3754423978a60c9317c58a424e3d.factory.bridge.near"
+      ],
+      "platforms": [
+        {
+          "address": "0xba100000625a3754423978a60c9317c58a424e3D",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x045de15ca76e76426e8fc7cba8392a3138078d0f",
+          "platform": "HECO"
+        },
+        {
+          "address": "0x7eF541E2a22058048904fE5744f9c7E4C57AF717",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "0x9a71012b13ca4d3d0cdc72a177df3ef03b0e76a3",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0xFE8B128bA8C78aabC59d4c64cEE7fF28e9379921",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0x040d1edc9569d4bab2d15287dc5a4f10f56a56b8",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "ba100000625a3754423978a60c9317c58a424e3d.factory.bridge.near",
+          "platform": "Near"
+        },
+        {
+          "address": "0x7c6b91D9Be155A6Db01f749217d76fF02A7227F2",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0090_5728.json",
+      "source_sha256": "54a2664707b6a2f547c9009e74fb35e24977e34da46314d7197f65b8d65decfd"
+    },
+    "5805": {
+      "cmc_slug": "avalanche",
+      "cmc_symbol": "AVAX",
+      "contracts": [
+        "0x1ce0c2827e2ef14d5c4f29a091d735a204794041",
+        "0x4792c1ecb969b036eb51330c63bd27899a13d84e",
+        "0x6a5279e99ca7786fb13f827fc1fb4f61684933d6",
+        "0xcd8fe44a29db9159db36f96570d7a4d91986f528",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "FvwEAhmxKfeiG8SnEvq42hc6whRyY3EFYAvebMqDNDGCgxN5Z"
+      ],
+      "platforms": [
+        {
+          "address": "FvwEAhmxKfeiG8SnEvq42hc6whRyY3EFYAvebMqDNDGCgxN5Z",
+          "platform": "Avalanche X-Chain"
+        },
+        {
+          "address": "0x1ce0c2827e2ef14d5c4f29a091d735a204794041",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x4792c1ecb969b036eb51330c63bd27899a13d84e",
+          "platform": "Moonbeam"
+        },
+        {
+          "address": "0xcd8fe44a29db9159db36f96570d7a4d91986f528",
+          "platform": "KAIA"
+        },
+        {
+          "address": "0x6a5279e99ca7786fb13f827fc1fb4f61684933d6",
+          "platform": "zkSync Era"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Avalanche C-Chain"
+        }
+      ],
+      "source_file": "raw/0091_5805.json",
+      "source_sha256": "af0a51fd165115d41056e80c8ae0733ef285690a6a745b285125f376aca2f9a5"
+    },
+    "5864": {
+      "cmc_slug": "yearn-finance",
+      "cmc_symbol": "YFI",
+      "contracts": [
+        "0bc529c00c6401aef6d220be8c6ea1667f6ad93e.factory.bridge.near",
+        "0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e",
+        "0x29b0Da86e484E1C0029B56e817912d778aC0EC69",
+        "0x82e3A8F066a6989666b031d916c43672085b1582",
+        "0x88f1a5ae2a3bf98aeaf342d26b30a79438c9142e",
+        "0x9eAaC1B23d935365bD7b542Fe22cEEe2922f52dc",
+        "0xb4f019beac758abbee2f906033aaa2f0f6dacb35",
+        "0xbf65bfcb5da067446CeE6A706ba3Fe2fB1a9fdFd",
+        "BXZX2JRJFjvKazM1ibeDFxgAngKExb74MRXzXKvgikxX"
+      ],
+      "platforms": [
+        {
+          "address": "0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x88f1a5ae2a3bf98aeaf342d26b30a79438c9142e",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xb4f019beac758abbee2f906033aaa2f0f6dacb35",
+          "platform": "HECO"
+        },
+        {
+          "address": "0x29b0Da86e484E1C0029B56e817912d778aC0EC69",
+          "platform": "Fantom"
+        },
+        {
+          "address": "0xbf65bfcb5da067446CeE6A706ba3Fe2fB1a9fdFd",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "0x9eAaC1B23d935365bD7b542Fe22cEEe2922f52dc",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "BXZX2JRJFjvKazM1ibeDFxgAngKExb74MRXzXKvgikxX",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x82e3A8F066a6989666b031d916c43672085b1582",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0bc529c00c6401aef6d220be8c6ea1667f6ad93e.factory.bridge.near",
+          "platform": "Near"
+        }
+      ],
+      "source_file": "raw/0092_5864.json",
+      "source_sha256": "627330431f7d09b34c96f98f54ffe7c34d314e4a800efa55f235100b5947a3e2"
+    },
+    "5957": {
+      "cmc_slug": "yearn-finance-ii",
+      "cmc_symbol": "YFII",
+      "contracts": [
+        "0x7f70642d88cf1c4a3a7abb072b53b929b653eda5",
+        "0xa1d0E215a23d7030842FC67cE582a6aFa3CCaB83"
+      ],
+      "platforms": [
+        {
+          "address": "0xa1d0E215a23d7030842FC67cE582a6aFa3CCaB83",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x7f70642d88cf1c4a3a7abb072b53b929b653eda5",
+          "platform": "BNB Smart Chain (BEP20)"
+        }
+      ],
+      "source_file": "raw/0093_5957.json",
+      "source_sha256": "614de0f5698bf62a602f6693df8285efb0705c762f1c7a90919e56e4e8bc5b5c"
+    },
+    "5994": {
+      "cmc_slug": "shiba-inu",
+      "cmc_symbol": "SHIB",
+      "contracts": [
+        "0x2859e4544c4bb03966803b044a93563bd2d0dd4d",
+        "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
+        "shib5gSoVKPjwkXrxRk7SbQFzb2R9rQB3TgQWYX4RwW"
+      ],
+      "platforms": [
+        {
+          "address": "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
+          "platform": "Base"
+        },
+        {
+          "address": "0x2859e4544c4bb03966803b044a93563bd2d0dd4d",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "shib5gSoVKPjwkXrxRk7SbQFzb2R9rQB3TgQWYX4RwW",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0094_5994.json",
+      "source_sha256": "f17e27c171e092080436d9f8bac7da2190c83238855f6c4bb48aee23d4ef2c67"
+    },
+    "6210": {
+      "cmc_slug": "the-sandbox",
+      "cmc_symbol": "SAND",
+      "contracts": [
+        "0x3845badAde8e6dFF049820680d1F14bD3903a5d0",
+        "0xac531Eb26Ca1d21b85126De8FB87E80E09002DcF",
+        "0xbbba073c31bf03b8acf7c28ef0738decf3695683"
+      ],
+      "platforms": [
+        {
+          "address": "0x3845badAde8e6dFF049820680d1F14bD3903a5d0",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xbbba073c31bf03b8acf7c28ef0738decf3695683",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0xac531Eb26Ca1d21b85126De8FB87E80E09002DcF",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0095_6210.json",
+      "source_sha256": "3eadcf430033291222ee7072bf861c3c4b20f60cc72faae0ea866945263fda61"
+    },
+    "6535": {
+      "cmc_slug": "near-protocol",
+      "cmc_symbol": "NEAR",
+      "contracts": [
+        "0x85f17cf997934a597031b2e18a9ab6ebd4b9f6a4"
+      ],
+      "platforms": [
+        {
+          "address": "0x85f17cf997934a597031b2e18a9ab6ebd4b9f6a4",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0096_6535.json",
+      "source_sha256": "4e799b75c15cbf8bc330d3fd9ebc5b05f7167d1ba8be319b9fe3f17885c87870"
+    },
+    "6538": {
+      "cmc_slug": "curve-dao-token",
+      "cmc_symbol": "CRV",
+      "contracts": [
+        "0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53",
+        "0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978",
+        "0x172370d5Cd63279eFa6d502DAB29171933a610AF",
+        "0x712b3d230f3c1c19db860d80619288b1f0bdd0bd",
+        "0x8Ee73c484A26e0A5df2Ee2a4960B789967dd0415",
+        "0xD533a949740bb3306d119CC777fa900bA034cd52"
+      ],
+      "platforms": [
+        {
+          "address": "0xD533a949740bb3306d119CC777fa900bA034cd52",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x712b3d230f3c1c19db860d80619288b1f0bdd0bd",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "0x172370d5Cd63279eFa6d502DAB29171933a610AF",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0x8Ee73c484A26e0A5df2Ee2a4960B789967dd0415",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0097_6538.json",
+      "source_sha256": "a3b820ec4b5ba3700a8f92a91cf04f51c8ac09c4fce97c92e0fa8edfd5f86293"
+    },
+    "6636": {
+      "cmc_slug": "polkadot-new",
+      "cmc_symbol": "DOT",
+      "contracts": [
+        "0x7083609fce4d1d8dc0c979aab8c869ea2c873402",
+        "0x8d010bf9c26881788b4e6bf5fd1bdc358c8f90b8",
+        "0xa2c49cee16a5e5bdefde931107dc1fae9f7773e3",
+        "ibc/3FF92D26B407FD61AE95D975712A7C319CDE28DE4D80BDC9978D935932B991D7"
+      ],
+      "platforms": [
+        {
+          "address": "0x7083609fce4d1d8dc0c979aab8c869ea2c873402",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xa2c49cee16a5e5bdefde931107dc1fae9f7773e3",
+          "platform": "HECO"
+        },
+        {
+          "address": "ibc/3FF92D26B407FD61AE95D975712A7C319CDE28DE4D80BDC9978D935932B991D7",
+          "platform": "Osmosis"
+        },
+        {
+          "address": "0x8d010bf9c26881788b4e6bf5fd1bdc358c8f90b8",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x8d010bf9c26881788b4e6bf5fd1bdc358c8f90b8",
+          "platform": "Base"
+        },
+        {
+          "address": "0x8d010bf9c26881788b4e6bf5fd1bdc358c8f90b8",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0x8d010bf9c26881788b4e6bf5fd1bdc358c8f90b8",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0x8d010bf9c26881788b4e6bf5fd1bdc358c8f90b8",
+          "platform": "Gnosis Chain"
+        }
+      ],
+      "source_file": "raw/0098_6636.json",
+      "source_sha256": "d284dbf3d53d538b74f5b7a186a041d86a38b3826fe962309e69028aab58f3fa"
+    },
+    "6719": {
+      "cmc_slug": "the-graph",
+      "cmc_symbol": "GRT",
+      "contracts": [
+        "0x00d1fb79bbd1005a678fbf2de9256b3afe260e8eead49bb07bd3a566f9fe8355",
+        "0x8a0cAc13c7da965a312f08ea4229c37869e85cB9",
+        "0x9623063377AD1B27544C965cCd7342f7EA7e88C7",
+        "0xc944e90c64b2c07662a292be6244bdf05cda44a7",
+        "HGsLG4PnZ28L8A4R5nPqKgZd86zUUdmfnkTRnuFJ5dAX",
+        "c944e90c64b2c07662a292be6244bdf05cda44a7.factory.bridge.near"
+      ],
+      "platforms": [
+        {
+          "address": "0xc944e90c64b2c07662a292be6244bdf05cda44a7",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x00d1fb79bbd1005a678fbf2de9256b3afe260e8eead49bb07bd3a566f9fe8355",
+          "platform": "Sora"
+        },
+        {
+          "address": "0x8a0cAc13c7da965a312f08ea4229c37869e85cB9",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "HGsLG4PnZ28L8A4R5nPqKgZd86zUUdmfnkTRnuFJ5dAX",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x9623063377AD1B27544C965cCd7342f7EA7e88C7",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "c944e90c64b2c07662a292be6244bdf05cda44a7.factory.bridge.near",
+          "platform": "Near"
+        }
+      ],
+      "source_file": "raw/0099_6719.json",
+      "source_sha256": "e32c10b268a11970f21c36c1d232fb67e5e6e6aa9cfbdc1ebd4def26c331b6c6"
+    },
+    "6758": {
+      "cmc_slug": "sushiswap",
+      "cmc_symbol": "SUSHI",
+      "contracts": [
+        "0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a",
+        "0x0bb40d7fbae7f0c69bc5910c601987dce697d85f",
+        "0x17bff452dae47e07cea877ff0e1aba17eb62b0ab",
+        "0x39cf1bd5f15fb22ec3d9ff86b0727afc203427cc",
+        "0x3eaEb77b03dBc0F6321AE1b72b2E9aDb0F60112B",
+        "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2",
+        "0x7D49a065D17d6d4a55dc13649901fdBB98B2AFBA",
+        "0x947950BcC74888a40Ffa2593C5798F11Fc9124C4",
+        "0xae75A438b2E0cB8Bb01Ec1E1e376De11D44477CC",
+        "0xbec775cb42abfa4288de81f387a9b1a3c4bc552a",
+        "0xd15ec721c2a896512ad29c671997dd68f9593226",
+        "0xd4d42f0b6def4ce0383636770ef773390d85c61a"
+      ],
+      "platforms": [
+        {
+          "address": "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x947950BcC74888a40Ffa2593C5798F11Fc9124C4",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xae75A438b2E0cB8Bb01Ec1E1e376De11D44477CC",
+          "platform": "Fantom"
+        },
+        {
+          "address": "0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0x39cf1bd5f15fb22ec3d9ff86b0727afc203427cc",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "0xd15ec721c2a896512ad29c671997dd68f9593226",
+          "platform": "Celo"
+        },
+        {
+          "address": "0x3eaEb77b03dBc0F6321AE1b72b2E9aDb0F60112B",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0xbec775cb42abfa4288de81f387a9b1a3c4bc552a",
+          "platform": "Harmony"
+        },
+        {
+          "address": "0xd4d42f0b6def4ce0383636770ef773390d85c61a",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0x7D49a065D17d6d4a55dc13649901fdBB98B2AFBA",
+          "platform": "Base"
+        },
+        {
+          "address": "0x17bff452dae47e07cea877ff0e1aba17eb62b0ab",
+          "platform": "Katana"
+        },
+        {
+          "address": "0x0bb40d7fbae7f0c69bc5910c601987dce697d85f",
+          "platform": "Robinhood Chain"
+        }
+      ],
+      "source_file": "raw/0100_6758.json",
+      "source_sha256": "ff0046b37f361977080f80e6bd3b83513042ae857e62d0f7b643f29611380ea9"
+    },
+    "6783": {
+      "cmc_slug": "axie-infinity",
+      "cmc_symbol": "AXS",
+      "contracts": [
+        "0x14a7b318fed66ffdcc80c1517c172c13852865de",
+        "0x715d400f88c167884bbcc41c5fea407ed4d2f8a0",
+        "0x97a9107c1793bc407d6f527b77e7fff4d812bece",
+        "0xbb0e17ef65f82ab018d8edd776e8dd940327b28b",
+        "HysWcbHiYY9888pHbaqhwLYZQeZrcQMXKQWRqS7zcPK5"
+      ],
+      "platforms": [
+        {
+          "address": "0xbb0e17ef65f82ab018d8edd776e8dd940327b28b",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x715d400f88c167884bbcc41c5fea407ed4d2f8a0",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "HysWcbHiYY9888pHbaqhwLYZQeZrcQMXKQWRqS7zcPK5",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x14a7b318fed66ffdcc80c1517c172c13852865de",
+          "platform": "Harmony"
+        },
+        {
+          "address": "0x97a9107c1793bc407d6f527b77e7fff4d812bece",
+          "platform": "Ronin"
+        }
+      ],
+      "source_file": "raw/0101_6783.json",
+      "source_sha256": "b6be5d542f0179b2ac22e30b6cd4616ccc85098363b4ce782083fc17b4c893a6"
+    },
+    "6892": {
+      "cmc_slug": "multiversx-egld",
+      "cmc_symbol": "EGLD",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0102_6892.json",
+      "source_sha256": "14190ebe3ab2603ea8527c9e27290cc321fb8e2d842397bb9a54e9ef683b8c6a"
+    },
+    "6945": {
+      "cmc_slug": "amp",
+      "cmc_symbol": "AMP",
+      "contracts": [
+        "0xff20817765cb7f73d4bde2e66e067e58d11095c2"
+      ],
+      "platforms": [
+        {
+          "address": "0xff20817765cb7f73d4bde2e66e067e58d11095c2",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0103_6945.json",
+      "source_sha256": "22657ee41611ff408ab820c3931fbb0929256f0e94385ee2ca455ab1ff8ee60f"
+    },
+    "6950": {
+      "cmc_slug": "perpetual-protocol",
+      "cmc_symbol": "PERP",
+      "contracts": [
+        "0xbc396689893d065f41bc2c6ecbee5e0085233447",
+        "9BsnSWDPfbusseZfnXyZ3un14CyPMZYvsKjWY3Y8Gbqn"
+      ],
+      "platforms": [
+        {
+          "address": "0xbc396689893d065f41bc2c6ecbee5e0085233447",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "9BsnSWDPfbusseZfnXyZ3un14CyPMZYvsKjWY3Y8Gbqn",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0104_6950.json",
+      "source_sha256": "0c3bc2f4242da1e17ad544c4846f20c963a3da3318b133190a0430367f2a750f"
+    },
+    "7080": {
+      "cmc_slug": "gala",
+      "cmc_symbol": "GALA",
+      "contracts": [
+        "0xd1d2Eb1B1e90B638588728b4130137D262C87cae",
+        "eEUiUs4JWYZrp72djAGF1A8PhpR6rHphGeGN7GbVLp6"
+      ],
+      "platforms": [
+        {
+          "address": "0xd1d2Eb1B1e90B638588728b4130137D262C87cae",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "eEUiUs4JWYZrp72djAGF1A8PhpR6rHphGeGN7GbVLp6",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0105_7080.json",
+      "source_sha256": "3af4a42dcc755d9f49d295b099583c94ad6a4472a1b1d4c9bfa2db63569241af"
+    },
+    "7083": {
+      "cmc_slug": "uniswap",
+      "cmc_symbol": "UNI",
+      "contracts": [
+        "0x009be848df92a400da2f217256c88d1a9b1a0304f9b3e90991a67418e1d3b08c",
+        "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+        "0x1fc14e78612edc54e36506c4a11a1a3be4fe48af",
+        "0x22c54ce8321a4015740ee1109d9cbc25815c46e6",
+        "0x4537e328bf7e4efa29d05caea260d7fe26af9d74",
+        "0x8eBAf22B6F053dFFeaf46f4Dd9eFA95D89ba8580",
+        "0x8f187aA05619a017077f5308904739877ce9eA21",
+        "0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0",
+        "0xb33eaad8d922b1083446dc23f610c2567fb5180f",
+        "0xbf5140a22578168fd562dccf235e5d43a02ce9b1",
+        "1f9840a85d5af5bf1d1762f925bdaddc4201f984.factory.bridge.near",
+        "8FU95xFJhUUkyyCLU13HSzDLs7oC4QZdXQHL6SCeab36",
+        "terra1wyxkuy5jq545fn7xfn3enpvs5zg9f9dghf6gxf"
+      ],
+      "platforms": [
+        {
+          "address": "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xbf5140a22578168fd562dccf235e5d43a02ce9b1",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x22c54ce8321a4015740ee1109d9cbc25815c46e6",
+          "platform": "HECO"
+        },
+        {
+          "address": "0x4537e328bf7e4efa29d05caea260d7fe26af9d74",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "0xb33eaad8d922b1083446dc23f610c2567fb5180f",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0x009be848df92a400da2f217256c88d1a9b1a0304f9b3e90991a67418e1d3b08c",
+          "platform": "Sora"
+        },
+        {
+          "address": "0x8eBAf22B6F053dFFeaf46f4Dd9eFA95D89ba8580",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "8FU95xFJhUUkyyCLU13HSzDLs7oC4QZdXQHL6SCeab36",
+          "platform": "Solana"
+        },
+        {
+          "address": "terra1wyxkuy5jq545fn7xfn3enpvs5zg9f9dghf6gxf",
+          "platform": "Terra Classic"
+        },
+        {
+          "address": "0x1fc14e78612edc54e36506c4a11a1a3be4fe48af",
+          "platform": "Hoo Smart Chain"
+        },
+        {
+          "address": "0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "1f9840a85d5af5bf1d1762f925bdaddc4201f984.factory.bridge.near",
+          "platform": "Near"
+        },
+        {
+          "address": "0x8f187aA05619a017077f5308904739877ce9eA21",
+          "platform": "Unichain"
+        }
+      ],
+      "source_file": "raw/0106_7083.json",
+      "source_sha256": "30c524a6295b0b6ef35a0bbaddd493af5b7380d546efd49b562b4003e6861ddd"
+    },
+    "7186": {
+      "cmc_slug": "pancakeswap",
+      "cmc_symbol": "CAKE",
+      "contracts": [
+        "0x0D1E753a25eBda689453309112904807625bEFBe",
+        "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
+        "0x152649eA73beAb28c5b49B26eb48f7EAD6d4c898",
+        "0x159df6b7689437016108a019fd5bef736bac692b6d4a1f10c941f6fbb9a74ca6::oft::CakeOFT",
+        "0x1b896893dfc86bb67Cf57767298b9073D2c1bA2c",
+        "0x2779106e4F4A8A28d77A24c18283651a2AE22D1C",
+        "0x3055913c90Fcc1A6CE9a358911721eEb942013A1",
+        "0x3A287a06c66f9E95a56327185cA2BDF5f031cEcD",
+        "4qQeZ5LwSz6HuupUu8jCtgXyW1mYQcNbFAW1sWZp89HL"
+      ],
+      "platforms": [
+        {
+          "address": "0x152649eA73beAb28c5b49B26eb48f7EAD6d4c898",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "4qQeZ5LwSz6HuupUu8jCtgXyW1mYQcNbFAW1sWZp89HL",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x1b896893dfc86bb67Cf57767298b9073D2c1bA2c",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0x159df6b7689437016108a019fd5bef736bac692b6d4a1f10c941f6fbb9a74ca6::oft::CakeOFT",
+          "platform": "Aptos"
+        },
+        {
+          "address": "0x3A287a06c66f9E95a56327185cA2BDF5f031cEcD",
+          "platform": "zkSync Era"
+        },
+        {
+          "address": "0x0D1E753a25eBda689453309112904807625bEFBe",
+          "platform": "Polygon zkEVM"
+        },
+        {
+          "address": "0x0D1E753a25eBda689453309112904807625bEFBe",
+          "platform": "Linea"
+        },
+        {
+          "address": "0x3055913c90Fcc1A6CE9a358911721eEb942013A1",
+          "platform": "Base"
+        },
+        {
+          "address": "0x2779106e4F4A8A28d77A24c18283651a2AE22D1C",
+          "platform": "opBNB"
+        }
+      ],
+      "source_file": "raw/0107_7186.json",
+      "source_sha256": "33067d41ab1cf102835c35d62d367bc9f47c3fcdf262154705622abc22741aac"
+    },
+    "7226": {
+      "cmc_slug": "injective",
+      "cmc_symbol": "INJ",
+      "contracts": [
+        "0xa2b726b1145a4773f68593cf171187d8ebe4d495",
+        "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+        "1NJMqVM4PadjuzYmeB7zV7q7DV8oB3ExaQCd9x6KsLz",
+        "ibc/64BA6E31FE887D66C6F8F31C7B1A80C7CA179239677B4088BB55F5EA07DBE273",
+        "inj"
+      ],
+      "platforms": [
+        {
+          "address": "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xa2b726b1145a4773f68593cf171187d8ebe4d495",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "1NJMqVM4PadjuzYmeB7zV7q7DV8oB3ExaQCd9x6KsLz",
+          "platform": "Solana"
+        },
+        {
+          "address": "ibc/64BA6E31FE887D66C6F8F31C7B1A80C7CA179239677B4088BB55F5EA07DBE273",
+          "platform": "Osmosis"
+        },
+        {
+          "address": "inj",
+          "platform": "Injective"
+        }
+      ],
+      "source_file": "raw/0108_7226.json",
+      "source_sha256": "e20b88ea95541d0e75f3bb27b47cd1dff7b636e86bc597857e22730bf5373a72"
+    },
+    "7278": {
+      "cmc_slug": "aave",
+      "cmc_symbol": "AAVE",
+      "contracts": [
+        "0x0091bd8d8295b25cab5a7b8b0e44498e678cfc15d872ede3215f7d4c7635ba36",
+        "0x202b4936fe1a82a4965220860ae46d7d3939bb25",
+        "0x6a07A792ab2965C72a5B8088d3a069A7aC3a993B",
+        "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
+        "0x8ce2dee54bb9921a2ae0a63dbb2df8ed88b91dd9",
+        "0xDF613aF6B44a31299E48131e9347F034347E2F00",
+        "0xba5ddd1f9d7f570dc94a51479a000e3bce967196",
+        "0xd6df932a45c0f255f85145f286ea0b292b21c90b",
+        "0xfb6115445bff7b52feb98650c87f44907e58f802",
+        "7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.factory.bridge.near",
+        "AavE1kKKnesPw4MuRJmJ9jZs9QzEE8CPxQ3ViczUDfc1"
+      ],
+      "platforms": [
+        {
+          "address": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x202b4936fe1a82a4965220860ae46d7d3939bb25",
+          "platform": "HECO"
+        },
+        {
+          "address": "0xDF613aF6B44a31299E48131e9347F034347E2F00",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "0x6a07A792ab2965C72a5B8088d3a069A7aC3a993B",
+          "platform": "Fantom"
+        },
+        {
+          "address": "0x8ce2dee54bb9921a2ae0a63dbb2df8ed88b91dd9",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "0xd6df932a45c0f255f85145f286ea0b292b21c90b",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0xfb6115445bff7b52feb98650c87f44907e58f802",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x0091bd8d8295b25cab5a7b8b0e44498e678cfc15d872ede3215f7d4c7635ba36",
+          "platform": "Sora"
+        },
+        {
+          "address": "AavE1kKKnesPw4MuRJmJ9jZs9QzEE8CPxQ3ViczUDfc1",
+          "platform": "Solana"
+        },
+        {
+          "address": "7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.factory.bridge.near",
+          "platform": "Near"
+        },
+        {
+          "address": "0xba5ddd1f9d7f570dc94a51479a000e3bce967196",
+          "platform": "Arbitrum"
+        }
+      ],
+      "source_file": "raw/0109_7278.json",
+      "source_sha256": "6380995b72c2466bc557d99732a13b3777838fb3d72314a3a016a3147f5b1c44"
+    },
+    "74": {
+      "cmc_slug": "dogecoin",
+      "cmc_symbol": "DOGE",
+      "contracts": [
+        "0xba2ae424d960c26247dd6c32edc70b295c744c43",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "DoGEV7LASBkQbibMc5k5vKnTZoMg423GpJ5QtJEGfm7R",
+        "factory/osmo10pk4crey8fpdyqd62rsau0y02e3rk055w5u005ah6ly7k849k5tsf72x40/alloyed/allDOGE"
+      ],
+      "platforms": [
+        {
+          "address": "0xba2ae424d960c26247dd6c32edc70b295c744c43",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "factory/osmo10pk4crey8fpdyqd62rsau0y02e3rk055w5u005ah6ly7k849k5tsf72x40/alloyed/allDOGE",
+          "platform": "Osmosis"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Dogechain(EVM)"
+        },
+        {
+          "address": "DoGEV7LASBkQbibMc5k5vKnTZoMg423GpJ5QtJEGfm7R",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0005_74.json",
+      "source_sha256": "467796ec5ea31ad2525eb8c89622339646f63e92a139cc8f90e8e3e6b5c54c12"
+    },
+    "7431": {
+      "cmc_slug": "akash-network",
+      "cmc_symbol": "AKT",
+      "contracts": [
+        "ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4"
+      ],
+      "platforms": [
+        {
+          "address": "ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4",
+          "platform": "Osmosis"
+        }
+      ],
+      "source_file": "raw/0110_7431.json",
+      "source_sha256": "92c9c969277b3790f31b6560c3dd1ef54a49c939bd77165f09333efa3cd2d96d"
+    },
+    "7455": {
+      "cmc_slug": "audius",
+      "cmc_symbol": "AUDIO",
+      "contracts": [
+        "0x18aaa7115705e8be94bffebde57af9bfc265b998",
+        "0x8A95ea379E1Fa4C749dd0A7A21377162028C479e",
+        "9LzCMqDgTKYz9Drzqnpgee3SGa89up3a247ypMj2xrqM"
+      ],
+      "platforms": [
+        {
+          "address": "0x18aaa7115705e8be94bffebde57af9bfc265b998",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x8A95ea379E1Fa4C749dd0A7A21377162028C479e",
+          "platform": "Gnosis Chain"
+        },
+        {
+          "address": "9LzCMqDgTKYz9Drzqnpgee3SGa89up3a247ypMj2xrqM",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0111_7455.json",
+      "source_sha256": "b0c16e1721eb2d5716954258fe398c3440251c3b20b30ecf8a85c63b3578f7a0"
+    },
+    "7653": {
+      "cmc_slug": "oasis-network",
+      "cmc_symbol": "ROSE",
+      "contracts": [
+        "0xF00600eBC7633462BC4F9C61eA2cE99F5AAEBd4a",
+        "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "platforms": [
+        {
+          "address": "0xF00600eBC7633462BC4F9C61eA2cE99F5AAEBd4a",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "platform": "Oasis Network"
+        }
+      ],
+      "source_file": "raw/0112_7653.json",
+      "source_sha256": "84ab39f2420b15befda2b4529d0b0b5d300058a7674211d5faa2c4ad10751a6a"
+    },
+    "7950": {
+      "cmc_slug": "flare",
+      "cmc_symbol": "FLR",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0113_7950.json",
+      "source_sha256": "4b820334a1cc1aae3507401bd6887291f703e9efc72e2d16db5ff9eabd5470c7"
+    },
+    "8000": {
+      "cmc_slug": "lido-dao",
+      "cmc_symbol": "LDO",
+      "contracts": [
+        "0x13Ad51ed4F1B7e9Dc168d8a00cB3f4dDD85EfA60",
+        "0x5a98fcbea516cf06857215779fd812ca3bef1b32",
+        "0x986854779804799C1d68867F5E03e601E781e41b",
+        "HZRCwxP2Vq9PCpPXooayhJ2bxTpo5xfpQrwB1svh332p",
+        "terra1jxypgnfa07j6w92wazzyskhreq2ey2a5crgt6z"
+      ],
+      "platforms": [
+        {
+          "address": "0x5a98fcbea516cf06857215779fd812ca3bef1b32",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x986854779804799C1d68867F5E03e601E781e41b",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "HZRCwxP2Vq9PCpPXooayhJ2bxTpo5xfpQrwB1svh332p",
+          "platform": "Solana"
+        },
+        {
+          "address": "terra1jxypgnfa07j6w92wazzyskhreq2ey2a5crgt6z",
+          "platform": "Terra Classic"
+        },
+        {
+          "address": "0x13Ad51ed4F1B7e9Dc168d8a00cB3f4dDD85EfA60",
+          "platform": "Arbitrum"
+        }
+      ],
+      "source_file": "raw/0114_8000.json",
+      "source_sha256": "87df9e8f69468250da897e59313bead9618abe12715da37952533f0763b21ba8"
+    },
+    "8104": {
+      "cmc_slug": "1inch",
+      "cmc_symbol": "1INCH",
+      "contracts": [
+        "0x10f04e61bd6019d6c9b0bf4907e805a64b92ee3e",
+        "0x111111111117dc0aa78b770fa6a738034120c302",
+        "0x1755c2910c126ee1b0cf1e08a307dc9e787285a0",
+        "0x3f0b8b206a7fbdb3ecfc08c9407ca83f5ab1ce59",
+        "0x6314c31a7a1652ce482cffe247e9cb7c3f4bb9af",
+        "0xad42d013ac31486b73b6b059e748172994736426",
+        "0xbe41cde1c5e75a7b6c2c70466629878aa9acd06e",
+        "0xc5fecc3a29fb57b5024eec8a2239d4621e111cbe",
+        "0xd501281565bf7789224523144Fe5D98e8B28f267"
+      ],
+      "platforms": [
+        {
+          "address": "0x111111111117dc0aa78b770fa6a738034120c302",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x111111111117dc0aa78b770fa6a738034120c302",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0xd501281565bf7789224523144Fe5D98e8B28f267",
+          "platform": "Avalanche C-Chain"
+        },
+        {
+          "address": "0xad42d013ac31486b73b6b059e748172994736426",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0x6314c31a7a1652ce482cffe247e9cb7c3f4bb9af",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0x3f0b8b206a7fbdb3ecfc08c9407ca83f5ab1ce59",
+          "platform": "zkSync Era"
+        },
+        {
+          "address": "0x10f04e61bd6019d6c9b0bf4907e805a64b92ee3e",
+          "platform": "Linea"
+        },
+        {
+          "address": "0xc5fecc3a29fb57b5024eec8a2239d4621e111cbe",
+          "platform": "Base"
+        },
+        {
+          "address": "0xbe41cde1c5e75a7b6c2c70466629878aa9acd06e",
+          "platform": "Unichain"
+        },
+        {
+          "address": "0x1755c2910c126ee1b0cf1e08a307dc9e787285a0",
+          "platform": "Robinhood Chain"
+        }
+      ],
+      "source_file": "raw/0115_8104.json",
+      "source_sha256": "05807acf1076fa3d4e19d206994ec38c8bb90e67965c02520c8f13dffb8090e7"
+    },
+    "8425": {
+      "cmc_slug": "jasmy",
+      "cmc_symbol": "JASMY",
+      "contracts": [
+        "0x7420B4b9a0110cdC71fB720908340C03F9Bc03EC"
+      ],
+      "platforms": [
+        {
+          "address": "0x7420B4b9a0110cdC71fB720908340C03F9Bc03EC",
+          "platform": "Ethereum"
+        }
+      ],
+      "source_file": "raw/0116_8425.json",
+      "source_sha256": "d8c19c5bdf2458105fb88d461c2da9b38b2ae31ca56f5c9eb5df0d0d0a4c642e"
+    },
+    "8526": {
+      "cmc_slug": "raydium",
+      "cmc_symbol": "RAY",
+      "contracts": [
+        "0x13b6A55662f6591f8B8408Af1C73B017E32eEdB8",
+        "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"
+      ],
+      "platforms": [
+        {
+          "address": "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R",
+          "platform": "Solana"
+        },
+        {
+          "address": "0x13b6A55662f6591f8B8408Af1C73B017E32eEdB8",
+          "platform": "BNB Smart Chain (BEP20)"
+        }
+      ],
+      "source_file": "raw/0117_8526.json",
+      "source_sha256": "f3021d00ce92145e7c8ef8fa1ec4c6032fb43cb2a0a884e584c7b5f0ab580dd3"
+    },
+    "8536": {
+      "cmc_slug": "mask-network",
+      "cmc_symbol": "MASK",
+      "contracts": [
+        "0x2b9e7ccdf0f4e5b24757c1e1a80e311e34cb10c7",
+        "0x2ed9a5c8c13b93955103b9a7c167b67ef4d568a3",
+        "0x69af81e73a73b40adf4f3d4223cd9b1ece623074"
+      ],
+      "platforms": [
+        {
+          "address": "0x69af81e73a73b40adf4f3d4223cd9b1ece623074",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x2ed9a5c8c13b93955103b9a7c167b67ef4d568a3",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x2b9e7ccdf0f4e5b24757c1e1a80e311e34cb10c7",
+          "platform": "Polygon"
+        }
+      ],
+      "source_file": "raw/0118_8536.json",
+      "source_sha256": "9cd0af32d24515ccdf072c7160ccbe3fd1611075f1554155f8f2b4736749af17"
+    },
+    "8646": {
+      "cmc_slug": "mina",
+      "cmc_symbol": "MINA",
+      "contracts": [],
+      "platforms": [],
+      "source_file": "raw/0119_8646.json",
+      "source_sha256": "c1e89b38f8c5dbf46777adb8c90070b56e62d748067623b83adc5b98b7a1541a"
+    },
+    "8916": {
+      "cmc_slug": "internet-computer",
+      "cmc_symbol": "ICP",
+      "contracts": [
+        "0x00f3C42833C3170159af4E92dbb451Fb3F708917",
+        "ryjl3-tyaaa-aaaaa-aaaba-cai"
+      ],
+      "platforms": [
+        {
+          "address": "0x00f3C42833C3170159af4E92dbb451Fb3F708917",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "ryjl3-tyaaa-aaaaa-aaaba-cai",
+          "platform": "ICP"
+        },
+        {
+          "address": "0x00f3C42833C3170159af4E92dbb451Fb3F708917",
+          "platform": "Arbitrum"
+        },
+        {
+          "address": "0x00f3C42833C3170159af4E92dbb451Fb3F708917",
+          "platform": "Base"
+        }
+      ],
+      "source_file": "raw/0120_8916.json",
+      "source_sha256": "46cc78b7a160d461fc2ee5381330085576311d1ddb4618d8e64aed405bf78979"
+    },
+    "9104": {
+      "cmc_slug": "aioz-network",
+      "cmc_symbol": "AIOZ",
+      "contracts": [
+        "0x33d08D8C7a168333a85285a68C0042b39fC3741D",
+        "0x626E8036dEB333b408Be468F951bdB42433cBF18"
+      ],
+      "platforms": [
+        {
+          "address": "0x626E8036dEB333b408Be468F951bdB42433cBF18",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0x33d08D8C7a168333a85285a68C0042b39fC3741D",
+          "platform": "BNB Smart Chain (BEP20)"
+        }
+      ],
+      "source_file": "raw/0121_9104.json",
+      "source_sha256": "cdcaef2daed8a51c3e0d48e42730ec612035f8a9f4232c17f73a00eb90890c83"
+    },
+    "9444": {
+      "cmc_slug": "kyber-network-crystal-v2",
+      "cmc_symbol": "KNC",
+      "contracts": [
+        "0x1c954e8fe737f99f68fa1ccda3e51ebdb291948c",
+        "0xa00E3A3511aAC35cA78530c85007AFCd31753819",
+        "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+        "0xe4dddfe67e7164b0fe14e218d80dc4c08edc01cb",
+        "0xfe56d5892bdffc7bf58f2e84be1b2c32d21c308b"
+      ],
+      "platforms": [
+        {
+          "address": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xfe56d5892bdffc7bf58f2e84be1b2c32d21c308b",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x1c954e8fe737f99f68fa1ccda3e51ebdb291948c",
+          "platform": "Polygon"
+        },
+        {
+          "address": "0xa00E3A3511aAC35cA78530c85007AFCd31753819",
+          "platform": "Optimism"
+        },
+        {
+          "address": "0xe4dddfe67e7164b0fe14e218d80dc4c08edc01cb",
+          "platform": "Arbitrum"
+        }
+      ],
+      "source_file": "raw/0122_9444.json",
+      "source_sha256": "8f566dced8630a13b163adbf808bbdaead694dee150b0d8923823063e9a3cf9f"
+    },
+    "9481": {
+      "cmc_slug": "pendle",
+      "cmc_symbol": "PENDLE",
+      "contracts": [
+        "0x0c880f6761f1af8d9aa9c466984b80dab9a8c9e8",
+        "0x808507121b80c02388fad14726482e061b8da827",
+        "0xb3Ed0A426155B79B898849803E3B36552f7ED507"
+      ],
+      "platforms": [
+        {
+          "address": "0x808507121b80c02388fad14726482e061b8da827",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "0xb3Ed0A426155B79B898849803E3B36552f7ED507",
+          "platform": "BNB Smart Chain (BEP20)"
+        },
+        {
+          "address": "0x0c880f6761f1af8d9aa9c466984b80dab9a8c9e8",
+          "platform": "Arbitrum"
+        }
+      ],
+      "source_file": "raw/0123_9481.json",
+      "source_sha256": "9da3d0eee307274d1245f38360f8d02a1ee44727c766c2b5aec080fd44f493f1"
+    },
+    "9903": {
+      "cmc_slug": "convex-finance",
+      "cmc_symbol": "CVX",
+      "contracts": [
+        "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b",
+        "BLvmrccP4g1B6SpiVvmQrLUDya1nZ4B2D1nm9jzKF7sz"
+      ],
+      "platforms": [
+        {
+          "address": "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b",
+          "platform": "Ethereum"
+        },
+        {
+          "address": "BLvmrccP4g1B6SpiVvmQrLUDya1nZ4B2D1nm9jzKF7sz",
+          "platform": "Solana"
+        }
+      ],
+      "source_file": "raw/0124_9903.json",
+      "source_sha256": "6683c6a3f9679159bc92100a63c2edbc5d1b76302ce00aaf8cbde31c73873114"
+    }
+  },
+  "ids_sha256": "cbf4ecaf2fefbca854493f1de1f90bb3ebbf8d23e80e1c3df1f191d00fe549d1",
+  "problems": [],
+  "renamed_since_list": {
+    "11156": {
+      "cmc_slug": "dydx-ethdydx",
+      "cmc_symbol": "ETHDYDX",
+      "list_slug": "dydx",
+      "list_symbol": "DYDX"
+    },
+    "11419": {
+      "cmc_slug": "gram",
+      "cmc_symbol": "GRAM",
+      "list_slug": "toncoin",
+      "list_symbol": "TON"
+    },
+    "1455": {
+      "cmc_slug": "golem-network-tokens",
+      "cmc_symbol": "GLM",
+      "list_slug": "golem-network-tokens",
+      "list_symbol": "GNT"
+    },
+    "1808": {
+      "cmc_slug": "omg",
+      "cmc_symbol": "OMG",
+      "list_slug": "omisego",
+      "list_symbol": "OMG"
+    },
+    "1817": {
+      "cmc_slug": "vgx-token",
+      "cmc_symbol": "VGX",
+      "list_slug": "voyager-token",
+      "list_symbol": "VGX"
+    },
+    "1839": {
+      "cmc_slug": "bnb",
+      "cmc_symbol": "BNB",
+      "list_slug": "binance-coin",
+      "list_symbol": "BNB"
+    },
+    "18679": {
+      "cmc_slug": "onyxcoin",
+      "cmc_symbol": "XCN",
+      "list_slug": "chain",
+      "list_symbol": "XCN"
+    },
+    "1982": {
+      "cmc_slug": "kyber-network-crystal-legacy",
+      "cmc_symbol": "KNCL",
+      "list_slug": "kyber-network",
+      "list_symbol": "KNC"
+    },
+    "2239": {
+      "cmc_slug": "aave-old",
+      "cmc_symbol": "LEND",
+      "list_slug": "aave",
+      "list_symbol": "LEND"
+    },
+    "2586": {
+      "cmc_slug": "synthetix",
+      "cmc_symbol": "SNX",
+      "list_slug": "synthetix-network-token",
+      "list_symbol": "SNX"
+    },
+    "35626": {
+      "cmc_slug": "data-network",
+      "cmc_symbol": "DATA",
+      "list_slug": "story-protocol",
+      "list_symbol": "IP"
+    },
+    "3635": {
+      "cmc_slug": "cronos",
+      "cmc_symbol": "CRO",
+      "list_slug": "crypto-com-coin",
+      "list_symbol": "CRO"
+    },
+    "3773": {
+      "cmc_slug": "artificial-superintelligence-alliance",
+      "cmc_symbol": "FET",
+      "list_slug": "fetch",
+      "list_symbol": "FET"
+    },
+    "3829": {
+      "cmc_slug": "nash",
+      "cmc_symbol": "NEX",
+      "list_slug": "nash-exchange",
+      "list_symbol": "NEX"
+    },
+    "3890": {
+      "cmc_slug": "polygon",
+      "cmc_symbol": "MATIC",
+      "list_slug": "matic-network",
+      "list_symbol": "MATIC"
+    },
+    "4172": {
+      "cmc_slug": "terra-luna",
+      "cmc_symbol": "LUNC",
+      "list_slug": "terra-luna",
+      "list_symbol": "LUNA"
+    },
+    "4642": {
+      "cmc_slug": "hedera",
+      "cmc_symbol": "HBAR",
+      "list_slug": "hedera-hashgraph",
+      "list_symbol": "HBAR"
+    },
+    "4847": {
+      "cmc_slug": "stacks",
+      "cmc_symbol": "STX",
+      "list_slug": "blockstack",
+      "list_symbol": "STX"
+    },
+    "5690": {
+      "cmc_slug": "render",
+      "cmc_symbol": "RENDER",
+      "list_slug": "render-token",
+      "list_symbol": "RNDR"
+    },
+    "6892": {
+      "cmc_slug": "multiversx-egld",
+      "cmc_symbol": "EGLD",
+      "list_slug": "elrond-egld",
+      "list_symbol": "EGLD"
+    }
+  },
+  "schema": "entr-cb1-cmc-contracts-v1",
+  "source": "https://api.coinmarketcap.com/data-api/v3/cryptocurrency/detail?id={}"
+}

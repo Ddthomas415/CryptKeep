@@ -1,0 +1,17 @@
+{
+  "schema": "entr-cb1-stepB-currencies-v1",
+  "records": [
+    {
+      "n": 1,
+      "label": "currencies",
+      "url": "https://api.exchange.coinbase.com/currencies",
+      "http_status": 200,
+      "sent_utc": "2026-10-19T06:02:09.727464+00:00",
+      "received_utc": "2026-10-19T06:02:09.822189+00:00",
+      "file": "01_currencies.json",
+      "bytes": 560031,
+      "sha256": "8de25dcc9b564a41c61736677ec37fc932b23558e81bc68aa7da3227f5b50fa1"
+    }
+  ],
+  "written_utc": "2026-10-19T06:02:10.343197+00:00"
+}

@@ -38,7 +38,9 @@ An asset selected for a cycle with entry date E is eligible only if all hold:
    before any return is computed (CMC name + slug + contract address where one exists; a ticker
    alone is never enough). Ambiguous or unmatched IDs are excluded from BOTH arms and counted.
 2. **Listed:** a Coinbase Exchange spot product for that asset quoted in USD, USDC or USDT has a
-   first daily candle dated no later than E minus 1 day.
+   first daily candle dated no later than E minus 1 day, and its last daily candle (if trading has
+   ended) is not before E. An asset verified as never listed on Coinbase is excluded; an asset whose
+   identity or listing history cannot be established is excluded and counted as "unknown".
 3. **Still trading at exit:** if that product's last daily candle is before the exit date, the
    exit is treated as an unresolved exit under the v2 rule (zero-recovery lower bound).
 
@@ -86,8 +88,9 @@ Primary arm: Coinbase-tradable entrants (CB-entrants). Comparator: Coinbase-trad
   (1) CB-entrant mean net dollars per cycle (lower bound) > 0;
   (2) CB-entrant mean with its single largest cycle removed > 0;
   (3) paired mean difference, CB-entrants minus CB-control, on jointly valued cycles > 0;
-  (4) at least 30 funded CB-entrant cycles; unmatched/unknown-listing selections and unresolved
-      exits each at most 10% of CB-entrant selections.
+  (4) at least 30 funded CB-entrant cycles; "unknown" entrant selections at most 10% of the v2
+      entrant selections before filtering (133); unresolved exits at most 10% of funded CB-entrant
+      selections.
 - **STOP** the historical entrant line (no further variants on this archive) if (1) or (3) fails.
 - **INCONCLUSIVE** if only (2) or (4) fails: no further historical variants; only forward data could
   resolve it, and the operator decides whether to collect it.
@@ -117,6 +120,11 @@ listing dates come from first trades, not announcements; identity matching can b
 renamed or migrated tokens.
 
 ## 9. Proposed execution safeguards
+
+Runner prepared (not run): `scripts/research/run_coinbase_tradable_entrants.py` with synthetic tests in
+`tests/test_coinbase_tradable_entrants.py`. It refuses to compute until its FROZEN_PREREG_SHA256
+constant is set to this file's frozen hash, verifies the v2 runner, engine, protocol and correction
+hashes and a caller-pinned listing-file hash, and requires every selected CMC ID in the listing file.
 
 Run through `scripts/research/pinned_run_inputs.py` (ACCEPTED_WITH_RISK, offline scope) with a plan
 pinning this frozen file, the archive, the identity map, the saved Coinbase responses and the

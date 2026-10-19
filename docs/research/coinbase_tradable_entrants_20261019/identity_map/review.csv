@@ -1,0 +1,384 @@
+cmc_id,symbol,cmc_slug,coinbase_name,status,reason,products
+2,LTC,litecoin,Litecoin,mapped,exact_name_slug,LTC-USD
+52,XRP,xrp,XRP,mapped,exact_name_slug,XRP-USD XRP-USDT
+74,DOGE,dogecoin,Dogecoin,mapped,exact_name_slug,DOGE-USD DOGE-USDT
+109,DGB,digibyte,,never_listed,absent_from_products,
+131,DASH,dash,Dash,mapped,exact_name_slug,DASH-USD
+328,XMR,monero,,never_listed,absent_from_products,
+463,BTS,bitshares,,never_listed,absent_from_products,
+512,XLM,stellar,Stellar,mapped,exact_name_slug,XLM-USD XLM-USDT
+873,XEM,nem,,never_listed,absent_from_products,
+1104,REP,augur,Augur,mapped,exact_name_slug,REP-USD
+1169,PIVX,pivx,,never_listed,absent_from_products,
+1214,LSK,lisk,,never_listed,absent_from_products,
+1274,WAVES,waves,,never_listed,absent_from_products,
+1320,ARDR,ardor,,never_listed,absent_from_products,
+1321,ETC,ethereum-classic,Ether Classic,mapped,adjudicated: same project: Ethereum Classic (Coinbase name 'Ether Classic'),ETC-USD
+1343,STRAT,stratis,,never_listed,absent_from_products,
+1376,NEO,neo,,never_listed,absent_from_products,
+1437,ZEC,zcash,Zcash,mapped,exact_name_slug,ZEC-USD ZEC-USDC
+1567,NANO,nano,,never_listed,absent_from_products,
+1684,QTUM,qtum,,never_listed,absent_from_products,
+1697,BAT,basic-attention-token,Basic Attention Token,mapped,exact_name_slug,BAT-USD BAT-USDC
+1700,AE,aeternity,,never_listed,absent_from_products,
+1703,ETP,metaverse,,never_listed,absent_from_products,
+1715,MGO,mobilego,,never_listed,absent_from_products,
+1720,MIOTA,iota,,never_listed,absent_from_products,
+1727,BNT,bancor,Bancor,mapped,exact_name_slug,BNT-USD
+1759,SNT,status,Status,mapped,exact_name_slug,SNT-USD
+1765,EOS,eos,EOS,mapped,exact_name_slug,EOS-USD
+1776,MCO,crypto-com,,never_listed,absent_from_products,
+1789,PPT,populous,,never_listed,absent_from_products,
+1808,OMG,omisego,OMG Network,mapped,adjudicated: same project: OmiseGO renamed OMG Network,OMG-USD
+1831,BCH,bitcoin-cash,Bitcoin Cash,mapped,exact_name_slug,BCH-USD
+1839,BNB,binance-coin,BNB,mapped,"adjudicated: same project: Binance Coin, now named BNB",BNB-USD
+1866,BTM,bytom,,never_listed,absent_from_products,
+1896,ZRX,0x,0x,mapped,exact_name_slug,ZRX-USD
+1903,HC,hypercash,,never_listed,absent_from_products,
+1925,WTC,waltonchain,,never_listed,absent_from_products,
+1958,TRX,tron,,never_listed,absent_from_products,
+1966,MANA,decentraland,Decentraland,mapped,exact_name_slug,MANA-USD MANA-USDC
+1975,LINK,chainlink,Chainlink,mapped,exact_name_slug,LINK-USD LINK-USDT
+2010,ADA,cardano,Cardano,mapped,exact_name_slug,ADA-USD ADA-USDC ADA-USDT
+2011,XTZ,tezos,Tezos,mapped,exact_name_slug,XTZ-USD
+2027,CNX,cryptonex,,never_listed,absent_from_products,
+2062,AION,aion,,never_listed,absent_from_products,
+2083,BTG,bitcoin-gold,,never_listed,absent_from_products,
+2099,ICX,icon,,never_listed,absent_from_products,
+2135,R,revain,,never_listed,absent_from_products,
+2222,BCD,bitcoin-diamond,,never_listed,absent_from_products,
+2405,IOST,iostoken,,never_listed,absent_from_products,
+2469,ZIL,zilliqa,,never_listed,absent_from_products,
+2492,ELA,elastos,Elastos,mapped,exact_name_slug,ELA-USD ELA-USDT
+2496,POLY,polymath-network,Polymath Network,mapped,exact_name_slug,POLY-USD POLY-USDT
+2502,HT,huobi-token,,never_listed,absent_from_products,
+2566,ONT,ontology,,never_listed,absent_from_products,
+2577,RVN,ravencoin,,never_listed,absent_from_products,
+2603,NPXS,pundi-x,,never_listed,absent_from_products,
+2606,WAN,wanchain,,never_listed,absent_from_products,
+2631,ODE,odem,,never_listed,absent_from_products,
+2682,HOT,holo,,never_listed,absent_from_products,
+2694,NEXO,nexo,,never_listed,absent_from_products,
+2874,AOA,aurora,,never_listed,absent_from_products,
+3077,VET,vechain,VeChain,mapped,exact_name_slug,VET-USD
+3116,INB,insight-chain,,never_listed,absent_from_products,
+3602,BSV,bitcoin-sv,,never_listed,absent_from_products,
+1168,DCR,decred,,never_listed,absent_from_products,
+1230,STEEM,steem,,never_listed,absent_from_products,
+1710,VERI,veritaseum,,never_listed,absent_from_products,
+1750,GXC,gxchain,,never_listed,absent_from_products,
+1934,LRC,loopring,Loopring,mapped,exact_name_slug,LRC-USD LRC-USDT
+2132,POWR,power-ledger,Power Ledger,mapped,exact_name_slug,POWR-USD POWR-USDT
+2416,THETA,theta,,never_listed,absent_from_products,
+2900,PAI,project-pai,,never_listed,absent_from_products,
+693,XVG,verge,,never_listed,absent_from_products,
+1518,MKR,maker,Maker,mapped,exact_name_slug,MKR-USD
+1521,KMD,komodo,,never_listed,absent_from_products,
+2130,ENJ,enjin-coin,Enjin Coin,mapped,exact_name_slug,ENJ-USD ENJ-USDT
+2299,ELF,aelf,,never_listed,absent_from_products,
+2588,LOOM,loom-network,Loom Network,mapped,exact_name_slug,LOOM-USD LOOM-USDC
+2772,DGTX,digitex-futures,,never_listed,absent_from_products,
+3155,QNT,quant,Quant,mapped,exact_name_slug,QNT-USD QNT-USDT
+3437,ABBC,abbc-coin,,never_listed,absent_from_products,
+1042,SC,siacoin,,never_listed,absent_from_products,
+1414,XZC,zcoin,,never_listed,absent_from_products,
+1455,GNT,golem-network-tokens,Golem,mapped,"adjudicated: same project: Golem Network Tokens (GNT), Coinbase name 'Golem'",GNT-USDC
+1586,ARK,ark,,never_listed,absent_from_products,
+2087,KCS,kucoin-shares,,never_listed,absent_from_products,
+2092,NULS,nuls,,never_listed,absent_from_products,
+2307,BIX,bibox-token,,never_listed,absent_from_products,
+2346,WICC,waykichain,,never_listed,absent_from_products,
+3115,MXM,maximine-coin,,never_listed,absent_from_products,
+3175,TTC,ttc,,never_listed,absent_from_products,
+3718,BTT,bittorrent,,never_listed,absent_from_products,
+118,RDD,reddcoin,,never_listed,absent_from_products,
+213,MONA,monacoin,Monavale,unknown,adjudicated: different project: CMC Monacoin vs Coinbase Monavale share ticker MONA,MONA-USD
+1229,DGD,digixdao,,never_listed,absent_from_products,
+1698,ZEN,horizen,Horizen,mapped,exact_name_slug,ZEN-USD ZEN-USDT
+1886,DENT,dent,,never_listed,absent_from_products,
+1908,NAS,nebulas-token,,never_listed,absent_from_products,
+3835,ORBS,orbs,,never_listed,absent_from_products,
+2090,LA,latoken,Lagrange,unknown,adjudicated: different project: CMC LATOKEN vs Coinbase Lagrange share ticker LA,LA-USD
+2300,WAXP,wax,,never_listed,absent_from_products,
+2349,XIN,mixin,,never_listed,absent_from_products,
+2457,TRUE,truechain,,never_listed,absent_from_products,
+3635,CRO,crypto-com-coin,Crypto.com Coin,mapped,exact_name_slug,CRO-USD CRO-USDT
+3724,SOLVE,solve,,never_listed,absent_from_products,
+3794,ATOM,cosmos,Cosmos,mapped,exact_name_slug,ATOM-USD ATOM-USDT
+3822,TFUEL,theta-fuel,,never_listed,absent_from_products,
+2453,EKT,educare,,never_listed,absent_from_products,
+2885,EGT,egretia,,never_listed,absent_from_products,
+3657,LAMB,lambda,,never_listed,absent_from_products,
+3709,GRIN,grin,,never_listed,absent_from_products,
+3829,NEX,nash-exchange,Nexus,unknown,adjudicated: different project: CMC Nash Exchange vs Coinbase Nexus share ticker NEX,NEX-USD
+3957,LEO,unus-sed-leo,,never_listed,absent_from_products,
+2539,REN,ren,Ren,mapped,exact_name_slug,REN-USD
+2859,XMX,xmax,,never_listed,absent_from_products,
+3085,INO,ino-coin,,never_listed,absent_from_products,
+3662,HEDG,hedgetrade,,never_listed,absent_from_products,
+3704,VSYS,v-systems,,never_listed,absent_from_products,
+3788,NET,next,,never_listed,absent_from_products,
+4079,SLV,silverway,,never_listed,absent_from_products,
+2907,KBC,karatgold-coin,,never_listed,absent_from_products,
+3351,ZB,zb-token,,never_listed,absent_from_products,
+3364,PLC,platincoin,,never_listed,absent_from_products,
+3897,OKB,okb,,never_listed,absent_from_products,
+4030,ALGO,algorand,Algorand,mapped,exact_name_slug,ALGO-USD
+4049,BXK,bitbook-gambling,,never_listed,absent_from_products,
+3701,RIF,rsk-infrastructure-framework,,never_listed,absent_from_products,
+4195,FTT,ftx-token,,never_listed,absent_from_products,
+4279,SXP,swipe,,never_listed,absent_from_products,
+4676,MEXC,mexc-token,,never_listed,absent_from_products,
+4694,GAP,gaps,,never_listed,absent_from_products,
+1637,RLC,rlc,iExec RLC,mapped,adjudicated: same project: iExec RLC,RLC-USD
+2830,SEELE,seele,,never_listed,absent_from_products,
+3139,DX,dxchain-token,,never_listed,absent_from_products,
+4172,LUNA,terra-luna,,never_listed,absent_from_products,
+4748,EON,dimension-chain,,never_listed,absent_from_products,
+2441,MOF,molecular-future,,never_listed,absent_from_products,
+2897,CCC,clipper-coin,,never_listed,absent_from_products,
+3218,NRG,energi,,never_listed,absent_from_products,
+3296,MIN,mindol,,never_listed,absent_from_products,
+3890,MATIC,matic-network,Polygon,mapped,adjudicated: same project: Matic Network renamed Polygon,MATIC-USD MATIC-USDT
+4949,999,999-coin,,never_listed,absent_from_products,
+4360,FAB,fabrk,,never_listed,absent_from_products,
+3914,GTN,glitzkoin,,never_listed,absent_from_products,
+4842,FLG,folgory-coin,,never_listed,absent_from_products,
+4948,CKB,nervos-network,,never_listed,absent_from_products,
+5070,XTP,tap,,never_listed,absent_from_products,
+1982,KNC,kyber-network,Kyber Network,mapped,exact_name_slug,KNC-USD
+4469,MB,minebee,,never_listed,absent_from_products,
+4642,HBAR,hedera-hashgraph,Hedera,mapped,"adjudicated: same project: Hedera Hashgraph, Coinbase name 'Hedera'",HBAR-USD HBAR-USDT
+5084,PLF,playfuel,,never_listed,absent_from_products,
+5234,DNA,metaverse-dualchain-network-architecture,,never_listed,absent_from_products,
+2319,QC,qcash,,never_listed,absent_from_products,
+2586,SNX,synthetix-network-token,Synthetix,mapped,"adjudicated: same project: Synthetix Network Token, Coinbase name 'Synthetix'",SNX-USD
+3734,ELAMA,elamachain,,never_listed,absent_from_products,
+5015,HEX,hex,,never_listed,absent_from_products,
+5031,MWC,mimblewimblecoin,,never_listed,absent_from_products,
+5336,HMR,homeros,,never_listed,absent_from_products,
+5370,HIVE,hive-blockchain,,never_listed,absent_from_products,
+2137,ETN,electroneum,,never_listed,absent_from_products,
+2239,LEND,aave,,never_listed,absent_from_products,
+2758,UBT,unibright,,never_listed,absent_from_products,
+3695,HYN,hyperion,,never_listed,absent_from_products,
+5524,TNC,tnc-coin,,never_listed,absent_from_products,
+2499,CHSB,swissborg,,never_listed,absent_from_products,
+3356,TMTG,the-midas-touch-gold,,never_listed,absent_from_products,
+4747,VLX,velas,,never_listed,absent_from_products,
+5329,LRG,largo-coin,,never_listed,absent_from_products,
+5692,COMP,compound,Compound,mapped,exact_name_slug,COMP-USD
+4056,AMPL,ampleforth,,never_listed,absent_from_products,
+4086,ERD,elrond,,never_listed,absent_from_products,
+4846,KAVA,kava,Kava,mapped,exact_name_slug,KAVA-USD
+5482,CCXX,counos-x,,never_listed,absent_from_products,
+5796,BPC,beautypaycoin,,never_listed,absent_from_products,
+1680,ANT,aragon,Aragon,mapped,exact_name_slug,ANT-USD
+1732,NMR,numeraire,Numeraire,mapped,exact_name_slug,NMR-USD
+3911,OCEAN,ocean-protocol,Ocean Protocol,mapped,exact_name_slug,OCEAN-USD
+3964,RSR,reserve-rights,Reserve Rights,mapped,exact_name_slug,RSR-USD
+4157,RUNE,thorchain,,never_listed,absent_from_products,
+4679,BAND,band-protocol,Band Protocol,mapped,exact_name_slug,BAND-USD
+4847,STX,blockstack,Stacks,mapped,adjudicated: same project: Blockstack renamed Stacks,STX-USD STX-USDT
+5268,EWT,energy-web-token,,never_listed,absent_from_products,
+5488,JST,just,,never_listed,absent_from_products,
+5785,STP,stpay,,never_listed,absent_from_products,
+5815,BPS,bitcoinpos,,never_listed,absent_from_products,
+5864,YFI,yearn-finance,yearn.finance,mapped,exact_name_slug,YFI-USD
+3812,FXC,flexacoin,,never_listed,absent_from_products,
+5034,KSM,kusama,Kusama,mapped,exact_name_slug,KSM-USD KSM-USDT
+5279,SOLO,sologenic,,never_listed,absent_from_products,
+5567,CELO,celo,,never_listed,absent_from_products,
+5617,UMA,uma,UMA,mapped,exact_name_slug,UMA-USD
+5632,AR,arweave,,never_listed,absent_from_products,
+5728,BAL,balancer,Balancer,mapped,exact_name_slug,BAL-USD
+5830,NXM,nxm,,never_listed,absent_from_products,
+5957,YFII,yearn-finance-ii,DFI.Money,mapped,adjudicated: same project: YFII is the DFI.Money token,YFII-USD
+6636,DOT,polkadot-new,Polkadot,mapped,adjudicated: same project: Polkadot (CMC slug polkadot-new after redenomination),DOT-USD DOT-USDT
+6758,SUSHI,sushiswap,SushiSwap,mapped,exact_name_slug,SUSHI-USD
+6892,EGLD,elrond-egld,MultiversX,mapped,adjudicated: same project: Elrond renamed MultiversX (EGLD),EGLD-USD
+1772,STORJ,storj,Storj,mapped,exact_name_slug,STORJ-USD
+2280,FIL,filecoin,Filecoin,mapped,exact_name_slug,FIL-USD
+2700,CEL,celsius,,never_listed,absent_from_products,
+5426,SOL,solana,Solana,mapped,exact_name_slug,SOL-USD SOL-USDT
+5805,AVAX,avalanche,Avalanche,mapped,exact_name_slug,AVAX-USD AVAX-USDT
+7083,UNI,uniswap,Uniswap,mapped,exact_name_slug,UNI-USD
+2642,CVT,cybervein,,never_listed,absent_from_products,
+6535,NEAR,near-protocol,Near Protocol,mapped,exact_name_slug,NEAR-USD NEAR-USDT
+7278,AAVE,aave,Aave,mapped,exact_name_slug,AAVE-USD
+5026,OXT,orchid,Orchid,mapped,exact_name_slug,OXT-USD
+291,MAID,maidsafecoin,,never_listed,absent_from_products,
+1659,GNO,gnosis-gno,Gnosis,mapped,adjudicated: same project: Gnosis (GNO),GNO-USD GNO-USDT
+6719,GRT,the-graph,The Graph,mapped,exact_name_slug,GRT-USD
+1817,VGX,voyager-token,Voyager Token,mapped,exact_name_slug,VGX-USD VGX-USDT
+3513,FTM,fantom,,never_listed,absent_from_products,
+4558,FLOW,flow,Flow,mapped,exact_name_slug,FLOW-USD FLOW-USDT
+6538,CRV,curve-dao-token,Curve DAO Token,mapped,exact_name_slug,CRV-USD
+7232,ALPHA,alpha-finance-lab,,never_listed,absent_from_products,
+8104,1INCH,1inch,1Inch,mapped,exact_name_slug,1INCH-USD
+7186,CAKE,pancakeswap,Pancakeswap,mapped,exact_name_slug,CAKE-USD
+7288,XVS,venus,,never_listed,absent_from_products,
+3673,BTMX,bitmax-token,,never_listed,absent_from_products,
+3783,ANKR,ankr,Ankr,mapped,exact_name_slug,ANKR-USD
+3945,ONE,harmony,,never_listed,absent_from_products,
+4066,CHZ,chiliz,Chiliz,mapped,exact_name_slug,CHZ-USD CHZ-USDT
+4256,KLAY,klaytn,,never_listed,absent_from_products,
+5665,HNT,helium,Helium,mapped,exact_name_slug,HNT-USD
+2394,TEL,telcoin,,never_listed,absent_from_products,
+2634,XDC,xinfin-network,,never_listed,absent_from_products,
+5994,SHIB,shiba-inu,Shiba Inu,mapped,exact_name_slug,SHIB-USD SHIB-USDT
+8335,MDX,mdex,,never_listed,absent_from_products,
+8916,ICP,internet-computer,Internet Computer,mapped,exact_name_slug,ICP-USD ICP-USDT
+6945,AMP,amp,Amp,mapped,exact_name_slug,AMP-USD
+7064,BAKE,bakerytoken,,never_listed,absent_from_products,
+6783,AXS,axie-infinity,Axie Infinity,mapped,exact_name_slug,AXS-USD AXS-USDT
+8526,RAY,raydium,Raydium,mapped,exact_name_slug,RAY-USD
+8646,MINA,mina,Mina,mapped,exact_name_slug,MINA-USD MINA-USDT
+10791,XEC,ecash,,never_listed,absent_from_products,
+6187,SRM,serum,,never_listed,absent_from_products,
+11156,DYDX,dydx,,never_listed,absent_from_products,
+5604,SCRT,secret,,never_listed,absent_from_products,
+5647,KDA,kadena,,never_listed,absent_from_products,
+6210,SAND,the-sandbox,The Sandbox,mapped,exact_name_slug,SAND-USD SAND-USDT
+6950,PERP,perpetual-protocol,Perpetual Protocol,mapped,exact_name_slug,PERP-USD PERP-USDT
+7455,AUDIO,audius,Audius,mapped,exact_name_slug,AUDIO-USD
+9436,ELON,dogelon,,never_listed,absent_from_products,
+2777,IOTX,iotex,IoTeX (ERC-20),mapped,adjudicated: same project: IoTeX; Coinbase lists the ERC-20 representation of IOTX,IOTX-USD
+3640,LPT,livepeer,Livepeer,mapped,exact_name_slug,LPT-USD
+7080,GALA,gala,Gala V1,mapped,adjudicated: same project: Gala; Coinbase name 'Gala V1' reflects the 2023 token migration under the same CMC ID,GALA-USD GALA-USDT
+10603,IMX,immutable-x,ImmutableX,mapped,adjudicated: same project: Immutable X,IMX-USD IMX-USDT
+7653,ROSE,oasis-network,Oasis Network,mapped,exact_name_slug,ROSE-USD ROSE-USDT
+3801,BORA,bora,,never_listed,absent_from_products,
+8677,XYM,symbol,,never_listed,absent_from_products,
+9903,CVX,convex-finance,Convex Finance,mapped,exact_name_slug,CVX-USD
+16086,BTT,bittorrent-new,,never_listed,absent_from_products,
+8857,ANC,anchor-protocol,,never_listed,absent_from_products,
+18876,APE,apecoin-ape,ApeCoin,mapped,adjudicated: same project: ApeCoin,APE-USD APE-USDT
+6836,GLMR,moonbeam,,never_listed,absent_from_products,
+9444,KNC,kyber-network-crystal-v2,Kyber Network,mapped,adjudicated: same project: Kyber Network Crystal (KNC v2 after the 2021 migration),KNC-USD
+18069,GMT,green-metaverse-token,STEPN,mapped,adjudicated: same project: GMT is the STEPN token (CMC slug green-metaverse-token),GMT-USD GMT-USDT
+4269,GT,gatetoken,,never_listed,absent_from_products,
+8000,LDO,lido-dao,Lido DAO,mapped,exact_name_slug,LDO-USD
+5964,TWT,trust-wallet-token,,never_listed,absent_from_products,
+20314,LUNA,terra-luna-v2,,never_listed,absent_from_products,
+5899,CSPR,casper,,never_listed,absent_from_products,
+11419,TON,toncoin,Toncoin,mapped,exact_name_slug,TON-USD
+13855,ENS,ethereum-name-service,Ethereum Name Service,mapped,exact_name_slug,ENS-USD ENS-USDT
+9891,BNX,binaryx,,never_listed,absent_from_products,
+11221,BIT,bitdao,BitDAO,mapped,exact_name_slug,BIT-USD BIT-USDT
+12220,OSMO,osmosis,Osmosis,mapped,exact_name_slug,OSMO-USD
+18679,XCN,chain,Onyxcoin,mapped,adjudicated: same project: Chain rebranded Onyxcoin (XCN),XCN-USD XCN-USDT
+21296,ETHW,ethereum-pow,,never_listed,absent_from_products,
+21794,APT,aptos,Aptos,mapped,exact_name_slug,APT-USD APT-USDT
+11857,GMX,gmx,,never_listed,absent_from_products,
+6953,FXS,frax-share,,never_listed,absent_from_products,
+11840,OP,optimism-ethereum,Optimism,mapped,adjudicated: same project: Optimism,OP-USD OP-USDT
+17751,T,threshold,Threshold,mapped,exact_name_slug,T-USD
+2424,AGIX,singularitynet,,never_listed,absent_from_products,
+7334,CFX,conflux-network,,never_listed,absent_from_products,
+7950,FLR,flare,Flare,mapped,exact_name_slug,FLR-USD
+11865,BONE,bone-shibaswap,,never_listed,absent_from_products,
+12999,SSV,ssv-network,,never_listed,absent_from_products,
+5690,RNDR,render-token,Render Token,mapped,exact_name_slug,RNDR-USD RNDR-USDT
+8536,MASK,mask-network,Mask Network,mapped,exact_name_slug,MASK-USD MASK-USDT
+11841,ARB,arbitrum,Arbitrum,mapped,exact_name_slug,ARB-USD
+7226,INJ,injective,Injective Protocol,mapped,adjudicated: same project: Injective (Coinbase name 'Injective Protocol'),INJ-USD
+7501,WOO,wootrade,,never_listed,absent_from_products,
+20947,SUI,sui,Sui,mapped,exact_name_slug,SUI-USD
+24478,PEPE,pepe,Pepe,mapped,exact_name_slug,PEPE-USD
+9816,NFT,apenft,,never_listed,absent_from_products,
+27075,MNT,mantle,,never_listed,absent_from_products,
+12885,ASTR,astar,,never_listed,absent_from_products,
+11092,BGB,bitget-token-new,,never_listed,absent_from_products,
+1785,GAS,gas,,never_listed,absent_from_products,
+20396,KAS,kaspa,,never_listed,absent_from_products,
+22861,TIA,celestia,Celestia,mapped,exact_name_slug,TIA-USD
+23121,BLUR,blur-token,Blur,mapped,adjudicated: same project: Blur,BLUR-USD
+23149,SEI,sei,Sei,mapped,exact_name_slug,SEI-USD
+25028,ORDI,ordi,,never_listed,absent_from_products,
+28298,BEAM,onbeam,Beam,mapped,"adjudicated: same project: Beam gaming token (CMC slug onbeam, not the older privacy coin)",BEAM-USD
+3773,FET,fetch,Fetch.ai,mapped,adjudicated: same project: Fetch.ai,FET-USD FET-USDT
+7548,WEMIX,wemix,,never_listed,absent_from_products,
+17799,AXL,axelar,Axelar,mapped,exact_name_slug,AXL-USD
+23095,BONK,bonk1,Bonk,mapped,adjudicated: same project: Bonk,BONK-USD
+28683,1000SATS,sats,,never_listed,absent_from_products,
+13502,WLD,worldcoin-org,Worldcoin,mapped,adjudicated: same project: Worldcoin,WLD-USD
+13631,MANTA,manta-network,,never_listed,absent_from_products,
+14101,RON,ronin,,never_listed,absent_from_products,
+22974,TAO,bittensor,Bittensor,mapped,exact_name_slug,TAO-USD
+23246,TOMI,tominet,,never_listed,absent_from_products,
+28177,PYTH,pyth-network,Pyth Network,mapped,exact_name_slug,PYTH-USD
+28194,SATS,sats-ordinals,,never_listed,absent_from_products,
+28301,MEME,meme,,never_listed,absent_from_products,
+28324,DYDX,dydx-chain,,never_listed,absent_from_products,
+28933,XAI,xai-games,,never_listed,absent_from_products,
+29073,ALT,altlayer,Altlayer,mapped,exact_name_slug,ALT-USD
+7431,AKT,akash-network,Akash,mapped,adjudicated: same project: Akash Network,AKT-USD
+8425,JASMY,jasmy,JasmyCoin,mapped,adjudicated: same project: JasmyCoin,JASMY-USD JASMY-USDT
+22691,STRK,starknet-token,Starknet,mapped,adjudicated: same project: Starknet,STRK-USD
+28932,DYM,dymension,,never_listed,absent_from_products,
+9104,AIOZ,aioz-network,Aioz Network,mapped,exact_name_slug,AIOZ-USD AIOZ-USDT
+10804,FLOKI,floki-inu,Floki,mapped,adjudicated: same project: Floki (formerly Floki Inu),FLOKI-USD
+21159,ONDO,ondo-finance,Ondo Finance,mapped,exact_name_slug,ONDO-USD
+28752,WIF,dogwifhat,Dogwifhat,mapped,exact_name_slug,WIF-USD
+29210,JUP,jupiter-ag,Jupiter,mapped,adjudicated: same project: Jupiter (Solana aggregator token),JUP-USD
+9481,PENDLE,pendle,Pendle,mapped,exact_name_slug,PENDLE-USD
+23254,CORE,core-dao,,never_listed,absent_from_products,
+29587,W,wormhole,Wormhole,mapped,exact_name_slug,W-USD
+30171,ENA,ethena,Ethena,mapped,exact_name_slug,ENA-USD
+29870,BOME,book-of-meme,,never_listed,absent_from_products,
+28850,NOT,notcoin,,never_listed,absent_from_products,
+29743,BRETT,based-brett,,never_listed,absent_from_products,
+6536,OM,mantra,,never_listed,absent_from_products,
+27659,MOG,mog-coin,Mog Coin,mapped,exact_name_slug,MOG-USD
+28321,POL,polygon-ecosystem-token,Polygon Ecosystem Token,mapped,exact_name_slug,POL-USD
+28782,POPCAT,popcat-sol,Popcat,mapped,adjudicated: same project: Popcat (Solana),POPCAT-USD
+29270,AERO,aerodrome-finance,Aerodrome Finance,mapped,exact_name_slug,AERO-USD
+30126,MEW,mew,,never_listed,absent_from_products,
+32880,KAIA,kaia,,never_listed,absent_from_products,
+33788,PNUT,peanut-the-squirrel,Peanut The Squirrel,mapped,exact_name_slug,PNUT-USD
+29420,VIRTUAL,virtual-protocol,Virtuals Protocol,mapped,adjudicated: same project: Virtuals Protocol,VIRTUAL-USD
+32196,HYPE,hyperliquid,Hyperliquid,mapped,exact_name_slug,HYPE-USD
+32452,MOVE,movement,Movement,mapped,exact_name_slug,MOVE-USD
+34466,PENGU,pudgy-penguins,Pudgy Penguins,mapped,exact_name_slug,PENGU-USD
+7326,DEXE,dexe,,never_listed,absent_from_products,
+28081,SPX,spx6900,Spx6900,mapped,exact_name_slug,SPX-USD
+32684,S,sonic,Sonic,mapped,exact_name_slug,S-USD
+33597,FARTCOIN,fartcoin,Fartcoin,mapped,exact_name_slug,FARTCOIN-USD
+35336,TRUMP,official-trump,Official Trump,mapped,exact_name_slug,TRUMP-USD
+24647,BERA,berachain,Berachain,mapped,exact_name_slug,BERA-USD
+35347,MELANIA,melania-meme,,never_listed,absent_from_products,
+35626,IP,story-protocol,Story,mapped,adjudicated: same project: Story (Story Protocol),IP-USD
+23635,FORM,binaryx-new,,never_listed,absent_from_products,
+35697,PI,pi,,never_listed,absent_from_products,
+3871,AB,newton,,never_listed,absent_from_products,
+36119,WAL,walrus-xyz,Walrus,mapped,adjudicated: same project: Walrus,WAL-USD
+33038,SKY,sky,Sky,mapped,exact_name_slug,SKY-USD
+36462,A,vaulta,,never_listed,absent_from_products,
+35491,M,memecore,,never_listed,absent_from_products,
+36507,PUMP,pump-fun,Pump.fun,mapped,exact_name_slug,PUMP-USD
+33251,WLFI,world-liberty-financial-wlfi,World Liberty Financial,mapped,adjudicated: same project: World Liberty Financial,WLFI-USD
+29814,ETHFI,ether-fi-ethfi,Ether.Fi,mapped,adjudicated: same project: ether.fi,ETHFI-USD
+36341,ASTER,aster,Aster,mapped,exact_name_slug,ASTER-USD
+36410,MYX,myx-finance,,never_listed,absent_from_products,
+36645,XPL,plasma-xpl,Plasma,mapped,adjudicated: same project: Plasma (XPL),XPL-USD
+38515,2Z,doublezero,Doublezero,mapped,exact_name_slug,2Z-USD
+34104,MORPHO,morpho,Morpho,mapped,exact_name_slug,MORPHO-USD
+36922,H,humanity-protocol,,never_listed,absent_from_products,
+37263,CC,canton-network,,never_listed,absent_from_products,
+35053,PIPPIN,pippin,,never_listed,absent_from_products,
+39064,NIGHT,midnight-network,,never_listed,absent_from_products,
+10529,SUN,sun-token,,never_listed,absent_from_products,
+26997,ZRO,layerzero,Layerzero,mapped,exact_name_slug,ZRO-USD
+38828,KITE,kite,Kite,mapped,exact_name_slug,KITE-USD
+38892,STABLE,stable,,never_listed,absent_from_products,
+39125,LIT,lighter,Litentry,unknown,adjudicated: different project: CMC Lighter vs Coinbase Litentry share ticker LIT,LIT-USD
+38417,RIVER,river,,never_listed,absent_from_products,
+30495,MON,monad,Monad,mapped,exact_name_slug,MON-USD
+35509,VVV,venice-token,Venice Token,mapped,exact_name_slug,VVV-USD
+35766,SIREN,siren-bsc,,never_listed,absent_from_products,
+38590,币安人生,bianrensheng,,never_listed,absent_from_products,
+39720,EDGE,edgex,Definitive,unknown,adjudicated: different project: CMC edgeX vs Coinbase Definitive share ticker EDGE,EDGE-USD
+36532,B,buildon,,never_listed,absent_from_products,
+36300,SKYAI,skyai,,never_listed,absent_from_products,
+38837,BEAT,audiera,,never_listed,absent_from_products,

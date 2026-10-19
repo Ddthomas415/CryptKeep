@@ -4,6 +4,67 @@ This file is a lightweight index only.
 
 ## Current Work Selection
 
+### Current state update, 2026-10-19 (Claude Cowork; read first)
+
+This adds to the sections below without editing them. Where it conflicts with an older line, this update controls.
+
+- **Git** (supersedes "Uncommitted work since Sep 23 exists off-machine only" below and handoff v2 section B.4): with
+  operator approval the stale 0-byte `.git/index.lock` was removed and local commit `933d7ea2f` ("checkpoint: preserve
+  uncommitted work since 2026-09-23 (no push)", parent `620bc8dbe`, 4,186 files) was made on new branch
+  `checkpoint/2026-10-19`. NOT pushed. `codex/research-bundle-proof` is unchanged. Five raw archives in
+  `docs/research/raw_archives_20261009/` and a few `research/*.json` files stay outside Git by the checkpoint plan
+  (`~/Documents/cryptkeep_data_archive/checkpoint_plan_draft_20261019/`). Work after that commit (ENTR-CB-1 below) is
+  uncommitted. No backup bundle of the new commit exists yet.
+- **Handoff v2 queue item 4 CLOSED:** `scripts/research/pinned_run_inputs.py` is a fail-closed pinned-input guard for
+  future pre-registered runs (tests in `tests/test_pinned_run_inputs.py`). Three independent reviews; the final one
+  ACCEPTED_WITH_RISK for offline scope. It does not make VOLFC-1 or any frozen study re-verifiable, and
+  `run_volfc1.py` is unchanged. Review packet: `docs/review_artifacts/claude_cowork_20261019/`.
+- **ENTR-CB-1 CLOSED, verdict STOP.** Operator-directed line: new top-100 entrants restricted to Coinbase-tradable coins
+  (prior use of the same data: Codex's `docs/research/low_value_top100_20261018/`, v2). Frozen preregistration
+  `docs/research/coinbase_tradable_entrants_20261019/PREREGISTRATION_DRAFT.md` (sha256 `a7fb3662...`); results in
+  `RESULTS_V1.md` in the same folder. Coinbase-tradable entrants +11.45 dollars per USD 1,000 four-week cycle, -30.00
+  without the largest cycle (ZEC), -7.17 against the Coinbase-tradable control (fail), so STOP. The identity map (v3)
+  and the results were each independently ACCEPTED_WITH_RISK; the control comparison has a thin margin driven by cycles
+  in which entrants hold cash (disclosed). Per the preregistration, no further historical variants of the entrant line
+  on the CMC archive (D_CMC). Ledger: `docs/research/trial_ledger_supplement_20261019_entr_cb1/`. Exploratory only,
+  on CMC reference prices, not Coinbase fills.
+- **Network use for ENTR-CB-1** (operator-approved, every response saved and hashed under
+  `research/coinbase_listing_probe_20261019*/` and `research/coinbase_listing_stepB_20261019/`): Coinbase public
+  endpoints, 11 probe requests, 1 currency list and 1,396 candle requests (about 7% above the roughly 1,300 approved);
+  CoinMarketCap public coin detail, 190 saved requests plus 1 unsaved reachability check. No credentials, accounts or
+  trading.
+- **Scheduled tasks** (cloud list checked 2026-10-19; tasks stored only by the desktop app are not listed):
+  - "CryptKeep daily research scout", daily 11:43 UTC on this computer: no run yet; the first is today (topic T04).
+    `docs/research/research_scout/TOPICS.md` now opens with a standing focus on lower-value top-100 coins and new
+    entrants; the 12 topics, rotation, task instructions, schedule and permissions are unchanged.
+  - "CryptKeep daily CMC trending log", daily 13:52 UTC on this computer: one snapshot per day 2026-10-09..10-18, none
+    missing; the last 8 OBSERVED with no source errors; last run 2026-10-18 succeeded. Instruction wording fixed
+    2026-10-19 (report the source_errors count; schema 3 has no top-level identity_excluded field); command,
+    schedule, permissions and notifications unchanged; the new prompt was re-signed for this computer.
+  - "CryptKeep weekly BTC+ETH paper test" (v1), Mondays 00:47 UTC: ran 2026-10-19 00:48 UTC; day 7 paper equity
+    955.62 dollars (-4.44%) against BTC buy-and-hold 980.03. It recomputes and overwrites its history each run, so it
+    is a pipeline check, not evidence (`docs/research/research_repair_checklist_20261009.md`). DECISION (Claude,
+    operator-delegated 2026-10-19): keep it for now, because the reviewed append-only tracker v2 has not produced
+    any record yet (next bullet); disable (not delete) v1 once v2 shows its first decision records.
+  - Tracker v2 (`docs/research/paper_btc_eth_trend_v2_20261012/`, Codex automation, not in this cloud list): its
+    first scheduled run left only `state/.lock` (created 2026-10-19 00:49:55 UTC) and no decisions, executions,
+    marks or state.json (SHOWN). Per `tracker.py` main(), a run after the Sunday 2026-10-18 close should write them,
+    so that run most likely stopped with an error; the cause is UNVERIFIED and needs the Codex automation's run log.
+    Not rerun by Claude (Codex-owned schedule writing the real ledger).
+  - New forward tracker for Coinbase-tradable new entrants: DECISION (Claude, operator-delegated): not built now.
+    ENTR-CB-1 history gives about 6.5 funded entrant cycles a year since 2023 (24 of 48 cycles; 34 of 100 overall),
+    so its frozen 30-funded-cycle minimum would take roughly 4-5 years forward, and the historical line ended STOP.
+    A better-powered successor would be an event study of new Coinbase listings (many per year); it needs its own
+    preregistration and operator approval. UNTESTED, not rejected.
+  - "Score frozen NY Numbers prospective test", one run 2027-04-18 14:00 UTC in the cloud, no computer: data.ny.gov
+    answered HTTP 200 to one HEAD request from a cloud session on 2026-10-19; whether that run can download the file
+    stays UNVERIFIED until it runs.
+- **Operator decisions still open:** commit of the ENTR-CB-1 work (review or Codex audit first); push of
+  `checkpoint/2026-10-19`; a backup bundle of it; confirmation of the off-machine uploads (still CLAIMED); companion
+  install retry (not authorized); the next research line; Module A delisting and missing-day rules.
+- **Untested idea (not rejected):** a diversified entrant basket with Module A weights. The STOP bars testing it on
+  this historical archive; only forward data could test it.
+
 ### Off-machine backup status, 2026-10-18 (operator)
 
 - Operator is uploading encrypted copies to TeraBox and MEGA of: `screened_recovery_20261018T190049Z_r2/recovery.tar.gz`

@@ -1,0 +1,2 @@
+study_id,family,measurement,candidate_configurations,baseline_configurations,verdict,evaluated_markets,market_week_observations,weekly_clusters,evidence
+ENTR-CB-1,LOW_VALUE_TOP100_ENTRANTS,four_week_net_dollars_per_usd1000_coinbase_tradable_entrants_vs_coinbase_tradable_control,1,1,STOP,147,4250,100,docs/research/coinbase_tradable_entrants_20261019/results_v1/result.json

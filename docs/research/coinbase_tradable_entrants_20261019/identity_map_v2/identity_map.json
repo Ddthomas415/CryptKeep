@@ -1,0 +1,4100 @@
+{
+  "inputs": {
+    "docs/research/coinbase_tradable_entrants_20261019/control_ids_v2.csv": "e2ad776fe21b10fbd84ef3a1350ba437dc71b59a46267d2a168ce8b1de28318f",
+    "docs/research/coinbase_tradable_entrants_20261019/identity_adjudications_v2.json": "dc90b01d8ea31389f5d78eeb8e66d4d15cbde5b25cc8ce09135acc749770f91b",
+    "research/coinbase_listing_probe_20261019/01_products.json": "00e556cc635a903fdec2ac1c2bc86f6bef55e229384fb63b8fa31c2efb2f2b0b",
+    "research/coinbase_listing_stepB_20261019/01_currencies.json": "8de25dcc9b564a41c61736677ec37fc932b23558e81bc68aa7da3227f5b50fa1"
+  },
+  "records": {
+    "1042": {
+      "cmc_id": 1042,
+      "reason": "absent_from_products",
+      "slug": "siacoin",
+      "status": "never_listed",
+      "symbol": "SC"
+    },
+    "10529": {
+      "cmc_id": 10529,
+      "reason": "absent_from_products",
+      "slug": "sun-token",
+      "status": "never_listed",
+      "symbol": "SUN"
+    },
+    "10603": {
+      "cmc_id": 10603,
+      "coinbase_name": "ImmutableX",
+      "products": [
+        {
+          "id": "IMX-USD",
+          "status": "online"
+        },
+        {
+          "id": "IMX-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Immutable X",
+      "slug": "immutable-x",
+      "status": "mapped",
+      "symbol": "IMX"
+    },
+    "10791": {
+      "cmc_id": 10791,
+      "reason": "absent_from_products",
+      "slug": "ecash",
+      "status": "never_listed",
+      "symbol": "XEC"
+    },
+    "10804": {
+      "cmc_id": 10804,
+      "coinbase_name": "Floki",
+      "products": [
+        {
+          "id": "FLOKI-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Floki (formerly Floki Inu)",
+      "slug": "floki-inu",
+      "status": "mapped",
+      "symbol": "FLOKI"
+    },
+    "109": {
+      "cmc_id": 109,
+      "reason": "absent_from_products",
+      "slug": "digibyte",
+      "status": "never_listed",
+      "symbol": "DGB"
+    },
+    "1104": {
+      "cmc_id": 1104,
+      "coinbase_name": "Augur",
+      "products": [
+        {
+          "id": "REP-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "augur",
+      "status": "mapped",
+      "symbol": "REP"
+    },
+    "11092": {
+      "cmc_id": 11092,
+      "reason": "absent_from_products",
+      "slug": "bitget-token-new",
+      "status": "never_listed",
+      "symbol": "BGB"
+    },
+    "11156": {
+      "alternate_candidates": [
+        "COSMOSDYDX"
+      ],
+      "cmc_id": 11156,
+      "reason": "adjudicated_not_same_asset: not the same asset: CMC 11156 is the older Ethereum ERC-20 dYdX token; Coinbase has no DYDX product, and COSMOSDYDX is the separate chain token (CMC 28324)",
+      "slug": "dydx",
+      "status": "never_listed",
+      "symbol": "DYDX"
+    },
+    "11221": {
+      "cmc_id": 11221,
+      "coinbase_name": "BitDAO",
+      "products": [
+        {
+          "id": "BIT-USD",
+          "status": "delisted"
+        },
+        {
+          "id": "BIT-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "bitdao",
+      "status": "mapped",
+      "symbol": "BIT"
+    },
+    "11419": {
+      "cmc_id": 11419,
+      "coinbase_name": "Toncoin",
+      "products": [
+        {
+          "id": "TON-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "toncoin",
+      "status": "mapped",
+      "symbol": "TON"
+    },
+    "1168": {
+      "cmc_id": 1168,
+      "reason": "absent_from_products",
+      "slug": "decred",
+      "status": "never_listed",
+      "symbol": "DCR"
+    },
+    "1169": {
+      "cmc_id": 1169,
+      "reason": "absent_from_products",
+      "slug": "pivx",
+      "status": "never_listed",
+      "symbol": "PIVX"
+    },
+    "118": {
+      "cmc_id": 118,
+      "reason": "absent_from_products",
+      "slug": "reddcoin",
+      "status": "never_listed",
+      "symbol": "RDD"
+    },
+    "11840": {
+      "cmc_id": 11840,
+      "coinbase_name": "Optimism",
+      "products": [
+        {
+          "id": "OP-USD",
+          "status": "online"
+        },
+        {
+          "id": "OP-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Optimism",
+      "slug": "optimism-ethereum",
+      "status": "mapped",
+      "symbol": "OP"
+    },
+    "11841": {
+      "cmc_id": 11841,
+      "coinbase_name": "Arbitrum",
+      "products": [
+        {
+          "id": "ARB-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "arbitrum",
+      "status": "mapped",
+      "symbol": "ARB"
+    },
+    "11857": {
+      "cmc_id": 11857,
+      "reason": "absent_from_products",
+      "slug": "gmx",
+      "status": "never_listed",
+      "symbol": "GMX"
+    },
+    "11865": {
+      "cmc_id": 11865,
+      "reason": "absent_from_products",
+      "slug": "bone-shibaswap",
+      "status": "never_listed",
+      "symbol": "BONE"
+    },
+    "1214": {
+      "cmc_id": 1214,
+      "reason": "absent_from_products",
+      "slug": "lisk",
+      "status": "never_listed",
+      "symbol": "LSK"
+    },
+    "12220": {
+      "cmc_id": 12220,
+      "coinbase_name": "Osmosis",
+      "products": [
+        {
+          "id": "OSMO-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "osmosis",
+      "status": "mapped",
+      "symbol": "OSMO"
+    },
+    "1229": {
+      "cmc_id": 1229,
+      "reason": "absent_from_products",
+      "slug": "digixdao",
+      "status": "never_listed",
+      "symbol": "DGD"
+    },
+    "1230": {
+      "cmc_id": 1230,
+      "reason": "absent_from_products",
+      "slug": "steem",
+      "status": "never_listed",
+      "symbol": "STEEM"
+    },
+    "1274": {
+      "cmc_id": 1274,
+      "reason": "absent_from_products",
+      "slug": "waves",
+      "status": "never_listed",
+      "symbol": "WAVES"
+    },
+    "12885": {
+      "cmc_id": 12885,
+      "reason": "absent_from_products",
+      "slug": "astar",
+      "status": "never_listed",
+      "symbol": "ASTR"
+    },
+    "12999": {
+      "cmc_id": 12999,
+      "reason": "absent_from_products",
+      "slug": "ssv-network",
+      "status": "never_listed",
+      "symbol": "SSV"
+    },
+    "131": {
+      "cmc_id": 131,
+      "coinbase_name": "Dash",
+      "products": [
+        {
+          "id": "DASH-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "dash",
+      "status": "mapped",
+      "symbol": "DASH"
+    },
+    "1320": {
+      "cmc_id": 1320,
+      "reason": "absent_from_products",
+      "slug": "ardor",
+      "status": "never_listed",
+      "symbol": "ARDR"
+    },
+    "1321": {
+      "cmc_id": 1321,
+      "coinbase_name": "Ether Classic",
+      "products": [
+        {
+          "id": "ETC-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Ethereum Classic (Coinbase name 'Ether Classic')",
+      "slug": "ethereum-classic",
+      "status": "mapped",
+      "symbol": "ETC"
+    },
+    "1343": {
+      "cmc_id": 1343,
+      "reason": "absent_from_products",
+      "slug": "stratis",
+      "status": "never_listed",
+      "symbol": "STRAT"
+    },
+    "13502": {
+      "cmc_id": 13502,
+      "coinbase_name": "Worldcoin",
+      "products": [
+        {
+          "id": "WLD-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Worldcoin",
+      "slug": "worldcoin-org",
+      "status": "mapped",
+      "symbol": "WLD"
+    },
+    "13631": {
+      "cmc_id": 13631,
+      "reason": "absent_from_products",
+      "slug": "manta-network",
+      "status": "never_listed",
+      "symbol": "MANTA"
+    },
+    "1376": {
+      "cmc_id": 1376,
+      "reason": "absent_from_products",
+      "slug": "neo",
+      "status": "never_listed",
+      "symbol": "NEO"
+    },
+    "13855": {
+      "cmc_id": 13855,
+      "coinbase_name": "Ethereum Name Service",
+      "products": [
+        {
+          "id": "ENS-USD",
+          "status": "online"
+        },
+        {
+          "id": "ENS-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "ethereum-name-service",
+      "status": "mapped",
+      "symbol": "ENS"
+    },
+    "14101": {
+      "alternate_candidates": [
+        "RONIN"
+      ],
+      "cmc_id": 14101,
+      "coinbase_base": "RONIN",
+      "coinbase_name": "Ronin",
+      "products": [
+        {
+          "id": "RONIN-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated_alternate_ticker: same asset: Ronin (RON) is listed on Coinbase as RONIN",
+      "slug": "ronin",
+      "status": "mapped",
+      "symbol": "RON"
+    },
+    "1414": {
+      "cmc_id": 1414,
+      "reason": "absent_from_products",
+      "slug": "zcoin",
+      "status": "never_listed",
+      "symbol": "XZC"
+    },
+    "1437": {
+      "cmc_id": 1437,
+      "coinbase_name": "Zcash",
+      "products": [
+        {
+          "id": "ZEC-USD",
+          "status": "online"
+        },
+        {
+          "id": "ZEC-USDC",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "zcash",
+      "status": "mapped",
+      "symbol": "ZEC"
+    },
+    "1455": {
+      "cmc_id": 1455,
+      "coinbase_name": "Golem",
+      "products": [
+        {
+          "id": "GNT-USDC",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: same project: Golem Network Tokens (GNT), Coinbase name 'Golem'",
+      "slug": "golem-network-tokens",
+      "status": "mapped",
+      "symbol": "GNT"
+    },
+    "1518": {
+      "cmc_id": 1518,
+      "coinbase_name": "Maker",
+      "products": [
+        {
+          "id": "MKR-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "maker",
+      "status": "mapped",
+      "symbol": "MKR"
+    },
+    "1521": {
+      "cmc_id": 1521,
+      "reason": "absent_from_products",
+      "slug": "komodo",
+      "status": "never_listed",
+      "symbol": "KMD"
+    },
+    "1567": {
+      "cmc_id": 1567,
+      "reason": "absent_from_products",
+      "slug": "nano",
+      "status": "never_listed",
+      "symbol": "NANO"
+    },
+    "1586": {
+      "cmc_id": 1586,
+      "reason": "absent_from_products",
+      "slug": "ark",
+      "status": "never_listed",
+      "symbol": "ARK"
+    },
+    "16086": {
+      "cmc_id": 16086,
+      "reason": "absent_from_products",
+      "slug": "bittorrent-new",
+      "status": "never_listed",
+      "symbol": "BTT"
+    },
+    "1637": {
+      "cmc_id": 1637,
+      "coinbase_name": "iExec RLC",
+      "products": [
+        {
+          "id": "RLC-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: iExec RLC",
+      "slug": "rlc",
+      "status": "mapped",
+      "symbol": "RLC"
+    },
+    "1659": {
+      "cmc_id": 1659,
+      "coinbase_name": "Gnosis",
+      "products": [
+        {
+          "id": "GNO-USD",
+          "status": "online"
+        },
+        {
+          "id": "GNO-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: same project: Gnosis (GNO)",
+      "slug": "gnosis-gno",
+      "status": "mapped",
+      "symbol": "GNO"
+    },
+    "1680": {
+      "cmc_id": 1680,
+      "coinbase_name": "Aragon",
+      "products": [
+        {
+          "id": "ANT-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "aragon",
+      "status": "mapped",
+      "symbol": "ANT"
+    },
+    "1684": {
+      "cmc_id": 1684,
+      "reason": "absent_from_products",
+      "slug": "qtum",
+      "status": "never_listed",
+      "symbol": "QTUM"
+    },
+    "1697": {
+      "cmc_id": 1697,
+      "coinbase_name": "Basic Attention Token",
+      "products": [
+        {
+          "id": "BAT-USD",
+          "status": "online"
+        },
+        {
+          "id": "BAT-USDC",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "basic-attention-token",
+      "status": "mapped",
+      "symbol": "BAT"
+    },
+    "1698": {
+      "cmc_id": 1698,
+      "coinbase_name": "Horizen",
+      "products": [
+        {
+          "id": "ZEN-USD",
+          "status": "online"
+        },
+        {
+          "id": "ZEN-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "horizen",
+      "status": "mapped",
+      "symbol": "ZEN"
+    },
+    "1700": {
+      "cmc_id": 1700,
+      "reason": "absent_from_products",
+      "slug": "aeternity",
+      "status": "never_listed",
+      "symbol": "AE"
+    },
+    "1703": {
+      "cmc_id": 1703,
+      "reason": "absent_from_products",
+      "slug": "metaverse",
+      "status": "never_listed",
+      "symbol": "ETP"
+    },
+    "1710": {
+      "cmc_id": 1710,
+      "reason": "absent_from_products",
+      "slug": "veritaseum",
+      "status": "never_listed",
+      "symbol": "VERI"
+    },
+    "1715": {
+      "cmc_id": 1715,
+      "reason": "absent_from_products",
+      "slug": "mobilego",
+      "status": "never_listed",
+      "symbol": "MGO"
+    },
+    "1720": {
+      "cmc_id": 1720,
+      "reason": "absent_from_products",
+      "slug": "iota",
+      "status": "never_listed",
+      "symbol": "MIOTA"
+    },
+    "1727": {
+      "cmc_id": 1727,
+      "coinbase_name": "Bancor",
+      "products": [
+        {
+          "id": "BNT-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "bancor",
+      "status": "mapped",
+      "symbol": "BNT"
+    },
+    "1732": {
+      "cmc_id": 1732,
+      "coinbase_name": "Numeraire",
+      "products": [
+        {
+          "id": "NMR-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "numeraire",
+      "status": "mapped",
+      "symbol": "NMR"
+    },
+    "1750": {
+      "cmc_id": 1750,
+      "reason": "absent_from_products",
+      "slug": "gxchain",
+      "status": "never_listed",
+      "symbol": "GXC"
+    },
+    "1759": {
+      "cmc_id": 1759,
+      "coinbase_name": "Status",
+      "products": [
+        {
+          "id": "SNT-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "status",
+      "status": "mapped",
+      "symbol": "SNT"
+    },
+    "1765": {
+      "cmc_id": 1765,
+      "coinbase_name": "EOS",
+      "products": [
+        {
+          "id": "EOS-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "eos",
+      "status": "mapped",
+      "symbol": "EOS"
+    },
+    "1772": {
+      "cmc_id": 1772,
+      "coinbase_name": "Storj",
+      "products": [
+        {
+          "id": "STORJ-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "storj",
+      "status": "mapped",
+      "symbol": "STORJ"
+    },
+    "17751": {
+      "cmc_id": 17751,
+      "coinbase_name": "Threshold",
+      "products": [
+        {
+          "id": "T-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "threshold",
+      "status": "mapped",
+      "symbol": "T"
+    },
+    "1776": {
+      "cmc_id": 1776,
+      "reason": "absent_from_products",
+      "slug": "crypto-com",
+      "status": "never_listed",
+      "symbol": "MCO"
+    },
+    "17799": {
+      "cmc_id": 17799,
+      "coinbase_name": "Axelar",
+      "products": [
+        {
+          "id": "AXL-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "axelar",
+      "status": "mapped",
+      "symbol": "AXL"
+    },
+    "1785": {
+      "cmc_id": 1785,
+      "reason": "absent_from_products",
+      "slug": "gas",
+      "status": "never_listed",
+      "symbol": "GAS"
+    },
+    "1789": {
+      "cmc_id": 1789,
+      "reason": "absent_from_products",
+      "slug": "populous",
+      "status": "never_listed",
+      "symbol": "PPT"
+    },
+    "18069": {
+      "cmc_id": 18069,
+      "coinbase_name": "STEPN",
+      "products": [
+        {
+          "id": "GMT-USD",
+          "status": "online"
+        },
+        {
+          "id": "GMT-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: same project: GMT is the STEPN token (CMC slug green-metaverse-token)",
+      "slug": "green-metaverse-token",
+      "status": "mapped",
+      "symbol": "GMT"
+    },
+    "1808": {
+      "cmc_id": 1808,
+      "coinbase_name": "OMG Network",
+      "products": [
+        {
+          "id": "OMG-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: same project: OmiseGO renamed OMG Network",
+      "slug": "omisego",
+      "status": "mapped",
+      "symbol": "OMG"
+    },
+    "1817": {
+      "cmc_id": 1817,
+      "coinbase_name": "Voyager Token",
+      "products": [
+        {
+          "id": "VGX-USD",
+          "status": "delisted"
+        },
+        {
+          "id": "VGX-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "voyager-token",
+      "status": "mapped",
+      "symbol": "VGX"
+    },
+    "1831": {
+      "cmc_id": 1831,
+      "coinbase_name": "Bitcoin Cash",
+      "products": [
+        {
+          "id": "BCH-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "bitcoin-cash",
+      "status": "mapped",
+      "symbol": "BCH"
+    },
+    "1839": {
+      "cmc_id": 1839,
+      "coinbase_name": "BNB",
+      "products": [
+        {
+          "id": "BNB-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Binance Coin, now named BNB",
+      "slug": "binance-coin",
+      "status": "mapped",
+      "symbol": "BNB"
+    },
+    "1866": {
+      "cmc_id": 1866,
+      "reason": "absent_from_products",
+      "slug": "bytom",
+      "status": "never_listed",
+      "symbol": "BTM"
+    },
+    "18679": {
+      "cmc_id": 18679,
+      "coinbase_name": "Onyxcoin",
+      "products": [
+        {
+          "id": "XCN-USD",
+          "status": "online"
+        },
+        {
+          "id": "XCN-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: same project: Chain rebranded Onyxcoin (XCN)",
+      "slug": "chain",
+      "status": "mapped",
+      "symbol": "XCN"
+    },
+    "1886": {
+      "cmc_id": 1886,
+      "reason": "absent_from_products",
+      "slug": "dent",
+      "status": "never_listed",
+      "symbol": "DENT"
+    },
+    "18876": {
+      "cmc_id": 18876,
+      "coinbase_name": "ApeCoin",
+      "products": [
+        {
+          "id": "APE-USD",
+          "status": "online"
+        },
+        {
+          "id": "APE-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: ApeCoin",
+      "slug": "apecoin-ape",
+      "status": "mapped",
+      "symbol": "APE"
+    },
+    "1896": {
+      "cmc_id": 1896,
+      "coinbase_name": "0x",
+      "products": [
+        {
+          "id": "ZRX-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "0x",
+      "status": "mapped",
+      "symbol": "ZRX"
+    },
+    "1903": {
+      "cmc_id": 1903,
+      "reason": "absent_from_products",
+      "slug": "hypercash",
+      "status": "never_listed",
+      "symbol": "HC"
+    },
+    "1908": {
+      "cmc_id": 1908,
+      "reason": "absent_from_products",
+      "slug": "nebulas-token",
+      "status": "never_listed",
+      "symbol": "NAS"
+    },
+    "1925": {
+      "cmc_id": 1925,
+      "reason": "absent_from_products",
+      "slug": "waltonchain",
+      "status": "never_listed",
+      "symbol": "WTC"
+    },
+    "1934": {
+      "cmc_id": 1934,
+      "coinbase_name": "Loopring",
+      "products": [
+        {
+          "id": "LRC-USD",
+          "status": "delisted"
+        },
+        {
+          "id": "LRC-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "loopring",
+      "status": "mapped",
+      "symbol": "LRC"
+    },
+    "1958": {
+      "cmc_id": 1958,
+      "reason": "absent_from_products",
+      "slug": "tron",
+      "status": "never_listed",
+      "symbol": "TRX"
+    },
+    "1966": {
+      "cmc_id": 1966,
+      "coinbase_name": "Decentraland",
+      "products": [
+        {
+          "id": "MANA-USD",
+          "status": "online"
+        },
+        {
+          "id": "MANA-USDC",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "decentraland",
+      "status": "mapped",
+      "symbol": "MANA"
+    },
+    "1975": {
+      "cmc_id": 1975,
+      "coinbase_name": "Chainlink",
+      "products": [
+        {
+          "id": "LINK-USD",
+          "status": "online"
+        },
+        {
+          "id": "LINK-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "chainlink",
+      "status": "mapped",
+      "symbol": "LINK"
+    },
+    "1982": {
+      "cmc_id": 1982,
+      "coinbase_name": "Kyber Network",
+      "products": [
+        {
+          "id": "KNC-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "kyber-network",
+      "status": "mapped",
+      "symbol": "KNC"
+    },
+    "2": {
+      "cmc_id": 2,
+      "coinbase_name": "Litecoin",
+      "products": [
+        {
+          "id": "LTC-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "litecoin",
+      "status": "mapped",
+      "symbol": "LTC"
+    },
+    "2010": {
+      "cmc_id": 2010,
+      "coinbase_name": "Cardano",
+      "products": [
+        {
+          "id": "ADA-USD",
+          "status": "online"
+        },
+        {
+          "id": "ADA-USDC",
+          "status": "delisted"
+        },
+        {
+          "id": "ADA-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "cardano",
+      "status": "mapped",
+      "symbol": "ADA"
+    },
+    "2011": {
+      "cmc_id": 2011,
+      "coinbase_name": "Tezos",
+      "products": [
+        {
+          "id": "XTZ-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "tezos",
+      "status": "mapped",
+      "symbol": "XTZ"
+    },
+    "2027": {
+      "cmc_id": 2027,
+      "reason": "absent_from_products",
+      "slug": "cryptonex",
+      "status": "never_listed",
+      "symbol": "CNX"
+    },
+    "20314": {
+      "cmc_id": 20314,
+      "reason": "absent_from_products",
+      "slug": "terra-luna-v2",
+      "status": "never_listed",
+      "symbol": "LUNA"
+    },
+    "20396": {
+      "cmc_id": 20396,
+      "reason": "absent_from_products",
+      "slug": "kaspa",
+      "status": "never_listed",
+      "symbol": "KAS"
+    },
+    "2062": {
+      "cmc_id": 2062,
+      "reason": "absent_from_products",
+      "slug": "aion",
+      "status": "never_listed",
+      "symbol": "AION"
+    },
+    "2083": {
+      "cmc_id": 2083,
+      "reason": "absent_from_products",
+      "slug": "bitcoin-gold",
+      "status": "never_listed",
+      "symbol": "BTG"
+    },
+    "2087": {
+      "cmc_id": 2087,
+      "reason": "absent_from_products",
+      "slug": "kucoin-shares",
+      "status": "never_listed",
+      "symbol": "KCS"
+    },
+    "2090": {
+      "cmc_id": 2090,
+      "coinbase_name": "Lagrange",
+      "products": [
+        {
+          "id": "LA-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: different project: CMC LATOKEN vs Coinbase Lagrange share ticker LA",
+      "slug": "latoken",
+      "status": "unknown",
+      "symbol": "LA"
+    },
+    "2092": {
+      "cmc_id": 2092,
+      "reason": "absent_from_products",
+      "slug": "nuls",
+      "status": "never_listed",
+      "symbol": "NULS"
+    },
+    "20947": {
+      "cmc_id": 20947,
+      "coinbase_name": "Sui",
+      "products": [
+        {
+          "id": "SUI-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "sui",
+      "status": "mapped",
+      "symbol": "SUI"
+    },
+    "2099": {
+      "cmc_id": 2099,
+      "reason": "absent_from_products",
+      "slug": "icon",
+      "status": "never_listed",
+      "symbol": "ICX"
+    },
+    "21159": {
+      "cmc_id": 21159,
+      "coinbase_name": "Ondo Finance",
+      "products": [
+        {
+          "id": "ONDO-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "ondo-finance",
+      "status": "mapped",
+      "symbol": "ONDO"
+    },
+    "21296": {
+      "cmc_id": 21296,
+      "reason": "absent_from_products",
+      "slug": "ethereum-pow",
+      "status": "never_listed",
+      "symbol": "ETHW"
+    },
+    "213": {
+      "cmc_id": 213,
+      "coinbase_name": "Monavale",
+      "products": [
+        {
+          "id": "MONA-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: different project: CMC Monacoin vs Coinbase Monavale share ticker MONA",
+      "slug": "monacoin",
+      "status": "unknown",
+      "symbol": "MONA"
+    },
+    "2130": {
+      "cmc_id": 2130,
+      "coinbase_name": "Enjin Coin",
+      "products": [
+        {
+          "id": "ENJ-USD",
+          "status": "delisted"
+        },
+        {
+          "id": "ENJ-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "enjin-coin",
+      "status": "mapped",
+      "symbol": "ENJ"
+    },
+    "2132": {
+      "cmc_id": 2132,
+      "coinbase_name": "Power Ledger",
+      "products": [
+        {
+          "id": "POWR-USD",
+          "status": "online"
+        },
+        {
+          "id": "POWR-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "power-ledger",
+      "status": "mapped",
+      "symbol": "POWR"
+    },
+    "2135": {
+      "cmc_id": 2135,
+      "reason": "absent_from_products",
+      "slug": "revain",
+      "status": "never_listed",
+      "symbol": "R"
+    },
+    "2137": {
+      "cmc_id": 2137,
+      "reason": "absent_from_products",
+      "slug": "electroneum",
+      "status": "never_listed",
+      "symbol": "ETN"
+    },
+    "21794": {
+      "cmc_id": 21794,
+      "coinbase_name": "Aptos",
+      "products": [
+        {
+          "id": "APT-USD",
+          "status": "online"
+        },
+        {
+          "id": "APT-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "aptos",
+      "status": "mapped",
+      "symbol": "APT"
+    },
+    "2222": {
+      "cmc_id": 2222,
+      "reason": "absent_from_products",
+      "slug": "bitcoin-diamond",
+      "status": "never_listed",
+      "symbol": "BCD"
+    },
+    "2239": {
+      "alternate_candidates": [
+        "AAVE"
+      ],
+      "cmc_id": 2239,
+      "reason": "adjudicated_not_same_asset: not the same asset: LEND is the pre-migration Aave token, redenominated 100:1 into AAVE; prices are not comparable",
+      "slug": "aave",
+      "status": "never_listed",
+      "symbol": "LEND"
+    },
+    "22691": {
+      "cmc_id": 22691,
+      "coinbase_name": "Starknet",
+      "products": [
+        {
+          "id": "STRK-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Starknet",
+      "slug": "starknet-token",
+      "status": "mapped",
+      "symbol": "STRK"
+    },
+    "2280": {
+      "cmc_id": 2280,
+      "coinbase_name": "Filecoin",
+      "products": [
+        {
+          "id": "FIL-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "filecoin",
+      "status": "mapped",
+      "symbol": "FIL"
+    },
+    "22861": {
+      "cmc_id": 22861,
+      "coinbase_name": "Celestia",
+      "products": [
+        {
+          "id": "TIA-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "celestia",
+      "status": "mapped",
+      "symbol": "TIA"
+    },
+    "22974": {
+      "cmc_id": 22974,
+      "coinbase_name": "Bittensor",
+      "products": [
+        {
+          "id": "TAO-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "bittensor",
+      "status": "mapped",
+      "symbol": "TAO"
+    },
+    "2299": {
+      "cmc_id": 2299,
+      "reason": "absent_from_products",
+      "slug": "aelf",
+      "status": "never_listed",
+      "symbol": "ELF"
+    },
+    "2300": {
+      "cmc_id": 2300,
+      "reason": "absent_from_products",
+      "slug": "wax",
+      "status": "never_listed",
+      "symbol": "WAXP"
+    },
+    "2307": {
+      "cmc_id": 2307,
+      "reason": "absent_from_products",
+      "slug": "bibox-token",
+      "status": "never_listed",
+      "symbol": "BIX"
+    },
+    "23095": {
+      "cmc_id": 23095,
+      "coinbase_name": "Bonk",
+      "products": [
+        {
+          "id": "BONK-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Bonk",
+      "slug": "bonk1",
+      "status": "mapped",
+      "symbol": "BONK"
+    },
+    "23121": {
+      "cmc_id": 23121,
+      "coinbase_name": "Blur",
+      "products": [
+        {
+          "id": "BLUR-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Blur",
+      "slug": "blur-token",
+      "status": "mapped",
+      "symbol": "BLUR"
+    },
+    "23149": {
+      "cmc_id": 23149,
+      "coinbase_name": "Sei",
+      "products": [
+        {
+          "id": "SEI-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "sei",
+      "status": "mapped",
+      "symbol": "SEI"
+    },
+    "2319": {
+      "cmc_id": 2319,
+      "reason": "absent_from_products",
+      "slug": "qcash",
+      "status": "never_listed",
+      "symbol": "QC"
+    },
+    "23246": {
+      "cmc_id": 23246,
+      "reason": "absent_from_products",
+      "slug": "tominet",
+      "status": "never_listed",
+      "symbol": "TOMI"
+    },
+    "23254": {
+      "cmc_id": 23254,
+      "reason": "absent_from_products",
+      "slug": "core-dao",
+      "status": "never_listed",
+      "symbol": "CORE"
+    },
+    "2346": {
+      "cmc_id": 2346,
+      "reason": "absent_from_products",
+      "slug": "waykichain",
+      "status": "never_listed",
+      "symbol": "WICC"
+    },
+    "2349": {
+      "cmc_id": 2349,
+      "reason": "absent_from_products",
+      "slug": "mixin",
+      "status": "never_listed",
+      "symbol": "XIN"
+    },
+    "23635": {
+      "cmc_id": 23635,
+      "reason": "absent_from_products",
+      "slug": "binaryx-new",
+      "status": "never_listed",
+      "symbol": "FORM"
+    },
+    "2394": {
+      "cmc_id": 2394,
+      "reason": "absent_from_products",
+      "slug": "telcoin",
+      "status": "never_listed",
+      "symbol": "TEL"
+    },
+    "2405": {
+      "cmc_id": 2405,
+      "reason": "absent_from_products",
+      "slug": "iostoken",
+      "status": "never_listed",
+      "symbol": "IOST"
+    },
+    "2416": {
+      "cmc_id": 2416,
+      "reason": "absent_from_products",
+      "slug": "theta",
+      "status": "never_listed",
+      "symbol": "THETA"
+    },
+    "2424": {
+      "cmc_id": 2424,
+      "reason": "absent_from_products",
+      "slug": "singularitynet",
+      "status": "never_listed",
+      "symbol": "AGIX"
+    },
+    "2441": {
+      "cmc_id": 2441,
+      "reason": "absent_from_products",
+      "slug": "molecular-future",
+      "status": "never_listed",
+      "symbol": "MOF"
+    },
+    "24478": {
+      "cmc_id": 24478,
+      "coinbase_name": "Pepe",
+      "products": [
+        {
+          "id": "PEPE-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "pepe",
+      "status": "mapped",
+      "symbol": "PEPE"
+    },
+    "2453": {
+      "cmc_id": 2453,
+      "reason": "absent_from_products",
+      "slug": "educare",
+      "status": "never_listed",
+      "symbol": "EKT"
+    },
+    "2457": {
+      "cmc_id": 2457,
+      "reason": "absent_from_products",
+      "slug": "truechain",
+      "status": "never_listed",
+      "symbol": "TRUE"
+    },
+    "24647": {
+      "cmc_id": 24647,
+      "coinbase_name": "Berachain",
+      "products": [
+        {
+          "id": "BERA-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "berachain",
+      "status": "mapped",
+      "symbol": "BERA"
+    },
+    "2469": {
+      "cmc_id": 2469,
+      "reason": "absent_from_products",
+      "slug": "zilliqa",
+      "status": "never_listed",
+      "symbol": "ZIL"
+    },
+    "2492": {
+      "cmc_id": 2492,
+      "coinbase_name": "Elastos",
+      "products": [
+        {
+          "id": "ELA-USD",
+          "status": "online"
+        },
+        {
+          "id": "ELA-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "elastos",
+      "status": "mapped",
+      "symbol": "ELA"
+    },
+    "2496": {
+      "cmc_id": 2496,
+      "coinbase_name": "Polymath Network",
+      "products": [
+        {
+          "id": "POLY-USD",
+          "status": "delisted"
+        },
+        {
+          "id": "POLY-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "polymath-network",
+      "status": "mapped",
+      "symbol": "POLY"
+    },
+    "2499": {
+      "cmc_id": 2499,
+      "reason": "absent_from_products",
+      "slug": "swissborg",
+      "status": "never_listed",
+      "symbol": "CHSB"
+    },
+    "2502": {
+      "cmc_id": 2502,
+      "reason": "absent_from_products",
+      "slug": "huobi-token",
+      "status": "never_listed",
+      "symbol": "HT"
+    },
+    "25028": {
+      "cmc_id": 25028,
+      "reason": "absent_from_products",
+      "slug": "ordi",
+      "status": "never_listed",
+      "symbol": "ORDI"
+    },
+    "2539": {
+      "cmc_id": 2539,
+      "coinbase_name": "Ren",
+      "products": [
+        {
+          "id": "REN-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "ren",
+      "status": "mapped",
+      "symbol": "REN"
+    },
+    "2566": {
+      "cmc_id": 2566,
+      "reason": "absent_from_products",
+      "slug": "ontology",
+      "status": "never_listed",
+      "symbol": "ONT"
+    },
+    "2577": {
+      "cmc_id": 2577,
+      "reason": "absent_from_products",
+      "slug": "ravencoin",
+      "status": "never_listed",
+      "symbol": "RVN"
+    },
+    "2586": {
+      "cmc_id": 2586,
+      "coinbase_name": "Synthetix",
+      "products": [
+        {
+          "id": "SNX-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Synthetix Network Token, Coinbase name 'Synthetix'",
+      "slug": "synthetix-network-token",
+      "status": "mapped",
+      "symbol": "SNX"
+    },
+    "2588": {
+      "cmc_id": 2588,
+      "coinbase_name": "Loom Network",
+      "products": [
+        {
+          "id": "LOOM-USD",
+          "status": "delisted"
+        },
+        {
+          "id": "LOOM-USDC",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "loom-network",
+      "status": "mapped",
+      "symbol": "LOOM"
+    },
+    "2603": {
+      "alternate_candidates": [
+        "PUNDIX"
+      ],
+      "cmc_id": 2603,
+      "reason": "adjudicated_not_same_asset: not the same asset: NPXS was redenominated 1000:1 into PUNDIX; prices are not comparable",
+      "slug": "pundi-x",
+      "status": "never_listed",
+      "symbol": "NPXS"
+    },
+    "2606": {
+      "cmc_id": 2606,
+      "reason": "absent_from_products",
+      "slug": "wanchain",
+      "status": "never_listed",
+      "symbol": "WAN"
+    },
+    "2631": {
+      "cmc_id": 2631,
+      "reason": "absent_from_products",
+      "slug": "odem",
+      "status": "never_listed",
+      "symbol": "ODE"
+    },
+    "2634": {
+      "cmc_id": 2634,
+      "reason": "absent_from_products",
+      "slug": "xinfin-network",
+      "status": "never_listed",
+      "symbol": "XDC"
+    },
+    "2642": {
+      "cmc_id": 2642,
+      "reason": "absent_from_products",
+      "slug": "cybervein",
+      "status": "never_listed",
+      "symbol": "CVT"
+    },
+    "2682": {
+      "cmc_id": 2682,
+      "reason": "absent_from_products",
+      "slug": "holo",
+      "status": "never_listed",
+      "symbol": "HOT"
+    },
+    "2694": {
+      "cmc_id": 2694,
+      "reason": "absent_from_products",
+      "slug": "nexo",
+      "status": "never_listed",
+      "symbol": "NEXO"
+    },
+    "26997": {
+      "cmc_id": 26997,
+      "coinbase_name": "Layerzero",
+      "products": [
+        {
+          "id": "ZRO-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "layerzero",
+      "status": "mapped",
+      "symbol": "ZRO"
+    },
+    "2700": {
+      "cmc_id": 2700,
+      "reason": "absent_from_products",
+      "slug": "celsius",
+      "status": "never_listed",
+      "symbol": "CEL"
+    },
+    "27075": {
+      "alternate_candidates": [
+        "MANTLE"
+      ],
+      "cmc_id": 27075,
+      "coinbase_base": "MANTLE",
+      "coinbase_name": "Mantle",
+      "products": [
+        {
+          "id": "MANTLE-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated_alternate_ticker: same asset: Mantle (MNT) is listed on Coinbase as MANTLE",
+      "slug": "mantle",
+      "status": "mapped",
+      "symbol": "MNT"
+    },
+    "2758": {
+      "cmc_id": 2758,
+      "reason": "absent_from_products",
+      "slug": "unibright",
+      "status": "never_listed",
+      "symbol": "UBT"
+    },
+    "27659": {
+      "cmc_id": 27659,
+      "coinbase_name": "Mog Coin",
+      "products": [
+        {
+          "id": "MOG-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "mog-coin",
+      "status": "mapped",
+      "symbol": "MOG"
+    },
+    "2772": {
+      "cmc_id": 2772,
+      "reason": "absent_from_products",
+      "slug": "digitex-futures",
+      "status": "never_listed",
+      "symbol": "DGTX"
+    },
+    "2777": {
+      "cmc_id": 2777,
+      "coinbase_name": "IoTeX (ERC-20)",
+      "products": [
+        {
+          "id": "IOTX-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: same project: IoTeX; Coinbase lists the ERC-20 representation of IOTX",
+      "slug": "iotex",
+      "status": "mapped",
+      "symbol": "IOTX"
+    },
+    "28081": {
+      "cmc_id": 28081,
+      "coinbase_name": "Spx6900",
+      "products": [
+        {
+          "id": "SPX-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "spx6900",
+      "status": "mapped",
+      "symbol": "SPX"
+    },
+    "28177": {
+      "cmc_id": 28177,
+      "coinbase_name": "Pyth Network",
+      "products": [
+        {
+          "id": "PYTH-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "pyth-network",
+      "status": "mapped",
+      "symbol": "PYTH"
+    },
+    "28194": {
+      "cmc_id": 28194,
+      "reason": "absent_from_products",
+      "slug": "sats-ordinals",
+      "status": "never_listed",
+      "symbol": "SATS"
+    },
+    "28298": {
+      "cmc_id": 28298,
+      "coinbase_name": "Beam",
+      "products": [
+        {
+          "id": "BEAM-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Beam gaming token (CMC slug onbeam, not the older privacy coin)",
+      "slug": "onbeam",
+      "status": "mapped",
+      "symbol": "BEAM"
+    },
+    "2830": {
+      "cmc_id": 2830,
+      "reason": "absent_from_products",
+      "slug": "seele",
+      "status": "never_listed",
+      "symbol": "SEELE"
+    },
+    "28301": {
+      "cmc_id": 28301,
+      "reason": "absent_from_products",
+      "slug": "meme",
+      "status": "never_listed",
+      "symbol": "MEME"
+    },
+    "28321": {
+      "cmc_id": 28321,
+      "coinbase_name": "Polygon Ecosystem Token",
+      "products": [
+        {
+          "id": "POL-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "polygon-ecosystem-token",
+      "status": "mapped",
+      "symbol": "POL"
+    },
+    "28324": {
+      "alternate_candidates": [
+        "COSMOSDYDX"
+      ],
+      "cmc_id": 28324,
+      "coinbase_base": "COSMOSDYDX",
+      "coinbase_name": "dYdX",
+      "products": [
+        {
+          "id": "COSMOSDYDX-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated_alternate_ticker: same asset: dYdX Chain native token, listed on Coinbase as COSMOSDYDX",
+      "slug": "dydx-chain",
+      "status": "mapped",
+      "symbol": "DYDX"
+    },
+    "2859": {
+      "cmc_id": 2859,
+      "reason": "absent_from_products",
+      "slug": "xmax",
+      "status": "never_listed",
+      "symbol": "XMX"
+    },
+    "28683": {
+      "cmc_id": 28683,
+      "reason": "absent_from_products",
+      "slug": "sats",
+      "status": "never_listed",
+      "symbol": "1000SATS"
+    },
+    "2874": {
+      "alternate_candidates": [
+        "AURORA"
+      ],
+      "cmc_id": 2874,
+      "reason": "adjudicated_not_same_asset: different project: CMC AOA (Aurora, 2018 chain) vs Coinbase AURORA (Aurora on NEAR)",
+      "slug": "aurora",
+      "status": "never_listed",
+      "symbol": "AOA"
+    },
+    "28752": {
+      "cmc_id": 28752,
+      "coinbase_name": "Dogwifhat",
+      "products": [
+        {
+          "id": "WIF-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "dogwifhat",
+      "status": "mapped",
+      "symbol": "WIF"
+    },
+    "28782": {
+      "cmc_id": 28782,
+      "coinbase_name": "Popcat",
+      "products": [
+        {
+          "id": "POPCAT-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Popcat (Solana)",
+      "slug": "popcat-sol",
+      "status": "mapped",
+      "symbol": "POPCAT"
+    },
+    "2885": {
+      "cmc_id": 2885,
+      "reason": "absent_from_products",
+      "slug": "egretia",
+      "status": "never_listed",
+      "symbol": "EGT"
+    },
+    "28850": {
+      "cmc_id": 28850,
+      "reason": "absent_from_products",
+      "slug": "notcoin",
+      "status": "never_listed",
+      "symbol": "NOT"
+    },
+    "28932": {
+      "cmc_id": 28932,
+      "reason": "absent_from_products",
+      "slug": "dymension",
+      "status": "never_listed",
+      "symbol": "DYM"
+    },
+    "28933": {
+      "cmc_id": 28933,
+      "reason": "absent_from_products",
+      "slug": "xai-games",
+      "status": "never_listed",
+      "symbol": "XAI"
+    },
+    "2897": {
+      "cmc_id": 2897,
+      "reason": "absent_from_products",
+      "slug": "clipper-coin",
+      "status": "never_listed",
+      "symbol": "CCC"
+    },
+    "2900": {
+      "cmc_id": 2900,
+      "reason": "absent_from_products",
+      "slug": "project-pai",
+      "status": "never_listed",
+      "symbol": "PAI"
+    },
+    "2907": {
+      "cmc_id": 2907,
+      "reason": "absent_from_products",
+      "slug": "karatgold-coin",
+      "status": "never_listed",
+      "symbol": "KBC"
+    },
+    "29073": {
+      "cmc_id": 29073,
+      "coinbase_name": "Altlayer",
+      "products": [
+        {
+          "id": "ALT-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "altlayer",
+      "status": "mapped",
+      "symbol": "ALT"
+    },
+    "291": {
+      "cmc_id": 291,
+      "reason": "absent_from_products",
+      "slug": "maidsafecoin",
+      "status": "never_listed",
+      "symbol": "MAID"
+    },
+    "29210": {
+      "cmc_id": 29210,
+      "coinbase_name": "Jupiter",
+      "products": [
+        {
+          "id": "JUP-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: same project: Jupiter (Solana aggregator token)",
+      "slug": "jupiter-ag",
+      "status": "mapped",
+      "symbol": "JUP"
+    },
+    "29270": {
+      "cmc_id": 29270,
+      "coinbase_name": "Aerodrome Finance",
+      "products": [
+        {
+          "id": "AERO-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "aerodrome-finance",
+      "status": "mapped",
+      "symbol": "AERO"
+    },
+    "29420": {
+      "cmc_id": 29420,
+      "coinbase_name": "Virtuals Protocol",
+      "products": [
+        {
+          "id": "VIRTUAL-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Virtuals Protocol",
+      "slug": "virtual-protocol",
+      "status": "mapped",
+      "symbol": "VIRTUAL"
+    },
+    "29587": {
+      "cmc_id": 29587,
+      "coinbase_name": "Wormhole",
+      "products": [
+        {
+          "id": "W-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "wormhole",
+      "status": "mapped",
+      "symbol": "W"
+    },
+    "29743": {
+      "cmc_id": 29743,
+      "reason": "absent_from_products",
+      "slug": "based-brett",
+      "status": "never_listed",
+      "symbol": "BRETT"
+    },
+    "29814": {
+      "cmc_id": 29814,
+      "coinbase_name": "Ether.Fi",
+      "products": [
+        {
+          "id": "ETHFI-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: ether.fi",
+      "slug": "ether-fi-ethfi",
+      "status": "mapped",
+      "symbol": "ETHFI"
+    },
+    "29870": {
+      "cmc_id": 29870,
+      "reason": "absent_from_products",
+      "slug": "book-of-meme",
+      "status": "never_listed",
+      "symbol": "BOME"
+    },
+    "30126": {
+      "cmc_id": 30126,
+      "reason": "absent_from_products",
+      "slug": "mew",
+      "status": "never_listed",
+      "symbol": "MEW"
+    },
+    "30171": {
+      "cmc_id": 30171,
+      "coinbase_name": "Ethena",
+      "products": [
+        {
+          "id": "ENA-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "ethena",
+      "status": "mapped",
+      "symbol": "ENA"
+    },
+    "30495": {
+      "cmc_id": 30495,
+      "coinbase_name": "Monad",
+      "products": [
+        {
+          "id": "MON-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "monad",
+      "status": "mapped",
+      "symbol": "MON"
+    },
+    "3077": {
+      "cmc_id": 3077,
+      "coinbase_name": "VeChain",
+      "products": [
+        {
+          "id": "VET-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "vechain",
+      "status": "mapped",
+      "symbol": "VET"
+    },
+    "3085": {
+      "cmc_id": 3085,
+      "reason": "absent_from_products",
+      "slug": "ino-coin",
+      "status": "never_listed",
+      "symbol": "INO"
+    },
+    "3115": {
+      "cmc_id": 3115,
+      "reason": "absent_from_products",
+      "slug": "maximine-coin",
+      "status": "never_listed",
+      "symbol": "MXM"
+    },
+    "3116": {
+      "cmc_id": 3116,
+      "reason": "absent_from_products",
+      "slug": "insight-chain",
+      "status": "never_listed",
+      "symbol": "INB"
+    },
+    "3139": {
+      "cmc_id": 3139,
+      "reason": "absent_from_products",
+      "slug": "dxchain-token",
+      "status": "never_listed",
+      "symbol": "DX"
+    },
+    "3155": {
+      "cmc_id": 3155,
+      "coinbase_name": "Quant",
+      "products": [
+        {
+          "id": "QNT-USD",
+          "status": "online"
+        },
+        {
+          "id": "QNT-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "quant",
+      "status": "mapped",
+      "symbol": "QNT"
+    },
+    "3175": {
+      "cmc_id": 3175,
+      "reason": "absent_from_products",
+      "slug": "ttc",
+      "status": "never_listed",
+      "symbol": "TTC"
+    },
+    "3218": {
+      "cmc_id": 3218,
+      "reason": "absent_from_products",
+      "slug": "energi",
+      "status": "never_listed",
+      "symbol": "NRG"
+    },
+    "32196": {
+      "cmc_id": 32196,
+      "coinbase_name": "Hyperliquid",
+      "products": [
+        {
+          "id": "HYPE-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "hyperliquid",
+      "status": "mapped",
+      "symbol": "HYPE"
+    },
+    "32452": {
+      "cmc_id": 32452,
+      "coinbase_name": "Movement",
+      "products": [
+        {
+          "id": "MOVE-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "movement",
+      "status": "mapped",
+      "symbol": "MOVE"
+    },
+    "32684": {
+      "cmc_id": 32684,
+      "coinbase_name": "Sonic",
+      "products": [
+        {
+          "id": "S-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "sonic",
+      "status": "mapped",
+      "symbol": "S"
+    },
+    "328": {
+      "cmc_id": 328,
+      "reason": "absent_from_products",
+      "slug": "monero",
+      "status": "never_listed",
+      "symbol": "XMR"
+    },
+    "32880": {
+      "cmc_id": 32880,
+      "reason": "absent_from_products",
+      "slug": "kaia",
+      "status": "never_listed",
+      "symbol": "KAIA"
+    },
+    "3296": {
+      "cmc_id": 3296,
+      "reason": "absent_from_products",
+      "slug": "mindol",
+      "status": "never_listed",
+      "symbol": "MIN"
+    },
+    "33038": {
+      "cmc_id": 33038,
+      "coinbase_name": "Sky",
+      "products": [
+        {
+          "id": "SKY-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "sky",
+      "status": "mapped",
+      "symbol": "SKY"
+    },
+    "33251": {
+      "cmc_id": 33251,
+      "coinbase_name": "World Liberty Financial",
+      "products": [
+        {
+          "id": "WLFI-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: World Liberty Financial",
+      "slug": "world-liberty-financial-wlfi",
+      "status": "mapped",
+      "symbol": "WLFI"
+    },
+    "3351": {
+      "cmc_id": 3351,
+      "reason": "absent_from_products",
+      "slug": "zb-token",
+      "status": "never_listed",
+      "symbol": "ZB"
+    },
+    "3356": {
+      "cmc_id": 3356,
+      "reason": "absent_from_products",
+      "slug": "the-midas-touch-gold",
+      "status": "never_listed",
+      "symbol": "TMTG"
+    },
+    "33597": {
+      "cmc_id": 33597,
+      "coinbase_name": "Fartcoin",
+      "products": [
+        {
+          "id": "FARTCOIN-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "fartcoin",
+      "status": "mapped",
+      "symbol": "FARTCOIN"
+    },
+    "3364": {
+      "cmc_id": 3364,
+      "reason": "absent_from_products",
+      "slug": "platincoin",
+      "status": "never_listed",
+      "symbol": "PLC"
+    },
+    "33788": {
+      "cmc_id": 33788,
+      "coinbase_name": "Peanut The Squirrel",
+      "products": [
+        {
+          "id": "PNUT-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "peanut-the-squirrel",
+      "status": "mapped",
+      "symbol": "PNUT"
+    },
+    "34104": {
+      "cmc_id": 34104,
+      "coinbase_name": "Morpho",
+      "products": [
+        {
+          "id": "MORPHO-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "morpho",
+      "status": "mapped",
+      "symbol": "MORPHO"
+    },
+    "3437": {
+      "cmc_id": 3437,
+      "reason": "absent_from_products",
+      "slug": "abbc-coin",
+      "status": "never_listed",
+      "symbol": "ABBC"
+    },
+    "34466": {
+      "cmc_id": 34466,
+      "coinbase_name": "Pudgy Penguins",
+      "products": [
+        {
+          "id": "PENGU-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "pudgy-penguins",
+      "status": "mapped",
+      "symbol": "PENGU"
+    },
+    "35053": {
+      "cmc_id": 35053,
+      "reason": "absent_from_products",
+      "slug": "pippin",
+      "status": "never_listed",
+      "symbol": "PIPPIN"
+    },
+    "3513": {
+      "cmc_id": 3513,
+      "reason": "absent_from_products",
+      "slug": "fantom",
+      "status": "never_listed",
+      "symbol": "FTM"
+    },
+    "35336": {
+      "cmc_id": 35336,
+      "coinbase_name": "Official Trump",
+      "products": [
+        {
+          "id": "TRUMP-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "official-trump",
+      "status": "mapped",
+      "symbol": "TRUMP"
+    },
+    "35347": {
+      "cmc_id": 35347,
+      "reason": "absent_from_products",
+      "slug": "melania-meme",
+      "status": "never_listed",
+      "symbol": "MELANIA"
+    },
+    "35491": {
+      "cmc_id": 35491,
+      "reason": "absent_from_products",
+      "slug": "memecore",
+      "status": "never_listed",
+      "symbol": "M"
+    },
+    "35509": {
+      "cmc_id": 35509,
+      "coinbase_name": "Venice Token",
+      "products": [
+        {
+          "id": "VVV-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "venice-token",
+      "status": "mapped",
+      "symbol": "VVV"
+    },
+    "35626": {
+      "cmc_id": 35626,
+      "coinbase_name": "Story",
+      "products": [
+        {
+          "id": "IP-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: same project: Story (Story Protocol)",
+      "slug": "story-protocol",
+      "status": "mapped",
+      "symbol": "IP"
+    },
+    "35697": {
+      "cmc_id": 35697,
+      "reason": "absent_from_products",
+      "slug": "pi",
+      "status": "never_listed",
+      "symbol": "PI"
+    },
+    "35766": {
+      "cmc_id": 35766,
+      "reason": "absent_from_products",
+      "slug": "siren-bsc",
+      "status": "never_listed",
+      "symbol": "SIREN"
+    },
+    "3602": {
+      "cmc_id": 3602,
+      "reason": "absent_from_products",
+      "slug": "bitcoin-sv",
+      "status": "never_listed",
+      "symbol": "BSV"
+    },
+    "36119": {
+      "cmc_id": 36119,
+      "coinbase_name": "Walrus",
+      "products": [
+        {
+          "id": "WAL-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Walrus",
+      "slug": "walrus-xyz",
+      "status": "mapped",
+      "symbol": "WAL"
+    },
+    "36300": {
+      "cmc_id": 36300,
+      "reason": "absent_from_products",
+      "slug": "skyai",
+      "status": "never_listed",
+      "symbol": "SKYAI"
+    },
+    "36341": {
+      "cmc_id": 36341,
+      "coinbase_name": "Aster",
+      "products": [
+        {
+          "id": "ASTER-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "aster",
+      "status": "mapped",
+      "symbol": "ASTER"
+    },
+    "3635": {
+      "cmc_id": 3635,
+      "coinbase_name": "Crypto.com Coin",
+      "products": [
+        {
+          "id": "CRO-USD",
+          "status": "online"
+        },
+        {
+          "id": "CRO-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "crypto-com-coin",
+      "status": "mapped",
+      "symbol": "CRO"
+    },
+    "3640": {
+      "cmc_id": 3640,
+      "coinbase_name": "Livepeer",
+      "products": [
+        {
+          "id": "LPT-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "livepeer",
+      "status": "mapped",
+      "symbol": "LPT"
+    },
+    "36410": {
+      "cmc_id": 36410,
+      "reason": "absent_from_products",
+      "slug": "myx-finance",
+      "status": "never_listed",
+      "symbol": "MYX"
+    },
+    "36462": {
+      "cmc_id": 36462,
+      "reason": "absent_from_products",
+      "slug": "vaulta",
+      "status": "never_listed",
+      "symbol": "A"
+    },
+    "36507": {
+      "cmc_id": 36507,
+      "coinbase_name": "Pump.fun",
+      "products": [
+        {
+          "id": "PUMP-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "pump-fun",
+      "status": "mapped",
+      "symbol": "PUMP"
+    },
+    "36532": {
+      "cmc_id": 36532,
+      "reason": "absent_from_products",
+      "slug": "buildon",
+      "status": "never_listed",
+      "symbol": "B"
+    },
+    "3657": {
+      "cmc_id": 3657,
+      "reason": "absent_from_products",
+      "slug": "lambda",
+      "status": "never_listed",
+      "symbol": "LAMB"
+    },
+    "3662": {
+      "cmc_id": 3662,
+      "reason": "absent_from_products",
+      "slug": "hedgetrade",
+      "status": "never_listed",
+      "symbol": "HEDG"
+    },
+    "36645": {
+      "cmc_id": 36645,
+      "coinbase_name": "Plasma",
+      "products": [
+        {
+          "id": "XPL-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Plasma (XPL)",
+      "slug": "plasma-xpl",
+      "status": "mapped",
+      "symbol": "XPL"
+    },
+    "3673": {
+      "cmc_id": 3673,
+      "reason": "absent_from_products",
+      "slug": "bitmax-token",
+      "status": "never_listed",
+      "symbol": "BTMX"
+    },
+    "36922": {
+      "cmc_id": 36922,
+      "reason": "absent_from_products",
+      "slug": "humanity-protocol",
+      "status": "never_listed",
+      "symbol": "H"
+    },
+    "3695": {
+      "cmc_id": 3695,
+      "reason": "absent_from_products",
+      "slug": "hyperion",
+      "status": "never_listed",
+      "symbol": "HYN"
+    },
+    "3701": {
+      "cmc_id": 3701,
+      "reason": "absent_from_products",
+      "slug": "rsk-infrastructure-framework",
+      "status": "never_listed",
+      "symbol": "RIF"
+    },
+    "3704": {
+      "cmc_id": 3704,
+      "reason": "absent_from_products",
+      "slug": "v-systems",
+      "status": "never_listed",
+      "symbol": "VSYS"
+    },
+    "3709": {
+      "cmc_id": 3709,
+      "reason": "absent_from_products",
+      "slug": "grin",
+      "status": "never_listed",
+      "symbol": "GRIN"
+    },
+    "3718": {
+      "cmc_id": 3718,
+      "reason": "absent_from_products",
+      "slug": "bittorrent",
+      "status": "never_listed",
+      "symbol": "BTT"
+    },
+    "3724": {
+      "cmc_id": 3724,
+      "reason": "absent_from_products",
+      "slug": "solve",
+      "status": "never_listed",
+      "symbol": "SOLVE"
+    },
+    "37263": {
+      "cmc_id": 37263,
+      "reason": "absent_from_products",
+      "slug": "canton-network",
+      "status": "never_listed",
+      "symbol": "CC"
+    },
+    "3734": {
+      "cmc_id": 3734,
+      "reason": "absent_from_products",
+      "slug": "elamachain",
+      "status": "never_listed",
+      "symbol": "ELAMA"
+    },
+    "3773": {
+      "cmc_id": 3773,
+      "coinbase_name": "Fetch.ai",
+      "products": [
+        {
+          "id": "FET-USD",
+          "status": "online"
+        },
+        {
+          "id": "FET-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Fetch.ai",
+      "slug": "fetch",
+      "status": "mapped",
+      "symbol": "FET"
+    },
+    "3783": {
+      "cmc_id": 3783,
+      "coinbase_name": "Ankr",
+      "products": [
+        {
+          "id": "ANKR-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "ankr",
+      "status": "mapped",
+      "symbol": "ANKR"
+    },
+    "3788": {
+      "cmc_id": 3788,
+      "reason": "absent_from_products",
+      "slug": "next",
+      "status": "never_listed",
+      "symbol": "NET"
+    },
+    "3794": {
+      "cmc_id": 3794,
+      "coinbase_name": "Cosmos",
+      "products": [
+        {
+          "id": "ATOM-USD",
+          "status": "online"
+        },
+        {
+          "id": "ATOM-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "cosmos",
+      "status": "mapped",
+      "symbol": "ATOM"
+    },
+    "3801": {
+      "cmc_id": 3801,
+      "reason": "absent_from_products",
+      "slug": "bora",
+      "status": "never_listed",
+      "symbol": "BORA"
+    },
+    "3812": {
+      "cmc_id": 3812,
+      "reason": "absent_from_products",
+      "slug": "flexacoin",
+      "status": "never_listed",
+      "symbol": "FXC"
+    },
+    "3822": {
+      "cmc_id": 3822,
+      "reason": "absent_from_products",
+      "slug": "theta-fuel",
+      "status": "never_listed",
+      "symbol": "TFUEL"
+    },
+    "3829": {
+      "cmc_id": 3829,
+      "coinbase_name": "Nexus",
+      "products": [
+        {
+          "id": "NEX-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: different project: CMC Nash Exchange vs Coinbase Nexus share ticker NEX",
+      "slug": "nash-exchange",
+      "status": "unknown",
+      "symbol": "NEX"
+    },
+    "3835": {
+      "cmc_id": 3835,
+      "reason": "absent_from_products",
+      "slug": "orbs",
+      "status": "never_listed",
+      "symbol": "ORBS"
+    },
+    "38417": {
+      "cmc_id": 38417,
+      "reason": "absent_from_products",
+      "slug": "river",
+      "status": "never_listed",
+      "symbol": "RIVER"
+    },
+    "38515": {
+      "cmc_id": 38515,
+      "coinbase_name": "Doublezero",
+      "products": [
+        {
+          "id": "2Z-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "doublezero",
+      "status": "mapped",
+      "symbol": "2Z"
+    },
+    "38590": {
+      "cmc_id": 38590,
+      "reason": "absent_from_products",
+      "slug": "bianrensheng",
+      "status": "never_listed",
+      "symbol": "\u5e01\u5b89\u4eba\u751f"
+    },
+    "3871": {
+      "alternate_candidates": [
+        "NEWT"
+      ],
+      "cmc_id": 3871,
+      "reason": "adjudicated_not_same_asset: different project: CMC AB (formerly Newton Project) vs Coinbase NEWT (Newton Protocol)",
+      "slug": "newton",
+      "status": "never_listed",
+      "symbol": "AB"
+    },
+    "38828": {
+      "cmc_id": 38828,
+      "coinbase_name": "Kite",
+      "products": [
+        {
+          "id": "KITE-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "kite",
+      "status": "mapped",
+      "symbol": "KITE"
+    },
+    "38837": {
+      "cmc_id": 38837,
+      "reason": "absent_from_products",
+      "slug": "audiera",
+      "status": "never_listed",
+      "symbol": "BEAT"
+    },
+    "38892": {
+      "cmc_id": 38892,
+      "reason": "absent_from_products",
+      "slug": "stable",
+      "status": "never_listed",
+      "symbol": "STABLE"
+    },
+    "3890": {
+      "cmc_id": 3890,
+      "coinbase_name": "Polygon",
+      "products": [
+        {
+          "id": "MATIC-USD",
+          "status": "delisted"
+        },
+        {
+          "id": "MATIC-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: same project: Matic Network renamed Polygon",
+      "slug": "matic-network",
+      "status": "mapped",
+      "symbol": "MATIC"
+    },
+    "3897": {
+      "cmc_id": 3897,
+      "reason": "absent_from_products",
+      "slug": "okb",
+      "status": "never_listed",
+      "symbol": "OKB"
+    },
+    "39064": {
+      "cmc_id": 39064,
+      "reason": "absent_from_products",
+      "slug": "midnight-network",
+      "status": "never_listed",
+      "symbol": "NIGHT"
+    },
+    "3911": {
+      "cmc_id": 3911,
+      "coinbase_name": "Ocean Protocol",
+      "products": [
+        {
+          "id": "OCEAN-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "ocean-protocol",
+      "status": "mapped",
+      "symbol": "OCEAN"
+    },
+    "39125": {
+      "cmc_id": 39125,
+      "coinbase_name": "Litentry",
+      "products": [
+        {
+          "id": "LIT-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: different project: CMC Lighter vs Coinbase Litentry share ticker LIT",
+      "slug": "lighter",
+      "status": "unknown",
+      "symbol": "LIT"
+    },
+    "3914": {
+      "cmc_id": 3914,
+      "reason": "absent_from_products",
+      "slug": "glitzkoin",
+      "status": "never_listed",
+      "symbol": "GTN"
+    },
+    "3945": {
+      "cmc_id": 3945,
+      "reason": "absent_from_products",
+      "slug": "harmony",
+      "status": "never_listed",
+      "symbol": "ONE"
+    },
+    "3957": {
+      "cmc_id": 3957,
+      "reason": "absent_from_products",
+      "slug": "unus-sed-leo",
+      "status": "never_listed",
+      "symbol": "LEO"
+    },
+    "3964": {
+      "cmc_id": 3964,
+      "coinbase_name": "Reserve Rights",
+      "products": [
+        {
+          "id": "RSR-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "reserve-rights",
+      "status": "mapped",
+      "symbol": "RSR"
+    },
+    "39720": {
+      "cmc_id": 39720,
+      "coinbase_name": "Definitive",
+      "products": [
+        {
+          "id": "EDGE-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: different project: CMC edgeX vs Coinbase Definitive share ticker EDGE",
+      "slug": "edgex",
+      "status": "unknown",
+      "symbol": "EDGE"
+    },
+    "4030": {
+      "cmc_id": 4030,
+      "coinbase_name": "Algorand",
+      "products": [
+        {
+          "id": "ALGO-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "algorand",
+      "status": "mapped",
+      "symbol": "ALGO"
+    },
+    "4049": {
+      "cmc_id": 4049,
+      "reason": "absent_from_products",
+      "slug": "bitbook-gambling",
+      "status": "never_listed",
+      "symbol": "BXK"
+    },
+    "4056": {
+      "cmc_id": 4056,
+      "reason": "absent_from_products",
+      "slug": "ampleforth",
+      "status": "never_listed",
+      "symbol": "AMPL"
+    },
+    "4066": {
+      "cmc_id": 4066,
+      "coinbase_name": "Chiliz",
+      "products": [
+        {
+          "id": "CHZ-USD",
+          "status": "online"
+        },
+        {
+          "id": "CHZ-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "chiliz",
+      "status": "mapped",
+      "symbol": "CHZ"
+    },
+    "4079": {
+      "cmc_id": 4079,
+      "reason": "absent_from_products",
+      "slug": "silverway",
+      "status": "never_listed",
+      "symbol": "SLV"
+    },
+    "4086": {
+      "cmc_id": 4086,
+      "reason": "absent_from_products",
+      "slug": "elrond",
+      "status": "never_listed",
+      "symbol": "ERD"
+    },
+    "4157": {
+      "cmc_id": 4157,
+      "reason": "absent_from_products",
+      "slug": "thorchain",
+      "status": "never_listed",
+      "symbol": "RUNE"
+    },
+    "4172": {
+      "cmc_id": 4172,
+      "reason": "absent_from_products",
+      "slug": "terra-luna",
+      "status": "never_listed",
+      "symbol": "LUNA"
+    },
+    "4195": {
+      "cmc_id": 4195,
+      "reason": "absent_from_products",
+      "slug": "ftx-token",
+      "status": "never_listed",
+      "symbol": "FTT"
+    },
+    "4256": {
+      "cmc_id": 4256,
+      "reason": "absent_from_products",
+      "slug": "klaytn",
+      "status": "never_listed",
+      "symbol": "KLAY"
+    },
+    "4269": {
+      "cmc_id": 4269,
+      "reason": "absent_from_products",
+      "slug": "gatetoken",
+      "status": "never_listed",
+      "symbol": "GT"
+    },
+    "4279": {
+      "cmc_id": 4279,
+      "reason": "absent_from_products",
+      "slug": "swipe",
+      "status": "never_listed",
+      "symbol": "SXP"
+    },
+    "4360": {
+      "cmc_id": 4360,
+      "reason": "absent_from_products",
+      "slug": "fabrk",
+      "status": "never_listed",
+      "symbol": "FAB"
+    },
+    "4469": {
+      "cmc_id": 4469,
+      "reason": "absent_from_products",
+      "slug": "minebee",
+      "status": "never_listed",
+      "symbol": "MB"
+    },
+    "4558": {
+      "cmc_id": 4558,
+      "coinbase_name": "Flow",
+      "products": [
+        {
+          "id": "FLOW-USD",
+          "status": "online"
+        },
+        {
+          "id": "FLOW-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "flow",
+      "status": "mapped",
+      "symbol": "FLOW"
+    },
+    "463": {
+      "cmc_id": 463,
+      "reason": "absent_from_products",
+      "slug": "bitshares",
+      "status": "never_listed",
+      "symbol": "BTS"
+    },
+    "4642": {
+      "cmc_id": 4642,
+      "coinbase_name": "Hedera",
+      "products": [
+        {
+          "id": "HBAR-USD",
+          "status": "online"
+        },
+        {
+          "id": "HBAR-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Hedera Hashgraph, Coinbase name 'Hedera'",
+      "slug": "hedera-hashgraph",
+      "status": "mapped",
+      "symbol": "HBAR"
+    },
+    "4676": {
+      "cmc_id": 4676,
+      "reason": "absent_from_products",
+      "slug": "mexc-token",
+      "status": "never_listed",
+      "symbol": "MEXC"
+    },
+    "4679": {
+      "cmc_id": 4679,
+      "coinbase_name": "Band Protocol",
+      "products": [
+        {
+          "id": "BAND-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "band-protocol",
+      "status": "mapped",
+      "symbol": "BAND"
+    },
+    "4694": {
+      "cmc_id": 4694,
+      "reason": "absent_from_products",
+      "slug": "gaps",
+      "status": "never_listed",
+      "symbol": "GAP"
+    },
+    "4747": {
+      "cmc_id": 4747,
+      "reason": "absent_from_products",
+      "slug": "velas",
+      "status": "never_listed",
+      "symbol": "VLX"
+    },
+    "4748": {
+      "cmc_id": 4748,
+      "reason": "absent_from_products",
+      "slug": "dimension-chain",
+      "status": "never_listed",
+      "symbol": "EON"
+    },
+    "4842": {
+      "cmc_id": 4842,
+      "reason": "absent_from_products",
+      "slug": "folgory-coin",
+      "status": "never_listed",
+      "symbol": "FLG"
+    },
+    "4846": {
+      "cmc_id": 4846,
+      "coinbase_name": "Kava",
+      "products": [
+        {
+          "id": "KAVA-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "kava",
+      "status": "mapped",
+      "symbol": "KAVA"
+    },
+    "4847": {
+      "cmc_id": 4847,
+      "coinbase_name": "Stacks",
+      "products": [
+        {
+          "id": "STX-USD",
+          "status": "online"
+        },
+        {
+          "id": "STX-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Blockstack renamed Stacks",
+      "slug": "blockstack",
+      "status": "mapped",
+      "symbol": "STX"
+    },
+    "4948": {
+      "cmc_id": 4948,
+      "reason": "absent_from_products",
+      "slug": "nervos-network",
+      "status": "never_listed",
+      "symbol": "CKB"
+    },
+    "4949": {
+      "cmc_id": 4949,
+      "reason": "absent_from_products",
+      "slug": "999-coin",
+      "status": "never_listed",
+      "symbol": "999"
+    },
+    "5015": {
+      "cmc_id": 5015,
+      "reason": "absent_from_products",
+      "slug": "hex",
+      "status": "never_listed",
+      "symbol": "HEX"
+    },
+    "5026": {
+      "cmc_id": 5026,
+      "coinbase_name": "Orchid",
+      "products": [
+        {
+          "id": "OXT-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "orchid",
+      "status": "mapped",
+      "symbol": "OXT"
+    },
+    "5031": {
+      "cmc_id": 5031,
+      "reason": "absent_from_products",
+      "slug": "mimblewimblecoin",
+      "status": "never_listed",
+      "symbol": "MWC"
+    },
+    "5034": {
+      "cmc_id": 5034,
+      "coinbase_name": "Kusama",
+      "products": [
+        {
+          "id": "KSM-USD",
+          "status": "online"
+        },
+        {
+          "id": "KSM-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "kusama",
+      "status": "mapped",
+      "symbol": "KSM"
+    },
+    "5070": {
+      "cmc_id": 5070,
+      "reason": "absent_from_products",
+      "slug": "tap",
+      "status": "never_listed",
+      "symbol": "XTP"
+    },
+    "5084": {
+      "cmc_id": 5084,
+      "reason": "absent_from_products",
+      "slug": "playfuel",
+      "status": "never_listed",
+      "symbol": "PLF"
+    },
+    "512": {
+      "cmc_id": 512,
+      "coinbase_name": "Stellar",
+      "products": [
+        {
+          "id": "XLM-USD",
+          "status": "online"
+        },
+        {
+          "id": "XLM-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "stellar",
+      "status": "mapped",
+      "symbol": "XLM"
+    },
+    "52": {
+      "cmc_id": 52,
+      "coinbase_name": "XRP",
+      "products": [
+        {
+          "id": "XRP-USD",
+          "status": "online"
+        },
+        {
+          "id": "XRP-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "xrp",
+      "status": "mapped",
+      "symbol": "XRP"
+    },
+    "5234": {
+      "cmc_id": 5234,
+      "reason": "absent_from_products",
+      "slug": "metaverse-dualchain-network-architecture",
+      "status": "never_listed",
+      "symbol": "DNA"
+    },
+    "5268": {
+      "cmc_id": 5268,
+      "reason": "absent_from_products",
+      "slug": "energy-web-token",
+      "status": "never_listed",
+      "symbol": "EWT"
+    },
+    "5279": {
+      "cmc_id": 5279,
+      "reason": "absent_from_products",
+      "slug": "sologenic",
+      "status": "never_listed",
+      "symbol": "SOLO"
+    },
+    "5329": {
+      "cmc_id": 5329,
+      "reason": "absent_from_products",
+      "slug": "largo-coin",
+      "status": "never_listed",
+      "symbol": "LRG"
+    },
+    "5336": {
+      "cmc_id": 5336,
+      "reason": "absent_from_products",
+      "slug": "homeros",
+      "status": "never_listed",
+      "symbol": "HMR"
+    },
+    "5370": {
+      "cmc_id": 5370,
+      "reason": "absent_from_products",
+      "slug": "hive-blockchain",
+      "status": "never_listed",
+      "symbol": "HIVE"
+    },
+    "5426": {
+      "cmc_id": 5426,
+      "coinbase_name": "Solana",
+      "products": [
+        {
+          "id": "SOL-USD",
+          "status": "online"
+        },
+        {
+          "id": "SOL-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "solana",
+      "status": "mapped",
+      "symbol": "SOL"
+    },
+    "5482": {
+      "cmc_id": 5482,
+      "reason": "absent_from_products",
+      "slug": "counos-x",
+      "status": "never_listed",
+      "symbol": "CCXX"
+    },
+    "5488": {
+      "cmc_id": 5488,
+      "reason": "absent_from_products",
+      "slug": "just",
+      "status": "never_listed",
+      "symbol": "JST"
+    },
+    "5524": {
+      "cmc_id": 5524,
+      "reason": "absent_from_products",
+      "slug": "tnc-coin",
+      "status": "never_listed",
+      "symbol": "TNC"
+    },
+    "5567": {
+      "alternate_candidates": [
+        "CGLD"
+      ],
+      "cmc_id": 5567,
+      "coinbase_base": "CGLD",
+      "coinbase_name": "Celo",
+      "products": [
+        {
+          "id": "CGLD-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated_alternate_ticker: same asset: Celo trades on Coinbase under ticker CGLD (Celo Gold)",
+      "slug": "celo",
+      "status": "mapped",
+      "symbol": "CELO"
+    },
+    "5604": {
+      "cmc_id": 5604,
+      "reason": "absent_from_products",
+      "slug": "secret",
+      "status": "never_listed",
+      "symbol": "SCRT"
+    },
+    "5617": {
+      "cmc_id": 5617,
+      "coinbase_name": "UMA",
+      "products": [
+        {
+          "id": "UMA-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "uma",
+      "status": "mapped",
+      "symbol": "UMA"
+    },
+    "5632": {
+      "cmc_id": 5632,
+      "reason": "absent_from_products",
+      "slug": "arweave",
+      "status": "never_listed",
+      "symbol": "AR"
+    },
+    "5647": {
+      "cmc_id": 5647,
+      "reason": "absent_from_products",
+      "slug": "kadena",
+      "status": "never_listed",
+      "symbol": "KDA"
+    },
+    "5665": {
+      "cmc_id": 5665,
+      "coinbase_name": "Helium",
+      "products": [
+        {
+          "id": "HNT-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "helium",
+      "status": "mapped",
+      "symbol": "HNT"
+    },
+    "5690": {
+      "cmc_id": 5690,
+      "coinbase_name": "Render Token",
+      "products": [
+        {
+          "id": "RNDR-USD",
+          "status": "delisted"
+        },
+        {
+          "id": "RNDR-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "render-token",
+      "status": "mapped",
+      "symbol": "RNDR"
+    },
+    "5692": {
+      "cmc_id": 5692,
+      "coinbase_name": "Compound",
+      "products": [
+        {
+          "id": "COMP-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "compound",
+      "status": "mapped",
+      "symbol": "COMP"
+    },
+    "5728": {
+      "cmc_id": 5728,
+      "coinbase_name": "Balancer",
+      "products": [
+        {
+          "id": "BAL-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "balancer",
+      "status": "mapped",
+      "symbol": "BAL"
+    },
+    "5785": {
+      "cmc_id": 5785,
+      "reason": "absent_from_products",
+      "slug": "stpay",
+      "status": "never_listed",
+      "symbol": "STP"
+    },
+    "5796": {
+      "cmc_id": 5796,
+      "reason": "absent_from_products",
+      "slug": "beautypaycoin",
+      "status": "never_listed",
+      "symbol": "BPC"
+    },
+    "5805": {
+      "cmc_id": 5805,
+      "coinbase_name": "Avalanche",
+      "products": [
+        {
+          "id": "AVAX-USD",
+          "status": "online"
+        },
+        {
+          "id": "AVAX-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "avalanche",
+      "status": "mapped",
+      "symbol": "AVAX"
+    },
+    "5815": {
+      "cmc_id": 5815,
+      "reason": "absent_from_products",
+      "slug": "bitcoinpos",
+      "status": "never_listed",
+      "symbol": "BPS"
+    },
+    "5830": {
+      "cmc_id": 5830,
+      "reason": "absent_from_products",
+      "slug": "nxm",
+      "status": "never_listed",
+      "symbol": "NXM"
+    },
+    "5864": {
+      "cmc_id": 5864,
+      "coinbase_name": "yearn.finance",
+      "products": [
+        {
+          "id": "YFI-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "yearn-finance",
+      "status": "mapped",
+      "symbol": "YFI"
+    },
+    "5899": {
+      "cmc_id": 5899,
+      "reason": "absent_from_products",
+      "slug": "casper",
+      "status": "never_listed",
+      "symbol": "CSPR"
+    },
+    "5957": {
+      "cmc_id": 5957,
+      "coinbase_name": "DFI.Money",
+      "products": [
+        {
+          "id": "YFII-USD",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: same project: YFII is the DFI.Money token",
+      "slug": "yearn-finance-ii",
+      "status": "mapped",
+      "symbol": "YFII"
+    },
+    "5964": {
+      "cmc_id": 5964,
+      "reason": "absent_from_products",
+      "slug": "trust-wallet-token",
+      "status": "never_listed",
+      "symbol": "TWT"
+    },
+    "5994": {
+      "cmc_id": 5994,
+      "coinbase_name": "Shiba Inu",
+      "products": [
+        {
+          "id": "SHIB-USD",
+          "status": "online"
+        },
+        {
+          "id": "SHIB-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "shiba-inu",
+      "status": "mapped",
+      "symbol": "SHIB"
+    },
+    "6187": {
+      "cmc_id": 6187,
+      "reason": "absent_from_products",
+      "slug": "serum",
+      "status": "never_listed",
+      "symbol": "SRM"
+    },
+    "6210": {
+      "cmc_id": 6210,
+      "coinbase_name": "The Sandbox",
+      "products": [
+        {
+          "id": "SAND-USD",
+          "status": "online"
+        },
+        {
+          "id": "SAND-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "the-sandbox",
+      "status": "mapped",
+      "symbol": "SAND"
+    },
+    "6535": {
+      "cmc_id": 6535,
+      "coinbase_name": "Near Protocol",
+      "products": [
+        {
+          "id": "NEAR-USD",
+          "status": "online"
+        },
+        {
+          "id": "NEAR-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "near-protocol",
+      "status": "mapped",
+      "symbol": "NEAR"
+    },
+    "6536": {
+      "cmc_id": 6536,
+      "reason": "absent_from_products",
+      "slug": "mantra",
+      "status": "never_listed",
+      "symbol": "OM"
+    },
+    "6538": {
+      "cmc_id": 6538,
+      "coinbase_name": "Curve DAO Token",
+      "products": [
+        {
+          "id": "CRV-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "curve-dao-token",
+      "status": "mapped",
+      "symbol": "CRV"
+    },
+    "6636": {
+      "cmc_id": 6636,
+      "coinbase_name": "Polkadot",
+      "products": [
+        {
+          "id": "DOT-USD",
+          "status": "online"
+        },
+        {
+          "id": "DOT-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Polkadot (CMC slug polkadot-new after redenomination)",
+      "slug": "polkadot-new",
+      "status": "mapped",
+      "symbol": "DOT"
+    },
+    "6719": {
+      "cmc_id": 6719,
+      "coinbase_name": "The Graph",
+      "products": [
+        {
+          "id": "GRT-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "the-graph",
+      "status": "mapped",
+      "symbol": "GRT"
+    },
+    "6758": {
+      "cmc_id": 6758,
+      "coinbase_name": "SushiSwap",
+      "products": [
+        {
+          "id": "SUSHI-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "sushiswap",
+      "status": "mapped",
+      "symbol": "SUSHI"
+    },
+    "6783": {
+      "cmc_id": 6783,
+      "coinbase_name": "Axie Infinity",
+      "products": [
+        {
+          "id": "AXS-USD",
+          "status": "online"
+        },
+        {
+          "id": "AXS-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "axie-infinity",
+      "status": "mapped",
+      "symbol": "AXS"
+    },
+    "6836": {
+      "cmc_id": 6836,
+      "reason": "absent_from_products",
+      "slug": "moonbeam",
+      "status": "never_listed",
+      "symbol": "GLMR"
+    },
+    "6892": {
+      "cmc_id": 6892,
+      "coinbase_name": "MultiversX",
+      "products": [
+        {
+          "id": "EGLD-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Elrond renamed MultiversX (EGLD)",
+      "slug": "elrond-egld",
+      "status": "mapped",
+      "symbol": "EGLD"
+    },
+    "693": {
+      "cmc_id": 693,
+      "reason": "absent_from_products",
+      "slug": "verge",
+      "status": "never_listed",
+      "symbol": "XVG"
+    },
+    "6945": {
+      "cmc_id": 6945,
+      "coinbase_name": "Amp",
+      "products": [
+        {
+          "id": "AMP-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "amp",
+      "status": "mapped",
+      "symbol": "AMP"
+    },
+    "6950": {
+      "cmc_id": 6950,
+      "coinbase_name": "Perpetual Protocol",
+      "products": [
+        {
+          "id": "PERP-USD",
+          "status": "online"
+        },
+        {
+          "id": "PERP-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "perpetual-protocol",
+      "status": "mapped",
+      "symbol": "PERP"
+    },
+    "6953": {
+      "cmc_id": 6953,
+      "reason": "absent_from_products",
+      "slug": "frax-share",
+      "status": "never_listed",
+      "symbol": "FXS"
+    },
+    "7064": {
+      "cmc_id": 7064,
+      "reason": "absent_from_products",
+      "slug": "bakerytoken",
+      "status": "never_listed",
+      "symbol": "BAKE"
+    },
+    "7080": {
+      "cmc_id": 7080,
+      "coinbase_name": "Gala V1",
+      "products": [
+        {
+          "id": "GALA-USD",
+          "status": "delisted"
+        },
+        {
+          "id": "GALA-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: same project: Gala; Coinbase name 'Gala V1' reflects the 2023 token migration under the same CMC ID",
+      "slug": "gala",
+      "status": "mapped",
+      "symbol": "GALA"
+    },
+    "7083": {
+      "cmc_id": 7083,
+      "coinbase_name": "Uniswap",
+      "products": [
+        {
+          "id": "UNI-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "uniswap",
+      "status": "mapped",
+      "symbol": "UNI"
+    },
+    "7186": {
+      "cmc_id": 7186,
+      "coinbase_name": "Pancakeswap",
+      "products": [
+        {
+          "id": "CAKE-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "pancakeswap",
+      "status": "mapped",
+      "symbol": "CAKE"
+    },
+    "7226": {
+      "cmc_id": 7226,
+      "coinbase_name": "Injective Protocol",
+      "products": [
+        {
+          "id": "INJ-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Injective (Coinbase name 'Injective Protocol')",
+      "slug": "injective",
+      "status": "mapped",
+      "symbol": "INJ"
+    },
+    "7232": {
+      "cmc_id": 7232,
+      "reason": "absent_from_products",
+      "slug": "alpha-finance-lab",
+      "status": "never_listed",
+      "symbol": "ALPHA"
+    },
+    "7278": {
+      "cmc_id": 7278,
+      "coinbase_name": "Aave",
+      "products": [
+        {
+          "id": "AAVE-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "aave",
+      "status": "mapped",
+      "symbol": "AAVE"
+    },
+    "7288": {
+      "cmc_id": 7288,
+      "reason": "absent_from_products",
+      "slug": "venus",
+      "status": "never_listed",
+      "symbol": "XVS"
+    },
+    "7326": {
+      "cmc_id": 7326,
+      "reason": "absent_from_products",
+      "slug": "dexe",
+      "status": "never_listed",
+      "symbol": "DEXE"
+    },
+    "7334": {
+      "cmc_id": 7334,
+      "reason": "absent_from_products",
+      "slug": "conflux-network",
+      "status": "never_listed",
+      "symbol": "CFX"
+    },
+    "74": {
+      "cmc_id": 74,
+      "coinbase_name": "Dogecoin",
+      "products": [
+        {
+          "id": "DOGE-USD",
+          "status": "online"
+        },
+        {
+          "id": "DOGE-USDT",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "dogecoin",
+      "status": "mapped",
+      "symbol": "DOGE"
+    },
+    "7431": {
+      "cmc_id": 7431,
+      "coinbase_name": "Akash",
+      "products": [
+        {
+          "id": "AKT-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Akash Network",
+      "slug": "akash-network",
+      "status": "mapped",
+      "symbol": "AKT"
+    },
+    "7455": {
+      "cmc_id": 7455,
+      "coinbase_name": "Audius",
+      "products": [
+        {
+          "id": "AUDIO-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "audius",
+      "status": "mapped",
+      "symbol": "AUDIO"
+    },
+    "7501": {
+      "cmc_id": 7501,
+      "reason": "absent_from_products",
+      "slug": "wootrade",
+      "status": "never_listed",
+      "symbol": "WOO"
+    },
+    "7548": {
+      "cmc_id": 7548,
+      "reason": "absent_from_products",
+      "slug": "wemix",
+      "status": "never_listed",
+      "symbol": "WEMIX"
+    },
+    "7653": {
+      "cmc_id": 7653,
+      "coinbase_name": "Oasis Network",
+      "products": [
+        {
+          "id": "ROSE-USD",
+          "status": "online"
+        },
+        {
+          "id": "ROSE-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "oasis-network",
+      "status": "mapped",
+      "symbol": "ROSE"
+    },
+    "7950": {
+      "cmc_id": 7950,
+      "coinbase_name": "Flare",
+      "products": [
+        {
+          "id": "FLR-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "flare",
+      "status": "mapped",
+      "symbol": "FLR"
+    },
+    "8000": {
+      "cmc_id": 8000,
+      "coinbase_name": "Lido DAO",
+      "products": [
+        {
+          "id": "LDO-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "lido-dao",
+      "status": "mapped",
+      "symbol": "LDO"
+    },
+    "8104": {
+      "cmc_id": 8104,
+      "coinbase_name": "1Inch",
+      "products": [
+        {
+          "id": "1INCH-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "1inch",
+      "status": "mapped",
+      "symbol": "1INCH"
+    },
+    "8335": {
+      "cmc_id": 8335,
+      "reason": "absent_from_products",
+      "slug": "mdex",
+      "status": "never_listed",
+      "symbol": "MDX"
+    },
+    "8425": {
+      "cmc_id": 8425,
+      "coinbase_name": "JasmyCoin",
+      "products": [
+        {
+          "id": "JASMY-USD",
+          "status": "online"
+        },
+        {
+          "id": "JASMY-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "adjudicated: same project: JasmyCoin",
+      "slug": "jasmy",
+      "status": "mapped",
+      "symbol": "JASMY"
+    },
+    "8526": {
+      "cmc_id": 8526,
+      "coinbase_name": "Raydium",
+      "products": [
+        {
+          "id": "RAY-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "raydium",
+      "status": "mapped",
+      "symbol": "RAY"
+    },
+    "8536": {
+      "cmc_id": 8536,
+      "coinbase_name": "Mask Network",
+      "products": [
+        {
+          "id": "MASK-USD",
+          "status": "online"
+        },
+        {
+          "id": "MASK-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "mask-network",
+      "status": "mapped",
+      "symbol": "MASK"
+    },
+    "8646": {
+      "cmc_id": 8646,
+      "coinbase_name": "Mina",
+      "products": [
+        {
+          "id": "MINA-USD",
+          "status": "online"
+        },
+        {
+          "id": "MINA-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "mina",
+      "status": "mapped",
+      "symbol": "MINA"
+    },
+    "8677": {
+      "cmc_id": 8677,
+      "reason": "absent_from_products",
+      "slug": "symbol",
+      "status": "never_listed",
+      "symbol": "XYM"
+    },
+    "873": {
+      "cmc_id": 873,
+      "reason": "absent_from_products",
+      "slug": "nem",
+      "status": "never_listed",
+      "symbol": "XEM"
+    },
+    "8857": {
+      "cmc_id": 8857,
+      "reason": "absent_from_products",
+      "slug": "anchor-protocol",
+      "status": "never_listed",
+      "symbol": "ANC"
+    },
+    "8916": {
+      "cmc_id": 8916,
+      "coinbase_name": "Internet Computer",
+      "products": [
+        {
+          "id": "ICP-USD",
+          "status": "online"
+        },
+        {
+          "id": "ICP-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "internet-computer",
+      "status": "mapped",
+      "symbol": "ICP"
+    },
+    "9104": {
+      "cmc_id": 9104,
+      "coinbase_name": "Aioz Network",
+      "products": [
+        {
+          "id": "AIOZ-USD",
+          "status": "online"
+        },
+        {
+          "id": "AIOZ-USDT",
+          "status": "delisted"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "aioz-network",
+      "status": "mapped",
+      "symbol": "AIOZ"
+    },
+    "9436": {
+      "cmc_id": 9436,
+      "reason": "absent_from_products",
+      "slug": "dogelon",
+      "status": "never_listed",
+      "symbol": "ELON"
+    },
+    "9444": {
+      "cmc_id": 9444,
+      "coinbase_name": "Kyber Network",
+      "products": [
+        {
+          "id": "KNC-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "adjudicated: same project: Kyber Network Crystal (KNC v2 after the 2021 migration)",
+      "slug": "kyber-network-crystal-v2",
+      "status": "mapped",
+      "symbol": "KNC"
+    },
+    "9481": {
+      "cmc_id": 9481,
+      "coinbase_name": "Pendle",
+      "products": [
+        {
+          "id": "PENDLE-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "pendle",
+      "status": "mapped",
+      "symbol": "PENDLE"
+    },
+    "9816": {
+      "cmc_id": 9816,
+      "reason": "absent_from_products",
+      "slug": "apenft",
+      "status": "never_listed",
+      "symbol": "NFT"
+    },
+    "9891": {
+      "cmc_id": 9891,
+      "reason": "absent_from_products",
+      "slug": "binaryx",
+      "status": "never_listed",
+      "symbol": "BNX"
+    },
+    "9903": {
+      "cmc_id": 9903,
+      "coinbase_name": "Convex Finance",
+      "products": [
+        {
+          "id": "CVX-USD",
+          "status": "online"
+        }
+      ],
+      "reason": "exact_name_slug",
+      "slug": "convex-finance",
+      "status": "mapped",
+      "symbol": "CVX"
+    }
+  },
+  "schema": "entr-cb1-identity-map-v1"
+}

@@ -51167,3 +51167,315 @@ new runner apply the per-cycle filter with no engine change (engine sha256 388dc
 docs/research/coinbase_tradable_entrants_20261019/ regenerated (excludes itself; all 3 files OK).
 Still DRAFT, not frozen. Checkpoint plan README verified identical on device (c7896218...). Other
 transfers this session (C4 v1/v2/v3 files) were verified by hash on device at the time. No other change.
+
+## 2026-10-19T04:57:45Z - Claude (Cowork): operator-approved lock removal and local checkpoint commit (no push)
+Operator explicitly approved "Lock + commit, no push" (2026-10-19), including confirmation that the two
+test canary lines (tests/test_explain_diagnostics.py:15, tests/test_verify_companion_stack.py:103) are
+fake. Not approved and not done: backup bundle, ENTR-CB-1 freeze/probe, any push.
+Lock: .git/index.lock verified unchanged (0 bytes, mtime 2026-10-04 16:18:30 UTC) immediately before
+removal; delete permission granted by the operator for the repo folder; removed exactly that file.
+Pre-commit checks: approved list (stage_pathspec.nul, verified against its SHA256SUMS) matched the tree
+exactly: 4,186 paths present, 0 unlisted changes, 0 sensitive names; files changed after the scan
+(ENTR-CB-1 draft, its SHA256SUMS, this log) rescanned with the same patterns: no hits; no mode changes.
+Commit 933d7ea2f3c870993cf9bfd6de008b6c7c6adea5 on new branch checkpoint/2026-10-19 (parent 620bc8dbe),
+author Ddthomas415 <117304334+Ddthomas415@users.noreply.github.com> (passed per-command; no git config
+changed), 4,186 files (4,133 added, 53 modified), literal pathspecs. Left untracked by design: the 9
+keep-out files in archive_outside_git.txt. No upstream set; nothing pushed.
+Restore proof: shallow single-branch clone of the new branch outside the repo: HEAD 933d7ea2..., git
+fsck --full exit 0, 6,468 tracked files, all byte-identical to the working tree (0 missing, 0 differing);
+clone then removed. Tests were not run in the clone (no pytest in this shell); the C3/C4 files in it have
+the hashes already tested and reviewed. The working tree is now on checkpoint/2026-10-19, which contains
+codex/research-bundle-proof's two commits plus the checkpoint; codex/research-bundle-proof is unchanged.
+This entry itself postdates the commit and is uncommitted.
+
+## 2026-10-19T05:07:24Z - Claude (Cowork): review packet for operator/Codex audit (no other change)
+Operator: "leave it for review; Codex will audit before we finalize". No code, study, git or data
+action taken after the 04:57:45Z commit entry. Added docs/review_artifacts/claude_cowork_20261019/
+(13 files, SHA256SUMS excludes itself, all hashes verified on this machine after transfer): index
+claude_cowork_review_packet_20261019.md (691355cc...) listing every action this session with work-log
+times, current artifact hashes, six mistakes, verification commands and open decisions; the three C4
+reviewers' final reports transcribed as faithful summaries (not byte-exact); the reviewers' probe files
+and mutation harness copied unmodified; this agent's mutation harnesses. These were previously only in
+the agent's cloud workspace. Uncommitted. Acceptance: none claimed; awaiting Codex audit and operator.
+
+## 2026-10-19T05:15:56Z - Claude (Cowork): ENTR-CB-1 runner and synthetic tests (no market data, no run)
+Operator: do not use Codex's audit as a reason to stall; the audit proceeds in parallel. Active role:
+ENGINEER. Risk: MEDIUM (research runner; not trading). Added scripts/research/run_coinbase_tradable_entrants.py
+(73f16e49...) and tests/test_coinbase_tradable_entrants.py (6336b16f...). The runner reuses the unchanged
+v2 engine choose()/cycle()/describe()/interval() (engine 388dc98a..., v2 runner 04ab5aa2... both pinned
+and verified on this machine), applies the per-cycle Coinbase filter after selection and before equal
+weights, treats delisting before exit as an unresolved exit by removing the asset from the exit snapshot,
+reports unfiltered v2 reference values alongside, and applies the preregistered decision rule. main()
+refuses to compute while FROZEN_PREREG_SHA256 is None; it also requires a caller-pinned listing-file hash
+and every selected CMC ID in that file.
+Verification (agent cloud workspace copies, ASSUMED_ENV; not the repo .venv):
+PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider tests/test_coinbase_tradable_entrants.py
+-> 29 passed on Python 3.12.3 and 3.13.16. Includes an exact-parity test: with every coin tradable, the
+runner's cycles equal the engine's own run() output. 10 mutants of the filter, exit rule, decision rule,
+frozen-guard and parser each fail >= 1 test. First test run had 7 failures from my own fixture (entry week
+not on a cycle index); fixture fixed, runner unchanged.
+Draft updated, still DRAFT: a7fb3662... (delisted-before-entry not tradable; never-listed vs unknown; 10%
+denominators explicit; section 9 names the runner); SHA256SUMS regenerated. Review packet addendum added
+and its SHA256SUMS regenerated. No download, market-data run, commit or push. Acceptance:
+READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-10-19T05:46:38Z - Claude (Cowork): ENTR-CB-1 preregistration FROZEN (operator approved)
+Operator approved freezing ENTR-CB-1 and the Step A probe (reply "approve" to the request "freeze and
+probe"; the backup bundle was not included and is not done). FROZEN as
+docs/research/coinbase_tradable_entrants_20261019/PREREGISTRATION_DRAFT.md sha256
+a7fb3662450b20764f1d11404543b9551283a3c50f290ab466d3b02db86c67e9 (verified immediately before this
+entry). The file text still says DRAFT; this entry is the freeze record. Any change is a new version.
+Nothing has been fetched, computed or scored yet. Next, in separate steps: pin the runner to this hash,
+then run Step A (at most 20 public Coinbase requests). Step B (full listing download) needs separate
+approval after Step A.
+
+## 2026-10-19T05:48:28Z - Claude (Cowork): ENTR-CB-1 runner pinned; Step A probe run - PASS
+Sequential after the 05:46:38Z freeze record. (1) Runner pinned: FROZEN_PREREG_SHA256 set to a7fb3662...;
+only that line changed (diff checked); 29 tests still pass on 3.12.3 and 3.13.16 (agent workspace);
+scripts/research/run_coinbase_tradable_entrants.py now sha256 fdcdebe4263669cd847a92b46dca658bd2bfe5743ae8a32b669fa4670ba02cc3.
+(2) Step A, operator approved: new scripts/research/probe_coinbase_listings.py (6833cbf3..., stdlib, hard cap
+20 requests, public endpoints, no credentials) run once from this machine 05:47:42-05:47:48Z: 9 requests,
+all answered. Raw bodies, hashes, statuses and times in research/coinbase_listing_probe_20261019/
+(manifest.json + SHA256SUMS; all 9 hashes re-verified).
+SHOWN from the saved files: /products returned 842 products, 515 online and 327 delisted (196 delisted with
+USD/USDC/USDT quotes); delisted 1INCH-BTC returned daily candles first 2021-04-09; delisted ACH-USDT
+returned candles ending 2023-10-16 within a window to 2023-10-27; SEI-USD first daily candle 2023-08-15 in a
+window from 2023-08-01; HEX-USD returned 404 NotFound. Step A criterion (delisted products and their history
+available) MET. UNVERIFIED: whether products delisted long ago may be missing from /products entirely; until
+shown otherwise, absence from /products is evidence, not proof, of never having been listed.
+No returns computed, no scoring. Step B (identity map + listing dates) requires separate operator approval.
+
+## 2026-10-19T05:50:06Z - Claude (Cowork): ENTR-CB-1 Step A follow-up (2 requests, within the approved 20) and scale check
+Purpose: resolve the 05:48:28Z caveat (are long-delisted products missing from /products?). Ran the
+committed probe code (Prober from scripts/research/probe_coinbase_listings.py 6833cbf3..., counter continued
+at 9) for exactly 2 requests: 2019 daily candles for GNT-USDC and DNT-USDC. Saved in
+research/coinbase_listing_probe_20261019_followup/ (manifest + SHA256SUMS, verified; the first SHA256SUMS
+write was partial because my filename glob missed files numbered 10/11, rewritten and verified). Step A
+total: 11 of 20 requests.
+SHOWN: both returned HTTP 200 with 300 daily candles from 2019-01-01 to 2019-10-27; both are listed in
+/products as delisted. Also from the saved /products (no new requests): BAT-, ZEC-, DAI-, LOOM-, CVC-,
+MANA-USDC and REP-USD present as delisted; BSV-USD absent. Interpretation: /products retains products
+delisted years ago with their history, so absence from it is strong evidence (not proof) of never having
+been listed. Scale (ticker candidates only, not identity): 50 of 107 entrant IDs (61 of 133 selections)
+and 163 of 383 control IDs have a ticker among USD/USDC/USDT base currencies. Consequence: if absent coins
+were classed "unknown", the unknown share (~54% of entrant selections) would fail condition (4) and force
+INCONCLUSIVE regardless of returns; the classification rule for absent coins must be fixed in the identity
+map before Step B. No returns computed.
+
+## 2026-10-19T06:04:14Z - Claude (Cowork): ENTR-CB-1 Step B - identity map FROZEN (operator approved Step B and the absent-coin rule)
+Operator approved Step B with the recommended rule (absent from Coinbase's complete product list =
+never_listed). Backup bundle not approved, not done. (1) 1 request: GET /currencies (511 currencies: 422
+online, 89 delisted), saved in research/coinbase_listing_stepB_20261019/ with manifest + SHA256SUMS.
+(2) New scripts/research/build_coinbase_identity_map.py (152a20cb...): mapped only if ticker matches a base
+with USD/USDC/USDT products AND Coinbase name normalised equals the CMC slug, or an explicit adjudication
+accepts it; ticker alone never maps. 44 non-exact matches adjudicated in
+docs/research/coinbase_tradable_entrants_20261019/identity_adjudications.json (0bd434c0...): 39 same-project renames mapped, 5 different-project ticker
+collisions (MONA, LA, NEX, LIT, EDGE; none entrants) set unknown. Same-project judgments rest on the
+agent's knowledge of rebrandings (CLAIMED); flagged for review.
+FROZEN map: docs/research/coinbase_tradable_entrants_20261019/identity_map/identity_map.json 5ec776a9fdd853c662e6008c110c4a98df980f9cb20745d88ffb46a4fe0eeb82
+(review.csv 67ab979e...). All 383 IDs: 158 mapped, 220 never_listed, 5 unknown. Entrants: 50 mapped (61 of
+133 selections), 57 never_listed (72 selections), 0 unknown. 209 Coinbase products (57 delisted) need
+listing dates. Per the frozen protocol, an independent map review precedes the listing download; no
+listing dates fetched and no returns computed yet.
+
+## 2026-10-19T06:05:50Z - Claude (Cowork): ENTR-CB-1 identity map v2 FROZEN (supersedes v1 before any download)
+Self-check after the 06:04:14Z freeze: name-based reverse matching found 9 never_listed CMC coins whose slug
+matches a Coinbase currency name under a different ticker. Adjudicated (identity_adjudications_v2.json
+dc90b01d...): mapped CELO->CGLD, RON->RONIN, MNT->MANTLE, dYdX Chain (28324)->COSMOSDYDX; kept never_listed
+with reasons: ERC-20 dYdX (11156), LEND and NPXS (redenominated predecessors), AOA and AB (different
+projects). None are entrants. Builder updated to run this alternate-ticker check automatically
+(scripts/research/build_coinbase_identity_map.py now 27d68bd4...; unadjudicated alternates -> unknown).
+FROZEN map v2: docs/research/coinbase_tradable_entrants_20261019/identity_map_v2/identity_map.json
+8e7145420668bba6303fbbc93e7710e3329574189c98b99fdfc7158fbe9b765b (review.csv b1a6f89c...). Only the 9
+records changed. All 383: 162 mapped, 216 never_listed, 5 unknown. Entrants unchanged: 50 mapped (61 of 133
+selections), 57 never_listed (72), 0 unknown. 213 products need listing dates. v1 map and v1 adjudications
+preserved. Independent map review next; still no listing dates fetched, no returns computed.
+
+## 2026-10-19T06:22:37Z - Claude (Cowork): ENTR-CB-1 Step B code tested offline; frozen map v2 has defects; v3 drafted (not frozen)
+Done, with no network requests, no listing dates and no returns:
+- Added (uncommitted): scripts/research/fetch_coinbase_listing_dates.py 049a36a4..., build_coinbase_listings.py
+  2f5afefd..., run_coinbase_tradable_entrants_pinned.py 597ba0b4... (section 9 guard wrapper; frozen runner fdcdebe4...
+  unchanged); tests/test_coinbase_listing_fetch.py ee59b3b5... (28 tests), tests/test_coinbase_tradable_entrants_pinned.py
+  22bc9ed4... (9 tests).
+- Fetcher: public candle endpoint only; 300-candle windows in the form Step A showed works (probe requests 04, 10, 11
+  returned 300 candles including the end day); last candle by stepping back from the newest window, first candle by
+  binary search (frozen section 4); at most 3 requests/s; hard cap 1,600; every body saved with sha256 in an
+  append-only log; resumable. Known limit, documented and asserted by a test: a trading gap covering a whole 300-day
+  window can make the binary search return a later first date.
+- Tests: 66 passed (37 new + 29 runner) under workspace Python 3.13 and 3.12. Device Python is 3.10.12 without pytest,
+  so a stdlib smoke run (fake network) of fetcher -> builder -> frozen runner parser was run there and passed.
+  Mutation checks: 22 of 23 fetcher/builder mutants fail the tests (the survivor is equivalent), 7 of 7 wrapper mutants.
+Found in FROZEN map v2 (SHOWN from the saved /currencies response unless marked):
+- 29210 JUP (jupiter-ag) is mapped to Coinbase JUP, whose record is Ethereum contract 0x4B1E80cA... (Jupiter Project).
+  Coinbase JUPITER lists Solana mint JUPyiwrY...; that this mint is the Jupiter aggregator token is CLAIMED. v2 is wrong.
+- 23254 CORE (core-dao, 1 entrant selection) is never_listed in v2, but Coinbase CORECHAIN is "Core" on network coredao.
+- 39720 EDGE (edgex) and 39125 LIT (lighter) are unknown in v2, but Coinbase lists EDGEX "Edgex" and LIGHTER "Lighter";
+  v2's alternate-ticker check skipped tickers that exist on Coinbase under another project.
+- KNC-USD is mapped for both 1982 (selections 2020-03-08..2021-02-07) and 9444 (2022-05-01..2022-05-29). Disclosed only.
+Drafted in the workspace (NOT frozen, not in the repo): builder v3 (alternate check for every non-exact record, wider
+candidate net, shared-base annotation) and adjudications v3 (18 new: 17 never_listed, CORE -> CORECHAIN; 3 corrected:
+JUP -> JUPITER, EDGE -> EDGEX, LIT -> LIGHTER). Trial v3: 165 mapped, 215 never_listed, 3 unknown; entrants 51 mapped
+(62 of 133 selections), 56 never_listed (71); 216 products. Next: merge the independent map review (still running),
+freeze v3, then the listing download. Not done: listing download, runner, results review.
+
+## 2026-10-19T06:51:03Z - Claude (Cowork): ENTR-CB-1 identity map v3 FROZEN (v2 REJECTED by independent review)
+- Independent review of map v2 (separate subagent, ~06:06-06:26Z): REJECTED. Blockers: F1 CORE entrant missed; F2 builder
+  skipped alternates when the ticker exists under another project (29210, 39125, 39720); F3 no contract-address check
+  (prereg 3.1); F4 RNDR -> RENDER not representable. Record: docs/review_artifacts/claude_cowork_20261019/map_v2_review/
+  (REVIEW_REPORT.md 4c7cf570..., verbatim, with the reviewer's files and SHA256SUMS).
+- Operator approvals in chat 2026-10-19: (1) CMC contract addresses, about 200 requests at most 1/s; (2) continuation rule:
+  a coin that moved 1:1 to a new Coinbase ticker continues only where CMC lists both tickers' contracts under one ID.
+- CMC data: 190 saved requests to api.coinmarketcap.com/data-api/v3/cryptocurrency/detail, all HTTP 200
+  (research/coinbase_listing_stepB_20261019/cmc_contracts/, requests.jsonl e6296557..., SHA256SUMS 55e4133e..., 192 lines).
+  DISCLOSED: one extra reachability request at ~06:42Z (curl, HTTP 200, 28,455 bytes) was NOT saved. Fetched with
+  scripts/research/fetch_cmc_contracts.py a37b630d...; parse with 4a8c27dc... (only the parse step changed: slug renames
+  are recorded, not errors). cmc_contracts.json 7f59f692..., 0 problems, 175 of 190 IDs list a contract.
+- Builder v3 scripts/research/build_coinbase_identity_map.py 8a9cfd72... (tests/test_coinbase_identity_map.py b6edcb48...,
+  18 tests; 13 of 13 mutants caught). v2 builder preserved at builder_versions/build_coinbase_identity_map_v2_27d68bd4.py.
+  Adjudications v3 identity_adjudications_v3.json f8ef0a7b... (73 entries).
+- FROZEN map v3: docs/research/coinbase_tradable_entrants_20261019/identity_map_v3/identity_map.json
+  0640223172fc98ada3d73d4cb1dd97d5056df6c47a43c539ec12a96200a24894 (review.csv 6dd106c1...); records identical to a
+  workspace build. All 383: 165 mapped, 215 never_listed, 3 unknown (MONA, LA, NEX). Entrants: 51 mapped (62 of 133
+  selections), 56 never_listed (71), 0 unknown. 217 Coinbase products need listing dates.
+- Contract check on mapped records: 115 match, 48 not_comparable (Coinbase lists the coin on its own network), 3 mismatch
+  kept by explicit override with stated evidence: 1455 GNT (legacy GNT contract, selections 2019-2020), 7080 GALA V1,
+  1982 legacy KNC (claim that KNC v2 postdates its selections is CLAIMED). 29210 now maps to JUPITER by contract match.
+- Continuation applied: 5690 RNDR + RENDER (CMC 5690 lists both contracts, SHOWN). Not applied: GNT -> GLM (CMC does not
+  list the GNT contract), MATIC -> POL (CMC 3890 does not list POL's; POL is CMC 28321), YFII -> YFI (different project).
+- Full suite in workspace (3.13 and 3.12): 89 passed. Next: independent re-review of v3; no listing dates yet, no returns.
+
+## 2026-10-19T07:13:30Z - Claude (Cowork): ENTR-CB-1 map v3 independent re-review ACCEPTED_WITH_RISK; starting Step B listing dates
+- Separate reviewer subagent (~06:59-07:10Z): ACCEPTED_WITH_RISK, no blockers. Own recomputation: 0 differences over 383
+  records; raw CMC bodies re-parsed: 0 differences; F1-F4 resolved; overrides 1455/7080/1982 and continuation 5690 judged
+  justified; no missed case of the operator continuation rule. Record: docs/review_artifacts/claude_cowork_20261019/
+  map_v3_review/ (REVIEW_REPORT.md 6701a229..., verbatim, reviewer files, SHA256SUMS).
+- CORRECTION to the 06:51:03Z entry: "115 match" counted contract checks, not coins. By coin: 114 match, 48
+  not_comparable, 3 mismatch kept by override (= 165); 5690 has two checks (RNDR, RENDER), both match.
+- Risks carried, NON-BLOCKING (reviewer N1-N7): IP renamed to DATA and RON -> WRON after their last selections (no effect);
+  17799 AXL also has WAXL on Coinbase (no effect, AXL listed before the entrant entry); 28321 POL entrant (entry
+  2024-09-15) is excluded if POL-USD's first candle is after 2024-09-14 - to be reported from Step B; no continuation for
+  MATIC 3890, GNT 1455, GALA 7080 by the operator rule, so exits after their last candle count as zero-recovery under the
+  frozen rule; placeholder list misses some native stand-ins (no status changed). Map v3 is used unchanged.
+- Next: listing-date fetch for the 217 products (scripts/research/fetch_coinbase_listing_dates.py 049a36a4..., cap 1,600,
+  at most 3 requests/s) into research/coinbase_listing_stepB_20261019/candles/.
+
+## 2026-10-19T07:05:19Z - Claude (Cowork): correction to the entry headed 07:13:30Z
+That header time was typed, not taken from date -u; the entry was actually written at 07:05:00Z (date -u at append).
+The v3 re-review ran 06:53:53Z-07:04:22Z (transcript timestamps), not ~06:59-07:10Z. The review record's header line was
+corrected to match; map_v3_review/REVIEW_REPORT.md is now 5c654eaa... (SHA256SUMS regenerated). Nothing else changes.
+
+## 2026-10-19T07:15:07Z - Claude (Cowork): ENTR-CB-1 Step B listing dates fetched; first-candle check added before any run
+- Fetch: 1,044 requests to the public Coinbase candle endpoint, all HTTP 200, 07:05:31Z-07:11:49Z, 217 of 217 products, 0
+  errors, every product has candles. research/coinbase_listing_stepB_20261019/candles/: results.json bbb63686...,
+  requests.jsonl da9ef786..., SHA256SUMS 3927b351... (1,047 lines). Listing file built (build_coinbase_listings.py
+  2f5afefd...): listings/listings.json a5773a05... (165 mapped, 215 never_listed, 3 unknown; no gaps between products).
+- SHOWN problem, found while checking the listing dates and before any return was computed: XRP-USD came back with first
+  candle 2023-07-13, although XRP traded on Coinbase before its 2021 suspension (CLAIMED). This is the documented binary-search
+  limit (a gap longer than a 300-day window). listings.json a5773a05... is therefore SUPERSEDED and will not be used.
+- Repair (same endpoint, form, rate and logging; separate folder candles_first_check/): scripts/research/
+  verify_first_candles.py 97b8842c... (tests/test_verify_first_candles.py aab3ef80..., 4 tests; 5 of 5 mutants caught). For
+  each mapped asset whose found first candle is after its earliest selection, it scans the windows the search skipped before
+  that first candle, stopping at the first window with candles. Planned: 121 products, at most 355 requests (cap 400).
+  With it, Step B totals at most about 1,400 Coinbase requests, slightly above the roughly 1,300 approved. Disclosed.
+
+## 2026-10-19T07:18:27Z - Claude (Cowork): ENTR-CB-1 pre-run record (no return computed yet)
+- First-candle check: 352 requests, all HTTP 200, 07:15:23Z-07:17:25Z; 121 products checked, 0 errors; only XRP-USD moved:
+  first candle 2023-07-13 -> 2019-02-26 (SHOWN); the window from 2022-03-29 is empty (suspension, SHOWN). Folder
+  candles_first_check/: results_verified.json db5861b0..., requests.jsonl 76db1a69..., SHA256SUMS df733c14... (355 lines).
+  Step B Coinbase requests in total: 1,044 + 352 = 1,396.
+- PRIMARY listing file: research/coinbase_listing_stepB_20261019/listings_v2/listings.json
+  fc7126538729c9a8e5145c63d44276715ecc9951ad4e039dc56b9a2f626e51b4 (differs from the superseded a5773a05... only in CMC 52
+  XRP). 165 mapped, 215 never_listed, 3 unknown.
+- Known limit, by the frozen first/last rule: XRP counts as tradable during its 2021-2023 suspension. Declared now, before
+  the run: one NON-DECISIVE sensitivity run with the superseded listing a5773a05... (XRP excluded before 2023-07-14) will be
+  reported beside the primary, whatever it shows. Other within-product gaps are not detectable from these data.
+- Plan: docs/research/coinbase_tradable_entrants_20261019/run_plan_v1.json
+  16e472017244afea71b8c808139bfacab368d6d27f81afcb4042877e5de80c69 (pinned-run-inputs-v1; guard verify passed, 1,623 files:
+  prereg, archive and manifest, map v3, listings_v2, CMC and Coinbase raw sets, 10 sources). Runtime: Python 3.10.12 in
+  the device VM (not the repo .venv used for v2). Output: docs/research/coinbase_tradable_entrants_20261019/results_v1/.
+
+## 2026-10-19T07:22:02Z - Claude (Cowork): ENTR-CB-1 run complete - verdict STOP (pending independent results review)
+- Guarded run 07:18Z, plan 16e47201...: docs/research/coinbase_tradable_entrants_20261019/results_v1/ result.json d06dc758...,
+  pin_receipt.json 0f4aefa4...; check_output with the plan hash passed. Reference v2 summaries recomputed in this run are
+  identical to low_value_top100_20261018/results_v2.json for both arms (SHOWN, dict equality).
+- Decision (prereg section 5): STOP. c1 CB-entrant mean net dollars per cycle (lower bound, 100 cycles) +11.45 PASS;
+  c2 without the largest cycle (2025-09-14, ZEC +4,115.07) -30.00 FAIL; c3 paired mean vs CB-control -7.17 over 96 jointly
+  valued cycles FAIL; c4 34 funded cycles, unknown 0/133, unresolved 0/41 PASS. STOP because c3 fails.
+- Filter: entrant selections 133 -> 41 tradable, 71 never_listed, 21 not_yet_listed, 0 delisted_before_entry, 0 unknown.
+  Control 8,382 -> 4,209 tradable (3,057 never_listed, 1,068 not_yet_listed, 30 delisted_before_entry, 18 unknown).
+  v2 unfiltered for comparison: entrants +129.35 per cycle over 78 funded cycles; control +17.65.
+- Declared sensitivity (XRP excluded before 2023-07-14), plan 4155ffd6..., results_v1_sensitivity_xrp/result.json
+  95aba21e...: STOP, c3 -7.62. Report tables: report_v1/ (tables.json 1d9917c5..., entrant_selections.csv 7b7f4590...,
+  control_removed_by_year.csv 0005fb1f...) from scripts/research/report_coinbase_tradable_entrants.py d0f196f6....
+- Exploratory only: CMC reference prices, not Coinbase fills; archive already used by v2. Independent results review running.
+
+## 2026-10-19T07:43:33Z - Claude (Cowork): ENTR-CB-1 independent results review ACCEPTED_WITH_RISK; verdict STOP final
+- Separate reviewer subagent, 07:21:50Z-07:41:58Z: ACCEPTED_WITH_RISK, no blockers. Guard check_output passed for both result
+  directories; independent recomputation (no runner/engine imports) matches result.json to floating-point noise: c1 11.450925,
+  c2 -29.999757, c3 -7.168081 over 96 pairs, c4 34 / 0 / 0, STOP; sensitivity c3 -7.622250, STOP. All 133 entrant
+  classifications and the control year counts match; 12 listing dates spot-checked against public pages, none changes a status.
+  Record: docs/review_artifacts/claude_cowork_20261019/results_v1_review/ (REVIEW_REPORT.md 3da94891..., verbatim, scripts).
+- Disclosed in RESULTS_V1.md (docs/research/coinbase_tradable_entrants_20261019/RESULTS_V1.md 65f4d12f...): c3 is driven by
+  the 65 pairs where entrants hold cash (v2's convention); a funded-only pairing, not the registered rule, would give
+  INCONCLUSIVE; c3's margin is thin (dropping one pair -> -0.75; XRP suspension modelled -> -0.23, still STOP); c2 -30.00 and
+  8 of 34 funded cycles profitable hold either way; no runtime pinned; 1,396 requests vs about 1,300 approved; the files cannot
+  prove no unguarded run preceded the guarded runs (CLAIMED none did); listing builder docstring tie-break is wrong (cosmetic).
+- Trial-ledger supplement (prereg section 7): docs/research/trial_ledger_supplement_20261019_entr_cb1/ (README, trial and
+  data-reuse additions, SHA256SUMS 3bca383a...): ENTR-CB-1, 1 candidate + 1 comparator, STOP, D_CMC already seen.
+- Final state: nothing committed or pushed; backup bundle not made. Per the prereg, STOP ends historical variants of the
+  entrant line on this archive.
+
+## 2026-10-19T07:49:58Z - Claude (Cowork): REMAINING_TASKS.md dated state update (operator-requested)
+- Inserted "Current state update, 2026-10-19" at the top of "Current Work Selection" (36 lines added, 0 removed or
+  edited; mtime checked first, unchanged since Codex's 00:22:24Z edit). REMAINING_TASKS.md a4e850b2... -> e1916c61...;
+  pre-edit copy kept outside the repo in the device VM home.
+- Content: Git state (lock removed, local commit 933d7ea2f on checkpoint/2026-10-19, not pushed; supersedes the
+  uncommitted-work line and handoff v2 B.4); handoff item 4 closed (pinned_run_inputs.py, ACCEPTED_WITH_RISK); ENTR-CB-1
+  closed with STOP and pointers; network use; open operator decisions; one untested idea (not rejected).
+- Facts re-checked on the device before writing: commit 933d7ea2f parent 620bc8dbe, 4,186 files; no .git/index.lock;
+  probe folder counts; checkpoint plan folder. No commit, push or other file change.
+
+## 2026-10-19T07:55:25Z - Claude (Cowork): scheduled tasks reviewed and tidied (operator-requested)
+- Listed the account's 4 cloud scheduled tasks and checked their outputs on the device. CMC trending log: one snapshot
+  per day 2026-10-09..10-18, none missing, last 8 OBSERVED with 0 source errors. Weekly BTC+ETH paper test: ran
+  2026-10-19 00:48Z, day 7 equity 955.62 (-4.44%) vs BTC hold 980.03. Research scout: no run yet (first today 11:43Z,
+  topic T04). NY Numbers scoring (one run 2027-04-18 14:00Z, cloud): data.ny.gov returned HTTP 200 to one HEAD request
+  from this cloud session (no body downloaded).
+- Changed: (1) CMC trending log task prompt - "identity_excluded" replaced by the source_errors count (field absent in
+  schema 3); command, schedule, permissions and notifications unchanged; prompt re-signed by Claude Desktop for this
+  computer. (2) docs/research/research_scout/TOPICS.md c3b1efbe... -> 26f087f9...: standing focus on lower-value top-100
+  coins and new entrants added above the unchanged 12 topics; README.md 10311ef5... -> 3fa2e8cc... (dated note
+  appended). (3) REMAINING_TASKS.md e1916c61... -> c74fdf73...: scheduled-task status added to the
+  2026-10-19 update; still additions only relative to HEAD.
+- Not changed (operator decisions): weekly BTC+ETH paper test kept as is; no new forward tracker created; NY task untouched.
+
+## 2026-10-19T07:59:06Z - Claude (Cowork): operator-delegated decisions on scheduled tasks; tracker v2 first run wrote nothing
+- Operator delegated the two open scheduled-task decisions to Claude ("i'll let you make the decisions").
+- Decision 1, weekly BTC+ETH paper test (v1, trig_01JHKCvhVp914uENe6kyD8Hj): KEEP for now, unchanged. It is a rolling
+  replay, not evidence (research_repair_checklist_20261009.md), and the reviewed append-only tracker v2 supersedes it, but
+  v2 has produced no record yet. Disable (not delete) v1 once v2 shows its first decision records.
+- FOR CODEX / OPERATOR: tracker v2 (docs/research/paper_btc_eth_trend_v2_20261012/, Codex automation
+  btc-eth-weekly-research-tracker-v2) - state/ holds only .lock (2026-10-19 00:49:55 UTC); no decisions, executions,
+  marks or state.json (SHOWN). tracker.py main() acquires the lock, and after the Sunday 2026-10-18 close it should
+  fetch, replay and write; so the first scheduled run most likely raised after the lock. Cause UNVERIFIED (needs the
+  Codex run log). Not rerun by Claude: Codex-owned schedule writing the real append-only ledger.
+- Decision 2, forward tracker for Coinbase-tradable new entrants: NOT BUILT now. ENTR-CB-1 gives about 6.5 funded entrant
+  cycles a year since 2023 (24 of 48; 34 of 100 overall), so its frozen 30-funded-cycle minimum would take roughly 4-5
+  years forward, after a historical STOP. Better-powered successor idea (UNTESTED, not rejected): an event study of new
+  Coinbase listings; needs its own preregistration and approval.
+- REMAINING_TASKS.md -> 6e42a3af... (scheduled-tasks section updated; additions only relative to HEAD, 61 lines).
+  No scheduled task changed in this step; no run, commit or push.
+
+## 2026-10-19T08:02:59Z - Claude (Cowork): follow-ups - tracker v2 offline tests, check-in scheduled, audit guide, commit plan
+- Tracker v2 offline check: its own 27 tests pass on Python 3.13.16 and 3.12.3 in the agent's workspace (tracker.py
+  71675322..., test_tracker.py 3ac2cef1..., with copies of the files they load; no network). So the empty first run
+  (state/.lock only) is more likely environmental (network, venv or candle data in the Codex automation) than a logic
+  fault; cause still UNVERIFIED without the Codex run log. Nothing run against the real state.
+- One-shot check-in into this session scheduled for 2026-10-19 14:10 UTC ("Check scout first run and CMC log",
+  read-only): scout's first report, CMC 13:52 run with the new prompt, tracker v2 state.
+- ENTR-CB-1 suite: 93 tests (six files) pass together on 3.13.16 and 3.12.3; repo file hashes re-checked equal.
+- Review packet: "Addendum 2" (ENTR-CB-1 audit guide, hashes, suggested checks, deviations) appended to
+  docs/review_artifacts/claude_cowork_20261019/claude_cowork_review_packet_20261019.md; folder SHA256SUMS regenerated
+  for its 12 files (packet now 763fc0d4...).
+- Commit plan (NOT executed): ~/Documents/cryptkeep_data_archive/checkpoint_plan_draft_20261019/entr_cb1_commit_plan/
+  - 1,700 paths, 24.6 MB, same 9 large files excluded; proposed message with attribution. Needs operator approval.

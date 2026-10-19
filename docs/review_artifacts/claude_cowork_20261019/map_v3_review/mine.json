@@ -1,0 +1,4231 @@
+{
+ "1042": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "10529": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "10603": {
+  "alt": [],
+  "bases": [
+   "IMX"
+  ],
+  "cc": {
+   "IMX": "match"
+  },
+  "products": [
+   [
+    "IMX-USD",
+    "online"
+   ],
+   [
+    "IMX-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "10791": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "10804": {
+  "alt": [],
+  "bases": [
+   "FLOKI"
+  ],
+  "cc": {
+   "FLOKI": "match"
+  },
+  "products": [
+   [
+    "FLOKI-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "109": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1104": {
+  "alt": [],
+  "bases": [
+   "REP"
+  ],
+  "cc": {
+   "REP": "match"
+  },
+  "products": [
+   [
+    "REP-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "11092": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "11156": {
+  "alt": [
+   "COSMOSDYDX"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "11221": {
+  "alt": [],
+  "bases": [
+   "BIT"
+  ],
+  "cc": {
+   "BIT": "match"
+  },
+  "products": [
+   [
+    "BIT-USD",
+    "delisted"
+   ],
+   [
+    "BIT-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "11419": {
+  "alt": [],
+  "bases": [
+   "TON"
+  ],
+  "cc": {
+   "TON": "not_comparable"
+  },
+  "products": [
+   [
+    "TON-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1168": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1169": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "118": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "11840": {
+  "alt": [],
+  "bases": [
+   "OP"
+  ],
+  "cc": {
+   "OP": "match"
+  },
+  "products": [
+   [
+    "OP-USD",
+    "online"
+   ],
+   [
+    "OP-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "11841": {
+  "alt": [],
+  "bases": [
+   "ARB"
+  ],
+  "cc": {
+   "ARB": "match"
+  },
+  "products": [
+   [
+    "ARB-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "11857": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "11865": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1214": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "12220": {
+  "alt": [],
+  "bases": [
+   "OSMO"
+  ],
+  "cc": {
+   "OSMO": "not_comparable"
+  },
+  "products": [
+   [
+    "OSMO-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1229": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1230": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1274": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "12885": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "12999": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "131": {
+  "alt": [],
+  "bases": [
+   "DASH"
+  ],
+  "cc": {
+   "DASH": "not_comparable"
+  },
+  "products": [
+   [
+    "DASH-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1320": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1321": {
+  "alt": [],
+  "bases": [
+   "ETC"
+  ],
+  "cc": {
+   "ETC": "not_comparable"
+  },
+  "products": [
+   [
+    "ETC-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1343": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "13502": {
+  "alt": [],
+  "bases": [
+   "WLD"
+  ],
+  "cc": {
+   "WLD": "match"
+  },
+  "products": [
+   [
+    "WLD-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "13631": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1376": {
+  "alt": [
+   "NEON"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "13855": {
+  "alt": [],
+  "bases": [
+   "ENS"
+  ],
+  "cc": {
+   "ENS": "match"
+  },
+  "products": [
+   [
+    "ENS-USD",
+    "online"
+   ],
+   [
+    "ENS-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "14101": {
+  "alt": [
+   "RONIN",
+   "WRON"
+  ],
+  "bases": [
+   "RONIN"
+  ],
+  "cc": {
+   "RONIN": "not_comparable"
+  },
+  "products": [
+   [
+    "RONIN-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1414": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1437": {
+  "alt": [],
+  "bases": [
+   "ZEC"
+  ],
+  "cc": {
+   "ZEC": "not_comparable"
+  },
+  "products": [
+   [
+    "ZEC-USD",
+    "online"
+   ],
+   [
+    "ZEC-USDC",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1455": {
+  "alt": [],
+  "bases": [
+   "GNT"
+  ],
+  "cc": {
+   "GNT": "mismatch"
+  },
+  "products": [
+   [
+    "GNT-USDC",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1518": {
+  "alt": [],
+  "bases": [
+   "MKR"
+  ],
+  "cc": {
+   "MKR": "match"
+  },
+  "products": [
+   [
+    "MKR-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1521": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1567": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1586": {
+  "alt": [
+   "ARKM"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "16086": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1637": {
+  "alt": [],
+  "bases": [
+   "RLC"
+  ],
+  "cc": {
+   "RLC": "match"
+  },
+  "products": [
+   [
+    "RLC-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1659": {
+  "alt": [],
+  "bases": [
+   "GNO"
+  ],
+  "cc": {
+   "GNO": "match"
+  },
+  "products": [
+   [
+    "GNO-USD",
+    "online"
+   ],
+   [
+    "GNO-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1680": {
+  "alt": [],
+  "bases": [
+   "ANT"
+  ],
+  "cc": {
+   "ANT": "match"
+  },
+  "products": [
+   [
+    "ANT-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1684": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1697": {
+  "alt": [],
+  "bases": [
+   "BAT"
+  ],
+  "cc": {
+   "BAT": "match"
+  },
+  "products": [
+   [
+    "BAT-USD",
+    "online"
+   ],
+   [
+    "BAT-USDC",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1698": {
+  "alt": [],
+  "bases": [
+   "ZEN"
+  ],
+  "cc": {
+   "ZEN": "match"
+  },
+  "products": [
+   [
+    "ZEN-USD",
+    "online"
+   ],
+   [
+    "ZEN-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1700": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1703": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1710": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1715": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1720": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1727": {
+  "alt": [],
+  "bases": [
+   "BNT"
+  ],
+  "cc": {
+   "BNT": "match"
+  },
+  "products": [
+   [
+    "BNT-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1732": {
+  "alt": [],
+  "bases": [
+   "NMR"
+  ],
+  "cc": {
+   "NMR": "match"
+  },
+  "products": [
+   [
+    "NMR-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1750": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1759": {
+  "alt": [],
+  "bases": [
+   "SNT"
+  ],
+  "cc": {
+   "SNT": "match"
+  },
+  "products": [
+   [
+    "SNT-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1765": {
+  "alt": [],
+  "bases": [
+   "EOS"
+  ],
+  "cc": {
+   "EOS": "not_comparable"
+  },
+  "products": [
+   [
+    "EOS-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1772": {
+  "alt": [],
+  "bases": [
+   "STORJ"
+  ],
+  "cc": {
+   "STORJ": "match"
+  },
+  "products": [
+   [
+    "STORJ-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "17751": {
+  "alt": [],
+  "bases": [
+   "T"
+  ],
+  "cc": {
+   "T": "match"
+  },
+  "products": [
+   [
+    "T-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1776": {
+  "alt": [
+   "CRO",
+   "MCO2"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "17799": {
+  "alt": [],
+  "bases": [
+   "AXL"
+  ],
+  "cc": {
+   "AXL": "not_comparable"
+  },
+  "products": [
+   [
+    "AXL-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1785": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1789": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "18069": {
+  "alt": [],
+  "bases": [
+   "GMT"
+  ],
+  "cc": {
+   "GMT": "match"
+  },
+  "products": [
+   [
+    "GMT-USD",
+    "online"
+   ],
+   [
+    "GMT-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1808": {
+  "alt": [],
+  "bases": [
+   "OMG"
+  ],
+  "cc": {
+   "OMG": "match"
+  },
+  "products": [
+   [
+    "OMG-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1817": {
+  "alt": [],
+  "bases": [
+   "VGX"
+  ],
+  "cc": {
+   "VGX": "match"
+  },
+  "products": [
+   [
+    "VGX-USD",
+    "delisted"
+   ],
+   [
+    "VGX-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1831": {
+  "alt": [],
+  "bases": [
+   "BCH"
+  ],
+  "cc": {
+   "BCH": "not_comparable"
+  },
+  "products": [
+   [
+    "BCH-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1839": {
+  "alt": [],
+  "bases": [
+   "BNB"
+  ],
+  "cc": {
+   "BNB": "not_comparable"
+  },
+  "products": [
+   [
+    "BNB-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1866": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "18679": {
+  "alt": [],
+  "bases": [
+   "XCN"
+  ],
+  "cc": {
+   "XCN": "match"
+  },
+  "products": [
+   [
+    "XCN-USD",
+    "online"
+   ],
+   [
+    "XCN-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1886": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "18876": {
+  "alt": [],
+  "bases": [
+   "APE"
+  ],
+  "cc": {
+   "APE": "match"
+  },
+  "products": [
+   [
+    "APE-USD",
+    "online"
+   ],
+   [
+    "APE-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1896": {
+  "alt": [],
+  "bases": [
+   "ZRX"
+  ],
+  "cc": {
+   "ZRX": "match"
+  },
+  "products": [
+   [
+    "ZRX-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1903": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1908": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1925": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1934": {
+  "alt": [],
+  "bases": [
+   "LRC"
+  ],
+  "cc": {
+   "LRC": "match"
+  },
+  "products": [
+   [
+    "LRC-USD",
+    "delisted"
+   ],
+   [
+    "LRC-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1958": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "1966": {
+  "alt": [],
+  "bases": [
+   "MANA"
+  ],
+  "cc": {
+   "MANA": "match"
+  },
+  "products": [
+   [
+    "MANA-USD",
+    "online"
+   ],
+   [
+    "MANA-USDC",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1975": {
+  "alt": [],
+  "bases": [
+   "LINK"
+  ],
+  "cc": {
+   "LINK": "match"
+  },
+  "products": [
+   [
+    "LINK-USD",
+    "online"
+   ],
+   [
+    "LINK-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "1982": {
+  "alt": [],
+  "bases": [
+   "KNC"
+  ],
+  "cc": {
+   "KNC": "mismatch"
+  },
+  "products": [
+   [
+    "KNC-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2": {
+  "alt": [],
+  "bases": [
+   "LTC"
+  ],
+  "cc": {
+   "LTC": "not_comparable"
+  },
+  "products": [
+   [
+    "LTC-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2010": {
+  "alt": [],
+  "bases": [
+   "ADA"
+  ],
+  "cc": {
+   "ADA": "not_comparable"
+  },
+  "products": [
+   [
+    "ADA-USD",
+    "online"
+   ],
+   [
+    "ADA-USDC",
+    "delisted"
+   ],
+   [
+    "ADA-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2011": {
+  "alt": [],
+  "bases": [
+   "XTZ"
+  ],
+  "cc": {
+   "XTZ": "not_comparable"
+  },
+  "products": [
+   [
+    "XTZ-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2027": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "20314": {
+  "alt": [
+   "WLUNA"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "20396": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2062": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2083": {
+  "alt": [
+   "BTC"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2087": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2090": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "unknown"
+ },
+ "2092": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "20947": {
+  "alt": [],
+  "bases": [
+   "SUI"
+  ],
+  "cc": {
+   "SUI": "not_comparable"
+  },
+  "products": [
+   [
+    "SUI-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2099": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "21159": {
+  "alt": [],
+  "bases": [
+   "ONDO"
+  ],
+  "cc": {
+   "ONDO": "match"
+  },
+  "products": [
+   [
+    "ONDO-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "21296": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "213": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "unknown"
+ },
+ "2130": {
+  "alt": [],
+  "bases": [
+   "ENJ"
+  ],
+  "cc": {
+   "ENJ": "not_comparable"
+  },
+  "products": [
+   [
+    "ENJ-USD",
+    "delisted"
+   ],
+   [
+    "ENJ-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2132": {
+  "alt": [],
+  "bases": [
+   "POWR"
+  ],
+  "cc": {
+   "POWR": "match"
+  },
+  "products": [
+   [
+    "POWR-USD",
+    "online"
+   ],
+   [
+    "POWR-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2135": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2137": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "21794": {
+  "alt": [],
+  "bases": [
+   "APT"
+  ],
+  "cc": {
+   "APT": "not_comparable"
+  },
+  "products": [
+   [
+    "APT-USD",
+    "online"
+   ],
+   [
+    "APT-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2222": {
+  "alt": [
+   "BTC"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2239": {
+  "alt": [
+   "AAVE",
+   "BLEND"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "22691": {
+  "alt": [],
+  "bases": [
+   "STRK"
+  ],
+  "cc": {
+   "STRK": "match"
+  },
+  "products": [
+   [
+    "STRK-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2280": {
+  "alt": [],
+  "bases": [
+   "FIL"
+  ],
+  "cc": {
+   "FIL": "not_comparable"
+  },
+  "products": [
+   [
+    "FIL-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "22861": {
+  "alt": [],
+  "bases": [
+   "TIA"
+  ],
+  "cc": {
+   "TIA": "not_comparable"
+  },
+  "products": [
+   [
+    "TIA-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "22974": {
+  "alt": [],
+  "bases": [
+   "TAO"
+  ],
+  "cc": {
+   "TAO": "not_comparable"
+  },
+  "products": [
+   [
+    "TAO-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2299": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2300": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2307": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "23095": {
+  "alt": [],
+  "bases": [
+   "BONK"
+  ],
+  "cc": {
+   "BONK": "match"
+  },
+  "products": [
+   [
+    "BONK-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "23121": {
+  "alt": [],
+  "bases": [
+   "BLUR"
+  ],
+  "cc": {
+   "BLUR": "match"
+  },
+  "products": [
+   [
+    "BLUR-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "23149": {
+  "alt": [],
+  "bases": [
+   "SEI"
+  ],
+  "cc": {
+   "SEI": "not_comparable"
+  },
+  "products": [
+   [
+    "SEI-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2319": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "23246": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "23254": {
+  "alt": [
+   "CORECHAIN"
+  ],
+  "bases": [
+   "CORECHAIN"
+  ],
+  "cc": {
+   "CORECHAIN": "not_comparable"
+  },
+  "products": [
+   [
+    "CORECHAIN-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2346": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2349": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "23635": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2394": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2405": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2416": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2424": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2441": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "24478": {
+  "alt": [],
+  "bases": [
+   "PEPE"
+  ],
+  "cc": {
+   "PEPE": "match"
+  },
+  "products": [
+   [
+    "PEPE-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2453": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2457": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "24647": {
+  "alt": [],
+  "bases": [
+   "BERA"
+  ],
+  "cc": {
+   "BERA": "not_comparable"
+  },
+  "products": [
+   [
+    "BERA-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2469": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2492": {
+  "alt": [],
+  "bases": [
+   "ELA"
+  ],
+  "cc": {
+   "ELA": "match"
+  },
+  "products": [
+   [
+    "ELA-USD",
+    "online"
+   ],
+   [
+    "ELA-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2496": {
+  "alt": [],
+  "bases": [
+   "POLY"
+  ],
+  "cc": {
+   "POLY": "match"
+  },
+  "products": [
+   [
+    "POLY-USD",
+    "delisted"
+   ],
+   [
+    "POLY-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2499": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2502": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "25028": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2539": {
+  "alt": [],
+  "bases": [
+   "REN"
+  ],
+  "cc": {
+   "REN": "match"
+  },
+  "products": [
+   [
+    "REN-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2566": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2577": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2586": {
+  "alt": [],
+  "bases": [
+   "SNX"
+  ],
+  "cc": {
+   "SNX": "match"
+  },
+  "products": [
+   [
+    "SNX-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2588": {
+  "alt": [],
+  "bases": [
+   "LOOM"
+  ],
+  "cc": {
+   "LOOM": "match"
+  },
+  "products": [
+   [
+    "LOOM-USD",
+    "delisted"
+   ],
+   [
+    "LOOM-USDC",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2603": {
+  "alt": [
+   "PUNDIX"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2606": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2631": {
+  "alt": [
+   "MOODENG"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2634": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2642": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2682": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2694": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "26997": {
+  "alt": [],
+  "bases": [
+   "ZRO"
+  ],
+  "cc": {
+   "ZRO": "match"
+  },
+  "products": [
+   [
+    "ZRO-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2700": {
+  "alt": [
+   "CELR"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "27075": {
+  "alt": [
+   "MANTLE"
+  ],
+  "bases": [
+   "MANTLE"
+  ],
+  "cc": {
+   "MANTLE": "match"
+  },
+  "products": [
+   [
+    "MANTLE-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2758": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "27659": {
+  "alt": [],
+  "bases": [
+   "MOG"
+  ],
+  "cc": {
+   "MOG": "match"
+  },
+  "products": [
+   [
+    "MOG-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2772": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2777": {
+  "alt": [],
+  "bases": [
+   "IOTX"
+  ],
+  "cc": {
+   "IOTX": "match"
+  },
+  "products": [
+   [
+    "IOTX-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "28081": {
+  "alt": [],
+  "bases": [
+   "SPX"
+  ],
+  "cc": {
+   "SPX": "match"
+  },
+  "products": [
+   [
+    "SPX-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "28177": {
+  "alt": [],
+  "bases": [
+   "PYTH"
+  ],
+  "cc": {
+   "PYTH": "match"
+  },
+  "products": [
+   [
+    "PYTH-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "28194": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "28298": {
+  "alt": [],
+  "bases": [
+   "BEAM"
+  ],
+  "cc": {
+   "BEAM": "match"
+  },
+  "products": [
+   [
+    "BEAM-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2830": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "28301": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "28321": {
+  "alt": [],
+  "bases": [
+   "POL"
+  ],
+  "cc": {
+   "POL": "match"
+  },
+  "products": [
+   [
+    "POL-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "28324": {
+  "alt": [
+   "COSMOSDYDX"
+  ],
+  "bases": [
+   "COSMOSDYDX"
+  ],
+  "cc": {
+   "COSMOSDYDX": "not_comparable"
+  },
+  "products": [
+   [
+    "COSMOSDYDX-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2859": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "28683": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2874": {
+  "alt": [
+   "AURORA"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "28752": {
+  "alt": [],
+  "bases": [
+   "WIF"
+  ],
+  "cc": {
+   "WIF": "match"
+  },
+  "products": [
+   [
+    "WIF-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "28782": {
+  "alt": [],
+  "bases": [
+   "POPCAT"
+  ],
+  "cc": {
+   "POPCAT": "match"
+  },
+  "products": [
+   [
+    "POPCAT-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "2885": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "28850": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "28932": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "28933": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2897": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2900": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "2907": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "29073": {
+  "alt": [],
+  "bases": [
+   "ALT"
+  ],
+  "cc": {
+   "ALT": "match"
+  },
+  "products": [
+   [
+    "ALT-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "291": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "29210": {
+  "alt": [
+   "JUPITER"
+  ],
+  "bases": [
+   "JUPITER"
+  ],
+  "cc": {
+   "JUPITER": "match"
+  },
+  "products": [
+   [
+    "JUPITER-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "29270": {
+  "alt": [],
+  "bases": [
+   "AERO"
+  ],
+  "cc": {
+   "AERO": "match"
+  },
+  "products": [
+   [
+    "AERO-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "29420": {
+  "alt": [],
+  "bases": [
+   "VIRTUAL"
+  ],
+  "cc": {
+   "VIRTUAL": "match"
+  },
+  "products": [
+   [
+    "VIRTUAL-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "29587": {
+  "alt": [],
+  "bases": [
+   "W"
+  ],
+  "cc": {
+   "W": "match"
+  },
+  "products": [
+   [
+    "W-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "29743": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "29814": {
+  "alt": [
+   "ETH"
+  ],
+  "bases": [
+   "ETHFI"
+  ],
+  "cc": {
+   "ETHFI": "match"
+  },
+  "products": [
+   [
+    "ETHFI-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "29870": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "30126": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "30171": {
+  "alt": [],
+  "bases": [
+   "ENA"
+  ],
+  "cc": {
+   "ENA": "match"
+  },
+  "products": [
+   [
+    "ENA-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "30495": {
+  "alt": [],
+  "bases": [
+   "MON"
+  ],
+  "cc": {
+   "MON": "not_comparable"
+  },
+  "products": [
+   [
+    "MON-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3077": {
+  "alt": [],
+  "bases": [
+   "VET"
+  ],
+  "cc": {
+   "VET": "not_comparable"
+  },
+  "products": [
+   [
+    "VET-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3085": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3115": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3116": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3139": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3155": {
+  "alt": [],
+  "bases": [
+   "QNT"
+  ],
+  "cc": {
+   "QNT": "match"
+  },
+  "products": [
+   [
+    "QNT-USD",
+    "online"
+   ],
+   [
+    "QNT-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3175": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3218": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "32196": {
+  "alt": [],
+  "bases": [
+   "HYPE"
+  ],
+  "cc": {
+   "HYPE": "not_comparable"
+  },
+  "products": [
+   [
+    "HYPE-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "32452": {
+  "alt": [],
+  "bases": [
+   "MOVE"
+  ],
+  "cc": {
+   "MOVE": "match"
+  },
+  "products": [
+   [
+    "MOVE-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "32684": {
+  "alt": [],
+  "bases": [
+   "S"
+  ],
+  "cc": {
+   "S": "not_comparable"
+  },
+  "products": [
+   [
+    "S-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "328": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "32880": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3296": {
+  "alt": [
+   "MINA"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "33038": {
+  "alt": [],
+  "bases": [
+   "SKY"
+  ],
+  "cc": {
+   "SKY": "match"
+  },
+  "products": [
+   [
+    "SKY-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "33251": {
+  "alt": [],
+  "bases": [
+   "WLFI"
+  ],
+  "cc": {
+   "WLFI": "match"
+  },
+  "products": [
+   [
+    "WLFI-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3351": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3356": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "33597": {
+  "alt": [],
+  "bases": [
+   "FARTCOIN"
+  ],
+  "cc": {
+   "FARTCOIN": "match"
+  },
+  "products": [
+   [
+    "FARTCOIN-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3364": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "33788": {
+  "alt": [],
+  "bases": [
+   "PNUT"
+  ],
+  "cc": {
+   "PNUT": "match"
+  },
+  "products": [
+   [
+    "PNUT-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "34104": {
+  "alt": [],
+  "bases": [
+   "MORPHO"
+  ],
+  "cc": {
+   "MORPHO": "match"
+  },
+  "products": [
+   [
+    "MORPHO-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3437": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "34466": {
+  "alt": [],
+  "bases": [
+   "PENGU"
+  ],
+  "cc": {
+   "PENGU": "match"
+  },
+  "products": [
+   [
+    "PENGU-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "35053": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3513": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "35336": {
+  "alt": [],
+  "bases": [
+   "TRUMP"
+  ],
+  "cc": {
+   "TRUMP": "match"
+  },
+  "products": [
+   [
+    "TRUMP-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "35347": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "35491": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "35509": {
+  "alt": [],
+  "bases": [
+   "VVV"
+  ],
+  "cc": {
+   "VVV": "match"
+  },
+  "products": [
+   [
+    "VVV-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "35626": {
+  "alt": [],
+  "bases": [
+   "IP"
+  ],
+  "cc": {
+   "IP": "not_comparable"
+  },
+  "products": [
+   [
+    "IP-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "35697": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "35766": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3602": {
+  "alt": [
+   "BTC"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "36119": {
+  "alt": [],
+  "bases": [
+   "WAL"
+  ],
+  "cc": {
+   "WAL": "match"
+  },
+  "products": [
+   [
+    "WAL-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "36300": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "36341": {
+  "alt": [],
+  "bases": [
+   "ASTER"
+  ],
+  "cc": {
+   "ASTER": "match"
+  },
+  "products": [
+   [
+    "ASTER-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3635": {
+  "alt": [],
+  "bases": [
+   "CRO"
+  ],
+  "cc": {
+   "CRO": "match"
+  },
+  "products": [
+   [
+    "CRO-USD",
+    "online"
+   ],
+   [
+    "CRO-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3640": {
+  "alt": [],
+  "bases": [
+   "LPT"
+  ],
+  "cc": {
+   "LPT": "match"
+  },
+  "products": [
+   [
+    "LPT-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "36410": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "36462": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "36507": {
+  "alt": [],
+  "bases": [
+   "PUMP"
+  ],
+  "cc": {
+   "PUMP": "match"
+  },
+  "products": [
+   [
+    "PUMP-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "36532": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3657": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3662": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "36645": {
+  "alt": [],
+  "bases": [
+   "XPL"
+  ],
+  "cc": {
+   "XPL": "not_comparable"
+  },
+  "products": [
+   [
+    "XPL-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3673": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "36922": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3695": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3701": {
+  "alt": [
+   "DRIFT"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3704": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3709": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3718": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3724": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "37263": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3734": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3773": {
+  "alt": [],
+  "bases": [
+   "FET"
+  ],
+  "cc": {
+   "FET": "match"
+  },
+  "products": [
+   [
+    "FET-USD",
+    "online"
+   ],
+   [
+    "FET-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3783": {
+  "alt": [],
+  "bases": [
+   "ANKR"
+  ],
+  "cc": {
+   "ANKR": "match"
+  },
+  "products": [
+   [
+    "ANKR-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3788": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3794": {
+  "alt": [],
+  "bases": [
+   "ATOM"
+  ],
+  "cc": {
+   "ATOM": "not_comparable"
+  },
+  "products": [
+   [
+    "ATOM-USD",
+    "online"
+   ],
+   [
+    "ATOM-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3801": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3812": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3822": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3829": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "unknown"
+ },
+ "3835": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "38417": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "38515": {
+  "alt": [],
+  "bases": [
+   "2Z"
+  ],
+  "cc": {
+   "2Z": "match"
+  },
+  "products": [
+   [
+    "2Z-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "38590": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3871": {
+  "alt": [
+   "NEWT"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "38828": {
+  "alt": [],
+  "bases": [
+   "KITE"
+  ],
+  "cc": {
+   "KITE": "match"
+  },
+  "products": [
+   [
+    "KITE-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "38837": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "38892": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3890": {
+  "alt": [],
+  "bases": [
+   "MATIC"
+  ],
+  "cc": {
+   "MATIC": "match"
+  },
+  "products": [
+   [
+    "MATIC-USD",
+    "delisted"
+   ],
+   [
+    "MATIC-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3897": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "39064": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3911": {
+  "alt": [],
+  "bases": [
+   "OCEAN"
+  ],
+  "cc": {
+   "OCEAN": "match"
+  },
+  "products": [
+   [
+    "OCEAN-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "39125": {
+  "alt": [
+   "LIGHTER"
+  ],
+  "bases": [
+   "LIGHTER"
+  ],
+  "cc": {
+   "LIGHTER": "match"
+  },
+  "products": [
+   [
+    "LIGHTER-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "3914": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3945": {
+  "alt": [
+   "HONEY",
+   "TONE"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3957": {
+  "alt": [
+   "ALEO"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "3964": {
+  "alt": [],
+  "bases": [
+   "RSR"
+  ],
+  "cc": {
+   "RSR": "match"
+  },
+  "products": [
+   [
+    "RSR-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "39720": {
+  "alt": [
+   "EDGEX"
+  ],
+  "bases": [
+   "EDGEX"
+  ],
+  "cc": {
+   "EDGEX": "match"
+  },
+  "products": [
+   [
+    "EDGEX-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "4030": {
+  "alt": [],
+  "bases": [
+   "ALGO"
+  ],
+  "cc": {
+   "ALGO": "not_comparable"
+  },
+  "products": [
+   [
+    "ALGO-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "4049": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4056": {
+  "alt": [
+   "FORTH",
+   "WAMPL"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4066": {
+  "alt": [],
+  "bases": [
+   "CHZ"
+  ],
+  "cc": {
+   "CHZ": "match"
+  },
+  "products": [
+   [
+    "CHZ-USD",
+    "online"
+   ],
+   [
+    "CHZ-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "4079": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4086": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4157": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4172": {
+  "alt": [
+   "WLUNA"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4195": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4256": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4269": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4279": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4360": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4469": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4558": {
+  "alt": [],
+  "bases": [
+   "FLOW"
+  ],
+  "cc": {
+   "FLOW": "not_comparable"
+  },
+  "products": [
+   [
+    "FLOW-USD",
+    "online"
+   ],
+   [
+    "FLOW-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "463": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4642": {
+  "alt": [],
+  "bases": [
+   "HBAR"
+  ],
+  "cc": {
+   "HBAR": "not_comparable"
+  },
+  "products": [
+   [
+    "HBAR-USD",
+    "online"
+   ],
+   [
+    "HBAR-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "4676": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4679": {
+  "alt": [],
+  "bases": [
+   "BAND"
+  ],
+  "cc": {
+   "BAND": "match"
+  },
+  "products": [
+   [
+    "BAND-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "4694": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4747": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4748": {
+  "alt": [
+   "NEON"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4842": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4846": {
+  "alt": [],
+  "bases": [
+   "KAVA"
+  ],
+  "cc": {
+   "KAVA": "not_comparable"
+  },
+  "products": [
+   [
+    "KAVA-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "4847": {
+  "alt": [],
+  "bases": [
+   "STX"
+  ],
+  "cc": {
+   "STX": "not_comparable"
+  },
+  "products": [
+   [
+    "STX-USD",
+    "online"
+   ],
+   [
+    "STX-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "4948": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "4949": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5015": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5026": {
+  "alt": [],
+  "bases": [
+   "OXT"
+  ],
+  "cc": {
+   "OXT": "match"
+  },
+  "products": [
+   [
+    "OXT-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5031": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5034": {
+  "alt": [],
+  "bases": [
+   "KSM"
+  ],
+  "cc": {
+   "KSM": "not_comparable"
+  },
+  "products": [
+   [
+    "KSM-USD",
+    "online"
+   ],
+   [
+    "KSM-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5070": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5084": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "512": {
+  "alt": [],
+  "bases": [
+   "XLM"
+  ],
+  "cc": {
+   "XLM": "not_comparable"
+  },
+  "products": [
+   [
+    "XLM-USD",
+    "online"
+   ],
+   [
+    "XLM-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "52": {
+  "alt": [],
+  "bases": [
+   "XRP"
+  ],
+  "cc": {
+   "XRP": "not_comparable"
+  },
+  "products": [
+   [
+    "XRP-USD",
+    "online"
+   ],
+   [
+    "XRP-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5234": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5268": {
+  "alt": [
+   "NEWT"
+  ],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5279": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5329": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5336": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5370": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5426": {
+  "alt": [],
+  "bases": [
+   "SOL"
+  ],
+  "cc": {
+   "SOL": "not_comparable"
+  },
+  "products": [
+   [
+    "SOL-USD",
+    "online"
+   ],
+   [
+    "SOL-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5482": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5488": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5524": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5567": {
+  "alt": [
+   "CGLD"
+  ],
+  "bases": [
+   "CGLD"
+  ],
+  "cc": {
+   "CGLD": "match"
+  },
+  "products": [
+   [
+    "CGLD-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5604": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5617": {
+  "alt": [],
+  "bases": [
+   "UMA"
+  ],
+  "cc": {
+   "UMA": "match"
+  },
+  "products": [
+   [
+    "UMA-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5632": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5647": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5665": {
+  "alt": [],
+  "bases": [
+   "HNT"
+  ],
+  "cc": {
+   "HNT": "match"
+  },
+  "products": [
+   [
+    "HNT-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5690": {
+  "alt": [],
+  "bases": [
+   "RNDR",
+   "RENDER"
+  ],
+  "cc": {
+   "RENDER": "match",
+   "RNDR": "match"
+  },
+  "products": [
+   [
+    "RENDER-USD",
+    "online"
+   ],
+   [
+    "RNDR-USD",
+    "delisted"
+   ],
+   [
+    "RNDR-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5692": {
+  "alt": [],
+  "bases": [
+   "COMP"
+  ],
+  "cc": {
+   "COMP": "match"
+  },
+  "products": [
+   [
+    "COMP-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5728": {
+  "alt": [],
+  "bases": [
+   "BAL"
+  ],
+  "cc": {
+   "BAL": "match"
+  },
+  "products": [
+   [
+    "BAL-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5785": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5796": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5805": {
+  "alt": [],
+  "bases": [
+   "AVAX"
+  ],
+  "cc": {
+   "AVAX": "match"
+  },
+  "products": [
+   [
+    "AVAX-USD",
+    "online"
+   ],
+   [
+    "AVAX-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5815": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5830": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5864": {
+  "alt": [],
+  "bases": [
+   "YFI"
+  ],
+  "cc": {
+   "YFI": "match"
+  },
+  "products": [
+   [
+    "YFI-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5899": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5957": {
+  "alt": [],
+  "bases": [
+   "YFII"
+  ],
+  "cc": {
+   "YFII": "match"
+  },
+  "products": [
+   [
+    "YFII-USD",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "5964": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "5994": {
+  "alt": [],
+  "bases": [
+   "SHIB"
+  ],
+  "cc": {
+   "SHIB": "match"
+  },
+  "products": [
+   [
+    "SHIB-USD",
+    "online"
+   ],
+   [
+    "SHIB-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "6187": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "6210": {
+  "alt": [],
+  "bases": [
+   "SAND"
+  ],
+  "cc": {
+   "SAND": "match"
+  },
+  "products": [
+   [
+    "SAND-USD",
+    "online"
+   ],
+   [
+    "SAND-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "6535": {
+  "alt": [],
+  "bases": [
+   "NEAR"
+  ],
+  "cc": {
+   "NEAR": "not_comparable"
+  },
+  "products": [
+   [
+    "NEAR-USD",
+    "online"
+   ],
+   [
+    "NEAR-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "6536": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "6538": {
+  "alt": [],
+  "bases": [
+   "CRV"
+  ],
+  "cc": {
+   "CRV": "match"
+  },
+  "products": [
+   [
+    "CRV-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "6636": {
+  "alt": [],
+  "bases": [
+   "DOT"
+  ],
+  "cc": {
+   "DOT": "not_comparable"
+  },
+  "products": [
+   [
+    "DOT-USD",
+    "online"
+   ],
+   [
+    "DOT-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "6719": {
+  "alt": [],
+  "bases": [
+   "GRT"
+  ],
+  "cc": {
+   "GRT": "match"
+  },
+  "products": [
+   [
+    "GRT-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "6758": {
+  "alt": [],
+  "bases": [
+   "SUSHI"
+  ],
+  "cc": {
+   "SUSHI": "match"
+  },
+  "products": [
+   [
+    "SUSHI-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "6783": {
+  "alt": [],
+  "bases": [
+   "AXS"
+  ],
+  "cc": {
+   "AXS": "match"
+  },
+  "products": [
+   [
+    "AXS-USD",
+    "online"
+   ],
+   [
+    "AXS-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "6836": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "6892": {
+  "alt": [],
+  "bases": [
+   "EGLD"
+  ],
+  "cc": {
+   "EGLD": "not_comparable"
+  },
+  "products": [
+   [
+    "EGLD-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "693": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "6945": {
+  "alt": [],
+  "bases": [
+   "AMP"
+  ],
+  "cc": {
+   "AMP": "match"
+  },
+  "products": [
+   [
+    "AMP-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "6950": {
+  "alt": [],
+  "bases": [
+   "PERP"
+  ],
+  "cc": {
+   "PERP": "match"
+  },
+  "products": [
+   [
+    "PERP-USD",
+    "online"
+   ],
+   [
+    "PERP-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "6953": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "7064": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "7080": {
+  "alt": [],
+  "bases": [
+   "GALA"
+  ],
+  "cc": {
+   "GALA": "mismatch"
+  },
+  "products": [
+   [
+    "GALA-USD",
+    "delisted"
+   ],
+   [
+    "GALA-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "7083": {
+  "alt": [],
+  "bases": [
+   "UNI"
+  ],
+  "cc": {
+   "UNI": "match"
+  },
+  "products": [
+   [
+    "UNI-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "7186": {
+  "alt": [],
+  "bases": [
+   "CAKE"
+  ],
+  "cc": {
+   "CAKE": "match"
+  },
+  "products": [
+   [
+    "CAKE-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "7226": {
+  "alt": [],
+  "bases": [
+   "INJ"
+  ],
+  "cc": {
+   "INJ": "match"
+  },
+  "products": [
+   [
+    "INJ-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "7232": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "7278": {
+  "alt": [],
+  "bases": [
+   "AAVE"
+  ],
+  "cc": {
+   "AAVE": "match"
+  },
+  "products": [
+   [
+    "AAVE-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "7288": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "7326": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "7334": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "74": {
+  "alt": [],
+  "bases": [
+   "DOGE"
+  ],
+  "cc": {
+   "DOGE": "not_comparable"
+  },
+  "products": [
+   [
+    "DOGE-USD",
+    "online"
+   ],
+   [
+    "DOGE-USDT",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "7431": {
+  "alt": [],
+  "bases": [
+   "AKT"
+  ],
+  "cc": {
+   "AKT": "not_comparable"
+  },
+  "products": [
+   [
+    "AKT-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "7455": {
+  "alt": [],
+  "bases": [
+   "AUDIO"
+  ],
+  "cc": {
+   "AUDIO": "match"
+  },
+  "products": [
+   [
+    "AUDIO-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "7501": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "7548": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "7653": {
+  "alt": [],
+  "bases": [
+   "ROSE"
+  ],
+  "cc": {
+   "ROSE": "not_comparable"
+  },
+  "products": [
+   [
+    "ROSE-USD",
+    "online"
+   ],
+   [
+    "ROSE-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "7950": {
+  "alt": [],
+  "bases": [
+   "FLR"
+  ],
+  "cc": {
+   "FLR": "not_comparable"
+  },
+  "products": [
+   [
+    "FLR-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "8000": {
+  "alt": [],
+  "bases": [
+   "LDO"
+  ],
+  "cc": {
+   "LDO": "match"
+  },
+  "products": [
+   [
+    "LDO-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "8104": {
+  "alt": [],
+  "bases": [
+   "1INCH"
+  ],
+  "cc": {
+   "1INCH": "match"
+  },
+  "products": [
+   [
+    "1INCH-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "8335": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "8425": {
+  "alt": [],
+  "bases": [
+   "JASMY"
+  ],
+  "cc": {
+   "JASMY": "match"
+  },
+  "products": [
+   [
+    "JASMY-USD",
+    "online"
+   ],
+   [
+    "JASMY-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "8526": {
+  "alt": [],
+  "bases": [
+   "RAY"
+  ],
+  "cc": {
+   "RAY": "match"
+  },
+  "products": [
+   [
+    "RAY-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "8536": {
+  "alt": [],
+  "bases": [
+   "MASK"
+  ],
+  "cc": {
+   "MASK": "match"
+  },
+  "products": [
+   [
+    "MASK-USD",
+    "online"
+   ],
+   [
+    "MASK-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "8646": {
+  "alt": [],
+  "bases": [
+   "MINA"
+  ],
+  "cc": {
+   "MINA": "not_comparable"
+  },
+  "products": [
+   [
+    "MINA-USD",
+    "online"
+   ],
+   [
+    "MINA-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "8677": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "873": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "8857": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "8916": {
+  "alt": [],
+  "bases": [
+   "ICP"
+  ],
+  "cc": {
+   "ICP": "not_comparable"
+  },
+  "products": [
+   [
+    "ICP-USD",
+    "online"
+   ],
+   [
+    "ICP-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "9104": {
+  "alt": [],
+  "bases": [
+   "AIOZ"
+  ],
+  "cc": {
+   "AIOZ": "match"
+  },
+  "products": [
+   [
+    "AIOZ-USD",
+    "online"
+   ],
+   [
+    "AIOZ-USDT",
+    "delisted"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "9436": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "9444": {
+  "alt": [],
+  "bases": [
+   "KNC"
+  ],
+  "cc": {
+   "KNC": "match"
+  },
+  "products": [
+   [
+    "KNC-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "9481": {
+  "alt": [],
+  "bases": [
+   "PENDLE"
+  ],
+  "cc": {
+   "PENDLE": "match"
+  },
+  "products": [
+   [
+    "PENDLE-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ },
+ "9816": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "9891": {
+  "alt": [],
+  "bases": [],
+  "products": [],
+  "status": "never_listed"
+ },
+ "9903": {
+  "alt": [],
+  "bases": [
+   "CVX"
+  ],
+  "cc": {
+   "CVX": "match"
+  },
+  "products": [
+   [
+    "CVX-USD",
+    "online"
+   ]
+  ],
+  "status": "mapped"
+ }
+}

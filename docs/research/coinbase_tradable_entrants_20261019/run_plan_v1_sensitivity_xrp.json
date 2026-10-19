@@ -1,0 +1,54 @@
+{
+  "input_sets": [
+    {
+      "dir": "research/coinbase_listing_stepB_20261019/candles",
+      "sums": "research/coinbase_listing_stepB_20261019/candles/SHA256SUMS",
+      "sums_sha256": "3927b351326f55f5005f31b02bd1cfc548a60d30c91c7e872812ed14e36d8998"
+    },
+    {
+      "dir": "research/coinbase_listing_stepB_20261019/candles_first_check",
+      "sums": "research/coinbase_listing_stepB_20261019/candles_first_check/SHA256SUMS",
+      "sums_sha256": "df733c14d5a47c4ed1387e0b14bc761300e05b215c7dc09ea3635e352e45212f"
+    },
+    {
+      "dir": "research/coinbase_listing_stepB_20261019/cmc_contracts",
+      "sums": "research/coinbase_listing_stepB_20261019/cmc_contracts/SHA256SUMS",
+      "sums_sha256": "55e4133ebfd561f72f2d3af7df750c62409ecf668b7a8a7aa5c54e5cb4a96b96"
+    }
+  ],
+  "inputs": {
+    "docs/research/coinbase_tradable_entrants_20261019/cmc_contract_ids.csv": "cbf4ecaf2fefbca854493f1de1f90bb3ebbf8d23e80e1c3df1f191d00fe549d1",
+    "docs/research/coinbase_tradable_entrants_20261019/control_ids_v2.csv": "e2ad776fe21b10fbd84ef3a1350ba437dc71b59a46267d2a168ce8b1de28318f",
+    "docs/research/coinbase_tradable_entrants_20261019/entrant_ids_v2.csv": "aa9cd966206820afe3303ab633d6e12cfa69cea95b57cba7ac2337c280af0714",
+    "docs/research/coinbase_tradable_entrants_20261019/identity_adjudications_v3.json": "f8ef0a7b371ec6c226f901204bc46e5a86289eb4cfd53cd8d78562b7f99f96bb",
+    "docs/research/coinbase_tradable_entrants_20261019/identity_map_v3/identity_map.json": "0640223172fc98ada3d73d4cb1dd97d5056df6c47a43c539ec12a96200a24894",
+    "docs/research/coinbase_tradable_entrants_20261019/identity_map_v3/review.csv": "6dd106c14d56df6413836a3d33ff3acbad5288325204e7e5cb1eb308e4c49940",
+    "docs/research/low_value_top100_20261018/CORRECTION_V2.md": "11f01b56723cff940bf6416a2c6f6243c7c005954455c6d6ba43bb62292d55f4",
+    "docs/research/low_value_top100_20261018/PROTOCOL.md": "f232050036723229ae9a0fbbc505d1a3df2f0318cd2b13dc12eb92955b1ebf01",
+    "docs/research/low_value_top100_20261018/instrument_correction_v2.json": "3b3a40106d3a63ff17139a97059e45302d1d53cdc7615e8a9c7a534b513e5399",
+    "docs/research/raw_archives_20261009/SHA256SUMS_inputs.txt": "c7f3e9cf43ac3cf196d1fd968627256d4172eb6487eae793d21ea3c194db2ebc",
+    "docs/research/raw_archives_20261009/cmc_weekly_and_trending.tar.xz": "05223937afcfb02f4c020476c8b3380fcdd7044e5f3812e4938aff858fd41f4b",
+    "research/coinbase_listing_probe_20261019/01_products.json": "00e556cc635a903fdec2ac1c2bc86f6bef55e229384fb63b8fa31c2efb2f2b0b",
+    "research/coinbase_listing_stepB_20261019/01_currencies.json": "8de25dcc9b564a41c61736677ec37fc932b23558e81bc68aa7da3227f5b50fa1",
+    "research/coinbase_listing_stepB_20261019/listings/listings.json": "a5773a058c4872d60b11c53a747fe376c6f82b2594d0637d1c2aa8dc308553c2",
+    "research/coinbase_listing_stepB_20261019/listings/listings_report.json": "ed640ac73e592cd79afc1df19174510ed01ee6fcb1fdf0b552c8dffa68aa1290"
+  },
+  "preregistration": {
+    "path": "docs/research/coinbase_tradable_entrants_20261019/PREREGISTRATION_DRAFT.md",
+    "sha256": "a7fb3662450b20764f1d11404543b9551283a3c50f290ab466d3b02db86c67e9"
+  },
+  "root": "/sessions/rcw-019pphymjbtytzvkjdghq5x2/mnt/crypto-bot-pro",
+  "schema": "pinned-run-inputs-v1",
+  "sources": {
+    "scripts/research/build_coinbase_identity_map.py": "8a9cfd72af216823d9528359ac067dabe2fa479fe2f2d96696632bbf24b08a6c",
+    "scripts/research/build_coinbase_listings.py": "2f5afefdccc007b85e519acdcce9453d95e3c8b2c61455fa3a0954c71e115a50",
+    "scripts/research/fetch_cmc_contracts.py": "4a8c27dccc9f1a6edb400918a868000272251ca7b6831bc14609dc1bbab9210f",
+    "scripts/research/fetch_coinbase_listing_dates.py": "049a36a41568095aab1038eafe2193df4da065433700c6c174927c229d29f6ab",
+    "scripts/research/pinned_run_inputs.py": "6baef879499d10480a3685ccba4c0f5820c2a2fde2ee894221b600d1122ebae8",
+    "scripts/research/run_coinbase_tradable_entrants.py": "fdcdebe4263669cd847a92b46dca658bd2bfe5743ae8a32b669fa4670ba02cc3",
+    "scripts/research/run_coinbase_tradable_entrants_pinned.py": "597ba0b4c7883b715827285ce4dcbf315082c2c17498a746b5781d6586707bcd",
+    "scripts/research/run_low_value_top100_v2.py": "04ab5aa238ca523c3965e9a984d2be3a315c92f3cc64327d5b9016a1a786b50d",
+    "scripts/research/test_low_value_top100.py": "388dc98ac004fe24339291e4d8a0ad4da52d0151a692e70ff0d365f16de4fa59",
+    "scripts/research/verify_first_candles.py": "97b8842cce61b1e23336c50e84ccd80f4737cd80954040f0c3f8b816df9c5bb9"
+  }
+}

@@ -1,0 +1,1649 @@
+{
+  "assets": {
+    "1042": {
+      "status": "never_listed"
+    },
+    "10529": {
+      "status": "never_listed"
+    },
+    "10603": {
+      "first_candle": "2021-12-09",
+      "last_candle": null,
+      "product": "IMX-USD",
+      "status": "mapped"
+    },
+    "10791": {
+      "status": "never_listed"
+    },
+    "10804": {
+      "first_candle": "2024-11-21",
+      "last_candle": null,
+      "product": "FLOKI-USD",
+      "status": "mapped"
+    },
+    "109": {
+      "status": "never_listed"
+    },
+    "1104": {
+      "first_candle": "2019-04-09",
+      "last_candle": "2023-03-29",
+      "product": "REP-USD",
+      "status": "mapped"
+    },
+    "11092": {
+      "status": "never_listed"
+    },
+    "11156": {
+      "status": "never_listed"
+    },
+    "11221": {
+      "first_candle": "2022-06-07",
+      "last_candle": "2025-01-06",
+      "product": "BIT-USDT",
+      "status": "mapped"
+    },
+    "11419": {
+      "first_candle": "2025-11-18",
+      "last_candle": null,
+      "product": "TON-USD",
+      "status": "mapped"
+    },
+    "1168": {
+      "status": "never_listed"
+    },
+    "1169": {
+      "status": "never_listed"
+    },
+    "118": {
+      "status": "never_listed"
+    },
+    "11840": {
+      "first_candle": "2022-06-01",
+      "last_candle": null,
+      "product": "OP-USD",
+      "status": "mapped"
+    },
+    "11841": {
+      "first_candle": "2023-03-23",
+      "last_candle": null,
+      "product": "ARB-USD",
+      "status": "mapped"
+    },
+    "11857": {
+      "status": "never_listed"
+    },
+    "11865": {
+      "status": "never_listed"
+    },
+    "1214": {
+      "status": "never_listed"
+    },
+    "12220": {
+      "first_candle": "2023-05-25",
+      "last_candle": null,
+      "product": "OSMO-USD",
+      "status": "mapped"
+    },
+    "1229": {
+      "status": "never_listed"
+    },
+    "1230": {
+      "status": "never_listed"
+    },
+    "1274": {
+      "status": "never_listed"
+    },
+    "12885": {
+      "status": "never_listed"
+    },
+    "12999": {
+      "status": "never_listed"
+    },
+    "131": {
+      "first_candle": "2019-09-17",
+      "last_candle": null,
+      "product": "DASH-USD",
+      "status": "mapped"
+    },
+    "1320": {
+      "status": "never_listed"
+    },
+    "1321": {
+      "first_candle": "2018-12-15",
+      "last_candle": null,
+      "product": "ETC-USD",
+      "status": "mapped"
+    },
+    "1343": {
+      "status": "never_listed"
+    },
+    "13502": {
+      "first_candle": "2025-04-30",
+      "last_candle": null,
+      "product": "WLD-USD",
+      "status": "mapped"
+    },
+    "13631": {
+      "status": "never_listed"
+    },
+    "1376": {
+      "status": "never_listed"
+    },
+    "13855": {
+      "first_candle": "2021-11-16",
+      "last_candle": null,
+      "product": "ENS-USDT",
+      "status": "mapped"
+    },
+    "14101": {
+      "first_candle": "2024-03-21",
+      "last_candle": "2026-03-30",
+      "product": "RONIN-USD",
+      "status": "mapped"
+    },
+    "1414": {
+      "status": "never_listed"
+    },
+    "1437": {
+      "first_candle": "2018-12-15",
+      "last_candle": null,
+      "product": "ZEC-USDC",
+      "status": "mapped"
+    },
+    "1455": {
+      "first_candle": "2018-12-19",
+      "last_candle": "2022-03-07",
+      "product": "GNT-USDC",
+      "status": "mapped"
+    },
+    "1518": {
+      "first_candle": "2020-06-09",
+      "last_candle": "2026-01-12",
+      "product": "MKR-USD",
+      "status": "mapped"
+    },
+    "1521": {
+      "status": "never_listed"
+    },
+    "1567": {
+      "status": "never_listed"
+    },
+    "1586": {
+      "status": "never_listed"
+    },
+    "16086": {
+      "status": "never_listed"
+    },
+    "1637": {
+      "first_candle": "2021-05-06",
+      "last_candle": null,
+      "product": "RLC-USD",
+      "status": "mapped"
+    },
+    "1659": {
+      "first_candle": "2022-07-21",
+      "last_candle": null,
+      "product": "GNO-USDT",
+      "status": "mapped"
+    },
+    "1680": {
+      "first_candle": "2022-12-08",
+      "last_candle": "2024-01-05",
+      "product": "ANT-USD",
+      "status": "mapped"
+    },
+    "1684": {
+      "status": "never_listed"
+    },
+    "1697": {
+      "first_candle": "2018-12-15",
+      "last_candle": null,
+      "product": "BAT-USDC",
+      "status": "mapped"
+    },
+    "1698": {
+      "first_candle": "2021-09-16",
+      "last_candle": null,
+      "product": "ZEN-USD",
+      "status": "mapped"
+    },
+    "1700": {
+      "status": "never_listed"
+    },
+    "1703": {
+      "status": "never_listed"
+    },
+    "1710": {
+      "status": "never_listed"
+    },
+    "1715": {
+      "status": "never_listed"
+    },
+    "1720": {
+      "status": "never_listed"
+    },
+    "1727": {
+      "first_candle": "2020-12-15",
+      "last_candle": null,
+      "product": "BNT-USD",
+      "status": "mapped"
+    },
+    "1732": {
+      "first_candle": "2020-08-18",
+      "last_candle": null,
+      "product": "NMR-USD",
+      "status": "mapped"
+    },
+    "1750": {
+      "status": "never_listed"
+    },
+    "1759": {
+      "first_candle": "2022-03-08",
+      "last_candle": "2024-02-23",
+      "product": "SNT-USD",
+      "status": "mapped"
+    },
+    "1765": {
+      "first_candle": "2019-04-09",
+      "last_candle": "2025-12-10",
+      "product": "EOS-USD",
+      "status": "mapped"
+    },
+    "1772": {
+      "first_candle": "2021-03-25",
+      "last_candle": "2026-09-28",
+      "product": "STORJ-USD",
+      "status": "mapped"
+    },
+    "17751": {
+      "first_candle": "2023-01-26",
+      "last_candle": null,
+      "product": "T-USD",
+      "status": "mapped"
+    },
+    "1776": {
+      "status": "never_listed"
+    },
+    "17799": {
+      "first_candle": "2023-02-07",
+      "last_candle": null,
+      "product": "AXL-USD",
+      "status": "mapped"
+    },
+    "1785": {
+      "status": "never_listed"
+    },
+    "1789": {
+      "status": "never_listed"
+    },
+    "18069": {
+      "first_candle": "2022-04-28",
+      "last_candle": null,
+      "product": "GMT-USDT",
+      "status": "mapped"
+    },
+    "1808": {
+      "first_candle": "2020-05-19",
+      "last_candle": "2023-03-29",
+      "product": "OMG-USD",
+      "status": "mapped"
+    },
+    "1817": {
+      "first_candle": "2021-11-18",
+      "last_candle": "2023-09-06",
+      "product": "VGX-USD",
+      "status": "mapped"
+    },
+    "1831": {
+      "first_candle": "2018-12-15",
+      "last_candle": null,
+      "product": "BCH-USD",
+      "status": "mapped"
+    },
+    "1839": {
+      "first_candle": "2025-10-22",
+      "last_candle": null,
+      "product": "BNB-USD",
+      "status": "mapped"
+    },
+    "1866": {
+      "status": "never_listed"
+    },
+    "18679": {
+      "first_candle": "2022-06-28",
+      "last_candle": null,
+      "product": "XCN-USDT",
+      "status": "mapped"
+    },
+    "1886": {
+      "status": "never_listed"
+    },
+    "18876": {
+      "first_candle": "2022-03-17",
+      "last_candle": null,
+      "product": "APE-USD",
+      "status": "mapped"
+    },
+    "1896": {
+      "first_candle": "2018-12-15",
+      "last_candle": null,
+      "product": "ZRX-USD",
+      "status": "mapped"
+    },
+    "1903": {
+      "status": "never_listed"
+    },
+    "1908": {
+      "status": "never_listed"
+    },
+    "1925": {
+      "status": "never_listed"
+    },
+    "1934": {
+      "first_candle": "2020-09-15",
+      "last_candle": "2026-08-07",
+      "product": "LRC-USD",
+      "status": "mapped"
+    },
+    "1958": {
+      "status": "never_listed"
+    },
+    "1966": {
+      "first_candle": "2018-12-15",
+      "last_candle": null,
+      "product": "MANA-USDC",
+      "status": "mapped"
+    },
+    "1975": {
+      "first_candle": "2019-06-27",
+      "last_candle": null,
+      "product": "LINK-USD",
+      "status": "mapped"
+    },
+    "1982": {
+      "first_candle": "2020-02-25",
+      "last_candle": null,
+      "product": "KNC-USD",
+      "status": "mapped"
+    },
+    "2": {
+      "first_candle": "2018-12-15",
+      "last_candle": null,
+      "product": "LTC-USD",
+      "status": "mapped"
+    },
+    "2010": {
+      "first_candle": "2021-03-18",
+      "last_candle": null,
+      "product": "ADA-USD",
+      "status": "mapped"
+    },
+    "2011": {
+      "first_candle": "2019-08-06",
+      "last_candle": null,
+      "product": "XTZ-USD",
+      "status": "mapped"
+    },
+    "2027": {
+      "status": "never_listed"
+    },
+    "20314": {
+      "status": "never_listed"
+    },
+    "20396": {
+      "status": "never_listed"
+    },
+    "2062": {
+      "status": "never_listed"
+    },
+    "2083": {
+      "status": "never_listed"
+    },
+    "2087": {
+      "status": "never_listed"
+    },
+    "2090": {
+      "status": "unknown"
+    },
+    "2092": {
+      "status": "never_listed"
+    },
+    "20947": {
+      "first_candle": "2023-05-18",
+      "last_candle": null,
+      "product": "SUI-USD",
+      "status": "mapped"
+    },
+    "2099": {
+      "status": "never_listed"
+    },
+    "21159": {
+      "first_candle": "2024-01-22",
+      "last_candle": null,
+      "product": "ONDO-USD",
+      "status": "mapped"
+    },
+    "21296": {
+      "status": "never_listed"
+    },
+    "213": {
+      "status": "unknown"
+    },
+    "2130": {
+      "first_candle": "2021-04-09",
+      "last_candle": "2024-06-14",
+      "product": "ENJ-USD",
+      "status": "mapped"
+    },
+    "2132": {
+      "first_candle": "2021-11-16",
+      "last_candle": null,
+      "product": "POWR-USDT",
+      "status": "mapped"
+    },
+    "2135": {
+      "status": "never_listed"
+    },
+    "2137": {
+      "status": "never_listed"
+    },
+    "21794": {
+      "first_candle": "2022-10-19",
+      "last_candle": null,
+      "product": "APT-USD",
+      "status": "mapped"
+    },
+    "2222": {
+      "status": "never_listed"
+    },
+    "2239": {
+      "status": "never_listed"
+    },
+    "22691": {
+      "first_candle": "2024-02-21",
+      "last_candle": null,
+      "product": "STRK-USD",
+      "status": "mapped"
+    },
+    "2280": {
+      "first_candle": "2020-12-09",
+      "last_candle": null,
+      "product": "FIL-USD",
+      "status": "mapped"
+    },
+    "22861": {
+      "first_candle": "2023-11-01",
+      "last_candle": null,
+      "product": "TIA-USD",
+      "status": "mapped"
+    },
+    "22974": {
+      "first_candle": "2025-02-20",
+      "last_candle": null,
+      "product": "TAO-USD",
+      "status": "mapped"
+    },
+    "2299": {
+      "status": "never_listed"
+    },
+    "2300": {
+      "status": "never_listed"
+    },
+    "2307": {
+      "status": "never_listed"
+    },
+    "23095": {
+      "first_candle": "2023-12-14",
+      "last_candle": null,
+      "product": "BONK-USD",
+      "status": "mapped"
+    },
+    "23121": {
+      "first_candle": "2023-02-14",
+      "last_candle": null,
+      "product": "BLUR-USD",
+      "status": "mapped"
+    },
+    "23149": {
+      "first_candle": "2023-08-15",
+      "last_candle": null,
+      "product": "SEI-USD",
+      "status": "mapped"
+    },
+    "2319": {
+      "status": "never_listed"
+    },
+    "23246": {
+      "status": "never_listed"
+    },
+    "23254": {
+      "first_candle": "2024-06-21",
+      "last_candle": null,
+      "product": "CORECHAIN-USD",
+      "status": "mapped"
+    },
+    "2346": {
+      "status": "never_listed"
+    },
+    "2349": {
+      "status": "never_listed"
+    },
+    "23635": {
+      "status": "never_listed"
+    },
+    "2394": {
+      "status": "never_listed"
+    },
+    "2405": {
+      "status": "never_listed"
+    },
+    "2416": {
+      "status": "never_listed"
+    },
+    "2424": {
+      "status": "never_listed"
+    },
+    "2441": {
+      "status": "never_listed"
+    },
+    "24478": {
+      "first_candle": "2024-11-13",
+      "last_candle": null,
+      "product": "PEPE-USD",
+      "status": "mapped"
+    },
+    "2453": {
+      "status": "never_listed"
+    },
+    "2457": {
+      "status": "never_listed"
+    },
+    "24647": {
+      "first_candle": "2025-02-06",
+      "last_candle": null,
+      "product": "BERA-USD",
+      "status": "mapped"
+    },
+    "2469": {
+      "status": "never_listed"
+    },
+    "2492": {
+      "first_candle": "2022-06-22",
+      "last_candle": null,
+      "product": "ELA-USDT",
+      "status": "mapped"
+    },
+    "2496": {
+      "first_candle": "2021-07-27",
+      "last_candle": "2023-12-05",
+      "product": "POLY-USD",
+      "status": "mapped"
+    },
+    "2499": {
+      "status": "never_listed"
+    },
+    "2502": {
+      "status": "never_listed"
+    },
+    "25028": {
+      "status": "never_listed"
+    },
+    "2539": {
+      "first_candle": "2020-10-06",
+      "last_candle": "2023-11-03",
+      "product": "REN-USD",
+      "status": "mapped"
+    },
+    "2566": {
+      "status": "never_listed"
+    },
+    "2577": {
+      "status": "never_listed"
+    },
+    "2586": {
+      "first_candle": "2020-12-15",
+      "last_candle": null,
+      "product": "SNX-USD",
+      "status": "mapped"
+    },
+    "2588": {
+      "first_candle": "2018-12-15",
+      "last_candle": "2023-03-29",
+      "product": "LOOM-USDC",
+      "status": "mapped"
+    },
+    "2603": {
+      "status": "never_listed"
+    },
+    "2606": {
+      "status": "never_listed"
+    },
+    "2631": {
+      "status": "never_listed"
+    },
+    "2634": {
+      "status": "never_listed"
+    },
+    "2642": {
+      "status": "never_listed"
+    },
+    "2682": {
+      "status": "never_listed"
+    },
+    "2694": {
+      "status": "never_listed"
+    },
+    "26997": {
+      "first_candle": "2024-06-20",
+      "last_candle": null,
+      "product": "ZRO-USD",
+      "status": "mapped"
+    },
+    "2700": {
+      "status": "never_listed"
+    },
+    "27075": {
+      "first_candle": "2025-05-01",
+      "last_candle": null,
+      "product": "MANTLE-USD",
+      "status": "mapped"
+    },
+    "2758": {
+      "status": "never_listed"
+    },
+    "27659": {
+      "first_candle": "2024-12-05",
+      "last_candle": null,
+      "product": "MOG-USD",
+      "status": "mapped"
+    },
+    "2772": {
+      "status": "never_listed"
+    },
+    "2777": {
+      "first_candle": "2021-08-12",
+      "last_candle": "2026-09-23",
+      "product": "IOTX-USD",
+      "status": "mapped"
+    },
+    "28081": {
+      "first_candle": "2025-09-09",
+      "last_candle": null,
+      "product": "SPX-USD",
+      "status": "mapped"
+    },
+    "28177": {
+      "first_candle": "2025-02-20",
+      "last_candle": null,
+      "product": "PYTH-USD",
+      "status": "mapped"
+    },
+    "28194": {
+      "status": "never_listed"
+    },
+    "28298": {
+      "first_candle": "2025-12-16",
+      "last_candle": null,
+      "product": "BEAM-USD",
+      "status": "mapped"
+    },
+    "2830": {
+      "status": "never_listed"
+    },
+    "28301": {
+      "status": "never_listed"
+    },
+    "28321": {
+      "first_candle": "2024-09-04",
+      "last_candle": null,
+      "product": "POL-USD",
+      "status": "mapped"
+    },
+    "28324": {
+      "first_candle": "2025-08-07",
+      "last_candle": null,
+      "product": "COSMOSDYDX-USD",
+      "status": "mapped"
+    },
+    "2859": {
+      "status": "never_listed"
+    },
+    "28683": {
+      "status": "never_listed"
+    },
+    "2874": {
+      "status": "never_listed"
+    },
+    "28752": {
+      "first_candle": "2024-11-13",
+      "last_candle": null,
+      "product": "WIF-USD",
+      "status": "mapped"
+    },
+    "28782": {
+      "first_candle": "2025-02-13",
+      "last_candle": null,
+      "product": "POPCAT-USD",
+      "status": "mapped"
+    },
+    "2885": {
+      "status": "never_listed"
+    },
+    "28850": {
+      "status": "never_listed"
+    },
+    "28932": {
+      "status": "never_listed"
+    },
+    "28933": {
+      "status": "never_listed"
+    },
+    "2897": {
+      "status": "never_listed"
+    },
+    "2900": {
+      "status": "never_listed"
+    },
+    "2907": {
+      "status": "never_listed"
+    },
+    "29073": {
+      "first_candle": "2025-03-27",
+      "last_candle": null,
+      "product": "ALT-USD",
+      "status": "mapped"
+    },
+    "291": {
+      "status": "never_listed"
+    },
+    "29210": {
+      "first_candle": "2025-12-09",
+      "last_candle": null,
+      "product": "JUPITER-USD",
+      "status": "mapped"
+    },
+    "29270": {
+      "first_candle": "2024-02-06",
+      "last_candle": null,
+      "product": "AERO-USD",
+      "status": "mapped"
+    },
+    "29420": {
+      "first_candle": "2026-04-29",
+      "last_candle": null,
+      "product": "VIRTUAL-USD",
+      "status": "mapped"
+    },
+    "29587": {
+      "first_candle": "2025-07-02",
+      "last_candle": null,
+      "product": "W-USD",
+      "status": "mapped"
+    },
+    "29743": {
+      "status": "never_listed"
+    },
+    "29814": {
+      "first_candle": "2025-02-06",
+      "last_candle": null,
+      "product": "ETHFI-USD",
+      "status": "mapped"
+    },
+    "29870": {
+      "status": "never_listed"
+    },
+    "30126": {
+      "status": "never_listed"
+    },
+    "30171": {
+      "first_candle": "2025-06-05",
+      "last_candle": null,
+      "product": "ENA-USD",
+      "status": "mapped"
+    },
+    "30495": {
+      "first_candle": "2025-11-24",
+      "last_candle": null,
+      "product": "MON-USD",
+      "status": "mapped"
+    },
+    "3077": {
+      "first_candle": "2023-09-13",
+      "last_candle": null,
+      "product": "VET-USD",
+      "status": "mapped"
+    },
+    "3085": {
+      "status": "never_listed"
+    },
+    "3115": {
+      "status": "never_listed"
+    },
+    "3116": {
+      "status": "never_listed"
+    },
+    "3139": {
+      "status": "never_listed"
+    },
+    "3155": {
+      "first_candle": "2021-06-24",
+      "last_candle": null,
+      "product": "QNT-USD",
+      "status": "mapped"
+    },
+    "3175": {
+      "status": "never_listed"
+    },
+    "3218": {
+      "status": "never_listed"
+    },
+    "32196": {
+      "first_candle": "2026-02-05",
+      "last_candle": null,
+      "product": "HYPE-USD",
+      "status": "mapped"
+    },
+    "32452": {
+      "first_candle": "2024-12-09",
+      "last_candle": "2025-05-15",
+      "product": "MOVE-USD",
+      "status": "mapped"
+    },
+    "32684": {
+      "first_candle": "2025-06-24",
+      "last_candle": null,
+      "product": "S-USD",
+      "status": "mapped"
+    },
+    "328": {
+      "status": "never_listed"
+    },
+    "32880": {
+      "status": "never_listed"
+    },
+    "3296": {
+      "status": "never_listed"
+    },
+    "33038": {
+      "first_candle": "2025-07-10",
+      "last_candle": null,
+      "product": "SKY-USD",
+      "status": "mapped"
+    },
+    "33251": {
+      "first_candle": "2025-09-01",
+      "last_candle": null,
+      "product": "WLFI-USD",
+      "status": "mapped"
+    },
+    "3351": {
+      "status": "never_listed"
+    },
+    "3356": {
+      "status": "never_listed"
+    },
+    "33597": {
+      "first_candle": "2025-06-12",
+      "last_candle": null,
+      "product": "FARTCOIN-USD",
+      "status": "mapped"
+    },
+    "3364": {
+      "status": "never_listed"
+    },
+    "33788": {
+      "first_candle": "2025-01-14",
+      "last_candle": null,
+      "product": "PNUT-USD",
+      "status": "mapped"
+    },
+    "34104": {
+      "first_candle": "2025-02-27",
+      "last_candle": null,
+      "product": "MORPHO-USD",
+      "status": "mapped"
+    },
+    "3437": {
+      "status": "never_listed"
+    },
+    "34466": {
+      "first_candle": "2025-02-13",
+      "last_candle": null,
+      "product": "PENGU-USD",
+      "status": "mapped"
+    },
+    "35053": {
+      "status": "never_listed"
+    },
+    "3513": {
+      "status": "never_listed"
+    },
+    "35336": {
+      "first_candle": "2025-01-21",
+      "last_candle": null,
+      "product": "TRUMP-USD",
+      "status": "mapped"
+    },
+    "35347": {
+      "status": "never_listed"
+    },
+    "35491": {
+      "status": "never_listed"
+    },
+    "35509": {
+      "first_candle": "2025-01-28",
+      "last_candle": null,
+      "product": "VVV-USD",
+      "status": "mapped"
+    },
+    "35626": {
+      "first_candle": "2025-02-13",
+      "last_candle": "2026-10-05",
+      "product": "IP-USD",
+      "status": "mapped"
+    },
+    "35697": {
+      "status": "never_listed"
+    },
+    "35766": {
+      "status": "never_listed"
+    },
+    "3602": {
+      "status": "never_listed"
+    },
+    "36119": {
+      "first_candle": "2026-02-11",
+      "last_candle": null,
+      "product": "WAL-USD",
+      "status": "mapped"
+    },
+    "36300": {
+      "status": "never_listed"
+    },
+    "36341": {
+      "first_candle": "2025-11-20",
+      "last_candle": null,
+      "product": "ASTER-USD",
+      "status": "mapped"
+    },
+    "3635": {
+      "first_candle": "2021-11-03",
+      "last_candle": null,
+      "product": "CRO-USD",
+      "status": "mapped"
+    },
+    "3640": {
+      "first_candle": "2021-06-24",
+      "last_candle": null,
+      "product": "LPT-USD",
+      "status": "mapped"
+    },
+    "36410": {
+      "status": "never_listed"
+    },
+    "36462": {
+      "status": "never_listed"
+    },
+    "36507": {
+      "first_candle": "2025-07-15",
+      "last_candle": null,
+      "product": "PUMP-USD",
+      "status": "mapped"
+    },
+    "36532": {
+      "status": "never_listed"
+    },
+    "3657": {
+      "status": "never_listed"
+    },
+    "3662": {
+      "status": "never_listed"
+    },
+    "36645": {
+      "first_candle": "2025-12-02",
+      "last_candle": null,
+      "product": "XPL-USD",
+      "status": "mapped"
+    },
+    "3673": {
+      "status": "never_listed"
+    },
+    "36922": {
+      "status": "never_listed"
+    },
+    "3695": {
+      "status": "never_listed"
+    },
+    "3701": {
+      "status": "never_listed"
+    },
+    "3704": {
+      "status": "never_listed"
+    },
+    "3709": {
+      "status": "never_listed"
+    },
+    "3718": {
+      "status": "never_listed"
+    },
+    "3724": {
+      "status": "never_listed"
+    },
+    "37263": {
+      "status": "never_listed"
+    },
+    "3734": {
+      "status": "never_listed"
+    },
+    "3773": {
+      "first_candle": "2021-07-27",
+      "last_candle": null,
+      "product": "FET-USD",
+      "status": "mapped"
+    },
+    "3783": {
+      "first_candle": "2021-03-25",
+      "last_candle": null,
+      "product": "ANKR-USD",
+      "status": "mapped"
+    },
+    "3788": {
+      "status": "never_listed"
+    },
+    "3794": {
+      "first_candle": "2020-01-14",
+      "last_candle": null,
+      "product": "ATOM-USD",
+      "status": "mapped"
+    },
+    "3801": {
+      "status": "never_listed"
+    },
+    "3812": {
+      "status": "never_listed"
+    },
+    "3822": {
+      "status": "never_listed"
+    },
+    "3829": {
+      "status": "unknown"
+    },
+    "3835": {
+      "status": "never_listed"
+    },
+    "38417": {
+      "status": "never_listed"
+    },
+    "38515": {
+      "first_candle": "2025-10-16",
+      "last_candle": null,
+      "product": "2Z-USD",
+      "status": "mapped"
+    },
+    "38590": {
+      "status": "never_listed"
+    },
+    "3871": {
+      "status": "never_listed"
+    },
+    "38828": {
+      "first_candle": "2025-11-03",
+      "last_candle": null,
+      "product": "KITE-USD",
+      "status": "mapped"
+    },
+    "38837": {
+      "status": "never_listed"
+    },
+    "38892": {
+      "status": "never_listed"
+    },
+    "3890": {
+      "first_candle": "2021-03-11",
+      "last_candle": "2025-10-14",
+      "product": "MATIC-USD",
+      "status": "mapped"
+    },
+    "3897": {
+      "status": "never_listed"
+    },
+    "39064": {
+      "status": "never_listed"
+    },
+    "3911": {
+      "first_candle": "2022-09-08",
+      "last_candle": null,
+      "product": "OCEAN-USD",
+      "status": "mapped"
+    },
+    "39125": {
+      "first_candle": "2026-01-15",
+      "last_candle": null,
+      "product": "LIGHTER-USD",
+      "status": "mapped"
+    },
+    "3914": {
+      "status": "never_listed"
+    },
+    "3945": {
+      "status": "never_listed"
+    },
+    "3957": {
+      "status": "never_listed"
+    },
+    "3964": {
+      "first_candle": "2025-04-22",
+      "last_candle": null,
+      "product": "RSR-USD",
+      "status": "mapped"
+    },
+    "39720": {
+      "first_candle": "2026-03-31",
+      "last_candle": null,
+      "product": "EDGEX-USD",
+      "status": "mapped"
+    },
+    "4030": {
+      "first_candle": "2019-08-15",
+      "last_candle": null,
+      "product": "ALGO-USD",
+      "status": "mapped"
+    },
+    "4049": {
+      "status": "never_listed"
+    },
+    "4056": {
+      "status": "never_listed"
+    },
+    "4066": {
+      "first_candle": "2021-06-17",
+      "last_candle": null,
+      "product": "CHZ-USDT",
+      "status": "mapped"
+    },
+    "4079": {
+      "status": "never_listed"
+    },
+    "4086": {
+      "status": "never_listed"
+    },
+    "4157": {
+      "status": "never_listed"
+    },
+    "4172": {
+      "status": "never_listed"
+    },
+    "4195": {
+      "status": "never_listed"
+    },
+    "4256": {
+      "status": "never_listed"
+    },
+    "4269": {
+      "status": "never_listed"
+    },
+    "4279": {
+      "status": "never_listed"
+    },
+    "4360": {
+      "status": "never_listed"
+    },
+    "4469": {
+      "status": "never_listed"
+    },
+    "4558": {
+      "first_candle": "2022-05-19",
+      "last_candle": null,
+      "product": "FLOW-USDT",
+      "status": "mapped"
+    },
+    "463": {
+      "status": "never_listed"
+    },
+    "4642": {
+      "first_candle": "2022-10-13",
+      "last_candle": null,
+      "product": "HBAR-USD",
+      "status": "mapped"
+    },
+    "4676": {
+      "status": "never_listed"
+    },
+    "4679": {
+      "first_candle": "2020-08-11",
+      "last_candle": null,
+      "product": "BAND-USD",
+      "status": "mapped"
+    },
+    "4694": {
+      "status": "never_listed"
+    },
+    "4747": {
+      "status": "never_listed"
+    },
+    "4748": {
+      "status": "never_listed"
+    },
+    "4842": {
+      "status": "never_listed"
+    },
+    "4846": {
+      "first_candle": "2023-01-19",
+      "last_candle": null,
+      "product": "KAVA-USD",
+      "status": "mapped"
+    },
+    "4847": {
+      "first_candle": "2022-01-20",
+      "last_candle": null,
+      "product": "STX-USD",
+      "status": "mapped"
+    },
+    "4948": {
+      "status": "never_listed"
+    },
+    "4949": {
+      "status": "never_listed"
+    },
+    "5015": {
+      "status": "never_listed"
+    },
+    "5026": {
+      "first_candle": "2019-12-16",
+      "last_candle": null,
+      "product": "OXT-USD",
+      "status": "mapped"
+    },
+    "5031": {
+      "status": "never_listed"
+    },
+    "5034": {
+      "first_candle": "2022-06-02",
+      "last_candle": null,
+      "product": "KSM-USDT",
+      "status": "mapped"
+    },
+    "5070": {
+      "status": "never_listed"
+    },
+    "5084": {
+      "status": "never_listed"
+    },
+    "512": {
+      "first_candle": "2019-03-14",
+      "last_candle": null,
+      "product": "XLM-USD",
+      "status": "mapped"
+    },
+    "52": {
+      "first_candle": "2019-02-26",
+      "last_candle": null,
+      "product": "XRP-USD",
+      "status": "mapped"
+    },
+    "5234": {
+      "status": "never_listed"
+    },
+    "5268": {
+      "status": "never_listed"
+    },
+    "5279": {
+      "status": "never_listed"
+    },
+    "5329": {
+      "status": "never_listed"
+    },
+    "5336": {
+      "status": "never_listed"
+    },
+    "5370": {
+      "status": "never_listed"
+    },
+    "5426": {
+      "first_candle": "2021-06-17",
+      "last_candle": null,
+      "product": "SOL-USD",
+      "status": "mapped"
+    },
+    "5482": {
+      "status": "never_listed"
+    },
+    "5488": {
+      "status": "never_listed"
+    },
+    "5524": {
+      "status": "never_listed"
+    },
+    "5567": {
+      "first_candle": "2020-09-01",
+      "last_candle": null,
+      "product": "CGLD-USD",
+      "status": "mapped"
+    },
+    "5604": {
+      "status": "never_listed"
+    },
+    "5617": {
+      "first_candle": "2020-09-08",
+      "last_candle": null,
+      "product": "UMA-USD",
+      "status": "mapped"
+    },
+    "5632": {
+      "status": "never_listed"
+    },
+    "5647": {
+      "status": "never_listed"
+    },
+    "5665": {
+      "first_candle": "2023-07-12",
+      "last_candle": null,
+      "product": "HNT-USD",
+      "status": "mapped"
+    },
+    "5690": {
+      "first_candle": "2022-02-03",
+      "last_candle": null,
+      "product": "RNDR-USD",
+      "status": "mapped"
+    },
+    "5692": {
+      "first_candle": "2020-06-23",
+      "last_candle": null,
+      "product": "COMP-USD",
+      "status": "mapped"
+    },
+    "5728": {
+      "first_candle": "2020-10-06",
+      "last_candle": null,
+      "product": "BAL-USD",
+      "status": "mapped"
+    },
+    "5785": {
+      "status": "never_listed"
+    },
+    "5796": {
+      "status": "never_listed"
+    },
+    "5805": {
+      "first_candle": "2021-09-30",
+      "last_candle": null,
+      "product": "AVAX-USD",
+      "status": "mapped"
+    },
+    "5815": {
+      "status": "never_listed"
+    },
+    "5830": {
+      "status": "never_listed"
+    },
+    "5864": {
+      "first_candle": "2020-09-15",
+      "last_candle": null,
+      "product": "YFI-USD",
+      "status": "mapped"
+    },
+    "5899": {
+      "status": "never_listed"
+    },
+    "5957": {
+      "first_candle": "2021-09-01",
+      "last_candle": "2023-03-29",
+      "product": "YFII-USD",
+      "status": "mapped"
+    },
+    "5964": {
+      "status": "never_listed"
+    },
+    "5994": {
+      "first_candle": "2021-09-09",
+      "last_candle": null,
+      "product": "SHIB-USD",
+      "status": "mapped"
+    },
+    "6187": {
+      "status": "never_listed"
+    },
+    "6210": {
+      "first_candle": "2022-05-26",
+      "last_candle": null,
+      "product": "SAND-USDT",
+      "status": "mapped"
+    },
+    "6535": {
+      "first_candle": "2022-09-01",
+      "last_candle": null,
+      "product": "NEAR-USD",
+      "status": "mapped"
+    },
+    "6536": {
+      "status": "never_listed"
+    },
+    "6538": {
+      "first_candle": "2021-03-25",
+      "last_candle": null,
+      "product": "CRV-USD",
+      "status": "mapped"
+    },
+    "6636": {
+      "first_candle": "2021-06-16",
+      "last_candle": null,
+      "product": "DOT-USD",
+      "status": "mapped"
+    },
+    "6719": {
+      "first_candle": "2020-12-17",
+      "last_candle": null,
+      "product": "GRT-USD",
+      "status": "mapped"
+    },
+    "6758": {
+      "first_candle": "2021-03-11",
+      "last_candle": null,
+      "product": "SUSHI-USD",
+      "status": "mapped"
+    },
+    "6783": {
+      "first_candle": "2021-08-12",
+      "last_candle": null,
+      "product": "AXS-USDT",
+      "status": "mapped"
+    },
+    "6836": {
+      "status": "never_listed"
+    },
+    "6892": {
+      "first_candle": "2022-12-07",
+      "last_candle": null,
+      "product": "EGLD-USD",
+      "status": "mapped"
+    },
+    "693": {
+      "status": "never_listed"
+    },
+    "6945": {
+      "first_candle": "2021-06-10",
+      "last_candle": null,
+      "product": "AMP-USD",
+      "status": "mapped"
+    },
+    "6950": {
+      "first_candle": "2021-10-19",
+      "last_candle": null,
+      "product": "PERP-USDT",
+      "status": "mapped"
+    },
+    "6953": {
+      "status": "never_listed"
+    },
+    "7064": {
+      "status": "never_listed"
+    },
+    "7080": {
+      "first_candle": "2021-11-16",
+      "last_candle": "2023-05-12",
+      "product": "GALA-USD",
+      "status": "mapped"
+    },
+    "7083": {
+      "first_candle": "2020-09-17",
+      "last_candle": null,
+      "product": "UNI-USD",
+      "status": "mapped"
+    },
+    "7186": {
+      "first_candle": "2025-06-12",
+      "last_candle": null,
+      "product": "CAKE-USD",
+      "status": "mapped"
+    },
+    "7226": {
+      "first_candle": "2022-09-20",
+      "last_candle": null,
+      "product": "INJ-USD",
+      "status": "mapped"
+    },
+    "7232": {
+      "status": "never_listed"
+    },
+    "7278": {
+      "first_candle": "2020-12-15",
+      "last_candle": null,
+      "product": "AAVE-USD",
+      "status": "mapped"
+    },
+    "7288": {
+      "status": "never_listed"
+    },
+    "7326": {
+      "status": "never_listed"
+    },
+    "7334": {
+      "status": "never_listed"
+    },
+    "74": {
+      "first_candle": "2021-06-03",
+      "last_candle": null,
+      "product": "DOGE-USD",
+      "status": "mapped"
+    },
+    "7431": {
+      "first_candle": "2024-03-19",
+      "last_candle": null,
+      "product": "AKT-USD",
+      "status": "mapped"
+    },
+    "7455": {
+      "first_candle": "2023-01-26",
+      "last_candle": null,
+      "product": "AUDIO-USD",
+      "status": "mapped"
+    },
+    "7501": {
+      "status": "never_listed"
+    },
+    "7548": {
+      "status": "never_listed"
+    },
+    "7653": {
+      "first_candle": "2022-04-26",
+      "last_candle": null,
+      "product": "ROSE-USDT",
+      "status": "mapped"
+    },
+    "7950": {
+      "first_candle": "2023-04-14",
+      "last_candle": null,
+      "product": "FLR-USD",
+      "status": "mapped"
+    },
+    "8000": {
+      "first_candle": "2022-11-17",
+      "last_candle": null,
+      "product": "LDO-USD",
+      "status": "mapped"
+    },
+    "8104": {
+      "first_candle": "2021-04-09",
+      "last_candle": null,
+      "product": "1INCH-USD",
+      "status": "mapped"
+    },
+    "8335": {
+      "status": "never_listed"
+    },
+    "8425": {
+      "first_candle": "2021-10-07",
+      "last_candle": null,
+      "product": "JASMY-USD",
+      "status": "mapped"
+    },
+    "8526": {
+      "first_candle": "2026-01-14",
+      "last_candle": null,
+      "product": "RAY-USD",
+      "status": "mapped"
+    },
+    "8536": {
+      "first_candle": "2021-07-15",
+      "last_candle": null,
+      "product": "MASK-USDT",
+      "status": "mapped"
+    },
+    "8646": {
+      "first_candle": "2022-04-06",
+      "last_candle": null,
+      "product": "MINA-USDT",
+      "status": "mapped"
+    },
+    "8677": {
+      "status": "never_listed"
+    },
+    "873": {
+      "status": "never_listed"
+    },
+    "8857": {
+      "status": "never_listed"
+    },
+    "8916": {
+      "first_candle": "2021-05-10",
+      "last_candle": null,
+      "product": "ICP-USDT",
+      "status": "mapped"
+    },
+    "9104": {
+      "first_candle": "2022-03-08",
+      "last_candle": null,
+      "product": "AIOZ-USDT",
+      "status": "mapped"
+    },
+    "9436": {
+      "status": "never_listed"
+    },
+    "9444": {
+      "first_candle": "2020-02-25",
+      "last_candle": null,
+      "product": "KNC-USD",
+      "status": "mapped"
+    },
+    "9481": {
+      "first_candle": "2025-03-27",
+      "last_candle": null,
+      "product": "PENDLE-USD",
+      "status": "mapped"
+    },
+    "9816": {
+      "status": "never_listed"
+    },
+    "9891": {
+      "status": "never_listed"
+    },
+    "9903": {
+      "first_candle": "2022-09-08",
+      "last_candle": null,
+      "product": "CVX-USD",
+      "status": "mapped"
+    }
+  },
+  "schema": "entr-cb1-listings-v1"
+}

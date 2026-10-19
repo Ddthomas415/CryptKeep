@@ -1,0 +1,112 @@
+{
+  "schema": "entr-cb1-probe-v1",
+  "base": "https://api.exchange.coinbase.com",
+  "max_requests": 20,
+  "requests_made": 9,
+  "delisted_products_probed": [
+    "1INCH-BTC",
+    "ACH-USDT"
+  ],
+  "records": [
+    {
+      "n": 1,
+      "label": "products",
+      "url": "https://api.exchange.coinbase.com/products",
+      "http_status": 200,
+      "sent_utc": "2026-10-19T05:47:42.293795+00:00",
+      "received_utc": "2026-10-19T05:47:42.446478+00:00",
+      "file": "01_products.json",
+      "bytes": 355055,
+      "sha256": "00e556cc635a903fdec2ac1c2bc86f6bef55e229384fb63b8fa31c2efb2f2b0b"
+    },
+    {
+      "n": 2,
+      "label": "candles_1INCH-BTC_2019",
+      "url": "https://api.exchange.coinbase.com/products/1INCH-BTC/candles?granularity=86400&start=2019-01-01T00:00:00Z&end=2019-10-27T00:00:00Z",
+      "http_status": 200,
+      "sent_utc": "2026-10-19T05:47:42.972375+00:00",
+      "received_utc": "2026-10-19T05:47:43.156068+00:00",
+      "file": "02_candles_1INCH-BTC_2019.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "n": 3,
+      "label": "candles_1INCH-BTC_2021",
+      "url": "https://api.exchange.coinbase.com/products/1INCH-BTC/candles?granularity=86400&start=2021-01-01T00:00:00Z&end=2021-10-27T00:00:00Z",
+      "http_status": 200,
+      "sent_utc": "2026-10-19T05:47:43.660179+00:00",
+      "received_utc": "2026-10-19T05:47:43.745971+00:00",
+      "file": "03_candles_1INCH-BTC_2021.json",
+      "bytes": 12547,
+      "sha256": "ad7ae2562622b546219b92e365691fe41367fd8302f12a1d40c33ffc34aa8bda"
+    },
+    {
+      "n": 4,
+      "label": "candles_1INCH-BTC_2023",
+      "url": "https://api.exchange.coinbase.com/products/1INCH-BTC/candles?granularity=86400&start=2023-01-01T00:00:00Z&end=2023-10-27T00:00:00Z",
+      "http_status": 200,
+      "sent_utc": "2026-10-19T05:47:44.253564+00:00",
+      "received_utc": "2026-10-19T05:47:44.356226+00:00",
+      "file": "04_candles_1INCH-BTC_2023.json",
+      "bytes": 18287,
+      "sha256": "e38e2cd726072999f69dca1466f87bab64338a5ff3bfcc418ee710b2bb987af2"
+    },
+    {
+      "n": 5,
+      "label": "candles_ACH-USDT_2019",
+      "url": "https://api.exchange.coinbase.com/products/ACH-USDT/candles?granularity=86400&start=2019-01-01T00:00:00Z&end=2019-10-27T00:00:00Z",
+      "http_status": 200,
+      "sent_utc": "2026-10-19T05:47:44.865422+00:00",
+      "received_utc": "2026-10-19T05:47:44.935081+00:00",
+      "file": "05_candles_ACH-USDT_2019.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "n": 6,
+      "label": "candles_ACH-USDT_2021",
+      "url": "https://api.exchange.coinbase.com/products/ACH-USDT/candles?granularity=86400&start=2021-01-01T00:00:00Z&end=2021-10-27T00:00:00Z",
+      "http_status": 200,
+      "sent_utc": "2026-10-19T05:47:45.444784+00:00",
+      "received_utc": "2026-10-19T05:47:45.616344+00:00",
+      "file": "06_candles_ACH-USDT_2021.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "n": 7,
+      "label": "candles_ACH-USDT_2023",
+      "url": "https://api.exchange.coinbase.com/products/ACH-USDT/candles?granularity=86400&start=2023-01-01T00:00:00Z&end=2023-10-27T00:00:00Z",
+      "http_status": 200,
+      "sent_utc": "2026-10-19T05:47:46.124660+00:00",
+      "received_utc": "2026-10-19T05:47:46.263199+00:00",
+      "file": "07_candles_ACH-USDT_2023.json",
+      "bytes": 16676,
+      "sha256": "33a88f6c07354b3046c3d065ba5f1349dd2a61964bb3350d3d2299354b7c824b"
+    },
+    {
+      "n": 8,
+      "label": "candles_SEI-USD_2023",
+      "url": "https://api.exchange.coinbase.com/products/SEI-USD/candles?granularity=86400&start=2023-08-01T00:00:00Z&end=2024-05-26T00:00:00Z",
+      "http_status": 200,
+      "sent_utc": "2026-10-19T05:47:46.771888+00:00",
+      "received_utc": "2026-10-19T05:47:46.883905+00:00",
+      "file": "08_candles_SEI-USD_2023.json",
+      "bytes": 14547,
+      "sha256": "e14ae6a6be3736a0b648294ad203a4d1d7d424fac3c65944f062d45eaae112c0"
+    },
+    {
+      "n": 9,
+      "label": "product_HEX-USD",
+      "url": "https://api.exchange.coinbase.com/products/HEX-USD",
+      "http_status": 404,
+      "sent_utc": "2026-10-19T05:47:47.392432+00:00",
+      "received_utc": "2026-10-19T05:47:47.536338+00:00",
+      "file": "09_product_HEX-USD.json",
+      "bytes": 22,
+      "sha256": "78b49965ff92e946ac350d326d6f398777ec3da2e89ddacf20d04ece20efff1e"
+    }
+  ],
+  "written_utc": "2026-10-19T05:47:48.043952+00:00"
+}

@@ -1,0 +1,8645 @@
+{
+  "end_day": "2026-10-19",
+  "first_check": {
+    "products_checked": 121,
+    "requests": 352,
+    "source_results_sha256": "bbb636860c3757be37421bbb2d6d2da1fa664b15b04e699a56279b2b01cc8764"
+  },
+  "map_sha256": "0640223172fc98ada3d73d4cb1dd97d5056df6c47a43c539ec12a96200a24894",
+  "products": {
+    "1INCH-USD": {
+      "error": null,
+      "first": "2021-04-09",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-04-09",
+        "verified_first": "2021-04-09",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          54
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "2Z-USD": {
+      "error": null,
+      "first": "2025-10-16",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-10-16",
+        "verified_first": "2025-10-16",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          203
+        ]
+      ]
+    },
+    "AAVE-USD": {
+      "error": null,
+      "first": "2020-12-15",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2020-12-15",
+        "verified_first": "2020-12-15",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          169
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "ADA-USD": {
+      "error": null,
+      "first": "2021-03-18",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-03-18",
+        "verified_first": "2021-03-18",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          76
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "ADA-USDC": {
+      "error": null,
+      "first": "2021-04-20",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-04-20",
+        "verified_first": "2021-04-20",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2022-07-13",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2022-03-29",
+          107
+        ],
+        [
+          "2020-08-06",
+          43
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "ADA-USDT": {
+      "error": null,
+      "first": "2022-02-09",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-02-09",
+        "verified_first": "2022-02-09",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          48
+        ]
+      ]
+    },
+    "AERO-USD": {
+      "error": null,
+      "first": "2024-02-06",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          221
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "AIOZ-USD": {
+      "error": null,
+      "first": "2022-03-08",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          21
+        ]
+      ]
+    },
+    "AIOZ-USDT": {
+      "error": null,
+      "first": "2022-03-08",
+      "first_at_search_start": false,
+      "last": "2023-03-08",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          42
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          297
+        ],
+        [
+          "2021-06-02",
+          21
+        ]
+      ]
+    },
+    "AKT-USD": {
+      "error": null,
+      "first": "2024-03-19",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2024-03-19",
+        "verified_first": "2024-03-19",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ]
+        ],
+        "windows_planned": 4
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          179
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "ALGO-USD": {
+      "error": null,
+      "first": "2019-08-15",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          57
+        ]
+      ]
+    },
+    "ALT-USD": {
+      "error": null,
+      "first": "2025-03-27",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-03-27",
+        "verified_first": "2025-03-27",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          106
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "AMP-USD": {
+      "error": null,
+      "first": "2021-06-10",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          292
+        ]
+      ]
+    },
+    "ANKR-USD": {
+      "error": null,
+      "first": "2021-03-25",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          69
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "ANT-USD": {
+      "error": null,
+      "first": "2022-12-08",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-12-08",
+        "verified_first": "2022-12-08",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ]
+        ],
+        "windows_planned": 3
+      },
+      "last": "2024-01-05",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          48
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          300
+        ],
+        [
+          "2022-03-29",
+          46
+        ]
+      ]
+    },
+    "APE-USD": {
+      "error": null,
+      "first": "2022-03-17",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          12
+        ]
+      ]
+    },
+    "APE-USDT": {
+      "error": null,
+      "first": "2022-03-17",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          12
+        ]
+      ]
+    },
+    "APT-USD": {
+      "error": null,
+      "first": "2022-10-19",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          96
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "APT-USDT": {
+      "error": null,
+      "first": "2022-10-26",
+      "first_at_search_start": false,
+      "last": "2026-05-08",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          2
+        ],
+        [
+          "2022-03-29",
+          89
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "ARB-USD": {
+      "error": null,
+      "first": "2023-03-23",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          241
+        ]
+      ]
+    },
+    "ASTER-USD": {
+      "error": null,
+      "first": "2025-11-20",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-11-20",
+        "verified_first": "2025-11-20",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          168
+        ]
+      ]
+    },
+    "ATOM-USD": {
+      "error": null,
+      "first": "2020-01-14",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          205
+        ],
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "ATOM-USDT": {
+      "error": null,
+      "first": "2022-02-09",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-02-09",
+        "verified_first": "2022-02-09",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          48
+        ]
+      ]
+    },
+    "AUDIO-USD": {
+      "error": null,
+      "first": "2023-01-26",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2023-01-26",
+        "verified_first": "2023-01-26",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ]
+        ],
+        "windows_planned": 4
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          297
+        ]
+      ]
+    },
+    "AVAX-USD": {
+      "error": null,
+      "first": "2021-09-30",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-09-30",
+        "verified_first": "2021-09-30",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          180
+        ]
+      ]
+    },
+    "AVAX-USDT": {
+      "error": null,
+      "first": "2021-09-30",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-09-30",
+        "verified_first": "2021-09-30",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          180
+        ]
+      ]
+    },
+    "AXL-USD": {
+      "error": null,
+      "first": "2023-02-07",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          285
+        ]
+      ]
+    },
+    "AXS-USD": {
+      "error": null,
+      "first": "2021-08-12",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-08-12",
+        "verified_first": "2021-08-12",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          229
+        ]
+      ]
+    },
+    "AXS-USDT": {
+      "error": null,
+      "first": "2021-08-12",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-08-12",
+        "verified_first": "2021-08-12",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2025-12-15",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          157
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          229
+        ]
+      ]
+    },
+    "BAL-USD": {
+      "error": null,
+      "first": "2020-10-06",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2020-10-06",
+        "verified_first": "2020-10-06",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          239
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "BAND-USD": {
+      "error": null,
+      "first": "2020-08-11",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          295
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "BAT-USD": {
+      "error": null,
+      "first": "2021-04-20",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          43
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "BAT-USDC": {
+      "error": null,
+      "first": "2018-12-15",
+      "first_at_search_start": true,
+      "last": "2022-07-13",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2022-03-29",
+          107
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          300
+        ]
+      ]
+    },
+    "BCH-USD": {
+      "error": null,
+      "first": "2018-12-15",
+      "first_at_search_start": true,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          300
+        ]
+      ]
+    },
+    "BEAM-USD": {
+      "error": null,
+      "first": "2025-12-16",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-12-16",
+        "verified_first": "2025-12-16",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          142
+        ]
+      ]
+    },
+    "BERA-USD": {
+      "error": null,
+      "first": "2025-02-06",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          155
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "BIT-USD": {
+      "error": null,
+      "first": "2022-06-07",
+      "first_at_search_start": false,
+      "last": "2025-01-06",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          115
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          300
+        ],
+        [
+          "2022-03-29",
+          230
+        ]
+      ]
+    },
+    "BIT-USDT": {
+      "error": null,
+      "first": "2022-06-07",
+      "first_at_search_start": false,
+      "last": "2023-09-13",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          198
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          218
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "BLUR-USD": {
+      "error": null,
+      "first": "2023-02-14",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          278
+        ]
+      ]
+    },
+    "BNB-USD": {
+      "error": null,
+      "first": "2025-10-22",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-10-22",
+        "verified_first": "2025-10-22",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          197
+        ]
+      ]
+    },
+    "BNT-USD": {
+      "error": null,
+      "first": "2020-12-15",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2020-12-15",
+        "verified_first": "2020-12-15",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          169
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "BONK-USD": {
+      "error": null,
+      "first": "2023-12-14",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          275
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "CAKE-USD": {
+      "error": null,
+      "first": "2025-06-12",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-06-12",
+        "verified_first": "2025-06-12",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          29
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "CGLD-USD": {
+      "error": null,
+      "first": "2020-09-01",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          274
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "CHZ-USD": {
+      "error": null,
+      "first": "2021-06-17",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-06-17",
+        "verified_first": "2021-06-17",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          285
+        ]
+      ]
+    },
+    "CHZ-USDT": {
+      "error": null,
+      "first": "2021-06-17",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-06-17",
+        "verified_first": "2021-06-17",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-08-06",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          92
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          285
+        ]
+      ]
+    },
+    "COMP-USD": {
+      "error": null,
+      "first": "2020-06-23",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          44
+        ],
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "CORECHAIN-USD": {
+      "error": null,
+      "first": "2024-06-21",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2024-06-21",
+        "verified_first": "2024-06-21",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ]
+        ],
+        "windows_planned": 4
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          85
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "COSMOSDYDX-USD": {
+      "error": null,
+      "first": "2025-08-07",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-08-07",
+        "verified_first": "2025-08-07",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          273
+        ]
+      ]
+    },
+    "CRO-USD": {
+      "error": null,
+      "first": "2021-11-03",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-11-03",
+        "verified_first": "2021-11-03",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          146
+        ]
+      ]
+    },
+    "CRO-USDT": {
+      "error": null,
+      "first": "2021-11-04",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-11-04",
+        "verified_first": "2021-11-04",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-08-06",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          73
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          145
+        ]
+      ]
+    },
+    "CRV-USD": {
+      "error": null,
+      "first": "2021-03-25",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-03-25",
+        "verified_first": "2021-03-25",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          69
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "CVX-USD": {
+      "error": null,
+      "first": "2022-09-08",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-09-08",
+        "verified_first": "2022-09-08",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          137
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "DASH-USD": {
+      "error": null,
+      "first": "2019-09-17",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          24
+        ]
+      ]
+    },
+    "DOGE-USD": {
+      "error": null,
+      "first": "2021-06-03",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-06-03",
+        "verified_first": "2021-06-03",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          299
+        ]
+      ]
+    },
+    "DOGE-USDT": {
+      "error": null,
+      "first": "2021-06-03",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-06-03",
+        "verified_first": "2021-06-03",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          299
+        ]
+      ]
+    },
+    "DOT-USD": {
+      "error": null,
+      "first": "2021-06-16",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-06-16",
+        "verified_first": "2021-06-16",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          286
+        ]
+      ]
+    },
+    "DOT-USDT": {
+      "error": null,
+      "first": "2021-06-16",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-06-16",
+        "verified_first": "2021-06-16",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          286
+        ]
+      ]
+    },
+    "EDGEX-USD": {
+      "error": null,
+      "first": "2026-03-31",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          37
+        ]
+      ]
+    },
+    "EGLD-USD": {
+      "error": null,
+      "first": "2022-12-07",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-12-07",
+        "verified_first": "2022-12-07",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          47
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "ELA-USD": {
+      "error": null,
+      "first": "2022-06-22",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-06-22",
+        "verified_first": "2022-06-22",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          215
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "ELA-USDT": {
+      "error": null,
+      "first": "2022-06-22",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-06-22",
+        "verified_first": "2022-06-22",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2023-10-16",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          237
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          214
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "ENA-USD": {
+      "error": null,
+      "first": "2025-06-05",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-06-05",
+        "verified_first": "2025-06-05",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          36
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "ENJ-USD": {
+      "error": null,
+      "first": "2021-04-09",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-04-09",
+        "verified_first": "2021-04-09",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2024-06-14",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          209
+        ],
+        [
+          "2021-06-02",
+          300
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          54
+        ]
+      ]
+    },
+    "ENJ-USDT": {
+      "error": null,
+      "first": "2022-03-02",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-03-02",
+        "verified_first": "2022-03-02",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2024-06-14",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          209
+        ],
+        [
+          "2021-06-02",
+          27
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ]
+      ]
+    },
+    "ENS-USD": {
+      "error": null,
+      "first": "2021-11-16",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          133
+        ]
+      ]
+    },
+    "ENS-USDT": {
+      "error": null,
+      "first": "2021-11-16",
+      "first_at_search_start": false,
+      "last": "2026-05-14",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          8
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          133
+        ]
+      ]
+    },
+    "EOS-USD": {
+      "error": null,
+      "first": "2019-04-09",
+      "first_at_search_start": false,
+      "last": "2025-12-10",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          153
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          185
+        ]
+      ]
+    },
+    "ETC-USD": {
+      "error": null,
+      "first": "2018-12-15",
+      "first_at_search_start": true,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          300
+        ]
+      ]
+    },
+    "ETHFI-USD": {
+      "error": null,
+      "first": "2025-02-06",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          155
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "FARTCOIN-USD": {
+      "error": null,
+      "first": "2025-06-12",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-06-12",
+        "verified_first": "2025-06-12",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          29
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "FET-USD": {
+      "error": null,
+      "first": "2021-07-27",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          245
+        ]
+      ]
+    },
+    "FET-USDT": {
+      "error": null,
+      "first": "2021-07-27",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          245
+        ]
+      ]
+    },
+    "FIL-USD": {
+      "error": null,
+      "first": "2020-12-09",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2020-12-09",
+        "verified_first": "2020-12-09",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          175
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "FLOKI-USD": {
+      "error": null,
+      "first": "2024-11-21",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2024-11-21",
+        "verified_first": "2024-11-21",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          232
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "FLOW-USD": {
+      "error": null,
+      "first": "2022-05-19",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-05-19",
+        "verified_first": "2022-05-19",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          249
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "FLOW-USDT": {
+      "error": null,
+      "first": "2022-05-19",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-05-19",
+        "verified_first": "2022-05-19",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-01-07",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          176
+        ],
+        [
+          "2022-03-29",
+          249
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "FLR-USD": {
+      "error": null,
+      "first": "2023-04-14",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2023-04-14",
+        "verified_first": "2023-04-14",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ]
+        ],
+        "windows_planned": 4
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          219
+        ]
+      ]
+    },
+    "GALA-USD": {
+      "error": null,
+      "first": "2021-11-16",
+      "first_at_search_start": false,
+      "last": "2023-05-12",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          110
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2021-06-02",
+          133
+        ]
+      ]
+    },
+    "GALA-USDT": {
+      "error": null,
+      "first": "2021-11-16",
+      "first_at_search_start": false,
+      "last": "2023-05-12",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          110
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2021-06-02",
+          133
+        ]
+      ]
+    },
+    "GMT-USD": {
+      "error": null,
+      "first": "2022-04-28",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          270
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "GMT-USDT": {
+      "error": null,
+      "first": "2022-04-28",
+      "first_at_search_start": false,
+      "last": "2025-10-25",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          106
+        ],
+        [
+          "2022-03-29",
+          270
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "GNO-USD": {
+      "error": null,
+      "first": "2022-07-21",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-07-21",
+        "verified_first": "2022-07-21",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          186
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "GNO-USDT": {
+      "error": null,
+      "first": "2022-07-21",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-07-21",
+        "verified_first": "2022-07-21",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2023-03-09",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          32
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          177
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "GNT-USDC": {
+      "error": null,
+      "first": "2018-12-19",
+      "first_at_search_start": false,
+      "last": "2022-03-07",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2021-06-02",
+          279
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          296
+        ]
+      ]
+    },
+    "GRT-USD": {
+      "error": null,
+      "first": "2020-12-17",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          167
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "HBAR-USD": {
+      "error": null,
+      "first": "2022-10-13",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-10-13",
+        "verified_first": "2022-10-13",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          102
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "HBAR-USDT": {
+      "error": null,
+      "first": "2022-10-13",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-10-13",
+        "verified_first": "2022-10-13",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          102
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "HNT-USD": {
+      "error": null,
+      "first": "2023-07-12",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2023-07-12",
+        "verified_first": "2023-07-12",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ]
+        ],
+        "windows_planned": 4
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          130
+        ]
+      ]
+    },
+    "HYPE-USD": {
+      "error": null,
+      "first": "2026-02-05",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2026-02-05",
+        "verified_first": "2026-02-05",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          91
+        ]
+      ]
+    },
+    "ICP-USD": {
+      "error": null,
+      "first": "2021-05-10",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          23
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "ICP-USDT": {
+      "error": null,
+      "first": "2021-05-10",
+      "first_at_search_start": false,
+      "last": "2026-05-08",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          2
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          23
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "IMX-USD": {
+      "error": null,
+      "first": "2021-12-09",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          110
+        ]
+      ]
+    },
+    "IMX-USDT": {
+      "error": null,
+      "first": "2021-12-09",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          110
+        ]
+      ]
+    },
+    "INJ-USD": {
+      "error": null,
+      "first": "2022-09-20",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          125
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "IOTX-USD": {
+      "error": null,
+      "first": "2021-08-12",
+      "first_at_search_start": false,
+      "last": "2026-09-23",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          138
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          229
+        ]
+      ]
+    },
+    "IP-USD": {
+      "error": null,
+      "first": "2025-02-13",
+      "first_at_search_start": false,
+      "last": "2026-10-05",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          152
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          148
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "JASMY-USD": {
+      "error": null,
+      "first": "2021-10-07",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          173
+        ]
+      ]
+    },
+    "JASMY-USDT": {
+      "error": null,
+      "first": "2022-08-10",
+      "first_at_search_start": false,
+      "last": "2026-09-15",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          130
+        ],
+        [
+          "2022-03-29",
+          166
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "JUPITER-USD": {
+      "error": null,
+      "first": "2025-12-09",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-12-09",
+        "verified_first": "2025-12-09",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          149
+        ]
+      ]
+    },
+    "KAVA-USD": {
+      "error": null,
+      "first": "2023-01-19",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2023-01-19",
+        "verified_first": "2023-01-19",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          4
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "KITE-USD": {
+      "error": null,
+      "first": "2025-11-03",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          185
+        ]
+      ]
+    },
+    "KNC-USD": {
+      "error": null,
+      "first": "2020-02-25",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          163
+        ],
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "KSM-USD": {
+      "error": null,
+      "first": "2022-06-02",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-06-02",
+        "verified_first": "2022-06-02",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          235
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "KSM-USDT": {
+      "error": null,
+      "first": "2022-06-02",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-06-02",
+        "verified_first": "2022-06-02",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2023-10-16",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          267
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          235
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "LDO-USD": {
+      "error": null,
+      "first": "2022-11-17",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-11-17",
+        "verified_first": "2022-11-17",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          67
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "LIGHTER-USD": {
+      "error": null,
+      "first": "2026-01-15",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          112
+        ]
+      ]
+    },
+    "LINK-USD": {
+      "error": null,
+      "first": "2019-06-27",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          106
+        ]
+      ]
+    },
+    "LINK-USDT": {
+      "error": null,
+      "first": "2022-02-09",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-02-09",
+        "verified_first": "2022-02-09",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          48
+        ]
+      ]
+    },
+    "LOOM-USD": {
+      "error": null,
+      "first": "2021-11-03",
+      "first_at_search_start": false,
+      "last": "2023-03-29",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          66
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2021-06-02",
+          146
+        ]
+      ]
+    },
+    "LOOM-USDC": {
+      "error": null,
+      "first": "2018-12-15",
+      "first_at_search_start": true,
+      "last": "2022-07-13",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2022-03-29",
+          107
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          300
+        ]
+      ]
+    },
+    "LPT-USD": {
+      "error": null,
+      "first": "2021-06-24",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          278
+        ]
+      ]
+    },
+    "LRC-USD": {
+      "error": null,
+      "first": "2020-09-15",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2020-09-15",
+        "verified_first": "2020-09-15",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-08-07",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          93
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          260
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "LRC-USDT": {
+      "error": null,
+      "first": "2022-03-02",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-03-02",
+        "verified_first": "2022-03-02",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2025-12-15",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          157
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          27
+        ]
+      ]
+    },
+    "LTC-USD": {
+      "error": null,
+      "first": "2018-12-15",
+      "first_at_search_start": true,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          300
+        ]
+      ]
+    },
+    "MANA-USD": {
+      "error": null,
+      "first": "2021-04-20",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          43
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "MANA-USDC": {
+      "error": null,
+      "first": "2018-12-15",
+      "first_at_search_start": true,
+      "last": "2022-07-13",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2022-03-29",
+          107
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          300
+        ]
+      ]
+    },
+    "MANTLE-USD": {
+      "error": null,
+      "first": "2025-05-01",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-05-01",
+        "verified_first": "2025-05-01",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          71
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "MASK-USD": {
+      "error": null,
+      "first": "2021-07-15",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          257
+        ]
+      ]
+    },
+    "MASK-USDT": {
+      "error": null,
+      "first": "2021-07-15",
+      "first_at_search_start": false,
+      "last": "2025-10-25",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          106
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          257
+        ]
+      ]
+    },
+    "MATIC-USD": {
+      "error": null,
+      "first": "2021-03-11",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-03-11",
+        "verified_first": "2021-03-11",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2025-10-14",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          96
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          83
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "MATIC-USDT": {
+      "error": null,
+      "first": "2022-02-09",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-02-09",
+        "verified_first": "2022-02-09",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2025-10-14",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          96
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          48
+        ]
+      ]
+    },
+    "MINA-USD": {
+      "error": null,
+      "first": "2022-04-06",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-04-06",
+        "verified_first": "2022-04-06",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          292
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "MINA-USDT": {
+      "error": null,
+      "first": "2022-04-06",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-04-06",
+        "verified_first": "2022-04-06",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2025-10-25",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          85
+        ],
+        [
+          "2022-03-29",
+          292
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "MKR-USD": {
+      "error": null,
+      "first": "2020-06-09",
+      "first_at_search_start": false,
+      "last": "2026-01-12",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          186
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          58
+        ],
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "MOG-USD": {
+      "error": null,
+      "first": "2024-12-05",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2024-12-05",
+        "verified_first": "2024-12-05",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          218
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "MON-USD": {
+      "error": null,
+      "first": "2025-11-24",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          164
+        ]
+      ]
+    },
+    "MORPHO-USD": {
+      "error": null,
+      "first": "2025-02-27",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          134
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "MOVE-USD": {
+      "error": null,
+      "first": "2024-12-09",
+      "first_at_search_start": false,
+      "last": "2025-05-15",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          158
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "NEAR-USD": {
+      "error": null,
+      "first": "2022-09-01",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-09-01",
+        "verified_first": "2022-09-01",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          144
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "NEAR-USDT": {
+      "error": null,
+      "first": "2022-09-01",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-09-01",
+        "verified_first": "2022-09-01",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          144
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "NMR-USD": {
+      "error": null,
+      "first": "2020-08-18",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          288
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "OCEAN-USD": {
+      "error": null,
+      "first": "2022-09-08",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-09-08",
+        "verified_first": "2022-09-08",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          137
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "OMG-USD": {
+      "error": null,
+      "first": "2020-05-19",
+      "first_at_search_start": false,
+      "last": "2023-03-29",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          66
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          79
+        ],
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "ONDO-USD": {
+      "error": null,
+      "first": "2024-01-22",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          236
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "OP-USD": {
+      "error": null,
+      "first": "2022-06-01",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          236
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "OP-USDT": {
+      "error": null,
+      "first": "2022-08-09",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          167
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "OSMO-USD": {
+      "error": null,
+      "first": "2023-05-25",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2023-05-25",
+        "verified_first": "2023-05-25",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ]
+        ],
+        "windows_planned": 4
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          178
+        ]
+      ]
+    },
+    "OXT-USD": {
+      "error": null,
+      "first": "2019-12-16",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          234
+        ],
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "PENDLE-USD": {
+      "error": null,
+      "first": "2025-03-27",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-03-27",
+        "verified_first": "2025-03-27",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          106
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "PENGU-USD": {
+      "error": null,
+      "first": "2025-02-13",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-02-13",
+        "verified_first": "2025-02-13",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          148
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "PEPE-USD": {
+      "error": null,
+      "first": "2024-11-13",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2024-11-13",
+        "verified_first": "2024-11-13",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          240
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "PERP-USD": {
+      "error": null,
+      "first": "2021-10-19",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          161
+        ]
+      ]
+    },
+    "PERP-USDT": {
+      "error": null,
+      "first": "2021-10-19",
+      "first_at_search_start": false,
+      "last": "2023-10-16",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          267
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2021-06-02",
+          161
+        ]
+      ]
+    },
+    "PNUT-USD": {
+      "error": null,
+      "first": "2025-01-14",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-01-14",
+        "verified_first": "2025-01-14",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          178
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "POL-USD": {
+      "error": null,
+      "first": "2024-09-04",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          10
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "POLY-USD": {
+      "error": null,
+      "first": "2021-07-27",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-07-27",
+        "verified_first": "2021-07-27",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2023-12-05",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          17
+        ],
+        [
+          "2021-06-02",
+          245
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ]
+      ]
+    },
+    "POLY-USDT": {
+      "error": null,
+      "first": "2021-07-30",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-07-30",
+        "verified_first": "2021-07-30",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2023-08-15",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          205
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2021-06-02",
+          242
+        ]
+      ]
+    },
+    "POPCAT-USD": {
+      "error": null,
+      "first": "2025-02-13",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-02-13",
+        "verified_first": "2025-02-13",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          148
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "POWR-USD": {
+      "error": null,
+      "first": "2021-11-16",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-11-16",
+        "verified_first": "2021-11-16",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          130
+        ]
+      ]
+    },
+    "POWR-USDT": {
+      "error": null,
+      "first": "2021-11-16",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-11-16",
+        "verified_first": "2021-11-16",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2023-10-16",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          266
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2021-06-02",
+          130
+        ]
+      ]
+    },
+    "PUMP-USD": {
+      "error": null,
+      "first": "2025-07-15",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          296
+        ]
+      ]
+    },
+    "PYTH-USD": {
+      "error": null,
+      "first": "2025-02-20",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-02-20",
+        "verified_first": "2025-02-20",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          141
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "QNT-USD": {
+      "error": null,
+      "first": "2021-06-24",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-06-24",
+        "verified_first": "2021-06-24",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          278
+        ]
+      ]
+    },
+    "QNT-USDT": {
+      "error": null,
+      "first": "2022-03-02",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-03-02",
+        "verified_first": "2022-03-02",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          27
+        ]
+      ]
+    },
+    "RAY-USD": {
+      "error": null,
+      "first": "2026-01-14",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2026-01-14",
+        "verified_first": "2026-01-14",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          113
+        ]
+      ]
+    },
+    "REN-USD": {
+      "error": null,
+      "first": "2020-10-06",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2020-10-06",
+        "verified_first": "2020-10-06",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2023-11-03",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          285
+        ],
+        [
+          "2020-08-06",
+          239
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "RENDER-USD": {
+      "error": null,
+      "first": "2024-02-15",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          212
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "REP-USD": {
+      "error": null,
+      "first": "2019-04-09",
+      "first_at_search_start": false,
+      "last": "2023-03-29",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          66
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          185
+        ]
+      ]
+    },
+    "RLC-USD": {
+      "error": null,
+      "first": "2021-05-06",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-05-06",
+        "verified_first": "2021-05-06",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          27
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "RNDR-USD": {
+      "error": null,
+      "first": "2022-02-03",
+      "first_at_search_start": false,
+      "last": "2025-06-26",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          286
+        ],
+        [
+          "2021-06-02",
+          54
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ]
+      ]
+    },
+    "RNDR-USDT": {
+      "error": null,
+      "first": "2022-02-03",
+      "first_at_search_start": false,
+      "last": "2025-06-26",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          286
+        ],
+        [
+          "2021-06-02",
+          54
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ]
+      ]
+    },
+    "RONIN-USD": {
+      "error": null,
+      "first": "2024-03-21",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2024-03-21",
+        "verified_first": "2024-03-21",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ]
+        ],
+        "windows_planned": 4
+      },
+      "last": "2026-03-30",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          263
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2023-11-19",
+          177
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "ROSE-USD": {
+      "error": null,
+      "first": "2022-04-26",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-04-26",
+        "verified_first": "2022-04-26",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          272
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "ROSE-USDT": {
+      "error": null,
+      "first": "2022-04-26",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-04-26",
+        "verified_first": "2022-04-26",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-05-14",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          8
+        ],
+        [
+          "2022-03-29",
+          272
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "RSR-USD": {
+      "error": null,
+      "first": "2025-04-22",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-04-22",
+        "verified_first": "2025-04-22",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          80
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "S-USD": {
+      "error": null,
+      "first": "2025-06-24",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-06-24",
+        "verified_first": "2025-06-24",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          17
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "SAND-USD": {
+      "error": null,
+      "first": "2022-05-26",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-05-26",
+        "verified_first": "2022-05-26",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          242
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "SAND-USDT": {
+      "error": null,
+      "first": "2022-05-26",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-05-26",
+        "verified_first": "2022-05-26",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-05-14",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          8
+        ],
+        [
+          "2022-03-29",
+          242
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "SEI-USD": {
+      "error": null,
+      "first": "2023-08-15",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          96
+        ]
+      ]
+    },
+    "SHIB-USD": {
+      "error": null,
+      "first": "2021-09-09",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-09-09",
+        "verified_first": "2021-09-09",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          201
+        ]
+      ]
+    },
+    "SHIB-USDT": {
+      "error": null,
+      "first": "2021-09-09",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-09-09",
+        "verified_first": "2021-09-09",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          165
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          201
+        ]
+      ]
+    },
+    "SKY-USD": {
+      "error": null,
+      "first": "2025-07-10",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-07-10",
+        "verified_first": "2025-07-10",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          1
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "SNT-USD": {
+      "error": null,
+      "first": "2022-03-08",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-03-08",
+        "verified_first": "2022-03-08",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2024-02-23",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          97
+        ],
+        [
+          "2021-06-02",
+          21
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ]
+      ]
+    },
+    "SNX-USD": {
+      "error": null,
+      "first": "2020-12-15",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2020-12-15",
+        "verified_first": "2020-12-15",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          169
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "SOL-USD": {
+      "error": null,
+      "first": "2021-06-17",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-06-17",
+        "verified_first": "2021-06-17",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          285
+        ]
+      ]
+    },
+    "SOL-USDT": {
+      "error": null,
+      "first": "2021-06-17",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-06-17",
+        "verified_first": "2021-06-17",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          285
+        ]
+      ]
+    },
+    "SPX-USD": {
+      "error": null,
+      "first": "2025-09-09",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-09-09",
+        "verified_first": "2025-09-09",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          240
+        ]
+      ]
+    },
+    "STORJ-USD": {
+      "error": null,
+      "first": "2021-03-25",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-03-25",
+        "verified_first": "2021-03-25",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-09-28",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          145
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          69
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "STRK-USD": {
+      "error": null,
+      "first": "2024-02-21",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          206
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "STX-USD": {
+      "error": null,
+      "first": "2022-01-20",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-01-20",
+        "verified_first": "2022-01-20",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          68
+        ]
+      ]
+    },
+    "STX-USDT": {
+      "error": null,
+      "first": "2022-01-20",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-01-20",
+        "verified_first": "2022-01-20",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          68
+        ]
+      ]
+    },
+    "SUI-USD": {
+      "error": null,
+      "first": "2023-05-18",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          185
+        ]
+      ]
+    },
+    "SUSHI-USD": {
+      "error": null,
+      "first": "2021-03-11",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-03-11",
+        "verified_first": "2021-03-11",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          83
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "T-USD": {
+      "error": null,
+      "first": "2023-01-26",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          297
+        ]
+      ]
+    },
+    "TAO-USD": {
+      "error": null,
+      "first": "2025-02-20",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-02-20",
+        "verified_first": "2025-02-20",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          141
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "TIA-USD": {
+      "error": null,
+      "first": "2023-11-01",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          18
+        ]
+      ]
+    },
+    "TON-USD": {
+      "error": null,
+      "first": "2025-11-18",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-11-18",
+        "verified_first": "2025-11-18",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          170
+        ]
+      ]
+    },
+    "TRUMP-USD": {
+      "error": null,
+      "first": "2025-01-21",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          171
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "UMA-USD": {
+      "error": null,
+      "first": "2020-09-08",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          267
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "UNI-USD": {
+      "error": null,
+      "first": "2020-09-17",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          258
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "VET-USD": {
+      "error": null,
+      "first": "2023-09-13",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2023-09-13",
+        "verified_first": "2023-09-13",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ]
+        ],
+        "windows_planned": 4
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          67
+        ]
+      ]
+    },
+    "VGX-USD": {
+      "error": null,
+      "first": "2021-11-18",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-11-18",
+        "verified_first": "2021-11-18",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2023-09-06",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          227
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2021-06-02",
+          131
+        ]
+      ]
+    },
+    "VGX-USDT": {
+      "error": null,
+      "first": "2021-11-18",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-11-18",
+        "verified_first": "2021-11-18",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2023-09-06",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          227
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2021-06-02",
+          131
+        ]
+      ]
+    },
+    "VIRTUAL-USD": {
+      "error": null,
+      "first": "2026-04-29",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2026-04-29",
+        "verified_first": "2026-04-29",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          8
+        ]
+      ]
+    },
+    "VVV-USD": {
+      "error": null,
+      "first": "2025-01-28",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          164
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "W-USD": {
+      "error": null,
+      "first": "2025-07-02",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-07-02",
+        "verified_first": "2025-07-02",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          9
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "WAL-USD": {
+      "error": null,
+      "first": "2026-02-11",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2026-02-11",
+        "verified_first": "2026-02-11",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          85
+        ]
+      ]
+    },
+    "WIF-USD": {
+      "error": null,
+      "first": "2024-11-13",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2024-11-13",
+        "verified_first": "2024-11-13",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          240
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "WLD-USD": {
+      "error": null,
+      "first": "2025-04-30",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-04-30",
+        "verified_first": "2025-04-30",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ]
+        ],
+        "windows_planned": 5
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          72
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "WLFI-USD": {
+      "error": null,
+      "first": "2025-09-01",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          248
+        ]
+      ]
+    },
+    "XCN-USD": {
+      "error": null,
+      "first": "2022-06-28",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          209
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "XCN-USDT": {
+      "error": null,
+      "first": "2022-06-28",
+      "first_at_search_start": false,
+      "last": "2023-09-12",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          217
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          209
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "XLM-USD": {
+      "error": null,
+      "first": "2019-03-14",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          211
+        ]
+      ]
+    },
+    "XLM-USDT": {
+      "error": null,
+      "first": "2022-03-02",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2022-03-02",
+        "verified_first": "2022-03-02",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          27
+        ]
+      ]
+    },
+    "XPL-USD": {
+      "error": null,
+      "first": "2025-12-02",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2025-12-02",
+        "verified_first": "2025-12-02",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ],
+          [
+            "2023-01-23",
+            0
+          ],
+          [
+            "2023-11-19",
+            0
+          ]
+        ],
+        "windows_planned": 6
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2025-07-11",
+          156
+        ]
+      ]
+    },
+    "XRP-USD": {
+      "error": null,
+      "first": "2019-02-26",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [
+          "2022-03-29"
+        ],
+        "error": null,
+        "found_first": "2023-07-13",
+        "verified_first": "2019-02-26",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            227
+          ]
+        ],
+        "windows_planned": 4
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          129
+        ]
+      ]
+    },
+    "XRP-USDT": {
+      "error": null,
+      "first": "2023-07-13",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2023-07-13",
+        "verified_first": "2023-07-13",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ],
+          [
+            "2020-08-06",
+            0
+          ],
+          [
+            "2021-06-02",
+            0
+          ]
+        ],
+        "windows_planned": 4
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          300
+        ],
+        [
+          "2023-01-23",
+          129
+        ]
+      ]
+    },
+    "XTZ-USD": {
+      "error": null,
+      "first": "2019-08-06",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          66
+        ]
+      ]
+    },
+    "YFI-USD": {
+      "error": null,
+      "first": "2020-09-15",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2020-09-15",
+        "verified_first": "2020-09-15",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ]
+        ],
+        "windows_planned": 1
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          260
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "YFII-USD": {
+      "error": null,
+      "first": "2021-09-01",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-09-01",
+        "verified_first": "2021-09-01",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2023-03-29",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          66
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2021-06-02",
+          209
+        ]
+      ]
+    },
+    "ZEC-USD": {
+      "error": null,
+      "first": "2020-12-08",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          176
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "ZEC-USDC": {
+      "error": null,
+      "first": "2018-12-15",
+      "first_at_search_start": true,
+      "last": "2022-07-13",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2022-03-29",
+          107
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          300
+        ]
+      ]
+    },
+    "ZEN-USD": {
+      "error": null,
+      "first": "2021-09-16",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-09-16",
+        "verified_first": "2021-09-16",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          194
+        ]
+      ]
+    },
+    "ZEN-USDT": {
+      "error": null,
+      "first": "2021-09-17",
+      "first_at_search_start": false,
+      "first_check": {
+        "empty_windows_after_verified_first": [],
+        "error": null,
+        "found_first": "2021-09-17",
+        "verified_first": "2021-09-17",
+        "windows_checked": [
+          [
+            "2018-12-15",
+            0
+          ],
+          [
+            "2019-10-11",
+            0
+          ]
+        ],
+        "windows_planned": 2
+      },
+      "last": "2023-10-16",
+      "product_status": "delisted",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          0
+        ],
+        [
+          "2025-07-11",
+          0
+        ],
+        [
+          "2024-09-14",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ],
+        [
+          "2023-01-23",
+          266
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2021-06-02",
+          193
+        ]
+      ]
+    },
+    "ZRO-USD": {
+      "error": null,
+      "first": "2024-06-20",
+      "first_at_search_start": false,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          0
+        ],
+        [
+          "2024-09-14",
+          300
+        ],
+        [
+          "2023-11-19",
+          86
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "ZRX-USD": {
+      "error": null,
+      "first": "2018-12-15",
+      "first_at_search_start": true,
+      "last": "2026-10-19",
+      "product_status": "online",
+      "windows_queried": [
+        [
+          "2026-05-07",
+          166
+        ],
+        [
+          "2022-03-29",
+          300
+        ],
+        [
+          "2020-08-06",
+          300
+        ],
+        [
+          "2019-10-11",
+          300
+        ],
+        [
+          "2018-12-15",
+          300
+        ]
+      ]
+    }
+  },
+  "products_sha256": "00e556cc635a903fdec2ac1c2bc86f6bef55e229384fb63b8fa31c2efb2f2b0b",
+  "requests": 1044,
+  "schema": "entr-cb1-stepB-candle-dates-v1",
+  "search_start": "2018-12-15",
+  "window_days": 300,
+  "written_utc": "2026-10-19T07:11:49.456558+00:00"
+}

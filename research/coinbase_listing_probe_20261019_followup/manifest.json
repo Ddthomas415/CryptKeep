@@ -1,0 +1,32 @@
+{
+  "schema": "entr-cb1-probe-v1-followup",
+  "base": "https://api.exchange.coinbase.com",
+  "max_requests_total": 20,
+  "requests_before": 9,
+  "requests_total_after": 11,
+  "records": [
+    {
+      "n": 10,
+      "label": "candles_GNT-USDC_2019",
+      "url": "https://api.exchange.coinbase.com/products/GNT-USDC/candles?granularity=86400&start=2019-01-01T00:00:00Z&end=2019-10-27T00:00:00Z",
+      "http_status": 200,
+      "sent_utc": "2026-10-19T05:49:28.722497+00:00",
+      "received_utc": "2026-10-19T05:49:28.834871+00:00",
+      "file": "10_candles_GNT-USDC_2019.json",
+      "bytes": 15761,
+      "sha256": "8c49c9138a0d7efdf2fbbfef815bb73c0f44c52aab00d6636ca9f67b20abf226"
+    },
+    {
+      "n": 11,
+      "label": "candles_DNT-USDC_2019",
+      "url": "https://api.exchange.coinbase.com/products/DNT-USDC/candles?granularity=86400&start=2019-01-01T00:00:00Z&end=2019-10-27T00:00:00Z",
+      "http_status": 200,
+      "sent_utc": "2026-10-19T05:49:29.342288+00:00",
+      "received_utc": "2026-10-19T05:49:29.473959+00:00",
+      "file": "11_candles_DNT-USDC_2019.json",
+      "bytes": 16285,
+      "sha256": "1d85ecc14f4350a2692dd19c5f6157a59e2d29bef9631fe75b5c664c3c4e8ff7"
+    }
+  ],
+  "written_utc": "2026-10-19T05:49:29.978143+00:00"
+}

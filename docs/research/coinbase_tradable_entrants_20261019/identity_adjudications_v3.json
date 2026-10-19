@@ -1,0 +1,313 @@
+{
+  "schema": "entr-cb1-identity-adjudications-v3",
+  "note": "Adjudications for ticker matches whose Coinbase currency name does not normalise to the CMC slug. Decided 2026-10-19 by Claude (Cowork) before any listing dates were fetched or returns computed. Same-project judgments rest on the agent's knowledge of public rebrandings and token migrations (CLAIMED, not independently verified here); they are flagged for the independent reviewer. Different-project ticker collisions are set to unknown, the conservative default. v2 (2026-10-19, before any listing dates fetched or returns computed) adds alternate-ticker adjudications after a name-based check found CMC coins listed on Coinbase under a different ticker; v1 file and v1 map are preserved. v3 (2026-10-19, before any listing dates fetched or returns computed): the builder's candidate check now also runs when the CMC ticker exists on Coinbase under a different project, and also matches a whole name against the slug's first word and a ticker embedded in a longer Coinbase ticker. New candidates are adjudicated here; three v2 decisions are corrected (29210 JUP -> JUPITER by contract evidence in the saved currency record; 39720 EDGE -> EDGEX; 39125 LIT -> LIGHTER). Judgments remain CLAIMED (agent knowledge plus saved Coinbase records) pending independent review. Final v3 additions (2026-10-19, after CMC contract data were saved and before any Coinbase listing dates were fetched): operator-approved continuation for 5690 (RNDR -> RENDER, both contracts listed by CMC); contract overrides with stated evidence for three legacy-contract cases (1455 GNT, 7080 GALA V1, 1982 legacy KNC). Not applied: MATIC -> POL (CMC 3890 does not list the POL contract; POL is its own CMC ID 28321), YFII -> YFI (different project), GNT -> GLM continuation (CMC does not list the GNT contract).",
+  "adjudications": {
+    "1321": {
+      "decision": "mapped",
+      "reason": "same project: Ethereum Classic (Coinbase name 'Ether Classic')"
+    },
+    "1808": {
+      "decision": "mapped",
+      "reason": "same project: OmiseGO renamed OMG Network"
+    },
+    "1839": {
+      "decision": "mapped",
+      "reason": "same project: Binance Coin, now named BNB"
+    },
+    "1455": {
+      "decision": "mapped",
+      "reason": "same project: Golem Network Tokens (GNT), Coinbase name 'Golem'",
+      "contract_override": "legacy contract: Coinbase GNT is Golem's original ERC-20 0xa7447644... (Coinbase record, SHOWN; independent reviewer SHOWN via coinbase.com/th/price/golem). CMC 1455 (slug golem-network-tokens, ticker GNT in the selection list) now lists only the GLM contracts after the 2020 GNT->GLM migration (1:1, CLAIMED). All 9 selections (2019-04-07..2020-11-15) are from the GNT era. No continuation to GLM: CMC does not list the GNT contract, so the operator's continuation rule is not met."
+    },
+    "213": {
+      "decision": "unknown",
+      "reason": "different project: CMC Monacoin vs Coinbase Monavale share ticker MONA"
+    },
+    "2090": {
+      "decision": "unknown",
+      "reason": "different project: CMC LATOKEN vs Coinbase Lagrange share ticker LA"
+    },
+    "3829": {
+      "decision": "unknown",
+      "reason": "different project: CMC Nash Exchange vs Coinbase Nexus share ticker NEX"
+    },
+    "1637": {
+      "decision": "mapped",
+      "reason": "same project: iExec RLC"
+    },
+    "3890": {
+      "decision": "mapped",
+      "reason": "same project: Matic Network renamed Polygon"
+    },
+    "4642": {
+      "decision": "mapped",
+      "reason": "same project: Hedera Hashgraph, Coinbase name 'Hedera'"
+    },
+    "2586": {
+      "decision": "mapped",
+      "reason": "same project: Synthetix Network Token, Coinbase name 'Synthetix'"
+    },
+    "4847": {
+      "decision": "mapped",
+      "reason": "same project: Blockstack renamed Stacks"
+    },
+    "5957": {
+      "decision": "mapped",
+      "reason": "same project: YFII is the DFI.Money token"
+    },
+    "6636": {
+      "decision": "mapped",
+      "reason": "same project: Polkadot (CMC slug polkadot-new after redenomination)"
+    },
+    "6892": {
+      "decision": "mapped",
+      "reason": "same project: Elrond renamed MultiversX (EGLD)"
+    },
+    "1659": {
+      "decision": "mapped",
+      "reason": "same project: Gnosis (GNO)"
+    },
+    "2777": {
+      "decision": "mapped",
+      "reason": "same project: IoTeX; Coinbase lists the ERC-20 representation of IOTX"
+    },
+    "7080": {
+      "decision": "mapped",
+      "reason": "same project: Gala; Coinbase name 'Gala V1' reflects the 2023 token migration under the same CMC ID",
+      "contract_override": "legacy contract: Coinbase GALA is 'Gala V1' 0x15D4c048... (Coinbase record, SHOWN). CMC 7080 tracked that token until the May 2023 V2 migration and now lists the V2 contracts (CLAIMED). Coinbase did not support V2 and disabled V1 on 2023-05-12 (independent reviewer, SHOWN), so later selections fall under the frozen delisting rules."
+    },
+    "10603": {
+      "decision": "mapped",
+      "reason": "same project: Immutable X"
+    },
+    "18876": {
+      "decision": "mapped",
+      "reason": "same project: ApeCoin"
+    },
+    "9444": {
+      "decision": "mapped",
+      "reason": "same project: Kyber Network Crystal (KNC v2 after the 2021 migration)"
+    },
+    "18069": {
+      "decision": "mapped",
+      "reason": "same project: GMT is the STEPN token (CMC slug green-metaverse-token)"
+    },
+    "18679": {
+      "decision": "mapped",
+      "reason": "same project: Chain rebranded Onyxcoin (XCN)"
+    },
+    "11840": {
+      "decision": "mapped",
+      "reason": "same project: Optimism"
+    },
+    "7226": {
+      "decision": "mapped",
+      "reason": "same project: Injective (Coinbase name 'Injective Protocol')"
+    },
+    "23121": {
+      "decision": "mapped",
+      "reason": "same project: Blur"
+    },
+    "28298": {
+      "decision": "mapped",
+      "reason": "same project: Beam gaming token (CMC slug onbeam, not the older privacy coin)"
+    },
+    "3773": {
+      "decision": "mapped",
+      "reason": "same project: Fetch.ai"
+    },
+    "23095": {
+      "decision": "mapped",
+      "reason": "same project: Bonk"
+    },
+    "13502": {
+      "decision": "mapped",
+      "reason": "same project: Worldcoin"
+    },
+    "7431": {
+      "decision": "mapped",
+      "reason": "same project: Akash Network"
+    },
+    "8425": {
+      "decision": "mapped",
+      "reason": "same project: JasmyCoin"
+    },
+    "22691": {
+      "decision": "mapped",
+      "reason": "same project: Starknet"
+    },
+    "10804": {
+      "decision": "mapped",
+      "reason": "same project: Floki (formerly Floki Inu)"
+    },
+    "29210": {
+      "decision": "mapped",
+      "coinbase_base": "JUPITER",
+      "reason": "same asset: Jupiter (Solana aggregator) trades on Coinbase as JUPITER; the saved Coinbase currency record lists Solana mint JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN. Coinbase JUP is a different token (Jupiter Project, Ethereum contract 0x4B1E80cAC91e2216EEb63e29B957eB91Ae9C2Be8). Corrects v2, which mapped this ID to JUP."
+    },
+    "28782": {
+      "decision": "mapped",
+      "reason": "same project: Popcat (Solana)"
+    },
+    "29420": {
+      "decision": "mapped",
+      "reason": "same project: Virtuals Protocol"
+    },
+    "35626": {
+      "decision": "mapped",
+      "reason": "same project: Story (Story Protocol)"
+    },
+    "36119": {
+      "decision": "mapped",
+      "reason": "same project: Walrus"
+    },
+    "33251": {
+      "decision": "mapped",
+      "reason": "same project: World Liberty Financial"
+    },
+    "29814": {
+      "decision": "mapped",
+      "reason": "same project: ether.fi"
+    },
+    "36645": {
+      "decision": "mapped",
+      "reason": "same project: Plasma (XPL)"
+    },
+    "39125": {
+      "decision": "mapped",
+      "coinbase_base": "LIGHTER",
+      "reason": "same asset: Lighter trades on Coinbase as LIGHTER (currency name 'Lighter', Ethereum contract 0x232ce3bd40fcd6f80f3d55a522d03f25df784ee2); Coinbase LIT is Litentry, a different project. Corrects v2, which left this ID unknown."
+    },
+    "39720": {
+      "decision": "mapped",
+      "coinbase_base": "EDGEX",
+      "reason": "same asset: edgeX trades on Coinbase as EDGEX (currency name 'Edgex', Ethereum contract 0xB0076DE78Dc50581770BBa1D211dDc0aD4F2a241); Coinbase EDGE is Definitive, a different project. Corrects v2, which left this ID unknown."
+    },
+    "5567": {
+      "decision": "mapped",
+      "coinbase_base": "CGLD",
+      "reason": "same asset: Celo trades on Coinbase under ticker CGLD (Celo Gold)"
+    },
+    "14101": {
+      "decision": "mapped",
+      "coinbase_base": "RONIN",
+      "reason": "same asset: Ronin (RON) is listed on Coinbase as RONIN"
+    },
+    "27075": {
+      "decision": "mapped",
+      "coinbase_base": "MANTLE",
+      "reason": "same asset: Mantle (MNT) is listed on Coinbase as MANTLE"
+    },
+    "28324": {
+      "decision": "mapped",
+      "coinbase_base": "COSMOSDYDX",
+      "reason": "same asset: dYdX Chain native token, listed on Coinbase as COSMOSDYDX"
+    },
+    "11156": {
+      "decision": "never_listed",
+      "reason": "not the same asset: CMC 11156 is the older Ethereum ERC-20 dYdX token; Coinbase has no DYDX product, and COSMOSDYDX is the separate chain token (CMC 28324)"
+    },
+    "2239": {
+      "decision": "never_listed",
+      "reason": "not the same asset: LEND is the pre-migration Aave token, redenominated 100:1 into AAVE; prices are not comparable"
+    },
+    "2603": {
+      "decision": "never_listed",
+      "reason": "not the same asset: NPXS was redenominated 1000:1 into PUNDIX; prices are not comparable"
+    },
+    "2874": {
+      "decision": "never_listed",
+      "reason": "different project: CMC AOA (Aurora, 2018 chain) vs Coinbase AURORA (Aurora on NEAR)"
+    },
+    "3871": {
+      "decision": "never_listed",
+      "reason": "different project: CMC AB (formerly Newton Project) vs Coinbase NEWT (Newton Protocol)"
+    },
+    "23254": {
+      "decision": "mapped",
+      "coinbase_base": "CORECHAIN",
+      "reason": "same asset: Core DAO's native CORE trades on Coinbase as CORECHAIN (currency name 'Core', network 'coredao'). Missed by v2's candidate check."
+    },
+    "3602": {
+      "decision": "never_listed",
+      "reason": "different asset: Bitcoin SV is not Bitcoin (BTC)"
+    },
+    "2222": {
+      "decision": "never_listed",
+      "reason": "different asset: Bitcoin Diamond is not Bitcoin (BTC)"
+    },
+    "2083": {
+      "decision": "never_listed",
+      "reason": "different asset: Bitcoin Gold is not Bitcoin (BTC)"
+    },
+    "2700": {
+      "decision": "never_listed",
+      "reason": "different project: Celsius (CEL) vs Coinbase CELR (Celer Network)"
+    },
+    "20314": {
+      "decision": "never_listed",
+      "reason": "different asset: CMC terra-luna-v2 is Terra 2.0 LUNA; Coinbase WLUNA is 'Wrapped Luna Classic', an Ethereum wrapper of the old chain's token"
+    },
+    "4172": {
+      "decision": "never_listed",
+      "reason": "not the same asset: Coinbase WLUNA ('Wrapped Luna Classic', Ethereum contract 0xd2877702675e6ceb975b4a1dff9fb7baf4c91ea9) is a bridged ERC-20 wrapper, not native LUNA Classic; its bridge redemption is not assumed to keep prices comparable"
+    },
+    "2631": {
+      "decision": "never_listed",
+      "reason": "different project: ODEM (ODE) vs Coinbase MOODENG (Moo Deng)"
+    },
+    "4056": {
+      "decision": "never_listed",
+      "reason": "not the same asset: Coinbase FORTH is Ampleforth's governance token and WAMPL is wrapped AMPL in different units; native AMPL has no Coinbase product"
+    },
+    "1586": {
+      "decision": "never_listed",
+      "reason": "different project: Ark (ARK) vs Coinbase ARKM (Arkham)"
+    },
+    "4748": {
+      "decision": "never_listed",
+      "reason": "different project: Dimension Chain (EON) vs Coinbase NEON (Neon)"
+    },
+    "5268": {
+      "decision": "never_listed",
+      "reason": "different project: Energy Web Token (EWT) vs Coinbase NEWT (Newton)"
+    },
+    "3957": {
+      "decision": "never_listed",
+      "reason": "different project: UNUS SED LEO (LEO) vs Coinbase ALEO (Aleo)"
+    },
+    "1776": {
+      "decision": "never_listed",
+      "reason": "not the same asset: MCO (Crypto.com's earlier token) was swapped into CRO at a fixed ratio, so CRO prices are not MCO prices; Coinbase MCO2 is Moss Carbon Credit, a different project"
+    },
+    "3296": {
+      "decision": "never_listed",
+      "reason": "different project: Mindol (MIN) vs Coinbase MINA (Mina)"
+    },
+    "1376": {
+      "decision": "never_listed",
+      "reason": "different project: Neo (NEO) vs Coinbase NEON (Neon)"
+    },
+    "3945": {
+      "decision": "never_listed",
+      "reason": "different project: Harmony (ONE) vs Coinbase HONEY (Hivemapper) and TONE (TE-FOOD)"
+    },
+    "3701": {
+      "decision": "never_listed",
+      "reason": "different project: RSK Infrastructure Framework (RIF) vs Coinbase DRIFT (Drift Protocol)"
+    },
+    "5690": {
+      "decision": "mapped",
+      "coinbase_bases": [
+        "RNDR",
+        "RENDER"
+      ],
+      "reason": "continuation approved by the operator 2026-10-19: Render moved 1:1 from the Ethereum RNDR token to the Solana RENDER token under the same CMC ID 5690; the saved CMC detail for 5690 lists both 0x6de037ef... (Coinbase RNDR) and rndrizKT3M... (Coinbase RENDER). Coinbase suspended RNDR on 2025-06-26 (independent reviewer, SHOWN) and trades RENDER-USD."
+    },
+    "1982": {
+      "decision": "mapped",
+      "reason": "exact name/slug match (Coinbase 'Kyber Network' = CMC kyber-network)",
+      "contract_override": "legacy contract: CMC 1982 is now 'Kyber Network Crystal Legacy' 0xdd974d5c... (saved CMC detail, SHOWN); Coinbase's KNC record lists the v2 contract 0xdeFA4e8a... it moved to after Kyber's 2021 migration. All 13 selections of 1982 (2020-03-08..2021-02-07) precede KNC v2 (CLAIMED: launched 2021), so KNC-USD trading in that window can only have been the legacy token. Shares KNC-USD with 9444 (KNC v2, selections 2022-05), which matches by contract."
+    }
+  }
+}

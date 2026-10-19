@@ -1,0 +1,2139 @@
+{
+  "done": {
+    "1INCH-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "2Z-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "AAVE-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "ADA-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "ADA-USDC": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "ADA-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "AKT-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "ALT-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "ANT-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ]
+      ]
+    },
+    "ASTER-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "ATOM-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "AUDIO-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "AVAX-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "AVAX-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "AXS-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "AXS-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "BAL-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "BEAM-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "BNB-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "BNT-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "CAKE-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "CHZ-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "CHZ-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "CORECHAIN-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "COSMOSDYDX-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "CRO-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "CRO-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "CRV-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "CVX-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "DOGE-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "DOGE-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "DOT-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "DOT-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "EGLD-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "ELA-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "ELA-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "ENA-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "ENJ-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "ENJ-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "FARTCOIN-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "FIL-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "FLOKI-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "FLOW-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "FLOW-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "FLR-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "GNO-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "GNO-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "HBAR-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "HBAR-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "HNT-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "HYPE-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "JUPITER-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "KAVA-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "KSM-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "KSM-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "LDO-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "LINK-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "LRC-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "LRC-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "MANTLE-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "MATIC-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "MATIC-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "MINA-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "MINA-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "MOG-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "NEAR-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "NEAR-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "OCEAN-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "OSMO-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "PENDLE-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "PENGU-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "PEPE-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "PNUT-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "POLY-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "POLY-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "POPCAT-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "POWR-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "POWR-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "PYTH-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "QNT-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "QNT-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "RAY-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "REN-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "RLC-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "RONIN-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "ROSE-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "ROSE-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "RSR-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "S-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "SAND-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "SAND-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "SHIB-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "SHIB-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "SKY-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "SNT-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "SNX-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "SOL-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "SOL-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "SPX-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "STORJ-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "STX-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "STX-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "SUSHI-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "TAO-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "TON-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "VET-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "VGX-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "VGX-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "VIRTUAL-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "W-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "WAL-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "WIF-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "WLD-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ]
+      ]
+    },
+    "XLM-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "XPL-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ],
+        [
+          "2023-01-23",
+          0
+        ],
+        [
+          "2023-11-19",
+          0
+        ]
+      ]
+    },
+    "XRP-USD": {
+      "earliest_found": "2019-02-26",
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          227
+        ]
+      ]
+    },
+    "XRP-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ],
+        [
+          "2020-08-06",
+          0
+        ],
+        [
+          "2021-06-02",
+          0
+        ]
+      ]
+    },
+    "YFI-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ]
+      ]
+    },
+    "YFII-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "ZEN-USD": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    },
+    "ZEN-USDT": {
+      "earliest_found": null,
+      "error": null,
+      "windows_checked": [
+        [
+          "2018-12-15",
+          0
+        ],
+        [
+          "2019-10-11",
+          0
+        ]
+      ]
+    }
+  },
+  "requests": 352
+}

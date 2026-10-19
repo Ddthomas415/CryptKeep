@@ -49,3 +49,10 @@ displayed local schedule, Auto mode, Require this computer on, and push/email
 notifications enabled. No duplicate task or manual run was created. History
 still says "No runs yet". First unattended execution, mounted-folder usability
 inside that run and actual notification delivery remain UNVERIFIED.
+
+## Topic focus added, 2026-10-19 (Claude Cowork, operator-requested)
+
+A "Standing focus" paragraph was added at the top of TOPICS.md: within each topic, prefer lower-value top-100
+coins and new or prospective top-100 entrants over BTC/ETH-only material, and do not propose re-running the
+ENTR-CB-1 historical test (STOP). The 12 numbered topics, the day-of-year rotation, the scheduled task's
+instructions, schedule and permissions are unchanged.

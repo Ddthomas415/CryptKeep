@@ -1,0 +1,1534 @@
+{
+ "2": [
+  "mapped",
+  "exact"
+ ],
+ "52": [
+  "mapped",
+  "exact"
+ ],
+ "74": [
+  "mapped",
+  "exact"
+ ],
+ "109": [
+  "never_listed",
+  "absent"
+ ],
+ "131": [
+  "mapped",
+  "exact"
+ ],
+ "328": [
+  "never_listed",
+  "absent"
+ ],
+ "463": [
+  "never_listed",
+  "absent"
+ ],
+ "512": [
+  "mapped",
+  "exact"
+ ],
+ "873": [
+  "never_listed",
+  "absent"
+ ],
+ "1104": [
+  "mapped",
+  "exact"
+ ],
+ "1169": [
+  "never_listed",
+  "absent"
+ ],
+ "1214": [
+  "never_listed",
+  "absent"
+ ],
+ "1274": [
+  "never_listed",
+  "absent"
+ ],
+ "1320": [
+  "never_listed",
+  "absent"
+ ],
+ "1321": [
+  "mapped",
+  "adj"
+ ],
+ "1343": [
+  "never_listed",
+  "absent"
+ ],
+ "1376": [
+  "never_listed",
+  "absent"
+ ],
+ "1437": [
+  "mapped",
+  "exact"
+ ],
+ "1567": [
+  "never_listed",
+  "absent"
+ ],
+ "1684": [
+  "never_listed",
+  "absent"
+ ],
+ "1697": [
+  "mapped",
+  "exact"
+ ],
+ "1700": [
+  "never_listed",
+  "absent"
+ ],
+ "1703": [
+  "never_listed",
+  "absent"
+ ],
+ "1715": [
+  "never_listed",
+  "absent"
+ ],
+ "1720": [
+  "never_listed",
+  "absent"
+ ],
+ "1727": [
+  "mapped",
+  "exact"
+ ],
+ "1759": [
+  "mapped",
+  "exact"
+ ],
+ "1765": [
+  "mapped",
+  "exact"
+ ],
+ "1776": [
+  "never_listed",
+  "absent"
+ ],
+ "1789": [
+  "never_listed",
+  "absent"
+ ],
+ "1808": [
+  "mapped",
+  "adj"
+ ],
+ "1831": [
+  "mapped",
+  "exact"
+ ],
+ "1839": [
+  "mapped",
+  "adj"
+ ],
+ "1866": [
+  "never_listed",
+  "absent"
+ ],
+ "1896": [
+  "mapped",
+  "exact"
+ ],
+ "1903": [
+  "never_listed",
+  "absent"
+ ],
+ "1925": [
+  "never_listed",
+  "absent"
+ ],
+ "1958": [
+  "never_listed",
+  "absent"
+ ],
+ "1966": [
+  "mapped",
+  "exact"
+ ],
+ "1975": [
+  "mapped",
+  "exact"
+ ],
+ "2010": [
+  "mapped",
+  "exact"
+ ],
+ "2011": [
+  "mapped",
+  "exact"
+ ],
+ "2027": [
+  "never_listed",
+  "absent"
+ ],
+ "2062": [
+  "never_listed",
+  "absent"
+ ],
+ "2083": [
+  "never_listed",
+  "absent"
+ ],
+ "2099": [
+  "never_listed",
+  "absent"
+ ],
+ "2135": [
+  "never_listed",
+  "absent"
+ ],
+ "2222": [
+  "never_listed",
+  "absent"
+ ],
+ "2405": [
+  "never_listed",
+  "absent"
+ ],
+ "2469": [
+  "never_listed",
+  "absent"
+ ],
+ "2492": [
+  "mapped",
+  "exact"
+ ],
+ "2496": [
+  "mapped",
+  "exact"
+ ],
+ "2502": [
+  "never_listed",
+  "absent"
+ ],
+ "2566": [
+  "never_listed",
+  "absent"
+ ],
+ "2577": [
+  "never_listed",
+  "absent"
+ ],
+ "2603": [
+  "never_listed",
+  "adj_alt"
+ ],
+ "2606": [
+  "never_listed",
+  "absent"
+ ],
+ "2631": [
+  "never_listed",
+  "absent"
+ ],
+ "2682": [
+  "never_listed",
+  "absent"
+ ],
+ "2694": [
+  "never_listed",
+  "absent"
+ ],
+ "2874": [
+  "never_listed",
+  "adj_alt"
+ ],
+ "3077": [
+  "mapped",
+  "exact"
+ ],
+ "3116": [
+  "never_listed",
+  "absent"
+ ],
+ "3602": [
+  "never_listed",
+  "absent"
+ ],
+ "1168": [
+  "never_listed",
+  "absent"
+ ],
+ "1230": [
+  "never_listed",
+  "absent"
+ ],
+ "1710": [
+  "never_listed",
+  "absent"
+ ],
+ "1750": [
+  "never_listed",
+  "absent"
+ ],
+ "1934": [
+  "mapped",
+  "exact"
+ ],
+ "2132": [
+  "mapped",
+  "exact"
+ ],
+ "2416": [
+  "never_listed",
+  "absent"
+ ],
+ "2900": [
+  "never_listed",
+  "absent"
+ ],
+ "693": [
+  "never_listed",
+  "absent"
+ ],
+ "1518": [
+  "mapped",
+  "exact"
+ ],
+ "1521": [
+  "never_listed",
+  "absent"
+ ],
+ "2130": [
+  "mapped",
+  "exact"
+ ],
+ "2299": [
+  "never_listed",
+  "absent"
+ ],
+ "2588": [
+  "mapped",
+  "exact"
+ ],
+ "2772": [
+  "never_listed",
+  "absent"
+ ],
+ "3155": [
+  "mapped",
+  "exact"
+ ],
+ "3437": [
+  "never_listed",
+  "absent"
+ ],
+ "1042": [
+  "never_listed",
+  "absent"
+ ],
+ "1414": [
+  "never_listed",
+  "absent"
+ ],
+ "1455": [
+  "mapped",
+  "adj"
+ ],
+ "1586": [
+  "never_listed",
+  "absent"
+ ],
+ "2087": [
+  "never_listed",
+  "absent"
+ ],
+ "2092": [
+  "never_listed",
+  "absent"
+ ],
+ "2307": [
+  "never_listed",
+  "absent"
+ ],
+ "2346": [
+  "never_listed",
+  "absent"
+ ],
+ "3115": [
+  "never_listed",
+  "absent"
+ ],
+ "3175": [
+  "never_listed",
+  "absent"
+ ],
+ "3718": [
+  "never_listed",
+  "absent"
+ ],
+ "118": [
+  "never_listed",
+  "absent"
+ ],
+ "213": [
+  "unknown",
+  "adj"
+ ],
+ "1229": [
+  "never_listed",
+  "absent"
+ ],
+ "1698": [
+  "mapped",
+  "exact"
+ ],
+ "1886": [
+  "never_listed",
+  "absent"
+ ],
+ "1908": [
+  "never_listed",
+  "absent"
+ ],
+ "3835": [
+  "never_listed",
+  "absent"
+ ],
+ "2090": [
+  "unknown",
+  "adj"
+ ],
+ "2300": [
+  "never_listed",
+  "absent"
+ ],
+ "2349": [
+  "never_listed",
+  "absent"
+ ],
+ "2457": [
+  "never_listed",
+  "absent"
+ ],
+ "3635": [
+  "mapped",
+  "exact"
+ ],
+ "3724": [
+  "never_listed",
+  "absent"
+ ],
+ "3794": [
+  "mapped",
+  "exact"
+ ],
+ "3822": [
+  "never_listed",
+  "absent"
+ ],
+ "2453": [
+  "never_listed",
+  "absent"
+ ],
+ "2885": [
+  "never_listed",
+  "absent"
+ ],
+ "3657": [
+  "never_listed",
+  "absent"
+ ],
+ "3709": [
+  "never_listed",
+  "absent"
+ ],
+ "3829": [
+  "unknown",
+  "adj"
+ ],
+ "3957": [
+  "never_listed",
+  "absent"
+ ],
+ "2539": [
+  "mapped",
+  "exact"
+ ],
+ "2859": [
+  "never_listed",
+  "absent"
+ ],
+ "3085": [
+  "never_listed",
+  "absent"
+ ],
+ "3662": [
+  "never_listed",
+  "absent"
+ ],
+ "3704": [
+  "never_listed",
+  "absent"
+ ],
+ "3788": [
+  "never_listed",
+  "absent"
+ ],
+ "4079": [
+  "never_listed",
+  "absent"
+ ],
+ "2907": [
+  "never_listed",
+  "absent"
+ ],
+ "3351": [
+  "never_listed",
+  "absent"
+ ],
+ "3364": [
+  "never_listed",
+  "absent"
+ ],
+ "3897": [
+  "never_listed",
+  "absent"
+ ],
+ "4030": [
+  "mapped",
+  "exact"
+ ],
+ "4049": [
+  "never_listed",
+  "absent"
+ ],
+ "3701": [
+  "never_listed",
+  "absent"
+ ],
+ "4195": [
+  "never_listed",
+  "absent"
+ ],
+ "4279": [
+  "never_listed",
+  "absent"
+ ],
+ "4676": [
+  "never_listed",
+  "absent"
+ ],
+ "4694": [
+  "never_listed",
+  "absent"
+ ],
+ "1637": [
+  "mapped",
+  "adj"
+ ],
+ "2830": [
+  "never_listed",
+  "absent"
+ ],
+ "3139": [
+  "never_listed",
+  "absent"
+ ],
+ "4172": [
+  "never_listed",
+  "absent"
+ ],
+ "4748": [
+  "never_listed",
+  "absent"
+ ],
+ "2441": [
+  "never_listed",
+  "absent"
+ ],
+ "2897": [
+  "never_listed",
+  "absent"
+ ],
+ "3218": [
+  "never_listed",
+  "absent"
+ ],
+ "3296": [
+  "never_listed",
+  "absent"
+ ],
+ "3890": [
+  "mapped",
+  "adj"
+ ],
+ "4949": [
+  "never_listed",
+  "absent"
+ ],
+ "4360": [
+  "never_listed",
+  "absent"
+ ],
+ "3914": [
+  "never_listed",
+  "absent"
+ ],
+ "4842": [
+  "never_listed",
+  "absent"
+ ],
+ "4948": [
+  "never_listed",
+  "absent"
+ ],
+ "5070": [
+  "never_listed",
+  "absent"
+ ],
+ "1982": [
+  "mapped",
+  "exact"
+ ],
+ "4469": [
+  "never_listed",
+  "absent"
+ ],
+ "4642": [
+  "mapped",
+  "adj"
+ ],
+ "5084": [
+  "never_listed",
+  "absent"
+ ],
+ "5234": [
+  "never_listed",
+  "absent"
+ ],
+ "2319": [
+  "never_listed",
+  "absent"
+ ],
+ "2586": [
+  "mapped",
+  "adj"
+ ],
+ "3734": [
+  "never_listed",
+  "absent"
+ ],
+ "5015": [
+  "never_listed",
+  "absent"
+ ],
+ "5031": [
+  "never_listed",
+  "absent"
+ ],
+ "5336": [
+  "never_listed",
+  "absent"
+ ],
+ "5370": [
+  "never_listed",
+  "absent"
+ ],
+ "2137": [
+  "never_listed",
+  "absent"
+ ],
+ "2239": [
+  "never_listed",
+  "adj_alt"
+ ],
+ "2758": [
+  "never_listed",
+  "absent"
+ ],
+ "3695": [
+  "never_listed",
+  "absent"
+ ],
+ "5524": [
+  "never_listed",
+  "absent"
+ ],
+ "2499": [
+  "never_listed",
+  "absent"
+ ],
+ "3356": [
+  "never_listed",
+  "absent"
+ ],
+ "4747": [
+  "never_listed",
+  "absent"
+ ],
+ "5329": [
+  "never_listed",
+  "absent"
+ ],
+ "5692": [
+  "mapped",
+  "exact"
+ ],
+ "4056": [
+  "never_listed",
+  "absent"
+ ],
+ "4086": [
+  "never_listed",
+  "absent"
+ ],
+ "4846": [
+  "mapped",
+  "exact"
+ ],
+ "5482": [
+  "never_listed",
+  "absent"
+ ],
+ "5796": [
+  "never_listed",
+  "absent"
+ ],
+ "1680": [
+  "mapped",
+  "exact"
+ ],
+ "1732": [
+  "mapped",
+  "exact"
+ ],
+ "3911": [
+  "mapped",
+  "exact"
+ ],
+ "3964": [
+  "mapped",
+  "exact"
+ ],
+ "4157": [
+  "never_listed",
+  "absent"
+ ],
+ "4679": [
+  "mapped",
+  "exact"
+ ],
+ "4847": [
+  "mapped",
+  "adj"
+ ],
+ "5268": [
+  "never_listed",
+  "absent"
+ ],
+ "5488": [
+  "never_listed",
+  "absent"
+ ],
+ "5785": [
+  "never_listed",
+  "absent"
+ ],
+ "5815": [
+  "never_listed",
+  "absent"
+ ],
+ "5864": [
+  "mapped",
+  "exact"
+ ],
+ "3812": [
+  "never_listed",
+  "absent"
+ ],
+ "5034": [
+  "mapped",
+  "exact"
+ ],
+ "5279": [
+  "never_listed",
+  "absent"
+ ],
+ "5567": [
+  "mapped",
+  "adj_alt"
+ ],
+ "5617": [
+  "mapped",
+  "exact"
+ ],
+ "5632": [
+  "never_listed",
+  "absent"
+ ],
+ "5728": [
+  "mapped",
+  "exact"
+ ],
+ "5830": [
+  "never_listed",
+  "absent"
+ ],
+ "5957": [
+  "mapped",
+  "adj"
+ ],
+ "6636": [
+  "mapped",
+  "adj"
+ ],
+ "6758": [
+  "mapped",
+  "exact"
+ ],
+ "6892": [
+  "mapped",
+  "adj"
+ ],
+ "1772": [
+  "mapped",
+  "exact"
+ ],
+ "2280": [
+  "mapped",
+  "exact"
+ ],
+ "2700": [
+  "never_listed",
+  "absent"
+ ],
+ "5426": [
+  "mapped",
+  "exact"
+ ],
+ "5805": [
+  "mapped",
+  "exact"
+ ],
+ "7083": [
+  "mapped",
+  "exact"
+ ],
+ "2642": [
+  "never_listed",
+  "absent"
+ ],
+ "6535": [
+  "mapped",
+  "exact"
+ ],
+ "7278": [
+  "mapped",
+  "exact"
+ ],
+ "5026": [
+  "mapped",
+  "exact"
+ ],
+ "291": [
+  "never_listed",
+  "absent"
+ ],
+ "1659": [
+  "mapped",
+  "adj"
+ ],
+ "6719": [
+  "mapped",
+  "exact"
+ ],
+ "1817": [
+  "mapped",
+  "exact"
+ ],
+ "3513": [
+  "never_listed",
+  "absent"
+ ],
+ "4558": [
+  "mapped",
+  "exact"
+ ],
+ "6538": [
+  "mapped",
+  "exact"
+ ],
+ "7232": [
+  "never_listed",
+  "absent"
+ ],
+ "8104": [
+  "mapped",
+  "exact"
+ ],
+ "7186": [
+  "mapped",
+  "exact"
+ ],
+ "7288": [
+  "never_listed",
+  "absent"
+ ],
+ "3673": [
+  "never_listed",
+  "absent"
+ ],
+ "3783": [
+  "mapped",
+  "exact"
+ ],
+ "3945": [
+  "never_listed",
+  "absent"
+ ],
+ "4066": [
+  "mapped",
+  "exact"
+ ],
+ "4256": [
+  "never_listed",
+  "absent"
+ ],
+ "5665": [
+  "mapped",
+  "exact"
+ ],
+ "2394": [
+  "never_listed",
+  "absent"
+ ],
+ "2634": [
+  "never_listed",
+  "absent"
+ ],
+ "5994": [
+  "mapped",
+  "exact"
+ ],
+ "8335": [
+  "never_listed",
+  "absent"
+ ],
+ "8916": [
+  "mapped",
+  "exact"
+ ],
+ "6945": [
+  "mapped",
+  "exact"
+ ],
+ "7064": [
+  "never_listed",
+  "absent"
+ ],
+ "6783": [
+  "mapped",
+  "exact"
+ ],
+ "8526": [
+  "mapped",
+  "exact"
+ ],
+ "8646": [
+  "mapped",
+  "exact"
+ ],
+ "10791": [
+  "never_listed",
+  "absent"
+ ],
+ "6187": [
+  "never_listed",
+  "absent"
+ ],
+ "11156": [
+  "never_listed",
+  "adj_alt"
+ ],
+ "5604": [
+  "never_listed",
+  "absent"
+ ],
+ "5647": [
+  "never_listed",
+  "absent"
+ ],
+ "6210": [
+  "mapped",
+  "exact"
+ ],
+ "6950": [
+  "mapped",
+  "exact"
+ ],
+ "7455": [
+  "mapped",
+  "exact"
+ ],
+ "9436": [
+  "never_listed",
+  "absent"
+ ],
+ "2777": [
+  "mapped",
+  "adj"
+ ],
+ "3640": [
+  "mapped",
+  "exact"
+ ],
+ "7080": [
+  "mapped",
+  "adj"
+ ],
+ "10603": [
+  "mapped",
+  "adj"
+ ],
+ "7653": [
+  "mapped",
+  "exact"
+ ],
+ "3801": [
+  "never_listed",
+  "absent"
+ ],
+ "8677": [
+  "never_listed",
+  "absent"
+ ],
+ "9903": [
+  "mapped",
+  "exact"
+ ],
+ "16086": [
+  "never_listed",
+  "absent"
+ ],
+ "8857": [
+  "never_listed",
+  "absent"
+ ],
+ "18876": [
+  "mapped",
+  "adj"
+ ],
+ "6836": [
+  "never_listed",
+  "absent"
+ ],
+ "9444": [
+  "mapped",
+  "adj"
+ ],
+ "18069": [
+  "mapped",
+  "adj"
+ ],
+ "4269": [
+  "never_listed",
+  "absent"
+ ],
+ "8000": [
+  "mapped",
+  "exact"
+ ],
+ "5964": [
+  "never_listed",
+  "absent"
+ ],
+ "20314": [
+  "never_listed",
+  "absent"
+ ],
+ "5899": [
+  "never_listed",
+  "absent"
+ ],
+ "11419": [
+  "mapped",
+  "exact"
+ ],
+ "13855": [
+  "mapped",
+  "exact"
+ ],
+ "9891": [
+  "never_listed",
+  "absent"
+ ],
+ "11221": [
+  "mapped",
+  "exact"
+ ],
+ "12220": [
+  "mapped",
+  "exact"
+ ],
+ "18679": [
+  "mapped",
+  "adj"
+ ],
+ "21296": [
+  "never_listed",
+  "absent"
+ ],
+ "21794": [
+  "mapped",
+  "exact"
+ ],
+ "11857": [
+  "never_listed",
+  "absent"
+ ],
+ "6953": [
+  "never_listed",
+  "absent"
+ ],
+ "11840": [
+  "mapped",
+  "adj"
+ ],
+ "17751": [
+  "mapped",
+  "exact"
+ ],
+ "2424": [
+  "never_listed",
+  "absent"
+ ],
+ "7334": [
+  "never_listed",
+  "absent"
+ ],
+ "7950": [
+  "mapped",
+  "exact"
+ ],
+ "11865": [
+  "never_listed",
+  "absent"
+ ],
+ "12999": [
+  "never_listed",
+  "absent"
+ ],
+ "5690": [
+  "mapped",
+  "exact"
+ ],
+ "8536": [
+  "mapped",
+  "exact"
+ ],
+ "11841": [
+  "mapped",
+  "exact"
+ ],
+ "7226": [
+  "mapped",
+  "adj"
+ ],
+ "7501": [
+  "never_listed",
+  "absent"
+ ],
+ "20947": [
+  "mapped",
+  "exact"
+ ],
+ "24478": [
+  "mapped",
+  "exact"
+ ],
+ "9816": [
+  "never_listed",
+  "absent"
+ ],
+ "27075": [
+  "mapped",
+  "adj_alt"
+ ],
+ "12885": [
+  "never_listed",
+  "absent"
+ ],
+ "11092": [
+  "never_listed",
+  "absent"
+ ],
+ "1785": [
+  "never_listed",
+  "absent"
+ ],
+ "20396": [
+  "never_listed",
+  "absent"
+ ],
+ "22861": [
+  "mapped",
+  "exact"
+ ],
+ "23121": [
+  "mapped",
+  "adj"
+ ],
+ "23149": [
+  "mapped",
+  "exact"
+ ],
+ "25028": [
+  "never_listed",
+  "absent"
+ ],
+ "28298": [
+  "mapped",
+  "adj"
+ ],
+ "3773": [
+  "mapped",
+  "adj"
+ ],
+ "7548": [
+  "never_listed",
+  "absent"
+ ],
+ "17799": [
+  "mapped",
+  "exact"
+ ],
+ "23095": [
+  "mapped",
+  "adj"
+ ],
+ "28683": [
+  "never_listed",
+  "absent"
+ ],
+ "13502": [
+  "mapped",
+  "adj"
+ ],
+ "13631": [
+  "never_listed",
+  "absent"
+ ],
+ "14101": [
+  "mapped",
+  "adj_alt"
+ ],
+ "22974": [
+  "mapped",
+  "exact"
+ ],
+ "23246": [
+  "never_listed",
+  "absent"
+ ],
+ "28177": [
+  "mapped",
+  "exact"
+ ],
+ "28194": [
+  "never_listed",
+  "absent"
+ ],
+ "28301": [
+  "never_listed",
+  "absent"
+ ],
+ "28324": [
+  "mapped",
+  "adj_alt"
+ ],
+ "28933": [
+  "never_listed",
+  "absent"
+ ],
+ "29073": [
+  "mapped",
+  "exact"
+ ],
+ "7431": [
+  "mapped",
+  "adj"
+ ],
+ "8425": [
+  "mapped",
+  "adj"
+ ],
+ "22691": [
+  "mapped",
+  "adj"
+ ],
+ "28932": [
+  "never_listed",
+  "absent"
+ ],
+ "9104": [
+  "mapped",
+  "exact"
+ ],
+ "10804": [
+  "mapped",
+  "adj"
+ ],
+ "21159": [
+  "mapped",
+  "exact"
+ ],
+ "28752": [
+  "mapped",
+  "exact"
+ ],
+ "29210": [
+  "mapped",
+  "adj"
+ ],
+ "9481": [
+  "mapped",
+  "exact"
+ ],
+ "23254": [
+  "never_listed",
+  "absent"
+ ],
+ "29587": [
+  "mapped",
+  "exact"
+ ],
+ "30171": [
+  "mapped",
+  "exact"
+ ],
+ "29870": [
+  "never_listed",
+  "absent"
+ ],
+ "28850": [
+  "never_listed",
+  "absent"
+ ],
+ "29743": [
+  "never_listed",
+  "absent"
+ ],
+ "6536": [
+  "never_listed",
+  "absent"
+ ],
+ "27659": [
+  "mapped",
+  "exact"
+ ],
+ "28321": [
+  "mapped",
+  "exact"
+ ],
+ "28782": [
+  "mapped",
+  "adj"
+ ],
+ "29270": [
+  "mapped",
+  "exact"
+ ],
+ "30126": [
+  "never_listed",
+  "absent"
+ ],
+ "32880": [
+  "never_listed",
+  "absent"
+ ],
+ "33788": [
+  "mapped",
+  "exact"
+ ],
+ "29420": [
+  "mapped",
+  "adj"
+ ],
+ "32196": [
+  "mapped",
+  "exact"
+ ],
+ "32452": [
+  "mapped",
+  "exact"
+ ],
+ "34466": [
+  "mapped",
+  "exact"
+ ],
+ "7326": [
+  "never_listed",
+  "absent"
+ ],
+ "28081": [
+  "mapped",
+  "exact"
+ ],
+ "32684": [
+  "mapped",
+  "exact"
+ ],
+ "33597": [
+  "mapped",
+  "exact"
+ ],
+ "35336": [
+  "mapped",
+  "exact"
+ ],
+ "24647": [
+  "mapped",
+  "exact"
+ ],
+ "35347": [
+  "never_listed",
+  "absent"
+ ],
+ "35626": [
+  "mapped",
+  "adj"
+ ],
+ "23635": [
+  "never_listed",
+  "absent"
+ ],
+ "35697": [
+  "never_listed",
+  "absent"
+ ],
+ "3871": [
+  "never_listed",
+  "adj_alt"
+ ],
+ "36119": [
+  "mapped",
+  "adj"
+ ],
+ "33038": [
+  "mapped",
+  "exact"
+ ],
+ "36462": [
+  "never_listed",
+  "absent"
+ ],
+ "35491": [
+  "never_listed",
+  "absent"
+ ],
+ "36507": [
+  "mapped",
+  "exact"
+ ],
+ "33251": [
+  "mapped",
+  "adj"
+ ],
+ "29814": [
+  "mapped",
+  "adj"
+ ],
+ "36341": [
+  "mapped",
+  "exact"
+ ],
+ "36410": [
+  "never_listed",
+  "absent"
+ ],
+ "36645": [
+  "mapped",
+  "adj"
+ ],
+ "38515": [
+  "mapped",
+  "exact"
+ ],
+ "34104": [
+  "mapped",
+  "exact"
+ ],
+ "36922": [
+  "never_listed",
+  "absent"
+ ],
+ "37263": [
+  "never_listed",
+  "absent"
+ ],
+ "35053": [
+  "never_listed",
+  "absent"
+ ],
+ "39064": [
+  "never_listed",
+  "absent"
+ ],
+ "10529": [
+  "never_listed",
+  "absent"
+ ],
+ "26997": [
+  "mapped",
+  "exact"
+ ],
+ "38828": [
+  "mapped",
+  "exact"
+ ],
+ "38892": [
+  "never_listed",
+  "absent"
+ ],
+ "39125": [
+  "unknown",
+  "adj"
+ ],
+ "38417": [
+  "never_listed",
+  "absent"
+ ],
+ "30495": [
+  "mapped",
+  "exact"
+ ],
+ "35509": [
+  "mapped",
+  "exact"
+ ],
+ "35766": [
+  "never_listed",
+  "absent"
+ ],
+ "38590": [
+  "never_listed",
+  "absent"
+ ],
+ "39720": [
+  "unknown",
+  "adj"
+ ],
+ "36532": [
+  "never_listed",
+  "absent"
+ ],
+ "36300": [
+  "never_listed",
+  "absent"
+ ],
+ "38837": [
+  "never_listed",
+  "absent"
+ ]
+}
