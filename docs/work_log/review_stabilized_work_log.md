@@ -55506,3 +55506,11 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
 - The project-wide pattern of plans changed or dropped before completion was visible in this session's findings
   (O-15 to O-20, LP-10, OV-02, OV-03) but was not reported as one problem until the owner raised it. Logged as O-21,
   found by the owner. Count 21 (agent unprompted 0; owner-requested work 15; owner 6).
+
+## 2026-10-31T16:56:05Z Claude (Cowork): searched the repo for the project's goal, money and finish line (owner: ask only what the repo cannot answer)
+- Found: objective in AGENTS.md POP (2026-10-30); infrastructure $240/yr and $1,000 capital arithmetic, a proposed
+  finish line (BTC+ETH 28-day trend only, existing weekly paper test, decide after six months against a fixed
+  BTC/ETH/cash mix; no new machinery; no real money) in strategy_decision_report_20261011.md, not recorded as approved;
+  other pre-registered end dates: Coinbase USD confirmation 2026-10-10 to 2027-04-08 (checkpoint 2027-01-08); CMC
+  trending first analysis 2027-02-15. Owner decision I01 (2026-10-11): restore the Phase 1 copilot.
+- O-22 registered (advice and questions given without this search; copilot advice contradicted I01).
