@@ -55291,3 +55291,70 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
 - `docs/checkpoints/commit_plan_20261031/`: file lists A-F (A 103, B 260, C 4,979, D 192 code, E 9 large data, F 4),
   backup command for the large data, commit commands. Earlier git bundles (2026-10-18/19) are on the same disk.
 - Waiting for the owner's confirmation that the repository is private.
+
+## 2026-10-31T08:55:08Z - Claude Cowork: repository confirmed private; four local commits on backup/2026-10-31 (not pushed)
+- Owner made the repository private; unauthenticated GitHub web and API requests both return 404 (SHOWN).
+- Owner granted deletion in the repository folder for git lock files only. New branch backup/2026-10-31 from
+  389020130: 020beb69f (A, 111 files incl. .gitignore with the 9 large-data paths), 0265746ad (B, 257), 4decb32e4
+  (C, 4,979), b059f1efa (F, 4). Commit trailers name Claude. Checks: no large data or secret file tracked; no lock files;
+  remaining working-tree changes equal group D exactly (195, incl. tracker v2 code moved from B for Codex).
+- Not pushed (owner review first; push needs the Mac's credentials). This entry and PROJECT_STATE.md edits after the
+  commits are uncommitted. Large-data backup still the owner's step.
+
+## 2026-10-31T09:01:47Z - Claude Cowork: owner decisions (paper simulation, whole-bot audit); spec; task card research item 1
+- Owner: live paper simulation on the Hetzner server, 3 default strategies x BTC/ETH/SOL (9 single-coin accounts), $1,000
+  each, 0.50% fees; and audit the whole bot for flaws. Spec for Codex: docs/research/paper_simulation_spec_20261031/
+  (engineering item 2; items 2-10 renumbered to 3-11 and cross-references updated in PROJECT_STATE.md).
+- Findings already made while scoping (SHOWN): paper engine fills market orders at the mid (paper_engine.py 396-401);
+  runtime config paper_trading.fee_bps 7.5 and slippage 5 (whitelisted read); fills priced from the tick snapshot or a
+  public ticker fallback.
+- Task card (research item 1, whole-bot audit). Decision it serves: whether the simulation's data, and later the bot,
+  can be trusted. Done when: market data, the three default strategies' signal code, the paper engine, restart and
+  recovery, and monitoring each have an explicit assessment with owner, evidence, severity and disposition; report
+  before the simulation starts. Budget: three sessions for the simulation path. Stop rule: stop when those checks are
+  done. Searches run: capital_protection_audit_20261031, exit_parity_audit_20261031, integrity_audit_20261015,
+  plan_multi_symbol_paper_campaigns.py and the Hetzner paper tooling, the July audit chat summary.
+
+## 2026-10-31T09:03:09Z - Claude Cowork: whole-bot audit session 1 (paper engine, paper runner)
+- docs/research/bot_audit_20261031/: BA-01 market orders fill at the mid (probe: +$44.75 booked vs +$39.27 at quoted
+  bid/ask); BA-02 paper fees 7.5 bps in the runtime config; BA-03 accounting correct by its own rule (to the cent);
+  BA-04 every paper order refused unless the status snapshot is fresh (publisher must run); BA-05 refused/rejected
+  intents are final and not re-sent (missed exits stay missed); BA-06 positions/cash per state dir and symbol, not per
+  strategy; BA-07 whole immediate fills. Probe P-3 saved. Simulation spec updated (items 6-8).
+- Next sessions: market data and strategy signal code; restart/recovery and monitoring.
+
+## 2026-10-31T09:08:53Z Claude (Cowork): paper simulation Group B added (owner: "do what's best")
+- Spec `docs/research/paper_simulation_spec_20261031/README.md` (sha256 21bdea06...): new section "Group B: coins picked
+  by the bot's market ranker (pre-registered 2026-10-31)". 25 coins of `universe` (tier1, tier2, watchlist) as Coinbase
+  USD pairs; weekly Monday 00:05 UTC ranking on 200 completed hourly candles; top 3 at or above the file's minimum 38,
+  empty slot stays in cash; same 3 strategies, $1,000, 0.50% fees; rotation exit recorded; ranker code frozen at
+  market_ranker d6fc1860, signal_library 64405797, generator f3b6b238; separate weekly job, ranker never imported by the
+  runner; judged after >=26 weeks (B minus A per strategy, paired block bootstrap, Holm across 3; picks vs universe
+  average). Staged after Group A for the 4 GB server.
+- PROJECT_STATE.md (sha256 3ac5a425...): decided line for 2026-10-31 simulation, engineering item 2, O-12 disposition.
+- Checked, not a finding: `standard_scan_tiers` is a 2-item list (tier1, coinbase_pairs); my first read printed its length.
+- Correction: the entry above was first appended by mistake to a new file `docs/review_stabilized_work_log.md` (wrong
+  path; the log is `docs/work_log/`); its text was moved here unchanged and the stray file removed.
+
+## 2026-10-31T09:15:03Z Claude (Cowork): whole-bot audit session 2 (market data, strategy signal code)
+- `docs/research/bot_audit_20261031/README.md` (sha256 3b7a019b...): BA-08 to BA-15. New: BA-08 volume filter reads the
+  forming hourly candle (share of signals passing at 25/50/75/90% of the hour, probe P-4); BA-10 a failed candle fetch
+  skips the whole decision including exits; BA-11 about one 300-candle request per second per process (Coinbase public
+  limit commonly cited as 10/s per IP, UNVERIFIED); BA-12 unbounded `/tmp/cbp_debug.txt` (runner line 1208); BA-13 no
+  candle freshness or gap check. Known, now counted: BA-09 entry filters remove exit signals (probe P-5: EMA cross keeps
+  128/360, mean reversion 67/1,160 hours, breakout 680/727). Notes: BA-14 60-candle window seeding; BA-15 no look-ahead.
+- Probes saved: `probes/probe_forming_volume.py`, `forming_volume.json`, `probe_filtered_sells.py`, `filtered_sells.json`;
+  run on `research/multisymbol_baseline_v1/public_archive.sqlite` (sha256 e74aa378..., read-only), OKX hourly.
+- Spec (sha256 38396a1c...): `loop_interval_sec` 15; known flaws 9-13; recording to the second and the filter reason.
+- PROJECT_STATE.md research item 1 progress line.
+
+## 2026-10-31T12:40:19Z Claude (Cowork): push requested by the owner ("go ahead and push it")
+- Pre-push check of origin/master..backup/2026-10-31 (8 commits, 9,844 files, 316 MiB before compression): largest file
+  25.7 MB (`research/hourly_leader_raw_20261012.json`), under GitHub's 100 MB limit; no credential patterns in the new files.
+- This session cannot push: the repository is private and the session's GitHub connection has no access to it; the
+  shell on the laptop has no GitHub login (and credentials are off limits). The owner pushes from the Mac.
+- Committing on `backup/2026-10-31` the governance and research files changed since b059f1efa (PROJECT_STATE.md, this
+  log, `bot_audit_20261031/`, `paper_simulation_spec_20261031/`), so one push carries everything. Not included:
+  Codex's code (group D, including the tracker v2 files), awaiting Codex.
+- Extra offline copy: `cryptkeep_data_archive/crypto-bot-pro_backup_2026-10-31_range.bundle` (46.7 MB; origin/master..b059f1efa;
+  restoring needs origin/master adde462f).

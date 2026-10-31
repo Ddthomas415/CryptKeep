@@ -1,0 +1,79 @@
+{
+ "fractions": [
+  0.25,
+  0.5,
+  0.75,
+  0.9,
+  1.0
+ ],
+ "window": 60,
+ "source": "okx 1h candles in the archive",
+ "by": {
+  "ema_cross_default": {
+   "buy": {
+    "completed_bar_signals": 125,
+    "same_signal_at_fraction": {
+     "0.25": 22,
+     "0.5": 64,
+     "0.75": 100,
+     "0.9": 112,
+     "1.0": 125
+    }
+   },
+   "sell": {
+    "completed_bar_signals": 128,
+    "same_signal_at_fraction": {
+     "0.25": 18,
+     "0.5": 60,
+     "0.75": 101,
+     "0.9": 117,
+     "1.0": 128
+    }
+   }
+  },
+  "mean_reversion_default": {
+   "buy": {
+    "completed_bar_signals": 61,
+    "same_signal_at_fraction": {
+     "0.25": 4,
+     "0.5": 11,
+     "0.75": 40,
+     "0.9": 55,
+     "1.0": 61
+    }
+   },
+   "sell": {
+    "completed_bar_signals": 67,
+    "same_signal_at_fraction": {
+     "0.25": 1,
+     "0.5": 9,
+     "0.75": 36,
+     "0.9": 55,
+     "1.0": 67
+    }
+   }
+  },
+  "breakout_default": {
+   "buy": {
+    "completed_bar_signals": 701,
+    "same_signal_at_fraction": {
+     "0.25": 161,
+     "0.5": 472,
+     "0.75": 621,
+     "0.9": 676,
+     "1.0": 701
+    }
+   },
+   "sell": {
+    "completed_bar_signals": 680,
+    "same_signal_at_fraction": {
+     "0.25": 163,
+     "0.5": 456,
+     "0.75": 610,
+     "0.9": 660,
+     "1.0": 680
+    }
+   }
+  }
+ }
+}

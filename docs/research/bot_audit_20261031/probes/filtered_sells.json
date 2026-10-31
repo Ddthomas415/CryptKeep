@@ -1,0 +1,49 @@
+{
+ "ema_cross_default": {
+  "buy": {
+   "unfiltered": 355,
+   "kept_by_filters": 125
+  },
+  "sell": {
+   "unfiltered": 360,
+   "kept_by_filters": 128
+  },
+  "sell_removed_reasons": {
+   "low_volume_filter": 155,
+   "cross_gap_filter": 50,
+   "low_volatility_filter": 5,
+   "chop_filter": 22
+  }
+ },
+ "mean_reversion_default": {
+  "buy": {
+   "unfiltered": 1045,
+   "kept_by_filters": 61
+  },
+  "sell": {
+   "unfiltered": 1160,
+   "kept_by_filters": 67
+  },
+  "sell_removed_reasons": {
+   "low_volume_filter": 466,
+   "reversal_not_confirmed": 376,
+   "one_way_trend_filter": 27,
+   "high_volatility_filter": 156,
+   "reversion_invalidation": 68
+  }
+ },
+ "breakout_default": {
+  "buy": {
+   "unfiltered": 762,
+   "kept_by_filters": 701
+  },
+  "sell": {
+   "unfiltered": 727,
+   "kept_by_filters": 680
+  },
+  "sell_removed_reasons": {
+   "low_volume_filter": 45,
+   "low_volatility_filter": 2
+  }
+ }
+}
