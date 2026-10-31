@@ -5,6 +5,7 @@ import os
 import re
 import urllib.error
 import urllib.request
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -363,11 +364,88 @@ def _asset_priority(signal: str) -> int:
     return order.get(normalized, 3)
 
 
+def _explain_archived_headline_context(payload: dict[str, Any], asset_symbol: str) -> str:
+    """Recognize a cited fallback passage, not its truth or approved provenance."""
+    status = payload.get("assistant_status")
+    query = payload.get("question_evidence")
+    archive = payload.get("archive_view")
+    evidence = payload.get("evidence")
+    if (payload.get("asset") != asset_symbol or payload.get("execution_disabled") is not True
+            or not isinstance(status, dict) or status.get("provider") != "fallback"
+            or status.get("fallback") is not True or status.get("model") is not None
+            or not isinstance(query, dict) or query.get("method") != "english_keyword_full_text"
+            or query.get("status") != "KEYWORD_MATCHES"
+            or query.get("semantic_relevance_verified") is not False
+            or query.get("causal_relationship_verified") is not False
+            or not isinstance(archive, dict) or archive.get("status") != "ARTICLE_BODY_V1_PRIMARY"
+            or not isinstance(evidence, list) or not 1 <= len(evidence) <= 6):
+        return ""
+    keywords = [row for row in evidence if isinstance(row, dict) and row.get("type") == "keyword_match"]
+    count = query.get("match_count")
+    if (type(count) is not int or not 1 <= count <= 20
+            or len(keywords) != min(3, count) or evidence[:len(keywords)] != keywords):
+        return ""
+    titles, seen = [], set()
+    for row in keywords:
+        ident, title = row.get("document_id"), row.get("summary")
+        if (type(ident) is not int or ident <= 0 or ident in seen
+                or row.get("id") != f"keyword_{ident}"
+                or row.get("retrieval_method") != "english_keyword_full_text"
+                or row.get("semantic_relevance_verified") is not False
+                or not isinstance(title, str) or not title.strip() or len(title) > 4096
+                or any(ord(char) < 32 for char in title)
+                or any(not isinstance(row.get(key), str) or not row[key].strip() for key in ("source", "url"))):
+            return ""
+        tokens = set(re.findall(r"[^\W_]+", title.upper()))
+        if tokens & ({"BTC", "ETH", "SOL"} - {asset_symbol}) and asset_symbol not in tokens:
+            return ""
+        seen.add(ident)
+        titles.append(title.strip())
+    return (" Question-matched archived headlines (keyword overlap only): "
+            + "; ".join(titles)
+            + ". These matches do not establish a cause of the price move.")
+
+
 def _explain_mentions_foreign_asset(payload: dict[str, Any], asset_symbol: str) -> bool:
-    text = " ".join(
-        str(payload.get(key) or "")
-        for key in ("current_cause", "past_precedent", "future_catalyst")
-    ).upper()
+    if "asset" in payload and payload["asset"] != asset_symbol:
+        return True
+    current = str(payload.get("current_cause") or "")
+    cited_fields = {field: str(payload.get(field) or "")
+                    for field in ("past_precedent", "future_catalyst")}
+    context = _explain_archived_headline_context(payload, asset_symbol)
+    if context and current.count(context) == 1:
+        # Exclude the labelled passage and exact, citation-bound reuse of its
+        # titles, never added narrative or unrelated precedent/catalyst text.
+        start = current.index(context)
+        current = current[:start] + " " + current[start + len(context):]
+        evidence = payload["evidence"]
+        keywords = [row for row in evidence
+                    if isinstance(row, dict) and row.get("type") == "keyword_match"]
+        binding_keys = ("document_id", "summary", "source", "url", "timestamp")
+        for field, kind in (("past_precedent", "past"), ("future_catalyst", "future")):
+            citations = [row for row in evidence
+                         if isinstance(row, dict) and row.get("type") == kind]
+            if len(citations) != 1:
+                continue
+            citation = citations[0]
+            if (citation.get("id") != f"{kind}_1"
+                    or type(citation.get("document_id")) is not int
+                    or cited_fields[field] != citation.get("summary")
+                    or sum(isinstance(row, dict) and row.get("id") == citation["id"]
+                           for row in evidence) != 1):
+                continue
+            timestamp = citation.get("timestamp")
+            if type(timestamp) is not str or not 1 <= len(timestamp) <= 128:
+                continue
+            try:
+                if datetime.fromisoformat(timestamp.replace("Z", "+00:00")).tzinfo is None:
+                    continue
+            except ValueError:
+                continue
+            if any(all(citation.get(key) == row.get(key) for key in binding_keys)
+                   for row in keywords):
+                cited_fields[field] = ""
+    text = " ".join((current, *cited_fields.values())).upper()
     known_assets = {"BTC", "ETH", "SOL"}
     # Match whole alphanumeric tokens; punctuation/underscores can separate market pairs.
     tokens = set(re.findall(r"[^\W_]+", text))

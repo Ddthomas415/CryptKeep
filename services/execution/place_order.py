@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import logging
 import math
 import json
@@ -100,6 +101,12 @@ def _coinbase_row_trade_spendable(row: dict[str, Any]) -> bool:
 
 
 def _coinbase_spendable_from_info_rows(balance: dict[str, Any], *, asset: str, portfolio_uuid: str | None) -> tuple[float | None, str]:
+    if not portfolio_uuid:
+        return None, "coinbase.portfolio_scope_unknown"
+    from services.execution.coinbase_v3_accounts import available_by_currency
+    native_v3 = available_by_currency(balance, portfolio_uuid)
+    if native_v3 is not None:
+        return native_v3.get(str(asset).upper(), 0.0), "coinbase.v3_available"
     rows = (((balance or {}).get("info") or {}).get("data") or [])
     if not isinstance(rows, list):
         return None, "coinbase.info_rows_missing"
@@ -110,9 +117,11 @@ def _coinbase_spendable_from_info_rows(balance: dict[str, Any], *, asset: str, p
         if not isinstance(row, dict):
             continue
         row_pid = str(row.get("portfolio_id") or row.get("portfolio_uuid") or "").strip()
-        if portfolio_uuid and row_pid and row_pid != str(portfolio_uuid):
-            continue
         if _coinbase_row_currency_code(row) != str(asset).upper():
+            continue
+        if not row_pid:
+            return None, "coinbase.info_rows_scope_unknown"
+        if row_pid != str(portfolio_uuid):
             continue
         matched.append(row)
         if not _coinbase_row_trade_spendable(row):
@@ -143,6 +152,8 @@ def _extract_spendable_balance(ex: Any, balance: dict[str, Any], asset: str) -> 
             if free is None:
                 return float(row_amount), source
             return float(min(float(free), float(row_amount))), f"{source}+free_min"
+        # An aggregate cannot establish which portfolio owns the spendable funds.
+        return 0.0, source
 
     if free is not None:
         return float(free), "free"
@@ -679,7 +690,7 @@ def _enforce_fail_closed(
 
     try:
         from services.markets.rules import validate as mr_validate  # type: ignore
-        vres = mr_validate(exec_db, venue, symbol, qty=amount_f, notional=notional, ttl_s=ttl_s)
+        vres = mr_validate(exec_db, venue, symbol, qty=amount_f, notional=notional, ttl_s=ttl_s, order_type=order_type)
         ok = bool(getattr(vres, "ok", False))
         if not ok:
             code = str(getattr(vres, "code", "MARKET_RULES_FAIL"))
@@ -689,6 +700,52 @@ def _enforce_fail_closed(
         raise RuntimeError(f"CBP_ORDER_BLOCKED:market_rules_invalid:{type(e).__name__}:{e}")
 
     return exec_db, notional, amount_f, price_f
+
+def _enforce_balance_preflight_sync(ex: Any, *, symbol: str, side: str,
+                                    amount: Any, price: Any | None, order_type: str) -> None:
+    exchange_id = str(getattr(ex, "id", "") or getattr(ex, "exchange_id", "") or "").lower().strip()
+    if exchange_id != "coinbase":
+        enforce_coinbase_quote_account_available(ex, symbol)
+        _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount,
+                              price=price, order_type=order_type)
+        return
+
+    def read(probe, reason):
+        try:
+            value = probe()
+        except Exception as error:
+            raise RuntimeError(f"CBP_ORDER_BLOCKED:{reason}:{type(error).__name__}") from None
+        if inspect.isawaitable(value):
+            if inspect.iscoroutine(value):
+                value.close()
+            raise RuntimeError(f"CBP_ORDER_BLOCKED:{reason}:async_result_requires_async_entry")
+        return value
+
+    permissions = read(lambda: ex.v3PrivateGetBrokerageKeyPermissions(), "portfolio_uuid_unavailable")
+    if (not isinstance(permissions, dict)
+            or not isinstance(permissions.get("portfolio_uuid"), str)
+            or not permissions["portfolio_uuid"].strip()):
+        raise RuntimeError("CBP_ORDER_BLOCKED:portfolio_uuid_unavailable")
+    from services.execution.coinbase_balance_observation import read_balance_sync
+    balance = read(lambda: read_balance_sync(ex), "funding_probe_failed")
+    if not isinstance(balance, dict):
+        raise RuntimeError("CBP_ORDER_BLOCKED:funding_probe_failed:invalid_balance")
+
+    # Replay one local observation to both guards, as the async entry already does.
+    class ObservedPreflight:
+        id = exchange_id
+
+        def fetch_balance(self):
+            return balance
+
+        def v3PrivateGetBrokerageKeyPermissions(self):
+            return permissions
+
+    observed = ObservedPreflight()
+    enforce_coinbase_quote_account_available(observed, symbol)
+    _enforce_funding_gate(observed, symbol=symbol, side=side, amount=amount,
+                          price=price, order_type=order_type)
+
 
 def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
     symbol, side, amount, price, params, otype = _extract_create_order_args(args, kwargs)
@@ -702,8 +759,8 @@ def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
         order_type=otype,
     )
 
-    enforce_coinbase_quote_account_available(ex, symbol)
-    _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount_n, price=price_n, order_type=otype)
+    _enforce_balance_preflight_sync(ex, symbol=symbol, side=side, amount=amount_n,
+                                   price=price_n, order_type=otype)
 
     with _ORDER_SEMAPHORE:
         o = ex.create_order(symbol, otype, side, amount_n, price_n, params)
@@ -718,6 +775,47 @@ def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
 
     return o
 
+async def _enforce_balance_preflight_async(ex: Any, *, symbol: str, side: str,
+                                         amount: Any, price: Any | None, order_type: str) -> None:
+    async def read(method):
+        value = method()
+        return await value if inspect.isawaitable(value) else value
+
+    exchange_id = str(getattr(ex, "id", "") or getattr(ex, "exchange_id", "") or "").lower().strip()
+    permissions = None
+    if exchange_id == "coinbase":
+        try:
+            permissions = await read(ex.v3PrivateGetBrokerageKeyPermissions)
+        except Exception:
+            raise RuntimeError("CBP_ORDER_BLOCKED:portfolio_uuid_unavailable") from None
+        if (not isinstance(permissions, dict)
+                or not isinstance(permissions.get("portfolio_uuid"), str)
+                or not permissions["portfolio_uuid"].strip()):
+            raise RuntimeError("CBP_ORDER_BLOCKED:portfolio_uuid_unavailable")
+    try:
+        from services.execution.coinbase_balance_observation import read_balance_async
+        balance = await read_balance_async(ex)
+    except Exception as error:
+        raise RuntimeError(f"CBP_ORDER_BLOCKED:funding_probe_failed:{type(error).__name__}") from None
+    if not isinstance(balance, dict):
+        raise RuntimeError("CBP_ORDER_BLOCKED:funding_probe_failed:invalid_balance")
+
+    # These existing synchronous validators consume one awaited observation.
+    class ObservedPreflight:
+        id = exchange_id
+
+        def fetch_balance(self):
+            return balance
+
+        def v3PrivateGetBrokerageKeyPermissions(self):
+            return permissions
+
+    observed = ObservedPreflight()
+    enforce_coinbase_quote_account_available(observed, symbol)
+    _enforce_funding_gate(observed, symbol=symbol, side=side, amount=amount,
+                          price=price, order_type=order_type)
+
+
 async def place_order_async(ex: Any, *args: Any, **kwargs: Any) -> Any:
     symbol, side, amount, price, params, otype = _extract_create_order_args(args, kwargs)
     exec_db, notional, amount_n, price_n = _enforce_fail_closed(
@@ -729,8 +827,8 @@ async def place_order_async(ex: Any, *args: Any, **kwargs: Any) -> Any:
         params=params,
         order_type=otype,
     )
-    enforce_coinbase_quote_account_available(ex, symbol)
-    _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount_n, price=price_n, order_type=otype)
+    await _enforce_balance_preflight_async(ex, symbol=symbol, side=side,
+        amount=amount_n, price=price_n, order_type=otype)
     async with _ASYNC_ORDER_SEMAPHORE:
         o = await ex.create_order(symbol, otype, side, amount_n, price_n, params)
 

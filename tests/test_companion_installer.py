@@ -593,7 +593,11 @@ def test_inventory_keeps_null_and_present_healthchecks_fingerprinted(tmp_path, h
     assert result[0]["metadata"] != adapter.preservation_digest(changed)
 
 
-def test_source_only_build_uses_minimal_context_and_no_run(tmp_path):
+@pytest.mark.parametrize("engine", [
+    {"version": "29.8.2", "commit": "8af9fe3"},
+    {"version": "29.9.1", "commit": "b26fb77"},
+])
+def test_source_only_build_uses_minimal_context_and_no_run(tmp_path, engine):
     plan = load()
     name = install.APPS[0]
     for source in plan.applications[0]["sources"]:
@@ -607,7 +611,7 @@ def test_source_only_build_uses_minimal_context_and_no_run(tmp_path):
     def command(args, **kw):
         calls.append((args, kw))
         if args[0] == "version":
-            return b'{"version":"29.8.2","commit":"8af9fe3"}'
+            return json.dumps(engine).encode()
         if args[:2] == ("image", "inspect"):
             layers = ["sha256:" + "0" * 64]
             if args[-1] == image:
@@ -630,7 +634,13 @@ def test_source_only_build_uses_minimal_context_and_no_run(tmp_path):
 
 @pytest.mark.parametrize("reply", [b'{}', b'null', b'not-json',
     b'{"version":"29.8.3","commit":"8af9fe3"}',
-    b'{"version":"29.8.2","commit":"different"}'])
+    b'{"version":"29.8.2","commit":"different"}',
+    b'{"version":"29.9.1","commit":"8af9fe3"}',
+    b'{"version":"29.8.2","commit":"b26fb77"}',
+    b'{"version":"29.9.2","commit":"b26fb77"}',
+    b'{"version":"29.9.1-dev","commit":"b26fb77"}',
+    b'{"version":"29.9.1","commit":"b26fb77","extra":true}',
+    b'{"version":"29.9.1"}', b'[]', b'"29.9.1"'])
 def test_unreviewed_engine_refused_before_private_prepare_or_build(tmp_path, reply):
     backend = docker.DockerInstallBackend(load(), tmp_path)
     calls = []

@@ -97,3 +97,29 @@ Every record carries `recorded_utc`. A non-blocking lock refuses concurrent runs
 - Tests added for the inclusive band boundary (0.10 is traded, 0.0999 is skipped) and for no zero-unit entries.
 - The docstring now names rule_band10.
 - **Wording clarification:** the band is checked at the execution open, not at the decision close. "Trades fully to target" can be under-filled by the cash-scale clip when the untouched asset has drifted up; that happened 11 times since 2017. Both behaviours match the E9 simulator.
+
+## Added 2026-10-20: verified TLS fix after the failed first scheduled run (Claude Cowork, operator-approved; not committed)
+- **What failed:** the first scheduled run (2026-10-19 00:47 UTC) left only `state/.lock` (mtime 00:49:55Z). An external audit reports the command ended with `CERTIFICATE_VERIFY_FAILED: unable to get local issuer certificate` (CLAIMED; the run log is in Codex).
+- **Likely cause (code and config SHOWN; cause not proven):** `fetch()` opened HTTPS with Python's default trust store. The schedule runs `./.venv/bin/python`, and `.venv` is built on python.org Python 3.12.10 (`.venv/pyvenv.cfg`). On 2026-10-11 Codex found that this runtime has no default CA paths and fixed the CMC logger with an explicit certifi context (`../cmc_trending_log/cmc_trending_logger_v3.py`). The lock is opened before the download, so a failed download leaves exactly the lone `.lock`.
+- **Change:** new `tls_context()` returns `ssl.create_default_context(cafile=certifi.where())`; `fetch()` builds it once and passes it to every request.
+  - Verification stays on: CERT_REQUIRED and hostname checking. There is no unverified fallback.
+  - certifi 2026.2.25 is already pinned (`requirements-pinned.txt`) and installed in `.venv` (137 root certificates). Nothing new is installed.
+  - Trust is now certifi-only: `SSL_CERT_FILE`, `SSL_CERT_DIR` and OpenSSL default paths are ignored (reviewer, SHOWN).
+  - Rules, ledgers, retries, lock, timing and URLs are unchanged. The reviewer showed byte-identical ledgers and `state.json` on synthetic candles. v1 and its history are untouched.
+- **Tests: 30 passed** on Python 3.13 and 3.12, offline (27 existing plus 3 new):
+  - `test_fetch_uses_verified_tls_with_certifi_bundle`: one context, made with exactly `cafile=certifi.where()`; CERT_REQUIRED; hostname check on; CA certificates loaded; the same context and a 30 s timeout on every request; HTTPS Coinbase URLs for BTC-USD and ETH-USD.
+  - `test_certificate_failure_writes_nothing_and_never_falls_back_to_unverified`: replays the 2026-10-19 00:47 UTC run with every request failing certificate verification. The run raises the error, all 4 attempts use a verified context, and the state folder ends with only `.lock`.
+  - `test_no_unverified_tls_path_in_source`: checks only for the literal strings `CERT_NONE`, `_create_unverified_context`, a disabled hostname check and a `verify_mode` assignment, plus exactly one `urlopen(` passing `context=ctx`.
+  - Mutations caught: dropping the context, default roots instead of certifi, disabling verification after creation, an unverified fallback on retry, and a fresh default context per request. The original file fails all 3 new tests.
+  - Not caught (reviewer's mutations; none is in the change): a bypass switched on by an environment variable, a silent fallback when certifi is missing, and broader trust.
+- **Review:** ACCEPTED_WITH_RISK, independent reviewer, `docs/review_artifacts/claude_cowork_20261020/tracker_v2_tls_review/REVIEW_REPORT.md` (sha256 942e3af6...). The code change is correct and safe. Major residual risk: the cause is unproven, because a missing-roots runtime and a TLS-intercepting proxy produce the same error. If it is a proxy, the next run fails the same loud way (only `.lock`, no ledger damage).
+- **Still UNVERIFIED:** that the fix works in the scheduled environment. Checks on the Mac, in order:
+  1. Offline, in `.venv`: `./.venv/bin/python -c "import ssl,certifi; print(ssl.get_default_verify_paths()); print(ssl.create_default_context().cert_store_stats()); print(ssl.create_default_context(cafile=certifi.where()).cert_store_stats())"`. Missing roots predicts `x509_ca` 0, then 137.
+  2. Look for a proxy or `SSL_CERT_FILE` in the scheduler's environment.
+  3. Run `./.venv/bin/python -B -m pytest docs/research/paper_btc_eth_trend_v2_20261012/test_tracker.py`; expect 30 passed.
+  4. Definitive proof: the next scheduled run (Mon 2026-10-26 00:47 UTC) or a manual run writing ledgers. Records about past days carry `reconstructed: true` when recorded more than 24 h after the close, by design.
+- **Files:** `tracker.py` 71675322... → 572118ad...; `test_tracker.py` 3ac2cef1... → 2cebe133.... Not committed.
+- **2026-10-20, operator ran the Mac checks (output pasted to Claude Cowork):**
+  - `./.venv/bin/python` default context `{'x509': 0, 'crl': 0, 'x509_ca': 0}`; certifi context `{'x509': 137, 'crl': 0, 'x509_ca': 137}`. SHOWN: the scheduled interpreter has no default CA roots, which is the cause the fix addresses.
+  - `./.venv/bin/python -B -m pytest docs/research/paper_btc_eth_trend_v2_20261012/test_tracker.py`: **30 passed** (darwin, Python 3.12.10, pytest 9.1.1).
+  - Still open: the scheduler's own environment (proxy or `SSL_CERT_FILE`) was not inspected, and the original error text remains CLAIMED. Final proof is still a run that writes ledgers.

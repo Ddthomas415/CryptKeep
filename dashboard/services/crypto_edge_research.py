@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from services.analytics.crypto_edges import funding_display
 
 def _parse_capture_ts(value: Any) -> datetime | None:
     raw = str(value or "").strip()
@@ -94,7 +95,7 @@ def _build_structural_summary(report: dict[str, Any], *, origin_label: str) -> s
     dislocations = dict(report.get("dislocations") or {})
     top_symbol = str(((dislocations.get("top_dislocation") or {}).get("symbol") or "-"))
     return (
-        f"{origin_label} snapshot shows funding bias {str(funding.get('dominant_bias') or 'flat')}, "
+        f"{origin_label} snapshot shows funding bias {funding_display(funding)['bias']}, "
         f"average basis {float(basis.get('avg_basis_bps') or 0.0):.2f} bps, "
         f"{int(dislocations.get('positive_count') or 0)} positive venue dislocations, "
         f"top symbol {top_symbol}, freshness {str(report.get('freshness_summary') or 'Unknown')}."
@@ -223,15 +224,13 @@ def _build_trend_rows(
     rows: list[dict[str, Any]] = []
 
     latest_funding = funding_history[0] if funding_history else None
-    previous_funding = funding_history[1] if len(funding_history) > 1 else None
-    carry_delta = _trend_value(latest_funding, previous_funding, "annualized_carry_pct")
     if latest_funding:
         rows.append(
             {
                 "theme": "funding",
-                "current_state": str(latest_funding.get("dominant_bias") or "flat").replace("_", " ").title(),
-                "latest": f"{float(latest_funding.get('annualized_carry_pct') or 0.0):.2f}%",
-                "vs_prior": f"{carry_delta:+.2f} pts" if carry_delta is not None else "No prior snapshot",
+                "current_state": funding_display(latest_funding)["bias"],
+                "latest": funding_display(latest_funding)["carry"],
+                "vs_prior": "Unverified comparison",
                 "capture_ts": str(latest_funding.get("capture_ts") or "-"),
             }
         )

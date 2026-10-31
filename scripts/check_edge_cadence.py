@@ -47,9 +47,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--store-path", default=None, help="override crypto-edge SQLite store path")
     parser.add_argument("--json", action="store_true", help="print JSON result")
     parser.add_argument("--alert", action="store_true", help="dispatch an alert on stale/missing cadence")
+    parser.add_argument("--paired-funding-source", help="check validated raw pairs from this exact source instead of legacy funding")
+    parser.add_argument("--paired-funding-inst-id", action="append", help="required native OKX instrument; repeat for each")
+    parser.add_argument("--paired-funding-scan-limit", type=int, help="maximum recent source rows to inspect (1-1000, default100)")
     args = parser.parse_args(argv)
 
-    result = check_edge_cadence(store_path=args.store_path)
+    paired = args.paired_funding_source is not None or args.paired_funding_inst_id is not None
+    if args.paired_funding_scan_limit is not None and not paired:
+        parser.error("paired scan limit requires an explicit source and native identities")
+    if paired:
+        result = check_edge_cadence(store_path=args.store_path,
+                                   paired_funding_source=args.paired_funding_source,
+                                   paired_funding_inst_ids=args.paired_funding_inst_id,
+                                   paired_funding_scan_limit=(100 if args.paired_funding_scan_limit is None
+                                                              else args.paired_funding_scan_limit))
+    else:
+        result = check_edge_cadence(store_path=args.store_path)
     if args.json:
         print(json.dumps(result, indent=2, sort_keys=True))
     elif result["ok"]:

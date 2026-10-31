@@ -28,11 +28,16 @@ def make_exchange(
     enable_rate_limit: bool = True,
     sandbox: bool = False,
     require_sandbox: bool = False,
+    balance_paging_policy: dict | None = None,
 ) -> Any:
     import ccxt  # type: ignore
 
     ex_id = resolve_exchange_id(exchange_id)
     require_binance_allowed(ex_id)
+
+    if balance_paging_policy is not None:
+        from services.execution.coinbase_balance_observation import validate_balance_paging_policy
+        balance_paging_policy = validate_balance_paging_policy(balance_paging_policy, venue=ex_id)
 
     klass = getattr(ccxt, ex_id)
 
@@ -41,6 +46,8 @@ def make_exchange(
         "apiKey": creds.get("apiKey"),
         "secret": creds.get("secret"),
     }
+    if balance_paging_policy is not None:
+        cfg["options"] = {"cbp_balance_paging": balance_paging_policy}
 
     # Some exchanges use a passphrase; CCXT calls it "password".
     password = creds.get("password") or creds.get("passphrase")

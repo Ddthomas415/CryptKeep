@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from services.analytics.funding_observations import finite_number
+
 
 DEFAULT_WEIGHTS = {
     "momentum_mult": 2.0,
@@ -60,6 +62,23 @@ def build_ranker_config(cfg: dict[str, Any] | None = None) -> dict[str, float]:
     return base
 
 
+def funding_input(row: dict[str, Any] | None) -> dict[str, Any]:
+    """Keep explicitly unqualified observations out of the old per-print model.
+
+    Unmarked numeric fixtures retain the historical model, not validated
+    provider eligibility. No declaration alone qualifies a live observation.
+    """
+    if not isinstance(row, dict) or not row:
+        return {"rate_pct": None, "state": "missing", "reason": "funding_missing"}
+    if any(key in row for key in ("normalization_eligible", "normalization", "observation")):
+        reason = row.get("normalization_reason")
+        return {"rate_pct": None, "state": "unverified",
+                "reason": reason if isinstance(reason, str) and reason else "funding_basis_unverified"}
+    rate = finite_number(row.get("rate_pct"))
+    return {"rate_pct": rate, "state": "legacy_unverified" if rate is not None else "invalid",
+            "reason": "legacy_per_print_model_only" if rate is not None else "funding_rate_invalid"}
+
+
 def score_row(
     *,
     row: dict[str, Any],
@@ -77,7 +96,8 @@ def score_row(
     volatility_pct = _safe_float(row.get("volatility_pct"), 0.0)
     rsi = _safe_float(row.get("rsi"), 50.0)
 
-    funding_rate = _safe_float((funding_row or {}).get("rate_pct"), 0.0)
+    funding = funding_input(funding_row)
+    funding_rate = funding["rate_pct"]
     oi_change_pct = _safe_float((oi_row or {}).get("oi_change_pct"), 0.0)
     price_change_pct = _safe_float((oi_row or {}).get("price_change_pct"), change_pct)
     imbalance = _safe_float((order_book_row or {}).get("imbalance"), 0.0)
@@ -108,12 +128,13 @@ def score_row(
         score_regime = cfg["regime_penalty_bearish"]
 
     score_funding = 0.0
-    if funding_rate <= -0.01:
-        score_funding = cfg["funding_bonus_shorts"]
-    elif funding_rate >= 0.05:
-        score_funding = cfg["funding_penalty_longs"]
-    elif funding_rate >= 0.02:
-        score_funding = cfg["funding_penalty_elevated_longs"]
+    if funding_rate is not None:
+        if funding_rate <= -0.01:
+            score_funding = cfg["funding_bonus_shorts"]
+        elif funding_rate >= 0.05:
+            score_funding = cfg["funding_penalty_longs"]
+        elif funding_rate >= 0.02:
+            score_funding = cfg["funding_penalty_elevated_longs"]
 
     score_oi = 0.0
     if oi_change_pct >= 5.0 and price_change_pct > 0:
@@ -160,7 +181,7 @@ def score_row(
         "hot": round(score_hot, 4),
         "volume": round(score_volume, 4),
         "regime": round(score_regime, 4),
-        "funding": round(score_funding, 4),
+        "funding": round(score_funding, 4) if funding_rate is not None else None,
         "open_interest": round(score_oi, 4),
         "order_book": round(score_order_book, 4),
         "rsi": round(score_rsi, 4),
@@ -172,6 +193,8 @@ def score_row(
         "composite_score": round(total, 4),
         "score_breakdown": breakdown,
         "funding_rate_pct": funding_rate,
+        "funding_input_state": funding["state"],
+        "funding_input_reason": funding["reason"],
         "oi_change_pct": oi_change_pct,
         "order_book_imbalance": round(imbalance, 4),
     }

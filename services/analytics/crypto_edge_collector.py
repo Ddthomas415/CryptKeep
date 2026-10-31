@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from datetime import datetime, timezone
 from typing import Any
 
+from services.analytics.funding_observations import observation
 from services.market_data.symbol_router import map_symbol, normalize_venue
 from services.security.binance_guard import require_binance_allowed
 
@@ -109,6 +111,57 @@ def _extract_open_interest(payload: dict[str, Any]) -> float | None:
         except Exception as _err:
             continue
     return None
+
+
+def _funding_received_at() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _collect_funding_observations(plan_rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    rows: list[dict[str, Any]] = []
+    checks: list[dict[str, Any]] = []
+    by_venue: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for item in plan_rows:
+        by_venue[normalize_venue(str(item.get("venue") or ""))].append(dict(item or {}))
+    for venue, items in by_venue.items():
+        ex = None
+        try:
+            ex = _open_public_exchange(venue)
+        except Exception as exc:
+            checks.extend({"kind": "funding", "venue": venue, "symbol": str(item.get("symbol") or ""),
+                           "ok": False, "reason": f"exchange_open_failed:{type(exc).__name__}"}
+                          for item in items)
+            continue
+        try:
+            fetcher = getattr(ex, "fetch_funding_rate", None)
+            for item in items:
+                symbol = str(item.get("symbol") or "").strip()
+                if not callable(fetcher):
+                    checks.append({"kind": "funding", "venue": venue, "symbol": symbol,
+                                   "ok": False, "reason": "funding_unsupported"})
+                    continue
+                try:
+                    native = map_symbol(venue, symbol)
+                    started = _funding_received_at()
+                    payload = fetcher(native)
+                    received = _funding_received_at()
+                    inputs = {"venue": venue, "symbol": symbol, "captured_at": received,
+                              "payload": payload, "plan_interval_hours": item.get("interval_hours"),
+                              "receipt": {"request_started_at": started, "received_at": received,
+                                          "requested_symbol": native, "fetch_method": "fetch_funding_rate"}}
+                    record = observation(**inputs)
+                    # Own the receipt before another SDK call can mutate a reused response.
+                    inputs["payload"] = record["raw_payload"]
+                    rows.append(inputs)
+                    checks.append({"kind": "funding", "venue": venue, "symbol": symbol,
+                                   "ok": True, "diagnostic_only": True, "normalization_eligible": False,
+                                   "reason": record["normalization"]["reason"]})
+                except Exception as exc:
+                    checks.append({"kind": "funding", "venue": venue, "symbol": symbol,
+                                   "ok": False, "reason": f"funding_raw_capture_failed:{type(exc).__name__}"})
+        finally:
+            _close_exchange(ex)
+    return rows, checks
 
 
 def _sum_notional(levels: list[Any], depth: int) -> float:
@@ -563,20 +616,26 @@ def _collect_order_book_rows(plan_rows: list[dict[str, Any]]) -> tuple[list[dict
     return rows, checks
 
 
-def collect_live_crypto_edge_snapshot(plan: dict[str, Any]) -> dict[str, Any]:
+def collect_live_crypto_edge_snapshot(plan: dict[str, Any], *, raw_funding_only: bool = False) -> dict[str, Any]:
+    if type(raw_funding_only) is not bool:
+        raise ValueError("raw_funding_mode_must_be_boolean")
     funding_plan = [dict(item or {}) for item in list((plan or {}).get("funding") or [])]
     basis_plan = [dict(item or {}) for item in list((plan or {}).get("basis") or [])]
     quotes_plan = [dict(item or {}) for item in list((plan or {}).get("quotes") or [])]
     open_interest_plan = [dict(item or {}) for item in list((plan or {}).get("open_interest") or [])]
     order_book_plan = [dict(item or {}) for item in list((plan or {}).get("order_books") or [])]
 
-    funding_rows, funding_checks = _collect_funding_rows(funding_plan)
+    if raw_funding_only:
+        funding_observations, funding_checks = _collect_funding_observations(funding_plan)
+        funding_rows = []
+    else:
+        funding_rows, funding_checks = _collect_funding_rows(funding_plan)
     open_interest_rows, open_interest_checks = _collect_open_interest_rows(open_interest_plan)
     basis_rows, basis_checks = _collect_basis_rows(basis_plan)
     quote_rows, quote_checks = _collect_quote_rows(quotes_plan)
     order_book_rows, order_book_checks = _collect_order_book_rows(order_book_plan)
 
-    return {
+    result = {
         "ok": True,
         "research_only": True,
         "execution_enabled": False,
@@ -587,3 +646,7 @@ def collect_live_crypto_edge_snapshot(plan: dict[str, Any]) -> dict[str, Any]:
         "order_book_rows": order_book_rows,
         "checks": funding_checks + open_interest_checks + basis_checks + quote_checks + order_book_checks,
     }
+    if raw_funding_only:
+        result["funding_observations"] = funding_observations
+        result["funding_mode"] = "raw_only_unverified"
+    return result

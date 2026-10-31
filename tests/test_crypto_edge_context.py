@@ -37,12 +37,13 @@ def test_funding_context_uses_latest_matching_live_public_row(tmp_path) -> None:
         now=datetime(2026, 7, 10, 18, tzinfo=timezone.utc),
     )
 
-    assert result["ok"] is True
-    assert result["reason"] == "funding_context_ready"
+    assert result["ok"] is False
+    assert result["reason"] == "funding_context_unqualified"
     assert result["snapshot_id"] == "funding-new"
-    funding = result["context"]["funding"]
+    assert "context" not in result
+    funding = result["raw_observation"]
     assert funding["funding_rate"] == 0.0008
-    assert funding["funding_rate_pct"] == 0.08
+    assert result["normalization_eligible"] is False
     assert funding["source"] == "live_public"
 
 
@@ -98,9 +99,11 @@ def test_funding_context_can_use_env_db_path(monkeypatch, tmp_path: Path) -> Non
         now=datetime(2026, 7, 10, 9, tzinfo=timezone.utc),
     )
 
-    assert result["ok"] is True
+    assert result["ok"] is False
     assert result["snapshot_id"] == "funding-env"
-    assert result["context"]["funding"]["funding_rate"] == 0.0007
+    assert result["reason"] == "funding_context_unqualified"
+    assert "context" not in result
+    assert result["raw_observation"]["funding_rate"] == 0.0007
 
 
 def test_funding_context_env_db_missing_fails_closed_without_creating(monkeypatch, tmp_path: Path) -> None:

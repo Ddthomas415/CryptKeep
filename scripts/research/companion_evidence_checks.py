@@ -11,6 +11,11 @@ EVIDENCE_SCRIPT is fixed code for a separately reviewed bounded transport runnin
 inside memory. Credentials stay there. Its private process has an eight-second
 SIGALRM work cap (including DB teardown); an occupied timer is left untouched and
 refused. Parent must still discard stderr and bound launch/output/transport.
+
+DIAGNOSTIC_EVIDENCE_SCRIPT additionally returns a closed stage/code envelope.
+Stages identify the first failing group, not a specific predicate or private
+value. A hard deadline identifies the stage interrupted, not a semantic verdict.
+Legacy evaluate()/EVIDENCE_SCRIPT retain the five-Boolean interface.
 """
 import hashlib
 import inspect
@@ -30,15 +35,59 @@ MAX_INPUT_BYTES = 262_144
 KEYS = ("persisted_identity", "article_view_mapping", "content_hash",
         "topical_support", "causal_limits")
 FAILURE_OUTPUT = (json.dumps(dict.fromkeys(KEYS, False), separators=(",", ":")) + "\n").encode("ascii")
+DIAGNOSTIC_STAGES = (
+    "timer", "input_read", "input_parse", "imports", "archive_load", "archive_index",
+    "db_connect", "db_transaction", "db_query", "source_lineage", "db_teardown", "timer_cleanup",
+    "input", "persisted_identity", "archive_envelope", "response_contract", "query_contract",
+    "citations", "bundle_contract", "bundle_market", "bundle_documents", "metadata", "narrative", "witnesses", "complete",
+)
+DIAGNOSTIC_CODES = ("ok", "rejected", "error", "deadline")
+DIAGNOSTIC_DEADLINES = {
+    stage: (json.dumps({"checks": dict.fromkeys(KEYS, False),
+                       "diagnostic": {"stage": stage, "code": "deadline"}},
+                      separators=(",", ":")) + "\n").encode("ascii")
+    for stage in DIAGNOSTIC_STAGES if stage != "complete"
+}
 SOURCE_SQL = (
     "SELECT id, content_hash, url, source, source_type, raw_object_key, "
     "published_at, fetched_at FROM public.documents WHERE id = ANY(%s)"
 )
 
 
+class _EvidenceRejected(ValueError):
+    pass
+
+
 def _require(condition):
     if not condition:
-        raise ValueError("evidence_rejected")
+        raise _EvidenceRejected("evidence_rejected")
+
+
+def _stage(state, name):
+    if state is not None:
+        state["stage"] = name
+
+
+def diagnostic_valid(value):
+    return (type(value) is dict and set(value) == {"stage", "code"}
+            and type(value["stage"]) is str and value["stage"] in DIAGNOSTIC_STAGES
+            and type(value["code"]) is str and value["code"] in DIAGNOSTIC_CODES
+            and ((value["stage"] == "complete") == (value["code"] == "ok")))
+
+
+def diagnostic_result_valid(value):
+    if (type(value) is not dict or set(value) != {"checks", "diagnostic"}
+            or type(value["checks"]) is not dict or set(value["checks"]) != set(KEYS)
+            or any(type(v) is not bool for v in value["checks"].values())
+            or not diagnostic_valid(value["diagnostic"])):
+        return False
+    return (all(value["checks"].values()) if value["diagnostic"]["code"] == "ok"
+            else not any(value["checks"].values()))
+
+
+def _failed(state, error):
+    return {"checks": dict.fromkeys(KEYS, False), "diagnostic": {
+        "stage": state["stage"], "code": "rejected" if isinstance(error, _EvidenceRejected) else "error"}}
 
 
 def _positive_id(value):
@@ -122,11 +171,13 @@ def _document(row, mapped, *, citation=False):
     return ident
 
 
-def _evaluate(raw, view, actual, approvals):
+def _evaluate(raw, view, actual, approvals, state=None):
+    _stage(state, "input")
     _require(type(raw) is dict and type(view) is dict)
     # Bound pure calls too, and reject non-JSON/non-finite claim values.
     _require(len(json.dumps({"raw": raw, "approvals": approvals},
                             allow_nan=False).encode()) <= MAX_INPUT_BYTES)
+    _stage(state, "persisted_identity")
     mapped = _indexed(view["rows"])
     originals = view["original"]
     _require(type(originals) is dict and all(_positive_id(i) for i in originals))
@@ -147,8 +198,10 @@ def _evaluate(raw, view, actual, approvals):
             _require(_time(live[ident][key]) == _time(prior[key])
                      == _time(derived[key]))
 
+    _stage(state, "archive_envelope")
     archive = raw["archive_view"]
     _archive_envelope(archive, view)
+    _stage(state, "response_contract")
     _require(raw.get("ok") is True and raw.get("asset") == "BTC"
              and raw.get("question") == QUESTION)
     status = raw["assistant_status"]
@@ -170,6 +223,7 @@ def _evaluate(raw, view, actual, approvals):
                "risk_note", "execution_disabled", "evidence", "evidence_bundle",
                "answer_metadata", "risk_posture", "execution", "assistant_status", "probe_protocol"}
     _require(not set(raw) - allowed)
+    _stage(state, "query_contract")
     qe = raw["question_evidence"]
     _require(type(qe) is dict and set(qe) == {
         "method", "match_count", "status", "semantic_relevance_verified",
@@ -184,6 +238,7 @@ def _evaluate(raw, view, actual, approvals):
              and query["semantic_relevance_verified"] is False
              and query["relative_time_interpreted"] is False)
 
+    _stage(state, "citations")
     evidence = raw["evidence"]
     _require(type(evidence) is list and 0 < len(evidence) <= 6)
     citation_names, keyword_ids, cited = set(), [], set()
@@ -203,6 +258,7 @@ def _evaluate(raw, view, actual, approvals):
     _require(len(keyword_ids) == min(3, qe["match_count"]))
     _require(all(item["type"] == "keyword_match" for item in evidence[:len(keyword_ids)]))
 
+    _stage(state, "bundle_contract")
     bundle = raw["evidence_bundle"]
     _require(type(bundle) is dict)
     document_groups = ("recent_news", "past_context", "future_context", "vector_matches")
@@ -210,6 +266,7 @@ def _evaluate(raw, view, actual, approvals):
                  "latest_live_crypto_edges", "crypto_edge_changes", "crypto_edge_staleness",
                  "crypto_edge_digest"}
     _require(not set(bundle) - set(document_groups) - auxiliary)
+    _stage(state, "bundle_market")
     for key in ("market", "market_snapshot"):
         market = bundle.get(key, {})
         _require(type(market) is dict)
@@ -220,10 +277,17 @@ def _evaluate(raw, view, actual, approvals):
         if "ok" in market:
             _require(market["ok"] is False)
         if "reason" in market:
-            _require(market["reason"] == "no_market_data")
+            if market["reason"] == "excluded_by_archival_probe":
+                _require(key == "market" and set(market) == {"ok", "reason", "latest_price", "change_pct", "window_samples"}
+                         and raw.get("probe_protocol") == "single-cited-query-v1"
+                         and status.get("probe_protocol") == "single-cited-query-v1"
+                         and market["latest_price"] is None and type(market["window_samples"]) is int)
+            else:
+                _require(market["reason"] == "no_market_data")
         for field in ("change_pct", "window_samples"):
             if field in market:
                 _require(type(market[field]) in (int, float) and market[field] == 0)
+    _stage(state, "bundle_contract")
     for key in auxiliary - {"market", "market_snapshot", "risk"}:
         _require(bundle.get(key, {}) == {})
     risk = bundle.get("risk", {})
@@ -232,6 +296,7 @@ def _evaluate(raw, view, actual, approvals):
     if risk:
         _require(risk["allow_trading"] is False)
     _require(raw.get("risk_posture", {}) == risk)
+    _stage(state, "bundle_documents")
     for group in document_groups:
         docs = bundle.get(group, [])
         _require(type(docs) is list and len(docs) <= 3)
@@ -255,6 +320,7 @@ def _evaluate(raw, view, actual, approvals):
     confidence += 0.05 if edges.get("has_any_data") else 0
     for key in ("confidence", "confidence_score"):
         _require(type(raw.get(key)) in (int, float) and raw[key] == round(confidence, 3))
+    _stage(state, "metadata")
     metadata = raw.get("answer_metadata", {})
     _require(type(metadata) is dict)
     if metadata:
@@ -271,6 +337,7 @@ def _evaluate(raw, view, actual, approvals):
         }
         _require(metadata == expected_metadata and metadata["partial_provenance"] is True)
 
+    _stage(state, "narrative")
     current = (
         "Current market context for BTC is unavailable. No price direction or cause is established."
         " Question-matched archived headlines (keyword overlap only): "
@@ -288,6 +355,7 @@ def _evaluate(raw, view, actual, approvals):
         _require(raw.get(key) == (docs[0]["title"] if docs else empty))
     _require(raw.get("relevant_past_precedent") == raw["past_precedent"])
 
+    _stage(state, "witnesses")
     _require(type(approvals) is list and 0 < len(approvals) <= 500)
     approved_ids, witnesses = set(), set()
     for approval in approvals:
@@ -325,6 +393,15 @@ def evaluate(raw, view, actual, approvals):
         return dict.fromkeys(KEYS, False)
 
 
+def evaluate_diagnostic(raw, view, actual, approvals, state=None):
+    state = {"stage": "input"} if state is None else state
+    try:
+        checks = _evaluate(raw, view, actual, approvals, state)
+        return {"checks": checks, "diagnostic": {"stage": "complete", "code": "ok"}}
+    except BaseException as error:
+        return _failed(state, error)
+
+
 def _unique_object(pairs):
     result = {}
     for key, value in pairs:
@@ -342,29 +419,42 @@ def _deadline_exit(signum, frame):
         os._exit(0)
 
 
-def _remote_main():
+def _remote_main(diagnostic=False):
     import contextlib
     import signal
     import sys
     from pathlib import Path
 
     result = dict.fromkeys(KEYS, False)
+    state = {"stage": "timer"}
+    envelope = None
     handler_installed = False
     previous_handler = None
     try:
         _require(signal.getitimer(signal.ITIMER_REAL) == (0.0, 0.0))
         previous_handler = signal.getsignal(signal.SIGALRM)
-        signal.signal(signal.SIGALRM, _deadline_exit)
+        def diagnostic_deadline(signum, frame):
+            # Fixed precomputed bytes only: no exception/payload formatting in
+            # the signal path, and hard exit still includes DB teardown.
+            try:
+                os.write(1, DIAGNOSTIC_DEADLINES[state["stage"]])
+            finally:
+                os._exit(0)
+
+        signal.signal(signal.SIGALRM, diagnostic_deadline if diagnostic else _deadline_exit)
         handler_installed = True
         signal.setitimer(signal.ITIMER_REAL, 8.0)
         # Installed modules must not leak logs/config/records into stdout.
         with contextlib.redirect_stdout(sys.stderr):
+            _stage(state, "input_read")
             data = sys.stdin.buffer.read(MAX_INPUT_BYTES + 1)
+            _stage(state, "input_parse")
             _require(len(data) <= MAX_INPUT_BYTES)
             payload = json.loads(data, object_pairs_hook=_unique_object,
                                  parse_constant=lambda _: _require(False))
             _require(type(payload) is dict and set(payload) == {"raw", "approvals"})
             _require(type(payload["raw"]) is dict and type(payload["approvals"]) is list)
+            _stage(state, "imports")
             from shared.config import get_settings
             from memory_retrieval.article_view import (
                 APPROVED_MANIFEST_SHA256, read_archive, check_source_rows,
@@ -372,44 +462,65 @@ def _remote_main():
             import psycopg
             from psycopg.rows import dict_row
 
+            _stage(state, "archive_load")
             _require(_hash(APPROVED_MANIFEST_SHA256))
             view = read_archive(Path("/app/memory_retrieval/article_archive"), required=True,
                                 expected_manifest_sha256=APPROVED_MANIFEST_SHA256)
+            _stage(state, "archive_index")
             mapped = _indexed(view["rows"])
             _require(set(mapped) == set(view["original"])
                      and all(_positive_id(i) for i in view["original"]))
+            _stage(state, "db_connect")
             with psycopg.connect(get_settings().database_url, connect_timeout=2,
                                   options="-c default_transaction_read_only=on -c statement_timeout=2000",
                                   row_factory=dict_row, autocommit=True) as connection:
+                _stage(state, "db_transaction")
                 with connection.transaction():
+                    _stage(state, "db_query")
                     with connection.cursor() as cursor:
                         cursor.execute("SET TRANSACTION READ ONLY")
                         cursor.execute(SOURCE_SQL, (list(view["original"]),))
                         actual = cursor.fetchmany(501)
+                        _stage(state, "db_teardown")
+                    _stage(state, "source_lineage")
                     check_source_rows(view, actual)
-                    result = evaluate(payload["raw"], view, actual, payload["approvals"])
-    except BaseException:
+                    if diagnostic:
+                        envelope = evaluate_diagnostic(payload["raw"], view, actual, payload["approvals"], state)
+                        result = envelope["checks"]
+                    else:
+                        result = evaluate(payload["raw"], view, actual, payload["approvals"])
+                    _stage(state, "db_teardown")
+    except BaseException as error:
         result = dict.fromkeys(KEYS, False)
+        if diagnostic and (envelope is None or envelope["diagnostic"]["code"] == "ok"):
+            envelope = _failed(state, error)
     finally:
         if handler_installed:
             try:
+                _stage(state, "timer_cleanup")
                 signal.setitimer(signal.ITIMER_REAL, 0.0)
                 signal.signal(signal.SIGALRM, previous_handler)
-            except BaseException:
+            except BaseException as error:
                 result = dict.fromkeys(KEYS, False)
-    sys.stdout.write(json.dumps(result, separators=(",", ":")) + "\n")
+                if diagnostic and (envelope is None or envelope["diagnostic"]["code"] == "ok"):
+                    envelope = _failed(state, error)
+    sys.stdout.write(json.dumps(envelope if diagnostic else result, separators=(",", ":")) + "\n")
 
 
 # Only this module's reviewed helpers are serialized, never application source,
 # approvals, configuration, credentials, or interpolated raw explanation data.
-EVIDENCE_SCRIPT = (
+_SCRIPT = (
     "import hashlib, json, os, re\nfrom datetime import datetime\n"
     + "\n".join(f"{name} = {value!r}" for name, value in (
         ("QUESTION", QUESTION), ("MAX_INPUT_BYTES", MAX_INPUT_BYTES),
         ("QUERY_AUDIT", QUERY_AUDIT), ("FAILURE_OUTPUT", FAILURE_OUTPUT),
-        ("KEYS", KEYS), ("SOURCE_SQL", SOURCE_SQL))) + "\n"
+        ("KEYS", KEYS), ("SOURCE_SQL", SOURCE_SQL), ("DIAGNOSTIC_STAGES", DIAGNOSTIC_STAGES),
+        ("DIAGNOSTIC_CODES", DIAGNOSTIC_CODES), ("DIAGNOSTIC_DEADLINES", DIAGNOSTIC_DEADLINES))) + "\n"
+    + inspect.getsource(_EvidenceRejected) + "\n"
     + "\n".join(inspect.getsource(fn) for fn in (
-        _require, _positive_id, _hash, _indexed, _time, _archive_envelope, _document, _evaluate,
-        evaluate, _unique_object, _deadline_exit, _remote_main))
-    + "\n_remote_main()\n"
+        _require, _stage, _failed, diagnostic_valid, diagnostic_result_valid,
+        _positive_id, _hash, _indexed, _time, _archive_envelope, _document, _evaluate,
+        evaluate, evaluate_diagnostic, _unique_object, _deadline_exit, _remote_main))
 )
+EVIDENCE_SCRIPT = _SCRIPT + "\n_remote_main()\n"
+DIAGNOSTIC_EVIDENCE_SCRIPT = _SCRIPT + "\n_remote_main(True)\n"

@@ -54,4 +54,10 @@ def fetch_rules(canonical_symbol: str) -> MarketRules:
     except Exception:
         pass
 
-    return MarketRules("coinbase", cs, str(m.get("id") or coinbase_native(cs)), bool(active), min_notional=min_notional, min_qty=min_qty, qty_step=qty_step, price_tick=price_tick, meta={"ccxt_symbol": ccxt_symbol})
+    info = m.get("info") if isinstance(m.get("info"), dict) else {}
+    product = {key: info.get(key) for key in
+               ("status", "trading_disabled", "cancel_only", "limit_only", "post_only", "auction_mode")}
+    product["product_id"] = info.get("product_id") or info.get("id")
+    if "view_only" in info:
+        product["view_only"] = info["view_only"]
+    return MarketRules("coinbase", cs, str(m.get("id") or coinbase_native(cs)), bool(active), min_notional=min_notional, min_qty=min_qty, qty_step=qty_step, price_tick=price_tick, meta={"ccxt_symbol": ccxt_symbol, "coinbase_product": product})

@@ -73,12 +73,15 @@ class OrderDedupeStore:
             ).fetchone()
         return dict(r) if r else None
 
-    def claim(self, *, exchange_id: str, intent_id: str, symbol: str, client_order_id: str, meta: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def claim(self, *, exchange_id: str, intent_id: str, symbol: str, client_order_id: str, meta: Optional[Dict[str, Any]] = None, claim_error_for_submit: bool = False) -> Dict[str, Any]:
+        if type(claim_error_for_submit) is not bool:
+            raise ValueError("explicit_boolean_claim_policy_required")
         ex = (exchange_id or "").lower().strip()
         now = _now_ms()
         meta_json = json.dumps(meta or {}, default=str)[:200000]
         inserted = False
         with _conn(self.exec_db) as c:
+            c.execute("BEGIN IMMEDIATE")
             cur = c.execute(
                 """
                 INSERT OR IGNORE INTO order_dedupe(
@@ -88,12 +91,25 @@ class OrderDedupeStore:
                 (ex, str(intent_id), str(symbol), str(client_order_id), now, now, meta_json),
             )
             inserted = cur.rowcount == 1
+            submit_claimed = inserted
+            if not inserted and claim_error_for_submit:
+                cur = c.execute(
+                    """UPDATE order_dedupe SET status='created', updated_ts_ms=?
+                       WHERE exchange_id=? AND intent_id=? AND symbol=? AND client_order_id=?
+                       AND status='error' AND (remote_order_id IS NULL OR remote_order_id='')""",
+                    (now, ex, str(intent_id), str(symbol), str(client_order_id)),
+                )
+                submit_claimed = cur.rowcount == 1
+            found = c.execute(
+                "SELECT * FROM order_dedupe WHERE exchange_id=? AND intent_id=? LIMIT 1",
+                (ex, str(intent_id)),
+            ).fetchone()
+            if found is None:
+                raise RuntimeError("order_dedupe claim failed")
+            row = dict(found)
             c.commit()
-        row = self.get_by_intent(ex, str(intent_id))
-        if row is not None:
-            row["_inserted"] = inserted
-        if not row:
-            raise RuntimeError("order_dedupe claim failed")
+        row["_inserted"] = inserted
+        row["_submit_claimed"] = submit_claimed
         return row
 
     def set_remote_id_if_empty(self, *, exchange_id: str, intent_id: str, remote_order_id: str) -> None:

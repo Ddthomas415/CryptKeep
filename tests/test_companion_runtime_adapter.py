@@ -55,6 +55,9 @@ class FakeDocker:
             assert args[3] == adapter.INSPECT_FORMAT
             return b"\n".join(json.dumps(r).encode() for r in self.rows.values())
         if args[:2] == ("container", "exec"):
+            if "FIXTURE_SCRIPT" in args:
+                return json.dumps({"checks": dict.fromkeys(core.EVIDENCE, True),
+                                   "diagnostic": {"stage": "complete", "code": "ok"}}).encode()
             if adapter._PG_CHECK in args:
                 assert input_bytes == adapter._SCHEMA_SQL.encode()
                 return json.dumps(self.pg_result).encode()
@@ -191,6 +194,25 @@ def test_inspect_format_never_requests_raw_environment():
     assert "{{.Config.Env}}" not in adapter.INSPECT_FORMAT
     assert "SERVICE_TOKEN=" in adapter.INSPECT_FORMAT
     assert "{{ne ." in adapter.INSPECT_FORMAT
+
+
+def test_optional_healthcheck_uses_null_preserving_map_lookup():
+    assert '"healthcheck":{{json (index .Config "Healthcheck")}}' in adapter.INSPECT_FORMAT
+    assert ".Config.Healthcheck" not in adapter.INSPECT_FORMAT
+
+
+@pytest.mark.parametrize("healthcheck", [None, {"Test": ["CMD", "/health"]}])
+def test_metadata_keeps_optional_healthcheck_and_unrelated_container(setup, healthcheck):
+    docker, _, runtime = setup
+    unrelated = dict(docker.rows["phase1-audit-log"])
+    unrelated.update(id="f" * 64, name="/unrelated", healthcheck=healthcheck)
+    docker.rows["unrelated"] = unrelated
+    rows = runtime._metadata()
+    assert len(rows) == len(core.TARGETS) + 1
+    assert rows["unrelated"]["healthcheck"] == healthcheck
+    assert rows["phase1-audit-log"] == docker.rows["phase1-audit-log"]
+    assert all(call[0][:2] in {("container", "ls"), ("container", "inspect")}
+               for call in docker.calls)
 
 
 def test_dynamic_address_fields_do_not_change_preservation_identity(setup):
@@ -407,8 +429,10 @@ def test_query_uses_existing_dashboard_probe_and_evidence_is_private_stdin(setup
     monkeypatch.setattr(core, "dashboard_probe", lambda token: {"token_supplied": token == "FIXTURE_ONLY"})
     assert runtime.explain() == {"token_supplied": True}
     # No actual query is sent by this fixture.
+    from scripts.research.companion_evidence_checks import diagnostic_result_valid
     monkeypatch.setitem(__import__("sys").modules, "scripts.research.companion_evidence_checks",
-                        SimpleNamespace(EVIDENCE_SCRIPT="FIXTURE_SCRIPT"))
+                        SimpleNamespace(DIAGNOSTIC_EVIDENCE_SCRIPT="FIXTURE_SCRIPT",
+                                        diagnostic_result_valid=diagnostic_result_valid))
     assert all(runtime.verify_evidence({"asset": "BTC"}).values())
     argv, cap, body = docker.calls[-1]
     assert argv[:3] == ("container", "exec", "-i") and cap == 10

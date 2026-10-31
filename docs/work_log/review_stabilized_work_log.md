@@ -55358,3 +55358,20 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
   Codex's code (group D, including the tracker v2 files), awaiting Codex.
 - Extra offline copy: `cryptkeep_data_archive/crypto-bot-pro_backup_2026-10-31_range.bundle` (46.7 MB; origin/master..b059f1efa;
   restoring needs origin/master adde462f).
+- 2026-10-31T12:41:32Z Committed bcb9ccd02 on backup/2026-10-31 (9 files). Deletion was not permitted this time, so git left
+  `.git/HEAD.lock` (renamed to `.git/stale-HEAD-lock-20261031T1240Z`, as no git process was running) and 19 harmless
+  `tmp_obj_*` files under `.git/objects` (git prune removes them). `git fsck --connectivity-only`: no errors.
+- 2026-10-31T13:32:43Z Owner pushed backup/2026-10-31 from the Mac (first attempt failed: HTTP 400 on the 44.5 MiB upload; succeeded with
+  `-c http.postBuffer=157286400 -c http.version=HTTP/1.1`). origin/backup/2026-10-31 = local bcb9ccd02 (checked). Decision 1
+  backup: branch on GitHub; the 9 large data files are still outside git and still need their own backup.
+
+## 2026-10-31T13:57:47Z Claude (Cowork): group D committed as an unreviewed backup (owner: "codex is on timeout resolve or document whats needed")
+- Group D (195 files, Codex's uncommitted code) unchanged against its list; credential pattern scan: one placeholder test key.
+- Tests on a copy (VM home; no .env, user.yaml or .git): D's 52 non-companion test files 1,602 passed; whole suite 8,850
+  passed, 175 failed, 35 skipped, 1 collection error. Same failing files rerun on a copy of bcb9ccd02 (without D): only 2
+  failures are caused by D (test_live_intent_queue_boundary: 4 files; test_no_direct_create_order:
+  tests/test_exchange_client_retry_flow.py 72, 105). Companion tests 130 failed + 1 error (review packets with changed
+  inputs; laptop paths; bs4 not installed). 43 others fail with or without D (git, make, systemd, laptop paths;
+  pinned_run_inputs.py state-path guard, committed 933d7ea2f).
+- Documented in docs/checkpoints/commit_plan_20261031/README.md "Group D" with Codex's four required actions;
+  PROJECT_STATE.md decision 1 progress. Committing D with these docs on backup/2026-10-31; owner pushes.

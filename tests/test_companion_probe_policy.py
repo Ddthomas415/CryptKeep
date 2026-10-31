@@ -252,10 +252,20 @@ def test_probe_explain_uses_actual_service_handlers_and_existing_assembler(loade
     memory, orchestrator = loaded.memory_retrieval, loaded.orchestrator
     row = {"id": 73, "title": "Bitcoin regulation", "url": "https://example.org/article",
            "source": "fixture", "lexical_rank": 0.2}
+    original = {"id": 73, "content_hash": "a" * 64, "url": row["url"], "source": "fixture",
+                "source_type": "news", "raw_object_key": "raw/73", "published_at": None,
+                "fetched_at": "2026-01-01T00:00:00+00:00"}
+    view = {"rows": [{**original, **row, "body_verified": True}], "original": {73: original},
+            "diagnostics": [], "sha256": "b" * 64}
     sql_calls, persisted_audits = [], []
 
     def fetch(sql, params):
         sql_calls.append((sql, params))
+        if sql.startswith("SELECT id, content_hash"):
+            return [original]
+        if sql.startswith("WITH repair AS"):
+            assert "UNION ALL" not in sql
+            return [{"source_valid": True, "rows": [row] if "AS lexical_rank" in sql else []}]
         return [row] if "AS lexical_rank" in sql else []
 
     def persist(sql, params):
@@ -263,7 +273,7 @@ def test_probe_explain_uses_actual_service_handlers_and_existing_assembler(loade
         return {"id": len(persisted_audits)}
 
     monkeypatch.setattr(memory.db, "fetch_all", fetch)
-    monkeypatch.setattr(memory, "read_archive", lambda *a, **kw: None)
+    monkeypatch.setattr(memory, "read_archive", lambda *a, **kw: copy.deepcopy(view))
     monkeypatch.setattr(memory, "_qdrant_client", lambda: SimpleNamespace(search=lambda **kw: []))
     monkeypatch.setattr(loaded.audit_log.db, "fetch_one", persist)
     for name in ("_run_openai_reasoning", "_ensure_core_tool_results", "get_market_snapshot",
@@ -296,7 +306,8 @@ def test_probe_explain_uses_actual_service_handlers_and_existing_assembler(loade
     assert result["risk_posture"]["execution_mode"] == "DISABLED"
     assert result["execution_disabled"] is True
     assert result["execution"]["enabled"] is False
-    assert ("regulation", "BTC", "regulation", 3) in [p for _, p in sql_calls]
+    assert ("regulation", "BTC", "regulation", 3) in [
+        p[1:] if sql.startswith("WITH repair AS") else p for sql, p in sql_calls]
     retrieval = next(c for c in calls if c.url.path == "/v1/memory/retrieve")
     assert json.loads(retrieval.content)["lookback_minutes"] == 23
     assert len(calls) == 5  # retrieval, risk and three real audit writes
@@ -422,7 +433,8 @@ def test_restricted_sdk_constructor_contracts_not_installed_sdk_proof(loaded, mo
     memory = loaded.memory_retrieval
     q_options, s_options, transports = [], [], []
     monkeypatch.setattr(memory, "QdrantClient", lambda **kw: q_options.append(kw) or object())
-    monkeypatch.setattr(loaded.boto, "client", lambda *a, **kw: s_options.append(kw) or object())
+    monkeypatch.setattr(loaded.boto, "client", lambda *a, **kw: s_options.append(kw) or SimpleNamespace(
+        _endpoint=SimpleNamespace(_needs_retry=lambda *a, **kw: True)))
     monkeypatch.setattr(httpx, "HTTPTransport", lambda **kw: transports.append(kw) or object())
     ordinary_q, ordinary_s = memory._qdrant_client(), memory._s3_client()
     loaded.settings.memory_read_only_startup = profile == "read_only"
@@ -506,7 +518,9 @@ def test_restricted_storage_accepts_only_its_named_endpoint(
     memory = loaded.memory_retrieval
     loaded.settings.memory_read_only_startup = profile == "read_only"
     setattr(loaded.settings, setting, base + suffix)
-    marker, calls = object(), []
+    marker = (SimpleNamespace(_endpoint=SimpleNamespace(_needs_retry=lambda *a, **kw: True))
+              if service == "minio" else object())
+    calls = []
 
     def construct(*args, **kwargs):
         calls.append(kwargs)

@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import Any, Dict
 
 from services.analytics.crypto_edge_collector import collect_live_crypto_edge_snapshot
+from services.analytics.okx_funding_pair_batch import collect_okx_pair_batch
+from services.analytics.okx_funding_journal import recent_okx_funding_quotes
 from services.os.app_paths import ensure_dirs, runtime_dir
 from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite
 
@@ -144,12 +146,42 @@ class CryptoEdgeCollectorServiceCfg:
     poll_interval_sec: float = 300.0
     db_path: str = ""
     source: str = "live_public"
+    raw_funding_only: bool = False
+    raw_funding_max_rows: int | None = None
+    raw_funding_max_bytes: int | None = None
+    okx_pair_options: dict | None = None
 
 
-def collect_once(cfg: CryptoEdgeCollectorServiceCfg) -> Dict[str, Any]:
+def collect_once(cfg: CryptoEdgeCollectorServiceCfg, *, pair_run=None) -> Dict[str, Any]:
+    if type(cfg.raw_funding_only) is not bool:
+        raise ValueError("raw_funding_mode_must_be_boolean")
+    if cfg.raw_funding_only and (
+            type(cfg.raw_funding_max_rows) is not int or cfg.raw_funding_max_rows <= 0
+            or type(cfg.raw_funding_max_bytes) is not int or cfg.raw_funding_max_bytes <= 0):
+        raise ValueError("explicit_raw_funding_budgets_required")
     plan = _load_plan(str(cfg.plan_file))
-    collected = collect_live_crypto_edge_snapshot(plan)
+    if cfg.raw_funding_only and len(plan.get("funding") or []) > cfg.raw_funding_max_rows:
+        raise ValueError("raw_funding_plan_row_budget_exceeded")
+    paired = cfg.okx_pair_options is not None
+    if paired:
+        if (not cfg.raw_funding_only or type(cfg.db_path) is not str or not cfg.db_path.strip()
+                or type(cfg.source) is not str or not cfg.source or cfg.source != cfg.source.strip()):
+            raise ValueError("pair_mode_requires_raw_mode_explicit_store_and_source")
+        pair_rows, pair_checks, pair_summary = collect_okx_pair_batch(
+            plan.get("funding"), cfg.okx_pair_options, run=pair_run, utc=_now_iso, monotonic=time.monotonic)
+        collected = collect_live_crypto_edge_snapshot({**plan, "funding": []}, raw_funding_only=True)
+        if collected.get("funding_rows") or collected.get("funding_observations"):
+            raise ValueError("unexpected_funding_from_nonfunding_capture")
+        collected = {**collected, "funding_observations": pair_rows,
+                     "checks": list(collected.get("checks") or []) + pair_checks}
+    else:
+        collected = (collect_live_crypto_edge_snapshot(plan, raw_funding_only=True) if cfg.raw_funding_only
+                     else collect_live_crypto_edge_snapshot(plan))
     funding_rows = list(collected.get("funding_rows") or [])
+    funding_observations = list(collected.get("funding_observations") or [])
+    if ((cfg.raw_funding_only and funding_rows)
+            or (not cfg.raw_funding_only and funding_observations)):
+        raise ValueError("mixed_funding_capture_contract")
     open_interest_rows = list(collected.get("open_interest_rows") or [])
     basis_rows = list(collected.get("basis_rows") or [])
     quote_rows = list(collected.get("quote_rows") or [])
@@ -169,11 +201,21 @@ def collect_once(cfg: CryptoEdgeCollectorServiceCfg) -> Dict[str, Any]:
         "order_book_count": int(len(order_book_rows)),
         "source": str(cfg.source or "live_public"),
     }
-    if not (funding_rows or open_interest_rows or basis_rows or quote_rows or order_book_rows):
+    if cfg.raw_funding_only:
+        out["raw_funding_count"] = len(funding_observations)
+        out["funding_mode"] = "raw_only_unverified"
+    if paired:
+        out["funding_mode"] = "raw_okx_pairs_unverified"
+        out["funding_pair_capture"] = pair_summary
+    if not (funding_rows or funding_observations or open_interest_rows or basis_rows or quote_rows or order_book_rows):
         return out
 
     store = CryptoEdgeStoreSQLite(path=str(cfg.db_path or ""))
     out["store_path"] = "redacted"
+    if funding_observations:
+        out["raw_funding_write"] = store.append_raw_funding_observations(
+            funding_observations, source=out["source"],
+            max_rows=cfg.raw_funding_max_rows, max_bytes=cfg.raw_funding_max_bytes)
     if funding_rows:
         out["funding_snapshot_id"] = store.append_funding_rows(funding_rows, source=out["source"])
     if open_interest_rows:
@@ -185,8 +227,26 @@ def collect_once(cfg: CryptoEdgeCollectorServiceCfg) -> Dict[str, Any]:
     if order_book_rows:
         out["order_book_snapshot_id"] = store.append_order_book_rows(order_book_rows, source=out["source"])
     out["report"] = store.latest_report_for_source(source=out["source"]) or store.latest_report()
+    if cfg.raw_funding_only:
+        # Do not present an older legacy estimate as current normalized funding.
+        out["report"]["funding"] = {
+            "ok": False, "reason": "funding_normalization_unverified", "rows": [], "count": 0,
+            "avg_funding_rate": None, "last_funding_rate": None, "annualized_carry_pct": None,
+            "positive_ratio": None, "negative_ratio": None, "dominant_bias": "unknown"}
+        out["report"]["funding_meta"] = None
+        out["report"]["funding_legacy_excluded"] = True
+        out["report"]["raw_funding"] = store.recent_raw_funding_observations(
+            source=out["source"], limit=cfg.raw_funding_max_rows)
+        out["report"]["has_any_data"] = True
+        if paired:
+            out["report"]["funding_pair_quotes"] = recent_okx_funding_quotes(
+                store, source=out["source"], limit=cfg.raw_funding_max_rows)
     out["ok"] = True
     out["reason"] = "collected"
+    if paired and not pair_summary["ok"]:
+        out["ok"] = False
+        out["reason"] = ("partial_funding_pair_capture" if pair_summary["successful_pairs"]
+                         else "funding_pair_capture_failed")
     return out
 
 

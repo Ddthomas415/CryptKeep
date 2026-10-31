@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from services.analytics.funding_observations import legacy_model_qualification
 from services.backtest.ohlcv_archive import load_archived_ohlcv, normalize_ohlcv_rows
 from services.execution.fill_model import apply_fee_slippage
 from services.strategies.strategy_registry import compute_signal
@@ -186,6 +187,7 @@ def run_funding_context_price_join(
             "ok": False,
             "reason": "unsupported_strategy",
             "research_only": True,
+            "funding_qualification": legacy_model_qualification(),
             "artifact_type": ARTIFACT_TYPE,
             "strategy": strategy_name,
             "expected_strategy": STRATEGY,
@@ -213,6 +215,7 @@ def run_funding_context_price_join(
             "ok": False,
             "reason": str(loaded.get("reason") or "archive_unavailable"),
             "research_only": True,
+            "funding_qualification": legacy_model_qualification(),
             "artifact_type": ARTIFACT_TYPE,
             "strategy": STRATEGY,
             "funding_row_count": int(len(funding_rows)),
@@ -300,6 +303,7 @@ def run_funding_context_price_join(
         "ok": bool(ok),
         "reason": "ok" if ok else "insufficient_joined_rows",
         "research_only": True,
+        "funding_qualification": legacy_model_qualification(),
         "artifact_type": ARTIFACT_TYPE,
         "generated_at": _utc_now(),
         "strategy": STRATEGY,

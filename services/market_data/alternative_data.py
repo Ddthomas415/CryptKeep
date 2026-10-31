@@ -5,8 +5,11 @@ Alternative data sources.
 """
 from __future__ import annotations
 import json, time
+from datetime import datetime, timezone
 from typing import Any
 import urllib.request
+
+from services.analytics.funding_observations import finite_number, observation
 
 
 def _get_json(url: str, timeout: int = 10) -> dict | None:
@@ -53,15 +56,22 @@ def get_fear_greed() -> dict[str, Any]:
     }
 
 
+def _funding_utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
 def get_funding_rates(
     symbols: list[str] | None = None,
 ) -> dict[str, Any]:
     """
-    Fetch perpetual futures funding rates from Binance.
-    Positive rate = longs pay shorts (overbought).
-    Negative rate = shorts pay longs (oversold).
-    Threshold: >0.05% = elevated longs, <-0.01% = elevated shorts.
+    Fetch public funding observations, not qualified normalized signals.
+
+    A provider's per-print rate, effective interval and crowding basis must
+    not be silently equated with an eight-hour rate. Raw evidence is retained.
     """
+    ex = None
+    rates = []
+    errors = []
     try:
         import ccxt
         ex = ccxt.binance({
@@ -72,33 +82,39 @@ def get_funding_rates(
             "BTC/USDT", "ETH/USDT", "SOL/USDT", "AVAX/USDT",
             "DOGE/USDT", "LINK/USDT", "MATIC/USDT", "ADA/USDT",
         ]
-        rates = []
         for sym in target:
             try:
+                started = _funding_utc_now()
                 info = ex.fetch_funding_rate(sym)
-                rate = float(info.get("fundingRate") or 0.0) * 100.0
-
-                if rate > 0.05:    signal = "overleveraged_longs"
-                elif rate < -0.01: signal = "overleveraged_shorts"
-                elif rate > 0.02:  signal = "elevated_longs"
-                else:              signal = "neutral"
-
+                received = _funding_utc_now()
+                record = observation(
+                    venue="binance", symbol=sym, captured_at=received, payload=info,
+                    receipt={"request_started_at": started, "received_at": received,
+                             "requested_symbol": sym, "fetch_method": "fetch_funding_rate"})
+                raw_rate = record["funding_rate"]
+                raw_pct = finite_number(raw_rate * 100.0) if raw_rate is not None else None
                 rates.append({
-                    "symbol":     sym,
-                    "rate_pct":   round(rate, 4),
-                    "annualized": round(rate * 3 * 365, 2),
-                    "signal":     signal,
+                    "symbol": sym, "raw_rate_pct": raw_pct,
+                    "raw_percent_unrepresentable": raw_rate is not None and raw_pct is None,
+                    "rate_pct": None, "annualized": None, "signal": "unknown",
+                    "normalization_eligible": False,
+                    "normalization_reason": record["normalization"]["reason"],
+                    "observation": record,
                 })
-            except Exception:
-                pass
-        ex.close()
-        return {
-            "ok":    True,
-            "rates": rates,
-            "ts":    time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        }
-    except Exception as e:
-        return {"ok": False, "reason": f"{type(e).__name__}:{e}", "rates": []}
+            except Exception as exc:
+                errors.append({"symbol": sym, "reason": f"funding_observation_failed:{type(exc).__name__}"})
+    except Exception as exc:
+        errors.append({"reason": f"funding_setup_failed:{type(exc).__name__}"})
+    finally:
+        if ex is not None:
+            try:
+                ex.close()
+            except Exception as exc:
+                errors.append({"reason": f"funding_close_failed:{type(exc).__name__}"})
+    return {"ok": bool(rates), "complete": not errors, "rates": rates, "errors": errors,
+            "normalization_eligible": False,
+            "reason": "observed_unverified" if rates else "funding_unavailable",
+            "ts": _funding_utc_now()}
 
 
 def get_market_regime() -> dict[str, Any]:

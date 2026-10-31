@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from services.analytics.crypto_edges import funding_display
 from dashboard.services.crypto_edge_research import (
     load_crypto_edge_collector_runtime,
     load_crypto_edge_staleness_digest,
@@ -933,7 +934,7 @@ def build_crypto_edge_summary_digest(*, as_of: str, live_snapshot: dict[str, Any
         "funding": {
             "name": "Funding analytics",
             "meta": dict(live_snapshot.get("funding_meta") or {}),
-            "summary": f"Bias {str((live_snapshot.get('funding') or {}).get('dominant_bias') or 'flat').replace('_', ' ').title()} / carry {float(((live_snapshot.get('funding') or {}).get('annualized_carry_pct') or 0.0)):.2f}%"
+            "summary": f"Bias {funding_display(live_snapshot.get('funding'))['bias']} / carry {funding_display(live_snapshot.get('funding'))['carry']}"
             if isinstance(live_snapshot.get("funding"), dict)
             else None,
         },

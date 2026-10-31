@@ -12,9 +12,13 @@ from services.security.credentials_loader import load_exchange_credentials
 from services.security.exchange_factory import make_exchange
 
 class LiveExchangeAdapter:
-    def __init__(self, venue: str, *, enable_rate_limit: bool = True, sandbox: bool = False) -> None:
+    def __init__(self, venue: str, *, enable_rate_limit: bool = True, sandbox: bool = False,
+                 balance_paging_policy: dict | None = None) -> None:
         self.venue = normalize_venue(venue)
         self.sandbox = bool(sandbox)
+        if balance_paging_policy is not None:
+            from services.execution.coinbase_balance_observation import validate_balance_paging_policy
+            balance_paging_policy = validate_balance_paging_policy(balance_paging_policy, venue=self.venue)
         creds = load_exchange_credentials(self.venue)
         self._creds_meta = {
             k: creds.get(k)
@@ -46,6 +50,7 @@ class LiveExchangeAdapter:
             enable_rate_limit=enable_rate_limit,
             sandbox=self.sandbox,
             require_sandbox=self.sandbox,
+            **({"balance_paging_policy": balance_paging_policy} if balance_paging_policy is not None else {}),
         )
 
     def creds_meta(self) -> dict:
@@ -59,7 +64,8 @@ class LiveExchangeAdapter:
             pass  # suppressed: live_exchange_adapter.py
 
     def fetch_balance(self) -> dict:
-        return self.ex.fetch_balance()
+        from services.execution.coinbase_balance_observation import read_balance_sync
+        return read_balance_sync(self.ex)
 
     def fetch_ticker(self, canonical_symbol: str) -> dict:
         sym = map_symbol(self.venue, canonical_symbol)

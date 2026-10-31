@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from services.analytics.crypto_edges import funding_display
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.cards import render_feature_hero, render_kpi_cards, render_prompt_actions
 from dashboard.components.header import render_page_header
@@ -227,8 +228,8 @@ else:
         [
             {
                 "label": "Funding Carry",
-                "value": f"{float(funding.get('annualized_carry_pct') or 0.0):.2f}%",
-                "delta": str(funding.get("dominant_bias") or "flat").replace("_", " ").title(),
+                "value": funding_display(funding)["carry"],
+                "delta": funding_display(funding)["bias"],
             },
             {
                 "label": "Average Basis",
@@ -276,7 +277,7 @@ else:
             {
                 "source": str(live_snapshot.get("data_origin_label") or "Live Public"),
                 "freshness": str(live_snapshot.get("freshness_summary") or "Unknown"),
-                "funding_bias": str(((live_snapshot.get("funding") or {}).get("dominant_bias") or "flat")),
+                "funding_bias": funding_display(live_snapshot.get("funding"))["bias"],
                 "avg_basis_bps": f"{float(((live_snapshot.get('basis') or {}).get('avg_basis_bps') or 0.0)):.2f}",
                 "positive_dislocations": int(((live_snapshot.get("dislocations") or {}).get("positive_count") or 0)),
                 "top_symbol": str((((live_snapshot.get("dislocations") or {}).get("top_dislocation") or {}).get("symbol") or "-")),

@@ -1,0 +1,94 @@
+"""Disposable SQLite diagnostics for the existing intent metadata write boundary."""
+
+import ast
+from copy import deepcopy
+import json
+from pathlib import Path
+import socket
+import sqlite3
+from types import SimpleNamespace
+
+import pytest
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE = ROOT / "storage/execution_store_sqlite.py"
+
+
+@pytest.fixture
+def boundary(tmp_path, monkeypatch):
+    def refuse(*args, **kwargs):
+        raise AssertionError("network forbidden")
+    monkeypatch.setattr(socket, "create_connection", refuse)
+    monkeypatch.setattr(socket, "getaddrinfo", refuse)
+    monkeypatch.setattr(socket.socket, "connect", refuse)
+    path = tmp_path / "fixture.sqlite"
+    def connection(requested):
+        assert requested == str(path)
+        return sqlite3.connect(path)
+    tree = ast.parse(SOURCE.read_bytes())
+    ddl = next(ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
+               and any(isinstance(t, ast.Name) and t.id == "DDL" for t in n.targets))
+    with connection(str(path)) as con:
+        con.executescript(ddl)
+    cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == "ExecutionStore")
+    method = next(n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "upsert_intent")
+    future = ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0)
+    module = ast.Module(body=[future, method], type_ignores=[])
+    ast.fix_missing_locations(module)
+    ns = {"json": json, "_conn": connection, "_now_ms": lambda: 1000}
+    exec(compile(module, str(SOURCE), "exec"), ns)
+    store = SimpleNamespace(path=str(path))
+    def upsert(row):
+        ns["upsert_intent"](store, row)
+    def raw():
+        with connection(str(path)) as con:
+            return con.execute("SELECT status,meta_json FROM intents WHERE intent_id='exit-1'").fetchone()
+    return upsert, raw, connection, str(path)
+
+
+def row():
+    return {"intent_id": "exit-1", "ts_ms": 1000, "mode": "live", "exchange": "coinbase",
+            "symbol": "ETH/USD", "side": "sell", "order_type": "market", "qty": 2,
+            "status": "pending", "meta": {"strategy": "invented", "exit_control": {
+                "attempts": 3, "outcome": "unknown", "alerts": ["recorded-not-delivered"]}}}
+
+
+def test_ordinary_upsert_replaces_control_metadata(boundary):
+    upsert, raw, _, _ = boundary
+    original = row(); upsert(original)
+    replacement = deepcopy(original); replacement["meta"] = {"strategy": "invented"}
+    upsert(replacement)
+    status, text = raw()
+    assert status == "pending" and json.loads(text) == {"strategy": "invented"}
+
+
+def test_read_merge_then_upsert_can_restore_stale_attempt_state(boundary):
+    upsert, raw, connection, path = boundary
+    original = row(); original["meta"]["exit_control"].update(attempts=0, outcome="never_submitted")
+    upsert(original)
+    stale_writer = deepcopy(original)
+    committed = deepcopy(original["meta"])
+    committed["exit_control"].update(attempts=1, outcome="unknown")
+    with connection(path) as con:
+        con.execute("BEGIN IMMEDIATE")
+        con.execute("UPDATE intents SET meta_json=? WHERE intent_id=?", (json.dumps(committed), "exit-1"))
+    assert json.loads(raw()[1])["exit_control"]["attempts"] == 1
+    upsert(stale_writer)
+    assert json.loads(raw()[1])["exit_control"] == original["meta"]["exit_control"]
+
+
+def test_explicit_unchanged_metadata_roundtrips_without_claiming_writer_safety(boundary):
+    upsert, raw, _, _ = boundary
+    original = row(); upsert(original); upsert(deepcopy(original))
+    assert json.loads(raw()[1]) == original["meta"]
+
+
+def test_metadata_size_truncation_can_leave_unreadable_json(boundary):
+    upsert, raw, _, _ = boundary
+    original = row(); original["meta"]["padding"] = "x" * 200001
+    upsert(original)
+    text = raw()[1]
+    assert len(text) == 200000
+    with pytest.raises(json.JSONDecodeError):
+        json.loads(text)

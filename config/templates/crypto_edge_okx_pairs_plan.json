@@ -1,0 +1,18 @@
+{
+  "funding": [
+    {"venue": "okx", "symbol": "BTC/USDT:USDT", "inst_id": "BTC-USDT-SWAP", "interval_hours": 8.0}
+  ],
+  "open_interest": [
+    {"venue": "okx", "symbol": "BTC/USDT:USDT"}
+  ],
+  "basis": [
+    {"venue": "okx", "spot_symbol": "BTC/USDT", "perp_symbol": "BTC/USDT:USDT", "days_to_expiry": 7}
+  ],
+  "quotes": [
+    {"venue": "coinbase", "symbol": "BTC/USD", "orderbook_limit": 5},
+    {"venue": "kraken", "symbol": "BTC/USD", "orderbook_limit": 5}
+  ],
+  "order_books": [
+    {"venue": "coinbase", "symbol": "BTC/USD", "depth": 5}
+  ]
+}

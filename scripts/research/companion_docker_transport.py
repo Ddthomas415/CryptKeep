@@ -24,6 +24,7 @@ CLI = Path("/Applications/Docker.app/Contents/Resources/bin/docker")
 ENDPOINT = "unix:///Users/baitus/.docker/run/docker.sock"
 ENV = {"PATH": "/usr/bin:/bin"}
 MAX_LIMIT = 16 * 1_048_576
+NETWORK_INSPECT_FORMAT = '{"id":{{json .Id}},"name":{{json .Name}}}'
 _ID = re.compile(r"[0-9a-f]{64}\Z")
 _SOURCE = re.compile(r"/app/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)?\.py\Z")
 _SDK = re.compile(
@@ -33,7 +34,13 @@ _SDK = re.compile(
 )
 _FILES = frozenset({"/usr/bin/curl", "/bin/sh", "/bin/bash", "/usr/local/bin/uvicorn",
                     "/usr/local/bin/docker-entrypoint.sh",
-                    "/var/lib/postgresql/data/PG_VERSION"})
+                    "/var/lib/postgresql/data/PG_VERSION",
+                    "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py",
+                    "/usr/local/lib/python3.11/site-packages/uvicorn/main.py",
+                    "/usr/local/lib/python3.11/site-packages/uvicorn/config.py",
+                    "/usr/local/lib/python3.11/site-packages/uvicorn/importer.py",
+                    "/usr/local/lib/python3.11/site-packages/uvicorn/server.py",
+                    "/usr/local/lib/python3.11/site-packages/uvicorn/lifespan/on.py"})
 
 
 def _refuse(reason):
@@ -61,6 +68,14 @@ def _id(value):
 
 
 def _arguments(args):
+    if (type(args) is tuple and len(args) >= 5 and args[:3] == ("network", "inspect", "--format")
+            and args[3] == NETWORK_INSPECT_FORMAT):
+        identities = args[4:]
+        if (not 1 <= len(identities) <= 7
+                or any(type(value) is not str or not _ID.fullmatch(value) for value in identities)
+                or len(set(identities)) != len(identities)):
+            _refuse("transport_arguments_refused")
+        return
     if (type(args) is not tuple or len(args) < 2 or args[0] != "container"
             or any(type(a) is not str or not a or "\0" in a for a in args)):
         _refuse("transport_arguments_refused")

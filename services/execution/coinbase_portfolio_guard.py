@@ -10,6 +10,10 @@ def _get_portfolio_uuid(ex: Any) -> str | None:
 
 def _get_portfolio_currencies(ex: Any, portfolio_uuid: str) -> set[str]:
     bal = ex.fetch_balance()
+    from services.execution.coinbase_v3_accounts import available_by_currency
+    native_v3 = available_by_currency(bal, portfolio_uuid)
+    if native_v3 is not None:
+        return set(native_v3)
     data = ((bal or {}).get("info") or {}).get("data") or []
     out: set[str] = set()
     for acct in data:

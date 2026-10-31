@@ -37,3 +37,31 @@ git add --pathspec-from-file=$P/F_other_docs.txt && git commit -m "docs: notes, 
 git status --short | head    # expect only group D (and anything Codex holds back)
 # After the owner's review: git push -u origin backup/2026-10-31
 ```
+
+## Group D: committed as an unreviewed backup (2026-10-31, Codex unavailable; owner: "resolve or document")
+Committed on `backup/2026-10-31` so it is not only on the laptop. **Not reviewed or confirmed by Codex; do not merge as
+is.** The 195 files are exactly `D_code_for_codex_to_confirm.txt` (checked against `git status` before committing: no
+file added or missing); no credential values (pattern scan; the one match is a placeholder test key).
+
+Test status (Claude, 2026-10-31, SHOWN): run on a copy of the working tree with Python 3.12 and a temporary state
+directory; no `.env`, `config/user.yaml` or `.git` in the copy.
+| Set | Result |
+|---|---|
+| D's 52 non-companion test files (trading safety, research, dashboards) | 1,602 passed, 0 failed |
+| Whole suite (1,136 files) | 8,850 passed, 175 failed, 35 skipped, 1 collection error |
+| ... caused by group D (pass on the same copy without D) | 2 guard tests (below) |
+| ... companion tests (`tests/test_companion_*`, 72 files in D) | 130 failed, 1 collection error: most report review packets whose pinned inputs changed after review (`*_input_changed`, `source_refresh_drift`, `reviewed_consumer_changed`); some need files at fixed laptop paths or the `bs4` package (not installed here) |
+| ... other failures, with or without D | 43: mostly tests that need git, `make`, systemd or files at fixed laptop paths; one is `test_no_legacy_state_paths`, tripped by already-committed `scripts/research/pinned_run_inputs.py` |
+
+What Codex must do before any of group D is merged:
+1. `tests/test_live_intent_queue_boundary.py` fails: four files name the live-queue tables next to SQL writes instead
+   of going through `storage/live_intent_queue_sqlite.py`: `scripts/research/synthetic_exit_checkpoint.py` (a
+   "disposable" prototype with no database path of its own; it updates `live_consumer_state` on a connection it is
+   given), `scripts/research/synthetic_funding_observations.py`, `scripts/research/synthetic_live_position_cap.py` and
+   `services/analytics/funding_observations.py`. Without group D there are none.
+   Route them through the queue store, or rename the prototype tables; do not widen the guard without review.
+2. `tests/test_no_direct_create_order.py` fails: `tests/test_exchange_client_retry_flow.py` lines 72 and 105 call
+   `create_order` in a test stub. Change the stub so the guard passes; do not exempt it silently.
+3. Companion chain: re-freeze or revert the review packets whose inputs changed, then rerun `tests/test_companion_*`.
+4. Say which items are ready (ACCEPTED, INCOMPLETE, ACCEPTED_WITH_RISK per `docs/PROJECT_STATE.md`); split them into
+   reviewable pull requests; independent review before merge (AGENTS.md).

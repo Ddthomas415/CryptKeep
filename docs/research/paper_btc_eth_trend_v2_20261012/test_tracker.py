@@ -192,3 +192,48 @@ def test_band_executions_drop_zero_units():
     recs = T.replay(C, 1578182400 // T.D, max(C["BTC"]) - 2)
     ex = [r for r in recs if r["ledger"] == "executions" and r["account"] == "rule_band10"]
     assert ex and all(q > 0 for r in ex for q in r["units_after"].values())
+
+
+# ---- 2026-10-20: verified TLS (the 2026-10-19 scheduled run failed with CERTIFICATE_VERIFY_FAILED). Offline, no network. ----
+import io, ssl, urllib.error
+
+def test_fetch_uses_verified_tls_with_certifi_bundle(monkeypatch):
+    import certifi
+    made, seen, real_ctx = [], [], ssl.create_default_context
+    def spy(*args, **kwargs):
+        ctx = real_ctx(*args, **kwargs); made.append((args, kwargs, ctx)); return ctx
+    monkeypatch.setattr(T.ssl, "create_default_context", spy)
+    def open_request(req, *, timeout, context):
+        seen.append((req.full_url, timeout, context)); return io.BytesIO(b"[]")
+    monkeypatch.setattr(T.urllib.request, "urlopen", open_request)
+    monkeypatch.setattr(T.time, "sleep", lambda s: None)
+    day = 1789000000 // T.D
+    assert T.fetch(day, day) == {"BTC": {}, "ETH": {}}
+    assert len(made) == 1 and made[0][0] == () and made[0][1] == {"cafile": certifi.where()}
+    ctx = made[0][2]
+    assert ctx.verify_mode == ssl.CERT_REQUIRED and ctx.check_hostname is True
+    assert ctx.cert_store_stats()["x509_ca"] > 0                         # the certifi roots are actually loaded
+    assert len(seen) == 2 and all(c is ctx and t == 30 for _, t, c in seen)   # one window per asset, same context
+    assert {u.split("/products/")[1].split("/")[0] for u, _, _ in seen} == {"BTC-USD", "ETH-USD"}
+    assert all(u.startswith("https://api.exchange.coinbase.com/") for u, _, _ in seen)
+
+def test_certificate_failure_writes_nothing_and_never_falls_back_to_unverified(tmp_path, monkeypatch):
+    """Offline replay of the first scheduled run (2026-10-19 00:47 UTC) failing certificate verification."""
+    seen = []
+    def fail(req, *, timeout, context):
+        seen.append(context)
+        raise urllib.error.URLError(ssl.SSLCertVerificationError(
+            1, "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate"))
+    monkeypatch.setattr(T.urllib.request, "urlopen", fail)
+    monkeypatch.setattr(T.time, "sleep", lambda s: None)
+    with pytest.raises(urllib.error.URLError, match="CERTIFICATE_VERIFY_FAILED"):
+        T.main(["--state", str(tmp_path), "--start", "2026-10-18"], now=1792370820)   # 2026-10-19T00:47:00Z
+    assert len(seen) == 4                                                # existing retry count unchanged
+    assert all(c.verify_mode == ssl.CERT_REQUIRED and c.check_hostname is True for c in seen)
+    assert sorted(p.name for p in tmp_path.iterdir()) == [".lock"]       # same footprint as the failed 2026-10-19 run
+
+def test_no_unverified_tls_path_in_source():
+    src = (HERE / "tracker.py").read_text()
+    for bad in ("CERT_NONE", "_create_unverified_context", "check_hostname = False", "check_hostname=False", "verify_mode ="):
+        assert bad not in src, bad
+    assert src.count("urlopen(") == 1 and "context=ctx" in src

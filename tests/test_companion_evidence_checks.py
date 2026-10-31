@@ -284,7 +284,7 @@ def test_missing_last_live_row_and_boolean_archive_id_rejected(case):
     refused(case)
 
 
-def remote(monkeypatch, case, data=None, failure=None, timer=(0.0, 0.0), alarm_events=None):
+def remote(monkeypatch, case, data=None, failure=None, timer=(0.0, 0.0), alarm_events=None, diagnostic=False):
     raw, view, actual, approvals = case
     calls = []
     events = alarm_events if alarm_events is not None else []
@@ -309,6 +309,8 @@ def remote(monkeypatch, case, data=None, failure=None, timer=(0.0, 0.0), alarm_e
         events.append(("timer", seconds))
         if failure == "arm" and seconds:
             raise ValueError("private alarm setup error")
+        if failure == "cleanup" and not seconds:
+            raise ValueError("private alarm cleanup error")
         return (0.0, 0.0)
 
     monkeypatch.setattr(signal, "getitimer", getitimer)
@@ -341,7 +343,7 @@ def remote(monkeypatch, case, data=None, failure=None, timer=(0.0, 0.0), alarm_e
             return self
 
         def __exit__(self, *args):
-            if failure == "teardown":
+            if failure == "teardown" or (failure == "late_teardown" and "lineage" in calls):
                 raise RuntimeError("private cleanup error")
             return False
 
@@ -384,10 +386,13 @@ def remote(monkeypatch, case, data=None, failure=None, timer=(0.0, 0.0), alarm_e
     monkeypatch.setattr(sys, "stdin", SimpleNamespace(buffer=io.BytesIO(payload)))
     monkeypatch.setattr(sys, "stdout", stdout)
     monkeypatch.setattr(sys, "stderr", stderr)
-    exec(checks.EVIDENCE_SCRIPT, {"__name__": "__main__"})
+    exec(checks.DIAGNOSTIC_EVIDENCE_SCRIPT if diagnostic else checks.EVIDENCE_SCRIPT, {"__name__": "__main__"})
     output = stdout.getvalue()
     result = json.loads(output)
-    assert set(result) == set(checks.KEYS) and all(type(v) is bool for v in result.values())
+    if diagnostic:
+        assert checks.diagnostic_result_valid(result)
+    else:
+        assert set(result) == set(checks.KEYS) and all(type(v) is bool for v in result.values())
     assert output == json.dumps(result, separators=(",", ":")) + "\n"
     assert "private" not in output and "synthetic" not in output and "https" not in output
     return result, calls

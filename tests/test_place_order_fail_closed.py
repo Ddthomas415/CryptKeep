@@ -549,7 +549,7 @@ def test_place_order_validates_market_rules_with_normalized_order_values(monkeyp
 
     assert out["id"] == "oid-1"
     assert ex.calls == [(("BTC/USD", "limit", "buy", 1.0, 10.01, {}), {})]
-    assert seen["market_rules_kwargs"] == {"qty": 1.0, "notional": pytest.approx(10.01), "ttl_s": 21600.0}
+    assert seen["market_rules_kwargs"] == {"qty": 1.0, "notional": pytest.approx(10.01), "ttl_s": 21600.0, "order_type": "limit"}
     assert seen["record_order_attempt"] == {"notional_usd": pytest.approx(10.01), "exec_db": "/tmp/execution.sqlite"}
 
 
@@ -612,7 +612,7 @@ def test_place_order_async_uses_normalized_values(monkeypatch):
 
     assert out["id"] == "oid-async-precision"
     assert ex.calls == [(("BTC/USD", "limit", "buy", 1.0, 10.01, {}), {})]
-    assert seen["market_rules_kwargs"] == {"qty": 1.0, "notional": pytest.approx(10.01), "ttl_s": 21600.0}
+    assert seen["market_rules_kwargs"] == {"qty": 1.0, "notional": pytest.approx(10.01), "ttl_s": 21600.0, "order_type": "limit"}
     assert seen["record_order_attempt"] == {"notional_usd": pytest.approx(10.01), "exec_db": "/tmp/execution.sqlite"}
 
 

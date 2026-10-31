@@ -79,6 +79,7 @@ def test_pinned_invocation_private_environment_and_input(transport, monkeypatch)
 
 
 @pytest.mark.parametrize("args", [
+    ("network", "inspect", "--format", t.NETWORK_INSPECT_FORMAT, CID),
     ("container", "ls"),
     ("container", "ls", "--all", "--no-trunc", "--format", "{{.ID}}"),
     ("container", "inspect", "--format", "{{.State.Status}}", CID),
@@ -93,6 +94,13 @@ def test_allowed_shapes(transport, args):
 
 
 @pytest.mark.parametrize("args", [
+    ("network", "inspect", "--format", "{{json .}}", CID),
+    ("network", "inspect", "--format", t.NETWORK_INSPECT_FORMAT),
+    ("network", "inspect", "--format", t.NETWORK_INSPECT_FORMAT, CID, CID),
+    ("network", "inspect", "--format", t.NETWORK_INSPECT_FORMAT, 'research'),
+    ("network", "inspect", "--format", t.NETWORK_INSPECT_FORMAT, ['unhashable']),
+    ("network", "disconnect", "--format", t.NETWORK_INSPECT_FORMAT, CID),
+    ("network", "inspect", "--format", t.NETWORK_INSPECT_FORMAT, *tuple(f'{i:064x}' for i in range(8))),
     (), ["container", "ls"], ("ps",), ("context", "show"),
     ("--host", "tcp://elsewhere", "container", "ls"),
     ("container", "rm", CID), ("container", "restart", CID),
@@ -198,6 +206,7 @@ def archive_bytes(name, body=b"print('offline')\n", kind=tarfile.REGTYPE, extra=
 
 @pytest.mark.parametrize("path", ["/app/main.py", "/app/shared/config.py", "/usr/bin/curl",
     "/bin/sh", "/bin/bash", "/usr/local/bin/uvicorn", "/usr/local/bin/docker-entrypoint.sh",
+    "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py",
     "/var/lib/postgresql/data/PG_VERSION", *[
         f"/usr/local/lib/python3.11/site-packages/{package}/nested/source.py"
         for package in ("qdrant_client", "httpx", "httpcore", "botocore", "boto3", "urllib3", "psycopg")]])
@@ -231,6 +240,19 @@ def test_read_file_16mib_binary_budget(transport):
     "/usr/local/lib/python3.11/site-packages/httpx/.env",
     "/usr/local/lib/python3.12/site-packages/httpx/main.py"])
 def test_rejected_file_paths(transport, path):
+    with pytest.raises(t.controller.Refused, match="transport_path_refused"):
+        transport[0].read_file(CID, path)
+    assert transport[1] == []
+
+
+@pytest.mark.parametrize("path", [
+    "/usr/local/lib/python3.11/site-packages/uvicorn/other.py",
+    "/usr/local/lib/python3.11/site-packages/uvicorn/nested/__main__.py",
+    "/usr/local/lib/python3.12/site-packages/uvicorn/__main__.py",
+    "/usr/local/lib/python3.11/site-packages/uvicorn/../__main__.py",
+    "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py.bak",
+])
+def test_launcher_allowance_does_not_expand_uvicorn_package(transport, path):
     with pytest.raises(t.controller.Refused, match="transport_path_refused"):
         transport[0].read_file(CID, path)
     assert transport[1] == []

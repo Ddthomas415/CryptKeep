@@ -14,8 +14,10 @@ import tempfile
 from scripts.research import companion_runtime_adapter as adapter
 from scripts.research.companion_docker_transport import CLI, ENDPOINT
 from scripts.research.companion_installer import Snapshot
+from scripts.research.companion_worker_shutdown import APP_SPEC, replacement_command
 
-CLI_SHA256 = "31ae2d64e51d9dfc728a2934941615cdd92f31279ed6d5c1fb2bfc0a44637a8f"
+# Docker Desktop 4.96.0 arm64; native signature verified 2026-10-20.
+CLI_SHA256 = "678271184175b40dfc4bd6f4582be00ae1538b0d1e031181f52ceedfae9af5fb"
 APP_COMMAND = ["sh", "-c", "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"]
 
 
@@ -51,7 +53,7 @@ def equals(expression, allowed):
 
 def capture_format():
     # Unknown command/health text never crosses the daemon boundary.
-    command = equals(".Config.Cmd", [APP_COMMAND, ["postgres"], ["./entrypoint.sh"],
+    command = equals(".Config.Cmd", [APP_COMMAND, *[replacement_command(n) for n in APP_SPEC], ["postgres"], ["./entrypoint.sh"],
                      ["server", "/data", "--console-address", ":9001"], None, []])
     entry = equals(".Config.Entrypoint", [None, [], ["docker-entrypoint.sh"],
                     ["/usr/bin/docker-entrypoint.sh"], ["./entrypoint.sh"]])

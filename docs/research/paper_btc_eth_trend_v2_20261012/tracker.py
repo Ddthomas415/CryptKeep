@@ -16,8 +16,9 @@ and appends only records whose key is absent. A recomputed record that differs f
 anomalies.jsonl; the run then HALTS without writing anything else and never rewrites history. A missing candle in the needed
 range raises an error (no price fill). A non-blocking lock refuses concurrent runs. state.json is a derived summary view only.
 Usage: python3 tracker.py --state DIR [--start 2026-10-18]"""
-import argparse, fcntl, json, math, os, statistics, sys, time, urllib.request, datetime as dt
+import argparse, fcntl, json, math, os, ssl, statistics, sys, time, urllib.request, datetime as dt
 from pathlib import Path
+import certifi  # pinned in requirements-pinned.txt and installed in the repo .venv that the schedule runs
 ROOT = Path(__file__).resolve().parents[3]; sys.path.insert(0, str(ROOT))
 from scripts.research.corrected_research_math import rebalance  # noqa: E402
 
@@ -178,8 +179,14 @@ def summary(state, records, last_day):
             "pending_decisions": [r for r in pend if (r["account"], r["decision_day"]) not in execd],
             "note": "Derived from the append-only ledgers; the .jsonl files are the record."}
 
+def tls_context():
+    """Verified TLS with certifi's CA bundle, as in docs/research/cmc_trending_log/cmc_trending_logger_v3.py. The scheduled
+    runtime (.venv on python.org Python 3.12) has no default CA roots, and the 2026-10-19 scheduled run failed with
+    CERTIFICATE_VERIFY_FAILED. Verification stays on (CERT_REQUIRED, hostname check); there is no unverified fallback."""
+    return ssl.create_default_context(cafile=certifi.where())
+
 def fetch(start_day, last_day):
-    out = {}
+    out = {}; ctx = tls_context()
     for a in ASSETS:
         rows = {}; t = (start_day - 40) * D
         while t <= last_day * D:
@@ -188,7 +195,7 @@ def fetch(start_day, last_day):
                    f"&start={dt.datetime.fromtimestamp(t, dt.timezone.utc).isoformat()}&end={dt.datetime.fromtimestamp(e, dt.timezone.utc).isoformat()}")
             for attempt in range(4):
                 try:
-                    data = json.load(urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "cryptkeep-research"}), timeout=30)); break
+                    data = json.load(urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "cryptkeep-research"}), timeout=30, context=ctx)); break
                 except Exception:
                     if attempt == 3: raise
                     time.sleep(2 * (attempt + 1))

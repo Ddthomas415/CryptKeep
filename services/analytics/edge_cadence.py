@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import math
 import os
+import json
+import re
 import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -102,7 +104,10 @@ def evaluate_cadence(
             )
             continue
 
-        age = max(0.0, (ref - capture).total_seconds())
+        if capture > ref:
+            families.append(FamilyCadence(family, limit, capture.isoformat(), None, "missing", "capture_in_future"))
+            continue
+        age = (ref - capture).total_seconds()
         if age > limit:
             families.append(
                 FamilyCadence(family, limit, capture.isoformat(), age, "stale", f"age_sec={age:.0f} max={limit:.0f}")
@@ -154,16 +159,112 @@ def _latest_snapshot_meta_read_only(conn: sqlite3.Connection, table: str) -> dic
     }
 
 
-def _latest_report_read_only(store_path: str | None = None) -> dict[str, Any]:
+def _paired_scope(source, inst_ids, scan_limit):
+    if source is None and inst_ids is None:
+        return None
+    if (type(source) is not str or not source or source != source.strip()
+            or type(inst_ids) not in (list, tuple) or not inst_ids
+            or any(type(item) is not str or re.fullmatch(r"[A-Z0-9]+-[A-Z0-9]+-SWAP", item) is None
+                   for item in inst_ids)
+            or len(set(inst_ids)) != len(inst_ids)
+            or type(scan_limit) is not int or not 1 <= scan_limit <= 1000):
+        raise ValueError("explicit_paired_source_native_ids_and_scan_limit_required")
+    return source, tuple(inst_ids), scan_limit
+
+
+def _paired_funding_meta(conn, scope, ref):
+    from services.analytics.funding_observations import encoded, identity, observation
+    from services.analytics.okx_funding_contract import _finite_json_float, _object, _reject_nonfinite
+    from services.analytics.okx_funding_journal import CONTRACT, _stored_pair
+
+    source, inst_ids, limit = scope
+    details = {"lane": "validated_okx_pair_capture", "source": source,
+               "scan_limit": limit, "scanned": 0, "scan_exhaustive": False,
+               "normalization_eligible": False, "strategy_eligible": False,
+               "execution_authority": False, "instruments": [], "diagnostics": []}
+    found = {}
+    if conn is not None and _table_exists(conn, "raw_funding_observations"):
+        # Bound fetched text and total decoded evidence, not just the row count.
+        rows = conn.execute(
+            "SELECT observation_key, capture_ts, length(CAST(payload_json AS BLOB)) AS size, "
+            "CASE WHEN length(CAST(payload_json AS BLOB)) <= 4194304 THEN payload_json END AS payload "
+            "FROM raw_funding_observations WHERE source=? ORDER BY id DESC LIMIT ?", (source, limit + 1))
+        used = 0
+        for row in rows:
+            if details["scanned"] >= limit:
+                break
+            details["scanned"] += 1
+            if row["payload"] is None or row["size"] is None or used + row["size"] > 8388608:
+                details["diagnostics"].append("raw_evidence_byte_budget_exceeded")
+                break
+            used += row["size"]
+            try:
+                record = json.loads(row["payload"], object_pairs_hook=_object,
+                                    parse_constant=_reject_nonfinite, parse_float=_finite_json_float)
+                if type(record) is not dict:
+                    raise ValueError("raw_object_required")
+                # Attribution is untrusted until the complete envelope/key/index agree.
+                rebuilt = observation(
+                    venue=record["venue"], symbol=record["symbol"], captured_at=record["captured_at"],
+                    payload=record["raw_payload"], plan_interval_hours=record["plan_interval_hours_unverified"],
+                    receipt=({key: record["receipt"][key] for key in (
+                        "request_started_at", "received_at", "requested_symbol", "fetch_method")}
+                        if "receipt" in record else None))
+                capture = _parse_ts(record["captured_at"])
+                if (encoded(record) != encoded(rebuilt) or identity(record) != row["observation_key"]
+                        or capture is None or row["capture_ts"] != capture.isoformat()):
+                    raise ValueError("raw_envelope_invalid")
+                inst = record.get("symbol")
+                if type(inst) is not str:
+                    raise ValueError("raw_identity_required")
+                if inst not in inst_ids or inst in found:
+                    continue
+                found[inst] = {"inst_id": inst, "status": "unusable_evidence", "capture_ts": None}
+                payload = record.get("raw_payload")
+                if type(payload) is not dict or payload.get("contract") != CONTRACT:
+                    found[inst]["status"] = "not_a_successful_pair"
+                    continue
+                _stored_pair(record, row["observation_key"])
+                if capture > ref:
+                    found[inst]["status"] = "capture_in_future"
+                    continue
+                found[inst].update(status="validated_capture", capture_ts=capture.isoformat(),
+                                   observation_key=row["observation_key"])
+            except (KeyError, TypeError, ValueError, OverflowError, RecursionError):
+                # Unattributable corruption cannot stand in for a missing instrument.
+                details["diagnostics"].append("unusable_raw_evidence")
+                break
+            if len(found) == len(inst_ids):
+                break
+        else:
+            details["scan_exhaustive"] = True
+        rows.close()
+    else:
+        details["scan_exhaustive"] = True
+    details["instruments"] = [found.get(inst, {"inst_id": inst, "status": "no_capture_in_scan",
+                                              "capture_ts": None}) for inst in inst_ids]
+    valid = [item for item in details["instruments"] if item["status"] == "validated_capture"]
+    if details["diagnostics"] or len(valid) != len(inst_ids):
+        return None, details
+    return {"capture_ts": min(item["capture_ts"] for item in valid), "source": source,
+            "row_count": len(valid), "evidence_lane": details["lane"]}, details
+
+
+def _latest_report_read_only(store_path: str | None = None, *, paired_scope=None, now=None) -> dict[str, Any]:
     path = Path(store_path).expanduser() if store_path else _default_store_path()
     if not path.exists():
-        return {"store_path": str(path), "has_any_data": False}
+        report = {"store_path": str(path), "has_any_data": False}
+        if paired_scope is not None:
+            report["funding_meta"], report["paired_funding"] = _paired_funding_meta(None, paired_scope, now)
+        return report
     conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
     conn.row_factory = sqlite3.Row
     try:
         report: dict[str, Any] = {"store_path": "redacted"}
         for family, meta_key in META_KEYS.items():
             report[meta_key] = _latest_snapshot_meta_read_only(conn, TABLES[family])
+        if paired_scope is not None:
+            report["funding_meta"], report["paired_funding"] = _paired_funding_meta(conn, paired_scope, now)
         report["has_any_data"] = any(bool(report.get(meta_key)) for meta_key in META_KEYS.values())
         return report
     finally:
@@ -175,9 +276,14 @@ def check_edge_cadence(
     store_path: str | None = None,
     now: datetime | None = None,
     max_age_sec: dict[str, float] | None = None,
+    paired_funding_source: str | None = None,
+    paired_funding_inst_ids: list[str] | tuple[str, ...] | None = None,
+    paired_funding_scan_limit: int = 100,
 ) -> dict[str, Any]:
     try:
-        report = _latest_report_read_only(store_path=store_path)
+        ref = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+        scope = _paired_scope(paired_funding_source, paired_funding_inst_ids, paired_funding_scan_limit)
+        report = _latest_report_read_only(store_path=store_path, paired_scope=scope, now=ref)
     except Exception as exc:
         return {
             "ok": False,
@@ -185,6 +291,9 @@ def check_edge_cadence(
             "stale": [],
             "missing": list(META_KEYS.keys()),
             "families": [],
-            "store_error": f"{type(exc).__name__}: {exc}",
+            "store_error": type(exc).__name__,
         }
-    return evaluate_cadence(report, now=now, max_age_sec=max_age_sec)
+    result = evaluate_cadence(report, now=ref, max_age_sec=max_age_sec)
+    if "paired_funding" in report:
+        result["paired_funding"] = report["paired_funding"]
+    return result

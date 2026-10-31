@@ -1,9 +1,22 @@
 import pytest
+import socket
 
 from services.execution.client_order_id import make_client_order_id as canonical_make_client_order_id
 from services.execution.execution_context import ExecutionContext
 from services.execution.order_reconciliation import SafeToRetryAfterReconciliation
 from storage.order_dedupe_store_sqlite import OrderDedupeStore as ExecutionOrderDedupeStore
+
+
+@pytest.fixture(autouse=True)
+def offline_client_boundaries(monkeypatch):
+    from services.execution import exchange_client as subject
+    def refuse(*args, **kwargs):
+        raise AssertionError("private/network call forbidden")
+    monkeypatch.setattr(socket, "create_connection", refuse)
+    monkeypatch.setattr(socket, "getaddrinfo", refuse)
+    monkeypatch.setattr(socket.socket, "connect", refuse)
+    monkeypatch.setattr(subject, "ensure_dirs", lambda: None)
+    monkeypatch.setattr(subject, "load_exchange_credentials", refuse)
 
 
 class DummyStore:
@@ -15,7 +28,8 @@ class DummyStore:
 
     def claim(self, **kwargs):
         self.claimed.append(kwargs)
-        return {"ok": True}
+        return {"status": "created", "_inserted": True, "_submit_claimed": True,
+                **{key: kwargs[key] for key in ("exchange_id", "intent_id", "symbol", "client_order_id")}}
 
     def get(self, **kwargs):
         return None
@@ -46,16 +60,17 @@ class DummySuccessExchange:
         pass
 
 
-def test_ambiguous_submit_requires_reconciliation_before_retry(monkeypatch):
+def test_ambiguous_submit_requires_reconciliation_before_retry(monkeypatch, tmp_path):
     from services.execution.exchange_client import ExchangeClient
 
     store = DummyStore()
 
     monkeypatch.setattr("services.execution.exchange_client.OrderDedupeStore", lambda *a, **k: store)
     monkeypatch.setattr("services.execution.exchange_client.load_exchange_credentials", lambda exchange_id: {"apiKey": "x"})
-    monkeypatch.setattr(ExchangeClient, "build", lambda self: DummyExchange(RuntimeError("network timeout")))
+    monkeypatch.setattr(ExchangeClient, "build", lambda self: DummyExchange(TimeoutError("invented timeout")))
+    monkeypatch.setattr("services.execution.exchange_client.ensure_dirs", lambda: None)
+    monkeypatch.setattr("services.execution.exchange_client.place_order", lambda ex, *a, **k: ex.create_order())
     monkeypatch.setattr("services.execution.exchange_client.client_id_param", lambda exchange_id, client_id: {"clientOrderId": client_id})
-    monkeypatch.setattr("services.execution.exchange_client._is_ambiguous_submit_error", lambda e: True)
     monkeypatch.setattr(
         "services.execution.exchange_client.reconcile_ambiguous_submission",
         lambda **kwargs: type("R", (), {"outcome": "inconclusive"})(),
@@ -72,21 +87,23 @@ def test_ambiguous_submit_requires_reconciliation_before_retry(monkeypatch):
             amount=1.0,
             price=None,
             order_type="market",
+            exec_db=str(tmp_path / "fixture.sqlite"),
         )
 
     assert len(store.unknown) == 1
 
 
-def test_ambiguous_submit_allows_retry_only_when_confirmed_not_placed(monkeypatch):
+def test_ambiguous_submit_allows_retry_only_when_confirmed_not_placed(monkeypatch, tmp_path):
     from services.execution.exchange_client import ExchangeClient
 
     store = DummyStore()
 
     monkeypatch.setattr("services.execution.exchange_client.OrderDedupeStore", lambda *a, **k: store)
     monkeypatch.setattr("services.execution.exchange_client.load_exchange_credentials", lambda exchange_id: {"apiKey": "x"})
-    monkeypatch.setattr(ExchangeClient, "build", lambda self: DummyExchange(RuntimeError("network timeout")))
+    monkeypatch.setattr(ExchangeClient, "build", lambda self: DummyExchange(TimeoutError("invented timeout")))
+    monkeypatch.setattr("services.execution.exchange_client.ensure_dirs", lambda: None)
+    monkeypatch.setattr("services.execution.exchange_client.place_order", lambda ex, *a, **k: ex.create_order())
     monkeypatch.setattr("services.execution.exchange_client.client_id_param", lambda exchange_id, client_id: {"clientOrderId": client_id})
-    monkeypatch.setattr("services.execution.exchange_client._is_ambiguous_submit_error", lambda e: True)
     monkeypatch.setattr(
         "services.execution.exchange_client.reconcile_ambiguous_submission",
         lambda **kwargs: type("R", (), {"outcome": "confirmed_not_placed"})(),
@@ -103,6 +120,7 @@ def test_ambiguous_submit_allows_retry_only_when_confirmed_not_placed(monkeypatc
             amount=1.0,
             price=None,
             order_type="market",
+            exec_db=str(tmp_path / "fixture.sqlite"),
         )
 
     assert len(store.unknown) == 1

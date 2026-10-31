@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import Any, Dict, Iterable, List
 
 
@@ -14,6 +15,26 @@ def _s(value: Any) -> str:
     return str(value or "").strip()
 
 
+def funding_display(summary: dict[str, Any] | None) -> dict[str, str]:
+    """No persisted or cached numeric field alone qualifies an economic claim."""
+    return {"carry": "N/A", "bias": "Unknown", "reason": "Funding normalization unverified"}
+
+
+def summarize_unverified_funding(rows: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
+    items = [deepcopy(dict(row or {})) for row in rows]
+    return {
+        "ok": False, "reason": "funding_provenance_unverified" if items else "funding_missing",
+        "normalization_eligible": False, "count": len(items),
+        "rows": [{"symbol": _s(row.get("symbol")), "venue": _s(row.get("venue")),
+                  "funding_rate": row.get("funding_rate"), "interval_hours": row.get("interval_hours"),
+                  "side_bias": "unknown", "normalization_eligible": False,
+                  "raw_observation": row} for row in items],
+        "avg_funding_rate": None, "last_funding_rate": None, "annualized_carry_pct": None,
+        "positive_ratio": None, "negative_ratio": None, "dominant_bias": "unknown",
+    }
+
+
+# Retain historical uniform-interval model arithmetic, not archive qualification.
 def summarize_funding_carry(
     rows: Iterable[Dict[str, Any]],
     *,
@@ -280,7 +301,8 @@ def build_crypto_edge_report(
     order_book_rows: Iterable[Dict[str, Any]] | None = None,
     funding_interval_hours: float = 8.0,
 ) -> Dict[str, Any]:
-    funding = summarize_funding_carry(funding_rows or [], interval_hours=float(funding_interval_hours))
+    # The legacy model interval argument cannot authenticate stored provenance.
+    funding = summarize_unverified_funding(funding_rows or [])
     basis = summarize_basis_spread(basis_rows or [])
     dislocations = summarize_cross_venue_dislocations(quote_rows or [])
     open_interest = summarize_open_interest(open_interest_rows or [])

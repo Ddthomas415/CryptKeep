@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+import math
 from typing import Optional
 from services.markets.models import MarketRules, ValidationResult
 from services.markets.symbols import canonicalize
@@ -63,14 +64,49 @@ def _invalid_result(
     return ValidationResult(False, code, message, rules, dict(meta))
 
 
-def validate(exec_db: str, venue: str, canonical_symbol: str, qty: Optional[float] = None, notional: Optional[float] = None, ttl_s: float = DEFAULT_TTL_S) -> ValidationResult:
+def _coinbase_mode_code(rules: MarketRules, order_type: str) -> str | None:
+    meta = rules.meta if isinstance(rules.meta, dict) else {}
+    product = meta.get("coinbase_product")
+    if (not isinstance(product, dict) or product.get("product_id") != rules.native_symbol
+            or type(product.get("status")) is not str or not product["status"]
+            or any(type(product.get(flag)) is not bool for flag in
+                   ("trading_disabled", "cancel_only", "limit_only", "post_only", "auction_mode"))
+            or ("view_only" in product and type(product["view_only"]) is not bool)):
+        return "COINBASE_PRODUCT_MODE_UNKNOWN"
+    if order_type not in ("market", "limit"):
+        return "COINBASE_ORDER_TYPE_UNSUPPORTED"
+    if product["status"] != "online" or product["trading_disabled"] or product.get("view_only", False):
+        return "COINBASE_PRODUCT_UNAVAILABLE"
+    if product["cancel_only"]:
+        return "COINBASE_CANCEL_ONLY"
+    if product["post_only"] or product["auction_mode"]:
+        return "COINBASE_RESTRICTED_MODE_UNSUPPORTED"
+    if product["limit_only"] and order_type != "limit":
+        return "COINBASE_LIMIT_ONLY"
+    return None
+
+
+def validate(exec_db: str, venue: str, canonical_symbol: str, qty: Optional[float] = None, notional: Optional[float] = None, ttl_s: float = DEFAULT_TTL_S, *, order_type: str | None = None) -> ValidationResult:
     v = venue.lower().strip()
     cs = canonicalize(canonical_symbol)
+    check_modes = v in ("coinbase", "coinbase_adv") and order_type is not None
+    if check_modes and (isinstance(ttl_s, bool) or not isinstance(ttl_s, (int, float))
+                        or not math.isfinite(ttl_s) or ttl_s <= 0):
+        return ValidationResult(False, "INVALID_MARKET_RULES_TTL", "Positive finite cache TTL required", None, {})
     r = get_rules(exec_db, v, cs, ttl_s=ttl_s, refresh_if_stale=True)
     if not r:
         return ValidationResult(False, "MARKET_RULES_MISSING", "Market rules missing (cache empty and refresh failed)", None, {"venue": v, "symbol": cs})
     if not r.active:
         return ValidationResult(False, "MARKET_INACTIVE", "Market not active/tradable", r, {})
+    if check_modes:
+        # Upgrade a legacy cache entry through the existing public fetch path.
+        if r.meta is None or (isinstance(r.meta, dict) and "coinbase_product" not in r.meta):
+            r = fetch_and_cache(exec_db, v, cs)
+            if not r or not r.active:
+                return ValidationResult(False, "MARKET_INACTIVE", "Market refresh unavailable or inactive", r, {})
+        mode_code = _coinbase_mode_code(r, order_type)
+        if mode_code:
+            return ValidationResult(False, mode_code, "Coinbase product mode blocks this order type", r, {})
     if notional is not None and r.min_notional is not None:
         try:
             notional_d = decimal_value(notional, name="notional")

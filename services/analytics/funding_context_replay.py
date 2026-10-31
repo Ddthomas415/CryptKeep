@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from services.analytics.funding_observations import legacy_model_qualification
 from services.strategies.strategy_registry import compute_signal
 from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite
 
@@ -109,6 +110,7 @@ def run_funding_context_replay(
             "ok": False,
             "reason": "unsupported_strategy",
             "research_only": True,
+            "funding_qualification": legacy_model_qualification(),
             "artifact_type": ARTIFACT_TYPE,
             "strategy": strategy_name,
             "expected_strategy": STRATEGY,
@@ -165,6 +167,7 @@ def run_funding_context_replay(
         "ok": bool(ok),
         "reason": "ok" if ok else "insufficient_funding_rows",
         "research_only": True,
+        "funding_qualification": legacy_model_qualification(),
         "artifact_type": ARTIFACT_TYPE,
         "generated_at": _utc_now(),
         "strategy": STRATEGY,

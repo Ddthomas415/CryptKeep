@@ -14,6 +14,7 @@ from services.execution.client_order_id import (
 )
 from services.execution.place_order import place_order
 from services.execution.execution_context import ExecutionContext
+from services.execution.retry_policy import is_retryable_exception
 from services.execution.risk_gates import require_binance_allowed
 from services.os.app_paths import data_dir, ensure_dirs
 from storage.order_dedupe_store_sqlite import OrderDedupeStore
@@ -77,15 +78,8 @@ def _prompt_exchange_creds(exchange_id: str) -> Dict[str, str]:
 
 
 def _is_ambiguous_submit_error(e: Exception) -> bool:
-    name = type(e).__name__
-    return name in {
-        "RequestTimeout",
-        "NetworkError",
-        "ExchangeNotAvailable",
-        "DDoSProtection",
-        "RateLimitExceeded",
-        "TimeoutError",
-    }
+    # Operation failures may follow placement; uncertainty is not retry permission.
+    return isinstance(e, ccxt.OperationFailed) or is_retryable_exception(e)
 
 
 def _safe_close(ex: Any, *, where: str) -> None:
@@ -150,7 +144,6 @@ class ExchangeClient:
         intent_id: str | None = None,
         exec_db: str | None = None,
     ) -> Dict[str, Any]:
-        ex = self.build()
         ensure_dirs()
         db_path = exec_db or str(Path(data_dir()) / "execution.sqlite")
         store = OrderDedupeStore(exec_db=db_path)
@@ -165,17 +158,27 @@ class ExchangeClient:
                 symbol=str(symbol),
                 client_order_id=str(client_id),
                 meta={"side": side, "order_type": order_type},
+                claim_error_for_submit=True,
             )
+            if (row.get("exchange_id") != self.exchange_id.lower().strip()
+                    or row.get("intent_id") != str(intent_id)
+                    or row.get("symbol") != str(symbol)
+                    or row.get("client_order_id") != str(client_id)):
+                raise RuntimeError("idempotency blocks resubmit: claim_identity_mismatch")
 
             rid = row.get("remote_order_id")
             st = str(row.get("status") or "")
             if rid and st in ("submitted", "acked", "terminal"):
                 return {"id": rid, "idempotent_replay": True, "client_order_id": client_id, "status": st}
 
-            if st in ("submitted", "unknown"):
+            if rid or st != "created" or row.get("_submit_claimed") is not True:
                 raise RuntimeError(f"idempotency blocks resubmit: status={st}")
 
+        ex = None
+        acknowledged = False
+        acknowledged_remote_id = None
         try:
+            ex = self.build()
             params: Dict[str, Any] = {}
             if client_id:
                 params.update(client_id_param(self.exchange_id, client_id))
@@ -199,6 +202,10 @@ class ExchangeClient:
             else:
                 o = place_order(ex, symbol, order_type, side, float(amount), price, params)
 
+            # An acknowledgement remains placement evidence if its storage fails.
+            acknowledged = True
+            if isinstance(o, dict):
+                acknowledged_remote_id = str(o.get("id") or "").strip() or None
             if intent_id is not None:
                 store.mark_submitted(
                     exchange_id=self.exchange_id,
@@ -210,24 +217,29 @@ class ExchangeClient:
         except Exception as e:
             if intent_id is not None:
                 msg = f"{type(e).__name__}:{e}"
-                if _is_ambiguous_submit_error(e):
+                if acknowledged or (ex is not None and _is_ambiguous_submit_error(e)):
                     store.mark_unknown(exchange_id=self.exchange_id, intent_id=str(intent_id), error=msg)
+                    if acknowledged_remote_id is not None:
+                        store.set_remote_id_if_empty(exchange_id=self.exchange_id, intent_id=str(intent_id),
+                                                     remote_order_id=acknowledged_remote_id)
                     recon = reconcile_ambiguous_submission(
                         venue=self.exchange_id,
                         client=ex,
                         symbol=symbol,
                         client_oid=client_id,
-                        remote_order_id=None,
+                        remote_order_id=acknowledged_remote_id,
                         age_sec=0,
                     )
-                    if recon.outcome == "confirmed_not_placed":
+                    if (not acknowledged and recon.outcome == "confirmed_not_placed"
+                            and is_retryable_exception(e)):
                         raise SafeToRetryAfterReconciliation("confirmed_not_placed_after_reconciliation")
                     raise RuntimeError(f"ambiguous_submit_blocked:{recon.outcome}")
                 else:
                     store.mark_error(exchange_id=self.exchange_id, intent_id=str(intent_id), error=msg)
             raise
         finally:
-            _safe_close(ex, where="submit_order")
+            if ex is not None:
+                _safe_close(ex, where="submit_order")
 
     def fetch_order(self, *, order_id: str, symbol: str) -> Dict[str, Any]:
         ex = self.build()

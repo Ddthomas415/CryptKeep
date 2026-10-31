@@ -4,6 +4,7 @@ import json
 
 import streamlit as st
 
+from services.analytics.crypto_edges import funding_display
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.badges import render_badge_row
 from dashboard.components.cards import (
@@ -1010,8 +1011,8 @@ with tab_research:
             [
                 {
                     "label": "Funding Carry",
-                    "value": f"{float(funding.get('annualized_carry_pct') or 0.0):.2f}%",
-                    "delta": str(funding.get("dominant_bias") or "flat").replace("_", " ").title(),
+                    "value": funding_display(funding)["carry"],
+                    "delta": funding_display(funding)["bias"],
                 },
                 {
                     "label": "Average Basis",

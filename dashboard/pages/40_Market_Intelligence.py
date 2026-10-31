@@ -4,6 +4,7 @@ import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
 from services.market_data.market_intelligence import build_market_intelligence_snapshot
+from services.market_data.composite_ranker import funding_input
 from services.strategies.funding_extreme import signal_from_context as funding_signal_from_context
 from services.strategies.open_interest_shift import signal_from_context as oi_signal_from_context
 
@@ -49,12 +50,16 @@ funding_rows = list((result.get("funding") or {}).get("rates", []))
 
 funding_signals = []
 for row in funding_rows:
-    sig = funding_signal_from_context(
-        funding_rate_pct=float(row.get("rate_pct") or 0.0),
-    )
+    funding_status = funding_input(row)
+    if funding_status["state"] == "qualified":
+        sig = funding_signal_from_context(funding_rate_pct=funding_status["rate_pct"])
+    else:
+        sig = {"action": None, "reason": funding_status["reason"]}
     funding_signals.append({
         "symbol": row.get("symbol"),
-        "funding_rate_pct": row.get("rate_pct"),
+        "funding_rate_pct": None if funding_status["state"] != "qualified" else funding_status["rate_pct"],
+        "raw_funding_rate_pct": row.get("raw_rate_pct", row.get("rate_pct")),
+        "validation_state": funding_status["state"],
         "action": sig.get("action"),
         "reason": sig.get("reason"),
     })
@@ -75,6 +80,7 @@ for row in oi_rows:
     })
 
 st.subheader("Funding Strategy Signals")
+st.caption("Unverified funding has no strategy action. Raw observations are diagnostics, not neutral signals.")
 st.dataframe(funding_signals, use_container_width=True)
 
 st.subheader("Open Interest Strategy Signals")
@@ -84,7 +90,12 @@ st.subheader("Open Interest Raw")
 st.dataframe(oi_rows, use_container_width=True)
 
 st.subheader("Funding Raw")
-st.dataframe(funding_rows, use_container_width=True)
+st.dataframe([{key: value for key, value in row.items() if key != "observation"}
+              for row in funding_rows], use_container_width=True)
+with st.expander("Funding observation provenance"):
+    st.json(funding_rows)
+if not (result.get("funding") or {}).get("ok"):
+    st.warning("Funding observations are unavailable; no funding action is inferred.")
 
 st.subheader("Liquidation Risk")
 st.dataframe((result.get("liquidation") or {}).get("rows", []), use_container_width=True)

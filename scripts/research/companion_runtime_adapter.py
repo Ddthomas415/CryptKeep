@@ -56,6 +56,50 @@ ENV_EXPECTED = {
 }
 SECRET_PRESENCE = {"SERVICE_TOKEN", "POSTGRES_PASSWORD", "MINIO_ACCESS_KEY", "MINIO_SECRET_KEY",
                    "MINIO_ROOT_USER", "MINIO_ROOT_PASSWORD"}
+BINDING_DIAGNOSTIC_SCHEMA = "companion-recipient-diagnostic-v1"
+BINDING_PREDICATES = frozenset({
+    "bindings_contract", "network_inspect", "network_identity", "target_networks",
+    "configured_eligibility", "network_projection", "unselected_alias_without_id",
+    "dns_override", "loopback_ports", "network_count", "recipient_alias",
+    "storage_mount", "shared_network", "alias_owner", "recipient_policy",
+})
+BINDING_EXCEPTIONS = frozenset({"none", "invalid_input", "refused", "timeout", "operation_error"})
+
+
+def sanitize_binding_diagnostic(value):
+    """Only fixed labels and approved target names may reach a receipt."""
+    if (type(value) is not dict or set(value) != {
+            "schema", "predicate", "role", "target", "exception_category"}
+            or value.get("schema") != BINDING_DIAGNOSTIC_SCHEMA
+            or type(value.get("predicate")) is not str or value["predicate"] not in BINDING_PREDICATES
+            or type(value.get("exception_category")) is not str
+            or value["exception_category"] not in BINDING_EXCEPTIONS
+            or type(value.get("role")) is not str):
+        return None
+    if value["role"] == "selected":
+        if type(value["target"]) is not str or value["target"] not in controller.TARGETS:
+            return None
+    elif value["role"] not in {"unselected", "none"} or value["target"] is not None:
+        return None
+    return dict(value)
+
+
+def _binding_failure(diagnostic, predicate, name=None, error=None):
+    if diagnostic is not None:
+        category = "none"
+        if error is not None:
+            category = ("refused" if isinstance(error, controller.Refused) else
+                        "timeout" if isinstance(error, TimeoutError) else
+                        "invalid_input" if isinstance(error, (ValueError, TypeError, KeyError)) else
+                        "operation_error")
+        diagnostic.update(schema=BINDING_DIAGNOSTIC_SCHEMA, predicate=predicate,
+                          role="selected" if name in controller.TARGETS else
+                               "none" if name is None else "unselected",
+                          target=name if name in controller.TARGETS else None,
+                          exception_category=category)
+    return False
+
+
 RECREATION_FIELDS = {
     "user": '(index .Config "User")', "stop_signal": '(index .Config "StopSignal")',
     "stop_timeout": '(index .Config "StopTimeout")', "tty": '(index .Config "Tty")',
@@ -89,7 +133,7 @@ def _format_metadata():
               "restart_policy": ".HostConfig.RestartPolicy.Name", "mounts": ".Mounts",
               "networks": ".NetworkSettings.Networks", "ports": ".HostConfig.PortBindings",
               "entrypoint": ".Config.Entrypoint", "command": ".Config.Cmd",
-              "healthcheck": ".Config.Healthcheck", "workdir": ".Config.WorkingDir",
+              "healthcheck": '(index .Config "Healthcheck")', "workdir": ".Config.WorkingDir",
               "extra_hosts": ".HostConfig.ExtraHosts", "dns": ".HostConfig.Dns",
               "dns_search": ".HostConfig.DnsSearch", "dns_options": ".HostConfig.DnsOptions",
               "network_mode": ".HostConfig.NetworkMode"}
@@ -339,38 +383,98 @@ class PinnedRuntimeAdapter:
             raise controller.Refused("ambiguous_environment_flags")
         return {f["key"]: f["ok"] for f in flags}
 
-    def _bindings(self, metadata):
+    def _bindings(self, metadata, *, diagnostic=None):
         network_ids = set()
         for name in controller.TARGETS:
             row = metadata[name]
             if any(row.get(k) for k in ("extra_hosts", "dns", "dns_search", "dns_options")):
-                return False
+                return _binding_failure(diagnostic, "dns_override", name)
             port = str(PORTS[name])
             if (row.get("ports") or {}).get(port + "/tcp") != [{"HostIp": "127.0.0.1", "HostPort": port}]:
-                return False
+                return _binding_failure(diagnostic, "loopback_ports", name)
             networks = row.get("networks") or {}
             if len(networks) != 1:
-                return False
+                return _binding_failure(diagnostic, "network_count", name)
             network = next(iter(networks.values()))
             if ALIASES[name] not in (network.get("Aliases") or []) or not network.get("NetworkID"):
-                return False
+                return _binding_failure(diagnostic, "recipient_alias", name)
             network_ids.add(network["NetworkID"])
             if name in VOLUMES:
                 volume, destination = VOLUMES[name]
                 mounts = [m for m in row.get("mounts", []) if m.get("Destination") == destination]
                 if (len(mounts) != 1 or mounts[0].get("Type") != "volume" or mounts[0].get("Name") != volume
                         or mounts[0].get("Driver") != "local"):
-                    return False
+                    return _binding_failure(diagnostic, "storage_mount", name)
         if len(network_ids) != 1:
-            return False
+            return _binding_failure(diagnostic, "shared_network")
         network_id = next(iter(network_ids))
         owners = {alias: name for name, alias in ALIASES.items()}
         for name, row in metadata.items():
             for network in (row.get("networks") or {}).values():
                 if network.get("NetworkID") == network_id and any(
                         alias in owners and owners[alias] != name for alias in network.get("Aliases") or []):
-                    return False
+                    return _binding_failure(diagnostic, "alias_owner", name)
         return True
+
+    def _configured_bindings(self, metadata, bindings, *, diagnostic=None):
+        """Validate pre-start configuration, never claim actual attachment."""
+        from scripts.research import companion_network_configuration as configuration
+        from scripts.research.companion_docker_transport import NETWORK_INSPECT_FORMAT
+        predicate, name = "bindings_contract", None
+        try:
+            configuration.validate_bindings(bindings)
+            predicate = "network_inspect"
+            raw = self._command(("network", "inspect", "--format", NETWORK_INSPECT_FORMAT,
+                                 *sorted(bindings.values())))
+            observed = [json.loads(line) for line in raw.splitlines()]
+            expected = [{"id": identity, "name": name} for name, identity in sorted(bindings.items())]
+            predicate = "network_identity"
+            if len(observed) != len(expected) or sorted(observed, key=lambda r: r["name"]) != expected:
+                return _binding_failure(diagnostic, predicate)
+            projected = {}
+            reserved = set(ALIASES.values())
+            for name, row in metadata.items():
+                predicate = "target_networks"
+                networks = row.get("networks") or {}
+                if name in controller.TARGETS and (len(networks) != 1 or not set(networks).issubset(bindings)):
+                    return _binding_failure(diagnostic, predicate, name)
+                copies = {}
+                for network_name, network in networks.items():
+                    copy = dict(network)
+                    if network_name in bindings:
+                        predicate = "configured_eligibility"
+                        # Unselected dormant containers may share configuration,
+                        # but cannot own a recipient alias or imply attachment.
+                        # Selected storage still requires a reported network ID.
+                        if not network.get("NetworkID") and (
+                                (name not in APP_MODULES and (name in controller.TARGETS
+                                    or reserved.intersection(network.get("Aliases") or [])))
+                                or row["state"] != "created"
+                                or row["started"] not in controller.NEVER_STARTED
+                                or type(row["restarts"]) is not int or row["restarts"] != 0
+                                or row["restart_policy"] != "no"):
+                            return _binding_failure(diagnostic, predicate, name)
+                        predicate = "network_projection"
+                        configuration.project({**row, "networks": {network_name: network}}, bindings)
+                        copy["NetworkID"] = bindings[network_name]
+                    elif not network.get("NetworkID") and reserved.intersection(network.get("Aliases") or []):
+                        return _binding_failure(diagnostic, "unselected_alias_without_id", name)
+                    copies[network_name] = copy
+                projected[name] = {**row, "networks": copies}
+            # Keep ports, volumes, DNS overrides and alias exclusivity checks.
+            predicate, name = "recipient_policy", None
+            return self._bindings(projected, diagnostic=diagnostic)
+        except Exception as error:
+            return _binding_failure(diagnostic, predicate, name, error)
+
+    def recipient_checks(self):
+        """Post-start real attachment check, before health or query HTTP."""
+        self._require()
+        pins, rows = self._pins(), self._metadata()
+        valid = all(name in rows and rows[name]["id"] == pin.container_id
+                    and rows[name]["image"] == pin.image_id and rows[name]["state"] == "running"
+                    and rows[name]["restart_policy"] == "no" for name, pin in pins.items())
+        return {"recipient_bindings": valid and self._bindings(rows)}
 
     def _source_matches(self, pin):
         for path, expected in pin.source_sha256:
@@ -415,8 +519,17 @@ class PinnedRuntimeAdapter:
                     or any(re.fullmatch(r"[0-9a-f]{64}", h) is None for h in reviews.values())):
                 return False
             subjects = [_subject(pins[n]) for n in controller.TARGETS]
-            if (set(manifest) != {"schema", "decision", "reviewer", "subjects", "dependency_reviews", "topical_approvals_sha256"}
-                    or manifest["schema"] != "companion-runtime-pins-v1"
+            fields = {"schema", "decision", "reviewer", "subjects", "dependency_reviews", "topical_approvals_sha256"}
+            if manifest.get("schema") == "companion-runtime-pins-v2":
+                from scripts.research import companion_network_configuration as network
+                fields.add("network_configuration")
+                config = manifest.get("network_configuration")
+                if (type(config) is not dict or set(config) != {"contract", "bindings"}
+                        or config["contract"] != network.CONTRACT):
+                    return False
+                network.validate_bindings(config["bindings"])
+            if (set(manifest) != fields
+                    or manifest["schema"] not in {"companion-runtime-pins-v1", "companion-runtime-pins-v2"}
                     or manifest["subjects"] != subjects or manifest["dependency_reviews"] != reviews
                     or manifest["topical_approvals_sha256"] != hashlib.sha256(_canonical(self.pins.topical_approvals)).hexdigest()):
                 return False
@@ -434,6 +547,33 @@ class PinnedRuntimeAdapter:
             return True
         except (TypeError, ValueError, KeyError, controller.Refused):
             return False
+
+    def reviewed_network_bindings(self):
+        """Opt-in semantics bound by the independently trusted review hash."""
+        try:
+            manifest = _review_json(self.pins.review_manifest)
+        except (ValueError, TypeError, controller.Refused):
+            # Legacy compatibility still reports policy failure in its checks.
+            # No malformed record can establish the opt-in contract.
+            return None
+        if manifest.get("schema") != "companion-runtime-pins-v2":
+            return None
+        if not self._policy_reviews_match(self._pins()):
+            raise controller.Refused("network_review_invalid")
+        return dict(manifest["network_configuration"]["bindings"])
+
+    def _pin_preservation(self, row, name):
+        bindings = self.reviewed_network_bindings()
+        if bindings is None or name not in APP_MODULES:
+            return preservation_digest(row)
+        from scripts.research import companion_network_configuration as network
+        # A blank configured-only ID is permitted only before the first start.
+        if any(n.get("NetworkID") == "" for n in row["networks"].values()) and not (
+                row["state"] == "created" and row["started"] in controller.NEVER_STARTED
+                and type(row["restarts"]) is int and row["restarts"] == 0
+                and row["restart_policy"] == "no"):
+            raise controller.Refused("network_configuration_refused")
+        return network.project(row, bindings)[0]
 
     def _topical_contract(self):
         seen = set()
@@ -453,22 +593,78 @@ class PinnedRuntimeAdapter:
         return True
 
     def compatibility(self, baseline):
+        return self._compatibility_checks(baseline)
+
+    def configured_compatibility(self, baseline, bindings):
+        reviewed = self.reviewed_network_bindings()
+        if reviewed is not None and bindings != reviewed:
+            raise controller.Refused("network_binding_changed")
+        return self._compatibility_checks(baseline, network_bindings=bindings, report=reviewed is not None)
+
+    def staged_checks(self, expected):
+        """Check reviewed staged IDs, not final names/aliases or cutover readiness.
+
+        Expected snapshots bind temporary names/configuration; external pins
+        still bind actual IDs, images, source bytes and final-policy reviews.
+        compatibility() remains mandatory after activation.
+        """
+        return self._compatibility_checks(expected, staged=True)
+
+    def _compatibility_checks(self, baseline, *, staged=False, network_bindings=None, report=False):
         self._require()
-        result = dict.fromkeys(controller.COMPATIBILITY, False)
+        checks = controller.COMPATIBILITY - {"recipient_bindings"} if staged else controller.COMPATIBILITY
+        result = dict.fromkeys(checks, False)
+        recipient_diagnostic = {}
+        def finish(predicate, target=None):
+            if not report:
+                return result
+            return {"checks": result, "precondition": {"predicate": predicate, "target": target},
+                    "recipient_diagnostic": sanitize_binding_diagnostic(recipient_diagnostic)}
         pins = self._pins()
+        if staged and (not isinstance(baseline, dict) or set(baseline) != set(controller.TARGETS)
+                       or any(not isinstance(row, controller.Container) for row in baseline.values())):
+            return finish("baseline")
         if (not self._token or any(c in self._token for c in "\r\n") or not self._topical_contract()):
-            return result
+            return finish("authorization")
         if not self.transport.verify_cli():
-            return result
+            return finish("cli")
         metadata = self._metadata()
+        if staged:
+            by_id = {row["id"]: row for row in metadata.values()}
+            metadata = {name: by_id.get(pin.container_id) for name, pin in pins.items()}
         for name, pin in pins.items():
             row = metadata.get(name)
             before = baseline.get(name)
-            if (row is None or before is None or before.id != pin.container_id or before.image != pin.image_id
-                    or row["id"] != pin.container_id or row["image"] != pin.image_id
-                    or preservation_digest(row) != pin.preservation_sha256):
-                return result
-        result["recipient_bindings"] = self._bindings(metadata)
+            if row is None or before is None or before.id != pin.container_id or row["id"] != pin.container_id:
+                return finish("identity", name)
+            if before.image != pin.image_id or row["image"] != pin.image_id:
+                return finish("image", name)
+            try:
+                digest = preservation_digest(row) if staged else self._pin_preservation(row, name)
+            except (ValueError, TypeError, KeyError, controller.Refused):
+                if not report:
+                    raise
+                return finish("preservation", name)
+            if digest != (before.preservation_digest if staged else pin.preservation_sha256):
+                return finish("preservation", name)
+            if staged:
+                current = controller.Container(row["name"].removeprefix("/"), row["id"], row["image"],
+                                               row["state"], row["started"], row["restarts"],
+                                               row["restart_policy"], preservation_digest(row))
+                if (current != before or type(current.restarts) is not int or type(before.restarts) is not int
+                        or current.restarts < 0):
+                    return finish("staged_state", name)
+                if name in APP_MODULES:
+                    if (current.name in controller.TARGETS or current.state != "created"
+                            or current.started_at not in controller.NEVER_STARTED or current.restarts != 0
+                            or current.restart_policy != "no"):
+                        return finish("staged_state", name)
+                elif current.name != name or current.state != "running":
+                    return finish("staged_state", name)
+        if not staged:
+            result["recipient_bindings"] = (self._bindings(metadata) if network_bindings is None else
+                                            self._configured_bindings(metadata, network_bindings,
+                                                                      diagnostic=recipient_diagnostic))
         apps_required = {"NO_TRADING", "OPENAI_API_KEY", "SERVICE_TOKEN", "POSTGRES_PASSWORD",
                          "MINIO_ACCESS_KEY", "MINIO_SECRET_KEY", "AUDIT_SERVICE_URL", "MEMORY_SERVICE_URL",
                          "RISK_SERVICE_URL", "QDRANT_URL", "MINIO_ENDPOINT", "QDRANT_COLLECTION", "MINIO_BUCKET",
@@ -490,14 +686,14 @@ class PinnedRuntimeAdapter:
         result["zero_retries"] = result["installed_source"] and dependency_bound
         result["no_proxy_redirect"] = result["installed_source"] and dependency_bound
         result["entrypoint_side_effects"] = initialized and result["installed_source"] and dependency_bound
-        return result
+        return finish("complete")
 
     def _target(self, container_id):
         pin = next((p for p in self._pins().values() if p.container_id == container_id), None)
         if pin is None:
             raise controller.Refused("unapproved_container_id")
         row = self._metadata().get(pin.name)
-        if row is None or row["id"] != container_id or row["image"] != pin.image_id or preservation_digest(row) != pin.preservation_sha256:
+        if row is None or row["id"] != container_id or row["image"] != pin.image_id or self._pin_preservation(row, pin.name) != pin.preservation_sha256:
             raise controller.Refused("pinned_target_changed")
         return pin, row
 
@@ -584,16 +780,30 @@ class PinnedRuntimeAdapter:
         return controller.dashboard_probe(self._token)
 
     def verify_evidence(self, raw):
+        """Preserve the five-Boolean contract used by the legacy controller."""
+        return self.verify_evidence_diagnostic(raw)["checks"]
+
+    def verify_evidence_diagnostic(self, raw):
+        """Return strict checks plus fixed diagnostics through the bounded IPC."""
         self._require()
-        from scripts.research.companion_evidence_checks import EVIDENCE_SCRIPT
+        from scripts.research.companion_evidence_checks import DIAGNOSTIC_EVIDENCE_SCRIPT, diagnostic_result_valid
         if not self.pins.topical_approvals:
-            return dict.fromkeys(controller.EVIDENCE, False)
+            return {"checks": dict.fromkeys(controller.EVIDENCE, False),
+                    "diagnostic": {"stage": "witnesses", "code": "rejected"}}
         payload = json.dumps({"raw": raw, "approvals": list(self.pins.topical_approvals)}, allow_nan=False).encode()
         if len(payload) > 65_536:
             raise controller.Refused("oversized_evidence_request")
         memory = self._pins()["phase1-memory"]
+        def unique(items):
+            result = {}
+            for key, value in items:
+                if key in result:
+                    raise controller.Refused("invalid_evidence_receipt")
+                result[key] = value
+            return result
         result = json.loads(self._command(("container", "exec", "-i", memory.container_id,
-                                         "/usr/local/bin/python", "-B", "-c", EVIDENCE_SCRIPT), data=payload, cap=10, limit=8192))
-        if not isinstance(result, dict) or set(result) != set(controller.EVIDENCE) or any(type(v) is not bool for v in result.values()):
+                                         "/usr/local/bin/python", "-B", "-c", DIAGNOSTIC_EVIDENCE_SCRIPT), data=payload, cap=10, limit=8192),
+                            object_pairs_hook=unique)
+        if not diagnostic_result_valid(result):
             raise controller.Refused("invalid_evidence_receipt")
         return result

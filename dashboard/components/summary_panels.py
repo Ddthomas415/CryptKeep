@@ -5,6 +5,7 @@ from typing import Any
 
 import streamlit as st
 
+from services.analytics.crypto_edges import funding_display
 from dashboard.components.badges import render_badge_row
 
 
@@ -449,8 +450,8 @@ def build_structural_edge_metrics(report: dict[str, Any] | None) -> list[dict[st
         },
         {
             "label": "Funding Bias",
-            "value": str(funding.get("dominant_bias") or "flat").replace("_", " ").title(),
-            "delta": f"{float(funding.get('annualized_carry_pct') or 0.0):.2f}%",
+            "value": funding_display(funding)["bias"],
+            "delta": funding_display(funding)["carry"],
         },
         {
             "label": "Average Basis",

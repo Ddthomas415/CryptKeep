@@ -81,7 +81,7 @@ def test_load_latest_live_crypto_edge_snapshot_isolates_live_public(monkeypatch)
     assert payload["has_live_data"] is True
     assert payload["data_origin_label"] == "Live Public"
     assert payload["freshness_summary"] in {"Fresh", "Recent", "Aging", "Stale", "Unknown"}
-    assert "funding bias long_pays" in payload["summary_text"]
+    assert "funding bias Unknown" in payload["summary_text"]
 
 
 def test_load_crypto_edge_change_summary_uses_trend_rows(monkeypatch) -> None:

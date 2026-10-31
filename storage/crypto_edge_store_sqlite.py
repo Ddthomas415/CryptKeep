@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from services.analytics.crypto_edges import build_crypto_edge_report
+from services.analytics.funding_observations import encoded, identity, observation
 from services.markets.math_utils import decimal_value
 from services.os.app_paths import data_dir, ensure_dirs
 
@@ -17,6 +18,17 @@ DB_PATH = data_dir() / "crypto_edge_research.sqlite"
 
 
 DDL = """
+CREATE TABLE IF NOT EXISTS raw_funding_observations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  source TEXT NOT NULL,
+  observation_key TEXT NOT NULL,
+  capture_ts TEXT NOT NULL,
+  payload_json TEXT NOT NULL,
+  UNIQUE(source, observation_key)
+);
+CREATE INDEX IF NOT EXISTS idx_raw_funding_source_capture
+  ON raw_funding_observations(source, capture_ts DESC, id DESC);
+
 CREATE TABLE IF NOT EXISTS funding_snapshots (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   snapshot_id TEXT NOT NULL,
@@ -163,6 +175,107 @@ class CryptoEdgeStoreSQLite:
         with self._connect() as conn:
             conn.executescript(DDL)
             conn.commit()
+
+    def append_raw_funding_observations(
+        self,
+        rows: Iterable[dict[str, Any]],
+        *,
+        source: str,
+        max_rows: int,
+        max_bytes: int,
+    ) -> dict[str, Any]:
+        """Append unscored raw evidence; never write normalized funding_snapshots.
+
+        Budgets cover all presented rows and encoded SQL values before dedupe.
+        This method owns a connection and one all-or-nothing transaction.
+        """
+        if type(source) is not str or not source or source != source.strip():
+            raise ValueError("explicit_raw_funding_source_required")
+        if type(max_rows) is not int or max_rows <= 0 or type(max_bytes) is not int or max_bytes <= 0:
+            raise ValueError("explicit_positive_raw_funding_budgets_required")
+        prepared = []
+        total_bytes = 0
+        for number, inputs in enumerate(rows, start=1):
+            if number > max_rows:
+                raise ValueError("raw_funding_row_budget_exceeded")
+            if not isinstance(inputs, dict):
+                raise ValueError("raw_funding_input_object_required")
+            record = observation(**inputs)
+            key = identity(record)
+            ts = datetime.fromisoformat(record["captured_at"].replace("Z", "+00:00"))
+            capture_ts = ts.astimezone(timezone.utc).isoformat()
+            body = encoded(record)
+            values = (source, key, capture_ts, body)
+            total_bytes += len(encoded(values).encode())
+            if total_bytes > max_bytes:
+                raise ValueError("raw_funding_byte_budget_exceeded")
+            prepared.append(values)
+
+        conn = self._connect()
+        try:
+            conn.execute("BEGIN IMMEDIATE")
+            inserted = 0
+            for values in prepared:
+                result = conn.execute(
+                    "INSERT OR IGNORE INTO raw_funding_observations"
+                    "(source, observation_key, capture_ts, payload_json) VALUES(?,?,?,?)",
+                    values,
+                )
+                inserted += result.rowcount
+                saved = conn.execute(
+                    "SELECT capture_ts, payload_json FROM raw_funding_observations "
+                    "WHERE source=? AND observation_key=?",
+                    values[:2],
+                ).fetchone()
+                if saved is None or tuple(saved) != (values[2], values[3]):
+                    raise ValueError("stored_raw_funding_conflict")
+            conn.commit()
+        except BaseException:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+        return {"presented": len(prepared), "inserted": inserted,
+                "duplicates": len(prepared) - inserted, "encoded_value_bytes": total_bytes,
+                "source": source, "normalization_eligible": False}
+
+    def recent_raw_funding_observations(self, *, source: str, limit: int) -> dict[str, Any]:
+        """Read raw diagnostics separately; legacy rows are never certified here."""
+        if type(source) is not str or not source or source != source.strip():
+            raise ValueError("explicit_raw_funding_source_required")
+        if type(limit) is not int or limit <= 0:
+            raise ValueError("explicit_positive_raw_funding_limit_required")
+        conn = self._connect()
+        try:
+            rows = conn.execute(
+                "SELECT observation_key, capture_ts, payload_json FROM raw_funding_observations "
+                "WHERE source=? ORDER BY capture_ts DESC, id DESC LIMIT ?",
+                (source, limit),
+            ).fetchall()
+        finally:
+            conn.close()
+        result = []
+        for row in rows:
+            record = json.loads(row["payload_json"])
+            try:
+                rebuilt = observation(
+                    venue=record["venue"], symbol=record["symbol"],
+                    captured_at=record["captured_at"], payload=record["raw_payload"],
+                    plan_interval_hours=record["plan_interval_hours_unverified"],
+                    receipt=({key: record["receipt"][key] for key in (
+                        "request_started_at", "received_at", "requested_symbol", "fetch_method")}
+                        if "receipt" in record else None),
+                )
+                ts = datetime.fromisoformat(record["captured_at"].replace("Z", "+00:00"))
+                valid = (encoded(record) == encoded(rebuilt) and identity(record) == row["observation_key"]
+                         and ts.astimezone(timezone.utc).isoformat() == row["capture_ts"])
+            except (KeyError, TypeError, ValueError, OverflowError):
+                valid = False
+            if not valid:
+                raise ValueError("stored_raw_funding_corrupt")
+            result.append({"observation_key": row["observation_key"], "observation": record})
+        return {"source": source, "observations": result, "legacy_included": False,
+                "normalization_eligible": False}
 
     def append_funding_rows(
         self,
@@ -566,9 +679,11 @@ class CryptoEdgeStoreSQLite:
                     "source": str(meta["source"]),
                     "snapshot_id": str(meta["snapshot_id"]),
                     "row_count": int(meta["row_count"] or 0),
-                    "annualized_carry_pct": float(summary.get("annualized_carry_pct") or 0.0),
-                    "dominant_bias": str(summary.get("dominant_bias") or "flat"),
-                    "positive_ratio": float(summary.get("positive_ratio") or 0.0),
+                    "annualized_carry_pct": None,
+                    "dominant_bias": "unknown",
+                    "positive_ratio": None,
+                    "normalization_eligible": False,
+                    "reason": str(summary["reason"]),
                 }
             )
         return out

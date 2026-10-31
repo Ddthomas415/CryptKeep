@@ -2,12 +2,40 @@
 import hashlib
 import json
 import re
+from copy import deepcopy
 
 from scripts.research import companion_runtime_adapter as adapter
 
 ID = re.compile(r"[0-9a-f]{64}\Z")
 NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}\Z")
 CONTRACT = "configured-network-v1"
+
+
+def final_model(row, bindings, aliases):
+    """Predict configured identity after connect, not daemon attachment or liveness.
+
+    Only declared aliases are predicted. Alias order/duplicates have the existing
+    preservation semantics; an extra daemon alias is NOT silently discarded.
+    """
+    project(row, bindings)
+    if (len(row["networks"]) != 1 or type(aliases) is not list or not aliases
+            or any(type(a) is not str or not NAME.fullmatch(a) for a in aliases)):
+        raise ValueError("network_configuration_refused")
+    model = deepcopy(row)
+    for name, attachment in model["networks"].items():
+        attachment["NetworkID"] = bindings[name]
+        attachment["Aliases"] = list(aliases)
+        if attachment.get("IPAMConfig") == {}:
+            attachment["IPAMConfig"] = None
+    return model
+
+
+def final_subject(subject, row, bindings, aliases):
+    """Shared offline producer; return a candidate, never a policy approval."""
+    if subject["container_id"] != row["id"] or subject["image_id"] != row["image"]:
+        raise ValueError("network_configuration_refused")
+    model = final_model(row, bindings, aliases)
+    return {**subject, "preservation_sha256": project(model, bindings)[0]}
 
 
 def validate_bindings(bindings):

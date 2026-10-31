@@ -114,8 +114,9 @@ def test_crypto_edge_store_builds_per_kind_history_summaries(tmp_path) -> None:
 
     assert len(funding_history) == 2
     assert funding_history[0]["capture_ts"] == "2026-03-18T11:00:00+00:00"
-    assert funding_history[0]["annualized_carry_pct"] > funding_history[1]["annualized_carry_pct"]
-    assert funding_history[0]["dominant_bias"] == "long_pays"
+    assert all(row["annualized_carry_pct"] is None for row in funding_history)
+    assert funding_history[0]["dominant_bias"] == "unknown"
+    assert funding_history[0]["normalization_eligible"] is False
 
     assert len(basis_history) == 2
     assert basis_history[0]["capture_ts"] == "2026-03-18T11:05:00+00:00"

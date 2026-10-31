@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import math
 import os
+import json
+import sqlite3
+from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from services.market_data.symbol_router import normalize_symbol, normalize_venue
-from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite
+from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite, DB_PATH as DEFAULT_EDGE_STORE_DB_PATH
 
 
 EDGE_STORE_DB_PATH_ENV = "CBP_CRYPTO_EDGE_DB_PATH"
@@ -46,6 +49,28 @@ def _same_venue(left: Any, right: Any) -> bool:
     return normalize_venue(str(left or "")) == normalize_venue(str(right or ""))
 
 
+def _read_legacy_rows(path: Path, source: str) -> list[dict[str, Any]]:
+    # No store constructor: initialization would execute DDL on a read path.
+    conn = sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=30)
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.execute("PRAGMA query_only=ON")
+        rows = conn.execute(
+            "SELECT snapshot_id,capture_ts,source,symbol,venue,funding_rate,interval_hours,payload_json "
+            "FROM funding_snapshots WHERE source=? ORDER BY capture_ts DESC,id DESC LIMIT 500",
+            (source,),
+        ).fetchall()
+    finally:
+        conn.close()
+    result = []
+    for row in rows:
+        payload = dict(json.loads(row["payload_json"]))
+        payload.update({key: row[key] for key in (
+            "snapshot_id", "capture_ts", "source", "symbol", "venue", "funding_rate", "interval_hours")})
+        result.append(payload)
+    return result
+
+
 def funding_context_from_crypto_edge_store(
     *,
     symbol: str,
@@ -57,9 +82,11 @@ def funding_context_from_crypto_edge_store(
     now: datetime | None = None,
 ) -> dict[str, Any]:
     """
-    Build the context payload consumed by funding_extreme from stored crypto-edge
-    funding rows. This is read-only and fail-closed: missing, stale, malformed,
-    or mismatched rows return ok=false and no context.
+    Inspect stored legacy funding without qualifying it for funding_extreme.
+
+    Default path uses SQLite mode=ro, not a schema-initializing constructor.
+    Caller-supplied stores own their read behavior. Legacy source/interval
+    provenance is insufficient even when rows are fresh and well-formed.
     """
     clean_source = str(source or DEFAULT_CONTEXT_SOURCE).strip() or DEFAULT_CONTEXT_SOURCE
     clean_symbol = normalize_symbol(str(symbol or ""))
@@ -73,8 +100,8 @@ def funding_context_from_crypto_edge_store(
             "venue": clean_venue,
         }
 
-    edge_store_path = str(store_path or os.environ.get(EDGE_STORE_DB_PATH_ENV) or "").strip()
-    if store is None and edge_store_path:
+    edge_store_path = str(store_path or os.environ.get(EDGE_STORE_DB_PATH_ENV) or DEFAULT_EDGE_STORE_DB_PATH).strip()
+    if store is None:
         resolved = Path(edge_store_path).expanduser().resolve()
         if not resolved.exists():
             return {
@@ -85,16 +112,14 @@ def funding_context_from_crypto_edge_store(
                 "venue": clean_venue,
                 "store_path": str(resolved),
             }
-        edge_store = CryptoEdgeStoreSQLite(path=str(resolved))
-    else:
-        edge_store = store or CryptoEdgeStoreSQLite()
     try:
-        rows = edge_store.recent_funding_rows_for_source(source=clean_source, limit=500)
+        rows = (store.recent_funding_rows_for_source(source=clean_source, limit=500)
+                if store is not None else _read_legacy_rows(resolved, clean_source))
     except Exception as exc:
         return {
             "ok": False,
             "reason": "funding_context_store_error",
-            "error": str(exc),
+            "error_type": type(exc).__name__,
             "source": clean_source,
             "symbol": clean_symbol,
             "venue": clean_venue,
@@ -159,25 +184,17 @@ def funding_context_from_crypto_edge_store(
             "snapshot_id": selected.get("snapshot_id"),
         }
 
-    funding = {
-        "funding_rate": rate,
-        "funding_rate_pct": rate * 100.0,
-        "interval_hours": _finite_float(selected.get("interval_hours")) or 8.0,
-        "source": clean_source,
-        "symbol": clean_symbol,
-        "venue": clean_venue,
-        "capture_ts": capture_ts.isoformat(),
-        "age_sec": age_sec,
-        "snapshot_id": selected.get("snapshot_id"),
-    }
     return {
-        "ok": True,
-        "reason": "funding_context_ready",
+        "ok": False,
+        "reason": "funding_context_unqualified",
         "source": clean_source,
         "symbol": clean_symbol,
         "venue": clean_venue,
         "capture_ts": capture_ts.isoformat(),
         "age_sec": age_sec,
         "snapshot_id": selected.get("snapshot_id"),
-        "context": {"funding": funding},
+        "normalization_eligible": False,
+        "raw_observation": deepcopy(selected),
+        "qualification_required": ["native_rate_semantics", "effective_interval",
+                                   "cash_cost_basis", "crowding_comparability"],
     }

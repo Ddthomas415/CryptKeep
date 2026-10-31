@@ -41,7 +41,10 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    Progress 2026-10-31: repository private (owner; unauthenticated GitHub web and API both return 404); four local
    commits on branch `backup/2026-10-31` (020beb69f, 0265746ad, 4decb32e4, b059f1efa: groups A, B, C, F of
    `docs/checkpoints/commit_plan_20261031/`). Open: owner review then push; large-data backup (owner); group D after
-   Codex confirms its code.
+   Codex confirms its code. Later 2026-10-31: bcb9ccd02 (later docs) added; owner pushed the branch (GitHub matches
+   bcb9ccd02). Codex unavailable, owner: "resolve or document": group D committed as an unreviewed backup, not ready to
+   merge; its test status and what Codex must fix are in the commit plan README, section "Group D". Open: push that
+   commit (owner); large-data backup (owner); Codex's fixes before any merge.
 2. Capital: the amount the system is for, or "engineering project for now".
 3. Approve the stuck-exit rule: keep a rejected exit pending with a reason and an alert; never convert, reprice, mark filled, drop or cancel it.
 - Blocking engineering item 3 (Codex note below): confirm whether the DEFAULT portfolio holds all your Coinbase coins and open orders.
