@@ -45,7 +45,8 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    bcb9ccd02). Codex unavailable, owner: "resolve or document": group D committed as an unreviewed backup, not ready to
    merge; its test status and what Codex must fix are in the commit plan README, section "Group D". Open: push that
    commit (owner); large-data backup (owner); Codex's fixes before any merge.
-2. Capital: the amount the system is for, or "engineering project for now".
+2. Capital: the amount the system is for, or "engineering project for now". Also sets the paper simulation's drawdown
+   limit (spec v2 section 7.5; research figures there), needed before the simulation starts.
 3. Approve the stuck-exit rule: keep a rejected exit pending with a reason and an alert; never convert, reprice, mark filled, drop or cancel it.
 - Blocking engineering item 3 (Codex note below): confirm whether the DEFAULT portfolio holds all your Coinbase coins and open orders.
 - Decided 2026-10-30: the 25-symbol comparison follows the active safety task (now item 5, after the multi-coin fix, the paper simulation, the position cap and exit logic); its collector runs on the
@@ -71,6 +72,10 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
   each, fees at the account's 0.50% taker rate. And audit the whole bot for flaws, starting with what the simulation runs.
   Owner, 2026-10-31 ("do what's best"), after O-12: add Group B, 9 more accounts on the 3 coins the market ranker picks
   each week, pre-registered, as the forward test the ranker needs before it may trade; staged after Group A for capacity.
+  Owner, 2026-10-31, after the advisor's review: adopt eleven pre-start requirements (spec v2 section 6); outside
+  heartbeat monitoring by an independent provider and encrypted off-server backups (non-Hetzner) approved; the 26-week
+  clock starts only after a 72-hour commissioning, independent review and the owner's written approval; the bot's
+  decision code stays unchanged. Owner to choose and open the two provider accounts.
 - Next when one closes: approve the server cost and monitoring plan for the 25-symbol collector (Codex to report them).
 
 ## Engineering queue (Codex; one active)
@@ -86,10 +91,11 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    bid/ask recorded at every fill, one command stops all, run manifest; reuse the managed paper-campaign tooling.
    Group B (ranker-picked coins, weekly, pre-registered in the spec) follows Group A once server memory allows or item 1
    lets one process serve 3 coins; the ranker runs as a separate weekly job, never imported by the runner.
-   Must be in place before the start (bot audit 2026-10-31): snapshot publisher (BA-04); the kill-cooldown restart
-   lockout fixed with the patches reviewed 2026-10-07 (0001, 0002) and failing-first tests, or alerted (BA-16, known
-   since 2026-10-02 and missing from this queue until now); automatic restarts (BA-19); a watcher that alerts the
-   owner, with a test alert received (BA-21); the debug line removed (BA-12).
+   Must be in place before the start: spec v2 section 6, R1-R11 with their acceptance tests (cooldown lockout fixed,
+   BA-16, known since 2026-10-02 and missing from this queue until 2026-10-31; automatic restarts; alerts received by
+   the owner; market data and freshness; debug line removed; every decision's inputs saved and replayed exactly;
+   evaluation rules approved; stale entry orders expire; every exit condition recorded; outside heartbeats and
+   off-server backups; 72-hour commissioning), then section 9 (review, owner approval, official start).
    Independent review; owner approves the start. Does not depend on item 1; the owner may reorder.
 3. [safety] Position cap (fix 4) with complete balance reading (fix 1), wired into the live order path; independent review.
    INCOMPLETE (Codex, 2026-10-30): default-off paging and native-v3 funding/quote guards are separately accepted source work

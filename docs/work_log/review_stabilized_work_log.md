@@ -55389,3 +55389,21 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
   15: agent unprompted 0, during owner-requested work 11, owner 4.
 - Spec (sha256 5fe64190...): loop setting side effect; flaws 14-16; before-start list. PROJECT_STATE.md (sha256 b33f0d41...):
   engineering item 2 before-start list, research item 1 complete, O-13 to O-15. integrity_checks README: correction note.
+
+## 2026-10-31T15:09:09Z Claude (Cowork): paper simulation spec v2 (owner forwarded the advisor's approval of the eleven requirements)
+- Advisor review audited earlier today against plan and code (two-thirds already covered; corrections: central data
+  service would change the bot; entry filters do not block stop/trailing/time exits, other mechanisms do; duplicate
+  fills already prevented, lost orders are the risk; debug file is a stray line). Owner forwarded the advisor's reply:
+  six additions adopted; outside heartbeat (independent provider) and encrypted off-server backups (non-Hetzner)
+  approved; 26-week clock not authorised.
+- `docs/research/paper_simulation_spec_20261031/README.md` rewritten as v2 (sha256 7cb3985d...; v1 in git f432a2bc3):
+  principle (bot decision code unchanged); R1-R11 with acceptance tests; Group A evaluation rules (validity gates;
+  bid/ask primary basis; per-strategy classification Inconclusive/Fail/Promising/Pass, >=30 trades, week-block
+  bootstrap, Holm across 3); drawdown limit left to the owner with research figures (replay account results and
+  drawdowns vs holding, 2026-01-01 to 09-30); registered expectation from exit-parity C_path_w60 (all three lose
+  after 0.50%/side: -0.74%, -0.77%, -1.32% per trade); heartbeats (13 checks) and restic-style encrypted backups;
+  commissioning and approval procedure. One deviation from the advisor: exit orders do not expire (the runner never
+  re-sends an exit), only entries do.
+- Correction: in my reply on the advisor's review I cited runner line 1613 for the stop reference price; it is 1614.
+- PROJECT_STATE.md: decision 2 adds the drawdown limit; decided line for the owner's approvals; engineering item 2
+  points to R1-R11 and section 9.
