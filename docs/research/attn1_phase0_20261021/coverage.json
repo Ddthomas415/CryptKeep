@@ -1,0 +1,46 @@
+{
+ "cycles": 100,
+ "primary_cycles": 79,
+ "coins": 147,
+ "selections_all": 4209,
+ "selections_primary": 3922,
+ "lenient_COIN_CHAIN_APP": {
+  "coins": 43,
+  "primary_selections": 2180,
+  "share": 0.5558,
+  "gate_a_pass": false
+ },
+ "strict_COIN_CHAIN": {
+  "coins": 30,
+  "primary_selections": 1702,
+  "share": 0.434,
+  "gate_a_pass": false
+ },
+ "by_class": {
+  "APP": {
+   "coins": 13,
+   "primary_selections": 478
+  },
+  "BRAND": {
+   "coins": 2,
+   "primary_selections": 45
+  },
+  "CHAIN": {
+   "coins": 23,
+   "primary_selections": 1276
+  },
+  "COIN": {
+   "coins": 7,
+   "primary_selections": 426
+  },
+  "NONE": {
+   "coins": 79,
+   "primary_selections": 1182
+  },
+  "REJECT": {
+   "coins": 23,
+   "primary_selections": 515
+  }
+ },
+ "distinct_articles": 42
+}

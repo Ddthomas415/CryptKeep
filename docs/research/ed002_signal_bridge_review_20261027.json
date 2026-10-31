@@ -1,0 +1,179 @@
+{
+  "schema": "ed002-signal-bridge-independent-review-v1",
+  "date": "2026-10-27",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "reviewer": "Independent GATE bounded synthetic frozen-signal bridge review",
+  "decision": "REJECTED",
+  "acceptance_scope": "New OHLCV-to-frozen-signal/adopted-event-allocation bridge and its incumbent synthetic interface only. Rejection concerns a reproduced frame/panel consistency defect. It does not reopen or reject the accepted ledger, adopted event rule or frozen strategy definitions.",
+  "implementation_accepted": false,
+  "operations_authorized": false,
+  "market_data_run_authorized": false,
+  "statistical_calibration_authorized": false,
+  "experiment_freeze_or_activation_authorized": false,
+  "capital_risk_or_trading_authorized": false,
+  "blocking_findings": [
+    {
+      "id": "ED002-BRIDGE-01",
+      "priority": "P1",
+      "classification": "SHOWN source; REPRODUCED synthetic counterexample",
+      "title": "Incumbent non-Sunday early return bypasses frame/panel consistency",
+      "file": "services/backtest/frozen_signal_bridge.py",
+      "line": 189,
+      "supporting_lines": [
+        153,
+        196,
+        199,
+        230
+      ],
+      "finding": "The incumbent returns None on non-Sunday decision closes before checking that the ledger frame's open/close prices agree with the frozen OHLCV panel. simulate_bridge checks profile/metadata but not per-frame prices before invoking the ledger. A Sunday-generated target executes at Monday open; its Monday frame is subsequently processed on a non-rebalance close and is never checked against the panel. The bridge can therefore report COMPLETE with fills and NAV derived from contradictory prices despite a fixed valid panel.",
+      "reproduction": {
+        "inputs": "All synthetic. Two symbols A/B with 61 complete UTC days of positive, varying prices and known hourly observations. Warm-up is Sunday 2026-01-04 23:00 UTC, decision close Monday 2026-01-05 00:00 UTC. The actual incumbent formula emits its scheduled target. Three following hourly frames use the same synthetic panel except A's first execution open is changed from 113.6738822299916 to 1.",
+        "observed": {
+          "all_inputs_synthetic": true,
+          "baseline_marked_nav": "10000164415350394330601/10000000000000000000",
+          "baseline_status": "COMPLETE",
+          "contradictory_frame_marked_nav": "1146757677220191894330601/20000000000000000000",
+          "contradictory_frame_status": "COMPLETE",
+          "executed_A_qty": "500",
+          "executed_A_raw_price": "1",
+          "execution_ms": 1767571200000,
+          "frozen_panel_A_open": 113.6738822299916
+        },
+        "approximate_outcome": "Baseline final NAV is approximately 1000.02 USD. The contradictory frame buys 500 A at raw price 1 and reports COMPLETE with final NAV approximately 57337.88 USD while the frozen panel still has the actual synthetic open above 113.",
+        "expected": "Reject or invalidate the contradictory frame and never report a complete valid return path from it. Weekly target scheduling must not bypass the input consistency boundary for prices used by fills or hourly marking.",
+        "impact": "Fictitious incumbent profit/exposure and invalid comparisons to the three default families. This is a new bridge-interface validation failure, not a defect in ledger settlement or the incumbent source target formula."
+      },
+      "required_closure": "Separate incumbent frame/panel consistency validation from the Sunday-only target trigger. Preserve the intended weekly target schedule/no off-schedule rebalance. Add a regression using an actual Sunday target followed by a conflicting Monday execution open, asserting that the case cannot return COMPLETE; retain valid consistent-frame timing/formula and carry tests.",
+      "coverage_gap": "Current incumbent tests check Sunday formula/undefined volatility/history and that the next hour returns None, but do not perturb execution/valuation frame prices on non-rebalance hours."
+    }
+  ],
+  "reviewed_positive_boundaries": [
+    {
+      "classification": "SHOWN static and focused synthetic regression",
+      "subject": "Frozen families and event policy",
+      "detail": "Snapshot hash and family keys are pinned; configuration and panel inputs are copied, evidence emission is disabled, later config mutation refuses, and the real compute_signal receives completed/available contiguous 300-row windows. Event targets use exact fractions, a fixed 1/25 entry denominator, residual allocation, no all-HOLD rebalance and actual holdings rather than latched intentions. No defect in this event mapping was confirmed in the bounded pass."
+    },
+    {
+      "classification": "SHOWN static and focused synthetic regression, subject to blocker",
+      "subject": "Availability/readiness and carry",
+      "detail": "Window selection excludes future bars, requires contiguous available OHLCV, and distinguishes documented short listings, known ineligibility and unknown required rules. Resume binds policy/family and known historical observations/listings/rules/marks, while permitting future rule additions. Existing full-versus-split and past/future mutation tests passed. These do not establish all-frame consistency for the incumbent."
+    },
+    {
+      "classification": "SHOWN static and focused synthetic regression",
+      "subject": "Missingness/failure and attribution",
+      "detail": "Initial unavailable decisions return INCOMPLETE/stateNone; later ledger failures preserve incomplete state. Signal arithmetic/invalid values become explicit failures without swallowing assertion tripwires. Default raw actions and held-without-sell trace annotate incidental resizing without changing ledger fills; incumbent scheduled and terminal trades are excluded from incidental labels."
+    },
+    {
+      "classification": "SHOWN synthetic source-formula parity, subject to blocker",
+      "subject": "Incumbent rule",
+      "detail": "The complete UTC 61-day window, last 30 daily population-return volatility, positive 28-day return, sqrt(365), half-account weight and Sunday close trigger match the tested frozen target formula. The AST fixture extracts only target(), not the historical executable study's data loading or run body. Formula parity does not close the frame-consistency bypass."
+    }
+  ],
+  "verification": {
+    "environment": "VERIFIED_ENV isolated repository Python and synthetic dictionaries; no market data/runtime operations.",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_frozen_signal_bridge.py tests/test_shared_cash_research.py tests/test_next_open_research.py tests/test_harness_contracts_wp4.py",
+    "focused_module_slice_runs": 1,
+    "result": "126 passed in 3.41s",
+    "warnings": 0,
+    "interpretation": "The 33 bridge cases plus 93 accepted accounting/compatibility cases pass, but do not cover the reproduced incumbent bypass. This result is not a full suite or bridge acceptance.",
+    "run_accounting": "This test run and the single probe completed earlier in this same bounded review before the user's resume message. Neither was repeated on resume; source/test hashes were reverified unchanged.",
+    "extra_synthetic_probe": {
+      "path": "/private/tmp/ed002_signal_bridge_gate_probe_20261027.py",
+      "sha256": "825491380230f43123f10a0eb706cdcab16bf62cec9d74a93926babfb4d3b947",
+      "command": "env -i PATH=/usr/bin:/bin PYTHONPATH=. PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B /private/tmp/ed002_signal_bridge_gate_probe_20261027.py",
+      "runs": 1,
+      "exit_code": 0,
+      "output": {
+        "all_inputs_synthetic": true,
+        "baseline_marked_nav": "10000164415350394330601/10000000000000000000",
+        "baseline_status": "COMPLETE",
+        "contradictory_frame_marked_nav": "1146757677220191894330601/20000000000000000000",
+        "contradictory_frame_status": "COMPLETE",
+        "executed_A_qty": "500",
+        "executed_A_raw_price": "1",
+        "execution_ms": 1767571200000,
+        "frozen_panel_A_open": 113.6738822299916
+      },
+      "guards": "Socket construction/create_connection/DNS and subprocess Popen/run refuse before bridge import. No test helper/market dataset or historical executable study was imported; the current pure bridge calculated the incumbent targets."
+    },
+    "current_manifest_bindings_verified": 17,
+    "original_snapshot_source_bindings_verified": 11,
+    "isolated_diff_hash_matches_manifest": true,
+    "ledger_and_frozen_sources_unchanged": true,
+    "full_suite_run": false,
+    "market_data_opened": false,
+    "statistical_calibration_run": false,
+    "native_network_service_account_credential_operations": false,
+    "extra_agents": 0,
+    "no_source_test_checkpoint_manifest_index_or_worklog_edits": true
+  },
+  "authority_and_limits": {
+    "adoption": "Direct user assignment establishes adoption of the event rule and permission for synthetic bridge implementation, superseding the earlier revise reply. This review grants no wider proposal adoption, experiment, cost/horizon/statistics freeze or market run.",
+    "material_assumptions": [
+      "One venue/common quote with no yield, FX or financing.",
+      "MODELLED full fills with declared costs and correctly interpreted dated caller-supplied eligibility; no actual venue execution proof."
+    ],
+    "current_scope": "One bounded new-bridge review. Accepted ledger semantics and frozen strategies/snapshot were dependency identity checks, not reopened audits. No old runtime/SDK or historical study run.",
+    "unverified": [
+      "Historical product identity/tradability/status/precision",
+      "Actual fills, liquidity, partial fills, settlement/capacity/latency",
+      "Economic profitability, external-data feasibility or statistical adequacy",
+      "Whole-system integration and any operational/experiment readiness"
+    ],
+    "failure_meaning": "REJECTED refers to the concrete new implementation defect, not missing out-of-scope market-data or runtime proof."
+  },
+  "documentation_attribution": {
+    "initial_checkpoint_digest_declared_by_initial_manifest": "02777474166c334125ac45224ed260c373fd65ce9e88a7e77c9604241431e0f2",
+    "current_checkpoint_digest": "105d6a9f39cbcf3a5b6e858c1b800ee27234bd5321c125e7079d3f62c04aa8db",
+    "note": "A documentation-only Independent Review Availability appendix and matching manifest update appeared during this review. The current checkpoint was reread fully and all 17 current bindings were verified. Source/tests remained the exact tested/probed hashes. The appendix's usage-error status is historical parent attribution, not a substitute for this completed review.",
+    "original_review_artifacts_modified_by_reviewer": false
+  },
+  "hashes": {
+    "algorithm": "SHA256",
+    "reviewed_inputs": {
+      "docs/review_artifacts/ed002_signal_bridge_20261027/manifest.json": "3a640b6db95f6e2ef4cc151555f22bacaecf8da2289d2670a835640b6c82a545",
+      "services/backtest/frozen_signal_bridge.py": "6825eb9860f9309603c8e67af5909732bea47661529d7d8053f3d107cebfbf16",
+      "tests/test_frozen_signal_bridge.py": "0bbeea4ab0e20e1ad2e5c8571451be39ac6ea41d853e4994ebdf106ba6c9f961",
+      "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+      "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+      "docs/research/ed002_defaults25_comparison_design_20261027.md": "5d8c86e3743fafa44427aea79e0f41ba9dc3f16276ce83a19c4c1117e019760b",
+      "services/strategies/presets.py": "002735111eb3eda44e940e98756a80fc5b7a571b08d05d9edf611e988386fd95",
+      "services/strategies/strategy_registry.py": "e27facd6fd05f3a89c5559194e5cc6f61bf06a3e708596b62d5603e0bbbebae1",
+      "services/backtest/next_open_research.py": "4f5bb1a98be726915bca155b8ea483d5036982ed786665e504c1e444ce2d1a7f",
+      "scripts/research/run_multisymbol_baseline.py": "d6ddce6d69a755db67c542e6e29f3e68f06612bd2fc95373490f671e3ead2e78",
+      "scripts/research/freeze_multisymbol_archive.py": "e22abd0b251ed7a3f4ab6bb1947aa075d70a7b72d7708e4c548eb4c10ea795bc",
+      "services/backtest/research_prefix_freeze.py": "5af4a5fb8390644dc846ee47851ff222c127e51ab8852a15b595b5a6a147b74f",
+      "services/strategies/indicators.py": "756c04052a0fd0f403d0b1c527b64a1bed586f1897d72663b3c96972709b8f23",
+      "services/strategies/market_filters.py": "37fec0214006c94124ee5166fb469fdacc3e52f2b6caaed64f9b926d5412399a",
+      "services/strategies/breakout_donchian.py": "c9e02234ae2a2366dce2e509f86137b28fd6869f92254cd4a68567a882fa03e0",
+      "services/strategies/ema_cross.py": "cffb26005525ac141ed3eed1248582d9b34281d7aa09c968aa239e0b8ed1219e",
+      "services/strategies/mean_reversion_rsi.py": "6eebd51ae8c0ed7afbdd1d6fc4ff4d492dd51e036b9e5c5d73dd86ddbe876ed2",
+      "docs/research/ed002_signal_bridge_20261027.md": "105d6a9f39cbcf3a5b6e858c1b800ee27234bd5321c125e7079d3f62c04aa8db",
+      "tests/test_shared_cash_research.py": "415910a7fa161f9f96cd9cd8d4e3af9b3ca2e59a6a8b214d9d85a3b8485d3b08",
+      "tests/test_next_open_research.py": "798bd09a35a0fa4cefb0b0c8c3666af991d6d3a29dbf365c0d756a0758036998",
+      "tests/test_harness_contracts_wp4.py": "4439fc4de1491ee623704218713b70f69b251255924b79f4c802b5b68774bcde",
+      "docs/research/btc_eth_stress_test_20261009/stress_btc_eth.py": "dacafe828b80c76c8c675cca6c3728bd4a090c5873a49cdbe13173c86edc7e37",
+      "docs/review_artifacts/ed002_signal_bridge_20261027/bridge.diff": "6d65e6608566b0346a5b5aa49e249108b461881363d7a620f686c3676cbe8da6"
+    },
+    "temporary_probe_sha256": "825491380230f43123f10a0eb706cdcab16bf62cec9d74a93926babfb4d3b947"
+  },
+  "read_scope": {
+    "fully_read": [
+      "services/backtest/frozen_signal_bridge.py",
+      "tests/test_frozen_signal_bridge.py",
+      "docs/research/ed002_signal_bridge_20261027.md",
+      "docs/review_artifacts/ed002_signal_bridge_20261027/manifest.json"
+    ],
+    "accepted_context_reused": "ED-002 corrected shared-cash ledger and adopted event rule; no ledger/design re-audit or duplicated tests beyond the explicitly requested compatibility slice.",
+    "source_identity_checks": "All 17 current manifest files, all 11 original snapshot source bindings, patch digest and focused compatibility-test files. Hash-only dependency reads are not semantic re-audit.",
+    "historical_target_scope": "Only the requested focused test's AST-extracted target() was compiled on synthetic inputs; no old study body/data loader or E10 imported.",
+    "bounded_probe": "The single permitted /tmp synthetic counterexample reproduced one bridge-interface issue; no further probes or experiments were run."
+  },
+  "next_required_proof": "A narrow correction and independent re-review of ED002-BRIDGE-01 with an off-schedule frame mismatch regression, retaining valid weekly timing/target parity and unchanged ledger/frozen sources. No fix was implemented by this reviewer.",
+  "write_scope": {
+    "repository_output": "docs/research/ed002_signal_bridge_review_20261027.json",
+    "permitted_temporary_probe": "/private/tmp/ed002_signal_bridge_gate_probe_20261027.py",
+    "reviewed_files_modified": false
+  }
+}

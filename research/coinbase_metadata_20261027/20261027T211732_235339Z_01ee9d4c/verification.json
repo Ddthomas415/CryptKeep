@@ -1,0 +1,11 @@
+{
+  "acceptance": "ACCEPTED",
+  "scope": "local capture/comparison integrity only",
+  "comparison_sha256": "2e19df0291306251d4488e68cdc43d9b24a3333b3297b27d129dcab8ba397988",
+  "comparison_sources_verified": 7,
+  "older_receipt_payloads_verified": 2,
+  "comparison_rows": 25,
+  "bridge_source_unchanged": true,
+  "report_sha256": "d03c0c544f3b5e0eee80451aef4c4ac9baa05e9c08dcd9df4d2c045f2e24073f",
+  "market_or_account_requests_after_approved_capture": 0
+}

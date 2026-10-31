@@ -1,0 +1,50 @@
+{
+  "schema": "ed002-local-pilot-wrapper-bindings-v1",
+  "date_local": "2026-10-28",
+  "active_role": "ENGINEER",
+  "risk": "HIGH",
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "independent_review": false,
+  "operator_design_decision": "Adopt local Mac pilot design (Recommended)",
+  "review_availability": "existing agent returned usage-limit error; no duplicate or retry",
+  "targeted_tests": {
+    "passed": 200,
+    "new": 36,
+    "existing": 164,
+    "seconds": 6.45,
+    "exit_code": 0
+  },
+  "isolated_cli_preview": {
+    "exit_code": 0,
+    "dry_run": true,
+    "enabled": false,
+    "collection_started": false
+  },
+  "native_plist_lint": "OK",
+  "policy_source_pins_verified": 10,
+  "prior_operating_plan_bindings_unchanged": 11,
+  "pilot_dates_assigned": false,
+  "pilot_directory_exists": false,
+  "job_installed": false,
+  "new_public_requests": 0,
+  "strategy_returns_or_statistical_runs": false,
+  "inputs_sha256": {
+    "docs/research/ed002_local_pilot_wrapper_20261028.md": "09dd5ad0d33915243ef58501a640f8b3bc8d703cb82513e1ee1fb7dc75f7bb98",
+    "docs/research/ed002_local_pilot_wrapper_20261028.diff": "f3bc7aaa2eadf7f0169276d069c9b7925441c08fffa9225471ca583ff3fca596",
+    "scripts/research/run_ed002_collection_slot.py": "242ccec28fcc00eaf2375c5b3a5ddaa902f75e3de1be4f63e2945a318676bc9f",
+    "tests/test_ed002_collection_slot.py": "4770eca491eea94281a32ad57beef60fb2f9aa72cd913cc8cb9d7d41139c2646",
+    "research/ed002_public_inputs/plans/local_pilot_disabled_20261028.json": "f484d087fa9be188e96b256b8ac0dd91d0be33a5e85394b046ffb4257b119b6b",
+    "research/ed002_public_inputs/plans/pilot_two_hour_20261028.json": "7b1a0e5e9600792d931439b2f6e7e0befe8c5345b07c22f46a1d31b8153162f6",
+    "docs/review_artifacts/ed002_local_pilot_20261028/com.cryptkeep.ed002.public-inputs.plist": "98cb037cab97f6443aaa7544e68a8e2d8e6768c47a6eafd8c189932b85785b25",
+    "docs/research/ed002_collection_operating_bindings_20261028.json": "e0ab0a1b5ffa2aa5c8e4a2e3c03fb8f710ccf1cf7c3dae6fa84cf49a6f07ef1d",
+    "docs/research/ed002_collection_operating_plan_20261028.md": "2dca5906318ed22edd4ca258c0b3d03be8612a4df87c317f6974e69a12d52877",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "scripts/__init__.py": "4f6c74a116e936a120e3e0bde4125140808ac8bf7a526194c2010e24d9cb5291",
+    "scripts/research/capture_descriptive_inputs.py": "415d4e351b9c1c544bcf9fe4f84dab72280dd47ffed13353860a011bf5d0145e",
+    "scripts/research/corrected_research_math.py": "d07ae7171e2293cbe60d15ae9bc0973d3ef8bd31b9c7b99105f928c029e29047",
+    "services/__init__.py": "77f3924997e026cbe6dddf4be13332cb484a35b432481b04fb0fcdc3aeb3a1ea",
+    "services/backtest/descriptive_candles.py": "9425211207738f0395f28b3f8c02c8a292c9a2e80e5d8d4b203e5ec5ebf273de",
+    "services/backtest/descriptive_metadata.py": "9c98bba24ed52bcb99e73ecc8bcd0bfa51ccd5e60447aa5f2017ef8cbb1e4099",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc"
+  }
+}

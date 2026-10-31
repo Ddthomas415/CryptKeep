@@ -1,0 +1,136 @@
+{
+  "schema": "ed002-delayed-bridge-independent-review-v1",
+  "date": "2026-10-27",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "reviewer": "Independent GATE fixed-one-hour synthetic bridge review",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "The exact new delayed bridge and optional availability-cutoff extension, on synthetic inputs through the unchanged accepted ledger. No complete comparative experiment/harness, historical returns, prospective dates/horizon, metadata mapper, statistical validation or operations are accepted.",
+  "blocking_findings": [],
+  "correctness_findings": [],
+  "implementation_accepted": true,
+  "market_data_run_authorized": false,
+  "statistical_calibration_authorized": false,
+  "experiment_freeze_or_activation_authorized": false,
+  "operations_authorized": false,
+  "capital_risk_or_trading_authorized": false,
+  "assessments": [
+    {
+      "classification": "SHOWN source and focused synthetic tests",
+      "subject": "Information end T versus receipt/fill E",
+      "references": [
+        "services/backtest/delayed_signal_bridge.py:12",
+        "services/backtest/delayed_signal_bridge.py:64",
+        "services/backtest/frozen_signal_bridge.py:76"
+      ],
+      "detail": "The receipt panel keeps the parent window ending at T but passes E=T+H as available_by_ms. No intervening row is added to the 300-bar feature window, original receipts are copied rather than rewritten, and a final receipt after E fails. The optional keyword defaults to the original cutoff and rejects a cutoff before window end. Exact/1ms/half-hour/full-hour tests and after-cutoff refusal passed."
+    },
+    {
+      "classification": "SHOWN source and focused synthetic tests",
+      "subject": "Wallet/marks and execution prices",
+      "references": [
+        "services/backtest/delayed_signal_bridge.py:82",
+        "services/backtest/delayed_signal_bridge.py:85"
+      ],
+      "detail": "Actual ledger pre-fill cash/units at E are retained, while the strategy target NAV is recomputed using T's close marks. The later context marked_nav is replaced, not used for sizing. The ledger still prices/settles the pending target at E's execution open under its joint post-cost/rounding rules. This is explicitly delayed-signal target formation with the current wallet, not a claim to quantities frozen at T or a new allocator."
+    },
+    {
+      "classification": "SHOWN source and focused synthetic tests",
+      "subject": "Separate permission clocks and exclusions",
+      "references": [
+        "services/backtest/delayed_signal_bridge.py:66",
+        "services/backtest/delayed_signal_bridge.py:72"
+      ],
+      "detail": "Signal permission is selected as known/effective at T; the unchanged ledger selects execution permission known/applicable at E. An intervening disable excludes the entry, while permission only learned after T cannot retroactively establish the signal. Flat known-ineligible assets do not require candles. Incumbent active requirements are its pair plus actual holdings, not unrelated universe labels. Exhaustion and missing-open expiry remain explicit; no intent is latched."
+    },
+    {
+      "classification": "SHOWN source and focused synthetic tests",
+      "subject": "Ex-post outcomes versus causal features",
+      "references": [
+        "services/backtest/delayed_signal_bridge.py:40",
+        "services/backtest/delayed_signal_bridge.py:81",
+        "services/backtest/delayed_signal_bridge.py:34"
+      ],
+      "detail": "Current completed outcome-frame prices are validated against exact raw rows even if those outcome rows arrived later. They validate the modelled valuation/fill path rather than become signal features or T marks. The binding includes closed-prefix outcome rows regardless of receipt availability, preventing later rewriting of already-used outcome prices. Conflicting/missing outcomes invalidate the case; no late outcome availability is represented as decision-time knowledge."
+    },
+    {
+      "classification": "SHOWN source reuse and focused synthetic tests",
+      "subject": "Parent formula, traces and carry",
+      "references": [
+        "services/backtest/delayed_signal_bridge.py:87",
+        "services/backtest/delayed_signal_bridge.py:89",
+        "services/backtest/delayed_signal_bridge.py:108"
+      ],
+      "detail": "The accepted parent's actual frozen-family logic and incumbent formula are reused at signal close T. Sunday-candle targets fill Monday 01:00 UTC in the synthetic fixture, with no extra incumbent rebalances. Trace scheduling time is intentionally the ledger frame reference; strategy_signal_bar_ts_ms, signal_close_ms, receipt_cutoff_ms and model_execution_ms retain the older strategy clock. Primary financial fills are not rewritten. Identity includes delay/allocation/permission conventions; full-versus-split state/trade equality and historical-receipt/profile-switch refusals passed."
+    },
+    {
+      "classification": "SHOWN source preservation and synthetic compatibility",
+      "subject": "Original API and controls boundary",
+      "detail": "The original bridge's only change is the optional available_by_ms keyword and corresponding receipt/listing cutoff comparisons. Reversing precisely those edits yields the accepted 86825d...c4acf source hash. Ledger/snapshot/default tests match their bound hashes. The synthetic control test uses the same supplied initial E and final marked close without rebasing capital. This is endpoint compatibility evidence, not a full comparative harness or permission to invent a prospective activation/horizon."
+    }
+  ],
+  "verification": {
+    "environment": "VERIFIED_ENV isolated repository Python, local hash/string comparisons and synthetic fixtures only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_delayed_signal_bridge.py tests/test_frozen_signal_bridge.py tests/test_shared_cash_research.py tests/test_next_open_research.py tests/test_harness_contracts_wp4.py",
+    "runs": 1,
+    "result": "157 passed in 4.58s",
+    "warnings": 0,
+    "cases": "28 new delayed cases plus 129 existing synthetic/accounting/compatibility cases",
+    "declared_hash_bindings_verified": 11,
+    "reversed_optional_extension_sha256": "86825dfab40c82752d626b88586e1c66aa8832e8339b2c54a6452b9bc45c4acf",
+    "reversal_scope": "Signature addition, cutoff initialization/validation and two availability/listing comparisons only; no source written during reversal.",
+    "accepted_ledger_and_snapshot_byte_identical": true,
+    "extra_synthetic_counterexamples": 0,
+    "full_suite_run": false,
+    "market_data_or_historical_simulation": false,
+    "network_service_account_credential_operations": false,
+    "additional_agents": 0,
+    "reviewed_files_modified": false
+  },
+  "retained_limits": [
+    "One hour is a fixed modelling allowance, not measured arrival latency, a processing-time margin or assurance of filling the boundary open.",
+    "Target formation uses actual pre-fill E holdings/cash valued at older T close marks. It is not a frozen T-quantity order; that distinction must remain in later experiment descriptions.",
+    "Ex-post consistency checks may invalidate an entire path after diagnostic fills/equity entries exist. INCOMPLETE/unknown profit must never be promoted into a valid observed execution result.",
+    "Only present raw outcome prices are compared; none is invented for a missing execution open. Existing valuation/exclusion/expiry semantics remain, and missing required signal marks still invalidate the path.",
+    "The source reuses the accepted event policy and joint ledger; acceptance is not a renewed exhaustive financial/strategy/SDK/runtime audit.",
+    "A mechanical cash-only control following a failed intended benchmark entry is not a valid benchmark comparison. The future comparison-level gate is explicitly absent and remains required before a market experiment.",
+    "The library adds no prospective dates/horizon. Initial cash-only interval, activation A, first fill E and endpoint B must be aligned explicitly in any future authorized registration.",
+    "Costs/capital/quote rounding/status sampling/freshness/minimum mapping and inference choices remain outside this timing implementation acceptance.",
+    "One venue/common quote/no FX or yield and hypothetical full fills at caller-supplied costs/precision remain the two model premises. Historical eligibility, execution capacity, liquidity, strategy economics and profitability remain UNVERIFIED.",
+    "Test guards operate in test bodies, not as a universal imported-module safety proof. No market dataset or operational interface was exercised."
+  ],
+  "hashes": {
+    "algorithm": "SHA256",
+    "reviewed_inputs": {
+      "docs/research/ed002_delayed_bridge_bindings_20261027.json": "000dc4794d42b278cb2e5e5694424018cb0b67b5b25f62e3d6a7cb33a2dfcee7",
+      "services/backtest/delayed_signal_bridge.py": "c2c452c88190eab210764cd0a6a056cefc05fa3af95e09f535987f55e3a27e1d",
+      "tests/test_delayed_signal_bridge.py": "5b29274cec04b3c2b3bbd5bf593d37f180c701b39ff0fea5921cde126cbe5cae",
+      "services/backtest/frozen_signal_bridge.py": "7ca917d6edda68fe02c3ab439ab56cf182106831444a71fdd78ee26b5212639a",
+      "tests/test_frozen_signal_bridge.py": "eb6d5dc1eb768f4074dff7254700c3cffc1278128ab76a4bcd98c9d8c9bc32cf",
+      "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+      "tests/test_shared_cash_research.py": "415910a7fa161f9f96cd9cd8d4e3af9b3ca2e59a6a8b214d9d85a3b8485d3b08",
+      "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+      "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+      "docs/research/ed002_delayed_bridge_20261027.md": "53efbc47b2efa3f9606d7ef3c6160d678361b0288d1f37f006e579e9be34da58",
+      "docs/research/ed002_defaults25_input_contract_20261027.md": "bdf986b7d9db6fa45b93b3e8e59d4ef7e9dfeacc4fc891d96822a8da73722a17",
+      "docs/research/ed002_defaults25_input_contract_review_20261027.json": "5757cb41187f91d721c12847d2d8e29f59fd77d19726abe68ac0e3ec9b3a540c",
+      "tests/test_next_open_research.py": "798bd09a35a0fa4cefb0b0c8c3666af991d6d3a29dbf365c0d756a0758036998",
+      "tests/test_harness_contracts_wp4.py": "4439fc4de1491ee623704218713b70f69b251255924b79f4c802b5b68774bcde"
+    }
+  },
+  "read_scope": {
+    "fully_read": [
+      "services/backtest/delayed_signal_bridge.py",
+      "tests/test_delayed_signal_bridge.py",
+      "docs/research/ed002_delayed_bridge_20261027.md",
+      "docs/research/ed002_delayed_bridge_bindings_20261027.json"
+    ],
+    "narrow_existing_source": "HourlyPanel.window optional keyword/cutoff and parent reuse interface, with exact in-memory reverse to the accepted source digest. No old ledger/design/runtime/SDK review reopened.",
+    "hash_only": "All 11 bound input files and the two additional requested compatibility test files are listed in hashes.reviewed_inputs.",
+    "tests": "The specified five-file slice ran once; no extra probe or broad matrix. Existing incumbent test compiles only the frozen target() AST, not a study/data-loader body."
+  },
+  "next_boundary": "Parent may close the bounded synthetic implementation stage against these hashes. Further comparative harness work, metadata/protocol choices, calibration, data collection or experiment execution needs its own explicit scope/authorization; none is initiated or granted here.",
+  "write_scope": [
+    "docs/research/ed002_delayed_bridge_review_20261027.json"
+  ]
+}

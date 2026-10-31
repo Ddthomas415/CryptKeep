@@ -1,0 +1,167 @@
+{
+  "status": "COMPLETE",
+  "statistical_validation": "INCOMPLETE",
+  "coverage_certified": false,
+  "experiment_pass": null,
+  "nulls": {
+    "iid_exchangeable": {
+      "trials": 32,
+      "rho": 0.0,
+      "burn_in": 1024,
+      "familywise_false_positive_count": 1,
+      "familywise_rate": 0.03125,
+      "wilson_95_range": [
+        0.005537860164003122,
+        0.15744263820012555
+      ],
+      "individual_counts": {
+        "breakout_default": 0,
+        "ema_cross_default": 0,
+        "mean_reversion_default": 1
+      },
+      "range_lower_above_nominal_0.05": false,
+      "null_basis": "three families and incumbent have identical marginal path laws; no expected wealth advantage"
+    },
+    "ar1_0.8_exchangeable": {
+      "trials": 32,
+      "rho": 0.8,
+      "burn_in": 1024,
+      "familywise_false_positive_count": 8,
+      "familywise_rate": 0.25,
+      "wilson_95_range": [
+        0.1325240091850904,
+        0.4210655899424448
+      ],
+      "individual_counts": {
+        "breakout_default": 4,
+        "ema_cross_default": 6,
+        "mean_reversion_default": 2
+      },
+      "range_lower_above_nominal_0.05": true,
+      "null_basis": "three families and incumbent have identical marginal path laws; no expected wealth advantage"
+    }
+  },
+  "sensitivity_fixture": {
+    "7": {
+      "computation_status": "COMPLETE",
+      "statistical_validation": "INCOMPLETE",
+      "coverage_certified": false,
+      "experiment_pass": null,
+      "days": 182,
+      "repeats": 20000,
+      "seed": 20261027,
+      "generator": "PCG64",
+      "numpy_version": "2.4.4",
+      "block_days": 7,
+      "primary_method": true,
+      "one_sided_tail": "1/60",
+      "one_based_order_rank": 334,
+      "first_day_end_ms": 86400000,
+      "last_day_end_ms": 15724800000,
+      "qualification": "APPROXIMATE_PORTFOLIO_RETURN_BOOTSTRAP_NOT_EXECUTABLE_PATH_OR_COVERAGE_PROOF",
+      "contrasts": {
+        "breakout_default": {
+          "observed_net_wealth_difference": 199.50510667051753,
+          "approximate_lower_bound": 199.50510667051662,
+          "lower_bound_exceeds_zero": true
+        },
+        "ema_cross_default": {
+          "observed_net_wealth_difference": 199.50510667051753,
+          "approximate_lower_bound": 199.50510667051662,
+          "lower_bound_exceeds_zero": true
+        },
+        "mean_reversion_default": {
+          "observed_net_wealth_difference": 199.50510667051753,
+          "approximate_lower_bound": 199.50510667051662,
+          "lower_bound_exceeds_zero": true
+        }
+      }
+    },
+    "14": {
+      "computation_status": "COMPLETE",
+      "statistical_validation": "INCOMPLETE",
+      "coverage_certified": false,
+      "experiment_pass": null,
+      "days": 182,
+      "repeats": 20000,
+      "seed": 20261027,
+      "generator": "PCG64",
+      "numpy_version": "2.4.4",
+      "block_days": 14,
+      "primary_method": false,
+      "one_sided_tail": "1/60",
+      "one_based_order_rank": 334,
+      "first_day_end_ms": 86400000,
+      "last_day_end_ms": 15724800000,
+      "qualification": "APPROXIMATE_PORTFOLIO_RETURN_BOOTSTRAP_NOT_EXECUTABLE_PATH_OR_COVERAGE_PROOF",
+      "contrasts": {
+        "breakout_default": {
+          "observed_net_wealth_difference": 199.50510667051753,
+          "approximate_lower_bound": 199.50510667051662,
+          "lower_bound_exceeds_zero": true
+        },
+        "ema_cross_default": {
+          "observed_net_wealth_difference": 199.50510667051753,
+          "approximate_lower_bound": 199.50510667051662,
+          "lower_bound_exceeds_zero": true
+        },
+        "mean_reversion_default": {
+          "observed_net_wealth_difference": 199.50510667051753,
+          "approximate_lower_bound": 199.50510667051662,
+          "lower_bound_exceeds_zero": true
+        }
+      }
+    },
+    "28": {
+      "computation_status": "COMPLETE",
+      "statistical_validation": "INCOMPLETE",
+      "coverage_certified": false,
+      "experiment_pass": null,
+      "days": 182,
+      "repeats": 20000,
+      "seed": 20261027,
+      "generator": "PCG64",
+      "numpy_version": "2.4.4",
+      "block_days": 28,
+      "primary_method": false,
+      "one_sided_tail": "1/60",
+      "one_based_order_rank": 334,
+      "first_day_end_ms": 86400000,
+      "last_day_end_ms": 15724800000,
+      "qualification": "APPROXIMATE_PORTFOLIO_RETURN_BOOTSTRAP_NOT_EXECUTABLE_PATH_OR_COVERAGE_PROOF",
+      "contrasts": {
+        "breakout_default": {
+          "observed_net_wealth_difference": 199.50510667051753,
+          "approximate_lower_bound": 199.50510667051662,
+          "lower_bound_exceeds_zero": true
+        },
+        "ema_cross_default": {
+          "observed_net_wealth_difference": 199.50510667051753,
+          "approximate_lower_bound": 199.50510667051662,
+          "lower_bound_exceeds_zero": true
+        },
+        "mean_reversion_default": {
+          "observed_net_wealth_difference": 199.50510667051753,
+          "approximate_lower_bound": 199.50510667051662,
+          "lower_bound_exceeds_zero": true
+        }
+      }
+    }
+  },
+  "completed_method_calls": 67,
+  "limits": [
+    "32 trials per model cannot certify nominal familywise coverage or power",
+    "Wilson ranges describe independent synthetic trial frequencies only",
+    "null results concern these fixed exchangeable generators, not real-market validity",
+    "14/28-day sensitivities are descriptive and never replace primary seven-day blocks",
+    "no overhead double-charge in differences; overhead and economic filters are outside this method"
+  ],
+  "elapsed_seconds": 5.89488,
+  "peak_rss_bytes": 61472768,
+  "numpy_version": "2.4.4",
+  "sources_sha256": {
+    "docs/research/ed002_stat_validation_20261027/validate_pilot.py": "1826e3c8ccd3b494215a9d021bd9d6b4e69125fa977d7b3e213bc39f6e310167",
+    "docs/research/ed002_stat_validation_20261027/decision.json": "b0d907b5a9c4570a5b25299dbb33653d2d504017e7298194186b200b2e745b8f",
+    "services/backtest/paired_wealth_screen.py": "b7f18780f52efb31d4f024c23b1d7911610195c4e8904690d6ba2baaa68656ab"
+  }
+}

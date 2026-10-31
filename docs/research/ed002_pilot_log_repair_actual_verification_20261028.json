@@ -1,0 +1,19 @@
+{
+  "captured_at_utc": "2026-10-28T12:51:55.737890+00:00",
+  "active_role": "AUDITOR",
+  "evidence": "SHOWN installed file and saved native command results, not unattended capture",
+  "installed_plist_matches_proposal": true,
+  "only_two_log_paths_changed": true,
+  "source_pins_unchanged": 10,
+  "pilot_policy_unchanged": true,
+  "no_recovery_or_forced_capture": true,
+  "files_sha256": {
+    "docs/review_artifacts/ed002_pilot_log_repair_actual_20261028_01/ATTEMPT.json": "5f39aca4561d140f45336a61948e6663c4e29d5df2a07ca4631da4a5d60de889",
+    "docs/review_artifacts/ed002_pilot_log_repair_actual_20261028_01/RESULT.json": "ed37e141efb221fa4a2919797630009c3890b3f2ad2fc6dcb00fe2b4c3820bd4",
+    "docs/review_artifacts/ed002_pilot_log_repair_actual_20261028_01/ORIGINAL.plist": "d4ae5e578a2c5a11210d5493d267852ff9e14d0d922ccfed1c3b50ab8bc8faf2",
+    "docs/review_artifacts/ed002_pilot_log_repair_actual_20261028_01/PROPOSED.plist": "b05e609f9cc6b24fa1faf5b9ec274a61ad9c9b00477455cd0d701159a876251b",
+    "/Users/baitus/Library/LaunchAgents/com.cryptkeep.ed002.public-inputs.plist": "b05e609f9cc6b24fa1faf5b9ec274a61ad9c9b00477455cd0d701159a876251b",
+    "research/ed002_public_inputs/plans/local_pilot_20261028T1035Z.json": "86ff9693e46ce7d82830ab0d44f18ef1b4a5d641938e5e5db9a9e6025e72a32c",
+    "docs/research/ed002_pilot_log_repair_actual_20261028.md": "a3dd4b229a365a1d57c37db9fc97d9e83801204cef86f2b6abd61c3e075ada1f"
+  }
+}

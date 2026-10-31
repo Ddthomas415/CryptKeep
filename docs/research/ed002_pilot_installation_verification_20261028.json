@@ -1,0 +1,42 @@
+{
+  "schema": "ed002-pilot-installation-verification-v1",
+  "date_local": "2026-10-28",
+  "active_role": "AUDITOR",
+  "scope": "saved installation receipt and exact installed file/policy identity; not unattended capture proof",
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "acceptance_route": "operator-authorized operation; no independent source review",
+  "installed": true,
+  "registered_label_as_recorded": "com.cryptkeep.ed002.public-inputs",
+  "native_command_exit_codes": {
+    "preflight_user_labels": 0,
+    "plist_lint": 0,
+    "isolated_cli_preview": 0,
+    "bootstrap_owned_job": 0,
+    "postflight_user_labels": 0
+  },
+  "start_new_york": "2026-10-28T06:35:00-04:00",
+  "end_new_york": "2026-10-29T06:35:00-04:00",
+  "changed_policy_fields": [
+    "enabled",
+    "pilot_id",
+    "start_ms",
+    "end_ms"
+  ],
+  "retained_source_pins_verified": 10,
+  "unchanged_previous_submission_bindings": 17,
+  "slot_directories_at_postflight": 0,
+  "unattended_capture_verified": false,
+  "public_requests_by_installer": 0,
+  "study_readiness": "INCOMPLETE",
+  "statistical_readiness": "INCOMPLETE",
+  "inputs_sha256": {
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/ed002_pilot_install_20261028_01/ATTEMPT.json": "7c50d0c1aa2f4ab17df8b3e880867ce8836c1ca55e532133b6a1c062d58a1225",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/ed002_pilot_install_20261028_01/PREVIEW.json": "2aa02cb9b85252f7cc83059762e5fbc7a1dbeae155f3c7fb59008bc6826f1911",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/ed002_pilot_install_20261028_01/RESULT.json": "5e5a7c61dfbf331172d3d7962e812b16faef135ef92a97c580fb4330036bcb2b",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/ed002_pilot_install_20261028_01/com.cryptkeep.ed002.public-inputs.plist": "d4ae5e578a2c5a11210d5493d267852ff9e14d0d922ccfed1c3b50ab8bc8faf2",
+    "/Users/baitus/Downloads/crypto-bot-pro/research/ed002_public_inputs/plans/local_pilot_20261028T1035Z.json": "86ff9693e46ce7d82830ab0d44f18ef1b4a5d641938e5e5db9a9e6025e72a32c",
+    "/Users/baitus/Library/LaunchAgents/com.cryptkeep.ed002.public-inputs.plist": "d4ae5e578a2c5a11210d5493d267852ff9e14d0d922ccfed1c3b50ab8bc8faf2",
+    "/Users/baitus/Downloads/crypto-bot-pro/research/ed002_public_inputs/plans/local_pilot_disabled_20261028.json": "f484d087fa9be188e96b256b8ac0dd91d0be33a5e85394b046ffb4257b119b6b",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/research/ed002_pilot_installation_scope_20261028.md": "84641a6136b1da929ab05eb57b60e3af8d2ca58dfe79051ae14c98d4bcdc86f1"
+  }
+}

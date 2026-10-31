@@ -1,0 +1,17 @@
+{
+  "schema": "ed002-stat-revision-plan-bindings-v1",
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "proposal_adopted": false,
+  "implementation_authorized": false,
+  "randomized_validation_run": false,
+  "market_run_authorized": false,
+  "inputs_sha256": {
+    "docs/research/ed002_stat_revision_plan_20261027.md": "52211dd517dcf5ab65e8f73ce63a9e19512a8572bc3c8ecf648a963d6e1ab930",
+    "docs/research/ed002_stat_validation_20261027/decision.json": "b0d907b5a9c4570a5b25299dbb33653d2d504017e7298194186b200b2e745b8f",
+    "docs/research/ed002_stat_validation_20261027/result.json": "18e7495fcf147bd82fb3f814d8ec483d6814a75e122cdc87af46dc9925351090",
+    "docs/research/ed002_stat_validation_20261027/bindings.json": "283cca8b5ed33cfb430fe62f48d997b620885364652cba7cf276edf91d876999",
+    "services/backtest/paired_wealth_screen.py": "b7f18780f52efb31d4f024c23b1d7911610195c4e8904690d6ba2baaa68656ab",
+    "tests/test_paired_wealth_screen.py": "ed2ad7755728be1f2c8e49dd2caee4fbc8ebb5d9e96834b831ca48bb562bd673",
+    "docs/research/ed002_stat_validation_20261027/README.md": "8f325788d03d336a8c20abf7e8ce2ed47cc23c6b9dc920f8027eca5968b53a02"
+  }
+}

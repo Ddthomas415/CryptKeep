@@ -1,0 +1,24 @@
+{
+  "schema": "ed002-delayed-bridge-review-bindings-v1",
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "implementation_scope": "synthetic-only fixed one-hour delay",
+  "market_run_authorized": false,
+  "parent_tests": {
+    "passed": 157,
+    "seconds": 5.13,
+    "full_suite": false
+  },
+  "inputs_sha256": {
+    "services/backtest/delayed_signal_bridge.py": "c2c452c88190eab210764cd0a6a056cefc05fa3af95e09f535987f55e3a27e1d",
+    "tests/test_delayed_signal_bridge.py": "5b29274cec04b3c2b3bbd5bf593d37f180c701b39ff0fea5921cde126cbe5cae",
+    "services/backtest/frozen_signal_bridge.py": "7ca917d6edda68fe02c3ab439ab56cf182106831444a71fdd78ee26b5212639a",
+    "tests/test_frozen_signal_bridge.py": "eb6d5dc1eb768f4074dff7254700c3cffc1278128ab76a4bcd98c9d8c9bc32cf",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+    "tests/test_shared_cash_research.py": "415910a7fa161f9f96cd9cd8d4e3af9b3ca2e59a6a8b214d9d85a3b8485d3b08",
+    "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "docs/research/ed002_delayed_bridge_20261027.md": "53efbc47b2efa3f9606d7ef3c6160d678361b0288d1f37f006e579e9be34da58",
+    "docs/research/ed002_defaults25_input_contract_20261027.md": "bdf986b7d9db6fa45b93b3e8e59d4ef7e9dfeacc4fc891d96822a8da73722a17",
+    "docs/research/ed002_defaults25_input_contract_review_20261027.json": "5757cb41187f91d721c12847d2d8e29f59fd77d19726abe68ac0e3ec9b3a540c"
+  }
+}

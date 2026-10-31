@@ -1,0 +1,79 @@
+{
+  "schema": "ed002-bounded-public-capture-handoff-v1",
+  "date": "2026-10-28",
+  "active_role": "ENGINEER",
+  "risk": "HIGH",
+  "acceptance_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "operator_answer": "approve. carry out the next steps",
+  "prior_candle_acceptance": "ACCEPTED_WITH_RISK by human for exact submitted synthetic adapter only",
+  "prior_bound_inputs_verified_unchanged": 18,
+  "tests": {
+    "passed": 116,
+    "new_transport_cases": 34,
+    "candle_cases": 34,
+    "metadata_cases": 48,
+    "seconds": 2.93,
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_capture_descriptive_inputs.py tests/test_descriptive_candles.py tests/test_descriptive_metadata.py",
+    "full_suite": false,
+    "transport_and_processes": "fakes only"
+  },
+  "environment": {
+    "python": "3.12.10",
+    "PyYAML": "6.0.3",
+    "certifi": "2026.2.25",
+    "dependency_installation": false
+  },
+  "candidate_reference_hashes_reconciled": 25,
+  "actual_preview": {
+    "dry_run": true,
+    "planned_max_requests": 27,
+    "worker_started": false,
+    "capture_folder_created": false
+  },
+  "prepared_limits": {
+    "max_transport_calls": 27,
+    "socket_timeout_seconds": 5,
+    "cooperative_loop_seconds": 110,
+    "parent_worker_wait_seconds": 120,
+    "owned_cleanup_wait_seconds": 5,
+    "per_response_stored_bytes": 2097152,
+    "total_stored_payload_bytes": 16777216,
+    "overflow_detection_extra_byte": 1,
+    "http_retries": 0,
+    "redirects": false,
+    "outside_parent_wait": [
+      "initial validation",
+      "process creation",
+      "final filesystem operations"
+    ]
+  },
+  "live_acquisition_authorized": false,
+  "market_api_requests": 0,
+  "real_worker_lifecycle_tested": false,
+  "study_activation_or_trading": false,
+  "dates_frozen": false,
+  "unverified": [
+    "live DNS/TLS/HTTP/recipient behavior",
+    "real worker cancellation/cleanup",
+    "current semantic identity/eligibility",
+    "prospective warm-up/continuity and study readiness"
+  ],
+  "next_boundary": "exact transport/plan review, then separately bounded authorization for one public feasibility capture",
+  "inputs_sha256": {
+    "scripts/research/capture_descriptive_inputs.py": "1686cec85e9f990e04de33b6dc737f076a26519ec843fb93541e97c3f70acc36",
+    "tests/test_capture_descriptive_inputs.py": "4e914cb32151e0554ac2d2417af5b8674409dbd018c8bd0c6694c01eb2bf18ed",
+    "docs/research/ed002_capture_transport_20261028.md": "4f1c090f9740948a393c7f33b7a1aab17bcb0281f22242d769f60312c23828c6",
+    "research/ed002_public_inputs/plans/feasibility_20261028.json": "08d2c6098845a706f7475f36f516294e850fb6b32f4de7ba59da12159013f41e",
+    "research/ed002_public_inputs/plans/candidate_id_sources_20261028.json": "70f193525f1c8a0690a224a95083053fbeb0e3aec4f5657f9e9ec63d83f369ec",
+    "docs/research/ed002_input_feasibility_bindings_20261028.json": "9628e61fd86573f5ab75e46915ef9b78fb0cdb3b275b8ea9e43842e4d11a189d",
+    "services/backtest/descriptive_candles.py": "9425211207738f0395f28b3f8c02c8a292c9a2e80e5d8d4b203e5ec5ebf273de",
+    "services/backtest/descriptive_metadata.py": "9c98bba24ed52bcb99e73ecc8bcd0bfa51ccd5e60447aa5f2017ef8cbb1e4099",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "pyproject.toml": "6012ba13115e968107acb762f2082bee51e78cd6f8f7932f49420f2ee049b445",
+    "research/coinbase_metadata_20261027/20261027T211732_235339Z_01ee9d4c/manifest.json": "0e339e69701a90d886b8c3d7a7daed1907dda1b1938e1865a11aae83c37ce404",
+    "research/coinbase_metadata_20261027/20261027T211732_235339Z_01ee9d4c/products.json": "5b5e7a15b45c34a888ffb684d90fde4095b588a0b4e66c00c9efc3b4dca67d7b",
+    "research/coinbase_metadata_20261027/20261027T211732_235339Z_01ee9d4c/currencies.json": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+    "scripts/research/probe_coinbase_listings.py": "6833cbf34dc502cf43707cd6cf3d55d5a2ea1e98974ff9ed92447a15eb3b4455"
+  }
+}

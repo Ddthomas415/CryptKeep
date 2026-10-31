@@ -1,0 +1,3 @@
+study_id,family,measurement,candidate_configurations,baseline_configurations,verdict,evaluated_markets,market_week_observations,weekly_clusters,evidence
+LOW_VALUE_TOP100,LOW_VALUE_TOP100_SCREENS,four_week_net_dollars_per_usd1000_cmc_reference_baskets_vs_broad_top100_control,3,1,"INCONCLUSIVE x3 (exploratory; no executable edge; all paired intervals cross zero)",383,,100,docs/research/low_value_top100_20261018/RESULTS_V2.md
+LIQ_MARKOUT_20261012,LIQUIDATION_DIAGNOSTIC,"five_minute_spot_move_after_recorded_long_liquidation_selling_minute_vs_unconditioned_move (BTC, ETH)",1,1,"DIAGNOSTIC (descriptive; 17 selling minutes per asset in a 2-hour sample; no trading claim)",2,,,docs/research/liquidation_markout_diagnostic_20261012.md

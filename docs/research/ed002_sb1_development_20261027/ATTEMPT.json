@@ -1,0 +1,30 @@
+{
+  "stage": "DEVELOPMENT_ONLY",
+  "identity": "715f627dc2a3dea8fb14fc8820799c5133d127ffbc92d2e156d3dd5d43e3349b",
+  "domain": "ED002-SB1-development-20261027",
+  "cases": [
+    "iid_gaussian",
+    "ar1_0.5",
+    "ar1_0.8",
+    "ar1_0.95",
+    "ar1_-0.5",
+    "volatility_two_state"
+  ],
+  "trials_each": 16,
+  "max_method_calls": 96,
+  "compute_limit_seconds": 90,
+  "import_limit_seconds": 15,
+  "preflight_limit_seconds": 15,
+  "final_receipt_limit_seconds": 5,
+  "import_elapsed_seconds": 0.07203699997626245,
+  "journal_byte_limit": 12582912,
+  "sources_sha256": {
+    "docs/research/ed002_sb1_development_20261027/run_development.py": "66ecc648391c92449b02c374f5ad592b0d030e2e0660b4b81a7fe4943ea1ae4c",
+    "docs/research/ed002_sb1_development_20261027/authorization.json": "ab2c0bba89574fba71292c6dcf8e052dbb32c56c16e228465eccbee51d864349",
+    "services/backtest/sb1_prototype.py": "a152f15f464005dfa2e5c00877074762241ae4b84133575188d8442f0d72f01a",
+    "docs/research/ed002_stat_revision_plan_20261027.md": "52211dd517dcf5ab65e8f73ce63a9e19512a8572bc3c8ecf648a963d6e1ab930"
+  },
+  "numpy_version": "2.4.4",
+  "audit_or_market_run": false,
+  "retry": false
+}

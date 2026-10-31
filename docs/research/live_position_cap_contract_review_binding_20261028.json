@@ -1,0 +1,11 @@
+{
+  "reviewer_agent_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "review_submission_id": "01a182ab-59d7-70d1-bd60-05de5090f487",
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "DESIGN ready for synthetic implementation only",
+  "reviewed_contract_sha256": "8bd9c90671481ad8a9105bca46af3725e4cc26749e31143110a3f4fd5124e59b",
+  "material_design_blockers_reported": 0,
+  "production_repair_accepted": false,
+  "private_account_or_runtime_proof": false,
+  "summary_file_sha256": "5d1db00f2ce969efd76c7e988412481ecfa2ff2cb411229667561e837d7727da"
+}

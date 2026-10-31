@@ -1,0 +1,7 @@
+{
+  "scope": "current user loaded launchd job labels only; arguments and environment excluded",
+  "exit_code": 0,
+  "labels_count": 557,
+  "matching_labels": [],
+  "limit": "labels cannot prove that unrelated labels do not invoke collection scripts; other users/system/remote/Claude jobs not inspected"
+}

@@ -1,0 +1,51 @@
+source_id,family,configurations,recorded_verdict,label,runner_rules_modelled,runtime_config_checked,labelled_from,evidence
+ALT_EVENT_SEARCH,Altcoin event rules (pump/dip/regime x exits),448,No rule survived corrected rerun (altcoins_corrected_rerun_20261009.md),STANDALONE,no,no,scripts,docs/research/strategy_search_20261009/candidate.py;docs/research/strategy_search_20261009/search.py
+HYBRID,Binance trend / top-5 momentum / hybrid,10,Failed / weaker than majors rule (edge_map),STANDALONE,no,no,scripts,docs/research/hybrid_momentum_20261009/fetch_bn.py;docs/research/hybrid_momentum_20261009/hybrid.py
+MAJORS,BTC/ETH trend rules (primary + 3 variants),4,Pre-registered decision recorded in artifact; candidate family selected,STANDALONE,no,no,scripts,docs/research/majors_trend_20261009/majors.py
+TOP10,"Top-N trend (N=5,10,20), incl. delisted",3,Failed (passes=false),STANDALONE,no,no,scripts,docs/research/top10_trend_20261009/fetch_bn_all.py;docs/research/top10_trend_20261009/top10.py
+RECOVERY,Recovery momentum,16,selected_passes=false,STANDALONE,no,no,scripts,docs/research/recovery_momentum_20261009/recovery.py;docs/research/recovery_momentum_20261009/recovery_regime.py
+RECOVERY_REGIME,Recovery momentum + market regime,32,selected_passes=false,STANDALONE,no,no,scripts,docs/research/recovery_momentum_20261009/recovery.py;docs/research/recovery_momentum_20261009/recovery_regime.py
+CMC_PROXY,CMC weekly attention proxies,20,selected_passes=false,STANDALONE,no,no,scripts,docs/research/cmc_trending_20261009/cmc_trend.py;docs/research/cmc_trending_20261009/fetch_cmc_weekly.py;docs/research/cmc_trending_20261009/trending_deepdive.py
+DYNAMIC,Dynamic Coinbase rotation / breakout,6,Failed (coinbase_dynamic_gainers_20261009.md),STANDALONE,no,no,scripts,docs/research/dynamic_coin_simulation_20261009/fetch_cb.py;docs/research/dynamic_coin_simulation_20261009/fetch_cb_earlier_10_months.py;docs/research/dynamic_coin_simulation_20261009/forward_returns.py;...
+SHORT_HOLD,"Top-3 by recent gain, short holds",14,Failed,STANDALONE,no,no,scripts,docs/research/dynamic_coin_simulation_20261009/fetch_cb.py;docs/research/dynamic_coin_simulation_20261009/fetch_cb_earlier_10_months.py;docs/research/dynamic_coin_simulation_20261009/forward_returns.py;...
+THREE_IDEAS,New listings / early accumulation / small-coin basket,24,Failed,STANDALONE,no,no,scripts,docs/research/three_ideas_20261009/ideas.py
+RERUN_JUP_SUPER_SYRUP,Rerun of recovery/ideas with 3 added coins,0,Supersedes nothing; robustness rerun,NO_RESULT,no,no,report,robustness rerun of other entries; not new configurations
+STRESS_NEIGHBOURHOOD,Post-selection robustness grid around candidate,118,Registered REJECT at 1.2% fee,STANDALONE,no,no,scripts,docs/research/btc_eth_stress_test_20261009/stress_btc_eth.py
+STRESS_FEE050,Same rule at 0.5% fee (exploratory),0,Exploratory; candidate status,STANDALONE,no,no,scripts,docs/research/stress_fee050_exploratory_20261011/stress_fee050_exploratory.py
+CORRECTED_COMPARISON,"Candidate vs benchmarks, corrected harness",0,"CANDIDATE, not established",STANDALONE,no,no,scripts,docs/research/btc_eth_corrected_comparison_20261012/compare.py
+HORIZON_SCAN,8 technical strategies x 5 datasets (5m/1h/1d),40,No promotion (research_only),BOT_RULES,yes (code-default or stated exits),no,scripts,docs/research/strategy_horizon_scan_20261008/strategy_horizon_scan_20261008.py
+MULTISYMBOL_OKX,Breakout / EMA / mean reversion on 5 OKX coins,15,Modelled exploratory; no validated edge,SIGNAL_ONLY,no,no,report,"scripts/research/run_multisymbol_baseline.py uses services/backtest/next_open_research.py (engine label ""signal_only_..._not_campaign_exit_stack""); exit_parity_audit_20261031 replays it with runner rules"
+ES_EXIT_MATRIX,ES SMA trend exit-policy matrix,8,research_only,BOT_RULES,yes (code-default or stated exits),no,scripts,docs/research/es_exit_policy_matrix_20261007/es_exit_policy_matrix_20261007.py
+ES_TRIAL,Corrected ES SMA-200 prospective paper trial,1,Endpoint 2026-10-13 passed; result NOT found in repo,BOT_PAPER,actual runner,no,report,"server_workload_inventory_20261011.md; RESEARCH_BRIEF.md section 4: zero orders, fills and positions"
+ES_V1_PAPER,ES daily trend paper v1,1,None profitable,BOT_PAPER,actual runner,no,report,paper_evidence_standing_20261005.md (per edge_map); intent_queue.sqlite sma_200_trend rows
+EMA_CAMPAIGNS,EMA-cross paper campaigns (Coinbase; Gate/Binance),UNRESOLVED,"Coinbase stopped (8 trades, -$2.32); others unverified",BOT_PAPER,actual runner,no,report,server_workload_inventory_20261011.md: run_paper_strategy_evidence_collector.py (runner) ema_cross
+BREAKOUT_CAMPAIGN,Breakout paper campaign + replay,UNRESOLVED,Failed economically,BOT_PAPER,actual runner,no,report,breakout_economic_dissection_2026_09_23.md: paper campaign plus a signal-only replay
+FC01_R1,Order-book imbalance pilot,1,STOP (pilot),STANDALONE,no,no,report,fc01_r1_exploratory_result_20261004.md: order-book imbalance pilot (CLAIMED from the report)
+FUNDING_SIGNALS,Funding/basis signals,UNRESOLVED,No actionable candidate,STANDALONE,no,no,report,funding_join_coverage_review_20261005.md (per edge_map; CLAIMED)
+CARRY_FEASIBILITY,"BTC/ETH spot + short-perp hedge, $1,000, 30 days",1,+$2 funding; -$5 after costs; -$25 after server,STANDALONE,no,no,scripts,scripts/research/funding_carry_feasibility.py
+LEADER_DAILY_PULLBACK,Daily top gainer -> pullback -> green,2,Mean negative before costs,STANDALONE,no,no,report,leader_pullback_study_20261012.md (CLAIMED from the report)
+LEADER_TARGET,Daily leader pullback + targets/timeouts,8,All 8 lose net in both halves,STANDALONE,no,no,scripts,scripts/research/correct_leader_target_report.py
+LEADER_HOURLY,"Hourly leader recovery: study, earlier replication, single account, context filter",UNRESOLVED (>=3),"$1,000 -> $493 single account; $619 with filter",STANDALONE,no,no,scripts,scripts/research/leader_context_hypothesis.py;scripts/research/replicate_hourly_leader_archive.py
+FAILED_BREAKOUT,"Failed downside breakout + retest, hourly",1,"FAIL ($1,000 -> $157.59)",STANDALONE,no,no,scripts,scripts/research/failed_breakout_gap_replay.py;scripts/research/failed_breakout_retest.py
+REVERSAL_DIAGNOSTIC,Daily reversal scan,UNRESOLVED,"Small modelled profit, negative at higher costs",SIGNAL_ONLY,no,no,report,scripts/research/run_reversal_diagnostic.py: run_frozen_segment with mean_reversion_default and volatility_reversal_default presets
+DIP_RECOVERY_SCREEN,Dip-and-recover screen,UNRESOLVED,Withdrawn,NO_RESULT,no,no,report,withdrawn: used future information
+MONDAY_DIAGNOSTIC,"Monday open -> Tuesday open, 9 coins",1,Noise until registered,STANDALONE,no,no,report,monday_market_diagnostic_20261012.md: calendar diagnostic (CLAIMED)
+CANDLE_DIAGNOSTIC,Repository presets on GTC/RSR candles,0,Descriptive only,SIGNAL_ONLY,no,no,report,"candle_strategy_diagnostic_20261012.md: repository presets on GTC/RSR candles, descriptive"
+COLOUR_FLIP,Colour-flip timing (GTC/RSR),UNRESOLVED,Descriptive only,NO_RESULT,no,no,report,chat only (per edge_map); no artifact
+BLAST_VARA,Event study on BLAST/VARA,UNRESOLVED,,STANDALONE,no,no,scripts,docs/research/blast_vara_20261009/events.py
+E6,Weekly cross-sectional momentum,9,FAIL (registered; stale-price defect; corrected rerun also FAIL),STANDALONE,no,no,scripts,docs/research/xs_momentum_20261012/fetch.py;docs/research/xs_momentum_20261012/fetch_v0_as_run.py;docs/research/xs_momentum_20261012/fetch_v1_partial_fix.py;...
+E7,Funding crash brake,5,FAIL,STANDALONE,no,no,scripts,docs/research/crash_brake_20261013/crash_brake.py;research/crash_brake_20261013/fetch_binance_funding.py
+E8,Trend ensemble + band,4,FAIL,STANDALONE,no,no,scripts,docs/research/composite_v1_20261013/composite.py
+E9,Rebalance band on candidate,3,FAIL (turnover criterion),STANDALONE,no,no,scripts,docs/research/candidate_band_20261013/band.py
+E10,"Multi-symbol trend, core 10",13,FAIL,STANDALONE,no,no,scripts,docs/research/multisymbol_trend_20261015/ms_trend.py
+CMC_TRENDING_LOG,CMC trending prospective log + confirmation tests,UNRESOLVED,PENDING,NO_RESULT,no,no,report,data collection; primary analysis not before 2027-02-15
+E1_MAKER_TAKER,Maker vs taker execution,0,Draft pre-registration; not run,NO_RESULT,no,no,report,pre-registration; not run
+NY_NUMBERS,NY Lottery Numbers study,0,,NO_RESULT,no,no,report,not a trading study
+EXIT_PARITY_AUDIT,"Default strategies, runner rules vs backtest (2026-10-31)",15,all lose after costs under both,BOT_RULES,yes (code defaults; the runtime config sets no exits),"yes (whitelisted keys, owner-approved 2026-10-31)",report,docs/research/exit_parity_audit_20261031/
+FAILURE_DIAGNOSIS,Failure diagnosis (2026-10-30),0,diagnostic,SIGNAL_ONLY,no,no,report,docs/research/failure_diagnosis_20261030/ (corrections C1-C4)
+UNIVERSE25,25-symbol history (2026-10-30),0,descriptive,STANDALONE,no,no,report,docs/research/universe25_explainer_20261030/ (holding returns; no strategy)
+ED002_DESIGN,25-symbol forward comparison design (2026-10-27),0,design; paused,SIGNAL_ONLY,no,no,report,"ed002_defaults25_comparison_design_20261027.md: compute_signal, ""no new stop stack"""
+TRACKER_V2,BTC/ETH trend forward tracker,0,"forward, 2 weeks",STANDALONE,no,no,report,paper_btc_eth_trend_v2_20261012/tracker.py: no bot code
+VOLFC_1,Chronos-2 volatility forecast,0,FAIL,NO_RESULT,no,no,report,"RESEARCH_BRIEF.md section 4: forecast comparison, not a trading test"
+ATTN_1,Wikipedia attention,0,BLOCKED_DATA,NO_RESULT,no,no,report,attn1_phase0_20261021/
+ENTR_CB_1,"New top-100 entrants, Coinbase",0,STOP,STANDALONE,no,no,report,RESEARCH_BRIEF.md section 4 (CLAIMED; no script in the repo folder)

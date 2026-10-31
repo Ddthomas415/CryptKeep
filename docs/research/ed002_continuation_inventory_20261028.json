@@ -1,0 +1,349 @@
+{
+  "schema": "ed002-continuation-inventory-v1",
+  "date": "2026-10-28",
+  "active_role": "AUDITOR",
+  "scope": "pinned capture timestamp/receipt integrity only; not exhaustive repo inventory or market scoring",
+  "prior_evidence_hashes_checked": 194,
+  "seed_end_ms": 1793145600000,
+  "later_capture_end_ms": 1793174400000,
+  "rows": [
+    {
+      "symbol": "ADA",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "APT",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "ARB",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "ATOM",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "AVAX",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "BNB",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "BONK",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "BTC",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 1466,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "DOGE",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "DOT",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "ETH",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 1466,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "FIL",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "INJ",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "JTO",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "LINK",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "LTC",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "MATIC",
+      "required_under_last_metadata_model": false,
+      "saved_observations": 0,
+      "missing_tail_ts_ms_in_these_two_captures_only": []
+    },
+    {
+      "symbol": "OP",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "PEPE",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "PYTH",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "SOL",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "SUI",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "UNI",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "WIF",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    },
+    {
+      "symbol": "XRP",
+      "required_under_last_metadata_model": true,
+      "saved_observations": 302,
+      "missing_tail_ts_ms_in_these_two_captures_only": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ]
+    }
+  ],
+  "timing_fixture": {
+    "synthetic": true,
+    "before_A_receipt_rejected": true,
+    "same_window_by_E_accepted": true,
+    "last_candle_receipt_offset_minutes": 5,
+    "signals_returns_randomness_or_network": false
+  },
+  "proposed_capacity_arithmetic": {
+    "candidate_slots_per_day": 48,
+    "slots_over_182_days": 8736,
+    "max_calls_over_182_days_at_27_per_slot": 235872,
+    "raw_payload_scenario_using_single_observed_923231_byte_capture": 8065346016,
+    "interpretation": "proposed twice-hourly capacity only, excludes artifacts/seed/changes; not quota, guarantee, cost or authorization"
+  },
+  "inputs_sha256": {
+    "research/ed002_public_inputs/warmup_20261028_01/manifest.json": "423cf225e5e1eeb6f40835a006dc7b28bc5ea5ede5ce1a04845c36d2a485f485",
+    "research/ed002_public_inputs/warmup_20261028_01/observations.json": "b91587ca9da2a55022cbdb34fd34ca93abc22defca9dd2efe2c19a355c46928e",
+    "research/ed002_public_inputs/capture_20261028_01/manifest.json": "7e514d7a828b4f99fba179fa1f9ccf853ba59e357f6d897f1baffe8af37ee6d6",
+    "research/ed002_public_inputs/capture_20261028_01/observations.json": "ca4eb1c5c08a4ddb1c7462e5a499030a5c0e97836ad943c007f17a1f86f32f4d"
+  }
+}

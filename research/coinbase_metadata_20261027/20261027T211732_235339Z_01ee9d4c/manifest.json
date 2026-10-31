@@ -1,0 +1,47 @@
+{
+  "schema": "cryptkeep_public_metadata_capture_v1",
+  "started_utc": "2026-10-27T21:17:32.236416+00:00",
+  "request_limit": 2,
+  "request_timeout_seconds": 10,
+  "overall_timeout_seconds": 30,
+  "retries": 0,
+  "redirects_allowed": false,
+  "credentials_used": false,
+  "tls_verification": "certifi CA bundle; hostname and certificate verification enabled",
+  "records": [
+    {
+      "url": "https://api.exchange.coinbase.com/products",
+      "sent_utc": "2026-10-27T21:17:32.256172+00:00",
+      "method": "GET",
+      "http_status": 200,
+      "http_date": "Tue, 27 Oct 2026 21:17:32 GMT",
+      "content_type": "application/json; charset=utf-8",
+      "received_utc": "2026-10-27T21:17:32.329430+00:00",
+      "file": "products.json",
+      "bytes": 356321,
+      "sha256": "5b5e7a15b45c34a888ffb684d90fde4095b588a0b4e66c00c9efc3b4dca67d7b",
+      "json_type": "list",
+      "records": 845,
+      "outcome": "OBSERVED"
+    },
+    {
+      "url": "https://api.exchange.coinbase.com/currencies",
+      "sent_utc": "2026-10-27T21:17:32.333415+00:00",
+      "method": "GET",
+      "http_status": 200,
+      "http_date": "Tue, 27 Oct 2026 21:17:32 GMT",
+      "content_type": "application/json; charset=utf-8",
+      "received_utc": "2026-10-27T21:17:32.402702+00:00",
+      "file": "currencies.json",
+      "bytes": 563029,
+      "sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "json_type": "list",
+      "records": 514,
+      "outcome": "OBSERVED"
+    }
+  ],
+  "status": "OBSERVED",
+  "finished_utc": "2026-10-27T21:17:32.407014+00:00",
+  "elapsed_seconds": 0.171504,
+  "requests_attempted": 2
+}

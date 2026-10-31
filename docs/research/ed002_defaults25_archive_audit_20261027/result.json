@@ -1,0 +1,2302 @@
+{
+  "acceptance": "ACCEPTED",
+  "scope": "read-only archive integrity/schema/timestamp audit",
+  "experiment_readiness": "INCOMPLETE",
+  "configured_assets": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "BNB",
+    "XRP",
+    "DOGE",
+    "ADA",
+    "AVAX",
+    "LINK",
+    "DOT",
+    "LTC",
+    "MATIC",
+    "UNI",
+    "ATOM",
+    "FIL",
+    "APT",
+    "OP",
+    "ARB",
+    "INJ",
+    "SUI",
+    "PEPE",
+    "WIF",
+    "JTO",
+    "BONK",
+    "PYTH"
+  ],
+  "not_audited_no_indexed_archive": [
+    "MATIC"
+  ],
+  "selected_candle_files": 48,
+  "compressed_archive_hashes_verified": 2,
+  "selected_payload_bytes": 12092815,
+  "elapsed_seconds": 3.727387,
+  "timestamp_unit": "seconds; bar-open UTC; hourly",
+  "self_check_cases": 3,
+  "windows": {
+    "cb": {
+      "archive": "coinbase_hourly_last60d.tar.xz",
+      "start_utc": "2026-08-10T00:00:00+00:00",
+      "end_exclusive_utc": "2026-10-09T00:00:00+00:00",
+      "files_verified": 24,
+      "files": [
+        {
+          "asset": "INJ",
+          "product_id": "INJ-USD",
+          "sha256": "ddb3fd791781c66da6eeb481a6bdcbf34128408e7878f4af51f0d0b755d5a773",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "OP",
+          "product_id": "OP-USD",
+          "sha256": "170e1d3ed7b834607715fff56fc68811c13dc2ae121eb958e1f1ba8bb33ac851",
+          "rows": 1436,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1436,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 4,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2026-08-10T04:00:00+00:00",
+              "end_exclusive_utc": "2026-08-10T05:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-12T00:00:00+00:00",
+              "end_exclusive_utc": "2026-08-12T01:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-12T03:00:00+00:00",
+              "end_exclusive_utc": "2026-08-12T04:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-12T13:00:00+00:00",
+              "end_exclusive_utc": "2026-08-12T14:00:00+00:00",
+              "hours": 1
+            }
+          ],
+          "total_missing_hours": 4,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "PYTH",
+          "product_id": "PYTH-USD",
+          "sha256": "67f63a8ad3a1c716b2b12d45bb0f39408f643f9289debb4222b4eb903db9b023",
+          "rows": 1439,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1439,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 1,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2026-08-30T05:00:00+00:00",
+              "end_exclusive_utc": "2026-08-30T06:00:00+00:00",
+              "hours": 1
+            }
+          ],
+          "total_missing_hours": 1,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "ARB",
+          "product_id": "ARB-USD",
+          "sha256": "94f31e1c4478ef7acbb0ca8c1cf9a6b42f5f07c695f8a4b1d9e42511a0a44dc0",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "AVAX",
+          "product_id": "AVAX-USD",
+          "sha256": "6b477b9f2991dcd4b1daed9355977614e1dc432afc37da64dc11a04f71311cba",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "ADA",
+          "product_id": "ADA-USD",
+          "sha256": "24408d11c2576dff14516e87acf3e42c348e8b185cb045a4d1595ece9542f178",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "DOT",
+          "product_id": "DOT-USD",
+          "sha256": "c27e7e6320ad18c76d0d614b39be2be96604b3c40dc60b5943836f9820ea737f",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "XRP",
+          "product_id": "XRP-USD",
+          "sha256": "976597aadb97c8ad97a763e22ad00333e30b294a5a901b26c7e6f7cfe6b005aa",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "BNB",
+          "product_id": "BNB-USD",
+          "sha256": "8087abf00253991e7a4cee5940c78f3c39d49e79e2af18b824047761c6435882",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "LTC",
+          "product_id": "LTC-USD",
+          "sha256": "f2f26eae3827584a165e5f1f517b10103270b315c64142a15ed9c5c37b5a30a5",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "BONK",
+          "product_id": "BONK-USD",
+          "sha256": "8277f947d95fc14c384d4b53b412a36968c42c79bd93ac8ec0bcec5c635340cf",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "APT",
+          "product_id": "APT-USD",
+          "sha256": "01c9472559b76ab89f4981cb639fe45d061d2c1e5492476d97ea5889fba8c3c8",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "DOGE",
+          "product_id": "DOGE-USD",
+          "sha256": "b32aeaa1c68fec815a61f51bbc2c22f9242d748623f4234ef9cb9ad017041a63",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "LINK",
+          "product_id": "LINK-USD",
+          "sha256": "6b1abb5ab412a622e698b3df27f328fc3d0ce9db19aad665398238e7e1c7cbae",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "JTO",
+          "product_id": "JTO-USD",
+          "sha256": "7615815c5cd3e5c85284c83ca55d82c7bbf79cf85c1af93033400413e3baac54",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "UNI",
+          "product_id": "UNI-USD",
+          "sha256": "0b6ef719f2b97139e70c637e2c331b5e9bcb050de586d2b99d2475e20842c42d",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "ETH",
+          "product_id": "ETH-USD",
+          "sha256": "8ac25e01b96a851f86349c31e07a40be66017fb710031dd902b21fd8151990a5",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "ATOM",
+          "product_id": "ATOM-USD",
+          "sha256": "ad6f8e943147d9946bbbf21782c50cb66532e51c3d806333e59d63f78dec4885",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "SUI",
+          "product_id": "SUI-USD",
+          "sha256": "bdbd4c4c62821999fb075a4329315a87b370c5b300fcc49c626e9c46399bb273",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "WIF",
+          "product_id": "WIF-USD",
+          "sha256": "c3789fabd8f2a2cead1f89a24c87737f0241c3f8305eb8c283f7b34d9c53cf3b",
+          "rows": 1422,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1422,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 18,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2026-08-11T04:00:00+00:00",
+              "end_exclusive_utc": "2026-08-11T05:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-12T02:00:00+00:00",
+              "end_exclusive_utc": "2026-08-12T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-12T17:00:00+00:00",
+              "end_exclusive_utc": "2026-08-12T18:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-14T05:00:00+00:00",
+              "end_exclusive_utc": "2026-08-14T06:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-14T20:00:00+00:00",
+              "end_exclusive_utc": "2026-08-14T21:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-15T02:00:00+00:00",
+              "end_exclusive_utc": "2026-08-15T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-15T06:00:00+00:00",
+              "end_exclusive_utc": "2026-08-15T07:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-15T09:00:00+00:00",
+              "end_exclusive_utc": "2026-08-15T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-15T11:00:00+00:00",
+              "end_exclusive_utc": "2026-08-15T12:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-15T15:00:00+00:00",
+              "end_exclusive_utc": "2026-08-15T16:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-15T17:00:00+00:00",
+              "end_exclusive_utc": "2026-08-15T18:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-16T03:00:00+00:00",
+              "end_exclusive_utc": "2026-08-16T04:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-16T05:00:00+00:00",
+              "end_exclusive_utc": "2026-08-16T06:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-16T07:00:00+00:00",
+              "end_exclusive_utc": "2026-08-16T08:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-16T10:00:00+00:00",
+              "end_exclusive_utc": "2026-08-16T11:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-17T04:00:00+00:00",
+              "end_exclusive_utc": "2026-08-17T05:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-17T23:00:00+00:00",
+              "end_exclusive_utc": "2026-08-18T00:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-18T08:00:00+00:00",
+              "end_exclusive_utc": "2026-08-18T09:00:00+00:00",
+              "hours": 1
+            }
+          ],
+          "total_missing_hours": 18,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "FIL",
+          "product_id": "FIL-USD",
+          "sha256": "3492b75459305254a473d0247a2ef6504b8d4b377b13f2b90d5f152c0f961a85",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "BTC",
+          "product_id": "BTC-USD",
+          "sha256": "0e57b61403e7319bbb47e858acd1f5f8bdc1e3c67c66bbab961603ef4ef5f945",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "SOL",
+          "product_id": "SOL-USD",
+          "sha256": "619485b85d9682adcb34dc8493e223e503c625d53ed69596b4f8df73a3f420e2",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        },
+        {
+          "asset": "PEPE",
+          "product_id": "PEPE-USD",
+          "sha256": "af72070c59c369c2f5a830b11d663516678a9136ca7b139349ce822622cc4c3b",
+          "rows": 1440,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 1440,
+          "observed_unique_hours": 1440,
+          "first_open_utc": "2026-08-10T00:00:00+00:00",
+          "last_open_utc": "2026-10-08T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 0,
+          "internal_missing_runs": [],
+          "total_missing_hours": 0,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": true
+        }
+      ],
+      "full_window_complete_files": 21,
+      "empty_files": 0,
+      "final_300_complete_files": 24,
+      "all_24_missing_runs": []
+    },
+    "cb2": {
+      "archive": "coinbase_hourly_prior10m.tar.xz",
+      "start_utc": "2025-10-09T00:00:00+00:00",
+      "end_exclusive_utc": "2026-08-10T00:00:00+00:00",
+      "files_verified": 24,
+      "files": [
+        {
+          "asset": "INJ",
+          "product_id": "INJ-USD",
+          "sha256": "5b4d96c157687d6395a60cda3575ba4341059aca3254ceb3f41d86a7788b629b",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "OP",
+          "product_id": "OP-USD",
+          "sha256": "5761ad9323051d93898bbf2b3d7d720d288bdde0a885d7d7aabcf670df6198c3",
+          "rows": 7223,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7223,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 97,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T15:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 6
+            },
+            {
+              "start_utc": "2026-02-18T09:00:00+00:00",
+              "end_exclusive_utc": "2026-02-18T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-03-05T23:00:00+00:00",
+              "end_exclusive_utc": "2026-03-06T00:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-03-12T06:00:00+00:00",
+              "end_exclusive_utc": "2026-03-12T07:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-03-14T10:00:00+00:00",
+              "end_exclusive_utc": "2026-03-14T11:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-03-19T23:00:00+00:00",
+              "end_exclusive_utc": "2026-03-20T00:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-03-29T09:00:00+00:00",
+              "end_exclusive_utc": "2026-03-29T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-03T06:00:00+00:00",
+              "end_exclusive_utc": "2026-04-03T07:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-04T18:00:00+00:00",
+              "end_exclusive_utc": "2026-04-04T19:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-05T03:00:00+00:00",
+              "end_exclusive_utc": "2026-04-05T04:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-05T09:00:00+00:00",
+              "end_exclusive_utc": "2026-04-05T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-06T01:00:00+00:00",
+              "end_exclusive_utc": "2026-04-06T02:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-07T03:00:00+00:00",
+              "end_exclusive_utc": "2026-04-07T04:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-09T03:00:00+00:00",
+              "end_exclusive_utc": "2026-04-09T04:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-09T08:00:00+00:00",
+              "end_exclusive_utc": "2026-04-09T09:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-10T02:00:00+00:00",
+              "end_exclusive_utc": "2026-04-10T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-12T08:00:00+00:00",
+              "end_exclusive_utc": "2026-04-12T09:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-14T02:00:00+00:00",
+              "end_exclusive_utc": "2026-04-14T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-19T08:00:00+00:00",
+              "end_exclusive_utc": "2026-04-19T09:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-23T22:00:00+00:00",
+              "end_exclusive_utc": "2026-04-23T23:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-02T07:00:00+00:00",
+              "end_exclusive_utc": "2026-05-02T08:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-03T03:00:00+00:00",
+              "end_exclusive_utc": "2026-05-03T05:00:00+00:00",
+              "hours": 2
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T08:00:00+00:00",
+              "hours": 6
+            },
+            {
+              "start_utc": "2026-05-12T06:00:00+00:00",
+              "end_exclusive_utc": "2026-05-12T07:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-14T22:00:00+00:00",
+              "end_exclusive_utc": "2026-05-14T23:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-16T20:00:00+00:00",
+              "end_exclusive_utc": "2026-05-16T21:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-17T05:00:00+00:00",
+              "end_exclusive_utc": "2026-05-17T06:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-17T15:00:00+00:00",
+              "end_exclusive_utc": "2026-05-17T16:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-24T04:00:00+00:00",
+              "end_exclusive_utc": "2026-05-24T05:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-28T11:00:00+00:00",
+              "end_exclusive_utc": "2026-05-28T12:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-30T12:00:00+00:00",
+              "end_exclusive_utc": "2026-05-30T13:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-06-13T02:00:00+00:00",
+              "end_exclusive_utc": "2026-06-13T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-06-20T03:00:00+00:00",
+              "end_exclusive_utc": "2026-06-20T04:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-06-21T00:00:00+00:00",
+              "end_exclusive_utc": "2026-06-21T01:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-06-22T20:00:00+00:00",
+              "end_exclusive_utc": "2026-06-22T21:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-06-24T02:00:00+00:00",
+              "end_exclusive_utc": "2026-06-24T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-06-28T03:00:00+00:00",
+              "end_exclusive_utc": "2026-06-28T04:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-06-29T09:00:00+00:00",
+              "end_exclusive_utc": "2026-06-29T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-01T05:00:00+00:00",
+              "end_exclusive_utc": "2026-07-01T06:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-05T11:00:00+00:00",
+              "end_exclusive_utc": "2026-07-05T12:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-07T00:00:00+00:00",
+              "end_exclusive_utc": "2026-07-07T01:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-07T03:00:00+00:00",
+              "end_exclusive_utc": "2026-07-07T04:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-10T15:00:00+00:00",
+              "end_exclusive_utc": "2026-07-10T16:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-11T03:00:00+00:00",
+              "end_exclusive_utc": "2026-07-11T04:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-11T06:00:00+00:00",
+              "end_exclusive_utc": "2026-07-11T07:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-12T07:00:00+00:00",
+              "end_exclusive_utc": "2026-07-12T08:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-12T16:00:00+00:00",
+              "end_exclusive_utc": "2026-07-12T17:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-14T11:00:00+00:00",
+              "end_exclusive_utc": "2026-07-14T12:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-15T09:00:00+00:00",
+              "end_exclusive_utc": "2026-07-15T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-16T02:00:00+00:00",
+              "end_exclusive_utc": "2026-07-16T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-16T05:00:00+00:00",
+              "end_exclusive_utc": "2026-07-16T06:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-17T11:00:00+00:00",
+              "end_exclusive_utc": "2026-07-17T12:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-18T01:00:00+00:00",
+              "end_exclusive_utc": "2026-07-18T02:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-18T16:00:00+00:00",
+              "end_exclusive_utc": "2026-07-18T17:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-18T23:00:00+00:00",
+              "end_exclusive_utc": "2026-07-19T00:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-19T03:00:00+00:00",
+              "end_exclusive_utc": "2026-07-19T06:00:00+00:00",
+              "hours": 3
+            },
+            {
+              "start_utc": "2026-07-22T00:00:00+00:00",
+              "end_exclusive_utc": "2026-07-22T01:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-24T06:00:00+00:00",
+              "end_exclusive_utc": "2026-07-24T07:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-25T03:00:00+00:00",
+              "end_exclusive_utc": "2026-07-25T04:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-25T06:00:00+00:00",
+              "end_exclusive_utc": "2026-07-25T07:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-25T09:00:00+00:00",
+              "end_exclusive_utc": "2026-07-25T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-26T00:00:00+00:00",
+              "end_exclusive_utc": "2026-07-26T02:00:00+00:00",
+              "hours": 2
+            },
+            {
+              "start_utc": "2026-07-26T18:00:00+00:00",
+              "end_exclusive_utc": "2026-07-26T19:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-27T02:00:00+00:00",
+              "end_exclusive_utc": "2026-07-27T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-30T02:00:00+00:00",
+              "end_exclusive_utc": "2026-07-30T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-30T18:00:00+00:00",
+              "end_exclusive_utc": "2026-07-30T19:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-01T01:00:00+00:00",
+              "end_exclusive_utc": "2026-08-01T02:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-01T14:00:00+00:00",
+              "end_exclusive_utc": "2026-08-01T15:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-02T04:00:00+00:00",
+              "end_exclusive_utc": "2026-08-02T05:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-03T02:00:00+00:00",
+              "end_exclusive_utc": "2026-08-03T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-04T19:00:00+00:00",
+              "end_exclusive_utc": "2026-08-04T20:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-05T06:00:00+00:00",
+              "end_exclusive_utc": "2026-08-05T07:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-05T09:00:00+00:00",
+              "end_exclusive_utc": "2026-08-05T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-05T19:00:00+00:00",
+              "end_exclusive_utc": "2026-08-05T20:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-06T02:00:00+00:00",
+              "end_exclusive_utc": "2026-08-06T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-06T04:00:00+00:00",
+              "end_exclusive_utc": "2026-08-06T05:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-06T12:00:00+00:00",
+              "end_exclusive_utc": "2026-08-06T13:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-07T05:00:00+00:00",
+              "end_exclusive_utc": "2026-08-07T06:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-08T01:00:00+00:00",
+              "end_exclusive_utc": "2026-08-08T02:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-08T05:00:00+00:00",
+              "end_exclusive_utc": "2026-08-08T06:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-08T20:00:00+00:00",
+              "end_exclusive_utc": "2026-08-08T21:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-09T13:00:00+00:00",
+              "end_exclusive_utc": "2026-08-09T14:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-09T17:00:00+00:00",
+              "end_exclusive_utc": "2026-08-09T18:00:00+00:00",
+              "hours": 1
+            }
+          ],
+          "total_missing_hours": 97,
+          "empty": false,
+          "final_300_hours_complete": false,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "PYTH",
+          "product_id": "PYTH-USD",
+          "sha256": "a42beb142f543436646ef9e5bfbd797080ec854f9ec2601e3f912ef2d5156cd6",
+          "rows": 7298,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7298,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 22,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2025-11-29T07:00:00+00:00",
+              "end_exclusive_utc": "2025-11-29T08:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2025-11-29T22:00:00+00:00",
+              "end_exclusive_utc": "2025-11-29T23:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2025-12-17T09:00:00+00:00",
+              "end_exclusive_utc": "2025-12-17T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2025-12-20T01:00:00+00:00",
+              "end_exclusive_utc": "2025-12-20T02:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2025-12-28T09:00:00+00:00",
+              "end_exclusive_utc": "2025-12-28T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2025-12-28T22:00:00+00:00",
+              "end_exclusive_utc": "2025-12-28T23:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-01-03T21:00:00+00:00",
+              "end_exclusive_utc": "2026-01-03T22:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-03-20T06:00:00+00:00",
+              "end_exclusive_utc": "2026-03-20T07:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-03-21T08:00:00+00:00",
+              "end_exclusive_utc": "2026-03-21T09:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-03-30T09:00:00+00:00",
+              "end_exclusive_utc": "2026-03-30T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-05T09:00:00+00:00",
+              "end_exclusive_utc": "2026-04-05T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-12T07:00:00+00:00",
+              "end_exclusive_utc": "2026-04-12T08:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 22,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "ARB",
+          "product_id": "ARB-USD",
+          "sha256": "eff9eda016ba7e84ee321ea10f6581b009b9b4bebe310a93f02696b2602355de",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "AVAX",
+          "product_id": "AVAX-USD",
+          "sha256": "49b4f37ef02a64d2131f43fe5028666e017369a719ee125c6652f387b8d33721",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "ADA",
+          "product_id": "ADA-USD",
+          "sha256": "62bd74d0b10dbcf88190911b4a49d87984641fdce568482f3d49f993ecef89c5",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "DOT",
+          "product_id": "DOT-USD",
+          "sha256": "747dfb0254af54431bb9ea6167dcbb4fd9f4203a46795024f31a0854e77e2a1c",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "XRP",
+          "product_id": "XRP-USD",
+          "sha256": "4429c9737fbd481286c7d24e0bb758d89ccf1a5a8453d653ebfa7761455846ef",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "BNB",
+          "product_id": "BNB-USD",
+          "sha256": "c7e35a767f7242bad6a60dd3f9a0d4ce64588bdee3f37d86a27a68b7d97f098a",
+          "rows": 6979,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 6979,
+          "first_open_utc": "2025-10-22T18:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 330,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 11,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T15:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 6
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 341,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "LTC",
+          "product_id": "LTC-USD",
+          "sha256": "08997d3e9cc8f66198c5f337fa97c816deb9158aa740102f837f99c63e7b4f65",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "BONK",
+          "product_id": "BONK-USD",
+          "sha256": "3e6aef35af4459d75ee69e415a3b3f6a5c3646c009891c7df3b8f6088476c7f3",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "APT",
+          "product_id": "APT-USD",
+          "sha256": "0c99c85c668d27dc90285d2d953227ec0bb8a9377608ebdf2ce60a722c1533e4",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "DOGE",
+          "product_id": "DOGE-USD",
+          "sha256": "3c67ce000b5c742a490819c7ca3bc021c7ad92d25ef62e4992564618e4162350",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "LINK",
+          "product_id": "LINK-USD",
+          "sha256": "f54aa5483a8b0ecb53d3d3b34ccf92985dce31402854ffc7d8e62c8e2457f3aa",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "JTO",
+          "product_id": "JTO-USD",
+          "sha256": "0939c84bda50c3dcc730a0f2d9331b44abdf3291bcb655a4d554a3b262d1bede",
+          "rows": 7309,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7309,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 11,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T15:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 6
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 11,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "UNI",
+          "product_id": "UNI-USD",
+          "sha256": "febeca844c728e4ca506915fdeae8f3b9a468465b5d9d33bdc06d370b2a56a21",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "ETH",
+          "product_id": "ETH-USD",
+          "sha256": "6874d199d7e96810861342dfe616f723cd7991947492d02ede2990bfedd35f25",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "ATOM",
+          "product_id": "ATOM-USD",
+          "sha256": "39aa1d1c874005d0578d4f06a22a574fbf2df4948cd76e01f508071bcddde0fd",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "SUI",
+          "product_id": "SUI-USD",
+          "sha256": "9080226acdef641fc776572821fb3f1dd66a9fc385939e254e7f3cb5c7c8d3ec",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "WIF",
+          "product_id": "WIF-USD",
+          "sha256": "a442964d88b6fe9f969e242a057374f154cae2ae292d236684f969e6795cc739",
+          "rows": 7268,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7268,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 52,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-02-22T10:00:00+00:00",
+              "end_exclusive_utc": "2026-02-22T11:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-03-12T04:00:00+00:00",
+              "end_exclusive_utc": "2026-03-12T05:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-03T23:00:00+00:00",
+              "end_exclusive_utc": "2026-04-04T00:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-04T03:00:00+00:00",
+              "end_exclusive_utc": "2026-04-04T04:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-05T11:00:00+00:00",
+              "end_exclusive_utc": "2026-04-05T12:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-04-26T07:00:00+00:00",
+              "end_exclusive_utc": "2026-04-26T08:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-02T08:00:00+00:00",
+              "end_exclusive_utc": "2026-05-02T09:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-15T22:00:00+00:00",
+              "end_exclusive_utc": "2026-05-15T23:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-17T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-17T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-21T20:00:00+00:00",
+              "end_exclusive_utc": "2026-05-21T21:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-24T17:00:00+00:00",
+              "end_exclusive_utc": "2026-05-24T18:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-05-24T23:00:00+00:00",
+              "end_exclusive_utc": "2026-05-25T00:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-06-13T23:00:00+00:00",
+              "end_exclusive_utc": "2026-06-14T00:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-06-21T05:00:00+00:00",
+              "end_exclusive_utc": "2026-06-21T06:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-05T11:00:00+00:00",
+              "end_exclusive_utc": "2026-07-05T12:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-10T10:00:00+00:00",
+              "end_exclusive_utc": "2026-07-10T11:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-11T05:00:00+00:00",
+              "end_exclusive_utc": "2026-07-11T06:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-12T10:00:00+00:00",
+              "end_exclusive_utc": "2026-07-12T11:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-12T12:00:00+00:00",
+              "end_exclusive_utc": "2026-07-12T13:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-12T15:00:00+00:00",
+              "end_exclusive_utc": "2026-07-12T16:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-14T23:00:00+00:00",
+              "end_exclusive_utc": "2026-07-15T00:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-16T04:00:00+00:00",
+              "end_exclusive_utc": "2026-07-16T05:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-18T02:00:00+00:00",
+              "end_exclusive_utc": "2026-07-18T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-18T09:00:00+00:00",
+              "end_exclusive_utc": "2026-07-18T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-18T11:00:00+00:00",
+              "end_exclusive_utc": "2026-07-18T12:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-21T22:00:00+00:00",
+              "end_exclusive_utc": "2026-07-21T23:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-22T01:00:00+00:00",
+              "end_exclusive_utc": "2026-07-22T02:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-23T03:00:00+00:00",
+              "end_exclusive_utc": "2026-07-23T04:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-24T05:00:00+00:00",
+              "end_exclusive_utc": "2026-07-24T06:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-24T08:00:00+00:00",
+              "end_exclusive_utc": "2026-07-24T09:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-25T07:00:00+00:00",
+              "end_exclusive_utc": "2026-07-25T08:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-30T06:00:00+00:00",
+              "end_exclusive_utc": "2026-07-30T07:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-07-31T05:00:00+00:00",
+              "end_exclusive_utc": "2026-07-31T07:00:00+00:00",
+              "hours": 2
+            },
+            {
+              "start_utc": "2026-08-04T11:00:00+00:00",
+              "end_exclusive_utc": "2026-08-04T12:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-05T09:00:00+00:00",
+              "end_exclusive_utc": "2026-08-05T10:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-05T11:00:00+00:00",
+              "end_exclusive_utc": "2026-08-05T12:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-06T10:00:00+00:00",
+              "end_exclusive_utc": "2026-08-06T11:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-07T06:00:00+00:00",
+              "end_exclusive_utc": "2026-08-07T07:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-08-08T03:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-09T05:00:00+00:00",
+              "end_exclusive_utc": "2026-08-09T06:00:00+00:00",
+              "hours": 1
+            },
+            {
+              "start_utc": "2026-08-09T11:00:00+00:00",
+              "end_exclusive_utc": "2026-08-09T12:00:00+00:00",
+              "hours": 1
+            }
+          ],
+          "total_missing_hours": 52,
+          "empty": false,
+          "final_300_hours_complete": false,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "FIL",
+          "product_id": "FIL-USD",
+          "sha256": "c68faa46909e5f4c2a9b4a75b02d1e8d5c5957e6480715fba444fa01c78d7e39",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "BTC",
+          "product_id": "BTC-USD",
+          "sha256": "77fc5158dfed1bdaa2708901b90563da0b3bcacdaab4f3e8e63e9c7e28a94267",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "SOL",
+          "product_id": "SOL-USD",
+          "sha256": "14b195f47bb62add3c95022403506d36f43081a73f81a848685212c9a60662c5",
+          "rows": 7310,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7310,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 10,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+              "hours": 5
+            }
+          ],
+          "total_missing_hours": 10,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        },
+        {
+          "asset": "PEPE",
+          "product_id": "PEPE-USD",
+          "sha256": "a34ea630f5a3fa1c738af449c99da54bcb3a9794399c98dc92fb5022f597df4b",
+          "rows": 7309,
+          "malformed_rows": 0,
+          "invalid_timestamps": 0,
+          "duplicate_timestamps": 0,
+          "strictly_ascending": true,
+          "outside_declared_window": 0,
+          "expected_hours": 7320,
+          "observed_unique_hours": 7309,
+          "first_open_utc": "2025-10-09T00:00:00+00:00",
+          "last_open_utc": "2026-08-09T23:00:00+00:00",
+          "leading_unobserved_hours": 0,
+          "trailing_unobserved_hours": 0,
+          "internal_missing_hours": 11,
+          "internal_missing_runs": [
+            {
+              "start_utc": "2025-10-25T16:00:00+00:00",
+              "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+              "hours": 5
+            },
+            {
+              "start_utc": "2026-05-08T02:00:00+00:00",
+              "end_exclusive_utc": "2026-05-08T08:00:00+00:00",
+              "hours": 6
+            }
+          ],
+          "total_missing_hours": 11,
+          "empty": false,
+          "final_300_hours_complete": true,
+          "per_candle_availability_in_schema": false,
+          "full_declared_window_complete": false
+        }
+      ],
+      "full_window_complete_files": 0,
+      "empty_files": 0,
+      "final_300_complete_files": 22,
+      "all_24_missing_runs": [
+        {
+          "start_utc": "2025-10-25T16:00:00+00:00",
+          "end_exclusive_utc": "2025-10-25T21:00:00+00:00",
+          "hours": 5
+        },
+        {
+          "start_utc": "2026-05-08T02:00:00+00:00",
+          "end_exclusive_utc": "2026-05-08T07:00:00+00:00",
+          "hours": 5
+        }
+      ]
+    }
+  },
+  "sources_sha256": {
+    "research/coinbase_metadata_20261027/20261027T211732_235339Z_01ee9d4c/comparison.json": "2e19df0291306251d4488e68cdc43d9b24a3333b3297b27d129dcab8ba397988",
+    "docs/research/raw_archives_20261009/coinbase_hourly_last60d.tar.xz": "435220c4d778036ba1b3e8ac78b7817f1a372bba1f5435d32c94af9c9bf5caa5",
+    "docs/research/raw_archives_20261009/coinbase_hourly_prior10m.tar.xz": "2bb417a2033b2a4b78df56db16c4471c6e1384ef23b433e276afb9108f99e6b4",
+    "docs/research/ed002_defaults25_archive_audit_20261027/audit_saved_hours.py": "1448ccae2d315516c58bf0b4351a23747b7a4dce6fc98066f151879ad5b92a35",
+    "docs/research/raw_archives_20261009/SHA256SUMS_archives.txt": "f153de3f681201cab84b00b3adf5d7bea186ae1b304941e0dae7bb828bf21ddd",
+    "docs/research/raw_archives_20261009/SHA256SUMS_inputs.txt": "c7f3e9cf43ac3cf196d1fd968627256d4172eb6487eae793d21ea3c194db2ebc",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6"
+  },
+  "network_requests": 0,
+  "strategies_imported_or_run": false,
+  "price_or_volume_fields_analyzed": false,
+  "extraction_to_disk": false,
+  "returns_calculated": false,
+  "limits": [
+    "leading/trailing absence is not attributed to listing/delisting without dated evidence",
+    "no price/OHLC/volume validity or executable liquidity assertion",
+    "six-column rows do not supply observation availability timestamps",
+    "previously used history is not a holdout or future warm-up guarantee"
+  ]
+}

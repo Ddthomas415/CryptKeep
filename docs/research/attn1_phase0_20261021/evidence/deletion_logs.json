@@ -1,0 +1,240 @@
+{
+"8916|Internet Computer": [
+{
+"ns": 0,
+"title": "Internet Computer",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2022-12-11T21:44:09Z",
+"comment": "[[WP:G8|G8]] (redirect): [[Wikipedia:Articles for deletion/Dfinity]] closed as delete ([[WP:XFDC#4.0.13|XFDcloser]])"
+},
+{
+"ns": 0,
+"title": "Internet Computer",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2022-12-05T14:53:08Z",
+"comment": "[[WP:G8|G8]] (redirect): [[Wikipedia:Articles for deletion/Dfinity]] closed as soft delete ([[WP:XFDC#4.0.13|XFDcloser]])"
+}
+],
+"8916|DFINITY": [
+{
+"ns": 0,
+"title": "DFINITY",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2022-12-11T21:44:09Z",
+"comment": "[[WP:G8|G8]] (redirect): [[Wikipedia:Articles for deletion/Dfinity]] closed as delete ([[WP:XFDC#4.0.13|XFDcloser]])"
+},
+{
+"ns": 0,
+"title": "DFINITY",
+"params": {
+"count": {
+"revisions": 1,
+"files": 0
+}
+},
+"type": "delete",
+"action": "restore",
+"timestamp": "2022-12-06T14:19:08Z",
+"comment": "Contested soft deletion."
+},
+{
+"ns": 0,
+"title": "DFINITY",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2022-12-05T14:53:08Z",
+"comment": "[[WP:G8|G8]] (redirect): [[Wikipedia:Articles for deletion/Dfinity]] closed as soft delete ([[WP:XFDC#4.0.13|XFDcloser]])"
+}
+],
+"3155|Quant Network": [],
+"6538|Curve Finance": [],
+"5690|Render Network": [],
+"11841|Arbitrum": [
+{
+"ns": 0,
+"title": "Arbitrum",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2022-07-13T13:00:22Z",
+"comment": "[[WP:CSD#A7|A7]]: Article about a company, corporation or organization, which does not [[WP:CCS|credibly indicate the importance or significance]] of the subject"
+}
+],
+"7950|Flare Network": [],
+"3077|VeChain": [
+{
+"ns": 0,
+"title": "VeChain",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2021-05-10T06:42:59Z",
+"comment": "[[WP:CSD#G4|G4]]: Recreation of a page that was [[WP:DEL|deleted]] per a deletion discussion, [[WP:XFD]]"
+},
+{
+"ns": 0,
+"title": "VeChain",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2020-12-29T00:42:57Z",
+"comment": "[[WP:CSD#G4|G4]]: Recreation of a page that was [[WP:DEL|deleted]] per a [[WP:XFD|deletion discussion]]: no RSes added to recreation since deletion discussion; take to AFC"
+},
+{
+"ns": 0,
+"title": "VeChain",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2018-10-26T06:01:27Z",
+"comment": "[[Wikipedia:Articles for deletion/VeChain]] ([[WP:XFDC|XFDcloser]])"
+}
+],
+"2586|Synthetix": [
+{
+"ns": 0,
+"title": "Synthetix",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2014-09-26T09:04:19Z",
+"comment": "Expired [[WP:PROD|PROD]], concern was: No evidence of meeting [[WP:ORG]] or [[WP:GNG]]"
+}
+],
+"23149|Sei (blockchain)": [],
+"3773|Fetch.ai": [
+{
+"ns": 0,
+"title": "Fetch.ai",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2021-05-21T18:32:04Z",
+"comment": "[[WP:CSD#R2|R2]]: Cross-[[WP:NS|namespace]] [[WP:R|redirect]] from mainspace"
+},
+{
+"ns": 0,
+"title": "Fetch.ai",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2021-05-17T05:44:07Z",
+"comment": "[[WP:CSD#R2|R2]]: Cross-[[WP:NS|namespace]] [[WP:R|redirect]] from mainspace"
+}
+],
+"5692|Compound (finance)": [],
+"23095|Bonk (cryptocurrency)": [],
+"21159|Ondo Finance": [],
+"22861|Celestia (blockchain)": [],
+"1934|Loopring": [],
+"8646|Mina Protocol": [],
+"6892|MultiversX": [],
+"6892|Elrond (blockchain)": [],
+"24478|Pepe (cryptocurrency)": [],
+"5864|Yearn.finance": [],
+"8425|JasmyCoin": [],
+"22974|Bittensor": [
+{
+"ns": 0,
+"title": "Bittensor",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2026-07-26T16:26:31Z",
+"comment": "Multiple reasons: speedy deletion criteria [[WP:CSD#G11|G11]], [[WP:CSD#A7|A7]]"
+}
+],
+"13855|Ethereum Name Service": [
+{
+"ns": 0,
+"title": "Ethereum Name Service",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2017-12-21T11:25:13Z",
+"comment": "[[WP:CSD#G4|G4]]: Recreation of a page that was [[WP:DEL|deleted]] per a deletion discussion, [[WP:XFD]]"
+},
+{
+"ns": 0,
+"title": "Ethereum Name Service",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2017-12-18T20:14:09Z",
+"comment": "[[WP:CSD#G11|G11]]: Unambiguous [[WP:NOTADVERTISING|advertising]] or promotion"
+},
+{
+"ns": 0,
+"title": "Ethereum Name Service",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2017-12-17T00:04:31Z",
+"comment": "[[WP:CSD#G12|G12]]: Unambiguous [[WP:CV|copyright infringement]] of http://docs.ens.domains/en/latest/introduction.html"
+}
+],
+"29270|Aerodrome Finance": [],
+"27075|Mantle (blockchain)": [],
+"1808|OMG Network": [],
+"1808|OmiseGO": [
+{
+"ns": 0,
+"title": "OmiseGO",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2019-01-05T17:29:28Z",
+"comment": "[[Wikipedia:Articles for deletion/OmiseGO]] ([[WP:XFDC|XFDcloser]])"
+}
+],
+"30171|Ethena": [],
+"6945|Amp (cryptocurrency)": [],
+"4846|Kava (blockchain)": [],
+"33038|Sky (cryptocurrency)": [],
+"1896|0x (decentralized exchange infrastructure)": [
+{
+"ns": 0,
+"title": "0x (decentralized exchange infrastructure)",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2025-10-10T10:55:51Z",
+"comment": "[[Wikipedia:Articles for deletion/0x (decentralized exchange infrastructure)]] ([[WP:XFDC#4.0.16|XFDcloser]])"
+},
+{
+"ns": 0,
+"title": "0x (decentralized exchange infrastructure)",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2021-10-29T03:53:04Z",
+"comment": "[[WP:CSD#R2|R2]]: [[WP:XNR|Cross-namespace redirect]] from mainspace"
+},
+{
+"ns": 0,
+"title": "0x (decentralized exchange infrastructure)",
+"params": {},
+"type": "delete",
+"action": "delete",
+"timestamp": "2021-10-12T02:33:46Z",
+"comment": "[[WP:CSD#G7|G7]]: One author who has requested deletion or blanked the page \u2013 If you wish to retrieve it, please see [[Wikipedia:Requests for undeletion|WP:REFUND]]"
+}
+],
+"35626|Story Protocol": [],
+"5617|UMA (cryptocurrency)": [],
+"9903|Convex Finance": [],
+"7080|Gala Games": [],
+"1659|Gnosis (blockchain)": [],
+"34104|Morpho (protocol)": [],
+"6758|SushiSwap": [],
+"11221|BitDAO": [],
+"23254|Core DAO": [],
+"36341|Aster (cryptocurrency)": []
+}

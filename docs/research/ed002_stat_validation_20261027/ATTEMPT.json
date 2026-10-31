@@ -1,0 +1,20 @@
+{
+  "scope": "synthetic-only method pilot",
+  "trials_per_null": 32,
+  "null_models": [
+    "iid_exchangeable",
+    "ar1_0.8_exchangeable"
+  ],
+  "max_method_calls": 67,
+  "resamples_per_call": 20000,
+  "compute_deadline_seconds": 120,
+  "data_seed": 20261128,
+  "bootstrap_seed": 20261027,
+  "sources_sha256": {
+    "docs/research/ed002_stat_validation_20261027/validate_pilot.py": "1826e3c8ccd3b494215a9d021bd9d6b4e69125fa977d7b3e213bc39f6e310167",
+    "docs/research/ed002_stat_validation_20261027/decision.json": "b0d907b5a9c4570a5b25299dbb33653d2d504017e7298194186b200b2e745b8f",
+    "services/backtest/paired_wealth_screen.py": "b7f18780f52efb31d4f024c23b1d7911610195c4e8904690d6ba2baaa68656ab"
+  },
+  "network_or_market_inputs": false,
+  "automatic_retry": false
+}

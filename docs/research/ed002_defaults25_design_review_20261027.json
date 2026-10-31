@@ -1,0 +1,196 @@
+{
+  "schema": "ed002-defaults25-design-independent-review-v1",
+  "date": "2026-10-27",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "reviewer": "Independent GATE bounded design-coherence review",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "The hash-bound design is a coherent proposal for comparing the three existing frozen default signal families across the declared 25-asset scope using the already accepted shared-cash ledger. Acceptance is DESIGN ONLY, not operator adoption of allocation/cost/horizon/statistical choices, a freeze, implementation permission, experiment registration or phase authorization.",
+  "blocking_findings": [],
+  "correctness_findings": [],
+  "proposal_adopted": false,
+  "frozen": false,
+  "implementation_authorized": false,
+  "statistical_method_certified": false,
+  "market_data_run_authorized": false,
+  "collection_or_scheduler_authorized": false,
+  "operations_authorized": false,
+  "capital_risk_or_trading_authorized": false,
+  "automatic_follow_on_execution": false,
+  "assessment": [
+    {
+      "classification": "SHOWN design logic",
+      "subject": "Allocation and strategy identity",
+      "references": [
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:57",
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:78"
+      ],
+      "judgment": "No blocking contradiction found. S/B/H definitions separate SELL-held and BUY-flat events from ignored repeated actions. An all-HOLD/no-event close emits None, so this is not periodic rebalancing. The new-entry allocation min(1/25,R/len(B)) is bounded by residual cash-plus-selling weight and not silently renormalized over known exclusions. The retained close weights of H can resize non-selling units at the next open; the design explicitly disclaims exact-unit/trade-path parity and requires incidental turnover reporting. The 1/25 number is an entry target, not a post-gap hard exposure limit.",
+      "limit": "The allocation is a new UNADOPTED policy, despite frozen signal parameters. There is no implemented or executed bridge proof in this assignment."
+    },
+    {
+      "classification": "SHOWN proposal/interface boundary",
+      "subject": "Causal inputs, missingness and 25-asset scope",
+      "references": [
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:27",
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:100",
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:113"
+      ],
+      "judgment": "All 25 configured asset labels remain in the consideration denominator, not a certified Coinbase product/tradability set. Exact IDs and dated known/applicable permissions/precision are required, no automatic MATIC/POL or other substitution. Known exclusion leaves cash; required unknowns remain INCOMPLETE. Documented recent-listing insufficiency is distinguished from unexplained gaps. Completed, copied 300-hour OHLCV and availability cutoffs are explicit; the current ledger's open/close-only callback is not falsely represented as an existing OHLCV interface.",
+      "limit": "Raw-OHLCV bridge implementation, future-perturbation proof and actual dated coverage remain future preflight requirements, not blockers to reviewing this proposal as a design."
+    },
+    {
+      "classification": "SHOWN source-only formula/timing comparison",
+      "subject": "Incumbent semantics",
+      "references": [
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:133",
+        "docs/research/btc_eth_stress_test_20261009/stress_btc_eth.py"
+      ],
+      "judgment": "The proposed BTC/ETH source target formula agrees with target(): positive 28-day close return, half-account times min(1,0.50/annualized volatility) per asset. The source VOL expression is 30 daily returns with population standard deviation and sqrt(365); the source weekday rule refers to the daily candle whose start is Sunday. The design preserves that Sunday-close decision profile and excludes bands/retuning. A 61-complete-day warm-up is sufficient to supply the referenced lookbacks. No return-path or old-cost parity is claimed: this is a future same-engine extension with declared new costs, not a rerun of the old study.",
+      "limit": "Synthetic UTC-day/window/weekly timing parity still must prove the bridge, including the Sunday candle ending at Monday activation A. The executable study was read as text only, never imported or run."
+    },
+    {
+      "classification": "SHOWN arithmetic and endpoint design",
+      "subject": "Comparable capital, controls and prospective clock",
+      "references": [
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:94",
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:120",
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:127",
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:144"
+      ],
+      "judgment": "Equal declared before-fill C=1000, common costs and one account per alternative avoid summing independent wallets. Benchmark entries at A pay actual modelled entry costs without NAV rebasing. A failed intended benchmark entry invalidates the relevant comparison rather than relabeling cash as hold. Fixed-unit 25/25/50 is distinct from weekly constant-weight rebalancing. Primary marked NAV and optional synthetic close liquidation remain separate, with the accepted ledger's corrected execution-price provenance and residual/dust handling retained.",
+      "clock": "182 days equals 4368 hours and two 91-day halves. The first completed decision hour ends at A; first execution at A belongs to the evaluation. At B only final close marking is included, not pending next-open execution. Midpoint state/preceding-close anchor carry and deferred half-period reporting prevent split resets or interim winner selection.",
+      "limit": "A requires a future signed freeze and preflight; missed activation is not silently shifted. None exists or is authorized by this review."
+    },
+    {
+      "classification": "SHOWN declared economic screen; empirical economics UNVERIFIED",
+      "subject": "Costs, overhead and return-screen meaning",
+      "references": [
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:43",
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:160"
+      ],
+      "judgment": "Both fee scenarios and the 25bps adverse adjustment are explicitly assumptions rather than certified execution costs. No extra spread is double-charged. The separate 20 USD/month overhead scenario is not deducted from the wallet or summed across 14 hypothetical alternatives. Its 182-day amount is exactly 43680/365 USD, approximately 119.67 USD; positive after-overhead profit requires clearing this hurdle after modelled trading costs. Equal common overhead cancels in pairwise same-period wealth advantage; it must not be subtracted twice from that contrast.",
+      "screen": "The primary gate requires complete data, positive after-overhead primary profit, superiority to BTC hold and incumbent, the proposed adjusted inference result and higher-fee robustness. Thirty closed cycles are explicitly not thirty independent observations. Missing data is not a negative economic verdict; drawdown/risk approval is not manufactured by a return screen.",
+      "limit": "No evidence here establishes positive returns, power, capacity, fee applicability or a tolerable loss profile. No 182-day annualization into expected income is approved."
+    },
+    {
+      "classification": "SHOWN internal specification arithmetic; method validity UNVERIFIED",
+      "subject": "Proposed inference and multiplicity",
+      "references": [
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:173",
+        "docs/research/ed002_defaults25_comparison_design_20261027.md:182"
+      ],
+      "judgment": "Three prespecified family-minus-incumbent contrasts at one primary cost scenario align with a 0.05/3 one-sided tail. The specified empirical 1/60 inverted-CDF quantile has one-based order rank 334 for 20000 replicates. Joint all-arm calendar-block resampling preserves the proposed cross-arm pairing; recompounding simple-return rows from original C keeps entry costs in first-day returns without a post-fill baseline reset. This is explicitly portfolio-return resampling, not a regenerated executable trade path. Fixed primary seven-day blocks and report-only 14/28 sensitivities do not authorize outcome-selected methods.",
+      "limit": "This is not a certification of nominal coverage, familywise error control, stationarity, sample power or bootstrap reliability. The design correctly requires null/known-effect/dependence/pairing/recomposition fixtures and independent method review before freeze and forbids an inferential PASS if that proof fails. Approximate percentile screening must retain that qualification."
+    },
+    {
+      "classification": "SHOWN count/source binding checks",
+      "subject": "Selection accounting and authority",
+      "judgment": "Three proposed policies, 75 symbol-family considerations, 150 symbol-family-cost considerations and 14 alternative trajectories are arithmetically consistent and explicitly not an effective independent N. No per-symbol winner selection, rescue of prior FAILs, family blending, DSR claim or fresh-holdout relabeling is authorized. The historical candidate allocation contract and corrected ledger acceptance are reused without reopening their review cycles."
+    }
+  ],
+  "verification": {
+    "environment": "VERIFIED_ENV for local saved source/configuration reads, stdlib-only JSON/hash comparisons and arithmetic; no reviewed code imported or executed.",
+    "full_design_and_bindings_read": true,
+    "all_declared_bindings_match": 18,
+    "original_snapshot_source_bindings_match": 11,
+    "snapshot_original_plan_hash_matches": true,
+    "snapshot_strategy_parameters_equal_binding_record": true,
+    "unique_declared_assets": 25,
+    "frozen_strategy_configs": 3,
+    "accepted_ledger_source_hash_matches": true,
+    "arithmetic_checked": {
+      "days": 182,
+      "hours": 4368,
+      "half_days": 91,
+      "policy_symbol_considerations": 75,
+      "policy_symbol_cost_considerations": 150,
+      "alternative_trajectories": 14,
+      "bootstrap_replicates": 20000,
+      "one_based_lower_quantile_rank": 334
+    },
+    "tests_run": false,
+    "statistical_calibration_run": false,
+    "market_datasets_opened": false,
+    "signals_evaluated": false,
+    "executable_study_or_strategy_imports": false,
+    "native_network_service_credential_operations": false,
+    "full_suite_run": false,
+    "extra_agents": 0,
+    "proof_note": "No new synthetic or statistical experiment was run. Integer arithmetic and source/configuration identity checks are not method calibration or financial implementation proof."
+  },
+  "outstanding_boundaries": [
+    {
+      "state": "INCOMPLETE",
+      "subject": "Operator adoption",
+      "detail": "Capital, venue/product mapping, allocation, cost scenarios, horizon, economic screen and statistical method remain unadopted draft choices. This review does not choose them for the operator."
+    },
+    {
+      "state": "INCOMPLETE",
+      "subject": "Synthetic bridge proof",
+      "detail": "Future bounded OHLCV/event-allocation/incumbent interface implementation and its stated causal/timing/missingness/continuity fixtures require separate authorization and review. Accepted ledger proof alone does not cover this missing bridge."
+    },
+    {
+      "state": "INCOMPLETE",
+      "subject": "Inference validation",
+      "detail": "The proposed bootstrap needs synthetic calibration and independent method review before any statistical freeze; no external-paper or empirical calibration claim was made or validated here."
+    },
+    {
+      "state": "INCOMPLETE",
+      "subject": "Activation/data preflight",
+      "detail": "Exact product identities, dated permissions/precision and future complete-path availability must be evidenced before an authorized activation. No collector or live feasibility work is initiated by this design acceptance."
+    }
+  ],
+  "retained_limitations": [
+    "Acceptance is coherence/source-identity review of a proposal, not adoption, freeze, implementation permission, preregistration or authority for a next phase.",
+    "One Coinbase USD spot venue with no FX/cash yield, and modelled full fills with assumed adverse price adjustment/dated eligibility, remain the two explicit modelling assumptions.",
+    "The OHLCV bridge is absent and the existing shared ledger callback has only open/close history; this unsupported interface is disclosed rather than certified.",
+    "The incumbent formula was compared as source text. UTC aggregation and exact boundary execution still need future synthetic parity, not an old market-study rerun.",
+    "Twenty-five configured names do not prove 25 eligible Coinbase products or account/geographic entitlement. Known exclusion and unknown/incomplete status must remain distinct.",
+    "No external model, runtime restoration, SDK, whole-repository audit, historical market evaluation or prior verdict was reopened.",
+    "Positive bootstrap lower bounds would remain approximate, conditional modelled screens, not a guaranteed confidence statement, profitability probability or promotion gate.",
+    "General risk tolerance, liquidity/partial fills, execution capacity, empirical fee/spread calibration and economic benefit remain unverified."
+  ],
+  "hashes": {
+    "algorithm": "SHA256",
+    "design_sha256": "5d8c86e3743fafa44427aea79e0f41ba9dc3f16276ce83a19c4c1117e019760b",
+    "bindings_sha256": "eac25555d65c7099642eee05a95c1e15e5085008df0c019e29f3e0a16df8e257",
+    "reviewed_inputs": {
+      "docs/research/ed002_defaults25_design_bindings_20261027.json": "eac25555d65c7099642eee05a95c1e15e5085008df0c019e29f3e0a16df8e257",
+      "services/strategies/presets.py": "002735111eb3eda44e940e98756a80fc5b7a571b08d05d9edf611e988386fd95",
+      "services/strategies/strategy_registry.py": "e27facd6fd05f3a89c5559194e5cc6f61bf06a3e708596b62d5603e0bbbebae1",
+      "services/backtest/next_open_research.py": "4f5bb1a98be726915bca155b8ea483d5036982ed786665e504c1e444ce2d1a7f",
+      "scripts/research/run_multisymbol_baseline.py": "d6ddce6d69a755db67c542e6e29f3e68f06612bd2fc95373490f671e3ead2e78",
+      "scripts/research/freeze_multisymbol_archive.py": "e22abd0b251ed7a3f4ab6bb1947aa075d70a7b72d7708e4c548eb4c10ea795bc",
+      "services/backtest/research_prefix_freeze.py": "5af4a5fb8390644dc846ee47851ff222c127e51ab8852a15b595b5a6a147b74f",
+      "services/strategies/indicators.py": "756c04052a0fd0f403d0b1c527b64a1bed586f1897d72663b3c96972709b8f23",
+      "services/strategies/market_filters.py": "37fec0214006c94124ee5166fb469fdacc3e52f2b6caaed64f9b926d5412399a",
+      "services/strategies/breakout_donchian.py": "c9e02234ae2a2366dce2e509f86137b28fd6869f92254cd4a68567a882fa03e0",
+      "services/strategies/ema_cross.py": "cffb26005525ac141ed3eed1248582d9b34281d7aa09c968aa239e0b8ed1219e",
+      "services/strategies/mean_reversion_rsi.py": "6eebd51ae8c0ed7afbdd1d6fc4ff4d492dd51e036b9e5c5d73dd86ddbe876ed2",
+      "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+      "research/multisymbol_baseline_v1/plan.json": "a920ad6ae6d9770b6b28becac8c0f9937802be92c1088d11cb3a60b2d29e0c41",
+      "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+      "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+      "docs/research/btc_eth_stress_test_20261009/stress_btc_eth.py": "dacafe828b80c76c8c675cca6c3728bd4a090c5873a49cdbe13173c86edc7e37",
+      "scripts/research/corrected_research_math.py": "d07ae7171e2293cbe60d15ae9bc0973d3ef8bd31b9c7b99105f928c029e29047",
+      "docs/research/ed002_defaults25_comparison_design_20261027.md": "5d8c86e3743fafa44427aea79e0f41ba9dc3f16276ce83a19c4c1117e019760b"
+    }
+  },
+  "read_scope": {
+    "fully_read": [
+      "docs/research/ed002_defaults25_comparison_design_20261027.md",
+      "docs/research/ed002_defaults25_design_bindings_20261027.json",
+      "research/multisymbol_baseline_v1/strategies.snapshot.json",
+      "research/multisymbol_baseline_v1/plan.json",
+      "config/candidate_universe.yaml"
+    ],
+    "necessary_source_read": "Source-only incumbent target(), daily returns/VOL and weekday/run definitions in docs/research/btc_eth_stress_test_20261009/stress_btc_eth.py; no import/execution or dataset access.",
+    "hash_only": "Other bound source files were rehashed to the snapshot/current identity pins, not semantically re-audited. Exact paths are in hashes.reviewed_inputs.",
+    "accepted_context_reused": "ED-002 corrected ledger source 3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc and prior independent correction acceptance; no old ledger/runtime/SDK review reopened."
+  },
+  "next_boundary": "Return the reviewed UNADOPTED proposal to the operator for explicit design choices. Any implementation, calibration, data preflight, freeze or activation requires separately scoped authorization; none is issued here.",
+  "write_scope": [
+    "docs/research/ed002_defaults25_design_review_20261027.json"
+  ]
+}

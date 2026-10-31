@@ -1,0 +1,112 @@
+{
+  "schema": "ed002-shared-cash-adapter-bounded-rereview-v1",
+  "date": "2026-10-27",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "reviewer": "Independent GATE bounded closure of ED002-ADAPTER-01 and ED002-ADAPTER-02",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Only the exact archived-v1-to-current corrections to the two prior findings, supported by the once-run focused synthetic/compatibility slice. This closes the rejected findings for the hash-bound synthetic implementation. No new full audit, market experiment, profitability, production integration or operational approval.",
+  "blocking_findings": [],
+  "operations_authorized": false,
+  "market_experiment_authorized": false,
+  "trading_or_capital_authorized": false,
+  "original_review_preserved": true,
+  "findings_disposition": [
+    {
+      "id": "ED002-ADAPTER-01",
+      "prior_priority": "P1",
+      "disposition": "ACCEPTED",
+      "classification": "SHOWN exact source delta and passing regression",
+      "subject": "Terminal valuation-only price promotion corrected",
+      "references": [
+        "services/backtest/shared_cash_research.py:349",
+        "services/backtest/shared_cash_research.py:358",
+        "tests/test_shared_cash_research.py:263"
+      ],
+      "assessment": "Terminal batch execution prices now come only from state.history[-1].close. last_marks remains a separate NAV-mark map. With a missing final close and a fresh valuation-only observation, the held asset is excluded from synthetic execution, remains held/marked and is reported as marked_residual_holdings rather than liquidated_cash. The terminal endpoint now reports its exclusion list. Existing cloned batch/state separation and valid-close sell-cost/rounding behavior are unchanged.",
+      "proof": "test_terminal_never_promotes_valuation_only_mark_to_execution passed in the focused slice: primary NAV 1200 and units A=100; terminal trades empty/cash zero/units A=100/NAV1200 with explicit missing_execution_open exclusion."
+    },
+    {
+      "id": "ED002-ADAPTER-02",
+      "prior_priority": "P2",
+      "disposition": "ACCEPTED",
+      "classification": "SHOWN exact source delta and two passing refusal regressions",
+      "subject": "Comparison carry binds benchmark identities and mix",
+      "references": [
+        "services/backtest/shared_cash_research.py:382",
+        "services/backtest/shared_cash_research.py:387",
+        "services/backtest/shared_cash_research.py:395",
+        "tests/test_shared_cash_research.py:279"
+      ],
+      "assessment": "A normalized recipe contains btc_symbol, eth_symbol and weights() output. Every returned arm state gets its own deep-copied comparison_contract. On resume the complete four-arm state set and every stored recipe are checked before the arm simulation comprehension. Changed identities/mix and missing declarations refuse rather than silently retaining the old control under new parameters. Equivalent normalized weight representations compare consistently; original caller-defined candidate contract identity remains a separate documented responsibility.",
+      "proof": "The identity-swap and changed-mix cases each passed while simulate_shared_next_open was replaced by a forbidden stub, proving refusal occurs before any arm simulation. Existing unchanged-contract full-versus-split control equality regression also passed."
+    }
+  ],
+  "delta_scope": {
+    "source": "Exactly one terminal execution-map substitution, addition of terminal exclusions, normalized comparison recipe construction, all-arm pre-simulation validation and deep-copied recipe attachment. The complete unified diff against the archived source contains no other source changes.",
+    "tests": "Only three new cases: one terminal mark-only refusal/retained-holding case plus two parametrized benchmark-identity/mix pre-simulation refusal cases. Existing tests are not removed or weakened.",
+    "checkpoint": "Read completely. It documents the new price provenance, comparison carry contract, rejected original preservation, parent red proof and updated focused result without broadening model or operation authority.",
+    "preserved_v1": "Archived source/tests/checkpoint hashes equal those recorded in the original independent rejection; archived original review is byte-identical to the still-current original review.",
+    "historical_contract_or_reuse_apis_changed": false
+  },
+  "verification": {
+    "environment": "VERIFIED_ENV isolated repository Python, synthetic inputs only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_shared_cash_research.py tests/test_next_open_research.py tests/test_harness_contracts_wp4.py",
+    "runs": 1,
+    "result": "93 passed in 2.92s",
+    "warnings": 0,
+    "parent_red_proof": {
+      "classification": "CLAIMED parent record, not rerun by reviewer",
+      "result": "Three added cases failed against v1 before correction, 47 deselected."
+    },
+    "extra_temporary_probe_runs": 0,
+    "legacy_nine_case_slice_repeated": false,
+    "full_suite_run": false,
+    "market_data_run": false,
+    "network_service_credential_or_runtime_operations": false,
+    "E10_import": false,
+    "reviewed_sources_tests_docs_work_log_modified": false
+  },
+  "retained_risks": [
+    "This is a bounded correction review, not a new general proof of all financial or integration behavior. The original review's unaffected positive assessment and limits remain applicable.",
+    "One venue/common quote, no cash yield/FX/financing and causal unchanged caller targets/correctly interpreted dated inputs remain modelling assumptions.",
+    "A valid valuation can preserve marked residual NAV without making an asset executable. A terminal COMPLETE label can still include unsold holdings; profit_basis and exclusions must be retained by consumers.",
+    "The terminal exclusion uses the shared batch reason missing_execution_open even though the synthetic terminal execution input is a close-price map; the terminal qualification and preserved units make the boundary explicit.",
+    "Old comparison states lacking comparison_contract now fail closed. Exact Fraction types and normalized recipe data must survive caller persistence; no migration/checkpoint serializer was introduced.",
+    "Caller target_contract_id is not an automatic source hash or sandbox for candidate-callable external state.",
+    "Historical permissions/precision, actual fills, liquidity/partial fills/latency/queue/capacity, strategy economics and production integration remain UNVERIFIED. Synthetic acceptance authorizes no experiment, market-data run, funds or trading."
+  ],
+  "hashes": {
+    "algorithm": "SHA256",
+    "current_reviewed_inputs": {
+      "docs/review_artifacts/ed002_shared_cash_20261027/rejected_v1.tar": "482eb48a7041ec5ecbb62d01050d2f2b344f7eb3b528ce4abeffc6f8384039bf",
+      "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+      "tests/test_shared_cash_research.py": "415910a7fa161f9f96cd9cd8d4e3af9b3ca2e59a6a8b214d9d85a3b8485d3b08",
+      "docs/research/ed002_shared_cash_adapter_20261027.md": "018ffdd2a45c7e38846245bd865688d470112aaf0eb7cf8097f802223b276d0f",
+      "docs/research/ed002_shared_cash_adapter_review_20261027.json": "c7e3b42f9f816615928df4c74f0f1bc6d401a2bd893f4229dc990949caf340f3"
+    },
+    "exact_archived_v1_members": {
+      "services/backtest/shared_cash_research.py": "d2d8a2f31c60af5be97fc234e4f31079e0e2fedb42ac4a26591fd4ec42a93e46",
+      "tests/test_shared_cash_research.py": "4e18d3411525b8d914582d50e0aa21bed8590a5b30d6eba32313ec3d6d7a1b3c",
+      "docs/research/ed002_shared_cash_adapter_20261027.md": "79ef0dc9e682f3d13c9af0bcbf592170342a5302491b3f10ef65e56a5908772f",
+      "docs/research/ed002_shared_cash_adapter_review_20261027.json": "c7e3b42f9f816615928df4c74f0f1bc6d401a2bd893f4229dc990949caf340f3"
+    }
+  },
+  "read_scope": {
+    "fully_read_current_checkpoint": "docs/research/ed002_shared_cash_adapter_20261027.md",
+    "current_source_and_tests": "Complete source/test delta against exact archived v1 plus current terminal/comparison functions and new test cases. Unchanged source/tests were already read in the preserved initial review and were not broadly re-audited.",
+    "archive": "Exact v1 source/tests/checkpoint/original review read directly from rejected_v1.tar without extracting or executing archived code. Archive member list checked.",
+    "unchanged_compatibility_tests": "Executed in the requested three-file slice, not broadly semantically re-reviewed.",
+    "no_broader_scope": "No runtime/SDK/past-study/legacy-nine-case re-audit, market experiments or new agents."
+  },
+  "original_rejection": {
+    "path": "docs/research/ed002_shared_cash_adapter_review_20261027.json",
+    "sha256": "c7e3b42f9f816615928df4c74f0f1bc6d401a2bd893f4229dc990949caf340f3",
+    "preserved_decision": "REJECTED",
+    "interpretation": "Historical rejection remains unchanged. This new record closes its two named implementation findings only for the current bound correction."
+  },
+  "next_boundary": "Parent may record this independent correction acceptance in its work log/index/evidence manifest. No market-data experiment, strategy selection, capital/risk or operational authority follows.",
+  "write_scope": [
+    "docs/research/ed002_shared_cash_adapter_rereview_20261027.json"
+  ]
+}

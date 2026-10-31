@@ -1,0 +1,20 @@
+{
+  "schema": "ed002-sb1-development-evidence-v1",
+  "execution_status": "COMPLETE",
+  "statistical_validation": "INCOMPLETE",
+  "acceptance_route": "operator accepted submitted prototype and authorized this one diagnostic run",
+  "audit_authorized": false,
+  "market_run_authorized": false,
+  "inputs_sha256": {
+    "docs/research/ed002_sb1_development_20261027/authorization.json": "ab2c0bba89574fba71292c6dcf8e052dbb32c56c16e228465eccbee51d864349",
+    "docs/research/ed002_sb1_development_20261027/run_development.py": "66ecc648391c92449b02c374f5ad592b0d030e2e0660b4b81a7fe4943ea1ae4c",
+    "docs/research/ed002_sb1_development_20261027/bindings.json": "d5521231cfafcdc4dc346b67503bf50f1a831ce7398da2ba10c0eb2ae4374eab",
+    "docs/research/ed002_sb1_development_20261027/ATTEMPT.json": "2c351edd7b77a7f73ff4d56cea0b8d2e44a29a4c95373447c990039762c01b67",
+    "docs/research/ed002_sb1_development_20261027/trials.jsonl": "d2b4270a33ce4fb8654e7020b06cdd329e74e74ab1258e0e5f0fdf97119d5795",
+    "docs/research/ed002_sb1_development_20261027/result.json": "3c5b2116e43aa6c218513bb63a4f751d55c3243c809e83c3477411e670bf9197",
+    "docs/research/ed002_sb1_development_20261027/README.md": "374ed24da4e2f0a9f5cf8dc82b0ab277fb834d54bece7f2f35f529c2d48d0203",
+    "tests/test_sb1_development_helpers.py": "c7e515a005db53a5075cb95aeaadc3d75535905615817bf84e072e967ca240dd",
+    "services/backtest/sb1_prototype.py": "a152f15f464005dfa2e5c00877074762241ae4b84133575188d8442f0d72f01a",
+    "docs/research/ed002_sb1_prototype_bindings_20261027.json": "886659a60140feb989a1cc98a6d3793715a9c189e05e08a6c840d8e398dff9be"
+  }
+}

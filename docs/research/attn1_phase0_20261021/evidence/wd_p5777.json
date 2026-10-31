@@ -1,0 +1,3178 @@
+{
+  "head" : {
+    "vars" : [ "item", "cmc", "enwiki", "itemLabel", "itemDescription", "types" ]
+  },
+  "results" : {
+    "bindings" : [ {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q131723"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "bitcoin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Bitcoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Bitcoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "digital cash system and associated currency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; currency; communication protocol; reserve currency; payment system; cryptocurrency; legal tender; crypto asset; blockchain"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q2577141"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "namecoin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Namecoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Namecoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency based on Bitcoin"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q15272284"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "feathercoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Feathercoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; payment system; digital currency; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q15916990"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "nxt"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Nxt"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Nxt"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency started in November 2013"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q16783523"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "ethereum"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Ethereum"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Ethereum"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "public blockchain platform with programmable transaction functionality"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; web service; cryptocurrency; blockchain; smart contract platform; blockchain framework; ongoing project"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q17492392"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "blackcoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "BlackCoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q19893485"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "monero"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Monero"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Monero"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency wallet software"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; digital currency; cryptocurrency; blockchain; decentralized autonomous organization"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q21013061"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "emercoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Emercoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; cryptocurrency; cryptocurrency wallet"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q27148141"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "zcash"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Zcash"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Zcash"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "privacy-focused cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; cryptocurrency; digital currency; blockchain; decentralized autonomous organization"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q28786517"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "neoscoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Neos"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "digital currency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; payment system; cryptocurrency; digital currency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q29583124"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "ethereum-classic"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Ethereum_Classic"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Ethereum Classic"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "open source blockchain computing platform"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; cryptocurrency; digital currency; blockchain"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q108455807"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "HEX"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "HEX"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "ERC20 cryptocurrency and certificate of deposit"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "certificate of deposit; modularity; cryptocurrency; proof of work; smart contract; proof of stake; financial product; ERC-20"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q108695872"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "solana"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Solana_(blockchain_platform)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Solana"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "blockchain platform"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "computing platform; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q124436383"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "near-protocol"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/NEAR_(blockchain_platform)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Near protocol"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "public blockchain"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "computing platform; cryptocurrency; blockchain"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q135286946"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "kokok-the-roach"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "KoKoK The Roach"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "company; business; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q107272578"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "safemoon"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/SafeMoon"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "SafeMoon"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q108042034"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "theta"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "THETA"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "network; cryptocurrency; blockchain"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q30594390"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "dragonchain"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Dragonchain"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q41805988"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "bytecoin-bcn"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Bytecoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; digital currency; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q46600518"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "verge"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Verge_(cryptocurrency)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Verge"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; digital currency; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q46696265"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "bitcoindark"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Bitcoin Dark"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; digital currency; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47273538"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "cardano"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Cardano_(blockchain_platform)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Cardano"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "decentralized, open-source blockchain network that can execute peer-to-peer transactions and serve as a platform for deploying smart contracts"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; cryptocurrency; blockchain; smart contract platform"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47494147"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "eos"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/EOS.IO"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "EOS"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "blockchain protocol"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; digital currency; blockchain framework; non-immutable blockchain"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47868368"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "whitecoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "WhiteCoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; payment system; digital currency; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q48742284"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "musicoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Musicoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "distributed computing platform, fork of Ethereum"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q49164728"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "html-coin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "HTMLCOIN"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; payment system; digital currency; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q49164739"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "deeponion"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "DeepOnion"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; payment system; digital currency; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q49164743"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "pandacoin-pnd"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Pandacoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; payment system; digital currency; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q55290870"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "tezos"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Tezos"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Tezos"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "decentralized, open-source blockchain network (and investment) that can execute peer-to-peer transactions and serve as a platform for deploying smart contracts"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; web service; public company; virtual community; project; payment system; cryptocurrency; blockchain; smart contract platform"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q60972127"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "metahash"
+      },
+      "itemLabel" : {
+        "type" : "literal",
+        "value" : "Q60972127"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q106609131"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "MobileCoin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/MobileCoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "MobileCoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency focusing on transactional anonymity"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; free software; digital currency; cryptocurrency; decentralized autonomous organization"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q102230654"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "multi-collateral-dai"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Dai_(cryptocurrency)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Dai"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "stablecoin cryptocurrency on the Ethereum blockchain generated by MakerDAO"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free software; smart contract; cryptocurrency; ERC-20; stablecoin"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q39048590"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "filecoin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Filecoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Filecoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "open-source, public cryptocurrency and digital payment system with a blockchain-based cooperative digital storage and data retrieval method"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; cryptocurrency; distributed storage network"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q45231354"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "omisego"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "OmiseGO"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q46166265"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "polkadot-new"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Polkadot_(blockchain_platform)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Polkadot"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency and cross-blockchain interface that enables cross-blockchain transfers of any type of data or asset, not just tokens"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q46996009"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "zclassic"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Zclassic"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; business; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47134419"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "tron"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Tron_(blockchain)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Tron"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "open-source blockchain computing platform"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q110233099"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "avalanche"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Avalanche_(blockchain_platform)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Avalanche"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "blockchain platform"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "payment system; cryptocurrency; blockchain; smart contract platform; blockchain framework"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q15981447"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "auroracoin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Auroracoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Auroracoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q17001970"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "counterparty"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Counterparty_(platform)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Counterparty"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency platform"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q20639637"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "eaglecoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "EagleCoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q23680087"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "blockstack"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Blockstack"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Blockstack"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q24526428"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "lisk"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Lisk"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "platform that provides decentralized blockchain apps"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; cryptocurrency; business"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q28127193"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "synereo"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Synereo"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q30324920"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "WAVES"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Waves platform"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q106914879"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "oduwa"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Oduwacoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "digital payment ecosystem"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "organization; cryptocurrency; payment system; blockchain; proof-of-work cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q107635942"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "AKITA"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Akita Inu"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "ERC-20 meme token"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; ERC-20"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q112245903"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "حزم كوين"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "HZM COIN"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q112245903"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "عملة حزم الرقمية"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "HZM COIN"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q114510081"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "dogechain"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Dogechain"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "EVM-like Dogecoin-based blockchain"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; blockchain"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q115623704"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "ripple"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "XRP"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; digital currency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q123116788"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "cuminu"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "CumInu"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; ERC-20"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q125457725"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "aave"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Aave"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Aave"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "decentralized finance protocol"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; decentralized autonomous organization; decentralized application"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q131741748"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "oobit"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "OBT"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; digital currency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q131821993"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "official-trump"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/$Trump"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "$Trump"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency token bearing the image of Donald Trump"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; meme coin"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q132460475"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "libra-viva-la-libertad-project"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/$Libra"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "$LIBRA"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Panamanian cryptocurrency related with Argentina"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; blockchain"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q133333931"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "vechain"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "VeChain"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Public blockchain platform"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; blockchain"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q136126280"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "liberland-blockchain"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Liberland dollar"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q137527490"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "balancer"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Balancer"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Decentralized exchange built on Ethereum"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; decentralized autonomous organization; decentralized application"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q138614722"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "hyperliquid-usd"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "USDH"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "USDH is Hyperliquid’s native stablecoin, a purpose-built dollar powering onchain finance."
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; stablecoin"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q139763732"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "maplestory-universe"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "NXPC"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "native utility token of MapleStory Universe, a blockchain-based gaming platform by NEXPACE"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q141143781"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "neptune-cash"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Neptune Cash"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "privacy-focused post-quantum layer-1 cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q141249642"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "neoxa"
+      },
+      "itemLabel" : {
+        "type" : "literal",
+        "value" : "Q141249642"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; blockchain"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q141645020"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "ambire-wallet"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "$WALLET"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency token"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; digital currency; ERC-20"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q106681356"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "reddcoin"
+      },
+      "itemLabel" : {
+        "type" : "literal",
+        "value" : "Q106681356"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "virtual currency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q59284625"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "nimiq"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Nimiq"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q59285013"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "bitcoin-sv"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Bitcoin_Satoshi_Vision"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Bitcoin SV"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency that is a hard fork of Bitcoin Cash (2018)"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; hard fork; blockchain"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q65028612"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "dropil"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Dropil"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency and related services and tools"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q100781882"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "usd-coin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/USDC_(cryptocurrency)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "USD Coin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Ethereum stablecoin backed by the U.S. dollar"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; stablecoin"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q102257282"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "stellar"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Stellar Lumens"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Crypto Currency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q105104897"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "library-credits"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "LBRY credit"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q106007400"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "binance-coin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Binance_coin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Binance Coin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q106853086"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "internet-computer"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Internet Computer"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q106853331"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "klaytn"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Klaytn"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q106853490"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "shiba-inu"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Shiba_Inu_(cryptocurrency)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "SHIBA INU"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; meme coin"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q107107092"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "ELON"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Dogelon Mars"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency named after Elon Musk and the Doge Internet meme"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; ERC-20; BEP-20; HRC-20"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q18572818"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "gridcoin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Gridcoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Gridcoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency that rewards BOINC"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "project; free and open-source software; payment system; digital currency; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q46613298"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "chronobank"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Chronobank"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "business"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q48699037"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "cashaa"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Cashaa"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency financial services company"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "business; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q4043030"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "litecoin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Litecoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Litecoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free and open-source software; cryptocurrency; blockchain"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q15427118"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "novacoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Novacoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free and open-source software; cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q30938181"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "algorand"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Algorand"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Algorand"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "blockchain and cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "payment system; cryptocurrency; blockchain; smart contract platform"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q42148852"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "bitcoin-gold"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Bitcoin_Gold"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Bitcoin Gold"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "fork of the cryptocurrency Bitcoin from October 2017"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "payment system; electronic money; cryptocurrency; hard fork"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q22909807"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "woodcoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Woodcoin"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "token coin"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q29204875"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "crowdholding"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Crowdholding"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "company"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q30504331"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "iota"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/IOTA_(technology)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "IOTA"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "open-source distributed ledger and cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "free and open-source software; digital currency; cryptocurrency; directed acyclic graph ledger"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47519264"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "factom"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Factom"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "blockchain technology company"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "company"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47519879"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "monetha"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Monetha"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "blockchain company"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "company"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47457131"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "bitconnect"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Bitconnect"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Bitconnect"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "peer to peer cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "digital currency; cryptocurrency; multi-level marketing company; cryptocurrency scam"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q28135780"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "cloudbric"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Cloudbric"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cloud-based web security service developed by Penta Security Systems Inc."
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "service"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q28127134"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "bitnation"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Bitnation"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Bitnation"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "digital nation"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q28130189"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "vertcoin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Vertcoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Vertcoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; digital currency; Peer-to-peer banking"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q30324611"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "internet-of-people"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Internet of People"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q18756242"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "nem"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "NEM"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "digital currency; cryptocurrency; blockchain"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q15177466"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "peercoin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Peercoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Peercoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Bitcoin derivitive proof of stake cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q15179199"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "primecoin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Primecoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Primecoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Cryptocurrency based on prime numbers"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q15377916"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "dogecoin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Dogecoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Dogecoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "open source peer-to-peer digital currency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; blockchain; proof-of-work cryptocurrency; meme coin"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q16324525"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "pesetacoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "PTA Peseta digital"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Criptomoneda descentralizada"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q17155887"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "dash"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Dash_(cryptocurrency)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Dash"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q19894203"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "potcoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "PotCoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q21002847"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "faircoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "FairCoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q21064683"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "titcoin"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Titcoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Titcoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency launched in 2014"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q21539958"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "sixeleven"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "SixEleven"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q21857460"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "dashcoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Dashcoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q22907391"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "nubits"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "NuBits"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q23199031"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "solarcoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "SolarCoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "crypto-currency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q25036138"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "syscoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Syscoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q25104171"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "decred"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Decred"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q113954408"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "trueusd"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "True USD"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "stablecoin of the US dollar"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "stablecoin"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q136543215"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "usd1"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/USD1"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "USD1"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency stablecoin"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "stablecoin"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q111446865"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "pancakeswap"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/PancakeSwap"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "PancakeSwap"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Decentralized cryptocurrency exchange originally built on Binance Chain"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "decentralized application; cryptocurrency exchange"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q140254792"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "euler-finance"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Euler"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "decentralized finance protocol"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "decentralized application"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q30325421"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "digibyte"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "DigiByte"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q31839308"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "supernet-unity"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "SuperNET"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "organization"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q34328146"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "bitcoin-cash"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Bitcoin_Cash"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Bitcoin Cash"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "fork of the cryptocurrency Bitcoin in August 2017"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; blockchain; hard fork; smart contract platform"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q46995946"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "bitcoin-god"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Bitcoin God"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47504639"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "electroneum"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Electroneum"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47512046"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "nano"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Nano_(cryptocurrency)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Nano"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47519257"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "power-ledger"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Powerledger"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Blockchain-based cryptocurrency and energy trading platform"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47519275"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "rchain"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "RChain"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Open-source blockchain platform"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47528658"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "tether"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Tether_(cryptocurrency)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Tether"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; ERC-20; stablecoin"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q48629674"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "zencash"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Horizen"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "ZenCash (criptomoneda)"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q53039605"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "basic-attention-token"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Basic_Attention_Token"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Basic Attention Token"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Ethereum token"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; ERC-20"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q53263815"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "telegram-open-network-iou"
+      },
+      "enwiki" : {
+        "type" : "uri",
+        "value" : "https://en.wikipedia.org/wiki/Gram_(cryptocurrency)"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Gram"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency project initiated by Telegram"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q55654897"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "siacoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Siacoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "cryptocurrency to buy and sell storage used by the Sia software"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q57305725"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "maker"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "MKR"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "ERC20 token"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptocurrency; ERC-20"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q136853156"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "JOE"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "LFJ"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Decentralized exchange built on Avalanche, Arbitrum, and Monad"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "decentralized cryptocurrency exchange"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q141619893"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "acurast"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "ACU"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "utility token of the Acurast network"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "cryptographic token"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q33318299"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "leocoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Learning Enterprises Organisation Ltd"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "British multi-level marketing company"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "multi-level marketing company"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q21577192"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "bittorrent"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "BitTorrent client"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "peer-to-peer software for the BitTorrent protocol"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : "software category"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q17231353"
+      },
+      "cmc" : {
+        "type" : "literal",
+        "value" : "monacoin"
+      },
+      "itemLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Monacoin"
+      },
+      "itemDescription" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Japanese cryptocurrency"
+      },
+      "types" : {
+        "type" : "literal",
+        "value" : ""
+      }
+    } ]
+  }
+}

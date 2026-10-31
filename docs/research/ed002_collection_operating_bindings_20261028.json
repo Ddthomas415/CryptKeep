@@ -1,0 +1,31 @@
+{
+  "schema": "ed002-collection-operating-plan-bindings-v1",
+  "date_local": "2026-10-28",
+  "active_role": "DIRECTOR",
+  "risk": "HIGH",
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "independent_review": false,
+  "operational_readiness": "INCOMPLETE",
+  "study_readiness": "INCOMPLETE",
+  "prior_evidence_bindings_unchanged": 299,
+  "new_acquisition_or_scheduler_change": false,
+  "tests_repeated": false,
+  "proposed_pilot_limits_adopted": false,
+  "opened_primary_sources": [
+    "https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/ScheduledJobs.html",
+    "https://github.com/apple-oss-distributions/launchd/blob/main/man/launchd.plist.5"
+  ],
+  "inputs_sha256": {
+    "docs/research/ed002_collection_operating_plan_20261028.md": "2dca5906318ed22edd4ca258c0b3d03be8612a4df87c317f6974e69a12d52877",
+    "docs/research/ed002_collection_host_inventory_20261028.json": "46e97e9e431ed2cce6e537a4c16c3294b3227cc31abad51915d60f3393bd41b1",
+    "docs/research/ed002_collection_launchd_read_20261028.json": "7b2a026dc7be3a4c423bbf046a9d9d0a02f7a97b3cd5a41f3ed6e26a539cc06f",
+    "docs/research/ed002_continuation_verification_20261028.json": "a315b29188c3b778084c37bb82627013105aac144cbd31cd6ea96b0ce0642b48",
+    "docs/research/ed002_continuation_freeze_plan_20261028.md": "62b746198f6120a0e63f54a1cbbc0d4fbb36fe6b1067c580103162635716917c",
+    "scripts/research/capture_descriptive_inputs.py": "415d4e351b9c1c544bcf9fe4f84dab72280dd47ffed13353860a011bf5d0145e",
+    "services/backtest/descriptive_readiness.py": "6ae9c8139b068e5a543be859822648eb0d3ed930901b00a8428710c5688fdfa1",
+    "docs/COLLECTOR_CONTROL.md": "d10302fa77010685d43029264ebbacdbee3e92066cf874e2879badcbcef0da19",
+    "docs/SINGLE_OPERATOR_CONTINUITY.md": "f6e8af569ab3d930cbf8f8229b4c7f0b72bef95e3c7519a432bfa7801b005c37",
+    "docs/DEPLOYMENT.md": "50d0d25d574100f01509ec54cef75e8472b890cc3a309525d3b3db891f0268d2",
+    "packaging/systemd/cbp-crypto-edge-collector.service": "1a4e44d6cb8fa6de89e11223be35a6703bb12231fcb75849d8497c6800e08089"
+  }
+}

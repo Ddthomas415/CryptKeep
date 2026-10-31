@@ -1,0 +1,36 @@
+{
+  "schema": "live-position-cap-path-trace-v1",
+  "date_local": "2026-10-28",
+  "active_role": "AUDITOR",
+  "evidence": "SHOWN source/AST; not runtime or private-account proof",
+  "remediation": "INCOMPLETE",
+  "atomic_daily_claim_keyword_arguments": [
+    "max_trades",
+    "max_notional",
+    "notional_est"
+  ],
+  "preferred_adapter_delegates_to_common_place_order": true,
+  "sync_async_share_fail_closed": true,
+  "existing_position_truth_decision_preserved": true,
+  "position_cap_exposure_scope_decided": false,
+  "source_changes_or_runtime_changes": false,
+  "pilot_pins_unchanged": 10,
+  "captured_at_utc": "2026-10-28T10:23:48.600598+00:00",
+  "inputs_sha256": {
+    "services/execution/live_exchange_adapter.py": "1fb9756f6b33d99c1d59682c504d262599e7bcd98ca33db4eaf4bf7e9aa74886",
+    "services/execution/live_intent_consumer.py": "0bd153a11013a4f395eb3fecb81f23d4bd770644e0e3542e154300abe12e3aec",
+    "services/execution/intent_consumer.py": "5c857d994ca54c97828aae05557b6f021f4a787fa9000daaae620e1bbc1a9d6f",
+    "services/execution/place_order.py": "f7337e9885026b430aab89d53f2ba6f24e402f814c5f57ad4097b71e775d5119",
+    "services/execution/coinbase_portfolio_guard.py": "e865a09d2a96828143b1b29ef07e6a710744e8a7f94134548d1a96f657c77352",
+    "services/live_router/router.py": "08a5bd14fb8852b7a1b026c00efd3d2dfda2a01994504af38be8350ced164988",
+    "services/execution/safety.py": "418dde203b87fee23f55d76311c359933fb0f6e4cdb8b996050a9245b8eb97eb",
+    "storage/live_intent_queue_sqlite.py": "83d363a854b88b4d230cacc179c1de206a2b813b3b16a678cbfa410a64e06740",
+    "storage/live_position_store_sqlite.py": "10e6cae4b72288aa6d40c793736ecf151e9eb6d98a0d6c91cb7b805a86da27f1",
+    "storage/position_state_sqlite.py": "d497735145fae6430dcbdba7fca610f2ec76c18776a88ceb070fb481ed889a42",
+    "services/execution/reconciliation.py": "29182896c9475972e7b3899faf6f599e4320135ce03a13a9e875fde5fcbb4f83",
+    "services/reconciliation/position_truth.py": "5835975a1c72ebab63e68e39243889e515df5d81156adfe46126aeba8e076de1",
+    "services/execution/live_arming.py": "aa250bde68c5369d3621d30decf97623eef5e8f36f5da83fae1a25f9c4788dda",
+    "docs/decisions/position_truth_resolution_authority.md": "a213b7d70aad73d84ebb835b86d9c3713c6286dc5e716188fba89c1737f5b076",
+    "docs/research/live_position_cap_treatment_scope_20261028.md": "2dd69dce8f0d6e48d6397be47afc3b2047a3a0365855223219b8b5b199a15b37"
+  }
+}

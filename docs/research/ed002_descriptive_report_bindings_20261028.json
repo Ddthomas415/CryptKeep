@@ -1,0 +1,48 @@
+{
+  "schema": "ed002-descriptive-report-handoff-v1",
+  "completed_date": "2026-10-28",
+  "active_role": "ENGINEER",
+  "risk": "HIGH",
+  "acceptance_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "operator_answer": "approve. carry out the next steps",
+  "prior_mapper_acceptance": "ACCEPTED_WITH_RISK by human for submitted synthetic scope only, not independent review or market certification",
+  "implementation_independently_accepted": false,
+  "tests": {
+    "passed": 101,
+    "new_report_cases": 25,
+    "mapper_cases": 48,
+    "existing_comparison_cases": 28,
+    "seconds": 22.24,
+    "full_suite": false,
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_descriptive_report.py tests/test_descriptive_metadata.py tests/test_delayed_research_comparison.py",
+    "fixture_scope": "25 invented labels/prices, scripted signals, two-day model periods; no actual strategy performance or market study"
+  },
+  "prior_mapper_bindings_verified_unchanged": 13,
+  "descriptive_report_implemented": true,
+  "actual_research_run": false,
+  "statistical_qualification": "INCOMPLETE",
+  "experiment_activation": false,
+  "market_api_account_credential_service_schedule_trading_actions": false,
+  "remaining": [
+    "exact reporting independent/human review",
+    "prospective data feasibility, warm-up/receipt coverage, provenance and future freeze/dates",
+    "separately authorized acquisition/evaluation"
+  ],
+  "inputs_sha256": {
+    "services/backtest/descriptive_report.py": "f600940d9db7b5bdafe278253d00de86017fdf8c40d379f8fd3e4e26db279130",
+    "tests/test_descriptive_report.py": "adecca5a7f948ccc9d6ef61b3f59d177ae821e7e42b569a4c441acdfe0a31cfd",
+    "docs/research/ed002_descriptive_report_20261028.md": "d086e4bd81b51a432b1e789978978d73edf2ef9f6a77d4d8ac93605104f9717d",
+    "docs/research/ed002_descriptive_metadata_bindings_20261027.json": "b08c1faf4d8aea470caafbb2a6c8af499ee5bd2e1cbabffc9da429375eadfac2",
+    "services/backtest/descriptive_metadata.py": "9c98bba24ed52bcb99e73ecc8bcd0bfa51ccd5e60447aa5f2017ef8cbb1e4099",
+    "tests/test_descriptive_metadata.py": "86f41707376c9919651d993cddf47fb18ef8b4ed4960a940be9aec99c245ceff",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+    "services/backtest/delayed_research_comparison.py": "749ba4ad7e755be44a5c3359894aff66a58e356610dbabefb1c293ac56cc8ca7",
+    "services/backtest/delayed_signal_bridge.py": "c2c452c88190eab210764cd0a6a056cefc05fa3af95e09f535987f55e3a27e1d",
+    "services/backtest/frozen_signal_bridge.py": "7ca917d6edda68fe02c3ab439ab56cf182106831444a71fdd78ee26b5212639a",
+    "tests/test_delayed_research_comparison.py": "17be4ca90fcfd2a98131dd1358ce91b66aa6dc6ea6af7cd8b528e78266ea6778",
+    "docs/research/ed002_defaults25_descriptive_contract_20261027.md": "129e7daa1d83151e75003f02bf8b21c61ae6563b5d88639891bb8c12a937adbc",
+    "docs/research/ed002_stat_validation_20261027/decision.json": "b0d907b5a9c4570a5b25299dbb33653d2d504017e7298194186b200b2e745b8f",
+    "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6"
+  }
+}

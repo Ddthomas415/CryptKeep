@@ -1,0 +1,51 @@
+{
+  "schema": "ed002-continuation-implementation-bindings-v1",
+  "date": "2026-10-28",
+  "active_role": "ENGINEER",
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "independent_review": false,
+  "operator_design_decision": "Adopt proposed design (Recommended)",
+  "targeted_test_result": {
+    "passed": 164,
+    "new": 35,
+    "existing": 129,
+    "seconds": 5.35,
+    "exit_code": 0
+  },
+  "offline_preview": {
+    "exit_code": 0,
+    "dry_run": true,
+    "planned_max_requests": 27,
+    "capture_directory_created": false
+  },
+  "prior_plan_bindings_unchanged": 15,
+  "prior_capture_source_preserved_in_archive": true,
+  "frozen_selected_source_hashes_unchanged": 11,
+  "new_market_requests": 0,
+  "strategy_or_return_runs": 0,
+  "schedules_or_dates_changed": false,
+  "inputs_sha256": {
+    "docs/research/ed002_continuation_implementation_20261028.md": "a093f18fe857977716cd268e3d4268b3198606a73a68e614213bfba9a9d9b4a8",
+    "docs/research/ed002_continuation_source_20261028.diff": "9f76915c118708df035fc7eb5ae74800625d1c57d5a61ec4dd3ad94129930e32",
+    "docs/review_artifacts/ed002_public_capture_v2_20261028.tar": "c29d57d5e09048880e8e0c3215574db593a9791c2322d6e01b0e9d8c7bc6002a",
+    "scripts/research/capture_descriptive_inputs.py": "415d4e351b9c1c544bcf9fe4f84dab72280dd47ffed13353860a011bf5d0145e",
+    "services/backtest/descriptive_readiness.py": "6ae9c8139b068e5a543be859822648eb0d3ed930901b00a8428710c5688fdfa1",
+    "tests/test_descriptive_continuation.py": "4ce9acff78a2ea501ac0f76984242a7979c4c45f32f36fe5abb0281f583d14e0",
+    "tests/test_capture_descriptive_inputs.py": "4e914cb32151e0554ac2d2417af5b8674409dbd018c8bd0c6694c01eb2bf18ed",
+    "tests/test_capture_descriptive_warmup.py": "4b9a64f1253532735a4c0e6e9f4bf57534602f01ef5723512857b1a7e2a1c74d",
+    "tests/test_descriptive_candles.py": "c16d95d6297d20fae33048396282e683a7d7c51e45cf72d2c514a7d71640dedc",
+    "tests/test_descriptive_metadata.py": "86f41707376c9919651d993cddf47fb18ef8b4ed4960a940be9aec99c245ceff",
+    "services/backtest/descriptive_candles.py": "9425211207738f0395f28b3f8c02c8a292c9a2e80e5d8d4b203e5ec5ebf273de",
+    "services/backtest/descriptive_metadata.py": "9c98bba24ed52bcb99e73ecc8bcd0bfa51ccd5e60447aa5f2017ef8cbb1e4099",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+    "services/backtest/frozen_signal_bridge.py": "7ca917d6edda68fe02c3ab439ab56cf182106831444a71fdd78ee26b5212639a",
+    "services/backtest/delayed_signal_bridge.py": "c2c452c88190eab210764cd0a6a056cefc05fa3af95e09f535987f55e3a27e1d",
+    "services/backtest/delayed_research_comparison.py": "749ba4ad7e755be44a5c3359894aff66a58e356610dbabefb1c293ac56cc8ca7",
+    "services/backtest/descriptive_report.py": "f600940d9db7b5bdafe278253d00de86017fdf8c40d379f8fd3e4e26db279130",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "research/ed002_public_inputs/plans/continuation_gap_proposal_20261028.json": "f4a310aa5c1bff6cce835145c9f6c00ee777cb725de8a8499323adadc721021e",
+    "docs/research/ed002_continuation_freeze_plan_20261028.md": "62b746198f6120a0e63f54a1cbbc0d4fbb36fe6b1067c580103162635716917c",
+    "docs/research/ed002_continuation_freeze_bindings_20261028.json": "b6c0a5ac39b9fa742ead6f6064db533cb336cfcc59704cab7344020da8f12043"
+  }
+}

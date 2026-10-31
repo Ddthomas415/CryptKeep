@@ -1,0 +1,26 @@
+{
+  "schema": "ed002-input-contract-bindings-v1",
+  "role": "DIRECTOR",
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "proposal_adopted": false,
+  "market_run_authorized": false,
+  "inputs_sha256": {
+    "docs/research/ed002_defaults25_input_contract_20261027.md": "bdf986b7d9db6fa45b93b3e8e59d4ef7e9dfeacc4fc891d96822a8da73722a17",
+    "docs/research/ed002_defaults25_comparison_design_20261027.md": "5d8c86e3743fafa44427aea79e0f41ba9dc3f16276ce83a19c4c1117e019760b",
+    "docs/research/ed002_defaults25_design_review_20261027.json": "fd4bfc5cf1fd0ebd5180bae590e7338a60083b7f26ffcb0167434ed3f5004eb4",
+    "docs/research/ed002_defaults25_archive_audit_20261027/result.json": "677d8b426266ec661d77ba74c01fded2efa503a14591dcde9b862e86305e2ca2",
+    "services/backtest/frozen_signal_bridge.py": "86825dfab40c82752d626b88586e1c66aa8832e8339b2c54a6452b9bc45c4acf",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+    "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "research/coinbase_metadata_20261027/20261027T211732_235339Z_01ee9d4c/comparison.json": "2e19df0291306251d4488e68cdc43d9b24a3333b3297b27d129dcab8ba397988"
+  },
+  "synthetic_probe": {
+    "fixture": "300 TEST-USD hourly bars, each known at its close; move only final known_at to decision close plus 1 ms",
+    "exact_boundary": "300 rows returned",
+    "late_receipt": "missing_or_unavailable_ohlcv:TEST-USD",
+    "command_exit_code": 0,
+    "financial_simulation": false,
+    "market_inputs": false
+  }
+}

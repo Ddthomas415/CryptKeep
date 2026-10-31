@@ -1,0 +1,2 @@
+source_id,field,ledger_value,corrected_value,evidence
+ES_TRIAL,recorded_verdict,"Endpoint 2026-10-13 passed; result NOT found in repo","Endpoint result recorded 2026-10-16: zero orders, fills or positions; trading efficacy INCOMPLETE (no trades); endpoint report ACCEPTED_WITH_RISK",docs/checkpoints/es_prospective_endpoint_result_2026_10_16.md

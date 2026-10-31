@@ -1,4 +1,4 @@
-# Scout topics (run topic = day_of_year mod 12)
+# Scout topics (run topic = the topic after the newest report's topic, T11 wraps to T00; see README.md)
 Standing focus (operator direction, added 2026-10-19 by Claude Cowork): within every topic, prefer evidence about
 lower-value top-100 coins and new or prospective top-100 entrants (including new Coinbase listings) over
 BTC/ETH-only work. Include BTC/ETH material only when it bears on those coins or on the whole market.

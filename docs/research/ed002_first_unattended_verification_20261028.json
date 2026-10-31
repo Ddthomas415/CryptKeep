@@ -1,0 +1,244 @@
+{
+  "schema": "ed002-first-unattended-capture-verification-v1",
+  "captured_at_utc": "2026-10-28T13:08:57.422317+00:00",
+  "active_role": "AUDITOR",
+  "capture_result": "COMPLETE",
+  "long_run_cadence_and_study_readiness": "INCOMPLETE",
+  "slot_ms": 1793192700000,
+  "dispatch_lateness_seconds": 14.002,
+  "finished_at_ms": 1793192717414,
+  "public_gets": 26,
+  "stored_payload_bytes": 925087,
+  "raw_response_receipt_intent_triplets_verified": 26,
+  "universe_rows": 25,
+  "required_symbols": 24,
+  "required_valid_completed_rows": 48,
+  "known_excluded_symbol": "MATIC",
+  "normalizer_all25_physical_status": "INCOMPLETE",
+  "window_start_ms": 1793185200000,
+  "window_end_exclusive_ms": 1793192400000,
+  "latest_complete_hour_receipt_age_seconds_range": [
+    314.751,
+    317.248
+  ],
+  "http_date_to_local_receipt_ms_range_not_clock_attestation": [
+    35,
+    992
+  ],
+  "cleanup_failure_reported": false,
+  "scoring_or_strategy_evaluation": false,
+  "source_pins_unchanged": 10,
+  "combined_saved_required_rows": 9768,
+  "missing_hours_per_required_symbol_in_four_saved_captures": {
+    "ADA": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "APT": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "ARB": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "ATOM": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "AVAX": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "BNB": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "BONK": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "BTC": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "DOGE": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "DOT": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "ETH": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "FIL": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "INJ": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "JTO": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "LINK": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "LTC": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "OP": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "PEPE": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "PYTH": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "SOL": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "SUI": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "UNI": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "WIF": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ],
+    "XRP": [
+      1793174400000,
+      1793178000000,
+      1793181600000
+    ]
+  },
+  "gap_limit": "These named saved captures only, not an exhaustive archive search. Missing hours are not repaired or backdated.",
+  "inputs_sha256": {
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/RESULT.json": "7923d5d796f426f46a6d2c545a4ec3f9d2c8326144460a28f05e3845c1ffe59f",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/CLAIM.json": "65861d054e769702026c935dc3dff2fe019211282073cb5627b0e7e831e380ab",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/CHILD.json": "cfaaed92527dff8db784a5688e9f1cdd840af2945677e6274986c3bd167fa1e9",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/05_ARB.bin": "483c40d87afb88634bacbcab70d0829bfba4f797f3d072d8f1322f1bea6ae9bd",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/02_intent.json": "ecbdee098b13da92283798ae3b5289254d6fbf7158fdaade5f779459cc810339",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/25_receipt.json": "595b5632bf5036bad8f8df85892936e6385e511ed932c06a49fe2071f2f88f00",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/22_receipt.json": "ff0762825a33775c9f6f345dc076a880b53652ef75119f6b17af884f192dcb4f",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/14_receipt.json": "fb9e4eb644b1872766ae33b745638018a390cd7a48a33510a25a723eb982aea6",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/09_BONK.bin": "7c781f0a0d7eff4183846cdc2dbf01b0dada860bb7cd0f45efede31fbc43013d",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/25_intent.json": "04f9d5d4a0b8faf31aec8ae39546a17e6afe1c8ad953ac620980b0bb39a13110",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/13_receipt.json": "bc4147300d42f4aeb2df2706066472f23c1f241a3ab0ddc064d8713af3bf994a",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/13_ETH.bin": "40e89e1839da0410631ce946e6767d995c30e4991770caabd4c8363056250af2",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/17_intent.json": "764ea79e6e053e13e40c2778984e09005026c5ea016939fd50ea8ea19905dddf",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/06_receipt.json": "24406c44d00d8141d8628323132ce9a0a98b7efb555827beffbd8be341f70135",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/01_receipt.json": "0815c6470056d0eb79139a5e96a9f172ae296ff2ae56c6866da11ad1c8f3f543",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/23_receipt.json": "f47ce4bf4758c9eb4185f6d539b9fc948309c4ef4769b37858a0fd3c15df62c5",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/24_receipt.json": "11527983394a744e59d6a7cb4faa64ddd54c5c271bba002cf2ffed896d2fd049",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/20_intent.json": "6ddeed4d31e1c697d12b947c8de9bbbbab2e84a00a555f4cef610ac371ebc0f6",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/20_PEPE.bin": "78f90fbcbb721abcc90a70fc5c049b04dbc9c4d742caa8ba7811ae0b61cd79c9",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/08_BNB.bin": "5455112fb580cb657ef60600af2b35d2d09f073c98465415a4b1c01a8f573154",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/18_LTC.bin": "e0e7906c4ef7910f4754713a42761f19d8ed4fa36fc8441a7d5c9a1a8f1aa6b8",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/plan.json": "7b1a0e5e9600792d931439b2f6e7e0befe8c5345b07c22f46a1d31b8153162f6",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/12_intent.json": "1804e288651a8350c666384133c6dc8693d27ae6312142be3dbf0d7bfd2bd1e1",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/07_receipt.json": "86c6d4ca801219fb1284b476d95711488964a021d164a6a1b5ee012955a48b78",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/07_intent.json": "a503465a9755ac6bb2652bbde93e11d64feda5cc1302bc0cf942feae82aea8cc",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/19_OP.bin": "ed862f4e64057c5e24784e349fa40bb0c9a1dfc14e50fa8d84fa50a4013f0d52",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/12_receipt.json": "7a5a78a6f033ad872fc20b70c084add2e2ea440ec4cc77817e3d0168e69a3af2",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/15_receipt.json": "c59eda86040fd173d85f6da6ec0f7d0b0095ca8c01d2424f37ca8f03489b8ef3",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/21_PYTH.bin": "3714ca02f5ad0ddff3b65b0e59444a77109a01240617bbab3fdb944d8833c7ae",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/23_SUI.bin": "dd1c6d7b8d86e615728a481006d4ee4566584fbec2316a06e3f5ae5fa3459efb",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/18_intent.json": "968d1761c13bb24a03d833ee2fa428e66717d3c821582866ac8338fa852e8923",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/03_ADA.bin": "47cbde83db4149c07a412a3f438dbfda3a763daa4dcdf57f0435548306242e69",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/18_receipt.json": "2df55c9d0880b74562a41335025ddf2cbb98ed42e075c0237dfb4475a8adec76",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/04_intent.json": "e4f2ca553f72bc1a9992dbfcd56268f2987783057fa994cedac93d54a0cf3ff4",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/02_currencies.bin": "5f7e7ed2ba2f9b9ccd2d8be0fdd4fd2079be61b3f1c1878157c8ef0422adb55a",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/11_intent.json": "6e75b8552d75a58089896bed08ce0959a5890c5e6392d5c25b5e2fd1817ebca0",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/24_UNI.bin": "5fb92e7e346d1715819c7fc09ffd660a82ae0f0ef428315429b04112e4be229c",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/23_intent.json": "76281718ef3d4ce9056160f16839d96266d986f71156b4da8c065dc0cf7021d8",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/06_ATOM.bin": "226c799335079fccce34280da7d56962e21bbc65874816d4cef0c9581b1daab9",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/14_intent.json": "75294f77fa74d5a6cc5bc65773b0584f4844d0ad70e727c7b574e81e9beda887",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/19_receipt.json": "5a15110d435ead11db19e84363cd6d6b8bf6ddca362bf6116854a5cede035dfe",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/01_products.bin": "cfa36592cc300d0fe72477d69a3f9f5f358cd4cdcd12ec84accadf7fc4070ba0",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/08_intent.json": "465cfbf8629d5a0c177b8e7458402d9fa5c86e6345bbd269de7eb9c5cce9f7b9",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/26_intent.json": "6e01c26e08abda7ac4847582667589e18f1f4d524da4bd8faed70e30ad1c22f4",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/16_JTO.bin": "b203195e5351bd6c7ea3b5f7343fdb8ed4031652e8ec4098334d2bfad48a284c",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/01_intent.json": "1e7ca2bbbc305f08214d30bfe1182af48aa1a4406d760e24c1af7e425c62ef89",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/12_DOT.bin": "7bb50fab5f7986d7c00e9a719376218e96c7d0311c50a93d0d96e23865b458ca",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/14_FIL.bin": "49f476b679514456f2e10e3b7fb202fa4ee3fca05b28d0b3fe380ae8b4604182",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/17_LINK.bin": "934d6ff031569a8b68da43319a3212703e83a0a3e174db73297a972500195179",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/09_receipt.json": "52ec15798d298f33ec4b4fb1ffce2f09d68e9bf09b23fd73af7f1db681aa7478",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/06_intent.json": "6f9b6010f3c8b704d78f3bee232a7a2f05a2c1efbcd4a1f179313a0d50329dce",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/worker_result.json": "be7b605ec170c9cc91566da7c7f07899ac069ee4e8dbb4672f73f2285aa24a97",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/13_intent.json": "53473948e4a8aa944aca51d439d50bf62b1af2a8587ef733677e8262582f5dfd",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/21_intent.json": "c8dfdaacbd0265f01b29b8e89b0475222a6cc13d6cb9e21d67e686f3b7196d85",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/16_intent.json": "245657ec7022c4d6e990b3e4eeecc347260b1c15b0e2657c8287772f82bed2e0",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/24_intent.json": "6901a9ac5d34e8777e8a25f8f902836ee33f76ad96fa5df896f476952b0ef617",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/observations.json": "b02734f3fc50c1b5476b7ca45e162a1e7217de0ca23913600e3d0da2baadb776",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/08_receipt.json": "bef41e9459ae2c970a6c92ec53a98d72af7179cc409a8fa5106c06db6c2930f4",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/manifest.json": "bdd6c7f8ce17810781d3528fdfd2e4d7c30db220186c5b11782fd05e06a588e7",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/15_INJ.bin": "d45761b581de430e7ee58569a6bae4c3362f4413d2da5a1375af412c1aaff334",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/07_AVAX.bin": "e922bb7657fdc9db7002b7f5e5fbbe8b764f218376c0ececd07c92cc17f8d61e",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/ATTEMPT.json": "ce3643b8b7279183ecefb58139ff36d3c1e887375af92a83e1aa4634694e2aa5",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/03_intent.json": "0ea2d130653957a4f354c9584a4adcc2a38d7677c8d8b73ab417946134f4739b",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/26_receipt.json": "a36996f001ccff4cc80bfc5850b0335bd0a9087621f9f7b1de03c3d0cd409f6f",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/21_receipt.json": "cd9c4ea08eea4d3c47358cf86b46bbe7d1f94285b720e281b1378209502eb11b",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/26_XRP.bin": "b37e91a456497c7f63466e2f94cd8469d37011f81f52dfa3b4c86b0be7468e88",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/09_intent.json": "d74c9c2a7b08ba34fb5641cdcbcd18071db0e31c245929ba823ac8bc934ec2a5",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/22_SOL.bin": "c980c80dd3ee07709984f6729e33519dbe72da0a486bf0ca3e49aae398430d8d",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/05_receipt.json": "dfea0a8a7c39202acd4409023e9cf4110b12d0d9ee7ef23a0599b1bef77a58eb",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/02_receipt.json": "3b439e1fd00943d71cfab2a5fe3742beb492ee432f5785f49bd55811a7bb5c14",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/window.json": "5070fc40af508290317197bdc69f3ca0c8a091a725145ee58943891ad44044d1",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/17_receipt.json": "e369467962e82923cd3924b6ceb58ccc878641fb9e1a07fd2c2afe2cbcd8555a",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/15_intent.json": "f042f8a4d0ad2b2a20654fbc0012199e1be4279ca4d7a5c416f771fa6f2d15c6",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/10_receipt.json": "79a9372a69d289729b8d8743f8b45529833e52874c875c75ac35178c36408486",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/22_intent.json": "69ab40a7f608ad71b7bc2b0b8f0f1cba986aed8ec2005edef9bf87a675b75d00",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/10_intent.json": "c140702be31b7814255f2d610b9d8040a9e4b31767d0e56a275aa4b1c08034a0",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/20_receipt.json": "708ed97b768e7a6fefbb9e081f6dc644f0a724f8f514cd045b7ac13525583335",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/10_BTC.bin": "37ad43809f6914730ce97c480f934cbaf2e6b53ae5461e36c9fc5a49f848d236",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/04_APT.bin": "8b4c1b11e6dbf46dcd5481926f83a580745645beab6514097e45d41f65eea7b8",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/11_receipt.json": "280cb08726768975d8eb18e709f16b258e1f6af8b296393cca0cd14ebcd4d8ee",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/05_intent.json": "14b79a80aba8a72cc630910891e9771882e247765077470ce6c2a2d3e4d07ea9",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/25_WIF.bin": "c3251b4d33eea148c4f73a84fec388fd72b43bd2be18966bdb4c1d45f86dea0d",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/16_receipt.json": "c7d16ae9860ec71565894b9cc56725e4caf6a2e4c82dd94a684dce77029231c1",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/11_DOGE.bin": "64bbd4fc657d378d0762420c7514e68c350fdcfdc7cef5b0a89cd7b350026f21",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/19_intent.json": "c69a3e59f14306943c5147935cc857901f6b5703c815f142c014d1e61f10a3b6",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/03_receipt.json": "68499e028344391caa224523cb73ba0b4cf5ed5b8222fd2df5ea34d829ba446b",
+    "research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/slot_1793192700000/capture/04_receipt.json": "78adef71aa3b4c6ab1614861754c4d2c2e201dec11eb7f45a94852599e58387e"
+  }
+}

@@ -1,0 +1,1355 @@
+{
+  "date_new_york": "2026-10-27",
+  "active_role": "AUDITOR",
+  "inventory_acceptance": "ACCEPTED",
+  "experiment_readiness": "INCOMPLETE",
+  "scope": "saved public metadata and archive file indexes only; no prices or strategy outcomes inspected",
+  "counts": {
+    "configured_assets": 25,
+    "same_base_usd_product_candidates": 25,
+    "online_at_saved_product_time": 24,
+    "delisted_at_saved_product_time": 1,
+    "recent_hourly_index_entries": 24,
+    "prior_hourly_index_entries": 24,
+    "prior_sidecar_identity_references": 22
+  },
+  "product_receipt": {
+    "url": "https://api.exchange.coinbase.com/products",
+    "received_utc": "2026-10-19T05:47:42.446478+00:00",
+    "sha256": "00e556cc635a903fdec2ac1c2bc86f6bef55e229384fb63b8fa31c2efb2f2b0b"
+  },
+  "currency_receipt": {
+    "url": "https://api.exchange.coinbase.com/currencies",
+    "received_utc": "2026-10-19T06:02:09.822189+00:00",
+    "sha256": "8de25dcc9b564a41c61736677ec37fc932b23558e81bc68aa7da3227f5b50fa1"
+  },
+  "quote_currency_metadata": {
+    "id": "USD",
+    "min_size": "0.01",
+    "max_precision": "0.01"
+  },
+  "source_sha256": {
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "research/coinbase_listing_probe_20261019/01_products.json": "00e556cc635a903fdec2ac1c2bc86f6bef55e229384fb63b8fa31c2efb2f2b0b",
+    "research/coinbase_listing_probe_20261019/manifest.json": "14b414194faca1d1258ca67a19f8141c6b7f8d04c203c2b4f4334e0027188303",
+    "research/coinbase_listing_stepB_20261019/01_currencies.json": "8de25dcc9b564a41c61736677ec37fc932b23558e81bc68aa7da3227f5b50fa1",
+    "research/coinbase_listing_stepB_20261019/currencies_manifest.json": "da5d9ce789d03f89bf0e1e7e8edb3edec99f6175be61c638aca87137b56c2193",
+    "docs/research/coinbase_tradable_entrants_20261019/identity_map_v3/identity_map.json": "0640223172fc98ada3d73d4cb1dd97d5056df6c47a43c539ec12a96200a24894",
+    "docs/research/raw_archives_20261009/SHA256SUMS_inputs.txt": "c7f3e9cf43ac3cf196d1fd968627256d4172eb6487eae793d21ea3c194db2ebc",
+    "docs/research/raw_archives_20261009/README.md": "38c7dfdd8080910385c3a49a42adebd172e2223083944398059888ebc7494791",
+    "docs/research/ed002_defaults25_saved_input_inventory_20261027.md": "86954fb81af5b4eeff1e92b89c45995c04a5667e1528137e9ea892d4142c6fab"
+  },
+  "verified_receipt_payloads": 2,
+  "verified_identity_sidecar_input_hashes": 5,
+  "rows": [
+    {
+      "configured_label": "BTC",
+      "candidate_product_id": "BTC-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "BTC",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Bitcoin"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.00000001",
+        "quote_increment": "0.01",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/BTC-USD.json",
+          "indexed_sha256": "0e57b61403e7319bbb47e858acd1f5f8bdc1e3c67c66bbab961603ef4ef5f945",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/BTC-USD.json",
+          "indexed_sha256": "77fc5158dfed1bdaa2708901b90563da0b3bcacdaab4f3e8e63e9c7e28a94267",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "ETH",
+      "candidate_product_id": "ETH-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "ETH",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Ether"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.00000001",
+        "quote_increment": "0.01",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/ETH-USD.json",
+          "indexed_sha256": "8ac25e01b96a851f86349c31e07a40be66017fb710031dd902b21fd8151990a5",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/ETH-USD.json",
+          "indexed_sha256": "6874d199d7e96810861342dfe616f723cd7991947492d02ede2990bfedd35f25",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "SOL",
+      "candidate_product_id": "SOL-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "SOL",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Solana"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.00000001",
+        "quote_increment": "0.01",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 5426,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "SOL": "not_comparable"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/SOL-USD.json",
+          "indexed_sha256": "619485b85d9682adcb34dc8493e223e503c625d53ed69596b4f8df73a3f420e2",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/SOL-USD.json",
+          "indexed_sha256": "14b195f47bb62add3c95022403506d36f43081a73f81a848685212c9a60662c5",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "BNB",
+      "candidate_product_id": "BNB-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "BNB",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "BNB"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.00001",
+        "quote_increment": "0.01",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 1839,
+          "reason": "adjudicated: same project: Binance Coin, now named BNB",
+          "contract_check": {
+            "BNB": "not_comparable"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/BNB-USD.json",
+          "indexed_sha256": "8087abf00253991e7a4cee5940c78f3c39d49e79e2af18b824047761c6435882",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/BNB-USD.json",
+          "indexed_sha256": "c7e35a767f7242bad6a60dd3f9a0d4ce64588bdee3f37d86a27a68b7d97f098a",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "XRP",
+      "candidate_product_id": "XRP-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "XRP",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "XRP"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.000001",
+        "quote_increment": "0.0001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 52,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "XRP": "not_comparable"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/XRP-USD.json",
+          "indexed_sha256": "976597aadb97c8ad97a763e22ad00333e30b294a5a901b26c7e6f7cfe6b005aa",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/XRP-USD.json",
+          "indexed_sha256": "4429c9737fbd481286c7d24e0bb758d89ccf1a5a8453d653ebfa7761455846ef",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "DOGE",
+      "candidate_product_id": "DOGE-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "DOGE",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Dogecoin"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.1",
+        "quote_increment": "0.00001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 74,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "DOGE": "not_comparable"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/DOGE-USD.json",
+          "indexed_sha256": "b32aeaa1c68fec815a61f51bbc2c22f9242d748623f4234ef9cb9ad017041a63",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/DOGE-USD.json",
+          "indexed_sha256": "3c67ce000b5c742a490819c7ca3bc021c7ad92d25ef62e4992564618e4162350",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "ADA",
+      "candidate_product_id": "ADA-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "ADA",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Cardano"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.00000001",
+        "quote_increment": "0.00001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 2010,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "ADA": "not_comparable"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/ADA-USD.json",
+          "indexed_sha256": "24408d11c2576dff14516e87acf3e42c348e8b185cb045a4d1595ece9542f178",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/ADA-USD.json",
+          "indexed_sha256": "62bd74d0b10dbcf88190911b4a49d87984641fdce568482f3d49f993ecef89c5",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "AVAX",
+      "candidate_product_id": "AVAX-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "AVAX",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Avalanche"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.00000001",
+        "quote_increment": "0.001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 5805,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "AVAX": "match"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/AVAX-USD.json",
+          "indexed_sha256": "6b477b9f2991dcd4b1daed9355977614e1dc432afc37da64dc11a04f71311cba",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/AVAX-USD.json",
+          "indexed_sha256": "49b4f37ef02a64d2131f43fe5028666e017369a719ee125c6652f387b8d33721",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "LINK",
+      "candidate_product_id": "LINK-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "LINK",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Chainlink"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.01",
+        "quote_increment": "0.001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 1975,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "LINK": "match"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/LINK-USD.json",
+          "indexed_sha256": "6b1abb5ab412a622e698b3df27f328fc3d0ce9db19aad665398238e7e1c7cbae",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/LINK-USD.json",
+          "indexed_sha256": "f54aa5483a8b0ecb53d3d3b34ccf92985dce31402854ffc7d8e62c8e2457f3aa",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "DOT",
+      "candidate_product_id": "DOT-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "DOT",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Polkadot"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.00000001",
+        "quote_increment": "0.0001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 6636,
+          "reason": "adjudicated: same project: Polkadot (CMC slug polkadot-new after redenomination)",
+          "contract_check": {
+            "DOT": "not_comparable"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/DOT-USD.json",
+          "indexed_sha256": "c27e7e6320ad18c76d0d614b39be2be96604b3c40dc60b5943836f9820ea737f",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/DOT-USD.json",
+          "indexed_sha256": "747dfb0254af54431bb9ea6167dcbb4fd9f4203a46795024f31a0854e77e2a1c",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "LTC",
+      "candidate_product_id": "LTC-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "LTC",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Litecoin"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.00000001",
+        "quote_increment": "0.001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 2,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "LTC": "not_comparable"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/LTC-USD.json",
+          "indexed_sha256": "f2f26eae3827584a165e5f1f517b10103270b315c64142a15ed9c5c37b5a30a5",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/LTC-USD.json",
+          "indexed_sha256": "08997d3e9cc8f66198c5f337fa97c816deb9158aa740102f837f99c63e7b4f65",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "MATIC",
+      "candidate_product_id": "MATIC-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "MATIC",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Polygon"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "delisted",
+        "trading_disabled": true,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.1",
+        "quote_increment": "0.0001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 3890,
+          "reason": "adjudicated: same project: Matic Network renamed Polygon",
+          "contract_check": {
+            "MATIC": "match"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/MATIC-USD.json",
+          "indexed_sha256": null,
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/MATIC-USD.json",
+          "indexed_sha256": null,
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "UNI",
+      "candidate_product_id": "UNI-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "UNI",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Uniswap"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.000001",
+        "quote_increment": "0.0001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 7083,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "UNI": "match"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/UNI-USD.json",
+          "indexed_sha256": "0b6ef719f2b97139e70c637e2c331b5e9bcb050de586d2b99d2475e20842c42d",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/UNI-USD.json",
+          "indexed_sha256": "febeca844c728e4ca506915fdeae8f3b9a468465b5d9d33bdc06d370b2a56a21",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "ATOM",
+      "candidate_product_id": "ATOM-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "ATOM",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Cosmos"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.01",
+        "quote_increment": "0.0001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 3794,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "ATOM": "not_comparable"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/ATOM-USD.json",
+          "indexed_sha256": "ad6f8e943147d9946bbbf21782c50cb66532e51c3d806333e59d63f78dec4885",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/ATOM-USD.json",
+          "indexed_sha256": "39aa1d1c874005d0578d4f06a22a574fbf2df4948cd76e01f508071bcddde0fd",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "FIL",
+      "candidate_product_id": "FIL-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "FIL",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Filecoin"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.001",
+        "quote_increment": "0.0001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 2280,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "FIL": "not_comparable"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/FIL-USD.json",
+          "indexed_sha256": "3492b75459305254a473d0247a2ef6504b8d4b377b13f2b90d5f152c0f961a85",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/FIL-USD.json",
+          "indexed_sha256": "c68faa46909e5f4c2a9b4a75b02d1e8d5c5957e6480715fba444fa01c78d7e39",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "APT",
+      "candidate_product_id": "APT-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "APT",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Aptos"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.001",
+        "quote_increment": "0.0001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 21794,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "APT": "not_comparable"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/APT-USD.json",
+          "indexed_sha256": "01c9472559b76ab89f4981cb639fe45d061d2c1e5492476d97ea5889fba8c3c8",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/APT-USD.json",
+          "indexed_sha256": "0c99c85c668d27dc90285d2d953227ec0bb8a9377608ebdf2ce60a722c1533e4",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "OP",
+      "candidate_product_id": "OP-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "OP",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Optimism"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.01",
+        "quote_increment": "0.00001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 11840,
+          "reason": "adjudicated: same project: Optimism",
+          "contract_check": {
+            "OP": "match"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/OP-USD.json",
+          "indexed_sha256": "170e1d3ed7b834607715fff56fc68811c13dc2ae121eb958e1f1ba8bb33ac851",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/OP-USD.json",
+          "indexed_sha256": "5761ad9323051d93898bbf2b3d7d720d288bdde0a885d7d7aabcf670df6198c3",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "ARB",
+      "candidate_product_id": "ARB-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "ARB",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Arbitrum"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.01",
+        "quote_increment": "0.00001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 11841,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "ARB": "match"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/ARB-USD.json",
+          "indexed_sha256": "94f31e1c4478ef7acbb0ca8c1cf9a6b42f5f07c695f8a4b1d9e42511a0a44dc0",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/ARB-USD.json",
+          "indexed_sha256": "eff9eda016ba7e84ee321ea10f6581b009b9b4bebe310a93f02696b2602355de",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "INJ",
+      "candidate_product_id": "INJ-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "INJ",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Injective Protocol"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.01",
+        "quote_increment": "0.001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 7226,
+          "reason": "adjudicated: same project: Injective (Coinbase name 'Injective Protocol')",
+          "contract_check": {
+            "INJ": "match"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/INJ-USD.json",
+          "indexed_sha256": "ddb3fd791781c66da6eeb481a6bdcbf34128408e7878f4af51f0d0b755d5a773",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/INJ-USD.json",
+          "indexed_sha256": "5b4d96c157687d6395a60cda3575ba4341059aca3254ceb3f41d86a7788b629b",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "SUI",
+      "candidate_product_id": "SUI-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "SUI",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Sui"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.1",
+        "quote_increment": "0.0001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 20947,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "SUI": "not_comparable"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/SUI-USD.json",
+          "indexed_sha256": "bdbd4c4c62821999fb075a4329315a87b370c5b300fcc49c626e9c46399bb273",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/SUI-USD.json",
+          "indexed_sha256": "9080226acdef641fc776572821fb3f1dd66a9fc385939e254e7f3cb5c7c8d3ec",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "PEPE",
+      "candidate_product_id": "PEPE-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "PEPE",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Pepe"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "1",
+        "quote_increment": "0.00000001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 24478,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "PEPE": "match"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/PEPE-USD.json",
+          "indexed_sha256": "af72070c59c369c2f5a830b11d663516678a9136ca7b139349ce822622cc4c3b",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/PEPE-USD.json",
+          "indexed_sha256": "a34ea630f5a3fa1c738af449c99da54bcb3a9794399c98dc92fb5022f597df4b",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "WIF",
+      "candidate_product_id": "WIF-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "WIF",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Dogwifhat"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.01",
+        "quote_increment": "0.00001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 28752,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "WIF": "match"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/WIF-USD.json",
+          "indexed_sha256": "c3789fabd8f2a2cead1f89a24c87737f0241c3f8305eb8c283f7b34d9c53cf3b",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/WIF-USD.json",
+          "indexed_sha256": "a442964d88b6fe9f969e242a057374f154cae2ae292d236684f969e6795cc739",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "JTO",
+      "candidate_product_id": "JTO-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "JTO",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Jito"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.1",
+        "quote_increment": "0.0001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/JTO-USD.json",
+          "indexed_sha256": "7615815c5cd3e5c85284c83ca55d82c7bbf79cf85c1af93033400413e3baac54",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/JTO-USD.json",
+          "indexed_sha256": "0939c84bda50c3dcc730a0f2d9331b44abdf3291bcb655a4d554a3b262d1bede",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "BONK",
+      "candidate_product_id": "BONK-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "BONK",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Bonk"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "1",
+        "quote_increment": "0.00000001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 23095,
+          "reason": "adjudicated: same project: Bonk",
+          "contract_check": {
+            "BONK": "match"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/BONK-USD.json",
+          "indexed_sha256": "8277f947d95fc14c384d4b53b412a36968c42c79bd93ac8ec0bcec5c635340cf",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/BONK-USD.json",
+          "indexed_sha256": "3e6aef35af4459d75ee69e415a3b3f6a5c3646c009891c7df3b8f6088476c7f3",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    },
+    {
+      "configured_label": "PYTH",
+      "candidate_product_id": "PYTH-USD",
+      "identity_resolution": "saved_exchange_candidate_not_new_adjudication",
+      "base_currency": "PYTH",
+      "quote_currency": "USD",
+      "saved_currency_names": [
+        "Pyth Network"
+      ],
+      "public_metadata_observed_utc": "2026-10-19T05:47:42.446478+00:00",
+      "saved_status": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null
+      },
+      "absent_status_fields": [
+        "view_only"
+      ],
+      "raw_precision_minimum_fields": {
+        "base_increment": "0.1",
+        "quote_increment": "0.00001",
+        "base_min_size": null,
+        "min_market_funds": "1"
+      },
+      "prior_identity_references": [
+        {
+          "cmc_id": 28177,
+          "reason": "exact_name_slug",
+          "contract_check": {
+            "PYTH": "match"
+          }
+        }
+      ],
+      "archive_index_entries": {
+        "cb": {
+          "member": "cb/h1/PYTH-USD.json",
+          "indexed_sha256": "67f63a8ad3a1c716b2b12d45bb0f39408f643f9289debb4222b4eb903db9b023",
+          "payload_verified_this_run": false
+        },
+        "cb2": {
+          "member": "cb2/h1/PYTH-USD.json",
+          "indexed_sha256": "a42beb142f543436646ef9e5bfbd797080ec854f9ec2601e3f912ef2d5156cd6",
+          "payload_verified_this_run": false
+        }
+      },
+      "model_rules_emitted": false,
+      "activation_ready": false
+    }
+  ],
+  "limits": [
+    "snapshot is not current status or a valid-through interval",
+    "same-base candidates are not new cross-venue identity approval",
+    "CMC references are optional corroboration, not required exchange IDs",
+    "absent view_only is not false",
+    "retired base_min_size is not by itself missing usable order metadata",
+    "quote_increment is price tick, not automatically cash rounding",
+    "no model permission/precision record was generated",
+    "archive member names are not validated rows, receipt times or future data"
+  ],
+  "official_docs_opened": [
+    "https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-all-known-trading-pairs",
+    "https://docs.cdp.coinbase.com/exchange/changes/changelog",
+    "https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/currencies/get-all-known-currencies"
+  ],
+  "market_data_api_calls": 0,
+  "raw_candle_payloads_opened": 0,
+  "strategy_calls": 0,
+  "pytest_runs": 0,
+  "next_proposed_scope": {
+    "authorization": "not_granted",
+    "method": "public GET only",
+    "paths": [
+      "/products",
+      "/currencies"
+    ],
+    "maximum_requests": 2,
+    "per_request_timeout_seconds": 10,
+    "overall_deadline_seconds": 30,
+    "retries": 0,
+    "output": "append-only new observation",
+    "price_or_account_requests": false
+  }
+}

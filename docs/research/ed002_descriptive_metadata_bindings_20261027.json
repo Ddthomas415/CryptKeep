@@ -1,0 +1,45 @@
+{
+  "schema": "ed002-descriptive-metadata-handoff-v1",
+  "date": "2026-10-27",
+  "active_role": "ENGINEER",
+  "risk": "HIGH",
+  "acceptance_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "operator_answer": "approve. carry out the next steps",
+  "human_design_acceptance": "Submitted DESCRIPTIVE-1 and its stated synthetic-only next implementation; not independent numerical review or market authority",
+  "implementation_independently_accepted": false,
+  "tests": {
+    "passed": 76,
+    "new_cases": 48,
+    "existing_cases": 28,
+    "seconds": 4.98,
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_descriptive_metadata.py tests/test_delayed_research_comparison.py",
+    "full_suite": false,
+    "data": "invented metadata/prices, HOLD-stub integration only"
+  },
+  "previous_contract_bindings_verified_unchanged": 16,
+  "market_data_accessed": false,
+  "account_or_credential_access": false,
+  "service_or_schedule_changes": false,
+  "trading_authorized": false,
+  "reporting_layer_implemented": false,
+  "remaining": [
+    "converter independent/human review",
+    "synthetic descriptive reporting and reconciliation",
+    "future data feasibility and freeze/activation"
+  ],
+  "inputs_sha256": {
+    "services/backtest/descriptive_metadata.py": "9c98bba24ed52bcb99e73ecc8bcd0bfa51ccd5e60447aa5f2017ef8cbb1e4099",
+    "tests/test_descriptive_metadata.py": "86f41707376c9919651d993cddf47fb18ef8b4ed4960a940be9aec99c245ceff",
+    "docs/research/ed002_descriptive_metadata_20261027.md": "e0701c64f65dddc510cc25b711769c22ca4ce63acd55e864f667a9ae892de5ea",
+    "docs/research/ed002_defaults25_descriptive_bindings_20261027.json": "7e2be32887e4a32c63d6498bf0f9b2c82af259ad1f762456d9dec675fb5968c0",
+    "docs/research/ed002_defaults25_descriptive_contract_20261027.md": "129e7daa1d83151e75003f02bf8b21c61ae6563b5d88639891bb8c12a937adbc",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+    "services/backtest/frozen_signal_bridge.py": "7ca917d6edda68fe02c3ab439ab56cf182106831444a71fdd78ee26b5212639a",
+    "services/backtest/delayed_signal_bridge.py": "c2c452c88190eab210764cd0a6a056cefc05fa3af95e09f535987f55e3a27e1d",
+    "services/backtest/delayed_research_comparison.py": "749ba4ad7e755be44a5c3359894aff66a58e356610dbabefb1c293ac56cc8ca7",
+    "tests/test_delayed_research_comparison.py": "17be4ca90fcfd2a98131dd1358ce91b66aa6dc6ea6af7cd8b528e78266ea6778",
+    "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "docs/research/ed002_comparison_carry_rereview_20261027.json": "a1999e9cfd54a9e3dc0c9aeff2b94974ed625a5567c95de61aad48126e9af96d"
+  }
+}

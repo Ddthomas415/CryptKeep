@@ -1,0 +1,200 @@
+{
+  "schema": "ed002-shared-cash-adapter-independent-review-v1",
+  "date": "2026-10-27",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "decision": "REJECTED",
+  "acceptance_scope": "Independent offline implementation review of the adopted ED-002 synthetic shared-cash contract only. Rejection is limited to the two concrete adapter defects below; it does not reject the adopted modelling contract or reopen existing studies.",
+  "operations_authorized": false,
+  "market_experiment_authorized": false,
+  "trading_or_capital_authorized": false,
+  "blocking_findings": [
+    {
+      "id": "ED002-ADAPTER-01",
+      "priority": "P1",
+      "classification": "SHOWN source; REPRODUCED synthetic counterexample",
+      "title": "Terminal liquidation promotes valuation-only marks into executable prices",
+      "file": "services/backtest/shared_cash_research.py",
+      "line": 349,
+      "supporting_lines": [
+        76,
+        84,
+        327,
+        329,
+        351,
+        357
+      ],
+      "contract_references": [
+        "docs/research/ed002_portfolio_contract_candidate_20261018.md:86",
+        "docs/research/ed002_portfolio_contract_candidate_20261018.md:93",
+        "docs/research/ed002_shared_cash_adapter_20261027.md:49"
+      ],
+      "finding": "marks_at fills a missing close from a separate valuation-only observation, and state.last_marks loses that distinction. Terminal liquidation then passes the entire last_marks map as both execution prices and NAV marks. A valid mark can therefore generate a terminal MODELLED_FULL_FILL even though the corresponding last-close executable price is absent. This contradicts the adopted separation of valuation marks from execution prices and can label a residual marked holding as liquidated cash.",
+      "reproduction": {
+        "inputs": "SYNTHETIC A/B, interval 10, capital 1000, zero costs, lot/quote step 0.01, valid dated permission. Buy A at the second bar open 10. Final bar has open A=10 but no close A; only valuation-only record {ts_ms:30,known_at_ms:30,price:12} supplies its final mark.",
+        "observed": "Primary remains correctly COMPLETE with 100 A and marked NAV 1200. Optional terminal endpoint sells all 100 A at raw_price 12, returns cash 1200/units A=0 and profit_basis=liquidated_cash.",
+        "expected": "The valuation may support marked NAV, but must not supply a terminal executable price. Retain explicitly marked residual units or return an appropriately incomplete terminal endpoint when no permitted last-close execution price exists.",
+        "impact": "Fabricated terminal executability and cost/turnover/realized-versus-unrealized attribution; not a change to the correct primary marked NAV in this counterexample."
+      },
+      "required_closure": "Preserve last-close executable-price provenance separately from valuation-only marks and refuse/exclude mark-only terminal fills. Add this missing-close/fresh-mark terminal regression while preserving primary NAV and carry state."
+    },
+    {
+      "id": "ED002-ADAPTER-02",
+      "priority": "P2",
+      "classification": "SHOWN source; REPRODUCED synthetic counterexamples",
+      "title": "Resumed comparison does not bind its benchmark identities or declared mix",
+      "file": "services/backtest/shared_cash_research.py",
+      "line": 382,
+      "supporting_lines": [
+        232,
+        287,
+        289,
+        379,
+        383,
+        388
+      ],
+      "contract_references": [
+        "docs/research/ed002_portfolio_contract_candidate_20261018.md:32",
+        "docs/research/ed002_portfolio_contract_candidate_20261018.md:95",
+        "docs/research/ed002_shared_cash_adapter_20261027.md:83"
+      ],
+      "finding": "The carry profile binds symbols/costs/capital/target_contract_id but not btc_symbol, eth_symbol or normalized mix_weights. Those arguments are only syntactically checked on a resumed comparison. Since control callbacks return None once decision_index is nonzero, changed declarations neither refuse nor update the carried control. The returned COMPLETE comparison can silently use a different benchmark instrument/exposure than its current explicit declaration.",
+      "reproduction": {
+        "original": "Two-symbol A/B comparison starts with BTC=A, ETH=B, declared mix A=0.25/B=0.25 and a fixed caller contract ID. Carry all four returned states across a contiguous split.",
+        "changed_identity": "Resume with BTC=B and ETH=A under the same ID and financial profile: hold_btc returns COMPLETE while retaining A=100/B=0.",
+        "changed_mix": "Separately resume the original carry with mix_weights={A:0.75}: declared_btc_eth_cash_mix returns COMPLETE while retaining the old A=25/B=25/50%-cash allocation.",
+        "expected": "Reject changed built-in comparison identities or mix declarations on resume, rather than silently returning the old control under the new recipe.",
+        "impact": "Mislabelled benchmark/exposure comparisons and loss of the declared common-contract carry boundary. No new trade is needed for the comparison to become mislabeled.",
+        "boundary": "This is not a request to hash or sandbox an arbitrary candidate callback. The API already documents caller responsibility for that callable. The defect concerns explicit built-in benchmark parameters controlled by simulate_shared_comparison itself."
+      },
+      "required_closure": "Bind normalized benchmark instrument identities and declared mix to comparison carry state/profile and validate them before any resumed arm is simulated. Add refusal tests for identity swap and mix change, retaining the existing unchanged-recipe full-versus-split equality."
+    }
+  ],
+  "verified_areas": [
+    {
+      "classification": "SHOWN static and focused synthetic regression",
+      "area": "Shared accounting and affordability",
+      "detail": "One cash/units/basis ledger, exact Fraction settlement, sell-before-buy credits net of costs, lot flooring, quote debit ceil/credit floor, common-factor affordability resizing, proportional basis/dust and exact trade-only NAV/cost reconciliation are implemented. No negative-cash or lot-affordability defect was identified in the reviewed paths."
+    },
+    {
+      "classification": "SHOWN static and focused synthetic regression",
+      "area": "Causality and exclusions",
+      "detail": "Callbacks receive deep copies of completed history; pending targets execute at the one next-open timestamp. Dated permissions are filtered by decision-close knowledge and execution applicability. Missing opens exclude those symbols without target redistribution; valuation-only marks do not fund ordinary executable prices. Frozen holdings remain in NAV/free-capital calculations."
+    },
+    {
+      "classification": "SHOWN static and focused synthetic regression",
+      "area": "Missingness and atomic batches",
+      "detail": "Batch changes occur on a cloned working state and are returned only after reconciliation. Missing held NAV or required permission invalidates the case; a legitimate prior open fill survives a later missing close, and invalid carry cannot resume as valid performance. Primary pending/cash/basis/history continuity and preceding-close phase anchors have targeted coverage."
+    },
+    {
+      "classification": "SHOWN focused regression, subject to blockers",
+      "area": "Controls and terminal separation",
+      "detail": "With unchanged comparison parameters, cash and fixed-unit controls use the same engine/costs and preserve split equality. Optional terminal simulation clones rather than mutates primary state. These positive properties do not close the terminal price-provenance or resumed-control-declaration defects."
+    }
+  ],
+  "verification": {
+    "environment": "VERIFIED_ENV isolated repository Python, synthetic inputs only",
+    "targeted_test_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_shared_cash_research.py tests/test_next_open_research.py tests/test_harness_contracts_wp4.py",
+    "targeted_test_runs": 1,
+    "targeted_test_result": "90 passed in 2.96s",
+    "test_interpretation": "Existing/new focused tests pass, but do not cover the two independently reproduced counterexamples. This is not the full repository suite or proof of general financial correctness.",
+    "extra_synthetic_probe": {
+      "path": "/private/tmp/ed002_gate_synthetic_probe_20261027.py",
+      "sha256": "db212f126ef8a36eaaa48f926955a48ce45509ca4cff92ae903b211f0cdcf897",
+      "command": "env -i PATH=/usr/bin:/bin PYTHONPATH=. PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B /private/tmp/ed002_gate_synthetic_probe_20261027.py",
+      "runs": 1,
+      "exit_code": 0,
+      "output": {
+        "changed_control_identity_not_refused": {
+          "carried_units": {
+            "A": "100",
+            "B": "0"
+          },
+          "new_btc_symbol": "B",
+          "status": "COMPLETE"
+        },
+        "changed_mix_not_refused": {
+          "carried_units": {
+            "A": "25",
+            "B": "25"
+          },
+          "new_mix": {
+            "A": "0.75"
+          },
+          "status": "COMPLETE"
+        },
+        "terminal_valuation_promoted_to_fill": {
+          "marked_nav": "1200",
+          "primary_units_A": "100",
+          "profit_basis": "liquidated_cash",
+          "terminal_cash": "1200",
+          "terminal_price_from_valuation_only": "12",
+          "terminal_units_A": "0"
+        }
+      },
+      "guards": "Socket construction/create_connection/DNS and subprocess Popen/run refuse before adapter import. Only the pure adapter and synthetic dictionaries were used; no market data, application/runtime helper or E10 import."
+    },
+    "parent_parallel_legacy_slice": {
+      "classification": "CLAIMED parent result; not rerun by reviewer",
+      "result": "tests/test_multisymbol_archive_runner.py and tests/test_research_source_slice.py: 9 passed in 0.39s",
+      "use": "Supplementary preservation evidence only; not a closure of the new findings."
+    },
+    "no_market_data_experiment": true,
+    "no_network_service_credential_or_runtime_operations": true,
+    "no_full_suite": true,
+    "no_E10_import": true,
+    "reviewed_source_test_doc_changes": false
+  },
+  "scope_and_limits": {
+    "adopted_contract": "User adoption is direct assignment evidence; the historical candidate document remains recommendation-labelled and was not rewritten. Review applies its now-adopted contract, not a newly invented allocation policy.",
+    "material_assumptions": [
+      "One venue/common quote with zero cash yield and no FX, financing, transfers or corporate-action conversions.",
+      "Caller supplies a causal unchanged candidate target mapping and correctly interpreted dated synthetic inputs; arbitrary callable external state is not sandboxed or automatically hash-bound."
+    ],
+    "unverified": [
+      "Historical tradability/permissions/precision and venue minimum semantics",
+      "Real fills, partial fills, liquidity/latency/queue/capacity/settlement access",
+      "Persistence serialization beyond the documented exact Fraction state convention",
+      "Strategy economics, profitability, market-data experiments, production integration or trading readiness"
+    ],
+    "boundedness": "No prior runtime/SDK/receipt audit, broad repository binding audit or frozen study rerun. Parent owns work log/index/evidence manifest.",
+    "disposition": "Correct the two named contract violations and obtain a bounded independent re-review. No source repair was implemented by this reviewer."
+  },
+  "hashes": {
+    "algorithm": "SHA256",
+    "reviewed_source_test_checkpoint_bindings": {
+      "docs/research/ed002_portfolio_contract_candidate_20261018.md": "b16b1108d99a9fcd9a6b8d83650cb093fb026cd9fe40cfa7eaf4f7d9d9a16be8",
+      "services/backtest/shared_cash_research.py": "d2d8a2f31c60af5be97fc234e4f31079e0e2fedb42ac4a26591fd4ec42a93e46",
+      "tests/test_shared_cash_research.py": "4e18d3411525b8d914582d50e0aa21bed8590a5b30d6eba32313ec3d6d7a1b3c",
+      "docs/research/ed002_shared_cash_adapter_20261027.md": "79ef0dc9e682f3d13c9af0bcbf592170342a5302491b3f10ef65e56a5908772f",
+      "scripts/research/corrected_research_math.py": "d07ae7171e2293cbe60d15ae9bc0973d3ef8bd31b9c7b99105f928c029e29047",
+      "services/backtest/next_open_research.py": "4f5bb1a98be726915bca155b8ea483d5036982ed786665e504c1e444ce2d1a7f",
+      "tests/test_next_open_research.py": "798bd09a35a0fa4cefb0b0c8c3666af991d6d3a29dbf365c0d756a0758036998",
+      "tests/test_harness_contracts_wp4.py": "4439fc4de1491ee623704218713b70f69b251255924b79f4c802b5b68774bcde",
+      "docs/research/RESEARCH_BRIEF.md": "d31f082a6b05e00f9de92b85e489d4578f4746fc125a169d687a1bb0a0287367"
+    },
+    "temporary_probe_sha256": "db212f126ef8a36eaaa48f926955a48ce45509ca4cff92ae903b211f0cdcf897"
+  },
+  "read_scope": {
+    "fully_read": [
+      "docs/research/ed002_portfolio_contract_candidate_20261018.md",
+      "services/backtest/shared_cash_research.py",
+      "tests/test_shared_cash_research.py",
+      "docs/research/ed002_shared_cash_adapter_20261027.md",
+      "scripts/research/corrected_research_math.py",
+      "services/backtest/next_open_research.py",
+      "docs/research/RESEARCH_BRIEF.md"
+    ],
+    "tests_executed_and_hash_bound_not_fully_semantically_rereviewed": [
+      "tests/test_next_open_research.py",
+      "tests/test_harness_contracts_wp4.py"
+    ],
+    "ancillary_brief": "Read as the repository research scope/authorization map, not used to reopen its historical runtime or study material.",
+    "parent_generated_diff_manifest": "Not needed for this bounded new-file review and not used as acceptance evidence."
+  },
+  "write_scope": {
+    "repository_output": "docs/research/ed002_shared_cash_adapter_review_20261027.json",
+    "permitted_temporary_synthetic_probe": "/private/tmp/ed002_gate_synthetic_probe_20261027.py",
+    "reviewed_sources_tests_docs_and_work_log_modified": false
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "captured_at_utc": "2026-10-28T14:12:32.101602+00:00",
+  "active_role": "AUDITOR",
+  "completed_slots": 3,
+  "latest_verified_slot_ms": 1793196300000,
+  "latest_requests": 26,
+  "latest_payload_bytes": 924552,
+  "latest_manifest_and_raw_receipts_verified": true,
+  "no_forced_capture": true,
+  "full_pilot_readiness": "INCOMPLETE",
+  "reviewed_synthetic_code_unchanged": true,
+  "pilot_source_policy_job_unchanged": true
+}

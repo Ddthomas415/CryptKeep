@@ -1,0 +1,115 @@
+{
+  "status": "COMPLETE",
+  "statistical_validation": "INCOMPLETE",
+  "coverage_certified": false,
+  "experiment_pass": null,
+  "audit_run": false,
+  "identity": "715f627dc2a3dea8fb14fc8820799c5133d127ffbc92d2e156d3dd5d43e3349b",
+  "sources_sha256": {
+    "docs/research/ed002_sb1_development_20261027/run_development.py": "66ecc648391c92449b02c374f5ad592b0d030e2e0660b4b81a7fe4943ea1ae4c",
+    "docs/research/ed002_sb1_development_20261027/authorization.json": "ab2c0bba89574fba71292c6dcf8e052dbb32c56c16e228465eccbee51d864349",
+    "services/backtest/sb1_prototype.py": "a152f15f464005dfa2e5c00877074762241ae4b84133575188d8442f0d72f01a",
+    "docs/research/ed002_stat_revision_plan_20261027.md": "52211dd517dcf5ab65e8f73ce63a9e19512a8572bc3c8ecf648a963d6e1ab930"
+  },
+  "compute_elapsed_seconds": 16.90843,
+  "completed_method_calls": 96,
+  "method_calls_started": 96,
+  "interrupted_trial": null,
+  "cases": {
+    "iid_gaussian": {
+      "planned_trials": 16,
+      "completed_trials": 16,
+      "computable_trials": 16,
+      "abstentions_or_failures": 0,
+      "interrupted_trials": 0,
+      "unattempted_trials": 0,
+      "availability": 1.0,
+      "familywise_positive_count": 0,
+      "unconditional_positive_rate": 0.0,
+      "conditional_positive_rate": 0.0,
+      "reasons": {},
+      "qualification": "DEVELOPMENT_DIAGNOSTIC_NOT_AUDIT_OR_ERROR_CERTIFICATION"
+    },
+    "ar1_0.5": {
+      "planned_trials": 16,
+      "completed_trials": 16,
+      "computable_trials": 16,
+      "abstentions_or_failures": 0,
+      "interrupted_trials": 0,
+      "unattempted_trials": 0,
+      "availability": 1.0,
+      "familywise_positive_count": 1,
+      "unconditional_positive_rate": 0.0625,
+      "conditional_positive_rate": 0.0625,
+      "reasons": {},
+      "qualification": "DEVELOPMENT_DIAGNOSTIC_NOT_AUDIT_OR_ERROR_CERTIFICATION"
+    },
+    "ar1_0.8": {
+      "planned_trials": 16,
+      "completed_trials": 16,
+      "computable_trials": 12,
+      "abstentions_or_failures": 4,
+      "interrupted_trials": 0,
+      "unattempted_trials": 0,
+      "availability": 0.75,
+      "familywise_positive_count": 2,
+      "unconditional_positive_rate": 0.125,
+      "conditional_positive_rate": 0.16666666666666666,
+      "reasons": {
+        "insufficient_effective_blocks": 4
+      },
+      "qualification": "DEVELOPMENT_DIAGNOSTIC_NOT_AUDIT_OR_ERROR_CERTIFICATION"
+    },
+    "ar1_0.95": {
+      "planned_trials": 16,
+      "completed_trials": 16,
+      "computable_trials": 0,
+      "abstentions_or_failures": 16,
+      "interrupted_trials": 0,
+      "unattempted_trials": 0,
+      "availability": 0.0,
+      "familywise_positive_count": 0,
+      "unconditional_positive_rate": 0.0,
+      "conditional_positive_rate": null,
+      "reasons": {
+        "insufficient_effective_blocks": 16
+      },
+      "qualification": "DEVELOPMENT_DIAGNOSTIC_NOT_AUDIT_OR_ERROR_CERTIFICATION"
+    },
+    "ar1_-0.5": {
+      "planned_trials": 16,
+      "completed_trials": 16,
+      "computable_trials": 13,
+      "abstentions_or_failures": 3,
+      "interrupted_trials": 0,
+      "unattempted_trials": 0,
+      "availability": 0.8125,
+      "familywise_positive_count": 0,
+      "unconditional_positive_rate": 0.0,
+      "conditional_positive_rate": 0.0,
+      "reasons": {
+        "insufficient_effective_blocks": 3
+      },
+      "qualification": "DEVELOPMENT_DIAGNOSTIC_NOT_AUDIT_OR_ERROR_CERTIFICATION"
+    },
+    "volatility_two_state": {
+      "planned_trials": 16,
+      "completed_trials": 16,
+      "computable_trials": 14,
+      "abstentions_or_failures": 2,
+      "interrupted_trials": 0,
+      "unattempted_trials": 0,
+      "availability": 0.875,
+      "familywise_positive_count": 2,
+      "unconditional_positive_rate": 0.125,
+      "conditional_positive_rate": 0.14285714285714285,
+      "reasons": {
+        "insufficient_effective_blocks": 2
+      },
+      "qualification": "DEVELOPMENT_DIAGNOSTIC_NOT_AUDIT_OR_ERROR_CERTIFICATION"
+    }
+  },
+  "trials_sha256": "d2b4270a33ce4fb8654e7020b06cdd329e74e74ab1258e0e5f0fdf97119d5795",
+  "journal_bytes": 2599518,
+  "peak_rss_bytes": 185483264
+}

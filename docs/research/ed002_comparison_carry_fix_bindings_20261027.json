@@ -1,0 +1,34 @@
+{
+  "schema": "ed002-comparison-carry-correction-bindings-v1",
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "finding": "ED002-COMPARISON-01",
+  "prior_unchanged_bindings_verified": 13,
+  "tests": {
+    "before_failed": 5,
+    "after_passed": 185,
+    "after_seconds": 7.06,
+    "full_suite": false
+  },
+  "market_run_authorized": false,
+  "inputs_sha256": {
+    "docs/research/ed002_comparison_harness_bindings_20261027.json": "1da1aae72e93bac79a5f3af5b998d969e8814ecf8207185725812df7896fc167",
+    "services/backtest/delayed_research_comparison.py": "749ba4ad7e755be44a5c3359894aff66a58e356610dbabefb1c293ac56cc8ca7",
+    "tests/test_delayed_research_comparison.py": "17be4ca90fcfd2a98131dd1358ce91b66aa6dc6ea6af7cd8b528e78266ea6778",
+    "services/backtest/delayed_signal_bridge.py": "c2c452c88190eab210764cd0a6a056cefc05fa3af95e09f535987f55e3a27e1d",
+    "services/backtest/frozen_signal_bridge.py": "7ca917d6edda68fe02c3ab439ab56cf182106831444a71fdd78ee26b5212639a",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+    "tests/test_delayed_signal_bridge.py": "5b29274cec04b3c2b3bbd5bf593d37f180c701b39ff0fea5921cde126cbe5cae",
+    "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "docs/research/ed002_delayed_bridge_review_20261027.json": "b8f684ef23e24713138f387900480fc3f6e48219d7d662817ce13e35ceade2ef",
+    "docs/research/ed002_comparison_harness_20261027.md": "818eb537b1bd8748b06b0f1fe9cce338af38aee0f73a0582e6ca2631020f2840",
+    "tests/test_frozen_signal_bridge.py": "eb6d5dc1eb768f4074dff7254700c3cffc1278128ab76a4bcd98c9d8c9bc32cf",
+    "tests/test_shared_cash_research.py": "415910a7fa161f9f96cd9cd8d4e3af9b3ca2e59a6a8b214d9d85a3b8485d3b08",
+    "tests/test_next_open_research.py": "798bd09a35a0fa4cefb0b0c8c3666af991d6d3a29dbf365c0d756a0758036998",
+    "tests/test_harness_contracts_wp4.py": "4439fc4de1491ee623704218713b70f69b251255924b79f4c802b5b68774bcde",
+    "docs/research/ed002_comparison_harness_review_20261027.json": "f42e5a040be59c4797ae9aab15e591f24b8ba08423cf12488fe2ef9c130e6599",
+    "docs/research/ed002_comparison_carry_fix_20261027.md": "ddfdfbc170c301b9e6f77b3c43304492bf2e7a87eae00d99bf489f9ad7ec7e4b",
+    "docs/review_artifacts/ed002_comparison_rejected_v1_20261027.tar": "341f40a2d0101988dc542b4234f040fc1634442b405c749894eec8a33832f535",
+    "docs/review_artifacts/ed002_comparison_carry_fix_20261027.diff": "2ddbf57f3cc05a00d9c3f5b011dec49f0f466f1a32413bbf668a78ed599b6e45"
+  }
+}

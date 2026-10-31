@@ -1,0 +1,78 @@
+{
+  "schema": "ed002-warmup-preparation-handoff-v1",
+  "date": "2026-10-28",
+  "active_role": "ENGINEER",
+  "risk": "HIGH",
+  "acceptance_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "operator_instruction": "carry out the next steps",
+  "scope": "warm-up preparation only; no acquisition authorized or performed",
+  "tests": {
+    "passed": 129,
+    "new_warmup_cases": 13,
+    "prior_targeted_cases": 116,
+    "seconds": 3.64,
+    "full_suite": false,
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_capture_descriptive_warmup.py tests/test_capture_descriptive_inputs.py tests/test_descriptive_candles.py tests/test_descriptive_metadata.py",
+    "transport_and_processes": "fakes only"
+  },
+  "profile": {
+    "default_hours": 300,
+    "incumbent_hours": 1464,
+    "incumbent_symbols": [
+      "BTC",
+      "ETH"
+    ],
+    "anchor": "last completed UTC midnight resolved once at worker start",
+    "max_transport_calls": 35,
+    "legacy_max_calls": 27,
+    "per_page_max_hours": 300,
+    "worker_wait_seconds": 120,
+    "owned_cleanup_wait_seconds": 5,
+    "cooperative_seconds": 110,
+    "socket_timeout_seconds": 5,
+    "per_body_stored_bytes": 2097152,
+    "total_stored_bytes": 16777216,
+    "outside_wait": [
+      "initial checks",
+      "process creation",
+      "final filesystem operations"
+    ]
+  },
+  "preservation": {
+    "prior_unchanged_bound_inputs": 14,
+    "intentional_changed_input": "scripts/research/capture_descriptive_inputs.py",
+    "archived_members_sha256": {
+      "scripts/research/capture_descriptive_inputs.py": "1686cec85e9f990e04de33b6dc737f076a26519ec843fb93541e97c3f70acc36",
+      "tests/test_capture_descriptive_inputs.py": "4e914cb32151e0554ac2d2417af5b8674409dbd018c8bd0c6694c01eb2bf18ed"
+    },
+    "archive_sha256": "8ac33b7c983248bbb87548745d140148ab794bb464ea2be3c648d9bd3c5b9b22",
+    "prior_live_capture_evidence_bindings_unchanged": 85
+  },
+  "candidate_reference_hashes_checked": 25,
+  "actual_preview": {
+    "dry_run": true,
+    "planned_max_requests": 35,
+    "worker_started": false,
+    "capture_directory_created": false
+  },
+  "market_api_requests": 0,
+  "study_dates_frozen": false,
+  "statistical_qualification": "INCOMPLETE",
+  "next_boundary": "exact extended source/plan review, then one separately bounded warm-up acquisition",
+  "inputs_sha256": {
+    "scripts/research/capture_descriptive_inputs.py": "edee3c49b0b4e7a1224a05a8a541ade847378e67074555d7aec1faa539f218cc",
+    "tests/test_capture_descriptive_warmup.py": "4b9a64f1253532735a4c0e6e9f4bf57534602f01ef5723512857b1a7e2a1c74d",
+    "tests/test_capture_descriptive_inputs.py": "4e914cb32151e0554ac2d2417af5b8674409dbd018c8bd0c6694c01eb2bf18ed",
+    "docs/research/ed002_warmup_preparation_20261028.md": "5ed670f37d66ea824df6244fab36f90e013c26f3d95bef7ab4d727e8a24f144a",
+    "research/ed002_public_inputs/plans/warmup_seed_20261028.json": "2f4974362721949375d1fd0bd98fdfd2d449da555c2023e732909a6962c2c08c",
+    "research/ed002_public_inputs/plans/warmup_id_sources_20261028.json": "a135a0a8bbd7fc679b9c06beaa7aaf6d5dd2740617318d066bac4be8585eb760",
+    "docs/review_artifacts/ed002_public_capture_v1_20261028.tar": "8ac33b7c983248bbb87548745d140148ab794bb464ea2be3c648d9bd3c5b9b22",
+    "services/backtest/descriptive_candles.py": "9425211207738f0395f28b3f8c02c8a292c9a2e80e5d8d4b203e5ec5ebf273de",
+    "services/backtest/descriptive_metadata.py": "9c98bba24ed52bcb99e73ecc8bcd0bfa51ccd5e60447aa5f2017ef8cbb1e4099",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "docs/research/ed002_capture_transport_bindings_20261028.json": "d0f3f89d125668749fd84673c5b3d831727f4447f76feb486958f5a94a66e15f",
+    "docs/research/ed002_capture_verification_20261028.json": "605af2a3465b6197f8636d283539d692bb48231b203031e3fd558f40271d3a67",
+    "research/ed002_public_inputs/capture_20261028_01/manifest.json": "7e514d7a828b4f99fba179fa1f9ccf853ba59e357f6d897f1baffe8af37ee6d6"
+  }
+}

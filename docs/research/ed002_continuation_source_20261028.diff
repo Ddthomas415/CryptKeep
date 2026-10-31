@@ -1,0 +1,523 @@
+--- archived-v2/scripts/research/capture_descriptive_inputs.py
++++ current/scripts/research/capture_descriptive_inputs.py
+@@ -27,6 +27,7 @@
+ MAX_REQUESTS, WORKER_SECONDS, SOCKET_SECONDS = 27, 120, 5
+ PER_BODY, TOTAL_BODY = 2*1024*1024, 16*1024*1024
+ WARMUP_SCHEMA = "ed002-public-warmup-plan-v1"
++CONTINUATION_SCHEMA = "ed002-public-continuation-plan-v1"
+ DAY = 24*candles.HOUR
+ 
+ 
+@@ -37,6 +38,8 @@
+ def history_hours(plan, symbol):
+     if plan.get("schema") == WARMUP_SCHEMA:
+         return 1464 if symbol in ("BTC", "ETH") else 300
++    if plan.get("schema") == CONTINUATION_SCHEMA:
++        return (plan["end_ms"]-plan["start_ms"])//candles.HOUR
+     return 2
+ 
+ 
+@@ -60,6 +63,12 @@
+                 or plan["default_warmup_hours"] != 300 or plan["incumbent_warmup_hours"] != 1464
+                 or plan["anchor"] != "last_completed_utc_day_at_worker_start"):
+             raise ValueError("fixed_warmup_profile_required")
++    elif plan.get("schema") == CONTINUATION_SCHEMA:
++        if (set(plan) != {"schema", "universe_sha256", "identities", "start_ms", "end_ms"}
++                or any(type(plan[k]) is not int or plan[k] < 0 or plan[k] % candles.HOUR
++                       for k in ("start_ms", "end_ms"))
++                or not candles.HOUR <= plan["end_ms"]-plan["start_ms"] <= DAY):
++            raise ValueError("pinned_one_to_24_completed_hours_required")
+     elif (set(plan) != {"schema", "universe_sha256", "identities", "lookback_completed_hours"}
+             or plan.get("schema") != "ed002-public-capture-plan-v1"
+             or type(plan["lookback_completed_hours"]) is not int or plan["lookback_completed_hours"] != 2):
+@@ -82,7 +91,9 @@
+             "worker_wait_seconds": WORKER_SECONDS, "socket_timeout_seconds": SOCKET_SECONDS,
+             "body_bytes_cap": TOTAL_BODY,
+             "history_hours_by_symbol": {s: history_hours(plan, s) for s in sorted(assets)},
+-            "lookback_completed_hours": 2 if plan["schema"] != WARMUP_SCHEMA else None,
++            "lookback_completed_hours": 2 if plan["schema"] == "ed002-public-capture-plan-v1" else None,
++            "pinned_window": {k: plan[k] for k in ("start_ms", "end_ms")}
++                if plan["schema"] == CONTINUATION_SCHEMA else None,
+             "market_run_authorized": False, "scoring_authorized": False}
+ 
+ 
+@@ -137,11 +148,12 @@
+     output = Path(output)
+     began = monotonic()
+     warmup = plan["schema"] == WARMUP_SCHEMA
++    continuation = plan["schema"] == CONTINUATION_SCHEMA
+     now = wall_ms()
+-    end = now // (DAY if warmup else candles.HOUR) * (DAY if warmup else candles.HOUR)
++    end = plan["end_ms"] if continuation else now // (DAY if warmup else candles.HOUR) * (DAY if warmup else candles.HOUR)
+     starts = {s: end-history_hours(plan, s)*candles.HOUR for s in plan["identities"]}
+     start = min(starts.values())
+-    if start < 0:
++    if start < 0 or end > now//candles.HOUR*candles.HOUR:
+         raise ValueError("completed_window_unavailable")
+     records, captures, stored, products_body = [], [], 0, None
+     result = {"status": "INCOMPLETE", "qualification": "PUBLIC_CAPTURE_NOT_STUDY_OR_IDENTITY_APPROVAL",
+@@ -150,7 +162,8 @@
+                               "candle_capture_required": None} for s in plan["identities"]},
+               "scoring_authorized": False, "identity_authenticity_verified": False}
+     window = {"start_ms": start, "end_ms": end,
+-              "resolution": "last_completed_utc_day_at_worker_start" if warmup else "two_completed_hours_at_worker_start"}
++              "resolution": "pinned_completed_interval" if continuation else
++                  "last_completed_utc_day_at_worker_start" if warmup else "two_completed_hours_at_worker_start"}
+     if warmup:
+         window["start_ms_by_symbol"] = starts
+     write_json(output/"window.json", window)
+@@ -219,7 +232,7 @@
+             for page, (lower, upper) in enumerate(pages):
+                 params = urlencode({"granularity": 3600,
+                     "start": datetime.fromtimestamp(lower/1000, timezone.utc).isoformat(),
+-                    "end": datetime.fromtimestamp((upper-1000 if warmup else upper)/1000, timezone.utc).isoformat()})
++                    "end": datetime.fromtimestamp((upper-1000 if warmup or continuation else upper)/1000, timezone.utc).isoformat()})
+                 label = symbol+"p"+str(page) if warmup else symbol
+                 body, receipt = request("/products/"+identity["product_id"]+"/candles?"+params, label)
+                 captures.append({"product_id": identity["product_id"], "method": "GET",
+--- /dev/null
++++ current/services/backtest/descriptive_readiness.py
+@@ -0,0 +1,179 @@
++"""Pure ED-002 receipt merging and first-batch checks; no signals, files or HTTP."""
++from copy import deepcopy
++import hashlib
++from urllib.parse import parse_qs, urlsplit
++
++from services.backtest import descriptive_candles as candles
++from services.backtest import descriptive_metadata as metadata
++from services.backtest import shared_cash_research as ledger
++
++
++HOUR = candles.HOUR
++
++
++def _scope(symbols, identities):
++    if (not isinstance(symbols, (list, tuple)) or len(symbols) != 25
++            or any(not isinstance(s, str) or not s for s in symbols)
++            or len(set(symbols)) != 25 or not {"BTC", "ETH"} <= set(symbols)
++            or not isinstance(identities, dict) or set(identities) != set(symbols)):
++        raise ValueError("explicit_25_symbol_scope_required")
++    for symbol, identity in identities.items():
++        if identity is not None and (not metadata._identity(identity)
++                or identity["base_currency"] != symbol or identity["product_id"] != symbol+"-USD"):
++            raise ValueError("explicit_native_usd_identity_required")
++
++
++def _route(record):
++    url = urlsplit(record["url"])
++    if (record["method"] != "GET" or url.scheme != "https"
++            or url.hostname != "api.exchange.coinbase.com" or url.port not in (None, 443)
++            or url.username is not None or url.password is not None or url.fragment):
++        raise ValueError("public_get_receipt_required")
++    if url.path in ("/products", "/currencies") and not url.query:
++        return url.path[1:], None
++    query = parse_qs(url.query, keep_blank_values=True)
++    parts = url.path.split("/")
++    if (len(parts) == 4 and parts[1] == "products" and parts[3] == "candles"
++            and set(query) == {"granularity", "start", "end"}
++            and query["granularity"] == ["3600"]
++            and all(len(v) == 1 and v[0] for v in query.values())):
++        return "candles", parts[2]
++    raise ValueError("public_hourly_route_required")
++
++
++def merge_receipts(records, *, symbols, identities, start_ms, end_ms, as_of_ms):
++    """Normalize caller-supplied raw bodies, not precomputed observation claims.
++
++    Each record supplies method/url/request_started_ms/received_at_ms/http_status,
++    response_bytes/sha256/truncated, as saved by the capture worker. Hashes bind
++    bytes to supplied receipts; they do not authenticate the caller or exchange.
++    The caller must bind symbols/identities to the adopted universe before freeze.
++    """
++    _scope(symbols, identities)
++    start, end, cutoff = map(ledger.timestamp, (start_ms, end_ms, as_of_ms))
++    if (start % HOUR or end % HOUR or not start < end <= cutoff
++            or not isinstance(records, (list, tuple))):
++        raise ValueError("completed_merge_interval_required")
++    by_product = {v["product_id"]: s for s, v in identities.items() if v is not None}
++    captures, products, evidence, seen = [], {}, [], set()
++    future = 0
++    for record in records:
++        if not isinstance(record, dict):
++            raise ValueError("raw_receipt_required")
++        if record.get("received_at_ms") is None:
++            sent = ledger.timestamp(record.get("request_started_ms"))
++            if sent > cutoff:
++                future += 1
++                continue
++            _route(record)
++            if (record.get("http_status") is not None or record.get("response_bytes") is not None
++                    or not isinstance(record.get("error_class"), str) or not record["error_class"]):
++                raise ValueError("unanswered_transport_diagnostic_required")
++            evidence.append({"url": record["url"], "request_started_ms": sent,
++                             "qualification": "UNANSWERED_NOT_OBSERVATION"})
++            continue
++        received = ledger.timestamp(record.get("received_at_ms"))
++        if received > cutoff:
++            future += 1
++            continue
++        raw = record.get("response_bytes")
++        if (not isinstance(raw, bytes) or hashlib.sha256(raw).hexdigest() != record.get("sha256")
++                or type(record.get("http_status")) is not int
++                or type(record.get("truncated")) is not bool
++                or ledger.timestamp(record.get("request_started_ms")) > received):
++            raise ValueError("raw_body_receipt_mismatch")
++        kind, product = _route(record)
++        key = (record["url"], received, record["sha256"], record["http_status"], record["truncated"])
++        if key in seen:
++            continue
++        seen.add(key)
++        evidence.append({"url": record["url"], "received_at_ms": received,
++            "source_sha256": record["sha256"], "http_status": record["http_status"],
++            "truncated": record["truncated"]})
++        if kind == "products":
++            products.setdefault(received, []).append(record)
++        elif kind == "candles":
++            if product not in by_product:
++                raise ValueError("undeclared_candle_product")
++            captures.append({"product_id": product, "method": "GET", "url": record["url"],
++                "received_at_ms": received, "response_bytes": raw,
++                "http_status": 0 if record["truncated"] else record["http_status"]})
++    panel = candles.map_candle_captures(captures, identities=identities,
++        start_ms=start, end_ms=end, as_of_ms=cutoff)
++    snapshots, failed = [], {}
++    for received, group in sorted(products.items()):
++        reason = ("ambiguous_products_receipt" if len(group) != 1 else
++            "failed_products_receipt" if group[0]["http_status"] != 200 or group[0]["truncated"] else None)
++        snapshots.append({"received_at_ms": received, "products_bytes": group[0]["response_bytes"]
++                          if reason is None else b""})
++        if reason:
++            failed[received] = (reason, sorted({r["sha256"] for r in group}))
++    mapped = metadata.map_public_metadata(snapshots, identities=identities) if snapshots else {
++        "rules": {s: [] for s in sorted(symbols)}, "observations": []}
++    # Failed HTTP bodies must not grant permission even if they look like a valid list.
++    for rows in mapped["rules"].values():
++        for row in rows:
++            if row["known_at_ms"] in failed:
++                reason, hashes = failed[row["known_at_ms"]]
++                row.update(eligible=None, metadata_reason=reason, source_sha256=None,
++                           original_source_sha256=hashes)
++    for row in mapped["observations"]:
++        if row["received_at_ms"] in failed:
++            reason, hashes = failed[row["received_at_ms"]]
++            row.update(status="INCOMPLETE", eligible=None, reason=reason,
++                       source_sha256=None, original_source_sha256=hashes)
++    return {"qualification": "MERGED_SUPPLIED_RECEIPTS_NOT_STUDY_OR_AUTHENTICITY_PROOF",
++        "symbols": sorted(symbols), "identities": deepcopy(identities),
++        "as_of_ms": cutoff, "start_ms": start, "end_ms": end,
++        "observations": panel["observations"], "coverage": panel["coverage"],
++        "physical_window_status": panel["status"], "rules": mapped["rules"],
++        "metadata_observations": mapped["observations"], "receipt_evidence": evidence,
++        "ignored_future_receipts": future, "scoring_authorized": False}
++
++
++def first_batch_readiness(merged, *, signal_close_ms, checked_at_ms):
++    """Check flat-account initial inputs only, not execution opens or activation.
++
++    Use the merged prefix through min(actual check time, E). A report cannot
++    retroactively import a later receipt into the fixed E deadline. All 25 rows
++    remain visible. This does not assess future held positions or compute signals.
++    """
++    close, checked = map(ledger.timestamp, (signal_close_ms, checked_at_ms))
++    execution = close+HOUR
++    if close % HOUR or checked < close or merged["end_ms"] != close:
++        raise ValueError("initial_signal_close_and_check_clock_required")
++    if merged["as_of_ms"] != min(checked, execution):
++        raise ValueError("merge_at_fixed_first_batch_cutoff_required")
++    _scope(merged["symbols"], merged["identities"])
++    by_symbol = {r["symbol"]: r for r in merged["coverage"]}
++    results = []
++    for symbol in merged["symbols"]:
++        row = {"symbol": symbol, "status": "COMPLETE", "reasons": [],
++               "required_signal_hours": 0, "signal_eligible": None, "execution_eligible": None}
++        for field, clock in (("signal_eligible", close), ("execution_eligible", execution)):
++            try:
++                row[field] = ledger.rule_at(merged["rules"], symbol, clock, clock, "coinbase", "USD")["eligible"]
++            except ledger.Incomplete:
++                row["reasons"].append("unknown_"+field)
++        if symbol in ("BTC", "ETH") and (row["signal_eligible"] is False or row["execution_eligible"] is False):
++            row["reasons"].append("required_control_ineligible")
++        if row["signal_eligible"] is True:
++            count = 1464 if symbol in ("BTC", "ETH") else 300
++            row["required_signal_hours"] = count
++            records = {r["row"][0]: r for r in merged["observations"][symbol]}
++            wanted = range(close-count*HOUR, close, HOUR)
++            missing = [t for t in wanted if t not in records or records[t]["known_at_ms"] > execution]
++            row["missing_or_late_hours"] = missing
++            conflicts = [r["ts_ms"] for r in by_symbol[symbol]["conflicts"] if close-count*HOUR <= r["ts_ms"] < close]
++            row["conflicting_hours"] = conflicts
++            if missing:
++                row["reasons"].append("missing_late_or_conflicting_signal_history")
++        if row["reasons"]:
++            row["status"] = "INCOMPLETE"
++        results.append(row)
++    return {"status": "COMPLETE" if all(r["status"] == "COMPLETE" for r in results) else "INCOMPLETE",
++        "qualification": "FLAT_FIRST_BATCH_INPUTS_ONLY_NOT_ACTIVATION",
++        "signal_close_ms": close, "execution_ms": execution, "checked_at_ms": checked,
++        "deadline_passed": checked > execution, "rows": results,
++        "execution_open_verified": False, "activation_authorized": False,
++        "scoring_authorized": False, "statistical_qualification": "INCOMPLETE"}
+--- /dev/null
++++ current/tests/test_descriptive_continuation.py
+@@ -0,0 +1,261 @@
++"""Synthetic continuation/receipt-readiness checks; no external work or returns."""
++from copy import deepcopy
++from datetime import datetime, timezone
++import hashlib
++import json
++import socket
++import subprocess
++from urllib.parse import urlencode
++
++import pytest
++import yaml
++
++from scripts.research import capture_descriptive_inputs as cap
++from services.backtest import descriptive_readiness as ready
++
++
++H, A = cap.candles.HOUR, 2000*cap.candles.HOUR
++UNIVERSE = (cap.ROOT/"config/candidate_universe.yaml").read_bytes()
++CONFIG = yaml.safe_load(UNIVERSE)["universe"]
++SYMBOLS = sorted(s.split("/")[0] for t in ("tier1", "tier2", "watchlist") for s in CONFIG[t])
++IDS = {s: {"product_id": s+"-USD", "base_currency": s, "quote_currency": "USD",
++           "identity_evidence_sha256": hashlib.sha256(("invented "+s).encode()).hexdigest()} for s in SYMBOLS}
++
++
++@pytest.fixture(autouse=True)
++def offline(monkeypatch):
++    def refuse(*args, **kwargs):
++        raise AssertionError("test attempted external work")
++    for name in ("socket", "create_connection", "getaddrinfo"):
++        monkeypatch.setattr(socket, name, refuse)
++    for name in ("Popen", "run", "call", "check_output", "check_call"):
++        monkeypatch.setattr(subprocess, name, refuse)
++
++
++def spec():
++    return {"schema": cap.CONTINUATION_SCHEMA, "universe_sha256": cap.sha(UNIVERSE),
++            "identities": deepcopy(IDS), "start_ms": A-24*H, "end_ms": A}
++
++
++def products(excluded="MATIC"):
++    return [{"id": s+"-USD", "base_currency": s, "quote_currency": "USD",
++             "status": "delisted" if s == excluded else "online", "base_increment": ".001",
++             **dict.fromkeys(cap.metadata.FLAGS, False)} for s in SYMBOLS]
++
++
++def url(symbol, first, end):
++    params = urlencode({"granularity": 3600,
++        "start": datetime.fromtimestamp(first/1000, timezone.utc).isoformat(),
++        "end": datetime.fromtimestamp((end-1000)/1000, timezone.utc).isoformat()})
++    return cap.BASE+"/products/"+symbol+"-USD/candles?"+params
++
++
++def receipt(route, data, received, *, status=200, truncated=False):
++    raw = json.dumps(data).encode()
++    return {"method": "GET", "url": route, "request_started_ms": received-1,
++            "received_at_ms": received, "http_status": status, "response_bytes": raw,
++            "sha256": hashlib.sha256(raw).hexdigest(), "truncated": truncated}
++
++
++@pytest.fixture
++def receipts():
++    records = [receipt(cap.BASE+"/products", products(), A-H//2),
++               receipt(cap.BASE+"/products", products(), A+H//2)]
++    for s in SYMBOLS:
++        if s == "MATIC":
++            continue
++        first = A-(1464 if s in ("BTC", "ETH") else 300)*H
++        for page in range(first, A, 300*H):
++            end = min(A,page+300*H)
++            records.append(receipt(url(s,page,end),
++                [[t//1000,90,110,100,105,5] for t in range(page,end,H)], A+5*60000))
++    return records
++
++
++def merge(records, *, cutoff=A+H, identities=None):
++    return ready.merge_receipts(records, symbols=SYMBOLS, identities=identities or IDS,
++        start_ms=A-1464*H, end_ms=A, as_of_ms=cutoff)
++
++
++def report(records, *, checked=A+H, identities=None):
++    return ready.first_batch_readiness(merge(records,cutoff=min(checked,A+H),identities=identities),
++        signal_close_ms=A, checked_at_ms=checked)
++
++
++@pytest.mark.parametrize("excluded",[None,"MATIC"])
++def test_pinned_24_hour_capture_all25_and_no_authority(tmp_path,excluded):
++    calls = []
++    def fake_get(route, timeout, limit):
++        calls.append(route)
++        if route.endswith("/products"):
++            data = products(excluded)
++        elif route.endswith("/currencies"):
++            data = [{"id": s} for s in ["USD",*SYMBOLS]]
++        else:
++            data = [[t//1000,90,110,100,105,5] for t in range(A-24*H,A,H)]
++        return 200,json.dumps(data).encode(),{}
++    preview = cap.validate_plan(spec(),UNIVERSE)
++    assert preview["planned_max_requests"] == 27
++    assert set(preview["history_hours_by_symbol"].values()) == {24}
++    result = cap.capture_once(spec(),tmp_path,get=fake_get,monotonic=lambda: 0,wall_ms=lambda: A+H//2)
++    cap.verify_result(result,tmp_path,spec())
++    assert result["status"] == "COMPLETE" and len(calls) == (27 if excluded is None else 26)
++    assert len(result["symbols"]) == 25 and not result["scoring_authorized"]
++    normal = json.loads((tmp_path/"observations.json").read_bytes())
++    assert sum(map(len,normal["observations"].values())) == (25 if excluded is None else 24)*24
++    assert all(r["known_at_ms"] == A+H//2 for rows in normal["observations"].values() for r in rows)
++
++
++@pytest.mark.parametrize("field,value",[("start_ms",A-25*H),("start_ms",A),
++    ("start_ms",A+H),("start_ms",True),("start_ms",-H),("end_ms",A+1),
++    ("end_ms",float(A)),("schema","ed002-auto-catchup"),("universe_sha256","bad")])
++def test_continuation_refuses_unbounded_unaligned_or_changed_scope(field,value):
++    plan=spec();plan[field]=value
++    with pytest.raises(ValueError):cap.validate_plan(plan,UNIVERSE)
++
++
++def test_future_pinned_window_refused_before_transport_or_file_write(tmp_path):
++    def forbidden(*args):raise AssertionError("transport called")
++    with pytest.raises(ValueError,match="completed_window"):
++        cap.capture_once(spec(),tmp_path,get=forbidden,wall_ms=lambda:A-1,monotonic=lambda:0)
++    assert not list(tmp_path.iterdir())
++
++
++def test_first_batch_ready_with_cash_exclusion_no_fills_or_activation(receipts):
++    merged=merge(receipts)
++    result=ready.first_batch_readiness(merged,signal_close_ms=A,checked_at_ms=A+H)
++    assert result["status"] == "COMPLETE" and len(result["rows"]) == 25
++    assert merged["physical_window_status"] == "INCOMPLETE"
++    rows={r["symbol"]:r for r in result["rows"]}
++    assert rows["MATIC"]["signal_eligible"] is False and rows["MATIC"]["required_signal_hours"] == 0
++    assert rows["BTC"]["required_signal_hours"] == rows["ETH"]["required_signal_hours"] == 1464
++    assert rows["SOL"]["required_signal_hours"] == 300
++    assert not any(result[k] for k in ("activation_authorized","execution_open_verified","scoring_authorized"))
++
++
++def test_overlap_is_deduplicated_and_earliest_receipt_preserved(receipts):
++    source=deepcopy(receipts)
++    candle=next(r for r in receipts if "/SOL-USD/" in r["url"])
++    later=deepcopy(candle);later["received_at_ms"]+=60000
++    numeric=receipt(later["url"],[[float(v) if i else v for i,v in enumerate(row)]
++        for row in json.loads(later["response_bytes"])],later["received_at_ms"])
++    merged=merge(receipts+[deepcopy(candle),numeric])
++    assert len(merged["observations"]["SOL"]) == 300
++    assert all(r["known_at_ms"] == A+5*60000 for r in merged["observations"]["SOL"])
++    assert receipts == source
++
++
++def test_conflicting_completed_version_withholds_hour_not_winner(receipts):
++    candle=next(r for r in receipts if "/SOL-USD/" in r["url"])
++    rows=json.loads(candle["response_bytes"]);rows[-1][4]=106
++    revised=receipt(candle["url"],rows,A+10*60000)
++    result=report(receipts+[revised])
++    sol=next(r for r in result["rows"] if r["symbol"] == "SOL")
++    assert result["status"] == "INCOMPLETE" and sol["conflicting_hours"] == [A-H]
++    assert sol["missing_or_late_hours"] == [A-H]
++
++
++def test_late_and_future_corrupt_receipts_do_not_repair_past_deadline(receipts):
++    first=report(receipts)
++    later=deepcopy(receipts)
++    for r in later:
++        if "/SOL-USD/" in r["url"]:r["received_at_ms"]=A+H+1
++    later.append({"received_at_ms":A+2*H})
++    result=report(later,checked=A+3*H)
++    assert first["status"] == "COMPLETE" and result["status"] == "INCOMPLETE"
++    assert result["execution_ms"] == A+H and result["deadline_passed"]
++
++
++@pytest.mark.parametrize("change",["hash","clock","truncated_flag","host","method","undeclared"])
++def test_untrusted_or_misrouted_receipt_refused(receipts,change):
++    records=deepcopy(receipts)
++    item=records[-1]
++    if change=="hash":item["sha256"]="0"*64
++    elif change=="clock":item["request_started_ms"]=item["received_at_ms"]+1
++    elif change=="truncated_flag":item["truncated"]=0
++    elif change=="host":item["url"]=item["url"].replace("api.exchange.coinbase.com","unapproved.example")
++    elif change=="method":item["method"]="POST"
++    else:item["url"]=item["url"].replace("/XRP-USD/","/UNKNOWN-USD/")
++    with pytest.raises(ValueError):merge(records)
++
++
++@pytest.mark.parametrize("failure",["http","truncated","unreadable","ambiguous"])
++def test_new_bad_products_shadows_prior_permission(receipts,failure):
++    kwargs={"status":503} if failure=="http" else {"truncated":True} if failure=="truncated" else {}
++    bad=receipt(cap.BASE+"/products",{} if failure=="unreadable" else products(),A+40*60000,**kwargs)
++    records=receipts+[bad]
++    if failure=="ambiguous":records.append(receipt(cap.BASE+"/products",[],A+40*60000))
++    result=report(records)
++    assert result["status"] == "INCOMPLETE"
++    assert all("unknown_execution_eligible" in r["reasons"] for r in result["rows"])
++    if failure in ("http","truncated","ambiguous"):
++        latest=merge(records)["rules"]["SOL"][-1]
++        assert latest["eligible"] is None and latest["original_source_sha256"]
++
++
++def test_missing_products_and_expired_rules_do_not_grant_permission(receipts):
++    none=[r for r in receipts if not r["url"].endswith("/products")]
++    assert report(none)["status"] == "INCOMPLETE"
++    expired=[r for r in receipts if r["received_at_ms"] != A+H//2]
++    result=report(expired)
++    assert all(r["execution_eligible"] is None for r in result["rows"])
++
++
++def test_metadata_observed_after_A_cannot_grant_signal_permission(receipts):
++    result=report([r for r in receipts if r["received_at_ms"] != A-H//2])
++    assert all(r["signal_eligible"] is None and r["execution_eligible"] is not None for r in result["rows"])
++
++
++def test_unknown_identity_not_treated_as_excluded_or_removed(receipts):
++    identities=deepcopy(IDS);identities["MATIC"]=None
++    result=report(receipts,identities=identities)
++    matic=next(r for r in result["rows"] if r["symbol"]=="MATIC")
++    assert result["status"]=="INCOMPLETE" and matic["signal_eligible"] is None
++
++
++def test_control_ineligible_invalidates_initial_comparison(receipts):
++    records=[r for r in receipts if not r["url"].endswith("/products")]
++    for t in (A-H//2,A+H//2):records.append(receipt(cap.BASE+"/products",products("BTC"),t))
++    result=report(records)
++    btc=next(r for r in result["rows"] if r["symbol"]=="BTC")
++    assert result["status"]=="INCOMPLETE" and "required_control_ineligible" in btc["reasons"]
++
++
++def test_failed_candle_does_not_erase_good_observation(receipts):
++    c=next(r for r in receipts if "/SOL-USD/" in r["url"])
++    failed=receipt(c["url"],[],A+20*60000,status=503)
++    assert report(receipts+[failed])["status"]=="COMPLETE"
++    records=[r for r in receipts if "/SOL-USD/" not in r["url"]]+[failed]
++    assert report(records)["status"]=="INCOMPLETE"
++
++
++def test_unanswered_call_is_diagnostic_not_delivery_or_loss_of_good_data(receipts):
++    source=next(r for r in receipts if "/SOL-USD/" in r["url"])
++    failed={"method":"GET","url":source["url"],"request_started_ms":A+20*60000,
++            "received_at_ms":None,"http_status":None,"error_class":"TimeoutError"}
++    assert report(receipts+[failed])["status"]=="COMPLETE"
++    item=merge(receipts+[failed])["receipt_evidence"][-1]
++    assert item["qualification"]=="UNANSWERED_NOT_OBSERVATION" and "source_sha256" not in item
++    intent=deepcopy(failed);del intent["error_class"]
++    with pytest.raises(ValueError,match="diagnostic"):merge(receipts+[intent])
++
++
++def test_truncated_candle_cannot_supply_a_missing_hour(receipts):
++    records=deepcopy(receipts)
++    for row in records:
++        if "/SOL-USD/" in row["url"]:row["truncated"]=True
++    assert report(records)["status"]=="INCOMPLETE"
++
++
++def test_declared_scope_cannot_silently_shrink(receipts):
++    with pytest.raises(ValueError,match="25_symbol"):
++        ready.merge_receipts(receipts,symbols=SYMBOLS[:-1],identities=IDS,
++            start_ms=A-1464*H,end_ms=A,as_of_ms=A+H)
++
++
++def test_check_requires_the_fixed_E_prefix_and_initial_close(receipts):
++    with pytest.raises(ValueError,match="fixed_first_batch"):
++        ready.first_batch_readiness(merge(receipts),signal_close_ms=A,checked_at_ms=A+10*60000)
++    with pytest.raises(ValueError,match="initial_signal"):
++        ready.first_batch_readiness(merge(receipts),signal_close_ms=A+H,checked_at_ms=A+H)
++    assert report(receipts,checked=A+45*60000)["status"] == "COMPLETE"

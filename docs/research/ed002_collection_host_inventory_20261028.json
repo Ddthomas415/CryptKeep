@@ -1,0 +1,67 @@
+{
+  "date_local": "2026-10-28",
+  "captured_at_utc": "2026-10-28T09:32:42.350261+00:00",
+  "scope": "local user LaunchAgents filenames, loaded job labels, selected Codex metadata, power and filesystem capacity; no remote or Claude inspection",
+  "launchagent_filenames": [
+    "com.flipfinder.autostart.plist",
+    "com.flipops.autostart.plist",
+    "com.google.GoogleUpdater.wake.plist",
+    "com.google.keystone.agent.plist",
+    "com.google.keystone.xpcservice.plist",
+    "homebrew.mxcl.postgresql@14.plist"
+  ],
+  "codex_automations": [
+    {
+      "id": "btc-eth-weekly-research-tracker-v2",
+      "name": "BTC ETH weekly research tracker v2",
+      "status": "ACTIVE",
+      "kind": "heartbeat",
+      "references_ed002": false
+    },
+    {
+      "id": "coinbase-gainers-and-gtc-rsr-watch",
+      "name": "Coinbase gainers and sleeper watch",
+      "status": "PAUSED",
+      "kind": "heartbeat",
+      "references_ed002": false
+    }
+  ],
+  "loaded_user_job_labels": {
+    "exit_code": 1,
+    "count": 0,
+    "matching_labels": [],
+    "limit": "labels only; unrelated labels may conceal scripts; not exhaustive absence proof"
+  },
+  "initial_crontab_read": {
+    "state": "UNVERIFIED",
+    "error_class": "PermissionError",
+    "detail": "macOS denied first unprivileged read; bounded approved metadata recheck result separate"
+  },
+  "approved_user_crontab_read": {
+    "exit_code": 1,
+    "no_crontab_message": true,
+    "noncomment_line_count": 0,
+    "references_ed002": false,
+    "scope": "one read-only current-user crontab inspection; command contents suppressed; no jobs changed"
+  },
+  "approved_loaded_job_read": {
+    "record": "docs/research/ed002_collection_launchd_read_20261028.json",
+    "exit_code": 0,
+    "labels_count": 557,
+    "matching_labels": [],
+    "limit": "current-user labels only; not proof about unrelated labels, other users, system, remote or Claude schedules"
+  },
+  "observed_ac_power": {
+    "idle_system_sleep_minutes": 0,
+    "display_sleep_minutes": 10,
+    "wake_on_magic_packet": 0,
+    "limit": "pmset -g custom output for AC only; no guarantee of lid/reboot/manual-sleep/uptime behavior"
+  },
+  "observed_filesystem": {
+    "available_1024_blocks": 404000000,
+    "reported_capacity_percent": 57,
+    "limit": "df -Pk point-in-time APFS report; not a reservation or guarantee"
+  },
+  "local_capture_proof": "three public foreground captures succeeded; no unattended ED002 run shown",
+  "scheduling_or_network_change": false
+}

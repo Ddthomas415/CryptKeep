@@ -1,0 +1,29 @@
+{
+  "captured_at_utc": "2026-10-28T14:02:41.119998+00:00",
+  "active_role": "AUDITOR",
+  "slots": [
+    {
+      "slot": "slot_1793192700000",
+      "status": "COMPLETE",
+      "reason": "capture_completed",
+      "public_gets": 26,
+      "payload_bytes": 925087,
+      "lateness_seconds": 14.002,
+      "required_products": 24,
+      "cleanup_failure_reported": false
+    },
+    {
+      "slot": "slot_1793194500000",
+      "status": "COMPLETE",
+      "reason": "capture_completed",
+      "public_gets": 26,
+      "payload_bytes": 925126,
+      "lateness_seconds": 5.644,
+      "required_products": 24,
+      "cleanup_failure_reported": false
+    }
+  ],
+  "completed_slots": 2,
+  "sustained_full_pilot": "INCOMPLETE",
+  "no_forced_invocation": true
+}

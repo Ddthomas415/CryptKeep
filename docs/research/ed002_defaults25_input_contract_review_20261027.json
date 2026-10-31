@@ -1,0 +1,103 @@
+{
+  "schema": "ed002-defaults25-input-contract-design-review-v1",
+  "date": "2026-10-27",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Design supplement and offering the operator the timing choice only. No adoption, freeze, implementation, collection, calibration, market run or operations authority.",
+  "material_blocker_to_offering_timing_choice": false,
+  "blocking_findings": [],
+  "proposal_adopted": false,
+  "implementation_authorized": false,
+  "market_run_authorized": false,
+  "operations_authorized": false,
+  "evidence": [
+    {
+      "classification": "SHOWN source and independently reproduced tiny probe",
+      "subject": "Availability boundary",
+      "detail": "HourlyPanel.window selects the 300 hours ending at close_ms and requires known_at_ms<=close_ms. Exactly-at-close passes; the final bar at close+1ms raises missing_or_unavailable_ohlcv:TEST-USD. This is an input guard, not measured feed latency."
+    },
+    {
+      "classification": "SHOWN design coherence",
+      "subject": "Timing recommendation",
+      "detail": "The immediate next-open option is explicitly an idealized bar model with narrower claims. The proposed delayed option keeps the signal window ending T, allows receipts only through T+1h and models execution at T+1h. It does not promise physical execution at that open. The current API couples window end and availability cutoff: a future extension must separate them, not call window(T+1h) and accidentally include the later bar or overwrite actual receipt timestamps. Initial controls/evaluation boundaries and allocation/permission clocks require explicit revised protocol alignment before use."
+    },
+    {
+      "classification": "SHOWN selected source and design",
+      "subject": "Missingness/status",
+      "detail": "Unknown required marks, permissions or signal evidence remain INCOMPLETE; documented short listing history and known ineligibility remain distinct. rule_at requires knowledge by decision time, applicability at execution and one unambiguous rule. A public observation is not a valid-through interval/account entitlement. Excluding a missing-open order does not guarantee the whole bridge path stays COMPLETE if later required frame/signal checks fail."
+    },
+    {
+      "classification": "SHOWN selected source; financial conventions remain proposals",
+      "subject": "Minima and cash rounding",
+      "detail": "order floors quantity, applies adverse price to gross, charges fees on adjusted gross, then rounds buy debit up and sell credit down. The proposed USD0.01 quote quantum is separate from a product price tick and not certified settlement precision. Zero minima are proposed quantity-specified-market model inputs, not observed metadata defaults; no mapper or venue-compliance approval follows. Per-order conservative rounding is not a guaranteed portfolio-NAV bound when fill paths change."
+    },
+    {
+      "classification": "SHOWN saved-record consistency, not fresh collection",
+      "subject": "Scope/evidence counts",
+      "detail": "Bound metadata retains 25 candidate labels, 24 online and one dated MATIC delisted observation, without emitting model rules or trading permission. The bound archive result reports 21/24 and 0/24 complete full windows, and 24/24 and 22/24 final300 windows. These are saved audit summaries, not data authenticity, current warm-up or future coverage proof. No successor substitution is approved."
+    }
+  ],
+  "nonblocking_findings": [
+    {
+      "id": "ED002-INPUT-01",
+      "classification": "UNVERIFIED external content/current applicability",
+      "detail": "No network access was used, as requested. The three links identify official Coinbase Exchange documentation, but their live contents and the claimed June2022 order-size change were not independently retrieved in this review. The document author's source-reading claim remains CLAIMED; the zero-minima proposal is not certified as current product/account/API behavior. Before adopting a venue-rule mapper, bind the exact API/order form and dated primary evidence; do not generalize Exchange quantity-specified semantics to Advanced Trade, funds-specified orders or private entitlement. This does not prevent offering the timing choice."
+    }
+  ],
+  "verification": {
+    "environment": "VERIFIED_ENV local files/stdlib-only source extraction and synthetic rows",
+    "declared_hashes_verified": 9,
+    "probe": {
+      "runs": 1,
+      "exact_boundary_rows": 300,
+      "late_offset_ms": 1,
+      "late_result": "missing_or_unavailable_ohlcv:TEST-USD",
+      "financial_simulation": false,
+      "reviewed_module_imports": false
+    },
+    "probe_method": "One inline AST-only execution of HourlyPanel and its accepted timestamp/schema helpers on 300 synthetic constant-price TEST-USD bars. No full reviewed module/strategy import, financial simulation or file creation for the probe.",
+    "tests_or_full_suite_run": false,
+    "market_data_opened": false,
+    "network_calls": 0,
+    "services_or_credentials_accessed": false,
+    "review_scope_not_reopened": "Accepted bridge/ledger and original design/reviews were reused only as bound dependencies.",
+    "external_documents_retrieved": false
+  },
+  "retained_limits": [
+    "Neither timing choice is adopted by this review; the proposed fixed delay is receipt-cutoff compatible only when evidence meets the cutoff, not a processing/latency/fill guarantee.",
+    "Any idealized availability timestamp must remain explicitly modelled and separate from observed receipts; the strict accepted guard is not waived.",
+    "Status freshness/effective-interval rules, exact metadata/order API/minimum mapping, capital/cost/horizon/rounding and inference choices remain unadopted or unresolved before registration.",
+    "One venue/common quote/no yield or FX, and hypothetical full fills under explicit timing/cost/quantity/rounding conventions, remain the two model premises.",
+    "The complete 25-asset consideration scope and MATIC exclusion/no-POL substitution are retained; public status does not establish account eligibility.",
+    "No profit, power, execution capacity, data authenticity, live availability or broader research readiness is established."
+  ],
+  "hashes": {
+    "algorithm": "SHA256",
+    "reviewed_inputs": {
+      "docs/research/ed002_defaults25_input_contract_bindings_20261027.json": "4ce224294955f460bc8af68c761f56d44c30548ae105d790229f3c33ac427173",
+      "docs/research/ed002_defaults25_input_contract_20261027.md": "bdf986b7d9db6fa45b93b3e8e59d4ef7e9dfeacc4fc891d96822a8da73722a17",
+      "docs/research/ed002_defaults25_comparison_design_20261027.md": "5d8c86e3743fafa44427aea79e0f41ba9dc3f16276ce83a19c4c1117e019760b",
+      "docs/research/ed002_defaults25_design_review_20261027.json": "fd4bfc5cf1fd0ebd5180bae590e7338a60083b7f26ffcb0167434ed3f5004eb4",
+      "docs/research/ed002_defaults25_archive_audit_20261027/result.json": "677d8b426266ec661d77ba74c01fded2efa503a14591dcde9b862e86305e2ca2",
+      "services/backtest/frozen_signal_bridge.py": "86825dfab40c82752d626b88586e1c66aa8832e8339b2c54a6452b9bc45c4acf",
+      "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+      "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+      "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+      "research/coinbase_metadata_20261027/20261027T211732_235339Z_01ee9d4c/comparison.json": "2e19df0291306251d4488e68cdc43d9b24a3333b3297b27d129dcab8ba397988"
+    }
+  },
+  "read_scope": {
+    "full_documents": [
+      "docs/research/ed002_defaults25_input_contract_20261027.md",
+      "docs/research/ed002_defaults25_input_contract_bindings_20261027.json"
+    ],
+    "selected_source": "HourlyPanel constructor/window/prefix; ledger rule_at, marks_at/nav and order. No accepted source was modified or broadly re-audited.",
+    "saved_summaries": "Bound metadata comparison and archive-audit result were parsed for the stated counts/status/limits; no candle archives or price datasets opened.",
+    "external_links": "Read as links/author claims in the supplement only; no independent web verification."
+  },
+  "next_boundary": "Offer the operator the two explicitly qualified timing choices. A choice is not itself a frozen protocol or implementation/market-run authorization; any later extension must be separately authorized and independently reviewed.",
+  "write_scope": [
+    "docs/research/ed002_defaults25_input_contract_review_20261027.json"
+  ]
+}

@@ -1,0 +1,75 @@
+{
+ "trades": 310,
+ "before_fee_usd": 139.08190000000002,
+ "mean_pct": 0.44865129032258055,
+ "median_pct": -0.8937,
+ "sd_pct": 5.435429374671073,
+ "t_stat_mean_vs_zero": 1.453302132903661,
+ "winners": 116,
+ "losers": 194,
+ "top10_usd": 235.01960000000003,
+ "top10_share_of_total": 1.6897928486740545,
+ "total_without_top10_usd": -95.93770000000012,
+ "marginal_trades_abs_lt_0p5pct": 27,
+ "trades_gross_above_0p5pct_covers_fee25_round_trip": 103,
+ "trades_gross_above_1p2pct_covers_fee60_round_trip": 87,
+ "breakeven_fee_per_side_pct": 0.22432564516129036,
+ "bootstrap_95ci_before_fee_usd": [
+  -38.393382499999994,
+  335.51264249999997
+ ],
+ "top5_usd": 151.6877,
+ "runner_exit_exposure": {
+  "note": "counts only; the replay has no runner exits (defaults: stop 3%, take-profit 6%, trailing 2%, max hold 60 bars)",
+  "trades_best_gain_ge_6pct": 83,
+  "before_fee_usd_of_those": 509.1405999999997,
+  "trades_held_over_60h": 87,
+  "before_fee_usd_of_those_over_60h": 446.7273999999998,
+  "trades_losing_more_than_3pct": 52,
+  "before_fee_usd_of_those_losing_more_than_3pct": -207.81400000000002
+ },
+ "median_hold_hours": 39.0,
+ "trades_per_coin_per_month": 6.888888888888889,
+ "by_month_usd": {
+  "2026-01": 32.71,
+  "2026-02": -0.92,
+  "2026-03": -8.85,
+  "2026-04": -16.32,
+  "2026-05": -38.83,
+  "2026-06": -2.28,
+  "2026-07": 46.83,
+  "2026-08": 103.24,
+  "2026-09": 23.51
+ },
+ "by_month_trades": {
+  "2026-01": 30,
+  "2026-02": 31,
+  "2026-03": 34,
+  "2026-04": 44,
+  "2026-05": 33,
+  "2026-06": 28,
+  "2026-07": 37,
+  "2026-08": 30,
+  "2026-09": 43
+ },
+ "by_month_5coin_equal_weight_return_pct": {
+  "2026-01": -13.3,
+  "2026-02": -15.49,
+  "2026-03": -1.75,
+  "2026-04": 4.09,
+  "2026-05": -4.54,
+  "2026-06": -23.0,
+  "2026-07": 8.68,
+  "2026-08": 29.05,
+  "2026-09": 12.17
+ },
+ "by_coin_usd": {
+  "ADA": 5.93,
+  "BTC": 16.69,
+  "ETH": 33.59,
+  "SOL": 51.69,
+  "XRP": 31.17
+ },
+ "fee25_total_usd": -16.265900000000006,
+ "fee60_total_usd": -233.7526
+}

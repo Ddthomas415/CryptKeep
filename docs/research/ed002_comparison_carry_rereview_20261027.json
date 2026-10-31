@@ -1,0 +1,129 @@
+{
+  "schema": "ed002-comparison-carry-bounded-rereview-v1",
+  "date": "2026-10-27",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "reviewer": "Independent GATE closure of ED002-COMPARISON-01",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Exact correction of the new seven-arm wrapper's carried benchmark-entry consistency gate, with prior unaffected wrapper evidence retained. Synthetic implementation only; not authenticated fill proof, market results, a frozen protocol or operations authority.",
+  "blocking_findings": [],
+  "finding_disposition": {
+    "id": "ED002-COMPARISON-01",
+    "prior_priority": "P2",
+    "disposition": "ACCEPTED",
+    "classification": "SHOWN exact source delta and independently passing synthetic regressions",
+    "references": [
+      "services/backtest/delayed_research_comparison.py:70",
+      "services/backtest/delayed_research_comparison.py:82",
+      "services/backtest/delayed_research_comparison.py:87",
+      "tests/test_delayed_research_comparison.py:215"
+    ],
+    "assessment": "The existing controls recipe is available before carry validation. For each carried arm, intended positive-weight control components and original E are derived from the current bound recipe. _entry_evidence recomputes entered/missing components and status from positive nonterminal initial-E buys in that arm's carried trade ledger. The recomputed result must be ACCEPTED and equal the entire stored comparison_entry. All arms are checked before the simulation loop; copied empty cash proofs, wrong clocks and contradictory component lists can no longer authorize a failed benchmark.",
+    "no_marker_only_trust": true,
+    "no_retry_or_invented_fills": true,
+    "scope_boundary": "This reconciles caller-provided carry metadata with its existing trade ledger. It does not claim tamper-proof persistence or independently authenticate a fully rewritten ledger/exchange execution."
+  },
+  "delta_and_preservation": {
+    "exact_generated_diff_reproduced": true,
+    "source_change": "Existing controls definition relocated before validation; per-arm entry recomputation/full equality added. Fresh-entry computation, runner loop, clocks, wallet math and economic-completeness policy are otherwise unchanged.",
+    "test_change": "Five appended regressions: copied cash proof on failed BTC/mix entries and four expected/entered/execution-time/missing-field contradictions. The latter replace the arm runner with a refusing stub to prove rejection precedes any simulation.",
+    "original_review_and_bindings_byte_equal_archive": true,
+    "archive_source_and_test_match_original_review": true,
+    "archived_review_probe_hash_matches_original_review": true,
+    "ledger_delay_bridge_frozen_sources_unchanged": true,
+    "original_binding_interpretation": "The original binding file remains historical v1 evidence, including its rejected source/test hashes. Current corrected source/test identities are governed by the new correction bindings; no old executable hash waiver is inferred."
+  },
+  "verification": {
+    "environment": "VERIFIED_ENV local archive/hash/diff comparison and isolated synthetic pytest",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_delayed_research_comparison.py tests/test_delayed_signal_bridge.py tests/test_frozen_signal_bridge.py tests/test_shared_cash_research.py tests/test_next_open_research.py tests/test_harness_contracts_wp4.py",
+    "runs": 1,
+    "result": "185 passed in 6.98s",
+    "warnings": 0,
+    "cases": "28 comparison cases plus 157 existing synthetic/accounting/compatibility cases",
+    "closure_cases": "All five new entry-reconciliation regressions passed. Original valid default/common-clock/fresh-entry checks, ordinary full-versus-split state/equity/trade equality and prior accounting/timing cases passed.",
+    "parent_before_proof": {
+      "classification": "CLAIMED parent result, not rerun by reviewer",
+      "result": "Five new cases failed on rejected source, 23 deselected."
+    },
+    "correction_bindings_verified": 19,
+    "exact_archived_to_current_diff_matches_file": true,
+    "additional_probe_runs": 0,
+    "full_suite_run": false,
+    "market_data_or_statistical_run": false,
+    "native_network_service_account_credential_operations": false,
+    "additional_agents": 0,
+    "reviewed_files_modified": false
+  },
+  "retained_risks": [
+    "Acceptance closes the named carried-entry inconsistency for these hashes. It is not a new exhaustive audit of the ledger, bridge, strategy policies, experiment or runtime.",
+    "Entry reconciliation depends on the caller-provided modelled trade ledger; existing financial resume checks remain required. This is consistency validation, not cryptographic provenance or real venue-fill authentication.",
+    "Failed initial benchmarks remain failed: no retry, later entry, reset, synthetic liquidation or cash-only relabeling is authorized.",
+    "Partial-period arm ledgers remain diagnostics. Top economics is usable only under the unchanged all-arm entry/completeness/end-B gates; usable synthetic plumbing is not an economic PASS.",
+    "One venue/common quote/no yield or FX and hypothetical full fills under explicit caller-supplied costs/precision remain the modelling assumptions.",
+    "Capital/cost/status/rounding/horizon/inference choices, data feasibility, profitability, liquidity/capacity and any market run or activation remain outside this review."
+  ],
+  "authority": {
+    "synthetic_correction_accepted": true,
+    "market_run_authorized": false,
+    "statistical_calibration_authorized": false,
+    "experiment_freeze_or_activation_authorized": false,
+    "operations_authorized": false,
+    "capital_risk_or_trading_authorized": false,
+    "automatic_follow_on_execution": false
+  },
+  "hashes": {
+    "algorithm": "SHA256",
+    "current_reviewed_inputs": {
+      "docs/research/ed002_comparison_carry_fix_bindings_20261027.json": "79af563ea83eaac5775f0dc3fd698bdeb2374ec73bb5bf1db5b469fab94bab94",
+      "docs/research/ed002_comparison_harness_bindings_20261027.json": "1da1aae72e93bac79a5f3af5b998d969e8814ecf8207185725812df7896fc167",
+      "services/backtest/delayed_research_comparison.py": "749ba4ad7e755be44a5c3359894aff66a58e356610dbabefb1c293ac56cc8ca7",
+      "tests/test_delayed_research_comparison.py": "17be4ca90fcfd2a98131dd1358ce91b66aa6dc6ea6af7cd8b528e78266ea6778",
+      "services/backtest/delayed_signal_bridge.py": "c2c452c88190eab210764cd0a6a056cefc05fa3af95e09f535987f55e3a27e1d",
+      "services/backtest/frozen_signal_bridge.py": "7ca917d6edda68fe02c3ab439ab56cf182106831444a71fdd78ee26b5212639a",
+      "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+      "tests/test_delayed_signal_bridge.py": "5b29274cec04b3c2b3bbd5bf593d37f180c701b39ff0fea5921cde126cbe5cae",
+      "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+      "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+      "docs/research/ed002_delayed_bridge_review_20261027.json": "b8f684ef23e24713138f387900480fc3f6e48219d7d662817ce13e35ceade2ef",
+      "docs/research/ed002_comparison_harness_20261027.md": "818eb537b1bd8748b06b0f1fe9cce338af38aee0f73a0582e6ca2631020f2840",
+      "tests/test_frozen_signal_bridge.py": "eb6d5dc1eb768f4074dff7254700c3cffc1278128ab76a4bcd98c9d8c9bc32cf",
+      "tests/test_shared_cash_research.py": "415910a7fa161f9f96cd9cd8d4e3af9b3ca2e59a6a8b214d9d85a3b8485d3b08",
+      "tests/test_next_open_research.py": "798bd09a35a0fa4cefb0b0c8c3666af991d6d3a29dbf365c0d756a0758036998",
+      "tests/test_harness_contracts_wp4.py": "4439fc4de1491ee623704218713b70f69b251255924b79f4c802b5b68774bcde",
+      "docs/research/ed002_comparison_harness_review_20261027.json": "f42e5a040be59c4797ae9aab15e591f24b8ba08423cf12488fe2ef9c130e6599",
+      "docs/research/ed002_comparison_carry_fix_20261027.md": "ddfdfbc170c301b9e6f77b3c43304492bf2e7a87eae00d99bf489f9ad7ec7e4b",
+      "docs/review_artifacts/ed002_comparison_rejected_v1_20261027.tar": "341f40a2d0101988dc542b4234f040fc1634442b405c749894eec8a33832f535",
+      "docs/review_artifacts/ed002_comparison_carry_fix_20261027.diff": "2ddbf57f3cc05a00d9c3f5b011dec49f0f466f1a32413bbf668a78ed599b6e45"
+    },
+    "exact_archived_v1_members": {
+      "services/backtest/delayed_research_comparison.py": "0626287195f819772f4ecd85c3c2a3e25b55fb2820b9a0bc49846886879ce9da",
+      "tests/test_delayed_research_comparison.py": "ed795f85cf394697d5cd9ff7f4ece0afa921ffd3faf648856736f29adbb76468",
+      "docs/research/ed002_comparison_harness_20261027.md": "818eb537b1bd8748b06b0f1fe9cce338af38aee0f73a0582e6ca2631020f2840",
+      "docs/research/ed002_comparison_harness_bindings_20261027.json": "1da1aae72e93bac79a5f3af5b998d969e8814ecf8207185725812df7896fc167",
+      "docs/research/ed002_comparison_harness_review_20261027.json": "f42e5a040be59c4797ae9aab15e591f24b8ba08423cf12488fe2ef9c130e6599",
+      "archive-member:review_probe.py": "aa99d9ef9bde2bab0eb1f8da44191c4e9a865e6f79efa382444e3e6e30e35e0b"
+    }
+  },
+  "original_rejection": {
+    "path": "docs/research/ed002_comparison_harness_review_20261027.json",
+    "sha256": "f42e5a040be59c4797ae9aab15e591f24b8ba08423cf12488fe2ef9c130e6599",
+    "preserved_decision": "REJECTED",
+    "preserved_unchanged": true,
+    "interpretation": "Historical rejection remains intact; this new independent record closes its one named finding for the current corrected source/tests."
+  },
+  "read_scope": {
+    "fully_read": [
+      "docs/research/ed002_comparison_carry_fix_20261027.md",
+      "docs/research/ed002_comparison_carry_fix_bindings_20261027.json",
+      "docs/review_artifacts/ed002_comparison_carry_fix_20261027.diff"
+    ],
+    "source_and_tests": "Complete current-versus-archived source/test delta and current carry-validation/control/runner boundary. Unchanged code/test context is the preserved prior review, not a re-audit.",
+    "archive": "Exact rejected source/tests/checkpoint/bindings/review/probe read locally without extracting or executing archived code. Generated two-file diff independently reproduced byte-exact.",
+    "dependencies": "All 19 correction input hashes verified; accepted dependencies checked for unchanged identity only.",
+    "tests": "Requested six-file slice executed once; no extra issue probe, broad matrix, old runtime/design/SDK work or market input."
+  },
+  "next_boundary": "Parent may record bounded independent correction acceptance and update its index/work log. No new financial experiment, calibration, infrastructure or operational step is authorized by this disposition.",
+  "write_scope": [
+    "docs/research/ed002_comparison_carry_rereview_20261027.json"
+  ]
+}

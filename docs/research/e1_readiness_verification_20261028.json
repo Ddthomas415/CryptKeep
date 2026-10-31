@@ -1,0 +1,53 @@
+{
+  "captured_at_utc": "2026-10-28T13:03:01.296749+00:00",
+  "active_role": "AUDITOR",
+  "e1_freeze": "INCOMPLETE",
+  "raw_books": [
+    {
+      "product": "BTC-USD",
+      "phase": "initial",
+      "raw_hash_matches": true,
+      "alignment": "UNVERIFIED",
+      "clock_uncertainty": "UNVERIFIED"
+    },
+    {
+      "product": "BTC-USD",
+      "phase": "arrival",
+      "raw_hash_matches": true,
+      "alignment": "UNVERIFIED",
+      "clock_uncertainty": "UNVERIFIED"
+    },
+    {
+      "product": "ETH-USD",
+      "phase": "initial",
+      "raw_hash_matches": true,
+      "alignment": "UNVERIFIED",
+      "clock_uncertainty": "UNVERIFIED"
+    },
+    {
+      "product": "ETH-USD",
+      "phase": "arrival",
+      "raw_hash_matches": true,
+      "alignment": "UNVERIFIED",
+      "clock_uncertainty": "UNVERIFIED"
+    }
+  ],
+  "pilot_inputs_unchanged": 10,
+  "installed_job_unchanged": true,
+  "no_new_collection_or_scoring": true,
+  "tests_not_run": "No executable source changed; saved-body/hash and source checks only",
+  "inputs_sha256": {
+    "docs/research/e1_readiness_reconciliation_20261028.md": "79863ba09bf1d7f0d229edd88bd1944c5cb455210d0f12fede7fd66b597f21fe",
+    "docs/research/maker_taker_prereg_20261011/PREREGISTRATION_draft_v3.md": "2df939fe958ec68592af79a6c161bc1a04aa3fc0d240924bb2a289be18c3694b",
+    "docs/research/research_budget_90d_20261011.md": "77c21619ca1d641bc9315d9b4c098a3a44d2f94c2e09e12ef930247a3c901c18",
+    "docs/research/market_context_capture_v0.md": "b7133022ef530810886a4b5a58fcff07db1b10192186814e7e533bbdf6407758",
+    "scripts/research/observe_coinbase_arrival_book.py": "4199bc4a6c87c451858efc4786e8076a98186c08812325db84dd89d9492a69c1",
+    "services/strategies/market_context_capture.py": "06897369945b1deabfb4e8d7b98550deaddb05119b56752cb8bc809abf879485",
+    "services/execution/_executor_submit.py": "3da665c81162e08dde3b188d99a92c38192bef878953ce2537bde352ca5c09ba",
+    "services/analytics/execution_cost_stack_report.py": "fc1d0527683674c31b8757ac85c622544a7290df0ec25104235cc11049772e7c",
+    "research/coinbase_fee_observation_20261011_review_followup_1.json": "a5b92da102995c65aa19014d4de2e6cfe58b80f1f5dab65a7327be2b2e362898",
+    "research/coinbase_product_fee_preview_20261011_1.json": "c5cbf2f637019bf73e4c359bf1a6ddbc2dd5ff6f9ee79c356d9e767ae2fced86",
+    "research/coinbase_arrival_book_BTC_20261012_1.json": "3ab26c24717794292d6a9bbe3d89e2aa1cb041e2252f2b85afa04797b3cb5ed1",
+    "research/coinbase_arrival_book_ETH_20261012_1.json": "cb39c5801b4a48b91e05028e3d7acebcc2525c4d68f58cb288f9578f7890911e"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "live-cap-contract-and-pilot-diagnosis-v1",
+  "captured_at_utc": "2026-10-28T12:45:23.052648+00:00",
+  "active_role": "AUDITOR",
+  "environment": "VERIFIED_ENV for read-only metadata and offline artifact checks",
+  "historical_trace_bindings_unchanged": 15,
+  "pilot_source_bindings_unchanged": 10,
+  "installed_plist_unchanged": true,
+  "policy_unchanged": true,
+  "proposal_changed_keys": [
+    "StandardErrorPath",
+    "StandardOutPath"
+  ],
+  "namespace_files_and_bytes": {
+    "scheduler.stderr.log": 0,
+    "scheduler.stdout.log": 0
+  },
+  "artifact_sha256": {
+    "docs/research/live_position_cap_contract_20261028.md": "8bd9c90671481ad8a9105bca46af3725e4cc26749e31143110a3f4fd5124e59b",
+    "docs/research/ed002_pilot_failure_check_20261028.md": "fe924dd25712f8b6ba7571fb20090587f157305037f530b070cf6b6e7d5dac12",
+    "docs/review_artifacts/ed002_pilot_log_repair_20261028/com.cryptkeep.ed002.public-inputs.plist": "b05e609f9cc6b24fa1faf5b9ec274a61ad9c9b00477455cd0d701159a876251b",
+    "docs/review_artifacts/ed002_pilot_log_repair_20261028/proposal.diff": "63bb1f2cc5b80c7c5f98db4fa17fade960d80fe12119818421332fc2e90a0f51"
+  },
+  "proof_limits": [
+    "No new pytest run: no Python source changed",
+    "No collector invocation, job modification or private access",
+    "Contract and proposed scheduler repair READY_FOR_INDEPENDENT_REVIEW",
+    "No proof of interpreter/repository access after log-path repair",
+    "No production position-cap implementation"
+  ]
+}

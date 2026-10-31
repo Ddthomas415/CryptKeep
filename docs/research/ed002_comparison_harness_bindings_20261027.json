@@ -1,0 +1,24 @@
+{
+  "schema": "ed002-comparison-harness-bindings-v1",
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "synthetic seven-arm comparison and benchmark-entry validation",
+  "market_run_authorized": false,
+  "parent_tests": {
+    "passed": 180,
+    "seconds": 6.82,
+    "new_cases": 23,
+    "full_suite": false
+  },
+  "inputs_sha256": {
+    "services/backtest/delayed_research_comparison.py": "0626287195f819772f4ecd85c3c2a3e25b55fb2820b9a0bc49846886879ce9da",
+    "tests/test_delayed_research_comparison.py": "ed795f85cf394697d5cd9ff7f4ece0afa921ffd3faf648856736f29adbb76468",
+    "services/backtest/delayed_signal_bridge.py": "c2c452c88190eab210764cd0a6a056cefc05fa3af95e09f535987f55e3a27e1d",
+    "services/backtest/frozen_signal_bridge.py": "7ca917d6edda68fe02c3ab439ab56cf182106831444a71fdd78ee26b5212639a",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+    "tests/test_delayed_signal_bridge.py": "5b29274cec04b3c2b3bbd5bf593d37f180c701b39ff0fea5921cde126cbe5cae",
+    "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "docs/research/ed002_delayed_bridge_review_20261027.json": "b8f684ef23e24713138f387900480fc3f6e48219d7d662817ce13e35ceade2ef",
+    "docs/research/ed002_comparison_harness_20261027.md": "818eb537b1bd8748b06b0f1fe9cce338af38aee0f73a0582e6ca2631020f2840"
+  }
+}

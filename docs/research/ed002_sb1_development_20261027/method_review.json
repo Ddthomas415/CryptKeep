@@ -1,0 +1,75 @@
+{
+  "schema": "ed002-sb1-saved-method-review-v1",
+  "active_role": "AUDITOR",
+  "independent_review": false,
+  "acceptance_state": "INCOMPLETE",
+  "classification": "SHOWN saved-output arithmetic/source reconciliation only",
+  "reviewed_trials": 96,
+  "all_selection_and_guard_decisions_match_frozen_rule": true,
+  "cases": {
+    "iid_gaussian": {
+      "trials": 16,
+      "computed": 16,
+      "abstained": 0,
+      "block_length_min": 2,
+      "block_length_median": 3.0,
+      "block_length_max": 15
+    },
+    "ar1_0.5": {
+      "trials": 16,
+      "computed": 16,
+      "abstained": 0,
+      "block_length_min": 6,
+      "block_length_median": 8.0,
+      "block_length_max": 13
+    },
+    "ar1_0.8": {
+      "trials": 16,
+      "computed": 12,
+      "abstained": 4,
+      "block_length_min": 11,
+      "block_length_median": 14.5,
+      "block_length_max": 41
+    },
+    "ar1_0.95": {
+      "trials": 16,
+      "computed": 0,
+      "abstained": 16,
+      "block_length_min": 19,
+      "block_length_median": 20.0,
+      "block_length_max": 21
+    },
+    "ar1_-0.5": {
+      "trials": 16,
+      "computed": 13,
+      "abstained": 3,
+      "block_length_min": 7,
+      "block_length_median": 12.5,
+      "block_length_max": 41
+    },
+    "volatility_two_state": {
+      "trials": 16,
+      "computed": 14,
+      "abstained": 2,
+      "block_length_min": 3,
+      "block_length_median": 11.0,
+      "block_length_max": 20
+    }
+  },
+  "no_method_reexecution": true,
+  "unverified": [
+    "nominal real-world coverage",
+    "power",
+    "market applicability",
+    "absence of all implementation defects"
+  ],
+  "recommendation": "Do not run the larger audit or relax the guard from these results; obtain direction before changing the research ordering or inferential claims.",
+  "sources_sha256": {
+    "docs/research/ed002_sb1_development_20261027/trials.jsonl": "d2b4270a33ce4fb8654e7020b06cdd329e74e74ab1258e0e5f0fdf97119d5795",
+    "docs/research/ed002_sb1_development_20261027/result.json": "3c5b2116e43aa6c218513bb63a4f751d55c3243c809e83c3477411e670bf9197",
+    "docs/research/ed002_sb1_development_20261027/evidence_manifest.json": "843fafe8a4b2133c527206a550a0545bf49f338f59b6ece3823b93ba2d14cbdf",
+    "docs/research/ed002_sb1_development_20261027/run_development.py": "66ecc648391c92449b02c374f5ad592b0d030e2e0660b4b81a7fe4943ea1ae4c",
+    "services/backtest/sb1_prototype.py": "a152f15f464005dfa2e5c00877074762241ae4b84133575188d8442f0d72f01a",
+    "docs/research/ed002_stat_revision_plan_20261027.md": "52211dd517dcf5ab65e8f73ce63a9e19512a8572bc3c8ecf648a963d6e1ab930"
+  }
+}

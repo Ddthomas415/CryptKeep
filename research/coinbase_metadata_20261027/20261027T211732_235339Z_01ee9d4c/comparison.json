@@ -1,0 +1,920 @@
+{
+  "schema": "ed002_public_metadata_comparison_v1",
+  "acceptance": "ACCEPTED",
+  "acceptance_scope": "approved public metadata capture and descriptive comparison only",
+  "observed_new_york": "2026-10-27T17:17:32.329430-04:00",
+  "observed_product_utc": "2026-10-27T21:17:32.329430+00:00",
+  "observed_currency_utc": "2026-10-27T21:17:32.402702+00:00",
+  "capture_manifest_sha256": "0e339e69701a90d886b8c3d7a7daed1907dda1b1938e1865a11aae83c37ce404",
+  "counts": {
+    "configured_assets": 25,
+    "unique_usd_candidates": 25,
+    "online": 24,
+    "delisted": 1,
+    "changed_tracked_products": 0,
+    "changed_tracked_currencies": 0
+  },
+  "compared_product_fields": [
+    "status",
+    "trading_disabled",
+    "cancel_only",
+    "limit_only",
+    "post_only",
+    "auction_mode",
+    "view_only",
+    "base_increment",
+    "quote_increment",
+    "min_market_funds",
+    "base_min_size"
+  ],
+  "compared_currency_fields": [
+    "id",
+    "name",
+    "status",
+    "min_size",
+    "max_precision"
+  ],
+  "global_response_counts": {
+    "old_products": 842,
+    "new_products": 845,
+    "old_currencies": 511,
+    "new_currencies": 514
+  },
+  "sources_sha256": {
+    "research/coinbase_metadata_20261027/20261027T211732_235339Z_01ee9d4c/ATTEMPT.json": "3fe5d4bdabdb05f6c4c83a5ab3dbfdd9d841afefa3b7884965f6d139c934982e",
+    "research/coinbase_metadata_20261027/20261027T211732_235339Z_01ee9d4c/manifest.json": "0e339e69701a90d886b8c3d7a7daed1907dda1b1938e1865a11aae83c37ce404",
+    "research/coinbase_metadata_20261027/20261027T211732_235339Z_01ee9d4c/products.json": "5b5e7a15b45c34a888ffb684d90fde4095b588a0b4e66c00c9efc3b4dca67d7b",
+    "research/coinbase_metadata_20261027/20261027T211732_235339Z_01ee9d4c/currencies.json": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+    "research/coinbase_listing_probe_20261019/01_products.json": "00e556cc635a903fdec2ac1c2bc86f6bef55e229384fb63b8fa31c2efb2f2b0b",
+    "research/coinbase_listing_stepB_20261019/01_currencies.json": "8de25dcc9b564a41c61736677ec37fc932b23558e81bc68aa7da3227f5b50fa1",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6"
+  },
+  "rows": [
+    {
+      "configured_label": "BTC",
+      "candidate_product_id": "BTC-USD",
+      "base_currency": "BTC",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.00000001",
+        "quote_increment": "0.01",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "BTC",
+        "name": "Bitcoin",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "ETH",
+      "candidate_product_id": "ETH-USD",
+      "base_currency": "ETH",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.00000001",
+        "quote_increment": "0.01",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "ETH",
+        "name": "Ether",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "SOL",
+      "candidate_product_id": "SOL-USD",
+      "base_currency": "SOL",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.00000001",
+        "quote_increment": "0.01",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "SOL",
+        "name": "Solana",
+        "status": "online",
+        "min_size": "0.01",
+        "max_precision": "0.000000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "BNB",
+      "candidate_product_id": "BNB-USD",
+      "base_currency": "BNB",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.00001",
+        "quote_increment": "0.01",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "BNB",
+        "name": "BNB",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "XRP",
+      "candidate_product_id": "XRP-USD",
+      "base_currency": "XRP",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.000001",
+        "quote_increment": "0.0001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "XRP",
+        "name": "XRP",
+        "status": "online",
+        "min_size": "1",
+        "max_precision": "0.000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "DOGE",
+      "candidate_product_id": "DOGE-USD",
+      "base_currency": "DOGE",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.1",
+        "quote_increment": "0.00001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "DOGE",
+        "name": "Dogecoin",
+        "status": "online",
+        "min_size": "1",
+        "max_precision": "0.1"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "ADA",
+      "candidate_product_id": "ADA-USD",
+      "base_currency": "ADA",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.00000001",
+        "quote_increment": "0.00001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "ADA",
+        "name": "Cardano",
+        "status": "online",
+        "min_size": "1",
+        "max_precision": "0.1"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "AVAX",
+      "candidate_product_id": "AVAX-USD",
+      "base_currency": "AVAX",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.00000001",
+        "quote_increment": "0.001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "AVAX",
+        "name": "Avalanche",
+        "status": "online",
+        "min_size": "0.01",
+        "max_precision": "0.001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "LINK",
+      "candidate_product_id": "LINK-USD",
+      "base_currency": "LINK",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.01",
+        "quote_increment": "0.001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "LINK",
+        "name": "Chainlink",
+        "status": "online",
+        "min_size": "1",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "DOT",
+      "candidate_product_id": "DOT-USD",
+      "base_currency": "DOT",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.00000001",
+        "quote_increment": "0.0001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "DOT",
+        "name": "Polkadot",
+        "status": "online",
+        "min_size": "0.01",
+        "max_precision": "0.001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "LTC",
+      "candidate_product_id": "LTC-USD",
+      "base_currency": "LTC",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.00000001",
+        "quote_increment": "0.001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "LTC",
+        "name": "Litecoin",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "MATIC",
+      "candidate_product_id": "MATIC-USD",
+      "base_currency": "MATIC",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "delisted",
+        "trading_disabled": true,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.1",
+        "quote_increment": "0.0001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "MATIC",
+        "name": "Polygon",
+        "status": "online",
+        "min_size": "1",
+        "max_precision": "0.0000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "UNI",
+      "candidate_product_id": "UNI-USD",
+      "base_currency": "UNI",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.000001",
+        "quote_increment": "0.0001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "UNI",
+        "name": "Uniswap",
+        "status": "online",
+        "min_size": "1",
+        "max_precision": "0.000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "ATOM",
+      "candidate_product_id": "ATOM-USD",
+      "base_currency": "ATOM",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.01",
+        "quote_increment": "0.0001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "ATOM",
+        "name": "Cosmos",
+        "status": "online",
+        "min_size": "1",
+        "max_precision": "0.000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "FIL",
+      "candidate_product_id": "FIL-USD",
+      "base_currency": "FIL",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.001",
+        "quote_increment": "0.0001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "FIL",
+        "name": "Filecoin",
+        "status": "online",
+        "min_size": "0.01",
+        "max_precision": "0.001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "APT",
+      "candidate_product_id": "APT-USD",
+      "base_currency": "APT",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.001",
+        "quote_increment": "0.0001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "APT",
+        "name": "Aptos",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "OP",
+      "candidate_product_id": "OP-USD",
+      "base_currency": "OP",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.01",
+        "quote_increment": "0.00001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "OP",
+        "name": "Optimism",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "ARB",
+      "candidate_product_id": "ARB-USD",
+      "base_currency": "ARB",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.01",
+        "quote_increment": "0.00001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "ARB",
+        "name": "Arbitrum",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "INJ",
+      "candidate_product_id": "INJ-USD",
+      "base_currency": "INJ",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.01",
+        "quote_increment": "0.001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "INJ",
+        "name": "Injective Protocol",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "SUI",
+      "candidate_product_id": "SUI-USD",
+      "base_currency": "SUI",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.1",
+        "quote_increment": "0.0001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "SUI",
+        "name": "Sui",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "PEPE",
+      "candidate_product_id": "PEPE-USD",
+      "base_currency": "PEPE",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "1",
+        "quote_increment": "0.00000001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "PEPE",
+        "name": "Pepe",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "WIF",
+      "candidate_product_id": "WIF-USD",
+      "base_currency": "WIF",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.01",
+        "quote_increment": "0.00001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "WIF",
+        "name": "Dogwifhat",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "JTO",
+      "candidate_product_id": "JTO-USD",
+      "base_currency": "JTO",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.1",
+        "quote_increment": "0.0001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "JTO",
+        "name": "Jito",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "BONK",
+      "candidate_product_id": "BONK-USD",
+      "base_currency": "BONK",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "1",
+        "quote_increment": "0.00000001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "BONK",
+        "name": "Bonk",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.00001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    },
+    {
+      "configured_label": "PYTH",
+      "candidate_product_id": "PYTH-USD",
+      "base_currency": "PYTH",
+      "quote_currency": "USD",
+      "observed_product_fields": {
+        "status": "online",
+        "trading_disabled": false,
+        "cancel_only": false,
+        "limit_only": false,
+        "post_only": false,
+        "auction_mode": false,
+        "view_only": null,
+        "base_increment": "0.1",
+        "quote_increment": "0.00001",
+        "min_market_funds": "1",
+        "base_min_size": null
+      },
+      "absent_product_fields": [
+        "view_only",
+        "base_min_size"
+      ],
+      "product_field_changes": {},
+      "currency_fields": {
+        "id": "PYTH",
+        "name": "Pyth Network",
+        "status": "online",
+        "min_size": "0.00000001",
+        "max_precision": "0.000001"
+      },
+      "currency_field_changes": {},
+      "model_rules_emitted": false,
+      "trading_permission_inferred": false
+    }
+  ],
+  "request_budget": {
+    "maximum": 2,
+    "attempted": 2,
+    "per_request_seconds": 10,
+    "overall_seconds": 30,
+    "observed_elapsed_seconds": 0.171504,
+    "retries": 0,
+    "redirects": 0
+  },
+  "limits": [
+    "single observation not a valid-through interval or atomic multi-endpoint transaction",
+    "same-base product candidates do not replace exact identity adjudication",
+    "missing fields remain absent; no false/zero default or model-rule conversion",
+    "no candles, returns, signals, fees/accounts, orders or statistics accessed",
+    "no experiment freeze, activation, operational changes or trading permission"
+  ]
+}

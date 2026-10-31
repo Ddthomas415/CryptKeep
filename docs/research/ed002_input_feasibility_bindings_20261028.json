@@ -1,0 +1,75 @@
+{
+  "schema": "ed002-input-feasibility-and-candle-receipt-v1",
+  "date": "2026-10-28",
+  "active_role": "ENGINEER",
+  "risk": "HIGH",
+  "acceptance_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "operator_answer": "approve. carry out the next steps",
+  "prior_report_acceptance": "ACCEPTED_WITH_RISK by human for submitted synthetic scope, not independent review or market authority",
+  "prior_report_bindings_verified_unchanged": 15,
+  "shown_static_source_fit": {
+    "registered_runner_market_count": 5,
+    "archive_receipt_columns": false,
+    "archive_uses_insert_or_replace": true,
+    "existing_raw_listing_capture_patterns": true,
+    "read_scope": "named source paths and saved receipts only; not exhaustive repo/runtime inventory"
+  },
+  "unverified": [
+    "current 25-symbol warm-up and continuity",
+    "actual future first-receipt coverage",
+    "current public or account eligibility",
+    "source authenticity",
+    "182-day study feasibility"
+  ],
+  "planning_arithmetic_only": {
+    "hours": 4368,
+    "nominal_max_requests_per_hour": 26,
+    "nominal_evaluation_requests_excluding_warmup_and_currency": 113568,
+    "warmup_rows_if_25_eligible": 9828,
+    "warmup_rows_if_dated_24_eligible": 9528,
+    "nominal_candle_pages_if_25_eligible": 33,
+    "nominal_candle_pages_if_dated_24_eligible": 32,
+    "authorization_or_vendor_quota": false
+  },
+  "tests": {
+    "passed": 82,
+    "new_candle_cases": 34,
+    "mapper_cases": 48,
+    "seconds": 2.54,
+    "full_suite": false,
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_descriptive_candles.py tests/test_descriptive_metadata.py",
+    "data": "invented response bytes; no market strategy or return evaluation"
+  },
+  "documentation_opened": [
+    {
+      "url": "https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-candles",
+      "claim_scope": "hourly granularity, max 300 candles, range overlap and absent no-tick intervals; not uptime guarantee"
+    }
+  ],
+  "market_api_requests": 0,
+  "live_database_or_runtime_inspections": false,
+  "archive_scheduler_service_account_credential_trading_changes": false,
+  "statistical_qualification": "INCOMPLETE",
+  "dates_frozen": false,
+  "next_boundary": "exact adapter review, then bounded foreground capture transport preparation/review; separately authorized acquisition",
+  "inputs_sha256": {
+    "services/backtest/descriptive_candles.py": "9425211207738f0395f28b3f8c02c8a292c9a2e80e5d8d4b203e5ec5ebf273de",
+    "tests/test_descriptive_candles.py": "c16d95d6297d20fae33048396282e683a7d7c51e45cf72d2c514a7d71640dedc",
+    "docs/research/ed002_input_feasibility_20261028.md": "06174eba3adfb3c2c8c81bead6604f0c32e2e2d9a78ce8b15f8b34225655f967",
+    "docs/research/ed002_descriptive_report_bindings_20261028.json": "efbfe890813f75b0747988cec3bfa83245bb12c5dca2ae9ca6df104e4499ae7f",
+    "services/backtest/descriptive_metadata.py": "9c98bba24ed52bcb99e73ecc8bcd0bfa51ccd5e60447aa5f2017ef8cbb1e4099",
+    "services/backtest/frozen_signal_bridge.py": "7ca917d6edda68fe02c3ab439ab56cf182106831444a71fdd78ee26b5212639a",
+    "scripts/research/collect_confirmation_batch.py": "8ff2d2ea8ff128f55712d4436c5da6c43f6a3b109a96ed9560709d887f8d7de5",
+    "scripts/research/run_coinbase_confirmation.py": "4aaac1a6473e5b25e8db1b3fd9a85769f8188f1becf9eb45180691c5566f0719",
+    "scripts/research/run_ohlcv_archive_backfill.py": "cbe9583690c24d681eb45bdc9ce46da0974c4badc7b0df527441182546e39970",
+    "services/backtest/ohlcv_archive.py": "d48427debecc902360f0c0f777ab42afa086a171ed10e4e438741e26a75b9585",
+    "storage/market_store_sqlite.py": "172b4d25efc16549ba35c7766f7f47343e1b9fb052b57dcd846bd6153e903ed7",
+    "services/backtest/research_prefix_freeze.py": "5af4a5fb8390644dc846ee47851ff222c127e51ab8852a15b595b5a6a147b74f",
+    "scripts/research/probe_coinbase_listings.py": "6833cbf34dc502cf43707cd6cf3d55d5a2ea1e98974ff9ed92447a15eb3b4455",
+    "scripts/research/fetch_coinbase_listing_dates.py": "049a36a41568095aab1038eafe2193df4da065433700c6c174927c229d29f6ab",
+    "docs/research/ed002_defaults25_archive_audit_20261027/README.md": "f3338235daf7604f522e8d250d574a84b1d008d536f71a5e2e915eb92b0eca32",
+    "research/coinbase_metadata_20261027/20261027T211732_235339Z_01ee9d4c/manifest.json": "0e339e69701a90d886b8c3d7a7daed1907dda1b1938e1865a11aae83c37ce404",
+    "docs/research/ed002_defaults25_descriptive_contract_20261027.md": "129e7daa1d83151e75003f02bf8b21c61ae6563b5d88639891bb8c12a937adbc",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6"
+  }
+}

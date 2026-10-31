@@ -1,0 +1,14 @@
+{
+  "schema": "cryptkeep_public_metadata_capture_v1",
+  "started_utc": "2026-10-27T21:17:32.236416+00:00",
+  "request_limit": 2,
+  "request_timeout_seconds": 10,
+  "overall_timeout_seconds": 30,
+  "retries": 0,
+  "redirects_allowed": false,
+  "credentials_used": false,
+  "tls_verification": "certifi CA bundle; hostname and certificate verification enabled",
+  "records": [],
+  "status": "INCOMPLETE",
+  "capture_directory": "research/coinbase_metadata_20261027/20261027T211732_235339Z_01ee9d4c"
+}

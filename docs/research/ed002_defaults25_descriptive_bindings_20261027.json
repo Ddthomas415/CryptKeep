@@ -1,0 +1,55 @@
+{
+  "acceptance_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "activation_or_trading_authorized": false,
+  "active_role": "DIRECTOR",
+  "adopted_model_settings": {
+    "adverse_price_bps_each_side": 25,
+    "cash_rounding_usd_per_order": "0.01",
+    "deposits": false,
+    "fee_bps_each_side_primary": 50,
+    "fee_bps_each_side_stress": 90,
+    "horizon_days": 182,
+    "initial_cash_usd_per_alternative": "1000",
+    "separate_overhead_usd_per_month": "20"
+  },
+  "authorization_scope": "Prepare a descriptive-only 25-symbol prospective contract alongside unresolved inference; no detailed new rule adoption or market run.",
+  "code_or_tests_changed": false,
+  "date": "2026-10-27",
+  "experiment_readiness": "INCOMPLETE",
+  "independent_contract_review": false,
+  "inputs_sha256": {
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "docs/research/ed002_comparison_carry_rereview_20261027.json": "a1999e9cfd54a9e3dc0c9aeff2b94974ed625a5567c95de61aad48126e9af96d",
+    "docs/research/ed002_defaults25_comparison_design_20261027.md": "5d8c86e3743fafa44427aea79e0f41ba9dc3f16276ce83a19c4c1117e019760b",
+    "docs/research/ed002_defaults25_descriptive_contract_20261027.md": "129e7daa1d83151e75003f02bf8b21c61ae6563b5d88639891bb8c12a937adbc",
+    "docs/research/ed002_defaults25_input_contract_20261027.md": "bdf986b7d9db6fa45b93b3e8e59d4ef7e9dfeacc4fc891d96822a8da73722a17",
+    "docs/research/ed002_defaults25_metadata_refresh_20261027.md": "d03c0c544f3b5e0eee80451aef4c4ac9baa05e9c08dcd9df4d2c045f2e24073f",
+    "docs/research/ed002_sb1_development_20261027/METHOD_REVIEW.md": "4efb4da3491ee92c1841d4cac91fb2bea50f483215b872f7dbeee1c85a21ebb9",
+    "docs/research/ed002_sb1_development_20261027/method_review.json": "5a98c537150d31fd5839f4ed8062d29020356e0ffdf49981b28ea00d9fe17505",
+    "docs/research/ed002_sb1_prototype_bindings_20261027.json": "886659a60140feb989a1cc98a6d3793715a9c189e05e08a6c840d8e398dff9be",
+    "docs/research/ed002_stat_validation_20261027/bindings.json": "283cca8b5ed33cfb430fe62f48d997b620885364652cba7cf276edf91d876999",
+    "docs/research/ed002_stat_validation_20261027/decision.json": "b0d907b5a9c4570a5b25299dbb33653d2d504017e7298194186b200b2e745b8f",
+    "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "services/backtest/delayed_research_comparison.py": "749ba4ad7e755be44a5c3359894aff66a58e356610dbabefb1c293ac56cc8ca7",
+    "services/backtest/delayed_signal_bridge.py": "c2c452c88190eab210764cd0a6a056cefc05fa3af95e09f535987f55e3a27e1d",
+    "services/backtest/frozen_signal_bridge.py": "7ca917d6edda68fe02c3ab439ab56cf182106831444a71fdd78ee26b5212639a",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc"
+  },
+  "market_data_accessed": false,
+  "new_proposals_not_adopted": [
+    "25/25/50 fixed-unit BTC/ETH/cash control",
+    "one-hour metadata validity from receipt without backward extension",
+    "dated quantity-model rule mapping with zero model minima"
+  ],
+  "operator_answer": "Prepare descriptive comparison contract (Recommended)",
+  "operator_decision_id": "ED002-DESCRIPTIVE-20261027",
+  "reviewed_existing_hash_sets": {
+    "docs/research/ed002_sb1_development_20261027/method_review.json": 6,
+    "docs/research/ed002_sb1_prototype_bindings_20261027.json": 14,
+    "docs/research/ed002_stat_validation_20261027/bindings.json": 16
+  },
+  "risk": "HIGH",
+  "schema": "ed002-descriptive-contract-bindings-v1",
+  "simulation_or_rng_run": false,
+  "tests_rerun": false
+}

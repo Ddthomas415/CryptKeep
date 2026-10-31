@@ -1,0 +1,32 @@
+{
+ "breakout_default": {
+  "trades_analytic": 543,
+  "trades_brute": 543,
+  "same_entry_bars": true,
+  "same_exit_rules": true,
+  "max_exit_price_rel_diff": 2.43294431176988e-05,
+  "net25_analytic": -131.53,
+  "net25_brute": -131.66,
+  "net25_in_result_json": -131.53
+ },
+ "ema_cross_default": {
+  "trades_analytic": 204,
+  "trades_brute": 204,
+  "same_entry_bars": true,
+  "same_exit_rules": true,
+  "max_exit_price_rel_diff": 1.446724374898345e-05,
+  "net25_analytic": -64.06,
+  "net25_brute": -64.11,
+  "net25_in_result_json": -64.06
+ },
+ "mean_reversion_default": {
+  "trades_analytic": 87,
+  "trades_brute": 87,
+  "same_entry_bars": true,
+  "same_exit_rules": true,
+  "max_exit_price_rel_diff": 2.0890620050728614e-05,
+  "net25_analytic": -79.2,
+  "net25_brute": -79.23,
+  "net25_in_result_json": -79.2
+ }
+}

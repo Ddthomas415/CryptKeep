@@ -1,0 +1,73 @@
+{
+"batchcomplete": true,
+"query": {
+"pages": [
+{
+"pageid": 67444790,
+"ns": 0,
+"title": "Chainlink (blockchain oracle)",
+"pageprops": {
+"wikibase_item": "Q100804984"
+},
+"description": "Cryptocurrency and Ethereum token",
+"descriptionsource": "local",
+"extract": "Chainlink is a decentralized blockchain oracle network. Chainlink's token is on Ethereum."
+},
+{
+"pageid": 73548731,
+"ns": 0,
+"title": "World (blockchain)",
+"pageprops": {
+"wikibase_item": "Q118868596"
+},
+"description": "Cryptocurrency project",
+"descriptionsource": "local",
+"extract": "World, also known as World Network, is a humanity verification project and financial network. It was developed and launched as the cryptocurrency project Worldcoin."
+},
+{
+"pageid": 74636894,
+"ns": 0,
+"title": "The Graph",
+"pageprops": {
+"wikibase_item": "Q122212417"
+},
+"description": "Cryptocurrency",
+"descriptionsource": "local",
+"extract": "The Graph is an open-source, decentralized protocol that powers the indexing and querying of blockchain data. It enables developers to build scalable web3 decentralized applications without managing complex indexing and querying infrastructure."
+},
+{
+"pageid": 74929316,
+"ns": 0,
+"title": "Injective (blockchain)",
+"pageprops": {
+"wikibase_item": "Q123027324"
+},
+"description": "Cryptocurrency",
+"descriptionsource": "local",
+"extract": "Injective (INJ) is a blockchain optimized for Web3 finance."
+},
+{
+"pageid": 75194896,
+"ns": 0,
+"title": "The Sandbox (company)",
+"pageprops": {
+"wikibase_item": "Q123554381"
+},
+"description": "American video game developer",
+"descriptionsource": "local",
+"extract": "TSB Gaming (formerly known as Pixowl), doing business and commonly known as The Sandbox, is a metaverse platform developer. Founded in 2011, the company is now a subsidiary of the Hong Kong-based Animoca Brands."
+},
+{
+"pageid": 81289832,
+"ns": 0,
+"title": "BNB Smart Chain (blockchain platform)",
+"pageprops": {
+"wikibase_item": "Q107313836"
+},
+"description": "Public blockchain platform",
+"descriptionsource": "local",
+"extract": "BNB Smart Chain (formerly Binance Smart Chain) is a public blockchain platform that uses a proof-of-stake consensus mechanism and provides smart contract functionality. The platform's native cryptocurrency is BNB. The system is part of the broader Binance ecosystem founded in 2017 by Changpeng Zhao and Yi He."
+}
+]
+}
+}

@@ -1,0 +1,25 @@
+{
+  "schema": "ed002-pilot-installation-scope-v1",
+  "date_local": "2026-10-28",
+  "active_role": "DIRECTOR",
+  "risk": "HIGH",
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "independent_review": false,
+  "submitted_wrapper_acceptance": "ACCEPTED_WITH_RISK",
+  "acceptance_route": "operator approval; not independent review",
+  "previous_submission_bindings_unchanged": 17,
+  "installation_collection_authorized": false,
+  "pilot_dates_assigned": false,
+  "new_data_or_scheduler_change": false,
+  "tests_repeated": false,
+  "inputs_sha256": {
+    "docs/research/ed002_pilot_installation_scope_20261028.md": "84641a6136b1da929ab05eb57b60e3af8d2ca58dfe79051ae14c98d4bcdc86f1",
+    "docs/research/ed002_local_pilot_wrapper_bindings_20261028.json": "60daf26d2605b788a8ae2eccbbbb167020736839cfc7d33a0ac17a6c01a37954",
+    "research/ed002_public_inputs/plans/local_pilot_disabled_20261028.json": "f484d087fa9be188e96b256b8ac0dd91d0be33a5e85394b046ffb4257b119b6b",
+    "docs/review_artifacts/ed002_local_pilot_20261028/com.cryptkeep.ed002.public-inputs.plist": "98cb037cab97f6443aaa7544e68a8e2d8e6768c47a6eafd8c189932b85785b25",
+    "docs/checkpoints/claude_cowork_direction_20261028.md": "186e9fb00fa736e4b1660b62524968011854e81e586cb7f64ae8fad8e64db499",
+    "docs/checkpoints/claude_cowork_handoff_20261024.md": "0953871f8fd80ef01828bedda7dcede9aa4bd2accf6e078871a8b5275249e923",
+    "docs/review_artifacts/claude_cowork_20261022/CODEX_HANDOFF_FIXES.md": "c5fcdbd3650cd7e219216ab962234761d1dc7c08170438fed7a72fbbb4a3a755",
+    "scripts/release/schedule/install_mac_monitor.sh": "d2398a3e3d39c80a23b354016336b3ea3eabd2354a071c6401c8a4d859f93bf6"
+  }
+}

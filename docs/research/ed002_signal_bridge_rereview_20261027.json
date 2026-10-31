@@ -1,0 +1,124 @@
+{
+  "schema": "ed002-signal-bridge-bounded-rereview-v1",
+  "date": "2026-10-27",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "reviewer": "Independent GATE correction closure of ED002-BRIDGE-01",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Exact synthetic bridge correction for ED002-BRIDGE-01 only, with the original review's unaffected context/limits retained. No new general ledger/design/runtime/SDK audit, profitability evidence, statistical calibration, market-data experiment or activation authority.",
+  "blocking_findings": [],
+  "finding_disposition": {
+    "id": "ED002-BRIDGE-01",
+    "prior_priority": "P1",
+    "disposition": "ACCEPTED",
+    "classification": "SHOWN exact archived-to-current source delta and independently passing synthetic regressions",
+    "references": [
+      "services/backtest/frozen_signal_bridge.py:189",
+      "services/backtest/frozen_signal_bridge.py:198",
+      "tests/test_frozen_signal_bridge.py:378"
+    ],
+    "assessment": "The incumbent now validates every present current frame open/close against a complete/available one-hour panel window before its weekly early return. Contradictory Monday opens/closes and a missing current panel hour can no longer produce a COMPLETE valid return path. The existing Sunday trigger, permission/history validation and weekly target formula remain byte-identical after the new prelude. Missing raw prices are not invented from the panel.",
+    "causal_boundary": "Validation runs through the completed-bar callback. It does not inspect a future close to cancel an earlier modeled opening fill. A failed bar may leave diagnostic trades/equity entries in retained state, but status is INCOMPLETE, marked_nav/net_profit are None and state.valid is False; this is not a valid performance account or accepted execution record.",
+    "closure_proof": "Three new parametrized cases begin with a genuine synthetic Sunday target and verify an actual Monday opening fill in the valid baseline. Open contradiction, close contradiction and missing current-panel hour each produce INCOMPLETE/unknown NAV and profit/invalid state after correction. Existing incumbent formula/UTC cadence and unchanged-source regression cases also pass."
+  },
+  "delta_scope": {
+    "source": "Complete unified diff against the exact archived rejected source contains only a nine-line upfront current-hour/present-frame consistency loop in _incumbent. Existing weekly branch/formula and all other source are unchanged.",
+    "tests": "Only three new parametrized regression cases appended. Existing bridge/ledger/compatibility tests are not removed or weakened.",
+    "checkpoint": "Read fully, including explicit completed-bar invalidation/diagnostic-entry limitations and preservation of the original rejection.",
+    "preserved_archive": "Archived source/tests/checkpoint/original review match the prior independent review's hashes. The current original review is byte-identical to its archived version.",
+    "accepted_ledger_source_unchanged": true,
+    "frozen_strategy_and_snapshot_bindings_unchanged": true
+  },
+  "verification": {
+    "environment": "VERIFIED_ENV local stdlib archive/hash/diff reads and isolated synthetic pytest only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_frozen_signal_bridge.py tests/test_shared_cash_research.py tests/test_next_open_research.py tests/test_harness_contracts_wp4.py",
+    "runs": 1,
+    "result": "129 passed in 3.57s",
+    "warnings": 0,
+    "cases": "36 bridge cases plus 93 existing accounting/compatibility cases",
+    "parent_red_proof": {
+      "classification": "CLAIMED parent proof, not rerun by reviewer",
+      "result": "Three added cases failed against rejected source; 33 deselected."
+    },
+    "current_manifest_bindings_verified": 17,
+    "isolated_patch_sha256_verified": true,
+    "extra_probe_runs": 0,
+    "full_suite_run": false,
+    "market_data_or_statistical_runs": false,
+    "native_network_service_account_credential_operations": false,
+    "old_study_or_E10_body_imported_or_run": false,
+    "extra_agents": 0,
+    "reviewed_artifacts_modified": false
+  },
+  "retained_risks": [
+    "This closes the named frame-consistency defect for the bound correction. It is not a fresh exhaustive review of every bridge or ledger behavior.",
+    "Validation at completed-bar time may retain diagnostic fills or equity entries for the invalid bar. Consumers must honor INCOMPLETE, None NAV/profit and invalid state rather than extract those entries as valid realized returns.",
+    "The correction intentionally does not use future close information to pre-cancel an opening fill and does not add off-schedule incumbent rebalancing.",
+    "If neither raw open nor close is present, the prelude does not invent one. Existing ledger valuation/missing-execution semantics and Sunday required-history rules remain applicable.",
+    "Strategy/panel inputs are caller supplied; source/configuration identity and synthetic fixtures are not historical market data or actual venue/tradability proof.",
+    "One venue/common quote/no yield or FX, and MODELLED full fills with declared costs/dated eligibility, remain the two explicit modelling assumptions.",
+    "The wider cost/horizon/inference proposal, calibration, market-data feasibility, prospective freeze/activation, economics and production integration remain unapproved or unverified outside this review."
+  ],
+  "authority": {
+    "synthetic_correction_accepted": true,
+    "market_data_run_authorized": false,
+    "statistical_calibration_authorized": false,
+    "experiment_freeze_or_activation_authorized": false,
+    "operations_authorized": false,
+    "capital_risk_or_trading_authorized": false,
+    "automatic_follow_on_execution": false
+  },
+  "hashes": {
+    "algorithm": "SHA256",
+    "current_reviewed_inputs": {
+      "docs/review_artifacts/ed002_signal_bridge_20261027/rejected_v1.tar": "4c26582fb74ca2b0dffc250909c1470ae2e47ce7f43e567ee7ed1a32d4972546",
+      "services/backtest/frozen_signal_bridge.py": "86825dfab40c82752d626b88586e1c66aa8832e8339b2c54a6452b9bc45c4acf",
+      "tests/test_frozen_signal_bridge.py": "eb6d5dc1eb768f4074dff7254700c3cffc1278128ab76a4bcd98c9d8c9bc32cf",
+      "docs/research/ed002_signal_bridge_20261027.md": "640b9485017b7956ac7eacf3c7afa63e6cf01015e753a87fbec5477e7a840a17",
+      "docs/research/ed002_signal_bridge_review_20261027.json": "ad315f3e9bb6ad55058c177a1528c7f8fb3d8f6e582475382f6cef1a1acdb518",
+      "docs/review_artifacts/ed002_signal_bridge_20261027/manifest.json": "f5ec573ebb278a09d4fc643621210d2afc84df2f811177cf72328ea15994eded",
+      "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+      "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+      "docs/research/ed002_defaults25_comparison_design_20261027.md": "5d8c86e3743fafa44427aea79e0f41ba9dc3f16276ce83a19c4c1117e019760b",
+      "services/strategies/presets.py": "002735111eb3eda44e940e98756a80fc5b7a571b08d05d9edf611e988386fd95",
+      "services/strategies/strategy_registry.py": "e27facd6fd05f3a89c5559194e5cc6f61bf06a3e708596b62d5603e0bbbebae1",
+      "services/backtest/next_open_research.py": "4f5bb1a98be726915bca155b8ea483d5036982ed786665e504c1e444ce2d1a7f",
+      "scripts/research/run_multisymbol_baseline.py": "d6ddce6d69a755db67c542e6e29f3e68f06612bd2fc95373490f671e3ead2e78",
+      "scripts/research/freeze_multisymbol_archive.py": "e22abd0b251ed7a3f4ab6bb1947aa075d70a7b72d7708e4c548eb4c10ea795bc",
+      "services/backtest/research_prefix_freeze.py": "5af4a5fb8390644dc846ee47851ff222c127e51ab8852a15b595b5a6a147b74f",
+      "services/strategies/indicators.py": "756c04052a0fd0f403d0b1c527b64a1bed586f1897d72663b3c96972709b8f23",
+      "services/strategies/market_filters.py": "37fec0214006c94124ee5166fb469fdacc3e52f2b6caaed64f9b926d5412399a",
+      "services/strategies/breakout_donchian.py": "c9e02234ae2a2366dce2e509f86137b28fd6869f92254cd4a68567a882fa03e0",
+      "services/strategies/ema_cross.py": "cffb26005525ac141ed3eed1248582d9b34281d7aa09c968aa239e0b8ed1219e",
+      "services/strategies/mean_reversion_rsi.py": "6eebd51ae8c0ed7afbdd1d6fc4ff4d492dd51e036b9e5c5d73dd86ddbe876ed2",
+      "docs/review_artifacts/ed002_signal_bridge_20261027/bridge.diff": "c89131dcee422754e87cc63a560eaec92e576f67e323517ecaeaf0888130e190",
+      "tests/test_shared_cash_research.py": "415910a7fa161f9f96cd9cd8d4e3af9b3ca2e59a6a8b214d9d85a3b8485d3b08",
+      "tests/test_next_open_research.py": "798bd09a35a0fa4cefb0b0c8c3666af991d6d3a29dbf365c0d756a0758036998",
+      "tests/test_harness_contracts_wp4.py": "4439fc4de1491ee623704218713b70f69b251255924b79f4c802b5b68774bcde"
+    },
+    "exact_archived_v1_members": {
+      "services/backtest/frozen_signal_bridge.py": "6825eb9860f9309603c8e67af5909732bea47661529d7d8053f3d107cebfbf16",
+      "tests/test_frozen_signal_bridge.py": "0bbeea4ab0e20e1ad2e5c8571451be39ac6ea41d853e4994ebdf106ba6c9f961",
+      "docs/research/ed002_signal_bridge_20261027.md": "105d6a9f39cbcf3a5b6e858c1b800ee27234bd5321c125e7079d3f62c04aa8db",
+      "docs/research/ed002_signal_bridge_review_20261027.json": "ad315f3e9bb6ad55058c177a1528c7f8fb3d8f6e582475382f6cef1a1acdb518"
+    }
+  },
+  "original_review": {
+    "path": "docs/research/ed002_signal_bridge_review_20261027.json",
+    "sha256": "ad315f3e9bb6ad55058c177a1528c7f8fb3d8f6e582475382f6cef1a1acdb518",
+    "historical_decision": "REJECTED",
+    "preserved_unchanged": true,
+    "interpretation": "The rejection remains historical evidence. This separate record closes ED002-BRIDGE-01 only for the current source/test hashes."
+  },
+  "read_scope": {
+    "full_checkpoint": "docs/research/ed002_signal_bridge_20261027.md",
+    "current_source_and_tests": "Complete current-versus-archived unified source/test diffs plus current _incumbent branch and all three new cases. Unchanged implementation/test context is from the prior preserved bounded review, not a reopened audit.",
+    "archive": "Exact prior source/tests/checkpoint/review read from rejected_v1.tar without extraction or execution. Member list verified.",
+    "manifest": "All 17 current file bindings and current bridge.diff hash checked. Other dependency source reads were identity checks only.",
+    "tests": "The requested four-file focused slice was executed once. Historical study target() remains AST-only within its existing synthetic fixture; no data-loader or study body runs."
+  },
+  "next_boundary": "Parent may record this bounded independent correction acceptance. No market-data experiment, inference implementation/calibration, activation or operational permission is issued.",
+  "write_scope": [
+    "docs/research/ed002_signal_bridge_rereview_20261027.json"
+  ]
+}

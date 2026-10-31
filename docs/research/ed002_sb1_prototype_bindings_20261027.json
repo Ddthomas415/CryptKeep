@@ -1,0 +1,33 @@
+{
+  "schema": "ed002-sb1-numpy-prototype-bindings-v1",
+  "decision_id": "ED002-SB1-PROTOTYPE-20261027",
+  "operator_answer": "Adopt plan; build NumPy-only prototype (Recommended)",
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "prototype_authorized": true,
+  "randomized_development_authorized": false,
+  "audit_authorized": false,
+  "market_run_authorized": false,
+  "statistical_validation": "INCOMPLETE",
+  "tests": {
+    "passed": 32,
+    "seconds": 1.23,
+    "rng_refused": true,
+    "full_suite": false
+  },
+  "inputs_sha256": {
+    "services/backtest/sb1_prototype.py": "a152f15f464005dfa2e5c00877074762241ae4b84133575188d8442f0d72f01a",
+    "tests/test_sb1_prototype.py": "fa5c7c4005a14097e30f443e37753d376c8f6e8d86a9de858d76137e2ab87608",
+    "tests/fixtures/sb1_arch720_reference.py": "11fd60674a48edfa4bf5ce5f63d2fd3b1ffa62b8a9f2230244cbc77b0259759f",
+    "docs/licenses/arch-7.2.0.txt": "c3b9f45da184cb9025baf8f8145462997b21ed2271c4692ec44858b560c1f916",
+    "docs/review_artifacts/ed002_sb1_reference_20261027/base.py.txt": "48eb6443a96877bbeac7051e83121cd6909240b62a5d5d1be1b4c5eb69aea2bc",
+    "docs/review_artifacts/ed002_sb1_reference_20261027/samplers.py.txt": "dc353a7b84ce90ab9900d30277d35f0cd2e671cb66cae0b5a6072f0651d0a50b",
+    "docs/review_artifacts/ed002_sb1_reference_20261027/LICENSE.md.txt": "c6e622bd89db4e13315f4e91605ff96fcbb9012d78ee74e429855870b203eed6",
+    "docs/review_artifacts/ed002_sb1_reference_20261027/manifest.json": "0540bc4a5037682f7a06386659531526332bf88aa76419e78920749aa5fe541e",
+    "docs/research/ed002_sb1_prototype_20261027.md": "7e4f17649614f5e278eaab8853af76703261578c1cd895689bd197c5e1948f61",
+    "docs/research/ed002_stat_revision_plan_20261027.md": "52211dd517dcf5ab65e8f73ce63a9e19512a8572bc3c8ecf648a963d6e1ab930",
+    "docs/research/ed002_stat_validation_20261027/decision.json": "b0d907b5a9c4570a5b25299dbb33653d2d504017e7298194186b200b2e745b8f",
+    "docs/research/ed002_stat_validation_20261027/result.json": "18e7495fcf147bd82fb3f814d8ec483d6814a75e122cdc87af46dc9925351090",
+    "services/backtest/paired_wealth_screen.py": "b7f18780f52efb31d4f024c23b1d7911610195c4e8904690d6ba2baaa68656ab",
+    "tests/test_paired_wealth_screen.py": "ed2ad7755728be1f2c8e49dd2caee4fbc8ebb5d9e96834b831ca48bb562bd673"
+  }
+}

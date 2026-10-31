@@ -1,0 +1,29 @@
+{
+  "schema": "ed002-statistical-validation-bindings-v1",
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "statistical_validation": "INCOMPLETE",
+  "market_run_authorized": false,
+  "parent_tests": {
+    "passed": 213,
+    "seconds": 8.2,
+    "full_suite": false
+  },
+  "inputs_sha256": {
+    "services/backtest/paired_wealth_screen.py": "b7f18780f52efb31d4f024c23b1d7911610195c4e8904690d6ba2baaa68656ab",
+    "tests/test_paired_wealth_screen.py": "ed2ad7755728be1f2c8e49dd2caee4fbc8ebb5d9e96834b831ca48bb562bd673",
+    "docs/research/ed002_stat_validation_20261027/decision.json": "b0d907b5a9c4570a5b25299dbb33653d2d504017e7298194186b200b2e745b8f",
+    "docs/research/ed002_stat_validation_20261027/validate_pilot.py": "1826e3c8ccd3b494215a9d021bd9d6b4e69125fa977d7b3e213bc39f6e310167",
+    "docs/research/ed002_stat_validation_20261027/ATTEMPT.json": "89722f7ce6cd8946b4cd1b952021f7ecd5e7aaeeeeb41124776e87488bd20508",
+    "docs/research/ed002_stat_validation_20261027/result.json": "18e7495fcf147bd82fb3f814d8ec483d6814a75e122cdc87af46dc9925351090",
+    "docs/research/ed002_stat_validation_20261027/README.md": "8f325788d03d336a8c20abf7e8ce2ed47cc23c6b9dc920f8027eca5968b53a02",
+    "docs/research/ed002_defaults25_comparison_design_20261027.md": "5d8c86e3743fafa44427aea79e0f41ba9dc3f16276ce83a19c4c1117e019760b",
+    "docs/research/ed002_defaults25_design_review_20261027.json": "fd4bfc5cf1fd0ebd5180bae590e7338a60083b7f26ffcb0167434ed3f5004eb4",
+    "docs/research/ed002_comparison_carry_rereview_20261027.json": "a1999e9cfd54a9e3dc0c9aeff2b94974ed625a5567c95de61aad48126e9af96d",
+    "scripts/research/corrected_research_math.py": "d07ae7171e2293cbe60d15ae9bc0973d3ef8bd31b9c7b99105f928c029e29047",
+    "services/backtest/delayed_research_comparison.py": "749ba4ad7e755be44a5c3359894aff66a58e356610dbabefb1c293ac56cc8ca7",
+    "services/backtest/delayed_signal_bridge.py": "c2c452c88190eab210764cd0a6a056cefc05fa3af95e09f535987f55e3a27e1d",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+    "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6"
+  }
+}
