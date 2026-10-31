@@ -52,6 +52,10 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    Approved for the paper simulation 2026-10-31 (owner forwarded the advisor's final authorisation: "you can now
    proceed"; spec v2 R12, with one exception: a pending sell is closed as superseded, unsent, when the holding is
    already zero, so nothing is sold twice). Still open for the live path.
+- Owner action, security (2026-10-31, OV-01): `.env.docker` was committed on 2026-01-22 and is in GitHub's history while
+  the repository was public; check it (`git show b6476a5b1:.env.docker`) and rotate anything real.
+- Pre-live list: the 19-item "Deferred Live-Money Substrate Backlog" in `REMAINING_TASKS.md` (Codex) is part of it; new
+  pre-live findings are checked against it first (O-20, OV-02).
 - Blocking engineering item 3 (Codex note below): confirm whether the DEFAULT portfolio holds all your Coinbase coins and open orders.
 - Decided 2026-10-30: the 25-symbol comparison follows the active safety task (now item 5, after the multi-coin fix, the paper simulation, the position cap and exit logic); its collector runs on the
   server once the owner approves the actual monthly cost and a monitoring plan; the diversification study waits on its
@@ -191,6 +195,8 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    against it. Next: Codex recreates `claude/series-rev34` locally from the bundle (no push; Claude's work is pushed only
    after independent review) and reviews 0004 and 0001/0002 first; the owner decides apply or drop for the rest,
    live-path fixes first. The laptop's work also lacks master's PRs #600 and #606 (O-19).
+9. [proposed, needs owner approval] [research] Weekly triage of the research-scout reports (OV-06): the top three leads
+   ranked against the current plan, each marked pursue, park or drop, for the owner. 30 reports untriaged since 2026-10-19.
 - Done 2026-10-30: failure diagnosis (`docs/research/failure_diagnosis_20261030/`); its three hypotheses were approved with the order above.
 - [dependent] Multi-symbol diversification pre-registration: waits on the 25-symbol comparison's forward results (owner 2026-10-30).
 - [recurring] Weekly status, Mondays 12:31 UTC (scheduled task).
@@ -246,8 +252,9 @@ Found by: A = agent review on its own; R = agent during owner-requested work; O 
 | O-17 | Bot audit LP-10 reported that markers of patches 0056 and 0057 were present in the code; the strings predate those patches (in base `97c24c8e4`), so they showed nothing | 2026-10-31, when writing LP-10 | Claude | A wrong "two fixes present" was reported to the owner | marker not checked against the base | LP-10 (corrected the same day) | R, Claude 2026-10-31 (patch inventory) | A presence check compares against the base, not only the current code | Yes (inventory method) |
 | O-18 | The October review series (72 patches, Claude, rev88, 2026-10-07, ready for review, never pushed or applied) was absent from PROJECT_STATE and from this session's work: D-1 was proved as new (fix 0004 existed since 2026-10-02), the multi-coin fix was queued for Codex as new work, the cooldown fix specified as R1 | 2026-10-30, when D-1 was diagnosed | Claude; PROJECT_STATE since 2026-10-07 | Engineering item 1 and simulation R1 were planned as new work; earlier fixes for live-path defects were not considered | the bundles and work log not searched for prior fixes; the series' status lived only in its bundle README | engineering items 1 and 2, bot audit, capital-protection audit CP-03 (status: open) | R, Claude 2026-10-31 (patch inventory) | Before diagnosing or queuing a fix, search `docs/review_artifacts/` bundles and the work log for an existing patch | No |
 | O-19 | The commit review and integrity check S4-07 said the laptop was "4 commits ahead" of GitHub master; it had forked at `adde462ff` (2026-09-23) and was also behind (PRs #600, #601, #603; GitHub has since added #605, #606). The laptop's code holds #601, #603 and #605 but not #600 or #606 | 2026-10-31, commit review | Claude | The backup and merge plan did not mention that the laptop's work must be reconciled with master | counted `origin/master..HEAD` only, not the reverse | commit plan, S4-07 (corrected) | R, Claude 2026-10-31 (after the owner's fetch) | State ahead and behind counts and the merge base for any branch comparison | No |
-Counts 2026-10-31: 19 omissions found since the register began (O-01 to O-19): caught by an agent unprompted 0; during
-owner-requested work 14; by the owner 5. Historical H-01 to H-07 (`omission_history_20261031/`): found by agent review 3,
+| O-20 | This session's audits did not search `REMAINING_TASKS.md`, whose "Deferred Live-Money Substrate Backlog" (19 items) already held several findings reported as new (BA-19, BA-21, LP-02, LP-08/LP-09, simulation R8, backups, secrets); `PROJECT_STATE.md` never references that file | 2026-10-31, bot audit and live-path sessions | Claude | Duplicate findings; the pre-live list here was incomplete | two task lists not linked; search scope limited to `docs/` | bot audit BA-19/BA-21, LP-02/LP-08/LP-09; spec R8 (status: cross-referenced in `overlooked_sweep_20261031/`) | R, Claude 2026-10-31 (owner's question) | `PROJECT_STATE.md` points to that backlog; new pre-live findings are checked against it first | No |
+Counts 2026-10-31: 20 omissions found since the register began (O-01 to O-20): caught by an agent unprompted 0; during
+owner-requested work 15; by the owner 5. Historical H-01 to H-07 (`omission_history_20261031/`): found by agent review 3,
 during owner-requested work 1, not recorded 3.
 Rework 2026-10-31 (accepted or closed work later corrected): 4 - failure diagnosis (closed 2026-10-30; C1-C4),
 25-symbol analysis (closed 2026-10-30; recommendation qualified), multisymbol baseline (2026-10-08; relabelled

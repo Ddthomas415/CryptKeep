@@ -55490,3 +55490,14 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
 - 2026-10-31T16:02:11Z Self-correction before reporting: the inventory README and PROJECT_STATE first proposed pushing the series to
   GitHub as a review branch; that would push unreviewed Claude work, against the owner's rule. Changed to: Codex
   recreates the branch locally from the bundle; push only after independent review.
+
+## 2026-10-31T16:14:45Z Claude (Cowork): sweep for overlooked items (owner's question)
+- `docs/research/overlooked_sweep_20261031/README.md` (sha256 79549b45...): OV-01 .env.docker (503 B) and runtime/config/
+  user.yaml committed 2026-01-22 (b6476a5b1), removed 2026-02-26, still in GitHub master history while public; old
+  user.yaml has no credential-like keys (names only); .env.docker not read; secret-pattern scan of 3,250 commits found
+  no other secret. OV-02 REMAINING_TASKS.md deferred live-money backlog (19 items) not referenced by PROJECT_STATE;
+  several of today's findings duplicate it (O-20). OV-03 191 unmerged GitHub branches, 118 with unique commits (upper
+  bound). OV-04 undecided proposals (isolated laptop ES account, item-29 config, 0011 HELD); runner takes only exit
+  settings from presets. OV-05 server paper collectors on old code since 2026-09-16. OV-06 30 scout reports untriaged.
+- Spec section 5 row OV-04 added (sha256 1e3176ee...; existing behaviour recorded). PROJECT_STATE: O-20, owner action
+  OV-01, pre-live list pointer, research item 9 proposed (scout triage).

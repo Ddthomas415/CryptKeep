@@ -95,6 +95,7 @@ test net of costs (`docs/research/signal_discovery_classification.md`, 2026-07-0
 | BA-13 | No candle freshness or gap check in the bot | record and alert (R4) |
 | BA-14 | Indicators restart on each 60-candle window | modelled by the replay; note |
 | CP-06 | The kill switch is not checked on the paper path | each account stops on its own stop file; one command stops all (R2) |
+| OV-04 | The runner takes only exit settings from the preset; entry risk limits (concurrent positions, exposure shares, cooldown lengths) come from code defaults (patch 0011, which would apply the preset's, is HELD), and exposure is measured before the order, so it never limits the first entry | record the limits in force in the run manifest (amended 2026-10-31: existing behaviour, not a design change) |
 
 ## 6. Pre-start requirements and acceptance tests
 A test that covers a change to the bot's code must fail on the current code and pass after the change (AGENTS.md).
