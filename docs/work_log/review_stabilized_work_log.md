@@ -55501,3 +55501,8 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
   settings from presets. OV-05 server paper collectors on old code since 2026-09-16. OV-06 30 scout reports untriaged.
 - Spec section 5 row OV-04 added (sha256 1e3176ee...; existing behaviour recorded). PROJECT_STATE: O-20, owner action
   OV-01, pre-live list pointer, research item 9 proposed (scout triage).
+
+## 2026-10-31T16:39:28Z Claude (Cowork): O-21 registered (owner: "you see an issue but yet you said nothing")
+- The project-wide pattern of plans changed or dropped before completion was visible in this session's findings
+  (O-15 to O-20, LP-10, OV-02, OV-03) but was not reported as one problem until the owner raised it. Logged as O-21,
+  found by the owner. Count 21 (agent unprompted 0; owner-requested work 15; owner 6).
