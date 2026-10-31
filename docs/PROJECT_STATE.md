@@ -83,7 +83,10 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
 - Next when one closes: approve the server cost and monitoring plan for the 25-symbol collector (Codex to report them).
 
 ## Engineering queue (Codex; one active)
-1. [active] [safety] Multi-coin runner fix (owner, 2026-10-31: highest priority). First confirm the defect independently
+1. [active] [safety] Multi-coin runner fix (owner, 2026-10-31: highest priority). **A fix already exists: patch 0004
+   of the October series (2026-10-02; "current form needs final review"), in
+   `docs/review_artifacts/20261004_rev32_bundle/cryptkeep_series_on_be34a18a_rev88.zip`; start from it (review, rebase,
+   test) rather than writing a new one (O-18).** First confirm the defect independently
    (`exit_parity_audit_20261031/` section 6 and addendum). Fix the per-symbol structure of `run_forever` so every
    symbol gets its own entry decision, position check, exit checks and order step. Done when an integration test that
    drives the real runner loop (not only unit tests) shows, with three symbols: each symbol independently gets entry
@@ -97,7 +100,7 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    lets one process serve 3 coins; the ranker runs as a separate weekly job, never imported by the runner.
    Must be in place before the start: spec v2 (design frozen 2026-10-31) section 6, R1-R12 with their acceptance tests,
    built in the order of section 12: (1) cooldown lockout (BA-16, known since 2026-10-02 and missing from this queue
-   until 2026-10-31) and stuck exits retried, with stop-loss tests under all three blockers; (2) decision inputs and
+   until 2026-10-31; start from patches 0001/0002 of the October series, O-18) and stuck exits retried, with stop-loss tests under all three blockers; (2) decision inputs and
    exact replay, every exit condition recorded; (3) order lifecycle and reconciliation, market data with buys refused
    on stale candles; (4) debug line, restarts, on-server alerts; (5) outside heartbeats and encrypted off-server
    backups; (6) 72-hour commissioning; then section 9 (independent review, owner approval, official start).
@@ -180,10 +183,11 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
 6. [research] E1 analysis once its data exist.
 7. [research] Descriptive report on the candidate: market regimes, holding ETH alone, trade count, win rate, profit factor.
    Labelled descriptive, not a test. Needs owner approval.
-8. [proposed, needs owner approval] [safety] Reviewed-patch inventory (bot audit LP-10): every patch reviewed since
-   2026-09 with its review status, whether it is in the current code, and the owner's decision (apply or drop). Claude:
-   the review documents and code markers; Codex: locating the patch files. Known missing: cooldown 0001/0002, 0055,
-   0059, 0060, 0062.
+8. [done 2026-10-31, Claude part; owner "ok"] [safety] Reviewed-patch inventory
+   (`docs/research/patch_inventory_20261031/`): the October series (72 patches, branch `claude/series-rev34`, rev88,
+   in the repository as `docs/review_artifacts/20261004_rev32_bundle/cryptkeep_series_on_be34a18a_rev88.zip`) is not
+   in the laptop's code at all. Includes the multi-symbol fix (0004), the cooldown fixes (0001/0002) and many live-path
+   fixes. Next: owner runs `git fetch origin` so the check can run against GitHub master; owner decides apply or drop.
 - Done 2026-10-30: failure diagnosis (`docs/research/failure_diagnosis_20261030/`); its three hypotheses were approved with the order above.
 - [dependent] Multi-symbol diversification pre-registration: waits on the 25-symbol comparison's forward results (owner 2026-10-30).
 - [recurring] Weekly status, Mondays 12:31 UTC (scheduled task).
@@ -236,8 +240,10 @@ Found by: A = agent review on its own; R = agent during owner-requested work; O 
 | O-14 | Integrity check S4-05 said no scheduled run of the data-collector cadence check was found; a systemd timer for it is in the repository (`packaging/systemd/cbp-edge-cadence.timer`) | 2026-10-31, stage 4 | Claude | The proposal "schedule the check" was partly wrong (the timer exists; installation on the server unknown) | search scope: `packaging/` not searched | S4-05 (corrected by BA-22) | R, Claude 2026-10-31 (bot audit session 3) | Task cards list the search scope | No |
 | O-15 | The kill-cooldown restart lockout (found 2026-10-02, patches reviewed 2026-10-07, never applied) was missing from the engineering queue, the simulation spec, and bot audit session 1, which marked runner decisions and exits as done | 2026-10-31, when writing the spec and session 1 | Claude; the queue since 2026-10-07 | A HIGH defect for the simulation would have gone in unaddressed | findings do not propagate (as H-06, O-11); no prior-work search for the runner in session 1 | spec flaw 14 and engineering item 2 added; session 1 claim corrected | R, Claude 2026-10-31 (bot audit session 3) | Spec and audits check one open-defects list | No |
 | O-16 | Spec v2 kept only the cooldown test for stops under known blockers, although Claude's own review reply the same day recommended a test that a stop-loss fills under each blocker (cooldown, refused exit not re-sent, stale data); on current code the last two would fail | 2026-10-31, when writing spec v2 | Claude | Spec v2 would have let the simulation start without proving stops work under BA-04/BA-05 | carried a recommendation into the spec incompletely; no check of the spec against the reply | spec v2 corrected 2026-10-31: R12 adds the stop and trailing-stop tests under all three blockers | O, owner 2026-10-31 (third review shared by the owner) | Check each adopted recommendation line by line against the written spec before reporting | No |
-Counts 2026-10-31: 16 omissions found since the register began (O-01 to O-16): caught by an agent unprompted 0; during
-owner-requested work 11; by the owner 5. Historical H-01 to H-07 (`omission_history_20261031/`): found by agent review 3,
+| O-17 | Bot audit LP-10 reported that markers of patches 0056 and 0057 were present in the code; the strings predate those patches (in base `97c24c8e4`), so they showed nothing | 2026-10-31, when writing LP-10 | Claude | A wrong "two fixes present" was reported to the owner | marker not checked against the base | LP-10 (corrected the same day) | R, Claude 2026-10-31 (patch inventory) | A presence check compares against the base, not only the current code | Yes (inventory method) |
+| O-18 | The October review series (72 patches, Claude, rev88, 2026-10-07, ready for review, never pushed or applied) was absent from PROJECT_STATE and from this session's work: D-1 was proved as new (fix 0004 existed since 2026-10-02), the multi-coin fix was queued for Codex as new work, the cooldown fix specified as R1 | 2026-10-30, when D-1 was diagnosed | Claude; PROJECT_STATE since 2026-10-07 | Engineering item 1 and simulation R1 were planned as new work; earlier fixes for live-path defects were not considered | the bundles and work log not searched for prior fixes; the series' status lived only in its bundle README | engineering items 1 and 2, bot audit, capital-protection audit CP-03 (status: open) | R, Claude 2026-10-31 (patch inventory) | Before diagnosing or queuing a fix, search `docs/review_artifacts/` bundles and the work log for an existing patch | No |
+Counts 2026-10-31: 18 omissions found since the register began (O-01 to O-18): caught by an agent unprompted 0; during
+owner-requested work 13; by the owner 5. Historical H-01 to H-07 (`omission_history_20261031/`): found by agent review 3,
 during owner-requested work 1, not recorded 3.
 Rework 2026-10-31 (accepted or closed work later corrected): 4 - failure diagnosis (closed 2026-10-30; C1-C4),
 25-symbol analysis (closed 2026-10-30; recommendation qualified), multisymbol baseline (2026-10-08; relabelled

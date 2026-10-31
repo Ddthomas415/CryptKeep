@@ -55464,3 +55464,17 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
   0056 and 0057 markers present); patch files not in the repo; not tracked in PROJECT_STATE. LP-11: H-06 still
   present. LP-12, LP-13 controls present (keyring, no key logging found; precision and market rules).
 - PROJECT_STATE.md: research item 1 progress; new research item 8 proposed (reviewed-patch inventory; owner approval).
+
+## 2026-10-31T15:56:47Z Claude (Cowork): reviewed-patch inventory (owner "ok" to research item 8)
+- Found the October review series in the repository: rev88 zip (72 patches, PATCH_MAP.csv, git bundle of
+  claude/series-rev34 on be34a18a; README: nothing pushed, merged or applied; every patch ready for review by Claude's
+  statement only) and rev87 REVIEW_HANDOFF (review status for 0004-0022).
+- `docs/research/patch_inventory_20261031/`: check_patch_presence.py (new code lines vs base 97c24c8e4, presence at the
+  target commit), inventory.csv, README, SHA256SUMS. Against HEAD 052ed75e6: 69 code patches not in code (max 15%), 3
+  tests-only. None of the series is in the laptop's code, including 0004 (multi-symbol fix, D-1), 0001/0002 (cooldown),
+  live-path fixes 0037, 0055, 0062, 0069-0076.
+- Laptop's origin/master is 2026-10-01 (97c24c8e4); be34a18a (GitHub master on 2026-10-07) absent locally; GitHub's
+  current state unknown; owner `git fetch origin` needed to check it.
+- Corrections: LP-10's "0056/0057 markers present" was wrong (strings predate the patches; O-17). O-18 registered:
+  the series was missing from PROJECT_STATE and from this session's D-1 diagnosis and fix planning. PROJECT_STATE:
+  research item 8 done (Claude part); engineering item 1 points to 0004; item 2 R1 points to 0001/0002; counts 18.

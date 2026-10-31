@@ -135,3 +135,9 @@ items 23-25, `docs/safety/live_mode_contract.md`, `killswitch_cli_audit_review_2
 cutover (LP-05, LP-08, LP-09, LP-11, CP-09, BA-16, decision 3), and LP-10 shows why: fixes are reviewed and then lost.
 The live-path audit stops here. The rest of `services/` has no order path of its own (every order passes `place_order`,
 LP-01; nothing in production writes the live queue, CP-02) and was not audited for other flaws.
+
+**Correction to LP-10 (2026-10-31, omission O-17):** LP-10 said the markers of 0056 and 0057 are present in the code.
+Those strings were already in the base commit `97c24c8e4` before the patches, so they show nothing. The full check
+(`docs/research/patch_inventory_20261031/`) finds none of the 72 patches of the series in the laptop's code. It also
+finds that the multi-symbol fix (D-1) has existed since 2026-10-02 as patch 0004 (O-18). The original LP-10 row above
+is kept unchanged.
