@@ -35,10 +35,19 @@ Searches for earlier work: `docs/research/*_review_2026100*.md` (58 documents na
 | 0073-0075 | Reconciler: failed lookup is not "not found"; checks every tracked intent | ready for review | LP-06 |
 | 0076 | Loss lock counts across round trips; a failed daily-loss write is a failure | ready for review, HIGH risk | Live path |
 
+## GitHub master (added 2026-10-31 after the owner's `git fetch origin`; SHOWN)
+- GitHub master is `be34a18a3` (2026-10-07, PR #606), unchanged since; two new remote branches are the sources of PRs
+  #605 and #606. **None of the series is on GitHub master either** (`inventory_github_master.csv`: 69 not in code,
+  3 tests-only).
+- The series' git bundle verifies against GitHub master (`git bundle verify`: okay; head `5b4ebb29`, branch
+  `claude/series-rev34`), so the branch can be recreated exactly on top of today's master for review.
+- The laptop branch forked from master at `adde462ff` (PR #598, 2026-09-23), not at `97c24c8e4`. Master has five PRs
+  since: #600, #601, #603, #605, #606. By the same new-lines check, the laptop's code contains all new code lines of
+  #601 (15/15), #603 (1/1) and #605 (171/171), and none of #600 (archive research eligibility, 0/143) or #606
+  (workflow signing gates 0/24, desktop build paths 0/8). The laptop's work must be reconciled with master before any
+  merge. The commit review of 2026-10-31 said the laptop was "4 commits ahead"; it was also behind (O-19).
+
 ## What this does not show
-- Whether GitHub master has any of these: the laptop's copy of master is from 2026-10-01 (`97c24c8e4`) and does not
-  contain `be34a18a` (2026-10-07), so GitHub has moved and this check cannot see it. A `git fetch origin` on the Mac
-  (changes no files, only the list of GitHub's branches) would let the same script run against GitHub master.
 - Whether a defect was fixed in another way: the check looks for each patch's own lines.
 - Whether the patches still apply or pass on today's code (the series was rebased on `be34a18a`, not on the laptop's
   base).
@@ -49,7 +58,8 @@ outside `docs/` and `tests/`) that were not in the base `97c24c8e4`; then the sh
 target commit. Run: `python3 -I check_patch_presence.py <repo> <commit> <out.csv>`; 84 seconds on the device.
 
 ## Proposed next steps (owner decides)
-1. `git fetch origin` on the Mac, then Claude reruns the check against GitHub master.
+1. Done 2026-10-31: GitHub master checked (above). Next, with the owner's approval: recreate `claude/series-rev34` from
+   the bundle and push it to GitHub as a review branch (no merge), so Codex and reviewers work from it.
 2. Codex starts engineering item 1 and simulation R1 from patches 0004 and 0001/0002 (review, rebase, test) instead of
    writing new fixes.
 3. The owner decides for the rest, in risk order (live path first), apply after independent review, or drop.

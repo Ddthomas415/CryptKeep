@@ -55478,3 +55478,12 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
 - Corrections: LP-10's "0056/0057 markers present" was wrong (strings predate the patches; O-17). O-18 registered:
   the series was missing from PROJECT_STATE and from this session's D-1 diagnosis and fix planning. PROJECT_STATE:
   research item 8 done (Claude part); engineering item 1 points to 0004; item 2 R1 points to 0001/0002; counts 18.
+
+## 2026-10-31T16:01:15Z Claude (Cowork): GitHub master checked after the owner's git fetch
+- origin/master now be34a18a3 (PR #606, 2026-10-07); new remote branches codex/accounting-treatment-20261007 and
+  codex/workflow-secret-gates-20261007 (sources of #605, #606). check_patch_presence.py against be34a18a3: none of the
+  72-patch series on GitHub master (69 not in code, 3 tests-only); inventory_github_master.csv saved.
+- The rev88 bundle verifies against be34a18a3 (git bundle verify okay; claude/series-rev34 at 5b4ebb29).
+- Laptop branch forked at adde462ff (2026-09-23), not 97c24c8e4; master since: #600, #601, #603, #605, #606. New-lines
+  check: laptop code has #601 15/15, #603 1/1, #605 171/171; #600 0/143; #606 0/24 and 0/8. O-19 registered (my
+  "4 commits ahead" counted one direction); correction appended to the commit review; PROJECT_STATE item 8 updated.

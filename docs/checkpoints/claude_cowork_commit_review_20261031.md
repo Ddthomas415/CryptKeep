@@ -36,3 +36,9 @@ visibility).
 4. Review, then push the branch; merge only after review (owner's rule).
 Interim, needing no git decision: Claude can package the governance, research text and scripts (about 26 MiB, no
 secrets, no large data) as one archive for the owner to download to another device. Only on the owner's request.
+
+**Correction (2026-10-31, after the owner's `git fetch origin`; omission O-19):** "4 commits ahead of GitHub
+`origin/master`" counted one direction only. The laptop branch forked from master at `adde462ff` (2026-09-23) and was
+also 3 commits behind the master it knew (#600, #601, #603); GitHub master has since added #605 and #606 (`be34a18a3`,
+2026-10-07). The laptop's code contains the code of #601, #603 and #605 but not #600 or #606
+(`docs/research/patch_inventory_20261031/README.md`). The original text above is kept.
