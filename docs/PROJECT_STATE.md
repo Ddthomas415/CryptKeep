@@ -188,8 +188,9 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    in the repository as `docs/review_artifacts/20261004_rev32_bundle/cryptkeep_series_on_be34a18a_rev88.zip`) is not
    in the laptop's code at all. Includes the multi-symbol fix (0004), the cooldown fixes (0001/0002) and many live-path
    fixes. GitHub master (`be34a18a3`, 2026-10-07, unchanged since) has none of them either; the series' bundle verifies
-   against it. Next (owner): approve recreating `claude/series-rev34` from the bundle and pushing it as a review branch;
-   then decide apply or drop, live-path fixes first. The laptop's work also lacks master's PRs #600 and #606 (O-19).
+   against it. Next: Codex recreates `claude/series-rev34` locally from the bundle (no push; Claude's work is pushed only
+   after independent review) and reviews 0004 and 0001/0002 first; the owner decides apply or drop for the rest,
+   live-path fixes first. The laptop's work also lacks master's PRs #600 and #606 (O-19).
 - Done 2026-10-30: failure diagnosis (`docs/research/failure_diagnosis_20261030/`); its three hypotheses were approved with the order above.
 - [dependent] Multi-symbol diversification pre-registration: waits on the 25-symbol comparison's forward results (owner 2026-10-30).
 - [recurring] Weekly status, Mondays 12:31 UTC (scheduled task).

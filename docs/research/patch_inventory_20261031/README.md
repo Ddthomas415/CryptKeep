@@ -58,8 +58,9 @@ outside `docs/` and `tests/`) that were not in the base `97c24c8e4`; then the sh
 target commit. Run: `python3 -I check_patch_presence.py <repo> <commit> <out.csv>`; 84 seconds on the device.
 
 ## Proposed next steps (owner decides)
-1. Done 2026-10-31: GitHub master checked (above). Next, with the owner's approval: recreate `claude/series-rev34` from
-   the bundle and push it to GitHub as a review branch (no merge), so Codex and reviewers work from it.
+1. Done 2026-10-31: GitHub master checked (above). Next: Codex recreates `claude/series-rev34` locally from the bundle
+   (`git fetch <bundle> claude/series-rev34:claude/series-rev34`; no push) and reviews from it. The series is Claude's
+   work, so it is pushed only after independent review (owner's rule).
 2. Codex starts engineering item 1 and simulation R1 from patches 0004 and 0001/0002 (review, rebase, test) instead of
    writing new fixes.
 3. The owner decides for the rest, in risk order (live path first), apply after independent review, or drop.

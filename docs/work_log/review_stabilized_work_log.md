@@ -55487,3 +55487,6 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
 - Laptop branch forked at adde462ff (2026-09-23), not 97c24c8e4; master since: #600, #601, #603, #605, #606. New-lines
   check: laptop code has #601 15/15, #603 1/1, #605 171/171; #600 0/143; #606 0/24 and 0/8. O-19 registered (my
   "4 commits ahead" counted one direction); correction appended to the commit review; PROJECT_STATE item 8 updated.
+- 2026-10-31T16:02:11Z Self-correction before reporting: the inventory README and PROJECT_STATE first proposed pushing the series to
+  GitHub as a review branch; that would push unreviewed Claude work, against the owner's rule. Changed to: Codex
+  recreates the branch locally from the bundle; push only after independent review.
