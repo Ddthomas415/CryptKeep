@@ -1,5 +1,131 @@
 # AGENTS.md
 
+## Primary Objective Protection (POP) - adopted 2026-10-30 by operator decision; revised the same day; failure-diagnosis,
+## evidence and cross-review rules added 2026-10-31 at the owner's direction
+Read this section first, then `docs/PROJECT_STATE.md`. POP controls which work is done and in what order.
+It never narrows what the system can trade or research: the supported universe and
+`docs/research/MULTI_SYMBOL_MANDATE.md` stay in force, and no change may remove symbol support from
+code, config or tests without an explicit operator decision.
+
+**Objective.** Build and validate the best risk-controlled multi-symbol trading system the evidence
+supports, and run it with real money only if it is worth running at the owner's capital and costs.
+"No viable system yet" is an acceptable answer.
+
+**Classify every result.** On forward or paper data registered in advance, after costs, a strategy shows:
+- a return edge: higher net return than holding BTC;
+- a risk-adjusted edge: higher Sharpe than a fixed BTC/ETH/cash mix of similar drawdown;
+- a diversification benefit: adding it to the current portfolio improves the portfolio's Sharpe or drawdown;
+- risk reduction: smaller drawdowns without a better risk-adjusted return; or
+- no demonstrated advantage.
+Any claimed advantage must also pass the deflated Sharpe at the trial count in the ledger. Historical
+results are labelled in-sample or exploratory, not as an edge. Report costs at the confirmed account tier
+and at 0.90% per side, plus a measured-execution scenario once real fills have been measured (labelled
+exploratory until then), and state at which cost levels the result holds. Report per symbol and for the combined portfolio.
+None of these categories alone means profitable or worth running live.
+**Worth running live** also requires expected net gain above infrastructure cost at the planned capital,
+the live-safety items done, and the owner's approval.
+
+**Diagnose every failure.** A failed or inconclusive result is not closed until its cause is classified, with
+evidence, as one or more of: ineffective signal; execution costs; entry or exit implementation; regime
+recognition; allocation; data or backtest limits; engineering defect; insufficient evidence. For each
+correctable cause, propose the smallest investigation or correction as a queue proposal. Do not reject a new
+idea by reusing an assumption never tested for it (a cost level, an exit model, a data source). Never weaken
+risk controls or narrow the symbol universe to make a result pass.
+
+**Evidence and omissions.** For every report, including on an agent's own earlier work:
+- Report material findings, favourable or not, when found. Never wait for the owner to discover one.
+- Label each material claim SHOWN (file or command), CLAIMED (by whom) or UNVERIFIED. Never state an
+  assumption as fact; list the assumptions that could change the result.
+- Before building on a question, search the repo (docs, work log, branches) for earlier work on it and cite it.
+- When new evidence contradicts or narrows an earlier conclusion, yours or another agent's, say so in the same
+  report and add a dated correction to the earlier document. Never correct a material mistake silently.
+- Record why approved work was delayed, deprioritised or redirected.
+- Before closing an item, list the open questions that could change its conclusion.
+- Before calling material work done, state: the evidence the question needs; what was inspected (files, code paths,
+  configuration, runtime state, logs); what was not or could not be inspected, and how that limits the conclusion;
+  and what could overturn it.
+- Keep evidence types apart: source code, default configuration, runtime configuration, runtime state, execution
+  logs, backtests, paper results. A claim about the bot names the types it rests on.
+- When implementing a list of requirements, report each item as done, partly done or not done.
+- Every research report written from 2026-11-01 states, near the top, one line "Bot relation:" with one label
+  (STANDALONE, SIGNAL_ONLY, BOT_RULES or BOT_PAPER; see `docs/research/result_labels_20261031/`) and whether the
+  runtime configuration was checked. The weekly status lists reports without it.
+- A pre-registration states sizing, turnover, missing-data and cost conventions before anything runs; a review does
+  not accept it otherwise.
+- End every report with: "What do I know that could change the owner's decision that I have not yet said?"
+
+**Cross-review.** No agent certifies its own work as verified. Codex independently checks Claude's material
+research conclusions against the files, scripts and results; Claude reviews the strategic implications of
+Codex's engineering decisions. Until the other agent, or a separate reviewer that did not produce it, has
+checked a conclusion, label it "self-checked". The reviewer works from the underlying files, not the author's
+summary, and actively looks for missing configuration, untested assumptions, contradicting evidence, wrong execution
+models and work that passes tests without meeting its objective.
+
+**Configuration inspection** (owner-approved 2026-10-31). To establish what the bot actually does, agents may read
+runtime trading configuration (`config/user.yaml`, `.cbp_state/runtime/config/user.yaml`, presets, campaign settings)
+with a script that prints only whitelisted trading settings (strategy, preset, symbols, venue, signal source,
+timeframe, window, loop interval, order size and type, stop, take-profit, trailing stop, hold limit, risk limits) or
+redacted values. API keys, passwords, tokens and private keys are never printed, copied, committed or sent; `.env*`,
+`.browser-access-token` and `.browser-compose-override.json` stay unread. Reading never permits changing: any
+configuration change needs separate owner approval. A claim about what the bot does must state whether the runtime
+configuration and the runner's own rules were checked; if not, label it INCOMPLETE.
+
+**Omission register.** Every material omission found, by any agent or the owner, gets one row in the register in
+`docs/PROJECT_STATE.md`: what was omitted; when it should have been found; which agent or review missed it; whether it
+changed a decision or result; why it was missed (instruction, evidence discovery, configuration visibility,
+implementation, research method, verification, reporting, or scope or priority drift); the conclusions affected and
+the status of each; how it was found (agent review, agent during owner-requested work, or owner); the control that
+prevents recurrence; whether that control has been tested. Finding an omission also means reviewing the conclusions
+that depended on it.
+
+**Queue.**
+- `docs/PROJECT_STATE.md` is the single source of truth for priorities, decisions and status. Do not
+  create other tracking documents or task systems.
+- Two queues: engineering (Codex) and research (Claude). The owner orders them; agents propose changes,
+  they do not make them. At most one active item per agent; finish, park (with approval) or hand back
+  before starting another.
+- The next queue item is the "accepted objective" for the No-direction default loop below. Use the loop's
+  roles inside that item; use its selection step only to propose new items, never to start them.
+- "continue", "do what's needed" or "carry out next steps" means: do the next queue item.
+- If your queue is empty, or its next item waits on an owner decision, stop and ask. Do not start new work,
+  and do not use the selection loop or the production baseline to create work. After an item is accepted,
+  take the next queue item; do not expand into further hardening or cleanup.
+
+**Task card.** The work-log entry that starts a queue item states, one line each: decision it serves;
+done when (acceptance criteria); budget (sessions or work-log entries); stop rule; and the searches run for
+earlier work with the documents found. A task is done only
+when its acceptance criteria are demonstrated. If the budget runs out first, stop, report what is done
+and what remains, and ask the owner to extend, cut or park it. Running out of budget is not completion.
+
+**Parking lot.** Work found along the way goes into PARKED in `docs/PROJECT_STATE.md` as one line (what,
+why, decision it would serve). It is not started until the owner moves it into a queue. Exception: a
+defect that could lose money, data or credentials is reported at once, and fixed only with owner
+approval, except stopping or disabling something already running.
+
+**No silent abandonment.** Agents may sequence work and recommend changes, but may not remove, park,
+indefinitely postpone or replace an approved strategic objective or experiment (including multi-symbol
+research and the 25-symbol comparison) without stating why, the evidence, what replaces it, and getting
+the owner's approval.
+
+**No reopening.** A closed item is reopened only with a one-line statement of the new evidence.
+
+**Initiative.** Agents should discover, investigate within approved tasks, challenge assumptions and
+recommend new directions. They may not change strategic priorities on their own.
+
+**Review.** Risk levels, high-risk triggers and review rules in this file are unchanged by POP.
+Safety-critical work blocks live trading; it does not block paper testing or research that cannot place
+orders or move funds. A safety fix is accepted only with a test that fails on the code before the fix and passes after.
+
+**Reporting.** One weekly status (a recurring scheduled task): what materially advanced the objective; what
+failed and why (cause class above); new evidence that contradicts earlier conclusions; what remains unknown;
+what was omitted or overlooked earlier; drift from the approved objective or time used without a reason;
+universe coverage; the next owner decisions (at most 3 open); omission-register counts, split into caught by
+agents and caught by the owner; rework (accepted work later corrected); three measures (does the bot execute what the research says it executes; does every
+position get exit management; did independent review find mistakes before the owner did); and the closing question
+above. It is
+one message plus one work-log entry, not a separate document. Between weeks, report only a fault, a
+finished queue item or a needed decision.
+
 ## Purpose
 This repo uses Codex for engineering, auditing, direction, and review.
 

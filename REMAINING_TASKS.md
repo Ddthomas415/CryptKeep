@@ -4,6 +4,1944 @@ This file is a lightweight index only.
 
 ## Current Work Selection
 
+Current active subset, reconciled October28; not an exhaustive refresh of the
+repository backlog or remote runtime. Older snapshots below are evidence history,
+not instructions to repeat their completed steps. No scope or frozen rule removed.
+
+| Task | Current Evidence And Next Action | Boundary |
+| --- | --- | --- |
+| E1 execution-cost study | INCOMPLETE: v3 needs product-applicable fees, arrival alignment and source/inference contracts, not fees alone. See `docs/research/e1_readiness_reconciliation_20261028.md`. Preserve Nov3/Nov7 planning targets without shortening the56days. | Resolve contract/evidence before collector or real validation; no account request or study activation here. |
+| Native public-input pilot |09:05scheduled capture SHOWN. Separately approved startup-gap capture added72rows; unchanged raw merger verifies9840required rows and complete required tail windows at actual09:12receipts. See `docs/research/ed002_startup_gap_capture_20261028.md`. | Pilot cadence still INCOMPLETE; preserve original expiry. Late history is not timely prospective evidence, freeze or study activation. |
+| Account-wide position cap | Separate GATE closed SYNTHETIC-CAP-01 and ACCEPTED_WITH_RISK the corrected synthetic prototype;53tests independently passed0.62s. See `docs/research/synthetic_live_cap_review_20261028.md`; v1/rejection preserved. | Synthetic proof complete. Production evidence/paging/lifecycle integration and separate integration review still INCOMPLETE; no live wiring or trading authority. |
+| Complete Coinbase balances | Default-off paging source integration accepted; October30 native-v3 guard compatibility separately ACCEPTED_WITH_RISK,245offline cases independently passed14.07s. Both common order guards now consume eligible native-v3 rows without rewriting v2 data; v2 bodies preserved. `docs/review_artifacts/coinbase_v3_guards_20261030/CLOSURE.json`. Prior October29 metadata check remains dated proof only: key view/trade=true, transfer=false, one matching default portfolio;40offline probe cases passed. | V3 guard-shape gap closed in source only. No balances requested or active paging policy/API/scope/budgets enabled. All-account coverage, V2 spendability, authenticated/atomic observations, hard production transport/retry qualification and pending-order/reservation/live-cap enforcement remain INCOMPLETE. No config/risk/capital, deployment/reload, collector or trading change. Prior private-check authorization consumed; no automatic private retry. |
+| Preserve unpublished work | Metadata-only inventory SHOWN:1745nonignored changed/untracked paths, HEADOctober19. See `docs/research/work_protection_preparation_20261028.md`; no contents scanned or backed up. | Review exact allowlist/content/sensitive material before separately authorized commit or export; no push implied. |
+| Coinbase order-funding scope | CBA-FUNDING-SCOPE-20261028 local application separately ACCEPTED_WITH_RISK;72offline cases independently passed2.50s. See `docs/research/coinbase_funding_applied_20261028.md`. Earlier local references to this as "fix3" were incorrect. | This is not the original handoff's funding-rate Fix3. No account call/deployment/trading operation; paging/cap wiring remains INCOMPLETE. |
+| Original handoff Fix2 and Fix3 | Local recurring research collector restored, separately ACCEPTED_WITH_RISK:118pins, first-cycle all5families/oldprefixes/rawidentity verified, configured300s post-cycle delay, ownedPID21851 intentionallyrunning. Current disposition `docs/review_artifacts/okx_recurring_restore_20261029/CLOSURE.json`; finaldatedhost/status refresh retained separately. | Local restoration objective complete in reviewed scope, not wholeFix3 financial closure. No newjob/account/trading change. Sustained health/boot recovery/alerts/binarytrust/historicalfundingsemantics/crowding/economicproof remain UNVERIFIED; existing monitor jobs not switched automatically. |
+| Defaults-25 freeze | Descriptive synthetic pieces exist; collection proof, held-position/delisting policy and final freeze remain incomplete. | Preserve25symbols, costs, carry-forward,182days and no interim performance scoring. |
+| CMC and shared-host decisions | Failure notifications, inference readiness and host economics remain unresolved in cited handoffs. | No notification, server, scheduler or research-branch pause inferred from another agent's recommendation. |
+
+## Recent Evidence Checkpoints
+
+### Installed Balance Paging Gap Reproduced; Pilot Not Yet Due
+
+October28 08:53NewYork: repaired job still runs0, next opportunity09:05; no
+forced run or new failure inferred. During that wait, verified queued fix1
+using installed sync/async source and six isolated fake-transport cases:
+default-v2, explicit-v3 and paginate=True each fetch only one balance page.
+See `docs/research/coinbase_balance_paging_review_20261028.md`.
+No account truncation or server version proven. Production paging/cap repair
+INCOMPLETE; no dependencies, source, accounts or scheduler changed in this check.
+
+### Approved Pilot Log Repair Applied; Next Natural Slot Proof Pending
+
+October28 08:50NewYork: applied the operator-approved two-log-path repair and
+reloaded the same native job once; all five native commands returned0. Exact
+installed hash/mode and all10source pins match. No forced capture, catch-up,
+source/window/request-limit change or additional job. See
+`docs/research/ed002_pilot_log_repair_actual_20261028.md` and actual receipts.
+
+Postflight runs0/not running is not collection proof. Next calendar opportunity
+is09:05NewYork; inspect actual receipts/logs afterward, without forcing a run.
+Original expiry October29 06:35NewYork remains. Collection INCOMPLETE until
+unattended evidence is shown; cap implementation remains separately INCOMPLETE.
+
+### Account-Wide Cap Scope Adopted; Native Pilot Spawn Failure Shown
+
+Operator directly chose all account holdings per base asset, including manual
+holdings and pending buys across pairs. See
+`docs/research/live_position_cap_contract_20261028.md`: HIGH-risk design
+READY_FOR_INDEPENDENT_REVIEW; implementation INCOMPLETE. No live cap value,
+account/portfolio, credential or trading change. A dedicated portfolio is only
+a separate proposal, not authority inferred from another agent's relay.
+
+October28 08:40NewYork: five native launch attempts, last exit78/EX_CONFIG,
+spawn failed; no slot receipts and both logs empty. A targeted debug read shows
+launchd denied opening stdout inside Downloads before collector startup. See
+`docs/research/ed002_pilot_failure_check_20261028.md`. Collection INCOMPLETE;
+subsequent repository/interpreter access UNVERIFIED. Prepared an offline
+log-path-only plist proposal under review_artifacts; not installed. No forced
+run, job repair, catch-up or extension. Next operational boundary is approval
+of the exact existing-job log-path repair. Earlier statements are historical.
+
+### Preferred Live Cap Path Traced; One Exposure-Scope Decision Pending
+
+Source trace confirms a check_live-only patch would miss the preferred adapter:
+LiveExchangeAdapter reaches common place_order; sync/async share the existing
+fail-closed authority. Consumer atomic_risk_claim reserves daily counts/notional,
+not per-asset exposure. Spendable/free balance is not total held position.
+Existing local caches do not by themselves prove fresh complete account holdings.
+
+Preserve the October9 HALT AND ADJUDICATE position-truth record; no new resolution
+authority or reconciliation job is needed for this read-only trace. See
+`docs/research/live_position_cap_treatment_scope_20261028.md` and15source bindings.
+One material cap-scope choice: all holdings per asset in a venue/account (including
+manual holdings and pending buys across pairs; recommended) versus bot-owned only
+(requires reliable ownership evidence). This decision changes no live setting.
+No production code, account, DB or scheduler changed; all10pilot pins still match.
+At06:20NewYork first slot06:35remained pending; no forced capture or new test run.
+
+### Scheduled Pilot Pending; Live Position-Cap Review Completed, October 28
+
+Read-only check06:14NewYork: first capture remains due06:35, no slot directory,
+empty scheduler logs. No kickstart, new job or duplicate request. While pending,
+reviewed the already-queued fix4 with an isolated selected-method probe.
+
+SHOWN: current LiveRiskGates.check_live never reads its position cap; with invented
+$50cap/$40holding it allows a$25buy (counterfactual full-fill exposure$65).
+Inspected submit caller supplies qty/price/symbol, not side/position. Positive
+per-order/kill/daily-count controls passed. This is not live/account/fill proof.
+See `docs/research/live_position_cap_review_20261028.md`. Production repair and
+authoritative position/reservation contract remain INCOMPLETE; no source changed.
+All10pilot source pins still match. Next collector proof remains actual receipts
+after06:35, not another test or forced capture.
+
+### Bounded Native Mac Pilot Installed, October 28
+
+Operator authorized the explicit one-job24-hour/48-capture/1296GET scope. One
+command-approved installation exited0; label com.cryptkeep.ed002.public-inputs
+registered, exclusive0600target/source/policy hashes verified. No kickstart,
+retry or installer data request. All10policy pins and17submitted bindings match.
+
+First planned capture: October28 06:35NewYork; expiry October29 06:35NewYork.
+The reviewed wrapper refuses acquisition after expiry; job removal is separate.
+See `docs/research/ed002_pilot_runtime_20261028.md` and installation verification.
+At postflight0slots had started: registration is not unattended operation proof.
+Next: read actual slot/manifest/raw-receipt evidence after the first opportunity;
+do not trigger a duplicate capture or change the window. Unattended collection,
+study/statistics INCOMPLETE. No study dates, trading or account access authorized.
+
+### Wrapper Accepted; One Bounded Installation Scope Prepared, October 28
+
+Operator approved the submitted wrapper package: human ACCEPTED_WITH_RISK,
+not independent review. All17bindings still match; target job file and pilot
+namespace absent. Prepared `docs/research/ed002_pilot_installation_scope_20261028.md`:
+one native job, 24hours/48slots/1296publicGETs maximum, proposed first slot at
+least15minutes after installation preflight, no immediate capture or auto retry.
+This is a proposal, not installation authority. No pilot dates assigned.
+
+Next: explicit dated-pilot/installation authorization under that scope, then
+registered-job proof and actual unattended receipts. No new installer/framework,
+repeated tests/backtests, public requests or operational changes in preparation.
+Installation proposal READY_FOR_INDEPENDENT_REVIEW; study/statistics INCOMPLETE.
+
+### Other-Agent Safety And Research Handoff Queued, October 28
+
+Read the full direction note and handoffs, including addenda1-4. The following
+are CLAIMED findings for this thread unless marked SHOWN after current review, not new fixes
+or authorization to access live accounts/servers. Preserve their original reports:
+`docs/review_artifacts/claude_cowork_20261022/CODEX_HANDOFF_FIXES.md` and
+`docs/checkpoints/claude_cowork_handoff_20261024.md`.
+
+- Fix4 gate omission now SHOWN by current-source/selected-method review in
+  `docs/research/live_position_cap_review_20261028.md`; production repair remains
+  INCOMPLETE. Prerequisite before any future arming, not evidence anything is
+  currently live. Resolve trusted position/reservation source and both caller paths.
+- Review fix1: Coinbase v2 balance pagination across synchronous/async callers;
+  do not assume the reported v4.5.88 v3 fix repairs the pinned v2 path. No upgrade
+  or authenticated check authorized here.
+- Review fix2: limit-only/cancel-only/halt/partial-fill exits and reported repeated
+  pending submits without backoff. Do not silently change exit semantics.
+- Review fix3: funding intervals/source field/exchange timestamp, settled-versus-
+  predicted status and formula version; no blanket 8-hour assumption or migration.
+- Preserve E1's reported Nov3 fee and Nov7 start deadlines for verification and
+  compare shared-host needs without overriding the adopted Mac pilot. No private
+  fee screenshots, credential access or server operation inferred.
+- Preserve pre-push ENTR-CB-1 audit, canary provenance and commit/backup/privacy
+  proposals pending separate scope. Repo visibility/remote live state unverified.
+- Resolve held-position/delisting policy before research freeze, with the existing
+  Jan-Sep prior and unchanged endpoint rules; no after-the-fact rescue or change
+  to the accepted INCOMPLETE contract from a secondary recommendation alone.
+- CMC failure-alert and inference-readiness concerns remain pending; no notification
+  setting or schedule changed. Proposed holds on other research were not adopted.
+
+### Adopted Mac Pilot Design: Offline Wrapper And Template Built, October 28
+
+Operator adopted this Mac/24hours/48slots/120s dispatch-lateness for offline
+preparation only. Added standalone source-pinned UTC-slot controller, synthetic
+tests, disabled undated policy and uninstalled native job template. Existing
+capture/financial sources and raw evidence unchanged. No installer or data run.
+
+200 targeted tests passed in6.45s (36new/164existing). Actual isolated CLI preview
+passed with collection disabled; plutil lint OK; pilot directory absent. Prior
+reviewer check returned usage-limit error, not code review. See
+`docs/research/ed002_local_pilot_wrapper_20261028.md` and submitted artifacts.
+Implementation READY_FOR_INDEPENDENT_REVIEW. Next is exact-package review before
+separate dated installation/pilot authority; no implicit activation or extra fetch.
+Operational/study/statistical readiness INCOMPLETE.
+
+### Local Collection Host And Operating Plan Prepared, October 28
+
+Read-only inventory supports this Mac as the proposed pilot host: foreground
+capture path works, AC idle sleep is0, substantial disk available, no current-user
+crontab and no ED-002/CryptKeep match among557loaded user job labels. These are
+scoped observations, not proof about unrelated labels, system/remote/Claude jobs
+or unattended uptime. Two existing Codex automations remain untouched.
+
+`docs/research/ed002_collection_operating_plan_20261028.md` proposes one direct
+native LaunchAgent, no AI per slot, using the adopted :05/:35 cadence. Initial
+pilot cap24hours/48slots and120-second dispatch lateness are NEW review proposals.
+No job, wrapper or installer is claimed to exist or be enabled. Next is scoped
+offline wrapper/job-artifact implementation and review before a separately
+authorized pilot. Plan READY_FOR_INDEPENDENT_REVIEW; study/statistics INCOMPLETE.
+No more data, service, power, scheduler, account or trading changes in this step.
+
+### Six-Hour Continuation Captured And Verified, October 28
+
+Operator approved the submitted implementation; recorded human
+ACCEPTED_WITH_RISK, not independent review. One separately command-approved
+capture exited0: COMPLETE,26publicGETs,927159bytes,no retry/cleanup failure.
+144new rows close the pinned00:00-06:00UTC gap for24required products; all25
+scope rows remain, MATIC explicitly excluded. All22submitted hashes unchanged.
+
+Saved raw receipts across three namespaces merge into9720contiguous required
+rows through08:00UTC, exclusive, with no required conflict. Old09:00availability
+cutoff correctly fails; new receipts are not backdated. No signals/returns run.
+See `docs/research/ed002_continuation_attempt_20261028.md` and299-artifact
+verification. No capture after08:00, running collector, schedule or study dates.
+Next: approved collection-host/schedule feasibility and bounded operating plan
+before prospective freeze. No implicit extra fetches; study/statistics INCOMPLETE.
+
+### Adopted Design And Offline Continuation Implemented, October 28
+
+Operator selected "Adopt proposed design (Recommended)" for the timing/cadence
+proposal below. Added pinned 1-24-hour continuation mode to the existing CLI and
+a pure receipt merger/first-batch readiness helper. All 25 rows retained; no
+strategy/return call, historical rewrite, date selection or scheduled collector.
+164 targeted tests passed in 5.35s (35 new / 129 existing). Six-hour gap plan
+passed the actual offline CLI preview with no worker or requests.
+
+See `docs/research/ed002_continuation_implementation_20261028.md`, v2 archive,
+source diff and bindings. Implementation READY_FOR_INDEPENDENT_REVIEW;
+study/statistics INCOMPLETE. Next is exact-source review, not another simulator
+or implicit capture/schedule/activation. Original design document stays intact;
+its pre-adoption label is historical, superseded by this explicit decision.
+
+### Continuation And Freeze Proposal, October 28
+
+Prepared `docs/research/ed002_continuation_freeze_plan_20261028.md` without
+another fetch or study run. Two pinned captures contain 9,576 rows; each required
+asset lacks six tail hours in those captures only. All 194 evidence bindings and
+11 frozen selected-source hashes match. Synthetic timing evidence motivates
+structural preflight before A and final-candle validation by E=A+1 hour.
+
+At submission these were NEW proposals. Subsequent explicit adoption and offline
+implementation are recorded above; they remain unscheduled. Acquisition and
+activation stay separate. Study/statistics INCOMPLETE. Original rules, artifacts,
+25-symbol scope and results preserved.
+
+### Warm-Up Seed Captured And Verified, October 28
+
+The submitted bounded warm-up scope was operator-accepted; no independent
+review is claimed (review agent still usage-limited). One execution exited0:
+COMPLETE,34publiccalls,1446556bytes,no retry/reported cleanup failure.
+Required seed:9528valid hourly rows across24model-eligible products;1464each
+BTC/ETH and300each other22, ending October28 00:00UTC. MATIC remains a known
+delisted/disabled exclusion in the25-row scope, not silently replaced.
+
+All34payloads/receipts and14submitted source hashes verified. Real HourlyPanel
+loaded24default/two incumbent windows and rejected a backdated cutoff. No
+signals, returns, scoring, study activation or repeated tests. See
+`docs/research/ed002_warmup_attempt_20261028.md` and109-artifact verification.
+Next: prospective continuation/freeze and collection specification using this
+seed. Up-to-A/ongoing coverage and study/statistical readiness INCOMPLETE;
+no implicit further acquisition, scheduler, historical rerun or trading.
+
+### Warm-Up Seed Preparation, October 28
+
+Prepared a separate profile in the existing capture path: 300 hourly bars per
+eligible default asset, 1464 for BTC/ETH, ending at one completed UTC midnight.
+Maximum 35 public calls; all 25 symbols retained, current exclusions explicit.
+Legacy two-hour mode stays capped at 27. Prior source/tests archived byte-exact;
+old raw captures and recorded source hashes remain unchanged historical evidence.
+
+Candidate plan `research/ed002_public_inputs/plans/warmup_seed_20261028.json`
+passed the actual read-only preview (35-call cap), without a worker or fetch.
+129 targeted tests passed in 3.64s: 13 new plus 116 existing cases.
+See `docs/research/ed002_warmup_preparation_20261028.md` and source bindings.
+Subsequent operator acceptance and the single seed capture above supersede this
+pending state. Its instruction is consumed; no repeated acquisition, schedule,
+study dates or trading. Seed knowledge is not backdated availability evidence.
+
+### One Real Public Feasibility Capture Completed, October 28
+
+Operator approved the submitted transport and instructed its described single
+next public capture; recorded human ACCEPTED_WITH_RISK, not independent review
+or study/trading authority. The reviewed command ran once, exit0: COMPLETE,
+26 public calls / 923231 bytes, no retry or reported cleanup failure.
+24 model-eligible products each supplied both 06:00-08:00 UTC hourly bars.
+MATIC-USD was currently delisted/disabled and remains in the 25-row scope.
+Latest bars arrived within the one-hour model allowance; older bars are not
+backdated into causal evidence. No strategy or return was evaluated.
+
+All 26 raw payload/receipt hashes, worker/plan bindings and 15 submitted source
+inputs verified. See `docs/research/ed002_capture_attempt_20261028.md` and
+`ed002_capture_verification_20261028.json`. Raw normalizer remains INCOMPLETE
+for all-25 physical coverage because MATIC is excluded, not a false all-25 pass.
+Study/statistical readiness INCOMPLETE. Next: separately bounded warm-up
+preparation/acquisition, not repeated preflight, a scheduler or date activation.
+
+### Human-Approved Candle Adapter And Bounded Capture Preparation, October 28
+
+Operator approved the submitted candle adapter's synthetic scope: human
+ACCEPTED_WITH_RISK, not independent review or capture permission. Added
+`scripts/research/capture_descriptive_inputs.py`, fake-transport tests and a
+25-row candidate plan from preserved public metadata. Default CLI is read-only;
+the actual preview passed without a worker, capture folder or market request.
+116 targeted tests passed in 2.93s (34 transport / 34 candle / 48 metadata).
+
+Capture is one-shot: up to 27 public GET calls, explicit payload limits,
+verified TLS, no redirects/retries/proxy/credentials, supervised owned worker.
+Precise timeout/startup/cleanup limits are in
+`docs/research/ed002_capture_transport_20261028.md`; this is not live runtime proof.
+Subsequent human transport approval and the single actual capture above supersede
+this pending state. That instruction is consumed; no warm-up backfill, scheduled
+collector, study activation or trading follows. Dates remain unfrozen.
+
+### Human-Approved Reporting And Receipt-Aware Input Preparation, October 28
+
+Operator approved the submitted reporter for its synthetic scope: human
+ACCEPTED_WITH_RISK, not independent review, market results or activation.
+Source-fit check found the five-market collector cannot accept this new scope
+unchanged, while the mutable OHLCV archive lacks raw receipts. Preserve both.
+Existing listing probes supply a reusable raw-capture pattern, not a ready
+25-symbol hourly collector. Current warm-up and receipt continuity UNVERIFIED.
+
+Added `services/backtest/descriptive_candles.py` and synthetic tests. Exact
+column conversion, actual supplied receipts, raw hashes, conflicting-version
+abstention and explicit missingness feed the existing panel. 82 tests passed
+in 2.54s (34 new / 48 mapper), including hourly receipt-route validation and
+preserved failed-request diagnostics without erasing valid observations.
+No fetch, database change or outcome evaluation.
+See `docs/research/ed002_input_feasibility_20261028.md` and source bindings.
+Subsequent human adapter approval and capture preparation above supersede that
+pending implementation state. Data/study readiness remains INCOMPLETE; acquisition
+requires separate bounded authorization. No dates frozen or scheduler added.
+
+### Human-Approved Converter And Synthetic Reporting, October 28
+
+Operator approved the submitted mapper for its bounded synthetic scope: human
+ACCEPTED_WITH_RISK, not independent venue/method certification. Added
+`services/backtest/descriptive_report.py` and synthetic tests. It reconciles
+existing hourly wallets/marks, costs and per-symbol contributions, and reports
+separate overhead, carry-forward halves, control gaps, hourly risk and coverage.
+Incomplete/mismatched inputs withhold the combined profit headline. No new
+simulator, strategy, dataset, cost choice or inference gate.
+
+101 targeted tests passed in 22.24s: 25 report, 48 mapper, 28 existing comparison
+cases. Full/split reports match for 25 invented labels and both fee cases;
+scripted signals are NOT strategy evidence. All 13 submitted mapper/engine/
+contract inputs remain unchanged. See
+`docs/research/ed002_descriptive_report_20261028.md` and source bindings.
+Subsequent human reporting approval and input preparation above supersede this
+pending review state. Study activation remains INCOMPLETE; no old backtest or
+automatic collection follows.
+
+### Human-Approved Contract And Synthetic Metadata Converter, October 27
+
+Operator replied "approve. carry out the next steps" to DESCRIPTIVE-1. Record
+human design acceptance, including its proposed model mix/receipt validity/
+quantity mapping, not independent review or market-run authority. The submitted
+contract and original binding record stay unchanged; this supersedes their
+proposal status for synthetic preparation only. No activation dates are set.
+
+Added `services/backtest/descriptive_metadata.py` and synthetic tests. Unknown
+newer captures shadow older permission; exact identity, flags, positive lot,
+one-hour receipt/expiry and 0.01 USD model rounding feed the unchanged ledger.
+76 targeted tests passed in 4.98s, including 48 new cases and 28 existing
+comparison cases. All-seven-account full/split carry matches with 25 invented
+labels. No actual symbol identity, venue permission, collection or profit proof.
+See `docs/research/ed002_descriptive_metadata_20261027.md` and source bindings.
+Subsequent human approval and reporting above supersede the pending mapper/
+report-preparation state. No market run, statistical qualification, schedule/
+service/account or trading change follows from that approval.
+
+### Adopted Descriptive Preparation, October 27
+
+ED002-DESCRIPTIVE-20261027: operator chose "Prepare descriptive comparison
+contract (Recommended)". This adopts preparation alongside unresolved inference,
+not a market run or the detailed new proposals. Added
+`docs/research/ed002_defaults25_descriptive_contract_20261027.md` with source
+bindings: 25 assets, three frozen families, seven alternative shared accounts,
+two adopted cost scenarios, carry-forward and the adopted one-hour delay.
+Proposed remaining rules explicitly cover the control mix, metadata expiry and
+quantity-model mapping. They are not silently adopted account/venue facts.
+
+Contract READY_FOR_INDEPENDENT_REVIEW; experiment readiness INCOMPLETE. Next is
+review of this exact design, then demonstrated mapper/report gaps using synthetic
+fixtures. No source implementation or existing tests changed/reran. No market
+data, activation, schedules, services, accounts or trading. Original confirmatory
+design, statistical qualification requirement and frozen results remain intact.
+
+### SB-1 Saved-Output Review, October 27
+
+SHOWN: all 96 selector/guard decisions reconcile to the frozen rule. The 25
+abstentions are the prescribed insufficient-effective-block outcomes; AR 0.95
+selected lengths 19-21, yielding fewer than ten blocks in 182 days. No defect
+in this decision boundary is demonstrated. Statistical validation remains
+INCOMPLETE; this implementing-thread review is not independent certification.
+See `docs/research/ed002_sb1_development_20261027/METHOD_REVIEW.md` and its
+six-input hash-bound JSON. No numerical rerun or test repetition performed.
+
+Recommendation: do not launch the larger audit or relax the guard automatically.
+The subsequent operator choice adopted descriptive preparation as recorded above.
+This changes preparation sequencing, not frozen strategies or promotion
+requirements. No larger audit, market-data evaluation or trading is authorized.
+
+### Authorized SB-1 Development Result, October 27
+
+Operator explicitly chose "Accept prototype; run development only (Recommended)"
+via the human-review route. One run completed all96trials in16.908430s/90sbudget,
+71computable/25abstained. Per-case computable and positive counts: iid16/0,
+AR0.5 16/1, AR0.8 12/2, AR0.95 0/0, AR-0.5 13/0, volatility14/2. All paths,
+seeds/hashes/results retained; zero positives with zero computability is not a
+successful method.8deterministic runner-helper tests passed before the run.
+No parameter/guard change, rerun,512-case audit or market data. Statistical
+validation INCOMPLETE; development objective complete, not a profit result.
+See `docs/research/ed002_sb1_development_20261027/README.md`. Recommendation:
+method/availability review before another run, not auto-audit or guard relaxation.
+
+### Adopted SB-1 NumPy Prototype, October 27
+
+Operator explicitly selected "Adopt plan; build NumPy-only prototype
+(Recommended)": design adopted for prototype/reference tests only, NOT
+randomized development/audit or market execution. Added isolated
+`services/backtest/sb1_prototype.py`,32deterministic tests, tagged-reference
+functions and retained license.32passed1.23s with RNG/external-work test guards.
+Captured3public source/license files only; no package installed, arch/scipy still
+absent. Exact source-function/reference and sampler/selector fixture parity
+checked. Old16pilot bindings unchanged; no claim SB-1 fixes its8/32warning.
+Code READY_FOR_INDEPENDENT_REVIEW; statistical validation INCOMPLETE. No new
+reviewer retry/duplicate requested while last known usage error persists. See
+`docs/research/ed002_sb1_prototype_20261027.md` and14-input handoff bindings.
+Next: separate code review, then explicit later-stage validation authorization;
+do not automatically run the proposed90/600-second development/audit budgets.
+Subsequent "approve. carry out the next steps" recorded for submitted prototype
+checkpoint; one existing-reviewer availability check still returned usage limit.
+Asked an explicit next-stage choice: human acceptance of these exact inputs plus
+one96-trial/90sdevelopment run, or retain review hold. No development/audit run
+or acceptance-by-inference occurred while that distinct decision is pending.
+That decision was subsequently supplied explicitly; the human-accepted prototype
+and completed bounded development result above supersede the pending-decision
+state only. No independent mathematical certification or audit authority follows.
+
+### Prospective Statistical Revision Plan, October 27
+
+Prepared `docs/research/ed002_stat_revision_plan_20261027.md`, not a new run.
+One candidate: joint stationary bootstrap with corrected automatic block
+selection, fixed max aggregation/insufficient-block guard, original182day
+wealth contrast/three-family tail. Evidence is a candidate route, not a repair
+guarantee. Six fixed null cases; separate development and fresh512-per-case
+audit with exact-binomial error gate, abstention reporting and power diagnostics.
+No budget extension/retry/seed or parameter rescue. Proposed90sdevelopment +
+600saudit compute ceiling; original213test/pilot/code bindings unchanged.
+Neither arch nor scipy installed; no dependency changes. Seven-source plan
+bindings verified. HIGH risk design READY_FOR_INDEPENDENT_REVIEW, not adopted,
+implemented or authorized for execution. Existing reviewer usage limit persists
+as last observed; no new retry/replacement requested. Next: independent/human
+method review and implementation-route/budget decision, not original-pilot rerun.
+Subsequent explicit human choice adopted the plan for the NumPy-only prototype
+above. This supersedes the unadopted-proposal state for that narrow preparation,
+not code acceptance, statistical qualification or randomized-run authority.
+
+### Adopted Model Settings And Statistical Pilot, October 27
+
+ED002-MODEL-SETTINGS-20261027 adopted hypothetical1000USD/no deposits/182days,
+fees50bps primary90bps stress/adverse25bps each side/cent cash rounding and
+separate20USDmonthly overhead. Preserve25symbols, shared carry and one-hour
+delay. These settings are no longer awaiting adoption; they are not account
+facts, a registration or market-run permission. Status intervals, market-rule
+mapping, control mix, validated inference and actual dates remain separate.
+
+Implemented the proposed wealth bootstrap with28new synthetic tests;213focused
+tests passed8.20s. The fixed pilot completed67calls5.894880s, no rerun/retuning.
+SHOWN: primary7-day screen gave positives in1/32iid null trials and8/32AR1(0.8)
+null trials; persistent-null Wilson range13.25%-42.11% is above nominal5%.
+This is negative inferential evidence under those toy generators, not a real
+market error estimate. Statistical validation INCOMPLETE; no confidence-based
+promotion. Code/pilot READY_FOR_INDEPENDENT_REVIEW; separate review requested
+and sources frozen. Existing reviewer returned a usage-limit error; no review
+artifact/disposition exists and no duplicate reviewer or retry was started.
+Operator subsequently approved the reported checkpoint with these limits;
+that acknowledgement is recorded, not an independent method review or a
+waiver of the demonstrated persistent-null problem. No model/run scope changed.
+See `docs/research/ed002_stat_validation_20261027/README.md`.
+Do not repeat the pilot or switch block lengths to conceal this result. Next:
+independent method disposition and a prospectively specified revision/validation
+budget before any market screen, not another accounting rewrite or old backtest.
+
+### Synthetic Seven-Arm Comparison, October 27
+
+Operator approved the submitted synthetic scope. Initial separate review then
+REJECTED ED002-COMPARISON-01: carry trusted an ACCEPTED entry marker without
+reconciling actual trades. Preserved rejected artifacts/review; narrow correction
+now recomputes complete entry evidence before any arm runs.5failing-before
+regressions;185targeted passes after correction. Separate re-review
+ACCEPTED_WITH_RISK, ED002-COMPARISON-01 closed/no remaining bounded blocker;
+reviewer independently185passed6.98s,20current input hashes verified. Synthetic
+comparison implementation objective complete; this implementing thread did not
+self-approve. Next boundary: adopt remaining experiment inputs/inference and
+authorize an actual study separately, not repeat the accepted wrapper audit.
+See `docs/research/ed002_comparison_carry_fix_20261027.md` for current sources;
+the original checkpoint/bindings below remain historical, not current acceptance.
+
+Implemented `services/backtest/delayed_research_comparison.py` using accepted
+dependencies unchanged. Three frozen families, incumbent and three controls;
+all economic inputs supplied explicitly. First hour cash-only for every arm,
+shared first execution/end, fixed-unit controls, all-seven-state carry. Failed
+or partial initial benchmark entry becomes INCOMPLETE with unknown economics,
+not cash masquerading as buy-and-hold. Incomplete/partial periods suppress the
+top-level profit summary.180targeted passes (23new+157existing); code frozen
+READY_FOR_INDEPENDENT_REVIEW with separate GATE request. No market data/run,
+statistical calibration or protocol choice. See
+`docs/research/ed002_comparison_harness_20261027.md`.
+
+### Fixed One-Hour Delay Synthetic Extension, October 27
+
+Implemented `services/backtest/delayed_signal_bridge.py` after operator timing
+choice and continuation. Signals use the window endingT, receipts throughT+1h,
+actual pre-fill wallet withTmarks, and later-open fills. Signal permission is
+knownT; execution permission is checked again atT+1h. No intervening bar enters
+the signal or sizing. Traces distinguish strategy/receipt/execution clocks.
+The old panel has one optional availability keyword; default behavior retained,
+ledger/frozen strategies unchanged.157targeted passes (28new+129existing), no
+market study/full suite. Separate GATE ACCEPTED_WITH_RISK the exact implementation,
+independently157passed4.58s/no blockers;14review-input hashes verified. Bounded
+delay implementation objective complete; sources and reviewed artifacts unchanged.
+See `docs/research/ed002_delayed_bridge_20261027.md`. Market-data protocol,
+cost/horizon/freshness/inference choices and run authorization remain separate.
+
+### Defaults-25 Input Contract And Timing Decision, October 27
+
+Prepared `docs/research/ed002_defaults25_input_contract_20261027.md` without
+rewriting the reviewed design or financial implementation. Source-level
+synthetic probe: exact-boundary candle availability passes; final receipt1ms
+after the close is unavailable. No actual feed latency was measured. Proposed
+one-hour delayed execution needs an operator choice and a synthetic extension;
+retaining immediate next-open is an explicitly idealized alternative, not
+observed executable edge. Missingness, dated public status, quantity-specified
+market minima, proposed cent rounding and existing fee scenarios are separated
+from venue/account facts. All25scope labels and prior results remain intact.
+Separate GATE review ACCEPTED_WITH_RISK for offering the timing choice;9source
+hashes and an independent tiny probe checked, no blocking design finding.
+Operator subsequently chose "Use a fixed one-hour execution delay (Recommended)"
+(ED002-TIMING-20261027). Timing choice complete; do not ask it again. Reviewed
+supplement remains a historical proposal; costs/rounding/horizon/freshness and
+inference are not adopted. Next scope is a separately authorized synthetic-only
+delay extension: separate signal-window end from receipt cutoff; align allocation,
+permission and control clocks; preserve immediate-next-open API/results. Review
+acceptance and timing adoption alone authorize no implementation, fetch or market
+run. Subsequent continuation authorized the bounded synthetic extension above;
+no market-run authority follows.
+See `docs/research/ed002_defaults25_input_contract_review_20261027.json`.
+
+### Saved Hourly Archive Content Audit, October 27
+
+Complete:2compressed archives/48selected payload hashes match; zero malformed
+rows, duplicate/invalid/out-of-window timestamps or ordering defects. Recent
+August10-October9 archive:21/24full-window complete,24/24final300hours complete;
+OP/PYTH/WIF miss4/1/18internal hours. Older archive:0/24full-window complete,
+22/24final300hours complete; two shared5-hour gaps, already documented in the
+older research. MATIC remains in25-symbol scope without an indexed hourly file.
+See `docs/research/ed002_defaults25_archive_audit_20261027/README.md`.
+ACCEPTED local integrity/timestamp audit; experiment readiness INCOMPLETE.
+No price/return analysis, extraction, repairs, network, strategies or operations.
+These previously used archives end October9, not fresh holdout/current warm-up.
+Next: settle dated eligibility/missing-data/precision/cost contract before any
+freeze and separately authorized market experiment, not repeat old backtests.
+
+### Approved Public Metadata Refresh, October 27
+
+Complete: exactly two public GETs, both HTTP200,0.171504seconds/no retries or
+redirects. At17:17:32NewYork,25same-base USD candidates/24online/MATICdelisted;
+no changes in11selected product fields or5currency fields versus October19.
+Raw snapshots, timestamps, hashes and25-row comparison preserved append-only.
+See `docs/research/ed002_defaults25_metadata_refresh_20261027.md`.
+ACCEPTED for this capture/comparison, not identity approval, financial rule
+mapping, candle completeness, statistical calibration or activation. The
+two-request approval is consumed; no automatic repeat or market-data run.
+
+### Saved25-Asset Input Inventory, October27
+
+Bounded metadata/index audit complete:25same-base USD product candidates,
+24online/1MATICdelisted in the October19 saved response;24hourly file names in
+each old archive index. Filenames are not verified candles or future data.
+Receipt payloads and prior identity-input hashes checked; no raw prices opened.
+Official docs resolve retired base_min_size: absence is not a blocker; price
+tick quote_increment is not automatically ledger cash precision. No mapper
+or model rules changed. Inventory ACCEPTED; experiment readiness INCOMPLETE.
+See `docs/research/ed002_defaults25_saved_input_inventory_20261027.md`.
+The proposed2GET public metadata refresh was subsequently approved/completed;
+see the newer dated result above. Do not repeat it as an outstanding action.
+
+### Synthetic Signal Bridge, October 27
+
+Latest operator reply adopted the event-triggered allocation rule and authorized
+the synthetic bridge, superseding the earlier request to revise the rule. Added
+OHLCV/frozen-signal allocation and incumbent callbacks using the unchanged
+shared ledger. Resumed GATE found one incumbent non-Sunday frame-validation
+bypass and REJECTED the original. Narrow correction has3failing-before cases
+and129targeted passes; separate re-review ACCEPTED_WITH_RISK the correction and
+closed that finding, independently129passed. Ledger/strategies unchanged.
+Adopted synthetic bridge objective complete. Data/inference/protocol adoption
+and activation remain separate, unperformed boundaries; no automatic next run.
+See `docs/research/ed002_signal_bridge_20261027.md`. No statistical calibration,
+market-data run, prospective freeze, operations or trading authorized/performed.
+
+### 25-Symbol Comparison Design, October 27
+
+Operator chose existing frozen strategies within25, design only. Prepared
+`docs/research/ed002_defaults25_comparison_design_20261027.md`: three frozen
+signal families, proposed event-triggered shared-cash allocation, Coinbase USD,
+two explicit cost scenarios, common controls/incumbent, future activation and
+182-day endpoint, missingness and a proposed multiplicity-aware economic screen.
+Sizing/cost/horizon/inference choices are proposals, not operator-adopted rules.
+Verified11snapshot sources,18file bindings,25unique assets and3families without
+importing strategies/opening market data. Saved independent GATE review is
+ACCEPTED_WITH_RISK for proposal coherence only;19review bindings match. See
+`docs/research/ed002_defaults25_design_review_20261027.json`.
+Design objective complete. Operator subsequently adopted only the disclosed
+allocation policy for synthetic-only OHLCV/signal/incumbent implementation.
+Cost/horizon/inference choices remain proposals; no statistical certification,
+freeze, collection, market-data evaluation or operational authority follows.
+
+### First Comparison Scope Decision, October 27
+
+Existing CTREND-OOS r2 was read in full and reviewed against the adopted ED-002
+contract; original draft/checksum retained. REJECTED for freeze in this bounded
+accounting/scope review, not rejected as a trading hypothesis. Six definition
+or input gaps require correction: missing-price recovery, dated information,
+capital/endpoint, fixed-unit control, universe and final sample/failure policy.
+Operator subsequently chose existing frozen defaults within25, not CTREND's
+wider experimental universe (its gates require at least50test/30regression
+coins). This choice is complete; do not ask it again. CTREND remains an
+unadopted separate proposal, not a rejected economic hypothesis.
+See `docs/research/ctrend_oos_r2_contract_review_20261027.md`.
+
+### ED-002 Synthetic Adapter, October 27
+
+The Oct18 portfolio reuse assessment and independent recommendation review are
+complete, not queued for repetition. Operator adopted the reviewed shared-cash
+contract and authorized its synthetic-only adapter. Implementation and focused
+tests are SHOWN: 93 passed plus 9 legacy synthetic regressions, preserving APIs,
+frozen experiments and carry-forward. First review found two defects; both have
+three failing-before correction cases. Separate GATE ACCEPTED_WITH_RISK the
+bounded correction, closed both findings and independently passed93tests.
+Synthetic implementation objective complete; no new experiment, market-data
+run or trading authorization. Next: separately frozen comparison inputs/rules
+and explicit experiment authorization, not another adapter rewrite. See
+`docs/research/ed002_shared_cash_adapter_20261027.md`.
+See `docs/research/ed002_portfolio_contract_candidate_20261018.md` and
+`docs/research/portfolio_reuse_assessment_20261018.md`.
+
+### Actual V6i Runtime Success, October 27
+
+Explicitlyapprovedhandoff ONCE/session26515/exit0. Controller updatecomplete/
+querypassed/receiptcomplete/preparedIDspreserved, unresolvedlists empty;
+fourreplacements left running asapproved.73eventreceipt266f5823...5148 commits
+resultcda66d4e...6dae. CompanionHTTP200/fivecitations/executiondisabled,
+deterministiccompanionfallback notexternalLLM/UIproof;5evidencechecks true.
+SeparateGATE ACCEPTED_WITH_RISK singlecommittedarchivalresult/no blockers,
+73events/commit/4IDs/9compat+5evidence/citationidentitiesverified;45uniquebindings
+checked. Boundedrestorationobjectivecomplete; broaderUI/market/model/sustained
+healthINCOMPLETE. No extraquery/postcheck/retry or newoperationalauthority.
+See `docs/checkpoints/companion_runtime_attempt_v6i_20261027.md`.
+
+### Offline Fixed V6i Handoff, October 27
+
+Existinglauncher reboundlabels/attempt/fourhashes plus narrowaccepted-inline
+subject/hashfile compatibility guard, no helper/controller/transport change.
+36tests passed0.37s; actualdefault exit0/26readonlyloaderopens/zerooperation
+tripwires/markerabsent. Initial16pass16fail exposedscopeformatgap, fixedwithout
+changingacceptedrecords. SeparateGATE ACCEPTED_WITH_RISK/no blockers,
+independent36tests0.31s/defaultproofexact/50unique bindingschecked. Offlinehandoff
+complete; next explicit ONE bounded V6i runtime attempt decision. No ops/token/
+startup/query performed; runtimeINCOMPLETE.
+See `docs/checkpoints/companion_v6i_execution_handoff_20261027.md`.
+
+### Offline V6i Runtime Packet, October 27
+
+12drafts bind4actualIDs/newmemoryimage+accepted48filecapture,20runtimeconsumers
+withonlyverifierdelta/13unchangedpreptools/43appentries.132pinpartition48direct
+memory+32othercontrollerapp+52priorimage/storage;configurationMODELLED, witnesses
+andpolicymeanings/limitsunchanged.37tests passed0.71s; separateGATE37tests0.50s/
+12draftsexact/ACCEPTED_WITH_RISK exactsubjectsource-configscope,9recordsissued.
+141bindingschecked/realpureload_inputs accepts4replacements7subjects132pins,
+zerooperationtripwires. Drafts preservedINCOMPLETE/UNVERIFIED; next existinginert
+handoff/review. No nativeaction/runtimeINCOMPLETE. See
+`docs/checkpoints/companion_runtime_packet_v6i_20261027.md`.
+
+### Actual V6i Memory-Image Evidence, October 27
+
+Approved R2capture ran ONCE/session69309/exit0;51commands2.56s,48files allmatch,
+1,120,146payload/1,207,296chargedtarbytes.27originallayers exactprefix of38new,
+bothOnBuildempty;2selectedbeforeafterrecords equal/replacementstillcreated.
+Report578cdb75...2001/toolstdout saved. SeparateGATE ACCEPTED_WITH_RISK actualfacts/
+conditional sourceapplicability, no blockers/77bindingschecked;37SDK+10app unchanged,
+only acceptedmain delta. Review9f33a094...f2bb6. No finalsubjectpolicyissued.
+Next offline exactfinalsubject/configuration/runtimepacket derivation+review;
+captureconsumed/runtimeINCOMPLETE/no startup.
+See `docs/checkpoints/companion_memory_image_evidence_v6i_20261027.md`.
+
+### V6i Memory-Image Capture Implementation, October 27
+
+Offline adapter reuses existing pinned transport/tar/Plan contracts; fixed2memory
+containerIDs/2images/48sourcepaths,51commandsmax/120scommanddeadline/10seach/
+8MiBfiletransfer+boundedmetadata, no lifecycle/exec/storage/credentials. R1 rejected
+for CLI-hash reserve consumption; archived unchanged. R2 uses ordinary cutoff
+for both hashing and subprocess, new regression rejectsR1;16tests passed0.37s.
+SeparateGATE R2 ACCEPTED_WITH_RISK/no blockers, independent16tests0.38s/clock
+challenge10sfinalreserve,7bindingschecked. Source35187913...6e01 frozen. Next
+explicit one read-onlycapture decision; not authorized/run, runtimeINCOMPLETE. See
+`docs/checkpoints/companion_memory_image_capture_v6i_20261027.md`.
+
+### Actual V6i Stopped Preparation, October 27
+
+Explicitly approved single preparation ran session53316/exit0. Controller reports
+four owned created-state replacements, none started/originals not interrupted;
+memoryimage989471c8 changed, other3matchV6h. Saved7eventreceipt5bd4ff43...2533,
+evidence6b307618...2fcf and exact tooloutput. Preparationconsumed/no reset or
+nativepostcheck. SeparateGATE ACCEPTED_WITH_RISK savedactualIDs/evidence only,
+79bindingschecked/pureReviewedPreparation loads4. Preparationconsumed; no startup
+authority. Next newmemoryimage parent/layer/source and SDK-policy applicability
+proof via existing separately authorized evidence path. RuntimeINCOMPLETE.
+See `docs/checkpoints/companion_actual_preparation_v6i_20261027.md`.
+
+### V6i Offline Preparation Inputs, October 27
+
+Derived candidate/provenance from independently accepted source proposal and
+saved baseline; exact receipt+review bindings, unchanged recipes,7originals,
+4appstart-only deltas. Candidate INCOMPLETE/blankreviewer; no new IDs/images or
+operation authority.27focusedtests passed0.45s; separateGATE ACCEPTED_WITH_RISK,
+independent27tests0.37s/proposalexact/68bindingschecked. Exact2field accepted
+manifestexport3c8066b4...32a33 loads; actualexistingdefault exit0/1readonlyopen/
+zerooperationtripwires/markersabsentunchanged. Offlineinputobjectivecomplete;
+next explicit ONE stopped-preparation authorization. RuntimeINCOMPLETE. See
+`docs/checkpoints/companion_current_inputs_v6i_20261027.md`.
+
+### V6i Source-Bound Restoration Inputs, October 27
+
+Offline proposal binds accepted archival-only repair:1memory app hash/1host
+verifier hash;43appentries/13unchangedpreptools/20runtimeconsumers. Recipes intact,
+new memory-image/SDK policy explicitly UNVERIFIED. Baseline/newIDs/images null,
+operationflagsfalse, V6h consumed/no reset.25tests0.42s; actualdefault exit0/
+actionsfalse. Separate GATE ACCEPTED_WITH_RISK/no blockers, independently25tests
+0.58s/proposalbyteexact;75reviewbindings matched before documentationcloseout.
+Offline proposal/wrapper only; runtimeINCOMPLETE/no nativeoperations.
+Offline proposal checkpoint (subsequent capture disposition below):
+`docs/checkpoints/companion_restoration_plan_v6i_20261027.md`.
+
+Subsequent explicit authorization consumed: capture ran once, exit0, exactly2
+inspections0.508s; seven selected records identical, all report running. Rawhashes
+and receipt saved in actual_baseline/. Separate GATE ACCEPTED_WITH_RISK saved
+metadata only:7identities/images/fingerprints match,3storageexact/4appstart-only
+delta, no unexplained selected drift;11reviewbindingschecked. Existing4timeout
+comparisonflagsfalse, no health/explanation/deployment proof or service changes.
+Next offline preparation-input derivation/review; no new operational authority.
+
+### Offline Archival Market Exclusion, October 26
+
+Approved probe-only contract implemented in2productionfiles: strictmemory skips
+market SQL and labels exclusion; verifier accepts only closed marker/explicit
+pairedprotocol/nullprice/zero samples. Ordinary market SQL/summary preserved.
+Prechange sources/tests archived; historical receipts/reviews unchanged.
+256 repair regressions +4auth/profile checks passed, existing deprecations only.
+Separate GATE ACCEPTED_WITH_RISK/no blockers, independently256+4passed;
+20reviewbindingschecked, full-module AST/diff/preservation verified. Offline
+repaircomplete; runtimeINCOMPLETE/no deployment/retry. Next fresh source-bound
+restoration plan, old memory/verifier bindings stale. See
+`docs/checkpoints/companion_archival_market_exclusion_20261026.md`.
+
+### Strict-Probe Market Diagnosis, October 26
+
+Separate saved-result review caught standalone fallback is not strict-path cause.
+New real-handler/synthetic-transport tests: empty market rows pass, populated
+positive/zero rows reach bundle_market rejection. Reviewer caught risk audit
+unstubbed/3blocked attempts; old zero-attempt claim withdrawn. Corrected harness
+stubs risk audit; v2 counter proof rejected for fixture overwrite. Explicit
+dependency + hook-identity and synthetic swallowed-error regressions now
+5passed1.16s/10existingwarnings, active guarded paths0forbiddenattempts.
+No live payload reconstructed or criteria changed. Separate GATE v3
+ACCEPTED_WITH_RISK diagnosis/bounded harness,5tests0.70s/hookidentities verified;
+5reviewbindings+20unchangedruntimeconsumers checked. Proposed next scoped contract: archival-only explicit market
+exclusion, normal research preserved; no repair/operation authorized. See
+`docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md`.
+
+### Actual V6h Runtime Attempt, October 26
+
+Approved handoff invokedONCE/session33805/exit1, queryfailed. Diagnosticnowshows
+bundle_market/rejected; no exact live field retained. CompanionHTTP200/five
+citations/executiondisabled/normalizeraccepted; not complete evidence success.
+Controllerconfigurationrollbacktrue/exactfalse/connectivityunverified; stages
+notpreserved/prepconsumed, no retry/postcheck/reset. Saved98eventreceipt ab587bb2...
+d91b4a. Two offline counterexample tests pass: real unavailable snapshot shape
+is rejected by existing verifier but not strict-probe reachable. Saved evidence
+separately ACCEPTED_WITH_RISK/114bindingschecked, runtimeINCOMPLETE. See
+`docs/checkpoints/companion_runtime_attempt_v6h_20261026.md`.
+
+### Fixed Offline V6h Handoff, October 26
+
+Existing launcher rebound only labels/date/four hashes; controller/privatepipe
+helper/runtime logic unchanged.32 synthetic tests passed0.32s, exact delta and
+all3diagnosticconsumer+guard drift refusals. Actual module default exit0/26read-only
+opens/stderrempty/zero operation tripwires/markerabsent. Separate GATE
+ACCEPTED_WITH_RISK/no blockers; independent32tests0.30s/defaultproofexact,
+103currentbindingschecked. Offline packet+handoff complete, runtimeINCOMPLETE;
+next operator decision ONE bounded V6h attempt. No token/native/start/query. See
+`docs/checkpoints/companion_v6h_execution_handoff_20261026.md`.
+
+### Offline V6h Runtime Packet, October 26
+
+Twelve drafts bind4reviewedactualIDs/three accepted host diagnostic files with
+unchanged20runtime/13prep maps/43appentries.132subjectpins retain43controller
+attestations+89inheritedpins and historical52/37origin;0freshstreams. Configuration
+explicitMODELLED/raw_v6h_capturefalse.23 focused tests passed0.40s, real pure
+loader composition temporarysyntheticreviews; separateGATE ACCEPTED_WITH_RISK
+exactprofile/noblockers, independent23tests0.44s/12draftsexact/9acceptedrecords
+realpureconsumer.90bindingschecked; actualdefault13readonlyopens/zerooperations.
+RuntimeINCOMPLETE/no operationsauthority. Fixed handoff separatelyunderreview. See
+`docs/checkpoints/companion_runtime_packet_v6h_20261026.md`.
+
+### Actual V6h Stopped Preparation, October 26
+
+Authorized prepare invokedONCE/session29014/exit0. Controller reports4created,
+never-started replacements; servicesstartedfalse/originalsinterruptedfalse.
+Saved7eventreceipt/statebyteequality and evidence950b09d0...805d; new actual IDs,
+same4image digests as V6g. Preparation consumed/cutover unused; no retry/postcheck.
+Separate GATE ACCEPTED_WITH_RISK saved evidence/actual IDs/no blockers;
+58input-output bindings checked, real ReviewedPreparation loader accepts4.
+No new tests/nativepostcheck; at-creation attestations not currentstateproof.
+Approved preparation+ID-review scope complete; runtimeINCOMPLETE. Next offline
+runtime packet binding actual IDs/three reviewed host deltas, not startup. See
+`docs/checkpoints/companion_actual_preparation_v6h_20261026.md`.
+
+### Actual V6h Baseline and Candidate, October 26
+
+Approved two-read capture invoked once, exit0/two inspections0.53s; identical
+complete selected metadata. Seven originals running at22:03UTC, identities/
+images/configuration match historical constraints; only four app start times
+changed. Not health/connectivity/volume-content/explanation proof. Saved raw
+hashes/pair reproduced; existing derivation adapted only review path/hash/schema.
+11 offline tests passed0.38s. Separate GATE ACCEPTED_WITH_RISK saved baseline/
+input recipe; independently11passed0.36s/63bindingschecked. Original candidate
+stays INCOMPLETE; review-permitted two-field manifest export hash matched.
+Actual prepare default exit0/one read-only manifest open/zero operation tripwires/
+markersabsent. No new IDs, prep/start/query or operations authority. Next explicit
+one stopped-preparation approval; runtime INCOMPLETE. See
+`docs/checkpoints/companion_baseline_v6h_20261026.md`.
+
+### Source-Bound V6h Restoration Plan, October 26
+
+Prepared offline source proposal and inert-by-default two-read baseline wrapper.
+Three exact accepted host deltas; 13 preparation/20 runtime consumers and43
+application source entries preserved. No current baseline/new IDs invented;
+V6g attempts remain consumed.22 focused tests passed0.51s/no warnings; actual
+module default exit0/actionsfalse. Separate GATE ACCEPTED_WITH_RISK/no blockers,
+independent22tests0.51s/55bindingschecked. Offline objective complete, runtime
+INCOMPLETE. Next explicit bounded read-only baseline authorization;
+no Docker/token/service/capture/start/query performed. See
+`docs/checkpoints/companion_restoration_plan_v6h_20261026.md`.
+
+### Offline Verifier Diagnostic Repair, October 26
+
+Fixed stage/code envelope crosses bounded process channel without private text.
+Legacy five-Boolean evaluator/adapter API preserved; diagnostic method selected
+once, no retry fallback. Acceptance predicates/SQL/8s child/10s parent/all-true
+gate unchanged. First independent review REJECTED protocol gaps VD-01/VD-02;
+rejected version and review preserved. Corrected diagnostic-method downgrade
+and duplicate JSON keys; 397 focused tests passed20.39s(52new),12existingwarnings.
+Separate GATE ACCEPTED_WITH_RISK corrected offline scope/no blockers; independently
+397passed20.06s, 18 review bindings checked. Offline objective complete;
+runtimeINCOMPLETE/oldcauseUNVERIFIED. No service, token or live query;
+historicalpackets now stale for changed source files. Next fresh source-bound
+operational plan, not consumed-attempt reuse or startup authority. See
+`docs/checkpoints/companion_verifier_diagnostics_20261026.md`.
+
+### Approved V6g Runtime Attempt, October 26
+
+Authorizedhandoff invokedONCE session75647/exit1. CompanionHTTP200/5citations/
+executiondisabled/clientaccepted; verifierreturnedcompletewellshapedallfalse,
+NOT5independentfailures. Firstfailedpredicate/error/deadline indistinguishable.
+98eventreceipt saved; all5citationID/URLhashpairs mapfrozenarchive. Recovery
+configurationtrue/exactfalse/connectivitynotverified, no unresolvedtrackedactions.
+Stagesnotpreserved/prepconsumed; no retry/reset/newprep. Savedresultindependently
+ACCEPTED_WITH_RISK/evidenceonly,11bindingschecked/diagnosisreproduced. Authorized
+attemptscopecomplete, restorationnotcomplete. Nextsecret-freefirst-failure
+verifierdiagnostics offline, notblindcutover.
+RuntimeINCOMPLETE. See `docs/checkpoints/companion_runtime_attempt_v6g_20261026.md`.
+
+### Fixed V6g Handoff, October 26
+
+ExistinghandoffflowboundtoV6g hashes/currentreceipt.response; nofakelegacyreceipt
+fields. Exactdelta/31offline tests passed0.54s. Actualdefaultmodule exit0/
+stderrzero/26readonlyloaderopens/0externaltripwires/cutovermarkerabsent; no token
+or serviceoperation. SeparatehandoffGATE ACCEPTED_WITH_RISK/no blockers,
+31tests0.29s/actualinertproofexact/33bindingschecked. Offlineobjectivecomplete;
+runtimeINCOMPLETE. NextoperatorapprovalONEboundedruntimeattempt, notautomatic
+execution. No operationauthority. See
+`docs/checkpoints/companion_v6g_execution_handoff_20261026.md`.
+
+### Offline V6g Runtime Packet, October 25
+
+Twelve drafts bindactual4reviewedstoppedIDs/currenthostguard. Sameappimages/
+43appsourceentries;20runtimeconsumersonlyguarddelta.132pins retain43controller
+attestations +89same-prior-image/storage inheritance, includinghistorical52/37
+origin split;0newfilestreams. StagedconfigurationexplicitMODELLED/notrawcapture.
+21offline tests passed0.40s/realconsumercomposition withtemporarysyntheticreviews.
+SeparateGATE ACCEPTED_WITH_RISK source/configpolicyonly, independent21tests0.33s/
+12drafts reproduced/newscope+7children+V2runtime accepted. Parent56bindings/
+literalmeanings+limits verified. ActualdefaultCLI exit0/inputstrue/actionsfalse/
+13readonlyopens/0externaltripwires/cutovermarkerabsent. RuntimeINCOMPLETE;
+nextfixedofflinehandoff/review, notstartupauthority. No native/token/start/query.
+See `docs/checkpoints/companion_runtime_packet_v6g_20261025.md`.
+
+### Actual V6g Stopped Preparation, October 25
+
+Explicitoneactionapproval; existingreviewedcompanion_prepare invokedONCE,
+session44449/exit0/preparationcomplete. Fournewcreated/neverstarted/zerorestart
+replacements; servicesstarted/originalsinterrupted false. Seven-eventreceipt/
+evidence preservedbyte-identically, noextra nativepostcheck/retry/reset.
+Actualevidence/IDs separately ACCEPTED_WITH_RISK/no blockers;48bindings checked,
+realpureReviewedPreparation.load accepts4. RuntimeINCOMPLETE. Prepconsumed/
+cutoverunused. NextfreshID/currentguardruntimepacket offline,
+notstartup/query. See `docs/checkpoints/companion_actual_preparation_v6g_20261025.md`.
+
+### Actual V6g Paired Baseline and Inputs, October 25
+
+Explicitpairedcapture approval received. Exactly2sanitizedread-onlyinspections/
+7knownoriginals completed once0.144s; rawpair savedbeforevalidation/identical.
+Selectedsnapshots preserve3storage andchangeonly4appstarttimes. Currentcandidate/
+proof derivedoffline, all43appsources/13tools unchanged; onlyacceptedhostguard
+consumerdelta.16tests passed0.72s. Separateactual-inputGATE ACCEPTED_WITH_RISK,
+independent16tests0.46s/21bindings verified/reviewedmanifest33e663...f2e26.
+ActualdefaultpreparationCLI exit0/0externaltripwires/1readonlymanifestopen/
+markersabsent; nooperation. RuntimeINCOMPLETE. NextseparateapprovalONE300s
+stoppedpreparation(incl120recovery), notstartup/cutover/query. No preparation/
+startup/query/servicechange or retry performed. See
+`docs/checkpoints/companion_actual_inputs_v6g_20261025.md`.
+
+### V6g Source-Only Integration Inputs, October 25
+
+43appentries/13preparationtools unchanged; onlyacceptedguardchanges among20runtime
+consumers. New source-onlyrefresh preservesapplications/options/policies, baseline
+null/IDsnull/nooperationauthority; actualPlan rejectsitsnonmanifest schema.
+12offline tests passed0.28s(final0.26s). SeparateGATE ACCEPTED_WITH_RISK source-only,
+12tests0.24s/exactrefreshreproduced/52bindings parentchecked. Actualinputs/runtime
+INCOMPLETE. Missingpostrollbackpairedmetadata cannotbereconstructedfromreceipt.
+Nextpermissiontwo sanitizedread-onlyinspections/7knownoriginals/30stotal,
+noenvironmentcredentials/endpoints/servicechanges. Approvalquestionpresented,
+responsepending; noinspectionperformed. See
+`docs/checkpoints/companion_integration_sources_v6g_20261025.md`.
+
+### Offline Cited-Precedent Repair, October 25
+
+Guard now permits exact whole-field reuse of a validated keyword headline only
+with one matching typed past_1/future_1 citation and the existing research-only
+labelled-context contract. Unsupported foreign narratives stay blocked. New
+tests reproduced2failures before patch. Firstreview REJECTED malformedtimestamp/
+cross-type duplicateID exemptions. Both fixed with28additionalnegativecases;
+finalfocused320passed11.54s including89newcases/client/unchangedverifier. Global
+citationIDunique/explicitawaretimestamp required. Rejectedsource/review preserved.
+Source/diff/prechange preserved; no runtime,
+packet refresh, service or query action. Correctedofflineimplementation separately
+ACCEPTED_WITH_RISK/no blockers; independent320tests11.70s/14bindings checked.
+Oldrejection preserved. Nextfreshintegrationinputs, notconsumedattemptreuse. Runtime
+INCOMPLETE. See `docs/checkpoints/companion_cited_precedent_repair_20261025.md`.
+
+### Approved V6f Runtime Attempt, October 25
+
+One authorized fixedhandoff invocation(session80673) exited1. CompanionHTTP200/
+5citations was rejected by client foreign_asset guard; staticfallback selected,
+stored-evidence verifier not reached. Receipt96events preserved byte-identically;
+all5citationID/URL pairs match frozenarchive. Offline3caseguarddiagnostic reproduces
+mixedBTC/ETHtitle rejection in past_precedent, notproof ofactualmissingprose.
+Recovery configurationtrue/exactfalse/connectivitynotverified, no unresolved
+trackedactions; stagesnotpreserved/prepconsumed. No retry/reset/newprep.
+Saved-evidence separately ACCEPTED_WITH_RISK/no blockers; diagnosticreproduced,
+17reviewbindings parentchecked. Nextnarrowofflinecontractrepair, not
+another blind runtime. Runtime INCOMPLETE. See
+`docs/checkpoints/companion_runtime_attempt_v6f_20261025.md`.
+
+### Fixed V6f Handoff Implemented, October 25
+
+New fixedlauncher binds acceptedpacket/receipt/currentreview outputhashschema.
+ExactpriorV6eflow except labels/attempt/fourhashes/twolookups.29offline tests
+pass0.31s; actualdefaultmodule runpy exit0/0tripwirecalls/cutovermarkerabsent,
+stdoutmatchespacketreceipt. Alltoken/native fixturesonly; noactualcredentials/
+startup/query/reservation. Independenthandoff ACCEPTED_WITH_RISK, no blockers;
+reviewer29tests0.26s/actualdefault exit0/0tripwirecalls, parent31bindings checked.
+Offlinehandoff objective complete; next separateauthorization ONE600scontroller
+cutover/query including180srecovery, withseparate10sCLI/10ssourceprechecks.
+No automaticretry/reset or impliedstartupauthority. Runtime INCOMPLETE. See
+`docs/checkpoints/companion_v6f_execution_handoff_20261025.md`.
+
+### Offline V6f Runtime Packet Drafted, October 25
+
+Twelve drafts bind actual4stoppedIDs/newmemoryimage/2acceptedmemorysourcechanges/
+updatedinstallerconsumer andunchangedguard/witnessset. Seven subjects132pins:
+43controller-attestedappentries/52sameimage-storage/37common-parentmemorypins,
+0freshfilecaptures. No silentmemoryimage equivalence.20currentconsumers bound;
+3policymeanings/7limits preserved.21offline tests passed0.54s; fullsuite notrun.
+Separate source-policy ACCEPTED_WITH_RISK, no blockers; all12drafts reproduced,
+independent21tests passed0.39s. Parent77bindings,3meanings/7limits verified; actual
+defaultCLI exit0/inputtrue/actionsfalse/startupfalse,13readonlyopens/tripwires,
+cutovermarkerabsent. No native/token/start/query/reservation. Packet objective
+complete; nextfixedhandofffornewreview/receipt requires offlineproof/separate
+review, notoldwrapperreuse. Runtime INCOMPLETE. See
+`docs/checkpoints/companion_runtime_packet_v6f_20261025.md`.
+
+### Authorized V6f Stopped Preparation, October 25
+
+One exact stopped-preparation approval; reviewed CLI invoked once session75714,
+exit0. Four new created/neverstarted/zero-restart replacements; no servicesstarted
+ororiginalsinterrupted. Seven-eventreceipt/evidence preserved byte-identically.
+Two readonly11-IDpostchecks saved/equal; raw-manifestkey error correctedoffline
+without anothernativecall. Sevenoriginalsnapshots==baseline/fourstages==evidence.
+Savedactualevidence/IDs separately ACCEPTED_WITH_RISK, no blockers. Parent12direct
+bindings checked andrealoffline ReviewedPreparation.load accepts4stoppedIDs.
+No sourcecopystreamsrecaptured or runtimepolicy/startup/query acceptance.
+Prepconsumed/cutoverunused; objective complete. Nextfreshoffline runtimepacket
+for actualIDs/newmemoryimage, no silentoldpolicy reuse or automaticstartup.
+Runtime INCOMPLETE. See
+`docs/checkpoints/companion_actual_preparation_v6f_20261025.md`.
+
+### Corrected V6f Baseline Captured and Proposal Derived, October 25
+
+Explicit corrected two-read approval received. Exactly2readonlynative inspections
+0.083s; rawresponses preserved/equal and seven-rowpair saved. Existingderiver
+produced realINCOMPLETEcandidate/provenance offline; no absentfield invented.
+Baseline only4appstarted changes;3storage snapshots/IDs/images/config/restarts
+fitpriorconstraints. Exactly3acceptedsourceupdates,43appentries/13consumers match.
+Source-onlyintermediate/oldfailedcapture preserved. Actualinputs separately
+ACCEPTED_WITH_RISK; parent50bindings checked, actualdefaultpreparationCLI exit0/
+actionsfalse/startupfalse undertripwires, one manifestread, proposedmarkersabsent.
+No newcontainer/image/reservation or build/start/query. Objective complete;
+next separateapproval ONE stoppedpreparation300s including120srecovery, not
+startup/cutover/query. Runtime INCOMPLETE. See
+`docs/checkpoints/companion_integration_inputs_v6f_20261025.md`.
+
+### Repaired-Source Integration Inputs V6f, October 25
+
+Pure derivation/source-refresh binds43appentries/13consumers with exactly3accepted
+source changes; commands/options/policies unchanged.13synthetic tests pass0.34s.
+Source-refresh baseline null/decisionINCOMPLETE, notexecutablepreparationmanifest.
+First approvedmetadata wrapper read once then rejected a nonexistent attemptfield;
+no pair saved, no servicechanges. Failure recorded, noautomaticretry. Corrected
+two-read capture approval requested and pending. Implementation separately
+ACCEPTED_WITH_RISK, independent13tests passed0.30s/fiveinputpins/sourceentries
+verified. No blockingimplementation findings; missingactualbaseline remains
+materialinputblocker. Actualinputs/runtime INCOMPLETE. See
+`docs/checkpoints/companion_integration_inputs_v6f_20261025.md`.
+
+### Offline Archival Probe Repair, October 25
+
+Bounded probe now uses frozen archive candidates before ranking/limits in all
+five document queries; ordinary live SQL remains byte-identical. Missing archive
+refuses probe only. Verifier Boolean/shape/exception diagnostics retained without
+payloads or exception text; acceptance/recovery unchanged. Before behavior probe:
+2failed/1passed; final285focused tests pass13.29s,22newcases. No services/DB/native/
+token/trading operation. Backup/minimaldiff/13bindingreport preserved. Separate
+offline ACCEPTED_WITH_RISK, no blockers; independent124tests passed2.91s and
+parent16bindings checked. Qdrant candidate limit precedes frozen SQL hydration;
+no archive-filtered vector ranking/recall claim. Runtime INCOMPLETE. Oldpackets
+fail sourcehashes bydesign, no retry/reset/newattempt. Nextfreshsource-bound
+integrationinputs for existingmechanism, notblindstartup. See
+`docs/checkpoints/companion_archive_scope_repair_20261025.md`.
+
+### Approved V6e Runtime Attempt, October 25
+
+Operator approved one exact bounded cutover/query. File preflight43review bindings,
+pure loader, absent cutovermarker andnativeCLI hashmatch. Reviewed fixedlauncher
+invoked once(session10100), exit1. CompanionHTTP200/clientaccepted; verify_evidence
+failed, exactremote predicate UNVERIFIED.97events preserved. Controller reports
+configurationrollback verified, exactbaselinefalse, all unresolved lists empty;
+not postrollbackhealth/connectivity proof. Threecitation hashes outside55frozenIDs
+show dynamic/frozen contractmismatch; no freshDBread or criterialoosening. Separate
+resultrecording ACCEPTED_WITH_RISK,15bindings verified; runtime notaccepted.
+Bothattempts consumed/replacementsnotpreserved; no retry.
+Runtime INCOMPLETE. Next bounded offline evidence-contract diagnosis, not startup.
+See `docs/checkpoints/companion_runtime_attempt_v6e_20261025.md`.
+
+### Offline V6e Runtime Packet, October 24
+
+Twelve fresh exact-ID proposal artifacts generated using the hash-pinned prior
+assembler. Same three storage subjects; four actual reviewed stopped IDs;132pins
+(43direct V6e witnesses,89inherited). Explicit20consumer bindings include current
+client/guard/evidence verifier. Canonical reviewed witnesses7,5,47,18; three prior
+policy meanings/seven limits retained. Isolated packet/context/witness slice:
+63passed1.28s; fullsuite notrun. Separate packet ACCEPTED_WITH_RISK, nofindings;
+reviewer reproduced12drafts/15tests. Parent65bindings andactualdefaultCLI pass
+withnative/token/reservation tripwires, actionsfalse/startupfalse. Fixedhandoff
+26tests passed0.28s; separatehandoff ACCEPTED_WITH_RISK, nofindings,26tests0.32s
+andactualdefault reproducedwith0tripwirecalls. Parent43handoffbindings verified.
+No native/token/startup/query/reservation thisstage. Offline objective complete;
+next singlecutover needs separateboundedauthorization, no automaticoperation. Runtime
+INCOMPLETE. See
+`docs/checkpoints/companion_runtime_packet_v6e_20261024.md`.
+
+### Actual V6e Stopped Preparation Completed, October 24
+
+One approved --execute-preparation invocation, exit0. Four genuinely new created/
+neverstarted/zero-restart containers; no services started/originals interrupted.
+Consumed preparation marker retained. Receipt7events/evidence copied unchanged.
+Postcheck46readonlycalls confirms7originalsnapshots baselineequal,4stages evidence-
+equal,11selectedrows stable before/after and43source hashes local/manifestmatch.
+No sourcebody persistence/credential export/HTTP/DB/exec/cutover/query or retry.
+Actual-ID evidence separately ACCEPTED_WITH_RISK, no findings. Reviewer7events/
+11snapshots/43sourcebindings reconstructed; parent45bindings and realoffline
+ReviewedPreparation.load accept4stopped IDs. Prepmarker consumed/cutover absent;
+no extraoperation. Runtime INCOMPLETE. See
+`docs/checkpoints/companion_actual_preparation_v6e_20261024.md`.
+Next after review: exact-ID runtime packet/handoff, not another preparation/start.
+
+### Fresh Offline Preparation Inputs V6e Derived, October 24
+
+Plan and same-mechanism inputs separately ACCEPTED_WITH_RISK, no blockers.
+Proposed unused workerprep20261024v6e, noreservation.
+Exact pure recipe reused; pairedinventory shape adapted in memory, original kept.
+Candidate changes only attempt/reviewfields/baseline;43appentries/13consumers and
+policies/commands/options unchanged. NewIDs/images null; no old-ID adoption.
+Final14tests passed0.65s (8new), separate8tests passed0.18s; fullsuite notrun.
+Parent54bindings verified; actualCLI default/inert exits0, one manifestopen only,
+native/reservation/backend/lock tripwires active, markers absent before/after.
+No build/configcopy/start/query. Oldmarkers retained. Offline proof complete;
+next explicitdecision ONE stoppedprep, not startup/cutover/query. Runtime remains
+INCOMPLETE; no preparation operation authorized or implied. See
+`docs/checkpoints/companion_reconnection_plan_20261024.md`.
+
+### Minimal Existing-Stack Reconnection Plan, October 24
+
+HIGH-risk offline design separately ACCEPTED_WITH_RISK. Reuse existing4app staged
+mechanism, preserve3storage, no source/controller rewrite.43app-sourceentries and
+13prepconsumers unchanged; savedbaseline fits priorconstraints except4appstarted.
+Six isolated tests passed0.65s,2new;43selectedinput/source bindings verified.
+No attempt/manifest/native/service/HTTP/DB/credential/reservation created or used.
+Next safe work after design review: existing-recipe fresh offline inputs, not
+another blind operation. Runtime INCOMPLETE. See
+`docs/checkpoints/companion_reconnection_plan_20261024.md`.
+
+### Current Runtime Inventory: Running Legacy Stack, October 24
+
+SHOWN21:17EDT all7originals running/zero reported restarts; two selected metadata
+reads equal, sameIDs/images/config as savedrollback. Two sampled installedmain
+files differ from reviewedrepo but match savedOctober16/20legacy fingerprints.
+No direct probe_active references in either sample/get_probe_tool_results in
+orchestrator. Not loadedmemory or whole-import proof; memoryarchive functions
+are present. Five bounded native reads total, zero lifecycle/applicationHTTP/DB/
+credential-value export; source bytes hashed only, finalmetadata unchanged.
+No code/tests changed/run. Separate record review ACCEPTED_WITH_RISK, no findings;
+metadata/source assertions reconstructed, parent10bindings checked. Reviewer did
+not repeat native inspection. Actual sourceparity/explanation runtime INCOMPLETE. See
+`docs/checkpoints/companion_runtime_inventory_20261024.md`. Next minimal offline
+update/reconnection plan using existing mechanism, not blind restart/new audit.
+
+### Fresh Offline Evidence Packet Integrated, October 24
+
+HIGH-risk draft separately ACCEPTED_WITH_RISK, offline evidence portion only. Canonical
+candidate records7+5+47+18 bind both accepted reviews/currentguard; old packets,
+approvals and consumed attempts untouched. Runtime draft intentionally has no
+IDs/dependency approval/network binding/attempt; INCOMPLETE and non-effective.
+Actual adapter accepts topical shape, refuses runtime policy/pins/enablement.
+New4tests, targeted19passed1.01s;34bindings match, fullsuite notrun. Separate
+review reproduced4files and passed4tests0.26s, no findings. Parent checked38pins.
+No services/native/HTTP/DB/token/startup/query/retry operation.
+Full runtime packet still needs current read-only identity/state evidence before
+any new preparation is considered; no presumed need to recreate containers.
+See `docs/checkpoints/companion_evidence_packet_v2_20261024.md`.
+Offline integration complete; next boundary separately authorized current
+read-only inventory, not an automatic restart or recreated container series.
+
+### Archived Witness Proposal V2 Prepared, October 24
+
+HIGH-risk acceptance-input proposal separately ACCEPTED_WITH_RISK, not effective.
+Original7 preserved; all saved projected top3articles5,47,18 included with full
+saved bodies, exact unique excerpts, original/body hashes and unchanged question.
+No ranking/cap/verifier/currentapproval or runtime change. Counterfactual fixture
+passes proposedset; unproposed1/unverified25/tampered witnesses still refuse.
+Six new cases; targeted165passed10.51s, fullsuite notrun. Packet20bindings checked.
+Independent full-body review accepts all3 for archived topical support only;
+packet3files byte-reproduced, six tests passed0.26s. Parent checked23bindings.
+Article facts/causation remain unverified. Runtime INCOMPLETE; proposal is not
+activation or authority to reset consumed attempts. Next: separately scoped
+fresh offline packet integration/review, not service operations. See
+`docs/checkpoints/companion_witness_proposal_v2_20261024.md`.
+
+### Approved-Witness Selection Mismatch Diagnosed Offline, October 24
+
+SHOWN saved-order projection puts approveddoc7 fourth after filtering unverified25;
+probe asks3 and builder independently cites3. Controlled all4input still omits7.
+Thus increasing backend limit alone does not repair this fixture. Actual V6d
+ranking/omission cause UNVERIFIED; no live query or rank recomputation. Production
+source/limits/approvals unchanged. New4tests, targeted36passed1.15s, fullsuite not
+run. Separate GATE ACCEPTED_WITH_RISK diagnosis only; exactreport reproduced,
+fourtests passed0.20s. Parent checked19reviewbindings. Runtime INCOMPLETE.
+See `docs/checkpoints/companion_witness_selection_20261024.md`.
+Next proposed: independently assess naturally selected archived evidence under
+unchanged body/topic/lineage criteria; no forced selection or silent approvals.
+Current default budgets already agree at3; no live ranking bug is established.
+Do not build new infrastructure or increase limits solely to obtain witness7.
+
+### Scoped Headline Context Correction Implemented Offline, October 24
+
+HIGH-risk guard correction separately ACCEPTED_WITH_RISK, offline only. Wrong subjects
+refused; only the exact labelled, citation-bound fallback headline passage can
+contain related tickers. Unsupported mixed prose and outside assertions still
+refused. Witness/body/source acceptance unchanged. Controlled [5,7] now passes
+combined offline checks; witness-absent [47] and [5,47] still fail evidence.
+Separate review found CG-1 token joining outside removed passage; bounded
+one-space correction plus ETH/SOL client regressions implemented. Final isolated
+slice236passed10.91s, including42newcases; separate47tests passed1.14s, CG-1
+resolved/no blockers. Parent checked22reviewbindings. Four extra
+BTC-only subject-mismatch probes pass. Old sources/review/reports retained.
+No runtime operation/retry or credential export/use in transport. Runtime remains
+INCOMPLETE; actual response cause/ranking/current persistence unverified. See
+`docs/checkpoints/companion_context_guard_20261024.md`. Scoped offline repair
+complete. Next unresolved: approved-evidence retrieval, not a blind startup.
+No new startup decision or consumed-attempt reset implied.
+
+### Offline Explanation Contract Reproduced, October 24
+
+SHOWN: saved receipt matches archive doc5/keyword_5/URL and doc47/keyword_47/URL;
+three recorded ID hashes remain unmatched in the 55-document archive, doc7 absent.
+Controlled archive-backed fixtures reproduce independent failures: mixed BTC/ETH
+headline triggers existing guard; BTC-only unapproved citation passes client but
+fails evidence. Registered doc7 passes combined offline fixture checks. No exact
+live replay: missing response prose/types and no current DB proof. Five new tests;
+targeted slice 194 passed in 10.39s, full suite not run. Production source, guard,
+witness, question and original artifacts unchanged. Separate GATE:
+ACCEPTED_WITH_RISK for diagnosis only; five new tests independently passed0.28s,
+no blockers. Parent checked18reviewbindings. Runtime remains INCOMPLETE.
+See `docs/checkpoints/companion_offline_contract_20261024.md`. No new operation,
+startup/retry/reset. Next resolve answer-selection contract, not blind cutover.
+
+### V6d Runtime Query Rejected; Originals Restored, October 24
+
+One explicitly approved runtime attempt ran, exit1. Configured compatibility,
+4replacement starts, actual recipient/health gates passed; one companion query
+returnedHTTP200/providerfallback/5evidence/executiondisabled. Client rejected
+foreign_asset and selected staticdashboardfallback; no cited-answer acceptance
+or subsequent stored-document verification. Runtime INCOMPLETE.
+Controller recovery completed; read-only selected snapshots show7originals
+running/configrestored except4starttimes,3storage unchanged;4replacementIDs
+absent. No retry/reset/source repair. Preparation and cutover are consumed.
+Exact cause of foreign_asset rejection UNVERIFIED; five recorded citation hashes
+do not match registered topicaldoc7, a hash-only comparison not content proof.
+Separate outcome review ACCEPTED_WITH_RISK for evidence fidelity only;96events
+reviewed, no runtime acceptance. Next: bounded offline normalization-to-approved-
+evidence contract reproduction for frozenBTCquestion/doc7, explicitly synthetic
+where actualprose is missing. Do not disableguard/registerunknowncitations or
+start another attempt to make the test pass. See
+`docs/checkpoints/companion_v6d_runtime_attempt_20261024.md`.
+Older ready/authorization-next packet entries below are historical only.
+
+### Offline V6d Runtime Packet And Handoff, October 24
+
+Twelve exact-ID drafts independently reviewed; restricted source/configuration
+packet ACCEPTED_WITH_RISK.15tests parent/separate passes;132pins remain
+43directV6d appwitnesses+89inherited. Same3meanings/7limits/per-subjectrisks.
+Actualdefaultcutover passes73bindings with native/token/reservation tripwires;
+no operation or marker. Fixed handoff now bound;23synthetic cases pass and
+actualdefaultmodule exits0/inert. Separate handoff review ACCEPTED_WITH_RISK,
+23cases independently passed0.27s; no blockers. Parent38bindings verified.
+No native/token/reservation/service/query operation in this stage.
+Runtime INCOMPLETE; preparation already consumed. See
+`docs/checkpoints/companion_v6d_runtime_packet_20261024.md`.
+Handoff: `docs/checkpoints/companion_v6d_execution_handoff_20261024.md`.
+Next boundary: ONE explicit bounded runtime decision, no further offline repair
+identified. Internal token reuse,4original apps interrupted,4prepared apps
+activated/started and one cited query; existing recovery attempted on failure.
+Controller600s includes180recovery; pre-controller10sCLI+10ssource separately.
+No automatic retry/reset; no storage/volume lifecycle or trading changes;
+logs/audit/client effects maypersist. Offline acceptance grants no operation.
+
+### Actual V6d Stopped Preparation, October 23
+
+One explicitly approved preparation completed exit0. Four new stopped IDs exist;
+none started and originals/storage unchanged in selected snapshot checks.
+Postcheck46read-only calls verified7original baselines/4stage snapshots,
+unchanged11selected metadata rows and43installedsource hashes.
+Evidence/receipt/postcheck frozen under actual_d. Separate actual-ID review
+ACCEPTED_WITH_RISK for stopped-preparation evidence only; no blockers. Parent
+verified24bindings and existing exact-ID loader accepts4stopped replacements.
+No runtime success or operational permission inferred; runtime INCOMPLETE.
+See `docs/checkpoints/companion_actual_v6d_preparation_20261023.md`.
+Preparation reservation consumed; do not rerun/reset. No cutover/start/query.
+Next: fresh exact-ID runtime packet and one-shot handoff, offline review only.
+
+### Fresh V6d Preparation Inputs, October 23
+
+Fresh selected read-only baseline complete/equal; storage unchanged and only4app
+start timestamps differ. New fixed offline recipe reuses reviewed derivation,
+binds13currentconsumers/43appsource entries and proposes unused
+workerprep20261023v6d. Nine offline tests pass; candidate/provenance generated.
+No container created, configuration copied, reservation, startup or query.
+Independent GATE ACCEPTED_WITH_RISK for preparation inputs;9tests separately
+passed0.22s. Accepted manifest629662e5...b4a0. Parent actual default CLI exits0
+with28bindings verified and native/reservation tripwires; no attempt reserved.
+See
+`docs/checkpoints/companion_fresh_preparation_v6d_20261023.md`.
+Next: explicit approval for ONE stopped preparation, not startup/cutover.
+Runtime INCOMPLETE; V6c remains consumed. No new IDs exist yet.
+
+### Current Nonrecipient False Positive, October 23
+
+Read-only stable23-container observation reproduced configured_eligibility /
+unselected refusal; four dormant, never-started rows on the reviewed network
+claim no reserved recipient alias. All7original research IDs/images running.
+No environment/token/service operation. Historical V6c cause still UNVERIFIED.
+Minimal offline guard correction plus11tests independently ACCEPTED_WITH_RISK:
+parent211passed1deselected; separate211passed1deselected. Reviewced40c1a...bb69.
+Subsequent scoped read-only snapshot at23:09EDT passes configured recipient
+predicate, no diagnostic; stable23inventory and all7original IDs/images running.
+This is parent-capture evidence, not full compatibility, replacement/startup or
+cited-query proof. Runtime INCOMPLETE; historical V6c cause still UNVERIFIED.
+See `docs/checkpoints/companion_nonrecipient_configuration_20261023.md`.
+Result: `docs/review_artifacts/companion_worker_preparation_20261023/corrected_recipient_observation_20261024T030934746449Z.json`.
+No fresh preparation, packet rebind, reservation reset or cutover authorized.
+
+### Offline Recipient Diagnostics, October 24
+
+Optional allowlisted reason codes now cover the existing configured recipient
+checks, selected/unselected roles and bounded exception categories. Installer
+sanitizes the optional V2 field before recording it ahead of refusal/cleanup.
+No policy bypass or native operation; legacy maps/envelopes remain supported.
+Five-file offline slice201passed, including35new diagnostic cases. Separate GATE
+ACCEPTED_WITH_RISK for offline scope;200passed/1deselected (unrelated local-Bash
+test). Refusal comparisons reproduce prior accepted bytes after removing only
+diagnostics. Historical V6c cause still UNVERIFIED; runtime INCOMPLETE.
+See `docs/checkpoints/companion_recipient_diagnostics_20261024.md` and
+`docs/review_artifacts/companion_worker_preparation_20261023/recipient_diagnostics_review_20261024.json`.
+Changed consumer hashes do not refresh or authorize an old consumed runtime packet.
+
+### V6c Runtime Attempt Failed; Originals Restored
+
+The separately approved one-shot V6c handoff ran once, exit1. Runtime INCOMPLETE:
+configured compatibility refused recipient_bindings before replacement startup
+or any explanation query. Other reported checks passed; exact subcause UNVERIFIED.
+Owned recovery removed the prepared replacements and restored/restarted originals.
+Selected read-only postcheck shows all7 original IDs running with matching names,
+images/network IDs/policies/restart counts;3storage start times unchanged.
+App Docker health reports healthy, not proof of the explanation data path.
+Both preparation and runtime are consumed: do not reuse IDs or reset/retry.
+See `docs/checkpoints/companion_v6c_runtime_attempt_20261023.md`.
+Separate outcome review ACCEPTED_WITH_RISK for record fidelity only; all62receipt
+events reviewed, exact subcause still UNVERIFIED, no runtime acceptance inferred.
+Next: scoped offline recipient subpredicate diagnostics, not another live retry.
+Earlier handoff/authorization-next language below is retained as history only.
+
+### V6c Handoff Implementation, October 23
+
+New fixed execute_reviewed_v6c wrapper/test is independently ACCEPTED_WITH_RISK
+for offline handoff scope only. Separate reviewc4ff10fb...9831 found no blockers;
+23independent cases passed0.29s. Parent read complete review/verified36bindings.
+Default binds accepted V2 packet/receipt/scope/current consumers and stays inert.
+23synthetic tests pass; actual default module exits0/inputbindingsvalid/actionsfalse.
+No live token, native command, receipt reservation, startup or query in this work.
+See `docs/checkpoints/companion_v6c_execution_handoff_20261023.md`.
+Runtime INCOMPLETE. The remaining boundary is ONE explicit bounded runtime
+authorization: private internal token, four original apps quiesced, four prepared
+apps activated/started and one cited query, existing owned recovery on failure.
+No retry/reset; storage/volumes/trading untouched. No actual operation granted
+or performed by the offline acceptance or preparation approval.
+
+### Offline V6c Runtime Packet, October 23
+
+Twelve drafts assembled from independently accepted v6c IDs. Storage/source maps
+and all132pins preserved; four application pins now bind the corrected V2 network
+contract.43direct source witnesses/89inherited pins remain distinct; final network
+configuration MODELLED.14focused offline tests pass; no native/service operation.
+Packet independently ACCEPTED_WITH_RISK for restricted source/configuration scope;
+runtime INCOMPLETE. Separate14tests passed0.46s; twelve drafts reproduced exactly.
+Review313af3aa...beb2, scope76f3e5f8...7935, V2runtimef916471d...db74.
+Parent verified61bindings, all seven child records/scopehash links, unchanged
+policy meanings/sevenlimits/per-subject rationale/risks/support; actual default
+CLI exit0/inputbindingsvalid/actionsfalse/startupfalse with native/backend/token/
+lock/reservation calls forbidden. Receipt0767f631...18cf.
+See `docs/checkpoints/companion_v6c_runtime_packet_20261023.md`.
+Next is a bounded fixed v6c handoff using this accepted packet. Old exact-attempt
+wrappers are not reusable. No startup/cutover/query or token handoff authorized;
+actual runtime still needs separate bounded operational approval.
+
+### Actual V6c Stopped Preparation, October 23
+
+Operator approved ONE preparation; it ran once successfully (session93011/exit0).
+Four new created/never-started IDs exist; build cache reused prior image IDs.
+Seven original snapshots match baseline. Postcheck verified43copied source hashes
+and equal11selected raw metadata rows before/after;46readonlycommands, no startup.
+Current staged aliases observed; final aliases/fingerprints remain MODELLED.
+Actual preparation independently ACCEPTED_WITH_RISK; runtime INCOMPLETE.
+Review2bec57b4...c092 found no blockers; five-field actual-ID reviewf2b92613...946e.
+Parent verified24bindings, matched7original/4stage/43source witness records and
+loaded ReviewedPreparation with native operations forbidden. Loader proofcc55b265...e58d.
+No retry/reset/cutover.
+See `docs/checkpoints/companion_v6c_preparation_result_20261023.md` and `actual_c/`
+under the worker-preparation review folder. Next is offline V2 runtime-packet
+assembly using these accepted IDs, not another service operation. Final aliases,
+attachment/startup/health/cited-query behavior remain unverified. No operational
+grant follows from preparation acceptance.
+
+### Fresh Preparation Inputs, October 23
+
+Fresh read-only native capture at19:23:45UTC shows all seven originals running,
+same IDs/images and equivalent configured fingerprints; two full selected reads
+equal. Storage snapshots unchanged; app restart timestamps/raw network forms
+are reflected honestly in a new baseline. No health/query proof.
+New v6c proposal reuses accepted commands/sources/policies, fresh attempt/baseline
+only; no Docker build/create/start/stop or credential values read. Nine focused
+offline tests pass. Inputs independently ACCEPTED_WITH_RISK; runtime INCOMPLETE.
+See `docs/checkpoints/companion_fresh_preparation_v6c_20261023.md`.
+Separate review6bcf752e...84ad: no blockers, nine independent tests passed0.23s.
+Reviewed input derivativee20775ac...b6b9 changes decision/reviewer only. Parent
+verified23boundhashes; default preparation CLI passed with native/backend/lock/
+reservation tripwires, actions_executed=false. Inert receiptb0a68090...fb1d.
+Any actual stopped preparation still needs explicit bounded operational approval;
+no consumed cutover retry or service change is inferred from continuation.
+
+### Offline Active-Network Correction, October 23
+
+Bounded offline implementation is independently ACCEPTED_WITH_RISK. Shared pure final-model
+helpers now bind the physical network ID at producer/loader; opt-in V2 runtime
+reviews bind configured-network semantics. Adapter compatibility and start-target
+checks agree without changing legacy raw hashes, raw inventory or storage pins.
+Sanitized compatibility checks/precondition details persist before cleanup.
+Final focused proof: 434 passed; no full suite/native service operation.
+See `docs/checkpoints/companion_active_network_correction_20261023.md`.
+Separate review found no blockers; 109 selected tests passed in 1.33s and the
+historical counterfactual was independently reproduced. Review receipt:
+`docs/review_artifacts/companion_worker_preparation_20261023/active_network_correction/independent_review.json`
+(SHA256 `0484cdde9dec89b2a22f91aa4082cbe2782caa10318b5ad027363a6feac9bacc`).
+Runtime remains INCOMPLETE. Consumed v6b/removed IDs,
+frozen packets and old reviews are preserved, not rebound into new authority.
+No fresh preparation or retry authorized; actual daemon alias set still requires
+fresh reviewed evidence. Unexpected aliases fail closed, never normalized away.
+
+### Current Runtime Outcome, October 23
+
+The ONE approved v6b runtime invocation ran and FAILED in runtime_verification,
+after configured_compatibility was attempted, before replacement startup or the
+cited query. The attempt is consumed; the four v6b prepared IDs were removed by
+owned rollback. Do not run the frozen handoff again or reset its reservation.
+
+Read-only postcheck: all seven originals running with the same IDs/images/names
+and matching configured-network projections. Four original app startup times
+changed; health/volume contents remain unverified. The four older stages have
+equal shared captured fields. Raw full-row/preservation false flags are retained
+and explained by five omitted capture fields and null-versus-empty IPAM values;
+this is not byte-exact restoration proof.
+
+Offline replay demonstrates a defect in Codex's accepted final-pin prediction:
+all four pins retained blank staged NetworkIDs; substituting the known network
+binding changes preservation hashes despite equal configured projections.
+This is a concrete candidate cause, not a retained runtime per-predicate trace.
+See companion_v6b_runtime_attempt_20261023.md and runtime_attempt_v6b/ evidence.
+Independent failure/replay review completed ACCEPTED_WITH_RISK, evidence scope
+only: review6544e658ad89ef2aea7e1a7124c03905640c920926ac9d7dfb5b2fe5195599a0.
+Parent verified14boundhashes and exact11comparisons/4modelentries. Runtime remains
+INCOMPLETE; the failed operation is not accepted as success. Exactcause unknown.
+Next scope is offline representation correction at BOTH producer and strict
+loader, with intended NetworkID/IPAM/alias equivalence and wrong-identity/config
+refusal cases, plus only necessary sanitized diagnostics. No native attempt.
+All ready-for-execution text below is historical where superseded by this result.
+Runtime remains INCOMPLETE; no new preparation or retry authorized.
+
+### Latest explanation delta, October 21 evening EDT
+
+Installed missing-source capture and exact five-file Uvicorn source-pin support
+are independently ACCEPTED_WITH_RISK. See
+`docs/checkpoints/companion_runtime_packet_20261021.md` final disposition. Forty
+new directly captured hashes augment a separate128-entry draft; original packet,
+stopped IDs and all prior artifacts remain preserved. Focused134tests passed;
+no startup, SQL, credentials, accounts or trading operations performed.
+
+The sanitized four-app startup profile is now independently ACCEPTED_WITH_RISK
+(startup_profile/independent_review.json). No Uvicorn or worker overrides observed;
+source-supported PYTHONPATH correction preserved the original raw receipt.15
+targeted tests passed. This gap is closed; no recapture or rebuild is queued.
+
+Offline policy assembly is now CLOSED ACCEPTED_WITH_RISK: independent GATE
+authored seven exact-image records and runtime/scope manifests. Existing inert
+CLI validation exited0 with input_bindings_validated=true, actions_executed=false,
+startup_authorized=false. Exact command/output and trusted hashes are in the
+checkpoint and runtime_packet/inert_validation_receipt.json. No new test-suite,
+native, token or service operation in that step.
+
+October21 22:59EDT update: the operator authorized ONE attempt. It ran and failed
+at staged_preflight before service starts or the cited query. Its reservation is
+consumed; do not rerun or delete it. A read-only postcheck shows all15selected
+container metadata rows unchanged. Diagnosis reproduced the runtime metadata
+template failure: direct .Config.Healthcheck lookup fails when optional field is
+absent. PG_VERSION and all128frozen source hashes passed separate read-only checks.
+Minimal offline null-preserving map lookup repair plus3regressions:188targeted
+tests passed; separate GATE independently ran3regressions and ACCEPTED_WITH_RISK
+the exact offline repair in metadata_healthcheck_review.json. No repaired runtime
+run. See runtime_packet/authorized_attempt_outcome.json and checkpoint.
+October22 20:21EDT: changed-consumer hashes rechecked; only accepted adapter delta
+differs. Existing offline loader passes; old launcher intentionally refuses
+changed code; consumed attempt file hashes unchanged. Evidence saved in
+runtime_packet/consumer_binding_refresh_validation.json; supplemental independent
+binding review ACCEPTED_WITH_RISK (consumer_binding_refresh_review.json,
+SHA817ada1c70811f878104c91cba42b2972612ecae6b9d6d856fcf7a3b6325b9f8).
+No native/token/query or service operation this step. Binding refresh CLOSED;
+it does not make the old launcher or consumed plan executable.
+
+October22 20:29EDT: offline continuation repair implemented,142focused tests
+passed. Paired hash-bound review chooses a distinct execution receipt while
+retaining plan/IDs/old failed receipt. Under-lock recheck, exclusive reservation,
+fresh preflight/600-180budget/rollback retained. See
+docs/checkpoints/companion_prestart_continuation_20261022.md.
+Separate GATE ACCEPTED_WITH_RISK the exact implementation; independently37new
+tests passed. Review: runtime_packet/prestart_continuation_implementation_review.json,
+SHAdfeaf12e2b2f2ff7f38e7954fc21f818cdd878c733c5aac8dc90f83ae9e45ded.
+October22 20:39EDT: separate GATE authored actual reviewed continuation record
+(SHA56c03c4c...1ccc) and scope (SHA2ae3cc1e...e649), offline ACCEPTED_WITH_RISK,
+operational_authorized=false. Versioned execute_reviewed_continuation.py plus
+handoff tests prepared;66focused tests passed. Separate GATE ACCEPTED_WITH_RISK
+exact handoff with17independent tests passed; review SHA3e134045...9230d.
+Assembled default CLI exit0/inputbindingsvalid/actionsfalse/startupfalse; old
+receipt intact/new reservation absent. Preparation CLOSED ACCEPTED_WITH_RISK.
+See companion_continuation_handoff_20261022.md and saved inert CLI receipt.
+October22 20:49EDT: operator authorized the single bounded continuation and it
+ran once. FAILED at quiesce before replacement startup or archived query;
+execution s3cutover20261022health01 consumed. Original7allrunning/exact selected
+metadata unchanged in independent read-only postcheck. Owned cleanup removed
+current4preparedIDs; old4stages survive unchanged. rollback_exact_baseline=true
+but full rollback_verified=false/unresolved orchestrator quiesce marker remains.
+See companion_continuation_failure_20261022.md and saved actual stdout/receipt/
+post-inventory. No retry, marker reset, recreation or further signal authorized.
+Current pre-signal observation passes; sh parent/uvicorn child observed, but
+exact failing quiesce substep and signal acknowledgement remain UNVERIFIED.
+Separate failure-evidence review completed INCOMPLETE/causeUNKNOWN, review
+SHA30115967...a0e76. October22 21:02EDT: offline replay passes with/without4stages;
+no static selection defect reproduced. Bounded quiesce stage/ack report implemented
+without changing signals/deadlines/ownership;305focused tests passed on final
+source. See companion_quiesce_diagnostics_20261022.md. Separate GATE accepted
+the frozen diagnostic patch ACCEPTED_WITH_RISK (21 new tests independently
+passed); parent verified all eight review/artifact hashes. Review SHA
+8a227fa32856874ce6a1b9db7ac91e12864938a0be75c4723f039c2d6cd4dc07.
+Runtime cause still UNKNOWN. Old operational bindings are stale and must refuse
+changed consumers; no new approved packet, recreation or retry generated.
+October22 21:12EDT: bounded read-only signal inspection completed. Original
+orchestrator PID1 is sh without a SIGTERM handler; its uvicorn child has one.
+Current quiesce targets PID1; the frozen four-replacement manifest repeats that
+shell wrapper. See companion_signal_diagnosis_20261022.md. Current mismatch
+SHOWN; prior failure substep still UNKNOWN. No signals or lifecycle changes.
+October23: offline graceful-shutdown repair implemented under explicit manifest
+v6; v1-v5 remain unchanged. Verified-worker pidfd signaling for originals;
+direct Uvicorn launch/empty image entrypoint for future replacements. No numeric
+PID fallback, hardcoded PID7, forced stop or retry. Targeted11file slice509passed.
+See companion_worker_shutdown_repair_20261023.md for frozen6hashes and limits.
+Separate GATE ACCEPTED_WITH_RISK the frozen offline implementation, no blockers;
+independently45newtests passed0.33s. Parent read full worker_shutdown_repair_review.json
+and verified all6source/test hashes plus frozen checkpoint. No actual v6
+manifest, fresh IDs, runtime packet or operation created. Installed pidfd/argv,
+clock compatibility, lost-ack behavior and successful shutdown are UNVERIFIED.
+October23 08:49EDT: read-only installed check completed on all4apps: exact worker
+validator passed, actual pidfd opens succeeded, signal API present, Python3.11.17.
+Signal dispatch was replaced by fdinfo-read callback, not called even with0.
+Single-sample clock intervals all includezero;84-95ms roundtrips, not exactsync or
+an approved tolerance. All7originals stillrunning/pinned selectedmetadata identical
+before/after. See companion_worker_capabilities_20261023.md and exact saved probe.
+Separate GATE ACCEPTED_WITH_RISK the bounded evidence snapshot, no blockers;
+worker_capabilities_review.json. Parent read full review/verified3boundhashes.
+Reviewer did not repeat native observation; launchflags are parent-reported,
+raw remoteepochs and second inspectpayload not separately retained. Actual sendpermission,
+shutdown/ack/cancellation and working explanation remain UNVERIFIED. Evidence
+review is complete. October23: fresh-v6 draft preparation inputs assembled under
+workerprep20261023v6a, not reserved. Exact12fieldgroupdelta/43unchangedsources;
+fourrecomputedfingerprints explicitly MODELLED, not newID/image evidence.
+Newrecipe/9targetedtests pass. Separate GATE ACCEPTED_WITH_RISK prospective
+inputs, no blockers, independently9tests passed0.22s. Published accepted
+derivative inputs/reviewed_preparation_manifest.json SHA35032e02...1d42;
+defaultCLI exit0/actionsfalse/startupfalse, no reservation. See
+companion_worker_preparation_inputs_20261023.md and its separate planreview.
+Operator subsequently approved ONE preparation-only run; it ran once and FAILED
+at preparation_build. workerprep20261023v6a is now consumed. Controller reports
+cleanupverifiedtrue/no unresolvedcreationcleanup; no createintent or newID in
+receipt. Read-onlypostcheck: all11oldrows unchanged, no attemptnamedstages. Stage
+label includes prerequisitechecks, not proof an imagebuild ran. See
+companion_worker_preparation_failure_20261023.md and actual/operation_outcome.json.
+Reproduced optional Entrypoint-key query defect introduced by this thread; exact
+one-expression nullsafeindex correction offline,194targetedtests pass plus native
+readonlyquery on4parentimages. Fresh offline proposal workerprep20261023v6b changes
+onlyattempt/reviewfields and onebackendbinding;7proposal/regressiontests pass.
+Separate GATE ACCEPTED_WITH_RISK one-expression correction/prospectivev6b inputs,
+no blockers; independently7newtests passed0.31s and11before/post rows matched.
+Reviewed freshmanifest refresh_inputs/reviewed_preparation_manifest.json
+SHA67e29202...7485e; defaultCLI exit0/actionsfalse/startupfalse, no reservation.
+No retry performed or authorized. Failedv6a receipt/marker and all frozenrecords
+preserved. Next is explicit approval of ONE fresh preparation-only run under the
+corrected reviewed inputs (4localbuilds/4neverstartedcontainers/privatecredentialcopy;
+originals/olderstages preserved), no shutdown/startup/query/cutover permission.
+Runtime/preparation remain INCOMPLETE until an actual successful run and IDreview.
+Operator then approved the corrected v6b preparation: existingcontroller ranONCE,
+exit0/preparationcomplete,4newcreatedneverstartedcontainers, servicesstartedfalse/
+originalsinterruptedfalse. All11olderresource rows unchanged;43actualcopiedsource
+entries hash-match,4actualstage snapshots match controller evidence and finalalias
+MODELLEDprojections match expectations. See companion_worker_preparation_result_20261023.md
+and actual_b/ saved command/evidence/receipt/rawrows/sourcewitness. Separate GATE
+ACCEPTED_WITH_RISK actualstoppedpreparation only, no blockers. Existing pure
+ReviewedPreparation loader passed with exact actual_id_review.json SHAc8fd96dd...ce96;
+all frozen hashes and43witness records verified. No reviewer live reobservation;
+attemptlabel suppliedbycontroller, after-copy equality has no second retainedraw
+payload. Full limits in actual_b/actual_id_disposition.json. No further runtime
+action authorized. Next: offline runtime-packet assembly for these exactIDs, not
+startup/query/cutover. Runtime/explanation remains INCOMPLETE.
+October23 offline exact-ID runtime packet draft assembled for acceptedv6b IDs:
+12immutableartifacts,7subjects/128sourcepins,43directapplicationwitnesses.
+Oldpolicy/source records preserved; newproposals INCOMPLETE, not policyacceptance.
+7focusedoffline tests pass0.18s; no native/credential/reservation/service operation.
+See companion_v6b_runtime_packet_20261023.md. Separate GATE reviewing derivation
+and existingpolicy applicability to direct-module launch/currentconsumers.
+Do not repeat preparation or treat this draft as a runtime grant.
+Separate GATE now ACCEPTED exact offline derivation; policyapplicability remains
+INCOMPLETE with one R1 evidencegap: direct python-mUvicorn launch invokes
+uvicorn/__main__.py, absent from saved128sourcepins. No unsafebehavior/startup
+failure inferred. Review SHA b8e72a553264b02357b6ccd569b82551fd016b0c4d3e1c151259bfe3be78e33a;
+parent verified44boundhashes. Existing actualIDacceptance unaffected. Next requires
+separate approval for bounded readonly capture of that one fixedfile from each
+of4stoppedIDs, then narrow staticreview; no startup/import/credential access.
+No acceptedpolicy/runtime derivatives authored and no native action this step.
+Operator then explicitly approved the four-file readonlycapture. Completed once:
+6readcommands/0.303s,4identical62byteUvicorn modulelaunchers SHA0d08b3cb...b554,
+exactacceptedIDs/images/selectedmetadata unchanged, stillcreatedneverstarted.
+No exec/import/startup/credentials/lifecycle. Immutable sourcebytes/report in
+launcher_capture/; reportSHA5e1f3973...6d32. Narrow independentstaticreview pending;
+capturecheckpoint companion_uvicorn_launcher_capture_20261023.md. No runtimepath
+allowlist change, packetacceptance or operationalgrant. Do not repeat capture.
+Separate GATE ACCEPTED_WITH_RISK capture/R1staticbridge, review03a3e5fc...aab1;
+parent readfullreview/verified13boundhashes. R1missing-sourcegap CLOSED, no more
+capture required. Runtimeintegration remains INCOMPLETE: minimalnextofflinework
+is one exact _FILES entry plus4launcherhashpins (128to132) and affectedpacket/
+consumerbindings, then focusedverification/separatereview. No codechange or
+acceptedruntimepolicyrecord created under capture-only approval. No liveattempt.
+Operator requestedfinishremainingofflineintegration. One fixedtransport_FILES
+entry implemented, newseparatepacket adds4mandatoryhashpins(132total) without
+changing128oldpins/IDs/images/storage/modelledmetadata.13consumerbindings checked,
+onlytransporthash changed.152focusedtests pass1.54s. See
+companion_launcher_pin_integration_20261023.md; separateGATEreview underway on
+frozenimplementation and exactsubjectpolicyapplicability. No native/credential/
+runtimeoperation. Originaldraft/capture/acceptance bytes retained; no repeatcapture.
+Separate GATE ACCEPTED_WITH_RISK implementationand132pinrestrictedpolicy packet,
+no blockers; independent14selectedtests pass0.24s. Review607dbae7...0835 and
+acceptedruntime_reviewSHA47dbeebd...a3e6 in runtime_packet_v6b_launcher/.
+R1/I1 CLOSED in source/configuredscope. Parent checkedaccepted9recordhashes,
+current13consumers and inheritedpolicymeanings/7rationales/risks. Existingdefault
+cutoverCLI inertvalidation exit0/inputbindingsvalid/actionsfalse/startupfalse;
+saved inert_validation_receipt.json SHAaebbeb63...e0af. Native/network/token/
+backend/reservation calls were forbidden. No serviceoperation/credentialaccess.
+Offlinepacketintegration complete ACCEPTED_WITH_RISK; do not repeat it.
+Runtime/explanation remains INCOMPLETE. Operationalhandoff/cutover/query still
+require separate bounded authorization; no live readiness or executiongrant.
+Operator approved nexthandoffpreparation. New thin execute_reviewed_v6b.py
+reuses pinned existingtoken/pipehelpers and binds currentaccepted132pinpacket.
+52focusedtests pass0.71s(18new); actualdefaultmoduleCLI exit0/actionsfalse/
+startupfalse. No credential/native/service/reservation operation. Checkpoint
+companion_v6b_execution_handoff_20261023.md records future600/180controller
+budgets and separate10+10sproducerchecks; one futureoperation not authorized.
+Frozenhandoff READY_FOR_INDEPENDENT_REVIEW; separateGATEreview pending.
+SeparateGATE ACCEPTED_WITH_RISK offlinehandoff, no blockers;18synthetictests pass
+0.36s, reviewSHAc923b36c6c7626ff0ad09bdf27d933d32c5226a90e8cd71d347711ae50747487.
+Parent readcomplete review and verified23boundartifact/consumerhashes; no repeated
+native/test/credential operation. Handoffscope complete; do not rebuild/review it
+again without contradictoryevidence. No wholewrapper600sdeadline claim; source
+verify/read10+10s precede controller600/180. Pre-tokenmarkerchecknotatomic;
+existingcontrollerlock/reservation remains authoritative, no automaticretry.
+Next requires explicitONEruntimeinvocation approval: existingservice-token reuse,
+4originalappquiesce/rename/detach,4acceptedstageactivation/start, existingchecks
+and onecitedarchivequery; preserve3runningstorage/volumes/trading. Ownedrecovery
+may remove failedreplacements/restoreknownoriginals; rollbackhealthnotguaranteed.
+No execute-once invocation or operationalauthority issued; runtime INCOMPLETE.
+Do not run the now-consumed packet or treat old ready-for-authorization text as
+current. Runtime/explanation remain INCOMPLETE.
+Full runtime/explanation remain INCOMPLETE. Older queue text below is historical
+where superseded by this delta and its checkpoint.
+
+### Takeover update, 2026-10-20 (read before older queues)
+
+This is a delta checkpoint, not authorization to repeat completed work or begin
+every historical item below. The operator requested takeover and cleanup of
+obsolete March21-22 audit output. Preserve the lower-value/top-100 objective,
+25-symbol mandate, original artifacts and registered verdicts.
+
+| Work | Current disposition / next boundary |
+| --- | --- |
+| Repeated conversation review | Source copy, hashes and coverage checkpoint saved in `docs/review_artifacts/claude_cowork_20261020/research_audit_review_cache/`; read only new/changed material |
+| Shared research-audit corrections | Incorporated as an October20 supplement in `docs/research/RESEARCH_BRIEF.md`; original external document retained |
+| Obsolete audit storage | Deletion completed2026-10-20T12:02:27Z and separately postchecked ACCEPTED_WITH_RISK:74 exact March21-22 top-level targets,5094 files removed;217 other children intact. Inventory/receipt in `docs/review_artifacts/audit_cleanup_20261020/`. lsof device/inode join confirms Claude VM still holds all5094 deleted files (213079770798 logical bytes) open; immediate reported free-space change0. Operator may quit Claude normally when convenient, then recheck free space; no automatic process stop |
+| Unlock source feasibility | Bounded public-document pass completed; historical as-of versions, coverage and licence remain UNVERIFIED. See `docs/research/unlock_data_feasibility_20261020.md`. No paid purchase or automatic FUND-1 replacement |
+| E1 execution comparison | Existing draft remains INCOMPLETE for freeze: product-applicable fees, arrival observability/alignment and inference handling. Do not double-charge fees or call fee savings strategy profit |
+| Tracker v2 | TLS source repair already separately reviewed; operator reported30 Mac tests and CA count0/137. Verify actual scheduled delivery when available; do not rebuild the repair or trigger a ledger rewrite merely to repeat proof |
+| CMC trending | Preserve collection. Primary inference still requires statistical-method certification; reaching a calendar date alone does not unlock scoring |
+| Explanation service | At October20 08:15-08:18 EDT, all seven original containers were already running; this thread started none. Initiator UNVERIFIED after bounded read-only investigation. Five cached health checks healthy; two absent, not failed. Reviewed timeout/read-only-startup compatibility not established; actual cited explanation remains INCOMPLETE. CLI digest refresh separately ACCEPTED_WITH_RISK (12 tests). See `docs/checkpoints/companion_continuation_20261020.md`. Do not reuse the consumed/all-stopped installer attempt or alter the running stack without separate authorization |
+| Module A / new studies | Preserve accepted synthetic coverage. Economic parameters and prospective contracts remain undecided; do not infer them or run new historical variants |
+| Preservation / publication | Existing incremental bundle is not a full off-machine backup. No visibility change, push, upload, commit or deletion of research evidence is implied |
+
+No broad production-readiness audit, trading operation, fee-account request,
+new scheduler or repeat backtest is queued by this update.
+
+October20 12:10 EDT explanation follow-up: actual orchestrator and memory health
+GETs returned200 with expected service identities; orchestrator reports trading
+disabled/model off, memory reports DB/Qdrant/MinIO connectivity. Two public live
+source hashes exactly match saved legacy versions, not reviewed repository code;
+the installed explanation route lacks the reviewed single-query probe branch.
+This is the demonstrated compatibility blocker, not another need to test health.
+No credentials or explanation query used. Plan a separately authorized application
+update/reconnection against the running stack; preserve storage and existing
+rollback evidence, and do not rerun the consumed all-stopped installer.
+
+October20 proposed update design:
+`docs/checkpoints/companion_running_update_plan_20261020.md` defines an opt-in
+extension of the existing installer/runtime path, not a second framework.
+All43 reviewed source entries still match; no application rewrite is queued.
+Leave three storage services running; cutover/rollback scope is four research
+applications only. The old stopped-only profiles, failed attempt and strict
+metadata gates stay intact. Plan review does not authorize deployment; no
+compatible running-stack executable or fresh operational packet exists yet.
+Separate GATE accepted that frozen design ACCEPTED_WITH_RISK; disposition and
+implementation conditions are in
+`docs/review_artifacts/companion_continuation_20261020/update_plan_review.json`.
+Next offline work is the minimal opt-in running-storage extension and focused
+failure/rollback tests. Timed Docker stop is not graceful-only proof; retain the
+no-unapproved-force requirement and one shared600second budget. Runtime remains
+INCOMPLETE; design acceptance is not permission to deploy or read credentials.
+
+October20 offline installation component: opt-in running-storage profile and
+application quiesce/rollback state machine are independently ACCEPTED_WITH_RISK
+after two bounded review fixes;316 focused tests passed in both parent and GATE
+runs. Review: `docs/review_artifacts/companion_continuation_20261020/running_storage_review_r2.json`.
+Old profiles/gates stay unchanged. The new CLI explicitly refuses
+`--apply-install` for this profile; shared-deadline guarded startup/query wiring
+is not yet implemented. See
+`docs/checkpoints/companion_running_storage_implementation_20261020.md` for
+component verification and exact remaining integration, not a deployment claim.
+
+October20 integration candidate:
+`docs/checkpoints/companion_running_update_integration_20261020.md` records the
+shared-deadline optional startup/query path and a material native assembly gap:
+the existing adapter requires reviewed replacement IDs before use, but IDs are
+created during installation. Synthetic passes do not close that gap. Operator
+choice requested: stage/review before separately bounded cutover, or retain one
+deadline including a real bounded review handoff. No answer or operational
+authorization is inferred. v4 CLI application remains refused.
+The corrected offline integration/cleanup component is independently
+ACCEPTED_WITH_RISK:502 focused tests passed in both runs. See
+`docs/review_artifacts/companion_continuation_20261020/running_update_review_r2.json`.
+Do not repeat that component's review. Concrete native assembly remains
+INCOMPLETE on the pending staging/review/deadline choice, not an invented
+credential or deployment approval. No runtime operation was performed.
+
+October20 operator staging decision (supersedes the pending-choice lines above):
+prepare stopped replacements, review their actual IDs, then begin a separately
+bounded cutover. Offline v5 implementation is in
+`docs/checkpoints/companion_staged_update_20261020.md`; preparation300/120seconds
+and cutover600/180seconds are separate budgets, with review outside both.
+Actual-ID evidence does not generate approval; cutover cannot rebuild or
+substitute IDs. New implementation READY_FOR_INDEPENDENT_REVIEW; no operation
+authorized or performed. v4/v5 CLI application remains refused. Current engine
+compatibility and a freshly reviewed operational packet remain UNVERIFIED.
+
+Frozen v5 proof:755 targeted synthetic tests passed4.21seconds; independent
+review returned a usage-limit error, so no new acceptance exists. See
+`docs/review_artifacts/companion_continuation_20261020/staged_update_verification.json`.
+After reported laptop restart, all frozen hashes matched and seven research
+targets were running. Collector PIDs existed but status was about100minutes old;
+collection freshness remains UNVERIFIED. No restart or cutover performed.
+
+Latest October20 v5 disposition supersedes the pending-review/755 lines above:
+separate GATE ACCEPTED_WITH_RISK for frozen offline staged-v5 code and its bounded
+blank-NetworkID composition correction. Parent912passed6.86s; GATE912passed6.57s;
+11hashes matched. Receipt: `docs/review_artifacts/companion_continuation_20261020/staged_update_review_r2.json`.
+Do not repeat this accepted component absent changed/contradictory evidence.
+The operational entry point/packet and actual native preparation/cutover/query
+remain INCOMPLETE, not authorized by code acceptance. Current CLI v4/v5 apply
+refusals stay intact. Collectors subsequently refreshed without restart by this
+thread: context22:24:54UTC successful capture; paper22:24:11UTC idle, completed
+day2026-10-20. Preserve the point-in-time limits; this is not perpetual health proof.
+
+Latest preparation-entrypoint delta: `scripts/research/companion_prepare.py` now
+implements inert validation and an explicit preparation-only mode over accepted
+v5 API; old installer CLI remains unchanged. Separate GATE closed its two bounded
+review findings ACCEPTED_WITH_RISK, independently206passed1.60s (parent1.85s).
+See `docs/checkpoints/companion_preparation_entrypoint_20261020.md` and
+`docs/review_artifacts/companion_continuation_20261020/preparation_entrypoint_review_r2.json`.
+Do not repeat this implementation. Next is read-only current-state capture for
+the actual v5 packet; no fresh native manifest exists yet. No actual preparation,
+cutover, credential use or service change was authorized or performed.
+
+Latest fresh packet capture (22:50UTC October20): completed read-only; seven
+original targets running/stable,43 local frozen source hashes match. Actual
+engine29.9.1/b26fb77 differs from backend pin29.8.2/8af9fe3. New candidate remains
+INCOMPLETE, not an accepted executable packet. See
+`docs/checkpoints/companion_fresh_packet_20261020.md` and the fresh capture folder.
+Existing encoder already applies reviewed timeout/read-only-startup overrides;
+do not invent a new environment patch from the legacy flags. Next is a bounded
+builder-compatibility probe before any pin change; actual build requires separate
+authorization and must not start/alter the seven running services. No native
+build, replacement creation or cutover performed.
+
+Latest approved probe result (22:58UTC October20): one local COPY-only build on
+engine29.9.1/b26fb77 succeeded5.715seconds; base8layers preserved plus1, seven
+selected container snapshots unchanged. Separate GATE ACCEPTED_WITH_RISK for
+saved minimal probe evidence only. See `docs/checkpoints/companion_builder_probe_20261020.md`.
+Probe consumed; do not repeat it. One untagged proof image retained. No installer
+pin change, preparation or cutover occurred. Next is a narrowly scoped and
+independently reviewed engine-pin/compatibility change; full installer/SDK/native
+metadata readiness remains unverified, not established by this minimal probe.
+
+Latest offline compatibility delta (October20): retained exact29.8.2/8af9fe3 and
+added only exact29.9.1/b26fb77 to the installer gate; no version ranges or automatic
+trust. Targeted synthetic verification552passed across seven files. Separate
+GATE review pending; implementation READY_FOR_INDEPENDENT_REVIEW. See
+`docs/checkpoints/companion_engine_compatibility_20261020.md`. No new native
+operation or preparation; fresh v5 packet still INCOMPLETE. After code review,
+reconcile/review that packet offline before separately authorized preparation.
+
+Independent GATE subsequently ACCEPTED_WITH_RISK for that exact offline engine
+delta;17focused tests passed0.41s, frozen source/test hashes unchanged. Receipt:
+`docs/review_artifacts/companion_continuation_20261020/engine_compatibility_review.json`.
+The code review is complete; do not repeat the probe or pin repair. The fresh
+preparation packet remains INCOMPLETE and is the next offline review boundary.
+
+Latest packet review: independent GATE ACCEPTED_WITH_RISK for preparation only;
+all43source entries,7baseline projections,4modeled replacement fingerprints and
+unchanged options/policies checked. Separate reviewed manifest SHA256
+`3b6f785ca1dd732e307aa83b30dcea2a5d2d9379d57af06a4afaa3774df94635`;
+original INCOMPLETE candidate preserved. Default inert CLI validation exit0,
+actions_executed=false. See `docs/checkpoints/companion_preparation_packet_20261020.md`.
+Offline packet review is complete; do not repeat it without changed evidence.
+Next requires operator authority for one preparation-only attempt: four local
+source-only builds and four never-started replacements, original seven untouched,
+300second controller/120second recovery reserve. Credential values copied only
+transiently in reviewed children. No startup/cutover or automatic retry included.
+Actual stopped IDs still need review afterward; service restoration INCOMPLETE.
+
+October21 actual preparation update: operator-authorized command completed once,
+exit0, preparation_complete=true. Four source-only images and four stopped,
+never-started replacements now exist; originals not interrupted. Attempt
+`f4e189b78ccc48acb8b92f20c4627f51` is consumed; do not rerun preparation.
+Saved evidence SHA78726c0b834778934368713e55a7496a91249d17323e3d43c9052895a5e4d8de.
+One read-only post-inventory at12:15:38UTC/08:15EDT showed original7 equal baseline,
+stopped4 equal evidence. See `docs/checkpoints/companion_stopped_preparation_20261021.md`.
+Independent actual-ID review pending. No startup/cutover performed or authorized;
+restoration still INCOMPLETE. Reuse prepared IDs after review, not new builds.
+
+Independent actual-ID review subsequently ACCEPTED_WITH_RISK, bound to evidence
+and manifest; parent inert ReviewedPreparation.load PASS for all4. It is not
+cutover acceptance. Read-only field diagnostic at08:20EDT explains staged-vs-model
+fingerprints: actual empty DNS/ExtraHosts are null versus expected[], plus unique
+staging aliases. Offline changes of only those representations/aliases reproduce
+all4predicted final fingerprints; no gate/config/pin changed. Diagnostic review
+pending. Next: narrow compatibility repair preserving prior evidence and prepared
+IDs, then complete/review bounded operational cutover entry point/runtime pins.
+No preparation rerun, rebuild, startup or cutover authorized by this disposition.
+
+Diagnostic explanation is now independently ACCEPTED_WITH_RISK,4/4exact modeled
+fingerprints reproduced; see October21 metadata_diag_review.json. Do not repeat
+the diagnosis absent new evidence. Representation repair remains unimplemented
+and requires its own targeted tests/review; not approval to weaken strict gates.
+
+October21 offline correction prepared: strict runtime comparator/digests stay
+unchanged; only4modeled final fingerprints corrected from saved observed null
+DNS/ExtraHosts plus intended logical aliases. No general null/[] normalization.
+Existing4containers/evidence/receipt/actual-ID review preserved. New draft is
+INCOMPLETE; derivative manifest/evidence must be independently reconciled with
+explicit provenance that original preparation ran under the OLD manifest.
+Portability P2 corrected using hash-identical secret-free public evidence fixture;
+newtests forbid private-state/native access. Targeted256passed2.02s; separate
+re-review pending. See `docs/checkpoints/companion_metadata_reconciliation_20261021.md`.
+No preparation rerun, container/service change, startup or cutover in this scope.
+
+Metadata reconciliation now independently ACCEPTED_WITH_RISK; portability P2
+closed. Parent256targeted tests passed; reviewer26tests passed plus binding/source
+checks. Reconciled manifest/evidence/actual-ID review are separate derivative
+artifacts with explicit old/new provenance; original4actual rows unchanged.
+Real inert Plan/ReviewedPreparation loading and default CLI validation PASS;
+actions_executed=false. Strict runtime code/digests and old records unchanged.
+See `docs/checkpoints/companion_metadata_reconciliation_20261021.md` for exact hashes.
+Do not repeat this repair, preparation or diagnosis absent contradictory evidence.
+Next: complete/test/review bounded one-shot cutover entry point and final runtime
+pins using existing IDs; no operational cutover/startup permission is inferred.
+
+October21 cutover command implemented offline as `scripts/research/companion_cutover.py`:
+inert default; exact existing reviewed inputs/policy records/topical witness;
+shared lock and durable phase marker; owned token pipe;600second controller with
+180second recovery reserve; existing staged API, no rebuilding/preparation.
+Targeted240tests passed3.06s including58new loader/wrapper cases; independent GATE
+pending. See `docs/checkpoints/companion_cutover_entrypoint_20261021.md`.
+Real runtime-pin/dependency/topical packet for native use remains UNVERIFIED;
+the command refuses absent records before effects. No token/native call, service
+change or cutover ran. Do not infer deployment approval from synthetic tests.
+
+Cutover entrypoint R1 found two cancellation bugs despite240tests; both received
+bounded R2 fixes and exact regressions. Parent244targeted tests passed3.16s;
+independent GATE ACCEPTED_WITH_RISK,62checks passed1.11s, both exact signal probes
+closed. See cutover_entrypoint_review_r2.json in the October21 review folder.
+Offline command implementation is complete; do not repeat it absent contradictory
+evidence. Next: reconcile native runtime pins, installed-image policy reviews and
+topical witness for the prepared IDs. No runtime records may be self-approved or
+inferred from synthetic test data. Cutover/startup unauthorized; runtime INCOMPLETE.
+
+October21 bounded reconciliation: local pinned archive55records/54verified and
+all23historical source copies rehashed. Separate GATE ACCEPTED_WITH_RISK the exact
+archived document7 topical witness, not current DB identity or causal truth;
+receipt `companion_continuation_20261021/topical_witness_review.json` and checkpoint
+`docs/checkpoints/companion_policy_reconciliation_20261021.md`. Do not redo this
+topical review. Actual prepared-image SDK/entrypoint bytes, full S3 retry/redirect
+handler chain, installed archive and current persistent lineage remain UNVERIFIED.
+No policy approvals fabricated. Next boundary is one consolidated, scoped and
+separately authorized read-only capture of those facts, not another controller
+implementation or cutover. No native/startup/storage/credential operation ran.
+
+October21 authorized read-only capture completed once at17:47:49UTC:98commands,
+5.194s;93files readable,43/43 frozen app sources match; installed archive4hashes
+match local approved archive; PostgreSQL55/55 frozen identities match, Qdrant
+collection and MinIO bucket checks pass. All11 selected before/after inventories
+unchanged. Capture directory consumed; no repeat/start/cutover authorized.
+Supersedes prior unknown installed-archive and observed DB-lineage status only.
+Actual SDK audit closes14historical-memory-source byte bindings but finds a
+specific conditional S3 region-redirect replay path despite total_max_attempts=1.
+No actual redirected traffic or cause of old failure claimed. Next corrective
+scope is restricted S3 replay/redirect repair offline with targeted error tests
+and independent review, not another capture/controller layer. See
+`docs/checkpoints/companion_installed_facts_capture_20261021.md`.
+
+Independent result review ACCEPTED_WITH_RISK the exact saved capture facts,
+not SDK/runtime policy. Receipt installed_facts_capture_result_review.json.
+Capture objective CLOSED; no repeat needed. Runtime remains INCOMPLETE on the
+specific S3 replay/redirect correction and remaining operational acceptance.
+
+October21 S3 corrective delta: offline restricted-client single-attempt shim is
+independently ACCEPTED_WITH_RISK;80focused tests passed in both parent/GATE runs.
+Only the new restricted endpoint's retry-decision hook is bypassed; ordinary
+behavior unchanged. Review: companion_s3_single_attempt_review_20261021.json;
+checkpoint docs/checkpoints/companion_s3_single_attempt_repair_20261021.md.
+Do not repeat this repair/review. Existing prepared memory image still has old
+source. Next: fresh reviewed source-binding/stopped-replacement preparation plan,
+not an in-place container edit or replay of consumed preparation/capture. No
+native build/startup/query/cutover performed or authorized by offline acceptance.
+
+October21 S3 refresh packet now independently ACCEPTED_WITH_RISK for prospective
+preparation inputs. Fresh attempt s3refresh20261021c1eaae5a, reviewed manifest
+SHA dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d;
+inert existing CLI validation exits0/actions_executed=false. No new controller.
+See docs/checkpoints/companion_s3_source_refresh_plan_20261021.md. Offline packet
+task CLOSED: do not repeat derivation/tests/review. Next requires operator approval
+for ONE preparation-only run creating4newstoppedapps through existing4-app API,
+only1sourcehash changed; originals/old4 preserved. Then actual-ID/source review.
+No preparation/build/reservation/startup/query/cutover has run under this packet.
+
+October21 source-refresh preparation completed exactly once after authorization.
+Four new stages are created/never-started/restarts0/policyno; fresh memoryimage
+e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee contains
+the accepted c1eaae...main source by separate native file postcheck. The original7
+and old4 match previous selected metadata; all15postcheck rows stable. Parent
+alias-only projection and separate GATE reproduce final model4/4, no metadatafix.
+Actual-ID review ACCEPTED_WITH_RISK: s3_source_refresh_plan/actual_id_review.json
+SHAb9723bdd60158e9f5f354eee34db097af6d6949a3bb113d8dd16a5c6980b931c.
+Preparation objective CLOSED/attempt consumed; do not repeat. Next: assemble and
+review runtime-policy/source/evidence packet for these exactnewIDs before any
+separately authorized cutover/query. Details companion_s3_preparation_result_20261021.md.
+No service starts/stops, application query or cutover occurred.
+
 ### Current state update, 2026-10-19 (Claude Cowork; read first)
 
 This adds to the sections below without editing them. Where it conflicts with an older line, this update controls.

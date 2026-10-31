@@ -1,0 +1,4 @@
+docs/COLLECTOR_CONTROL.md
+docs/PROJECT_DIRECTIONAL_PLAN.md
+docs/incidents/2026-10-25_research_service_incidents.md
+docs/licenses/arch-7.2.0.txt

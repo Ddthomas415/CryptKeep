@@ -1,0 +1,9 @@
+docs/research/raw_archives_20261009/binance_daily_all_incl_delisted.tar.xz
+docs/research/raw_archives_20261009/binance_daily_current484.tar.xz
+docs/research/raw_archives_20261009/cmc_weekly_and_trending.tar.xz
+docs/research/raw_archives_20261009/coinbase_hourly_last60d.tar.xz
+docs/research/raw_archives_20261009/coinbase_hourly_prior10m.tar.xz
+research/hourly_leader_earlier_raw_20261012.json
+research/multisymbol_baseline_v1/discovery_20261008.json
+research/multisymbol_baseline_v1/final_20261008.json
+research/multisymbol_baseline_v1/validation_20261008.json
