@@ -139,7 +139,9 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    owner, evidence, severity, disposition. Budget: three sessions for the simulation path. Stop when its checks are
    done; report before the simulation starts. Sessions 1-3 done 2026-10-31 (`docs/research/bot_audit_20261031/`,
    BA-01 to BA-22; spec flaws 9-16 and the before-start list). Simulation-path audit complete; the rest of `services/`
-   not audited.
+   not audited. Also 2026-10-31: the simulation's Group A scoring script written and tested before the start
+   (`docs/research/paper_simulation_spec_20261031/evaluation/`; 7 unit tests pass; dry run on the replay reproduces
+   spec 7.5-7.6); frozen once the owner approves the minimum samples and drawdown rule. Next: the live-path audit.
 2. [handed back for cross-review 2026-10-31] [safety] Capital-protection audit (owner-approved 2026-10-31; read-only). Stage 1 delivered 2026-10-31,
    READY_FOR_INDEPENDENT_REVIEW (`docs/research/capital_protection_audit_20261031/`). Stage 2 delivered 2026-10-31
    (`docs/research/result_labels_20261031/`), started without waiting for Codex because it does not depend on stage 1

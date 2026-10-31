@@ -237,18 +237,25 @@ not nine independent tests and no single account can pass on its own).
 - **Pass:** at least the minimum sample, net above zero, no breach, and mean net return per trade above zero with a
   one-sided p below 0.05/3 (Bonferroni across the 3 strategies, so each can be judged when ready), block bootstrap over
   calendar weeks with all coins of a week resampled together, 10,000 resamples, seed fixed in the analysis script,
-  which Claude writes and freezes before the start.
+  which Claude writes and freezes before the start. Written 2026-10-31: `evaluation/score_group_a.py` with its tests,
+  rules file and data contract (`evaluation/README.md`); hashes in `evaluation/SHA256SUMS`; frozen once the owner
+  approves the two pending values in `evaluation/evaluation_rules.json`.
 - Buy-and-hold is reported, not required: a strategy that holds the market less of the time can be useful without
   beating it. A Pass only allows the owner to consider a next step; it never authorises live trading.
 
 **7.5 Drawdown limit: owner decision before the start.** Figures for these rules from research (7.6) and from holding
-each coin over the same 39 weeks (OKX hourly closes, 2026-01-01 to 2026-09-30):
+each coin over the same 39 weeks (OKX hourly closes, 2026-01-01 to 2026-09-30). Values as computed by the scoring
+script on the replay (`evaluation/dryrun/summary.json`; equity marked every hour; amended 2026-10-31 from per-exit
+marking, which gave drawdowns up to 1.4 points smaller):
 
-| Coin | Replay account result over 39 weeks (breakout / EMA cross / mean reversion) | Replay maximum drawdown | Holding: return / maximum drawdown |
+| Coin | Replay account result over 39 weeks (breakout / EMA cross / mean reversion) | Replay maximum drawdown | Holding: price change / maximum drawdown |
 |---|---|---|---|
-| BTC | -54% / -24% / -25% | 54.7% / 27.1% / 25.4% | -4.2% / 40.3% |
-| ETH | -53% / -26% / -20% | 53.7% / 29.4% / 19.9% | -9.9% / 55.0% |
-| SOL | -53% / -31% / -18% | 57.4% / 31.3% / 18.1% | -4.7% / 58.8% |
+| BTC | -53.4% / -23.4% / -25.2% | 55.3% / 27.7% / 25.2% | -4.2% / 40.3% |
+| ETH | -52.5% / -25.9% / -19.8% | 53.9% / 29.3% / 19.8% | -9.9% / 55.0% |
+| SOL | -53.2% / -30.8% / -18.0% | 58.6% / 32.7% / 18.1% | -4.7% / 58.8% |
+
+Under the default rule (c), only breakout on BTC would have breached in this period; holding ETH and SOL fell so far
+that rule (c) alone is lenient for them.
 
 Options: (a) the bot's own setting, a 10-point drawdown on its running sum of trade results (the performance kill),
 which every replayed account exceeds; (b) a fixed limit of the owner's choosing, as a share of the account; (c) no

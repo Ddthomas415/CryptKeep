@@ -55431,3 +55431,15 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
   placeholder for the owner's limit; commissioning adds the three blocker cases; section 12 build order.
 - PROJECT_STATE.md: decision 3 approved for the simulation (live still open); decision 2 adds minimum samples; item 2
   lists R1-R12 in build order.
+
+## 2026-10-31T15:28:17Z Claude (Cowork): Group A scoring script written before the start (owner: "proceed")
+- `docs/research/paper_simulation_spec_20261031/evaluation/`: score_group_a.py (stdlib; spec 7.2-7.4: two bases rebuilt
+  from recorded quotes, account and pooled measures, week-block bootstrap with null imposed by centring, classification
+  incl. week-52 extension judged once), evaluation_rules.json (42/42/31, alpha 0.05/3, 10,000 resamples, seed 20261031,
+  drawdown rule "hold"; owner approval PENDING), test_score_group_a.py (7 passed, Python 3.12), dryrun_on_replay.py
+  (Python 3.10; per-trade means -0.73/-0.77/-1.32% vs spec -0.74/-0.77/-1.32%; all Fail; breakout BTC breaches the
+  default drawdown rule), README with the data contract Codex must produce, SHA256SUMS.
+- Spec (sha256 eed50d5e...): 7.4 points to the script; 7.5 table replaced by the scorer's hourly-marked figures (dated
+  amendment; drawdowns up to 1.4 points larger than the per-exit figures first published) and a note that the default
+  rule (c) is lenient for ETH and SOL, whose holding drawdowns were 55% and 59%.
+- PROJECT_STATE.md research item 1 progress line.

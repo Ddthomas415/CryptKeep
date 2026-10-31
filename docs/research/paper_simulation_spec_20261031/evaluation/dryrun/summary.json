@@ -1,0 +1,87 @@
+{
+ "accounts": {
+  "breakout_default:BTC": {
+   "closed_trades": 88,
+   "hold_dd": 0.403,
+   "max_drawdown": 0.5527,
+   "net_return": -0.5341
+  },
+  "breakout_default:ETH": {
+   "closed_trades": 97,
+   "hold_dd": 0.5501,
+   "max_drawdown": 0.5394,
+   "net_return": -0.525
+  },
+  "breakout_default:SOL": {
+   "closed_trades": 114,
+   "hold_dd": 0.5876,
+   "max_drawdown": 0.5859,
+   "net_return": -0.5325
+  },
+  "ema_cross_default:BTC": {
+   "closed_trades": 33,
+   "hold_dd": 0.403,
+   "max_drawdown": 0.2769,
+   "net_return": -0.2341
+  },
+  "ema_cross_default:ETH": {
+   "closed_trades": 43,
+   "hold_dd": 0.5501,
+   "max_drawdown": 0.2933,
+   "net_return": -0.2591
+  },
+  "ema_cross_default:SOL": {
+   "closed_trades": 42,
+   "hold_dd": 0.5876,
+   "max_drawdown": 0.3275,
+   "net_return": -0.3076
+  },
+  "mean_reversion_default:BTC": {
+   "closed_trades": 25,
+   "hold_dd": 0.403,
+   "max_drawdown": 0.2523,
+   "net_return": -0.2523
+  },
+  "mean_reversion_default:ETH": {
+   "closed_trades": 15,
+   "hold_dd": 0.5501,
+   "max_drawdown": 0.1983,
+   "net_return": -0.1983
+  },
+  "mean_reversion_default:SOL": {
+   "closed_trades": 13,
+   "hold_dd": 0.5876,
+   "max_drawdown": 0.1807,
+   "net_return": -0.1802
+  }
+ },
+ "strategies": {
+  "breakout_default": {
+   "classification": "Fail",
+   "closed_trades": 299,
+   "mean_ret": -0.00733,
+   "p_one_sided": 1.0,
+   "pooled_net_bidask": -0.53055,
+   "pooled_net_mid": -0.53055,
+   "reason": "drawdown limit breached: breakout_default:BTC"
+  },
+  "ema_cross_default": {
+   "classification": "Fail",
+   "closed_trades": 118,
+   "mean_ret": -0.00766,
+   "p_one_sided": 0.9994,
+   "pooled_net_bidask": -0.26694,
+   "pooled_net_mid": -0.26694,
+   "reason": "pooled net return -26.6939% on the bid/ask basis"
+  },
+  "mean_reversion_default": {
+   "classification": "Fail",
+   "closed_trades": 53,
+   "mean_ret": -0.01315,
+   "p_one_sided": 1.0,
+   "pooled_net_bidask": -0.21027,
+   "pooled_net_mid": -0.21027,
+   "reason": "pooled net return -21.0269% on the bid/ask basis"
+  }
+ }
+}
