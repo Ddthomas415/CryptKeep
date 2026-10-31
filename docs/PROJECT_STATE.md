@@ -143,7 +143,10 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    (`docs/research/paper_simulation_spec_20261031/evaluation/`; 7 unit tests pass; dry run on the replay reproduces
    spec 7.5-7.6); frozen once the owner approves the minimum samples and drawdown rule. Live path session 1 done
    2026-10-31 (LP-01 to LP-07: placement and retries careful; HIGH before live: no protection on the exchange if the
-   bot or server stops, LP-05; MEDIUM: key permissions checked once, not at start, LP-03). Next: live path session 2.
+   bot or server stops, LP-05; MEDIUM: key permissions checked once, not at start, LP-03). Live path session 2 done
+   2026-10-31 (LP-08 to LP-13): the final gate trusts an environment variable, not the ceremony (known; plus two code
+   paths around it); position limit still unchecked (H-06); HIGH process finding LP-10, reviewed safety patches of
+   early October missing from the code and untracked. Live-path audit complete; rest of `services/` not audited.
 2. [handed back for cross-review 2026-10-31] [safety] Capital-protection audit (owner-approved 2026-10-31; read-only). Stage 1 delivered 2026-10-31,
    READY_FOR_INDEPENDENT_REVIEW (`docs/research/capital_protection_audit_20261031/`). Stage 2 delivered 2026-10-31
    (`docs/research/result_labels_20261031/`), started without waiting for Codex because it does not depend on stage 1
@@ -177,6 +180,10 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
 6. [research] E1 analysis once its data exist.
 7. [research] Descriptive report on the candidate: market regimes, holding ETH alone, trade count, win rate, profit factor.
    Labelled descriptive, not a test. Needs owner approval.
+8. [proposed, needs owner approval] [safety] Reviewed-patch inventory (bot audit LP-10): every patch reviewed since
+   2026-09 with its review status, whether it is in the current code, and the owner's decision (apply or drop). Claude:
+   the review documents and code markers; Codex: locating the patch files. Known missing: cooldown 0001/0002, 0055,
+   0059, 0060, 0062.
 - Done 2026-10-30: failure diagnosis (`docs/research/failure_diagnosis_20261030/`); its three hypotheses were approved with the order above.
 - [dependent] Multi-symbol diversification pre-registration: waits on the 25-symbol comparison's forward results (owner 2026-10-30).
 - [recurring] Weekly status, Mondays 12:31 UTC (scheduled task).

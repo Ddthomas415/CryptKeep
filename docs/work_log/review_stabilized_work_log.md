@@ -55454,3 +55454,13 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
   at start. Known items not repeated (CP-09, D-1, CP-02, CP-14/H-06, BA-16, BA-05/decision 3 live, BA-10).
 - PROJECT_STATE.md research item 1 progress. Next: live path session 2 (live-enable ceremony and resume gate, live risk
   gates/H-06, credentials in logs and errors, sizing and precision).
+
+## 2026-10-31T15:49:12Z Claude (Cowork): live-path audit session 2; live-path audit complete (owner: "ok")
+- `docs/research/bot_audit_20261031/README.md` (sha256 ac10bad8...): LP-08 to LP-13. LP-08 (known since 2026-10-02 E01
+  items 23-25): place_order arms on an environment variable, not the ceremony; new detail: live_enable_wizard.enable_live()
+  enables and arms with no token/checklist/preflight (tests-only callers) and scripts/killswitch.py --disarm releases
+  the switch with no record. LP-09: ceremony details; preflight does not check open pre-live defects. LP-10 HIGH
+  (process): reviewed early-October patches missing from the code by marker search (0001/0002, 0055, 0059, 0060, 0062;
+  0056 and 0057 markers present); patch files not in the repo; not tracked in PROJECT_STATE. LP-11: H-06 still
+  present. LP-12, LP-13 controls present (keyring, no key logging found; precision and market rules).
+- PROJECT_STATE.md: research item 1 progress; new research item 8 proposed (reviewed-patch inventory; owner approval).
