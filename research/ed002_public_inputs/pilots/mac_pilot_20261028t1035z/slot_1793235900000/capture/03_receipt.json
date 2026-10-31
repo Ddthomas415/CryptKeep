@@ -1,0 +1,14 @@
+{
+  "bytes": 180,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "03_ADA.bin",
+  "http_date": "Thu, 29 Oct 2026 01:05:05 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793235905362,
+  "request_started_ms": 1793235905255,
+  "sha256": "207d54c4f37a80f1096bc8d3e86f02012a25f37f57058b813105f20baa52fbbf",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/ADA-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+}

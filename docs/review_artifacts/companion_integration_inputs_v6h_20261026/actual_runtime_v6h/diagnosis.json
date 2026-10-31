@@ -1,0 +1,92 @@
+{
+  "citation_archive_correlation": [
+    {
+      "document_id": 5,
+      "url_hash_matches": true
+    },
+    {
+      "document_id": 47,
+      "url_hash_matches": true
+    },
+    {
+      "document_id": 18,
+      "url_hash_matches": true
+    },
+    {
+      "document_id": 5,
+      "url_hash_matches": true
+    },
+    {
+      "document_id": 26,
+      "url_hash_matches": true
+    }
+  ],
+  "events": 98,
+  "exact_failed_predicate_and_live_value": "UNVERIFIED",
+  "execution_disabled": true,
+  "first_failed_group": "bundle_market",
+  "hashes": {
+    ".cbp_state/runtime/companion_cutovers/workerprep20261026v6h/receipt.jsonl": "ab587bb2fa1a56818b2c70f45cafc29b543e4ae3efba83c006ac696021d91b4a",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/diagnose_saved_result.py": "9fe3666c2ae9d81fc5ac4a32e0fa54432fba045117da6fe84d16f0aa54511473",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/outcome.json": "22b048282b1e974358251ec1486b8c496b1fdc146677eef5ddc28f56f8d19243",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/receipt.jsonl": "ab587bb2fa1a56818b2c70f45cafc29b543e4ae3efba83c006ac696021d91b4a",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "phase1_research_copilot/shared/tools.py": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "scripts/research/companion_evidence_checks.py": "25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5",
+    "scripts/research/companion_installer.py": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b",
+    "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d"
+  },
+  "limitations": [
+    "Group rejection is not five independent failures or a unique field/predicate diagnosis.",
+    "No live raw response, market payload or DB rows were retained or reconstructed.",
+    "Offline producer/consumer mismatch is a candidate explanation, not proof of historical causation.",
+    "Citation hash correlation is not completed persisted/content/topical/causal verification.",
+    "Configuration rollback is not exact restoration, current health, connectivity or volume-byte proof.",
+    "No new query, token read, native call, production change, retry or reset occurred."
+  ],
+  "provider": "fallback",
+  "query_stages": [
+    {
+      "http_status": null,
+      "outcome": "invalid_envelope",
+      "route": "primary",
+      "stage": "normalization"
+    },
+    {
+      "http_status": 200,
+      "outcome": "json_received",
+      "route": "companion",
+      "stage": "transport"
+    },
+    {
+      "http_status": null,
+      "outcome": "accepted",
+      "route": "companion",
+      "stage": "normalization"
+    }
+  ],
+  "rollback": {
+    "configuration_restored": true,
+    "exact_baseline_restored": false,
+    "network_connectivity_verified": false
+  },
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6h-saved-failure-diagnosis-v1",
+  "verifier_result": {
+    "checks": {
+      "article_view_mapping": false,
+      "causal_limits": false,
+      "content_hash": false,
+      "persisted_identity": false,
+      "topical_support": false
+    },
+    "diagnostic": {
+      "code": "rejected",
+      "stage": "bundle_market"
+    },
+    "false_meaning": "not_established_or_not_evaluated",
+    "outcome": "complete",
+    "shape_valid": true
+  }
+}

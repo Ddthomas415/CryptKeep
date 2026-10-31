@@ -1,0 +1,53 @@
+{
+  "recorded_at": "2026-10-29T20:07:56.409782+00:00",
+  "owned_pid": 21851,
+  "checks": [
+    {
+      "command": [
+        "/bin/ps",
+        "-p",
+        "21851",
+        "-o",
+        "pid=,ppid=,lstart=,pgid=,comm="
+      ],
+      "exit_code": 0,
+      "stdout": "21851     1 Thu Oct 29 16:06:32 2026     21851 /Library/Frameworks/Python.framework/Versions/3.12/Resources/Python.app/Contents/MacOS/Python\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/bin/ps",
+        "-p",
+        "21851",
+        "-o",
+        "args="
+      ],
+      "exit_code": 0,
+      "stdout": "/Library/Frameworks/Python.framework/Versions/3.12/Resources/Python.app/Contents/MacOS/Python -B /Users/baitus/Downloads/crypto-bot-pro/scripts/data/run_crypto_edge_collector_loop.py --okx-pairs --plan-file /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_recurring_restore_20261029/20261029T200449Z_b41ebae73f5940b3be3bf6e8dd89e58d/PLAN.json --okx-pair-options-file /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_recurring_restore_20261029/20261029T200449Z_b41ebae73f5940b3be3bf6e8dd89e58d/OPTIONS.json --db-path /Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite --source live_public --interval-sec 300 --max-loops 0 --raw-funding-max-rows 1 --raw-funding-max-bytes 4194304\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/pgrep",
+        "-f",
+        "scripts/data/run_crypto_edge_[c]ollector_loop.py"
+      ],
+      "exit_code": 0,
+      "stdout": "21851\n",
+      "stderr": ""
+    }
+  ],
+  "matching_script_pid_count": 1,
+  "status": {
+    "status": "running",
+    "pid": 21851,
+    "ts": "2026-10-29T20:06:42.537548+00:00",
+    "loops": 1,
+    "errors": 0,
+    "last_ok": true,
+    "last_reason": "collected",
+    "source": "live_public"
+  },
+  "pidstate_matches": true,
+  "scope": "one exact owned process and known-script match after launching tool exited; not global or sustained-health proof"
+}

@@ -1,0 +1,29 @@
+{
+  "active_role": "GATE",
+  "reviewer": "Hegel",
+  "agent_id": "01a15187-d8bb-71c1-8bfb-095bd45e4bac",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Two preparation-entrypoint corrections from rejected r1; bounded re-review, not operational approval",
+  "closed_findings": [
+    "Sanitized stdout and final receipt retain failure phase and unresolved resources",
+    "New state-directory ancestors receive parent fsync barriers before descent and backend construction"
+  ],
+  "independent_repros_confirmed": true,
+  "independent_tests": {"passed": 206, "duration_seconds": 1.60, "exit_code": 0},
+  "parent_tests": {"passed": 206, "duration_seconds": 1.85, "exit_code": 0},
+  "command_and_hash_binding": "preparation_entrypoint_verification_v2.json",
+  "both_frozen_hashes_matched": true,
+  "targeted_diff_check_passed": true,
+  "remaining_blockers_in_bounded_review": [],
+  "limits": [
+    "Synthetic and temporary-filesystem proof only",
+    "Power-loss durability and native behavior remain UNVERIFIED",
+    "Local validation/reservation precedes controller deadline",
+    "Actual fresh preparation packet not generated",
+    "No authorization to execute preparation or cutover"
+  ],
+  "reviewer_edits": false,
+  "native_calls": 0,
+  "credentials_read": false,
+  "source": "Separate GATE response in this Codex conversation"
+}

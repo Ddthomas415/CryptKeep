@@ -1,0 +1,24 @@
+{
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "unwired SDK raw-page reader; offline fakes only",
+  "bindings": {
+    "services/execution/coinbase_account_pages.py": "a6324aac4d78a2b9f0ab486e36279bca93be521541725336b69572b241db11a7",
+    "tests/test_coinbase_account_pages.py": "4d1561955ad0181894038df06894cb8f55d89502a1b9b893efefb3a49b7c8e2a",
+    "docs/research/coinbase_account_pages_20261028.md": "913cbf9e376759ec212a247a1e3c02a7748b3c0b5f48d6bd8aac0e6d08abd8bb",
+    "scripts/research/synthetic_coinbase_balance_paging.py": "6d5bb2cbb7d833cb7188432ebd62859db74371d36cb4b71372a0288383944bed",
+    "tests/test_synthetic_coinbase_balance_paging.py": "b9b3d29ba33e24ea612bf4eadf95cbc69e2f0f675cbc7bf64ba387905123dd16",
+    "scripts/research/synthetic_live_position_cap.py": "1776524826aa38a102e95013a6dee3ec657175ee8708740b1fe78aae0f8ecd26",
+    "tests/test_synthetic_live_position_cap.py": "48d7d315eb832657bf7b26f41b66727e06479c73510c1b2854e3e8c4231c7652",
+    "services/execution/place_order.py": "a29ba48fb1f45b167c47817d91d25d7be3341ae18fa64999f7892866642072a6",
+    ".venv/lib/python3.12/site-packages/ccxt/coinbase.py": "e5bdb2d07e395443acdd56525090cadc72611133728d30adf09d4b8985bdd204",
+    ".venv/lib/python3.12/site-packages/ccxt/async_support/coinbase.py": "d8cc6134ceab0f0f04ef1f7e08a8d43904f93a41729c9fab897467bcc3c28c05"
+  },
+  "diff_sha256": "8048d606c76d04bb76ea1ee83fb2402aff56da3fc1f39b430c2f5dee219059a6",
+  "author_verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_coinbase_account_pages.py",
+    "exit_code": 0,
+    "passed": 21,
+    "seconds": 0.2
+  },
+  "no_existing_caller_changed": true
+}

@@ -1,0 +1,347 @@
+--- /dev/null
++++ b/scripts/research/synthetic_funding_observations.py
+@@ -0,0 +1,143 @@
++"""Offline raw-funding adapter; caller-owned KV fixture, no production wiring."""
++
++from copy import deepcopy
++from datetime import datetime
++import hashlib
++import json
++import math
++
++
++PREFIX = "synthetic_funding_observation:"
++
++
++def encoded(value):
++    return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
++
++
++def finite_number(value):
++    if isinstance(value, bool) or value is None:
++        return None
++    try:
++        result = float(value)
++    except (TypeError, ValueError, OverflowError):
++        return None
++    return result if math.isfinite(result) else None
++
++
++def payload_interval(payload):
++    info = payload.get("info")
++    info = info if isinstance(info, dict) else {}
++    fields = {
++        "interval": payload.get("interval"),
++        "interval_hours": payload.get("interval_hours"),
++        "fundingIntervalHours": payload.get("fundingIntervalHours"),
++        "info.fundingIntervalHours": info.get("fundingIntervalHours"),
++    }
++    values = {}
++    for name, value in fields.items():
++        if value is None:
++            continue
++        if name == "interval":
++            value = value[:-1] if isinstance(value, str) and value.endswith("h") else None
++        number = finite_number(value)
++        if number is None or number <= 0:
++            return None, [], "interval_invalid"
++        values[name] = number
++    if not values:
++        return None, [], "interval_unknown"
++    if len(set(values.values())) != 1:
++        return None, [], "interval_conflict"
++    return next(iter(values.values())), list(values), None
++
++
++def observation(*, venue, symbol, captured_at, payload, plan_interval_hours=None):
++    """Keep raw evidence. Provider field names do not authenticate semantics."""
++    if any(type(value) is not str or not value.strip() for value in (venue, symbol, captured_at)):
++        raise ValueError("explicit_identity_and_capture_time_required")
++    parsed = datetime.fromisoformat(captured_at.replace("Z", "+00:00"))
++    if parsed.tzinfo is None or parsed.utcoffset() is None:
++        raise ValueError("timezone_required")
++    if not isinstance(payload, dict):
++        raise ValueError("json_object_required")
++    # Roundtrip rejects unsupported objects/non-finite JSON and isolates callers.
++    raw = json.loads(encoded(payload))
++    encoded(plan_interval_hours)
++    info = raw.get("info")
++    info = info if isinstance(info, dict) else {}
++    fields = [(name, raw.get(name)) for name in
++              ("fundingRate", "funding_rate", "nextFundingRate", "next_funding_rate")]
++    fields += [("info." + name, info.get(name)) for name in
++               ("fundingRate", "funding_rate", "nextFundingRate", "next_funding_rate")]
++    rate, source = None, None
++    for name, value in fields:
++        number = finite_number(value)
++        if number is not None:
++            rate, source = number, name
++            break
++    interval, interval_fields, interval_reason = payload_interval(raw)
++    kind = "predicted" if source and "next" in source.lower() else "unknown"
++    reason = "rate_unknown" if rate is None else interval_reason or "formula_basis_unverified"
++    times = {name: raw[name] for name in
++             ("timestamp", "datetime", "fundingTimestamp", "fundingDatetime",
++              "nextFundingTimestamp", "nextFundingDatetime") if name in raw}
++    times.update({"info." + name: info[name] for name in
++                  ("timestamp", "ts", "fundingTime", "nextFundingTime") if name in info})
++    return {
++        "schema": 1, "venue": venue, "symbol": symbol, "captured_at": captured_at,
++        "raw_payload": raw, "funding_rate": rate, "rate_source_field": source,
++        "rate_kind": kind, "rate_kind_verified": False,
++        "interval_hours": interval, "interval_source_fields": interval_fields,
++        "interval_issue": interval_reason, "plan_interval_hours_unverified": plan_interval_hours,
++        "reported_exchange_time_fields": times, "formula_version": "unverified",
++        "normalization": {"eligible": False, "reason": reason,
++                          "rate_per_8h": None, "annualized_pct": None},
++        "execution_authority": False,
++    }
++
++
++def identity(record):
++    return PREFIX + hashlib.sha256(encoded(record).encode()).hexdigest()
++
++
++def append_observation(connection, *, max_bytes, **inputs):
++    """Append to an explicitly pre-created disposable live_consumer_state fixture.
++
++    No DDL, DB paths, initialization, overwrite, deletion or release mechanism.
++    Own the transaction; callers must not pass an active transaction.
++    """
++    if type(max_bytes) is not int or max_bytes <= 0:
++        raise ValueError("explicit_positive_byte_budget_required")
++    if connection.in_transaction:
++        raise ValueError("caller_transaction_active")
++    record = observation(**inputs)
++    body = encoded(record)
++    if len(body.encode()) > max_bytes:
++        raise ValueError("observation_byte_budget_exceeded")
++    key = identity(record)
++    began = False
++    try:
++        connection.execute("BEGIN IMMEDIATE")
++        began = True
++        existing = connection.execute("SELECT v FROM live_consumer_state WHERE k=?", (key,)).fetchone()
++        if existing is None:
++            connection.execute("INSERT INTO live_consumer_state(k,v) VALUES(?,?)", (key, body))
++        elif existing[0] != body:
++            raise ValueError("stored_observation_conflict")
++        connection.commit()
++        began = False
++        return {"key": key, "inserted": existing is None, "observation": deepcopy(record)}
++    finally:
++        if began:
++            connection.rollback()
++
++
++def read_observation(connection, key):
++    if not isinstance(key, str) or not key.startswith(PREFIX):
++        raise ValueError("observation_key_required")
++    row = connection.execute("SELECT v FROM live_consumer_state WHERE k=?", (key,)).fetchone()
++    if row is None:
++        raise ValueError("observation_missing")
++    record = json.loads(row[0])
++    if not isinstance(record, dict) or record.get("schema") != 1 or identity(record) != key:
++        raise ValueError("stored_observation_corrupt")
++    return record
+--- /dev/null
++++ b/tests/test_synthetic_funding_observations.py
+@@ -0,0 +1,198 @@
++from copy import deepcopy
++import json
++import socket
++import sqlite3
++
++import pytest
++
++from scripts.research.synthetic_funding_observations import (
++    append_observation, encoded, identity, observation, read_observation,
++)
++
++
++@pytest.fixture(autouse=True)
++def offline(monkeypatch):
++    def refuse(*args, **kwargs):
++        raise AssertionError("network forbidden")
++    monkeypatch.setattr(socket, "create_connection", refuse)
++    monkeypatch.setattr(socket, "getaddrinfo", refuse)
++    monkeypatch.setattr(socket.socket, "connect", refuse)
++
++
++@pytest.fixture
++def inputs():
++    return {"venue": "okx", "symbol": "EXAMPLE/USDT:USDT",
++            "captured_at": "2026-10-28T12:00:00Z", "payload": {"fundingRate": "0.0001"}}
++
++
++def fixture_connection(path=":memory:"):
++    conn = sqlite3.connect(path)
++    conn.execute("CREATE TABLE live_consumer_state(k TEXT PRIMARY KEY, v TEXT NOT NULL)")
++    conn.commit()
++    return conn
++
++
++def test_unknown_is_preserved_without_eight_hour_or_neutral_substitution(inputs):
++    record = observation(**inputs, plan_interval_hours=8)
++    assert record["interval_hours"] is None
++    assert record["interval_issue"] == "interval_unknown"
++    assert record["normalization"] == {"eligible": False, "reason": "interval_unknown",
++                                       "rate_per_8h": None, "annualized_pct": None}
++    assert record["plan_interval_hours_unverified"] == 8
++    assert "signal" not in record
++    assert record["execution_authority"] is False
++
++
++@pytest.mark.parametrize("hours", [1, 4, 8])
++def test_explicit_interval_does_not_certify_formula_or_settled_rate(inputs, hours):
++    inputs["payload"]["interval"] = str(hours) + "h"
++    record = observation(**inputs)
++    assert record["interval_hours"] == hours
++    assert record["interval_source_fields"] == ["interval"]
++    assert record["rate_kind"] == "unknown"
++    assert record["rate_kind_verified"] is False
++    assert record["normalization"]["reason"] == "formula_basis_unverified"
++    assert record["normalization"]["annualized_pct"] is None
++
++
++@pytest.mark.parametrize("source", ["nextFundingRate", "next_funding_rate"])
++def test_predicted_origin_and_raw_timestamps_survive(inputs, source):
++    inputs["payload"] = {source: "-0.0001", "timestamp": 1700000000000,
++                         "nextFundingTimestamp": 1700003600000,
++                         "info": {"fundingTime": "1700003600000"}}
++    original = deepcopy(inputs["payload"])
++    record = observation(**inputs)
++    assert record["raw_payload"] == original
++    assert record["rate_source_field"] == source and record["rate_kind"] == "predicted"
++    assert record["reported_exchange_time_fields"] == {
++        "timestamp": 1700000000000, "nextFundingTimestamp": 1700003600000,
++        "info.fundingTime": "1700003600000"}
++    assert record["captured_at"] == inputs["captured_at"]
++    inputs["payload"]["info"]["fundingTime"] = "changed"
++    assert record["raw_payload"] == original
++
++
++@pytest.mark.parametrize("value", [0, -1, True, "nan", "inf", "abc", "1d", 4])
++def test_bad_interval_is_kept_raw_but_not_normalized(inputs, value):
++    inputs["payload"]["interval"] = value
++    record = observation(**inputs)
++    assert record["raw_payload"]["interval"] == value
++    assert record["interval_hours"] is None
++    assert record["normalization"]["reason"] == "interval_invalid"
++
++
++def test_conflicting_interval_sources_are_not_cherry_picked(inputs):
++    inputs["payload"].update(interval="1h", info={"fundingIntervalHours": "8"})
++    record = observation(**inputs)
++    assert record["interval_issue"] == "interval_conflict"
++    assert record["interval_hours"] is None
++
++
++@pytest.mark.parametrize("value", [None, True, "nan", "inf", "bad"])
++def test_missing_or_invalid_rate_stays_unscored(inputs, value):
++    inputs["payload"]["fundingRate"] = value
++    record = observation(**inputs)
++    assert record["funding_rate"] is None
++    assert record["normalization"]["reason"] == "rate_unknown"
++    assert record["raw_payload"] == inputs["payload"]
++
++
++def test_zero_rate_is_not_missing(inputs):
++    inputs["payload"]["fundingRate"] = 0
++    assert observation(**inputs)["funding_rate"] == 0
++
++
++def test_duplicate_append_is_idempotent_and_unknown_survives_reopen(tmp_path, inputs):
++    path = tmp_path / "disposable.sqlite"
++    conn = fixture_connection(path)
++    try:
++        first = append_observation(conn, max_bytes=8192, **inputs)
++        second = append_observation(conn, max_bytes=8192, **inputs)
++        assert first["inserted"] is True and second["inserted"] is False
++        assert conn.execute("SELECT count(*) FROM live_consumer_state").fetchone()[0] == 1
++    finally:
++        conn.close()
++    with sqlite3.connect(path) as reopened:
++        record = read_observation(reopened, first["key"])
++        assert record == first["observation"]
++        assert record["interval_hours"] is None
++        assert record["normalization"]["eligible"] is False
++
++
++def test_changes_append_new_evidence_and_do_not_overwrite(inputs):
++    with fixture_connection() as conn:
++        first = append_observation(conn, max_bytes=8192, **inputs)
++        inputs["payload"]["interval"] = "4h"
++        second = append_observation(conn, max_bytes=8192, **inputs)
++        assert first["key"] != second["key"]
++        assert read_observation(conn, first["key"])["interval_hours"] is None
++        assert read_observation(conn, second["key"])["interval_hours"] == 4
++
++
++def test_no_implicit_schema_or_caller_transaction_commit(inputs):
++    with sqlite3.connect(":memory:") as empty:
++        with pytest.raises(sqlite3.OperationalError, match="no such table"):
++            append_observation(empty, max_bytes=8192, **inputs)
++        assert empty.in_transaction is False
++        assert empty.execute("SELECT name FROM sqlite_master").fetchall() == []
++    with fixture_connection() as conn:
++        conn.execute("INSERT INTO live_consumer_state VALUES('other','pending')")
++        with pytest.raises(ValueError, match="caller_transaction"):
++            append_observation(conn, max_bytes=8192, **inputs)
++        assert conn.in_transaction is True
++        conn.rollback()
++        assert conn.execute("SELECT * FROM live_consumer_state").fetchall() == []
++
++
++def test_insert_failure_rolls_back_and_preserves_other_namespaces(inputs):
++    with fixture_connection() as conn:
++        conn.execute("INSERT INTO live_consumer_state VALUES('existing','unchanged')")
++        conn.execute("CREATE TRIGGER refuse BEFORE INSERT ON live_consumer_state "
++                     "BEGIN SELECT RAISE(ABORT, 'invented failure'); END")
++        conn.commit()
++        with pytest.raises(sqlite3.IntegrityError, match="invented failure"):
++            append_observation(conn, max_bytes=8192, **inputs)
++        assert conn.in_transaction is False
++        assert conn.execute("SELECT * FROM live_consumer_state").fetchall() == [("existing", "unchanged")]
++
++
++def test_conflicting_or_corrupt_stored_evidence_is_not_repaired_or_overwritten(inputs):
++    record = observation(**inputs)
++    key = identity(record)
++    with fixture_connection() as conn:
++        conn.execute("INSERT INTO live_consumer_state VALUES(?,?)", (key, "{}"))
++        conn.commit()
++        with pytest.raises(ValueError, match="stored_observation_conflict"):
++            append_observation(conn, max_bytes=8192, **inputs)
++        with pytest.raises(ValueError, match="stored_observation_corrupt"):
++            read_observation(conn, key)
++        assert conn.execute("SELECT v FROM live_consumer_state").fetchone()[0] == "{}"
++
++
++@pytest.mark.parametrize("budget", [0, -1, True, 1])
++def test_byte_budget_is_explicit_and_blocks_before_writes(inputs, budget):
++    with fixture_connection() as conn:
++        with pytest.raises(ValueError, match="budget"):
++            append_observation(conn, max_bytes=budget, **inputs)
++        assert conn.execute("SELECT * FROM live_consumer_state").fetchall() == []
++
++
++@pytest.mark.parametrize("captured", ["", "2026-10-28T12:00:00", "not a date"])
++def test_capture_requires_explicit_timezone(inputs, captured):
++    inputs["captured_at"] = captured
++    with pytest.raises(ValueError):
++        observation(**inputs)
++
++
++def test_non_json_nonfinite_input_fails_instead_of_truncation(inputs):
++    inputs["payload"]["fundingRate"] = float("nan")
++    with pytest.raises(ValueError):
++        observation(**inputs)
++
++
++def test_raw_nested_payload_and_unknown_fields_roundtrip_exactly(inputs):
++    inputs["payload"]["info"] = {"future_public_field": ["value", {"nested": 0}]}
++    with fixture_connection() as conn:
++        result = append_observation(conn, max_bytes=8192, **inputs)
++        record = read_observation(conn, result["key"])
++        assert json.loads(encoded(record["raw_payload"])) == inputs["payload"]

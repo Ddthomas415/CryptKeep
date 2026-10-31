@@ -1,0 +1,19 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "offline selected-source compatibility and two-helper funding-provenance source-copy proposal; not applied",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1840e-b597-7a80-833b-410e77e22bf1",
+  "independent_verification": {
+    "passed": 28,
+    "seconds": 2.04,
+    "material_blockers": 0
+  },
+  "proposal_sha256": "8d04313c13b8e9ab8683a4c77d7dd5c63a49049ff9cbf44e862e5aec4849242a",
+  "patch_sha256": "39d7f3e5dcf6dbecc7dae8e670d93206ab624af9a920715ead4f7b986440c5bc",
+  "submitted_bindings_sha256": "ca9d0b8fb9226a04f6cea6592b1ba1978b2f32bbaf9612e731ddc2953c325327",
+  "checkpoint_sha256": "aeb5f36ce5186b8bac20ffe1725f3ead4dfc043966064455a58038286e65d798",
+  "submitted_checkpoint_sha256": "8db86e164b2d075bc12fb013a6414e00cdf7ed5ac527c5102ea89aa11722e349",
+  "application_unchanged": true,
+  "application_authorized": false,
+  "live_integration": "INCOMPLETE"
+}

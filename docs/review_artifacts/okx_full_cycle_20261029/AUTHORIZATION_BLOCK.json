@@ -1,0 +1,12 @@
+{
+  "recorded_at": "2026-10-29T19:30:21.785489+00:00",
+  "state": "BLOCKED",
+  "stage": "tool authorization before process creation",
+  "reason": "Trusted user messages did not explicitly authorize original research archive mutation and global PID/status lifecycle. Do not retry indirectly.",
+  "operation_folder": "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_full_cycle_20261029/20261029T192602Z_c7706b90878b4d31ae88f8d354c5120c",
+  "attempt_marker_and_outputs_absent": true,
+  "original_archive_bytes_and_metadata_unchanged": true,
+  "original_controls_unchanged": true,
+  "collector_invoked_by_this_attempt": false,
+  "approval_required": "One full-family public-data foreground cycle; allow original research raw-table/index initialization and evidence appends plus PID/status changes; existing backup preserved; 180s child wait and up to10s owned cleanup; no recurring restart, schedules, accounts, trading or automatic retry."
+}

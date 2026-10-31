@@ -1,0 +1,68 @@
+{
+  "schema": "companion-metadata-healthcheck-independent-review-v1",
+  "reviewed_at": "2026-10-22T03:01:01Z",
+  "active_role": "GATE",
+  "reviewer": "Independent Codex GATE: bounded optional-Healthcheck metadata repair",
+  "decision": "ACCEPTED_WITH_RISK",
+  "risk_level": "HIGH",
+  "scope": "Independent acceptance of the one-selector offline adapter repair and its three focused regressions only. Not a runtime cure, refreshed policy packet or operational authorization.",
+  "findings": [],
+  "material_assumptions": [],
+  "reviewed_sha256": {
+    "scripts/research/companion_runtime_adapter.py": "e7315cd9047f656afca0b3845be54629c46c80c9a20065d8646978dce20fce38",
+    "tests/test_companion_runtime_adapter.py": "3ca8318be5ecda58f5ea6e758ba18720f6ed23e2adc6dcf4b3765e50d85f8c8b",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/authorized_attempt_outcome.json": "4ec4447a65cb34ced0267320a81826607ef8ddfd6b4bb54111cfa7c07673ae8f"
+  },
+  "hash_paths": "Repository-relative",
+  "prior_reviewed_adapter_sha256": "cf2d619320defd4904ba7bde595ad226d803818f5182f2bf27c3f73cdb0a4441",
+  "shown": [
+    "Current adapter and test files match the exact final hashes supplied for review. Reversing only the Healthcheck selector change reproduces the prior accepted cf2d6193 adapter hash exactly; other dirty-worktree changes are not attributed to this repair.",
+    "The old _format_metadata selector was .Config.Healthcheck. The repair uses (index .Config \"Healthcheck\"), retaining the healthcheck output key and its null value when the optional entry is absent, rather than dropping the field or weakening identity/configuration checks.",
+    "_metadata lists the complete container universe, then inspects every listed ID with this template. An optional-field template error therefore prevents metadata acquisition before PG_VERSION/source verification. The existing install formatter already used this null-preserving index expression; its resulting Healthcheck expression is unchanged by this repair.",
+    "The added template regression requires the exact null-preserving expression and refuses the old direct selector. Two synthetic command-fixture cases preserve null and populated Healthcheck values on an unrelated container, retain the target row, and allow only container ls/inspect commands.",
+    "The reviewer independently ran those three targeted regressions against the final repaired source: 3 passed, 68 deselected in0.20s. Current hashes were rechecked before authoring this record.",
+    "The saved post-attempt selected metadata contained15 rows exactly equal to the saved preparation after rows, independently compared during diagnosis. That is point-in-time selected-metadata equality, not a volume-content or continuous-state audit."
+  ],
+  "diagnosis": {
+    "classification": "SHOWN source defect and saved diagnostic evidence; original-attempt exclusive causality remains UNVERIFIED",
+    "source_path": "PinnedRuntimeAdapter.staged_checks -> _compatibility_checks -> _metadata -> full-universe container inspect",
+    "recorded_native_reproduction": "authorized_attempt_outcome.json records the unchanged metadata reader refusing transport_command_failed in0.266s; the old template's actual27-container inspect exited1 and the bounded sanitizer extracted only missing Healthcheck. No raw stderr was retained.",
+    "evidence_lane": "These native results were recorded by the parent, not executed by this GATE. The reviewer checked the corresponding source path and null-handling discrepancy, not a native replay.",
+    "alternative_hypotheses": "The same saved outcome records canonical PG_VERSION success in0.081s and128 matching source reads in6.688s. These separate diagnostics do not support PG_VERSION/archive failure, a source mismatch or a60second source-read timeout as the reproduced defect. The initial noncanonical /tmp diagnostic refusal is not attributed to the canonical actual cutover.",
+    "original_attempt_limit": "The four-stage private receipt did not retain a check-level exception/result. The separate diagnosis demonstrates a failing command on the staged-check path; it does not prove this was the only possible runtime failure or that the repaired operation will succeed. The exact container lacking Healthcheck was not identified."
+  },
+  "verification": {
+    "environment": "VERIFIED_ENV for isolated offline focused tests and local standard-library hash/source checks only",
+    "independent_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_companion_runtime_adapter.py -k 'optional_healthcheck_uses_null_preserving_map_lookup or metadata_keeps_optional_healthcheck_and_unrelated_container'",
+    "independent_exit_code": 0,
+    "independent_result": "3 passed,68 deselected in0.20s",
+    "final_hash_check": "PASS: e7315cd9 adapter and3ca8318b tests unchanged; selector reversal reproduces cf2d6193 baseline",
+    "parent_reported_scope": [
+      "tests/test_companion_runtime_adapter.py",
+      "tests/test_companion_docker_transport.py"
+    ],
+    "parent_reported_result": "188 passed in1.93s",
+    "parent_reported_mutation_control": "In-memory reversion of only the selector caused one expected new-regression failure",
+    "parent_results_classification": "CLAIMED parent execution results, with188-pass result also preserved in the hash-bound outcome artifact; neither command repeated by reviewer",
+    "reviewer_native_operations": 0,
+    "reviewer_credential_reads": 0,
+    "reviewer_service_or_query_calls": 0,
+    "full_suite_run": false,
+    "additional_test_runs_this_recording_turn": 0
+  },
+  "limits": [
+    "Synthetic Docker command fixtures return JSON rows; they do not execute the real Go template engine. The source-string regression and fixture cases are narrow offline proof, not repaired native execution.",
+    "No claim that the runtime is cured, that all later staged checks pass, or that startup/query/rollback succeeds. The authorized attempt remains INCOMPLETE with no query attempted and no services started in its saved outcome.",
+    "The earlier receipt's actions_executed flag reflects entering the operational controller and reserving the attempt; it does not establish a service lifecycle mutation. No rollback success is inferred from unchanged selected rows or from a false rollback_verified flag.",
+    "Existing accepted records and launcher bind the old adapter hash. This review does not rewrite those historical artifacts, refresh their code bindings or make the old consumed attempt reusable.",
+    "Preserve the attempt marker, original storage, all prepared IDs and saved receipts. No marker deletion, credential retrieval, native diagnostic, controller retry or new operational attempt is authorized.",
+    "Only runtime_packet/metadata_healthcheck_review.json is written. Parent-owned checkpoint, queue and work log updates are not re-reviewed or edited here."
+  ],
+  "runtime_cure": "UNVERIFIED",
+  "runtime_objective_state": "INCOMPLETE",
+  "repaired_native_execution_performed": false,
+  "runtime_bindings_refreshed": false,
+  "retry_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false
+}

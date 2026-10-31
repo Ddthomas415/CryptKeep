@@ -1,0 +1,26 @@
+{
+  "exit_code": 0,
+  "limits": [
+    "Actual preparation CLI default only; no live daemon, image, config, namespace or policy observation.",
+    "Marker absence is not a reservation; separate operational approval and live preflight required."
+  ],
+  "manifest_open_count": 1,
+  "manifest_sha256": "2075f3b98abc53be9e8336d425dd8d158aca4b1934a1b9da46c2ae9d3cd562d4",
+  "native_or_reservation_operations": 0,
+  "new_marker_after": false,
+  "new_marker_before": false,
+  "review_sha256": "68a7e008f9a84541db7b7484cf67c6e6e5e41f96a8cee872e464bcfec208423b",
+  "role": "ENGINEER",
+  "schema": "companion-v6e-inert-validation-v1",
+  "stdout": {
+    "actions_executed": false,
+    "attempt": "workerprep20261024v6e",
+    "controller_budget_seconds": 300,
+    "manifest_sha256": "2075f3b98abc53be9e8336d425dd8d158aca4b1934a1b9da46c2ae9d3cd562d4",
+    "output_directory": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261024v6e",
+    "recovery_reserve_seconds": 120,
+    "startup_authorized": false,
+    "state": "READY_FOR_INDEPENDENT_REVIEW"
+  },
+  "verified_bound_file_count": 54
+}

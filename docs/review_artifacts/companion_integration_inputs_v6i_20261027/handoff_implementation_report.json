@@ -1,0 +1,24 @@
+{
+  "hashes": {
+    "docs/checkpoints/companion_v6i_execution_handoff_20261027.md": "c5203b43a55b53afe43a8e482aeebbba0a1d9e9feb8420338271bfde0f15cec3",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/execute_reviewed_v6i.diff": "58ad5ad0b2221fc87957d389eda3667f0e34fca4825f61180866a6151df8da4a",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/execute_reviewed_v6i.py": "72b80ab18b5f18d8e8fb56e9290f7e55a7de138d7428e8b764c521b1cbc2f6c5",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/handoff_default_proof.json": "8520cef3cb22085f7b912e34a0744cc652f66416ba3d8e488e8cece12c5bb46c",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/inert_validation_receipt.json": "ba02957d5dd0ef5ef5435c0dcb253ce1a3f240676a8eb0d22fa9c3ddb6cfb795",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/validate_cutover_default.py": "bd54c6938e0a098b9f85421452ddcf6c3ba10723f60e0343eba369f07f88c0b6",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/verify_handoff_default.py": "48c7bf174a5ba51cd6ec5262e9a71e41d4b5c264d4beae164fa1f2018f6e3750",
+    "tests/test_companion_v6i_handoff.py": "36d01258252b7407131c1edc9fc967d8f04f71a520129ba3e0c4926062936a9f"
+  },
+  "initial_test_run": {
+    "failed": 16,
+    "passed": 16,
+    "reason": "accepted inline subject list differs from prior path/hash scope shape"
+  },
+  "operations_authorized": false,
+  "passed": 36,
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6i-handoff-implementation-proof-v1",
+  "seconds": 0.37,
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "warnings": 0
+}

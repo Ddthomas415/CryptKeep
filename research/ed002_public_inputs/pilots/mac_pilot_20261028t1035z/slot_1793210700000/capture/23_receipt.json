@@ -1,0 +1,14 @@
+{
+  "bytes": 145,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "23_SUI.bin",
+  "http_date": "Wed, 28 Oct 2026 18:05:06 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793210706736,
+  "request_started_ms": 1793210706662,
+  "sha256": "fcd6669479df4f97b1bc195d4d046e08cb6a6a52a72998b3da840eca7c86adfd",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/SUI-USD/candles?granularity=3600&start=2026-10-28T16%3A00%3A00%2B00%3A00&end=2026-10-28T18%3A00%3A00%2B00%3A00"
+}

@@ -1,0 +1,664 @@
+{
+  "errors": 0,
+  "last_ok": true,
+  "last_reason": "collected",
+  "last_result": {
+    "basis_count": 1,
+    "basis_snapshot_id": "basis-c4b59fec23f0",
+    "checks": [
+      {
+        "kind": "open_interest",
+        "ok": true,
+        "symbol": "BTC/USDT:USDT",
+        "venue": "okx"
+      },
+      {
+        "kind": "basis",
+        "ok": true,
+        "perp_symbol": "BTC/USDT:USDT",
+        "spot_symbol": "BTC/USDT",
+        "venue": "okx"
+      },
+      {
+        "kind": "quotes",
+        "ok": true,
+        "symbol": "BTC/USD",
+        "venue": "coinbase"
+      },
+      {
+        "kind": "quotes",
+        "ok": true,
+        "symbol": "BTC/USD",
+        "venue": "kraken"
+      },
+      {
+        "kind": "order_books",
+        "ok": true,
+        "symbol": "BTC/USD",
+        "venue": "coinbase"
+      },
+      {
+        "diagnostic_only": true,
+        "inst_id": "BTC-USDT-SWAP",
+        "kind": "funding",
+        "normalization_eligible": false,
+        "ok": true,
+        "reason": "okx_pair_captured",
+        "requests_attempted": 2,
+        "symbol": "BTC/USDT:USDT",
+        "venue": "okx"
+      }
+    ],
+    "execution_enabled": false,
+    "funding_count": 0,
+    "funding_mode": "raw_okx_pairs_unverified",
+    "funding_pair_capture": {
+      "capture_budget_seconds": 30,
+      "elapsed_capture_seconds": 0.5592911669991736,
+      "execution_authority": false,
+      "failed_pairs": 0,
+      "ok": true,
+      "planned_pairs": 1,
+      "request_budget": 2,
+      "requests_attempted": 2,
+      "successful_pairs": 1
+    },
+    "ok": true,
+    "open_interest_count": 1,
+    "open_interest_snapshot_id": "open-interest-d24a8afd388e",
+    "order_book_count": 1,
+    "order_book_snapshot_id": "order-book-0d219a4c6ca6",
+    "quote_count": 2,
+    "quote_snapshot_id": "quotes-e75963438d64",
+    "raw_funding_count": 1,
+    "raw_funding_write": {
+      "duplicates": 0,
+      "encoded_value_bytes": 3717,
+      "inserted": 1,
+      "normalization_eligible": false,
+      "presented": 1,
+      "source": "live_public"
+    },
+    "reason": "collected",
+    "report": {
+      "basis": {
+        "avg_basis_bps": -4.512615690314529,
+        "count": 1,
+        "discount_ratio": 1.0,
+        "ok": true,
+        "premium_ratio": 0.0,
+        "rows": [
+          {
+            "annualized_basis_pct": -2.353006752806862,
+            "basis_bps": -4.512615690314529,
+            "basis_state": "discount",
+            "perp_px": 80183.35,
+            "spot_px": 80219.55,
+            "symbol": "BTC/USDT:USDT",
+            "venue": "okx"
+          }
+        ],
+        "widest_basis_bps": -4.512615690314529
+      },
+      "basis_meta": {
+        "capture_ts": "2026-10-29T20:06:42+00:00",
+        "row_count": 1,
+        "snapshot_id": "basis-c4b59fec23f0",
+        "source": "live_public"
+      },
+      "dislocations": {
+        "count": 1,
+        "ok": true,
+        "positive_count": 1,
+        "rows": [
+          {
+            "best_ask": 80108.01,
+            "best_ask_venue": "coinbase",
+            "best_bid": 80113.2,
+            "best_bid_venue": "kraken",
+            "dislocated": true,
+            "gross_cross_bps": 0.64787528737792,
+            "symbol": "BTC/USD"
+          }
+        ],
+        "top_dislocation": {
+          "best_ask": 80108.01,
+          "best_ask_venue": "coinbase",
+          "best_bid": 80113.2,
+          "best_bid_venue": "kraken",
+          "dislocated": true,
+          "gross_cross_bps": 0.64787528737792,
+          "symbol": "BTC/USD"
+        }
+      },
+      "execution_enabled": false,
+      "funding": {
+        "annualized_carry_pct": null,
+        "avg_funding_rate": null,
+        "count": 0,
+        "dominant_bias": "unknown",
+        "last_funding_rate": null,
+        "negative_ratio": null,
+        "ok": false,
+        "positive_ratio": null,
+        "reason": "funding_normalization_unverified",
+        "rows": []
+      },
+      "funding_legacy_excluded": true,
+      "funding_meta": null,
+      "funding_pair_quotes": {
+        "diagnostics": [],
+        "execution_authority": false,
+        "normalization_eligible": false,
+        "quotes": [
+          {
+            "captured_at": "2026-10-29T20:06:33.530329+00:00",
+            "observation_key": "synthetic_funding_observation:3dde5f94963f3c2da4736b6caeafa80b245fc6e07536094c491fb30a3ad18a09",
+            "policy": {
+              "annualized_pct": null,
+              "api_document_sha256": "a9a4deb54a6a7cfbb8ea1332b069f359787f8a29991d31956f8ccddd074c55ec",
+              "contract": "okx_forecast_cash_cost_v1",
+              "crowding_comparable": false,
+              "evidence": {
+                "annualized_pct": null,
+                "contract": "okx_endpoint_evidence_v1",
+                "cross_checks": {
+                  "current_rate_differs_from_reported_settlement": true,
+                  "previous_time_in_history": true,
+                  "receipt_span_seconds": 0.27903,
+                  "reported_settled_rate_matches_history": true
+                },
+                "current": {
+                  "decimal_rate": "0.0001000000000000",
+                  "kind": "current_unsettled_or_estimate",
+                  "native_semantics_verified": false,
+                  "raw_value": "0.0001000000000000",
+                  "reported_time_ms": 1793318400000,
+                  "source_field": "fundingRate",
+                  "time_source_field": "fundingTime",
+                  "value_and_time_valid": true
+                },
+                "execution_authority": false,
+                "history": [
+                  {
+                    "effective_interval_verified": false,
+                    "formula_type_reported": "withRate",
+                    "funding_time_ms": 1793174400000,
+                    "method_reported": "current_period",
+                    "preceding_observed_gap_hours": null,
+                    "published": {
+                      "decimal_rate": "0.0001",
+                      "kind": "historical_published",
+                      "native_semantics_verified": false,
+                      "raw_value": "0.0001",
+                      "reported_time_ms": 1793174400000,
+                      "source_field": "fundingRate",
+                      "time_source_field": "fundingTime",
+                      "value_and_time_valid": true
+                    },
+                    "realized": {
+                      "decimal_rate": "0.0001",
+                      "kind": "venue_reported_settled",
+                      "native_semantics_verified": false,
+                      "raw_value": "0.0001",
+                      "reported_time_ms": 1793174400000,
+                      "source_field": "realizedRate",
+                      "time_source_field": "fundingTime",
+                      "value_and_time_valid": true
+                    }
+                  },
+                  {
+                    "effective_interval_verified": false,
+                    "formula_type_reported": "withRate",
+                    "funding_time_ms": 1793203200000,
+                    "method_reported": "current_period",
+                    "preceding_observed_gap_hours": "8",
+                    "published": {
+                      "decimal_rate": "0.0000656055512239",
+                      "kind": "historical_published",
+                      "native_semantics_verified": false,
+                      "raw_value": "0.0000656055512239",
+                      "reported_time_ms": 1793203200000,
+                      "source_field": "fundingRate",
+                      "time_source_field": "fundingTime",
+                      "value_and_time_valid": true
+                    },
+                    "realized": {
+                      "decimal_rate": "0.0000656055512239",
+                      "kind": "venue_reported_settled",
+                      "native_semantics_verified": false,
+                      "raw_value": "0.0000656055512239",
+                      "reported_time_ms": 1793203200000,
+                      "source_field": "realizedRate",
+                      "time_source_field": "fundingTime",
+                      "value_and_time_valid": true
+                    }
+                  },
+                  {
+                    "effective_interval_verified": false,
+                    "formula_type_reported": "withRate",
+                    "funding_time_ms": 1793232000000,
+                    "method_reported": "current_period",
+                    "preceding_observed_gap_hours": "8",
+                    "published": {
+                      "decimal_rate": "0.0001",
+                      "kind": "historical_published",
+                      "native_semantics_verified": false,
+                      "raw_value": "0.0001",
+                      "reported_time_ms": 1793232000000,
+                      "source_field": "fundingRate",
+                      "time_source_field": "fundingTime",
+                      "value_and_time_valid": true
+                    },
+                    "realized": {
+                      "decimal_rate": "0.0001",
+                      "kind": "venue_reported_settled",
+                      "native_semantics_verified": false,
+                      "raw_value": "0.0001",
+                      "reported_time_ms": 1793232000000,
+                      "source_field": "realizedRate",
+                      "time_source_field": "fundingTime",
+                      "value_and_time_valid": true
+                    }
+                  },
+                  {
+                    "effective_interval_verified": false,
+                    "formula_type_reported": "withRate",
+                    "funding_time_ms": 1793260800000,
+                    "method_reported": "current_period",
+                    "preceding_observed_gap_hours": "8",
+                    "published": {
+                      "decimal_rate": "0.0000338041564747",
+                      "kind": "historical_published",
+                      "native_semantics_verified": false,
+                      "raw_value": "0.0000338041564747",
+                      "reported_time_ms": 1793260800000,
+                      "source_field": "fundingRate",
+                      "time_source_field": "fundingTime",
+                      "value_and_time_valid": true
+                    },
+                    "realized": {
+                      "decimal_rate": "0.0000338041564747",
+                      "kind": "venue_reported_settled",
+                      "native_semantics_verified": false,
+                      "raw_value": "0.0000338041564747",
+                      "reported_time_ms": 1793260800000,
+                      "source_field": "realizedRate",
+                      "time_source_field": "fundingTime",
+                      "value_and_time_valid": true
+                    }
+                  },
+                  {
+                    "effective_interval_verified": false,
+                    "formula_type_reported": "withRate",
+                    "funding_time_ms": 1793289600000,
+                    "method_reported": "current_period",
+                    "preceding_observed_gap_hours": "8",
+                    "published": {
+                      "decimal_rate": "0.0000957877441903",
+                      "kind": "historical_published",
+                      "native_semantics_verified": false,
+                      "raw_value": "0.0000957877441903",
+                      "reported_time_ms": 1793289600000,
+                      "source_field": "fundingRate",
+                      "time_source_field": "fundingTime",
+                      "value_and_time_valid": true
+                    },
+                    "realized": {
+                      "decimal_rate": "0.0000957877441903",
+                      "kind": "venue_reported_settled",
+                      "native_semantics_verified": false,
+                      "raw_value": "0.0000957877441903",
+                      "reported_time_ms": 1793289600000,
+                      "source_field": "realizedRate",
+                      "time_source_field": "fundingTime",
+                      "value_and_time_valid": true
+                    }
+                  }
+                ],
+                "inst_id": "BTC-USDT-SWAP",
+                "next": {
+                  "decimal_rate": null,
+                  "kind": "next_estimate",
+                  "native_semantics_verified": false,
+                  "raw_value": "",
+                  "reported_time_ms": 1793347200000,
+                  "source_field": "nextFundingRate",
+                  "time_source_field": "nextFundingTime",
+                  "value_and_time_valid": false
+                },
+                "normalization_eligible": false,
+                "rate_per_8h": null,
+                "raw_current": {
+                  "code": "0",
+                  "data": [
+                    {
+                      "formulaType": "withRate",
+                      "fundingRate": "0.0001000000000000",
+                      "fundingTime": "1793318400000",
+                      "impactValue": "20000.0000000000000000",
+                      "instId": "BTC-USDT-SWAP",
+                      "instType": "SWAP",
+                      "interestRate": "0.0001000000000000",
+                      "maxFundingRate": "0.00375",
+                      "method": "current_period",
+                      "minFundingRate": "-0.00375",
+                      "nextFundingRate": "",
+                      "nextFundingTime": "1793347200000",
+                      "premium": "-0.0003187897942435",
+                      "prevFundingTime": "1793289600000",
+                      "settFundingRate": "0.0000957877441903",
+                      "settState": "settled",
+                      "ts": "1793304372460"
+                    }
+                  ],
+                  "msg": ""
+                },
+                "raw_history": {
+                  "code": "0",
+                  "data": [
+                    {
+                      "formulaType": "withRate",
+                      "fundingRate": "0.0000957877441903",
+                      "fundingTime": "1793289600000",
+                      "instId": "BTC-USDT-SWAP",
+                      "instType": "SWAP",
+                      "method": "current_period",
+                      "realizedRate": "0.0000957877441903"
+                    },
+                    {
+                      "formulaType": "withRate",
+                      "fundingRate": "0.0000338041564747",
+                      "fundingTime": "1793260800000",
+                      "instId": "BTC-USDT-SWAP",
+                      "instType": "SWAP",
+                      "method": "current_period",
+                      "realizedRate": "0.0000338041564747"
+                    },
+                    {
+                      "formulaType": "withRate",
+                      "fundingRate": "0.0001",
+                      "fundingTime": "1793232000000",
+                      "instId": "BTC-USDT-SWAP",
+                      "instType": "SWAP",
+                      "method": "current_period",
+                      "realizedRate": "0.0001"
+                    },
+                    {
+                      "formulaType": "withRate",
+                      "fundingRate": "0.0000656055512239",
+                      "fundingTime": "1793203200000",
+                      "instId": "BTC-USDT-SWAP",
+                      "instType": "SWAP",
+                      "method": "current_period",
+                      "realizedRate": "0.0000656055512239"
+                    },
+                    {
+                      "formulaType": "withRate",
+                      "fundingRate": "0.0001",
+                      "fundingTime": "1793174400000",
+                      "instId": "BTC-USDT-SWAP",
+                      "instType": "SWAP",
+                      "method": "current_period",
+                      "realizedRate": "0.0001"
+                    }
+                  ],
+                  "msg": ""
+                },
+                "receipts": {
+                  "current": {
+                    "body_bytes": 524,
+                    "body_sha256": "2b2bfa0fae2a60716a53ede0aef5a663b73f19ebe51e4e1cce433ee68b7daa89",
+                    "curl_exit_code": 0,
+                    "http_status": "200",
+                    "received_at": "2026-10-29T20:06:33.251299+00:00",
+                    "request_started_at": "2026-10-29T20:06:32.973257+00:00",
+                    "url": "https://www.okx.com/api/v5/public/funding-rate?instId=BTC-USDT-SWAP"
+                  },
+                  "history": {
+                    "body_bytes": 967,
+                    "body_sha256": "56b04e0b55f84069e9afc10fb11ded392a7ba9e16c2d3f7c04681eb762b9c0c3",
+                    "curl_exit_code": 0,
+                    "http_status": "200",
+                    "received_at": "2026-10-29T20:06:33.530329+00:00",
+                    "request_started_at": "2026-10-29T20:06:33.251670+00:00",
+                    "url": "https://www.okx.com/api/v5/public/funding-rate-history?instId=BTC-USDT-SWAP&limit=5"
+                  }
+                },
+                "remaining_requirements": [
+                  "native_semantics",
+                  "effective_interval_not_just_observed_gap",
+                  "effective_formula",
+                  "cash_cost_basis",
+                  "crowding_comparability",
+                  "freshness_and_capture_origin"
+                ],
+                "reported_settlement": {
+                  "decimal_rate": "0.0000957877441903",
+                  "kind": "venue_reported_settled",
+                  "native_semantics_verified": false,
+                  "raw_value": "0.0000957877441903",
+                  "reported_settled": true,
+                  "reported_time_ms": 1793289600000,
+                  "sett_state_reported": "settled",
+                  "source_field": "settFundingRate",
+                  "time_source_field": "prevFundingTime",
+                  "value_and_time_valid": true
+                },
+                "scheduled_gap_hours": "8",
+                "schema": 1,
+                "strategy_eligible": false
+              },
+              "execution_authority": false,
+              "forecast_cash_cost": {
+                "as_of_receipt": "2026-10-29T20:06:33.251299+00:00",
+                "calculation_available": true,
+                "forecast_rate_per_8h": "0.0001000000000000",
+                "funding_time_ms": 1793318400000,
+                "kind": "forecast_not_settled",
+                "live_freshness_verified": false,
+                "per_period_decimal_rate": "0.0001000000000000",
+                "positive_rate_means": "long_pays_short",
+                "reasons": [],
+                "scheduled_interval_hours": "8",
+                "source_field": "fundingRate",
+                "source_time_ms": 1793304372460
+              },
+              "formula_inversion_performed": false,
+              "limitations": [
+                "forecast_may_change_before_settlement",
+                "caller_origin_not_authenticated",
+                "no_account_payment_or_profit_evidence",
+                "no_future_frequency_guarantee"
+              ],
+              "reported_settlements": [
+                {
+                  "funding_time_ms": 1793174400000,
+                  "kind": "venue_reported_actual_per_period",
+                  "per_period_decimal_rate": "0.0001",
+                  "reason": "effective_settled_interval_unverified",
+                  "settled_rate_per_8h": null,
+                  "source_field": "realizedRate"
+                },
+                {
+                  "funding_time_ms": 1793203200000,
+                  "kind": "venue_reported_actual_per_period",
+                  "per_period_decimal_rate": "0.0000656055512239",
+                  "reason": "effective_settled_interval_unverified",
+                  "settled_rate_per_8h": null,
+                  "source_field": "realizedRate"
+                },
+                {
+                  "funding_time_ms": 1793232000000,
+                  "kind": "venue_reported_actual_per_period",
+                  "per_period_decimal_rate": "0.0001",
+                  "reason": "effective_settled_interval_unverified",
+                  "settled_rate_per_8h": null,
+                  "source_field": "realizedRate"
+                },
+                {
+                  "funding_time_ms": 1793260800000,
+                  "kind": "venue_reported_actual_per_period",
+                  "per_period_decimal_rate": "0.0000338041564747",
+                  "reason": "effective_settled_interval_unverified",
+                  "settled_rate_per_8h": null,
+                  "source_field": "realizedRate"
+                },
+                {
+                  "funding_time_ms": 1793289600000,
+                  "kind": "venue_reported_actual_per_period",
+                  "per_period_decimal_rate": "0.0000957877441903",
+                  "reason": "effective_settled_interval_unverified",
+                  "settled_rate_per_8h": null,
+                  "source_field": "realizedRate"
+                }
+              ],
+              "schema": 1,
+              "strategy_eligible": false
+            }
+          }
+        ],
+        "scan_exhaustive": false,
+        "scan_limit": 1,
+        "scanned": 1,
+        "source": "live_public",
+        "strategy_eligible": false,
+        "unrelated_observations": 0
+      },
+      "has_any_data": true,
+      "ok": true,
+      "open_interest": {
+        "count": 1,
+        "max_open_interest": 3054838.7700000107,
+        "ok": true,
+        "rows": [
+          {
+            "open_interest": 3054838.7700000107,
+            "price_change_pct": -1.5999440467455084,
+            "symbol": "BTC/USDT:USDT",
+            "venue": "okx"
+          }
+        ],
+        "top_symbol": "BTC/USDT:USDT",
+        "total_open_interest": 3054838.7700000107
+      },
+      "open_interest_meta": {
+        "capture_ts": "2026-10-29T20:06:42+00:00",
+        "row_count": 1,
+        "snapshot_id": "open-interest-d24a8afd388e",
+        "source": "live_public"
+      },
+      "order_book_meta": {
+        "capture_ts": "2026-10-29T20:06:42+00:00",
+        "row_count": 1,
+        "snapshot_id": "order-book-0d219a4c6ca6",
+        "source": "live_public"
+      },
+      "order_books": {
+        "buy_pressure_count": 1,
+        "count": 1,
+        "max_abs_imbalance": 0.30883787092937515,
+        "ok": true,
+        "rows": [
+          {
+            "ask_notional": 4551.5822931837,
+            "bid_notional": 8619.226990895599,
+            "depth": 5,
+            "imbalance": 0.30883787092937515,
+            "pressure": "buy_pressure",
+            "spread_bps": 0.0012483289568143378,
+            "symbol": "BTC/USD",
+            "venue": "coinbase"
+          }
+        ],
+        "sell_pressure_count": 0,
+        "top_symbol": "BTC/USD"
+      },
+      "quote_meta": {
+        "capture_ts": "2026-10-29T20:06:42+00:00",
+        "row_count": 2,
+        "snapshot_id": "quotes-e75963438d64",
+        "source": "live_public"
+      },
+      "raw_funding": {
+        "legacy_included": false,
+        "normalization_eligible": false,
+        "observations": [
+          {
+            "observation": {
+              "captured_at": "2026-10-29T20:06:33.530329+00:00",
+              "execution_authority": false,
+              "formula_version": "unverified",
+              "funding_rate": null,
+              "interval_hours": null,
+              "interval_issue": "interval_unknown",
+              "interval_source_fields": [],
+              "normalization": {
+                "annualized_pct": null,
+                "eligible": false,
+                "rate_per_8h": null,
+                "reason": "rate_unknown"
+              },
+              "plan_interval_hours_unverified": null,
+              "rate_kind": "unknown",
+              "rate_kind_verified": false,
+              "rate_source_field": null,
+              "raw_payload": {
+                "api_document_sha256": "a9a4deb54a6a7cfbb8ea1332b069f359787f8a29991d31956f8ccddd074c55ec",
+                "contract": "okx_public_pair_journal_v1",
+                "requested_inst_id": "BTC-USDT-SWAP",
+                "responses": {
+                  "current": {
+                    "body_base64": "eyJjb2RlIjoiMCIsImRhdGEiOlt7ImZvcm11bGFUeXBlIjoid2l0aFJhdGUiLCJmdW5kaW5nUmF0ZSI6IjAuMDAwMTAwMDAwMDAwMDAwMCIsImZ1bmRpbmdUaW1lIjoiMTc5MzMxODQwMDAwMCIsImltcGFjdFZhbHVlIjoiMjAwMDAuMDAwMDAwMDAwMDAwMDAwMCIsImluc3RJZCI6IkJUQy1VU0RULVNXQVAiLCJpbnN0VHlwZSI6IlNXQVAiLCJpbnRlcmVzdFJhdGUiOiIwLjAwMDEwMDAwMDAwMDAwMDAiLCJtYXhGdW5kaW5nUmF0ZSI6IjAuMDAzNzUiLCJtZXRob2QiOiJjdXJyZW50X3BlcmlvZCIsIm1pbkZ1bmRpbmdSYXRlIjoiLTAuMDAzNzUiLCJuZXh0RnVuZGluZ1JhdGUiOiIiLCJuZXh0RnVuZGluZ1RpbWUiOiIxNzkzMzQ3MjAwMDAwIiwicHJlbWl1bSI6Ii0wLjAwMDMxODc4OTc5NDI0MzUiLCJwcmV2RnVuZGluZ1RpbWUiOiIxNzkzMjg5NjAwMDAwIiwic2V0dEZ1bmRpbmdSYXRlIjoiMC4wMDAwOTU3ODc3NDQxOTAzIiwic2V0dFN0YXRlIjoic2V0dGxlZCIsInRzIjoiMTc5MzMwNDM3MjQ2MCJ9XSwibXNnIjoiIn0=",
+                    "receipt": {
+                      "body_bytes": 524,
+                      "body_sha256": "2b2bfa0fae2a60716a53ede0aef5a663b73f19ebe51e4e1cce433ee68b7daa89",
+                      "curl_exit_code": 0,
+                      "http_status": "200",
+                      "received_at": "2026-10-29T20:06:33.251299+00:00",
+                      "request_started_at": "2026-10-29T20:06:32.973257+00:00",
+                      "url": "https://www.okx.com/api/v5/public/funding-rate?instId=BTC-USDT-SWAP"
+                    }
+                  },
+                  "history": {
+                    "body_base64": "eyJjb2RlIjoiMCIsImRhdGEiOlt7ImZvcm11bGFUeXBlIjoid2l0aFJhdGUiLCJmdW5kaW5nUmF0ZSI6IjAuMDAwMDk1Nzg3NzQ0MTkwMyIsImZ1bmRpbmdUaW1lIjoiMTc5MzI4OTYwMDAwMCIsImluc3RJZCI6IkJUQy1VU0RULVNXQVAiLCJpbnN0VHlwZSI6IlNXQVAiLCJtZXRob2QiOiJjdXJyZW50X3BlcmlvZCIsInJlYWxpemVkUmF0ZSI6IjAuMDAwMDk1Nzg3NzQ0MTkwMyJ9LHsiZm9ybXVsYVR5cGUiOiJ3aXRoUmF0ZSIsImZ1bmRpbmdSYXRlIjoiMC4wMDAwMzM4MDQxNTY0NzQ3IiwiZnVuZGluZ1RpbWUiOiIxNzkzMjYwODAwMDAwIiwiaW5zdElkIjoiQlRDLVVTRFQtU1dBUCIsImluc3RUeXBlIjoiU1dBUCIsIm1ldGhvZCI6ImN1cnJlbnRfcGVyaW9kIiwicmVhbGl6ZWRSYXRlIjoiMC4wMDAwMzM4MDQxNTY0NzQ3In0seyJmb3JtdWxhVHlwZSI6IndpdGhSYXRlIiwiZnVuZGluZ1JhdGUiOiIwLjAwMDEiLCJmdW5kaW5nVGltZSI6IjE3OTMyMzIwMDAwMDAiLCJpbnN0SWQiOiJCVEMtVVNEVC1TV0FQIiwiaW5zdFR5cGUiOiJTV0FQIiwibWV0aG9kIjoiY3VycmVudF9wZXJpb2QiLCJyZWFsaXplZFJhdGUiOiIwLjAwMDEifSx7ImZvcm11bGFUeXBlIjoid2l0aFJhdGUiLCJmdW5kaW5nUmF0ZSI6IjAuMDAwMDY1NjA1NTUxMjIzOSIsImZ1bmRpbmdUaW1lIjoiMTc5MzIwMzIwMDAwMCIsImluc3RJZCI6IkJUQy1VU0RULVNXQVAiLCJpbnN0VHlwZSI6IlNXQVAiLCJtZXRob2QiOiJjdXJyZW50X3BlcmlvZCIsInJlYWxpemVkUmF0ZSI6IjAuMDAwMDY1NjA1NTUxMjIzOSJ9LHsiZm9ybXVsYVR5cGUiOiJ3aXRoUmF0ZSIsImZ1bmRpbmdSYXRlIjoiMC4wMDAxIiwiZnVuZGluZ1RpbWUiOiIxNzkzMTc0NDAwMDAwIiwiaW5zdElkIjoiQlRDLVVTRFQtU1dBUCIsImluc3RUeXBlIjoiU1dBUCIsIm1ldGhvZCI6ImN1cnJlbnRfcGVyaW9kIiwicmVhbGl6ZWRSYXRlIjoiMC4wMDAxIn1dLCJtc2ciOiIifQ==",
+                    "receipt": {
+                      "body_bytes": 967,
+                      "body_sha256": "56b04e0b55f84069e9afc10fb11ded392a7ba9e16c2d3f7c04681eb762b9c0c3",
+                      "curl_exit_code": 0,
+                      "http_status": "200",
+                      "received_at": "2026-10-29T20:06:33.530329+00:00",
+                      "request_started_at": "2026-10-29T20:06:33.251670+00:00",
+                      "url": "https://www.okx.com/api/v5/public/funding-rate-history?instId=BTC-USDT-SWAP&limit=5"
+                    }
+                  }
+                }
+              },
+              "reported_exchange_time_fields": {},
+              "schema": 1,
+              "symbol": "BTC-USDT-SWAP",
+              "venue": "okx"
+            },
+            "observation_key": "synthetic_funding_observation:3dde5f94963f3c2da4736b6caeafa80b245fc6e07536094c491fb30a3ad18a09"
+          }
+        ],
+        "source": "live_public"
+      },
+      "research_only": true,
+      "source_filter": "live_public",
+      "store_path": "redacted"
+    },
+    "research_only": true,
+    "source": "live_public",
+    "store_path": "redacted"
+  },
+  "loops": 1,
+  "ok": true,
+  "pid": 21851,
+  "plan_file": "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_recurring_restore_20261029/20261029T200449Z_b41ebae73f5940b3be3bf6e8dd89e58d/PLAN.json",
+  "poll_interval_sec": 300.0,
+  "source": "live_public",
+  "status": "running",
+  "ts": "2026-10-29T20:06:42.537548+00:00",
+  "writes": 1
+}

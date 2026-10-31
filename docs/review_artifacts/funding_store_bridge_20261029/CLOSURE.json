@@ -1,0 +1,20 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "exact offline raw-funding store bridge only",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission": "01a1865f-b873-7dd1-bcbc-62627b2350f3",
+  "verified_bindings": 12,
+  "independent_result": "73 passed in 0.57s; documented command once",
+  "source_sha256": "362f529f71bb6cf6eab1d7a09eb0ea4c0629a7e671e9c052b211b499e2a62e93",
+  "decoder_sha256": "e884234f22607b551fa81d662d192ad9bb9e4b72e0a7466825114c6d44a7df89",
+  "tests_sha256": "99f0bda903e47957ce4c38f0e19581536f9312061f025b8ac09f853c29fbc6db",
+  "limits": [
+    "no real-schema operation or deployment authorized",
+    "collector not connected",
+    "all raw observations normalization-ineligible",
+    "provider/source/time authenticity unverified",
+    "formula semantics unverified",
+    "production durability incomplete",
+    "original Fix3 not complete"
+  ]
+}

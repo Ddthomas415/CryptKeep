@@ -1,0 +1,14 @@
+{
+  "bytes": 148,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "06_ATOM.bin",
+  "http_date": "Wed, 28 Oct 2026 20:35:05 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793219705965,
+  "request_started_ms": 1793219705871,
+  "sha256": "87d48ff3ca60a97dbe9ac6bffa38a2407893a1d5aeb8a632594afe2706d391d8",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/ATOM-USD/candles?granularity=3600&start=2026-10-28T18%3A00%3A00%2B00%3A00&end=2026-10-28T20%3A00%3A00%2B00%3A00"
+}

@@ -1,0 +1,1110 @@
+{
+  "as_of_ms": 1793235907305,
+  "capture_evidence": [
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "ADA-USD",
+      "received_at_ms": 1793235905362,
+      "returned_rows": 3,
+      "source_sha256": "207d54c4f37a80f1096bc8d3e86f02012a25f37f57058b813105f20baa52fbbf",
+      "status": "COMPLETE",
+      "symbol": "ADA",
+      "url": "https://api.exchange.coinbase.com/products/ADA-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "APT-USD",
+      "received_at_ms": 1793235905430,
+      "returned_rows": 2,
+      "source_sha256": "45c0bf890a1be1b3ca8780f2fdb57d5d1a8b728b33c9cac007ecb3aba824c44a",
+      "status": "COMPLETE",
+      "symbol": "APT",
+      "url": "https://api.exchange.coinbase.com/products/APT-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "ARB-USD",
+      "received_at_ms": 1793235905543,
+      "returned_rows": 3,
+      "source_sha256": "fbaa097d21f8a040fd49def46c8e47617395f51bd0ed1fd08983205bf131703d",
+      "status": "COMPLETE",
+      "symbol": "ARB",
+      "url": "https://api.exchange.coinbase.com/products/ARB-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "ATOM-USD",
+      "received_at_ms": 1793235905611,
+      "returned_rows": 3,
+      "source_sha256": "34be42b8aeee8f0ca9c2f803cb9f6a962617b5968063910286308d648dce5042",
+      "status": "COMPLETE",
+      "symbol": "ATOM",
+      "url": "https://api.exchange.coinbase.com/products/ATOM-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "AVAX-USD",
+      "received_at_ms": 1793235905688,
+      "returned_rows": 3,
+      "source_sha256": "a8e373019aa982da6c7bf52f78f5eed685653d2a2527a81683e296072319cc01",
+      "status": "COMPLETE",
+      "symbol": "AVAX",
+      "url": "https://api.exchange.coinbase.com/products/AVAX-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "BNB-USD",
+      "received_at_ms": 1793235905771,
+      "returned_rows": 3,
+      "source_sha256": "48c31a870d97ac374a07dbc9890614753c8c773ab51360471b098f63bf580f63",
+      "status": "COMPLETE",
+      "symbol": "BNB",
+      "url": "https://api.exchange.coinbase.com/products/BNB-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "BONK-USD",
+      "received_at_ms": 1793235905876,
+      "returned_rows": 2,
+      "source_sha256": "c9b879463ebd373239a1cef92c5a5fbff446b500d9733e66935ce0b90c19dcfd",
+      "status": "COMPLETE",
+      "symbol": "BONK",
+      "url": "https://api.exchange.coinbase.com/products/BONK-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "BTC-USD",
+      "received_at_ms": 1793235905956,
+      "returned_rows": 3,
+      "source_sha256": "c0034a7064985a856c0a2fe44c3d795121fdd62350a49baa7d73dc9b501db5ba",
+      "status": "COMPLETE",
+      "symbol": "BTC",
+      "url": "https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "DOGE-USD",
+      "received_at_ms": 1793235906039,
+      "returned_rows": 3,
+      "source_sha256": "2bcf6022acf45428a07b4232c595f40e9b7ab2360812796598c25b24caba907a",
+      "status": "COMPLETE",
+      "symbol": "DOGE",
+      "url": "https://api.exchange.coinbase.com/products/DOGE-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "DOT-USD",
+      "received_at_ms": 1793235906105,
+      "returned_rows": 2,
+      "source_sha256": "d4a0b6acfc8829f7fe8333731b93f9a1974161baf6cc43af8e76e815f75232ab",
+      "status": "COMPLETE",
+      "symbol": "DOT",
+      "url": "https://api.exchange.coinbase.com/products/DOT-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "ETH-USD",
+      "received_at_ms": 1793235906161,
+      "returned_rows": 3,
+      "source_sha256": "311ca5037a5051c6697a2a005461eb5cfcad26365aa06c9eaea3ece8bcc367a1",
+      "status": "COMPLETE",
+      "symbol": "ETH",
+      "url": "https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "FIL-USD",
+      "received_at_ms": 1793235906235,
+      "returned_rows": 2,
+      "source_sha256": "ebe0f4844eeb1ddc490333e1e4d1fd340b3f2be6a80cffaaade7be2a8c730aaf",
+      "status": "COMPLETE",
+      "symbol": "FIL",
+      "url": "https://api.exchange.coinbase.com/products/FIL-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "INJ-USD",
+      "received_at_ms": 1793235906305,
+      "returned_rows": 2,
+      "source_sha256": "319935201beaa72f1a51a236442aa72951e7a634e0ac398bbd9f484b0faccfbe",
+      "status": "COMPLETE",
+      "symbol": "INJ",
+      "url": "https://api.exchange.coinbase.com/products/INJ-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "JTO-USD",
+      "received_at_ms": 1793235906398,
+      "returned_rows": 3,
+      "source_sha256": "e87e441179a6a0c4094ec2bb294a9c9b90ba8b7e4e742bf51d48a3bf0149253b",
+      "status": "COMPLETE",
+      "symbol": "JTO",
+      "url": "https://api.exchange.coinbase.com/products/JTO-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "LINK-USD",
+      "received_at_ms": 1793235906450,
+      "returned_rows": 3,
+      "source_sha256": "bdfae7a8e230714e35095fbd3f4b607f14be4e329550a987a2d35a7dc3be96b4",
+      "status": "COMPLETE",
+      "symbol": "LINK",
+      "url": "https://api.exchange.coinbase.com/products/LINK-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "LTC-USD",
+      "received_at_ms": 1793235906533,
+      "returned_rows": 3,
+      "source_sha256": "ee5d0b3770245ba17c8dddfea6c79fa9447d0e22faf6ddd553053f9918ae9e6f",
+      "status": "COMPLETE",
+      "symbol": "LTC",
+      "url": "https://api.exchange.coinbase.com/products/LTC-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "OP-USD",
+      "received_at_ms": 1793235906632,
+      "returned_rows": 3,
+      "source_sha256": "4c7b0588ae54c6c7a8d79b69e6a8c33ad5f87af9212c91708698eead9b61f65f",
+      "status": "COMPLETE",
+      "symbol": "OP",
+      "url": "https://api.exchange.coinbase.com/products/OP-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "PEPE-USD",
+      "received_at_ms": 1793235906782,
+      "returned_rows": 2,
+      "source_sha256": "2a980a3c47e0e40a8c08a9b4889e1d5211578ad3a83afda0cfe6c79ba4a42dcf",
+      "status": "COMPLETE",
+      "symbol": "PEPE",
+      "url": "https://api.exchange.coinbase.com/products/PEPE-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "PYTH-USD",
+      "received_at_ms": 1793235906919,
+      "returned_rows": 3,
+      "source_sha256": "bb1f3ea99a6e882a6748eb963aa4aefbf627703920cdc9baa58fd7a32359f129",
+      "status": "COMPLETE",
+      "symbol": "PYTH",
+      "url": "https://api.exchange.coinbase.com/products/PYTH-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "SOL-USD",
+      "received_at_ms": 1793235906972,
+      "returned_rows": 3,
+      "source_sha256": "0539b1870bced792c37ce90c96c7f3d6a2752a6b435780d5b12dbc75fc8b612a",
+      "status": "COMPLETE",
+      "symbol": "SOL",
+      "url": "https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "SUI-USD",
+      "received_at_ms": 1793235907050,
+      "returned_rows": 2,
+      "source_sha256": "13a70e7c3ca1827a6ba76f0610bc8bc86b53d149ed9f3381e7de031c317caec4",
+      "status": "COMPLETE",
+      "symbol": "SUI",
+      "url": "https://api.exchange.coinbase.com/products/SUI-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "UNI-USD",
+      "received_at_ms": 1793235907133,
+      "returned_rows": 2,
+      "source_sha256": "191cd966be2958c1a09f9758b2874666bfeb531a72add8b25cef059e1992d125",
+      "status": "COMPLETE",
+      "symbol": "UNI",
+      "url": "https://api.exchange.coinbase.com/products/UNI-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "WIF-USD",
+      "received_at_ms": 1793235907221,
+      "returned_rows": 3,
+      "source_sha256": "50354ce263f8914a6e4eb14be1bf4bf8a0463e5f3f67b437d44faf46d7991221",
+      "status": "COMPLETE",
+      "symbol": "WIF",
+      "url": "https://api.exchange.coinbase.com/products/WIF-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "XRP-USD",
+      "received_at_ms": 1793235907304,
+      "returned_rows": 3,
+      "source_sha256": "a903f49c1a8b4481fc36e1980617232a0ac8634a04e73171842aa43fc8aa501a",
+      "status": "COMPLETE",
+      "symbol": "XRP",
+      "url": "https://api.exchange.coinbase.com/products/XRP-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+    }
+  ],
+  "coverage": [
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "ADA"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "APT"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "ARB"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "ATOM"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "AVAX"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "BNB"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "BONK"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "BTC"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "DOGE"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "DOT"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "ETH"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "FIL"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "INJ"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "JTO"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "LINK"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "LTC"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [
+        1793228400000,
+        1793232000000
+      ],
+      "observed_complete_hours": 0,
+      "status": "INCOMPLETE",
+      "symbol": "MATIC"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "OP"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "PEPE"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "PYTH"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "SOL"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "SUI"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "UNI"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "WIF"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 2,
+      "status": "COMPLETE",
+      "symbol": "XRP"
+    }
+  ],
+  "end_ms": 1793235600000,
+  "ignored_counts": {
+    "outside_declared_window": 16
+  },
+  "observations": {
+    "ADA": [
+      {
+        "known_at_ms": 1793235905362,
+        "row": [
+          1793228400000,
+          0.2055,
+          0.20626,
+          0.205,
+          0.20578,
+          617412.2769845
+        ],
+        "source_sha256": "207d54c4f37a80f1096bc8d3e86f02012a25f37f57058b813105f20baa52fbbf"
+      },
+      {
+        "known_at_ms": 1793235905362,
+        "row": [
+          1793232000000,
+          0.20582,
+          0.20634,
+          0.20486,
+          0.20486,
+          566831.63812912
+        ],
+        "source_sha256": "207d54c4f37a80f1096bc8d3e86f02012a25f37f57058b813105f20baa52fbbf"
+      }
+    ],
+    "APT": [
+      {
+        "known_at_ms": 1793235905430,
+        "row": [
+          1793228400000,
+          0.7012,
+          0.7014,
+          0.6964,
+          0.6999,
+          9724.55
+        ],
+        "source_sha256": "45c0bf890a1be1b3ca8780f2fdb57d5d1a8b728b33c9cac007ecb3aba824c44a"
+      },
+      {
+        "known_at_ms": 1793235905430,
+        "row": [
+          1793232000000,
+          0.6987,
+          0.7003,
+          0.6939,
+          0.695,
+          59029.479
+        ],
+        "source_sha256": "45c0bf890a1be1b3ca8780f2fdb57d5d1a8b728b33c9cac007ecb3aba824c44a"
+      }
+    ],
+    "ARB": [
+      {
+        "known_at_ms": 1793235905543,
+        "row": [
+          1793228400000,
+          0.17261,
+          0.17271,
+          0.17131,
+          0.17218,
+          143921.88
+        ],
+        "source_sha256": "fbaa097d21f8a040fd49def46c8e47617395f51bd0ed1fd08983205bf131703d"
+      },
+      {
+        "known_at_ms": 1793235905543,
+        "row": [
+          1793232000000,
+          0.1722,
+          0.17265,
+          0.17087,
+          0.17094,
+          239625.79
+        ],
+        "source_sha256": "fbaa097d21f8a040fd49def46c8e47617395f51bd0ed1fd08983205bf131703d"
+      }
+    ],
+    "ATOM": [
+      {
+        "known_at_ms": 1793235905611,
+        "row": [
+          1793228400000,
+          1.638,
+          1.6441,
+          1.6359,
+          1.6441,
+          2618.73
+        ],
+        "source_sha256": "34be42b8aeee8f0ca9c2f803cb9f6a962617b5968063910286308d648dce5042"
+      },
+      {
+        "known_at_ms": 1793235905611,
+        "row": [
+          1793232000000,
+          1.6434,
+          1.653,
+          1.6388,
+          1.6392,
+          18175.63
+        ],
+        "source_sha256": "34be42b8aeee8f0ca9c2f803cb9f6a962617b5968063910286308d648dce5042"
+      }
+    ],
+    "AVAX": [
+      {
+        "known_at_ms": 1793235905688,
+        "row": [
+          1793228400000,
+          8.983,
+          9.011,
+          8.961,
+          8.995,
+          7888.66053744
+        ],
+        "source_sha256": "a8e373019aa982da6c7bf52f78f5eed685653d2a2527a81683e296072319cc01"
+      },
+      {
+        "known_at_ms": 1793235905688,
+        "row": [
+          1793232000000,
+          8.996,
+          9.008,
+          8.932,
+          8.932,
+          7066.41587481
+        ],
+        "source_sha256": "a8e373019aa982da6c7bf52f78f5eed685653d2a2527a81683e296072319cc01"
+      }
+    ],
+    "BNB": [
+      {
+        "known_at_ms": 1793235905771,
+        "row": [
+          1793228400000,
+          755.49,
+          759,
+          754.75,
+          758.84,
+          47.95634
+        ],
+        "source_sha256": "48c31a870d97ac374a07dbc9890614753c8c773ab51360471b098f63bf580f63"
+      },
+      {
+        "known_at_ms": 1793235905771,
+        "row": [
+          1793232000000,
+          759,
+          760.06,
+          754.84,
+          754.91,
+          54.19509
+        ],
+        "source_sha256": "48c31a870d97ac374a07dbc9890614753c8c773ab51360471b098f63bf580f63"
+      }
+    ],
+    "BONK": [
+      {
+        "known_at_ms": 1793235905876,
+        "row": [
+          1793228400000,
+          3.16e-06,
+          3.18e-06,
+          3.15e-06,
+          3.16e-06,
+          12245257430
+        ],
+        "source_sha256": "c9b879463ebd373239a1cef92c5a5fbff446b500d9733e66935ce0b90c19dcfd"
+      },
+      {
+        "known_at_ms": 1793235905876,
+        "row": [
+          1793232000000,
+          3.16e-06,
+          3.17e-06,
+          3.16e-06,
+          3.16e-06,
+          5133800179
+        ],
+        "source_sha256": "c9b879463ebd373239a1cef92c5a5fbff446b500d9733e66935ce0b90c19dcfd"
+      }
+    ],
+    "BTC": [
+      {
+        "known_at_ms": 1793235905956,
+        "row": [
+          1793228400000,
+          81183.47,
+          81270.96,
+          81065.66,
+          81249.31,
+          128.05612741
+        ],
+        "source_sha256": "c0034a7064985a856c0a2fe44c3d795121fdd62350a49baa7d73dc9b501db5ba"
+      },
+      {
+        "known_at_ms": 1793235905956,
+        "row": [
+          1793232000000,
+          81249.32,
+          81289.72,
+          81000,
+          81000,
+          142.62685884
+        ],
+        "source_sha256": "c0034a7064985a856c0a2fe44c3d795121fdd62350a49baa7d73dc9b501db5ba"
+      }
+    ],
+    "DOGE": [
+      {
+        "known_at_ms": 1793235906039,
+        "row": [
+          1793228400000,
+          0.07966,
+          0.07987,
+          0.07954,
+          0.0797,
+          611024.1
+        ],
+        "source_sha256": "2bcf6022acf45428a07b4232c595f40e9b7ab2360812796598c25b24caba907a"
+      },
+      {
+        "known_at_ms": 1793235906039,
+        "row": [
+          1793232000000,
+          0.0797,
+          0.07981,
+          0.07941,
+          0.07941,
+          837958.6
+        ],
+        "source_sha256": "2bcf6022acf45428a07b4232c595f40e9b7ab2360812796598c25b24caba907a"
+      }
+    ],
+    "DOT": [
+      {
+        "known_at_ms": 1793235906105,
+        "row": [
+          1793228400000,
+          1.0133,
+          1.0147,
+          1.0075,
+          1.0105,
+          44532.46324064
+        ],
+        "source_sha256": "d4a0b6acfc8829f7fe8333731b93f9a1974161baf6cc43af8e76e815f75232ab"
+      },
+      {
+        "known_at_ms": 1793235906105,
+        "row": [
+          1793232000000,
+          1.011,
+          1.0128,
+          1.0055,
+          1.0055,
+          18805.12374426
+        ],
+        "source_sha256": "d4a0b6acfc8829f7fe8333731b93f9a1974161baf6cc43af8e76e815f75232ab"
+      }
+    ],
+    "ETH": [
+      {
+        "known_at_ms": 1793235906161,
+        "row": [
+          1793228400000,
+          2357.47,
+          2359.8,
+          2351.98,
+          2356.89,
+          2225.94869831
+        ],
+        "source_sha256": "311ca5037a5051c6697a2a005461eb5cfcad26365aa06c9eaea3ece8bcc367a1"
+      },
+      {
+        "known_at_ms": 1793235906161,
+        "row": [
+          1793232000000,
+          2356.89,
+          2358.73,
+          2351.25,
+          2351.25,
+          2247.35570711
+        ],
+        "source_sha256": "311ca5037a5051c6697a2a005461eb5cfcad26365aa06c9eaea3ece8bcc367a1"
+      }
+    ],
+    "FIL": [
+      {
+        "known_at_ms": 1793235906235,
+        "row": [
+          1793228400000,
+          0.9144,
+          0.9162,
+          0.9106,
+          0.9136,
+          5662.902
+        ],
+        "source_sha256": "ebe0f4844eeb1ddc490333e1e4d1fd340b3f2be6a80cffaaade7be2a8c730aaf"
+      },
+      {
+        "known_at_ms": 1793235906235,
+        "row": [
+          1793232000000,
+          0.914,
+          0.9168,
+          0.91,
+          0.91,
+          21197.559
+        ],
+        "source_sha256": "ebe0f4844eeb1ddc490333e1e4d1fd340b3f2be6a80cffaaade7be2a8c730aaf"
+      }
+    ],
+    "INJ": [
+      {
+        "known_at_ms": 1793235906305,
+        "row": [
+          1793228400000,
+          8.13,
+          8.19,
+          8.098,
+          8.144,
+          14790.82
+        ],
+        "source_sha256": "319935201beaa72f1a51a236442aa72951e7a634e0ac398bbd9f484b0faccfbe"
+      },
+      {
+        "known_at_ms": 1793235906305,
+        "row": [
+          1793232000000,
+          8.146,
+          8.17,
+          7.999,
+          8.013,
+          33079.66
+        ],
+        "source_sha256": "319935201beaa72f1a51a236442aa72951e7a634e0ac398bbd9f484b0faccfbe"
+      }
+    ],
+    "JTO": [
+      {
+        "known_at_ms": 1793235906398,
+        "row": [
+          1793228400000,
+          0.432,
+          0.4324,
+          0.4302,
+          0.4306,
+          12682.1
+        ],
+        "source_sha256": "e87e441179a6a0c4094ec2bb294a9c9b90ba8b7e4e742bf51d48a3bf0149253b"
+      },
+      {
+        "known_at_ms": 1793235906398,
+        "row": [
+          1793232000000,
+          0.431,
+          0.4335,
+          0.4286,
+          0.4286,
+          4258.1
+        ],
+        "source_sha256": "e87e441179a6a0c4094ec2bb294a9c9b90ba8b7e4e742bf51d48a3bf0149253b"
+      }
+    ],
+    "LINK": [
+      {
+        "known_at_ms": 1793235906450,
+        "row": [
+          1793228400000,
+          11.79,
+          11.823,
+          11.761,
+          11.811,
+          5325.84
+        ],
+        "source_sha256": "bdfae7a8e230714e35095fbd3f4b607f14be4e329550a987a2d35a7dc3be96b4"
+      },
+      {
+        "known_at_ms": 1793235906450,
+        "row": [
+          1793232000000,
+          11.807,
+          11.829,
+          11.744,
+          11.744,
+          11325.37
+        ],
+        "source_sha256": "bdfae7a8e230714e35095fbd3f4b607f14be4e329550a987a2d35a7dc3be96b4"
+      }
+    ],
+    "LTC": [
+      {
+        "known_at_ms": 1793235906533,
+        "row": [
+          1793228400000,
+          59.244,
+          59.257,
+          58.834,
+          59.177,
+          3514.14218289
+        ],
+        "source_sha256": "ee5d0b3770245ba17c8dddfea6c79fa9447d0e22faf6ddd553053f9918ae9e6f"
+      },
+      {
+        "known_at_ms": 1793235906533,
+        "row": [
+          1793232000000,
+          59.18,
+          59.682,
+          59.156,
+          59.361,
+          4755.22653559
+        ],
+        "source_sha256": "ee5d0b3770245ba17c8dddfea6c79fa9447d0e22faf6ddd553053f9918ae9e6f"
+      }
+    ],
+    "MATIC": [],
+    "OP": [
+      {
+        "known_at_ms": 1793235906632,
+        "row": [
+          1793228400000,
+          0.11317,
+          0.11327,
+          0.11268,
+          0.11309,
+          240141.84
+        ],
+        "source_sha256": "4c7b0588ae54c6c7a8d79b69e6a8c33ad5f87af9212c91708698eead9b61f65f"
+      },
+      {
+        "known_at_ms": 1793235906632,
+        "row": [
+          1793232000000,
+          0.11307,
+          0.1135,
+          0.11255,
+          0.11255,
+          263809.21
+        ],
+        "source_sha256": "4c7b0588ae54c6c7a8d79b69e6a8c33ad5f87af9212c91708698eead9b61f65f"
+      }
+    ],
+    "PEPE": [
+      {
+        "known_at_ms": 1793235906782,
+        "row": [
+          1793228400000,
+          5.02e-06,
+          5.07e-06,
+          4.97e-06,
+          5.03e-06,
+          58770290907
+        ],
+        "source_sha256": "2a980a3c47e0e40a8c08a9b4889e1d5211578ad3a83afda0cfe6c79ba4a42dcf"
+      },
+      {
+        "known_at_ms": 1793235906782,
+        "row": [
+          1793232000000,
+          5.02e-06,
+          5.15e-06,
+          5.02e-06,
+          5.05e-06,
+          89564736829
+        ],
+        "source_sha256": "2a980a3c47e0e40a8c08a9b4889e1d5211578ad3a83afda0cfe6c79ba4a42dcf"
+      }
+    ],
+    "PYTH": [
+      {
+        "known_at_ms": 1793235906919,
+        "row": [
+          1793228400000,
+          0.07392,
+          0.07404,
+          0.07332,
+          0.07373,
+          97382.6
+        ],
+        "source_sha256": "bb1f3ea99a6e882a6748eb963aa4aefbf627703920cdc9baa58fd7a32359f129"
+      },
+      {
+        "known_at_ms": 1793235906919,
+        "row": [
+          1793232000000,
+          0.07373,
+          0.0743,
+          0.07344,
+          0.07396,
+          42155.2
+        ],
+        "source_sha256": "bb1f3ea99a6e882a6748eb963aa4aefbf627703920cdc9baa58fd7a32359f129"
+      }
+    ],
+    "SOL": [
+      {
+        "known_at_ms": 1793235906972,
+        "row": [
+          1793228400000,
+          102.4,
+          102.45,
+          102.15,
+          102.31,
+          8964.12092204
+        ],
+        "source_sha256": "0539b1870bced792c37ce90c96c7f3d6a2752a6b435780d5b12dbc75fc8b612a"
+      },
+      {
+        "known_at_ms": 1793235906972,
+        "row": [
+          1793232000000,
+          102.35,
+          102.42,
+          101.71,
+          101.71,
+          6705.29341818
+        ],
+        "source_sha256": "0539b1870bced792c37ce90c96c7f3d6a2752a6b435780d5b12dbc75fc8b612a"
+      }
+    ],
+    "SUI": [
+      {
+        "known_at_ms": 1793235907050,
+        "row": [
+          1793228400000,
+          0.9438,
+          0.9447,
+          0.94,
+          0.9428,
+          770704.7
+        ],
+        "source_sha256": "13a70e7c3ca1827a6ba76f0610bc8bc86b53d149ed9f3381e7de031c317caec4"
+      },
+      {
+        "known_at_ms": 1793235907050,
+        "row": [
+          1793232000000,
+          0.9429,
+          0.946,
+          0.9377,
+          0.9377,
+          195142.6
+        ],
+        "source_sha256": "13a70e7c3ca1827a6ba76f0610bc8bc86b53d149ed9f3381e7de031c317caec4"
+      }
+    ],
+    "UNI": [
+      {
+        "known_at_ms": 1793235907133,
+        "row": [
+          1793228400000,
+          7.2267,
+          7.2428,
+          7.1981,
+          7.242,
+          5261.070173
+        ],
+        "source_sha256": "191cd966be2958c1a09f9758b2874666bfeb531a72add8b25cef059e1992d125"
+      },
+      {
+        "known_at_ms": 1793235907133,
+        "row": [
+          1793232000000,
+          7.2424,
+          7.2918,
+          7.2212,
+          7.2212,
+          29986.448405
+        ],
+        "source_sha256": "191cd966be2958c1a09f9758b2874666bfeb531a72add8b25cef059e1992d125"
+      }
+    ],
+    "WIF": [
+      {
+        "known_at_ms": 1793235907221,
+        "row": [
+          1793228400000,
+          0.18359,
+          0.18429,
+          0.18348,
+          0.18393,
+          30016.89
+        ],
+        "source_sha256": "50354ce263f8914a6e4eb14be1bf4bf8a0463e5f3f67b437d44faf46d7991221"
+      },
+      {
+        "known_at_ms": 1793235907221,
+        "row": [
+          1793232000000,
+          0.18384,
+          0.18441,
+          0.18328,
+          0.18328,
+          76563.97
+        ],
+        "source_sha256": "50354ce263f8914a6e4eb14be1bf4bf8a0463e5f3f67b437d44faf46d7991221"
+      }
+    ],
+    "XRP": [
+      {
+        "known_at_ms": 1793235907304,
+        "row": [
+          1793228400000,
+          1.3257,
+          1.3271,
+          1.3229,
+          1.3243,
+          955952.741063
+        ],
+        "source_sha256": "a903f49c1a8b4481fc36e1980617232a0ac8634a04e73171842aa43fc8aa501a"
+      },
+      {
+        "known_at_ms": 1793235907304,
+        "row": [
+          1793232000000,
+          1.3246,
+          1.3255,
+          1.3188,
+          1.3191,
+          1011574.208091
+        ],
+        "source_sha256": "a903f49c1a8b4481fc36e1980617232a0ac8634a04e73171842aa43fc8aa501a"
+      }
+    ]
+  },
+  "qualification": "SUPPLIED_RECEIPTS_NOT_AUTHENTICITY_OR_EXECUTION_PROOF",
+  "scoring_authorized": false,
+  "source_authenticity_verified": false,
+  "start_ms": 1793228400000,
+  "status": "INCOMPLETE"
+}

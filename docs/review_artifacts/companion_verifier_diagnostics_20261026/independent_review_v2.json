@@ -1,0 +1,172 @@
+{
+  "schema": "companion-verifier-diagnostics-independent-review-v2",
+  "date": "2026-10-26",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "blocking_findings": [],
+  "acceptance_scope": "Bounded offline VD-01/VD-02 corrections and preservation of their positive/legacy boundaries only. No runtime, installed-service, SDK, startup, token, query or operation authority.",
+  "runtime_state": "INCOMPLETE",
+  "runtime_execution_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "resolved_findings": [
+    {
+      "id": "VD-01",
+      "classification": "SHOWN static and independently reproduced offline",
+      "status": "Resolved in current hash-bound source",
+      "evidence": "companion_installer.py:430-438 now validates the envelope whenever the selected method is verify_evidence_diagnostic. Bare all-false and all-true dictionaries from that method both refuse, record fixed parent_boundary/invalid, and do not fall back or retry via verify_evidence. Existing explicit legacy method retains bare five-Boolean compatibility and valid all-true results still pass."
+    },
+    {
+      "id": "VD-02",
+      "classification": "SHOWN static and independently reproduced offline",
+      "status": "Resolved in current hash-bound source",
+      "evidence": "companion_runtime_adapter.py:797-806 adds object_pairs_hook=unique; repeated keys at any object depth raise fixed Refused invalid_evidence_receipt before the envelope validator. Independently rechecked duplicate top-level checks/diagnostic and nested content_hash/stage/code; each refused after exactly one bounded command, preserving cap=10 and limit=8192."
+    }
+  ],
+  "integrity": {
+    "prior_review_preserved_decision": "REJECTED",
+    "v1_archive_members_match_prior_review": true,
+    "original_diff_byte_exact": true,
+    "all_report_bindings_match": true,
+    "correction_only_files": [
+      "scripts/research/companion_runtime_adapter.py",
+      "scripts/research/companion_installer.py",
+      "tests/test_companion_verifier_diagnostics.py"
+    ],
+    "unchanged_from_rejected": [
+      "scripts/research/companion_evidence_checks.py",
+      "tests/test_companion_evidence_checks.py",
+      "tests/test_companion_runtime_adapter.py"
+    ],
+    "method": "Read rejected_v1.tar members without extraction and compare review-bound source/test/checkpoint/report/diff hashes against preserved first review. Ignore only macOS AppleDouble metadata members. Rejected-to-current production delta is exactly installer selected-method strictness plus adapter duplicate-key decoder. Eight new regressions are the sole test-module delta; evaluator and both previously changed fixture modules remain byte-identical.",
+    "baseline_predicates_and_SQL": "The evaluator file is byte-identical to the rejected revision already checked for full core AST parity. The requested slice also reran original-predicate/SQL parity test against prechange.tar. No criterion, SQL, archive/witness, all-true gate or deadline change is part of this correction."
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for isolated offline synthetic tests and pure fixture challenges",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_companion_verifier_diagnostics.py tests/test_companion_evidence_checks.py tests/test_companion_runtime_adapter.py tests/test_companion_archive_probe_scope.py tests/test_companion_running_update.py tests/test_companion_existing_controller.py",
+    "focused_runs": 1,
+    "result": {
+      "classification": "SHOWN",
+      "exit_code": 0,
+      "passed": 397,
+      "seconds": 20.06,
+      "warnings": 12,
+      "warning_type": "Existing FastAPI on_event deprecation",
+      "full_suite_run": false
+    },
+    "independent_challenges": {
+      "bare_False": {
+        "query_passed": false,
+        "calls": [
+          "diagnostic"
+        ],
+        "diagnostic": {
+          "stage": "parent_boundary",
+          "code": "invalid"
+        }
+      },
+      "bare_True": {
+        "query_passed": false,
+        "calls": [
+          "diagnostic"
+        ],
+        "diagnostic": {
+          "stage": "parent_boundary",
+          "code": "invalid"
+        }
+      },
+      "explicit_legacy_success": true,
+      "duplicates": {
+        "checks": {
+          "rejected": true,
+          "wire_calls": 1
+        },
+        "diagnostic": {
+          "rejected": true,
+          "wire_calls": 1
+        },
+        "check": {
+          "rejected": true,
+          "wire_calls": 1
+        },
+        "stage": {
+          "rejected": true,
+          "wire_calls": 1
+        },
+        "code": {
+          "rejected": true,
+          "wire_calls": 1
+        }
+      },
+      "legacy_adapter_five_boolean_api": true
+    },
+    "challenge_method": "Existing running-update harness and FakeDocker adapter fixture under offline socket/subprocess tripwires; fixed in-memory wire bytes only. New diagnostic method bare true/false refusal, old method success, five duplicate-key positions, one command/no retry and legacy adapter API verified.",
+    "deadline_and_transfer_scope": "Same requested slice includes bounded ProcessExecutor JSON transfer and the existing diagnostic/legacy eight-second stdlib-only synthetic child deadline cases. No new deadline implementation or extra child run beyond that single slice.",
+    "parent_red_probe": {
+      "classification": "CLAIMED in frozen report/checkpoint; not independently rerun",
+      "failed": 7,
+      "passed": 1
+    },
+    "parent_final_result": {
+      "classification": "CLAIMED timing; independently reproduced passing count",
+      "passed": 397,
+      "seconds": 20.39,
+      "warnings": 12
+    },
+    "native_or_Docker_operations": 0,
+    "service_operations": 0,
+    "credential_or_token_access": 0,
+    "live_DB_queries": 0,
+    "market_data_runs": 0,
+    "additional_agents": 0
+  },
+  "retained_boundaries": [
+    "Strict diagnostic envelope still requires exactly five literal booleans and closed stage/code pairs; ok cannot override false/invalid checks. Production adapter retains a single diagnostic wire call and old callers receive only checks.",
+    "Ordinary diagnostic failure labels remain first failing group, not exact predicate/value. Deadline reports interrupted stage; earlier semantic failure may therefore differ. Original teardown/timer handling remains unchanged.",
+    "Dedicated eight-second remote hard exit, occupied-timer refusal and ten-second parent wire bound remain. Synthetic tests do not establish installed SDK/DB/runtime behavior.",
+    "Secret-free fixed Refused/receipt labels contain no private wire content. No raw exception, response body, row, URL or credential material was added by these fixes."
+  ],
+  "hashes": {
+    "docs/review_artifacts/companion_verifier_diagnostics_20261026/report.json": "cd71d127bcc9a6cd2880017892524d348a735130a6cf4c894ec5a64efa37b317",
+    "docs/review_artifacts/companion_verifier_diagnostics_20261026/prechange.tar": "7696af91811c97ea72ba212622558162a38c730516f1ea42e897169969e7bdef",
+    "docs/review_artifacts/companion_verifier_diagnostics_20261026/repair.diff": "c8246fbe32815411e64d0bbae94ca6d8b3302f69edba0cbf164ce0ce10143322",
+    "docs/review_artifacts/companion_verifier_diagnostics_20261026/rejected_v1.tar": "9f1c46534af5d83d355648bef390d565ddbadeed87e366aed1aba60a03eb76ba",
+    "docs/review_artifacts/companion_verifier_diagnostics_20261026/independent_review.json": "687850f267459c8e3d46f1322c1aac039ac90e3d386064326a0f5d6ab9060340",
+    "docs/checkpoints/companion_verifier_diagnostics_20261026.md": "582f1050ef068ad1468be6a34f7bf144699ea1aef27fe24c95439c3a169c0872",
+    "scripts/research/companion_evidence_checks.py": "25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5",
+    "scripts/research/companion_installer.py": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b",
+    "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d",
+    "tests/test_companion_evidence_checks.py": "b4459d52cfdf540364de133b3594dfc6a54552876e5bcc7fd029412d4af4415c",
+    "tests/test_companion_runtime_adapter.py": "9234b11f3c3657b1c35edba92df7e0a29c6d01ecb4e9fd5449be92c7b50ca7e4",
+    "tests/test_companion_verifier_diagnostics.py": "5fd3781427e5e339a58aa0bff22b093d5162c692f76ab434bad976969d3e3a5e",
+    "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "tests/test_companion_archive_probe_scope.py": "cfe38caf5eda06c28570e4e52bc003edfc6742920013c20dff090bffa267ebee",
+    "tests/test_companion_running_update.py": "6080974d4eb2ea917077fd64d85190cb23f49c2d40ac3d87f27607aa9eb8740c",
+    "tests/test_companion_existing_controller.py": "984a9a911d5af5e0ba90bdbed839efa711b0115271b2cbeb227ac63e9fd04325"
+  },
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "limitations": [
+    "This is a re-review of two corrected protocol gaps, not a broad SDK/repo audit or a new review of unrelated prior source-policy decisions.",
+    "All passing evidence is local/synthetic. No current installed source, service health, recipient/namespace/lineage or successful cited query proof supplied.",
+    "The actual V6g first failure remains UNVERIFIED; this repair does not reconstruct missing raw response or DB rows and does not prove the next verifier will pass.",
+    "Three production files differ from historical source-bound packets. No old packet or consumed attempt may be reused/reset merely because this repair is accepted.",
+    "Prior independent_review.json remains REJECTED for its earlier source version and is unchanged. This v2 record accepts only current corrected hashes.",
+    "No source/test/report/checkpoint/worklog edits or operational steps performed. Only independent_review_v2.json written; no follow-on authority granted."
+  ],
+  "read_scope": {
+    "complete": [
+      "report.json v2",
+      "checkpoint correction/proof/limits",
+      "exact rejected-v1-to-current diffs",
+      "eight added regression cases"
+    ],
+    "baseline_comparison": "prechange.tar and rejected_v1.tar review-bound members read in memory for hashes/diff reconstruction; old rejected review retained.",
+    "selected_current_source": "Installer selected method/envelope boundary and adapter strict duplicate decoder; unchanged evaluator preservation verified by exact hash and parity test."
+  },
+  "write_scope": "Only docs/review_artifacts/companion_verifier_diagnostics_20261026/independent_review_v2.json."
+}

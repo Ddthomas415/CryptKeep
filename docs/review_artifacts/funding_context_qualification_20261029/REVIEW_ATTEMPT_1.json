@@ -1,0 +1,9 @@
+{
+  "acceptance": "INCOMPLETE",
+  "submission": "01a18730-4366-75e2-84f7-704f83140197",
+  "verified_bindings": 32,
+  "patch_sha256": "9b7363d6ceab471e1f655d911844989cb919ba88b651dbc64cedc87c8879e0ac",
+  "finding": "No material source defect identified; independent test output truncated, exit/pass count unavailable",
+  "author_result": "252 passed in 2.83s; independently unsubstantiated at this checkpoint",
+  "next": "recover existing independent completion, or one authorized output-bounded rerun if irrecoverable"
+}

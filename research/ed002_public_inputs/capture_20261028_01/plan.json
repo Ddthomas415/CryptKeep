@@ -1,0 +1,157 @@
+{
+  "identities": {
+    "ADA": {
+      "base_currency": "ADA",
+      "identity_evidence_sha256": "fb1b9d242b23e76eb3cdcd3c58b2d0e6926ea160657aecba03631a5b6e08b917",
+      "product_id": "ADA-USD",
+      "quote_currency": "USD"
+    },
+    "APT": {
+      "base_currency": "APT",
+      "identity_evidence_sha256": "6d2129c0708247d4ee8fc9aff4dac6f270d3b3fd960e28190dc3eaa5baa71152",
+      "product_id": "APT-USD",
+      "quote_currency": "USD"
+    },
+    "ARB": {
+      "base_currency": "ARB",
+      "identity_evidence_sha256": "c2cdbeb6f9defcde8af2a4ad82b69f45c0cb138647b67d0d916c4fc10a7172b4",
+      "product_id": "ARB-USD",
+      "quote_currency": "USD"
+    },
+    "ATOM": {
+      "base_currency": "ATOM",
+      "identity_evidence_sha256": "1122024daae0bf04a39f5c9c75515cbbcfc5c20b3f2db92623ca7d515e613781",
+      "product_id": "ATOM-USD",
+      "quote_currency": "USD"
+    },
+    "AVAX": {
+      "base_currency": "AVAX",
+      "identity_evidence_sha256": "a57f84c1b7c31eacdc1afb65e289f4616b6a2f0206dc51a32f523f4b50559a94",
+      "product_id": "AVAX-USD",
+      "quote_currency": "USD"
+    },
+    "BNB": {
+      "base_currency": "BNB",
+      "identity_evidence_sha256": "1f7ae65b102f11ac08a6cfd95676690e348dac08655f682b7dc0bdb6ea1cf6a1",
+      "product_id": "BNB-USD",
+      "quote_currency": "USD"
+    },
+    "BONK": {
+      "base_currency": "BONK",
+      "identity_evidence_sha256": "5dd409e1fb380a8a0026bd2a770b1e2fab96dcf72bd8b1e50e924a946f69ba29",
+      "product_id": "BONK-USD",
+      "quote_currency": "USD"
+    },
+    "BTC": {
+      "base_currency": "BTC",
+      "identity_evidence_sha256": "0bff06bfacbc9a667643f19355ebf378574b405612537cb7c8bd8b3bbfb7c436",
+      "product_id": "BTC-USD",
+      "quote_currency": "USD"
+    },
+    "DOGE": {
+      "base_currency": "DOGE",
+      "identity_evidence_sha256": "b943dcbd6c3579706ec6fd9f503623d9bc826a4ca4657fdbfcdcb698b2ea7084",
+      "product_id": "DOGE-USD",
+      "quote_currency": "USD"
+    },
+    "DOT": {
+      "base_currency": "DOT",
+      "identity_evidence_sha256": "d665c4d927968120e5613a9482497b984a0b9dfa19012eb1d1e41784bafdb394",
+      "product_id": "DOT-USD",
+      "quote_currency": "USD"
+    },
+    "ETH": {
+      "base_currency": "ETH",
+      "identity_evidence_sha256": "1c5841737a506aad0399a045d34916f2c9aea56dee8ca49d95fc54405aeae62f",
+      "product_id": "ETH-USD",
+      "quote_currency": "USD"
+    },
+    "FIL": {
+      "base_currency": "FIL",
+      "identity_evidence_sha256": "fbf82ee87e27bf59ef5187f198cf0afe808e5548aa6fc87143ab2d4efcb2d0de",
+      "product_id": "FIL-USD",
+      "quote_currency": "USD"
+    },
+    "INJ": {
+      "base_currency": "INJ",
+      "identity_evidence_sha256": "4043f242b601cec615a67d7e42267d9c83d112f789a07e1e0de9cdd56e513d9d",
+      "product_id": "INJ-USD",
+      "quote_currency": "USD"
+    },
+    "JTO": {
+      "base_currency": "JTO",
+      "identity_evidence_sha256": "50dd1b7fc6b48ec13593e940ede4261a10e0b61d212a7fb94d8598b0ec8495bf",
+      "product_id": "JTO-USD",
+      "quote_currency": "USD"
+    },
+    "LINK": {
+      "base_currency": "LINK",
+      "identity_evidence_sha256": "121923ab532713671ad3042498a9b9e17ddea1a095b2efe110a604c75fde6f99",
+      "product_id": "LINK-USD",
+      "quote_currency": "USD"
+    },
+    "LTC": {
+      "base_currency": "LTC",
+      "identity_evidence_sha256": "2f453ade6ab28e66121f0826123907c2b310d4ef1bb92ae5e9064663cf7a79a9",
+      "product_id": "LTC-USD",
+      "quote_currency": "USD"
+    },
+    "MATIC": {
+      "base_currency": "MATIC",
+      "identity_evidence_sha256": "c681603de151dbda0df841e2e38c65c6ca5f4884ea8e81fdaae5ce60017f7581",
+      "product_id": "MATIC-USD",
+      "quote_currency": "USD"
+    },
+    "OP": {
+      "base_currency": "OP",
+      "identity_evidence_sha256": "9426a18e42bd96d95ddecbcc97a343a59b6d3bd1cc8be5a7ee83bc594a644c9d",
+      "product_id": "OP-USD",
+      "quote_currency": "USD"
+    },
+    "PEPE": {
+      "base_currency": "PEPE",
+      "identity_evidence_sha256": "c23e9cbe24711a154395bb76b52d16c0369d752a28ee6d80767911435d3eedc0",
+      "product_id": "PEPE-USD",
+      "quote_currency": "USD"
+    },
+    "PYTH": {
+      "base_currency": "PYTH",
+      "identity_evidence_sha256": "44c9c4f8269e1c4cb28c7742c19e348e9d939a60c9dd5eb1258674c421e84ad3",
+      "product_id": "PYTH-USD",
+      "quote_currency": "USD"
+    },
+    "SOL": {
+      "base_currency": "SOL",
+      "identity_evidence_sha256": "9cc54620e33ed5ea8f431ffa37688c4d59bcbf1b87f47d643c9d249c0fd8d152",
+      "product_id": "SOL-USD",
+      "quote_currency": "USD"
+    },
+    "SUI": {
+      "base_currency": "SUI",
+      "identity_evidence_sha256": "6eb5a1daa91b07d96063f1e88572937c59144e18fa3228a6712a6f5208f5db62",
+      "product_id": "SUI-USD",
+      "quote_currency": "USD"
+    },
+    "UNI": {
+      "base_currency": "UNI",
+      "identity_evidence_sha256": "a76aa8c5b5d1b4d255bc2220d8f0c788d10c7d5e1be6a19f20fc57469497b8a7",
+      "product_id": "UNI-USD",
+      "quote_currency": "USD"
+    },
+    "WIF": {
+      "base_currency": "WIF",
+      "identity_evidence_sha256": "c1698eb59c6ff6351ccf4e371da9b42443952ba270d8a801684fe102a99a1d69",
+      "product_id": "WIF-USD",
+      "quote_currency": "USD"
+    },
+    "XRP": {
+      "base_currency": "XRP",
+      "identity_evidence_sha256": "ae6f47bce9125f7ddda8e062642a15d190006c17f3b930c504e32f52579961c7",
+      "product_id": "XRP-USD",
+      "quote_currency": "USD"
+    }
+  },
+  "lookback_completed_hours": 2,
+  "schema": "ed002-public-capture-plan-v1",
+  "universe_sha256": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6"
+}

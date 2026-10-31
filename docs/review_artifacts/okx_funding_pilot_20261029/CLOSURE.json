@@ -1,0 +1,32 @@
+{
+  "recorded_at": "2026-10-29T18:26:46.180836+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "one-off isolated persisted-data evidence only",
+  "reviewer_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a188e7-b656-7432-a9cf-7ecca62b810e",
+  "bindings_verified": 21,
+  "independent_db_read": "new pilot only, mode=ro&immutable=1, no WAL/journal",
+  "db_sha256_before_after": "514e8d91be3b380023ba8ad84291be5779f362f9d8ed3445230b71e95a2d407d",
+  "raw_rows": 1,
+  "legacy_funding_rows": 0,
+  "saved_requests": 2,
+  "saved_capture_seconds": 0.5044774580001103,
+  "findings": "No material inconsistency. Canonical content key/full row/readback and response hashes/lengths/identity match. Quote references same key; strategy/execution/crowding authority false; historic settled normalization unavailable.",
+  "capture_attested_not_replayed": [
+    "network execution",
+    "18 original scoped SQLite audit connections",
+    "protected-old-state metadata preservation"
+  ],
+  "remaining_limits": [
+    "binary trust/freshness unverified",
+    "no global/old-archive byte certification",
+    "no recurring/full-family rollout/trading acceptance"
+  ],
+  "authorization_consumed": {
+    "service_cycles": 1,
+    "public_gets": 2
+  },
+  "original_fix3_state": "INCOMPLETE",
+  "checkpoint_note": "Frozen checkpoint retains submission status; this later closure records actual independent acceptance."
+}

@@ -1,0 +1,24 @@
+{
+  "role": "ENGINEER",
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "Offline exact engine-pair allowlist delta only",
+  "backend_sha256": "ca2e74fcf9d3869f7c3ed27e69721cd12615f41cc2687ea0844b314250814220",
+  "tests_sha256": "a302a1136e4392bbd7cca3f33b10f936ca14ba5066d3f3c624361450a48b9ab2",
+  "actual_probe_report_sha256": "df295bbeee773f6b951e3c0bde6aab2405ae191ef56bfa1dd6045abc5e50a810",
+  "environment": "VERIFIED_ENV for local synthetic tests only",
+  "test_runs": [
+    {
+      "command": "./.venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_companion_installer.py tests/test_companion_staged_backend.py tests/test_companion_running_backend.py",
+      "passed": 382,
+      "seconds": 2.29
+    },
+    {
+      "command": "./.venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_companion_prepare_entrypoint.py tests/test_companion_staged_composition.py tests/test_companion_staged_update.py tests/test_companion_install_env.py",
+      "passed": 170,
+      "seconds": 1.26
+    }
+  ],
+  "native_operations": false,
+  "operational_packet_accepted": false,
+  "limits": ["Minimal earlier native probe only", "Full suite not run", "Preparation and cutover not run"]
+}

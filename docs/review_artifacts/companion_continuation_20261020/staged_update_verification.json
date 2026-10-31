@@ -1,0 +1,34 @@
+{
+  "active_role": "ENGINEER",
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "runtime": "INCOMPLETE",
+  "environment": "VERIFIED_ENV for isolated synthetic tests only",
+  "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_companion_staged_update.py tests/test_companion_staged_backend.py tests/test_companion_staged_runtime.py tests/test_companion_running_update.py tests/test_companion_running_storage.py tests/test_companion_running_backend.py tests/test_companion_installer.py tests/test_companion_metadata_diagnostics.py tests/test_companion_network_configuration.py tests/test_companion_existing_controller.py tests/test_companion_runtime_wiring.py tests/test_companion_runtime_adapter.py",
+  "exit_code": 0,
+  "passed": 755,
+  "duration_seconds": 4.21,
+  "full_suite_run": false,
+  "diff_check_exit_code": 0,
+  "intermediate_results": ["218 passed initial targeted slice", "754 passed before engine/prerequisite review-delay revalidation"],
+  "source_sha256": {
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_installer.py": "bdc39503ff6f892cb146681e79aaaf3ef838e64dda1abae22f921426a6349d7d",
+    "scripts/research/companion_install_docker.py": "5202088f6a7a79ddbc6df7a6b9cf6be9b28419cb422f7bd92822342713614038",
+    "scripts/research/companion_runtime_adapter.py": "194f41bab63b4bd75a9a005ab49e7723224d12a030c3cde0bed4bce320b71191",
+    "tests/test_companion_staged_update.py": "90b75c493a8fea7f7a82d5845559d65076c46b8e7f3c534f5580cf74455a1ded",
+    "tests/test_companion_staged_backend.py": "3e4cb63ed1ef18a86d9d0db6447bc6ccee03c64fbf6c3c2b4974949f899ef3af",
+    "tests/test_companion_staged_runtime.py": "9900ca7937ecd5f38fc0ed20778a55985b00484498d32b8b8ae893bbae29658d"
+  },
+  "independent_review": {
+    "reviewer": "Hegel",
+    "agent_id": "01a15187-d8bb-71c1-8bfb-095bd45e4bac",
+    "state": "INCOMPLETE",
+    "reason": "Reviewer tool returned usage-limit error; no disposition received",
+    "acceptance_inferred": false
+  },
+  "implementation_native_calls": 0,
+  "credentials_read": false,
+  "services_changed": false,
+  "operational_cli_available": false,
+  "post_restart_report_inspection": "Separate read-only inventory in restart_check_20261020.json; not staged-cutover proof"
+}

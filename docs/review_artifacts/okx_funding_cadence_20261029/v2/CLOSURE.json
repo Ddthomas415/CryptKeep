@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-10-29T19:04:06.929827+00:00",
+  "active_role": "GATE",
+  "reviewer_agent": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1890a-c945-71b1-8080-9b30a6bcc2ec",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "corrected cadence source and operator CLI only",
+  "finding_closed": "OKX-CADENCE-01",
+  "verified_bindings": 79,
+  "full_patch_reconstructs": true,
+  "correction_patch_reconstructs": true,
+  "independent_test_result": {
+    "passed": 354,
+    "warnings": 8,
+    "seconds": 2.92,
+    "exit_code": 0,
+    "command_file": "v2/TEST_RESULT.json"
+  },
+  "source_sha256": "1706153bc6325b3331eabcc4285673b3a56fe8306508cdfb9c4139e4e18d8a4e",
+  "financial_authority_changed": false,
+  "rollout_state": "INCOMPLETE",
+  "operations_authorized": false,
+  "limitations": [
+    "bounded scan not archive-wide certification or hard SQL deadline",
+    "origin/clocks/financial qualification unverified",
+    "no operational DB access/lifecycle/deployment/recurring collection/trading proof"
+  ],
+  "rejected_v1_review": "v1/REVIEW.json",
+  "submitted_design": "/Users/baitus/Downloads/crypto-bot-pro/docs/research/okx_funding_cadence_20261029.md",
+  "design_status_note": "submitted document is frozen at pre-review state; this separate GATE disposition is current"
+}

@@ -1,0 +1,14 @@
+{
+  "bytes": 563029,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "02_currencies.bin",
+  "http_date": "Wed, 28 Oct 2026 09:22:14 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793179334660,
+  "request_started_ms": 1793179334543,
+  "sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/currencies"
+}

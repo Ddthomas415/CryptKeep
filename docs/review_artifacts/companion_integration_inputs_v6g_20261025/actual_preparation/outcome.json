@@ -1,0 +1,15 @@
+{
+  "provenance": "Parent transcription of execution session 44449 tool result; not independently captured process output",
+  "exit_code": 0,
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "preparation_complete": true,
+  "actions_executed": true,
+  "startup_authorized": false,
+  "services_started": false,
+  "originals_interrupted": false,
+  "attempt_reserved": true,
+  "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261025v6g/receipt.jsonl",
+  "evidence": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261025v6g/evidence.json",
+  "evidence_sha256": "d5dabf08f0c20cb5976f517b53d7492b3bac8361f1cc9dbb5c947172b29c7143",
+  "manifest_sha256": "33e6633229e9399ec695be2f8e743930212b9ed926277235fd071e675fcf2e26"
+}

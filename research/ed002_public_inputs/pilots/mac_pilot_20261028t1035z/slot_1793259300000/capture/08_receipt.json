@@ -1,0 +1,14 @@
+{
+  "bytes": 147,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "08_BNB.bin",
+  "http_date": "Thu, 29 Oct 2026 07:35:05 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793259305526,
+  "request_started_ms": 1793259305455,
+  "sha256": "644f703c393a51048c8df1223521131855bab9d190f91ce8f05654f7741902e8",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/BNB-USD/candles?granularity=3600&start=2026-10-29T05%3A00%3A00%2B00%3A00&end=2026-10-29T07%3A00%3A00%2B00%3A00"
+}

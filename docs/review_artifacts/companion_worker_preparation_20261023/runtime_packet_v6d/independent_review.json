@@ -1,0 +1,107 @@
+{
+  "schema": "companion-v6d-runtime-packet-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "derivation_decision": "ACCEPTED",
+  "acceptance_scope": "Exact v6d seven-subject/132-pin V2 restricted source/configuration policy applicability only; not live runtime success, a handoff acceptance or execution authority.",
+  "runtime_status": "INCOMPLETE",
+  "historical_v6c_cause": "UNVERIFIED",
+  "blocking_findings": [],
+  "material_assumptions": [],
+  "bindings": {
+    "checkpoint": {
+      "path": "docs/checkpoints/companion_v6d_runtime_packet_20261024.md",
+      "sha256": "7e9dd5c53c96b12c66fc86aef0a196e689e40ac8716a6dd1abc1fc8e75ff4987"
+    },
+    "producer": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/assemble_runtime_packet_v6d.py",
+      "sha256": "3fb32bfd03e013655a3cc4a6e63664c8a4a6367ae9e9c7bcdc267d17160494b1"
+    },
+    "helper": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/assemble_runtime_packet_v6c.py",
+      "sha256": "319153a8c64cb5666d046c0f7031146eaf50deeab14d8d49451fe810734b80fd",
+      "meaning": "Exact accepted old assembler compiled under non-main name; old main and file-writing branch not invoked."
+    },
+    "tests": {
+      "path": "tests/test_companion_v6d_runtime_packet.py",
+      "sha256": "a9135cfdbe6c07b964d26e3e7cce1757c0539e63fa9a25c8f0f7415320c0d050"
+    },
+    "provenance": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/provenance.json",
+      "sha256": "a202e6153cdb78895f66fd09a9ba2e9a2d88f1fa4149873ca5512890e0a0c3bc",
+      "meaning": "Ten fixed input records plus exact helper, thirteen current consumers, prior seven child bindings and source provenance incorporated by hash."
+    },
+    "subjects": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/subjects.draft.json",
+      "sha256": "2fec2cc3fe672194455b7cfd8bbace03f55b2bae67d2dc0e0c676a35b07f4348"
+    },
+    "scope": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/accepted_policy_records/scope_review.json",
+      "sha256": "63a8571166993cfbccb51ae474da9fd43089cdea8f61861ff52fb0bfdc2c74d9"
+    },
+    "runtime": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/accepted_policy_records/runtime_review.json",
+      "sha256": "c15d6ea7b98c29c965b95c7a075e82db5a4e8de4acf810e04261afebe197adb6",
+      "schema": "companion-runtime-pins-v2",
+      "child_records": 7,
+      "child_hash_binding": "dependency_reviews binds exact image IDs to new accepted child bytes."
+    }
+  },
+  "shown": [
+    "Entire hash-bound v6c scope read, with per-subject rationale/risks/support reused inside unchanged restricted meanings. All three policy meanings and seven preserved limits retained verbatim, not expanded to general retry-free or effect-free startup claims.",
+    "Independent in-memory reconstruction reproduces all twelve frozen draft bytes, including unaccepted child/runtime decisions and policy flags. Three storage subjects, all image IDs/source maps, application calls, network bindings and four final configured digests remain unchanged; only four application subject IDs change from v6c.",
+    "Schema adapter checks original postcheck bytes before adapting only in memory. Source-copy target/path/hash/true flag is retained; image is joined by exact container ID from matching before metadata and revalidated against accepted stage evidence. No direct source-copy image field or additional native witness is invented.",
+    "The exact 43 direct v6d application witnesses match saved IDs, manifest hashes and current local files. Other 89 same-image/storage pins, including four historical launcher captures, remain inherited. Fresh installed-byte/source/namespace/recipient/citation gates remain mandatory.",
+    "Only current consumer differences from v6c are the separately accepted optional-diagnostic installer and diagnostic/nonrecipient adapter. The configured-only nonrecipient exception intentionally narrows a refusal set; this review does not claim gate policy parity. Selected-app eligibility, selected-storage reported-ID requirement, projection/address/alias-ownership and post-start attachment guards remain binding.",
+    "Seven existing-schema child and V2 runtime derivatives bind the new scope digest in every reviewer field. Scope contains no new accepted child/runtime hashes; no circular binding. Subject/source/witness tables are incorporated by hash, not duplicated."
+  ],
+  "source_provenance": {
+    "total_pins": 132,
+    "direct_v6d_application_witnesses": 43,
+    "inherited_same_image_or_storage_pins": 89,
+    "historical_launcher_pins_within_inherited": 4,
+    "source_witnesses": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/postcheck.json",
+      "sha256": "6c85eaf31ec66f89ba34114c1eb90c990436bf95929651b0d971074e5c06dec6",
+      "field": "sources"
+    },
+    "image_join_basis": "Same-ID before metadata in that exact artifact; not a direct image witness from the copy stream.",
+    "historical_limit": "Four launcher captures belong to old v6b IDs. Prior v6c app witnesses and older same-image/library/storage/source-only assessments retain their historical provenance; none is called a fresh v6d SDK/launcher capture."
+  },
+  "verification": {
+    "environment": "VERIFIED_ENV for isolated local offline synthetic tests and pure artifact computations only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6d_runtime_packet.py",
+    "exit_code": 0,
+    "passed": 15,
+    "elapsed_seconds": 0.33,
+    "parent_result": "CLAIMED 15 passed in 0.41s; same fifteen cases independently confirmed.",
+    "exact_drafts_reproduced": 12,
+    "current_consumer_hashes_checked": 13,
+    "prior_child_hashes_checked": 7,
+    "final_models_recomputed": 4,
+    "reviewer_native_operations": 0,
+    "reviewer_credential_or_token_reads": 0,
+    "reviewer_service_operations": 0,
+    "full_suite_run": false,
+    "actual_accepted_default_CLI_run": false
+  },
+  "remaining_limits": [
+    "Current temporary stage aliases are observed in saved evidence; final aliases and attachment remain MODELLED. Only null/empty IPAM equivalence applies; extra daemon aliases are not silently removed or guessed equivalent.",
+    "Selected app blank IDs retain strict never-started/created/int-zero/no-restart constraints. The separately accepted dormant unselected nonrecipient exception also requires no reserved alias and passing projection, while preserving full-inventory ownership. Selected storage and post-start attachment requirements are not relaxed.",
+    "Optional diagnostics identify a first traversed refusal/category, not a unique root cause or complete trace. Historical v6c activated rows were not retained and its cause remains unverified.",
+    "No live imports/SDK startup, healthy endpoints, worker/clock/pidfd/acknowledgement/recovery, cited retrieval, volume/data integrity, profitability or general model readiness is established. Same images and structural loader success are not broad operational proof.",
+    "Preparation v6d is consumed. No old wrapper is rebound, no removed ID is adopted, and no preparation retry/reset or automatic operation is authorized. Parent inert validation and any fixed handoff review remain separate; actual execution requires explicit bounded operator approval."
+  ],
+  "operational_authorized": false,
+  "runtime_execution_authorized": false,
+  "credential_or_token_handoff_authorized": false,
+  "preparation_or_retry_authorized": false,
+  "reservation_reset_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "trading_authorized": false,
+  "automatic_follow_on_execution": false,
+  "write_scope": "Only this independent review and nine accepted_policy_records files. No frozen draft/source/test/checkpoint/old record/worklog modified."
+}

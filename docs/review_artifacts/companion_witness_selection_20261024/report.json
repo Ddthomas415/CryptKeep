@@ -1,0 +1,152 @@
+{
+  "body_verified_saved_order_projection": [
+    5,
+    47,
+    18,
+    7
+  ],
+  "cases": [
+    {
+      "cited_keyword_document_ids": [
+        5,
+        47,
+        18
+      ],
+      "combined_offline_fixture_pass": false,
+      "evidence_fixture_checks": {
+        "article_view_mapping": false,
+        "causal_limits": false,
+        "content_hash": false,
+        "persisted_identity": false,
+        "topical_support": false
+      },
+      "fixture_kind": "controlled_archive_backed_not_live_replay",
+      "foreign_asset_rejected": false,
+      "lexical_document_ids": [
+        5,
+        47,
+        18
+      ],
+      "name": "projected_first_three",
+      "selected_provider": "fallback",
+      "transport_identity_and_safety_fixture": true,
+      "witness_cited_as_keyword": false,
+      "witness_in_fixture_input": false
+    },
+    {
+      "cited_keyword_document_ids": [
+        5,
+        47,
+        18
+      ],
+      "combined_offline_fixture_pass": false,
+      "evidence_fixture_checks": {
+        "article_view_mapping": false,
+        "causal_limits": false,
+        "content_hash": false,
+        "persisted_identity": false,
+        "topical_support": false
+      },
+      "fixture_kind": "controlled_archive_backed_not_live_replay",
+      "foreign_asset_rejected": false,
+      "lexical_document_ids": [
+        5,
+        47,
+        18,
+        7
+      ],
+      "name": "projected_all_four_still_clipped",
+      "selected_provider": "fallback",
+      "transport_identity_and_safety_fixture": true,
+      "witness_cited_as_keyword": false,
+      "witness_in_fixture_input": true
+    },
+    {
+      "cited_keyword_document_ids": [
+        7
+      ],
+      "combined_offline_fixture_pass": true,
+      "evidence_fixture_checks": {
+        "article_view_mapping": true,
+        "causal_limits": true,
+        "content_hash": true,
+        "persisted_identity": true,
+        "topical_support": true
+      },
+      "fixture_kind": "controlled_archive_backed_not_live_replay",
+      "foreign_asset_rejected": false,
+      "lexical_document_ids": [
+        7
+      ],
+      "name": "witness_only_control_not_ranking_proposal",
+      "selected_provider": "fallback",
+      "transport_identity_and_safety_fixture": true,
+      "witness_cited_as_keyword": true,
+      "witness_in_fixture_input": true
+    }
+  ],
+  "limits": [
+    "The query comparison is a saved October11 diagnostic, not the V6d response or current DB ranking.",
+    "Filtering its saved ordering is a projection, not a rerun of PostgreSQL stemming, ts_rank_cd or current temporal filters.",
+    "Pure coroutine extraction uses synthetic transport/risk responses, not full app imports or live requests.",
+    "The four-row builder fixture proves clipping even when witness7 is supplied; it does not prove live retrieval returned it.",
+    "Saved originals substitute for live DB identity; no current persistence, causal or profitability proof.",
+    "Witness-only is an existing positive control, not approval to force ranking or widen the exact witness list."
+  ],
+  "normalized_query": "Bitcoin liquidations",
+  "probe_call_fixture": [
+    {
+      "method": "POST",
+      "payload": {
+        "asset": "BTC",
+        "limit": 3,
+        "lookback_minutes": 60,
+        "question": "What news explains Bitcoin liquidations?"
+      },
+      "url": "http://fixture.invalid/memory/v1/memory/retrieve"
+    },
+    {
+      "method": "GET",
+      "payload": null,
+      "url": "http://fixture.invalid/risk/v1/risk/status"
+    }
+  ],
+  "projection_excluded_document_ids": [
+    25
+  ],
+  "question": "What news explains Bitcoin liquidations?",
+  "role": "AUDITOR",
+  "runtime_status": "INCOMPLETE",
+  "saved_comparison_order": [
+    25,
+    5,
+    47,
+    18,
+    7
+  ],
+  "saved_comparison_ranks": [
+    0.09914043,
+    0.05765437,
+    0.045589134,
+    0.03548872,
+    0.021380471
+  ],
+  "schema": "companion-witness-selection-diagnosis-v1",
+  "source_sha256": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/receipt.jsonl": "0ca55ea24bf18b7ff5442d974267497de00f2f3a5e2af1c372459f35aa43b1a9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+    "phase1_research_copilot/memory_retrieval/article_view.py": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+    "phase1_research_copilot/memory_retrieval/main.py": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228",
+    "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "phase1_research_copilot/shared/tools.py": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+    "research/companion_article_body_v1_20261011_gd1abqx9/derived_article_body_v1.json": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+    "research/companion_article_body_v1_20261011_gd1abqx9/manifest.json": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "research/companion_article_body_v1_20261011_gd1abqx9/query_comparison.json": "88bb8e5a79d711d4339807e34caed4f3b20d89308c3eb4eb13300e397911fb5b",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "tests/test_companion_archive_contract.py": "008ddcd18b823db98b1d64d57d85c90cb47a1e753cf7341bc4a4935e86e2900c",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f",
+    "tests/test_companion_witness_selection.py": "99c52a5e0b6448b09144a426cff5be1d1b30c24f83f6ca3178453f7be79ee68f"
+  }
+}

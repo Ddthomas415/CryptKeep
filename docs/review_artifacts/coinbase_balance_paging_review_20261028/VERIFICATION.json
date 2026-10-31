@@ -1,0 +1,21 @@
+{
+  "captured_at_utc": "2026-10-28T12:57:34.437883+00:00",
+  "active_role": "AUDITOR",
+  "finding": "SHOWN selected installed methods; production repair INCOMPLETE",
+  "cases_passed": 6,
+  "installed_method_hashes_unchanged": true,
+  "pilot_pins_unchanged": 10,
+  "installed_job_hash_unchanged": true,
+  "inputs_sha256": {
+    "docs/review_artifacts/coinbase_balance_paging_review_20261028/probe.py": "8e7595efa6f9cd1f413bb6d29d1eaa5b16718fc78d852b958684a59696191207",
+    "docs/review_artifacts/coinbase_balance_paging_review_20261028/RESULT.json": "ef351b893cb369d46085cdffea3939ee85836040b51817587305969fd995400e",
+    "docs/research/coinbase_balance_paging_review_20261028.md": "1672d022867be67adeea97c96390688ae2fb22c3c3ecfb96c6a2bc07d0c09fa0",
+    "services/security/exchange_factory.py": "dae9e79ca7a2fb017e6c8b354b2ba3ef20a802549c9bc743cd25c34045a8e223",
+    "services/execution/live_exchange_adapter.py": "1fb9756f6b33d99c1d59682c504d262599e7bcd98ca33db4eaf4bf7e9aa74886",
+    "services/execution/place_order.py": "f7337e9885026b430aab89d53f2ba6f24e402f814c5f57ad4097b71e775d5119",
+    "services/execution/exchange_client.py": "bb9d82ab62d88bf68da76a2690ceae343d72105168cc28bfe3841a4e598637db",
+    "requirements-pinned.txt": "d74ea0e3a506caac2e02960de9fc9f3dfd07a7ba23ec0c0e510ec46beaef39f9",
+    "requirements-dev-pinned.txt": "559b1e9168666591c351a3ab40ee5556d7b8e2c52a369e44306f924d9adf3b92",
+    ".venv/lib/python3.12/site-packages/ccxt/__init__.py": "a3604a3b115814431b6475f85ee8612be4a496039d877ec8f7f65077a1d0352e"
+  }
+}

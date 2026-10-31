@@ -1,0 +1,23 @@
+{
+  "tag": "v7.2.0",
+  "scope": "public tagged source/license capture only",
+  "retry": false,
+  "executed_remote_code": false,
+  "files": {
+    "base.py.txt": {
+      "url": "https://raw.githubusercontent.com/bashtage/arch/v7.2.0/arch/bootstrap/base.py",
+      "sha256": "48eb6443a96877bbeac7051e83121cd6909240b62a5d5d1be1b4c5eb69aea2bc",
+      "bytes": 65212
+    },
+    "samplers.py.txt": {
+      "url": "https://raw.githubusercontent.com/bashtage/arch/v7.2.0/arch/bootstrap/_samplers_python.py",
+      "sha256": "dc353a7b84ce90ab9900d30277d35f0cd2e671cb66cae0b5a6072f0651d0a50b",
+      "bytes": 1068
+    },
+    "LICENSE.md.txt": {
+      "url": "https://raw.githubusercontent.com/bashtage/arch/v7.2.0/LICENSE.md",
+      "sha256": "c6e622bd89db4e13315f4e91605ff96fcbb9012d78ee74e429855870b203eed6",
+      "bytes": 1660
+    }
+  }
+}

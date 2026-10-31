@@ -1,0 +1,17 @@
+{
+  "state": "REJECTED",
+  "reviewer_agent": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a18906-8837-71c1-b22e-53cc63814c5a",
+  "finding": "OKX-CADENCE-01",
+  "severity": "P1",
+  "description": "Unvalidated attribution can hide newer corrupt evidence and accept older success",
+  "verified_bindings": 69,
+  "independent_tests": {
+    "passed": 351,
+    "warnings": 8,
+    "seconds": 3.08,
+    "exit_code": 0
+  },
+  "source_sha256": "efb3f26643b7a76f3eda2e9e0d9fcdb89602646fade64035366ed7e5c61b60ea",
+  "operational_acceptance": false
+}

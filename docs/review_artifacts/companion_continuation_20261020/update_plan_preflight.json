@@ -1,0 +1,24 @@
+{
+  "scope": "offline plan compatibility only; no deployment authorization",
+  "manifest": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/reviewed_configured_plan.json",
+  "manifest_sha256": "f5b044858c3d40881239b77745d0b404c4ac05d2f35a6d043fed8f6ba934bf5f",
+  "offline_schema_loads": true,
+  "manifest_baseline_states": "all seven exited; incompatible with observed running stack",
+  "manifest_cli_sha256": "31ae2d64e51d9dfc728a2934941615cdd92f31279ed6d5c1fb2bfc0a44637a8f",
+  "verified_current_cli_sha256": "678271184175b40dfc4bd6f4582be00ae1538b0d1e031181f52ceedfae9af5fb",
+  "backend_engine_pin": {"version": "29.8.2", "commit": "8af9fe3"},
+  "current_engine_compatibility": "UNVERIFIED; CLI version is not engine evidence",
+  "source_checks": [
+    {"application": "phase1-audit-log", "entries": 9, "hash_mismatches": 0},
+    {"application": "phase1-risk-stub", "entries": 9, "hash_mismatches": 0},
+    {"application": "phase1-memory", "entries": 11, "hash_mismatches": 0},
+    {"application": "phase1-orchestrator", "entries": 14, "hash_mismatches": 0}
+  ],
+  "total_source_entries": 43,
+  "hash_mismatches": 0,
+  "native_calls": 0,
+  "credentials_read": false,
+  "runtime_changed": false,
+  "chosen_design": "Explicit opt-in extension of existing installer/runtime path; preserve old stopped-only profiles; leave three storage services running and update four research applications only",
+  "executable_readiness": "INCOMPLETE; reviewed design and subsequent offline implementation required before operational authorization"
+}

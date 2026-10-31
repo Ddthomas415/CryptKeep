@@ -1,0 +1,14 @@
+{
+  "bytes": 159,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "24_UNI.bin",
+  "http_date": "Wed, 28 Oct 2026 23:35:08 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793230508348,
+  "request_started_ms": 1793230508260,
+  "sha256": "af5264a7d7ffebac221338037286fbaaf5f4cbacf7326c4e8357677dc9f39a2e",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/UNI-USD/candles?granularity=3600&start=2026-10-28T21%3A00%3A00%2B00%3A00&end=2026-10-28T23%3A00%3A00%2B00%3A00"
+}

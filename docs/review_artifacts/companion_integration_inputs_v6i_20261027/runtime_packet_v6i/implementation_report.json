@@ -1,0 +1,28 @@
+{
+  "artifact_count": 12,
+  "hashes": {
+    "docs/checkpoints/companion_runtime_packet_v6i_20261027.md": "6e2a076a55c4a950bffb8cb22a200025fd9cbfd1ce3545d7e31775464cdf5d3a",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/assemble_runtime_packet.diff": "6d499db5a93c700a9e55ea96af1853682d77800ae566d4567314cc69056879fc",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/assemble_runtime_packet.py": "3f469b517773a88cf15d205af2a79c0fd5c1f9ca43d708642eb0367205244046",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/phase1-audit-log.draft.json": "ea1a0177d6d82cf68a3a11523e027da5d9b0b7b192a132179980ba6c82643a20",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/phase1-memory.draft.json": "4f21e0b7aae0d074b6e5517b4dc18632733c952fd8fe8ae76ae755bb77fbfdb4",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/phase1-minio.draft.json": "2538a00fcc75cbcc1ddc45e7207021cb716f792ec39c60e678507a755d60ac2c",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/phase1-orchestrator.draft.json": "e0499802ba14103d893286595208ae9379c4edfce79bb532fb4334058887e431",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/phase1-qdrant.draft.json": "d910fd7ea7633d534942584c481cb5d94c3d49dc74037fb53fe2bd8297b2ed17",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/phase1-risk-stub.draft.json": "03c4ae0eae09ac40e339ef4b7a1d30d68af83d8c3f6ec4597c5d7624cf588704",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/phase1-timescaledb.draft.json": "1e035dab00cd1657450ce4c7d71e15e4161d183572f7cf08206a299ddf3128fc",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/provenance.json": "41d092b68b835df1335501c99a128a412986de74cec5be7d5e5bcba9e1c345a2",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/runtime_review.draft.json": "dde64dd67694267e6c9722a1d37e0ed0dcd09657237fa6ffc7ba4377b3958d87",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/staged_metadata.derived.json": "b16922f19fbaf4ba2ff9796e47c8f7e19828707c94f6bf6e2aa7805face526f0",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/subjects.draft.json": "e4d6878763c14b04789df2019c533ed6a16d1a06d217a0e9710beb927d76aa6e",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+    "tests/test_companion_v6i_runtime_packet.py": "734c49ef7b917cac9c8f360b806791206f7b1b6f7441866c3c9c3edfdca99cd9"
+  },
+  "native_operations": false,
+  "passed": 37,
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6i-runtime-packet-implementation-proof-v1",
+  "seconds": 0.71,
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "warnings": 0
+}

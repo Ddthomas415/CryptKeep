@@ -1,0 +1,201 @@
+{
+  "schema": "companion-v6b-launcher-integration-independent-review-v1",
+  "review_date": "2026-10-23",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Bounded offline one-path transport integration and exact-ID/image 132-pin source/configured restricted-policy acceptance only",
+  "runtime_state": "INCOMPLETE",
+  "findings": [],
+  "R1_closed_for_source_static_bridge": true,
+  "I1_closed_for_exact_path_and_mandatory_packet_pins": true,
+  "checkpoint": {
+    "path": "docs/checkpoints/companion_launcher_pin_integration_20261023.md",
+    "sha256": "8067d3949dfb36dd2dcfa96289b627d753b841a55d54190307aabf56ed774ebd",
+    "read_fully": true
+  },
+  "production_change": {
+    "path": "scripts/research/companion_docker_transport.py",
+    "sha256": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "delta": "Add exactly one fixed Uvicorn __main__.py path to _FILES",
+    "reverse_sha256": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5",
+    "reverse_matches_prior_accepted_transport": true,
+    "SDK_regex_auth_context_ID_limits_timeouts_lifecycle_and_secret_guards_unchanged": true
+  },
+  "packet": {
+    "producer_path": "docs/review_artifacts/companion_worker_preparation_20261023/derive_launcher_packet.py",
+    "producer_sha256": "41a219108b4fccced72491c3de7f2c75843a799fa894512e6b3f075d56438e19",
+    "all12outputs_reproduce_exactly": true,
+    "checks": [
+      {
+        "name": "staged_metadata.derived.json",
+        "sha256": "ca7101c34446f7b04cc0e1c08dcfcba2026e197d3cecbedb8de13e3cf70118e8",
+        "exact_bytes_match": true
+      },
+      {
+        "name": "topical_approvals.json",
+        "sha256": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+        "exact_bytes_match": true
+      },
+      {
+        "name": "subjects.draft.json",
+        "sha256": "0e6cfcc5bdf823659cf6d1f17aab0a961267d9d881e317b62dfa280141402107",
+        "exact_bytes_match": true
+      },
+      {
+        "name": "phase1-timescaledb.draft.json",
+        "sha256": "1e035dab00cd1657450ce4c7d71e15e4161d183572f7cf08206a299ddf3128fc",
+        "exact_bytes_match": true
+      },
+      {
+        "name": "phase1-qdrant.draft.json",
+        "sha256": "d910fd7ea7633d534942584c481cb5d94c3d49dc74037fb53fe2bd8297b2ed17",
+        "exact_bytes_match": true
+      },
+      {
+        "name": "phase1-minio.draft.json",
+        "sha256": "2538a00fcc75cbcc1ddc45e7207021cb716f792ec39c60e678507a755d60ac2c",
+        "exact_bytes_match": true
+      },
+      {
+        "name": "phase1-audit-log.draft.json",
+        "sha256": "1306943fd6cd4cffb9dc22f85981616c3ff9418f3ad36e339575d619b50ae56a",
+        "exact_bytes_match": true
+      },
+      {
+        "name": "phase1-risk-stub.draft.json",
+        "sha256": "7e20918e170a8ef59609f81168fc51d73269b0691169662d139bdf493a500414",
+        "exact_bytes_match": true
+      },
+      {
+        "name": "phase1-memory.draft.json",
+        "sha256": "26b101b3bef265cbddb469e1c3835121010b40e80c34db8b82f8663938d84c11",
+        "exact_bytes_match": true
+      },
+      {
+        "name": "phase1-orchestrator.draft.json",
+        "sha256": "6ec090ba1e122257a70bfcbbc9e7449b6663ce0de2ce277991bb7abe3a26bf3f",
+        "exact_bytes_match": true
+      },
+      {
+        "name": "runtime_review.draft.json",
+        "sha256": "6e8b2ba844ffbed15eeebfcce69f166e3bdfee6761293d52a8f2155a5f4645c5",
+        "exact_bytes_match": true
+      },
+      {
+        "name": "provenance.json",
+        "sha256": "6438a9aa91a1cdc5dafcd266a0f66e00cd1ce08a401a23d63e955c3ee56852f9",
+        "exact_bytes_match": true
+      }
+    ],
+    "input_reviews_and_payloads_hash_bound": true,
+    "current13consumer_hashes_match": true,
+    "only_transport_consumer_changed": true,
+    "old128sourcepins_and_all_other_subject_fields_preserved": true,
+    "mandatory4launcher_additions": [
+      {
+        "name": "phase1-audit-log",
+        "container_id": "6ed099d9dc9871eaa1ea701eeda488c5b47b5d954dbbca920e527a2397b795e3",
+        "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+        "path": "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py",
+        "sha256": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554"
+      },
+      {
+        "name": "phase1-risk-stub",
+        "container_id": "6ecdea955efebb6afa265f7f620d18bb119d78a6e19030cece9f9a8294f41fa6",
+        "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+        "path": "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py",
+        "sha256": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554"
+      },
+      {
+        "name": "phase1-memory",
+        "container_id": "a0f4a77087bd33167692c5326a1a8183774c099a5128e93fa8268554cfab2c49",
+        "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+        "path": "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py",
+        "sha256": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554"
+      },
+      {
+        "name": "phase1-orchestrator",
+        "container_id": "c672b553761f4c780881be0a4e50de6a2c2c9c139473bf85202a8e54dfa358c1",
+        "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+        "path": "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py",
+        "sha256": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554"
+      }
+    ],
+    "total_source_pins": 132,
+    "storage_subjects_unchanged": true,
+    "all_container_image_and_MODELLED_final_preservation_bindings_unchanged": true,
+    "drafts_remain_INCOMPLETE_blank_reviewer_with_UNVERIFIED_policies": true,
+    "producer_did_not_create_acceptance_or_operation_authority": true
+  },
+  "policy_applicability": {
+    "decision": "ACCEPTED_WITH_RISK",
+    "basis": "Existing restricted per-subject source/client policy rationales retained, not re-audited wholesale or widened. Exact app source/image preservation plus accepted new-ID stopped snapshots and launcher witnesses/static bridge support applicability to the direct python -m uvicorn commands; the one-path integration changes only allowed source verification, not client behavior.",
+    "scope_path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/scope_review.json",
+    "scope_sha256": "d32f3589c9156844f9a4211a3cec289c36c5260536e82c82be38f947d3ff4054",
+    "reviewer_field_binding": "Independent GATE; single-cited-query-v1; v6b launcher; scope-review-sha256=d32f3589c9156844f9a4211a3cec289c36c5260536e82c82be38f947d3ff4054",
+    "per_subject_policy_rationales_in_scope": true,
+    "old_scope_and_inheritance_meanings_retained": true,
+    "no_live_configuration_or_import_success_inferred": true
+  },
+  "accepted_records": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/scope_review.json": "d32f3589c9156844f9a4211a3cec289c36c5260536e82c82be38f947d3ff4054",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/phase1-timescaledb.json": "60ccd32b37c5878c43b352b8e2a0d7e548b836db1ddcea2a2372d340634f980d",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/phase1-qdrant.json": "7c21dcbf5078ffc5a88fd11245c7f455284eac77890660e9216ba20d837b3095",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/phase1-minio.json": "292f4f18a72240da836a9e2b6975d38aef5b24e4a6045d9e1cafea8c34b2ea99",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/phase1-audit-log.json": "a9d86f4cc16283b3fd97c66cbfa65ae446cfb487c6ce8484ca66da6719913375",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/phase1-risk-stub.json": "61bc3b6308e2c02107dd91578a37c872cf53a34f2e05ee6d38d2f04d980fbf3f",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/phase1-memory.json": "234e865b1da54363aec9dc47002c5c849e9ea73458ebb7cc6fee8fef8d75cc1f",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/phase1-orchestrator.json": "e923651d1bd35aefe689fc5acbbb078f3e11c5302f69a8a8777b38173680798c",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/runtime_review.json": "47dbeebdbdbd3cd978156f9a25d8b07027f34023ab6b0ff541f2d05cfc1ca3e6"
+  },
+  "accepted_runtime_review_sha256": "47dbeebdbdbd3cd978156f9a25d8b07027f34023ab6b0ff541f2d05cfc1ca3e6",
+  "independent_test": {
+    "environment_confidence": "VERIFIED_ENV",
+    "test_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_launcher_packet.py 'tests/test_companion_docker_transport.py::test_read_file_paths_and_archive_cap[/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py]' tests/test_companion_docker_transport.py::test_launcher_allowance_does_not_expand_uvicorn_package",
+    "result": "14 passed in 0.24s",
+    "exit_code": 0,
+    "selected": "8 packet cases, 1 allowed launcher path and 5 rejected neighboring paths; fake transport only",
+    "parent_152_test_result": "CLAIMED in checkpoint; larger slice not rerun",
+    "exact_twelve_draft_reproduction": true,
+    "current_consumer_hashes_checked": 13,
+    "old128pins_preserved": true,
+    "native_Docker_or_service_operations": 0,
+    "credential_accesses": 0,
+    "new_captures": 0
+  },
+  "source_provenance": {
+    "direct_newID_application_source_entries": 43,
+    "direct_newID_launcher_entries": 4,
+    "other85pins": "Accepted historical same-image/storage/source-only inheritance; not fresh captures from all new IDs.",
+    "parent_native_witnesses_not_repeated": true,
+    "final_configuration": "MODELLED only; final alias/network changes have not been applied or observed.",
+    "attempt_label": "Accepted controller evidence, not independent raw-label capture."
+  },
+  "remaining_unverified": [
+    "Runtime package/module-origin/callable resolution, SDK initialization, effective live profile/startup/health and a working cited explanation.",
+    "Original worker delivery/graceful shutdown/acknowledgment, cancellation/transport-loss/recovery and future clock compatibility.",
+    "Actual final names/aliases/links/network attachment, data/volume contents, economic profit or general model readiness.",
+    "Fresh identity/image/configuration/installed-source/namespace/storage/recipient/lineage/archive/citation gates remain required; no acceptance here marks them passed."
+  ],
+  "authorization": {
+    "source_configured_policy_records_only": true,
+    "operational_handoff": false,
+    "token_or_credentials": false,
+    "prepare_build_create_start_stop_exec_signal": false,
+    "service_query": false,
+    "cutover": false,
+    "trading": false,
+    "automatic_execution": false
+  },
+  "preservation": {
+    "frozen_sources_tests_drafts_checkpoints_worklog_and_prior_records_modified": false,
+    "prior_actual_ID_acceptance_intact": true,
+    "old_consumed_attempts_receipts_and_removed_IDs_not_reset_or_adopted": true
+  },
+  "write_scope": {
+    "only_independent_review_and_accepted_derivative_folder": true,
+    "code_reaudit_or_fullsuite": false,
+    "one_bounded_pass": true
+  }
+}

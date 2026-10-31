@@ -1,0 +1,98 @@
+{
+  "evidence": "SHOWN selected installed method with fake helpers/transport, not authenticated behavior or full CCXT parser",
+  "cases_passed": 6,
+  "inputs_sha256": {
+    ".venv/lib/python3.12/site-packages/ccxt/coinbase.py": "e5bdb2d07e395443acdd56525090cadc72611133728d30adf09d4b8985bdd204",
+    ".venv/lib/python3.12/site-packages/ccxt/async_support/coinbase.py": "d8cc6134ceab0f0f04ef1f7e08a8d43904f93a41729c9fab897467bcc3c28c05"
+  },
+  "results": [
+    {
+      "async": false,
+      "params": {},
+      "calls": [
+        {
+          "route": "v2",
+          "params": {
+            "limit": 250
+          }
+        }
+      ],
+      "continuation_retained_but_not_followed": true
+    },
+    {
+      "async": false,
+      "params": {
+        "v3": true
+      },
+      "calls": [
+        {
+          "route": "v3",
+          "params": {
+            "limit": 250
+          }
+        }
+      ],
+      "continuation_retained_but_not_followed": true
+    },
+    {
+      "async": false,
+      "params": {
+        "paginate": true
+      },
+      "calls": [
+        {
+          "route": "v2",
+          "params": {
+            "limit": 250,
+            "paginate": true
+          }
+        }
+      ],
+      "continuation_retained_but_not_followed": true
+    },
+    {
+      "async": true,
+      "params": {},
+      "calls": [
+        {
+          "route": "v2",
+          "params": {
+            "limit": 250
+          }
+        }
+      ],
+      "continuation_retained_but_not_followed": true
+    },
+    {
+      "async": true,
+      "params": {
+        "v3": true
+      },
+      "calls": [
+        {
+          "route": "v3",
+          "params": {
+            "limit": 250
+          }
+        }
+      ],
+      "continuation_retained_but_not_followed": true
+    },
+    {
+      "async": true,
+      "params": {
+        "paginate": true
+      },
+      "calls": [
+        {
+          "route": "v2",
+          "params": {
+            "limit": 250,
+            "paginate": true
+          }
+        }
+      ],
+      "continuation_retained_but_not_followed": true
+    }
+  ]
+}

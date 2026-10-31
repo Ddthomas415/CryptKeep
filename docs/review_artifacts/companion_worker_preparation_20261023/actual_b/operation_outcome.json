@@ -1,0 +1,29 @@
+{
+  "schema":"companion-v6b-preparation-actual-outcome-v1",
+  "operator_authorization":"User replied approve carry on directly to the explicit fresh corrected preparation-only scope; four local builds/four new never-started containers/private existing-credential copy, originals untouched; no startup/signals/query/cutover",
+  "command":"env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m scripts.research.companion_prepare --manifest docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/reviewed_preparation_manifest.json --reviewed-manifest-sha256 67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e --execute-preparation",
+  "command_invocations":1,
+  "exit_code":0,
+  "stdout":{
+    "state":"READY_FOR_INDEPENDENT_REVIEW","preparation_complete":true,"actions_executed":true,
+    "startup_authorized":false,"services_started":false,"originals_interrupted":false,
+    "attempt_reserved":true,
+    "receipt":"/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261023v6b/receipt.jsonl",
+    "evidence":"/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261023v6b/evidence.json",
+    "evidence_sha256":"da7ee2de44a4e98990cceb6b4c53edc530fc717cc45c7c94d6b65994edfa35ef",
+    "manifest_sha256":"67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e"
+  },
+  "public_evidence_byte_identical":true,
+  "public_receipt_byte_identical":true,
+  "public_receipt_sha256":"6fe6556f02e9b58a0e15984746f15cd86fe65dd97583d1efa2eeb6b950f82198",
+  "before_inventory_sha256":"ae05c9e33fe708c14d89afc9bfa9a56896c55e5e00a45c2338bac792b4889d5f",
+  "post_inventory_sha256":"7d4a164c4e2638492f04d83e4aa70287e9801bf298cda0c489c2a7e8037f01f5",
+  "staged_metadata_sha256":"28256b005e8414a542f3f894cff1cc285b095d2b42cf9398980e8496f847d198",
+  "limits":[
+    "Preparation success is not service startup, runtime compatibility, successful original-worker shutdown or a working explanation request",
+    "Final aliases are modeled using observed staged metadata; they have not been applied or observed at final names",
+    "Image cache reuse is possible; four build invocations do not mean four novel image IDs",
+    "Before/post preservation covers saved selected metadata, not persistent data or volume contents"
+  ],
+  "further_operational_authorization":false
+}

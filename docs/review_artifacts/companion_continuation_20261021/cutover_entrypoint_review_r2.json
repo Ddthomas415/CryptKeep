@@ -1,0 +1,124 @@
+{
+  "schema": "companion-cutover-entrypoint-review-v2",
+  "reviewed_at_utc": "2026-10-21T16:23:47Z",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Bounded R2 closure of R1 P1/P2 and declared wrapper signal-handling delta only; offline component, not runtime readiness or operational authorization",
+  "reviewed_sha256": {
+    "scripts/research/companion_cutover.py": "fcea6d3e181372e3db02882f70392f38a985067081a42c5c3e2a8bfd34a3a550",
+    "tests/test_companion_cutover_entrypoint.py": "71801c52c85e4580f52a120197af009223ddf53b59bde2c14b7fd532f4edc31a",
+    "tests/test_companion_cutover_inputs.py": "69522fff1a44d2c3e2b633c95e4bba1bd136102bd3fe553bd1066ab21c79d6bb"
+  },
+  "prior_review": {
+    "path": "docs/review_artifacts/companion_continuation_20261021/cutover_entrypoint_review_r1.json",
+    "sha256": "8f5e5a00ec715d34a80877c32e7e5f8b1953279de505ca462eb08ae0df1f9204",
+    "decision": "REJECTED",
+    "preserved": true
+  },
+  "findings": [],
+  "closed_findings": [
+    {
+      "id": "R1-P1-recovery-handoff-signal",
+      "state": "CLOSED",
+      "classification": "SHOWN in deterministic offline reproduction",
+      "proof": "A first SIGINT or SIGTERM injected at the initial wrapper exception-suite condition after publication failure is latched/deferred. Both runs return exit1 with one sanitized INCOMPLETE summary, exactly one rollback, four restored running originals, zero running prepared replacements, runtime closed and handlers restored."
+    },
+    {
+      "id": "R1-P2-partial-initialize",
+      "state": "CLOSED",
+      "classification": "SHOWN in deterministic offline reproduction",
+      "proof": "SIGINT and SIGTERM injected in Installer._initialize immediately after used=True and before plan/images assignment return exit1 with sanitized INCOMPLETE summaries, no escaped AttributeError, no rollback/native dispatch, all baseline rows untouched, runtime closed and handlers restored."
+    }
+  ],
+  "shown": [
+    "Reverse of only sys import, cancellation latch/defer logic, post-run interrupted check and partial-state-safe outer guard reproduces frozen R1 source SHA256 3f33b2b2e9f9f88eb302db0fe19f3b95b6eb960ede69e76619299a8dd69cc3a0 exactly. No other wrapper source changes are included.",
+    "Input test hash is unchanged. Current wrapper cases include all four new SIGINT/SIGTERM by initialization/failure-handoff combinations.",
+    "No deadline, policy, input-record, accepted-core or operational authorization relaxation is part of the source delta."
+  ],
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV for offline/synthetic verification only",
+    "focused_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_cutover_entrypoint.py tests/test_companion_cutover_inputs.py",
+    "focused_result": "62 passed in 1.11s",
+    "focused_exit_code": 0,
+    "independent_probe_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B - <<'PY'\nimport contextlib, inspect, io, json, os, signal, sys, tempfile\nfrom pathlib import Path\nimport pytest\nfrom tests.test_companion_cutover_entrypoint import setup, entry, install\nresults=[]\nfor scenario in (\"signal_during_initialize\", \"signal_entering_publication_failure_recovery\"):\n for sig in (signal.SIGINT, signal.SIGTERM):\n  with tempfile.TemporaryDirectory(prefix=\"cutover-review-r2-\") as tmp, pytest.MonkeyPatch.context() as mp:\n   s=setup.__wrapped__(Path(tmp),mp)\n   fired=[]\n   if scenario==\"signal_entering_publication_failure_recovery\":\n    def publication_failure(*args): raise OSError(\"SYNTHETIC_PUBLICATION_FAILURE\")\n    mp.setattr(entry,\"_publish\",publication_failure)\n   filename=str(Path(entry.__file__).resolve())\n   initcode=install.Installer._initialize.__code__\n   lines,start=inspect.getsourcelines(install.Installer._initialize)\n   initline=start+next(i for i,line in enumerate(lines) if \"self.plan, self.images =\" in line)\n   source=Path(filename).read_text().splitlines()\n   exceptline=next(i for i,line in enumerate(source,1) if \"if (runner is not None and runner.used\" in line)\n   def trace(frame,event,arg):\n    hit=(scenario==\"signal_during_initialize\" and frame.f_code is initcode and frame.f_lineno==initline\n         or scenario==\"signal_entering_publication_failure_recovery\" and frame.f_code.co_filename==filename and frame.f_lineno==exceptline)\n    if event==\"line\" and hit and not fired:\n     fired.append(True);sys.settrace(None)\n     s.handlers[sig](sig,None)\n    return trace\n   fd,writer=os.pipe();os.close(writer)\n   output=io.StringIO();escaped=None;exitcode=None\n   try:\n    with contextlib.redirect_stdout(output):\n     sys.settrace(trace)\n     exitcode=entry.main([*s.args,\"--execute-cutover\",\"--token-fd\",str(fd)])\n   except BaseException as e:\n    escaped=type(e).__name__\n   finally:\n    sys.settrace(None)\n    try:os.close(fd)\n    except OSError:pass\n   assert escaped is None and exitcode==1 and fired\n   assert len(output.getvalue().splitlines())==1\n   summary=json.loads(output.getvalue())\n   assert summary[\"state\"]==\"INCOMPLETE\"\n   assert \"SYNTHETIC_TOKEN_DO_NOT_PRINT\" not in output.getvalue()\n   originals={r.id for r in s.plan.baseline[3:]}\n   replacements={r.id for r in s.prepared.replacements}\n   result={\"scenario\":scenario,\"signal\":sig.name,\"injection_fired\":bool(fired),\"escaped_exception\":escaped,\"exit_code\":exitcode,\n    \"stdout_summary_present\":True,\"rollback_calls\":len(s.rollbacks),\n    \"original_apps_running\":sum(r.id in originals and r.state==\"running\" for r in s.backend.rows.values()),\n    \"prepared_apps_running\":sum(r.id in replacements and r.state==\"running\" for r in s.backend.rows.values()),\n    \"original_apps_exited\":sum(r.id in originals and r.state==\"exited\" for r in s.backend.rows.values()),\n    \"runtime_closed\":s.closed==[True],\"handlers_restored\":s.handlers==s.original_handlers,\"native_operations\":False}\n   assert result[\"original_apps_running\"]==4 and result[\"prepared_apps_running\"]==0 and result[\"runtime_closed\"] and result[\"handlers_restored\"]\n   assert all(s.backend.rows[r.name]==r for r in s.plan.baseline[:3])\n   if scenario==\"signal_entering_publication_failure_recovery\":\n    assert result[\"rollback_calls\"]==1 and summary[\"rollback_verified\"] is True\n    assert not any(r.attempt for r in s.backend.rows.values())\n   else:\n    assert result[\"rollback_calls\"]==0 and not s.backend.calls\n    assert all(s.backend.rows[r.name]==r for r in s.plan.baseline)\n   results.append(result)\nprint(json.dumps({\"synthetic_only\":True,\"results\":results},indent=2))\nPY",
+    "independent_probe_exit_code": 0,
+    "independent_probe_results": [
+      {
+        "scenario": "signal_during_initialize",
+        "signal": "SIGINT",
+        "injection_fired": true,
+        "escaped_exception": null,
+        "exit_code": 1,
+        "stdout_summary_present": true,
+        "rollback_calls": 0,
+        "original_apps_running": 4,
+        "prepared_apps_running": 0,
+        "original_apps_exited": 0,
+        "runtime_closed": true,
+        "handlers_restored": true,
+        "native_operations": false
+      },
+      {
+        "scenario": "signal_during_initialize",
+        "signal": "SIGTERM",
+        "injection_fired": true,
+        "escaped_exception": null,
+        "exit_code": 1,
+        "stdout_summary_present": true,
+        "rollback_calls": 0,
+        "original_apps_running": 4,
+        "prepared_apps_running": 0,
+        "original_apps_exited": 0,
+        "runtime_closed": true,
+        "handlers_restored": true,
+        "native_operations": false
+      },
+      {
+        "scenario": "signal_entering_publication_failure_recovery",
+        "signal": "SIGINT",
+        "injection_fired": true,
+        "escaped_exception": null,
+        "exit_code": 1,
+        "stdout_summary_present": true,
+        "rollback_calls": 1,
+        "original_apps_running": 4,
+        "prepared_apps_running": 0,
+        "original_apps_exited": 0,
+        "runtime_closed": true,
+        "handlers_restored": true,
+        "native_operations": false
+      },
+      {
+        "scenario": "signal_entering_publication_failure_recovery",
+        "signal": "SIGTERM",
+        "injection_fired": true,
+        "escaped_exception": null,
+        "exit_code": 1,
+        "stdout_summary_present": true,
+        "rollback_calls": 1,
+        "original_apps_running": 4,
+        "prepared_apps_running": 0,
+        "original_apps_exited": 0,
+        "runtime_closed": true,
+        "handlers_restored": true,
+        "native_operations": false
+      }
+    ],
+    "frozen_hashes_rechecked_after_probes": true
+  },
+  "limitations": [
+    "Independent rerun covers the two wrapper/input files and exact prior probe boundaries, not the parent's entire six-file run or a full repository suite.",
+    "Signal probes invoke the installed callbacks at deterministic trace points in the real wrapper/Installer controller over synthetic state. No actual native service or OS signal delivery was exercised.",
+    "No actual runtime-policy/dependency/topical approval packet is generated or approved. Native SDK/import, alias/endpoint, health, explanation/query and complete runtime behavior remain UNVERIFIED.",
+    "Prior accepted component boundaries remain in force, including ownership restrictions, the shared controller deadline/recovery reserve, token handling and separate operator authorization.",
+    "Acceptance is for the offline R2 wrapper correction only. No preparation, build, service operation, credential handoff, startup or cutover is authorized."
+  ],
+  "runtime_state": "INCOMPLETE",
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "reviewer_native_operations": false,
+  "reviewer_credential_reads": false,
+  "source_or_test_edits": false,
+  "prior_evidence_edited": false
+}

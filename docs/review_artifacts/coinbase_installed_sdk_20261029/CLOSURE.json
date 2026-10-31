@@ -1,0 +1,37 @@
+{
+  "recorded_at": "2026-10-29T20:34:29.955267+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "installed SDK implicit endpoint dispatch and parser compatibility, request stubbed",
+  "reviewer_agent": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1895c-9d1b-7102-8acc-515d0a6bc2cc",
+  "verified_inputs": 21,
+  "independent_test_result": {
+    "passed": 98,
+    "new_cases": 26,
+    "seconds": 6.98,
+    "exit_code": 0,
+    "command_file": "TEST_RESULT.json"
+  },
+  "diff_reproduces": true,
+  "reader_unchanged": true,
+  "production_files_edited_by_this_work": false,
+  "prior_order_change": "existing order_type argument only in _enforce_fail_closed; preserved, not reapproved",
+  "actual_methods_exercised": [
+    "installed Entry native endpoint dispatch",
+    "installed parse_custom_balance"
+  ],
+  "stub_boundary": "client.request; signing and HTTP not exercised",
+  "scope_authenticated": false,
+  "spendable_verified": false,
+  "execution_authority": false,
+  "unresolved": [
+    "V2 spendability",
+    "V3 legacy guard compatibility",
+    "authenticated scope and transport budget/recipients/retries",
+    "atomic holdings and pending-order evidence",
+    "production paging and cap wiring"
+  ],
+  "operational_authority_granted": false,
+  "submitted_design_status_note": "submitted checkpoint is frozen before review; this GATE disposition and current task index are authoritative"
+}

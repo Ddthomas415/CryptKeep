@@ -1,0 +1,22 @@
+{
+  "recorded_at_utc": "2026-10-28T14:40:46.399085+00:00",
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "isolated source-copy proposal; application source unchanged",
+  "selected_source_probe": {
+    "sync_control_passed": true,
+    "async_balance_and_permissions_failures_reproduced": true
+  },
+  "proposal_tests": {
+    "passed": 14,
+    "seconds": 0.31
+  },
+  "inputs_sha256": {
+    "services/execution/place_order.py": "f7337e9885026b430aab89d53f2ba6f24e402f814c5f57ad4097b71e775d5119",
+    "services/execution/coinbase_portfolio_guard.py": "e865a09d2a96828143b1b29ef07e6a710744e8a7f94134548d1a96f657c77352",
+    "docs/review_artifacts/balance_preflight_integration_20261028/place_order_proposed.py": "a29ba48fb1f45b167c47817d91d25d7be3341ae18fa64999f7892866642072a6",
+    "tests/test_proposed_async_balance_preflight.py": "358c4bbe7e9a50c3149ba84e15cb2b592cf870c635d1bf36f2cdca1b3926980d"
+  },
+  "patch_sha256": "9dbc9abfa312a9455441a1aa5edfc4f711325bde3f9566b2439e7d102a0895b5",
+  "production_source_changed": false,
+  "private_requests_or_service_changes": false
+}

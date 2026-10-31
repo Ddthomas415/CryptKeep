@@ -1,0 +1,29 @@
+{
+  "schema": "companion-prestart-continuation-v1",
+  "decision": "ACCEPTED_WITH_RISK",
+  "reviewer": "Independent Codex GATE; offline exact-input acceptance; scope=reviewed_continuation_scope.json; no operational grant",
+  "execution_id": "s3cutover20261022health01",
+  "manifest_sha256": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d",
+  "preparation_evidence_sha256": "fe3569d39351d72766136aae7c58ae24f52f7b3a627edf760d999874f06c2f96",
+  "preparation_review_sha256": "b9723bdd60158e9f5f354eee34db097af6d6949a3bb113d8dd16a5c6980b931c",
+  "runtime_review_sha256": "64127a85c985be4e09c0c6df24f5a688d5faae5a38077a3ccd20af7e82d7d43b",
+  "prepared_ids": [
+    "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+    "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+    "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+    "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726"
+  ],
+  "prior_receipt_sha256": "8ad9cd45e9754e2af84af7bdb1eba9ab5f0f1b37af4d153813f8fce3eab93c29",
+  "consumer_sha256": {
+    "scripts/research/companion_cutover.py": "8740d65d31eade3d94cd849710aa2b1cf00a67ca560e385fd5a54ff4a20aaf4e",
+    "scripts/research/companion_cutover_continuation.py": "89695031669454307f55601f44953fa5fc42ef3b582ea2df5a4086470260a911",
+    "scripts/research/companion_runtime_adapter.py": "e7315cd9047f656afca0b3845be54629c46c80c9a20065d8646978dce20fce38",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_installer.py": "56d9b924d7d0b7e2660d68db62dcdd67252fdc5e01ad633a7e39f57ea866b16b",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_docker_transport.py": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5",
+    "scripts/research/companion_install_docker.py": "ca2e74fcf9d3869f7c3ed27e69721cd12615f41cc2687ea0844b314250814220",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_network_configuration.py": "c3824743fb08098a35af6966ee9e3345a63e6500f18a5fdd84a02d1114bf39d7"
+  }
+}

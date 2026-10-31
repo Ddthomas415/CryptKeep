@@ -1,0 +1,20 @@
+{
+  "parent_test_result": {
+    "active_path_forbidden_attempts": 0,
+    "full_suite_run": false,
+    "passed": 5,
+    "seconds": 1.16,
+    "synthetic_negative_expected": true,
+    "warnings": 10
+  },
+  "production_changes": false,
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-strict-path-harness-v3-parent-report-v1",
+  "sha256": {
+    "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md": "92b0e1283120f1db955ff51157a0d156b5107b59e046d7ed747dbbf404fb501c",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_harness_v2.tar": "0ef9c447e7b59603f2a3e5cf407a16872c38c8478bddfad1eb38a2cb0c8f53d1",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review_v2.json": "f321e8d9c8fa85da096e063b4dfae140ad5ff65f19bb191c8dbce3fcf3495464",
+    "tests/test_companion_v6h_strict_probe_contract.py": "ea4049ccf827b8dfd2b416b89fb977eae9594dfd6a5fe37d0492968a0f0a28a4"
+  },
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

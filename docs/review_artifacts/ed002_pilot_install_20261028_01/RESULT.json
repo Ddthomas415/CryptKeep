@@ -1,0 +1,74 @@
+{
+  "commands": [
+    {
+      "exit_code": 0,
+      "name": "preflight_user_labels",
+      "started_monotonic_offset_seconds": 0.003,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "a674df232a17c68608bacb310333575767ab6a567cd903f5ca4f88b07d636b97"
+    },
+    {
+      "exit_code": 0,
+      "name": "plist_lint",
+      "started_monotonic_offset_seconds": 0.029,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "a89b16c0ea0387b191c14cff4935b9a08b621c8850804d07ecaff6fc752e3845"
+    },
+    {
+      "exit_code": 0,
+      "name": "isolated_cli_preview",
+      "started_monotonic_offset_seconds": 0.038,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "49805d76bafcdbff960a7bb7710532616a463f3c012382afb287dc12f8ec6963"
+    },
+    {
+      "exit_code": 0,
+      "name": "bootstrap_owned_job",
+      "started_monotonic_offset_seconds": 0.099,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "exit_code": 0,
+      "name": "postflight_user_labels",
+      "started_monotonic_offset_seconds": 0.107,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "8e424d2e2ee982f8c6b843c546d2c241f34d5d8c548ab06abb2c22877e651939"
+    }
+  ],
+  "elapsed_seconds_observed": 0.117,
+  "end_ms": 1793270100000,
+  "end_new_york": "2026-10-29T06:35:00-04:00",
+  "end_utc": "2026-10-29T10:35:00+00:00",
+  "finished_utc": "2026-10-28T10:11:15.547777+00:00",
+  "installed_plist_sha256": "d4ae5e578a2c5a11210d5493d267852ff9e14d0d922ccfed1c3b50ab8bc8faf2",
+  "job_installed": true,
+  "kickstart_or_automatic_retry": false,
+  "loaded_label": "com.cryptkeep.ed002.public-inputs",
+  "max_public_gets": 1296,
+  "max_slots": 48,
+  "new_public_requests_by_installer": 0,
+  "operator_scope": "one 24h/48-slot/1296-public-GET pilot installation",
+  "pilot_id": "mac_pilot_20261028t1035z",
+  "pilot_namespace": "/Users/baitus/Downloads/crypto-bot-pro/research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z",
+  "policy_path": "/Users/baitus/Downloads/crypto-bot-pro/research/ed002_public_inputs/plans/local_pilot_20261028T1035Z.json",
+  "policy_sha256": "86ff9693e46ce7d82830ab0d44f18ef1b4a5d641938e5e5db9a9e6025e72a32c",
+  "preflight_loaded_label_count": 554,
+  "recovery": {
+    "attempted": false
+  },
+  "registration_verified": true,
+  "slots_started_at_installation": 0,
+  "stage": "registered_awaiting_first_slot",
+  "start_ms": 1793183700000,
+  "start_new_york": "2026-10-28T06:35:00-04:00",
+  "start_utc": "2026-10-28T10:35:00+00:00",
+  "status": "COMPLETE",
+  "study_dates_set": false,
+  "target_file_identity": {
+    "device": 16777230,
+    "inode": 4217334666
+  },
+  "target_file_mode": "0o600",
+  "unattended_capture_verified": false
+}

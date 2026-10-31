@@ -1,0 +1,198 @@
+{
+  "schema": "companion-v6g-actual-runtime-failure-independent-review-v1",
+  "date": "2026-10-26",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "blocking_findings": [],
+  "acceptance_scope": "Saved failed-attempt evidence and bounded offline diagnosis only. No successful runtime/explanation, recovery-health acceptance, repair implementation approval or follow-on operational authority.",
+  "runtime_state": "INCOMPLETE",
+  "runtime_execution_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "token_operation_authorized": false,
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "hashes": {
+    ".cbp_state/runtime/companion_cutovers/workerprep20261025v6g/receipt.jsonl": "eb2ebdd2013f73d6649885b8714281f91585cedab479d2e2bbc75942d25fdfbc",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_runtime_v6g/diagnose_saved_result.py": "f663394dcf9cd156c00a25dd9578f6c19802a82582ca928e707834ef196e0a81",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_runtime_v6g/receipt.jsonl": "eb2ebdd2013f73d6649885b8714281f91585cedab479d2e2bbc75942d25fdfbc",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "scripts/research/companion_installer.py": "e9fd8a144de54bf277e2c5812110dda9cc8cf0a7d1bb6fc85707b188f3174d38",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_runtime_v6g/outcome.json": "b2c851460445678ccd97ca6ee2ab1794d935d134d4b943645ceef0615fbbbe4b",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_runtime_v6g/diagnosis.json": "1013d20a1694057e5c28833e608023b7414fbc75cb3c57c9c17ddf85083e26eb",
+    "docs/checkpoints/companion_runtime_attempt_v6g_20261026.md": "5518345b79569e45cfec30d3a1c4286fd1fb0104e8f411dbe0c4bb2229a21107",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/scope_review.json": "f01d70a7f459a1a2d4f34b32af1f688ac94d3b153a5c9b0fd641fefa9632612d"
+  },
+  "receipt": {
+    "classification": "SHOWN saved bytes/controller records",
+    "events": 98,
+    "read_complete": true,
+    "source_copy_byte_identical": true,
+    "query_failure_diagnostics_equal": true,
+    "stages": [
+      {
+        "http_status": null,
+        "outcome": "invalid_envelope",
+        "route": "primary",
+        "stage": "normalization"
+      },
+      {
+        "http_status": 200,
+        "outcome": "json_received",
+        "route": "companion",
+        "stage": "transport"
+      },
+      {
+        "http_status": null,
+        "outcome": "accepted",
+        "route": "companion",
+        "stage": "normalization"
+      }
+    ],
+    "execution_disabled": true,
+    "provider": "fallback",
+    "verifier_result": {
+      "checks": {
+        "article_view_mapping": false,
+        "causal_limits": false,
+        "content_hash": false,
+        "persisted_identity": false,
+        "topical_support": false
+      },
+      "false_meaning": "not_established_or_not_evaluated",
+      "outcome": "complete",
+      "shape_valid": true
+    },
+    "rollback": {
+      "configuration_restored": true,
+      "exact_baseline_restored": false,
+      "network_connectivity_verified": false
+    }
+  },
+  "assessment": [
+    {
+      "classification": "SHOWN receipt and static control flow",
+      "subject": "Client boundary accepted; verifier gate did not pass",
+      "detail": "Complete receipt records primary invalid_envelope, companion HTTP 200 with five citations/execution_disabled true, then companion normalization accepted. No foreign_asset rejection or static dashboard fallback is recorded. This differs from V6f and establishes acceptance of that saved client boundary only. verify_evidence intention precedes the evidence_verification_checks result and installation_failed at runtime_verification. Result shape has exactly the five fixed keys with literal false booleans. Current installer proceeds only if all are true, so runtime success was correctly withheld.",
+      "source_lines": [
+        "scripts/research/companion_installer.py:410-437",
+        "scripts/research/companion_runtime_adapter.py:782-795"
+      ]
+    },
+    {
+      "classification": "SHOWN static ambiguity; actual cause UNVERIFIED",
+      "subject": "All-false is not five independent failures or proof of no timeout",
+      "detail": "outcome complete means a correctly shaped returned dictionary, not successful semantic completion of each check. Pure evaluate catches BaseException and returns every key false. Remote wrapper initializes/returns all-false on multiple failures and its dedicated eight-second SIGALRM handler writes the same failure dictionary before hard exit. Therefore this valid returned result cannot distinguish failed predicate, import/config/archive/DB exception, teardown failure or inner deadline. It does not show each individual criterion was evaluated. No exact first predicate, error class, elapsed stage, raw response/types or DB rows is retained.",
+      "source_lines": [
+        "scripts/research/companion_evidence_checks.py:315-325",
+        "scripts/research/companion_evidence_checks.py:336-400"
+      ]
+    },
+    {
+      "classification": "SHOWN offline correlation only",
+      "subject": "Five ID/URL pairs match frozen archive",
+      "detail": "Independently reproduced saved diagnosis: document-ID hashes correlate in order to 5,47,18,5,26 and all five URL hashes match those frozen archive records. This does not authenticate actual runtime titles/body text, original ID types, persisted rows, body hashes, topical witness evaluation or causal limits. No missing response/DB information was invented.",
+      "correlation": [
+        {
+          "document_id": 5,
+          "url_hash_matches": true
+        },
+        {
+          "document_id": 47,
+          "url_hash_matches": true
+        },
+        {
+          "document_id": 18,
+          "url_hash_matches": true
+        },
+        {
+          "document_id": 5,
+          "url_hash_matches": true
+        },
+        {
+          "document_id": 26,
+          "url_hash_matches": true
+        }
+      ]
+    },
+    {
+      "classification": "SHOWN recovery attestation; current health UNVERIFIED",
+      "subject": "Configuration rollback is not exact restoration",
+      "detail": "Final receipt records configuration_restored true, exact_baseline_restored false and network_connectivity_verified false. Current recovery implementation distinguishes selected configuration/running snapshot comparisons from exact baseline equality, without proving endpoint health or volume bytes. Parent outcome has empty tracked unresolved lists, prepared_ids_preserved false and preparation_consumed true. Those indicate reported tracked-action resolution/consumption, not continuous or current running state, successful health checks after recovery, exact restoration or reusable staged identities.",
+      "source_lines": [
+        "scripts/research/companion_installer.py:620-649"
+      ]
+    }
+  ],
+  "proof": {
+    "environment": "VERIFIED_ENV for local saved-file parsing, SHA-256 and bounded static source inspection",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m docs.review_artifacts.companion_integration_inputs_v6g_20261025.actual_runtime_v6g.diagnose_saved_result",
+    "execution_method": "Executed that module once with runpy __main__ under external unittest.mock socket-construction/create_connection/getaddrinfo and subprocess Popen/run/check_output/check_call/call tripwires; captured stdout in memory.",
+    "classification": "SHOWN",
+    "exit_code": 0,
+    "diagnosis_object_exact": true,
+    "tripwire_calls": 0,
+    "additional_checks": "Duplicate-key rejecting receipt/outcome parsing; all diagnosis hashes recomputed and matched; exact fixed verifier key set and intention/result/failure ordering checked; full public receipt matches consumed state-file bytes.",
+    "tests": "No pytest/full suite: no implementation change. Only diagnosis assertions, local hash/copy checks and static false-result/recovery-contract inspection.",
+    "native_operations": 0,
+    "network_operations": 0,
+    "token_or_credential_access": 0,
+    "backend_or_container_calls": 0,
+    "service_operations": 0,
+    "DB_operations": 0,
+    "SDK_initialization": 0,
+    "additional_agents": 0
+  },
+  "outcome_attribution": {
+    "classification": "CLAIMED parent transcription/direct user approval, not independent process or host observation",
+    "session": 75647,
+    "exit_code": 1,
+    "approved_action": "User-approved single V6g attempt; no retry/native-after operation reported.",
+    "reported": {
+      "query_attempted": true,
+      "query_passed": false,
+      "running_update_complete": false,
+      "receipt_complete": true,
+      "rollback_verified": true,
+      "rollback_exact_baseline": false,
+      "services_started": true,
+      "prepared_ids_preserved": false,
+      "preparation_consumed": true,
+      "all_unresolved_lists_empty": true
+    },
+    "note": "Saved receipt sequence is consistent with parent result. services_started is historical activity, not recovery health."
+  },
+  "privacy_and_scope_limits": [
+    "Public diagnostics retain fixed stage/outcome, bounded hashes and selected flags, not raw response prose/types, DB rows, credentials or exception text. Hashing is not anonymization: low-entropy IDs/names can be correlated against known saved inputs.",
+    "No first failed predicate, unique causal root, timeout absence, bad database, invalid body or topical failure is established. Do not describe all five properties as independently false.",
+    "Controller operation intention plus shape-valid result establishes the recorded invocation/return path, not which inner remote stages completed.",
+    "No fresh current-state, source installation, SDK, namespace, connectivity, post-recovery health or volume equality review. No broad unchanged SDK/source-policy audit.",
+    "Both consumed preparation/cutover markers are present at local existence check. No reset/retry/recreation or old-ID/evidence reuse authorized.",
+    "Saved-evidence acceptance does not authorize preparation, runtime retry, token reuse, raw query reconstruction or weakened verifier criteria."
+  ],
+  "recommended_next_scope": {
+    "classification": "Recommendation only; not implemented or operationally authorized",
+    "objective": "Add secret-free fixed first-failure/stage codes to the evidence verifier path, preserving existing fail-closed criteria and timeout behavior.",
+    "constraints": "Whitelist fixed labels rather than raw exception text, payload fragments, document bodies, database rows or credential material. Preserve current evidence requirements, all-true acceptance, dedicated eight-second work cap and bounded parent transport/deadline; no retry or diagnostic-driven gate bypass."
+  },
+  "read_scope": {
+    "complete": [
+      "docs/checkpoints/companion_runtime_attempt_v6g_20261026.md",
+      "actual_runtime_v6g/receipt.jsonl (98 events)",
+      "actual_runtime_v6g/outcome.json",
+      "actual_runtime_v6g/diagnose_saved_result.py",
+      "actual_runtime_v6g/diagnosis.json"
+    ],
+    "selected_source": [
+      "companion_evidence_checks.py evaluate/_deadline_exit/_remote_main and script serialization",
+      "companion_runtime_adapter.py verify_evidence",
+      "companion_installer.py verifier ordering/result gate and recovery completion predicates"
+    ],
+    "not_reconstructed": "No actual raw response, DB snapshot, remote exception or missing runtime prose."
+  },
+  "write_scope": "Only actual_runtime_v6g/independent_review.json written. Script/source/receipt/outcome/diagnosis/checkpoint/worklog/packet unchanged; no new approval records or operations."
+}

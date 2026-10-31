@@ -1,0 +1,38 @@
+{
+  "schema": "companion-continuation-inert-validation-v1",
+  "recorded_utc": "2026-10-23T00:41:15Z",
+  "operator_local_date": "2026-10-22",
+  "environment": "VERIFIED_ENV for existing local offline CLI only",
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m docs.review_artifacts.companion_continuation_20261021.execute_reviewed_continuation",
+  "exit_code": 0,
+  "launcher_sha256": "015ced06462c79b442b0fb03f2cbf57869986e4d142de40ed6b5e6a8f3b7924d",
+  "original_helper_sha256": "5c319350681e2fb4fdac363e29b829947e0348678fdcc8ecabc84820713adf12",
+  "continuation_scope_sha256": "2ae3cc1ee7c0dca885b57e65acfd428f61b4378179b8995a2d1310288157e649",
+  "result": {
+    "state": "READY_FOR_INDEPENDENT_REVIEW",
+    "actions_executed": false,
+    "startup_authorized": false,
+    "input_bindings_validated": true,
+    "manifest_sha256": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d",
+    "attempt": "s3refresh20261021c1eaae5a",
+    "controller_budget_seconds": 600,
+    "recovery_reserve_seconds": 180,
+    "continuation": {
+      "execution_id": "s3cutover20261022health01",
+      "preparation_attempt": "s3refresh20261021c1eaae5a",
+      "continuation_review_sha256": "56c03c4cf249ceef01ce5aaace1b7bd1e512b73c4771952f0ad84e27388b1ccc",
+      "prior_receipt_sha256": "8ad9cd45e9754e2af84af7bdb1eba9ab5f0f1b37af4d153813f8fce3eab93c29"
+    }
+  },
+  "native_operations": 0,
+  "credentials_accessed": false,
+  "services_started": false,
+  "new_execution_reserved": false,
+  "original_failed_receipt_unchanged": true,
+  "full_test_suite_run": false,
+  "limits": [
+    "Input/continuation validation is not current native identity, configuration, installed-byte, health, namespace, retrieval, citation or rollback proof.",
+    "The CLI's READY_FOR_INDEPENDENT_REVIEW status is static inert-mode output, not startup or operational authorization.",
+    "No execute-once flag or token descriptor was supplied; no token source, native command, lock or reservation path ran."
+  ]
+}

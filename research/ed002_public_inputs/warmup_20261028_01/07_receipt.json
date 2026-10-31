@@ -1,0 +1,14 @@
+{
+  "bytes": 15367,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "07_AVAXp0.bin",
+  "http_date": "Wed, 28 Oct 2026 08:41:39 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793176899356,
+  "request_started_ms": 1793176899267,
+  "sha256": "58b8c298171df343f183771099e7146f5a98e2b5cbea6517048f6d77a5958643",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/AVAX-USD/candles?granularity=3600&start=2026-10-15T12%3A00%3A00%2B00%3A00&end=2026-10-27T23%3A59%3A59%2B00%3A00"
+}

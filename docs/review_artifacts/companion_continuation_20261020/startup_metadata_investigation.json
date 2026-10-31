@@ -1,0 +1,61 @@
+{
+  "cached_health": [
+    {
+      "health": "healthy",
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "name": "/phase1-timescaledb",
+      "started": "2026-10-20T12:10:30.80557325Z",
+      "state": "running"
+    },
+    {
+      "health": null,
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "name": "/phase1-qdrant",
+      "started": "2026-10-20T12:10:31.415239375Z",
+      "state": "running"
+    },
+    {
+      "health": null,
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "name": "/phase1-minio",
+      "started": "2026-10-20T12:10:31.08949425Z",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "name": "/phase1-audit-log",
+      "started": "2026-10-20T12:10:41.41813213Z",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "name": "/phase1-risk-stub",
+      "started": "2026-10-20T12:10:52.43953176Z",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "name": "/phase1-memory",
+      "started": "2026-10-20T12:10:31.259394334Z",
+      "state": "running"
+    },
+    {
+      "health": "healthy",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "name": "/phase1-orchestrator",
+      "started": "2026-10-20T12:10:32.027633251Z",
+      "state": "running"
+    }
+  ],
+  "commands": "one bounded past start-event query and selected cached health inspect",
+  "credentials_read": false,
+  "events": [],
+  "health_endpoint_calls": 0,
+  "initiator": "UNVERIFIED; event timestamps alone cannot establish caller",
+  "mutations": false,
+  "observed_at": "2026-10-20T12:18:56.550868+00:00",
+  "requester_identity_available_in_selected_events": false
+}

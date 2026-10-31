@@ -1,0 +1,20 @@
+{
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "sha256": {
+    "services/execution/exchange_client.py": "f5aa56971e6da45504f822e8942a0c9bcc64f125e1ba6abb388f39d28c32989c",
+    "tests/test_exchange_client_claim_owner.py": "3029d70436a990ae296022e529e1be87240452480ca1af0bfd15f6e4e76dcea9",
+    "tests/test_exchange_client_retry_flow.py": "356703d996760ccc7f7f0de2c57b4a88e461f0884577bbccb9243f9b8687fd50",
+    "services/execution/retry_policy.py": "4731e5f38a26294aa440cce61fba56c9c1f684ad48ae1d8b2a16bcd4acc5ac70",
+    "storage/order_dedupe_store_sqlite.py": "8e4982ab499af8277c671809de2e1305640c188b11ae6c435d316d55b4acb5e9",
+    "tests/test_retry_policy_typed.py": "6f18f1dcac32452d401b111cc0441924b1facb5bca393fe9a51a9c178fb1fb13",
+    "tests/test_order_dedupe_store.py": "8622a0db7213ece0292aced6fa64cec1fc7a16c39223c848f1cf2c042a003965",
+    "tests/test_order_dedupe_unknown.py": "81f96c1d85059575a51d8f64f76a6271d2ea4cc83169f48809f1c3eee822da1d",
+    "tests/test_retry_reconciliation_regression.py": "d010f026fced66b6775b15c129c11adf62b0ca7d59ac187a0220f43d442944ac",
+    "docs/research/exchange_error_types_20261028.md": "b1203c47c98cf6322fa93abfa313ccdf0cca67875ea0b45e35ae8726561b185d",
+    "docs/review_artifacts/exchange_error_types_20261028/exchange_client.py": "7845b042a91d061b3310da35d2f2478a5ea9ddf278fb2ef5eeaf987a8c4ff996",
+    "docs/review_artifacts/exchange_error_types_20261028/test_exchange_client_claim_owner.py": "926d87f6ff879b1b969145d04acae86e30821ecfee51368eae7c32214b81c3cd",
+    "docs/review_artifacts/exchange_error_types_20261028/test_exchange_client_retry_flow.py": "0d764919fbca0c43420524c13a097d5f8ccb9122bfb1789bd59c3fa98d2e8123",
+    "docs/review_artifacts/exchange_error_types_20261028/applied.patch": "eacf1af83df8184d32a2df3422f98977811aaadad47001f296daa0b5960c101c",
+    ".venv/lib/python3.12/site-packages/ccxt/base/errors.py": "38685636f36d46524ecc5c7e9f5c776634e768fa5f587d15734c40092f8c783c"
+  }
+}

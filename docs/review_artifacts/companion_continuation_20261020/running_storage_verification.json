@@ -1,0 +1,28 @@
+{
+  "active_role": "ENGINEER",
+  "component_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "runtime_state": "INCOMPLETE",
+  "environment": "VERIFIED_ENV for clean-environment offline synthetic tests only",
+  "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_companion_running_storage.py tests/test_companion_running_backend.py tests/test_companion_installer.py tests/test_companion_metadata_diagnostics.py tests/test_companion_network_configuration.py tests/test_companion_existing_controller.py tests/test_companion_runtime_wiring.py",
+  "exit_code": 0,
+  "passed": 308,
+  "duration_seconds": 2.81,
+  "full_suite_run": false,
+  "diff_check_exit_code": 0,
+  "source_sha256": {
+    "scripts/research/companion_installer.py": "da94e3293272da754ebfe60fd0ccf4bffe4ca018868af05440d2dc39ee9fe112",
+    "scripts/research/companion_install_docker.py": "693a97e67f7e6cfe067634f947cd7b46c3f97221846353606ba0e55c276d88f6",
+    "tests/test_companion_running_storage.py": "fd8fc80a32d4ecedcfb75924d76cbad119a5f3d40c34f02a16b4545a84d5caa1",
+    "tests/test_companion_running_backend.py": "0c6d86817d9cc3c2e5fa18250b125ff7039fd222c0a079f9e151eca4754b7c0d"
+  },
+  "scope": "running-storage installation and rollback component only; created replacements remain stopped; CLI v4 apply refuses",
+  "native_calls": 0,
+  "credentials_read": false,
+  "runtime_changed": false,
+  "remaining": [
+    "Independent frozen-component review",
+    "Shared-deadline integration of startup and guarded single-query verification",
+    "Fresh installed-image, engine/builder, namespace, source and policy evidence",
+    "Separately authorized maintenance and private-memory credential use"
+  ]
+}

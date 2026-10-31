@@ -1,0 +1,100 @@
+{
+  "schema": "companion-stopped-actual-id-disposition-v1",
+  "reviewed_at_utc": "2026-10-21T12:17:23Z",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Hash-bound observations of the four stopped actual replacement IDs only, under ReviewedPreparation; not final configuration, runtime or cutover acceptance",
+  "reviewer": "Codex independent GATE, stopped actual-ID review 2026-10-21; not cutover authorization",
+  "actual_id_review": {
+    "path": "docs/review_artifacts/companion_continuation_20261021/preparation_actual_id_review.json",
+    "sha256": "66f0ec73f6362fc97270901a1b6f9b2723100548503e8c33c9c3453bcde88fc7"
+  },
+  "bindings": {
+    "manifest": {
+      "path": "docs/review_artifacts/companion_continuation_20261020/reviewed_preparation_manifest.json",
+      "sha256": "3b6f785ca1dd732e307aa83b30dcea2a5d2d9379d57af06a4afaa3774df94635"
+    },
+    "evidence": {
+      "path": ".cbp_state/runtime/companion_preparations/f4e189b78ccc48acb8b92f20c4627f51/evidence.json",
+      "sha256": "78726c0b834778934368713e55a7496a91249d17323e3d43c9052895a5e4d8de"
+    },
+    "receipt": {
+      "path": ".cbp_state/runtime/companion_preparations/f4e189b78ccc48acb8b92f20c4627f51/receipt.jsonl",
+      "sha256": "a9efa72fe64838c4f273e3b4a37b34ffe06b9de00bc7c8cbba436db73af0404e"
+    },
+    "inventory": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/post_preparation_inventory.json",
+      "sha256": "e33756cfec67a517aff01fcb0352181006be185ee487fb8fc9ab497bd7d4cc75"
+    }
+  },
+  "shown": [
+    "All four artifact hashes match. Inventory has exactly eleven unique selected IDs/names; every original Snapshot equals the manifest baseline and every replacement Snapshot equals published preparation evidence.",
+    "Each of the four acknowledged replacement IDs has the exact staged name, a unique derivative image different from its original, state created, never-started timestamp 0001-01-01T00:00:00Z, restarts zero, restart policy no, and the expected attempt label.",
+    "Raw staged network IDs remain blank; configured network IDs match the manifest binding with configured_only provenance. This is configuration evidence, not attachment/connectivity.",
+    "Seven parseable receipt events occur in the expected order: reservation with startup_authorized=false, four ordered creation intentions, completion containing exact published evidence, publication containing its exact SHA256.",
+    "Under the unchanged reviewed implementation, each create acknowledgement/snapshot check precedes verify_staged_sources, label and copied-source checks; verification must return true before the next create or completion. Publication follows the complete preparation result and receipt_complete check.",
+    "Existing ReviewedPreparation.load accepts the exact proposed actual-ID review bytes and evidence under the reviewed manifest; the review has precisely the existing five schema fields."
+  ],
+  "claimed": [
+    "Parent reports one operator-authorized preparation execution with exit0, preparation_complete=true, services_started=false and originals_interrupted=false. Reviewer did not launch or observe that native process; the saved completion/publication receipt and later matching inventory support the reported stopped outcome."
+  ],
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV for saved-file hashing, exact Snapshot/receipt comparisons and inert contract loading only",
+    "result": "PASS: seven originals and four staged resources exactly match; seven ordered receipt events; ReviewedPreparation.load PASS",
+    "pytest_run": false,
+    "individual_container_source_bytes_rehashed_by_reviewer": false,
+    "native_operations": false
+  },
+  "metadata_vs_model": {
+    "classification": "SHOWN digest inequality; field-level cause UNVERIFIED",
+    "diagnostics": [
+      {
+        "actual_staged_configured_metadata": "c9b3f416e9c11f76bdc1c9d86eff700e65033fd3804eabca860d24afee587f11",
+        "matches_final_prediction": false,
+        "modeled_final_configured_metadata": "568009e848e00ff5471c2768712091d58a3bcb47b8014a44a416915038fa2462",
+        "name": "phase1-audit-log",
+        "staged_id": "bd12bc18068bc646b2726e047dc05166beba67c22b7b2afc03f0e791fed5111d",
+        "staged_image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270"
+      },
+      {
+        "actual_staged_configured_metadata": "7f180c959ab30d48ccabd43dcc726c5dbaaeae2f12cf8e66336123717f44792d",
+        "matches_final_prediction": false,
+        "modeled_final_configured_metadata": "b75f2b057456ff3ec0993cb7462d9446e445844a4860f43db49532ea4e8aa72d",
+        "name": "phase1-risk-stub",
+        "staged_id": "6a4b4246e6abf66dc186505e4f2eb00c85d19cc14bb8e41d8b1389468fbbb3d9",
+        "staged_image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1"
+      },
+      {
+        "actual_staged_configured_metadata": "3590b88d4ca73d49d65986e241df4735b373a8b975efcd367bb5a50fe3e27c10",
+        "matches_final_prediction": false,
+        "modeled_final_configured_metadata": "d3bfbd1aa8d235cf718a0e8e22ba53304c6bfaa7b6b3ffd02c110ac5b605082c",
+        "name": "phase1-memory",
+        "staged_id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+        "staged_image": "sha256:39dd17add55c87f839faaad61f560d6c625e322835ae5cc4c16f653dce53e22a"
+      },
+      {
+        "actual_staged_configured_metadata": "f97ed8ac305fac8eecf1180ea88027dafb1b4760b1609ed38ab7101f83872d3d",
+        "matches_final_prediction": false,
+        "modeled_final_configured_metadata": "f95a5f5ee0fa89c1fb5059f8b854c85d30dadf70e968a80c88604ffee6b01399",
+        "name": "phase1-orchestrator",
+        "staged_id": "05a288361742d9b3a26d6e0f69b7cf10d3e3e17672e01c61c9bfad072a7289ac",
+        "staged_image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83"
+      }
+    ],
+    "interpretation": "These are actual staged digests bound to stopped IDs, not logical final-state predictions. All four differ from stored final predictions. An offline change of modeled aliases alone to staged names also did not reproduce the actual digests. Snapshot-only inventory does not retain field-level metadata sufficient to identify remaining causes; do not infer either a defect or eventual final match.",
+    "disposition": "Not a blocker for narrowly binding the observed stopped IDs under the existing contract. Does not discharge final metadata, compatibility or runtime pin checks; no prediction, policy or evidence was changed."
+  },
+  "limits": [
+    "Inventory is a selected eleven-resource observation at 2026-10-21T12:15:38.360598+00:00, not a full-daemon resource census or a current-state guarantee. All mandatory fresh exact preflight/ownership checks remain.",
+    "Receipt/control-flow evidence supports source-verification ordering; separate per-file copied bytes, private values, image layers and per-command logs were not independently captured/reverified here.",
+    "Original endpoint Snapshot equality is not database-content preservation proof and does not prove absence of every transient event.",
+    "No actual recipient attachment, SDK/import compatibility, health, explanation/query, final metadata or runtime pins are approved. Deferred startup policies remain deferred.",
+    "Existing-schema actual-ID review is binding evidence only, not operator authorization or a bypass of runtime approval gates. Runtime/cutover remain UNAUTHORIZED and INCOMPLETE."
+  ],
+  "runtime_state": "INCOMPLETE",
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "reviewer_native_operations": false,
+  "reviewer_credential_reads": false,
+  "source_or_prior_evidence_edited": false
+}

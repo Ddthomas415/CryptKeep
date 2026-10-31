@@ -1,0 +1,199 @@
+{
+  "comparisons": [
+    {
+      "current": {
+        "combined_offline_fixture_pass": false,
+        "evidence_fixture_checks": {
+          "article_view_mapping": false,
+          "causal_limits": false,
+          "content_hash": false,
+          "persisted_identity": false,
+          "topical_support": false
+        },
+        "fixture_kind": "controlled_archive_backed_not_live_replay",
+        "foreign_asset_rejected": false,
+        "lexical_document_ids": [
+          5,
+          47,
+          18
+        ],
+        "name": "saved_top_three_projection",
+        "selected_provider": "fallback",
+        "transport_identity_and_safety_fixture": true
+      },
+      "evidence_lane": "COUNTERFACTUAL_OFFLINE_FIXTURE_NOT_ACTIVATION",
+      "name": "saved_top_three_projection",
+      "proposed": {
+        "combined_offline_fixture_pass": true,
+        "evidence_fixture_checks": {
+          "article_view_mapping": true,
+          "causal_limits": true,
+          "content_hash": true,
+          "persisted_identity": true,
+          "topical_support": true
+        },
+        "fixture_kind": "controlled_archive_backed_not_live_replay",
+        "foreign_asset_rejected": false,
+        "lexical_document_ids": [
+          5,
+          47,
+          18
+        ],
+        "name": "saved_top_three_projection",
+        "selected_provider": "fallback",
+        "transport_identity_and_safety_fixture": true
+      }
+    },
+    {
+      "current": {
+        "combined_offline_fixture_pass": true,
+        "evidence_fixture_checks": {
+          "article_view_mapping": true,
+          "causal_limits": true,
+          "content_hash": true,
+          "persisted_identity": true,
+          "topical_support": true
+        },
+        "fixture_kind": "controlled_archive_backed_not_live_replay",
+        "foreign_asset_rejected": false,
+        "lexical_document_ids": [
+          7
+        ],
+        "name": "preserved_witness_control",
+        "selected_provider": "fallback",
+        "transport_identity_and_safety_fixture": true
+      },
+      "evidence_lane": "COUNTERFACTUAL_OFFLINE_FIXTURE_NOT_ACTIVATION",
+      "name": "preserved_witness_control",
+      "proposed": {
+        "combined_offline_fixture_pass": true,
+        "evidence_fixture_checks": {
+          "article_view_mapping": true,
+          "causal_limits": true,
+          "content_hash": true,
+          "persisted_identity": true,
+          "topical_support": true
+        },
+        "fixture_kind": "controlled_archive_backed_not_live_replay",
+        "foreign_asset_rejected": false,
+        "lexical_document_ids": [
+          7
+        ],
+        "name": "preserved_witness_control",
+        "selected_provider": "fallback",
+        "transport_identity_and_safety_fixture": true
+      }
+    },
+    {
+      "current": {
+        "combined_offline_fixture_pass": false,
+        "evidence_fixture_checks": {
+          "article_view_mapping": false,
+          "causal_limits": false,
+          "content_hash": false,
+          "persisted_identity": false,
+          "topical_support": false
+        },
+        "fixture_kind": "controlled_archive_backed_not_live_replay",
+        "foreign_asset_rejected": false,
+        "lexical_document_ids": [
+          1
+        ],
+        "name": "unproposed_document",
+        "selected_provider": "fallback",
+        "transport_identity_and_safety_fixture": true
+      },
+      "evidence_lane": "COUNTERFACTUAL_OFFLINE_FIXTURE_NOT_ACTIVATION",
+      "name": "unproposed_document",
+      "proposed": {
+        "combined_offline_fixture_pass": false,
+        "evidence_fixture_checks": {
+          "article_view_mapping": false,
+          "causal_limits": false,
+          "content_hash": false,
+          "persisted_identity": false,
+          "topical_support": false
+        },
+        "fixture_kind": "controlled_archive_backed_not_live_replay",
+        "foreign_asset_rejected": false,
+        "lexical_document_ids": [
+          1
+        ],
+        "name": "unproposed_document",
+        "selected_provider": "fallback",
+        "transport_identity_and_safety_fixture": true
+      }
+    },
+    {
+      "current": {
+        "combined_offline_fixture_pass": false,
+        "evidence_fixture_checks": {
+          "article_view_mapping": false,
+          "causal_limits": false,
+          "content_hash": false,
+          "persisted_identity": false,
+          "topical_support": false
+        },
+        "fixture_kind": "controlled_archive_backed_not_live_replay",
+        "foreign_asset_rejected": false,
+        "lexical_document_ids": [
+          25
+        ],
+        "name": "unverified_body",
+        "selected_provider": "fallback",
+        "transport_identity_and_safety_fixture": true
+      },
+      "evidence_lane": "COUNTERFACTUAL_OFFLINE_FIXTURE_NOT_ACTIVATION",
+      "name": "unverified_body",
+      "proposed": {
+        "combined_offline_fixture_pass": false,
+        "evidence_fixture_checks": {
+          "article_view_mapping": false,
+          "causal_limits": false,
+          "content_hash": false,
+          "persisted_identity": false,
+          "topical_support": false
+        },
+        "fixture_kind": "controlled_archive_backed_not_live_replay",
+        "foreign_asset_rejected": false,
+        "lexical_document_ids": [
+          25
+        ],
+        "name": "unverified_body",
+        "selected_provider": "fallback",
+        "transport_identity_and_safety_fixture": true
+      }
+    }
+  ],
+  "effective_approvals_changed": false,
+  "limits": [
+    "Verifier unchanged; proposed records supplied explicitly only to fixture calls.",
+    "Positive fixture flags substitute saved original rows for live DB reads.",
+    "Mechanical hash/excerpt checks cannot decide semantic relevance; separate full-body review required."
+  ],
+  "role": "ENGINEER",
+  "runtime_status": "INCOMPLETE",
+  "schema": "companion-topical-witness-proposal-proof-v2",
+  "source_sha256": {
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+    "dashboard/services/views/_shared_signals.py": "d003edac94edbb7d7886901784674e23ed9accae2d42bd69c0a7f6fbc0c9e381",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/receipt.jsonl": "0ca55ea24bf18b7ff5442d974267497de00f2f3a5e2af1c372459f35aa43b1a9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+    "phase1_research_copilot/memory_retrieval/article_view.py": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+    "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "phase1_research_copilot/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+    "research/companion_article_body_v1_20261011_gd1abqx9/derived_article_body_v1.json": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+    "research/companion_article_body_v1_20261011_gd1abqx9/manifest.json": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "research/companion_article_body_v1_20261011_gd1abqx9/query_comparison.json": "88bb8e5a79d711d4339807e34caed4f3b20d89308c3eb4eb13300e397911fb5b",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "tests/test_companion_archive_contract.py": "008ddcd18b823db98b1d64d57d85c90cb47a1e753cf7341bc4a4935e86e2900c",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f",
+    "tests/test_companion_witness_proposal.py": "05e4e92c2608cd106433c0fbd72fb5f23545e8a474ef54dbd179600299dd28e4",
+    "tests/test_companion_witness_selection.py": "99c52a5e0b6448b09144a426cff5be1d1b30c24f83f6ca3178453f7be79ee68f",
+    "tests/test_explain_diagnostics.py": "508e912012fd08e4fca5d858e215046dec66b220677f9997b72ffc8b6912ffd3"
+  }
+}

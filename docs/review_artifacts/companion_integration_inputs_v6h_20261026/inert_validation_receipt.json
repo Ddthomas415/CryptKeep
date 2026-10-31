@@ -1,0 +1,27 @@
+{
+  "exit_code": 0,
+  "manifest_sha256": "d11fccb5e4f7c46e7d726704c9b75c400a1482eab5d1b840027d876a5837f047",
+  "markers_after": [
+    false,
+    false
+  ],
+  "markers_before": [
+    false,
+    false
+  ],
+  "readonly_manifest_opens": [
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/companion_integration_inputs_v6h_20261026/reviewed_preparation_manifest.json"
+  ],
+  "response": {
+    "actions_executed": false,
+    "attempt": "workerprep20261026v6h",
+    "controller_budget_seconds": 300,
+    "manifest_sha256": "d11fccb5e4f7c46e7d726704c9b75c400a1482eab5d1b840027d876a5837f047",
+    "output_directory": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261026v6h",
+    "recovery_reserve_seconds": 120,
+    "startup_authorized": false,
+    "state": "READY_FOR_INDEPENDENT_REVIEW"
+  },
+  "runtime_state": "INCOMPLETE",
+  "tripwire_calls": []
+}

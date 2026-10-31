@@ -1,0 +1,14 @@
+{
+  "bytes": 100,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "04_APT.bin",
+  "http_date": "Thu, 29 Oct 2026 01:05:05 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793235905430,
+  "request_started_ms": 1793235905363,
+  "sha256": "45c0bf890a1be1b3ca8780f2fdb57d5d1a8b728b33c9cac007ecb3aba824c44a",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/APT-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+}

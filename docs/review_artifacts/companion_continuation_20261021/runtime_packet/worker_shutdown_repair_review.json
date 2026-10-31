@@ -1,0 +1,90 @@
+{
+  "schema": "companion-worker-shutdown-offline-review-v1",
+  "review_date": "2026-10-23",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "decision_scope": "Independent review of the frozen offline opt-in v6 implementation only; not runtime or operational acceptance",
+  "runtime_state": "INCOMPLETE",
+  "operational_authorization": false,
+  "checkpoint": {
+    "path": "docs/checkpoints/companion_worker_shutdown_repair_20261023.md",
+    "sha256": "f715545a41e21b5ccd9f1a7c63d43b8a36e2720dff524f7817f137b461612ca6",
+    "read_fully": true,
+    "preserved": true
+  },
+  "source_sha256": {
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659",
+    "scripts/research/companion_install_docker.py": "470783aa8f126bb5c73b0dc8f7373a00069050ceb89ec08bc95cd66c15199f84",
+    "scripts/research/companion_installer.py": "de1a969fdd522b069cc0bca03c4d714e7b80e8842ac167ec9d4ffcb8f8a1b334",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "tests/test_companion_worker_shutdown.py": "edb49030f0cfc9883f03d192fd99fb15c67c1982cfd16dff8d60c0c0fa707f23"
+  },
+  "all_checkpoint_hashes_match": true,
+  "hashes_rechecked_after_tests": true,
+  "blocking_findings": [],
+  "shown": [
+    {
+      "claim": "Plan.load opts into worker shutdown only for schema v6; its appended dataclass flag defaults false. Existing v1-v5 schema branches retain their previous signal selection. This is bounded source inspection, not full legacy-suite proof.",
+      "evidence": ["scripts/research/companion_installer.py:103-206", "scripts/research/companion_install_docker.py:312-348", "tests/test_companion_worker_shutdown.py:43-46"]
+    },
+    {
+      "claim": "v6 requires each service's exact direct python -m uvicorn command and rejects explicit entrypoint overrides. Backend image checks require an empty inherited entrypoint before per-image creation and credential collection. The new fixed commands and legacy command remain recognized without exporting arbitrary command text.",
+      "evidence": ["scripts/research/companion_worker_shutdown.py:10-21", "scripts/research/companion_installer.py:160-189", "scripts/research/companion_install_docker.py:179-205", "scripts/research/companion_install_docker.py:474-501", "scripts/research/collect_companion_recreation_metadata.py:48-66"]
+    },
+    {
+      "claim": "The embedded worker source validates the exact shell launch, one direct child, worker name, PPid, module, port, TERM dispositions, non-zombie state and start time. It opens a dynamic pidfd, revalidates identity, checks its budget and signals only through that handle. Handle cleanup runs on post-open failure; no numeric-PID fallback, group signal, forced stop or retry is present.",
+      "evidence": ["scripts/research/companion_worker_shutdown.py:26-102", "tests/test_companion_worker_shutdown.py:68-161"]
+    },
+    {
+      "claim": "The original backend monotonic deadline includes pre-observation and command time. The fixed worker receives the remaining absolute wall deadline and derives a local monotonic bound; elapsed launch time is not intentionally refunded. Missing capability, malformed identity and observed budget violations fail closed under the documented clock assumption.",
+      "evidence": ["scripts/research/companion_install_docker.py:66-72", "scripts/research/companion_install_docker.py:312-348", "scripts/research/companion_worker_shutdown.py:32-37", "scripts/research/companion_worker_shutdown.py:76-84", "scripts/research/companion_worker_shutdown.py:105-112"]
+    },
+    {
+      "claim": "A fixed exact acknowledgement is necessary but insufficient for success. Backend and parent still require fresh stopped-original and unchanged-storage/identity checks. Missing or malformed acknowledgement leaves pending intent unresolved rather than inferring interruption ownership or triggering a retry. Restart retains its existing path.",
+      "evidence": ["scripts/research/companion_install_docker.py:280-348", "scripts/research/companion_installer.py:414-443", "scripts/research/companion_installer.py:550-587", "tests/test_companion_worker_shutdown.py:178-201"]
+    },
+    {
+      "claim": "v6 continuation validation requires the added worker source in the exact consumer set and verifies its digest; legacy consumer sets do not add it.",
+      "evidence": ["scripts/research/companion_cutover_continuation.py:13-23", "scripts/research/companion_cutover_continuation.py:74-97", "tests/test_companion_worker_shutdown.py:49-53"]
+    }
+  ],
+  "independent_test": {
+    "claim_status": "SHOWN",
+    "environment_confidence": "VERIFIED_ENV",
+    "working_directory": "/Users/baitus/Downloads/crypto-bot-pro",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_worker_shutdown.py",
+    "exit_code": 0,
+    "result": "45 passed in 0.33s",
+    "scope": "Only the new test file was selected, using the checkpoint isolation flags. Tests use synthetic procfs, pidfds, clocks and backend commands; no Docker or live signaling was invoked.",
+    "not_proven": "The full embedded program is compiled but not run against a kernel. The full legacy suite, runtime integration and end-to-end continuation loading were not independently executed. The checkpoint's earlier 509-pass result remains CLAIMED in this review."
+  },
+  "material_assumptions": [
+    "The pinned image and process tree are trusted; deliberately spoofed argv and hostile exec between validation and signal are outside this contract. A pidfd prevents PID-reuse redirection, not atomic executable-identity freezing.",
+    "Host/container wall clocks must be coherent for the remaining absolute deadline. This is a required runtime assumption, not independently established by offline tests."
+  ],
+  "unverified_runtime_risks": [
+    "Installed Linux/Python pidfd APIs and kernel support remain UNVERIFIED.",
+    "Clock coherency and installed process argv/topology on all four original services remain UNVERIFIED.",
+    "Worker shutdown, shell/container exit and complete parent verification within the ten-second budget remain UNVERIFIED.",
+    "PID1 exit may terminate the exec before acknowledgement delivery; that remains an unresolved pending-intent failure even if the service has stopped.",
+    "Cancellation or transport loss does not establish ownership; this review does not provide live cancellation or recovery proof."
+  ],
+  "proof_required_before_any_separate_operational_decision": [
+    "Separately review current read-only pidfd, clock and exact per-service process-identity capability evidence.",
+    "Separately review fresh v6 manifest, replacement fingerprints, changed consumer bindings, preparation and runtime packet; do not reuse stale bindings or consumed attempt inputs.",
+    "Retain explicit unresolved-ack, pending ownership, bounded recovery and cancellation handling; no retry or forced stop is authorized by this record."
+  ],
+  "review_boundaries": {
+    "one_bounded_pass": true,
+    "sources_and_checkpoint_edited": false,
+    "only_authored_artifact": "docs/review_artifacts/companion_continuation_20261021/runtime_packet/worker_shutdown_repair_review.json",
+    "docker_network_credentials_signals_service_requests": false,
+    "native_execution_scope": "Authorized isolated synthetic pytest command only",
+    "current_manifest_preparation_or_operational_packet_authored": false,
+    "prior_dirty_changes_or_old_architecture_approved": false,
+    "historical_failure_substep_established": false,
+    "operation_approval": false
+  }
+}

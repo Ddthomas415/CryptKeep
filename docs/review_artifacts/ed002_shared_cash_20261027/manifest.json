@@ -1,0 +1,60 @@
+{
+  "scope": "ED002-ADOPT-20261027 synthetic adapter only",
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "files": {
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+    "tests/test_shared_cash_research.py": "415910a7fa161f9f96cd9cd8d4e3af9b3ca2e59a6a8b214d9d85a3b8485d3b08",
+    "services/backtest/next_open_research.py": "4f5bb1a98be726915bca155b8ea483d5036982ed786665e504c1e444ce2d1a7f",
+    "scripts/research/corrected_research_math.py": "d07ae7171e2293cbe60d15ae9bc0973d3ef8bd31b9c7b99105f928c029e29047",
+    "docs/research/multisymbol_trend_20261015/ms_trend.py": "550dc2ea708c2a37a56f58f41b81b3a25d16f6077a8fa52b0a4bef2b287468cc",
+    "scripts/research/run_multisymbol_baseline.py": "d6ddce6d69a755db67c542e6e29f3e68f06612bd2fc95373490f671e3ead2e78",
+    "docs/research/ed002_portfolio_contract_candidate_20261018.md": "b16b1108d99a9fcd9a6b8d83650cb093fb026cd9fe40cfa7eaf4f7d9d9a16be8",
+    "docs/research/ed002_shared_cash_adapter_20261027.md": "317ebc6f4e7e59a8ad4555179ba753df104c3a7d347440851f3fe8fdb510f956"
+  },
+  "preserved_sources": [
+    "services/backtest/next_open_research.py",
+    "scripts/research/corrected_research_math.py",
+    "docs/research/multisymbol_trend_20261015/ms_trend.py",
+    "scripts/research/run_multisymbol_baseline.py",
+    "docs/research/ed002_portfolio_contract_candidate_20261018.md"
+  ],
+  "adapter_diff_sha256": "d0ceadd1d396291b736bafa6f429d88c85aba58288a72e5b8d238c0bef360a12",
+  "parent_verification": {
+    "evidence_kind": "transcribed_tool_result_not_stdout_capture",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_shared_cash_research.py tests/test_next_open_research.py tests/test_harness_contracts_wp4.py",
+    "exit_code": 0,
+    "passed": 93,
+    "elapsed_seconds": 2.99,
+    "full_suite": false,
+    "market_data_experiment": false
+  },
+  "limits": [
+    "synthetic accounting acceptance only",
+    "no venue/eligibility/precision verification",
+    "no runtime or market experiment",
+    "consumer must retain terminal residual-holding labels, exact state and comparison recipe"
+  ],
+  "additional_legacy_verification": {
+    "evidence_kind": "transcribed_tool_result_not_stdout_capture",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_multisymbol_archive_runner.py tests/test_research_source_slice.py",
+    "exit_code": 0,
+    "passed": 9,
+    "elapsed_seconds": 0.39,
+    "data": "temporary synthetic SQLite fixtures; no historical market data"
+  },
+  "first_review": {
+    "decision": "REJECTED",
+    "path": "docs/research/ed002_shared_cash_adapter_review_20261027.json",
+    "sha256": "c7e3b42f9f816615928df4c74f0f1bc6d401a2bd893f4229dc990949caf340f3",
+    "preserved_candidate_tar_sha256": "482eb48a7041ec5ecbb62d01050d2f2b344f7eb3b528ce4abeffc6f8384039bf",
+    "correction_regressions_failed_before": 3
+  },
+  "independent_correction_review": {
+    "path": "docs/research/ed002_shared_cash_adapter_rereview_20261027.json",
+    "sha256": "e923a0d118f053cafdd7b31e38132822f6c041d4cd6953dbd7ce98028807fc81",
+    "decision": "ACCEPTED_WITH_RISK",
+    "blockers": 0,
+    "tests": "93 passed in 2.92s",
+    "checkpoint_binding": "historical precloseout digest; code and tests unchanged"
+  }
+}

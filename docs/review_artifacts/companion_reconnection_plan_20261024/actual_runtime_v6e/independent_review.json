@@ -1,0 +1,90 @@
+{
+  "schema": "companion-actual-runtime-independent-review-v1",
+  "review_date": "2026-10-25",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "decision_scope": "Offline evidence recording and bounded interpretation only; no runtime acceptance, new authorization, or retry approval.",
+  "runtime_state": "INCOMPLETE",
+  "environment": "VERIFIED_ENV for local file inspection only",
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "path_convention": "All paths below are relative to root unless absolute.",
+  "evidence_integrity": {
+    "classification": "SHOWN",
+    "receipt_events": 97,
+    "public_source_receipt_byte_equal": true,
+    "method": "Complete public receipt read; cmp returned exit 0 against specified source receipt; SHA-256 agrees. Outcome read completely but remains parent transcription of session 10100, not independently captured process output.",
+    "files": [
+      {"path": "docs/review_artifacts/companion_reconnection_plan_20261024/actual_runtime_v6e/outcome.json", "sha256": "2210b4e4a96c8e08b9461593c270d274a3a88d42855902241e3c76cb9c857dc3"},
+      {"path": "docs/review_artifacts/companion_reconnection_plan_20261024/actual_runtime_v6e/receipt.jsonl", "sha256": "38727205015eca2902bb4cd891d5e9bfb5f45e9660532e060782f3a46f02b0b9"},
+      {"path": ".cbp_state/runtime/companion_cutovers/workerprep20261024v6e/receipt.jsonl", "sha256": "38727205015eca2902bb4cd891d5e9bfb5f45e9660532e060782f3a46f02b0b9"}
+    ]
+  },
+  "findings": [
+    {
+      "id": "V6E-01",
+      "classification": "SHOWN",
+      "title": "Evidence verification was not completed successfully; primary normalization failure alone does not explain the result",
+      "detail": "Receipt records primary invalid_envelope, companion HTTP 200/json_received, then companion normalization accepted with execution_disabled true and five citations. verify_evidence intention follows query_diagnostics, followed by installation_failed at runtime_verification. Installer calls explanation_gates before verify_evidence. This places the failure at the verification invocation or subsequent gate path, not solely at the earlier recoverable primary-route error. Operation intention is not proof that the remote evaluator completed. No query_passed or successful explanation is established.",
+      "source_lines": ["scripts/research/companion_installer.py:250-256", "scripts/research/companion_installer.py:410-421", "scripts/research/companion_existing_controller.py:192-220", "dashboard/services/views/market_view.py:253-321"]
+    },
+    {
+      "id": "V6E-02",
+      "classification": "SHOWN",
+      "title": "Receipt omits verifier outcomes and exception cause; actual first failure remains UNVERIFIED",
+      "detail": "The five expected booleans are persisted_identity, article_view_mapping, content_hash, topical_support, causal_limits. Installer consumes the return through _all_true without recording that return, then catches Exception and records only the stage. Adapter can return booleans or fail during transport, timeout, JSON parsing, shape validation or authorization. Evaluator and remote wrapper also collapse multiple distinct failures to all-false, including deadline handling. Thus omission of five booleans is a diagnostic limitation, not proof five independent properties failed, nor proof of any particular remote exception. Raw response body and first failed predicate are unavailable in the reviewed receipt.",
+      "source_lines": ["scripts/research/companion_existing_controller.py:32-33", "scripts/research/companion_installer.py:418-421", "scripts/research/companion_installer.py:769-780", "scripts/research/companion_runtime_adapter.py:782-795", "scripts/research/companion_evidence_checks.py:315-325", "scripts/research/companion_evidence_checks.py:336-400"]
+    },
+    {
+      "id": "V6E-03",
+      "classification": "SHOWN",
+      "title": "Offline citation hashes demonstrate a candidate frozen/live citation-contract mismatch",
+      "detail": "Independently parsed actual IDs in the saved 55-row original snapshot and SHA-256 hashed their decimal representations, without assuming consecutive IDs. In receipt citation order, matches are [null, 5, 47, null, null]. The approved manifest hash matches article_view.APPROVED_MANIFEST_SHA256 and binds this exact snapshot hash. _document requires each cited document_id to be positive and in mapped; _evaluate requires mapped IDs to equal originals. Three diagnostic hashes therefore have no counterpart in that frozen ID set. This is a concrete contract incompatibility candidate if those diagnostics represent the raw citations supplied to that approved frozen view. It does not identify the unknown IDs, prove they are newly created documents, establish that this was the first remote predicate reached, or prove a unique root cause.",
+      "reproduction": "Pure offline JSON parsing and SHA-256 ID comparison reproduced; no service invocation or evidence evaluator execution.",
+      "citation_document_id_sha256": ["bdd2d3af3a5a1213497d4f1f7bfcda898274fe9cb5401bbc0190885664708fc2", "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d", "31489056e0916d59fe3add79e63f095af3ffb81604691f21cad442a85c7be617", "04a8708c3a481ced13845a30de522486895de0592222c29326d9139ec2b9df25", "02e6295d8f522840f09b5194b3f023799ad6ed3306d9296005787e792224df20"],
+      "source_lines": ["scripts/research/companion_evidence_checks.py:94-99", "scripts/research/companion_evidence_checks.py:127-134", "scripts/research/companion_evidence_checks.py:190-196", "phase1_research_copilot/memory_retrieval/article_view.py:9", "phase1_research_copilot/memory_retrieval/article_view.py:54-69"]
+    },
+    {
+      "id": "V6E-04",
+      "classification": "SHOWN",
+      "title": "Rollback configuration verification is narrower than exact restoration or health",
+      "detail": "Final receipt records configuration_restored true, exact_baseline_restored false, network_connectivity_verified false. Running-original recovery checks identity, image, running state, restart policy, configured metadata/networks and a changed startup timestamp; exact baseline compares full baseline rows separately. Controller can therefore legitimately report rollback_verified true while rollback_exact_baseline is false. Final recovery path checks inventory/configuration, not application health or connectivity. Empty unresolved lists mean tracked actions are resolved, not that services are healthy or the original exact baseline is restored. services_started is historical, not a current health assertion. Prepared identities were not preserved and preparation was consumed; no reuse or retry approval follows.",
+      "source_lines": ["scripts/research/companion_installer.py:471-478", "scripts/research/companion_installer.py:606-634", "scripts/research/companion_installer.py:782-804"]
+    }
+  ],
+  "reported_outcome": {
+    "classification": "CLAIMED by parent transcription, consistent with receipt sequence",
+    "execution_session": 10100,
+    "exit_code": 1,
+    "query_attempted": true,
+    "query_passed": false,
+    "receipt_complete": true,
+    "rollback_verified": true,
+    "rollback_exact_baseline": false,
+    "all_unresolved_lists_empty": true,
+    "prepared_ids_preserved": false,
+    "preparation_consumed": true,
+    "automatic_retry_performed": false
+  },
+  "reviewed_source_hashes": [
+    {"path": "scripts/research/companion_installer.py", "sha256": "d0cfb0814b8884e790e794226e58629da1d587a797b4777b7dc4d3a54b232de7", "scope": "Selected verification, receipt, recovery and result gates only"},
+    {"path": "scripts/research/companion_runtime_adapter.py", "sha256": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3", "scope": "Selected health, explain and evidence verification methods"},
+    {"path": "scripts/research/companion_existing_controller.py", "sha256": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3", "scope": "Evidence key contract, all-true gate, explanation safety gate and dashboard probe"},
+    {"path": "scripts/research/companion_evidence_checks.py", "sha256": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8", "scope": "Static evidence predicates and fail-closed remote wrapper; not executed"},
+    {"path": "dashboard/services/views/market_view.py", "sha256": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75", "scope": "Explanation normalization and primary-to-companion fallback only"},
+    {"path": "phase1_research_copilot/memory_retrieval/article_view.py", "sha256": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767", "scope": "Hash matches fully read frozen copy and approved runtime subject /app/memory_retrieval/article_view.py"},
+    {"path": "docs/review_artifacts/companion_installed_imports_targeted_20261018/frozen/memory_retrieval/memory_retrieval/article_view.py", "sha256": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767", "scope": "Read complete archive/source-row gate implementation"},
+    {"path": "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json", "sha256": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f", "scope": "Parsed 55 actual IDs only; article contents not reviewed"},
+    {"path": "research/companion_article_body_v1_20261011_gd1abqx9/manifest.json", "sha256": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77", "scope": "Read complete manifest; matches approved source constant and snapshot binding"},
+    {"path": "docs/review_artifacts/companion_reconnection_plan_20261024/execute_reviewed_v6e.py", "sha256": "3c521b6e6312f1d20c502592fb1e6bd3fa3a214d360188a2804244c16fa31b21", "scope": "Read complete launcher statically; did not invoke even validation mode"},
+    {"path": "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/runtime_review.json", "sha256": "9590454b0f9d9fd3350ff58ffae7eafe2b5cacc0a480f0e4e100289bef4c43b0", "scope": "Hash matches receipt and launcher; selected source binding only, no renewed policy approval"},
+    {"path": "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/scope_review.json", "sha256": "7da764a58196cd66cf2466d393729d3d3267b620f3829fcd974ca3f977e27b5d", "scope": "Hash matches launcher pin only; not a complete policy rereview"}
+  ],
+  "limitations": [
+    "SHOWN refers to local immutable evidence or static code, not independent current host observation. No native, service, query, token, retry, repair, reset or extra runtime operation was performed.",
+    "No tests were run; no implementation changed. Only this report was written. Parent owns checkpoint and worklog recording.",
+    "No provisional result was supplied or published by this review. No successful explanation, successful cutover, healthy recovery or exact restoration is asserted.",
+    "Actual remote first failure, verifier booleans, raw response, current health and current connectivity remain UNVERIFIED. Matching local hashes does not independently attest running installed code.",
+    "Prior bounded authorization and policy decisions are preserved, not reopened or expanded. This is not a broad source, dependency, security or operational reaudit. Launcher dependency chain was not executed or exhaustively rebound."
+  ],
+  "required_next_proof": "Any separately authorized follow-up must distinguish the actual evidence-check failure from transport/timeout failures and preserve bounded verification outcomes; no such follow-up is authorized or performed here. Runtime remains INCOMPLETE."
+}

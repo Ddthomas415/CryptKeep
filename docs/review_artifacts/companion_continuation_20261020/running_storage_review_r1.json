@@ -1,0 +1,18 @@
+{
+  "reviewer": "Hegel",
+  "agent_id": "01a15187-d8bb-71c1-8bfb-095bd45e4bac",
+  "active_role": "GATE",
+  "decision": "REJECTED",
+  "scope": "first frozen offline installation component, not deployment",
+  "verified_tests": {"passed": 308, "duration_seconds": 2.10, "exit_code": 0},
+  "reviewed_bindings": "running_storage_verification.json",
+  "shown_findings": [
+    {"severity": "P1", "finding": "Failed lifecycle command acknowledgment followed by an external actor's state transition could return true and acquire false interruption ownership", "required_fix": "Keep unacknowledged mutations unresolved; do not confirm ownership from later desired state"},
+    {"severity": "P2", "finding": "Rollback checked prerequisite bookkeeping but did not recheck current prerequisite snapshots before starting dependents", "required_fix": "Compare all current prerequisites with acknowledged restored snapshots or unchanged running baselines before every restart"}
+  ],
+  "additional_synthetic_reproductions": 2,
+  "reviewer_native_calls": 0,
+  "reviewer_credentials_read": false,
+  "source": "independent GATE response in this Codex conversation",
+  "disposition": "Both bounded fixes implemented afterward; separate re-review required. This rejection is preserved, not overwritten."
+}

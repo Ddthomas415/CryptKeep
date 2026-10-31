@@ -1,0 +1,89 @@
+{
+  "schema": "companion-s3-source-refresh-plan-review-v1",
+  "reviewed_at": "2026-10-21T21:47:14Z",
+  "role": "GATE",
+  "reviewer": "Independent Codex GATE: offline S3 source-refresh preparation-input review, 2026-10-21",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Prospective stopped-preparation inputs only. No operator build/preparation, startup, cutover, runtime query or trading authority.",
+  "environment": "VERIFIED_ENV for isolated offline checks only; live native environment not checked.",
+  "findings": [],
+  "material_assumptions": [],
+  "reviewed_sha256": {
+    "docs/review_artifacts/companion_continuation_20261021/derive_s3_refresh_plan.py": "89c39687f307de4c2e040c253a491756af67bcaaa455a86592e4992217981ee3",
+    "tests/test_companion_s3_source_refresh_plan.py": "d41a632162a7802a4cc8f26adfc2d43e884dc800b72ab06c7760b6b3456dd379",
+    "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/candidate_manifest.json": "cebb77acd48856bcc3ff4bd9d2cf379e855cc020d7792ce68d40fb39993a3550",
+    "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/provenance.json": "2347bab33543ae5ee4dba40003bb3b83f1cfc3e870d4db75528be444a48ac628",
+    "docs/review_artifacts/companion_continuation_20261021/companion_s3_single_attempt_review_20261021.json": "8668bc8bfcfa16eb559c60bc20550838ab308d89e6240ddd4f056f6794308252",
+    "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/report.json": "7dbda2c14b68b58d372508eda0d34e232bc9e6548bd0b7ff5327b027abbdad2b",
+    "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture_result_review.json": "22f6acc80b6c5457549bb49549121df7620129578e154850ac6ce6a76dfba87a",
+    "docs/review_artifacts/companion_continuation_20261021/preparation_reconciled_manifest.json": "b9594f55b7d409d5815ea318de68c0391943dcafe919326ebedb143821627b11",
+    "docs/checkpoints/companion_s3_source_refresh_plan_20261021.md": "0874c3657b6efd499059d8d935c2b47d2bbfe15d396a16edd6ba2fd6e7ea16a3"
+  },
+  "reviewed_manifest": {
+    "path": "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/reviewed_preparation_manifest.json",
+    "sha256": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d",
+    "derivation": "Parse the unchanged candidate, set decision to ACCEPTED_WITH_RISK and reviewer to this receipt reviewer; serialize sorted keys, compact separators, allow_nan=False, UTF-8, with one final newline. Only decision and reviewer differ semantically from candidate."
+  },
+  "old_manifest_delta": {
+    "paths": [
+      "applications[2].sources[2].sha256",
+      "attempt",
+      "decision",
+      "reviewer"
+    ],
+    "new_attempt": "s3refresh20261021c1eaae5a",
+    "source_change": {
+      "local": "phase1_research_copilot/memory_retrieval/main.py",
+      "previous_sha256": "35fc51165e44dba1ab8d28e783285f51f392b01f814096f3950ce720995504a3",
+      "reviewed_sha256": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228"
+    },
+    "source_entries": 43,
+    "unchanged_source_entries": 42,
+    "applications": 4,
+    "baseline_originals": 7
+  },
+  "shown": [
+    "All supplied recipe/test/candidate/provenance hashes match; all four pinned predecessor evidence/review inputs match.",
+    "Independent recursive comparison finds exactly attempt, decision, reviewer and applications[2].sources[2].sha256 differ from the accepted predecessor. All options, commands, network bindings, baseline, final modeled metadata and policies are unchanged.",
+    "All43 current source entries rehash successfully, including42 unchanged entries and the accepted S3 repair. Recipe.derive reproduces candidate and provenance byte-for-byte without invoking recipe.main or native operations.",
+    "All7 original baseline snapshots were independently reconstructed from saved sanitized capture rows using existing pure preservation/configuration projection functions and exactly matched the candidate, not merely ID/image/state.",
+    "The new attempt marker is absent at review time; no reservation was created. This is a metadata observation, not a reservation or future no-replay guarantee.",
+    "The accepted derivative passes existing Plan.load offline. The unchanged INCOMPLETE candidate refuses; old preparation evidence refuses under the new attempt.",
+    "Unchanged four-application preparation contract is reused; no old staged-ID adoption or one-application controller extension is approved.",
+    "Both sdk_startup_compatible and source_imports_frozen remain false."
+  ],
+  "verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_companion_s3_source_refresh_plan.py",
+    "exit_code": 0,
+    "passed": 7,
+    "pytest_seconds": 0.19,
+    "additional_offline_checks": "PASS: frozen inputs, exact four-field delta, all43 current sources, full7 saved baseline projection, deterministic candidate/provenance, inert accepted-plan loading, draft/old-evidence rejection",
+    "no_native_calls": true
+  },
+  "reproducible_derivative_comparison": [
+    "import hashlib, json",
+    "from pathlib import Path",
+    "p = Path('docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan')",
+    "candidate = json.loads((p/'candidate_manifest.json').read_bytes())",
+    "reviewed_raw = (p/'reviewed_preparation_manifest.json').read_bytes()",
+    "reviewed = json.loads(reviewed_raw)",
+    "expected = dict(candidate, decision='ACCEPTED_WITH_RISK', reviewer=\"Independent Codex GATE: offline S3 source-refresh preparation-input review, 2026-10-21\")",
+    "assert reviewed == expected",
+    "assert reviewed_raw == json.dumps(expected, sort_keys=True, separators=(',', ':'), allow_nan=False).encode() + b'\\n'",
+    "assert hashlib.sha256(reviewed_raw).hexdigest() == 'dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d'"
+  ],
+  "risks_and_limits": [
+    "Saved baseline observation is 2026-10-21T17:47:49.283840+00:00, not live inventory. Existing backend must freshly verify exact baseline/network/CLI/engine/source/parent-image prerequisites before effects and refuse drift; this review does not refresh them.",
+    "Prospective run has four build invocations and four new created/never-started application containers. Actual IDs/images are unknown; cache identity/reuse is not promised. New actual-ID evidence requires separate independent review.",
+    "Seven originals and four old staged containers must remain untouched. Existing new-attempt recipient exclusion prevents adopting or cleaning old stages; no independent before/after observation of the old four is claimed by the preparation controller or this offline review.",
+    "Creation options retain loopback publish bindings. The intended limit is no active routes/listeners while stages remain created/never-started, not absence of configured publish options; no listener state was measured here.",
+    "Never-started creation still copies private service/storage credentials into Docker configuration through the accepted preparation path. No values were read/exported by this review; disk/image/cache and failed-attempt leftovers remain possible under existing ownership rules.",
+    "Final configured metadata values remain predictions, not observed future stage/runtime facts. Private S3 hook/full SDK startup/native health/explanation remain unverified beyond the prior bounded repair review.",
+    "Existing300second preparation budget/120second recovery reserve and durable attempt rules are unchanged. Local pre-controller I/O is not a whole-CLI wall-time guarantee.",
+    "No reviewed source/test/candidate/provenance/predecessor evidence, native resources or core gates changed. No preparation/build/lifecycle/query/credential operation occurred. Separate explicit operator authorization is required for one preparation attempt."
+  ],
+  "preparation_execution_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "runtime_readiness": "INCOMPLETE"
+}

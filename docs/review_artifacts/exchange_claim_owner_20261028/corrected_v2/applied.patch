@@ -1,0 +1,135 @@
+--- a/services/execution/exchange_client.py
++++ b/services/execution/exchange_client.py
+@@ -150,7 +150,6 @@
+         intent_id: str | None = None,
+         exec_db: str | None = None,
+     ) -> Dict[str, Any]:
+-        ex = self.build()
+         ensure_dirs()
+         db_path = exec_db or str(Path(data_dir()) / "execution.sqlite")
+         store = OrderDedupeStore(exec_db=db_path)
+@@ -165,17 +164,27 @@
+                 symbol=str(symbol),
+                 client_order_id=str(client_id),
+                 meta={"side": side, "order_type": order_type},
++                claim_error_for_submit=True,
+             )
++            if (row.get("exchange_id") != self.exchange_id.lower().strip()
++                    or row.get("intent_id") != str(intent_id)
++                    or row.get("symbol") != str(symbol)
++                    or row.get("client_order_id") != str(client_id)):
++                raise RuntimeError("idempotency blocks resubmit: claim_identity_mismatch")
+ 
+             rid = row.get("remote_order_id")
+             st = str(row.get("status") or "")
+             if rid and st in ("submitted", "acked", "terminal"):
+                 return {"id": rid, "idempotent_replay": True, "client_order_id": client_id, "status": st}
+ 
+-            if st in ("submitted", "unknown"):
++            if rid or st != "created" or row.get("_submit_claimed") is not True:
+                 raise RuntimeError(f"idempotency blocks resubmit: status={st}")
+ 
+-        try:
++        ex = None
++        acknowledged = False
++        acknowledged_remote_id = None
++        try:
++            ex = self.build()
+             params: Dict[str, Any] = {}
+             if client_id:
+                 params.update(client_id_param(self.exchange_id, client_id))
+@@ -199,6 +208,10 @@
+             else:
+                 o = place_order(ex, symbol, order_type, side, float(amount), price, params)
+ 
++            # An acknowledgement remains placement evidence if its storage fails.
++            acknowledged = True
++            if isinstance(o, dict):
++                acknowledged_remote_id = str(o.get("id") or "").strip() or None
+             if intent_id is not None:
+                 store.mark_submitted(
+                     exchange_id=self.exchange_id,
+@@ -210,24 +223,28 @@
+         except Exception as e:
+             if intent_id is not None:
+                 msg = f"{type(e).__name__}:{e}"
+-                if _is_ambiguous_submit_error(e):
++                if acknowledged or (ex is not None and _is_ambiguous_submit_error(e)):
+                     store.mark_unknown(exchange_id=self.exchange_id, intent_id=str(intent_id), error=msg)
++                    if acknowledged_remote_id is not None:
++                        store.set_remote_id_if_empty(exchange_id=self.exchange_id, intent_id=str(intent_id),
++                                                     remote_order_id=acknowledged_remote_id)
+                     recon = reconcile_ambiguous_submission(
+                         venue=self.exchange_id,
+                         client=ex,
+                         symbol=symbol,
+                         client_oid=client_id,
+-                        remote_order_id=None,
++                        remote_order_id=acknowledged_remote_id,
+                         age_sec=0,
+                     )
+-                    if recon.outcome == "confirmed_not_placed":
++                    if not acknowledged and recon.outcome == "confirmed_not_placed":
+                         raise SafeToRetryAfterReconciliation("confirmed_not_placed_after_reconciliation")
+                     raise RuntimeError(f"ambiguous_submit_blocked:{recon.outcome}")
+                 else:
+                     store.mark_error(exchange_id=self.exchange_id, intent_id=str(intent_id), error=msg)
+             raise
+         finally:
+-            _safe_close(ex, where="submit_order")
++            if ex is not None:
++                _safe_close(ex, where="submit_order")
+ 
+     def fetch_order(self, *, order_id: str, symbol: str) -> Dict[str, Any]:
+         ex = self.build()
+--- a/storage/order_dedupe_store_sqlite.py
++++ b/storage/order_dedupe_store_sqlite.py
+@@ -73,12 +73,15 @@
+             ).fetchone()
+         return dict(r) if r else None
+ 
+-    def claim(self, *, exchange_id: str, intent_id: str, symbol: str, client_order_id: str, meta: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
++    def claim(self, *, exchange_id: str, intent_id: str, symbol: str, client_order_id: str, meta: Optional[Dict[str, Any]] = None, claim_error_for_submit: bool = False) -> Dict[str, Any]:
++        if type(claim_error_for_submit) is not bool:
++            raise ValueError("explicit_boolean_claim_policy_required")
+         ex = (exchange_id or "").lower().strip()
+         now = _now_ms()
+         meta_json = json.dumps(meta or {}, default=str)[:200000]
+         inserted = False
+         with _conn(self.exec_db) as c:
++            c.execute("BEGIN IMMEDIATE")
+             cur = c.execute(
+                 """
+                 INSERT OR IGNORE INTO order_dedupe(
+@@ -88,12 +91,25 @@
+                 (ex, str(intent_id), str(symbol), str(client_order_id), now, now, meta_json),
+             )
+             inserted = cur.rowcount == 1
+-            c.commit()
+-        row = self.get_by_intent(ex, str(intent_id))
+-        if row is not None:
+-            row["_inserted"] = inserted
+-        if not row:
+-            raise RuntimeError("order_dedupe claim failed")
++            submit_claimed = inserted
++            if not inserted and claim_error_for_submit:
++                cur = c.execute(
++                    """UPDATE order_dedupe SET status='created', updated_ts_ms=?
++                       WHERE exchange_id=? AND intent_id=? AND symbol=? AND client_order_id=?
++                       AND status='error' AND (remote_order_id IS NULL OR remote_order_id='')""",
++                    (now, ex, str(intent_id), str(symbol), str(client_order_id)),
++                )
++                submit_claimed = cur.rowcount == 1
++            found = c.execute(
++                "SELECT * FROM order_dedupe WHERE exchange_id=? AND intent_id=? LIMIT 1",
++                (ex, str(intent_id)),
++            ).fetchone()
++            if found is None:
++                raise RuntimeError("order_dedupe claim failed")
++            row = dict(found)
++            c.commit()
++        row["_inserted"] = inserted
++        row["_submit_claimed"] = submit_claimed
+         return row
+ 
+     def set_remote_id_if_empty(self, *, exchange_id: str, intent_id: str, remote_order_id: str) -> None:

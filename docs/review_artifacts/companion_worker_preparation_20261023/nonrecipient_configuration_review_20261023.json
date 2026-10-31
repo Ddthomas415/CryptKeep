@@ -1,0 +1,120 @@
+{
+  "schema": "companion-nonrecipient-configuration-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Offline applicability of the deliberate dormant-nonrecipient configured-binding guard correction only. Not packet rebinding, current full compatibility acceptance, historical-cause confirmation or operational permission.",
+  "runtime_status": "INCOMPLETE",
+  "historical_v6c_cause": "UNVERIFIED",
+  "blocking_findings": [],
+  "material_assumptions": [],
+  "source_and_artifact_sha256": {
+    "docs/checkpoints/companion_nonrecipient_configuration_20261023.md": "8b3fe7f0defd8faecbf48d3fdead4a79557f92f62b00b0b7e6e81ee4626a0132",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+    "tests/test_companion_recipient_diagnostics.py": "e0ac5f052f2e0bfc5f35e4e71ecfc62fb5daba6744ba50d75ca699bd1d95da84",
+    "docs/review_artifacts/companion_worker_preparation_20261023/recipient_observation_20261024T030249903885Z.json": "7ac74271a4d81c020be17920f33b74206d3547e0e247c9d547a7e420d77c2d92",
+    "scripts/research/companion_installer.py": "d0cfb0814b8884e790e794226e58629da1d587a797b4777b7dc4d3a54b232de7",
+    "tests/test_companion_active_network_contract.py": "4efaffccc5ac6f611f1e2bf3649f6422a7972756c9ecda31cf42b0ca645a6e25",
+    "tests/test_companion_staged_composition.py": "6d918ed2b748abd0489e6288b3dab39dfb5128b17562ff2c2dbc2e973a854c9f",
+    "tests/test_companion_running_update.py": "6080974d4eb2ea917077fd64d85190cb23f49c2d40ac3d87f27607aa9eb8740c",
+    "tests/test_companion_runtime_adapter.py": "3ca8318be5ecda58f5ea6e758ba18720f6ed23e2adc6dcf4b3765e50d85f8c8b"
+  },
+  "prior_accepted_bindings": {
+    "adapter_sha256": "4d32ab77c9183381f342f4202a9bd6bf1084de636e9d23b6ec30e7739a4fd248",
+    "diagnostic_test_sha256": "e255c9555ce4066fb4721d3621c3688505374dece6b9645cdc52cf60b0791a2a",
+    "diagnostic_review": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/recipient_diagnostics_review_20261024.json",
+      "sha256": "c3af782879cf4dce9ac85922871ed5409771009c3234427964ce92a636c6ea76"
+    },
+    "outcome_review": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6c/independent_review.json",
+      "sha256": "ef02af1091292fb1d1158951d2f5afff5a302e83645d643f052efe3a0582f134"
+    },
+    "meaning": "Prior accepted source/test hashes are historical scope boundaries, not current wrapper or policy applicability."
+  },
+  "deliberate_acceptance_difference": {
+    "classification": "SHOWN",
+    "not_policy_parity": true,
+    "before": "Every blank NetworkID on a reviewed network was refused when the inventory name was not a selected application, even for an unrelated dormant nonrecipient.",
+    "after": "A previously refused unselected row may pass that eligibility guard only if created, never started, exact-int zero restarts, restart policy no and no existing reserved recipient alias on the reviewed network. It must still pass existing network.project and the full-inventory recipient/ownership checks; this is eligibility relaxation, not unconditional success.",
+    "selected_application_behavior": "Unchanged: same never-started/created/exact-int-zero/no-restart restriction for blank IDs and the same subsequent projection and alias checks.",
+    "selected_storage_behavior": "Unchanged: selected storage names are in TARGETS but not APP_MODULES, so blank IDs still refuse.",
+    "preserved_guards": [
+      "Network identity validation and the existing single network-inspect command sequence.",
+      "Existing network.project rejects wrong/missing/non-string reported IDs, unknown reviewed-network names and contradictory nonempty endpoint/address evidence. The new guard does not bypass projection.",
+      "Existing reserved canonical recipient aliases, full metadata traversal and alias-owner conflict detection remain. No unrelated row is discarded or operationally changed.",
+      "Running/started, nonzero or boolean restart counts, enabled restart policy, wrong reported network IDs and reserved alias claims still refuse for the newly eligible unselected class.",
+      "Raw _bindings, selected application pin/identity/configuration checks and post-start recipient_checks remain unchanged. Projected configuration is not attachment.",
+      "Prior fixed-label diagnostic sanitization, installer receipt boundary, legacy envelope handling and fail-before-start/query behavior are unchanged."
+    ]
+  },
+  "change_scope_proof": {
+    "single_comment_condition_reverse_exact_prior_adapter": true,
+    "reconstructed_prior_adapter_sha256": "4d32ab77c9183381f342f4202a9bd6bf1084de636e9d23b6ec30e7739a4fd248",
+    "previous_diagnostic_tests_exact_unchanged_prefix": true,
+    "new_synthetic_cases_added": 11,
+    "installer_unchanged_sha256": "d0cfb0814b8884e790e794226e58629da1d587a797b4777b7dc4d3a54b232de7",
+    "method": "Compared complete in-session accepted source/test snapshots by hash; reversing only the one guard/comment reproduces prior adapter bytes. No git diff against the older dirty baseline was attributed to this change."
+  },
+  "observation_review": {
+    "classification": "SHOWN as saved parent observation/replay evidence, not independent native verification",
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/recipient_observation_20261024T030249903885Z.json",
+    "sha256": "7ac74271a4d81c020be17920f33b74206d3547e0e247c9d547a7e420d77c2d92",
+    "captured_at_utc": "2026-10-24T03:02:49.641134+00:00",
+    "inventory_reported_stable": true,
+    "network_observation_reported_stable": true,
+    "inventory_count": 23,
+    "native_read_calls_reported": 6,
+    "selected_original_ids_cross_bound": 7,
+    "selected_images_matching_and_running_reported": true,
+    "accepted_old_diagnostic": {
+      "schema": "companion-recipient-diagnostic-v1",
+      "predicate": "configured_eligibility",
+      "role": "unselected",
+      "target": null,
+      "exception_category": "none"
+    },
+    "unselected_witnesses_on_reviewed_network": 9,
+    "dormant_blank_nonrecipient_witnesses": 4,
+    "reported_network_id_other_witnesses": 5,
+    "interpretation": "The supplied accepted-diagnostic replay shows a current eligibility refusal on an unselected row. Old source logic deterministically refuses this class even with the saved dormant/no-reserved-alias witnesses. It does not identify the lost activated-v6c predicate or establish that all later checks pass.",
+    "limits": "Only selected IDs and value-free comparison witnesses are saved, not complete raw inventory/network rows. Numeric restart types, all endpoint/address fields and all projection inputs cannot independently be replayed from this JSON. No corrected 23-container gate pass, full compatibility, healthy service, endpoint/cited query or historical cause is claimed.",
+    "reviewer_native_capture": false
+  },
+  "verification": {
+    "environment": "VERIFIED_ENV for the isolated local offline subset only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_recipient_diagnostics.py tests/test_companion_active_network_contract.py tests/test_companion_staged_composition.py tests/test_companion_running_update.py tests/test_companion_runtime_adapter.py -k 'not test_pinned_bash_mode_ignores_inherited_startup_file'",
+    "exit_code": 0,
+    "passed": 211,
+    "deselected": 1,
+    "elapsed_seconds": 1.89,
+    "new_guard_cases": 11,
+    "total_diagnostic_cases": 46,
+    "parent_result": "CLAIMED 211 passed, 1 deselected in 2.08s; independently confirmed the same scope.",
+    "deselection": "Unrelated native-Bash subprocess test remains excluded. One focused suite run only.",
+    "reviewer_native_Docker_or_service_operations": 0,
+    "reviewer_live_network_requests": 0,
+    "reviewer_real_credential_reads": 0,
+    "full_suite_run": false
+  },
+  "remaining_limits": [
+    "The narrow acceptance-set change is intentional. Other source policies and unchanged guards are not a claim that every possible runtime condition is safe or that the configured gate currently passes.",
+    "A separately scoped read-only snapshot replay may show whether the present refusal is cleared; this reviewer performed no fresh capture or host replay and grants no additional observation authority. Any existing parent authorization remains separate.",
+    "Changed adapter/test hashes invalidate old exact-current-consumer bindings. No packet, scope, installed-policy record, execution wrapper or old attempt is rebound by this review.",
+    "Final alias/attachment, SDK/import/startup, original/replacement endpoint health, clock/pidfd/worker ownership, acknowledgement/recovery, cited retrieval, volume integrity and economics remain outside this offline proof.",
+    "Consumed v6c must not retry/reset; removed replacement IDs remain historical. No unrelated-container lifecycle action is permitted or needed by this change."
+  ],
+  "operational_authorized": false,
+  "additional_observation_authorization": false,
+  "packet_rebinding_authorized": false,
+  "preparation_or_retry_authorized": false,
+  "reservation_reset_authorized": false,
+  "credential_access_authorized": false,
+  "startup_or_cutover_authorized": false,
+  "query_authorized": false,
+  "trading_authorized": false,
+  "reviewer_changes": [
+    "docs/review_artifacts/companion_worker_preparation_20261023/nonrecipient_configuration_review_20261023.json"
+  ],
+  "frozen_source_tests_checkpoint_observation_and_prior_records_modified": false
+}

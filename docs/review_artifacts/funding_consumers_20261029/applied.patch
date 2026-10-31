@@ -1,0 +1,474 @@
+--- a/services/market_data/alternative_data.py
++++ b/services/market_data/alternative_data.py
+@@ -5,8 +5,11 @@
+ """
+ from __future__ import annotations
+ import json, time
++from datetime import datetime, timezone
+ from typing import Any
+ import urllib.request
++
++from services.analytics.funding_observations import finite_number, observation
+ 
+ 
+ def _get_json(url: str, timeout: int = 10) -> dict | None:
+@@ -53,15 +56,22 @@
+     }
+ 
+ 
++def _funding_utc_now() -> str:
++    return datetime.now(timezone.utc).isoformat()
++
++
+ def get_funding_rates(
+     symbols: list[str] | None = None,
+ ) -> dict[str, Any]:
+     """
+-    Fetch perpetual futures funding rates from Binance.
+-    Positive rate = longs pay shorts (overbought).
+-    Negative rate = shorts pay longs (oversold).
+-    Threshold: >0.05% = elevated longs, <-0.01% = elevated shorts.
++    Fetch public funding observations, not qualified normalized signals.
++
++    A provider's per-print rate, effective interval and crowding basis must
++    not be silently equated with an eight-hour rate. Raw evidence is retained.
+     """
++    ex = None
++    rates = []
++    errors = []
+     try:
+         import ccxt
+         ex = ccxt.binance({
+@@ -72,33 +82,39 @@
+             "BTC/USDT", "ETH/USDT", "SOL/USDT", "AVAX/USDT",
+             "DOGE/USDT", "LINK/USDT", "MATIC/USDT", "ADA/USDT",
+         ]
+-        rates = []
+         for sym in target:
+             try:
++                started = _funding_utc_now()
+                 info = ex.fetch_funding_rate(sym)
+-                rate = float(info.get("fundingRate") or 0.0) * 100.0
+-
+-                if rate > 0.05:    signal = "overleveraged_longs"
+-                elif rate < -0.01: signal = "overleveraged_shorts"
+-                elif rate > 0.02:  signal = "elevated_longs"
+-                else:              signal = "neutral"
+-
++                received = _funding_utc_now()
++                record = observation(
++                    venue="binance", symbol=sym, captured_at=received, payload=info,
++                    receipt={"request_started_at": started, "received_at": received,
++                             "requested_symbol": sym, "fetch_method": "fetch_funding_rate"})
++                raw_rate = record["funding_rate"]
++                raw_pct = finite_number(raw_rate * 100.0) if raw_rate is not None else None
+                 rates.append({
+-                    "symbol":     sym,
+-                    "rate_pct":   round(rate, 4),
+-                    "annualized": round(rate * 3 * 365, 2),
+-                    "signal":     signal,
++                    "symbol": sym, "raw_rate_pct": raw_pct,
++                    "raw_percent_unrepresentable": raw_rate is not None and raw_pct is None,
++                    "rate_pct": None, "annualized": None, "signal": "unknown",
++                    "normalization_eligible": False,
++                    "normalization_reason": record["normalization"]["reason"],
++                    "observation": record,
+                 })
+-            except Exception:
+-                pass
+-        ex.close()
+-        return {
+-            "ok":    True,
+-            "rates": rates,
+-            "ts":    time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+-        }
+-    except Exception as e:
+-        return {"ok": False, "reason": f"{type(e).__name__}:{e}", "rates": []}
++            except Exception as exc:
++                errors.append({"symbol": sym, "reason": f"funding_observation_failed:{type(exc).__name__}"})
++    except Exception as exc:
++        errors.append({"reason": f"funding_setup_failed:{type(exc).__name__}"})
++    finally:
++        if ex is not None:
++            try:
++                ex.close()
++            except Exception as exc:
++                errors.append({"reason": f"funding_close_failed:{type(exc).__name__}"})
++    return {"ok": bool(rates), "complete": not errors, "rates": rates, "errors": errors,
++            "normalization_eligible": False,
++            "reason": "observed_unverified" if rates else "funding_unavailable",
++            "ts": _funding_utc_now()}
+ 
+ 
+ def get_market_regime() -> dict[str, Any]:
+--- a/services/market_data/composite_ranker.py
++++ b/services/market_data/composite_ranker.py
+@@ -2,6 +2,8 @@
+ from __future__ import annotations
+ 
+ from typing import Any
++
++from services.analytics.funding_observations import finite_number
+ 
+ 
+ DEFAULT_WEIGHTS = {
+@@ -60,6 +62,23 @@
+     return base
+ 
+ 
++def funding_input(row: dict[str, Any] | None) -> dict[str, Any]:
++    """Keep explicitly unqualified observations out of the old per-print model.
++
++    Unmarked numeric fixtures retain the historical model, not validated
++    provider eligibility. No declaration alone qualifies a live observation.
++    """
++    if not isinstance(row, dict) or not row:
++        return {"rate_pct": None, "state": "missing", "reason": "funding_missing"}
++    if any(key in row for key in ("normalization_eligible", "normalization", "observation")):
++        reason = row.get("normalization_reason")
++        return {"rate_pct": None, "state": "unverified",
++                "reason": reason if isinstance(reason, str) and reason else "funding_basis_unverified"}
++    rate = finite_number(row.get("rate_pct"))
++    return {"rate_pct": rate, "state": "legacy_unverified" if rate is not None else "invalid",
++            "reason": "legacy_per_print_model_only" if rate is not None else "funding_rate_invalid"}
++
++
+ def score_row(
+     *,
+     row: dict[str, Any],
+@@ -77,7 +96,8 @@
+     volatility_pct = _safe_float(row.get("volatility_pct"), 0.0)
+     rsi = _safe_float(row.get("rsi"), 50.0)
+ 
+-    funding_rate = _safe_float((funding_row or {}).get("rate_pct"), 0.0)
++    funding = funding_input(funding_row)
++    funding_rate = funding["rate_pct"]
+     oi_change_pct = _safe_float((oi_row or {}).get("oi_change_pct"), 0.0)
+     price_change_pct = _safe_float((oi_row or {}).get("price_change_pct"), change_pct)
+     imbalance = _safe_float((order_book_row or {}).get("imbalance"), 0.0)
+@@ -108,12 +128,13 @@
+         score_regime = cfg["regime_penalty_bearish"]
+ 
+     score_funding = 0.0
+-    if funding_rate <= -0.01:
+-        score_funding = cfg["funding_bonus_shorts"]
+-    elif funding_rate >= 0.05:
+-        score_funding = cfg["funding_penalty_longs"]
+-    elif funding_rate >= 0.02:
+-        score_funding = cfg["funding_penalty_elevated_longs"]
++    if funding_rate is not None:
++        if funding_rate <= -0.01:
++            score_funding = cfg["funding_bonus_shorts"]
++        elif funding_rate >= 0.05:
++            score_funding = cfg["funding_penalty_longs"]
++        elif funding_rate >= 0.02:
++            score_funding = cfg["funding_penalty_elevated_longs"]
+ 
+     score_oi = 0.0
+     if oi_change_pct >= 5.0 and price_change_pct > 0:
+@@ -160,7 +181,7 @@
+         "hot": round(score_hot, 4),
+         "volume": round(score_volume, 4),
+         "regime": round(score_regime, 4),
+-        "funding": round(score_funding, 4),
++        "funding": round(score_funding, 4) if funding_rate is not None else None,
+         "open_interest": round(score_oi, 4),
+         "order_book": round(score_order_book, 4),
+         "rsi": round(score_rsi, 4),
+@@ -172,6 +193,8 @@
+         "composite_score": round(total, 4),
+         "score_breakdown": breakdown,
+         "funding_rate_pct": funding_rate,
++        "funding_input_state": funding["state"],
++        "funding_input_reason": funding["reason"],
+         "oi_change_pct": oi_change_pct,
+         "order_book_imbalance": round(imbalance, 4),
+     }
+--- a/dashboard/pages/40_Market_Intelligence.py
++++ b/dashboard/pages/40_Market_Intelligence.py
+@@ -4,6 +4,7 @@
+ 
+ from dashboard.auth_gate import require_authenticated_role
+ from services.market_data.market_intelligence import build_market_intelligence_snapshot
++from services.market_data.composite_ranker import funding_input
+ from services.strategies.funding_extreme import signal_from_context as funding_signal_from_context
+ from services.strategies.open_interest_shift import signal_from_context as oi_signal_from_context
+ 
+@@ -49,12 +50,16 @@
+ 
+ funding_signals = []
+ for row in funding_rows:
+-    sig = funding_signal_from_context(
+-        funding_rate_pct=float(row.get("rate_pct") or 0.0),
+-    )
++    funding_status = funding_input(row)
++    if funding_status["state"] == "qualified":
++        sig = funding_signal_from_context(funding_rate_pct=funding_status["rate_pct"])
++    else:
++        sig = {"action": None, "reason": funding_status["reason"]}
+     funding_signals.append({
+         "symbol": row.get("symbol"),
+-        "funding_rate_pct": row.get("rate_pct"),
++        "funding_rate_pct": None if funding_status["state"] != "qualified" else funding_status["rate_pct"],
++        "raw_funding_rate_pct": row.get("raw_rate_pct", row.get("rate_pct")),
++        "validation_state": funding_status["state"],
+         "action": sig.get("action"),
+         "reason": sig.get("reason"),
+     })
+@@ -75,6 +80,7 @@
+     })
+ 
+ st.subheader("Funding Strategy Signals")
++st.caption("Unverified funding has no strategy action. Raw observations are diagnostics, not neutral signals.")
+ st.dataframe(funding_signals, use_container_width=True)
+ 
+ st.subheader("Open Interest Strategy Signals")
+@@ -84,7 +90,12 @@
+ st.dataframe(oi_rows, use_container_width=True)
+ 
+ st.subheader("Funding Raw")
+-st.dataframe(funding_rows, use_container_width=True)
++st.dataframe([{key: value for key, value in row.items() if key != "observation"}
++              for row in funding_rows], use_container_width=True)
++with st.expander("Funding observation provenance"):
++    st.json(funding_rows)
++if not (result.get("funding") or {}).get("ok"):
++    st.warning("Funding observations are unavailable; no funding action is inferred.")
+ 
+ st.subheader("Liquidation Risk")
+ st.dataframe((result.get("liquidation") or {}).get("rows", []), use_container_width=True)
+--- a/tests/test_funding_provenance_boundary.py
++++ b/tests/test_funding_provenance_boundary.py
+@@ -109,7 +109,8 @@
+     fake = SimpleNamespace(fetch_funding_rate=lambda symbol: {"fundingRate": rate, "interval": interval},
+                            close=lambda: None)
+     monkeypatch.setitem(sys.modules, "ccxt", SimpleNamespace(binance=lambda config: fake))
+-    ns = selected("services/market_data/alternative_data.py", {"get_funding_rates"}, {"time": time})
++    ns = selected("docs/review_artifacts/funding_consumers_20261029/before/alternative_data.py",
++                  {"get_funding_rates"}, {"time": time})
+     result = ns["get_funding_rates"](["EXAMPLE/USDT"])
+     assert result["ok"] is True and len(result["rates"]) == 1
+     return result["rates"][0]
+--- /dev/null
++++ b/tests/test_funding_consumers.py
+@@ -0,0 +1,220 @@
++from __future__ import annotations
++
++import ast
++from copy import deepcopy
++from datetime import datetime, timedelta, timezone
++from itertools import count
++import json
++from pathlib import Path
++import socket
++import sys
++from types import SimpleNamespace
++
++import pytest
++
++from services.market_data import alternative_data as alternative
++from services.market_data import composite_ranker as ranker
++
++
++ROOT = Path(__file__).resolve().parents[1]
++BEFORE = ROOT / "docs/review_artifacts/funding_consumers_20261029/before"
++
++
++@pytest.fixture
++def sdk(monkeypatch):
++    trace = []
++    payloads = {"EXAMPLE/USDT": {"fundingRate": 0.0001}}
++    errors = {}
++    class Fake:
++        def fetch_funding_rate(self, symbol):
++            trace.append(("fetch", symbol))
++            if symbol in errors:
++                raise errors[symbol]
++            return deepcopy(payloads[symbol])
++        def close(self):
++            trace.append("close")
++            if "close" in errors:
++                raise errors["close"]
++    def build(config):
++        trace.append(("build", config))
++        return Fake()
++    monkeypatch.setitem(sys.modules, "ccxt", SimpleNamespace(binance=build))
++    ticks = count()
++    base = datetime(2026, 10, 29, tzinfo=timezone.utc)
++    monkeypatch.setattr(alternative, "_funding_utc_now",
++                        lambda: (base + timedelta(seconds=next(ticks))).isoformat(), raising=False)
++    def refuse(*args, **kwargs):
++        raise AssertionError("network forbidden")
++    monkeypatch.setattr(socket, "create_connection", refuse)
++    monkeypatch.setattr(socket, "getaddrinfo", refuse)
++    monkeypatch.setattr(socket.socket, "connect", refuse)
++    monkeypatch.setattr(alternative, "_get_json", refuse)
++    return payloads, errors, trace
++
++
++def test_unknown_interval_never_becomes_annualized_income_or_neutral(sdk):
++    result = alternative.get_funding_rates(["EXAMPLE/USDT"])
++    row = result["rates"][0]
++    assert row["annualized"] is None
++    assert row["signal"] == "unknown"
++    assert row["rate_pct"] is None
++    assert row["raw_rate_pct"] == pytest.approx(0.01)
++    assert row["normalization_eligible"] is False
++
++
++@pytest.mark.parametrize("interval", [None, "1h", "4h", "8h"])
++@pytest.mark.parametrize("rate", [0, 0.0001, -0.0001])
++def test_interval_and_rate_sign_alone_never_certify_crowding_or_yield(sdk, interval, rate):
++    payloads, _, trace = sdk
++    payloads["EXAMPLE/USDT"] = {"fundingRate": rate, "interval": interval}
++    row = alternative.get_funding_rates(["EXAMPLE/USDT"])["rates"][0]
++    assert row["raw_rate_pct"] == pytest.approx(rate * 100)
++    assert row["signal"] == "unknown" and row["annualized"] is None and row["rate_pct"] is None
++    assert row["observation"]["interval_hours"] == (int(interval[:-1]) if interval else None)
++    assert trace[-1] == "close"
++    assert [x for x in trace if isinstance(x, tuple) and x[0] == "fetch"] == [("fetch", "EXAMPLE/USDT")]
++
++
++def test_payload_native_fields_and_receipt_survive_without_settled_claim(sdk):
++    payloads, _, _ = sdk
++    raw = {"nextFundingRate": "0.0001", "symbol": "OTHER",
++           "info": {"nextFundingRate": "0.0001", "time": 1700000000000,
++                    "fundingTime": "1700003600000"}}
++    payloads["EXAMPLE/USDT"] = deepcopy(raw)
++    row = alternative.get_funding_rates(["EXAMPLE/USDT"])["rates"][0]
++    record = row["observation"]
++    assert record["raw_payload"] == raw and record["rate_kind"] == "predicted"
++    assert record["rate_kind_verified"] is False
++    assert record["receipt"]["response_symbol_matches_request"] is False
++    assert record["receipt"]["request_started_at"] == "2026-10-29T00:00:00+00:00"
++    assert record["captured_at"] == "2026-10-29T00:00:01+00:00"
++    assert record["reported_exchange_time_fields"]["info.time"] == 1700000000000
++
++
++@pytest.mark.parametrize("raw", [{}, {"fundingRate": None}, {"fundingRate": "nan"}, {"fundingRate": True}])
++def test_unknown_rate_is_retained_not_zero_filled(sdk, raw):
++    payloads, _, _ = sdk
++    payloads["EXAMPLE/USDT"] = raw
++    result = alternative.get_funding_rates(["EXAMPLE/USDT"])
++    assert result["ok"] is True and result["complete"] is True
++    assert result["normalization_eligible"] is False
++    row = result["rates"][0]
++    assert row["observation"]["raw_payload"] == raw
++    assert row["raw_rate_pct"] is None and row["normalization_reason"] == "rate_unknown"
++
++
++def test_partial_failure_is_visible_sanitized_and_closes(sdk):
++    _, errors, trace = sdk
++    errors["BAD/USDT"] = RuntimeError("sensitive-looking detail")
++    result = alternative.get_funding_rates(["EXAMPLE/USDT", "BAD/USDT"])
++    assert result["ok"] is True and result["complete"] is False
++    assert len(result["rates"]) == 1 and len(result["errors"]) == 1
++    assert result["errors"][0]["reason"] == "funding_observation_failed:RuntimeError"
++    assert "sensitive-looking" not in json.dumps(result)
++    assert trace[-1] == "close"
++
++
++def test_close_failure_does_not_erase_observation_or_claim_complete(sdk):
++    _, errors, _ = sdk
++    errors["close"] = RuntimeError("sensitive-looking close detail")
++    result = alternative.get_funding_rates(["EXAMPLE/USDT"])
++    assert len(result["rates"]) == 1 and result["complete"] is False
++    assert result["errors"] == [{"reason": "funding_close_failed:RuntimeError"}]
++
++
++def test_all_fetches_fail_is_not_success(sdk):
++    _, errors, trace = sdk
++    errors["EXAMPLE/USDT"] = TimeoutError("invented")
++    result = alternative.get_funding_rates(["EXAMPLE/USDT"])
++    assert result["ok"] is False and result["complete"] is False
++    assert result["rates"] == [] and result["reason"] == "funding_unavailable"
++    assert trace[-1] == "close"
++
++
++def test_overflowing_percent_conversion_does_not_leak_nonfinite_output(sdk):
++    payloads, _, _ = sdk
++    payloads["EXAMPLE/USDT"] = {"fundingRate": 1e308}
++    result = alternative.get_funding_rates(["EXAMPLE/USDT"])
++    row = result["rates"][0]
++    assert row["raw_rate_pct"] is None and row["raw_percent_unrepresentable"] is True
++    assert row["observation"]["raw_payload"]["fundingRate"] == 1e308
++    json.dumps(result, allow_nan=False)
++
++
++@pytest.mark.parametrize("extra", [
++    {"normalization_eligible": False}, {"normalization_eligible": True},
++    {"normalization": {"eligible": True}}, {"observation": {"normalization": {"eligible": True}}},
++])
++def test_declarations_do_not_qualify_an_observation_for_ranker(extra):
++    status = ranker.funding_input({"rate_pct": -0.08, **extra})
++    assert status["rate_pct"] is None and status["state"] == "unverified"
++    scored = ranker.score_row(row={"symbol": "EXAMPLE"}, funding_row={"rate_pct": -0.08, **extra})
++    assert scored["score_breakdown"]["funding"] is None
++    assert scored["funding_rate_pct"] is None
++
++
++def archived_score():
++    path = BEFORE / "composite_ranker.py"
++    tree = ast.parse(path.read_bytes())
++    node = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "score_row")
++    ns = dict(vars(ranker))
++    exec(compile(ast.fix_missing_locations(ast.Module(body=[node], type_ignores=[])), str(path), "exec"), ns)
++    return ns["score_row"]
++
++
++@pytest.mark.parametrize("rate", [-0.08, -0.01, -0.001, 0, 0.01, 0.02, 0.05, 0.08])
++def test_frozen_numeric_legacy_model_score_and_thresholds_remain_unchanged(rate):
++    row = {"symbol": "EXAMPLE", "change_pct": 3, "rsi": 60, "hot_score": 5,
++           "volume_z": 1, "volatility_pct": 4}
++    args = {"row": row, "funding_row": {"rate_pct": rate}}
++    old, current = archived_score()(**args), ranker.score_row(**args)
++    assert all(current[key] == value for key, value in old.items())
++    assert current["funding_input_state"] == "legacy_unverified"
++
++
++def test_unverified_funding_does_not_change_other_score_components(sdk):
++    fresh = alternative.get_funding_rates(["EXAMPLE/USDT"])["rates"][0]
++    row = {"symbol": "EXAMPLE", "change_pct": 3, "rsi": 60, "hot_score": 5,
++           "volume_z": 1, "volatility_pct": 4}
++    old = archived_score()(row=row, funding_row=None)
++    current = ranker.score_row(row=row, funding_row=fresh)
++    assert current["composite_score"] == old["composite_score"]
++    assert all(value == current["score_breakdown"][key]
++               for key, value in old["score_breakdown"].items() if key != "funding")
++    assert current["score_breakdown"]["funding"] is None
++
++
++@pytest.mark.parametrize("value", [None, True, "nan", "inf", "invalid"])
++def test_invalid_legacy_rate_does_not_become_zero_or_threshold_signal(value):
++    assert ranker.funding_input({"rate_pct": value})["rate_pct"] is None
++
++
++def dashboard_signals(rows, path=ROOT / "dashboard/pages/40_Market_Intelligence.py"):
++    tree = ast.parse(path.read_bytes())
++    node = next(n for n in tree.body if isinstance(n, ast.For) and isinstance(n.iter, ast.Name)
++                and n.iter.id == "funding_rows")
++    def refuse(**kwargs):
++        raise AssertionError("unverified data must not reach the strategy")
++    ns = {"funding_rows": rows, "funding_signals": [], "funding_input": ranker.funding_input,
++          "funding_signal_from_context": refuse}
++    exec(compile(ast.fix_missing_locations(ast.Module(body=[node], type_ignores=[])), str(path), "exec"), ns)
++    return ns["funding_signals"]
++
++
++@pytest.mark.parametrize("row", [
++    {"symbol": "EXAMPLE", "rate_pct": None, "normalization_eligible": False},
++    {"symbol": "EXAMPLE", "rate_pct": 0.08},
++    {"symbol": "EXAMPLE", "raw_rate_pct": -0.08, "normalization_eligible": False},
++    {"symbol": "EXAMPLE"},
++])
++def test_dashboard_does_not_turn_unknown_or_legacy_unverified_into_actions(row):
++    result = dashboard_signals([row])[0]
++    assert result["action"] is None and result["funding_rate_pct"] is None
++    assert result["reason"] != "funding_neutral"
++    assert result["validation_state"] != "qualified"
++
++
++def test_archived_dashboard_loop_is_a_negative_control():
++    with pytest.raises(AssertionError, match="must not reach"):
++        dashboard_signals([{"symbol": "EXAMPLE", "rate_pct": None}],
++                          path=BEFORE / "40_Market_Intelligence.py")

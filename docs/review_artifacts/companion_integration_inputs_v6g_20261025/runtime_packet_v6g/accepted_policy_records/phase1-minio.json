@@ -1,0 +1,23 @@
+{
+  "schema": "companion-installed-policy-review-v1",
+  "decision": "ACCEPTED_WITH_RISK",
+  "reviewer": "Independent GATE; V6g restricted source/config policy only; no operation grant; scope-review-sha256=f01d70a7f459a1a2d4f34b32af1f688ac94d3b153a5c9b0fd641fefa9632612d",
+  "image_id": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+  "subjects": [
+    {
+      "container_id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image_id": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "name": "phase1-minio",
+      "preservation_sha256": "8ebdf954631024d01eae198e4482d7dc4c0fcf1b1d4fbf32f4c533903e85340c",
+      "sources": {
+        "/bin/bash": "7e3a3f9d6715ccab40ba328d2220f59f70133ac164ac491a07c5cff2dc035753",
+        "/usr/bin/curl": "21ce44fcae8ddd56447777fd18db82f76cc6316637e71f54333f39b03323c71c"
+      }
+    }
+  ],
+  "policies": {
+    "entrypoint_side_effects": "SHOWN",
+    "no_proxy_redirect": "SHOWN",
+    "zero_retries": "SHOWN"
+  }
+}

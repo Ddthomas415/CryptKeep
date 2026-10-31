@@ -1,0 +1,158 @@
+--- a/services/execution/exchange_client.py
++++ b/services/execution/exchange_client.py
+@@ -14,6 +14,7 @@
+ )
+ from services.execution.place_order import place_order
+ from services.execution.execution_context import ExecutionContext
++from services.execution.retry_policy import is_retryable_exception
+ from services.execution.risk_gates import require_binance_allowed
+ from services.os.app_paths import data_dir, ensure_dirs
+ from storage.order_dedupe_store_sqlite import OrderDedupeStore
+@@ -77,15 +78,8 @@
+ 
+ 
+ def _is_ambiguous_submit_error(e: Exception) -> bool:
+-    name = type(e).__name__
+-    return name in {
+-        "RequestTimeout",
+-        "NetworkError",
+-        "ExchangeNotAvailable",
+-        "DDoSProtection",
+-        "RateLimitExceeded",
+-        "TimeoutError",
+-    }
++    # Operation failures may follow placement; uncertainty is not retry permission.
++    return isinstance(e, ccxt.OperationFailed) or is_retryable_exception(e)
+ 
+ 
+ def _safe_close(ex: Any, *, where: str) -> None:
+@@ -236,7 +230,8 @@
+                         remote_order_id=acknowledged_remote_id,
+                         age_sec=0,
+                     )
+-                    if not acknowledged and recon.outcome == "confirmed_not_placed":
++                    if (not acknowledged and recon.outcome == "confirmed_not_placed"
++                            and is_retryable_exception(e)):
+                         raise SafeToRetryAfterReconciliation("confirmed_not_placed_after_reconciliation")
+                     raise RuntimeError(f"ambiguous_submit_blocked:{recon.outcome}")
+                 else:
+--- a/tests/test_exchange_client_claim_owner.py
++++ b/tests/test_exchange_client_claim_owner.py
+@@ -10,8 +10,10 @@
+ from types import SimpleNamespace
+ 
+ import pytest
++import ccxt
+ 
+ from storage.order_dedupe_store_sqlite import OrderDedupeStore
++from services.execution.retry_policy import is_retryable_exception
+ 
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+@@ -50,7 +52,8 @@
+     def recon(**kwargs):
+         trace.append(("reconcile", kwargs["remote_order_id"]))
+         return SimpleNamespace(outcome=reconcile)
+-    ns = {"inspect": inspect, "Path": Path, "_LOG": logging.getLogger("offline-claim-owner"),
++    ns = {"inspect": inspect, "ccxt": ccxt, "is_retryable_exception": is_retryable_exception,
++          "Path": Path, "_LOG": logging.getLogger("offline-claim-owner"),
+           "ensure_dirs": lambda: None, "OrderDedupeStore": store_factory,
+           "make_client_order_id": lambda *a: "client-1", "client_id_param": lambda *a: {"clientOrderId": "client-1"},
+           "ExecutionContext": lambda **kwargs: kwargs, "place_order": place_order,
+@@ -281,3 +284,68 @@
+     claim(store); store.mark_error(exchange_id="coinbase", intent_id="exit-1", error="prior rejection")
+     result = claim(store)
+     assert result["status"] == "error" and result["_submit_claimed"] is False
++
++
++def classifier(path=APPLICATION):
++    source = ast.parse(path.read_bytes())
++    node = next(n for n in source.body if isinstance(n, ast.FunctionDef) and n.name == "_is_ambiguous_submit_error")
++    module = ast.Module(body=[node], type_ignores=[]); ast.fix_missing_locations(module)
++    ns = {"ccxt": ccxt, "is_retryable_exception": is_retryable_exception}
++    exec(compile(module, str(path), "exec"), ns)
++    return ns["_is_ambiguous_submit_error"]
++
++
++def test_sdk_network_subclass_is_uncertain_even_with_a_different_class_name():
++    assert classifier()(ccxt.OnMaintenance("invented exchange maintenance")) is True
++
++
++class DifferentTransportName(ccxt.NetworkError):
++    pass
++
++
++@pytest.mark.parametrize("error_type", [ccxt.NetworkError, ccxt.RequestTimeout, ccxt.ExchangeNotAvailable,
++    ccxt.OnMaintenance, ccxt.DDoSProtection, ccxt.RateLimitExceeded, ccxt.BadResponse, ccxt.NullResponse,
++    ccxt.CancelPending, ccxt.InvalidNonce, DifferentTransportName, ConnectionError, ConnectionResetError, TimeoutError])
++def test_transport_and_operation_types_remain_uncertain_regardless_of_message(error_type):
++    for message in ("account rejected", "invalid order", "unrelated 429 value"):
++        assert classifier()(error_type(message)) is True
++
++
++@pytest.mark.parametrize("error_type", [ccxt.AuthenticationError, ccxt.PermissionDenied, ccxt.AccountSuspended,
++    ccxt.InvalidOrder, ccxt.InsufficientFunds, ccxt.BadRequest, ccxt.BadSymbol, ccxt.ArgumentsRequired,
++    ccxt.NotSupported, ccxt.OperationRejected])
++def test_known_rejections_do_not_become_transport_failures_from_message_text(error_type):
++    for message in ("timeout", "503 temporary", "connection reset"):
++        assert classifier()(error_type(message)) is False
++
++
++@pytest.mark.parametrize("error_type", [ccxt.OnMaintenance, DifferentTransportName, ConnectionResetError,
++                                      ccxt.BadResponse, ccxt.InvalidNonce])
++@pytest.mark.parametrize("outcome", ["inconclusive", "confirmed_not_placed", "confirmed_placed"])
++def test_typed_submit_failure_requires_reconciliation_and_positive_retry_eligibility(tmp_path, error_type, outcome):
++    error = error_type("invented transport or operation failure")
++    def submit():
++        raise error
++    invoke, trace, store, safe_retry = harness(tmp_path, submit=submit, reconcile=outcome)
++    with pytest.raises(RuntimeError) as raised:
++        invoke()
++    expected_retry_signal = outcome == "confirmed_not_placed" and is_retryable_exception(error)
++    assert isinstance(raised.value, safe_retry) is expected_retry_signal
++    assert store.get_by_intent("coinbase", "exit-1")["status"] == "unknown"
++    assert ("reconcile", None) in trace and trace[-1] == "close"
++    before = list(trace)
++    with pytest.raises(RuntimeError, match="idempotency blocks"):
++        invoke()
++    assert trace == before
++
++
++def test_old_exact_name_classifier_misses_real_sdk_and_builtin_subclasses():
++    source = ROOT / "docs/review_artifacts/exchange_error_types_20261028/exchange_client.py"
++    old = classifier(source)
++    assert old(ccxt.OnMaintenance("invented")) is False
++    assert old(ConnectionResetError("invented")) is False
++
++
++def test_invalid_nonce_uncertainty_does_not_relax_its_existing_no_retry_rule():
++    error = ccxt.InvalidNonce("invented nonce refusal")
++    assert classifier()(error) is True and is_retryable_exception(error) is False
+--- a/tests/test_exchange_client_retry_flow.py
++++ b/tests/test_exchange_client_retry_flow.py
+@@ -67,11 +67,10 @@
+ 
+     monkeypatch.setattr("services.execution.exchange_client.OrderDedupeStore", lambda *a, **k: store)
+     monkeypatch.setattr("services.execution.exchange_client.load_exchange_credentials", lambda exchange_id: {"apiKey": "x"})
+-    monkeypatch.setattr(ExchangeClient, "build", lambda self: DummyExchange(RuntimeError("network timeout")))
++    monkeypatch.setattr(ExchangeClient, "build", lambda self: DummyExchange(TimeoutError("invented timeout")))
+     monkeypatch.setattr("services.execution.exchange_client.ensure_dirs", lambda: None)
+     monkeypatch.setattr("services.execution.exchange_client.place_order", lambda ex, *a, **k: ex.create_order())
+     monkeypatch.setattr("services.execution.exchange_client.client_id_param", lambda exchange_id, client_id: {"clientOrderId": client_id})
+-    monkeypatch.setattr("services.execution.exchange_client._is_ambiguous_submit_error", lambda e: True)
+     monkeypatch.setattr(
+         "services.execution.exchange_client.reconcile_ambiguous_submission",
+         lambda **kwargs: type("R", (), {"outcome": "inconclusive"})(),
+@@ -101,11 +100,10 @@
+ 
+     monkeypatch.setattr("services.execution.exchange_client.OrderDedupeStore", lambda *a, **k: store)
+     monkeypatch.setattr("services.execution.exchange_client.load_exchange_credentials", lambda exchange_id: {"apiKey": "x"})
+-    monkeypatch.setattr(ExchangeClient, "build", lambda self: DummyExchange(RuntimeError("network timeout")))
++    monkeypatch.setattr(ExchangeClient, "build", lambda self: DummyExchange(TimeoutError("invented timeout")))
+     monkeypatch.setattr("services.execution.exchange_client.ensure_dirs", lambda: None)
+     monkeypatch.setattr("services.execution.exchange_client.place_order", lambda ex, *a, **k: ex.create_order())
+     monkeypatch.setattr("services.execution.exchange_client.client_id_param", lambda exchange_id, client_id: {"clientOrderId": client_id})
+-    monkeypatch.setattr("services.execution.exchange_client._is_ambiguous_submit_error", lambda e: True)
+     monkeypatch.setattr(
+         "services.execution.exchange_client.reconcile_ambiguous_submission",
+         lambda **kwargs: type("R", (), {"outcome": "confirmed_not_placed"})(),

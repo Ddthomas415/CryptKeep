@@ -1,0 +1,185 @@
+{
+  "started_at": "2026-10-29T18:20:57.001379+00:00",
+  "scope": "one collect_once call, funding-only, fresh isolated database",
+  "folder": "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3",
+  "source_bindings_verified": 58,
+  "producer_authority": false,
+  "requests": [
+    {
+      "url": "https://www.okx.com/api/v5/public/funding-rate?instId=BTC-USDT-SWAP",
+      "started_at": "2026-10-29T18:20:57.004738+00:00",
+      "timeout_seconds": 10,
+      "finished_at": "2026-10-29T18:20:57.247580+00:00",
+      "exit_code": 0
+    },
+    {
+      "url": "https://www.okx.com/api/v5/public/funding-rate-history?instId=BTC-USDT-SWAP&limit=5",
+      "started_at": "2026-10-29T18:20:57.248528+00:00",
+      "timeout_seconds": 10,
+      "finished_at": "2026-10-29T18:20:57.503419+00:00",
+      "exit_code": 0
+    }
+  ],
+  "database_connections": [
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite"
+  ],
+  "original_metadata_before": {
+    ".cbp_state/data/crypto_edge_research.sqlite": {
+      "exists": true,
+      "bytes": 31879168,
+      "mtime_ns": 1793284434809750239,
+      "ctime_ns": 1793284434809750239,
+      "uid": 501,
+      "gid": 20
+    },
+    ".cbp_state/data/crypto_edge_research.sqlite-wal": {
+      "exists": true,
+      "bytes": 82432,
+      "mtime_ns": 1793284445420545381,
+      "ctime_ns": 1793284454895935297,
+      "uid": 501,
+      "gid": 20
+    },
+    ".cbp_state/data/crypto_edge_research.sqlite-shm": {
+      "exists": true,
+      "bytes": 32768,
+      "mtime_ns": 1793284445414520632,
+      "ctime_ns": 1793284584455036538,
+      "uid": 501,
+      "gid": 20
+    },
+    ".cbp_state/runtime/health/crypto_edge_collector.json": {
+      "exists": true,
+      "bytes": 5633,
+      "mtime_ns": 1793284445724408780,
+      "ctime_ns": 1793284445724408780,
+      "uid": 501,
+      "gid": 20,
+      "sha256": "b32a86f731eeb59bdcfdf3fc49b5edd580187f608f64dc531623ff60d97140ed"
+    },
+    ".cbp_state/runtime/health/crypto_edge_collector.pid.json": {
+      "exists": true,
+      "bytes": 195,
+      "mtime_ns": 1791808601888605229,
+      "ctime_ns": 1791808601888605229,
+      "uid": 501,
+      "gid": 20,
+      "sha256": "41d4af0414abc9876c8b2640fb32ef06ed5cbf763435ee7a6b00bc4f338d5499"
+    },
+    ".cbp_state/runtime/flags/crypto_edge_collector.stop": {
+      "exists": false
+    },
+    "sample_data/crypto_edges/live_collector_plan.json": {
+      "exists": true,
+      "bytes": 670,
+      "mtime_ns": 1783283462154204699,
+      "ctime_ns": 1783283462154204699,
+      "uid": 501,
+      "gid": 20,
+      "sha256": "0180401228ccabb5ca8cbd7fef725caf1a2656693bff4c905219903a77702a9c"
+    }
+  },
+  "curl_sha256": "b6f8c43b623b760e2fa95910e3f62bb518257c48b4ef54ed09285e49d6d1b85f",
+  "binary_signature_trust": "UNVERIFIED",
+  "ok": true,
+  "service_ok": true,
+  "funding_capture": {
+    "ok": true,
+    "planned_pairs": 1,
+    "successful_pairs": 1,
+    "failed_pairs": 0,
+    "requests_attempted": 2,
+    "request_budget": 2,
+    "capture_budget_seconds": 30,
+    "elapsed_capture_seconds": 0.5044774580001103,
+    "execution_authority": false
+  },
+  "raw_rows": 1,
+  "quotes": 1,
+  "legacy_funding_rows": 0,
+  "body_checks": [
+    {
+      "name": "current",
+      "hash_and_length_match": true
+    },
+    {
+      "name": "history",
+      "hash_and_length_match": true
+    }
+  ],
+  "finished_at": "2026-10-29T18:20:57.524004+00:00",
+  "original_metadata_after": {
+    ".cbp_state/data/crypto_edge_research.sqlite": {
+      "exists": true,
+      "bytes": 31879168,
+      "mtime_ns": 1793284434809750239,
+      "ctime_ns": 1793284434809750239,
+      "uid": 501,
+      "gid": 20
+    },
+    ".cbp_state/data/crypto_edge_research.sqlite-wal": {
+      "exists": true,
+      "bytes": 82432,
+      "mtime_ns": 1793284445420545381,
+      "ctime_ns": 1793284454895935297,
+      "uid": 501,
+      "gid": 20
+    },
+    ".cbp_state/data/crypto_edge_research.sqlite-shm": {
+      "exists": true,
+      "bytes": 32768,
+      "mtime_ns": 1793284445414520632,
+      "ctime_ns": 1793284584455036538,
+      "uid": 501,
+      "gid": 20
+    },
+    ".cbp_state/runtime/health/crypto_edge_collector.json": {
+      "exists": true,
+      "bytes": 5633,
+      "mtime_ns": 1793284445724408780,
+      "ctime_ns": 1793284445724408780,
+      "uid": 501,
+      "gid": 20,
+      "sha256": "b32a86f731eeb59bdcfdf3fc49b5edd580187f608f64dc531623ff60d97140ed"
+    },
+    ".cbp_state/runtime/health/crypto_edge_collector.pid.json": {
+      "exists": true,
+      "bytes": 195,
+      "mtime_ns": 1791808601888605229,
+      "ctime_ns": 1791808601888605229,
+      "uid": 501,
+      "gid": 20,
+      "sha256": "41d4af0414abc9876c8b2640fb32ef06ed5cbf763435ee7a6b00bc4f338d5499"
+    },
+    ".cbp_state/runtime/flags/crypto_edge_collector.stop": {
+      "exists": false
+    },
+    "sample_data/crypto_edges/live_collector_plan.json": {
+      "exists": true,
+      "bytes": 670,
+      "mtime_ns": 1783283462154204699,
+      "ctime_ns": 1783283462154204699,
+      "uid": 501,
+      "gid": 20,
+      "sha256": "0180401228ccabb5ca8cbd7fef725caf1a2656693bff4c905219903a77702a9c"
+    }
+  },
+  "protected_metadata_unchanged": true
+}

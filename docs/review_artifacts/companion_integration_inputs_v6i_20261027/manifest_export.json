@@ -1,0 +1,15 @@
+{
+  "Plan_load_passed": true,
+  "candidate_sha256": "9cedf2ac59eeaa90426b437a4f863360ccc1faf913f89eac8babe0d977e377d6",
+  "changed_fields": [
+    "decision",
+    "reviewer"
+  ],
+  "manifest_path": "docs/review_artifacts/companion_integration_inputs_v6i_20261027/reviewed_preparation_manifest.json",
+  "manifest_sha256": "3c8066b43cf924374f2338907f306aadec25fdb599a2ef28a068ab0a21632a33",
+  "operations_authorized": false,
+  "review_path": "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_input_review.json",
+  "review_sha256": "90728d085a259a9cd7757de02431f5a42dc772f2c466b733d7b96ada423e05af",
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-review-directed-manifest-export-v1"
+}

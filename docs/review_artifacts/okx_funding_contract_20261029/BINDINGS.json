@@ -1,0 +1,18 @@
+{
+  "docs/research/okx_funding_contract_20261029.md": "ebd61dc77bdb14708aecdf096a41ec929eb2bcb637bc8f3be21c6b620fceb061",
+  "docs/review_artifacts/okx_funding_contract_20261029/new_files.diff": "9a8331db1f969085fd23192256abd94835e850c3021ae644b061c968368ec864",
+  "docs/review_artifacts/okx_funding_metadata_20261029/20261029T103617Z_2668220f5a85484580a593b0207494d4/MANIFEST.json": "003ea597f33eb6fd9fdc88ebddee887c6c828f2ba26e2e7e3bae55626759f6e2",
+  "docs/review_artifacts/okx_funding_metadata_20261029/20261029T103617Z_2668220f5a85484580a593b0207494d4/current.body": "e2960c15f4dbcf0d95d8fb0ee103784d27e6eb2530f89400bb3363825b3516bb",
+  "docs/review_artifacts/okx_funding_metadata_20261029/20261029T103617Z_2668220f5a85484580a593b0207494d4/history.body": "c05eea259a2dbcea394be84dbd7907dd7df4a5ed5380e315dca834af0fe0077d",
+  "docs/review_artifacts/okx_funding_metadata_20261029/20261029T103617Z_2668220f5a85484580a593b0207494d4/instrument.body": "1a6eeb4c4cc625067010d0110718feaee4a6f03becc60f661b800acb4f5ac4e2",
+  "docs/review_artifacts/okx_funding_metadata_20261029/BINDINGS.json": "5ffd2734b78ab6460fb6bd4a1610c98f07ee5a89fc0440bed840cf3a0ac973ed",
+  "docs/review_artifacts/okx_funding_metadata_20261029/CLOSURE.json": "e4a5f40637189600df79cb8b88258d63b9a5da62086f2cdf51e42e2e2da35047",
+  "scripts/research/synthetic_okx_funding_contract.py": "e5dd685a6de6a241fa5bc1a81c4e146d3f2dbfebb74d9641e552f57ddbd0ed19",
+  "services/analytics/crypto_edge_collector.py": "202d06fad214b426d12a8626b1579590484ab2d786b7f7600081cfa0e6a076b4",
+  "services/analytics/funding_observations.py": "aac199471edaa2e9255dc9ac30911fd694cafdc1bba5b4ead368f124bb4755f0",
+  "services/strategies/crypto_edge_context.py": "7520049625cb9cb998e2b07ae9a251e9a25f0f402708cd2698e5042facd34717",
+  "storage/crypto_edge_store_sqlite.py": "f782c8938222fe68f4e26a0165e15f03f8ccc7235748e0f4062fabeb5273863b",
+  "tests/test_funding_receipts.py": "a34af4bbc93627206715793fd2ec3ea3a1283df081ff017e9b633e7dcb97895d",
+  "tests/test_okx_funding_contract.py": "4b238ef656cfb5ae105aa2ee637e20c51b4908676c20741f4f96890997f6f3d8",
+  "tests/test_synthetic_funding_observations.py": "4313f45ee21f8955c2ab586e940f6b95f3a23b6dbd688f4e0b14dfaafbe5d3fb"
+}

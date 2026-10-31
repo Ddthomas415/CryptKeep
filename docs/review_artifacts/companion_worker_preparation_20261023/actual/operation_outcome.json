@@ -1,0 +1,25 @@
+{
+  "schema": "companion-v6-preparation-actual-outcome-v1",
+  "active_role": "AUDITOR",
+  "operator_authorization": "User replied approve carry on directly to one preparation-only run with four local builds, four never-started containers and private existing-credential copy; no startup/query/cutover",
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m scripts.research.companion_prepare --manifest docs/review_artifacts/companion_worker_preparation_20261023/inputs/reviewed_preparation_manifest.json --reviewed-manifest-sha256 35032e02db1bf1d569d7918ef9127562abc205154d68908455c3ec5bf3201d42 --execute-preparation",
+  "command_invocations": 1,
+  "exit_code": 1,
+  "stdout": {
+    "state":"INCOMPLETE","reason":"preparation_refused","attempt_reserved":true,"cleanup_verified":true,
+    "failure_phase":"preparation","preparation_failure_stage":"preparation_build",
+    "unresolved_creation":[],"unresolved_cleanup":[],
+    "receipt":"/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261023v6a/receipt.jsonl"
+  },
+  "result_limits": [
+    "The controller reports preparation_build, which includes its prerequisite prepare call; that label does not prove any image-build command ran",
+    "Receipt records no create intent or new ID; two-command postcheck records no stages named for this attempt and unchanged full selected rows for eleven previous resources",
+    "The current reviewed image-template query reproduces a missing Entrypoint-key error before image build and environment copy in source order; the actual child does not expose a full internal command trace",
+    "No image-cache inventory comparison or volume-content audit was performed"
+  ],
+  "attempt_consumed":true,"retry_performed":false,
+  "startup_authorized":false,"cutover_authorized":false,"query_authorized":false,
+  "before_inventory_sha256":"f494a090ed856dcded0f97d2d969f831de1d081e73724a0402fede15b20d67e3",
+  "post_inventory_sha256":"2db7e158c5ba7e51e8102fae38d816aeef90158b94830694866cde5affbfc8f3",
+  "readonly_diagnosis_sha256":"e8839d41019b3fdc7d8f0171ee9828f86bcfc3476324ff2e5bd0620ed612c01d"
+}

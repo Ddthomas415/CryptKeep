@@ -1,0 +1,27 @@
+{
+  "recorded_at": "2026-10-29T10:55:16.725369+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "exact offline forecast cash-cost prototype only",
+  "reviewer_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1874b-8238-7391-b0c6-3090770abc54",
+  "bindings_verified": 19,
+  "source_sha256": "32482dddb18290786a2458a1dea9f3bf4abec87fc50a1b831c7c48a4fc371c5e",
+  "independent_tests": {
+    "passed": 148,
+    "seconds": 0.81,
+    "exit_code": 0,
+    "runs": 1
+  },
+  "findings": "No material blocker. Forecast-only rate times8 divided by explicit scheduled hours; no historic interval borrowing, annualization, PnL/crowding or strategy/execution authority.",
+  "documentation_checks": "Saved-section hashes/byte-range lengths and document pin verified; whole-document acquisition/extraction remains receipt-attributed.",
+  "remaining_limits": [
+    "origin authenticity",
+    "live freshness",
+    "actual payments",
+    "historical effective intervals",
+    "production integration"
+  ],
+  "original_fix3_state": "INCOMPLETE",
+  "checkpoint_note": "Frozen checkpoint retains pre-review submission state; this later closure records actual independent disposition."
+}

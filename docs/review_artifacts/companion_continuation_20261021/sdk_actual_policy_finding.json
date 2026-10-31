@@ -1,0 +1,35 @@
+{
+  "schema": "companion-actual-sdk-audit-v1",
+  "role": "AUDITOR",
+  "reviewer": "Codex specialist Plato; independently corroborated by parent source read",
+  "state": "INCOMPLETE",
+  "scope": "Actual captured S3 retry/redirect source chain only; no SDK execution or repair",
+  "capture_report_sha256": "7dbda2c14b68b58d372508eda0d34e232bc9e6548bd0b7ff5327b027abbdad2b",
+  "memory_container_id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+  "memory_image_id": "sha256:39dd17add55c87f839faaad61f560d6c625e322835ae5cc4c16f653dce53e22a",
+  "shown": [
+    "14/14 historical SDK captures byte-match the actual prepared memory files; all saved capture file hashes verified",
+    "Client creation registers standard retry handling separately from S3RegionRedirectorv2",
+    "The region redirector registers on needs-retry.s3 and can return 0 after endpoint re-resolution, without checking the standard retry limit",
+    "Endpoint._needs_retry treats a non-None handler result, including 0, as authorization to resend",
+    "Region discovery can additionally call HeadBucket when error/header region evidence is unavailable"
+  ],
+  "sources": [
+    {"saved_file": "installed_facts_capture/73_client.py", "sha256": "e224e5accdba0e16813282bcb9e1dc943b57f0f4d8748cc0371d2cac4fdc924c", "lines": [180, 403]},
+    {"saved_file": "installed_facts_capture/77_utils.py", "sha256": "9dc1042a8bf342d70327f59df2e0b47186322b499c1b699a5d218697f4e5cb65", "lines": [1720, 1838, 1865]},
+    {"saved_file": "installed_facts_capture/66_endpoint.py", "sha256": "6c9e33c2c281196f665df6df2da22f593114bf1eb4edcd14abc5454bbcedef58", "lines": [350, 369]}
+  ],
+  "disposition": "Current S3 total_max_attempts=1 alone does not meet the required blanket zero-retry/no-redirect contract",
+  "not_shown": [
+    "No redirect or replay was observed in network traffic",
+    "No off-host request or proxy-suppression failure was established",
+    "No claim that this caused the earlier explanation failure",
+    "No normal-startup/import-hook or complete per-image policy approval"
+  ],
+  "recommendation": "One bounded offline repair of restricted S3 replay/redirect behavior with error-response regressions and independent review; preserve normal non-restricted behavior. Do not change or start prepared containers under this capture scope.",
+  "native_operations_by_auditor": false,
+  "copied_sdk_executed": false,
+  "tests_run_by_auditor": false,
+  "runtime_policy_approved": false,
+  "cutover_authorized": false
+}

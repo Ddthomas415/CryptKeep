@@ -1,0 +1,8 @@
+{
+  "collection_started": false,
+  "dry_run": true,
+  "enabled": true,
+  "max_public_gets": 1296,
+  "max_slots": 48,
+  "scheduled_slots": 48
+}

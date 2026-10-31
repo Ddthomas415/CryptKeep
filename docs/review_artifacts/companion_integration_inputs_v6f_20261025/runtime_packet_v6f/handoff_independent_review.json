@@ -1,0 +1,130 @@
+{
+  "schema": "companion-fixed-v6f-handoff-independent-review-v1",
+  "date": "2026-10-25",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "blocking_findings": [],
+  "acceptance_scope": "Fixed hash-bound V6f handoff implementation and actual default inert behavior only. No startup, cutover, query, credential/token operation, native inspection or runtime execution authorization.",
+  "runtime_state": "INCOMPLETE",
+  "runtime_execution_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "token_operation_authorized": false,
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "hashes": {
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/execute_reviewed_v6f.py": "1153fd7650bb0eec2c01049fca12b5afe8c6078cd71b3975e881cb180ece3044",
+    "tests/test_companion_v6f_handoff.py": "adff3210801a506bda9e261d40e01aa8726be251f55fa6698f2d53334dda375a",
+    "tests/test_companion_v6c_handoff.py": "81785505e39f40c9b36fa7c98ebc0bbafcd3957b0516387ca7f72d9e7defe958",
+    "docs/review_artifacts/companion_reconnection_plan_20261024/execute_reviewed_v6e.py": "3c521b6e6312f1d20c502592fb1e6bd3fa3a214d360188a2804244c16fa31b21",
+    "docs/review_artifacts/companion_continuation_20261021/execute_reviewed_cutover.py": "5c319350681e2fb4fdac363e29b829947e0348678fdcc8ecabc84820713adf12",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/handoff_inert_proof.json": "d0c393eff7eb3ada8956b53355a16dac3a6d0721f332112b96b5d518e706d31c",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/inert_validation_receipt.json": "1d1fe0ccb5e3e44a50ffd69ed56c479317f30690f2b2a37aae77c6336f74f241",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/independent_review.json": "e603f8d8d3bab5cd9afc7528f08c184677a534f8b127b9a09e3a2f1610dd6543",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/subjects.draft.json": "7772b3607ff19fb8768d01801f3d80b65ed70b9c833b1a54145515cd479699f8",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/scope_review.json": "a165d3db68fe6dd139e44d5052049b162bbc7214d8df0d213974f2d4e2e58ef7",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/runtime_review.json": "4d92115db3d5a52f4df97294e27e7d8b5b02dcbdc9faedb5a8d2ad74ba4ef5bc",
+    "dashboard/services/view_data.py": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51",
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+    "dashboard/services/views/_shared.py": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202",
+    "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+    "dashboard/services/views/_shared_signals.py": "d003edac94edbb7d7886901784674e23ed9accae2d42bd69c0a7f6fbc0c9e381",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "e9fd8a144de54bf277e2c5812110dda9cc8cf0a7d1bb6fc85707b188f3174d38",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+  },
+  "assessment": [
+    {
+      "classification": "SHOWN static and reproduced offline",
+      "subject": "Exact fixed-launcher delta",
+      "detail": "Read complete V6f launcher and exact shared helper; test binds prior V6e launcher hash 3c521b6e6312f1d20c502592fb1e6bd3fa3a214d360188a2804244c16fa31b21. Exact source comparison permits only version/date labels, four pinned record hashes and the two current published_outputs lookup expressions. No other flow change passed. Shared helper 5c319350681e2fb4fdac363e29b829947e0348678fdcc8ecabc84820713adf12 is hashed before compile and loaded as a non-main module, so its legacy main launcher is not invoked."
+    },
+    {
+      "classification": "SHOWN static and reproduced offline",
+      "subject": "Record binding and default refusal boundary",
+      "detail": "Validated current receipt/review/scope/runtime hashes, accepted decisions, explicit runtime_execution_authorized false, current review published_outputs bindings, exact subjects/network configuration, 20 consumer hashes, seven targets/132 pins, attempt/CLI and scope hashes in all children/runtime reviewers. Existing loader binds exact prepared IDs and source maps. Recorded argv rejects execute/token/continuation flags, and parse_inputs rejects unexpected arguments. Hash/record drift, changed guard/verifier/installer and new lookup-table mismatches refuse in tests. No old review-table schema assumed."
+    },
+    {
+      "classification": "SHOWN static and synthetic only",
+      "subject": "Credential source and private channel",
+      "detail": "Execution branch retains exactly one bounded selected-original-orchestrator inspection, using same ID/image/running-state template and only SERVICE_TOKEN output; no environment/file/argv fallback. Parser bounds raw output and requires one printable nonempty token. Shared helper passes synthetic test tokens through an anonymous pipe to existing consumer, with descriptor ownership transfer and cleanup, not command-line token contents. Wrapper failures emit fixed JSON without raw output, exception payload or token hashes/lengths; no automatic retry added. No real token/source read occurred in this review."
+    },
+    {
+      "classification": "SHOWN static",
+      "subject": "Reservation, failure and recovery boundary",
+      "detail": "Launcher lexists check is advisory and precedes the optional credential read. Atomic non-reuse remains existing consumer lock plus exclusive reservation; review does not treat lexists as race protection or reserve/reset an attempt. Existing consumer cancellation, receipt/recovery/log effects and result acceptance are unchanged. Execute branch may change process core limits before validation and create a private CLI config only under explicit future execution; inert default does neither. Wrapper entrypoint_handoff_entered denotes dispatch entry, not controller success or action completion."
+    }
+  ],
+  "proof": {
+    "environment": "VERIFIED_ENV for isolated offline tests and tripwired actual default",
+    "tests": {
+      "classification": "SHOWN",
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6f_handoff.py",
+      "exit_code": 0,
+      "passed": 29,
+      "seconds": 0.26,
+      "full_suite_run": false
+    },
+    "actual_default": {
+      "exit_code": 0,
+      "tripwire_calls": 0,
+      "stderr_empty": true,
+      "default_stdout": {
+        "state": "READY_FOR_INDEPENDENT_REVIEW",
+        "actions_executed": false,
+        "startup_authorized": false,
+        "input_bindings_validated": true,
+        "manifest_sha256": "a7854b1660ae2c321f8edb62d3ac2b7ab60350deb62df91bdde774e8c2ea1588",
+        "attempt": "workerprep20261025v6f",
+        "controller_budget_seconds": 600,
+        "recovery_reserve_seconds": 180
+      },
+      "matches_parent_proof_and_receipt": true,
+      "cutover_marker_absent_before_after": true,
+      "native_operations": 0,
+      "method": "Actual default module executed via runpy.run_module(..., run_name='__main__') with no --execute-once. Blocked socket connect/connect_ex/getaddrinfo/create_connection, subprocess Popen/run, transport _run, runtime/backend constructors, reservation, token reader, flock, pipe, TemporaryDirectory, core-limit change, and write-mode builtins/io/os opens. Compared stdout to parent handoff proof and packet inert receipt; stderr empty."
+    },
+    "synthetic_execution": "Test fixture overrides validated(), source reader, CLI verification, core-limit change and consumer invocation; only fixture tokens and disposable temporary data. No actual execute-once branch against real inputs was invoked.",
+    "parent_proof": "SHOWN consistency: saved proof source/test/receipt hashes match actual files and independent default stdout. Parent test timing 0.31s is CLAIMED; independent timing 0.26s.",
+    "native_operations": 0,
+    "real_token_reads": 0,
+    "service_operations": 0
+  },
+  "timing_and_limits": [
+    "600 seconds is the controller budget including 180 seconds recovery reserve. The launcher CLI verification has a separate 10-second deadline and token-source command a separate 10-second timeout; validation, imports, pipe dispatch and teardown mean no whole-wall 600-second guarantee.",
+    "Token and raw Python references are cleared, but immutable objects, copies and process memory are not securely zeroized. No secure erasure claim.",
+    "Sequential saved identities, source-policy acceptance and inert validation do not establish current daemon state, installed bytes, SDK initialization, service health, network recipients, lineage, actual citations or a successful explanation.",
+    "Exact source-policy scope remains restricted, including 43 controller-attested app entries,52 inherited exact-image/storage pins and37 common-parent memory pins; no new SDK/policy audit or installed-file capture.",
+    "Fresh fail-closed native identity/source/configuration/SDK/startup/storage/recipient/archive/lineage/citation gates remain mandatory under separately authorized execution.",
+    "No operation grant follows from this handoff acceptance. Preparation remains consumed; unused cutover label observed absent before/after default checks is not reserved and may change later."
+  ],
+  "read_scope": {
+    "complete": [
+      "execute_reviewed_v6f.py",
+      "tests/test_companion_v6f_handoff.py",
+      "tests/test_companion_v6c_handoff.py (hash-bound adapted fixture source)",
+      "shared execute_reviewed_cutover.py helper",
+      "runtime_packet_v6f/handoff_inert_proof.json",
+      "runtime_packet_v6f/inert_validation_receipt.json"
+    ],
+    "selected_context": [
+      "companion_cutover.py load_inputs, default branch, lock/reservation, token dispatch, failure/recovery boundaries",
+      "current scope consumer hashes and exact review published output bindings"
+    ],
+    "not_reaudited": "No broad SDK or prior restricted policy semantic reaudit."
+  },
+  "write_scope": "Only runtime_packet_v6f/handoff_independent_review.json written; fixed source, tests, frozen packet, prior reviews, docs, worklog and runtime state unchanged."
+}

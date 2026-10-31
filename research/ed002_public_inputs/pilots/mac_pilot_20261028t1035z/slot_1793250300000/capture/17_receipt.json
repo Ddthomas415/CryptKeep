@@ -1,0 +1,14 @@
+{
+  "bytes": 99,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "17_LINK.bin",
+  "http_date": "Thu, 29 Oct 2026 05:05:04 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793250304409,
+  "request_started_ms": 1793250304333,
+  "sha256": "dbb2e10843913123283f1af4fa3e388480ff2ca64c46a528cbb31d89c4ace434",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/LINK-USD/candles?granularity=3600&start=2026-10-29T03%3A00%3A00%2B00%3A00&end=2026-10-29T05%3A00%3A00%2B00%3A00"
+}

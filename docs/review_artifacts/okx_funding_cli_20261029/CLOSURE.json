@@ -1,0 +1,27 @@
+{
+  "recorded_at": "2026-10-29T16:23:23.756761+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "exact operator-entrypoint source and no-start preview only",
+  "reviewer_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a18877-c3e4-77c2-8840-4540f8f3300f",
+  "bindings_verified": 58,
+  "cli_sha256": "727b97a0db5aa849438f4796d521938d9ba88629a815e0f23b6a8b3869a1081e",
+  "independent_tests": {
+    "passed": 304,
+    "warnings": 8,
+    "seconds": 2.19,
+    "exit_code": 0,
+    "runs": 1
+  },
+  "findings": "No material blocker. Exact6filepatch; extraction preserves original validation/capture ASTs; template family preservation/preview hashes; no-start preview/defaults/early refusal/nonzero failure exit supported.",
+  "remaining_limits": [
+    "runtime/PID/database ownership unverified",
+    "binary trust and live freshness unverified",
+    "preview does not freeze later edits",
+    "other families outside funding budget",
+    "no startup/deployment/trading authority"
+  ],
+  "original_fix3_state": "INCOMPLETE",
+  "checkpoint_note": "Frozen checkpoint retains submission status; this later closure records actual independent acceptance."
+}

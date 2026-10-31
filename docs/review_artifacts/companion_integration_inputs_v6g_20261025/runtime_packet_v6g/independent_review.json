@@ -1,0 +1,277 @@
+{
+  "schema": "companion-v6g-runtime-source-policy-independent-review-v1",
+  "date": "2026-10-25",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "blocking_findings": [],
+  "acceptance_scope": "Exact saved V6g seven-subject/132-pin restricted source/configuration policy derivatives only. No runtime action, installed-byte observation, SDK startup proof, fixed handoff acceptance or operational authority.",
+  "runtime_state": "INCOMPLETE",
+  "runtime_execution_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "hashes": {
+    "reviewed_inputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/reviewed_preparation_manifest.json": "33e6633229e9399ec695be2f8e743930212b9ed926277235fd071e675fcf2e26",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_preparation/preparation_evidence.json": "d5dabf08f0c20cb5976f517b53d7492b3bac8361f1cc9dbb5c947172b29c7143",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_preparation/actual_id_review.json": "68dd1328293f97a9213e914a434a7ba2a96a4f1abd33cce8d33856537d2aedce",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_preparation/independent_review.json": "443f678b37ad2cd893cbc2e65fae87e7abdb87eadb485c749f3d2ec2447b78f3",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/provenance.json": "6c571f3a7d1dfca3e46e64ac89dffd60eedda9df411cfb965df263790490bb22",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/runtime_review.json": "4d92115db3d5a52f4df97294e27e7d8b5b02dcbdc9faedb5a8d2ad74ba4ef5bc",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/scope_review.json": "a165d3db68fe6dd139e44d5052049b162bbc7214d8df0d213974f2d4e2e58ef7",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/staged_metadata.derived.json": "e2638afe8df61178ba00c48e593f09038f332feed11c8fcbf835213955234fb8",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/provenance.json": "69cbc1a2a4db0261468ba46b8c82d486167fa2b007ac40c593cfa3dc7a0ffdfc",
+      "docs/review_artifacts/companion_cited_precedent_repair_20261025/independent_review_v2.json": "bebb73297e47f784a1d43ff9ab1a2755cef6ad29348716145ea0bd4688259732",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/assemble_runtime_packet.py": "16c8616f9152fec3e004ad54e1bd81795323cb88827ff6ccaf2f3933a8d36453",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/assemble_runtime_packet.py": "96f64ae1bac1b56de2ce535fbb6d1b8297b5c9509ecf36fa2df86877723f9d1f",
+      "tests/test_companion_v6g_runtime_packet.py": "22801fadfb0d4970dc4399027469506509d65ff9bf3ca829c59e8ec497a6435c",
+      "docs/checkpoints/companion_runtime_packet_v6g_20261025.md": "8b21ac6a4192ab9a7fbc26320a5e57723e81edbf1ffc20068bd9143be94d30c5",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/phase1-risk-stub.draft.json": "7d837c9c159afe4c06ba27204cf2c6cedad4d7e46b2106766096e0fb07e4a277",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/phase1-timescaledb.draft.json": "1e035dab00cd1657450ce4c7d71e15e4161d183572f7cf08206a299ddf3128fc",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/phase1-orchestrator.draft.json": "e41d5ddd2812f3a05172cb8ccafaf19627bf708e1b9a03b8b04d2affb06450d2",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/provenance.json": "ef824d5ba5a98af870d9ae369cae4331a5f2fd888589e2e62af8bbe17d51c4da",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/subjects.draft.json": "e4032d457b304747a7acf6df38f4a6ac7fe61059b9ffad49889d932bdb6a7355",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/phase1-qdrant.draft.json": "d910fd7ea7633d534942584c481cb5d94c3d49dc74037fb53fe2bd8297b2ed17",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/staged_metadata.derived.json": "7b22b5af03146c99e7628e2c3a054fa7f07615448219e90b1ec9892498ee0a93",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/phase1-audit-log.draft.json": "f2a58fa4c32b3ba5bd60ec9b6e4a6be7ed202543482da18b64f470656a5a96a9",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/phase1-memory.draft.json": "cad8a2a13dacd1a9e234e00bc6e50da0bca18f56ea689b8f49fe372bc2d8884d",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/runtime_review.draft.json": "c227f3addcf8a6957a3878ad628424eee8e21018b9e2c0ff42820599b27b4037",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/phase1-minio.draft.json": "2538a00fcc75cbcc1ddc45e7207021cb716f792ec39c60e678507a755d60ac2c",
+      "dashboard/services/view_data.py": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51",
+      "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+      "dashboard/services/views/_shared.py": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202",
+      "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+      "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+      "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+      "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+      "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+      "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+      "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+      "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+      "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+      "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+      "scripts/research/companion_installer.py": "e9fd8a144de54bf277e2c5812110dda9cc8cf0a7d1bb6fc85707b188f3174d38",
+      "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+      "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+      "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+      "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+    },
+    "published_outputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-timescaledb.json": "e0eaf1fcb78cac0cdab27b147bec4ef2232fd45133c2e1860a3f87823bea5591",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-risk-stub.json": "e839c32c9bd918550bbffb563a0f82326ce3b3e1851416822f55bfe95ab3c93f",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-orchestrator.json": "6e6e744bc06453f58f87079db651880429f7551350e109d83cf7017591a48b46",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-audit-log.json": "089122369f41ff0131f44837da2f19ca13caf51d6487b835b29b94fc34b17985",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/scope_review.json": "f01d70a7f459a1a2d4f34b32af1f688ac94d3b153a5c9b0fd641fefa9632612d",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-qdrant.json": "a7005404c9a4ade6afbbc85a8de72e7b72e752ea01d68602f6838972655afbe0",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/runtime_review.json": "df2ec5e24ebe4e4d6acc605056ec49d3821c535199cea489417a75c46f52be60",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-minio.json": "100feb8e4a17d5f8f36125b40056fe2cac90ab5a8fef1e7b30685ee219d4a066",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-memory.json": "b3d17207ea8d9375432091f3c9b486f4824337523b548cdbdac2342d6dc2af62"
+    }
+  },
+  "assessment": [
+    {
+      "classification": "SHOWN local saved evidence and pure model consistency",
+      "subject": "Current identities and source maps",
+      "detail": "Verified separately accepted V6g manifest/evidence/actual-ID reviews; seven prior child bindings exactly bind prior subjects. Three storage subjects retain exact original ID/image/preservation/maps. Four application IDs change to new accepted identities; all seven images and exact 132 pin maps equal V6f. Application commands/options and 43 source entries are unchanged; 13 preparation tools unchanged. Only the separately accepted host guard changes among the 20 current runtime consumers."
+    },
+    {
+      "classification": "SHOWN static applicability; no broad SDK reaudit",
+      "subject": "Current source-policy decision",
+      "detail": "Read/check current accepted guard correction and prior exact subject rationales. New host-only guard 18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec permits only exact repeated cited title under single labelled context, aware timestamp and globally unique selected ID. It changes classification, not endpoint routing, retries, redirects, SDK configuration, producer output, startup or source-file loading. Unchanged per-subject images/maps/commands preserve prior restricted client/startup rationales; source matching, actual installation and current SDK initialization remain fresh mandatory gates. The original three meanings and seven limits are retained literally, not paraphrased into stronger guarantees."
+    },
+    {
+      "classification": "SHOWN model-only lane",
+      "subject": "No raw V6g staged-metadata claim",
+      "detail": "No stage capture exists. Independently compared all four model rows to prior V6f templates: only ID/name/hostname/ownership and network temporary alias change; all other keys and network properties remain equal. Existing Snapshot equals the published V6g controller attestation; final alias projection equals manifest configured digest. Output declares MODELLED_TEMPLATE_MATCHED_TO_CONTROLLER_ATTESTATION and raw_v6g_capture false. This is not a new raw observation or connectivity proof.",
+      "deltas": [
+        {
+          "stage": "/phase1-audit-log-staged-workerprep20261025v6g",
+          "changed_fields": [
+            "attempt",
+            "hostname",
+            "id",
+            "name",
+            "networks"
+          ],
+          "only_network_alias_changed": true
+        },
+        {
+          "stage": "/phase1-risk-stub-staged-workerprep20261025v6g",
+          "changed_fields": [
+            "attempt",
+            "hostname",
+            "id",
+            "name",
+            "networks"
+          ],
+          "only_network_alias_changed": true
+        },
+        {
+          "stage": "/phase1-memory-staged-workerprep20261025v6g",
+          "changed_fields": [
+            "attempt",
+            "hostname",
+            "id",
+            "name",
+            "networks"
+          ],
+          "only_network_alias_changed": true
+        },
+        {
+          "stage": "/phase1-orchestrator-staged-workerprep20261025v6g",
+          "changed_fields": [
+            "attempt",
+            "hostname",
+            "id",
+            "name",
+            "networks"
+          ],
+          "only_network_alias_changed": true
+        }
+      ]
+    },
+    {
+      "classification": "SHOWN provenance distinctions; controller execution not independently observed",
+      "subject": "132-pin provenance stays bounded",
+      "detail": "43 application entries have current controller-at-creation attestations and zero independently recaptured file streams. Remaining 89 inherit exact prior image/storage identity. Their historical origin stays 52 earlier exact-image/storage plus 37 memory common-original-parent/source-only-overlay pins. Same V6f memory image does not upgrade 37 historical SDK/launcher pins into fresh capture, live import origin or blanket SDK compatibility. Current acceptance is of exact restricted bytes/profile with mandatory revalidation, not an assertion those checks ran now."
+    },
+    {
+      "classification": "SHOWN",
+      "subject": "Record and nonoperation boundary",
+      "detail": "All 12 draft artifacts reproduced byte-for-byte and remain unchanged. Seven accepted child records and V2 runtime record use exact current subjects, hashes, network configuration and topical approvals. All eight reviewer fields are <=200 characters and contain the exact new scope SHA-256. Pure consumer load_inputs accepts final emitted derivatives; this is structural composition only. No CLI main, backend, token, daemon or service method invoked."
+    }
+  ],
+  "provenance_partition": {
+    "total_source_pins": 132,
+    "application_entries_controller_attested": 43,
+    "independent_file_streams_recaptured": 0,
+    "inherited_exact_prior_image_or_storage": 89,
+    "historical_origin": {
+      "prior_exact_image_or_storage": 52,
+      "prior_common_parent_memory_library": 37
+    },
+    "limit": "The historical 52+37 split is retained. Same current memory image is not a new SDK capture; counts are per-subject entries, not unique files."
+  },
+  "subject_delta": [
+    {
+      "name": "phase1-timescaledb",
+      "source_pins": 2,
+      "app_pins": 0,
+      "identity_changed": false,
+      "image_changed": false,
+      "source_map_changed": false
+    },
+    {
+      "name": "phase1-qdrant",
+      "source_pins": 0,
+      "app_pins": 0,
+      "identity_changed": false,
+      "image_changed": false,
+      "source_map_changed": false
+    },
+    {
+      "name": "phase1-minio",
+      "source_pins": 2,
+      "app_pins": 0,
+      "identity_changed": false,
+      "image_changed": false,
+      "source_map_changed": false
+    },
+    {
+      "name": "phase1-audit-log",
+      "source_pins": 25,
+      "app_pins": 9,
+      "identity_changed": true,
+      "image_changed": false,
+      "source_map_changed": false
+    },
+    {
+      "name": "phase1-risk-stub",
+      "source_pins": 25,
+      "app_pins": 9,
+      "identity_changed": true,
+      "image_changed": false,
+      "source_map_changed": false
+    },
+    {
+      "name": "phase1-memory",
+      "source_pins": 48,
+      "app_pins": 11,
+      "identity_changed": true,
+      "image_changed": false,
+      "source_map_changed": false
+    },
+    {
+      "name": "phase1-orchestrator",
+      "source_pins": 30,
+      "app_pins": 14,
+      "identity_changed": true,
+      "image_changed": false,
+      "source_map_changed": false
+    }
+  ],
+  "proof": {
+    "environment": "VERIFIED_ENV for isolated offline local hashing/computation and synthetic tests",
+    "tests": {
+      "classification": "SHOWN",
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6g_runtime_packet.py",
+      "passed": 21,
+      "seconds": 0.33,
+      "exit_code": 0,
+      "full_suite_run": false
+    },
+    "draft_reproduction_byte_exact": 12,
+    "negative_tests": "Fixed-input hash drift, contradictory guard consumer, actual-ID review, model command/alias/image, inherited library pin and historical provenance count refuse. Existing tests exercise real consumer composition only with temporary synthetic review records.",
+    "independent_final_record_load": {
+      "passed": true,
+      "targets": 7,
+      "source_pins": 132,
+      "actual_stages": 4,
+      "scope_bound_reviewers": 8,
+      "literal_policy_and_limits": true
+    },
+    "native_operations": 0,
+    "network_operations": 0,
+    "credential_access": 0,
+    "service_operations": 0,
+    "SDK_initialization": 0,
+    "additional_agents": 0
+  },
+  "scope_review_sha256": "f01d70a7f459a1a2d4f34b32af1f688ac94d3b153a5c9b0fd641fefa9632612d",
+  "mandatory_fresh_gates": [
+    "CLI/engine and selected identity/image/configuration/ownership",
+    "Frozen local source and every pinned installed byte; SDK/import/callable/source-origin binding",
+    "Effective configuration and restricted read-only startup",
+    "Storage/namespace/archive/source-lineage",
+    "Real post-start network recipient binding and health",
+    "Exact citation/body/witness checks and final runtime evidence"
+  ],
+  "limitations": [
+    "Modelled rows are not raw current metadata. Controller source/configuration attestations are not independent file-copy/SDK captures or continuous-state evidence.",
+    "Prior SDK policy rationale is inherited only for the hash-bound restricted profile. No broad unchanged SDK/body audit or general daemon/image no-retry/effect-free-startup claim.",
+    "Existing HTTPcore reassignment/Psycopg address fallback and version-specific private S3 hook caveats remain literal. No guarantee of zero physical connection attempts or all lower-layer behavior.",
+    "Final configured network digests are MODELLED. Actual post-start recipient attachment, effective configuration, namespace/source/archive/lineage/citation verification and health remain unproven here and mandatory later.",
+    "Current cited-title recognition is classification only, not citation truth, topical relevance or causal proof. Registered question, archive and approvals [7,5,47,18] remain unchanged.",
+    "Preparation is consumed; producer observed cutover marker absent, not reserved or guaranteed absent later. No reuse/reset/retry permission.",
+    "No fixed runtime handoff reviewed or provided by this work. Parent may separately run actual default inert validation under tripwires; this review does not authorize any native action.",
+    "Runtime remains INCOMPLETE. No startup, cutover, query, token or operation grant follows."
+  ],
+  "read_scope": {
+    "complete": [
+      "docs/checkpoints/companion_runtime_packet_v6g_20261025.md",
+      "assemble_runtime_packet.py",
+      "tests/test_companion_v6g_runtime_packet.py",
+      "all 12 draft artifacts parsed and reproduced"
+    ],
+    "binding_comparison": "Full seven subject maps compared exactly to pinned V6f runtime; all seven child records hash-verified; current consumer/source bindings rehashed by producer.",
+    "selected_source": "Current corrected guard and exact hash-bound snapshot helper; prior per-subject rationale/risks preserved and current applicability assessed, not a broad SDK reaudit."
+  },
+  "write_scope": "Only runtime_packet_v6g/independent_review.json and accepted_policy_records/{scope_review.json,seven subjects,runtime_review.json}. Source/tests/drafts/checkpoint/worklog/prior records unchanged."
+}

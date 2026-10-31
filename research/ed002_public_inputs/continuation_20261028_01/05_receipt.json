@@ -1,0 +1,14 @@
+{
+  "bytes": 323,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "05_ARB.bin",
+  "http_date": "Wed, 28 Oct 2026 09:22:14 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793179334903,
+  "request_started_ms": 1793179334827,
+  "sha256": "ea78bc7bea93a0fca540a56ea0e680e99f7a2d9041479a83d6175151439c8b9a",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/ARB-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+}

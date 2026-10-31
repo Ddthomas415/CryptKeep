@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>OMP_NUM_THREADS</key>
+		<string>1</string>
+		<key>OPENBLAS_NUM_THREADS</key>
+		<string>1</string>
+		<key>PATH</key>
+		<string>/usr/bin:/bin</string>
+		<key>PYTHONDONTWRITEBYTECODE</key>
+		<string>1</string>
+	</dict>
+	<key>KeepAlive</key>
+	<false/>
+	<key>Label</key>
+	<string>com.cryptkeep.ed002.public-inputs</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python</string>
+		<string>-I</string>
+		<string>-S</string>
+		<string>-B</string>
+		<string>/Users/baitus/Downloads/crypto-bot-pro/scripts/research/run_ed002_collection_slot.py</string>
+		<string>--policy</string>
+		<string>/Users/baitus/Downloads/crypto-bot-pro/research/ed002_public_inputs/plans/local_pilot_disabled_20261028.json</string>
+		<string>--policy-sha256</string>
+		<string>f484d087fa9be188e96b256b8ac0dd91d0be33a5e85394b046ffb4257b119b6b</string>
+		<string>--execute</string>
+	</array>
+	<key>RunAtLoad</key>
+	<false/>
+	<key>StandardErrorPath</key>
+	<string>/Users/baitus/Downloads/crypto-bot-pro/research/ed002_public_inputs/pilots/mac_pilot_v1/scheduler.stderr.log</string>
+	<key>StandardInPath</key>
+	<string>/dev/null</string>
+	<key>StandardOutPath</key>
+	<string>/Users/baitus/Downloads/crypto-bot-pro/research/ed002_public_inputs/pilots/mac_pilot_v1/scheduler.stdout.log</string>
+	<key>StartCalendarInterval</key>
+	<array>
+		<dict>
+			<key>Minute</key>
+			<integer>5</integer>
+		</dict>
+		<dict>
+			<key>Minute</key>
+			<integer>35</integer>
+		</dict>
+	</array>
+	<key>WorkingDirectory</key>
+	<string>/Users/baitus/Downloads/crypto-bot-pro</string>
+</dict>
+</plist>

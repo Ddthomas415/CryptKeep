@@ -1,0 +1,179 @@
+{
+  "schema": "companion-v6f-runtime-source-policy-independent-review-v1",
+  "date": "2026-10-25",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "blocking_findings": [],
+  "acceptance_scope": "Exact saved V6f source/configuration policy packet only. Restricted policy applicability, not native installed-source/SDK/startup proof, operational readiness or an action grant.",
+  "runtime_state": "INCOMPLETE",
+  "runtime_execution_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "source_policy_decision": {
+    "classification": "SHOWN static and local artifact evidence; attestation/inheritance not promoted to observation",
+    "prior_rationales": "Read all seven prior V6e per-subject policy rationales/risks and exact prior 132-pin maps. Verified prior seven child hashes bind their exact subjects. Restricted three policy meanings and seven preserved limits retained verbatim in the new scope; current applicability assessed separately.",
+    "actual_delta": "Three storage subjects unchanged. Four application IDs newly reviewed; only memory image changes. Exact source maps differ only in memory main.py/article_view.py; all four commands/options/final configured models unchanged. Twenty current consumers rehashed, only installer differs from prior scope by accepted diagnostic repair.",
+    "memory_applicability": "New image is not accepted under old same-image wrapper. Common original parent image 276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d and reviewed builder exact FROM + source-only COPY destinations, no RUN/install, --pull=false, --network=none, layer-prefix/count checks support 37 inherited library pins as controller-attested lineage. No new library byte capture or general SDK semantic proof is supplied.",
+    "repair_effect": "Accepted probe-only frozen SQL universe and missing-archive refusal retain ordinary live SQL/ranking, restricted SDK construction/endpoints/retry hooks/startup effects. Installer emits bounded fixed Boolean diagnostics before unchanged evidence gate; no exception text, new retry or recovery acceptance relaxation.",
+    "preserved_guard_and_witness": "d003edac94edbb7d7886901784674e23ed9accae2d42bd69c0a7f6fbc0c9e381 host guard unchanged; exact topical approval bytes unchanged for IDs 7,5,47,18; archived body/source/witness checks unchanged."
+  },
+  "provenance_partition": {
+    "total_source_pins": 132,
+    "app_entries_controller_attested_at_creation": 43,
+    "direct_file_streams_recaptured": 0,
+    "inherited_exact_image_or_storage": 52,
+    "inherited_common_parent_memory_library": 37,
+    "meaning": "Counts are per-subject pins, not unique file paths. 43 + 52 + 37 = 132. No current direct43 witnesses; memory37 are not same-image."
+  },
+  "subject_deltas": [
+    {
+      "name": "phase1-timescaledb",
+      "pins": 2,
+      "app": 0,
+      "image_changed": false,
+      "changed_sources": []
+    },
+    {
+      "name": "phase1-qdrant",
+      "pins": 0,
+      "app": 0,
+      "image_changed": false,
+      "changed_sources": []
+    },
+    {
+      "name": "phase1-minio",
+      "pins": 2,
+      "app": 0,
+      "image_changed": false,
+      "changed_sources": []
+    },
+    {
+      "name": "phase1-audit-log",
+      "pins": 25,
+      "app": 9,
+      "image_changed": false,
+      "changed_sources": []
+    },
+    {
+      "name": "phase1-risk-stub",
+      "pins": 25,
+      "app": 9,
+      "image_changed": false,
+      "changed_sources": []
+    },
+    {
+      "name": "phase1-memory",
+      "pins": 48,
+      "app": 11,
+      "image_changed": true,
+      "changed_sources": [
+        "/app/memory_retrieval/article_view.py",
+        "/app/memory_retrieval/main.py"
+      ]
+    },
+    {
+      "name": "phase1-orchestrator",
+      "pins": 30,
+      "app": 14,
+      "image_changed": false,
+      "changed_sources": []
+    }
+  ],
+  "proof": {
+    "environment": "VERIFIED_ENV for isolated local artifact computations, synthetic tests and pure loader composition",
+    "tests": {
+      "classification": "SHOWN",
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6f_runtime_packet.py",
+      "passed": 21,
+      "seconds": 0.39,
+      "exit_code": 0,
+      "full_suite_run": false
+    },
+    "draft_reproduction": "All 12 frozen drafts reproduced byte-for-byte using accepted assembler; no drafts rewritten.",
+    "pure_final_load": "companion_cutover.load_inputs passed with newly accepted seven children and V2 runtime record: seven targets, 132 source pins, four actual prepared IDs. All eight reviewer fields bind exact new scope SHA-256. No CLI entrypoint or backend operation invoked.",
+    "artifact_repair": "Initial newly written reviewer labels exceeded consumer 200-character limit and were rejected offline. Shortened only new output labels, rebound child hashes in runtime record, then final pure loader passed. No criteria/schema/gate changed.",
+    "native_operations": 0,
+    "credential_access": 0,
+    "service_operations": 0,
+    "tests_are_not_runtime_proof": true
+  },
+  "hashes": {
+    "reviewed_inputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/reviewed_preparation_manifest.json": "a7854b1660ae2c321f8edb62d3ac2b7ab60350deb62df91bdde774e8c2ea1588",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_preparation/preparation_evidence.json": "2463b6fe35b8c10ac9df63f9099c0fe986725bab5179e7a7bdbdc23c9ed6fb95",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_preparation/actual_id_review.json": "281cae425cad8dfae95709c6ab22004789cfec2c0cd2665438bbada8fd210645",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_preparation/independent_review.json": "b83fc5ec8a996927e28221f014a0d8e10436697a39e7450dfeb44480464ed6a9",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_preparation/postcheck.json": "398fab026e615a94d797ae554677421d7c54f3f7717525f4a26644a3a7a30f07",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/provenance.json": "b8c685aac89efc0661a2635e97855b997e8fc77cbd9ab2b029b667f4da3377a7",
+      "docs/review_artifacts/companion_reconnection_plan_20261024/fresh_inputs/reviewed_preparation_manifest.json": "2075f3b98abc53be9e8336d425dd8d158aca4b1934a1b9da46c2ae9d3cd562d4",
+      "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/runtime_review.json": "9590454b0f9d9fd3350ff58ffae7eafe2b5cacc0a480f0e4e100289bef4c43b0",
+      "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/scope_review.json": "7da764a58196cd66cf2466d393729d3d3267b620f3829fcd974ca3f977e27b5d",
+      "docs/review_artifacts/companion_archive_scope_repair_20261025/report.json": "7ff14e8f8f46ee30aa17d526fe670c01bd952dd54155fdc517447d05207dfd6d",
+      "docs/review_artifacts/companion_archive_scope_repair_20261025/independent_review.json": "4747ffdc6f86e549bdc703dd5ee017456ae221ad456b7b97d84828d11dbe5f35",
+      "docs/review_artifacts/companion_evidence_packet_v2_20261024/topical_candidates.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+      "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/assemble_runtime_packet.py": "16c8616f9152fec3e004ad54e1bd81795323cb88827ff6ccaf2f3933a8d36453",
+      "tests/test_companion_v6f_runtime_packet.py": "0030860eec82d6ea3d68aa9cc623c02aae62f487befbb83c6c4076384fe2af2c",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/phase1-risk-stub.draft.json": "4f79d2a4968abcf495adfe1b07e83df99f929996b6dbbd2dacbaaa13d5a8d10f",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/phase1-timescaledb.draft.json": "1e035dab00cd1657450ce4c7d71e15e4161d183572f7cf08206a299ddf3128fc",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/phase1-orchestrator.draft.json": "6f9ba9e305fd13f37f2c5cf42c5c750776ddeee41bc40d06eaa5e07446372178",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/provenance.json": "69cbc1a2a4db0261468ba46b8c82d486167fa2b007ac40c593cfa3dc7a0ffdfc",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/subjects.draft.json": "7772b3607ff19fb8768d01801f3d80b65ed70b9c833b1a54145515cd479699f8",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/phase1-qdrant.draft.json": "d910fd7ea7633d534942584c481cb5d94c3d49dc74037fb53fe2bd8297b2ed17",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/staged_metadata.derived.json": "e2638afe8df61178ba00c48e593f09038f332feed11c8fcbf835213955234fb8",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/phase1-audit-log.draft.json": "dc705f3c33e47c730585e3cd8d874204e3b88383727f12460960e1ab701f350d",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/phase1-memory.draft.json": "100dab487a23c37749276b38507cea0a6d29a1c5656e74d7fcff62bc3d143bdd",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/runtime_review.draft.json": "56e1cc533ed4e024ce44dc19695fb013c55527a73b0a85c1248ee9444645df7e",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/phase1-minio.draft.json": "2538a00fcc75cbcc1ddc45e7207021cb716f792ec39c60e678507a755d60ac2c"
+    },
+    "published_outputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/phase1-audit-log.json": "6dd9c4b2698bf1b1518d314cac506a3972732db5583d47e5e95934e4142c48fb",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/phase1-memory.json": "8a9b36cf7768412a51c810b4667fa937fffd2b4eb5a42ba8b53c860f8b9bae09",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/phase1-minio.json": "5c07bebf528ca72523100a75d90e82c69ad2bacdf921dac59286349deb702ac5",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/phase1-orchestrator.json": "bd3429dab5508c12edb5ca44e72a410321e99a7fd08a1debc1e445cff83c5b5c",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/phase1-qdrant.json": "28f7f1d3be704108a491ebed6d45536000469cfd3d61e1f3fcf343b2ee21239a",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/phase1-risk-stub.json": "2aa20f7701743a309c4fc9622bf9b4c2922d7cfbe5405e3c504c5130db72b760",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/phase1-timescaledb.json": "57bad5352ad48c409755790167d1da808f3dca7937b1e68a1098e83b5c29157c",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/runtime_review.json": "4d92115db3d5a52f4df97294e27e7d8b5b02dcbdc9faedb5a8d2ad74ba4ef5bc",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/scope_review.json": "a165d3db68fe6dd139e44d5052049b162bbc7214d8df0d213974f2d4e2e58ef7"
+    }
+  },
+  "read_scope": {
+    "complete": [
+      "assemble_runtime_packet.py",
+      "tests/test_companion_v6f_runtime_packet.py",
+      "all 12 drafts parsed/reproduced",
+      "prior seven per-subject policy rationales/risks",
+      "prior exact seven-subject 132-pin maps"
+    ],
+    "selected_code": [
+      "companion_install_docker.py build and source/label/copied-file verification paths",
+      "companion_runtime_adapter.py policy review loader, installed source matching, staged/configured compatibility, recipient gates",
+      "accepted repair.diff production hunks and repair review scope/limits"
+    ],
+    "semantic_limit": "Inherited support documents/SDK bodies were not broadly reaudited; historical rationale remains explicitly source/profile restricted."
+  },
+  "mandatory_fresh_gates": [
+    "CLI and selected identity/image/configuration revalidation",
+    "All pinned installed source bytes including 37 memory libraries; frozen local sources",
+    "SDK/import/callable binding and restricted startup/effective configuration",
+    "Storage/namespace/archive/source lineage checks",
+    "Post-start actual network recipient binding and health",
+    "Evidence/citation verification for exact archived topical witness contract"
+  ],
+  "limitations": [
+    "No 43 independent fresh file witnesses: 43 app entries are controller-at-creation attestations and direct recaptured streams are zero. 52 exact-image/storage and 37 common-parent memory pins remain distinct evidence classes.",
+    "Final configured network fingerprints are MODELLED, not observed final attachment. Current service state/health, namespace/lineage, installed-byte source match, SDK/import/callable initialization and cited explanation remain UNVERIFIED.",
+    "Private S3 endpoint hook remains version-specific. Prior HTTPcore pool reassignment/Psycopg address fallback limitations remain; zero retries means the restricted application/transport contract, not zero lower-layer connections or retries in arbitrary daemon paths.",
+    "Pure loader success is structural composition, not semantic SDK/runtime proof. Fresh mandatory gates are not waived or declared passed.",
+    "No fixed handoff implementation reviewed or adopted; old packet/wrapper approval is not reused. Explicit separate authorization still required before any runtime action.",
+    "Preparation remains consumed; cutover remains unused at producer marker check. No reservation reset, retry, allocation, token, start or query action authorized.",
+    "Only requested new accepted records and this report written. Assembler, tests, drafts, existing evidence/reviews, sources, docs and worklog unchanged."
+  ],
+  "scope_review_sha256": "a165d3db68fe6dd139e44d5052049b162bbc7214d8df0d213974f2d4e2e58ef7"
+}

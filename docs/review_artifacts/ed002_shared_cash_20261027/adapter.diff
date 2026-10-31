@@ -1,0 +1,794 @@
+--- /dev/null
++++ b/services/backtest/shared_cash_research.py
+@@ -0,0 +1,397 @@
++"""ED-002 pure shared-cash model. No data access, orders or promotion authority."""
++from copy import deepcopy
++from decimal import Decimal, InvalidOperation
++from fractions import Fraction
++import math
++
++from scripts.research.corrected_research_math import rebalance
++
++
++ZERO, ONE = Fraction(0), Fraction(1)
++QUALIFICATION = "MODELLED_FULL_FILL_NOT_EXECUTION_OR_PROMOTION_EVIDENCE"
++
++
++class Incomplete(ValueError):
++    """Required evidence or ledger reconciliation is unavailable."""
++
++
++def number(value, *, positive=False):
++    if isinstance(value, bool) or not isinstance(value, (str, int, float, Decimal, Fraction)):
++        raise ValueError("invalid_number")
++    try:
++        value = value if isinstance(value, Fraction) else Fraction(Decimal(str(value)))
++    except (InvalidOperation, ValueError, OverflowError):
++        raise ValueError("invalid_number") from None
++    if value < 0 or (positive and not value):
++        raise ValueError("invalid_number")
++    return value
++
++
++def timestamp(value):
++    if type(value) is not int or value < 0:
++        raise ValueError("invalid_timestamp")
++    return value
++
++
++def floor(value, step):
++    return (value // step) * step
++
++
++def ceil(value, step):
++    return -((-value) // step) * step
++
++
++def weights(value, symbols):
++    if not isinstance(value, dict) or set(value) - set(symbols):
++        raise ValueError("invalid_target_mapping")
++    result = {s: number(value.get(s, 0)) for s in symbols}
++    if sum(result.values(), ZERO) > ONE:
++        raise ValueError("leveraged_target")
++    return result
++
++
++def rule_at(rules, symbol, decision_ms, execution_ms, venue, quote):
++    try:
++        available = [r for r in rules.get(symbol, [])
++                     if timestamp(r["known_at_ms"]) <= decision_ms
++                     and timestamp(r["valid_from_ms"]) <= execution_ms < timestamp(r["valid_until_ms"])]
++    except (KeyError, TypeError, ValueError):
++        raise Incomplete("missing_dated_rule:" + symbol) from None
++    if not available:
++        raise Incomplete("missing_dated_rule:" + symbol)
++    latest = max(r["known_at_ms"] for r in available)
++    chosen = [r for r in available if r["known_at_ms"] == latest]
++    if len(chosen) != 1:
++        raise Incomplete("ambiguous_dated_rule:" + symbol)
++    r = chosen[0]
++    if r.get("venue") != venue or r.get("quote") != quote or type(r.get("eligible")) is not bool:
++        raise Incomplete("invalid_permission:" + symbol)
++    try:
++        return {**r, **{k: number(r[k], positive=k in ("lot_step", "quote_step"))
++                        for k in ("lot_step", "quote_step", "minimum_qty", "minimum_notional_gross")}}
++    except (KeyError, ValueError):
++        raise Incomplete("missing_precision_or_minimum:" + symbol) from None
++
++
++def marks_at(prices, valuation_marks, symbols, ts):
++    result = {s: number(p, positive=True) for s, p in prices.items() if s in symbols}
++    for symbol in symbols:
++        if symbol in result:
++            continue
++        observations = [m for m in valuation_marks.get(symbol, [])
++                        if timestamp(m["ts_ms"]) == ts and timestamp(m["known_at_ms"]) <= ts]
++        if len(observations) == 1:
++            result[symbol] = number(observations[0]["price"], positive=True)
++    return result
++
++
++def nav(state, marks):
++    if any(q and s not in marks for s, q in state["units"].items()):
++        raise Incomplete("unknown_held_valuation")
++    return state["cash"] + sum((q * marks[s] for s, q in state["units"].items() if q), ZERO)
++
++
++def order(symbol, side, quantity, price, rule, fee, slip):
++    q = floor(quantity, rule["lot_step"])
++    gross = q * price * (ONE + slip if side == "buy" else ONE - slip)
++    if not q or q < rule["minimum_qty"] or gross < rule["minimum_notional_gross"]:
++        return None
++    charge = gross * fee
++    raw = gross + charge if side == "buy" else gross - charge
++    settled = ceil(raw, rule["quote_step"]) if side == "buy" else floor(raw, rule["quote_step"])
++    return {"symbol": symbol, "side": side, "qty": q, "raw_price": price,
++            "execution_price": gross / q, "fee": charge, "slippage": q * price * slip,
++            "rounding": settled - raw if side == "buy" else raw - settled,
++            "cash_delta": -settled if side == "buy" else settled,
++            "fill_model": "MODELLED_FULL_FILL"}
++
++
++def settle(state, fill, ts, source_ts, terminal=False):
++    symbol, q = fill["symbol"], fill["qty"]
++    old_q, old_basis = state["units"][symbol], state["basis"][symbol]
++    if fill["side"] == "sell":
++        if q > old_q:
++            raise Incomplete("oversell")
++        released = old_basis if q == old_q else old_basis * q / old_q
++        basis_delta, delta_q = -released, -q
++        realized = fill["cash_delta"] - released
++    else:
++        basis_delta, delta_q, realized = -fill["cash_delta"], q, ZERO
++    cash = state["cash"] + fill["cash_delta"]
++    if cash < 0:
++        raise Incomplete("unaffordable_rounded_order")
++    state["cash"] = cash
++    state["units"][symbol] += delta_q
++    state["basis"][symbol] += basis_delta
++    for bucket in ("fee", "slippage", "rounding"):
++        state[bucket] += fill[bucket]
++    state["realized"] += realized
++    state["trades"].append({**fill, "ts_ms": ts, "signal_bar_ts_ms": source_ts,
++                            "basis_delta": basis_delta, "realized_pnl": realized,
++                            "terminal": terminal, "cash_after": cash})
++
++
++def joint_quantities(cash, units, prices, desired, fee, slip):
++    """Refine the float helper's same piecewise equation with exact rationals."""
++    equity = cash + sum((units[s] * prices[s] for s in prices), ZERO)
++    if not equity:
++        return dict(units)
++    inputs = [cash, *units.values(), *prices.values(), *desired.values(), equity]
++    try:
++        supported = all(math.isfinite(float(x)) and (not x or float(x) > 0) for x in inputs)
++    except OverflowError:
++        supported = False
++    if not supported:
++        raise Incomplete("unsupported_helper_range")
++    target_weights = {s: float(desired[s] / equity) for s in prices}
++    helper_cash, proposal = rebalance(float(cash), {s: float(units[s]) for s in prices},
++        {s: float(prices[s]) for s in prices}, target_weights, float(fee), float(slip))
++    if not all(math.isfinite(x) and x >= 0 for x in [helper_cash, *proposal.values()]):
++        raise Incomplete("invalid_helper_proposal")
++    post = number(helper_cash) + sum((number(proposal[s]) * prices[s] for s in prices), ZERO)
++    buy_cost, sell_cost = (ONE + slip) * (ONE + fee) - ONE, ONE - (ONE - slip) * (ONE - fee)
++    for _ in range(len(prices) + 3):
++        buying = {s for s in prices if desired[s] * post / equity >= units[s] * prices[s]}
++        numerator, denominator = equity, equity
++        for s in prices:
++            coefficient = buy_cost if s in buying else -sell_cost
++            numerator += coefficient * units[s] * prices[s]
++            denominator += coefficient * desired[s]
++        if denominator <= 0:
++            raise Incomplete("invalid_joint_solution")
++        post = numerator * equity / denominator
++        if buying == {s for s in prices if desired[s] * post / equity >= units[s] * prices[s]}:
++            return {s: desired[s] * post / equity / prices[s] for s in prices}
++    raise Incomplete("joint_solution_not_reconciled")
++
++
++def batch(state, target, opens, marks, rules, *, ts, source_ts, interval, terminal=False):
++    """Plan then commit atomically. Excluded symbols' target is not redistributed."""
++    profile = state["profile"]
++    fee, slip = profile["fee"], profile["slip"]
++    before = nav(state, marks)
++    executable, exclusions = {}, []
++    for s in profile["symbols"]:
++        if not state["units"][s] and not target[s]:
++            continue
++        r = rule_at(rules, s, source_ts + interval, ts, profile["venue"], profile["quote"])
++        if not r["eligible"] or s not in opens:
++            exclusions.append({"symbol": s, "reason": "ineligible" if not r["eligible"] else "missing_execution_open"})
++        else:
++            executable[s] = r
++    prices = {s: number(opens[s], positive=True) for s in executable}
++    free = state["cash"] + sum((state["units"][s] * prices[s] for s in prices), ZERO)
++    desired = {s: target[s] * before for s in prices}
++    total = sum(desired.values(), ZERO)
++    scale = min(ONE, free / total) if total else ONE
++    desired = {s: value * scale for s, value in desired.items()}
++    quantities = joint_quantities(state["cash"], {s: state["units"][s] for s in prices}, prices, desired, fee, slip) if prices else {}
++    working, buys = deepcopy(state), []
++    for s in sorted(prices):
++        delta = quantities[s] - state["units"][s]
++        if not delta:
++            continue
++        side = "buy" if delta > 0 else "sell"
++        q = delta if delta > 0 else min(-delta, state["units"][s])
++        fill = order(s, side, q, prices[s], executable[s], fee, slip)
++        if fill is None:
++            exclusions.append({"symbol": s, "reason": "below_minimum_or_lot_dust"})
++        elif side == "sell":
++            settle(working, fill, ts, source_ts, terminal)
++        else:
++            buys.append(fill)
++
++    def resized(factor):
++        return [f for original in buys if (f := order(original["symbol"], "buy", original["qty"] * factor,
++                prices[original["symbol"]], executable[original["symbol"]], fee, slip)) is not None]
++
++    if -sum((f["cash_delta"] for f in buys), ZERO) > working["cash"]:
++        lo, hi = ZERO, ONE
++        for _ in range(96):
++            mid = (lo + hi) / 2
++            if -sum((f["cash_delta"] for f in resized(mid)), ZERO) <= working["cash"]:
++                lo = mid
++            else:
++                hi = mid
++        reduced = resized(lo)
++        remaining_symbols = {f["symbol"] for f in reduced}
++        exclusions.extend({"symbol": f["symbol"], "reason": "below_minimum_after_cash_rescale"}
++                          for f in buys if f["symbol"] not in remaining_symbols)
++        buys = reduced
++    for fill in buys:
++        settle(working, fill, ts, source_ts, terminal)
++    cost = sum((working[b] - state[b] for b in ("fee", "slippage", "rounding")), ZERO)
++    if before - nav(working, marks) != cost:
++        raise Incomplete("trade_nav_cost_identity")
++    working["events"].append({"ts_ms": ts, "signal_bar_ts_ms": source_ts,
++                              "excluded": exclusions, "terminal": terminal})
++    return working
++
++
++def validate_resume(state, profile):
++    if state["profile"] != profile or not state["valid"]:
++        raise ValueError("resume_requires_same_contract_and_complete_state")
++    if (state["cash"] < 0 or any(q < 0 for q in state["units"].values())
++            or any(b < 0 for b in state["basis"].values())
++            or state["last_ts"] != state["history"][-1]["ts_ms"]
++            or state["last_nav"] != nav(state, state["last_marks"])):
++        raise ValueError("resume_nav_or_state_mismatch")
++    pending = state["pending"]
++    if pending is not None and (pending["signal_ms"] != state["last_ts"]
++            or pending["execution_ms"] != state["last_ts"] + profile["interval"]
++            or weights(pending["weights"], profile["symbols"]) != pending["weights"]):
++        raise ValueError("resume_pending_mismatch")
++    cash = profile["initial_cash"]
++    units, basis = dict.fromkeys(profile["symbols"], ZERO), dict.fromkeys(profile["symbols"], ZERO)
++    totals = dict.fromkeys(("fee", "slippage", "rounding", "realized"), ZERO)
++    for f in state["trades"]:
++        cash += f["cash_delta"]
++        units[f["symbol"]] += f["qty"] if f["side"] == "buy" else -f["qty"]
++        basis[f["symbol"]] += f["basis_delta"]
++        for bucket in ("fee", "slippage", "rounding"):
++            totals[bucket] += f[bucket]
++        totals["realized"] += f["realized_pnl"]
++    if cash != state["cash"] or units != state["units"] or basis != state["basis"] or any(totals[k] != state[k] for k in totals):
++        raise ValueError("resume_ledger_mismatch")
++
++
++def simulate_shared_next_open(frames, target_fn, *, symbols, venue, quote, interval_ms,
++        initial_cash, fee_bps, slippage_bps, rules, target_contract_id,
++        valuation_marks=None, state=None, terminal_liquidation=False):
++    """Each frame has ts_ms/open/close maps; target_fn sees completed frames only.
++
++    Missing prices are absent keys, never zero/forward-filled prices. Rule minima
++    are model execution gross (before fees), not inferred venue specifications.
++    Decimal input parsing and exact Fraction settlement prevent tolerance-funded
++    orders. Returned state is reusable; money/quantity outputs are Fraction values.
++    """
++    return _simulate(frames, target_fn, symbols=symbols, venue=venue, quote=quote,
++        interval_ms=interval_ms, initial_cash=initial_cash, fee_bps=fee_bps,
++        slippage_bps=slippage_bps, rules=rules, target_contract_id=target_contract_id,
++        valuation_marks=valuation_marks or {}, state=state, terminal_liquidation=terminal_liquidation)
++
++
++def _simulate(frames, target_fn, *, symbols, venue, quote, interval_ms, initial_cash,
++        fee_bps, slippage_bps, rules, target_contract_id, valuation_marks, state, terminal_liquidation):
++    if not isinstance(symbols, (list, tuple)) or not all(isinstance(s, str) and s for s in symbols):
++        raise ValueError("explicit_symbols_required")
++    symbols = tuple(sorted(symbols))
++    if (not symbols or len(set(symbols)) != len(symbols) or not all(isinstance(s, str) and s for s in symbols)
++            or not callable(target_fn) or not all(isinstance(v, str) and v for v in (venue, quote, target_contract_id))
++            or type(interval_ms) is not int or interval_ms <= 0 or type(terminal_liquidation) is not bool or not frames
++            or not isinstance(rules, dict) or not isinstance(valuation_marks, dict)):
++        raise ValueError("explicit_profile_required")
++    fee, slip = number(fee_bps) / 10000, number(slippage_bps) / 10000
++    if fee >= 1 or slip >= 1:
++        raise ValueError("invalid_cost_range")
++    profile = {"symbols": symbols, "venue": venue, "quote": quote, "interval": interval_ms,
++               "initial_cash": number(initial_cash, positive=True), "fee": fee, "slip": slip,
++               "target_contract_id": target_contract_id}
++    frames = deepcopy(frames)
++    for i, frame in enumerate(frames):
++        ts = timestamp(frame["ts_ms"])
++        if ts % interval_ms or (i and ts != frames[i - 1]["ts_ms"] + interval_ms):
++            raise ValueError("incomplete_or_unordered_grid")
++        for side in ("open", "close"):
++            if not isinstance(frame[side], dict) or set(frame[side]) - set(symbols):
++                raise ValueError("invalid_price_map")
++            for value in frame[side].values():
++                number(value, positive=True)
++    if state is None:
++        if len(frames) < 2:
++            raise ValueError("warmup_and_execution_frames_required")
++        state = {"profile": profile, "cash": profile["initial_cash"], "units": dict.fromkeys(symbols, ZERO),
++                 "basis": dict.fromkeys(symbols, ZERO), "fee": ZERO, "slippage": ZERO, "rounding": ZERO,
++                 "realized": ZERO, "trades": [], "events": [], "history": [], "decision_index": 0,
++                 "valid": True, "last_nav": profile["initial_cash"], "pending": None}
++        first = frames.pop(0)
++        state["last_ts"] = first["ts_ms"]
++        _decision(state, first, target_fn)
++    else:
++        state = deepcopy(state)
++        validate_resume(state, profile)
++        if frames[0]["ts_ms"] != state["last_ts"] + interval_ms:
++            raise ValueError("noncontiguous_resume")
++    start_nav, equity, reason = state["last_nav"], [], None
++    for frame in frames:
++        ts = frame["ts_ms"]
++        pending, state["pending"] = state["pending"], None
++        try:
++            opening = marks_at(frame["open"], valuation_marks, symbols, ts)
++            nav(state, opening)
++            if pending is not None:
++                if pending["execution_ms"] != ts or pending["signal_ms"] + interval_ms != ts:
++                    raise ValueError("pending_decision_time_mismatch")
++                state = batch(state, pending["weights"], frame["open"], opening, rules,
++                              ts=ts, source_ts=pending["signal_ms"], interval=interval_ms)
++            closing = marks_at(frame["close"], valuation_marks, symbols, ts + interval_ms)
++            state["last_nav"] = nav(state, closing)
++            state["last_marks"] = closing
++            state["last_ts"] = ts
++            equity.append({"close_ms": ts + interval_ms, "nav": state["last_nav"], "cash": state["cash"],
++                           "units": deepcopy(state["units"])})
++            _decision(state, frame, target_fn)
++        except Incomplete as error:
++            state["valid"], state["last_nav"], reason = False, None, str(error)
++            state["events"].append({"ts_ms": ts, "reason": reason, "decision_expired": pending is not None})
++            break
++    marked = state["last_nav"]
++    result = {"status": "COMPLETE" if state["valid"] else "INCOMPLETE", "qualification": QUALIFICATION,
++              "reason": reason, "state": state, "equity": equity, "phase_start_nav": start_nav,
++              "phase_profit": None if marked is None else marked - start_nav,
++              "marked_nav": marked, "net_profit": None if marked is None else marked - profile["initial_cash"],
++              "fees_quote": state["fee"], "slippage_quote": state["slippage"],
++              "rounding_loss_quote": state["rounding"], "realized_pnl_quote": state["realized"],
++              "unrealized_pnl": None if marked is None else marked - state["cash"] - sum(state["basis"].values(), ZERO),
++              "terminal_liquidation": None}
++    if terminal_liquidation and state["valid"]:
++        try:
++            terminal = batch(state, dict.fromkeys(symbols, ZERO), state["history"][-1]["close"], state["last_marks"], rules,
++                ts=state["last_ts"] + interval_ms, source_ts=state["last_ts"], interval=interval_ms, terminal=True)
++            result["terminal_liquidation"] = {"status": "COMPLETE", "qualification": "MODELLED_CLOSE_LIQUIDATION_NOT_NEXT_OPEN",
++                "cash": terminal["cash"], "units": terminal["units"], "basis": terminal["basis"],
++                "marked_nav": nav(terminal, state["last_marks"]),
++                "net_profit": nav(terminal, state["last_marks"]) - profile["initial_cash"],
++                "realized_pnl_quote": terminal["realized"], "fees_quote": terminal["fee"],
++                "slippage_quote": terminal["slippage"], "rounding_loss_quote": terminal["rounding"],
++                "profit_basis": "marked_residual_holdings" if any(terminal["units"].values()) else "liquidated_cash",
++                "excluded": terminal["events"][-1]["excluded"],
++                "trades": terminal["trades"][len(state["trades"]):]}
++        except Incomplete as error:
++            result["terminal_liquidation"] = {"status": "INCOMPLETE", "reason": str(error)}
++    return result
++
++
++def _decision(state, frame, target_fn):
++    state["history"] = [*state["history"], deepcopy(frame)]
++    context = {"history": deepcopy(state["history"]), "decision_index": state["decision_index"],
++               "cash": state["cash"], "units": deepcopy(state["units"]), "basis": deepcopy(state["basis"]),
++               "marked_nav": state["last_nav"], "close_ms": frame["ts_ms"] + state["profile"]["interval"]}
++    target = target_fn(context)
++    state["decision_index"] += 1
++    if target is not None:
++        state["pending"] = {"weights": weights(target, state["profile"]["symbols"]),
++            "signal_ms": frame["ts_ms"], "execution_ms": frame["ts_ms"] + state["profile"]["interval"]}
++
++
++def simulate_shared_comparison(frames, candidate_targets, *, btc_symbol, eth_symbol, mix_weights,
++                               target_contract_id, states=None, **kwargs):
++    """Same engine/costs/capital for cash, fixed-unit controls and caller candidate."""
++    if btc_symbol == eth_symbol or {btc_symbol, eth_symbol} - set(kwargs["symbols"]) or set(mix_weights) - {btc_symbol, eth_symbol}:
++        raise ValueError("explicit_comparison_symbols_required")
++    recipe = {"btc_symbol": btc_symbol, "eth_symbol": eth_symbol,
++              "mix_weights": weights(mix_weights, kwargs["symbols"])}
++    controls = {"cash": {}, "hold_btc": {btc_symbol: 1}, "declared_btc_eth_cash_mix": mix_weights}
++    callbacks = {name: (lambda c, w=deepcopy(w): w if c["decision_index"] == 0 else None) for name, w in controls.items()}
++    callbacks["candidate"] = candidate_targets
++    if states is not None:
++        if not isinstance(states, dict) or set(states) != set(callbacks):
++            raise ValueError("all_control_states_required")
++        if any(not isinstance(s, dict) or s.get("comparison_contract") != recipe for s in states.values()):
++            raise ValueError("comparison_contract_changed")
++    results = {name: simulate_shared_next_open(frames, callback,
++        target_contract_id=target_contract_id + ":" + name,
++        state=None if states is None else states[name], **kwargs) for name, callback in callbacks.items()}
++    for result in results.values():
++        result["state"]["comparison_contract"] = deepcopy(recipe)
++    return results
+--- /dev/null
++++ b/tests/test_shared_cash_research.py
+@@ -0,0 +1,391 @@
++"""Synthetic accounting contracts only: no market data, network or trading."""
++from copy import deepcopy
++from fractions import Fraction as F
++import socket
++import subprocess
++
++import pytest
++
++from services.backtest import shared_cash_research as model
++
++
++@pytest.fixture(autouse=True)
++def offline(monkeypatch):
++    def forbidden(*args, **kwargs):
++        raise AssertionError("synthetic adapter attempted external work")
++    for name in ("socket", "create_connection", "getaddrinfo"):
++        monkeypatch.setattr(socket, name, forbidden)
++    for name in ("Popen", "run", "call", "check_output", "check_call"):
++        monkeypatch.setattr(subprocess, name, forbidden)
++
++
++def frames(n=4, symbols=("A", "B"), price=100):
++    return [{"ts_ms": i * 10, "open": dict.fromkeys(symbols, price),
++             "close": dict.fromkeys(symbols, price)} for i in range(n)]
++
++
++def permissions(symbols=("A", "B"), **updates):
++    rule = {"known_at_ms": 0, "valid_from_ms": 0, "valid_until_ms": 100000,
++            "venue": "SYNTHETIC", "quote": "USD", "eligible": True,
++            "lot_step": ".01", "quote_step": ".01", "minimum_qty": 0,
++            "minimum_notional_gross": 0, **updates}
++    return {s: [deepcopy(rule)] for s in symbols}
++
++
++def args(**updates):
++    return {"symbols": ("A", "B"), "venue": "SYNTHETIC", "quote": "USD", "interval_ms": 10,
++            "initial_cash": 1000, "fee_bps": 0, "slippage_bps": 0,
++            "rules": permissions(), "target_contract_id": "synthetic-frozen-v1", **updates}
++
++
++def decisions(*sequence):
++    return lambda context: sequence[context["decision_index"]] if context["decision_index"] < len(sequence) else None
++
++
++def test_joint_allocation_and_sells_before_buys_hand_calculated():
++    result = model.simulate_shared_next_open(frames(), decisions({"A": ".5", "B": ".5"}, {"B": 1}), **args())
++    state = result["state"]
++    assert result["status"] == "COMPLETE" and result["marked_nav"] == 1000
++    assert state["cash"] == 0 and state["units"] == {"A": 0, "B": 10}
++    assert [t["side"] for t in state["trades"] if t["ts_ms"] == 20] == ["sell", "buy"]
++    assert all(t["cash_after"] >= 0 and t["fill_model"] == "MODELLED_FULL_FILL" for t in state["trades"])
++    assert [t["signal_bar_ts_ms"] for t in state["trades"]] == [0, 0, 10, 10]
++
++
++def test_two_leg_fee_slippage_and_basis_are_not_double_charged():
++    r = model.simulate_shared_next_open(frames(3), decisions({"A": 1}, {}),
++                                      **args(initial_cash="102.01", fee_bps=100, slippage_bps=100))
++    s = r["state"]
++    assert [t["qty"] for t in s["trades"]] == [1, 1]
++    assert s["cash"] == F("98.01") and r["net_profit"] == -4
++    assert s["fee"] == 2 and s["slippage"] == 2 and s["rounding"] == 0
++    assert s["basis"]["A"] == 0 and s["realized"] == -4 and r["unrealized_pnl"] == 0
++
++
++def test_zero_fee_quote_rounding_can_lose_money():
++    r = model.simulate_shared_next_open(frames(3, price=".333"), decisions({"A": 1}, {}),
++        **args(initial_cash=1, rules=permissions(lot_step=1, quote_step=".1")))
++    s = r["state"]
++    assert s["cash"] == F(".9") and s["rounding"] == F(".1")
++    assert s["fee"] == s["slippage"] == 0 and r["net_profit"] == -s["rounding"]
++    assert s["trades"][0]["rounding"] == F(".001")
++    assert s["trades"][1]["rounding"] == F(".099")
++
++
++def test_basis_addition_partial_sale_and_dust_reconcile():
++    data = frames(4, price=10)
++    for row in data[2:]:
++        row["open"]["A"] = row["close"]["A"] = 20
++    r = model.simulate_shared_next_open(data, decisions({"A": ".5"}, {"A": 1}, {"A": ".5"}),
++                                       **args(initial_cash=100))
++    s = r["state"]
++    assert s["units"]["A"] == F("3.75") and s["basis"]["A"] == 50
++    assert s["cash"] == 75 and s["realized"] == 25 and r["unrealized_pnl"] == 25
++    assert r["net_profit"] == s["realized"] + r["unrealized_pnl"]
++
++
++def test_changed_lot_leaves_proportional_basis_dust():
++    rules = permissions(lot_step=1)
++    rules["A"][0]["valid_until_ms"] = 20
++    rules["A"].append({**rules["B"][0], "known_at_ms": 10, "valid_from_ms": 20, "lot_step": 3})
++    r = model.simulate_shared_next_open(frames(3, price=10), decisions({"A": 1}, {}),
++                                       **args(initial_cash=105, rules=rules), terminal_liquidation=True)
++    assert r["state"]["units"]["A"] == 1 and r["state"]["basis"]["A"] == 10
++    assert r["state"]["cash"] == 95 and r["marked_nav"] == 105
++    assert r["terminal_liquidation"]["units"]["A"] == 1
++
++
++def test_float_joint_helper_is_refined_before_lot_floor():
++    data = frames(3)
++    rules = permissions()
++    rules["A"][0]["valid_until_ms"] = 20
++    rules["A"].append({**rules["B"][0], "known_at_ms": 10, "valid_from_ms": 20, "eligible": False})
++    r = model.simulate_shared_next_open(data, decisions({"A": ".4"}, {"B": ".2"}), **args(rules=rules))
++    assert r["state"]["units"] == {"A": 4, "B": 2}
++    assert r["state"]["cash"] == 400
++
++
++def test_frozen_holding_caps_executable_capital_without_redistribution():
++    rules = permissions()
++    rules["A"][0]["valid_until_ms"] = 20
++    rules["A"].append({**rules["B"][0], "known_at_ms": 10, "valid_from_ms": 20, "eligible": False})
++    r = model.simulate_shared_next_open(frames(3), decisions({"A": ".4"}, {"B": ".8"}), **args(rules=rules))
++    assert r["state"]["units"] == {"A": 4, "B": 6}
++    assert r["state"]["cash"] == 0 and r["marked_nav"] == 1000
++    assert any(e.get("excluded") == [{"symbol": "A", "reason": "ineligible"}] for e in r["state"]["events"])
++
++
++def test_cash_rescale_is_proportional_not_symbol_priority():
++    kwargs = args(initial_cash=1, rules=permissions(lot_step=1, quote_step=".3"))
++    r = model.simulate_shared_next_open(frames(2, price=".06"), decisions({"A": ".5", "B": ".5"}), **kwargs)
++    assert r["state"]["units"] == {"A": 5, "B": 5}
++    assert r["state"]["cash"] == F(".4")
++    for trade in r["state"]["trades"]:
++        assert trade["cash_after"] >= 0
++
++
++def test_tolerance_cannot_fund_one_quote_quantum():
++    r = model.simulate_shared_next_open(frames(2, price=".001"), decisions({"A": 1}),
++        **args(initial_cash=".009", rules=permissions(lot_step=1, quote_step=".01")))
++    assert r["state"]["trades"] == [] and r["state"]["cash"] == F(".009")
++
++
++def test_permutation_invariance_and_no_input_mutation():
++    data, rules = frames(), permissions()
++    saved = deepcopy((data, rules))
++    a = model.simulate_shared_next_open(data, decisions({"B": ".5", "A": ".5"}, {"B": 1}), **args(rules=rules))
++    b = model.simulate_shared_next_open(data, decisions({"A": ".5", "B": ".5"}, {"B": 1}),
++        **args(symbols=("B", "A"), rules=dict(reversed(list(rules.items())))))
++    assert a == b and (data, rules) == saved
++
++
++def test_split_carries_cash_basis_pending_and_opening_gap_exactly():
++    data = frames(4, price=10)
++    for row in data[2:]:
++        row["open"] = row["close"] = {"A": 20, "B": 20}
++    callback = decisions({"A": 1}, {})
++    full = model.simulate_shared_next_open(data, callback, **args())
++    left = model.simulate_shared_next_open(data[:2], callback, **args())
++    assert left["state"]["pending"]["execution_ms"] == 20
++    right = model.simulate_shared_next_open(data[2:], callback, state=left["state"], **args())
++    assert right["state"] == full["state"]
++    assert right["phase_start_nav"] == left["marked_nav"] == 1000
++    assert left["phase_profit"] == 0 and right["phase_profit"] == 1000
++    assert len(right["state"]["trades"]) == 2
++    assert left["phase_profit"] + right["phase_profit"] == full["net_profit"]
++
++
++def test_missing_open_expires_only_that_order_without_later_retry():
++    data = frames(3)
++    del data[1]["open"]["A"]
++    r = model.simulate_shared_next_open(data, decisions({"A": ".5", "B": ".5"}), **args())
++    assert r["status"] == "COMPLETE" and r["state"]["units"] == {"A": 0, "B": 5}
++    assert r["state"]["cash"] == 500
++    assert r["state"]["events"][0]["excluded"] == [{"symbol": "A", "reason": "missing_execution_open"}]
++
++
++@pytest.mark.parametrize("future_mark", [False, True])
++def test_no_stale_or_future_mark_can_value_a_held_asset(future_mark):
++    data = frames(3)
++    del data[2]["open"]["A"]
++    mark = {"ts_ms": 20 if future_mark else 10, "known_at_ms": 21 if future_mark else 10, "price": 100}
++    r = model.simulate_shared_next_open(data, decisions({"A": 1}), **args(), valuation_marks={"A": [mark]})
++    assert r["status"] == "INCOMPLETE" and r["marked_nav"] is None and r["net_profit"] is None
++    assert r["state"]["units"]["A"] == 10 and r["state"]["cash"] == 0
++
++
++def test_fresh_valuation_is_not_an_executable_price():
++    data = frames(3)
++    del data[2]["open"]["A"]
++    marks = {"A": [{"ts_ms": 20, "known_at_ms": 20, "price": 100}]}
++    r = model.simulate_shared_next_open(data, decisions({"A": 1}, {"B": 1}), **args(), valuation_marks=marks)
++    assert r["status"] == "COMPLETE" and r["state"]["units"] == {"A": 10, "B": 0}
++    assert len(r["state"]["trades"]) == 1
++
++
++def test_missing_close_retains_legitimate_open_fill_but_unknown_performance():
++    data = frames(2)
++    del data[1]["close"]["A"]
++    r = model.simulate_shared_next_open(data, decisions({"A": 1}), **args())
++    assert r["status"] == "INCOMPLETE" and r["state"]["units"]["A"] == 10
++    assert len(r["state"]["trades"]) == 1 and r["phase_profit"] is None
++    with pytest.raises(ValueError, match="complete_state"):
++        model.simulate_shared_next_open(frames(1)[0:1], decisions(None), **args(), state=r["state"])
++
++
++@pytest.mark.parametrize("defect", ["missing", "future", "expired", "precision", "quote", "ambiguous"])
++def test_missing_or_unusable_dated_evidence_is_incomplete(defect):
++    rules = permissions()
++    if defect == "missing":
++        del rules["A"]
++    elif defect == "future":
++        rules["A"][0]["known_at_ms"] = 11
++    elif defect == "expired":
++        rules["A"][0]["valid_until_ms"] = 10
++    elif defect == "precision":
++        del rules["A"][0]["lot_step"]
++    elif defect == "quote":
++        rules["A"][0]["quote"] = "EUR"
++    else:
++        rules["A"].append(deepcopy(rules["A"][0]))
++    r = model.simulate_shared_next_open(frames(2), decisions({"A": 1}), **args(rules=rules))
++    assert r["status"] == "INCOMPLETE" and r["state"]["trades"] == []
++    assert r["state"]["cash"] == 1000
++
++
++def test_known_ineligible_order_is_excluded_not_a_fictitious_loss():
++    r = model.simulate_shared_next_open(frames(2), decisions({"A": 1}), **args(rules=permissions(eligible=False)))
++    assert r["status"] == "COMPLETE" and r["state"]["cash"] == 1000 and r["state"]["trades"] == []
++
++
++def test_atomic_settlement_failure_does_not_commit_half_a_rebalance(monkeypatch):
++    original = model.settle
++    def broken(state, fill, *args, **kwargs):
++        original(state, fill, *args, **kwargs)
++        if fill["symbol"] == "B":
++            raise model.Incomplete("injected_reconciliation_failure")
++    monkeypatch.setattr(model, "settle", broken)
++    r = model.simulate_shared_next_open(frames(3), decisions({"A": 1}, {"B": 1}), **args())
++    assert r["status"] == "INCOMPLETE"
++    assert r["state"]["units"] == {"A": 10, "B": 0} and r["state"]["cash"] == 0
++    assert len(r["state"]["trades"]) == 1
++
++
++def test_terminal_liquidation_is_separate_and_costs_do_not_pollute_carry():
++    data = frames(3)
++    callback = decisions({"A": 1})
++    primary = model.simulate_shared_next_open(data, callback, **args(fee_bps=50))
++    secondary = model.simulate_shared_next_open(data, callback, **args(fee_bps=50), terminal_liquidation=True)
++    assert secondary["state"] == primary["state"] and secondary["marked_nav"] == primary["marked_nav"]
++    terminal = secondary["terminal_liquidation"]
++    assert terminal["marked_nav"] < primary["marked_nav"]
++    assert all(t["terminal"] for t in terminal["trades"])
++    assert "NOT_NEXT_OPEN" in terminal["qualification"]
++
++
++def test_future_prices_do_not_change_prior_decisions_or_nav():
++    baseline, changed = frames(5), frames(5)
++    for row in changed[3:]:
++        row["open"] = {"A": 7, "B": 50}
++        row["close"] = {"A": 8, "B": 70}
++    seen = [[], []]
++    def callback(index):
++        def target(context):
++            seen[index].append(deepcopy(context))
++            return {"A": ".5", "B": ".5"}
++        return target
++    a = model.simulate_shared_next_open(baseline, callback(0), **args())
++    b = model.simulate_shared_next_open(changed, callback(1), **args())
++    assert seen[0][:3] == seen[1][:3]
++    assert a["equity"][:2] == b["equity"][:2]
++
++
++def test_terminal_never_promotes_valuation_only_mark_to_execution():
++    data = frames(3, price=10)
++    del data[-1]["close"]["A"]
++    marks = {"A": [{"ts_ms": 30, "known_at_ms": 30, "price": 12}]}
++    r = model.simulate_shared_next_open(data, decisions({"A": 1}),
++        **args(), valuation_marks=marks, terminal_liquidation=True)
++    assert r["status"] == "COMPLETE" and r["marked_nav"] == 1200
++    assert r["state"]["units"]["A"] == 100
++    terminal = r["terminal_liquidation"]
++    assert terminal["trades"] == [] and terminal["cash"] == 0
++    assert terminal["units"]["A"] == 100 and terminal["marked_nav"] == 1200
++    assert terminal["profit_basis"] == "marked_residual_holdings"
++    assert terminal["excluded"] == [{"symbol": "A", "reason": "missing_execution_open"}]
++
++
++@pytest.mark.parametrize("change", ["identity", "mix"])
++def test_changed_comparison_declaration_is_refused_before_any_arm(change, monkeypatch):
++    comparison = dict(btc_symbol="A", eth_symbol="B", mix_weights={"A": ".25", "B": ".25"})
++    left = model.simulate_shared_comparison(frames(2), decisions(None), **comparison, **args())
++    states = {k: v["state"] for k, v in left.items()}
++    if change == "identity":
++        comparison.update(btc_symbol="B", eth_symbol="A")
++    else:
++        comparison["mix_weights"] = {"A": ".75"}
++
++    def forbidden(*a, **kw):
++        pytest.fail("comparison mismatch simulated an arm")
++
++    monkeypatch.setattr(model, "simulate_shared_next_open", forbidden)
++    with pytest.raises(ValueError, match="comparison_contract_changed"):
++        model.simulate_shared_comparison(frames(3)[2:], decisions(None),
++            states=states, **comparison, **args())
++
++
++def test_callback_mutation_cannot_change_inputs_or_wallet():
++    data = frames(3)
++    original = deepcopy(data)
++    def target(context):
++        context["history"][-1]["close"]["A"] = 999
++        context["units"]["A"] = 999
++        return {"A": 1} if context["decision_index"] == 0 else None
++    r = model.simulate_shared_next_open(data, target, **args())
++    assert data == original and r["state"]["units"]["A"] == 10
++    assert r["state"]["history"][-1]["close"]["A"] == 100
++
++
++def test_twenty_five_synthetic_symbols_share_one_capital_pool():
++    symbols = tuple("SYN-" + str(i) for i in range(25))
++    r = model.simulate_shared_next_open(frames(2, symbols, ".1"), decisions(dict.fromkeys(symbols, F(1, 25))),
++        **args(symbols=symbols, rules=permissions(symbols, lot_step=".0001", quote_step=".0001")))
++    assert r["marked_nav"] == 1000 and r["state"]["cash"] == 0
++    assert sum(r["state"]["units"].values()) == 10000 and len(r["state"]["trades"]) == 25
++
++
++@pytest.mark.parametrize("field", ["cash", "basis"])
++def test_resume_refuses_unrecorded_wallet_changes(field):
++    left = model.simulate_shared_next_open(frames(2), decisions({"A": 1}), **args())
++    s = deepcopy(left["state"])
++    if field == "cash":
++        s["cash"] += 1
++        s["last_nav"] += 1
++    else:
++        s["basis"]["A"] += 1
++    with pytest.raises(ValueError, match="ledger_mismatch"):
++        model.simulate_shared_next_open(frames(3)[2:], decisions(None), **args(), state=s)
++
++
++@pytest.mark.parametrize("field", ["last_nav", "pending", "last_ts", "profile"])
++def test_resume_refuses_changed_boundary_or_contract(field):
++    left = model.simulate_shared_next_open(frames(2), decisions({"A": 1}, {}), **args())
++    s = deepcopy(left["state"])
++    if field == "last_nav":
++        s[field] += 1
++    elif field == "pending":
++        s[field]["execution_ms"] += 10
++    elif field == "last_ts":
++        s[field] += 10
++    else:
++        s[field]["fee"] += F(1, 100)
++    with pytest.raises(ValueError):
++        model.simulate_shared_next_open(frames(3)[2:], decisions(None), **args(), state=s)
++
++
++def test_caller_history_is_not_silently_truncated():
++    lengths = []
++
++    def target(context):
++        lengths.append(len(context["history"]))
++        return None
++
++    result = model.simulate_shared_next_open(frames(302), target, **args())
++    assert result["status"] == "COMPLETE" and lengths == list(range(1, 303))
++
++
++def test_minimums_are_explicit_execution_gross_not_fee_inclusive():
++    r = model.simulate_shared_next_open(frames(2, price=10), decisions({"A": 1}),
++        **args(initial_cash=10, fee_bps=100, rules=permissions(minimum_notional_gross=10)))
++    assert r["state"]["trades"] == []
++    assert r["state"]["events"][0]["excluded"][0]["reason"] == "below_minimum_or_lot_dust"
++
++
++@pytest.mark.parametrize("field,value", [("initial_cash", 0), ("fee_bps", 10000),
++    ("slippage_bps", -1), ("initial_cash", True), ("fee_bps", "garbage")])
++def test_invalid_financial_parameters_are_rejected(field, value):
++    with pytest.raises(ValueError):
++        model.simulate_shared_next_open(frames(2), decisions({"A": 1}), **args(**{field: value}))
++
++
++def test_controls_share_costs_dates_and_fixed_units_across_splits():
++    data = frames(4)
++    for row in data[2:]:
++        row["open"]["A"] = row["close"]["A"] = 200
++    comparison = dict(btc_symbol="A", eth_symbol="B", mix_weights={"A": ".25", "B": ".25"})
++    full = model.simulate_shared_comparison(data, decisions({"B": 1}), **comparison, **args(fee_bps=50))
++    left = model.simulate_shared_comparison(data[:2], decisions({"B": 1}), **comparison, **args(fee_bps=50))
++    right = model.simulate_shared_comparison(data[2:], decisions({"B": 1}),
++        states={k:v["state"] for k,v in left.items()}, **comparison, **args(fee_bps=50))
++    for name, result in full.items():
++        assert result["state"] == right[name]["state"]
++        assert result["phase_start_nav"] == 1000 and result["state"]["profile"]["fee"] == F(50, 10000)
++    assert full["cash"]["marked_nav"] == 1000 and full["cash"]["state"]["trades"] == []
++    assert len(full["hold_btc"]["state"]["trades"]) == 1
++    assert len(full["declared_btc_eth_cash_mix"]["state"]["trades"]) == 2
++
++
++@pytest.mark.parametrize("target", [{"A": -1}, {"A": 2}, {"UNKNOWN": 1}, {"A": float("nan")}, {"A": True}])
++def test_invalid_sizing_is_not_invented(target):
++    with pytest.raises(ValueError):
++        model.simulate_shared_next_open(frames(2), decisions(target), **args())

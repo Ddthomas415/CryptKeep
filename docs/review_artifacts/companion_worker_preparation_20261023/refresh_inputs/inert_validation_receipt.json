@@ -1,0 +1,15 @@
+{
+  "schema": "companion-template-refresh-inert-validation-v1",
+  "environment_confidence": "VERIFIED_ENV",
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m scripts.research.companion_prepare --manifest docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/reviewed_preparation_manifest.json --reviewed-manifest-sha256 67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e",
+  "exit_code": 0,
+  "stdout": {
+    "state":"READY_FOR_INDEPENDENT_REVIEW","actions_executed":false,"startup_authorized":false,
+    "manifest_sha256":"67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e",
+    "attempt":"workerprep20261023v6b",
+    "output_directory":"/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261023v6b",
+    "controller_budget_seconds":300,"recovery_reserve_seconds":120
+  },
+  "postcheck":{"new_marker_absent":true,"failed_v6a_marker_and_receipt_preserved":true},
+  "limits":"Default validation only; no second preparation, native operation, credential copy, build, creation, signal, startup, cutover or query."
+}

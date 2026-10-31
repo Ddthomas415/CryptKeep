@@ -1,0 +1,14 @@
+{
+  "bytes": 163,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "19_OP.bin",
+  "http_date": "Thu, 29 Oct 2026 04:05:06 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793246706973,
+  "request_started_ms": 1793246706889,
+  "sha256": "56a39a0c4341941e503fd2312333bcdae8b2d7534b719436d3c29bec5f3d026d",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/OP-USD/candles?granularity=3600&start=2026-10-29T02%3A00%3A00%2B00%3A00&end=2026-10-29T04%3A00%3A00%2B00%3A00"
+}

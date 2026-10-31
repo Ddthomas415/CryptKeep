@@ -1,0 +1,156 @@
+{
+  "schema": "companion-fixed-v6g-handoff-independent-review-v1",
+  "date": "2026-10-26",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "blocking_findings": [],
+  "acceptance_scope": "Exact offline fixed V6g handoff implementation, record bindings and inert-default proof only. No runtime execution, credential/token operation, startup, cutover, query or other operational authority.",
+  "runtime_state": "INCOMPLETE",
+  "runtime_execution_authorized": false,
+  "token_operation_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "hashes": {
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/execute_reviewed_v6g.py": "f07d6bc90f0d2d2e578da1f03d8d73ee2dac0cdc465e7535491ad29afe4554f4",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/verify_handoff_default.py": "bc511aff5b6beb25c58c705e38170571ed4fe733e525373ec1cd96c33454123f",
+    "tests/test_companion_v6g_handoff.py": "b140831d03d74b99c67df837988a95f08e9986748977dba7953b84cbe7703aba",
+    "tests/test_companion_v6c_handoff.py": "81785505e39f40c9b36fa7c98ebc0bbafcd3957b0516387ca7f72d9e7defe958",
+    "docs/checkpoints/companion_v6g_execution_handoff_20261026.md": "174c2a6c314da2ff456827979c3c978606268b978232109f730feb593f63571f",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/execute_reviewed_v6f.py": "1153fd7650bb0eec2c01049fca12b5afe8c6078cd71b3975e881cb180ece3044",
+    "docs/review_artifacts/companion_continuation_20261021/execute_reviewed_cutover.py": "5c319350681e2fb4fdac363e29b829947e0348678fdcc8ecabc84820713adf12",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/handoff_inert_proof.json": "b0232f7ead82f6f91091675fcb4f9cc6ba138703fcf7e8749fe78b3637d1b953",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/inert_validation_receipt.json": "f93389b2f86f495af748e839112d5935e7bfd6e8d1f91a1eeb0243a1f7873f9d",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/independent_review.json": "5d729d529c7c39d339e01d50d76f0baee5a4f4d93768dbda71493d96c6b54b17",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/subjects.draft.json": "e4032d457b304747a7acf6df38f4a6ac7fe61059b9ffad49889d932bdb6a7355",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/scope_review.json": "f01d70a7f459a1a2d4f34b32af1f688ac94d3b153a5c9b0fd641fefa9632612d",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/runtime_review.json": "df2ec5e24ebe4e4d6acc605056ec49d3821c535199cea489417a75c46f52be60",
+    "dashboard/services/view_data.py": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51",
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+    "dashboard/services/views/_shared.py": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202",
+    "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+    "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "e9fd8a144de54bf277e2c5812110dda9cc8cf0a7d1bb6fc85707b188f3174d38",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+  },
+  "assessment": [
+    {
+      "classification": "SHOWN static and independently tested",
+      "subject": "Exact V6f flow retained with genuine receipt adaptation",
+      "detail": "Read complete V6g launcher, probe, test adaptation and checkpoint. Exact-delta test binds prior V6f source 1153fd7650bb0eec2c01049fca12b5afe8c6078cd71b3975e881cb180ece3044, permitting only version labels/four fixed hashes and actual receipt-format changes. V6g receipt contains response rather than stdout and lacks prior review/scope/runtime digest fields. No synthetic bridge or invented missing fields added. Separate fixed hashes still authenticate receipt/review/scope/runtime; published_outputs cross-links remain; real load_inputs still binds evidence, reviewed actual IDs, seven children, exact 132 pins, topical approvals and network models. New response attempt/manifest comparisons bind actual inert response to loaded Plan."
+    },
+    {
+      "classification": "SHOWN local hashes and loader behavior",
+      "subject": "Current drift and scope refusal",
+      "detail": "All 20 scope consumer hashes match current local bytes. Tests exercise guard/verifier/installer drift, cross-record contradictions, published-output mismatches, receipt attempt/manifest drift and fixed-hash drift. Subjects/network configuration and scope-review hash references remain required. Recorded argv forbids execute/token/continuation arguments and strict parser retains expected input flags. Offline load is not installed-source or SDK proof."
+    },
+    {
+      "classification": "SHOWN static; execution tests synthetic only",
+      "subject": "Private source, no retry and secrecy boundary",
+      "detail": "Exact helper 5c319350681e2fb4fdac363e29b829947e0348678fdcc8ecabc84820713adf12 is hashed before compile and loaded non-main; legacy launcher not invoked. Optional execution retains one selected original-orchestrator ID/image/running-state SERVICE_TOKEN-only formatter, bounded single source response, strict one-token parser and anonymous-pipe ownership transfer to existing consumer. No env/file/argv credential fallback or added resend loop. Ordinary Exception failures produce fixed JSON without source output/exception/token details. No real token/source/native/backend calls performed."
+    },
+    {
+      "classification": "SHOWN synthetic/static; asynchronous recovery not newly proven",
+      "subject": "Caller cancellation and reservation boundary",
+      "detail": "Independent synthetic source/consumer KeyboardInterrupt cases propagate once with empty stdout/stderr and no retry. In these cases validated/source/consumer and CLI verification are fixture-controlled; synthetic token only. Launcher finally clears references. Existing real consumer signal/recovery handling remains unchanged; no live signal injection, forced-process cancellation or recovery success was tested. Advisory lexists refuses a consumed directory or broken symlink before source read; only existing consumer flock plus exclusive mkdir/O_NOFOLLOW reservation is authoritative against races. No new marker reserved/reset."
+    }
+  ],
+  "proof": {
+    "environment": "VERIFIED_ENV for isolated local tests and tripwired actual default only",
+    "focused_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6g_handoff.py",
+    "focused_result": {
+      "classification": "SHOWN",
+      "exit_code": 0,
+      "passed": 31,
+      "seconds": 0.29,
+      "full_suite_run": false,
+      "focused_runs": 1
+    },
+    "default_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m docs.review_artifacts.companion_integration_inputs_v6g_20261025.verify_handoff_default",
+    "default_runs": 1,
+    "default_result": {
+      "classification": "SHOWN",
+      "exit_code": 0,
+      "response": {
+        "actions_executed": false,
+        "attempt": "workerprep20261025v6g",
+        "controller_budget_seconds": 600,
+        "input_bindings_validated": true,
+        "manifest_sha256": "33e6633229e9399ec695be2f8e743930212b9ed926277235fd071e675fcf2e26",
+        "recovery_reserve_seconds": 180,
+        "startup_authorized": false,
+        "state": "READY_FOR_INDEPENDENT_REVIEW"
+      },
+      "stderr_empty": true,
+      "tripwire_calls": [],
+      "readonly_os_opens": 26,
+      "cutover_marker_absent_before_after": true,
+      "saved_proof_object_exact": true
+    },
+    "default_boundary": "Actual module runpy __main__, without --execute-once. Allowlisted local reads only; write modes forbidden. Native transport/backend, token reader, socket, subprocess, reservation, flock, pipe, private config and core-limit tripwires all inactive. 26 read-only os.open calls are two real-loader passes, not network/application retries.",
+    "cancellation_challenges": [
+      {
+        "lane": "source_interrupt",
+        "KeyboardInterrupt_propagated": true,
+        "single_synthetic_call_no_retry": true,
+        "stdout_stderr_empty": true
+      },
+      {
+        "lane": "consumer_interrupt",
+        "KeyboardInterrupt_propagated": true,
+        "single_synthetic_call_no_retry": true,
+        "stdout_stderr_empty": true
+      }
+    ],
+    "parent_timing": "Checkpoint's 31 passed in 0.54 seconds is parent-reported; independent result was 0.29 seconds.",
+    "native_operations": 0,
+    "real_token_reads": 0,
+    "backend_operations": 0,
+    "service_operations": 0,
+    "SDK_initialization": 0,
+    "additional_agents": 0
+  },
+  "timing_and_effect_limits": [
+    "600 seconds is controller budget including 180 for recovery, not a whole-wrapper wall-clock cap. CLI verification and private source inspection have separate ten-second bounds each before controller execution.",
+    "Default proof demonstrates no operations in that validation lane. --execute-once would enter a sensitive execution path requiring separate explicit approval; a CLI flag or this review is not authorization.",
+    "Reference clearing is not secure zeroization of immutable Python objects/copies/process memory. No secure-erasure claim.",
+    "Consumer lock/reservation happens after wrapper's advisory marker check and potential private source read. No claim that lexists provides atomic exclusion.",
+    "Logs/audit/build/configuration effects and existing cancellation/recovery limitations remain unchanged. Cleanup or exact restoration is not guaranteed by handoff acceptance.",
+    "No current daemon identity, continuous state, installed bytes, SDK/import/callable/startup, endpoint/recipient health, namespace/archive/lineage/citation success or correction of prior runtime failure is shown.",
+    "V6g staged metadata remains modelled and source provenance remains controller/inherited evidence under separately accepted restricted scope. No new SDK/source-policy audit or raw/source recapture.",
+    "Preparation remains consumed; absence of cutover marker before/after default is a local observation only, not a reservation or guarantee about later availability."
+  ],
+  "read_scope": {
+    "complete": [
+      "docs/checkpoints/companion_v6g_execution_handoff_20261026.md",
+      "execute_reviewed_v6g.py",
+      "verify_handoff_default.py",
+      "tests/test_companion_v6g_handoff.py",
+      "runtime_packet_v6g/handoff_inert_proof.json",
+      "shared execute_reviewed_cutover.py helper"
+    ],
+    "selected_context": [
+      "actual inert receipt response/argv and fixed record bindings",
+      "companion_cutover.py input loading/default/cancellation/lock/reservation/token/recovery/finally boundaries",
+      "hash-bound adapted synthetic base handoff fixture, exact-delta and negative tests"
+    ],
+    "not_reaudited": "No new SDK, prior source-policy semantics or broader runtime audit."
+  },
+  "write_scope": "Only runtime_packet_v6g/handoff_independent_review.json written. Fixed sources/tests/probe/proof/checkpoint/worklog/packet/prior records unchanged; no new approval records or follow-on operations."
+}

@@ -1,0 +1,280 @@
+{
+  "schema": "companion-v6h-strict-path-harness-correction-independent-review-v2",
+  "date": "2026-10-26",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "REJECTED",
+  "acceptance_scope": "Re-review of the V6H-STRICT-01 harness correction only. The risk-audit omission is fixed, but the requested general swallowed-forbidden-attempt detection is not fully effective in the composed fixture.",
+  "runtime_state": "INCOMPLETE",
+  "operations_authorized": false,
+  "implementation_approved": false,
+  "startup_authorized": false,
+  "retry_authorized": false,
+  "unique_live_cause_established": false,
+  "blocking_findings": [
+    {
+      "id": "V6H-STRICT-02",
+      "severity": "P2",
+      "classification": "SHOWN source, actual fixture identities and pure synthetic reproduction",
+      "title": "loaded overwrites counting socket guards, so swallowed socket attempts can evade teardown",
+      "references": [
+        {
+          "path": "tests/test_companion_v6h_strict_probe_contract.py",
+          "line": 29
+        },
+        {
+          "path": "tests/test_companion_v6h_strict_probe_contract.py",
+          "line": 34
+        },
+        {
+          "path": "tests/test_companion_probe_policy.py",
+          "line": 44
+        },
+        {
+          "path": "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md",
+          "line": 37
+        }
+      ],
+      "detail": "The autouse no_native fixture installs socket connect/connect_ex/getaddrinfo closures that append to attempted. The explicit loaded fixture subsequently replaces all three with tests.test_companion_probe_policy.forbidden, which raises but has no counter. Runtime hook inspection after fixture setup observed these non-counting replacements in all three cases. HTTP/process counting guards remain active.",
+      "reproduction": "A purely synthetic AST-compiled fixture on SimpleNamespace objects emulated the observed loaded replacement. The replacement guard raised and its exception was deliberately swallowed; attempted remained [] and the post-yield assertion did not fail. Equivalent swallowed HTTP/process guard errors did make teardown fail.",
+      "impact": "This is not an actual outbound request or a claim that the three normal cases made socket attempts. It is a hole in the requested counter proof: zero counted attempts does not establish zero swallowed socket attempts. The checkpoint's 'counts every forbidden attempt' statement remains unsupported.",
+      "required_disposition": "Keep counting guards effective after loaded setup, or share accounting with the replacement guards, and demonstrate the composed fixture catches a swallowed socket-guard error using synthetic objects only. No fix implemented here.",
+      "scope_of_rejection": "Full harness-counter correction only; the pre-existing diagnosis/recommendation is not invalidated."
+    }
+  ],
+  "verified_corrections": [
+    {
+      "classification": "SHOWN",
+      "subject": "Risk audit omission corrected",
+      "detail": "risk_stub.emit_audit_event now points to the same synthetic audit seam as orchestrator; both expected hook calls are asserted. The three cases pass with the corrected non-ASGI HTTP counter empty. The previously observed unmocked risk-audit path is no longer taken in these cases."
+    },
+    {
+      "classification": "SHOWN",
+      "subject": "HTTP/process post-yield accounting works",
+      "detail": "New early AsyncHTTPTransport guard records before raising; subprocess guards also record. Pure fake-object checks confirm teardown detects their errors even when a caller catches the assertion."
+    },
+    {
+      "classification": "SHOWN",
+      "subject": "Historical attribution corrected",
+      "detail": "Checkpoint explicitly withdraws the old zero-attempt claim, distinguishes three blocked reviewer audit POST attempts from no completed request, and labels the parent's original attempt count unmeasured. That correction is valid, apart from the new universal counter claim noted above."
+    }
+  ],
+  "integrity": {
+    "algorithm": "SHA256",
+    "path_base": "/Users/baitus/Downloads/crypto-bot-pro",
+    "reviewed_inputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_harness_v2_report.json": "aec70e9f249e2da5ccfe8f0b26de93da47fdff5d720d4aa680828761cfef209b",
+      "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md": "52adcdfe09e7f10204094ef613438580a6015d66c2ce61b9108b0c857a84b7dc",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_harness_v1.tar": "9841978b46bc826a60a42f148b0af89030f282c3b6dc2054111186729035b3b7",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review.json": "3ca2bc1bb2623d43f8e72ae5649927bf02f0a69e0659f0b0a699e5aec147c0e4",
+      "tests/test_companion_v6h_strict_probe_contract.py": "686d6c9d005f355d7b303a6d85c441d6704d8429612855e3c77ce6fea4b5f92a",
+      "tests/test_companion_probe_policy.py": "2c9970e7822170aa695ea8e2775ac4fb650f35f0bbb4606837e1349eb9b91517"
+    },
+    "preserved_archive_members": [
+      "tests/test_companion_v6h_strict_probe_contract.py",
+      "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md"
+    ],
+    "preserved_archive_member_sha256": {
+      "tests/test_companion_v6h_strict_probe_contract.py": "36fddfb29fab1384c83f5557f606ce487729994728078e02d4a9c82418e0c759",
+      "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md": "48c9c23a3655b1d69dd3f72f4038bfa05ed2871edbe6d6e09e0b38a1bbf9fc3d"
+    },
+    "archive_members_verified_without_extraction": true,
+    "prior_independent_review_unchanged": true,
+    "exact_v1_to_v2_test_delta": "Only import httpx; attempted accounting and early async HTTP guard/post-yield assertion; risk audit seam and expected hook assertions. Diagnosis cases and production logic untouched by this diff.",
+    "checkpoint_delta": "Historical attribution/withdrawal and harness/proof updates only; proposed disposition unchanged.",
+    "production_change_limit": "No production edits made by reviewer. No broad production-source audit repeated; parent reports no production changes."
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for one isolated synthetic module run and fake-object guard checks only",
+    "test_module_runs": 1,
+    "base_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6h_strict_probe_contract.py",
+    "actual_invocation": "Same clean environment and pytest arguments through pytest.main with one read-only hook plugin. The plugin inspected effective guard function module/qualname/counter closures after fixture setup and counters after each test. It did not change guards, inject I/O or add test cases.",
+    "result": {
+      "classification": "SHOWN",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 0.65,
+      "warnings": 6,
+      "warning_type": "Existing FastAPI on_event deprecations",
+      "full_suite_run": false
+    },
+    "runtime_guard_observations": [
+      {
+        "case": "test_strict_signal_to_bundle_with_synthetic_market_rows[absent]",
+        "effective_guards": {
+          "socket.connect": {
+            "module": "tests.test_companion_probe_policy",
+            "qualname": "forbidden",
+            "has_attempted_counter": false
+          },
+          "socket.connect_ex": {
+            "module": "tests.test_companion_probe_policy",
+            "qualname": "forbidden",
+            "has_attempted_counter": false
+          },
+          "socket.getaddrinfo": {
+            "module": "tests.test_companion_probe_policy",
+            "qualname": "forbidden",
+            "has_attempted_counter": false
+          },
+          "subprocess.Popen": {
+            "module": "tests.test_companion_v6h_strict_probe_contract",
+            "qualname": "no_native.<locals>.forbidden",
+            "has_attempted_counter": true
+          },
+          "subprocess.run": {
+            "module": "tests.test_companion_v6h_strict_probe_contract",
+            "qualname": "no_native.<locals>.forbidden",
+            "has_attempted_counter": true
+          },
+          "non_ASGI_HTTP": {
+            "module": "tests.test_companion_v6h_strict_probe_contract",
+            "qualname": "no_native.<locals>.forbidden_http",
+            "has_attempted_counter": true
+          }
+        },
+        "counted_attempts_after_case": []
+      },
+      {
+        "case": "test_strict_signal_to_bundle_with_synthetic_market_rows[positive]",
+        "effective_guards": {
+          "socket.connect": {
+            "module": "tests.test_companion_probe_policy",
+            "qualname": "forbidden",
+            "has_attempted_counter": false
+          },
+          "socket.connect_ex": {
+            "module": "tests.test_companion_probe_policy",
+            "qualname": "forbidden",
+            "has_attempted_counter": false
+          },
+          "socket.getaddrinfo": {
+            "module": "tests.test_companion_probe_policy",
+            "qualname": "forbidden",
+            "has_attempted_counter": false
+          },
+          "subprocess.Popen": {
+            "module": "tests.test_companion_v6h_strict_probe_contract",
+            "qualname": "no_native.<locals>.forbidden",
+            "has_attempted_counter": true
+          },
+          "subprocess.run": {
+            "module": "tests.test_companion_v6h_strict_probe_contract",
+            "qualname": "no_native.<locals>.forbidden",
+            "has_attempted_counter": true
+          },
+          "non_ASGI_HTTP": {
+            "module": "tests.test_companion_v6h_strict_probe_contract",
+            "qualname": "no_native.<locals>.forbidden_http",
+            "has_attempted_counter": true
+          }
+        },
+        "counted_attempts_after_case": []
+      },
+      {
+        "case": "test_strict_signal_to_bundle_with_synthetic_market_rows[zero]",
+        "effective_guards": {
+          "socket.connect": {
+            "module": "tests.test_companion_probe_policy",
+            "qualname": "forbidden",
+            "has_attempted_counter": false
+          },
+          "socket.connect_ex": {
+            "module": "tests.test_companion_probe_policy",
+            "qualname": "forbidden",
+            "has_attempted_counter": false
+          },
+          "socket.getaddrinfo": {
+            "module": "tests.test_companion_probe_policy",
+            "qualname": "forbidden",
+            "has_attempted_counter": false
+          },
+          "subprocess.Popen": {
+            "module": "tests.test_companion_v6h_strict_probe_contract",
+            "qualname": "no_native.<locals>.forbidden",
+            "has_attempted_counter": true
+          },
+          "subprocess.run": {
+            "module": "tests.test_companion_v6h_strict_probe_contract",
+            "qualname": "no_native.<locals>.forbidden",
+            "has_attempted_counter": true
+          },
+          "non_ASGI_HTTP": {
+            "module": "tests.test_companion_v6h_strict_probe_contract",
+            "qualname": "no_native.<locals>.forbidden_http",
+            "has_attempted_counter": true
+          }
+        },
+        "counted_attempts_after_case": []
+      }
+    ],
+    "pure_synthetic_checks": {
+      "HTTP": {
+        "guard_error_swallowed": true,
+        "counter": [
+          "non_ASGI_HTTP"
+        ],
+        "teardown_detected_swallowed_error": true,
+        "real_IO": false
+      },
+      "process": {
+        "guard_error_swallowed": true,
+        "counter": [
+          "native_or_socket"
+        ],
+        "teardown_detected_swallowed_error": true,
+        "real_IO": false
+      },
+      "loaded_socket_override": {
+        "guard_error_swallowed": true,
+        "counter": [],
+        "teardown_detected_swallowed_error": false,
+        "real_IO": false
+      }
+    },
+    "synthetic_method": "AST-compile only no_native and the existing forbidden helper into fake socket/process/HTTP namespaces; use a fake monkeypatch setter, catch the guard errors and resume the generator. No actual socket/process/HTTP call, app/Settings/SDK initialization or further pytest run.",
+    "count_limit": "All counted lists were empty during the actual cases. This is not promoted to complete socket-attempt accounting because the actual socket guards were non-counting.",
+    "parent_result": {
+      "classification": "CLAIMED timing; passing count independently reproduced",
+      "passed": 3,
+      "seconds": 0.78,
+      "warnings": 6,
+      "forbidden_attempts": 0
+    },
+    "real_native_Docker_calls": 0,
+    "real_token_reads": 0,
+    "real_network_requests": 0,
+    "real_DB_queries": 0,
+    "real_service_operations": 0,
+    "real_SDK_initializations": 0,
+    "market_runs": 0,
+    "additional_agents": 0,
+    "prior_98_event_receipt_or_diagnosis_reread": false,
+    "prior_runtime_tests_rerun": false
+  },
+  "diagnosis_and_proposal": {
+    "status": "Prior diagnosis-only acceptance and its historical-cause limits remain unchanged; this review does not reopen them.",
+    "recommendation": "Truthful strict archival-profile exclusion of market evidence remains a coherent unimplemented design direction, preserving ordinary research and all no-price/identity/archive/witness/acceptance/deadline boundaries.",
+    "not_approved": "No marker implementation, production fix, criterion change, unique live cause, service repair, startup, token operation, retry or new attempt approved."
+  },
+  "read_scope": {
+    "complete": [
+      "tests/test_companion_v6h_strict_probe_contract.py",
+      "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_harness_v2_report.json"
+    ],
+    "archive": "Exact old test/checkpoint read from strict_path_harness_v1.tar in memory; hashes matched this reviewer's prior values and complete diffs inspected.",
+    "selected_fixture": "tests/test_companion_probe_policy.py:35-52 only, plus exact whole-file hash check and runtime guard identity observation.",
+    "prior_review": "strict_path_independent_review.json bytes hashed for preservation; no broad reread/re-audit.",
+    "not_performed": "No broad fixture/source/SDK audit, old 98-event receipt/diagnosis reload, runtime probe or additional test module."
+  },
+  "material_assumptions": [],
+  "limitations": [
+    "Three passing normal cases do not prove the counter cannot be bypassed by composed fixture replacement; synthetic negative proof demonstrates that specific gap.",
+    "The new early HTTP/process counter paths are verified. Socket calls remain safely refused by the inherited guards, but swallowed-error detection is incomplete.",
+    "Rejected scope is the harness correction, not evidence of an actual network leak, new production bug or invalid market-path diagnosis.",
+    "Runtime remains INCOMPLETE. Unknown live payload and unique historical predicate/cause remain unknown.",
+    "Only this new review is written. Prior review/archive/test/checkpoint/report/production files/worklog remain unchanged."
+  ],
+  "write_scope": "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review_v2.json only."
+}

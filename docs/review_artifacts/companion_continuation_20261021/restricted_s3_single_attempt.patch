@@ -1,0 +1,49 @@
+--- a/phase1_research_copilot/memory_retrieval/main.py
++++ b/phase1_research_copilot/memory_retrieval/main.py
+@@ -84,6 +84,29 @@
+     if _qdrant is None:
+         _qdrant = QdrantClient(url=settings.qdrant_url)
+     return _qdrant
++
++
++def _never_retry_s3(*args, **kwargs):
++    return False
++
++
++def _single_attempt_s3(client):
++    try:
++        endpoint = client._endpoint
++        if not callable(endpoint._needs_retry):
++            raise TypeError("unsupported_endpoint")
++        # The pinned SDK dispatches region redirects through this hook even
++        # with total_max_attempts=1. Restrict this client, not global SDK state.
++        endpoint._needs_retry = _never_retry_s3
++        if endpoint._needs_retry is not _never_retry_s3:
++            raise TypeError("retry_control_not_applied")
++    except Exception:
++        try:
++            client.close()
++        except Exception:
++            pass
++        raise RuntimeError("restricted_s3_retry_control_unavailable") from None
++    return client
+ 
+ 
+ def _s3_client():
+@@ -91,7 +114,7 @@
+     if _restricted_storage():
+         require_storage_endpoint("minio", settings.minio_endpoint)
+         if _restricted_s3 is None:
+-            _restricted_s3 = boto3.client(
++            client = boto3.client(
+                 "s3", endpoint_url=settings.minio_endpoint,
+                 aws_access_key_id=settings.minio_access_key,
+                 aws_secret_access_key=settings.minio_secret_key,
+@@ -102,6 +125,7 @@
+                     retries={"total_max_attempts": 1, "mode": "standard"},
+                 ), region_name="us-east-1",
+             )
++            _restricted_s3 = _single_attempt_s3(client)
+         return _restricted_s3
+     if _s3 is None:
+         _s3 = boto3.client(

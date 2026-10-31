@@ -1,0 +1,14 @@
+{
+  "bytes": 15359,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "21_ETHp4.bin",
+  "http_date": "Wed, 28 Oct 2026 08:41:40 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793176900841,
+  "request_started_ms": 1793176900765,
+  "sha256": "ce026406ededc535398ce2fe3b1bfcdf0b284055b39789d127c882113ddf0117",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=3600&start=2026-10-17T00%3A00%3A00%2B00%3A00&end=2026-10-27T23%3A59%3A59%2B00%3A00"
+}

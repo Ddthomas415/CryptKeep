@@ -1,0 +1,24 @@
+{
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B docs/review_artifacts/coinbase_sync_preflight_20261029/verify_offline.py",
+  "passed": 154,
+  "seconds": 7.48,
+  "exit_code": 0,
+  "new_cases": 23,
+  "full_module_unit_cases": 33,
+  "source_changed_definitions": [
+    "place_order",
+    "_enforce_balance_preflight_sync"
+  ],
+  "red_probe": {
+    "failed": 3,
+    "deselected": 20,
+    "seconds": 0.21
+  },
+  "before_full_module": {
+    "passed": 31,
+    "failed": 2,
+    "seconds": 0.26,
+    "failures": "two old missing-order_type expectations, later strengthened"
+  },
+  "scope": "offline fake reads, disposable SQL, no network/order/account execution"
+}

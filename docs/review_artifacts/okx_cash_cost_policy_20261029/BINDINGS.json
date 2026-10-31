@@ -1,0 +1,21 @@
+{
+  "docs/research/okx_cash_cost_policy_20261029.md": "8ba91506a10c036c95efa78e9f785cf65428641aa50e51442d37c7e0be9612ee",
+  "docs/review_artifacts/okx_cash_cost_policy_20261029/DOCUMENT_RECEIPT.json": "1174efb9be36c651ecd4506016e97a7cfa519099bc38b54e6936030222afd376",
+  "docs/review_artifacts/okx_cash_cost_policy_20261029/new_files.diff": "32202920b4ba2d9a90186d4992e8146f551a76578b7c2b1c94da5c9c9aba114a",
+  "docs/review_artifacts/okx_cash_cost_policy_20261029/public-data-rest-api-get-funding-rate-history.html": "aa15176482528f97569e095f34d289f09254098cc65e3d54fc08fda748d8d2a1",
+  "docs/review_artifacts/okx_cash_cost_policy_20261029/public-data-rest-api-get-funding-rate.html": "7dc177f338a759e3f48a10b6b973bbf1f3787f5138cc9322863b41da674d585f",
+  "docs/review_artifacts/okx_funding_contract_20261029/v2/CLOSURE.json": "74fcbc6fc6316587d2364d9265215b990834b0b86e3c0ffc14b7eeaf29a1f642",
+  "docs/review_artifacts/okx_funding_metadata_20261029/20261029T103617Z_2668220f5a85484580a593b0207494d4/MANIFEST.json": "003ea597f33eb6fd9fdc88ebddee887c6c828f2ba26e2e7e3bae55626759f6e2",
+  "docs/review_artifacts/okx_funding_metadata_20261029/20261029T103617Z_2668220f5a85484580a593b0207494d4/current.body": "e2960c15f4dbcf0d95d8fb0ee103784d27e6eb2530f89400bb3363825b3516bb",
+  "docs/review_artifacts/okx_funding_metadata_20261029/20261029T103617Z_2668220f5a85484580a593b0207494d4/history.body": "c05eea259a2dbcea394be84dbd7907dd7df4a5ed5380e315dca834af0fe0077d",
+  "docs/review_artifacts/okx_funding_metadata_20261029/20261029T103617Z_2668220f5a85484580a593b0207494d4/instrument.body": "1a6eeb4c4cc625067010d0110718feaee4a6f03becc60f661b800acb4f5ac4e2",
+  "scripts/research/synthetic_okx_cash_cost.py": "32482dddb18290786a2458a1dea9f3bf4abec87fc50a1b831c7c48a4fc371c5e",
+  "scripts/research/synthetic_okx_funding_contract.py": "94c0f8efca0d4064c5e414df1c92285d600e8682b64e4fc878ae263d06a9be47",
+  "services/analytics/crypto_edge_collector.py": "202d06fad214b426d12a8626b1579590484ab2d786b7f7600081cfa0e6a076b4",
+  "services/analytics/funding_observations.py": "aac199471edaa2e9255dc9ac30911fd694cafdc1bba5b4ead368f124bb4755f0",
+  "services/strategies/crypto_edge_context.py": "7520049625cb9cb998e2b07ae9a251e9a25f0f402708cd2698e5042facd34717",
+  "tests/test_funding_receipts.py": "a34af4bbc93627206715793fd2ec3ea3a1283df081ff017e9b633e7dcb97895d",
+  "tests/test_okx_cash_cost.py": "07b7066be89239434206e9a699d278a5462fcd48f360ee9d643a9c12da86fee0",
+  "tests/test_okx_funding_contract.py": "fdf8ff4bb52771ec31e3df540d0895b5e5060510232e10e3d129b0a6cb09d802",
+  "tests/test_synthetic_funding_observations.py": "4313f45ee21f8955c2ab586e940f6b95f3a23b6dbd688f4e0b14dfaafbe5d3fb"
+}

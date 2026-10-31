@@ -1,0 +1,6 @@
+{
+  "method": "GET",
+  "phase": "ABOUT_TO_CALL_TRANSPORT_NOT_SENT_PROOF",
+  "sent_clock_ms": 1793203504789,
+  "url": "https://api.exchange.coinbase.com/currencies"
+}

@@ -1,0 +1,68 @@
+--- a/services/execution/place_order.py
++++ b/services/execution/place_order.py
+@@ -1,6 +1,7 @@
+ from __future__ import annotations
+ 
+ import asyncio
++import inspect
+ import logging
+ import math
+ import json
+@@ -718,6 +719,46 @@
+ 
+     return o
+ 
++async def _enforce_balance_preflight_async(ex: Any, *, symbol: str, side: str,
++                                         amount: Any, price: Any | None, order_type: str) -> None:
++    async def read(method):
++        value = method()
++        return await value if inspect.isawaitable(value) else value
++
++    exchange_id = str(getattr(ex, "id", "") or getattr(ex, "exchange_id", "") or "").lower().strip()
++    permissions = None
++    if exchange_id == "coinbase":
++        try:
++            permissions = await read(ex.v3PrivateGetBrokerageKeyPermissions)
++        except Exception:
++            raise RuntimeError("CBP_ORDER_BLOCKED:portfolio_uuid_unavailable") from None
++        if (not isinstance(permissions, dict)
++                or not isinstance(permissions.get("portfolio_uuid"), str)
++                or not permissions["portfolio_uuid"].strip()):
++            raise RuntimeError("CBP_ORDER_BLOCKED:portfolio_uuid_unavailable")
++    try:
++        balance = await read(ex.fetch_balance)
++    except Exception as error:
++        raise RuntimeError(f"CBP_ORDER_BLOCKED:funding_probe_failed:{type(error).__name__}") from None
++    if not isinstance(balance, dict):
++        raise RuntimeError("CBP_ORDER_BLOCKED:funding_probe_failed:invalid_balance")
++
++    # These existing synchronous validators consume one awaited observation.
++    class ObservedPreflight:
++        id = exchange_id
++
++        def fetch_balance(self):
++            return balance
++
++        def v3PrivateGetBrokerageKeyPermissions(self):
++            return permissions
++
++    observed = ObservedPreflight()
++    enforce_coinbase_quote_account_available(observed, symbol)
++    _enforce_funding_gate(observed, symbol=symbol, side=side, amount=amount,
++                          price=price, order_type=order_type)
++
++
+ async def place_order_async(ex: Any, *args: Any, **kwargs: Any) -> Any:
+     symbol, side, amount, price, params, otype = _extract_create_order_args(args, kwargs)
+     exec_db, notional, amount_n, price_n = _enforce_fail_closed(
+@@ -729,8 +770,8 @@
+         params=params,
+         order_type=otype,
+     )
+-    enforce_coinbase_quote_account_available(ex, symbol)
+-    _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount_n, price=price_n, order_type=otype)
++    await _enforce_balance_preflight_async(ex, symbol=symbol, side=side,
++        amount=amount_n, price=price_n, order_type=otype)
+     async with _ASYNC_ORDER_SEMAPHORE:
+         o = await ex.create_order(symbol, otype, side, amount_n, price_n, params)
+ 

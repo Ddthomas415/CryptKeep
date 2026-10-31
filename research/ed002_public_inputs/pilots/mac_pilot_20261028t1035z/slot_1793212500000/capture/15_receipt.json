@@ -1,0 +1,14 @@
+{
+  "bytes": 138,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "15_INJ.bin",
+  "http_date": "Wed, 28 Oct 2026 18:35:06 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793212506537,
+  "request_started_ms": 1793212506457,
+  "sha256": "754b552195c8f386c89b023395bed7c4beef020b359b75392fc505c7a4c97768",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/INJ-USD/candles?granularity=3600&start=2026-10-28T16%3A00%3A00%2B00%3A00&end=2026-10-28T18%3A00%3A00%2B00%3A00"
+}

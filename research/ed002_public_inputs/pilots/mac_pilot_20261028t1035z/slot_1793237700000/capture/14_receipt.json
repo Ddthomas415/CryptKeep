@@ -1,0 +1,14 @@
+{
+  "bytes": 151,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "14_FIL.bin",
+  "http_date": "Thu, 29 Oct 2026 01:35:07 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793237707271,
+  "request_started_ms": 1793237707139,
+  "sha256": "24774ec84766187b1f5e9079adc81c1c72eadc4332d71dcff5c71aa0b431e3ba",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/FIL-USD/candles?granularity=3600&start=2026-10-28T23%3A00%3A00%2B00%3A00&end=2026-10-29T01%3A00%3A00%2B00%3A00"
+}

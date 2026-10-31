@@ -1,0 +1,163 @@
+{
+  "recorded_at": "2026-10-29T19:52:14.848386+00:00",
+  "ok": true,
+  "quick_check": [
+    "ok"
+  ],
+  "tables": {
+    "funding_snapshots": {
+      "before": 16631,
+      "after": 16631,
+      "appended": 0,
+      "existing_prefix_preserved": true,
+      "new_ids": []
+    },
+    "open_interest_snapshots": {
+      "before": 13296,
+      "after": 13297,
+      "appended": 1,
+      "existing_prefix_preserved": true,
+      "new_ids": [
+        13297
+      ]
+    },
+    "basis_snapshots": {
+      "before": 16628,
+      "after": 16629,
+      "appended": 1,
+      "existing_prefix_preserved": true,
+      "new_ids": [
+        16629
+      ]
+    },
+    "quote_snapshots": {
+      "before": 33810,
+      "after": 33812,
+      "appended": 2,
+      "existing_prefix_preserved": true,
+      "new_ids": [
+        33811,
+        33812
+      ]
+    },
+    "order_book_snapshots": {
+      "before": 13296,
+      "after": 13297,
+      "appended": 1,
+      "existing_prefix_preserved": true,
+      "new_ids": [
+        13297
+      ]
+    },
+    "raw_funding_observations": {
+      "before": 0,
+      "after": 1,
+      "appended": 1,
+      "existing_prefix_preserved": true,
+      "new_ids": [
+        1
+      ]
+    }
+  },
+  "old_schema_preserved": true,
+  "added_schema_objects": [
+    "idx_raw_funding_source_capture",
+    "raw_funding_observations"
+  ],
+  "raw_observation_key": "synthetic_funding_observation:7f1075bdc8ac349a7ea12f8e54537bf402d75632f109687d45e1df960a572779",
+  "raw_policy_matches_cli": true,
+  "strategy_eligible": false,
+  "execution_authority": false,
+  "cadence": {
+    "ok": true,
+    "checked": [
+      "funding",
+      "open_interest",
+      "basis",
+      "quote",
+      "order_book"
+    ],
+    "stale": [],
+    "missing": [],
+    "families": [
+      {
+        "family": "funding",
+        "max_age_sec": 43200.0,
+        "capture_ts": "2026-10-29T19:49:59.507055+00:00",
+        "age_sec": 135.229239,
+        "status": "ok",
+        "reason": "fresh"
+      },
+      {
+        "family": "open_interest",
+        "max_age_sec": 43200.0,
+        "capture_ts": "2026-10-29T19:50:09+00:00",
+        "age_sec": 125.736294,
+        "status": "ok",
+        "reason": "fresh"
+      },
+      {
+        "family": "basis",
+        "max_age_sec": 43200.0,
+        "capture_ts": "2026-10-29T19:50:09+00:00",
+        "age_sec": 125.736294,
+        "status": "ok",
+        "reason": "fresh"
+      },
+      {
+        "family": "quote",
+        "max_age_sec": 300.0,
+        "capture_ts": "2026-10-29T19:50:09+00:00",
+        "age_sec": 125.736294,
+        "status": "ok",
+        "reason": "fresh"
+      },
+      {
+        "family": "order_book",
+        "max_age_sec": 300.0,
+        "capture_ts": "2026-10-29T19:50:09+00:00",
+        "age_sec": 125.736294,
+        "status": "ok",
+        "reason": "fresh"
+      }
+    ],
+    "paired_funding": {
+      "lane": "validated_okx_pair_capture",
+      "source": "live_public",
+      "scan_limit": 100,
+      "scanned": 1,
+      "scan_exhaustive": false,
+      "normalization_eligible": false,
+      "strategy_eligible": false,
+      "execution_authority": false,
+      "instruments": [
+        {
+          "inst_id": "BTC-USDT-SWAP",
+          "status": "validated_capture",
+          "capture_ts": "2026-10-29T19:49:59.507055+00:00",
+          "observation_key": "synthetic_funding_observation:7f1075bdc8ac349a7ea12f8e54537bf402d75632f109687d45e1df960a572779"
+        }
+      ],
+      "diagnostics": []
+    }
+  },
+  "snapshot_sha256": "7e8bb8fb4c8a590025a2938a8d1f69203f086afcccc1d268278c9a11982ddf7a",
+  "source_main_file_unchanged_during_verification": true,
+  "database_connections": [
+    "file:///Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite?mode=ro",
+    "file:///Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_full_cycle_20261029/20261029T192602Z_c7706b90878b4d31ae88f8d354c5120c/backup_verify/crypto_edge_research.sqlite?mode=ro",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_full_cycle_20261029/20261029T192602Z_c7706b90878b4d31ae88f8d354c5120c/readback_snapshot.sqlite",
+    "file:/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite?mode=ro"
+  ],
+  "status": {
+    "status": "stopped",
+    "pid": 20675,
+    "loops": 1,
+    "errors": 0,
+    "reason": "max_loops"
+  },
+  "pid_file_absent": true,
+  "stop_flag_absent": true,
+  "original_active_plan_unchanged": true,
+  "recurring_started": false
+}

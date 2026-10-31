@@ -1,0 +1,24 @@
+{
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "Native-v3 funding/quote-account source compatibility only; no activation or runtime qualification.",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a18c91-4dd1-7c90-9695-661af4cffa8e",
+  "bindings_rechecked": 25,
+  "patch_bytes": 21286,
+  "independent_command": "env PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B docs/review_artifacts/coinbase_v3_guards_20261030/verify_offline.py",
+  "independent_verification": {
+    "passed": 245,
+    "seconds": 14.07,
+    "exit_code": 0
+  },
+  "findings": "No material blocker. Exact eight-file patch and25bindings verified. V3 ownership/eligibility/amount checks fail closed; v2 bodies unchanged and behavioral assertions retained.",
+  "private_requests_performed": false,
+  "activation_authority": false,
+  "remaining": [
+    "Account-wide completeness",
+    "Authenticated/atomic observations",
+    "Production transport bounds",
+    "Pending-order reservations",
+    "Live position-cap enforcement"
+  ]
+}

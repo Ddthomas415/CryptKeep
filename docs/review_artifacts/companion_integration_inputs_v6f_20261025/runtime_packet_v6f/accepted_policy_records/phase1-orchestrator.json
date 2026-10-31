@@ -1,0 +1,51 @@
+{
+  "schema": "companion-installed-policy-review-v1",
+  "decision": "ACCEPTED_WITH_RISK",
+  "reviewer": "Independent GATE; V6f restricted source-policy only; no operation grant; scope-review-sha256=a165d3db68fe6dd139e44d5052049b162bbc7214d8df0d213974f2d4e2e58ef7",
+  "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+  "subjects": [
+    {
+      "container_id": "b5125e359aa2f89ed074fd726944247d358cfb7b82c41614cc009dbf5b151bd8",
+      "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "name": "phase1-orchestrator",
+      "preservation_sha256": "fccb06da766f455f4908f4c4b0ed2c10607ab843691e4905da6202cf2ddebcb7",
+      "sources": {
+        "/app/orchestrator/__init__.py": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1",
+        "/app/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+        "/app/shared/__init__.py": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+        "/app/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+        "/app/shared/audit.py": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+        "/app/shared/config.py": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+        "/app/shared/db.py": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+        "/app/shared/llm_client.py": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84",
+        "/app/shared/logging.py": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+        "/app/shared/models.py": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+        "/app/shared/probe.py": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+        "/app/shared/prompting.py": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903",
+        "/app/shared/retry.py": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b",
+        "/app/shared/tools.py": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+        "/usr/local/bin/uvicorn": "c282719b0053fec7b9ea3ff38cdaff3e0835683ada6d388f5b25b1e070b30b41",
+        "/usr/local/lib/python3.11/site-packages/httpcore/_async/connection.py": "e8e70f5ea3047dcd01537f3ffa21d4343775bca4937365154f4f57a8d6ff04e9",
+        "/usr/local/lib/python3.11/site-packages/httpcore/_async/connection_pool.py": "0ce210dacd9909ff6a7f0c61ccca6b4cf2ea08bf0ec465e2285eaa447c6f5726",
+        "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py": "6be4fc2d3b14c5ceebd16c356ad7c7483a163e34347c0f1497b4b7f85d0c8fbd",
+        "/usr/local/lib/python3.11/site-packages/httpx/_client.py": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d",
+        "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py": "03379a454c95c0271c4f2c8d25ec437f49f57457f3cf2769748420bf0ecf2e79",
+        "/usr/local/lib/python3.11/site-packages/psycopg/_conninfo_attempts.py": "b35ab33f325f2308cb13227d1322f14b0faa6d7174a1f452560e6a50ef01f0f7",
+        "/usr/local/lib/python3.11/site-packages/psycopg/_conninfo_utils.py": "d4f6b2971a730f2391d05e108bb8d1b5cc2fec2621f5e3079f2389d650b60c59",
+        "/usr/local/lib/python3.11/site-packages/psycopg/connection.py": "9d19e2b9db54b4ab32e1d8b1cb8d4df853beb4daa6ae1061931415252ce68654",
+        "/usr/local/lib/python3.11/site-packages/psycopg/conninfo.py": "efb827f725975300bfef34710768c98f251eefa702048e15af2862f73372a768",
+        "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554",
+        "/usr/local/lib/python3.11/site-packages/uvicorn/config.py": "829b2e933b8915b5c144de7fa8e9cb1a210d98680a334162f9e649e86c0cd5d4",
+        "/usr/local/lib/python3.11/site-packages/uvicorn/importer.py": "9d1b74410deaa62dbae3e9ff991d25e790b675d33c9e8c133734f58ec59a6a6f",
+        "/usr/local/lib/python3.11/site-packages/uvicorn/lifespan/on.py": "d4a62e14d37240e3488ed10784a640269f8e3a8908ca38fbe30a4608606fe259",
+        "/usr/local/lib/python3.11/site-packages/uvicorn/main.py": "8afea9b600c19e4a345be5641ecd1edc8e14ac5effe6c119ae7b5034a24614d6",
+        "/usr/local/lib/python3.11/site-packages/uvicorn/server.py": "31c0e6567d2c04854ecda0a82aba75d28c5a49c0f7b68b285a1b6c2f562574da"
+      }
+    }
+  ],
+  "policies": {
+    "entrypoint_side_effects": "SHOWN",
+    "no_proxy_redirect": "SHOWN",
+    "zero_retries": "SHOWN"
+  }
+}

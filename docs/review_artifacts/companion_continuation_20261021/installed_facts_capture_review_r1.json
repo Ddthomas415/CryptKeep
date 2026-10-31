@@ -1,0 +1,75 @@
+{
+  "schema": "companion-installed-facts-capture-preflight-review-v1",
+  "reviewed_at_utc": "2026-10-21T17:42:31Z",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "REJECTED",
+  "scope": "Bounded offline preflight of the new read-only capture recipe and focused tests; no existing-framework re-audit or native execution",
+  "reviewed_sha256": {
+    "docs/review_artifacts/companion_continuation_20261021/capture_installed_facts.py": "211170c182a9a125d3b03957002e84675be7348bac980614bc5685a54fa22b7b",
+    "tests/test_companion_installed_facts_capture.py": "70e7c0218934a2478982edf16b660feff3a10d229999d97b99e4e1c478b3368a"
+  },
+  "checkpoint": {
+    "path": "docs/checkpoints/companion_installed_facts_capture_20261021.md",
+    "observed_sha256": "9603762ed395eb0be6ff0553141e861c4a87c265ea7ef8aadbbde5c509996a13",
+    "note": "Parent appended verification/filesystem-wall-time clarification while source/tests remained frozen."
+  },
+  "findings": [
+    {
+      "id": "R1-P2-cumulative-byte-bound",
+      "priority": "P2",
+      "classification": "SHOWN by source and whole-capture synthetic reproduction",
+      "file": "docs/review_artifacts/companion_continuation_20261021/capture_installed_facts.py",
+      "line": 154,
+      "related_lines": [
+        155,
+        156,
+        165,
+        166,
+        168,
+        218
+      ],
+      "title": "Global byte-limit failure is swallowed, so copying and storage checks continue beyond the declared bound",
+      "detail": "The cumulative counter is incremented after a full file is received, then total_file_limit raises ValueError inside a per-file handler that catches it and continues. Subsequent files still receive their full per-file command limit. The 25MiB allowance caps persisted file content, not aggregate received content. Global exhaustion does not stop ordinary work or mark report.error.",
+      "reproduction": "Run the unchanged capture with synthetic metadata matching the pinned eleven subjects, fake native/HTTP runners and one allowed-size 1MiB regular file per selected path. It receives 97517568 bytes (93MiB), makes all93 file copies and then both storage exec checks; persists25 files and returns READY_FOR_INDEPENDENT_REVIEW with inventory_preserved=true.",
+      "shortest_correction": "Make aggregate exhaustion terminal for normal capture work, distinct from an ordinary missing/invalid file. Bound the next file transfer/validation by the remaining global allowance and do not issue further cp/storage/HTTP work once exhausted. Retain the reserved final inventory and sanitized INCOMPLETE partial report. Add a whole-capture fake-runner regression; no framework changes or native retry is needed."
+    }
+  ],
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV for offline tests and synthetic runner only",
+    "focused_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_installed_facts_capture.py",
+    "focused_result": "10 passed in 0.41s",
+    "focused_exit_code": 0,
+    "independent_probe_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - <<'PY'\nimport contextlib,io,json,socket,subprocess,tarfile,tempfile\nfrom pathlib import Path\nfrom unittest.mock import patch\nimport httpx\nfrom tests.test_companion_installed_facts_capture import capture\nfrom scripts.research import companion_docker_transport as transport,companion_runtime_adapter as adapter\nroot=Path.cwd();base=root/\"docs/review_artifacts/companion_continuation_20261021\"\noriginal=json.loads((root/\"docs/review_artifacts/companion_continuation_20261020/fresh_v5_capture_20261020/capture.json\").read_bytes())[\"observations\"]\nstaged=json.loads((base/\"staged_metadata_diagnostic.json\").read_bytes())[\"rows\"]\nobservations=original+staged\nbody=b\"x\"*(1<<20);seen=[];copied=[]\ndef forbidden(*args,**kwargs):raise AssertionError(\"native/network operation forbidden\")\ndef fake_run(argv,**kw):\n args=argv[5:];seen.append(args[:2])\n if args[:2]==(\"container\",\"inspect\"):\n  return b\"\\n\".join(json.dumps(row).encode() for row in observations)\n if args[:2]==(\"container\",\"cp\"):\n  path=args[2].split(\":\",1)[1];copied.append(path)\n  out=io.BytesIO()\n  with tarfile.open(fileobj=out,mode=\"w\") as t:\n   item=tarfile.TarInfo(Path(path).name);item.size=len(body);t.addfile(item,io.BytesIO(body))\n  data=out.getvalue();assert len(data)<=kw[\"limit\"];return data\n if args[:2]==(\"container\",\"exec\"):\n  return b'{\"postgres\":true,\"documents\":true,\"audit_events\":true,\"expected\":55,\"matched\":55}' if \"-i\" in args else b\"200\"\n raise AssertionError(\"unexpected command\")\nclass Response:\n status_code=200\n def __enter__(self):return self\n def __exit__(self,*args):pass\n def iter_bytes(self):yield b'{\"status\":\"ok\"}'\nclass Client:\n def __init__(self,*args,**kwargs):pass\n def __enter__(self):return self\n def __exit__(self,*args):pass\n def stream(self,*args,**kwargs):return Response()\nwith tempfile.TemporaryDirectory(prefix=\"installed-facts-budget-repro-\") as tmp, patch.object(transport.DockerTransport,\"_verify_cli\",lambda *args,**kwargs:True), patch.object(transport,\"_run\",forbidden), patch.object(subprocess,\"Popen\",forbidden), patch.object(socket.socket,\"connect\",forbidden), patch.object(socket.socket,\"connect_ex\",forbidden), patch.object(httpx,\"Client\",Client), patch.object(adapter,\"_http_wall\",contextlib.nullcontext):\n report=capture.capture(Path(tmp)/\"out\",runner=fake_run)\n result={\"synthetic_only\":True,\"configured_budget_bytes\":25<<20,\"reported_captured_bytes\":report[\"captured_bytes\"],\"cp_calls\":len(copied),\"persisted_captured_files\":sum(r[\"status\"]==\"CAPTURED\" for r in report[\"files\"]),\"storage_exec_calls_after_byte_budget\":sum(x==(\"container\",\"exec\") for x in seen),\"state\":report[\"state\"],\"inventory_preserved\":report[\"inventory_preserved\"],\"native_calls\":False}\n assert result[\"reported_captured_bytes\"]>result[\"configured_budget_bytes\"] and result[\"cp_calls\"]==93 and result[\"storage_exec_calls_after_byte_budget\"]==2\n print(json.dumps(result,indent=2))\nPY",
+    "independent_probe_exit_code": 0,
+    "independent_probe_result": {
+      "synthetic_only": true,
+      "configured_budget_bytes": 26214400,
+      "reported_captured_bytes": 97517568,
+      "cp_calls": 93,
+      "persisted_captured_files": 25,
+      "storage_exec_calls_after_byte_budget": 2,
+      "state": "READY_FOR_INDEPENDENT_REVIEW",
+      "inventory_preserved": true,
+      "native_calls": false
+    },
+    "source_and_test_hashes_rechecked": true
+  },
+  "non_blocking_scope_observations": [
+    "Selected native command construction contains formatted inspection, fixed public file cp and existing read-only PostgreSQL/MinIO helpers; no container lifecycle command is selected.",
+    "PostgreSQL input is a read-only aggregate transaction with statement timeout and ROLLBACK; MinIO helper and Qdrant GET remain read-only in requested semantics. No policy acceptance is inferred.",
+    "Missing file facts may legitimately remain UNVERIFIED; that does not justify treating a global resource-budget failure as an ordinary per-file absence.",
+    "The documented distinction between subprocess bounds and arbitrary filesystem wall time is retained; it does not address the demonstrated byte-bound defect."
+  ],
+  "limits": [
+    "No real CLI, service, socket, credential, database or container operation was invoked by the reviewer. All probe effects were local disposable files and synthetic state.",
+    "This is a code-preflight rejection, not a rejection of the operator's bounded read-only objective. Refreeze after the single correction before execution.",
+    "No capture, policy, startup or cutover approval is granted. Runtime remains INCOMPLETE."
+  ],
+  "execution_preflight_accepted": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "reviewer_native_operations": false,
+  "reviewer_credential_reads": false,
+  "reviewed_source_or_test_edits": false
+}

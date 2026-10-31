@@ -1,0 +1,12 @@
+{
+  "schema": "companion-baseline-capture-failure-v1",
+  "state": "INCOMPLETE",
+  "attribution": "Parent tool result: one-off capture command exited 1 at local assertion after its first native metadata read.",
+  "native_read_calls": 1,
+  "failure": "Local wrapper incorrectly required an attempt field absent from capture_format. No paired baseline was saved.",
+  "service_operations": 0,
+  "credential_values_exported": false,
+  "usable_baseline": false,
+  "automatic_retry": false,
+  "next_action": "Correct assertion and require separate approval for a fresh two-read capture. Do not manufacture the discarded first observation."
+}

@@ -1,0 +1,122 @@
+{
+  "schema": "companion-archived-topical-witness-review-v1",
+  "reviewed_at_utc": "2026-10-21T16:32:43Z",
+  "role": "GATE",
+  "reviewer": "Codex independent GATE, archived topical witness only",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Exact offline archived witness and stated evidence boundaries only; not a runtime policy record, current persisted identity, market-truth judgment or operational approval",
+  "bindings": {
+    "witness_candidate": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/topical_witness_candidate.json",
+      "sha256": "56aee572ae72837a859c81f0c5fa70d35ab9ac5dd71128754d57c1df98762cd1"
+    },
+    "checkpoint": {
+      "path": "docs/checkpoints/companion_policy_reconciliation_20261021.md",
+      "sha256": "2361eb0ee6bb658ea7a1c3efe765605b66f4ccfb999062f45ddd1f6e96a7f098"
+    },
+    "archive_manifest": {
+      "path": "research/companion_article_body_v1_20261011_gd1abqx9/manifest.json",
+      "sha256": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77"
+    },
+    "archive_files": {
+      "derived_article_body_v1.json": {
+        "path": "research/companion_article_body_v1_20261011_gd1abqx9/derived_article_body_v1.json",
+        "sha256": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f"
+      },
+      "original_snapshot.json": {
+        "path": "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json",
+        "sha256": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f"
+      },
+      "query_comparison.json": {
+        "path": "research/companion_article_body_v1_20261011_gd1abqx9/query_comparison.json",
+        "sha256": "88bb8e5a79d711d4339807e34caed4f3b20d89308c3eb4eb13300e397911fb5b"
+      }
+    },
+    "staged_metadata": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/staged_metadata_diagnostic.json",
+      "sha256": "03ffaa2dd4e4ee3c6d42383c41df4e04c3e797382416699134aa9661e3bf748e"
+    },
+    "prepared_evidence_public_copy": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/prepared_evidence_public_copy.json",
+      "sha256": "78726c0b834778934368713e55a7496a91249d17323e3d43c9052895a5e4d8de"
+    }
+  },
+  "findings": [],
+  "shown": [
+    "Archive manifest equals article_view.APPROVED_MANIFEST_SHA256. Independently recomputed all three manifest-bound file hashes. Production read_archive(required=True, expected_manifest_sha256=...) returns 55 unique lineage-checked records, 54 body_verified; document25 is excluded from verified status.",
+    "Document7 has body_verified=true, unchanged saved source identity/times, original_content_hash 5401eb6940d99b9d60414a5ee701b6e6c1c06cad96acb9db0c234a0068f68144, and complete saved content_text SHA256 6d5d844c271ee4a767b3ab0a9940d313c555f8b6536840e8675ecb1b3d67989c.",
+    "Full saved body is 1618 characters/UTF-8 bytes, not an assertion of complete publisher-page coverage. Candidate excerpt is its unique exact 126-character substring starting at zero-based offset427.",
+    "Candidate uses exactly the existing five topical fields and the exact controller QUESTION: What news explains Bitcoin liquidations?",
+    "Saved staged memory selected metadata reproduces its accepted stopped-row preservation digest and has mounts=[]. No archive bind mount is evidenced. Existence of archive files inherited in the prepared image is not established by these metadata.",
+    "Checkpoint correctly distinguishes archive validation/topical acceptance from current database lineage, actual citation and runtime policy acceptance. Its proposed next capture remains separately scoped, reviewed and authorized work, not permission from this receipt."
+  ],
+  "semantic_disposition": {
+    "classification": "SHOWN by reading the entire saved body; semantic relevance only",
+    "question": "What news explains Bitcoin liquidations?",
+    "document_id": 7,
+    "source": "www.coindesk.com",
+    "saved_published_at": "2026-10-10 11:00:00+00:00",
+    "saved_fetched_at": "2026-10-11 18:46:20.552702+00:00",
+    "historical_subject": "Retrospective discussion of a Bitcoin liquidation episode, leverage, crowded bullish positioning and open interest.",
+    "assessment": "The body directly discusses Bitcoin liquidations and attributed explanations, rather than merely matching a title or generic keyword. The exact excerpt is suitable as a historical topical witness when bound to this complete saved body.",
+    "witness_accepted": true,
+    "market_truth_verified": false,
+    "causal_claims_verified": false,
+    "current_market_explanation_verified": false,
+    "profitable_signal_claimed": false
+  },
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV for public local reads and offline assertions only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - <<'PY'\nimport hashlib,json\nfrom pathlib import Path\nfrom phase1_research_copilot.memory_retrieval import article_view\nfrom scripts.research.companion_existing_controller import QUESTION\nfrom scripts.research.companion_runtime_adapter import preservation_digest\nroot=Path.cwd();archive=root/\"research/companion_article_body_v1_20261011_gd1abqx9\"\nbase=root/\"docs/review_artifacts/companion_continuation_20261021\"\ncandidate_raw=(base/\"topical_witness_candidate.json\").read_bytes()\nassert hashlib.sha256(candidate_raw).hexdigest()==\"56aee572ae72837a859c81f0c5fa70d35ab9ac5dd71128754d57c1df98762cd1\"\nwitnesses=json.loads(candidate_raw);assert len(witnesses)==1\nw=witnesses[0];assert set(w)=={\"document_id\",\"question\",\"original_content_hash\",\"body_sha256\",\"excerpt\"}\nassert w[\"document_id\"]==7 and w[\"question\"]==QUESTION==\"What news explains Bitcoin liquidations?\"\nmanifest_raw=(archive/\"manifest.json\").read_bytes();manifest=json.loads(manifest_raw)\nassert hashlib.sha256(manifest_raw).hexdigest()==article_view.APPROVED_MANIFEST_SHA256==\"94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77\"\nhashes={}\nfor name,sha in manifest[\"file_sha256\"].items():\n hashes[name]=hashlib.sha256((archive/name).read_bytes()).hexdigest()\n assert hashes[name]==sha\nview=article_view.read_archive(archive,required=True,expected_manifest_sha256=article_view.APPROVED_MANIFEST_SHA256)\nassert len(view[\"rows\"])==55 and sum(r[\"body_verified\"] is True for r in view[\"rows\"])==54\nrow=next(r for r in view[\"rows\"] if r[\"id\"]==7);body=row[\"content_text\"]\nassert row[\"body_verified\"] is True\nassert w[\"original_content_hash\"]==view[\"original\"][7][\"content_hash\"]==row[\"original_content_hash\"]==\"5401eb6940d99b9d60414a5ee701b6e6c1c06cad96acb9db0c234a0068f68144\"\nassert hashlib.sha256(body.encode(\"utf-8\")).hexdigest()==w[\"body_sha256\"]==\"6d5d844c271ee4a767b3ab0a9940d313c555f8b6536840e8675ecb1b3d67989c\"\nassert body.count(w[\"excerpt\"])==1 and len(body)==len(body.encode())==1618\ndiagnostic_raw=(base/\"staged_metadata_diagnostic.json\").read_bytes()\nassert hashlib.sha256(diagnostic_raw).hexdigest()==\"03ffaa2dd4e4ee3c6d42383c41df4e04c3e797382416699134aa9661e3bf748e\"\ndiagnostic=json.loads(diagnostic_raw)\nmemory=next(r for r in diagnostic[\"rows\"] if r[\"name\"].startswith(\"/phase1-memory-staged-\"))\nevidence_raw=(base/\"prepared_evidence_public_copy.json\").read_bytes()\nassert hashlib.sha256(evidence_raw).hexdigest()==\"78726c0b834778934368713e55a7496a91249d17323e3d43c9052895a5e4d8de\"\nsaved=next(r for r in json.loads(evidence_raw)[\"replacements\"] if r[\"name\"].startswith(\"phase1-memory-staged-\"))\nassert memory[\"id\"]==saved[\"id\"] and preservation_digest(memory)==saved[\"metadata\"]\nassert memory[\"mounts\"]==[]\nprint(json.dumps({\"checks\":\"PASS\",\"question\":QUESTION,\"archive_manifest_sha256\":article_view.APPROVED_MANIFEST_SHA256,\"archive_file_hashes\":hashes,\"archive_rows\":55,\"verified_rows\":54,\"unverified_document_ids\":[r[\"id\"] for r in view[\"rows\"] if not r[\"body_verified\"]],\"document_id\":7,\"original_content_hash\":w[\"original_content_hash\"],\"body_sha256\":w[\"body_sha256\"],\"saved_body_characters\":len(body),\"saved_body_utf8_bytes\":len(body.encode()),\"excerpt_start\":body.index(w[\"excerpt\"]),\"excerpt_characters\":len(w[\"excerpt\"]),\"excerpt_unique_exact_substring\":True,\"memory_container_id\":memory[\"id\"],\"memory_mounts\":[],\"metadata_observed_utc\":diagnostic[\"observed_utc\"],\"native_calls\":False,\"database_calls\":False},sort_keys=True))\nPY",
+    "exit_code": 0,
+    "result": {
+      "archive_file_hashes": {
+        "derived_article_body_v1.json": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+        "original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+        "query_comparison.json": "88bb8e5a79d711d4339807e34caed4f3b20d89308c3eb4eb13300e397911fb5b"
+      },
+      "archive_manifest_sha256": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77",
+      "archive_rows": 55,
+      "body_sha256": "6d5d844c271ee4a767b3ab0a9940d313c555f8b6536840e8675ecb1b3d67989c",
+      "checks": "PASS",
+      "database_calls": false,
+      "document_id": 7,
+      "excerpt_characters": 126,
+      "excerpt_start": 427,
+      "excerpt_unique_exact_substring": true,
+      "memory_container_id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+      "memory_mounts": [],
+      "metadata_observed_utc": "2026-10-21T12:20:52.040692+00:00",
+      "native_calls": false,
+      "original_content_hash": "5401eb6940d99b9d60414a5ee701b6e6c1c06cad96acb9db0c234a0068f68144",
+      "question": "What news explains Bitcoin liquidations?",
+      "saved_body_characters": 1618,
+      "saved_body_utf8_bytes": 1618,
+      "unverified_document_ids": [
+        25
+      ],
+      "verified_rows": 54
+    },
+    "pytest_run": false
+  },
+  "limits": [
+    "Archive document ID7 is saved lineage, not independently verified current database identity. The manifest explicitly labels the archive diagnostic-only/not a live index, with no persistent-store writes.",
+    "read_archive validates file identity, internal lineage and accepted extraction flags. It does not freshly fetch the publisher, independently reproduce extraction from raw HTML, certify numerical claims or establish causation.",
+    "A narrow archived topical witness may be accepted while current persisted identity remains UNVERIFIED. Existing live identity/time/content-hash, archive mapping and actual-citation checks must still pass; witness acceptance cannot substitute for them.",
+    "Staged memory had no bind mounts at the saved observation time. The archive may be inherited in the image, but neither these mounts nor source-only Python preparation prove the installed archive bytes. No absence/presence inside the container is inferred.",
+    "Historical original-memory SDK captures, the reported 23-source rehash and Botocore retry/region-redirect registration-chain completeness are outside this witness decision and are not accepted as prepared-image policy proof.",
+    "The checkpoint's bounded search claim is not a repo-wide absence proof. No runtime-pin/dependency-policy/topical native packet or future capture execution is approved by this receipt.",
+    "Runtime, native SDK/import/archive availability, endpoint behavior, storage contents and live database identity remain UNVERIFIED. Runtime objective remains INCOMPLETE."
+  ],
+  "live_persisted_identity": "UNVERIFIED",
+  "runtime_state": "INCOMPLETE",
+  "runtime_policy_approved": false,
+  "capture_execution_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "native_operations": false,
+  "database_calls": false,
+  "credential_reads": false,
+  "draft_or_archive_edited": false,
+  "reviewer_edits": "This new review receipt only; parent records verification/work log separately."
+}

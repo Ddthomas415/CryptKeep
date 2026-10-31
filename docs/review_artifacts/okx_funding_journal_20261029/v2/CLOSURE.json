@@ -1,0 +1,26 @@
+{
+  "recorded_at": "2026-10-29T11:14:00.103150+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "corrected explicit raw-journal source integration only",
+  "reviewer_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1875d-1685-7c20-9d1b-57f77ce437c4",
+  "bindings_verified": 27,
+  "journal_sha256": "1b97a70f3dd064fdea7551f2cf1991689456d91d2d16a3078bf6bad3a407e0b5",
+  "independent_tests": {
+    "passed": 207,
+    "seconds": 1.32,
+    "exit_code": 0,
+    "runs": 1
+  },
+  "closed_finding": "OKX-JOURNAL-01",
+  "findings": "No material outstanding finding in correction scope. One-line RecursionError catch; regression reproduces archived v1 failure and retains valid neighbor plus both raw rows. Promotions/policy unchanged.",
+  "remaining_limits": [
+    "supplied real store would write; not an authorization sandbox",
+    "unauthenticated evidence and local clock",
+    "live freshness and crash durability unverified",
+    "no installed paired collector producer or operational activation"
+  ],
+  "original_fix3_state": "INCOMPLETE",
+  "checkpoint_note": "Frozen checkpoint records submission status; this later closure records actual independent acceptance."
+}

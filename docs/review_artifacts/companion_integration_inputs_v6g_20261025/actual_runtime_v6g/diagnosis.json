@@ -1,0 +1,83 @@
+{
+  "citation_archive_correlation": [
+    {
+      "document_id": 5,
+      "url_hash_matches": true
+    },
+    {
+      "document_id": 47,
+      "url_hash_matches": true
+    },
+    {
+      "document_id": 18,
+      "url_hash_matches": true
+    },
+    {
+      "document_id": 5,
+      "url_hash_matches": true
+    },
+    {
+      "document_id": 26,
+      "url_hash_matches": true
+    }
+  ],
+  "events": 98,
+  "execution_disabled": true,
+  "first_failure_cause": "UNVERIFIED",
+  "hashes": {
+    ".cbp_state/runtime/companion_cutovers/workerprep20261025v6g/receipt.jsonl": "eb2ebdd2013f73d6649885b8714281f91585cedab479d2e2bbc75942d25fdfbc",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_runtime_v6g/diagnose_saved_result.py": "f663394dcf9cd156c00a25dd9578f6c19802a82582ca928e707834ef196e0a81",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_runtime_v6g/receipt.jsonl": "eb2ebdd2013f73d6649885b8714281f91585cedab479d2e2bbc75942d25fdfbc",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "scripts/research/companion_installer.py": "e9fd8a144de54bf277e2c5812110dda9cc8cf0a7d1bb6fc85707b188f3174d38",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3"
+  },
+  "limitations": [
+    "All-false is not five independent failures; verifier catches and deadlines collapse to identical output.",
+    "Response prose/types, live DB rows and first failed predicate were not retained; no reconstruction is claimed.",
+    "Citation hash correlation is not persisted identity, content, topical or causal verification.",
+    "Configuration recovery is not exact restoration, current health, connectivity or volume-byte proof.",
+    "No new query, token read, native call, source change, retry or reset is performed."
+  ],
+  "provider": "fallback",
+  "query_stages": [
+    {
+      "http_status": null,
+      "outcome": "invalid_envelope",
+      "route": "primary",
+      "stage": "normalization"
+    },
+    {
+      "http_status": 200,
+      "outcome": "json_received",
+      "route": "companion",
+      "stage": "transport"
+    },
+    {
+      "http_status": null,
+      "outcome": "accepted",
+      "route": "companion",
+      "stage": "normalization"
+    }
+  ],
+  "rollback": {
+    "configuration_restored": true,
+    "exact_baseline_restored": false,
+    "network_connectivity_verified": false
+  },
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6g-saved-failure-diagnosis-v1",
+  "verifier_result": {
+    "checks": {
+      "article_view_mapping": false,
+      "causal_limits": false,
+      "content_hash": false,
+      "persisted_identity": false,
+      "topical_support": false
+    },
+    "false_meaning": "not_established_or_not_evaluated",
+    "outcome": "complete",
+    "shape_valid": true
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "offline existing SQLite upsert persistence hazards; no durable implementation or production changes",
+  "bindings": {
+    "tests/test_exit_deferral_persistence_boundary.py": "cdd26f94b98e4bc317547a4f07687865b582747ac6e8f94caf93a6de3582a2e2",
+    "docs/research/exit_persistence_boundary_20261028.md": "33c8f9db157a7d990aa5a8240e07dec9abed8fa963a44b0cac784ee1a0ef59e3",
+    "storage/execution_store_sqlite.py": "98e444954ae85b6935c2999ee917b078991ba5df18ed70de01785f8bc853b538",
+    "storage/order_dedupe_store_sqlite.py": "27c5cbe206e9b815b3bfb840672fc1cfe756b7fb9516feef1f5015fa608737ac",
+    "storage/strategy_state_sqlite.py": "8e64a3afbbb0cc320d0fbced83312ae5d1bcfbfe3b65c711ea0da7c8dde86083",
+    "storage/strategy_state_store_sqlite.py": "ec966cd2f06264a9a6b846dbc4f88dd402ed68afd05d92f92321dbd6dd74f33e",
+    "storage/live_intent_queue_sqlite.py": "83d363a854b88b4d230cacc179c1de206a2b813b3b16a678cbfa410a64e06740",
+    "scripts/research/synthetic_live_position_cap.py": "1776524826aa38a102e95013a6dee3ec657175ee8708740b1fe78aae0f8ecd26",
+    "services/execution/exit_deferral.py": "22dd6c99b34a0cdf011aea601bb46a878e8aa012e962e2d29f25e5bbdb446679",
+    "services/execution/place_order.py": "8d04313c13b8e9ab8683a4c77d7dd5c63a49049ff9cbf44e862e5aec4849242a"
+  },
+  "tests_diff_sha256": "06a149ad1ea68a86ee84d18c19bd658fc3562223537628dd898abf577dd71a3c",
+  "author_verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_exit_deferral_persistence_boundary.py",
+    "passed": 4,
+    "seconds": 0.23,
+    "exit_code": 0
+  }
+}

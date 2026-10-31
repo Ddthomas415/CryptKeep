@@ -1,0 +1,14 @@
+{
+  "bytes": 168,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "18_LTC.bin",
+  "http_date": "Thu, 29 Oct 2026 03:35:08 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793244908359,
+  "request_started_ms": 1793244908248,
+  "sha256": "3da8249208629b904f5407128331810da7c7b60b02fe4dc9ac1cc067c8bfd492",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/LTC-USD/candles?granularity=3600&start=2026-10-29T01%3A00%3A00%2B00%3A00&end=2026-10-29T03%3A00%3A00%2B00%3A00"
+}

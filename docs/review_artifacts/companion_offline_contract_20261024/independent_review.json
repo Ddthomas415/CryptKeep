@@ -1,0 +1,135 @@
+{
+  "schema": "companion-offline-archive-contract-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Offline archive-backed diagnosis and fixture/report fidelity only. Not exact historical replay, proof of runtime cause, a production guard fix or operational readiness.",
+  "runtime_status": "INCOMPLETE",
+  "historical_v6d_cause": "UNVERIFIED",
+  "blocking_findings": [],
+  "source_and_report_sha256": {
+    "docs/review_artifacts/companion_offline_contract_20261024/report.json": "3376c9eb9647838c32fa36a67d70270ca6c0044e1c2f628fd0b04b49c608be09",
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+    "dashboard/services/views/_shared_signals.py": "098f3c879199deadfbb5aa22ce90194d0adfb0bab9bb5ebba0e3ef622999a654",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/receipt.jsonl": "0ca55ea24bf18b7ff5442d974267497de00f2f3a5e2af1c372459f35aa43b1a9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+    "phase1_research_copilot/memory_retrieval/article_view.py": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+    "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "phase1_research_copilot/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+    "research/companion_article_body_v1_20261011_gd1abqx9/derived_article_body_v1.json": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+    "research/companion_article_body_v1_20261011_gd1abqx9/manifest.json": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "tests/test_companion_archive_contract.py": "9c8d9e427ed54f4fad765386284ce2131e077f4213781e46ad9676a3ef2de404",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f",
+    "tests/test_explain_diagnostics.py": "508e912012fd08e4fca5d858e215046dec66b220677f9997b72ffc8b6912ffd3"
+  },
+  "verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_archive_contract.py",
+    "exit_code": 0,
+    "passed": 5,
+    "elapsed_seconds": 0.28,
+    "environment": "VERIFIED_ENV for these five isolated offline tests only",
+    "report_bound_source_and_input_hashes_checked": 17,
+    "archive_rows_and_lineage_independently_checked": 55,
+    "receipt_correlations_independently_recomputed": true,
+    "witness7_body_hash_excerpt_and_original_lineage_match": true,
+    "saved_case_results_match_five_test_contract": true,
+    "larger_parent_slice": "Not run or relied upon by this review.",
+    "production_app_or_Settings_or_DB_or_startup_invoked": false,
+    "reviewer_Docker_HTTP_token_or_service_actions": 0,
+    "child_process_or_socket_activity_by_fixtures": 0,
+    "report_generator_main_invoked": false
+  },
+  "findings": [
+    {
+      "classification": "SHOWN",
+      "scope": "Controlled fixtures only",
+      "finding": "Normalization and registered-evidence acceptance are distinct boundaries. Selection [7] passes both. Selection [5,7] passes the pure archived-evidence checks with the unchanged witness but the actual dashboard guard rejects mixed-asset text and selects dashboard_fallback. This demonstrates a fixture-level contract incompatibility, not the exact live failure or a general semantic-relevance verdict."
+    },
+    {
+      "classification": "SHOWN",
+      "scope": "Controlled fixtures only",
+      "finding": "BTC-only selection [47] passes normalization/controller safety fixture checks but fails the evidence contract without witness7. Selection [5,47] fails both. A guard change alone cannot establish the required approved-evidence path."
+    },
+    {
+      "classification": "SHOWN",
+      "scope": "Frozen receipt versus this 55-document archive only",
+      "finding": "Two logged document-ID/citation-ID/URL triples are compatible with archived doc5/keyword_5/URL and doc47/keyword_47/URL. The other three logged ID hashes have no match in this snapshot; doc7 is absent. Matching hashes do not recover original response ID types, prose, body text, retrieval ordering or current persistence."
+    }
+  ],
+  "fixture_matrix": [
+    {
+      "selection": [
+        7
+      ],
+      "foreign_asset_rejected": false,
+      "transport_identity_and_safety_fixture": true,
+      "aggregate_evidence_fixture_pass": true,
+      "combined_offline_pass": true
+    },
+    {
+      "selection": [
+        47
+      ],
+      "foreign_asset_rejected": false,
+      "transport_identity_and_safety_fixture": true,
+      "aggregate_evidence_fixture_pass": false,
+      "combined_offline_pass": false
+    },
+    {
+      "selection": [
+        5,
+        7
+      ],
+      "foreign_asset_rejected": true,
+      "transport_identity_and_safety_fixture": false,
+      "aggregate_evidence_fixture_pass": true,
+      "combined_offline_pass": false
+    },
+    {
+      "selection": [
+        5,
+        47
+      ],
+      "foreign_asset_rejected": true,
+      "transport_identity_and_safety_fixture": false,
+      "aggregate_evidence_fixture_pass": false,
+      "combined_offline_pass": false
+    }
+  ],
+  "fidelity_and_limits": [
+    "The production source/guard, approved topical witness7 and old receipt retain their recorded hashes. No approval list, article body, report or reviewed source was edited. The explicit disabled-risk fixture is present in the frozen version tested; it is not an observed risk-service result.",
+    "Existing helper extracts only pure orchestrator and answer-metadata functions via AST; request/model objects, protocol stamping, risk responses and transport envelopes are explicit fixture substitutes. No production app import, Settings, full route/lifespan, middleware, HTTP or runtime SDK behavior is established.",
+    "The caller chooses [7], [47], [5,7] and [5,47] directly. Question-query audit labels do not mean SQL/vector retrieval/ranking, temporal eligibility, historical top-k or live selection was exercised.",
+    "Saved original rows deliberately substitute for live database rows. persisted_identity=true and the other positive evidence flags are fixture results, not present DB/source/volume verification.",
+    "checks.evaluate is fail closed: any underlying refusal returns all five flags false. Those flags are not a five-predicate diagnostic trace, and cannot individually attribute five independent defects. Missing approved witness is a necessary failure for witness-absent selections, not a newly observed live-verifier result.",
+    "The archive manifest and original/derived lineage were verified locally. body_verified and witness/excerpt matching retain their saved scoped meanings; they do not independently establish market facts, causal explanation, fresh information or profitability.",
+    "Live answer prose, matched foreign tokens, typed/protocol fields and three out-of-snapshot records remain unavailable. Archive correlations and synthetic fixture outcomes cannot decide the correctness of the historical asset guard or prove that these fixture selections generated the missing live answer."
+  ],
+  "recommended_minimal_code_direction": {
+    "recommendation_only": true,
+    "scope": "One narrow subject-versus-context normalization correction, with independent review before use.",
+    "direction": "Distinguish an explicitly wrong primary asset from valid BTC-context archived quotations that also mention ETH/SOL, instead of treating every known asset token in quoted context as a primary-asset mismatch. Preserve fail-closed wrong-asset and safety/provenance validation. Keep archived body/source checks and the exact witness7 requirement unchanged; do not force retrieval, approve doc47, expand witnesses or remove the guard to obtain a pass.",
+    "required_regression_boundary": "Retain genuine wrong-asset refusals and the witness-absent [47]/[5,47] evidence refusals while specifying the intended mixed-context [5,7] behavior. This is a proposed code direction, not an implemented fix, runtime authorization or claim of historical reproduction.",
+    "risk": "HIGH",
+    "implementation_performed": false,
+    "implementation_authorized_by_this_review": false
+  },
+  "operational_authorized": false,
+  "runtime_pass": false,
+  "source_or_guard_change_authorized": false,
+  "approval_or_witness_change_authorized": false,
+  "capture_or_DB_read_authorized": false,
+  "preparation_or_retry_or_reset_authorized": false,
+  "startup_or_cutover_authorized": false,
+  "query_authorized": false,
+  "trading_authorized": false,
+  "reviewer_changes": [
+    "docs/review_artifacts/companion_offline_contract_20261024/independent_review.json"
+  ],
+  "frozen_source_report_archive_witness_and_receipt_modified": false
+}

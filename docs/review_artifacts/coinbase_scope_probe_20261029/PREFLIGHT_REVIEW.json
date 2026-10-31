@@ -1,0 +1,15 @@
+{
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a18998-be4f-7721-ab26-2540bc28a2ab",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "pins_verified": 10,
+  "independent_offline_passed": 40,
+  "independent_offline_seconds": 0.39,
+  "scope": "One existing-credential permissions/portfolio metadata observation within human authorization; no retry or activation.",
+  "limits": [
+    "Invented HMAC signing only tested; real credential format and endpoint permissions unverified.",
+    "Final summarization has no final in-process deadline check; outer child wait/cleanup is relied on.",
+    "Credential-loader imports may create standard directories; no configuration-content write identified.",
+    "Account-wide portfolio completeness remains unverified."
+  ]
+}

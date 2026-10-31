@@ -1,0 +1,101 @@
+{
+  "schema": "companion-reviewed-cutover-handoff-review-v1",
+  "reviewed_at": "2026-10-22T02:43:40.870526+00:00",
+  "active_role": "GATE",
+  "reviewer": "Independent Codex GATE: bounded one-off reviewed-token pipe launcher",
+  "decision": "ACCEPTED_WITH_RISK",
+  "risk_level": "HIGH",
+  "objective": "Independently review only execute_reviewed_cutover.py and its focused synthetic handoff tests before separate operation/tool approval. No credential retrieval or cutover execution by reviewer.",
+  "scope": "One bridge from the exact original running orchestrator SERVICE_TOKEN to the unchanged reviewed cutover.main through an owned anonymous pipe, using the existing validated input set and controller600/recovery180 budgets.",
+  "material_assumptions": [],
+  "reviewed_sha256": {
+    "docs/review_artifacts/companion_continuation_20261021/execute_reviewed_cutover.py": "5c319350681e2fb4fdac363e29b829947e0348678fdcc8ecabc84820713adf12",
+    "tests/test_companion_reviewed_cutover_handoff.py": "611a42b90a9657f2e14c10ce4b8d6e8c2e4133d7c53f4db387d577fd03f6869e",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/inert_validation_receipt.json": "a269cfdd5307724af5b67c414f4ad1d6e4e9009c1bbb2a3e1f0df47ff6b67f36",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/scope_review.json": "271c1c2c204f1493fd36caf0db57b5af464aba4c920526e2e77fd019ce24790d",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/runtime_review.json": "64127a85c985be4e09c0c6df24f5a688d5faae5a38077a3ccd20af7e82d7d43b",
+    "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/reviewed_preparation_manifest.json": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d",
+    "scripts/research/companion_cutover.py": "fcea6d3e181372e3db02882f70392f38a985067081a42c5c3e2a8bfd34a3a550",
+    "scripts/research/companion_runtime_adapter.py": "cf2d619320defd4904ba7bde595ad226d803818f5182f2bf27c3f73cdb0a4441",
+    "scripts/research/companion_docker_transport.py": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5"
+  },
+  "hash_paths": "Repository-relative",
+  "exact_credential_source": {
+    "name": "phase1-orchestrator",
+    "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+    "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+    "state": "running"
+  },
+  "shown": [
+    "The source is inert without --execute-once. Its default path validates pinned public inputs and prints only a fixed nonexecuting summary; neither execute(), Docker inspection nor token access is invoked.",
+    "RECEIPT_SHA, SCOPE_SHA and RUNTIME_SHA match the saved inert validation receipt and independently accepted records. inputs() rehashes the reviewed scripts/research consumers, accepts only the exact frozen env-i/Python/module command prefix, and refuses execution/token switches in the base argv. It uses shlex parsing, not shell execution of the receipt.",
+    "execute() disables core dumps before loading inputs, changes to the fixed repository root and calls the existing cutover.load_inputs on the fixed parsed arguments before any credential-source operation.",
+    "Credential selection is the original phase1-orchestrator in plan.baseline, not the staged replacement. The inspect template requires its exact full container ID, exact image ID and running state before returning only SERVICE_TOKEN entries as JSON strings. No exchange credential/API-key/password field, broad environment output or alternate token source is requested.",
+    "The planned source read uses the pinned Docker CLI, fixed Unix endpoint, empty temporary Docker config, PATH-only child environment, a10second CLI-verification deadline, a separate at-most10second inspect and8192byte stdout bound. stdout remains in Python memory; stderr is discarded by the existing transport. No token file, hash, length, argv or environment export is authored.",
+    "parse_token requires bytes, at most8192 raw bytes, exactly one nonempty JSON-framed row, the exact SERVICE_TOKEN= prefix and a nonempty printable-ASCII payload of at most4096characters. Missing, duplicated, wrong-prefix, whitespace/control/non-ASCII or malformed values refuse without fallback.",
+    "handoff() creates its own anonymous pipe, refuses a read descriptor<=2, makes the writer nonblocking, performs one checked complete write and closes the writer before invoking the entrypoint. EOF terminates the existing token reader; the token is not added to argv, only the descriptor number.",
+    "The unchanged cutover.main accepts descriptor ownership; its finally closes an unconsumed supplied descriptor on ordinary handled failures, and token_from_pipe consumes/closes it after bounded validation. The fixed argv is accepted by the same argument grammar before transfer. No controller, retry, recovery, start/stop policy or parent kill-timer code is changed.",
+    "The launcher makes one cutover.main call with --execute-cutover and --token-fd appended. It adds no retry/fallback/recovery path; the existing lock/reservation/one-shot and owned rollback logic remain authoritative.",
+    "Failures handled by execute() print fixed JSON only, not the exception payload, source stdout, token value or traceback. Local token/raw/payload references are cleared when their scopes end; this is reference clearing, not forensic memory erasure."
+  ],
+  "findings": [
+    {
+      "priority": "P2",
+      "classification": "SHOWN",
+      "subject": "Diagnostic entered flag is broader than consumer entry",
+      "file": "docs/review_artifacts/companion_continuation_20261021/execute_reviewed_cutover.py",
+      "function": "execute",
+      "detail": "entered=True is assigned immediately before handoff(). A pipe allocation/write/descriptor failure can therefore emit entrypoint_handoff_entered=true even though cutover.main was never invoked.",
+      "disposition": "Accepted diagnostic risk, not execution authority or a safety-guard bypass. Treat the flag only as producer handoff-attempt progress; use the unchanged cutover receipt/actions_executed/attempt-reservation evidence to establish actual consumer entry and operations."
+    }
+  ],
+  "verification": {
+    "environment": "VERIFIED_ENV for isolated focused synthetic host tests, local public-input hashes and AST-isolated fake-descriptor assertions only",
+    "focused_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_companion_reviewed_cutover_handoff.py",
+    "focused_exit_code": 0,
+    "focused_result": "13 passed in0.18s against the final reviewed source including the descriptor guard",
+    "additional_command": "/usr/bin/python3 -B - <<'PY' (standard-library source/hash assertions and isolated handoff AST with fake OS descriptors)",
+    "additional_result": "PASS: exact pinned inert receipt/scope/runtime/consumer hashes; original orchestrator baseline selected; three synthetic pre-handoff descriptor failures refuse before invoke and close both owned ends",
+    "descriptor_fault_checks": [
+      {
+        "scenario": "fd_guard",
+        "entrypoint_called": false,
+        "both_owned_descriptors_closed": true
+      },
+      {
+        "scenario": "short_write",
+        "entrypoint_called": false,
+        "both_owned_descriptors_closed": true
+      },
+      {
+        "scenario": "would_block",
+        "entrypoint_called": false,
+        "both_owned_descriptors_closed": true
+      }
+    ],
+    "synthetic_success": "Focused test sends only a synthetic token through a local owned pipe to the existing token_from_pipe reader, sees EOF and returns once; no real token or service call.",
+    "synthetic_rejections": "Focused tests cover missing/malformed/wrong-prefix/empty/space/newline/duplicate/oversized/non-ASCII source payloads. Additional fake-OS checks cover fd<=2, short write and would-block before callback invocation.",
+    "Docker_or_service_operations": 0,
+    "credentials_retrieved": false,
+    "SDK_initializations": 0,
+    "broad_test_suite_runs": 0,
+    "source_or_existing_artifact_edits": false
+  },
+  "limits": [
+    "The Go template was source-reviewed, not executed against a credential source by this GATE. Runtime source-ID/image/running mismatch, CLI verification failure, absent/duplicate/unsupported token or pipe failure must refuse; successful live handoff is not claimed.",
+    "The token remains in process memory during handoff and the owning runtime's authorized use. Core dumps are disabled, but immutable strings/bytes are not zeroized; process-memory secrecy is not a forensic guarantee.",
+    "The helper is reviewed only with the exact hash-bound cutover.main callback and validated argv. It is not a general descriptor-transfer API: ownership is relinquished immediately before callback invocation, so an arbitrary callback that never assumes ownership would not be covered.",
+    "Before the unchanged cutover entrypoint installs its handlers, the launcher adds no new cancellation/recovery machinery. Interruption in this pre-entry credential/pipe phase is not a claim of an owned rollback; no application mutation is authored in that phase.",
+    "The producer does not reserve the cutover attempt before reading the token. Reinvocation can repeat the source read before the existing consumer lock/attempt marker refuses reuse; --execute-once is an explicit invocation switch, not a separate producer one-use journal. No automatic retry is present or accepted.",
+    "The prelude CLI verification/inspect is separately bounded; no claim that all local I/O or the entire launcher fits inside the consumer's600second controller budget is made. The600/180 consumer budgets are unchanged.",
+    "Existing policy/source/configuration/identity/recipient/namespace/citation checks, allowed audit writes, preserved storage and owned rollback requirements remain unchanged. This review is not evidence that the future operation or rollback succeeds.",
+    "No secret-source fallback, exchange/API credential discovery, source rebuild, SDK initialization or unreviewed runtime criterion is authorized.",
+    "Only runtime_packet/reviewed_handoff_review.json is written. Parent owns the operation authorization record and tool approval; reviewed launcher/tests/consumers and earlier receipts are preserved."
+  ],
+  "operation_authorized_by_this_review": false,
+  "tool_approval_satisfied": false,
+  "ready_for_separate_operation_tool_approval": true,
+  "native_execution_performed": false,
+  "runtime_objective_state": "INCOMPLETE",
+  "acceptance_boundary": "Technical launcher review accepted with the stated risks. Any operation must remain the separately authorized exact one-attempt four-application cutover plus one archived query, with original storage preserved and existing controller-owned recovery; this GATE performs none of it."
+}

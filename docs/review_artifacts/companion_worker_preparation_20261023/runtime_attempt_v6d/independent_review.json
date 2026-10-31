@@ -1,0 +1,183 @@
+{
+  "schema": "companion-v6d-runtime-outcome-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Frozen outcome/receipt/postcheck/comparison fidelity and bounded progress/causation interpretation only; not runtime success, guard correctness, a source repair or operational permission.",
+  "runtime_status": "INCOMPLETE",
+  "blocking_findings": [],
+  "material_assumptions": [],
+  "source_and_artifact_sha256": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/outcome.json": "6632d19acb5a4510a614f4f1e1bf06213bc0617cef0a40715dad921e465a4114",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/receipt.jsonl": "0ca55ea24bf18b7ff5442d974267497de00f2f3a5e2af1c372459f35aa43b1a9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/postcheck.json": "ae910c0b2bc4a7ef6886a71190abaf0dbf8c2b4b2b2c71231c1ccbeeba60a8ea",
+    "dashboard/services/views/_shared_signals.py": "098f3c879199deadfbb5aa22ce90194d0adfb0bab9bb5ebba0e3ef622999a654",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+    "scripts/research/companion_installer.py": "d0cfb0814b8884e790e794226e58629da1d587a797b4777b7dc4d3a54b232de7",
+    ".cbp_state/runtime/companion_cutovers/workerprep20261023v6d/receipt.jsonl": "0ca55ea24bf18b7ff5442d974267497de00f2f3a5e2af1c372459f35aa43b1a9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+    "docs/checkpoints/companion_v6d_runtime_attempt_20261024.md": "007aac6a13ac93c3f6aec052d2ca0be8e722d412034e14655c982c43ea55ff1c",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/citation_hash_comparison.json": "8b932623fc89d38d7159b7e0b9c1d018829c6929a1780ca7acb49f9072d9d245",
+    "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6d/reviewed_preparation_manifest.json": "629662e509e099be8601be1c9499d7139f03803f4f998f5b31fce15b2551b4a0",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/preparation_evidence.json": "9441411ba4ad31194b4f53aa99e1705a46365a93a0ebd5527e1e23957f52d65e",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/actual_id_review.json": "e185f51ab00c1a719ebe541d22564289931335a2b46d729667b2d8271bfc32a2",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/accepted_policy_records/runtime_review.json": "c15d6ea7b98c29c965b95c7a075e82db5a4e8de4acf810e04261afebe197adb6",
+    "docs/review_artifacts/companion_worker_preparation_20261023/execute_reviewed_v6d.py": "0d942f6d41d6e93d07e8129358f20d369b91e2a2f66c607fb157c912ac727959"
+  },
+  "receipt_review": {
+    "classification": "SHOWN from all 96 saved events and pinned controller flow",
+    "public_receipt_byte_identical_to_consumed_source": true,
+    "recorded_invocations": 1,
+    "recorded_exit_code": 1,
+    "parent_session_id": 29325,
+    "parent_preflight_binding_count": 38,
+    "preflight_limit": "Invocation/session/preflight facts are parent-attributed saved outcome/checkpoint evidence, not independently repeated native execution.",
+    "configured_compatibility_checks_true": 9,
+    "configured_precondition": "complete",
+    "recipient_diagnostic": null,
+    "replacement_start_confirmations": 4,
+    "poststart_recipient_and_health_gates": "Progress to query under unchanged fail-closed installer code establishes acceptance at those gates; raw endpoint payloads are not retained.",
+    "query_intents": 1,
+    "explain_invocations": 1,
+    "stored_evidence_verification_invocations": 0,
+    "query_diagnostics_line": 68,
+    "failure_line": 69,
+    "failure_stage": "runtime_verification",
+    "duplicate_diagnostics": "query_failure_diagnostics at line 70 duplicates the same events; not another query dispatch.",
+    "recovery": "Four running replacement quiesce/removal intents, original name/network restoration and four original restart intents; controller reports rollback_verified=true, exact=false and empty unresolved lists.",
+    "services_started_interpretation": "Unlike the prior v6c attempt, this receipt confirms four actual replacement starts as well as original recovery restarts. The aggregate services_started=true flag alone does not distinguish them."
+  },
+  "query_boundary": {
+    "classification": "SHOWN sanitized response/control-flow evidence",
+    "companion_http_status": 200,
+    "companion_provider": "fallback",
+    "companion_evidence_entries": 5,
+    "companion_execution_disabled": true,
+    "normalization_outcome": "foreign_asset",
+    "selected_provider": "dashboard_fallback",
+    "provider_distinction": "Companion fallback is an allowed deterministic/non-model provider, not the static dashboard_fallback selection. Provider fallback alone is not a failure.",
+    "proximate_boundary": "Companion normalization returned no accepted result after foreign_asset and selected the static dashboard fallback. The pinned explanation gate requires the raw companion provider to match the normalized provider, so this observed provider mismatch is incompatible with acceptance. The receipt does not log a unique inner exception or every other unmet gate condition.",
+    "verification_not_reached": "Installer calls explanation_gates before verify_evidence. No verify_evidence operation is recorded. Stored document/archive/content/citation correctness was not established.",
+    "primary_event": "primary invalid_envelope is expected in the isolated probe: _shared_http._request_envelope returns None while probe context is active. It is not evidence of an authentication failure or an extra primary HTTP dispatch.",
+    "protocol_limit": "Source sets X-CryptKeep-Probe=single-cited-query-v1 and the orchestrator probe branch exists. response_summary does not retain asset/probe_protocol/execution/risk fields. Their omission from sanitized diagnostics does not mean missing headers/fields; actual raw protocol/typed safety values remain unverified."
+  },
+  "foreign_asset_analysis": {
+    "classification": "SHOWN local source characterization; correctness of this historical rejection UNVERIFIED",
+    "method": "Only current_cause/past_precedent/future_catalyst are stringified, joined, uppercased and tokenized with r\"[^\\W_]+\". For the BTC probe, whole tokens ETH or SOL trigger rejection; this is not the older substring rule.",
+    "content_limit": "No response prose or matched foreign token is retained. The event cannot distinguish wrong-asset material from valid cross-asset context or another false positive. Citation rows are not directly examined by this helper, so citation mismatch is not a demonstrated cause of foreign_asset.",
+    "raw_typed_fields": "UNVERIFIED",
+    "content_relevance": "UNVERIFIED",
+    "guard_correctness": "UNVERIFIED"
+  },
+  "citation_identity_review": {
+    "classification": "SHOWN deterministic diagnostic hash comparison only",
+    "comparison_path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/citation_hash_comparison.json",
+    "hash_method": "response_summary converts positive exact-int document_id to decimal str, or accepts a nonempty string, then SHA256 of UTF-8 with surrogatepass. It does not hash JSON integer bytes or a content body.",
+    "registered_document_ids": [
+      7
+    ],
+    "registered_document7_sha256": "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451",
+    "logged_document_id_hashes": 5,
+    "registered_hash_matches": 0,
+    "independent_check_matches_frozen_comparison": true,
+    "limits": "No original document IDs were decoded, response ID types inferred, prose/content fetched, citation registration changed or stored verifier run. A non-match shows that the five logged document-ID hashes do not witness registered doc7; it does not establish content irrelevance, retrieval-selection cause, document integrity or which later verifier predicate would fail."
+  },
+  "postcheck_review": {
+    "classification": "SHOWN saved parent-native observations plus independent snapshot recomputation",
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/postcheck.json",
+    "captured_at_utc": "2026-10-24T11:36:22.066941+00:00",
+    "parent_native_reads": 3,
+    "parent_container_count": 23,
+    "original_snapshots_independently_recomputed": 7,
+    "baseline_comparison": [
+      {
+        "name": "phase1-timescaledb",
+        "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+        "changed_snapshot_fields": []
+      },
+      {
+        "name": "phase1-qdrant",
+        "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+        "changed_snapshot_fields": []
+      },
+      {
+        "name": "phase1-minio",
+        "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+        "changed_snapshot_fields": []
+      },
+      {
+        "name": "phase1-audit-log",
+        "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+        "changed_snapshot_fields": [
+          "started"
+        ]
+      },
+      {
+        "name": "phase1-risk-stub",
+        "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+        "changed_snapshot_fields": [
+          "started"
+        ]
+      },
+      {
+        "name": "phase1-memory",
+        "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+        "changed_snapshot_fields": [
+          "started"
+        ]
+      },
+      {
+        "name": "phase1-orchestrator",
+        "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+        "changed_snapshot_fields": [
+          "started"
+        ]
+      }
+    ],
+    "storage_snapshots_unchanged": 3,
+    "application_start_timestamps_changed": 4,
+    "prepared_ids_absent_reported": true,
+    "daemon_id_set_stable_reported": true,
+    "census_limit": "Prepared-ID absence and ID-set stability are parent comparison booleans. Raw daemon census sets are not retained, so reviewer did not independently recompute those sets. Receipt recovery verdict and saved originals corroborate selected restoration, not all possible host state.",
+    "reported_health": "Docker reports healthy for PostgreSQL and four original apps, null for Qdrant/MinIO. Null is not unhealthy evidence; Docker health is not a new reviewer endpoint check or continuous/semantic health proof.",
+    "restoration_limit": "Selected configuration/running state restored with changed app start times, not exact baseline, volume bytes, reversal of earlier audit/client/log effects or guaranteed endpoint health."
+  },
+  "progress_and_limits": [
+    "SHOWN: this attempt passed the prior blocking configured-recipient boundary, activated and started the four replacements, passed gated recipient/health checks and reached one companion HTTP response. This does not retroactively establish the historical v6c subcause.",
+    "SHOWN: fail-closed explanation acceptance rejected the normalized dashboard fallback and recovery followed. HTTP 200 and five citation-shaped rows are not successful citation-verified retrieval.",
+    "UNVERIFIED: raw response/protocol/ID types, content relevance, matched tokens, guard correctness and exact retrieval/normalization subcause. Do not relax the guard, substitute evidence or register unknown citations simply to make the attempt pass.",
+    "Consumed preparation/cutover and removed replacement IDs remain historical and must not retry/reset or be reused. No new stage, packet, handoff, token access, service action or query is authorized."
+  ],
+  "recommended_next_offline_scope": {
+    "status": "Recommendation only; not performed or granted as source-repair authorization here.",
+    "objective": "One bounded normalization-to-approved-evidence contract reproduction for the frozen BTC question and topical doc7, using current saved identity diagnostics and explicitly synthetic explanation fixtures. Characterize wrong-asset rejection versus valid cross-asset context and registered versus nonregistered evidence without disabling the existing guard or altering the witness.",
+    "success_boundary": "State the intended contract and demonstrate where normalization and citation identity diverge. With no historical prose, synthetic fixtures cannot be called an exact replay of this response. No startup loop, database/HTTP capture, second query or unsolicited fix."
+  },
+  "verification": {
+    "method": "Full receipt/outcome/postcheck/checkpoint/comparison reads, exact receipt-copy/input/source hashes, pure snapshot reconstruction and decimal-string hash comparison; narrow local source inspection only.",
+    "tests_run": false,
+    "reviewer_native_operations": 0,
+    "reviewer_live_credentials": 0,
+    "reviewer_HTTP_or_service_requests": 0,
+    "reviewer_lifecycle_actions": 0,
+    "full_audit": false
+  },
+  "operational_authorized": false,
+  "runtime_pass": false,
+  "retry_authorized": false,
+  "reset_authorized": false,
+  "preparation_authorized": false,
+  "source_repair_authorized": false,
+  "new_capture_authorized": false,
+  "startup_or_cutover_authorized": false,
+  "query_authorized": false,
+  "trading_authorized": false,
+  "reviewer_changes": [
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/independent_review.json"
+  ],
+  "frozen_sources_tests_checkpoint_outcome_and_prior_records_modified": false
+}

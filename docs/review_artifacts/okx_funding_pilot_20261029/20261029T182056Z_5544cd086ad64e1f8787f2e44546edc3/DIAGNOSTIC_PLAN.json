@@ -1,0 +1,13 @@
+{
+  "funding": [
+    {
+      "venue": "okx",
+      "symbol": "BTC/USDT:USDT",
+      "inst_id": "BTC-USDT-SWAP"
+    }
+  ],
+  "open_interest": [],
+  "basis": [],
+  "quotes": [],
+  "order_books": []
+}

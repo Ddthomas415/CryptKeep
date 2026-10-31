@@ -1,0 +1,20 @@
+{
+  "actual_capture_run": false,
+  "actual_default": {
+    "exit_code": 0,
+    "native_operations": false,
+    "runtime_authorized": false
+  },
+  "hashes": {
+    "docs/checkpoints/companion_memory_image_capture_v6i_20261027.md": "586576d1f77188e3f9eb9dafcafc93dd4ad60fd7ecd3137bc8a00e96aa047c4c",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/capture_memory_image.py": "9d5f9538895c0204ef8923447619b4f3f77c72bca5598b6aeab4dd6bc3eb1786",
+    "tests/test_companion_v6i_memory_image_capture.py": "0c3da97613606aec6272931db935a547b02bc483c0090ece71f4ef67236aeeec"
+  },
+  "operations_authorized": false,
+  "passed": 15,
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6i-memory-capture-implementation-proof-v1",
+  "seconds": 0.47,
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "warnings": 0
+}

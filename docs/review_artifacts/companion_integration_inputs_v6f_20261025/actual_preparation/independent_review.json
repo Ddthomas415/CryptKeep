@@ -1,0 +1,161 @@
+{
+  "schema": "companion-actual-preparation-independent-review-v1",
+  "date": "2026-10-25",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "runtime_state": "INCOMPLETE",
+  "acceptance_scope": "Saved V6f stopped-preparation evidence and exact four actual staged container/image identities only. Not runtime, installed-source policy, SDK, startup, cutover, query or fresh-packet approval.",
+  "blocking_findings": [],
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "artifact_base": "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_preparation",
+  "hashes": {
+    "preparation_evidence.json": "2463b6fe35b8c10ac9df63f9099c0fe986725bab5179e7a7bdbdc23c9ed6fb95",
+    "receipt.jsonl": "75840944f9712a29418f38cd490c694e5eaea61a11a3013a3676296f6eb09f38",
+    "outcome.json": "e9df6c421e2114b215ce1a06bcee5ca8f454f55aa00e387d3575a1317af64dda",
+    "postcheck_1.jsonl": "134fecfd6b2f7b430fca59f2a11e4175499759fda3d99cfd9fdae2a7810a7089",
+    "postcheck_2.jsonl": "134fecfd6b2f7b430fca59f2a11e4175499759fda3d99cfd9fdae2a7810a7089",
+    "postcheck.json": "398fab026e615a94d797ae554677421d7c54f3f7717525f4a26644a3a7a30f07",
+    "actual_id_review.json": "281cae425cad8dfae95709c6ab22004789cfec2c0cd2665438bbada8fd210645"
+  },
+  "input_bindings": {
+    "../reviewed_preparation_manifest.json": "a7854b1660ae2c321f8edb62d3ac2b7ab60350deb62df91bdde774e8c2ea1588",
+    "../actual_input_review.json": "14372031283e3ae9f9728bc2c68ae6657bf518d750d5752659b7155affc76f4c"
+  },
+  "shown_checks": {
+    "raw_pair_equal": true,
+    "11_snapshots_recomputed": true,
+    "7_originals_exact": true,
+    "4_stages_exact": true,
+    "receipt_events": 7,
+    "receipt_phases": [
+      "staged_preparation_reserved",
+      "create_staged_intended",
+      "create_staged_intended",
+      "create_staged_intended",
+      "create_staged_intended",
+      "staged_preparation_complete",
+      "preparation_evidence_published"
+    ],
+    "app_entries": 43,
+    "unique_local_sources": 22,
+    "consumers": 13,
+    "reviewed_preparation_load_passed": true,
+    "preparation_marker_present": true,
+    "cutover_marker_present": false
+  },
+  "accepted_actual_stages": [
+    {
+      "name": "phase1-audit-log-staged-workerprep20261025v6f",
+      "id": "3bfbe215eb57c209465550bd379ad9574d8cf9a2fcc3f6e438b82459681260b3",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "policy": "no",
+      "attempt": "workerprep20261025v6f"
+    },
+    {
+      "name": "phase1-risk-stub-staged-workerprep20261025v6f",
+      "id": "12550a424d2b76ee267239a758c0144f272935b9f250cbc66ab0f922bf3d0d14",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "policy": "no",
+      "attempt": "workerprep20261025v6f"
+    },
+    {
+      "name": "phase1-memory-staged-workerprep20261025v6f",
+      "id": "bce2b9261be47bc88a192df7429d03f0665e2407a644cf0c442a2c1c566fa1e6",
+      "image": "sha256:6dca2b97c7ab0c0d0bb1b7476ef83b063afd5c17c7120234d15645ef4f8f4aea",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "policy": "no",
+      "attempt": "workerprep20261025v6f"
+    },
+    {
+      "name": "phase1-orchestrator-staged-workerprep20261025v6f",
+      "id": "b5125e359aa2f89ed074fd726944247d358cfb7b82c41614cc009dbf5b151bd8",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "policy": "no",
+      "attempt": "workerprep20261025v6f"
+    }
+  ],
+  "assessment": [
+    {
+      "classification": "SHOWN",
+      "subject": "Evidence and full receipt copies",
+      "detail": "Read complete preparation evidence and all seven receipt events. Local cmp confirms public evidence and receipt byte-identical to .cbp_state/runtime/companion_preparations/workerprep20261025v6f/{evidence.json,receipt.jsonl}. Completion event embeds the exact evidence object and final publication event binds its exact SHA-256. Evidence binds the unchanged accepted input manifest and current companion-staged-preparation-v1 schema."
+    },
+    {
+      "classification": "SHOWN",
+      "subject": "Raw postcheck reconstruction",
+      "detail": "Parsed both complete JSONL captures and complete postcheck JSON with duplicate-key rejection. Raw pair is byte-identical. Each raw row is an envelope with metadata plus sanitized attempt label, not a flat row. Flattening only that envelope exactly reproduces before/after arrays. Using actual Plan.network_bindings and existing preservation/network projection helpers independently reconstructs all 11 snapshots exactly. Seven originals equal accepted baseline; four stages equal published evidence; 11 IDs unique. No repeated capture or native normalization operation."
+    },
+    {
+      "classification": "SHOWN",
+      "subject": "Actual-ID consumer contract",
+      "detail": "Existing _rows validates four new IDs distinct from originals, ordered staged names, full image IDs, created state, never-started timestamp, zero integer restarts, restart policy no, matching attempt and configured network contract. Exact five-field companion-preparation-review-v1 output created separately. Pure ReviewedPreparation.load accepts evidence and external review when supplied the emitted review hash. This does not invoke cutover or authorize an operation."
+    },
+    {
+      "classification": "SHOWN static; controller execution attestation only",
+      "subject": "Installed-source verification boundary",
+      "detail": "Preparation flow calls verify_staged_sources for each created stage before evidence completion. Backend method rechecks local hash-pinned sources, labels, copied source bytes and environment equality, with staged snapshots checked before/after. _verify_copied_sources hashes individually copied tar members against manifest source hashes. This explains what controller success attests; this reviewer did not invoke those methods or independently copy installed files. Local manifest's 43 app source entries (22 unique local paths) and 13 consumer hashes rechecked. Metadata postcheck adds no independent installed-file hash evidence."
+    }
+  ],
+  "nonblocking_limits": [
+    {
+      "classification": "CLAIMED",
+      "subject": "Native execution and operator approval attribution",
+      "detail": "Direct user message supplies approval provenance. Parent-transcribed outcome attributes one CLI invocation to session 75714, exit 0, preparation_complete true, services_started false and originals_interrupted false. Receipt and saved postcheck are consistent with that account but do not independently establish the full command history or absence of transient interruption."
+    },
+    {
+      "classification": "SHOWN from saved metadata, not current host observation",
+      "subject": "Configured network is not live connectivity",
+      "detail": "Stages report blank actual NetworkID with configured network binding and configured_only evidence. This is expected for created never-started stages and is not proof of attached endpoints, health or connectivity."
+    },
+    {
+      "classification": "CLAIMED timing; SHOWN missing clock fields",
+      "subject": "Postcheck time and wrapper correction",
+      "detail": "Parent postcheck records wrapper wall duration 0.124629583 seconds, but capture start/end clocks were not retained. recorded_at_utc is offline normalization time, not capture time. Both raw captures survived the initial KeyError network_bindings; rederivation using Plan.network_bindings is independently confirmed. No capture time or discarded data was invented."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "subject": "Runtime readiness and source freshness",
+      "detail": "Sequential selected-ID metadata is not atomic inventory or current-state guarantee. No fresh installed-source streams were captured, no SDK review renewed, and no service, DB, health, query or startup verification performed. Existing future preflight revalidation remains required and fail-closed."
+    }
+  ],
+  "source_scope": {
+    "scripts/research/companion_staged_update.py": {
+      "sha256": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "read": "_rows, ReviewedPreparation.load, prepare, preflight and relevant stage checks"
+    },
+    "scripts/research/companion_prepare.py": {
+      "sha256": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+      "read": "evidence publication and main success/receipt path"
+    },
+    "scripts/research/companion_install_docker.py": {
+      "sha256": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "read": "create_staged, verify_staged_sources, _sources, _verify_labels, _verify_copied_sources"
+    }
+  },
+  "proof": {
+    "classification": "SHOWN offline",
+    "environment": "VERIFIED_ENV for local parsing/hashing and pure loader/reconstruction only",
+    "tests": "Not run; no implementation changed. No native, token, DB, HTTP, service or SDK operations.",
+    "actual_id_review_load": "Passed with actual emitted review bytes, exact evidence and accepted Plan.",
+    "preparation_consumed": true,
+    "cutover_unused_at_local_marker_check": true,
+    "native_capture_independently_observed": false
+  },
+  "outputs": [
+    "independent_review.json",
+    "actual_id_review.json"
+  ],
+  "preservation": "Existing sources, tests, input manifest/review, candidate, evidence, receipt, captures, postcheck and old packets/attempts unchanged. Parent owns checkpoint/worklog/incident records.",
+  "next_gate": "Any later runtime action requires separately reviewed source/policy/runtime inputs, fresh fail-closed preflights and explicit authorization. No fresh packet or action granted by this review; runtime remains INCOMPLETE."
+}

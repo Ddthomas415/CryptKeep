@@ -1,0 +1,21 @@
+{
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "pure unwired preservation-first exit planner, synthetic-only; no execution authority",
+  "bindings": {
+    "services/execution/exit_deferral.py": "22dd6c99b34a0cdf011aea601bb46a878e8aa012e962e2d29f25e5bbdb446679",
+    "tests/test_exit_deferral.py": "a9f97e2562a5ac1cd1cb2949287bfb33fa54247cf8a6027b8159abcbb31c23b0",
+    "docs/research/exit_deferral_20261028.md": "c2353649bc996086ff63d19e83af1d2bdef289bdff83085175005fd054b2f014",
+    "services/markets/math_utils.py": "fb84fa59c7f6905f5190ce4d50cafe2873237f3a29508cd6a4b3d8a9d566b649",
+    "services/execution/place_order.py": "8d04313c13b8e9ab8683a4c77d7dd5c63a49049ff9cbf44e862e5aec4849242a",
+    "services/execution/coinbase_account_pages.py": "a6324aac4d78a2b9f0ab486e36279bca93be521541725336b69572b241db11a7",
+    "services/execution/_executor_submit.py": "3da665c81162e08dde3b188d99a92c38192bef878953ce2537bde352ca5c09ba",
+    "services/execution/retry_policy.py": "4731e5f38a26294aa440cce61fba56c9c1f684ad48ae1d8b2a16bcd4acc5ac70"
+  },
+  "source_diff_sha256": "3caad722b0b6d87bd8c1758104891da4344dfc988315f1a6d1c6c19aa23d3984",
+  "author_verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_exit_deferral.py",
+    "passed": 41,
+    "seconds": 0.2,
+    "exit_code": 0
+  }
+}

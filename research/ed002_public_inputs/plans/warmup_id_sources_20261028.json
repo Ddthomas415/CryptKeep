@@ -1,0 +1,281 @@
+{
+  "classification": "Public candidate ID references only; refresh status at acquisition",
+  "source_capture_manifest": "research/ed002_public_inputs/capture_20261028_01/manifest.json",
+  "symbols": {
+    "ADA": {
+      "base_currency": "ADA",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "ADA",
+      "currency_name": "Cardano",
+      "product_id": "ADA-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "APT": {
+      "base_currency": "APT",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "APT",
+      "currency_name": "Aptos",
+      "product_id": "APT-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "ARB": {
+      "base_currency": "ARB",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "ARB",
+      "currency_name": "Arbitrum",
+      "product_id": "ARB-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "ATOM": {
+      "base_currency": "ATOM",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "ATOM",
+      "currency_name": "Cosmos",
+      "product_id": "ATOM-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "AVAX": {
+      "base_currency": "AVAX",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "AVAX",
+      "currency_name": "Avalanche",
+      "product_id": "AVAX-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "BNB": {
+      "base_currency": "BNB",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "BNB",
+      "currency_name": "BNB",
+      "product_id": "BNB-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "BONK": {
+      "base_currency": "BONK",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "BONK",
+      "currency_name": "Bonk",
+      "product_id": "BONK-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "BTC": {
+      "base_currency": "BTC",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "BTC",
+      "currency_name": "Bitcoin",
+      "product_id": "BTC-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "DOGE": {
+      "base_currency": "DOGE",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "DOGE",
+      "currency_name": "Dogecoin",
+      "product_id": "DOGE-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "DOT": {
+      "base_currency": "DOT",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "DOT",
+      "currency_name": "Polkadot",
+      "product_id": "DOT-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "ETH": {
+      "base_currency": "ETH",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "ETH",
+      "currency_name": "Ether",
+      "product_id": "ETH-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "FIL": {
+      "base_currency": "FIL",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "FIL",
+      "currency_name": "Filecoin",
+      "product_id": "FIL-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "INJ": {
+      "base_currency": "INJ",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "INJ",
+      "currency_name": "Injective Protocol",
+      "product_id": "INJ-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "JTO": {
+      "base_currency": "JTO",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "JTO",
+      "currency_name": "Jito",
+      "product_id": "JTO-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "LINK": {
+      "base_currency": "LINK",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "LINK",
+      "currency_name": "Chainlink",
+      "product_id": "LINK-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "LTC": {
+      "base_currency": "LTC",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "LTC",
+      "currency_name": "Litecoin",
+      "product_id": "LTC-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "MATIC": {
+      "base_currency": "MATIC",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "MATIC",
+      "currency_name": "Polygon",
+      "product_id": "MATIC-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "OP": {
+      "base_currency": "OP",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "OP",
+      "currency_name": "Optimism",
+      "product_id": "OP-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "PEPE": {
+      "base_currency": "PEPE",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "PEPE",
+      "currency_name": "Pepe",
+      "product_id": "PEPE-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "PYTH": {
+      "base_currency": "PYTH",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "PYTH",
+      "currency_name": "Pyth Network",
+      "product_id": "PYTH-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "SOL": {
+      "base_currency": "SOL",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "SOL",
+      "currency_name": "Solana",
+      "product_id": "SOL-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "SUI": {
+      "base_currency": "SUI",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "SUI",
+      "currency_name": "Sui",
+      "product_id": "SUI-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "UNI": {
+      "base_currency": "UNI",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "UNI",
+      "currency_name": "Uniswap",
+      "product_id": "UNI-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "WIF": {
+      "base_currency": "WIF",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "WIF",
+      "currency_name": "Dogwifhat",
+      "product_id": "WIF-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    },
+    "XRP": {
+      "base_currency": "XRP",
+      "currencies_sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "currency_id": "XRP",
+      "currency_name": "XRP",
+      "product_id": "XRP-USD",
+      "products_received_at_ms": 1793175374285,
+      "products_sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "quote_currency": "USD",
+      "scope": "VENDOR_ID_CANDIDATE_ONLY_NOT_CURRENT_ELIGIBILITY_OR_SEMANTIC_APPROVAL"
+    }
+  }
+}

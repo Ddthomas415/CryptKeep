@@ -1,0 +1,53 @@
+{
+  "schema": "companion-s3-single-attempt-review-v1",
+  "reviewed_at": "2026-10-21T21:35:39Z",
+  "role": "GATE",
+  "reviewer": "independent Codex GATE review thread",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Offline restricted-client shim and focused synthetic tests only; not deployment, native SDK initialization, runtime policy or operational approval.",
+  "environment": "VERIFIED_ENV for the recorded isolated host synthetic test command only",
+  "material_assumptions": [],
+  "findings": [],
+  "reviewed_sha256": {
+    "phase1_research_copilot/memory_retrieval/main.py": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228",
+    "tests/test_companion_s3_single_attempt.py": "e63713b03cf2699661ecb57eded33aad145a92b5796fe6873a7704bed244cef7",
+    "tests/test_companion_probe_policy.py": "5f5e0f26eb0b304c23f615346e45c7405f164485da5bcf0d9c9e295f5dbc498e",
+    "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/30_main.py": "35fc51165e44dba1ab8d28e783285f51f392b01f814096f3950ce720995504a3",
+    "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/66_endpoint.py": "6c9e33c2c281196f665df6df2da22f593114bf1eb4edcd14abc5454bbcedef58",
+    "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/77_utils.py": "9dc1042a8bf342d70327f59df2e0b47186322b499c1b699a5d218697f4e5cb65",
+    "docs/review_artifacts/companion_continuation_20261021/restricted_s3_single_attempt.patch": "789d782630d0ab5243bed0295612c8418d8f2ed0a4a3d54041dbbc19d19e3e95",
+    "docs/checkpoints/companion_s3_single_attempt_repair_20261021.md": "5641185f72e367b508568484b2a07a77d29ea59e4a884187474c8c721d11d08c"
+  },
+  "direct_comparison": {
+    "command": "diff -u docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/30_main.py phase1_research_copilot/memory_retrieval/main.py",
+    "exit_code": 1,
+    "meaning": "Expected difference, not command failure: only two helper functions and restricted-client cache-publication ordering changed; ordinary client and all other source unchanged.",
+    "patch_body_matches": true,
+    "git_diff_used_as_source_proof": false
+  },
+  "verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_companion_s3_single_attempt.py tests/test_companion_probe_policy.py",
+    "exit_code": 0,
+    "passed": 80,
+    "warnings": 158,
+    "warning_kind": "FastAPI startup-event deprecation warnings",
+    "pytest_seconds": 2.73,
+    "proof_type": "Hash-checked captured SDK method ASTs with synthetic dependencies; actual application source loaded with stubbed clients/settings and blocked socket entrypoints. No real SDK client initialization or services."
+  },
+  "shown": [
+    "Captured Endpoint._send_request routes replay decisions through self._needs_retry; captured _needs_retry dispatches the event that can call the region handler and nested HeadBucket.",
+    "Unmodified captured-method control reproduces two sends plus one nested HeadBucket; patched cases perform one send with no retry-event dispatch, nested HeadBucket or retry sleep.",
+    "301/302/307, 400 PermanentRedirect, 500, 503 and 200 error-shaped responses are exercised, along with success and transport-exception identity.",
+    "Guard is installed on the newly constructed restricted endpoint instance, with callable check and exact identity readback before publishing _restricted_s3. No class/global SDK patch or ordinary-client change.",
+    "Unsupported, read-only or ignored hook installation refuses with fixed RuntimeError text; candidate close is best-effort; failed initialization does not publish either cache or fall back to the ordinary client.",
+    "Restricted endpoint allowlisting and separate ordinary-client behavior remain covered by the focused existing suite."
+  ],
+  "risks_and_limits": [
+    "Private _endpoint._needs_retry hook is version-specific. Callable/readback checks alone do not prove an arbitrary future SDK still dispatches through that hook.",
+    "Synthetic captured-method tests establish the reviewed decision boundary, not full SDK construction, transport, credential resolution, whole startup/import behavior, live endpoint health or a dashboard explanation result.",
+    "Failure close is best-effort, not a guarantee that an incompatible client closes successfully.",
+    "Old captured source, manifests, prepared images and resources were not changed. Their old source hash does not bind the repaired main.py; this receipt does not update or authorize them.",
+    "No native Docker, build, service, database, credential, lifecycle or runtime-query operations were performed by this review. No full-suite result is claimed.",
+    "Runtime/explanation acceptance remains INCOMPLETE; startup/cutover remains UNAUTHORIZED."
+  ]
+}

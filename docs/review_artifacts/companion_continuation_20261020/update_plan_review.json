@@ -1,0 +1,26 @@
+{
+  "active_role": "GATE",
+  "reviewer": "Hegel",
+  "agent_id": "01a15187-d8bb-71c1-8bfb-095bd45e4bac",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "design only; no executable or operational acceptance",
+  "reviewed_plan": "docs/checkpoints/companion_running_update_plan_20261020.md",
+  "reviewed_plan_sha256": "fdbe708f80794444f1b39045cd6f228dac8d4fb57dff0ce399c82b0ed73469c8",
+  "blocking_design_findings": [],
+  "implementation_requirements": [
+    "Preserve exact storage identities/configuration; refuse missing namespaces; separately establish image, SDK and builder compatibility",
+    "Rollback removes only attempt-owned replacements and restarts only interrupted originals in dependency order",
+    "Disclosed audit/log appends are permitted write exceptions and are not reversible by application rollback; no source-document/schema mutation",
+    "Timed Docker stop can force termination; existing stop(...,8) is not proof of graceful-only behavior and cannot bypass the proposed forced-termination prohibition",
+    "Preparation, cutover, verification, receipts and recovery share one 600-second deadline with 180 seconds reserved for recovery; do not concatenate independent controller budgets",
+    "Reconcile uncertain lifecycle outcomes; preserve recoverable artifacts and report incomplete recovery when safe restoration cannot finish",
+    "Private-memory credential use requires separate authorization; no secret values or hashes in persisted receipts",
+    "One guarded dashboard request only; no fallback, retry, new framework, trading, ingestion or migration"
+  ],
+  "runtime_state": "INCOMPLETE",
+  "next_proof": "Focused offline implementation and tests, independent review of frozen executable delta, fresh bindings, then separate operational approval",
+  "reviewer_native_calls": 0,
+  "reviewer_credentials_read": false,
+  "reviewer_tests_run": false,
+  "source": "independent reviewer response in this Codex conversation"
+}

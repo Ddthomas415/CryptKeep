@@ -1,0 +1,191 @@
+{
+  "schema": "companion-v6d-fresh-preparation-input-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Prospective v6d stopped-preparation plan input acceptance only; no build/create/private-configuration copy, runtime policy, handoff or operational permission.",
+  "runtime_status": "INCOMPLETE",
+  "historical_v6c_cause": "UNVERIFIED",
+  "blocking_findings": [],
+  "material_assumptions": [],
+  "source_and_artifact_sha256": {
+    "docs/checkpoints/companion_fresh_preparation_v6d_20261023.md": "874ae4dd161f5b3c526f47c365841407f7be068f1bebeed21398dcb0d36ace59",
+    "docs/review_artifacts/companion_worker_preparation_20261023/derive_fresh_preparation_v6d.py": "c95c946323f5a53d15c511009a351398cdfaab3eae19ab69eda09529b756a3e2",
+    "tests/test_companion_fresh_preparation_v6d.py": "b2e3cc6dda6f4a402367b361ebaa3eda6d2f1d06382acf5e3637c0f0ee70cbe6",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_baseline_v6d_native/observation.json": "735f82278f43416a62adbc7a5d23b1f37decbb96bd557a1d34a50d8c9ebc8321",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6d/candidate_manifest.json": "b09d4fca2d0e41b8b16c5e811031b61910af241620cff5d14238fa39c51a0328",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6d/provenance.json": "450528ec555d61fca4d3bc6defb94bfaf08ef37b170f18db96f7f2fb94691857",
+    "docs/review_artifacts/companion_worker_preparation_20261023/corrected_recipient_observation_20261024T030934746449Z.json": "8c993731264bdc61f79a87b78b0d63aa4c38f9f858385e83e772be3ea2daae33",
+    "docs/review_artifacts/companion_worker_preparation_20261023/derive_fresh_preparation.py": "bb5854132df93d2e055a98358e581fc4a8ab7c16db2f98e7048e51a29d63544e",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/independent_review.json": "6bcf752e347ecae8ebfa42f8863701195025a9bed0e7e2ffadae04e4d64584ad",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/provenance.json": "b2d6496eff557543b3b7464bb0d0ebc044a502445a80c1d585f5e1c1e871ef1b",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/reviewed_preparation_manifest.json": "e20775accd2ea02ac16d258ead2fb58e5ba1b6d26ff003ba10492dc6d442b6b9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/nonrecipient_configuration_review_20261023.json": "ced40c1af138f586af0878182ab462ff6bbc5e7ab17870815f8783ad2a1bbb69",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6c/independent_review.json": "ef02af1091292fb1d1158951d2f5afff5a302e83645d643f052efe3a0582f134",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/staged_metadata.derived.json": "c44711bf215f395fca2483fade7af43ae4075e2823faed057110adbd76282704"
+  },
+  "consumer_sha256": {
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "d0cfb0814b8884e790e794226e58629da1d587a797b4777b7dc4d3a54b232de7",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+  },
+  "derivation_review": {
+    "classification": "SHOWN by source/hash inspection, pure reconstruction and nine isolated tests",
+    "exact_helper_sha256": "bb5854132df93d2e055a98358e581fc4a8ab7c16db2f98e7048e51a29d63544e",
+    "helper_use": "Verified before compile/exec in a non-main module; original main/file-writing block is not invoked by derive. Only five fixed PINS and ATTEMPT are overridden; prior recipe and old artifacts are not edited.",
+    "input_bindings_verified": 9,
+    "accepted_current_correction_bound_artifacts_verified": 9,
+    "lineage": "Prior v6c accepted-input review binds the e20775... manifest; consumed v6c outcome remains INCOMPLETE/no retry; current corrected-recipient observation is hash-pinned, cites the accepted nonrecipient review, and reports only the current restricted predicate passed.",
+    "candidate_reproduced_exact_canonical_bytes": true,
+    "candidate_final_newline": false,
+    "changed_manifest_fields": [
+      "attempt",
+      "decision",
+      "reviewer",
+      "baseline"
+    ],
+    "baseline_snapshots_independently_reconstructed": 7,
+    "full_selected_observations_equal": true,
+    "baseline_deltas": [
+      {
+        "name": "phase1-timescaledb",
+        "changed_fields": []
+      },
+      {
+        "name": "phase1-qdrant",
+        "changed_fields": []
+      },
+      {
+        "name": "phase1-minio",
+        "changed_fields": []
+      },
+      {
+        "name": "phase1-audit-log",
+        "changed_fields": [
+          "started"
+        ]
+      },
+      {
+        "name": "phase1-risk-stub",
+        "changed_fields": [
+          "started"
+        ]
+      },
+      {
+        "name": "phase1-memory",
+        "changed_fields": [
+          "started"
+        ]
+      },
+      {
+        "name": "phase1-orchestrator",
+        "changed_fields": [
+          "started"
+        ]
+      }
+    ],
+    "original_ids_images_running_state_restart_policy_restart_counts_foundation_configured_hashes_preserved": true,
+    "storage_snapshots_unchanged": 3,
+    "application_start_timestamps_changed": 4,
+    "applications_commands_create_network_options_policies_and_source_maps_unchanged": true,
+    "application_source_entries_hashed_against_local_files": 43,
+    "modeled_configured_predictions_independently_recomputed": 4,
+    "current_consumers_verified": 13,
+    "consumer_changes_from_v6c": [
+      "scripts/research/companion_installer.py",
+      "scripts/research/companion_runtime_adapter.py"
+    ],
+    "consumer_lineage_limit": "Only accepted optional-diagnostic installer and accepted recipient/nonrecipient adapter hashes replace prior v6c consumer hashes. This does not refresh any runtime policy or executable packet.",
+    "new_container_ids": null,
+    "new_image_ids": null,
+    "historical_staged_model_limit": "Pinned former v6c staged rows contribute configuration-model fields only. Their removed/consumed IDs are not adopted into the candidate or represented as new resources.",
+    "independent_method": "In-memory JavaScript reconstruction of the previously reviewed raw preservation/configured projection and snapshot algorithms, followed by exact candidate-byte and full baseline-delta comparison. No new fingerprint or native observation."
+  },
+  "observation_review": {
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/fresh_baseline_v6d_native/observation.json",
+    "sha256": "735f82278f43416a62adbc7a5d23b1f37decbb96bd557a1d34a50d8c9ebc8321",
+    "observed_utc": "2026-10-24T03:11:39.220965+00:00",
+    "classification": "SHOWN as saved parent-native metadata evidence, not reviewer-native capture",
+    "selected_rows": 7,
+    "equal_full_selected_reads": true,
+    "legacy_capture_state": "INCOMPLETE",
+    "legacy_ids_images_states_aggregate": false,
+    "interpretation": "Legacy exited-state reference and false aggregate remain unchanged. Independent checks use the actual running state and exact saved IDs/images/restarts/foundation/configured fields. No report status is rewritten.",
+    "current_recipient_predicate": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/corrected_recipient_observation_20261024T030934746449Z.json",
+      "sha256": "8c993731264bdc61f79a87b78b0d63aa4c38f9f858385e83e772be3ea2daae33",
+      "reported_pass": true,
+      "diagnostic": null,
+      "scope": "Restricted current original-service inventory/network predicate only; not full compatibility, removed replacement evidence, startup/health/query proof or historical cause. Raw unselected metadata was not retained and reviewer did not independently rerun that host predicate."
+    },
+    "credential_values_read_by_reviewer": false
+  },
+  "attempt": {
+    "value": "workerprep20261023v6d",
+    "marker_paths_checked_absent": [
+      ".cbp_state/runtime/companion_preparations/workerprep20261023v6d",
+      ".cbp_state/runtime/companion_cutovers/workerprep20261023v6d"
+    ],
+    "reserved_by_reviewer": false,
+    "limit": "Absence is a read-only point-in-time ledger observation, not atomic reservation or future container-name availability. All consumed attempts and receipts retain their status."
+  },
+  "accepted_derivative": {
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6d/reviewed_preparation_manifest.json",
+    "sha256": "629662e509e099be8601be1c9499d7139f03803f4f998f5b31fce15b2551b4a0",
+    "from_candidate_sha256": "b09d4fca2d0e41b8b16c5e811031b61910af241620cff5d14238fa39c51a0328",
+    "semantic_changed_fields": [
+      "decision",
+      "reviewer"
+    ],
+    "decision": "ACCEPTED_WITH_RISK",
+    "reviewer": "Independent GATE; v6d preparation plan inputs only; no operation authorization",
+    "encoding": "UTF-8 sorted compact canonical JSON with exactly one final LF; frozen candidate has no final LF.",
+    "input_acceptance_only": true
+  },
+  "verification": {
+    "environment": "VERIFIED_ENV for isolated local offline tests only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_fresh_preparation_v6d.py",
+    "exit_code": 0,
+    "passed": 9,
+    "elapsed_seconds": 0.22,
+    "parent_result": "CLAIMED 9 passed in 0.26s; same nine cases independently confirmed.",
+    "reviewer_native_Docker_or_service_operations": 0,
+    "reviewer_live_network_or_credential_access": 0,
+    "reviewer_preparation_CLI_or_generator_main_invocations": 0,
+    "full_suite_run": false
+  },
+  "remaining_limits": [
+    "Fresh selected metadata is point-in-time evidence, not continuous observation, health, volume/data integrity, whole-daemon inventory or a cited explanation path. The corrected-recipient result covers a separate restricted observation and is not full-system proof.",
+    "Predictions remain MODELLED. Future stopped IDs/images, installed source witnesses and actual temporary/final aliases need exact review after a separately authorized preparation. No historical prepared ID can be reused.",
+    "Current source changes invalidate old exact-current-consumer policy/wrapper bindings. Preparation input acceptance does not issue runtime policy applicability, an executable handoff, cutover readiness or retry authority.",
+    "The existing 300-second preparation controller budget includes 120 seconds recovery, not a whole-command hard deadline. Owned-new-resource cleanup is attempted, not guaranteed; cache, private configuration and logs may persist if a future operation is separately approved.",
+    "Fresh preflight, current CLI/source/configuration checks, unused-attempt atomic reservation, explicit human stopped-preparation approval and subsequent exact-ID review remain separate. No original/storage interruption or startup is permitted by this record.",
+    "Historical v6c cause remains unverified. Previously disclosed final attachment, SDK/import/startup, clock/pidfd/worker/acknowledgement/recovery, cited retrieval and economic limits are not resolved or waived."
+  ],
+  "operational_authorized": false,
+  "preparation_authorized": false,
+  "build_authorized": false,
+  "private_configuration_or_credential_copy_authorized": false,
+  "container_create_authorized": false,
+  "packet_or_policy_rebinding_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "retry_or_reset_authorized": false,
+  "trading_authorized": false,
+  "reviewer_changes": [
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6d/independent_review.json",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6d/reviewed_preparation_manifest.json"
+  ],
+  "frozen_sources_tests_checkpoint_observations_candidate_provenance_and_old_records_modified": false
+}

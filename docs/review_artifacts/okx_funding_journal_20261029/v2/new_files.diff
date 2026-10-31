@@ -1,0 +1,663 @@
+diff --git a/services/analytics/okx_funding_contract.py b/services/analytics/okx_funding_contract.py
+new file mode 100644
+index 000000000..413241e90
+--- /dev/null
++++ b/services/analytics/okx_funding_contract.py
+@@ -0,0 +1,171 @@
++"""Offline endpoint-specific evidence contract; no financial qualification.
++
++Inputs are caller-owned saved public responses, not authenticated venue proof.
++Time gaps describe observations, not a guarantee that no settlement is missing.
++"""
++
++from copy import deepcopy
++from datetime import datetime
++from decimal import Decimal, InvalidOperation
++import hashlib
++import json
++import math
++from urllib.parse import parse_qsl, urlsplit
++
++
++def _clock(value):
++    if type(value) is not str:
++        raise ValueError("receipt_timezone_required")
++    try:
++        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
++    except ValueError:
++        raise ValueError("receipt_timezone_required") from None
++    if parsed.tzinfo is None or parsed.utcoffset() is None:
++        raise ValueError("receipt_timezone_required")
++    return parsed
++
++
++def _milliseconds(value):
++    if type(value) is not str or not value.isascii() or not value.isdigit():
++        return None
++    number = int(value)
++    return number if 0 < number <= 253402300799999 else None
++
++
++def _decimal(value):
++    if type(value) is not str or not value.strip():
++        return None
++    try:
++        number = Decimal(value)
++    except InvalidOperation:
++        return None
++    return number if number.is_finite() else None
++
++
++def _object(pairs):
++    result = {}
++    for key, value in pairs:
++        if key in result:
++            raise ValueError("duplicate_json_key")
++        result[key] = value
++    return result
++
++
++def _reject_nonfinite(value):
++    raise ValueError("nonfinite_json")
++
++
++def _finite_json_float(value):
++    number = float(value)
++    if not math.isfinite(number):
++        raise ValueError("nonfinite_json")
++    return number
++
++
++def _response(body, receipt, endpoint, inst_id):
++    if type(body) is not bytes or len(body) > 1048576 or type(receipt) is not dict:
++        raise ValueError("bounded_bytes_and_receipt_required")
++    if type(receipt.get("url")) is not str:
++        raise ValueError("endpoint_identity_mismatch")
++    url = urlsplit(receipt["url"])
++    query = parse_qsl(url.query, keep_blank_values=True)
++    expected = [("instId", inst_id)]
++    if endpoint == "funding-rate-history":
++        expected.append(("limit", "5"))
++    if (url.scheme != "https" or url.netloc != "www.okx.com" or url.fragment
++            or url.path != "/api/v5/public/" + endpoint or sorted(query) != sorted(expected)):
++        raise ValueError("endpoint_identity_mismatch")
++    if (type(receipt.get("curl_exit_code")) is not int or receipt["curl_exit_code"] != 0
++            or receipt.get("http_status") != "200"
++            or type(receipt.get("body_bytes")) is not int or receipt["body_bytes"] != len(body)
++            or receipt.get("body_sha256") != hashlib.sha256(body).hexdigest()):
++        raise ValueError("receipt_integrity_failed")
++    start, end = _clock(receipt.get("request_started_at")), _clock(receipt.get("received_at"))
++    if start > end:
++        raise ValueError("receipt_clock_reversed")
++    payload = json.loads(body, object_pairs_hook=_object, parse_constant=_reject_nonfinite,
++                         parse_float=_finite_json_float)
++    if (type(payload) is not dict or payload.get("code") != "0"
++            or type(payload.get("data")) is not list or not payload["data"]
++            or len(payload["data"]) > 5):
++        raise ValueError("api_response_invalid")
++    if any(type(row) is not dict or row.get("instId") != inst_id
++           or row.get("instType") != "SWAP" for row in payload["data"]):
++        raise ValueError("response_identity_mismatch")
++    return payload, end
++
++
++def _field(row, name, kind, time_name):
++    rate, timestamp = _decimal(row.get(name)), _milliseconds(row.get(time_name))
++    return {
++        "source_field": name, "raw_value": deepcopy(row.get(name)),
++        "decimal_rate": str(rate) if rate is not None else None,
++        "kind": kind, "time_source_field": time_name,
++        "reported_time_ms": timestamp,
++        "value_and_time_valid": rate is not None and timestamp is not None,
++        "native_semantics_verified": False,
++    }
++
++
++def describe_okx_funding_pair(*, current_body, current_receipt, history_body,
++                              history_receipt, requested_inst_id):
++    """Separate fields and observed gaps without granting any eligibility."""
++    if (type(requested_inst_id) is not str or not requested_inst_id.isascii()
++            or not requested_inst_id.endswith("-SWAP") or not requested_inst_id):
++        raise ValueError("explicit_swap_identity_required")
++    current_payload, current_end = _response(current_body, current_receipt, "funding-rate", requested_inst_id)
++    history_payload, history_end = _response(history_body, history_receipt, "funding-rate-history", requested_inst_id)
++    if len(current_payload["data"]) != 1:
++        raise ValueError("current_row_count_invalid")
++    current, history = current_payload["data"][0], history_payload["data"]
++    times = [_milliseconds(row.get("fundingTime")) for row in history]
++    if None in times or len(set(times)) != len(times):
++        raise ValueError("historical_times_invalid_or_duplicate")
++    if any(timestamp > int(history_end.timestamp() * 1000) for timestamp in times):
++        raise ValueError("historical_settlement_in_future")
++    ordered = sorted(zip(times, history), key=lambda pair: pair[0])
++    events = []
++    previous = None
++    for timestamp, row in ordered:
++        events.append({
++            "funding_time_ms": timestamp,
++            "realized": _field(row, "realizedRate", "venue_reported_settled", "fundingTime"),
++            "published": _field(row, "fundingRate", "historical_published", "fundingTime"),
++            "preceding_observed_gap_hours": str(Decimal(timestamp - previous) / 3600000) if previous else None,
++            "effective_interval_verified": False,
++            "formula_type_reported": deepcopy(row.get("formulaType")),
++            "method_reported": deepcopy(row.get("method")),
++        })
++        previous = timestamp
++    prev_time = _milliseconds(current.get("prevFundingTime"))
++    funding_time = _milliseconds(current.get("fundingTime"))
++    next_time = _milliseconds(current.get("nextFundingTime"))
++    settlement = _field(current, "settFundingRate", "venue_reported_settled", "prevFundingTime")
++    settlement["sett_state_reported"] = deepcopy(current.get("settState"))
++    settlement["reported_settled"] = current.get("settState") == "settled"
++    matches = [row for timestamp, row in ordered if timestamp == prev_time]
++    historical = _decimal(matches[0].get("realizedRate")) if matches else None
++    settled = _decimal(current.get("settFundingRate"))
++    return {
++        "schema": 1, "contract": "okx_endpoint_evidence_v1", "inst_id": requested_inst_id,
++        "raw_current": deepcopy(current_payload), "raw_history": deepcopy(history_payload),
++        "receipts": {"current": deepcopy(current_receipt), "history": deepcopy(history_receipt)},
++        "current": _field(current, "fundingRate", "current_unsettled_or_estimate", "fundingTime"),
++        "next": _field(current, "nextFundingRate", "next_estimate", "nextFundingTime"),
++        "reported_settlement": settlement, "history": events,
++        "scheduled_gap_hours": str(Decimal(next_time - funding_time) / 3600000)
++            if funding_time and next_time and next_time > funding_time else None,
++        "cross_checks": {
++            "previous_time_in_history": bool(matches),
++            "reported_settled_rate_matches_history": settled == historical
++                if settlement["reported_settled"] and settled is not None and historical is not None else None,
++            "current_rate_differs_from_reported_settlement": _decimal(current.get("fundingRate")) != settled
++                if _decimal(current.get("fundingRate")) is not None and settled is not None else None,
++            "receipt_span_seconds": abs((current_end - history_end).total_seconds()),
++        },
++        "normalization_eligible": False, "strategy_eligible": False, "execution_authority": False,
++        "rate_per_8h": None, "annualized_pct": None,
++        "remaining_requirements": ["native_semantics", "effective_interval_not_just_observed_gap",
++                                   "effective_formula", "cash_cost_basis", "crowding_comparability",
++                                   "freshness_and_capture_origin"],
++    }
+diff --git a/services/analytics/okx_funding_cash_cost.py b/services/analytics/okx_funding_cash_cost.py
+new file mode 100644
+index 000000000..54bd2990d
+--- /dev/null
++++ b/services/analytics/okx_funding_cash_cost.py
+@@ -0,0 +1,77 @@
++"""Offline, as-recorded forecast cash-cost comparison; never a trading signal."""
++
++from datetime import datetime
++from decimal import Context, Decimal, DecimalException, Underflow, localcontext
++
++from services.analytics.okx_funding_contract import describe_okx_funding_pair
++
++
++API_DOCUMENT_SHA256 = "a9a4deb54a6a7cfbb8ea1332b069f359787f8a29991d31956f8ccddd074c55ec"
++
++
++def _time(value):
++    if type(value) is not str or not value.isascii() or not value.isdigit():
++        return None
++    number = int(value)
++    return number if 0 < number <= 253402300799999 else None
++
++
++def compare_okx_cash_costs(**inputs):
++    """Apply documented current-period semantics to a validated saved pair.
++
++    A formula version is not required to express a published per-period cash
++    rate in a common unit. This does not invert the premium/crowding formula.
++    """
++    evidence = describe_okx_funding_pair(**inputs)
++    row = evidence["raw_current"]["data"][0]
++    source_time = _time(row.get("ts"))
++    funding_time = _time(row.get("fundingTime"))
++    next_time = _time(row.get("nextFundingTime"))
++    received = datetime.fromisoformat(inputs["current_receipt"]["received_at"].replace("Z", "+00:00"))
++    received_ms = int(received.timestamp() * 1000)
++    reasons = []
++    if row.get("method") != "current_period":
++        reasons.append("current_period_mechanism_required")
++    if evidence["current"]["decimal_rate"] is None:
++        reasons.append("forecast_rate_unknown")
++    if source_time is None or source_time > received_ms:
++        reasons.append("source_time_unknown_or_future")
++    if funding_time is None or next_time is None or next_time <= funding_time:
++        reasons.append("scheduled_interval_unknown")
++    if funding_time is not None and funding_time <= received_ms:
++        reasons.append("settlement_not_upcoming_at_receipt")
++    interval, normalized = None, None
++    if not reasons:
++        try:
++            with localcontext(Context(prec=50)) as ctx:
++                ctx.traps[Underflow] = True
++                interval = Decimal(next_time - funding_time) / Decimal(3600000)
++                normalized = Decimal(evidence["current"]["decimal_rate"]) * Decimal(8) / interval
++            interval, normalized = str(interval), str(normalized)
++        except DecimalException:
++            interval, normalized = None, None
++            reasons.append("cash_cost_arithmetic_unrepresentable")
++    return {
++        "schema": 1, "contract": "okx_forecast_cash_cost_v1",
++        "evidence": evidence, "api_document_sha256": API_DOCUMENT_SHA256,
++        "forecast_cash_cost": {
++            "calculation_available": not reasons,
++            "as_of_receipt": inputs["current_receipt"]["received_at"],
++            "source_time_ms": source_time, "funding_time_ms": funding_time,
++            "source_field": "fundingRate", "kind": "forecast_not_settled",
++            "per_period_decimal_rate": evidence["current"]["decimal_rate"],
++            "scheduled_interval_hours": interval, "forecast_rate_per_8h": normalized,
++            "positive_rate_means": "long_pays_short", "reasons": reasons,
++            "live_freshness_verified": False,
++        },
++        "reported_settlements": [{
++            "funding_time_ms": event["funding_time_ms"],
++            "source_field": "realizedRate", "kind": "venue_reported_actual_per_period",
++            "per_period_decimal_rate": event["realized"]["decimal_rate"],
++            "settled_rate_per_8h": None, "reason": "effective_settled_interval_unverified",
++        } for event in evidence["history"]],
++        "crowding_comparable": False, "formula_inversion_performed": False,
++        "strategy_eligible": False, "execution_authority": False, "annualized_pct": None,
++        "limitations": ["forecast_may_change_before_settlement", "caller_origin_not_authenticated",
++                        "no_account_payment_or_profit_evidence", "no_future_frequency_guarantee"],
++    }
+diff --git a/services/analytics/okx_funding_journal.py b/services/analytics/okx_funding_journal.py
+new file mode 100644
+index 000000000..903396d95
+--- /dev/null
++++ b/services/analytics/okx_funding_journal.py
+@@ -0,0 +1,97 @@
++"""Explicit raw-journal pair adapter; no capture, initialization or activation."""
++
++import base64
++import binascii
++from copy import deepcopy
++from datetime import datetime
++
++from services.analytics.funding_observations import encoded, identity, observation
++from services.analytics.okx_funding_cash_cost import API_DOCUMENT_SHA256, compare_okx_cash_costs
++
++
++CONTRACT = "okx_public_pair_journal_v1"
++
++
++def _journal_inputs(pair, policy):
++    captures = [pair[name + "_receipt"]["received_at"] for name in ("current", "history")]
++    captured_at = max(captures, key=lambda value: datetime.fromisoformat(value.replace("Z", "+00:00")))
++    payload = {
++        "contract": CONTRACT, "api_document_sha256": API_DOCUMENT_SHA256,
++        "requested_inst_id": pair["requested_inst_id"],
++        "responses": {name: {
++            "body_base64": base64.b64encode(pair[name + "_body"]).decode("ascii"),
++            "receipt": deepcopy(pair[name + "_receipt"]),
++        } for name in ("current", "history")},
++    }
++    return {"venue": "okx", "symbol": policy["evidence"]["inst_id"],
++            "captured_at": captured_at, "payload": payload}
++
++
++def pair_journal_inputs(**pair):
++    """Validate the pair before wrapping original bytes in the existing schema."""
++    return _journal_inputs(pair, compare_okx_cash_costs(**pair))
++
++
++def _stored_pair(record, key):
++    payload = record["raw_payload"]
++    if (type(payload) is not dict or set(payload) != {
++            "contract", "api_document_sha256", "requested_inst_id", "responses"}
++            or payload["contract"] != CONTRACT or payload["api_document_sha256"] != API_DOCUMENT_SHA256
++            or type(payload["responses"]) is not dict or set(payload["responses"]) != {"current", "history"}):
++        raise ValueError("stored_okx_pair_contract_invalid")
++    pair = {"requested_inst_id": payload["requested_inst_id"]}
++    for name in ("current", "history"):
++        response = payload["responses"][name]
++        if type(response) is not dict or set(response) != {"body_base64", "receipt"}:
++            raise ValueError("stored_okx_pair_response_invalid")
++        pair[name + "_body"] = base64.b64decode(response["body_base64"], validate=True)
++        pair[name + "_receipt"] = response["receipt"]
++    policy = compare_okx_cash_costs(**pair)
++    rebuilt = observation(**_journal_inputs(pair, policy))
++    if encoded(rebuilt) != encoded(record) or identity(record) != key:
++        raise ValueError("stored_okx_pair_record_invalid")
++    return policy
++
++
++def append_okx_funding_pairs(store, pairs, *, source, max_rows, max_bytes):
++    """Use the existing bounded atomic writer on an explicitly supplied store."""
++    if (type(source) is not str or not source or source != source.strip()
++            or type(max_rows) is not int or max_rows <= 0
++            or type(max_bytes) is not int or max_bytes <= 0):
++        raise ValueError("explicit_okx_pair_source_and_budgets_required")
++    def prepared():
++        for count, pair in enumerate(pairs, start=1):
++            if count > max_rows:
++                raise ValueError("okx_pair_row_budget_exceeded")
++            if type(pair) is not dict:
++                raise ValueError("okx_pair_input_required")
++            yield pair_journal_inputs(**pair)
++    return store.append_raw_funding_observations(
++        prepared(), source=source, max_rows=max_rows, max_bytes=max_bytes)
++
++
++def recent_okx_funding_quotes(store, *, source, limit):
++    """Recompute forecasts from raw evidence; do not trust saved derivatives."""
++    if (type(source) is not str or not source or source != source.strip()
++            or type(limit) is not int or limit <= 0):
++        raise ValueError("explicit_okx_pair_source_and_limit_required")
++    raw = store.recent_raw_funding_observations(source=source, limit=limit)
++    quotes, diagnostics, unrelated = [], [], 0
++    for entry in raw["observations"]:
++        record = entry["observation"]
++        payload = record.get("raw_payload")
++        if type(payload) is not dict or payload.get("contract") != CONTRACT:
++            unrelated += 1
++            continue
++        try:
++            policy = _stored_pair(record, entry["observation_key"])
++        except (KeyError, TypeError, ValueError, OverflowError, RecursionError, binascii.Error) as exc:
++            diagnostics.append({"observation_key": entry["observation_key"],
++                                "reason": "stored_okx_pair_unusable", "error_type": type(exc).__name__})
++            continue
++        quotes.append({"observation_key": entry["observation_key"],
++                       "captured_at": record["captured_at"], "policy": policy})
++    return {"source": source, "scan_limit": limit, "scan_exhaustive": False,
++            "scanned": len(raw["observations"]), "unrelated_observations": unrelated,
++            "quotes": quotes, "diagnostics": diagnostics,
++            "normalization_eligible": False, "strategy_eligible": False, "execution_authority": False}
+diff --git a/tests/test_okx_funding_journal.py b/tests/test_okx_funding_journal.py
+new file mode 100644
+index 000000000..ef0fee500
+--- /dev/null
++++ b/tests/test_okx_funding_journal.py
+@@ -0,0 +1,294 @@
++import base64
++from concurrent.futures import ThreadPoolExecutor
++from copy import deepcopy
++import json
++import hashlib
++import runpy
++from pathlib import Path
++import socket
++import sqlite3
++from threading import Barrier
++
++import pytest
++
++from services.analytics.funding_observations import encoded, identity, observation
++from services.analytics.okx_funding_journal import (
++    append_okx_funding_pairs, pair_journal_inputs, recent_okx_funding_quotes,
++)
++from storage import crypto_edge_store_sqlite as storage
++
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++@pytest.fixture(autouse=True)
++def offline(monkeypatch, tmp_path):
++    def refuse(*args, **kwargs):
++        raise AssertionError("external/default boundary forbidden")
++    connect = sqlite3.connect
++    def temporary(database, *args, **kwargs):
++        assert Path(database).resolve().is_relative_to(tmp_path.resolve())
++        return connect(database, *args, **kwargs)
++    monkeypatch.setattr(socket, "create_connection", refuse)
++    monkeypatch.setattr(socket, "getaddrinfo", refuse)
++    monkeypatch.setattr(socket.socket, "connect", refuse)
++    monkeypatch.setattr(sqlite3, "connect", temporary)
++    monkeypatch.setattr(storage, "ensure_dirs", refuse)
++
++
++@pytest.fixture
++def store(tmp_path):
++    return storage.CryptoEdgeStoreSQLite(path=str(tmp_path / "journal.sqlite"))
++
++
++@pytest.fixture
++def pair():
++    # A saved parsing fixture, not a fresh capture or market-data experiment.
++    path = ROOT / "docs/review_artifacts/okx_funding_metadata_20261029/20261029T103617Z_2668220f5a85484580a593b0207494d4"
++    manifest = json.loads((path / "MANIFEST.json").read_bytes())
++    result = {"requested_inst_id": "BTC-USDT-SWAP"}
++    for name in ("current", "history"):
++        row = next(item for item in manifest["records"] if item["name"] == name)
++        result[name + "_body"] = (path / row["body_file"]).read_bytes()
++        result[name + "_receipt"] = row
++    return result
++
++
++def write(store, pairs, source="fixture", **budgets):
++    return append_okx_funding_pairs(store, pairs, source=source,
++                                   **({"max_rows": 10, "max_bytes": 131072} | budgets))
++
++
++def read(store, source="fixture", limit=10):
++    return recent_okx_funding_quotes(store, source=source, limit=limit)
++
++
++def assert_unqualified(out):
++    assert out["normalization_eligible"] is False
++    assert out["strategy_eligible"] is False and out["execution_authority"] is False
++    for row in out["quotes"]:
++        policy = row["policy"]
++        assert policy["strategy_eligible"] is False and policy["execution_authority"] is False
++        assert policy["crowding_comparable"] is False and policy["annualized_pct"] is None
++
++
++def test_promotions_are_identical_except_one_internal_import():
++    assert (ROOT / "services/analytics/okx_funding_contract.py").read_bytes() == (
++        ROOT / "scripts/research/synthetic_okx_funding_contract.py").read_bytes()
++    promoted = (ROOT / "services/analytics/okx_funding_cash_cost.py").read_bytes()
++    expected = (ROOT / "scripts/research/synthetic_okx_cash_cost.py").read_bytes().replace(
++        b"from scripts.research.synthetic_okx_funding_contract import",
++        b"from services.analytics.okx_funding_contract import")
++    assert promoted == expected
++
++
++def test_bytes_and_receipts_roundtrip_after_reopen_without_legacy_writes(store, pair):
++    original = deepcopy(pair)
++    assert write(store, [pair])["inserted"] == 1
++    reopened = storage.CryptoEdgeStoreSQLite(path=store.path)
++    record = reopened.recent_raw_funding_observations(source="fixture", limit=10)["observations"][0]["observation"]
++    assert record["schema"] == 1 and record["funding_rate"] is None and record["interval_hours"] is None
++    for name in ("current", "history"):
++        response = record["raw_payload"]["responses"][name]
++        assert base64.b64decode(response["body_base64"]) == pair[name + "_body"]
++        assert response["receipt"] == pair[name + "_receipt"]
++    out = read(reopened)
++    assert out["quotes"][0]["policy"]["forecast_cash_cost"]["forecast_rate_per_8h"] == "0.0000436849743302"
++    assert all(row["settled_rate_per_8h"] is None for row in out["quotes"][0]["policy"]["reported_settlements"])
++    assert reopened.latest_funding_rows() == [] and pair == original
++    assert_unqualified(out)
++
++
++def test_idempotence_source_isolation_and_changed_evidence(store, pair):
++    assert write(store, [pair, pair])["inserted"] == 1
++    assert write(store, [pair])["duplicates"] == 1
++    assert write(store, [pair], source="other")["inserted"] == 1
++    changed = deepcopy(pair)
++    changed["history_receipt"]["received_at"] = "2026-10-29T10:36:19Z"
++    assert write(store, [changed])["inserted"] == 1
++    assert read(store)["quotes"][0]["captured_at"] == "2026-10-29T10:36:19Z"
++    assert len(read(store, "other")["quotes"]) == 1
++    assert read(store, "missing")["quotes"] == []
++
++
++def test_legacy_and_single_endpoint_rows_are_not_implicitly_upgraded(store, pair):
++    store.append_funding_rows([{"symbol": "LEGACY", "venue": "okx", "funding_rate": 0.1}], source="fixture")
++    legacy = deepcopy(store.latest_funding_rows())
++    sdk = {"venue": "okx", "symbol": "BTC/USDT:USDT", "captured_at": "2026-10-29T00:00:02Z",
++           "payload": {"fundingRate": "0.0002", "interval": "8h"}}
++    store.append_raw_funding_observations([sdk], source="fixture", max_rows=1, max_bytes=32768)
++    write(store, [pair])
++    out = read(store)
++    assert out["unrelated_observations"] == 1 and len(out["quotes"]) == 1
++    assert store.latest_funding_rows() == legacy
++    assert out["scan_exhaustive"] is False
++    assert_unqualified(out)
++
++
++@pytest.mark.parametrize("budgets", [{"max_rows": 0}, {"max_rows": True}, {"max_bytes": 0},
++                                    {"max_bytes": True}, {"max_rows": 1}, {"max_bytes": 1}])
++def test_budgets_refuse_before_new_store_connection(store, pair, budgets, monkeypatch):
++    def refuse():
++        raise AssertionError("validation must precede connection")
++    with monkeypatch.context() as patch:
++        patch.setattr(store, "_connect", refuse)
++        with pytest.raises(ValueError):
++            write(store, [pair, pair], **budgets)
++    assert read(store)["quotes"] == []
++
++
++def test_bad_later_receipt_cannot_partially_write(store, pair, monkeypatch):
++    bad = deepcopy(pair)
++    bad["current_receipt"]["body_sha256"] = "bad"
++    def refuse():
++        raise AssertionError("prevalidation must not connect")
++    with monkeypatch.context() as patch:
++        patch.setattr(store, "_connect", refuse)
++        with pytest.raises(ValueError, match="receipt_integrity_failed"):
++            write(store, [pair, bad])
++    assert read(store)["quotes"] == []
++
++
++def test_duplicate_bytes_count_towards_budget(store, pair):
++    size = write(store, [pair])["encoded_value_bytes"]
++    with pytest.raises(ValueError, match="byte_budget"):
++        write(store, [pair, pair], max_bytes=size)
++    assert len(read(store)["quotes"]) == 1
++
++
++def test_sql_failure_rolls_back_entire_pair_batch(store, pair):
++    second = deepcopy(pair)
++    second["history_receipt"]["received_at"] = "2026-10-29T10:36:19Z"
++    key = identity(observation(**pair_journal_inputs(**second)))
++    with sqlite3.connect(store.path) as connection:
++        connection.execute("CREATE TRIGGER pair_failure BEFORE INSERT ON raw_funding_observations "
++                           "WHEN NEW.observation_key='" + key + "' "
++                           "BEGIN SELECT RAISE(ABORT,'synthetic'); END")
++    with pytest.raises(sqlite3.IntegrityError):
++        write(store, [pair, second])
++    assert read(store)["quotes"] == []
++
++
++@pytest.mark.parametrize("fault", ["body", "receipt", "policy_pin", "derived", "base64"])
++def test_invalid_rehashed_pair_is_retained_but_produces_no_quote(store, pair, fault):
++    wrapped = pair_journal_inputs(**pair)
++    payload = wrapped["payload"]
++    if fault == "body":
++        payload["responses"]["current"]["body_base64"] = base64.b64encode(b"{}").decode()
++    elif fault == "receipt":
++        payload["responses"]["current"]["receipt"]["body_sha256"] = "bad"
++    elif fault == "policy_pin":
++        payload["api_document_sha256"] = "other"
++    elif fault == "derived":
++        payload["forecast_cash_cost"] = {"calculation_available": True, "forecast_rate_per_8h": "9"}
++    else:
++        payload["responses"]["current"]["body_base64"] = "not-base64!"
++    store.append_raw_funding_observations([wrapped], source="fixture", max_rows=1, max_bytes=131072)
++    out = read(store)
++    assert out["quotes"] == [] and len(out["diagnostics"]) == 1
++    assert out["diagnostics"][0]["reason"] == "stored_okx_pair_unusable"
++    assert len(store.recent_raw_funding_observations(source="fixture", limit=10)["observations"]) == 1
++    assert_unqualified(out)
++
++
++def test_rehashed_eligibility_forgery_refused_by_actual_store(store, pair):
++    write(store, [pair])
++    record = store.recent_raw_funding_observations(source="fixture", limit=10)["observations"][0]["observation"]
++    record["normalization"]["eligible"] = True
++    with sqlite3.connect(store.path) as connection:
++        connection.execute("UPDATE raw_funding_observations SET observation_key=?,payload_json=?",
++                           (identity(record), encoded(record)))
++    with pytest.raises(ValueError, match="stored_raw_funding_corrupt"):
++        read(store)
++
++
++@pytest.mark.parametrize("source", [None, "", " padded ", True])
++def test_explicit_source_required(store, pair, source):
++    with pytest.raises(ValueError):
++        write(store, [pair], source=source)
++    with pytest.raises(ValueError):
++        read(store, source=source)
++
++
++@pytest.mark.parametrize("limit", [None, 0, True])
++def test_explicit_reader_limit_required(store, limit):
++    with pytest.raises(ValueError):
++        read(store, limit=limit)
++
++
++def test_limited_scan_does_not_claim_exhaustive_pair_coverage(store, pair):
++    write(store, [pair])
++    unrelated = {"venue": "okx", "symbol": "OTHER", "captured_at": "2026-10-29T11:00:00Z", "payload": {}}
++    store.append_raw_funding_observations([unrelated], source="fixture", max_rows=1, max_bytes=32768)
++    out = read(store, limit=1)
++    assert out["scanned"] == 1 and out["quotes"] == [] and out["unrelated_observations"] == 1
++    assert out["scan_exhaustive"] is False
++
++
++def test_unknown_forecast_is_preserved_without_a_numeric_substitute(store, pair):
++    payload = json.loads(pair["current_body"])
++    payload["data"][0]["fundingRate"] = None
++    pair["current_body"] = json.dumps(payload).encode()
++    pair["current_receipt"]["body_bytes"] = len(pair["current_body"])
++    pair["current_receipt"]["body_sha256"] = hashlib.sha256(pair["current_body"]).hexdigest()
++    write(store, [pair])
++    out = read(store)
++    quote = out["quotes"][0]["policy"]["forecast_cash_cost"]
++    assert quote["calculation_available"] is False and quote["forecast_rate_per_8h"] is None
++    assert "forecast_rate_unknown" in quote["reasons"]
++    assert out["diagnostics"] == []
++    assert_unqualified(out)
++
++
++def test_original_accepted_json_encoding_is_preserved_losslessly(store, pair):
++    pair["current_body"] = pair["current_body"].decode().encode("utf-16")
++    pair["current_receipt"]["body_bytes"] = len(pair["current_body"])
++    pair["current_receipt"]["body_sha256"] = hashlib.sha256(pair["current_body"]).hexdigest()
++    write(store, [pair])
++    raw = store.recent_raw_funding_observations(source="fixture", limit=1)["observations"][0]["observation"]
++    saved = raw["raw_payload"]["responses"]["current"]["body_base64"]
++    assert base64.b64decode(saved) == pair["current_body"]
++    assert len(read(store)["quotes"]) == 1
++
++
++def test_read_report_mutation_cannot_change_journal_evidence(store, pair):
++    write(store, [pair])
++    first = read(store)
++    first["quotes"][0]["policy"]["forecast_cash_cost"]["forecast_rate_per_8h"] = "9"
++    second = read(store)
++    assert second["quotes"][0]["policy"]["forecast_cash_cost"]["forecast_rate_per_8h"] == "0.0000436849743302"
++
++
++def test_concurrent_identical_pairs_have_one_insert(store, pair):
++    barrier = Barrier(2, timeout=3)
++    def append():
++        barrier.wait()
++        return write(store, [pair])
++    with ThreadPoolExecutor(max_workers=2) as pool:
++        futures = [pool.submit(append) for _ in range(2)]
++        results = [future.result(timeout=5) for future in futures]
++    assert sum(item["inserted"] for item in results) == 1
++    assert len(read(store)["quotes"]) == 1
++
++
++def test_nested_retained_body_is_diagnostic_without_hiding_valid_neighbor(store, pair):
++    wrapped = pair_journal_inputs(**pair)
++    nested = pair["current_body"][:-1] + b',"extra":' + b'[' * 2000 + b'0' + b']' * 2000 + b'}'
++    response = wrapped["payload"]["responses"]["current"]
++    response["body_base64"] = base64.b64encode(nested).decode()
++    response["receipt"]["body_bytes"] = len(nested)
++    response["receipt"]["body_sha256"] = hashlib.sha256(nested).hexdigest()
++    response["receipt"]["received_at"] = "2026-10-29T10:36:20Z"
++    wrapped["captured_at"] = "2026-10-29T10:36:20Z"
++    write(store, [pair])
++    store.append_raw_funding_observations([wrapped], source="fixture", max_rows=1, max_bytes=131072)
++    archived = ROOT / "docs/review_artifacts/okx_funding_journal_20261029/journal_v1.py"
++    previous = runpy.run_path(str(archived))["recent_okx_funding_quotes"]
++    with pytest.raises(RecursionError):
++        previous(store, source="fixture", limit=10)
++    out = read(store)
++    assert len(out["quotes"]) == 1 and len(out["diagnostics"]) == 1
++    assert out["diagnostics"][0]["error_type"] == "RecursionError"
++    assert "extra" not in str(out["diagnostics"])
++    assert len(store.recent_raw_funding_observations(source="fixture", limit=10)["observations"]) == 2
++    assert_unqualified(out)

@@ -1,0 +1,14 @@
+{
+  "bytes": 163,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "22_SOL.bin",
+  "http_date": "Thu, 29 Oct 2026 06:35:06 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793255706664,
+  "request_started_ms": 1793255706614,
+  "sha256": "a80822ae18e2311d0f3b1c8db2865ae1088b5cadfb5d9a367c2e2046baf73811",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=3600&start=2026-10-29T04%3A00%3A00%2B00%3A00&end=2026-10-29T06%3A00%3A00%2B00%3A00"
+}

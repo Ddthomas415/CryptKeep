@@ -1,0 +1,22 @@
+{
+  "active_role": "AUDITOR",
+  "reviewer": "Hegel",
+  "agent_id": "01a15187-d8bb-71c1-8bfb-095bd45e4bac",
+  "capture_recipe_disposition": "ACCEPTED_WITH_RISK",
+  "capture_recipe_sha256": "327ab137902a7ff072e9efe0c693d02d4bc05df5d978a6eca3bc9b78e4c56188",
+  "recipe_scope": "Read-only version, container identity/sanitized metadata, label-presence booleans and network ID/name capture; no approval generated",
+  "packet_disposition": "INCOMPLETE",
+  "capture_sha256": "0fa450f65997a8ace714babc6b514270eab308cd22f623a6e06177ab3c09fa1b",
+  "candidate_sha256": "0ed18df8e95da122d2f00e31badeb17122fee2049609369c1dd819a832c6c108",
+  "confirmed": [
+    "Observed engine29.9.1/b26fb77 differs from existing strict pin29.8.2/8af9fe3",
+    "43 local frozen source entries match",
+    "Actual replacement metadata remains UNVERIFIED until staging"
+  ],
+  "withdrawn_inference": "Legacy timeout/read-only-startup flags are not a new replacement-configuration blocker. Existing encode_environment already applies reviewed overrides while preserving credentials; no environment patch is needed.",
+  "candidate_approved": false,
+  "engine_pin_changed": false,
+  "reviewer_native_calls": 0,
+  "reviewer_tests_rerun": false,
+  "source": "Separate reviewer responses in this Codex conversation"
+}

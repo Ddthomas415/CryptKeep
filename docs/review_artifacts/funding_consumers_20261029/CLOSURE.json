@@ -1,0 +1,17 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "exact local advisory funding consumer correction",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission": "01a18714-363a-7070-adec-76058cb91dec",
+  "verified_bindings": 28,
+  "independent_result": "153 passed in 1.26s; documented command once",
+  "patch_sha256": "650941304ccce6bcd29874b90e43ce55cdbcc330471c8aee17ddfe0191807b95",
+  "limits": [
+    "unmarked numeric inputs remain legacy_unverified model lane",
+    "no global qualification/security guarantee",
+    "selected UI loop only, not full Streamlit/auth rendering",
+    "legacy collector/archive estimates and other views not repaired",
+    "provider semantics and validated normalization incomplete",
+    "no whole Fix3/deployment/trading acceptance"
+  ]
+}

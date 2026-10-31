@@ -1,0 +1,49 @@
+{
+  "schema": "companion-v6d-runtime-outcome-v1",
+  "role": "ENGINEER",
+  "invocations": 1,
+  "exit_code": 1,
+  "stdout": {
+    "state": "INCOMPLETE",
+    "failure_phase": "cutover",
+    "actions_executed": true,
+    "attempt_reserved": true,
+    "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_cutovers/workerprep20261023v6d/receipt.jsonl",
+    "running_update_complete": false,
+    "query_attempted": true,
+    "query_passed": false,
+    "receipt_complete": true,
+    "rollback_verified": true,
+    "rollback_exact_baseline": false,
+    "services_started": true,
+    "prepared_ids_preserved": false,
+    "preparation_consumed": true,
+    "unresolved_quiesce": [],
+    "unresolved_restart": [],
+    "unresolved_replacement_start": [],
+    "unresolved_replacement_cleanup": [],
+    "unresolved_creation": [],
+    "controller_failure_stage": "runtime_verification"
+  },
+  "shown_from_receipt": {
+    "configured_compatibility_checks_all_true": true,
+    "replacement_start_confirmed": 4,
+    "query_intents": 1,
+    "companion_http_status": 200,
+    "companion_evidence_count": 5,
+    "companion_execution_disabled": true,
+    "companion_provider": "fallback",
+    "companion_normalization_outcome": "foreign_asset",
+    "selected_provider": "dashboard_fallback"
+  },
+  "limits": [
+    "HTTP 200 and citation-shaped evidence do not establish correct, relevant or verified citations.",
+    "Foreign-asset rejection may be valid or a false positive; sanitized diagnostics alone do not establish its cause.",
+    "Stored-evidence verification after explanation acceptance was not reached.",
+    "Rollback verdict concerns selected configuration/running state, not endpoint health, byte-exact baseline or volume contents."
+  ],
+  "runtime_status": "INCOMPLETE",
+  "retry_authorized": false,
+  "reset_authorized": false,
+  "trading_authorized": false
+}

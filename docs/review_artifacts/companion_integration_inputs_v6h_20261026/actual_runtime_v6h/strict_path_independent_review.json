@@ -1,0 +1,264 @@
+{
+  "schema": "companion-v6h-strict-probe-market-diagnosis-independent-review-v1",
+  "date": "2026-10-26",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Three controlled strict-path diagnosis cases and proposed disposition as a design direction only; not implementation, repaired service, operations or unique historical cause.",
+  "runtime_state": "INCOMPLETE",
+  "operations_authorized": false,
+  "implementation_approved": false,
+  "startup_authorized": false,
+  "retry_authorized": false,
+  "unique_historical_cause_established": false,
+  "blocking_findings": [],
+  "findings": [
+    {
+      "id": "V6H-STRICT-01",
+      "severity": "P2",
+      "classification": "SHOWN static and independently observed under early transport guard",
+      "title": "Risk audit is not stubbed; swallowed transport failures do not fail the tests",
+      "references": [
+        {
+          "path": "tests/test_companion_v6h_strict_probe_contract.py",
+          "line": 70
+        },
+        {
+          "path": "tests/test_companion_archive_probe_scope.py",
+          "line": 105
+        },
+        {
+          "path": "phase1_research_copilot/risk_stub/main.py",
+          "line": 50
+        },
+        {
+          "path": "phase1_research_copilot/shared/audit.py",
+          "line": 49
+        }
+      ],
+      "detail": "Orchestrator audit and memory audit are stubbed, but risk_stub.emit_audit_event is not. Real risk_status invokes the real shared audit helper, which constructs an HTTP client and catches ordinary exceptions. In the one independent run an early non-ASGI HTTP transport guard blocked three POST attempts to the synthetic fixture audit endpoint, one per case. All tests still passed because the errors were swallowed.",
+      "impact": "Exactly two synthetic tool requests does not mean exactly two total HTTP attempts or zero attempted audit effects. Passing socket/transport assertions can be swallowed by production code. No external request completed in this review.",
+      "disposition": "Nonblocking for diagnosis-only acceptance. The harness is not accepted as wholly in-process/no-attempt proof. A later test-only change should stub risk audit or assert independently collected forbidden-attempt counters stay empty. No fix made here."
+    }
+  ],
+  "V6H_DIAG_01_disposition": {
+    "classification": "SHOWN controlled strict-path reachability; actual historical payload UNVERIFIED",
+    "status": "The new cases address the missing real strict-path counterexample, not the unknown runtime payload.",
+    "basis": "Actual orchestrator handler/profile middleware calls real get_probe_tool_results; synthetic transport dispatches into actual memory/risk ASGI handlers. Real memory summary and real bundle/response builder feed the unchanged pure diagnostic verifier. Standalone snapshot/default, ordinary core tool gathering and ordinary model reasoning are forbidden; market_snapshot remains empty.",
+    "prior_record": "Prior review/receipt/diagnosis are preserved and were not reread or rerun. Standalone default counterexample remains separate and is not promoted into a historical cause."
+  },
+  "faithfulness": {
+    "real_path": [
+      "orchestrator.explain under strict profile",
+      "get_probe_tool_results",
+      "memory.retrieve_context and risk_status over ASGI seams",
+      "_compute_market_summary over controlled DB rows",
+      "_build_evidence_bundle and response assembly",
+      "checks.evaluate_diagnostic on controlled archive/persisted-row inputs"
+    ],
+    "fixture_seams": [
+      "Settings.model_construct supplies a synthetic token/empty model key; actual Settings initialization and fallback environment readers are forbidden; get_settings returns that object.",
+      "DB is synthetic. The new intercept supplies controlled market rows; existing retrieval fixture supplies document/lineage/query responses and approved local archive view.",
+      "Qdrant search is a synthetic object; SDK constructors are forbidden. Real service source bodies import but no application startup lifespan is run.",
+      "ASGITransport handles outer explain plus two nested tool requests. tools._request_json is replaced, so these cases do not revalidate actual transport authorization/header forwarding, retry/proxy/redirect semantics.",
+      "Memory/orchestrator audit are stubbed; risk audit is independently blocked before network in this review."
+    ],
+    "per_case_counts": {
+      "outer_ASGI_explain": 1,
+      "synthetic_tool_requests": 2,
+      "memory_POST": 1,
+      "risk_GET": 1,
+      "synthetic_market_SQL_fetch": 1,
+      "standalone_market_default_or_ordinary_calls": 0,
+      "blocked_non_ASGI_audit_POST": 1
+    },
+    "SQL_limit": "SQL reaches a Python stub, not a database. Fixture-controlled rows do not prove SQL execution, real ordering/row timing, installed archive origin or live market availability."
+  },
+  "case_results": [
+    {
+      "case": "absent",
+      "rows": 0,
+      "market_ok": false,
+      "reason": "no_market_data",
+      "market_snapshot": {},
+      "diagnostic": {
+        "stage": "complete",
+        "code": "ok"
+      },
+      "all_five_checks": true
+    },
+    {
+      "case": "positive",
+      "rows": 1,
+      "synthetic_price": 100,
+      "market_ok": true,
+      "market_metadata": [
+        "latest_ts",
+        "latest_source"
+      ],
+      "market_snapshot": {},
+      "diagnostic": {
+        "stage": "bundle_market",
+        "code": "rejected"
+      },
+      "all_five_checks": false
+    },
+    {
+      "case": "zero",
+      "rows": 1,
+      "synthetic_price": 0,
+      "market_ok": true,
+      "market_metadata": [
+        "latest_ts",
+        "latest_source"
+      ],
+      "market_snapshot": {},
+      "diagnostic": {
+        "stage": "bundle_market",
+        "code": "rejected"
+      },
+      "all_five_checks": false
+    }
+  ],
+  "predicate_limits": {
+    "classification": "SHOWN source mismatch, not historical value recovery",
+    "detail": "Populated summaries contain latest_ts/latest_source outside the verifier market whitelist and ok=true; positive-price case also violates the no-price condition. The whitelist check precedes the later value checks. These cases demonstrate group rejection, not each predicate as an independently observed runtime failure. A zero price is not no rows/no market evidence.",
+    "five_false": "Fail-closed aggregate, not five independent failures.",
+    "historical_limit": "No inference that the actual failed run contained either synthetic row/shape or that its exact predicate was this whitelist check."
+  },
+  "proposal_assessment": {
+    "classification": "Supported design candidate only; no implementation approval",
+    "recommendation_follows": true,
+    "rationale": "A deliberately archival proof can truthfully say market evidence is excluded by its profile rather than falsely asserting no database rows. Controlled present-row cases justify making this distinction explicit; they do not justify accepting prices or a broader arbitrary snapshot.",
+    "future_requirements": [
+      "Exact closed exclusion marker bound to strict archival protocol/identity, never a global waiver.",
+      "Prices and market-derived evidence remain absent; unsupported, extra or contradictory fields must refuse.",
+      "Preserve ordinary research market retrieval/summary/reasoning without system-wide capability removal.",
+      "Preserve archive/lineage/body/witness/citation/identity/no-trading gates, all-five-true acceptance and existing timeouts/no-retry boundaries.",
+      "Never relabel populated data no_market_data; never widen the whitelist merely to accept any producer object.",
+      "Future implementation requires separate empty/populated/ordinary/adversarial tests and independent review; marker semantics and ordinary-path preservation after change are not tested here."
+    ],
+    "not_authorized": "No source/verifier change, new marker, acceptance relaxation, packet refresh, service/startup/retry/query or actual attempt authorized."
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for isolated synthetic ASGI/DB cases with early non-ASGI transport refusal; not live service/SDK state",
+    "runs": 1,
+    "requested_base_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6h_strict_probe_contract.py",
+    "actual_invocation": "Same clean environment and pytest arguments invoked once via pytest.main in a stdin Python wrapper. Before collection, httpx.AsyncHTTPTransport.handle_async_request was replaced by a counting fixed-AssertionError guard; ASGITransport was unchanged. No second unguarded run.",
+    "actual_pytest_arguments": [
+      "--noconftest",
+      "-c",
+      "/dev/null",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "tests/test_companion_v6h_strict_probe_contract.py"
+    ],
+    "result": {
+      "classification": "SHOWN",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 0.71,
+      "warnings": 6,
+      "warning_type": "Existing FastAPI on_event deprecations",
+      "full_suite_run": false
+    },
+    "early_tripwire": {
+      "blocked_non_ASGI_HTTP_attempts": 3,
+      "method": "POST",
+      "target_class": "synthetic fixture audit endpoint",
+      "completed_external_HTTP_requests": 0
+    },
+    "parent_result": {
+      "classification": "CLAIMED timing; count independently reproduced with additional guard",
+      "passed": 3,
+      "seconds": 0.92,
+      "warnings": 6
+    },
+    "real_native_Docker_calls": 0,
+    "real_token_or_environment_configuration_reads": 0,
+    "real_DB_queries": 0,
+    "real_service_operations": 0,
+    "real_SDK_initializations": 0,
+    "live_market_runs": 0,
+    "additional_agents": 0,
+    "prior_receipt_or_diagnosis_reread": false,
+    "prior_diagnosis_rerun": false,
+    "other_test_modules_run": 0
+  },
+  "integrity": {
+    "algorithm": "SHA256",
+    "path_base": "/Users/baitus/Downloads/crypto-bot-pro",
+    "reviewed_inputs": {
+      "tests/test_companion_v6h_strict_probe_contract.py": "36fddfb29fab1384c83f5557f606ce487729994728078e02d4a9c82418e0c759",
+      "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md": "48c9c23a3655b1d69dd3f72f4038bfa05ed2871edbe6d6e09e0b38a1bbf9fc3d",
+      "tests/test_companion_probe_policy.py": "2c9970e7822170aa695ea8e2775ac4fb650f35f0bbb4606837e1349eb9b91517",
+      "tests/test_companion_archive_probe_scope.py": "cfe38caf5eda06c28570e4e52bc003edfc6742920013c20dff090bffa267ebee",
+      "phase1_research_copilot/shared/tools.py": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+      "phase1_research_copilot/shared/config.py": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "phase1_research_copilot/shared/audit.py": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "phase1_research_copilot/shared/probe.py": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "phase1_research_copilot/shared/llm_client.py": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84",
+      "phase1_research_copilot/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+      "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+      "phase1_research_copilot/memory_retrieval/main.py": "28dc4f1b496437be2d3e1273b4910515b8342a0d57b939f849a6a49da09322d1",
+      "phase1_research_copilot/memory_retrieval/article_view.py": "b9543070bbfa3d75999a3cf980d5fba58e880a6cd093c9165305a5124a70cd8f",
+      "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+      "phase1_research_copilot/risk_stub/main.py": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6",
+      "phase1_research_copilot/audit_log/main.py": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8",
+      "scripts/research/companion_evidence_checks.py": "25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5"
+    },
+    "unchanged_against_prior_review": [
+      "phase1_research_copilot/audit_log/main.py",
+      "phase1_research_copilot/memory_retrieval/article_view.py",
+      "phase1_research_copilot/memory_retrieval/main.py",
+      "phase1_research_copilot/memory_retrieval/question_query.py",
+      "phase1_research_copilot/orchestrator/main.py",
+      "phase1_research_copilot/risk_stub/main.py",
+      "phase1_research_copilot/shared/answer_metadata.py",
+      "phase1_research_copilot/shared/audit.py",
+      "phase1_research_copilot/shared/config.py",
+      "phase1_research_copilot/shared/llm_client.py",
+      "phase1_research_copilot/shared/probe.py",
+      "phase1_research_copilot/shared/tools.py",
+      "scripts/research/companion_evidence_checks.py"
+    ],
+    "production_changes": false,
+    "acceptance_rule_changes": false,
+    "archive_witness_changes": false,
+    "comparison": "Relevant current source bytes match this reviewer's previously observed hash ledger; old saved failure artifacts were not reopened.",
+    "historical_runtime_checkpoint": {
+      "path": "docs/checkpoints/companion_runtime_attempt_v6h_20261026.md",
+      "precloseout_sha256": "d8e08019b106aeecd6d9cdb91c71f6f3be886f9391be82521b5d11734b94d9e9",
+      "status": "Historical per user docs-closeout disclosure; not asserted current, not reread/rehashed in this follow-up."
+    }
+  },
+  "read_scope": {
+    "complete": [
+      "tests/test_companion_v6h_strict_probe_contract.py",
+      "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md",
+      "phase1_research_copilot/shared/config.py",
+      "phase1_research_copilot/shared/audit.py",
+      "phase1_research_copilot/shared/llm_client.py",
+      "phase1_research_copilot/risk_stub/main.py"
+    ],
+    "selected": [
+      "tests/test_companion_probe_policy.py:1-245 (fixtures/helpers and adjacent existing tests inspected, not run)",
+      "tests/test_companion_archive_probe_scope.py:1-112",
+      "phase1_research_copilot/memory_retrieval/main.py:335-475"
+    ],
+    "reused_context": "The prior read strict tools/orchestrator/summary/bundle/verifier semantics are reused under unchanged current hashes. No old 98-event diagnosis reread or other test rerun.",
+    "other_paths": "Other relevant production inputs are hash-checked/fixture-loaded, not broadly audited. Local saved archive/witness fixture is used; no new SDK/source-stream capture.",
+    "not_performed": "No prior receipt/diagnosis reload, live payload reconstruction, native or operational state check, production repair, implementation approval or broader readiness audit."
+  },
+  "limitations": [
+    "Strict-path reachability with controlled inputs is now shown; historical live payload, row availability and unique cause remain unknown.",
+    "Pure verifier helper is exercised, not remote DB/transport/timer entrypoint; synthetic persisted rows do not prove runtime persistence.",
+    "Risk audit adds a blocked attempted HTTP effect; passing cases cannot be reported as zero total HTTP attempts.",
+    "The reused archived-document fixture is not a reconstruction of the historical five-citation layout or exact market object.",
+    "Future exclusion-marker behavior, ordinary-path preservation and bypass safety are not implemented/proven.",
+    "Runtime and current service health remain INCOMPLETE/UNVERIFIED; no recovery/exact-restoration, token read, retry or other operation accepted."
+  ],
+  "material_assumptions": [],
+  "write_scope": "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review.json only. Reviewed source/tests/checkpoint/worklog and prior receipt/diagnosis/review/acceptance records preserved."
+}

@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-10-20T12:03:43.973396+00:00",
+  "pid": 7539,
+  "source": "lsof metadata: PID7539 unlinked open files; device/inode joined to before-inventory",
+  "exit_code": 0,
+  "matched_deleted_regular_files_held_open": 5094,
+  "logical_bytes_held_open": 213079770798,
+  "stderr_present": false,
+  "process_stopped": false,
+  "report_contents_read": false
+}

@@ -1,0 +1,59 @@
+{
+  "limits": [
+    "Hash-matched saved source is filesystem evidence, not loaded process memory.",
+    "Marker checks are structural only, not complete import, dependency or execution proof.",
+    "This confirms an existing documented legacy/source-parity issue, not a newly introduced defect."
+  ],
+  "native_calls": 0,
+  "role": "AUDITOR",
+  "schema": "companion-current-source-compatibility-v1",
+  "sources": [
+    {
+      "local_sha256": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228",
+      "local_source": "phase1_research_copilot/memory_retrieval/main.py",
+      "marker_presence": {
+        "check_source_rows": {
+          "hash_matched_saved_source": true,
+          "reviewed_local_source": true
+        },
+        "fetch_from_view": {
+          "hash_matched_saved_source": true,
+          "reviewed_local_source": true
+        },
+        "probe_active": {
+          "hash_matched_saved_source": false,
+          "reviewed_local_source": true
+        },
+        "question_query": {
+          "hash_matched_saved_source": true,
+          "reviewed_local_source": true
+        },
+        "read_archive": {
+          "hash_matched_saved_source": true,
+          "reviewed_local_source": true
+        }
+      },
+      "name": "phase1-memory",
+      "saved_sha256": "c9efd5ff807427ec6c89e09782a0c931902c1aa024ee0b7ec85ffa7d666a3436",
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__app__memory_retrieval__main.py.source.txt"
+    },
+    {
+      "local_sha256": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+      "local_source": "phase1_research_copilot/orchestrator/main.py",
+      "marker_presence": {
+        "get_probe_tool_results": {
+          "hash_matched_saved_source": false,
+          "reviewed_local_source": true
+        },
+        "probe_active": {
+          "hash_matched_saved_source": false,
+          "reviewed_local_source": true
+        }
+      },
+      "name": "phase1-orchestrator",
+      "saved_sha256": "c617205830376da3d6e5b4d8a33e88c5f3d16bed34ce8fee20319e951162a05b",
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-orchestrator__app__orchestrator__main.py.source.txt"
+    }
+  ],
+  "state": "INCOMPLETE"
+}

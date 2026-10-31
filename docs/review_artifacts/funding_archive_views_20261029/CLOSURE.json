@@ -1,0 +1,16 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "exact offline funding archive reporting and display correction",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission": "01a1871f-268d-76c2-b0b2-6281e651d8d4",
+  "verified_bindings": 34,
+  "independent_result": "216 passed in 1.87s; documented command once",
+  "patch_sha256": "5ad7f98dc58301f30283c678b01b8c7ca4502ac25ce6d1e20bddd10af9418d25",
+  "limits": [
+    "legacy model APIs unqualified, not eligibility gates",
+    "native/effective-interval semantics unverified",
+    "validated normalization incomplete",
+    "full UI rendering and runtime unverified",
+    "no whole Fix3/normalizer/deployment acceptance"
+  ]
+}

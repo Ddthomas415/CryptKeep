@@ -1,0 +1,21 @@
+{
+  "schema": "companion-actual-preparation-outcome-v1",
+  "attribution": "Parent transcription of execution session 75714 final tool result; public stdout only, not independent host observation.",
+  "execution_session": 75714,
+  "exit_code": 0,
+  "stdout": {
+    "state": "READY_FOR_INDEPENDENT_REVIEW",
+    "preparation_complete": true,
+    "actions_executed": true,
+    "startup_authorized": false,
+    "services_started": false,
+    "originals_interrupted": false,
+    "attempt_reserved": true,
+    "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261025v6f/receipt.jsonl",
+    "evidence": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261025v6f/evidence.json",
+    "evidence_sha256": "2463b6fe35b8c10ac9df63f9099c0fe986725bab5179e7a7bdbdc23c9ed6fb95",
+    "manifest_sha256": "a7854b1660ae2c321f8edb62d3ac2b7ab60350deb62df91bdde774e8c2ea1588"
+  },
+  "automatic_retry_performed": false,
+  "runtime_state": "INCOMPLETE"
+}

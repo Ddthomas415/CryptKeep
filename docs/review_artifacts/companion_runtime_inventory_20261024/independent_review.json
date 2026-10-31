@@ -1,0 +1,109 @@
+{
+  "schema": "companion-current-runtime-inventory-independent-review-v1",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Saved-record inventory/source-fingerprint fidelity only; not current-runtime policy or execution acceptance.",
+  "operational_authorized": false,
+  "runtime_status": "INCOMPLETE",
+  "source_and_artifact_sha256": {
+    "docs/review_artifacts/companion_runtime_inventory_20261024/observation.json": "0a71483b1ee7e54874975647d0105b3f03bc44a9c2274e8a5350ed34bc950793",
+    "docs/review_artifacts/companion_runtime_inventory_20261024/source_fingerprints.json": "bd8a77ab193fbedc4fb7fd8eb0c6191b50e47de2f575e234a51cae6253121df3",
+    "docs/review_artifacts/companion_runtime_inventory_20261024/source_compatibility.json": "2e4d1c084b37e67449824a6ef9efa307cc4d7c03111c807745e7925682de1fa3",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/postcheck.json": "ae910c0b2bc4a7ef6886a71190abaf0dbf8c2b4b2b2c71231c1ccbeeba60a8ea",
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+    "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__app__memory_retrieval__main.py.source.txt": "c9efd5ff807427ec6c89e09782a0c931902c1aa024ee0b7ec85ffa7d666a3436",
+    "phase1_research_copilot/memory_retrieval/main.py": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228",
+    "docs/review_artifacts/companion_installed_policy_20261016/phase1-orchestrator__app__orchestrator__main.py.source.txt": "c617205830376da3d6e5b4d8a33e88c5f3d16bed34ce8fee20319e951162a05b",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6"
+  },
+  "verification": {
+    "classification": "SHOWN",
+    "metadata": "Both saved seven-name observations are equal; source-fingerprint final seven-ID metadata equals them exactly. Seven unique IDs/names, all state=running.",
+    "historical_comparison": "Independently compared every selected metadata field against hash-pinned V6d postcheck.selected_metadata. Sole excluded historical key: reported_health. All other fields, including IDs/images/starts/restarts/commands/mounts/networks/configuration, match. Published comparison summaries agree.",
+    "source_attribution": "Reported sampled file digests and byte counts equal the two saved October16 copies. Both differ from current local counterparts; container IDs/images in source rows match saved metadata. No newly captured source body exists to independently rehash the native streams.",
+    "ast_markers": "Parsed saved/local source with ast only, without import/execution; all reported marker booleans match AST identifier/attribute/definition/import-name presence.",
+    "helper_bindings": "Pinned collector8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a and adapter4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3 match local bytes. Collector capture_format uses allowlisted command/health forms and boolean environment checks; readonly_run source inspected but not invoked.",
+    "reviewer_actions": "Local saved JSON/hash/equality and AST assertions only. No tests run or claimed, no native reinspection or service/source execution."
+  },
+  "sample_dispositions": [
+    {
+      "name": "phase1-memory",
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-memory__app__memory_retrieval__main.py.source.txt",
+      "local_source": "phase1_research_copilot/memory_retrieval/main.py",
+      "reported_sample_sha256": "c9efd5ff807427ec6c89e09782a0c931902c1aa024ee0b7ec85ffa7d666a3436",
+      "local_sha256": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228",
+      "classification": "SHOWN",
+      "filesystem_comparison": "Reported native digest matches hash-bound saved source, not local source.",
+      "marker_presence": {
+        "check_source_rows": {
+          "hash_matched_saved_source": true,
+          "reviewed_local_source": true
+        },
+        "fetch_from_view": {
+          "hash_matched_saved_source": true,
+          "reviewed_local_source": true
+        },
+        "probe_active": {
+          "hash_matched_saved_source": false,
+          "reviewed_local_source": true
+        },
+        "question_query": {
+          "hash_matched_saved_source": true,
+          "reviewed_local_source": true
+        },
+        "read_archive": {
+          "hash_matched_saved_source": true,
+          "reviewed_local_source": true
+        }
+      }
+    },
+    {
+      "name": "phase1-orchestrator",
+      "saved_source": "docs/review_artifacts/companion_installed_policy_20261016/phase1-orchestrator__app__orchestrator__main.py.source.txt",
+      "local_source": "phase1_research_copilot/orchestrator/main.py",
+      "reported_sample_sha256": "c617205830376da3d6e5b4d8a33e88c5f3d16bed34ce8fee20319e951162a05b",
+      "local_sha256": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+      "classification": "SHOWN",
+      "filesystem_comparison": "Reported native digest matches hash-bound saved source, not local source.",
+      "marker_presence": {
+        "get_probe_tool_results": {
+          "hash_matched_saved_source": false,
+          "reviewed_local_source": true
+        },
+        "probe_active": {
+          "hash_matched_saved_source": false,
+          "reviewed_local_source": true
+        }
+      }
+    }
+  ],
+  "known_limit": {
+    "classification": "SHOWN",
+    "description": "Sampled filesystem source parity is absent. Both matched legacy files lack the probe_active AST marker; matched orchestrator lacks get_probe_tool_results. Matched memory contains reported archive-function markers.",
+    "meaning": "This retains an existing legacy/source-parity limitation, not evidence of a newly introduced defect. No conclusion of complete import/dependency compatibility or incompatibility follows from two markers/files.",
+    "historical_documentation": "Parent identifies this as the previously documented October20 legacy diagnosis; broad history was not reopened."
+  },
+  "capture_attribution": {
+    "classification": "CLAIMED",
+    "reported_native_calls": 5,
+    "breakdown": "Two sanitized metadata reads, two regular-file copy streams reported as digest/length only, one final seven-ID metadata recheck.",
+    "reported_cli_sha256": "678271184175b40dfc4bd6f4582be00ae1538b0d1e031181f52ceedfae9af5fb",
+    "cli_limit": "CLI digest is retained as capture provenance; reviewer did not run or independently rehash a native CLI binary.",
+    "reported_no_service_operations": true,
+    "reported_no_application_queries": true,
+    "reported_no_credential_values_exported": true,
+    "source_bodies_persisted": false,
+    "meaning": "Reviewer verifies saved-data consistency and bounded helper source, not an independently observed native command transcript or exhaustive host action history."
+  },
+  "findings": [],
+  "remaining_limits": [
+    "Sequential selected-field samples are not an atomic snapshot, full daemon inventory or proof of state after capture.",
+    "Filesystem bytes at two /app paths do not establish code loaded in memory, actual import resolution, endpoint behavior or all source/dependency pins. The orchestrator also has a saved /repo mount and PYTHONPATH match; no loaded-code conclusion is drawn.",
+    "Healthcheck configuration is saved; no new health-result or endpoint query is established. Omitted old reported_health is not treated as a current health assertion.",
+    "Environment evidence consists of boolean checks/presence-style flags, not credential values or current credential usability.",
+    "No full132-pin policy/source audit, current executable runtime packet, endpoint/DB check, deployment, lifecycle action or retry is accepted or authorized.",
+    "Existing offline semantic/guard/evidence-portion acceptances remain restricted; this inventory does not activate them or approve current originals."
+  ],
+  "disposition": "Accept saved-record fidelity with stated provenance and sampling limitations. Source/runtime remains INCOMPLETE; no new operations or remediation are granted."
+}

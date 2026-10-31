@@ -1,0 +1,23 @@
+{
+  "tests/test_coinbase_account_pages_installed_sdk.py": "e9fb2761ce3452718b98528380a787f94284e4d235a3ec51d49e612d01d6d0ea",
+  "docs/research/coinbase_installed_sdk_20261029.md": "e346bfc695cc993cab334eb656d24173efe7007013ec1ffc956795c8dd76d6f1",
+  "services/execution/coinbase_account_pages.py": "a6324aac4d78a2b9f0ab486e36279bca93be521541725336b69572b241db11a7",
+  "services/execution/place_order.py": "137a3e7260381eec79982c63a716928446f6acc6909df37db92e91a0ce80664b",
+  "services/execution/coinbase_portfolio_guard.py": "e865a09d2a96828143b1b29ef07e6a710744e8a7f94134548d1a96f657c77352",
+  "tests/test_coinbase_paged_preflight_compatibility.py": "a6fedfb3950388ff31642948985210be9833668300eea27fb7cc36e3279174dc",
+  "tests/test_proposed_async_balance_preflight.py": "8c59bc70daffe2941d3437aa379e1a78ae02a6c8aea0d3af8a9755d101ca53ce",
+  "tests/test_coinbase_account_pages.py": "4d1561955ad0181894038df06894cb8f55d89502a1b9b893efefb3a49b7c8e2a",
+  "docs/review_artifacts/coinbase_paged_preflight_20261028_01/place_order_proposed.py": "8d04313c13b8e9ab8683a4c77d7dd5c63a49049ff9cbf44e862e5aec4849242a",
+  ".venv/lib/python3.12/site-packages/ccxt/__init__.py": "a3604a3b115814431b6475f85ee8612be4a496039d877ec8f7f65077a1d0352e",
+  ".venv/lib/python3.12/site-packages/ccxt/base/types.py": "25de0df66c50bdaded5832cf1bd90b118f248b4f5b03d489a1c59f858b4a14c4",
+  ".venv/lib/python3.12/site-packages/ccxt/base/exchange.py": "75c47acb34e6097c5be3ff41af2e0e29f63f05a613c7051bf520f27e33fa33aa",
+  ".venv/lib/python3.12/site-packages/ccxt/base/precise.py": "92871eeb862ba7abc56c68a326d52df9043a5e12607864c292c67cef514fa7f0",
+  ".venv/lib/python3.12/site-packages/ccxt/abstract/coinbase.py": "a5703297f4141594c9cadfc0ab94d1cf2a89be849794396770f90b42a0a60765",
+  ".venv/lib/python3.12/site-packages/ccxt/coinbase.py": "e5bdb2d07e395443acdd56525090cadc72611133728d30adf09d4b8985bdd204",
+  ".venv/lib/python3.12/site-packages/ccxt/async_support/coinbase.py": "d8cc6134ceab0f0f04ef1f7e08a8d43904f93a41729c9fab897467bcc3c28c05",
+  ".venv/lib/python3.12/site-packages/ccxt/async_support/base/exchange.py": "6f296c8a49be6de3080c7ccbc90c2df009f758b0f9398ebcb18ea640b94811ce",
+  ".venv/lib/python3.12/site-packages/ccxt/static_dependencies/toolz/_version.py": "d36edb889d1958b450b56c5c423f17aa7beccc23b7a7648490b9f8f513ea465c",
+  "docs/review_artifacts/coinbase_installed_sdk_20261029/TEST_RESULT.json": "aeedd6058f42a5b658b1a4bfe552c852ba4aaf391d429af7b92f176e2f190318",
+  "docs/review_artifacts/coinbase_installed_sdk_20261029/change.patch": "6dea52c946e6e2a0a13fca9b3ce02aa0a43432e8a3596d717ddc34ac01fdb470",
+  "docs/review_artifacts/coinbase_installed_sdk_20261029/EXISTING_ORDER_DIFF.patch": "8f48bc35e6c420511e0bfb6ea7a0b4237f9dcc9277b3b53ceeed6e2289b72cc8"
+}

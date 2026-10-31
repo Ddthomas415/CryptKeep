@@ -1,0 +1,80 @@
+{
+  "schema": "companion-integration-derivation-independent-review-v1",
+  "date": "2026-10-25",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Source-refresh and proposal-derivation implementation only, with synthetic offline proof. Not acceptance of actual inputs, preparation, runtime packet, operation or retry.",
+  "input_readiness": "INCOMPLETE",
+  "baseline_status": "MISSING_FRESH_PAIRED_CAPTURE",
+  "runtime_state": "INCOMPLETE",
+  "blocking_implementation_findings": [],
+  "input_blockers": ["No usable actual paired baseline has been supplied. source_refresh.json has baseline null, decision INCOMPLETE and blank reviewer. A separately authorized capture and separate actual-input review remain necessary; neither is authorized by this review."],
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "hashes": {
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/derive_inputs.py": "a63572220edfef175873e09ca82647e69131b7a7534011c9b6c84593eb36ce22",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/source_refresh.json": "241a0f23dee830bdcfe438083cab6065ce9ace482c97b47455d197546e44b780",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/initial_capture_failure.json": "6503effae1f4ef6a2f4cff7d5c1b7f0f1f4bf40835bf015205542c1e9d76f47c",
+    "tests/test_companion_integration_inputs_v6f.py": "c4b8e8ef16fa2d01f5772b6635f810688fac1cc8df10e6fd382150e4053e509e",
+    "docs/review_artifacts/companion_archive_scope_repair_20261025/independent_review.json": "4747ffdc6f86e549bdc703dd5ee017456ae221ad456b7b97d84828d11dbe5f35"
+  },
+  "binding_verification": {
+    "classification": "SHOWN",
+    "method": "Ran source_inputs only against local files and compared its returned applications, consumer hashes and deltas with source_refresh.json. Five fixed input pins verified; repair's complete source/input ledger rehashed; all 43 application entries and 13 consumers checked. No real derive invocation or candidate publication.",
+    "source_refresh_matches_recomputation": true,
+    "fixed_pin_count": 5,
+    "application_source_entry_count": 43,
+    "consumer_count": 13,
+    "delta_count": 3,
+    "allowed_delta_paths": ["phase1_research_copilot/memory_retrieval/article_view.py", "phase1_research_copilot/memory_retrieval/main.py", "scripts/research/companion_installer.py"],
+    "other_input_hashes": "Exact paths and hashes are in the hash-bound source_refresh.json input_sha256 and consumer_sha256 ledgers and derive_inputs.py PINS. Independently checked by source_inputs; no broad semantic reaudit inferred."
+  },
+  "assessment": [
+    {
+      "classification": "SHOWN static and reproduced offline",
+      "subject": "Accepted source-delta boundary",
+      "evidence": "derive_inputs.py:40-69 hashes the accepted repair report/review, verifies review decision and repair binding, rehashes repair inputs, loads the old accepted manifest, and requires exact prior hashes for changed entries. The final three-path set and count forbid extra, missing or duplicate deltas. All other source entries and consumer hashes must remain unchanged. Hash-bound refresh output matched recomputation exactly."
+    },
+    {
+      "classification": "SHOWN static and synthetic tests",
+      "subject": "Metadata and identity preservation",
+      "evidence": "derive_inputs.py:79-100 requires two equal seven-row observations, explicit completeness/equality booleans and the old CLI hash. In old-baseline order it requires matching names, IDs, images, running state, no restart policy, exact integer restart counts, foundation digest and configured metadata. Existing network projection validates allowed bindings. Startup and attachment observations are recomputed, with differences recorded; current identity or foundation drift is not silently accepted. Raw capture rows need no attempt field, as explicitly covered by the synthetic regression."
+    },
+    {
+      "classification": "SHOWN static and synthetic tests",
+      "subject": "Commands, options, policies and model boundary",
+      "evidence": "Applications and manifest are deep copies of hash-pinned prior inputs; only source hashes and the explicitly listed top-level proposal fields change. Commands, create options, network aliases, policies, network bindings and replacement configured hashes remain unchanged. Four hash-pinned historical models pass existing final_model/project helpers and must reproduce the existing configured replacement digests. Models are predictions, not newly observed identities or attachment/health proof. No new IDs or images are issued."
+    },
+    {
+      "classification": "SHOWN static and synthetic tests",
+      "subject": "No reservation or approval escalation",
+      "evidence": "derive_inputs.py:74-78 only checks marker existence: both prior V6e markers must remain present, either consumed V6f marker refuses derivation. No marker is created or removed. Derivation returns a proposed candidate with decision INCOMPLETE and empty reviewer, plus authorization booleans false. Existing Plan.load refuses that unaccepted candidate, as tested. source_refresh.json deliberately uses companion-source-refresh-only-v1, not a preparation-manifest schema."
+    }
+  ],
+  "proof": {
+    "environment": "VERIFIED_ENV for local synthetic tests only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_integration_inputs_v6f.py",
+    "classification": "SHOWN",
+    "exit_code": 0,
+    "passed": 13,
+    "seconds": 0.30,
+    "fixture_scope": "Hash-bound historical capture transformed into synthetic current-start fixture in temporary test files. These are not actual fresh observations. Network and subprocess entrypoints blocked by offline fixture.",
+    "full_suite_run": false
+  },
+  "capture_failure": {
+    "classification": "CLAIMED parent attribution, recorded in hash-bound initial_capture_failure.json",
+    "meaning": "Parent reports one native metadata read followed by local wrapper assertion failure requiring an absent attempt field. No raw observation retained and no usable pair produced. Reports zero service operations and no automatic retry. This review neither reproduced nor independently observed that native event, and does not reconstruct the discarded observation.",
+    "new_capture_authorization": "Pending according to user; not granted by this review."
+  },
+  "limitations": [
+    "Actual baseline remains MISSING. Byte equality, completeness flags, a supplied hash and an observed_end_utc field do not independently prove freshness or acquisition provenance. Any future real observation must receive its own bounded input review.",
+    "Marker checks are not an atomic reservation and do not authorize preparation; downstream reservation/identity guards remain necessary. No marker contents or credentials were read by this review.",
+    "The implementation has no capture or publication entrypoint. Its returned proof state READY_FOR_INDEPENDENT_REVIEW does not convert the candidate decision INCOMPLETE into acceptance.",
+    "No native CLI, Docker, token, DB, HTTP, service, capture or runtime operation performed. No real new candidate generated or published. Only this review artifact written; no source, tests, other docs or shared worklog edited.",
+    "Prior accepted policies and consumed V6e attempts are preserved, not reused or reauthorized. No broad SDK audit, live-source proof, health claim or connectivity proof."
+  ],
+  "read_scope": {
+    "complete": ["docs/review_artifacts/companion_integration_inputs_v6f_20261025/derive_inputs.py", "docs/review_artifacts/companion_integration_inputs_v6f_20261025/source_refresh.json", "docs/review_artifacts/companion_integration_inputs_v6f_20261025/initial_capture_failure.json", "tests/test_companion_integration_inputs_v6f.py", "scripts/research/companion_network_configuration.py"],
+    "selected_context": ["scripts/research/companion_runtime_adapter.py:145-183 preservation digest helpers", "tests/test_companion_archive_contract.py:1-85 offline fixture", "scripts/research/companion_installer.py Plan.load decision/marker gates via source search", "accepted repair review decision/scope/runtime fields"]
+  }
+}

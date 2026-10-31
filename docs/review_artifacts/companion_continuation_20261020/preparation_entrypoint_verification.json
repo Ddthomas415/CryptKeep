@@ -1,0 +1,32 @@
+{
+  "active_role": "ENGINEER",
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "runtime": "INCOMPLETE",
+  "environment": "VERIFIED_ENV for isolated synthetic tests and temporary filesystem only",
+  "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_companion_prepare_entrypoint.py tests/test_companion_staged_update.py tests/test_companion_staged_cli_boundary.py tests/test_companion_staged_backend.py",
+  "exit_code": 0,
+  "passed": 198,
+  "duration_seconds": 1.69,
+  "full_suite_run": false,
+  "diff_check_exit_code": 0,
+  "source_sha256": {
+    "scripts/research/companion_prepare.py": "29a717669f7cac861da2d48668b5b04353a1b74c293f259c790eb9941666c0ba",
+    "tests/test_companion_prepare_entrypoint.py": "5456b8dc855c48288447df8c0335aba22ac61268d697cdfd4b40c673103ef1dc"
+  },
+  "dependencies": "Accepted staged-v5 sources and existing installer CLI were not edited; reference staged_update_review_r2.json",
+  "coverage": [
+    "Default manifest validation does not construct backend or reserve attempt",
+    "Reviewed hash/profile and shared-lock guards",
+    "Fixed per-attempt durable reservation across repeat processes",
+    "Descriptor-relative no-follow private receipt/evidence files",
+    "Real accepted staged API over synthetic backend preserves original seven and leaves replacements stopped",
+    "Canonical output loads through separate synthetic actual-ID review",
+    "Publication failures retain artifacts and attempt bounded owned-created cleanup"
+  ],
+  "time_boundary": "Local pre-native validation/lock/reservation precedes accepted300second API budget; evidence publication uses remaining work budget; no whole-CLIwall guarantee",
+  "fresh_native_manifest_generated": false,
+  "native_calls": 0,
+  "credentials_read": false,
+  "services_changed": false,
+  "independent_review": "Separate Hegel review pending; final disposition recorded separately"
+}

@@ -1,0 +1,100 @@
+{
+  "schema": "companion-context-guard-independent-review-v1",
+  "role": "GATE",
+  "decision": "INCOMPLETE",
+  "scope": "Bounded offline subject/context guard correction only; no implementation or operation approval.",
+  "operational_authorized": false,
+  "runtime_status": "INCOMPLETE",
+  "environment": "VERIFIED_ENV for local synthetic reproducer only; sockets and subprocess entry points forbidden by fixture; no native service operations.",
+  "source_and_artifact_sha256": {
+    "docs/review_artifacts/companion_context_guard_20261024/report.json": "feafa7f4e6d2d81d4c74c53c99b57c283120ada6b14a254e1ae30fee2dba3952",
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+    "dashboard/services/views/_shared_signals.py": "f4557ad3d9e2fb777b0b650dccccd69ee463e1a5721da8a80b47d684bbf16004",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/receipt.jsonl": "0ca55ea24bf18b7ff5442d974267497de00f2f3a5e2af1c372459f35aa43b1a9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+    "phase1_research_copilot/memory_retrieval/article_view.py": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+    "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "phase1_research_copilot/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+    "research/companion_article_body_v1_20261011_gd1abqx9/derived_article_body_v1.json": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+    "research/companion_article_body_v1_20261011_gd1abqx9/manifest.json": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "tests/test_companion_archive_contract.py": "008ddcd18b823db98b1d64d57d85c90cb47a1e753cf7341bc4a4935e86e2900c",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f",
+    "tests/test_explain_diagnostics.py": "508e912012fd08e4fca5d858e215046dec66b220677f9997b72ffc8b6912ffd3",
+    "tests/test_explain_headline_context.py": "961323bf423e8eca00ded6af41422f55a3b56f6e4fe897f1ccd13fbd4c832690",
+    "docs/review_artifacts/companion_context_guard_20261024/pre_change_sources.tar": "d1105b8a4172f216257f66879f259c51ada3cc706d258a06ed3bc0f72409f4fe",
+    "docs/review_artifacts/companion_offline_contract_20261024/report.json": "3376c9eb9647838c32fa36a67d70270ca6c0044e1c2f628fd0b04b49c608be09"
+  },
+  "baseline": {
+    "archive_sha256": "d1105b8a4172f216257f66879f259c51ada3cc706d258a06ed3bc0f72409f4fe",
+    "guard_member_sha256": "098f3c879199deadfbb5aa22ce90194d0adfb0bab9bb5ebba0e3ef622999a654",
+    "archive_test_member_sha256": "9c8d9e427ed54f4fad765386284ce2131e077f4213781e46ad9676a3ef2de404",
+    "old_report_sha256": "3376c9eb9647838c32fa36a67d70270ca6c0044e1c2f628fd0b04b49c608be09",
+    "status": "SHOWN: preserved baseline members match prior accepted guard/test hashes; all 17 new report source/input bindings match local bytes. Saved receipt, topical approvals and archive inputs retain their hash-bound contents."
+  },
+  "findings": [
+    {
+      "id": "CG-1",
+      "priority": "P2",
+      "classification": "SHOWN",
+      "blocking": true,
+      "file": "dashboard/services/views/_shared_signals.py",
+      "line": 417,
+      "title": "Headline removal can merge an outside foreign ticker into a word",
+      "description": "The replacement concatenates the text before and after the exact recognized context. A standalone foreign ticker immediately preceding the context can become part of the following word. This changes the promised outside-passage whole-token refusal semantics.",
+      "reproducer": {
+        "fixture": "Use the frozen archive fixture assembled(view, [5, 7]) for BTC, with offline(monkeypatch) enabled.",
+        "steps": [
+          "block = _explain_archived_headline_context(raw, \"BTC\")",
+          "raw[\"current_cause\"] = \"ETH\" + block + \"demand increased.\"",
+          "_explain_mentions_foreign_asset(raw, \"BTC\")",
+          "Normalize with the existing stub client and market_view.get_research_explain(\"BTC\", checks.QUESTION)."
+        ],
+        "expected": {
+          "foreign_guard": true,
+          "normalizer": "dashboard_fallback refusal"
+        },
+        "observed": {
+          "recognized_context": true,
+          "masked_text": "ETHdemand increased.",
+          "foreign_guard": false,
+          "normalized_provider": "fallback"
+        },
+        "command_exit_code": 0
+      },
+      "minimum_next_direction": "Preserve token boundaries when excluding the recognized passage and add this adversarial regression. No implementation performed.",
+      "impact_limit": "This reproduces a normalizer/subject-guard bypass, not an unchanged citation-verifier approval bypass. The strict canonical-prose/witness checker is unchanged; no historical runtime cause is established."
+    }
+  ],
+  "tests": {
+    "focused_suite": {
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_explain_headline_context.py tests/test_companion_archive_contract.py",
+      "result": "Invocation attempted in this review; combined tool output was truncated and the test completion result was not retained. No independent pass count claimed; not rerun."
+    },
+    "adversarial_reproducer": {
+      "result": "SHOWN: reproduced CG-1 using the real frozen [5,7] archive fixture and actual normalizer with synthetic transport.",
+      "exit_code": 0
+    },
+    "parent_slice": {
+      "classification": "CLAIMED",
+      "result": "234 passed in 11.05s; not independently repeated."
+    }
+  },
+  "bounded_assessment": {
+    "explicit_primary_asset": "Present mismatched or malformed root asset now refuses independently of narrative BTC.",
+    "headline_context": "Recognition is tightly labelled and citation-structured, but does not certify provenance or topical approval. Single-passage masking has the concrete boundary flaw above.",
+    "evidence_approval": "No source change to companion_evidence_checks or witness7. Matrix distinguishes [5,7] combined pass from [47] and [5,47] witness failures; metadata exemption is not topical acceptance.",
+    "report_fidelity": "Offline saved-archive fixture diagnosis, not replay of missing historical live prose or current DB state."
+  },
+  "remaining_limits": [
+    "No runtime, Docker, HTTP, token, DB, Settings or application startup verification performed.",
+    "Historical live prose and typed response content remain unavailable; exact V6d cause is UNVERIFIED.",
+    "Archive rows substitute for live database rows; lexical selections and synthetic risk/transport responses do not prove retrieval ranking or integration.",
+    "Neither this review nor fixture success approves runtime policy, preparation, retry, startup, query, trading or service actions."
+  ],
+  "required_next_proof": "Address CG-1 in a separate implementation cycle and demonstrate retained outside-token refusal with a narrow independent review. No broader source-closure audit is requested."
+}

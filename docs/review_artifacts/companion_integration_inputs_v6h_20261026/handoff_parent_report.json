@@ -1,0 +1,19 @@
+{
+  "native_or_token_or_service_operations": false,
+  "parent_verification": {
+    "full_suite_run": false,
+    "passed": 32,
+    "seconds": 0.32
+  },
+  "role": "ENGINEER",
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6h-fixed-handoff-parent-report-v1",
+  "sha256": {
+    "docs/checkpoints/companion_v6h_execution_handoff_20261026.md": "9c881581218ae2d76ca3981116131d7f0fdf8009dbc001a76c015581a09c6544",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/execute_reviewed_v6h.py": "e0ecdd3f791507f6b930104dd46ee11dd79115424be7606f4fe4f46bb2f9eaa2",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/handoff_default_proof.json": "e4ea09aefbaa1e7570e037f5973bee90ce36710000068b9c56080b9090def483",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/verify_handoff_default.py": "fe123cd9c85762c07858f44f5864c4b632e9d3e9662ecd0de551bbf6899a9012",
+    "tests/test_companion_v6h_handoff.py": "712550d8942c279a1892ee082a5f3d3b28fe1d7bd68a85838f04494e3b5e041b"
+  },
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

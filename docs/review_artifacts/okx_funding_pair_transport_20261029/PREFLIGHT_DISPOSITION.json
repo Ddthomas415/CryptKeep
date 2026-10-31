@@ -1,0 +1,12 @@
+{
+  "recorded_at": "2026-10-29T14:59:32.683971+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "reviewer_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1882a-9764-7740-9d03-3bb600f36e88",
+  "scope": "same already-human-authorized one-shot BTC-USDT-SWAP2GET check; no additional attempt authority",
+  "current_curl_sha256": "b6f8c43b623b760e2fa95910e3f62bb518257c48b4ef54ed09285e49d6d1b85f",
+  "bindings_verified": 33,
+  "decision": "May proceed with newly recorded current binary pin; historical launcher assertion was not part of reviewed producer.",
+  "limitations": "Binary authenticity/signature trust, OSupdate provenance and physical-Mac equivalence UNVERIFIED. No source edit, TLS bypass, repair or new auth/account/service operation permitted."
+}

@@ -1,0 +1,18 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "unwired SDK raw-page reader; offline fakes only",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1830b-7552-73e1-b36d-3f7a2f946327",
+  "independent_verification": {
+    "passed": 21,
+    "seconds": 0.18,
+    "material_defect": false
+  },
+  "source_sha256": "a6324aac4d78a2b9f0ab486e36279bca93be521541725336b69572b241db11a7",
+  "tests_sha256": "4d1561955ad0181894038df06894cb8f55d89502a1b9b893efefb3a49b7c8e2a",
+  "submission_bindings_sha256": "077bc3ae82c0f25d122ceca86ee13217f8ae719b571ffd5439358a58661933d4",
+  "checkpoint_sha256": "dca5f4b90cb4cb375f3623f48e6f3c98f3cb6b60ee6837f0c4f9657c4befe273",
+  "submitted_checkpoint_sha256": "913cbf9e376759ec212a247a1e3c02a7748b3c0b5f48d6bd8aac0e6d08abd8bb",
+  "remaining": "INCOMPLETE: actual caller integration, authenticated account completeness, live cap and deployment",
+  "reviewed_code_changed": false
+}

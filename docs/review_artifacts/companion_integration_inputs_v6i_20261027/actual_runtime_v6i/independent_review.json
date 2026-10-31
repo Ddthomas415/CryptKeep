@@ -1,0 +1,476 @@
+{
+  "schema": "companion-v6i-saved-runtime-result-independent-review-v1",
+  "date": "2026-10-27",
+  "role": "GATE",
+  "risk": "HIGH",
+  "reviewer": "Independent GATE saved actual V6i runtime-result review",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "The saved, committed result of the single approved V6i running update and one fixed BTC archival cited-query probe. Receipt/tool/input/actual-ID consistency and the narrow observed-through-records runtime success are accepted. Not blanket production, sustained health, unrestricted research, external model or UI readiness.",
+  "bounded_runtime_result_state": "ACCEPTED_WITH_RISK",
+  "bounded_runtime_success_recorded": true,
+  "broader_runtime_readiness_state": "INCOMPLETE",
+  "operations_authorized": false,
+  "new_attempt_authorized": false,
+  "retry_or_reset_authorized": false,
+  "start_or_stop_authorized": false,
+  "credential_access_authorized": false,
+  "postcheck_authorized": false,
+  "automatic_follow_on_execution": false,
+  "command_environment": "VERIFIED_ENV repository-local saved-file reads, SHA256 and stdlib JSON comparisons only. Native/current runtime environment not inspected.",
+  "material_assumptions": [],
+  "blocking_findings": [],
+  "findings": [
+    {
+      "id": "V6I-RUNTIME-01",
+      "classification": "SHOWN saved bytes and controller records",
+      "severity": "informational",
+      "finding": "The saved result is committed and internally consistent, not an uncommitted provisional success.",
+      "evidence": "All 73 receipt events were read. Receipt and provisional_result.json are byte-identical to their exact existing cutover state files. Last event cutover_result_committed binds the exact provisional-result SHA256. Tool stdout parses to the outcome after attribution fields are removed, and all provisional summary fields match. Exit 0/session 26515 are saved tool metadata, not a separately observed native process.",
+      "references": [
+        "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl:1",
+        "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl:73"
+      ]
+    },
+    {
+      "id": "V6I-RUNTIME-02",
+      "classification": "SHOWN bound identities/controller attestations",
+      "severity": "informational",
+      "finding": "Four confirmed original quiesces and four confirmed replacement starts correspond to the exact reviewed application set and four prepared IDs.",
+      "evidence": "Saved original/replacement IDs/images, 43 app-source pins, final configured digests and three storage subject records agree with the reviewed manifest/preparation/runtime packet. The source-check field remains verified_at_creation. Tool result reports prepared_ids_preserved=true and preparation_consumed=true, all unresolved lists empty and controller_failure_stage=null. This is not an independent current inventory.",
+      "references": [
+        "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl:49",
+        "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl:53",
+        "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl:57",
+        "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl:61",
+        "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl:72"
+      ]
+    },
+    {
+      "id": "V6I-RUNTIME-03",
+      "classification": "SHOWN saved successful verifier/normalizer outcomes",
+      "severity": "informational",
+      "finding": "The one recorded companion response is HTTP 200 with five citation hash records, execution_disabled=true and accepted normalization; nine compatibility checks and five evidence checks are literal true.",
+      "evidence": "Compatibility shape_valid=true and precondition complete. Evidence envelope has outcome complete, shape_valid=true and fixed diagnostic complete/ok. Installer source requires all five evidence booleans before query_verified, and cutover source requires successful running_update/query/receipt/prepared-ID preservation before publication/commit. The reviewer did not rerun live evidence verification.",
+      "references": [
+        "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl:43",
+        "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl:68",
+        "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl:70",
+        "scripts/research/companion_installer.py:450",
+        "scripts/research/companion_cutover.py:258"
+      ]
+    },
+    {
+      "id": "V6I-RUNTIME-04",
+      "classification": "SHOWN local hash correlation",
+      "severity": "informational",
+      "finding": "All five saved document/citation/URL hash triples correlate exactly to the fixed 55-row archived snapshot by actual IDs, not assumed row numbering.",
+      "evidence": "The order is keyword_5/document5, keyword_47/document47, keyword_18/document18, past_1/document5, future_1/document26. Document and URL matches are unique in the saved snapshot. Topical witness IDs 7/5/47/18 remain the fixed reviewed witness set; correlation is identity evidence, not answer-body reconstruction or a new causal approval."
+    },
+    {
+      "id": "V6I-RUNTIME-05",
+      "classification": "SHOWN source interpretation; broader outcomes UNVERIFIED",
+      "severity": "retained limitation",
+      "finding": "Fallback/primary/configuration/rollback fields must not be promoted to different evidence lanes.",
+      "evidence": "Probe orchestrator uses deterministic retrieved-evidence synthesis with provider fallback, not an external LLM or static dashboard fallback. Primary invalid_envelope has no HTTP status and the probe deliberately returns None from the legacy envelope route, so it is not outage proof. Receipt's installed_before_startup/created-state/configured_only/network_connectivity_verified=false payload is pre-start configuration evidence, not the later running inventory. rollback_verified=false and rollback_exact_baseline=null are unused recovery fields on this successful path, not rollback failure.",
+      "references": [
+        "phase1_research_copilot/orchestrator/main.py:629",
+        "dashboard/services/views/_shared_http.py:225",
+        "scripts/research/companion_installer.py:780",
+        "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl:72"
+      ]
+    }
+  ],
+  "integrity": {
+    "receipt_events": 73,
+    "receipt_sha256": "266f582303978fce5ea87ca33cc804ef3ef3e46ba32528379bde586593815148",
+    "provisional_result_sha256": "cda66d4e334e7c968c25cb0a57fc9f0290dbf111b3f2e00a3172f1122ca26dae",
+    "receipt_byte_equal_state_copy": true,
+    "provisional_byte_equal_state_copy": true,
+    "result_commit_event": 73,
+    "commit_hash_matches_exact_result_bytes": true,
+    "provisional_flag_retained": true,
+    "provisional_flag_interpretation": "The filename/schema still labels the payload provisional=true; the complete receipt subsequently commits those exact bytes. No claim of a separate final-result file.",
+    "exact_tool_stdout_and_outcome_consistent": true,
+    "exact_bound_preparation_inputs_match": true,
+    "reviewed_packet_sha256": "9af970e42f7d1b6e16e0890fbd81cbd5da40abfe312f5b7e189df1907117efd5",
+    "reviewed_handoff_sha256": "197dc454d31944faeff1312e25d616a3dad2833ef2f9bb440577f032116636ea",
+    "accepted_policy_records_and_current_20_consumer_hashes_match": true,
+    "launcher_sha256": "72b80ab18b5f18d8e8fb56e9290f7e55a7de138d7428e8b764c521b1cbc2f6c5"
+  },
+  "saved_runtime_result": {
+    "state": "READY_FOR_INDEPENDENT_REVIEW",
+    "actions_executed": true,
+    "attempt_reserved": true,
+    "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_cutovers/workerprep20261027v6i/receipt.jsonl",
+    "running_update_complete": true,
+    "query_attempted": true,
+    "query_passed": true,
+    "receipt_complete": true,
+    "rollback_verified": false,
+    "rollback_exact_baseline": null,
+    "services_started": true,
+    "prepared_ids_preserved": true,
+    "preparation_consumed": true,
+    "unresolved_quiesce": [],
+    "unresolved_restart": [],
+    "unresolved_replacement_start": [],
+    "unresolved_replacement_cleanup": [],
+    "unresolved_creation": [],
+    "controller_failure_stage": null
+  },
+  "actual_reviewed_replacements": [
+    {
+      "name": "phase1-audit-log",
+      "id": "c1b91732a755ba3dd0c6a449784df6a1b9c8d3ed600dd0e92800dddac7d30d10",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "configured_sha256": "3fa88c5201bb049e73965bd38e280e0d3613cb5be8451f468065d1c940eb48f7"
+    },
+    {
+      "name": "phase1-risk-stub",
+      "id": "e94f1a3651ac49e9ccb3a0c876c475523c30451f9217fbdb71cf055b277a58a0",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "configured_sha256": "7dbed9dcdd2ef8265caafd3f062d8d96ac2f4b85012f3c34856bdd3aaebeddc7"
+    },
+    {
+      "name": "phase1-memory",
+      "id": "50998076e44610503e9e72d5e9135541ebbfc0d0abd3980d8b90a6dc32f4a8e6",
+      "image": "sha256:989471c8465a31e06f6a6765a919422a36d3f96f67f799cbaeebee6c3ab75e05",
+      "configured_sha256": "0f74da099f317ec793e8a853b461ca3645b325741124984166132c53915dad63"
+    },
+    {
+      "name": "phase1-orchestrator",
+      "id": "184db4ebae46f11b97cff8316ca11e7f7216a385f82ac99ccb620b15a768490d",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "configured_sha256": "fccb06da766f455f4908f4c4b0ed2c10607ab843691e4905da6202cf2ddebcb7"
+    }
+  ],
+  "receipt_phase_counts": {
+    "cutover_inputs_bound": 1,
+    "installation_reserved": 1,
+    "runtime_operation_intended": 21,
+    "quiesce_intended": 4,
+    "quiesce_diagnostic": 4,
+    "quiesce_confirmed": 4,
+    "rename_intended": 4,
+    "detach_intended": 4,
+    "disconnect_staged_intended": 4,
+    "rename_staged_intended": 4,
+    "connect_staged_intended": 4,
+    "replacement_checks": 4,
+    "runtime_compatibility_checks": 1,
+    "replacement_start_intended": 4,
+    "replacement_start_confirmed": 4,
+    "query_intended": 1,
+    "query_diagnostics": 1,
+    "evidence_verification_checks": 1,
+    "installation_checks_passed_pending_return": 1,
+    "cutover_result_committed": 1
+  },
+  "receipt_line_bindings": {
+    "cutover_inputs_bound": [
+      1
+    ],
+    "quiesce_confirmed": [
+      7,
+      10,
+      13,
+      16
+    ],
+    "replacement_checks": [
+      22,
+      28,
+      34,
+      40
+    ],
+    "runtime_compatibility_checks": [
+      43
+    ],
+    "replacement_start_confirmed": [
+      49,
+      53,
+      57,
+      61
+    ],
+    "query_diagnostics": [
+      68
+    ],
+    "evidence_verification_checks": [
+      70
+    ],
+    "installation_checks_passed_pending_return": [
+      72
+    ],
+    "cutover_result_committed": [
+      73
+    ]
+  },
+  "compatibility_checks": {
+    "checks": {
+      "effective_config": true,
+      "entrypoint_side_effects": true,
+      "installed_source": true,
+      "no_model": true,
+      "no_proxy_redirect": true,
+      "no_trading": true,
+      "read_only_startup": true,
+      "recipient_bindings": true,
+      "zero_retries": true
+    },
+    "false_meaning": "not_established_or_not_evaluated",
+    "precondition": {
+      "predicate": "complete",
+      "target": null
+    },
+    "recipient_diagnostic": null,
+    "shape_valid": true
+  },
+  "evidence_verification": {
+    "checks": {
+      "article_view_mapping": true,
+      "causal_limits": true,
+      "content_hash": true,
+      "persisted_identity": true,
+      "topical_support": true
+    },
+    "diagnostic": {
+      "code": "ok",
+      "stage": "complete"
+    },
+    "false_meaning": "not_established_or_not_evaluated",
+    "outcome": "complete",
+    "shape_valid": true
+  },
+  "query_evidence": {
+    "question": "What news explains Bitcoin liquidations?",
+    "asset": "BTC",
+    "profile": "single-cited-query-v1",
+    "companion_http_status": 200,
+    "normalizer_accepted": true,
+    "saved_response_summary": {
+      "citation_hashes": [
+        {
+          "document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+          "id_sha256": "825276fb323c14aef5c371e7dc39b1158c25e4a7b9976e286a347ccf297922e5",
+          "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"
+        },
+        {
+          "document_id_sha256": "31489056e0916d59fe3add79e63f095af3ffb81604691f21cad442a85c7be617",
+          "id_sha256": "49341020decbee6f365158982a614e5ae37ff18d068bda1a5a45f554e1ebeab6",
+          "url_sha256": "905a2486b2d6798bd88b20752f70caf1c26aaa888b8d0e140725b211fe2d43a1"
+        },
+        {
+          "document_id_sha256": "4ec9599fc203d176a301536c2e091a19bc852759b255bd6818810a42c5fed14a",
+          "id_sha256": "baf4de69ae88907bd367263971763358552c0629455442e1851ed807dc22c2ff",
+          "url_sha256": "bfabd7b098affda17a79049561d66a17b9ceca608c86750a78e6d2cd68ee94c6"
+        },
+        {
+          "document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+          "id_sha256": "94587d9b898f590a8230c11090a6a90f32de5c8cf0a5122220125d1bc3222144",
+          "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"
+        },
+        {
+          "document_id_sha256": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca",
+          "id_sha256": "947c4f24610e0afd195f267195fddc938be21ea9e91ed3d6a78fd823d0258d87",
+          "url_sha256": "2b23da7df1f127f8bd59c2b526d09a60fd9b7f20eb855589321f2a0adb08e8a0"
+        }
+      ],
+      "evidence_count": 5,
+      "execution_disabled": true,
+      "fields_present": [
+        "current_cause",
+        "past_precedent",
+        "future_catalyst",
+        "evidence",
+        "assistant_status",
+        "execution_disabled"
+      ],
+      "provider": "fallback",
+      "shape": "object"
+    },
+    "citation_correlations": [
+      {
+        "document_id": 5,
+        "citation_id": "keyword_5",
+        "document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+        "id_sha256": "825276fb323c14aef5c371e7dc39b1158c25e4a7b9976e286a347ccf297922e5",
+        "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"
+      },
+      {
+        "document_id": 47,
+        "citation_id": "keyword_47",
+        "document_id_sha256": "31489056e0916d59fe3add79e63f095af3ffb81604691f21cad442a85c7be617",
+        "id_sha256": "49341020decbee6f365158982a614e5ae37ff18d068bda1a5a45f554e1ebeab6",
+        "url_sha256": "905a2486b2d6798bd88b20752f70caf1c26aaa888b8d0e140725b211fe2d43a1"
+      },
+      {
+        "document_id": 18,
+        "citation_id": "keyword_18",
+        "document_id_sha256": "4ec9599fc203d176a301536c2e091a19bc852759b255bd6818810a42c5fed14a",
+        "id_sha256": "baf4de69ae88907bd367263971763358552c0629455442e1851ed807dc22c2ff",
+        "url_sha256": "bfabd7b098affda17a79049561d66a17b9ceca608c86750a78e6d2cd68ee94c6"
+      },
+      {
+        "document_id": 5,
+        "citation_id": "past_1",
+        "document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+        "id_sha256": "94587d9b898f590a8230c11090a6a90f32de5c8cf0a5122220125d1bc3222144",
+        "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"
+      },
+      {
+        "document_id": 26,
+        "citation_id": "future_1",
+        "document_id_sha256": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca",
+        "id_sha256": "947c4f24610e0afd195f267195fddc938be21ea9e91ed3d6a78fd823d0258d87",
+        "url_sha256": "2b23da7df1f127f8bd59c2b526d09a60fd9b7f20eb855589321f2a0adb08e8a0"
+      }
+    ],
+    "frozen_snapshot_sha256": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "interpretation": "Successful single archival/source-backed deterministic companion probe through the existing dashboard client/normalizer/asset guard and remote evidence verifier. The frozen source contract intentionally excludes market evidence. Raw prose/DB row types and the full response were not retained, so the actual marker/payload is not independently reconstructed here.",
+    "provider_fallback_is_external_llm": false,
+    "provider_fallback_is_static_dashboard": false,
+    "primary_invalid_envelope_proves_primary_outage": false,
+    "ordinary_market_explanation_tested": false,
+    "actual_ui_browser_request_tested": false
+  },
+  "controlflow_interpretation": {
+    "startup": "Four replacement_start_confirmed events record controller-checked transitions to running. The installer validates the transition after each start and retains expected runtime identities; these are controller attestations, not a reviewer-native observation.",
+    "recipient_and_health": "Receipt records intended recipient_checks and health_checks after starts. Their returned payloads are not separately serialized. Progression to query/success is supported by the unchanged hash-bound installer control flow requiring their exact all-true sets; no fresh raw health report is invented.",
+    "configuration_snapshot": "The installation_checks_passed_pending_return event is emitted after runtime checks but contains the saved pre-start final variable. Its created state and configured_only evidence are correctly labelled installed_before_startup. Later successful transport/checks are separate evidence, not a relabelled snapshot.",
+    "success_disposition": "The recorded successful path leaves the four prepared replacements running as approved; no recovery event or recovery attempt is recorded. This review performs no current-state postcheck.",
+    "rollback": "rollback_verified=false and exact-baseline null are not evaluated recovery outcomes. No healthy or exact restoration claim is made.",
+    "consumed_attempt": "The receipt/outcome show attempt reserved and preparation consumed. Do not rerun or reset this attempt. This review grants no further action."
+  },
+  "attribution": {
+    "approval_single_invocation_session_and_exit": "CLAIMED invocation history supplied by operator/checkpoint and saved exact tool_result metadata; native session was not independently observed by this reviewer.",
+    "saved_bytes_inputs_commit_and_correlations": "SHOWN through local hash/JSON comparisons.",
+    "runtime_start_check_and_query_success": "SHOWN in the hash-bound controller receipt and matching committed result/tool summary, not independently repeated live.",
+    "tool_wall_seconds": 51.409796333,
+    "timing_limit": "Saved tool wall-time metadata only; not an independently measured whole-wrapper bound. Existing 600-second controller budget includes 180-second recovery, with separate earlier CLI/token-source bounds.",
+    "current_live_state_sustained_health_general_readiness": "UNVERIFIED."
+  },
+  "proof": {
+    "method": "Read complete checkpoint, four public saved artifacts and exactly two existing cutover state files. Stdlib-only strict duplicate-key JSON/SHA256 script checked count/order/phase sets, exact state copies, commit, tool/outcome/result agreement, input and current consumer/record hashes, all four original/replacement IDs/images/configured digests and 43 app-source pins, all nine/five literal-Boolean checks, and five archived identity/URL/citation correlations.",
+    "result": "Passed; 45 distinct files hash-bound.",
+    "tests_run": false,
+    "reason_no_tests": "No implementation change. Requested review of saved runtime evidence, not rerun of implementation or native checks.",
+    "native_or_cli_calls": 0,
+    "network_calls": 0,
+    "credential_reads": 0,
+    "db_calls": 0,
+    "sdk_initializations": 0,
+    "application_queries": 0,
+    "service_operations": 0,
+    "extra_agents": 0,
+    "full_suite": false,
+    "broad_sdk_or_rootcause_audit": false,
+    "raw_answer_or_query_reconstructed": false,
+    "no_captured_code_or_runtime_helper_executed": true
+  },
+  "limits": [
+    "Acceptance is this single committed archival runtime proof only. It does not establish blanket production readiness, unrestricted interactive research or continued health after the recorded window.",
+    "All nine compatibility and five evidence results are saved controller/verifier attestations. No new native check or independent DB/source-body verification was performed by the reviewer.",
+    "Five hash correlations identify archived documents and URLs; raw answer prose is ephemeral, so full response/predicate replay is unavailable and was not attempted.",
+    "The approved archival market exclusion is intentional, not an absence-of-ticks claim or general market readiness. No external model or actual browser/UI path was tested.",
+    "Primary invalid_envelope is explained by probe isolation, not a diagnosis of production primary API availability.",
+    "The created-state installation payload is a pre-start configuration lane, even though its event appears later; it is not a fresh post-start inventory or independently certified network map.",
+    "Successful source-backed query and required recipient/health checks are bounded observations through records, not sustained health, exhaustive SDK behavior or full image/dependency closure.",
+    "No recovery was needed or tested on this attempt. False/null rollback fields imply neither failed recovery nor healthy/exact restoration.",
+    "Logs/audit effects can persist. No token value appears in the reviewed saved diagnostic output, but no universal log-absence or secure zeroization claim is made.",
+    "No profitability, economic edge, trading eligibility, new risk/schedule/account settings or deployment-wide acceptance follows.",
+    "Historical packet/handoff checkpoint hashes remain precloseout references. Exact source/review/record bindings were checked; no executable drift waiver was used.",
+    "No follow-on action, retry/reset, live postcheck, service mutation, query or credential access is authorized by this review."
+  ],
+  "hashes": {
+    "algorithm": "SHA256",
+    "reviewed_inputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl": "266f582303978fce5ea87ca33cc804ef3ef3e46ba32528379bde586593815148",
+      ".cbp_state/runtime/companion_cutovers/workerprep20261027v6i/receipt.jsonl": "266f582303978fce5ea87ca33cc804ef3ef3e46ba32528379bde586593815148",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/provisional_result.json": "cda66d4e334e7c968c25cb0a57fc9f0290dbf111b3f2e00a3172f1122ca26dae",
+      ".cbp_state/runtime/companion_cutovers/workerprep20261027v6i/provisional_result.json": "cda66d4e334e7c968c25cb0a57fc9f0290dbf111b3f2e00a3172f1122ca26dae",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/tool_result.json": "16df3630d35981688b53366e98cde8aa4f41d02ae341183118ee649b5c3dd48b",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/outcome.json": "00ac70caeebe85e4a91ec5221c7238bb521e04223c105d36e9eab9fc55d3ab60",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/independent_review.json": "9af970e42f7d1b6e16e0890fbd81cbd5da40abfe312f5b7e189df1907117efd5",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/handoff_independent_review.json": "197dc454d31944faeff1312e25d616a3dad2833ef2f9bb440577f032116636ea",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/accepted_policy_records/phase1-audit-log.json": "fae249f4153df49bba3ff9a27280b92327f62407762552cf36c2b961a9a59aa4",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/accepted_policy_records/phase1-memory.json": "2af683d559f41363f5ef51dda8361a5302c39736a6ba6fb9746da6091aa5a06f",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/accepted_policy_records/phase1-minio.json": "f34c3b8fa78ec42e251e054f44da58ea47e80d8ce3f77bcb28b7c40d8c9ce725",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/accepted_policy_records/phase1-orchestrator.json": "1603bda05d922c415988d6aa5c02cce63abe3869b9b0057ecac8bcff7353391f",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/accepted_policy_records/phase1-qdrant.json": "d7247f119a80bf10f8ca2b3f279d8aa4e2db3b328eec7ab8ca3d2e956d41e516",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/accepted_policy_records/phase1-risk-stub.json": "06f0e28001b4f5ffb1014238574de4e57462529647a44b9080f74d3b1419324b",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/accepted_policy_records/phase1-timescaledb.json": "8dc02ddf84b38a60ee27cba17edf6bf10aeda6aa629ca78a2ac1517fafbdd28f",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/accepted_policy_records/runtime_review.json": "55fa58a29bbe6aeee2bb138863087f4e2136d6741eb3cf54dcad97b0ff97fb60",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/runtime_packet_v6i/accepted_policy_records/scope_review.json": "243e616fcf499bf551f67c08436322b2b5a187b0c0d5965389591cd2d7cb1b5b",
+      "dashboard/services/view_data.py": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51",
+      "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+      "dashboard/services/views/_shared.py": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202",
+      "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+      "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+      "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+      "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+      "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+      "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+      "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+      "scripts/research/companion_evidence_checks.py": "9c58b8128d6ff9fd6a140ef7b107323497886f1640aac69e357eb79bff684461",
+      "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+      "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+      "scripts/research/companion_installer.py": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b",
+      "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+      "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+      "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d",
+      "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/execute_reviewed_v6i.py": "72b80ab18b5f18d8e8fb56e9290f7e55a7de138d7428e8b764c521b1cbc2f6c5",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/reviewed_preparation_manifest.json": "3c8066b43cf924374f2338907f306aadec25fdb599a2ef28a068ab0a21632a33",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/preparation_evidence.json": "6b307618be50d7e6179106fbcfc837ac5ec0695a12aaa9888b34fed54e8d2fcf",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/actual_id_review.json": "f50dc3ecdd7a6271138640c9ac7d873c20377edc0b98311fc63324d70d13efbb",
+      "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+      "docs/checkpoints/companion_runtime_attempt_v6i_20261027.md": "debb8e79058acb23e7b94050b2bd5693591d1de6bd3846c95ba3f98457511c81",
+      "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+      "phase1_research_copilot/memory_retrieval/main.py": "9f68fe4d09c00c11a659bb705f6c885939e717d70f9d7b1b43cd995e440b52cf"
+    },
+    "current_runtime_consumer_sha256": {
+      "dashboard/services/view_data.py": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51",
+      "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+      "dashboard/services/views/_shared.py": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202",
+      "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+      "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+      "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+      "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+      "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+      "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+      "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+      "scripts/research/companion_evidence_checks.py": "9c58b8128d6ff9fd6a140ef7b107323497886f1640aac69e357eb79bff684461",
+      "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+      "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+      "scripts/research/companion_installer.py": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b",
+      "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+      "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+      "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d",
+      "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+    }
+  },
+  "read_scope": {
+    "full_receipt": "All 73 events, including entire diagnostics and configuration payload; no truncation in review.",
+    "full_saved_artifacts": [
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/receipt.jsonl",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/provisional_result.json",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/tool_result.json",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/outcome.json",
+      "docs/checkpoints/companion_runtime_attempt_v6i_20261027.md"
+    ],
+    "exact_state_copies": [
+      ".cbp_state/runtime/companion_cutovers/workerprep20261027v6i/receipt.jsonl",
+      ".cbp_state/runtime/companion_cutovers/workerprep20261027v6i/provisional_result.json"
+    ],
+    "selected_sources": "Probe isolation in _shared_http; diagnostic hash encoding; strict orchestrator fallback/assembly; archival-only memory marker; verifier marker branch; installer transition/query/verification/evidence/result; cutover success/publication/commit. Narrow source interpretation only, no broad audit.",
+    "archive": "Fixed 55-row original_snapshot.json read for actual-ID/URL hash correlation; no new market data or raw-answer reconstruction.",
+    "exact_hash_paths": "hashes.reviewed_inputs lists every file hashed in this verification; source files outside the named selected ranges were byte-bound, not broadly semantically re-audited."
+  },
+  "next_boundary": "The single bounded archival restoration/probe objective has saved successful proof. Preserve the consumed attempt and evidence. Any separate broader market/model/UI-readiness objective or live check requires its own explicit scope and authorization; none is initiated here.",
+  "write_scope": [
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_runtime_v6i/independent_review.json"
+  ]
+}

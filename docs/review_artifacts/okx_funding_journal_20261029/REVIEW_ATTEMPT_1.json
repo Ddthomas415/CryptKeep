@@ -1,0 +1,18 @@
+{
+  "acceptance_state": "REJECTED",
+  "reviewer_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1875a-5b9c-72f0-8e88-45f2fd3a72ab",
+  "finding": {
+    "id": "OKX-JOURNAL-01",
+    "severity": "P2",
+    "evidence": "SHOWN static; no reviewer extra probe",
+    "description": "RecursionError from deeply nested retained base64 JSON escapes the pair diagnostic boundary and aborts the scan; no eligibility bypass."
+  },
+  "bindings_verified": 23,
+  "independent_tests": {
+    "passed": 206,
+    "seconds": 1.3,
+    "exit_code": 0
+  },
+  "source_sha256": "118140a2b3a20bff36b3c832c8c81c482e60bd7ac55ebffe427f9e84ebef971a"
+}

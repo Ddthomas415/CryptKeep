@@ -1,0 +1,30 @@
+{
+  "recorded_at": "2026-10-29T15:19:26.183553+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "exact opt-in collector-service source integration only",
+  "reviewer_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1883b-f3a9-7bd1-9859-5e8bb53854fe",
+  "bindings_verified": 44,
+  "prior_unmodified_inputs": 32,
+  "service_sha256": "b4788e654618a3bd9370f54fa16b866b9c5a70eb77e7a0722e5158ddfd83e53b",
+  "batch_sha256": "215792df7943e021f6ee7afba4ab8f5cbe8534d9ceaa7c4c1c123e479ded0dd4",
+  "independent_tests": {
+    "passed": 278,
+    "warnings": 5,
+    "warning_reason": "existing slow markers under isolated -c /dev/null configuration",
+    "seconds": 1.87,
+    "exit_code": 0,
+    "runs": 1
+  },
+  "findings": "No material blocker. Exact3filepatch/before pin/default parity verified; shared funding limits, retained diagnostic failures, okFalse on failed pairs and separated forecast/legacy fields supported.",
+  "remaining_limits": [
+    "other streams outside funding budget",
+    "whole-process timing not certified",
+    "real-store initialization and live integration unverified",
+    "binary signature trust unresolved",
+    "no collector activation/deployment/trading authority"
+  ],
+  "original_fix3_state": "INCOMPLETE",
+  "checkpoint_note": "Frozen checkpoint retains submission status; this later closure records actual separate acceptance."
+}

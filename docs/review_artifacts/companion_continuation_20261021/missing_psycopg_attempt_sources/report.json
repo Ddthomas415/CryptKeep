@@ -1,0 +1,146 @@
+{
+  "after": [
+    {
+      "id": "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created"
+    },
+    {
+      "id": "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created"
+    },
+    {
+      "id": "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+      "image": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created"
+    },
+    {
+      "id": "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created"
+    }
+  ],
+  "before": [
+    {
+      "id": "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created"
+    },
+    {
+      "id": "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created"
+    },
+    {
+      "id": "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+      "image": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created"
+    },
+    {
+      "id": "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created"
+    }
+  ],
+  "commands": 10,
+  "credentials_accessed": false,
+  "elapsed_seconds": 0.544,
+  "error": null,
+  "files": [
+    {
+      "bytes": 3100,
+      "container_id": "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+      "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/_conninfo_attempts.py",
+      "saved_file": "0_psycopg__conninfo_attempts.py",
+      "sha256": "b35ab33f325f2308cb13227d1322f14b0faa6d7174a1f452560e6a50ef01f0f7"
+    },
+    {
+      "bytes": 3014,
+      "container_id": "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+      "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/_conninfo_utils.py",
+      "saved_file": "1_psycopg__conninfo_utils.py",
+      "sha256": "d4f6b2971a730f2391d05e108bb8d1b5cc2fec2621f5e3079f2389d650b60c59"
+    },
+    {
+      "bytes": 3100,
+      "container_id": "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+      "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/_conninfo_attempts.py",
+      "saved_file": "2_psycopg__conninfo_attempts.py",
+      "sha256": "b35ab33f325f2308cb13227d1322f14b0faa6d7174a1f452560e6a50ef01f0f7"
+    },
+    {
+      "bytes": 3014,
+      "container_id": "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+      "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/_conninfo_utils.py",
+      "saved_file": "3_psycopg__conninfo_utils.py",
+      "sha256": "d4f6b2971a730f2391d05e108bb8d1b5cc2fec2621f5e3079f2389d650b60c59"
+    },
+    {
+      "bytes": 3100,
+      "container_id": "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+      "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/_conninfo_attempts.py",
+      "saved_file": "4_psycopg__conninfo_attempts.py",
+      "sha256": "b35ab33f325f2308cb13227d1322f14b0faa6d7174a1f452560e6a50ef01f0f7"
+    },
+    {
+      "bytes": 3014,
+      "container_id": "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+      "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/_conninfo_utils.py",
+      "saved_file": "5_psycopg__conninfo_utils.py",
+      "sha256": "d4f6b2971a730f2391d05e108bb8d1b5cc2fec2621f5e3079f2389d650b60c59"
+    },
+    {
+      "bytes": 3100,
+      "container_id": "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726",
+      "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/_conninfo_attempts.py",
+      "saved_file": "6_psycopg__conninfo_attempts.py",
+      "sha256": "b35ab33f325f2308cb13227d1322f14b0faa6d7174a1f452560e6a50ef01f0f7"
+    },
+    {
+      "bytes": 3014,
+      "container_id": "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726",
+      "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "path": "/usr/local/lib/python3.11/site-packages/psycopg/_conninfo_utils.py",
+      "saved_file": "7_psycopg__conninfo_utils.py",
+      "sha256": "d4f6b2971a730f2391d05e108bb8d1b5cc2fec2621f5e3079f2389d650b60c59"
+    }
+  ],
+  "input_sha256": "c505e4c6c3b2be5cd1054ac976fd69a503d0fcf2b2304cc6e6583ef1b1decb06",
+  "recorded_utc": "2026-10-22T01:11:04.375966+00:00",
+  "schema": "companion-missing-runtime-sources-v1",
+  "services_started": false,
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "transfer_bytes": 40848
+}

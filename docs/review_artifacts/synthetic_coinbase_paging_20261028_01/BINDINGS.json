@@ -1,0 +1,19 @@
+{
+  "captured_at_utc": "2026-10-28T14:23:37.505289+00:00",
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "synthetic callback pager only; no production or private data",
+  "tests": {
+    "passed": 45,
+    "seconds": 0.22
+  },
+  "inputs_sha256": {
+    "scripts/research/synthetic_coinbase_balance_paging.py": "6d5bb2cbb7d833cb7188432ebd62859db74371d36cb4b71372a0288383944bed",
+    "tests/test_synthetic_coinbase_balance_paging.py": "b9b3d29ba33e24ea612bf4eadf95cbc69e2f0f675cbc7bf64ba387905123dd16",
+    "services/execution/place_order.py": "f7337e9885026b430aab89d53f2ba6f24e402f814c5f57ad4097b71e775d5119",
+    "docs/research/synthetic_coinbase_paging_20261028.md": "382566a6a0f5edeb89947a191147be7aeb7941e438a170a79e5414a66b06c97a"
+  },
+  "source_diff_sha256": "a85383c868dabb63b50400ecb96be29cef02091ccc888ad833ff493b0961c2a1",
+  "accepted_cap_unchanged": true,
+  "pilot_pins_unchanged": 10,
+  "production_repair_complete": false
+}

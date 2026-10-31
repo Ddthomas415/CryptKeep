@@ -1,0 +1,157 @@
+{
+  "schema": "companion-v6e-runtime-packet-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent GATE: bounded offline V6e packet/policy applicability review",
+  "decision": "ACCEPTED_WITH_RISK",
+  "derivation_decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Exact seven-subject132pin V6e V2 packet/source-configuration policy derivatives and20hash-bound consumers for offline loading/handoff review only. No runtime or operational acceptance.",
+  "runtime_status": "INCOMPLETE",
+  "historical_runtime_cause": "UNVERIFIED",
+  "blocking_findings": [],
+  "findings": [],
+  "material_assumptions": [],
+  "bindings": {
+    "producer": {
+      "path": "docs/review_artifacts/companion_reconnection_plan_20261024/assemble_runtime_packet_v6e.py",
+      "sha256": "d2977fc344b89076571b4f5fb28b73a1de3e37d94244b8db6037e191f690ede3"
+    },
+    "helper": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/assemble_runtime_packet_v6c.py",
+      "sha256": "319153a8c64cb5666d046c0f7031146eaf50deeab14d8d49451fe810734b80fd",
+      "meaning": "Hash-pinned non-main reuse; no old executable/writing branch invoked."
+    },
+    "tests": {
+      "path": "tests/test_companion_v6e_runtime_packet.py",
+      "sha256": "3cc33d2dbd29fba71971bd35a4606d10c6610692006547ef5694d2e0201ee4d3"
+    },
+    "provenance": {
+      "path": "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/provenance.json",
+      "sha256": "c3946750c5ed140a11b7da675294389b28e67bcb165a67b89ac258b24608d0e0",
+      "meaning": "16inputpins, current20consumers including unchanged13prep+7host/client/evidence, accepted actual IDs and exact new/retained source provenance."
+    },
+    "subjects": {
+      "path": "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/subjects.draft.json",
+      "sha256": "941a9247af98790c069ff5da61f3aca46a4ca6fd98d6d6fcf82b2936bbb73683",
+      "subjects": 7,
+      "source_pins": 132
+    },
+    "scope": {
+      "path": "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/scope_review.json",
+      "sha256": "7da764a58196cd66cf2466d393729d3d3267b620f3829fcd974ca3f977e27b5d"
+    },
+    "runtime": {
+      "path": "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/runtime_review.json",
+      "sha256": "9590454b0f9d9fd3350ff58ffae7eafe2b5cacc0a480f0e4e100289bef4c43b0",
+      "schema": "companion-runtime-pins-v2",
+      "child_records": 7,
+      "child_hash_binding": "dependency_reviews maps each exact image to new accepted exact-subject child bytes."
+    },
+    "prior_scope": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/accepted_policy_records/scope_review.json",
+      "sha256": "63a8571166993cfbccb51ae474da9fd43089cdea8f61861ff52fb0bfdc2c74d9",
+      "entire_scope_read": true
+    },
+    "actual_id_review": {
+      "path": "docs/review_artifacts/companion_reconnection_plan_20261024/actual_preparation/actual_id_review.json"
+    },
+    "topical_approvals": {
+      "path": "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/topical_approvals.json",
+      "sha256": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+      "ids": [
+        7,
+        5,
+        47,
+        18
+      ]
+    }
+  },
+  "reviewed_artifact_hash_table": {
+    "path": "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/scope_review.json",
+    "sha256": "7da764a58196cd66cf2466d393729d3d3267b620f3829fcd974ca3f977e27b5d",
+    "json_field": "reviewed_artifact_sha256",
+    "meaning": "Exact inspected source/test/input/prior-child/twelve-draft hashes incorporated by scope hash rather than duplicating132pins/43witnesses."
+  },
+  "accepted_artifact_sha256": {
+    "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/scope_review.json": "7da764a58196cd66cf2466d393729d3d3267b620f3829fcd974ca3f977e27b5d",
+    "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/phase1-timescaledb.json": "df9b7e7a994bd5ffe8f08878f759feb13a71d2a001b440f2e19fa3635aec3f32",
+    "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/phase1-qdrant.json": "ceaa58e9f3ab7daf0c882a2ba530329412b57c2ddbd428e0681c29a4dc566ff6",
+    "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/phase1-minio.json": "3015ebbaec574d6ac482ca0ddffbd94461ca47bfdf0e43055c00e5b340243a0f",
+    "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/phase1-audit-log.json": "015d82f4bb09903ce030c48fa16c9f8321d1cca9983d1c52af84daa0dae36dc7",
+    "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/phase1-risk-stub.json": "d89958a75797583eb72ad583df38884d91468365a195510bdb670dcaea85dc81",
+    "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/phase1-memory.json": "2cb1159e4be560063c484fd944f7f22f1adc8cdb0feb20c1946d86a5e68b3b1d",
+    "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/phase1-orchestrator.json": "2ba00b9688912f6e3e04c4dd85b5315f535cb5b028e8ddbec410aa1ca7f6c50f",
+    "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/accepted_policy_records/runtime_review.json": "9590454b0f9d9fd3350ff58ffae7eafe2b5cacc0a480f0e4e100289bef4c43b0"
+  },
+  "shown": [
+    "Twelve unaccepted drafts reproduce exactly; producer creates no acceptance or operations. Actual-review and postcheck shape adapters are in-memory only, and raw/adapted hashes remain distinct.",
+    "Three storage subjects/raw pins unchanged; all seven images/source maps and four direct module commands unchanged from accepted V6d scope. New four IDs match accepted V6e stopped evidence. Four final configured predictions recomputed directly, still MODELLED.",
+    "All20currentconsumerhashes match; prior13prepconsumers unchanged. Added7bindings cover existing bounded probe transport/facades, accepted exact context guard and unchanged citation verifier. No ordinary-route, blanket no-retry or SDK readiness claim.",
+    "Three policy meanings and seven preserved limits retained verbatim. Each subject policies/risks/support block retained verbatim with explicit current applicability and historical references. Policy SHOWN decisions rest on this retained evidence and exact unchanged profile, not synthetic-loader success.",
+    "Exact independently reviewed [7,5,47,18] archived records bound canonically. This prospective packet does not edit/activate old proposal envelopes, consumed runtime packets or operations. Current3/3selection caps remain unchanged."
+  ],
+  "source_provenance": {
+    "total": 132,
+    "direct_v6e_application_witnesses": 43,
+    "inherited_exact_image_or_storage_pins": 89,
+    "direct_witness_table": {
+      "path": "docs/review_artifacts/companion_reconnection_plan_20261024/actual_preparation/postcheck.json",
+      "sha256": "129ffe87c50b845f4f61374c62c0c23bbb9bdd64b2dbbbd870849f499904dbc1",
+      "field": "sources"
+    },
+    "inherited_breakdown": {
+      "previous_archival_same_image_source_only_or_storage_pins": 85,
+      "historical_launcher_pins": 4
+    },
+    "meaning": "Native file digests are parent-reported, matched to local/manifest in accepted actual-prep review; source image association comes from same-ID stable metadata. Four old-ID launchers and SDK/library/storage pins are inherited, not freshly recaptured or proof of loaded module origin. Mandatory fresh installed-byte gates remain."
+  },
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV for isolated offline tests/pure artifact computations only",
+    "tests": {
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -c 'import pytest; from pathlib import Path; from tests.test_companion_v6e_runtime_packet import recipe; from scripts.research.companion_installer import canonical\nout=recipe.derive()\nassert len(out)==12\nfor name,value in out.items():\n assert (recipe.HERE/\"runtime_packet_v6e\"/name).read_bytes()==canonical(value), name+\" not reproducible\"\nprint(\"All12 frozen drafts exactly reproduced (canonical bytes, no LF).\",flush=True)\nraise SystemExit(pytest.main([\"--noconftest\",\"-c\",\"/dev/null\",\"-p\",\"no:cacheprovider\",\"-q\",\"tests/test_companion_v6e_runtime_packet.py\"]))'",
+      "exit_code": 0,
+      "result": "All12 frozen drafts exactly reproduced (canonical bytes, no LF).\n...............                                                          [100%]\n15 passed in 0.35s"
+    },
+    "exact_twelve_draft_reproduction": true,
+    "current_consumer_hashes_checked": 20,
+    "prior_child_hashes_checked": 7,
+    "images_and_source_maps_unchanged": 7,
+    "storage_subjects_unchanged": 3,
+    "application_calls_unchanged": 4,
+    "final_configured_models_recomputed": 4,
+    "direct_v6e_application_witnesses": 43,
+    "inherited_pins": 89,
+    "native_operations": 0,
+    "credential_accesses": 0,
+    "service_operations": 0
+  },
+  "real_loader_result": "SHOWN exit0: published actual derivatives pass existing pure load_inputs, _policy_reviews_match, _source_coverage, _topical_contract and reviewed_network_bindings; all8reviewer fields bind exact new scope SHA256. Socket/subprocess/backend/reservation tripwires enabled. This checks composition, not policy truth or runtime. No default CLI, token, native or operation invoked.",
+  "remaining_limits": [
+    "Acceptance is source/configuration policy proof for the listed hash-bound profile, not observed startup, SDK initialization, endpoint success or a citation result.",
+    "HTTPcore pool reassignment and Psycopg address fallback remain disclosed. No blanket absence of duplicate business effects or lower-layer connection attempts is asserted; no duplicate execution was observed by this review.",
+    "Only planned client checks against already-running storage are assessed; no storage daemon-wide no-retry, background-effect or effect-free-entrypoint claim is made.",
+    "Four app source bindings include accepted preparation-controller attestations; older matching-image SDK captures and new-memory source-only inheritance retain their stated provenance distinctions. The policy accepts the specified bytes, not an unverified future installation.",
+    "Existing fresh identity/image/configuration/installed-source/namespace/recipient/lineage/archive/citation gates are not waived, replaced by this packet or declared passed.",
+    "No general market/news/model capability is removed or accepted as ready. No current-market causal truth, profitability, trading eligibility or production deployment is inferred.",
+    "Records remain meaningful only with this scope, the reviewed consumers and exact subjects/source pins; arbitrary use of the same images is outside acceptance.",
+    "For selected application pins, V2 configured-only blank IDs require created/never-started state, exact-integer zero restarts, restart policy no and the unchanged projection checks. Selected storage still requires an actual reported network ID. Raw inventory, installer/recovery comparisons and storage fingerprints remain unchanged.",
+    "Separately accepted dormant-nonrecipient exception: an unselected row on the reviewed network may have a blank reported ID only when created, never started, exact-int zero restarts, restart policy no, no existing reserved recipient alias, and the existing network.project endpoint/address/identity checks pass. Its row remains in the full-inventory ownership scan. This is an intentional eligibility acceptance difference, not policy parity.",
+    "Wrong reported IDs, nonempty contradictory endpoint/address evidence, reserved-alias collisions and restart/state drift still refuse. Post-start recipient_checks still requires real attachment and pinned selected identities; configured projection is not connectivity.",
+    "Only null/empty IPAM are equivalent. Complete declared final aliases remain MODELLED. No extra daemon alias is stripped or guessed equivalent. Actual activation must pass the existing fresh fail-closed identity/configuration/installed-source/namespace/storage/recipient/lineage/archive/citation gates.",
+    "Optional recipient diagnostics are fixed-label, selected-name-only/otherwise-null, sanitized again at receipt. First refusal follows traversal order and is not a unique cause; exceptions can produce broad bounded categories, and later predicates can be unevaluated. No raw exception, unselected name, network payload, environment or token is exported by this diagnostic acceptance.",
+    "All three restricted policy meanings remain literal: not zero physical connection/DNS/pool attempts, not effect-free startup, and not arbitrary image/daemon approval. Existing HTTPcore/Psycopg fallback and version-specific private S3 retry-hook limitations remain.",
+    "No fresh native/liveness, module-origin/callable binding, SDK/import/startup, current endpoint health, final attachment, worker ownership, clock coherency, installed pidfd, acknowledgement/cancellation/recovery, cited retrieval, volume integrity or profitability proof is supplied. Historical runtime causes remain UNVERIFIED.",
+    "V6e stopped preparation reservation is consumed; do not rerun/reset preparation or adopt old removed V6d stages. Separate fixed handoff review and explicit bounded operator authorization remain necessary before any runtime action.",
+    "Binding20currentconsumers is scope applicability, not broad source closure or approval of all ordinary dashboard routes. Future handoff must bind these exact current consumers; no old wrapper is adopted."
+  ],
+  "operational_authorized": false,
+  "runtime_execution_authorized": false,
+  "credential_or_token_handoff_authorized": false,
+  "preparation_or_retry_authorized": false,
+  "reservation_reset_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "trading_authorized": false,
+  "automatic_follow_on_execution": false,
+  "write_scope": "Only this new independent review and9accepted derivative records. Frozen assembler/tests/drafts/input/old policy records/worklog untouched."
+}

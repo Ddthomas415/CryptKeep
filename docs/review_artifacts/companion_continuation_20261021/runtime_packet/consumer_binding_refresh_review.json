@@ -1,0 +1,139 @@
+{
+  "schema": "companion-consumer-binding-refresh-review-v1",
+  "reviewed_at": "2026-10-23T00:22:10.200034+00:00",
+  "active_role": "GATE",
+  "reviewer": "Independent Codex GATE: supplemental exact-code Healthcheck consumer binding",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Offline supplemental consumer-code binding only. Preserve and inherit the original seven policy records, runtime review, exact subjects/source pins and detailed scope without re-auditing or reissuing them.",
+  "findings": [],
+  "material_assumptions": [],
+  "supplements_scope_sha256": "271c1c2c204f1493fd36caf0db57b5af464aba4c920526e2e77fd019ce24790d",
+  "original_runtime_review_sha256": "64127a85c985be4e09c0c6df24f5a688d5faae5a38077a3ccd20af7e82d7d43b",
+  "accepted_repair_review_sha256": "b018b127821f0a3c58d8a77000a31dc95063107f900751a1af2f7787898621fb",
+  "consumer_binding_delta": {
+    "path": "scripts/research/companion_runtime_adapter.py",
+    "prior_sha256": "cf2d619320defd4904ba7bde595ad226d803818f5182f2bf27c3f73cdb0a4441",
+    "current_sha256": "e7315cd9047f656afca0b3845be54629c46c80c9a20065d8646978dce20fce38",
+    "change": "Only _format_metadata Healthcheck expression changes from .Config.Healthcheck to (index .Config \"Healthcheck\"), preserving null rather than failing on the optional missing key.",
+    "decision": "ACCEPTED_WITH_RISK"
+  },
+  "refreshed_consumer_sources_sha256": {
+    "scripts/research/companion_cutover.py": "fcea6d3e181372e3db02882f70392f38a985067081a42c5c3e2a8bfd34a3a550",
+    "scripts/research/companion_docker_transport.py": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5",
+    "scripts/research/companion_install_docker.py": "ca2e74fcf9d3869f7c3ed27e69721cd12615f41cc2687ea0844b314250814220",
+    "scripts/research/companion_installer.py": "56d9b924d7d0b7e2660d68db62dcdd67252fdc5e01ad633a7e39f57ea866b16b",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "e7315cd9047f656afca0b3845be54629c46c80c9a20065d8646978dce20fce38",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18"
+  },
+  "inherited_policy_meanings": {
+    "entrypoint_side_effects": "The applicable startup/client effects are characterized and permitted within this profile, not asserted nonexistent. Only four applications are startup targets; the three existing storage daemons remain running.",
+    "no_proxy_redirect": "Reviewed fixed-recipient HTTP clients and explicitly listed restricted storage/client commands in this profile; not arbitrary unrestricted image/daemon operations.",
+    "zero_retries": "Original fixed-loopback HTTP transport and reviewed restricted application-call retry controls. Not zero physical socket attempts, DNS/address results, all pool assignments or all daemon operations. Distinct planned health/read calls are not retries of each other."
+  },
+  "original_scoped_policies_remain_valid": true,
+  "policy_disposition": "The accepted original restricted policy predicates remain supported with this one-selector host-consumer change, under all original scope limits and risks. It changes neither HTTP retry/proxy/redirect controls nor characterized application startup/client effects, source checks, identity/preservation comparisons, reservation policy, storage preservation or rollback. No per-image policy truth or source pin is newly inferred from an inventory.",
+  "binding_precedence": "This supplemental decision substitutes only the adapter's host-consumer hash when independently considering the original scope. All six other scripts/research consumer hashes and all original policy/runtime/scope bytes remain unchanged. This is not an in-place rewrite of those records or an assertion that existing executable code automatically consumes this supplement.",
+  "shown": [
+    "Hash-verified the b018 repair review and its accepted decision, the original271c scope, original64127 runtime manifest and all seven original image-review hashes through the unchanged dependency map.",
+    "Current adapter e731 and test3ca8 hashes match the prior independently executed three-case regression proof. Reversing only the Healthcheck expression reproduces the prior cf2d adapter hash exactly. No new tests are required to reuse that exact-byte proof.",
+    "All six other scripts/research entries in the original scope are unchanged. The seven exact subjects still total128 source pins, with no policy-record/runtime/scope reissue.",
+    "The original failed-attempt receipt matches8ad9cd45e9754e2af84af7bdb1eba9ab5f0f1b37af4d153813f8fce3eab93c29 and contains exactly four phases: cutover_inputs_bound, installation_reserved, runtime_operation_intended, installation_failed.",
+    "The hash-bound outcome records the reserved staged_preflight failure, no services started and no query attempted. The saved15-row post-attempt inventory exactly equals the saved preparation after rows. This evidence is historical and does not refresh current native state.",
+    "Source inspection confirms _reserve(plan) creates an exclusive directory keyed by plan.attempt and re-raises FileExistsError for that final component. main calls it before consuming token_fd; inert main returns before reservation.",
+    "The current old launcher independently checks consumer hashes from the unchanged old scope, so it still rejects the repaired adapter as reviewed_consumer_changed. Its producer retrieves a token before main; do not invoke it merely to test the reservation refusal.",
+    "ReviewedPreparation also binds evidence.attempt and each replacement attempt/name to plan.attempt. Merely changing the prepared plan identity is not an accepted continuation and would violate existing preparation bindings."
+  ],
+  "verification": {
+    "environment": "VERIFIED_ENV for local public source/artifact hashes, read-only receipt/postcheck comparison and reservation source inspection only",
+    "command": "/usr/bin/python3 -B - <<'PY' (standard-library hash/selector-reversal/record/receipt/postcheck assertions)",
+    "result": "PASS: b018 repair review, old271c scope/runtime+7children preserved, e731 adapter/3ca8 tests match prior proof, one-selector reversal cf2d, other6 reviewed script consumers unchanged, original4record receipt hash and15row postcheck equality",
+    "independent_tests_reused": "3 passed,68 deselected in0.20s from metadata_healthcheck_review.json, exact same current adapter/test hashes",
+    "parent_tests_reused": "Parent-reported188 passed in1.93s and one expected selector-reversion regression failure; not independently repeated here",
+    "tests_rerun": 0,
+    "native_operations": 0,
+    "credential_reads": 0,
+    "service_operations": 0,
+    "queries": 0,
+    "consumed_marker_reset": false,
+    "new_execution_attempt_created": false
+  },
+  "parent_inert_loader_evidence": {
+    "receipt_path": "docs/review_artifacts/companion_continuation_20261021/runtime_packet/consumer_binding_refresh_validation.json",
+    "receipt_sha256": "8ab0c07517a8a34cf682e173cd953d2dd37d0f3ef5593a357ee9fc0c8040dd03",
+    "classification": "SHOWN as hash-bound saved parent report; execution not repeated by this GATE",
+    "reported_result": "Exact prior receipt argv into companion_cutover.main without execute/token flags: exit0,input_bindings_validated=true,actions_executed=false. Popen/socket connection/DNS entrypoints were patched forbidden.",
+    "reported_preservation": "Consumed attempt-file hashes unchanged; no tests/native/token/service/query operations",
+    "reported_old_launcher_result": "ValueError: reviewed_consumer_changed",
+    "interpretation": "Inert input-loader success is compatible with a consumed execution reservation. It does not establish handoff readiness or operation eligibility."
+  },
+  "continuation_boundary": {
+    "runtime_eligible": false,
+    "executable_handoff_ready": false,
+    "consumed_attempt": "s3refresh20261021c1eaae5a",
+    "prepared_container_ids_preserved": [
+      "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+      "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+      "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+      "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726"
+    ],
+    "concrete_unclosed_predicate": "companion_cutover._reserve(plan) cannot exclusively create the existing consumed plan.attempt directory.",
+    "source_references": [
+      "scripts/research/companion_cutover.py:112-132",
+      "scripts/research/companion_cutover.py:196-226",
+      "scripts/research/companion_staged_update.py:25-38",
+      "docs/review_artifacts/companion_continuation_20261021/execute_reviewed_cutover.py:27-33"
+    ],
+    "smallest_missing_continuation_requirement": "A separately designed, independently reviewed and separately authorized continuation must distinguish a new execution-receipt/reservation identity from the unchanged prepared-plan identity, bind it to the original failed receipt and same four exact prepared IDs, and preserve the consumed original reservation. Existing fresh preflight, one-use execution and owned recovery protections must remain intact. No such continuation is implemented or approved by this supplement.",
+    "handoff_binding_requirement": "A future explicitly reviewed handoff must recognize the independently trusted supplemental code binding; the frozen original launcher does not. That is separate from this offline policy-validity decision.",
+    "not_permitted": [
+      "Delete, reset or rename the consumed attempt marker/directory",
+      "Relabel or modify preparation identity/evidence to evade reservation",
+      "Recreate containers or replace prepared IDs",
+      "Invoke the old launcher or retrieve a token to test eligibility",
+      "Treat inert input validation or this binding acceptance as retry/startup/cutover authorization"
+    ]
+  },
+  "reviewed_sha256": {
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/scope_review.json": "271c1c2c204f1493fd36caf0db57b5af464aba4c920526e2e77fd019ce24790d",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/runtime_review.json": "64127a85c985be4e09c0c6df24f5a688d5faae5a38077a3ccd20af7e82d7d43b",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-timescaledb.json": "7c0abcd67d94cac539361d886d437183585878707b8005c449aec311847b588e",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-qdrant.json": "76d30c24634ee83e4a04c7e84b97fdab5012bdf4495e177eabfb4297ad710827",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-minio.json": "47cf4ba29d12912fc8bfe2c2ea4f9210be15d2062445677231db574157b8a43f",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-audit-log.json": "c87de7d34c2acf2a6e3fd289045511c13b10326c99816abca963cc2966fac84c",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-risk-stub.json": "acee671f26becd9baea0d9f13b721e102b9ddd3bd63792d4dd60677f923a0937",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-memory.json": "a5e30b5df3c7e75d3a16189f3bebdc290e732d104d4b5dc0016265e5e0825841",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-orchestrator.json": "197240fa35ba546e543b5131c3a17c62c14e72fdf07ebc0c488fd0b4f4cc6896",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/metadata_healthcheck_review.json": "b018b127821f0a3c58d8a77000a31dc95063107f900751a1af2f7787898621fb",
+    "scripts/research/companion_runtime_adapter.py": "e7315cd9047f656afca0b3845be54629c46c80c9a20065d8646978dce20fce38",
+    "tests/test_companion_runtime_adapter.py": "3ca8318be5ecda58f5ea6e758ba18720f6ed23e2adc6dcf4b3765e50d85f8c8b",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/authorized_attempt_outcome.json": "4ec4447a65cb34ced0267320a81826607ef8ddfd6b4bb54111cfa7c07673ae8f",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/post_attempt_inventory.json": "2fa8fec71dc7879db92a9adb414765d0caafadce171c6013408882b041667c1b",
+    "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/actual_preparation_postcheck.json": "c505e4c6c3b2be5cd1054ac976fd69a503d0fcf2b2304cc6e6583ef1b1decb06",
+    ".cbp_state/runtime/companion_cutovers/s3refresh20261021c1eaae5a/receipt.jsonl": "8ad9cd45e9754e2af84af7bdb1eba9ab5f0f1b37af4d153813f8fce3eab93c29",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/subjects.sources_v2.draft.json": "b99ccc38ce8942bd2bdfd601f30d3d734d1a7c1fed3037870199151a6fc673bc",
+    "docs/review_artifacts/companion_continuation_20261021/execute_reviewed_cutover.py": "5c319350681e2fb4fdac363e29b829947e0348678fdcc8ecabc84820713adf12",
+    "scripts/research/companion_cutover.py": "fcea6d3e181372e3db02882f70392f38a985067081a42c5c3e2a8bfd34a3a550",
+    "scripts/research/companion_docker_transport.py": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5",
+    "scripts/research/companion_install_docker.py": "ca2e74fcf9d3869f7c3ed27e69721cd12615f41cc2687ea0844b314250814220",
+    "scripts/research/companion_installer.py": "56d9b924d7d0b7e2660d68db62dcdd67252fdc5e01ad633a7e39f57ea866b16b",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/consumer_binding_refresh_validation.json": "8ab0c07517a8a34cf682e173cd953d2dd37d0f3ef5593a357ee9fc0c8040dd03"
+  },
+  "hash_paths": "Repository-relative; the private attempt receipt was read only for its hash and four phase records, without outputting arbitrary payloads.",
+  "limits": [
+    "No repaired native execution occurred; runtime cure, live state, source bytes, health, namespace/query outcomes and rollback success remain UNVERIFIED.",
+    "This decision does not alter the old scope-review hash embedded in existing reviewer strings. Trust in the supplemental binding is explicit and external; no loader criterion or policy meaning is weakened.",
+    "Original HTTP zero transport retries retain their restricted meaning, not a physical-socket/DNS prerequisite. Storage3 remain running in scope; startup effects are characterized, not nonexistent.",
+    "Existing historical captures, attestations/inheritance distinctions and all fresh runtime verification requirements remain as originally accepted.",
+    "Only runtime_packet/consumer_binding_refresh_review.json is written; original seven image-policy records, runtime/scope, repair review, receipts, sources, tests and markers are untouched."
+  ],
+  "runtime_cure": "UNVERIFIED",
+  "runtime_objective_state": "INCOMPLETE",
+  "operational_grant": false,
+  "retry_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "continuation_implemented": false
+}

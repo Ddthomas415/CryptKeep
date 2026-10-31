@@ -1,0 +1,27 @@
+{
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "exact reviewed local fix3 patch application and offline regressions; no runtime authorization",
+  "bindings": {
+    "services/execution/place_order.py": "8d04313c13b8e9ab8683a4c77d7dd5c63a49049ff9cbf44e862e5aec4849242a",
+    "tests/test_coinbase_paged_preflight_compatibility.py": "a7d34c2ab5c39544878487deae08a3f9118657f1b9a1fc9d4bf2860e7b9190c2",
+    "tests/test_proposed_async_balance_preflight.py": "030dfcf0e95daa6e308247d9a08d9d52c2b0a54a4a218674747a9bbde9feaec1",
+    "tests/test_coinbase_account_pages.py": "4d1561955ad0181894038df06894cb8f55d89502a1b9b893efefb3a49b7c8e2a",
+    "services/execution/coinbase_account_pages.py": "a6324aac4d78a2b9f0ab486e36279bca93be521541725336b69572b241db11a7",
+    "services/execution/coinbase_portfolio_guard.py": "e865a09d2a96828143b1b29ef07e6a710744e8a7f94134548d1a96f657c77352",
+    "docs/research/coinbase_funding_applied_20261028.md": "ab13000b3201bda871e131ce9b02816390eba2ef4741ed14ab33c535ad1a8d63",
+    "docs/review_artifacts/coinbase_funding_applied_20261028/compatibility_tests_before.py": "746aed28ab82752718f7de1efae4e7b41e1cd3157de6956f0f122d6ce2212e78",
+    "docs/review_artifacts/coinbase_funding_applied_20261028/async_tests_before.py": "6d892d423206a134c661a9e2b38a0113d56838a252fab44e548e74f4ca63c66a",
+    "docs/review_artifacts/coinbase_paged_preflight_20261028_01/place_order_original.py": "a29ba48fb1f45b167c47817d91d25d7be3341ae18fa64999f7892866642072a6",
+    "docs/review_artifacts/coinbase_paged_preflight_20261028_01/place_order_proposed.py": "8d04313c13b8e9ab8683a4c77d7dd5c63a49049ff9cbf44e862e5aec4849242a",
+    ".venv/lib/python3.12/site-packages/ccxt/coinbase.py": "e5bdb2d07e395443acdd56525090cadc72611133728d30adf09d4b8985bdd204",
+    ".venv/lib/python3.12/site-packages/ccxt/base/exchange.py": "75c47acb34e6097c5be3ff41af2e0e29f63f05a613c7051bf520f27e33fa33aa",
+    ".venv/lib/python3.12/site-packages/ccxt/base/precise.py": "92871eeb862ba7abc56c68a326d52df9043a5e12607864c292c67cef514fa7f0"
+  },
+  "applied_patch_sha256": "39d7f3e5dcf6dbecc7dae8e670d93206ab624af9a920715ead4f7b986440c5bc",
+  "author_verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_coinbase_paged_preflight_compatibility.py tests/test_proposed_async_balance_preflight.py tests/test_coinbase_account_pages.py",
+    "passed": 72,
+    "seconds": 2.69,
+    "exit_code": 0
+  }
+}

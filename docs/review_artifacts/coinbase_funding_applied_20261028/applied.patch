@@ -1,0 +1,34 @@
+--- a/services/execution/place_order.py
++++ b/services/execution/place_order.py
+@@ -101,6 +101,8 @@
+ 
+ 
+ def _coinbase_spendable_from_info_rows(balance: dict[str, Any], *, asset: str, portfolio_uuid: str | None) -> tuple[float | None, str]:
++    if not portfolio_uuid:
++        return None, "coinbase.portfolio_scope_unknown"
+     rows = (((balance or {}).get("info") or {}).get("data") or [])
+     if not isinstance(rows, list):
+         return None, "coinbase.info_rows_missing"
+@@ -111,9 +113,11 @@
+         if not isinstance(row, dict):
+             continue
+         row_pid = str(row.get("portfolio_id") or row.get("portfolio_uuid") or "").strip()
+-        if portfolio_uuid and row_pid and row_pid != str(portfolio_uuid):
++        if _coinbase_row_currency_code(row) != str(asset).upper():
+             continue
+-        if _coinbase_row_currency_code(row) != str(asset).upper():
++        if not row_pid:
++            return None, "coinbase.info_rows_scope_unknown"
++        if row_pid != str(portfolio_uuid):
+             continue
+         matched.append(row)
+         if not _coinbase_row_trade_spendable(row):
+@@ -144,6 +148,8 @@
+             if free is None:
+                 return float(row_amount), source
+             return float(min(float(free), float(row_amount))), f"{source}+free_min"
++        # An aggregate cannot establish which portfolio owns the spendable funds.
++        return 0.0, source
+ 
+     if free is not None:
+         return float(free), "free"

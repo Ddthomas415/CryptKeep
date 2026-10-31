@@ -1,0 +1,22 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "local Coinbase mode retention/order-aware execution gate; no deployment or full Fix2 closure",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a18446-79ba-7100-a541-c249808d23ad",
+  "independent_verification": {
+    "passed": 126,
+    "seconds": 3.66,
+    "material_blockers": 0
+  },
+  "source_hashes": {
+    "services/markets/fetch_coinbase_ccxt.py": "8fb7b9d0edf6d1c265d671183b51169746ab7ba303c02630b6f9f3b5e844d15f",
+    "services/markets/rules.py": "250321c190f327750e7170fa7ff2be5126979bf208b6b5ffa1c2a34e77ba4c0f",
+    "services/execution/place_order.py": "137a3e7260381eec79982c63a716928446f6acc6909df37db92e91a0ce80664b"
+  },
+  "submission_bindings_sha256": "455f8fb09e43a890ee687a7c1d8096f73c3e6a1d604db45cbdfbaf9bd22430e3",
+  "submitted_checkpoint_sha256": "70986a4c5a8f8f5d7c03f121aeabd977908fe08a3d8c94bb706f1cf3c89b31e2",
+  "checkpoint_sha256": "b1525b1a41853f646bd3f1c7d37823f09de60cc841edf446e284b09a8305f922",
+  "reviewed_code_changed": false,
+  "deployment_authorized": false,
+  "original_fix2": "INCOMPLETE"
+}

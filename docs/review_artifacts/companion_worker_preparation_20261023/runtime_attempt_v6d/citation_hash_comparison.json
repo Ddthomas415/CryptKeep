@@ -1,0 +1,30 @@
+{
+  "schema": "companion-query-citation-hash-comparison-v1",
+  "role": "AUDITOR",
+  "receipt_sha256": "0ca55ea24bf18b7ff5442d974267497de00f2f3a5e2af1c372459f35aa43b1a9",
+  "topical_approvals_sha256": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+  "recorded_response_document_id_hashes": [
+    "02e6295d8f522840f09b5194b3f023799ad6ed3306d9296005787e792224df20",
+    "31489056e0916d59fe3add79e63f095af3ffb81604691f21cad442a85c7be617",
+    "bdd2d3af3a5a1213497d4f1f7bfcda898274fe9cb5401bbc0190885664708fc2",
+    "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+    "fc95ce176603e9e1d1ffee39023b31dd856e00ad030526902604ed2a68a12c4b"
+  ],
+  "registered_comparisons": [
+    {
+      "document_id": 7,
+      "document_id_sha256": "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451",
+      "hash_present_in_response": false
+    }
+  ],
+  "receipt_events": 96,
+  "query_intents": 1,
+  "replacement_starts_confirmed": 4,
+  "stored_evidence_verification_invoked": false,
+  "hash_method": "_explain_diagnostics.response_summary: positive integer IDs converted to str; nonempty strings hashed as UTF-8 with surrogatepass",
+  "limits": [
+    "Hash matching only, no original response prose/type or stored document content fetched.",
+    "Non-match is not a content relevance or guard correctness verdict; typed/protocol checks remain incomplete.",
+    "Duplicate query/failure diagnostic records are not additional query dispatches."
+  ]
+}

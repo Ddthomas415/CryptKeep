@@ -1,0 +1,84 @@
+{
+  "schema": "companion-quiesce-diagnostics-review-v1",
+  "active_role": "GATE",
+  "reviewer": "Independent Codex GATE; bounded frozen offline implementation review; no operational grant",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Four frozen files: fixed-schema quiesce diagnostics, parent validation and ownership ordering, diagnostic tests, and stale-handoff test expectations. No re-audit of previously accepted components or policies.",
+  "reviewed_sha256": {
+    "scripts/research/companion_install_docker.py": "68d94d9f3f47fc5e45a8f3e1a9e28b691a8374a385dcf90d54926554879380a1",
+    "scripts/research/companion_installer.py": "4e9b4a723b589cc161213c110591a1040fd18941f2a3de1ecc1fe49ead3ee453",
+    "tests/test_companion_quiesce_diagnostics.py": "2906db39492425c5c622828896576dc470f0df2b3e46bffe6745f69eb38860bc",
+    "tests/test_companion_reviewed_continuation_handoff.py": "b6ce02bc941502926090278178a06883e3520759f8d06845fa4ea59f0833dc4b"
+  },
+  "supporting_sha256": {
+    "docs/checkpoints/companion_quiesce_diagnostics_20261022.md": "3553339f4585667cc33f37043292c4a3fabd63fe0ae5c69579e06441bb9e23bb",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/quiesce_saved_state_replay.json": "9af7b366982baa79b74ce9b1212fb7d839c0eb91ab82080f8dd090f59bc0f996",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3"
+  },
+  "findings": [],
+  "classification": {
+    "SHOWN": [
+      "All four frozen file hashes matched before independent tests. In-memory removal of only diagnostic additions reproduced the exact previous backend and installer hashes, isolating this turn from the broader dirty-worktree diff.",
+      "The transition retains the same target validation, signal tuple, shared ten-second deadline, polling, exit checks and restart path. Diagnostic marks do not add another lifecycle invocation, retry, forced stop or SIGKILL escalation against a container.",
+      "quiesce_report catches normal exceptions and returns only fixed schema/stage/boolean fields, with no exception class, message, stderr, token, arbitrary identifier or environment payload.",
+      "Parent validation requires an exact builtin dict/key set, exact schema, allowlisted stage, actual boolean types and exact allowed stage/flag combinations. Invalid reports are refused before receipt logging.",
+      "The parent selects either quiesce_report or legacy quiesce once, never both. A failed report or invalid report cannot authorize forward progress or clear pending ownership.",
+      "Even a confirmed child report requires fresh parent inventory, storage preservation and stopped-original verification. Only after those checks does the parent record ownership in memory and clear pending, before writing the diagnostic receipt. Diagnostic-write failure then blocks progress and preserves existing owned recovery.",
+      "A report confirmed by the child but rejected by parent fresh-state checks remains pending; its diagnostic is not a substitute for parent ownership confirmation.",
+      "Independent new-test-only execution passed 21 cases in 0.43 seconds, including a real bounded child JSON channel using synthetic backend state, lost acknowledgment, malformed/private report refusal, fresh-state drift and diagnostic-write recovery.",
+      "Both hash-bound offline saved-row replay cases passed: default and explicit replacement-ID inventory selections agree with and without the four prepared rows, and original observation equals the frozen baseline. No deterministic saved-metadata selection refusal was reproduced.",
+      "The reviewed handoff tests require old exact bindings to refuse changed consumers and keep a separate synthetic inert-dispatch test. They do not manufacture new approved inputs or restore runtime eligibility."
+    ],
+    "CLAIMED": [
+      "Parent checkpoint reports 305 passing tests in 1.90 seconds across six files. This reviewer independently ran only the new diagnostic test file, not that broader slice."
+    ],
+    "UNVERIFIED": [
+      "The original quiesce failure substep, signal dispatch/acknowledgment and any shell-forwarding causal explanation.",
+      "Live Docker/Go-template behavior, real signal handling, graceful shutdown success or runtime cure.",
+      "Diagnostic availability if the child is killed, cancelled, times out externally or cannot transfer its JSON result. Such cases retain the existing generic refusal and pending ownership."
+    ]
+  },
+  "isolated_delta_proof": {
+    "method": "Read frozen source into memory; reverse only optional diagnostic markers/method, strict report validator and parent diagnostic branch; compare SHA-256 with previously bound source. No source files written or reversed code executed.",
+    "backend_reconstructed_prior_sha256": "ca2e74fcf9d3869f7c3ed27e69721cd12615f41cc2687ea0844b314250814220",
+    "installer_reconstructed_prior_sha256": "56d9b924d7d0b7e2660d68db62dcdd67252fdc5e01ad633a7e39f57ea866b16b",
+    "both_exact_matches": true
+  },
+  "independent_verification": {
+    "environment_confidence": "VERIFIED_ENV",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_quiesce_diagnostics.py",
+    "exit_code": 0,
+    "passed": 21,
+    "elapsed_seconds_reported": 0.43,
+    "isolation": "New tests forbid subprocess.Popen, socket connect/connect_ex and DNS lookup; command responses, state and clock are synthetic. The child-channel test forks the existing bounded executor but never invokes Docker or a real service.",
+    "broader_tests_rerun": false,
+    "saved_replay_limits": "Saved sanitized row responses bypass the native CLI and Go engine and cannot reconstruct transient original-time state, scheduling or acknowledgment. Replay includes separately hash-bound derived staged metadata, not an attestation of historical live state."
+  },
+  "accepted_risks": [
+    "command_attempted means entry into the command operation, not demonstrated signal dispatch. command_acknowledged means successful command return, not worker signal handling.",
+    "Diagnostic stages label the last entered substep, not underlying exception causes. A post-observation refusal may include timeout inside observation; it must not be interpreted as a more specific cause than recorded.",
+    "The added bounded receipt write consumes the existing overall budget; receipt failure intentionally blocks forward progress. The lifecycle deadline itself is unchanged.",
+    "Generic child failure can still produce no diagnostic. No inferred success, interruption ownership or retry is allowed in that case."
+  ],
+  "disposition": {
+    "offline_patch_accepted": true,
+    "runtime_state": "INCOMPLETE",
+    "prior_failure_cause": "UNKNOWN",
+    "prior_unresolved_quiesce_waived": false,
+    "existing_exact_consumer_bindings_stale": true,
+    "operational_authorized": false,
+    "new_approval_records_authored": false,
+    "execution_or_fresh_preparation_authorized": false,
+    "retry_or_marker_reset_authorized": false,
+    "proof_required_next": "No additional proof required for this offline patch acceptance. Any later runtime proposal requires separately valid exact-code/input bindings and explicit operational authorization; this review supplies neither and predicts no successful shutdown."
+  },
+  "review_actions": {
+    "native_service_or_cli_calls": 0,
+    "credentials_read": false,
+    "signals_to_services": 0,
+    "services_changed": false,
+    "markers_changed": false,
+    "material_assumptions": 0,
+    "only_authored_path": "docs/review_artifacts/companion_continuation_20261021/runtime_packet/quiesce_diagnostics_review.json"
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "schema": "companion-v6b-offline-handoff-review-v1",
+  "review_date": "2026-10-23",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "reviewer": "Independent GATE, bounded offline v6b handoff review",
+  "acceptance_scope": "Frozen wrapper implementation and its exact accepted-input/private-pipe delegation only; not permission to invoke --execute-once",
+  "runtime_state": "INCOMPLETE",
+  "blocking_findings": [],
+  "reviewed_sha256": {
+    "docs/checkpoints/companion_v6b_execution_handoff_20261023.md": "836198115bd321a23ed12ca5bf7fc9d420c5bd2ee7b7e55610901062782a1002",
+    "docs/review_artifacts/companion_worker_preparation_20261023/execute_reviewed_v6b.py": "f9362e808538fa9d3fdbe7dc29b8bb947283bbd2ae720771963df1b8d4b37dfe",
+    "tests/test_companion_v6b_handoff.py": "6a6f31ef11cbaaaf28f1a927cb29ab42bbd6b9f5612744770cc26f98d55915d7",
+    "docs/review_artifacts/companion_continuation_20261021/execute_reviewed_cutover.py": "5c319350681e2fb4fdac363e29b829947e0348678fdcc8ecabc84820713adf12",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/handoff_inert_validation.json": "5b8812e4bba9d027df1cf8a4bc134d0e2dbf9f89c6590d95f6f21ca3749ae0e8",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/inert_validation_receipt.json": "aebbeb6384465e01fff7d2354b4e654619af5d57d566d304607d35619aabe0af",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/independent_review.json": "607dbae7221bbb51738b82f3c28e2961adb6f993c47b2cc092017cbbec360835",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/scope_review.json": "d32f3589c9156844f9a4211a3cec289c36c5260536e82c82be38f947d3ff4054",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/runtime_review.json": "47dbeebdbdbd3cd978156f9a25d8b07027f34023ab6b0ff541f2d05cfc1ca3e6",
+    "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/reviewed_preparation_manifest.json": "67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e"
+  },
+  "shown": [
+    {
+      "claim": "Helper bytes are checked before compilation into a non-__main__ module. Only checked_json, parse_inputs, source_format, parse_token and handoff are reused; the new wrapper does not call the old helper's inputs or execute and does not adopt its old packet.",
+      "evidence": "Frozen wrapper/helper source inspection and synthetic helper-hash refusal case."
+    },
+    {
+      "claim": "The fixed inert receipt, independent review, scope and runtime records match the wrapper pins. All 13 current consumer hashes match. The runtime subjects equal scope.exact_subjects; all seven dependency records match their exact subjects, dependency hashes and embedded scope digest. The accepted v6b worker plan and 132 source pins are retained.",
+      "evidence": "Independent local byte/hash/JSON checks plus the new actual-accepted-input synthetic test."
+    },
+    {
+      "claim": "The recorded command has the exact existing cutover module prefix and no execute, token-fd or continuation flags. Default validation delegates to the existing controller's inert return before lock/reservation, token access or backend construction.",
+      "evidence": "Source inspection, pinned receipt command, and guarded default-mode test that forbids native backends, reservation and token reading."
+    },
+    {
+      "claim": "The future execute branch disables core dumps, repeats validation, then checks cutover-marker lexists before constructing the token-source transport. Existing directories and dangling symlinks refuse before the source read. CLI verification failure also refuses before token access.",
+      "evidence": "Source order and synthetic reservation/CLI-failure tests. No live marker or CLI check was performed by this reviewer."
+    },
+    {
+      "claim": "The fixed source template emits only SERVICE_TOKEN from the exact original orchestrator ID/image when it is running. The parser requires one JSON string row with the exact prefix and a nonempty bounded printable-ASCII token, refusing duplicates, malformed data and whitespace/nonprintable payloads.",
+      "evidence": "Pinned helper source_format/parse_token and synthetic source-response tests; no real token was read."
+    },
+    {
+      "claim": "There is one source-read invocation and one private-pipe handoff, with no retry or fallback path. The helper closes the write descriptor and transfers the read descriptor to the existing controller. The controller closes an unconsumed descriptor on validation/lock/reservation failure; token_from_pipe consumes and closes its owned descriptor in finally.",
+      "evidence": "Narrow existing helper/controller/token-reader ownership inspection and synthetic private-pipe case. Existing mechanics are reused unchanged, not redesigned."
+    },
+    {
+      "claim": "Tokens are not placed in argv, environment, files, logs or hashes by this wrapper/helper. The execute exception path emits fixed reason/state and a boolean, not source output or exception payload. References are cleared in finally; this is not a memory-zeroization guarantee.",
+      "evidence": "Source inspection and synthetic exception/no-retry/output assertions."
+    }
+  ],
+  "current_consumer_sha256": {
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "8740d65d31eade3d94cd849710aa2b1cf00a67ca560e385fd5a54ff4a20aaf4e",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "de1a969fdd522b069cc0bca03c4d714e7b80e8842ac167ec9d4ffcb8f8a1b334",
+    "scripts/research/companion_network_configuration.py": "c3824743fb08098a35af6966ee9e3345a63e6500f18a5fdd84a02d1114bf39d7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "e7315cd9047f656afca0b3845be54629c46c80c9a20065d8646978dce20fce38",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+  },
+  "token_source_binding": {
+    "name": "phase1-orchestrator",
+    "container_id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+    "image_id": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+    "required_state": "running",
+    "exported_field": "SERVICE_TOKEN only, privately",
+    "live_source_observed_by_reviewer": false
+  },
+  "independent_verification": {
+    "claim_status": "SHOWN",
+    "environment_confidence": "VERIFIED_ENV",
+    "working_directory": "/Users/baitus/Downloads/crypto-bot-pro",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6b_handoff.py",
+    "exit_code": 0,
+    "result": "18 passed in 0.36s",
+    "scope": "Only the new synthetic v6b handoff cases; actual frozen-input/default validation is guarded against native/network/token/backend/reservation calls. Execute-path source/CLI responses and tokens are synthetic; only owned local test descriptors are used.",
+    "parent_52_case_result": "CLAIMED by checkpoint; old helper and cutover-input slices were not repeated here.",
+    "parent_actual_host_default_receipt": "Pinned handoff_inert_validation.json records one default module invocation, exit0, actions_executed=false and startup_authorized=false. This reviewer checked the saved receipt and did not repeat that host module command outside the synthetic test."
+  },
+  "budget_interpretation": {
+    "native_CLI_verification_deadline_seconds": 10,
+    "token_source_command_timeout_seconds": 10,
+    "existing_pipe_consumer_timeout_seconds": 2,
+    "controller_budget_seconds": 600,
+    "controller_recovery_reserve_seconds": 180,
+    "whole_wrapper_600_second_deadline_claimed": false,
+    "limit": "Producer phases precede controller work. Validation/file I/O, locking and setup do not acquire a new whole-wrapper hard deadline merely because the existing controller has a 600-second budget. No deadline or recovery policy was changed or operationally proved by this review."
+  },
+  "nonblocking_limits": [
+    "The pre-token lexists check is advisory preflight, not atomic reservation. Another invocation could pass that check before the existing controller obtains its exclusive lock/reservation. Once/no-retry describes this invocation's source/consumer control flow; global one-use authority remains the existing controller reservation and explicit operator instruction, not the flag name.",
+    "entrypoint_handoff_entered=true means the wrapper reached the helper handoff attempt. It is not proof that the controller reserved an attempt or executed a service mutation; controller receipts/outcomes remain authoritative.",
+    "The executable branch is prepared capability only. Actual CLI/token-source permission, live credential handoff, fresh resource/configuration/source checks, startup, worker shutdown/ack, cancellation/recovery, final network configuration and a cited explanation remain UNVERIFIED.",
+    "Existing trusted-process and clock assumptions, ownership uncertainty after lost acknowledgements, persistent logs/audit effects and incomplete rollback-health proof are retained. No profitability, general model readiness or full-system recovery claim follows."
+  ],
+  "future_human_approval_boundary": {
+    "execution_authorized": false,
+    "explicit_separate_one_future_invocation_required": true,
+    "frozen_wrapper_and_accepted_input_hashes_must_remain_exact": true,
+    "uncertain_result_allows_automatic_retry": false,
+    "consumed_markers_or_receipts_may_be_reset": false,
+    "past_preparation_policy_or_default_validation_is_execution_approval": false
+  },
+  "authorization": {
+    "offline_handoff_implementation_accepted": true,
+    "native_or_Docker_operation": false,
+    "live_token_or_credentials": false,
+    "reservation": false,
+    "preparation_or_build_or_create": false,
+    "startup_or_exec_or_signal": false,
+    "query_or_cutover": false,
+    "trading": false,
+    "automatic_follow_on_execution": false
+  },
+  "review_boundaries": {
+    "one_bounded_pass": true,
+    "new_architecture_or_policy_reissue": false,
+    "broad_audit_or_fullsuite": false,
+    "native_runtime_or_credential_reobservation": false,
+    "only_authored_artifact": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/handoff_review.json",
+    "frozen_sources_tests_checkpoint_logs_old_packet_and_accepted_records_modified": false
+  }
+}

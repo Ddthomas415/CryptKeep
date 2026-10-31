@@ -1,0 +1,58 @@
+{
+  "artifact_sha256": {
+    "docs/review_artifacts/companion_verifier_diagnostics_20261026/independent_review.json": "687850f267459c8e3d46f1322c1aac039ac90e3d386064326a0f5d6ab9060340",
+    "docs/review_artifacts/companion_verifier_diagnostics_20261026/prechange.tar": "7696af91811c97ea72ba212622558162a38c730516f1ea42e897169969e7bdef",
+    "docs/review_artifacts/companion_verifier_diagnostics_20261026/rejected_v1.tar": "9f1c46534af5d83d355648bef390d565ddbadeed87e366aed1aba60a03eb76ba",
+    "docs/review_artifacts/companion_verifier_diagnostics_20261026/repair.diff": "c8246fbe32815411e64d0bbae94ca6d8b3302f69edba0cbf164ce0ce10143322"
+  },
+  "frozen_inputs_sha256": {
+    "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f"
+  },
+  "limits": [
+    "First failed group, not individual predicate/value; deadline identifies interrupted stage.",
+    "Actual V6g failure remains unexplained; no raw historical input reconstruction.",
+    "Old five-Boolean evaluator and adapter methods preserved; diagnostics use a separately validated envelope.",
+    "No criterion, SQL, 8s child cap, 10s parent bound or all-true acceptance relaxed."
+  ],
+  "native_or_service_operations": false,
+  "parent_verification": {
+    "full_suite_run": false,
+    "new_cases": 52,
+    "passed": 397,
+    "seconds": 20.39,
+    "warnings": 12
+  },
+  "pre_change_source_sha256": {
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "scripts/research/companion_installer.py": "e9fd8a144de54bf277e2c5812110dda9cc8cf0a7d1bb6fc85707b188f3174d38",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f",
+    "tests/test_companion_runtime_adapter.py": "3ca8318be5ecda58f5ea6e758ba18720f6ed23e2adc6dcf4b3765e50d85f8c8b"
+  },
+  "rejected_v1": {
+    "decision": "REJECTED",
+    "finding_ids": [
+      "VD-01",
+      "VD-02"
+    ],
+    "preserved_in": "rejected_v1.tar",
+    "regression_before_fix": {
+      "failed": 7,
+      "passed": 1
+    }
+  },
+  "role": "ENGINEER",
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-verifier-diagnostics-repair-v2",
+  "source_and_input_sha256": {
+    "scripts/research/companion_evidence_checks.py": "25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5",
+    "scripts/research/companion_installer.py": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b",
+    "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d",
+    "tests/test_companion_evidence_checks.py": "b4459d52cfdf540364de133b3594dfc6a54552876e5bcc7fd029412d4af4415c",
+    "tests/test_companion_runtime_adapter.py": "9234b11f3c3657b1c35edba92df7e0a29c6d01ecb4e9fd5449be92c7b50ca7e4",
+    "tests/test_companion_verifier_diagnostics.py": "5fd3781427e5e339a58aa0bff22b093d5162c692f76ab434bad976969d3e3a5e"
+  },
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

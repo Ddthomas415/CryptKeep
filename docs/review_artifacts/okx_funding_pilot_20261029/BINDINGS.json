@@ -1,0 +1,23 @@
+{
+  "docs/checkpoints/okx_funding_pilot_20261029.md": "722ebd162611d61a2692bc26608fdcbe6799747667b0b1446b26fcc305b6a8c0",
+  "docs/review_artifacts/okx_funding_cli_20261029/BINDINGS.json": "6ff53911dd9762e7573a7c34b6d5bff8006472af13c9b81abc89ee1ebe29b44c",
+  "docs/review_artifacts/okx_funding_cli_20261029/CLOSURE.json": "26236ea03ea76b7b40b672452ac78616bc19ef9ae23d80586a3b71e0f10ad151",
+  "docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/DIAGNOSTIC_PLAN.json": "e57f6b7ad4f734f2069d3859bd4ecaf48fc198b0cb0b2a4dad1cbb67b641d8fe",
+  "docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/OPTIONS.json": "daf5c2fa8dcfb5fbb8cb51f0bfbf38f5a56d0a94c8bbb6b8487d271152ac70db",
+  "docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/READBACK.json": "c5054ddb78417326fb16271d8185985cb6061f23f442727dba163519075238b8",
+  "docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/RUN_RECEIPT.json": "2abaaa12d1111e3dc8c3b0a036895c329428100c5a841352384e8f978d837ba9",
+  "docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/SERVICE_RESULT.json": "7efc179714d8d94a96f93632c0cb0e2d58823395021a232b41dd861ea6dffeeb",
+  "docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/current.body": "fc1babc072cc3f17d3a1dc60701e5cd1699ee972c93fdc7a4e0f9860cd3da0d5",
+  "docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/history.body": "56b04e0b55f84069e9afc10fb11ded392a7ba9e16c2d3f7c04681eb762b9c0c3",
+  "docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/pilot.sqlite": "514e8d91be3b380023ba8ad84291be5779f362f9d8ed3445230b71e95a2d407d",
+  "docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/request_1.stdout": "f4b6baa368f93baf2a237e376f3f24b96760a22db47e70aeae8105ae2711891a",
+  "docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/request_2.stdout": "2c170a4e6e3a424dfa0550d15d620515f9e3e69aa2a583e0c4bda7a3e4437bb7",
+  "services/analytics/crypto_edge_collector_service.py": "b4788e654618a3bd9370f54fa16b866b9c5a70eb77e7a0722e5158ddfd83e53b",
+  "services/analytics/funding_observations.py": "aac199471edaa2e9255dc9ac30911fd694cafdc1bba5b4ead368f124bb4755f0",
+  "services/analytics/okx_funding_cash_cost.py": "00a59dd48b542a3f7ffe616f7c35f7d56c6c603f68b925ecce49b1d897636c1b",
+  "services/analytics/okx_funding_contract.py": "94c0f8efca0d4064c5e414df1c92285d600e8682b64e4fc878ae263d06a9be47",
+  "services/analytics/okx_funding_journal.py": "1b97a70f3dd064fdea7551f2cf1991689456d91d2d16a3078bf6bad3a407e0b5",
+  "services/analytics/okx_funding_pair_batch.py": "d84565309d4138e53cc42670e1cd05961e0f7a812b58798805346e6efd4cba9d",
+  "services/analytics/okx_funding_pair_producer.py": "83dcd0fe851d9f00bd9c2632f21765c3051945df74fdf6f6981b6b4c78eb8eb9",
+  "storage/crypto_edge_store_sqlite.py": "f782c8938222fe68f4e26a0165e15f03f8ccc7235748e0f4062fabeb5273863b"
+}

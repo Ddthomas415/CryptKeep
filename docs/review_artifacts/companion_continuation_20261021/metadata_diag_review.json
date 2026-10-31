@@ -1,0 +1,121 @@
+{
+  "schema": "companion-staged-metadata-diagnostic-review-v1",
+  "reviewed_at_utc": "2026-10-21T12:22:57Z",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Saved diagnostic and offline model explanation only; not a compatibility fix, runtime pin or cutover approval",
+  "bindings": {
+    "diagnostic": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/staged_metadata_diagnostic.json",
+      "sha256": "03ffaa2dd4e4ee3c6d42383c41df4e04c3e797382416699134aa9661e3bf748e"
+    },
+    "manifest": {
+      "path": "docs/review_artifacts/companion_continuation_20261020/reviewed_preparation_manifest.json",
+      "sha256": "3b6f785ca1dd732e307aa83b30dcea2a5d2d9379d57af06a4afaa3774df94635"
+    },
+    "evidence": {
+      "path": ".cbp_state/runtime/companion_preparations/f4e189b78ccc48acb8b92f20c4627f51/evidence.json",
+      "sha256": "78726c0b834778934368713e55a7496a91249d17323e3d43c9052895a5e4d8de"
+    },
+    "original_capture": {
+      "path": "docs/review_artifacts/companion_continuation_20261020/fresh_v5_capture_20261020/capture.json",
+      "sha256": "0fa450f65997a8ace714babc6b514270eab308cd22f623a6e06177ab3c09fa1b"
+    },
+    "actual_id_review": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/preparation_actual_id_review.json",
+      "sha256": "66f0ec73f6362fc97270901a1b6f9b2723100548503e8c33c9c3453bcde88fc7"
+    }
+  },
+  "shown": [
+    "Diagnostic hash matches. All four raw public rows bind the saved staged IDs/images/attempts, remain created/never-started/restart0/policyno, and independently reproduce saved raw, foundation and configured digests plus configured-only network provenance.",
+    "Expected final fingerprints reproduce from original captured metadata under the existing reviewed environment-override model.",
+    "Two-direction field substitution under the unchanged fingerprint identifies exactly dns, extra_hosts and networks as mismatching gate fields, agreeing with all four saved comparison reports. Flags match exactly, including ordering.",
+    "For all four actual rows dns and extra_hosts are null, versus [] in the expected model. Replacing only those two fields with [] and each staged alias list with the manifest logical aliases on an in-memory clone reproduces the exact expected final configured digest.",
+    "No other raw field or nested network property changes in that reconstruction. Omitting any one of the three conceptual changes fails to reproduce the expected digest; alias-only substitution remains insufficient."
+  ],
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV for pure offline hashing/comparison only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - <<'PY'\nimport copy, hashlib, json\nfrom pathlib import Path\nfrom scripts.research import companion_installer as install\nfrom scripts.research import companion_runtime_adapter as adapter\nfrom scripts.research import companion_network_configuration as network\nfrom scripts.research import companion_install_env as env\nfrom scripts.research import companion_metadata_diagnostics as diag\nroot = Path.cwd()\nbase = root / \"docs/review_artifacts/companion_continuation_20261021\"\ndiagnostic_raw = (base / \"staged_metadata_diagnostic.json\").read_bytes()\nassert hashlib.sha256(diagnostic_raw).hexdigest() == \"03ffaa2dd4e4ee3c6d42383c41df4e04c3e797382416699134aa9661e3bf748e\"\nd = json.loads(diagnostic_raw)\nmanifest_raw = (root / \"docs/review_artifacts/companion_continuation_20261020/reviewed_preparation_manifest.json\").read_bytes()\nmanifest_sha = hashlib.sha256(manifest_raw).hexdigest()\nassert manifest_sha == \"3b6f785ca1dd732e307aa83b30dcea2a5d2d9379d57af06a4afaa3774df94635\" == d[\"manifest_sha256\"]\nplan = install.Plan.load(manifest_raw, manifest_sha)\nevidence_raw = (root / \".cbp_state/runtime/companion_preparations\" / plan.attempt / \"evidence.json\").read_bytes()\nassert hashlib.sha256(evidence_raw).hexdigest() == \"78726c0b834778934368713e55a7496a91249d17323e3d43c9052895a5e4d8de\" == d[\"evidence_sha256\"]\ne = json.loads(evidence_raw)\ncapture_raw = (root / \"docs/review_artifacts/companion_continuation_20261020/fresh_v5_capture_20261020/capture.json\").read_bytes()\nassert hashlib.sha256(capture_raw).hexdigest() == \"0fa450f65997a8ace714babc6b514270eab308cd22f623a6e06177ab3c09fa1b\"\noriginals = {r[\"name\"].removeprefix(\"/\"): r for r in json.loads(capture_raw)[\"observations\"]}\nactuals = {r[\"id\"]: r for r in d[\"rows\"]}\ncomparisons = {r[\"name\"]: r for r in d[\"comparisons\"]}\nassert len(actuals) == len(d[\"rows\"]) == len(comparisons) == 4\nbindings = dict(plan.network_bindings)\nresult = []\nfor app, saved in zip(plan.applications, e[\"replacements\"]):\n    row = actuals[saved[\"id\"]]\n    assert row[\"name\"].removeprefix(\"/\") == saved[\"name\"] == plan.staged_name(app[\"name\"])\n    assert row[\"image\"] == saved[\"image\"] and row[\"attempt\"] == saved[\"attempt\"] == plan.attempt\n    assert row[\"state\"] == \"created\" and row[\"started\"] == \"0001-01-01T00:00:00Z\"\n    assert row[\"restarts\"] == 0 and row[\"restart_policy\"] == \"no\"\n    assert adapter.preservation_digest(row) == saved[\"metadata\"]\n    assert adapter.preservation_digest({**row, \"networks\": {}}) == saved[\"foundation\"]\n    digest, ids, evidence = network.project(row, bindings)\n    assert digest == saved[\"configured_metadata\"]\n    assert list(ids) == saved[\"configured_networks\"] and [list(x) for x in evidence] == saved[\"network_evidence\"]\n    expected = copy.deepcopy(originals[app[\"name\"]])\n    flags = [dict(f) for f in expected[\"flags\"] if f is not None]\n    present = set()\n    for f in flags:\n        if f[\"key\"] in env._OVERRIDES: f[\"ok\"] = True\n        present.add(f[\"key\"])\n    flags.extend({\"key\": k, \"ok\": True} for k in env._OVERRIDES if k not in present)\n    expected[\"flags\"] = [*flags, None]\n    expected_digest = network.project(expected, bindings)[0]\n    assert expected_digest == app[\"replacement_configured_metadata\"]\n    assert row[\"extra_hosts\"] is None and row[\"dns\"] is None\n    assert expected[\"extra_hosts\"] == expected[\"dns\"] == []\n    assert row[\"flags\"] == expected[\"flags\"]\n    field_matches = {}\n    for field in diag.FIELDS:\n        forward = {**expected, field: row.get(field)}\n        reverse = {**row, field: expected.get(field)}\n        field_matches[field] = network.project(forward, bindings)[0] == expected_digest and network.project(reverse, bindings)[0] == digest\n    false_fields = sorted(k for k, ok in field_matches.items() if not ok)\n    assert false_fields == [\"dns\", \"extra_hosts\", \"networks\"]\n    assert comparisons[app[\"name\"]][\"comparison\"][\"fields\"] == field_matches\n    assert comparisons[app[\"name\"]][\"comparison\"][\"aggregate_matches\"] is False\n    assert comparisons[app[\"name\"]][\"comparison\"][\"flags_order_only\"] is False\n    assert comparisons[app[\"name\"]][\"comparison\"][\"interaction_unresolved\"] is False\n    assert comparisons[app[\"name\"]][\"flag_multisets_equal\"] is True\n    patched = copy.deepcopy(row)\n    patched[\"extra_hosts\"] = []; patched[\"dns\"] = []\n    aliases = app[\"network_options\"][1::2]\n    assert app[\"network_options\"][::2] == [\"--alias\"] * len(aliases) and len(patched[\"networks\"]) == 1\n    for net in patched[\"networks\"].values(): net[\"Aliases\"] = aliases\n    assert {k for k in row if row[k] != patched[k]} == {\"extra_hosts\", \"dns\", \"networks\"}\n    for name in row[\"networks\"]:\n        assert {k for k in row[\"networks\"][name] if row[\"networks\"][name][k] != patched[\"networks\"][name][k]} == {\"Aliases\"}\n    assert network.project(patched, bindings)[0] == expected_digest\n    aliases_only = copy.deepcopy(row)\n    for net in aliases_only[\"networks\"].values(): net[\"Aliases\"] = aliases\n    assert network.project(aliases_only, bindings)[0] != expected_digest\n    for omitted_field in (\"dns\", \"extra_hosts\", \"networks\"):\n        partial = copy.deepcopy(patched); partial[omitted_field] = copy.deepcopy(row[omitted_field])\n        assert network.project(partial, bindings)[0] != expected_digest\n    result.append({\"name\": app[\"name\"], \"id\": row[\"id\"], \"actual_digest\": digest, \"expected_final_digest\": expected_digest, \"differing_gate_fields\": false_fields, \"flags_exactly_equal_including_order\": True, \"two_empty_fields_plus_aliases_reproduce_expected\": True, \"aliases_only_insufficient\": True})\nprint(json.dumps({\"checks\": \"PASS\", \"rows\": result, \"native_operations\": False, \"only_offline_clones_modified\": True}, sort_keys=True))\nPY",
+    "exit_code": 0,
+    "result": "PASS for all four saved rows and model reconstructions",
+    "pytest_run": false,
+    "native_calls": false
+  },
+  "rows": [
+    {
+      "actual_digest": "c9b3f416e9c11f76bdc1c9d86eff700e65033fd3804eabca860d24afee587f11",
+      "aliases_only_insufficient": true,
+      "differing_gate_fields": [
+        "dns",
+        "extra_hosts",
+        "networks"
+      ],
+      "expected_final_digest": "568009e848e00ff5471c2768712091d58a3bcb47b8014a44a416915038fa2462",
+      "flags_exactly_equal_including_order": true,
+      "id": "bd12bc18068bc646b2726e047dc05166beba67c22b7b2afc03f0e791fed5111d",
+      "name": "phase1-audit-log",
+      "two_empty_fields_plus_aliases_reproduce_expected": true
+    },
+    {
+      "actual_digest": "7f180c959ab30d48ccabd43dcc726c5dbaaeae2f12cf8e66336123717f44792d",
+      "aliases_only_insufficient": true,
+      "differing_gate_fields": [
+        "dns",
+        "extra_hosts",
+        "networks"
+      ],
+      "expected_final_digest": "b75f2b057456ff3ec0993cb7462d9446e445844a4860f43db49532ea4e8aa72d",
+      "flags_exactly_equal_including_order": true,
+      "id": "6a4b4246e6abf66dc186505e4f2eb00c85d19cc14bb8e41d8b1389468fbbb3d9",
+      "name": "phase1-risk-stub",
+      "two_empty_fields_plus_aliases_reproduce_expected": true
+    },
+    {
+      "actual_digest": "3590b88d4ca73d49d65986e241df4735b373a8b975efcd367bb5a50fe3e27c10",
+      "aliases_only_insufficient": true,
+      "differing_gate_fields": [
+        "dns",
+        "extra_hosts",
+        "networks"
+      ],
+      "expected_final_digest": "d3bfbd1aa8d235cf718a0e8e22ba53304c6bfaa7b6b3ffd02c110ac5b605082c",
+      "flags_exactly_equal_including_order": true,
+      "id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+      "name": "phase1-memory",
+      "two_empty_fields_plus_aliases_reproduce_expected": true
+    },
+    {
+      "actual_digest": "f97ed8ac305fac8eecf1180ea88027dafb1b4760b1609ed38ab7101f83872d3d",
+      "aliases_only_insufficient": true,
+      "differing_gate_fields": [
+        "dns",
+        "extra_hosts",
+        "networks"
+      ],
+      "expected_final_digest": "f95a5f5ee0fa89c1fb5059f8b854c85d30dadf70e968a80c88604ffee6b01399",
+      "flags_exactly_equal_including_order": true,
+      "id": "05a288361742d9b3a26d6e0f69b7cf10d3e3e17672e01c61c9bfad072a7289ac",
+      "name": "phase1-orchestrator",
+      "two_empty_fields_plus_aliases_reproduce_expected": true
+    }
+  ],
+  "provenance_note": {
+    "classification": "CLAIMED",
+    "detail": "Parent reports initial public-byte result transfer failed because ProcessExecutor requires JSON-serializable results; corrected wrapper decoded public JSON inside the child. No preparation/lifecycle retry is reported. Reviewer did not reproduce either native inspection."
+  },
+  "limits": [
+    "This establishes the numerical explanation for these saved selected-metadata fingerprints, not general Docker semantic equivalence of null and empty arrays or permission to normalize arbitrary fields.",
+    "Only offline deep copies were transformed. Actual metadata, prior evidence, actual-ID approval, manifest expectations, runtime pins, preservation digests and gate code remain unchanged.",
+    "The diagnostic is a point-in-time formatted observation at 2026-10-21T12:20:52.040692+00:00. It is not attachment, connectivity, SDK/import, health, query, database-content or future lifecycle proof.",
+    "Current stopped inputs differ from final fingerprint expectations even after alias-only projection. Any future compatibility/cutover proposal must explicitly address this null/[] representation boundary; this review supplies no implementation, gate waiver or claim that final native state will match.",
+    "Prepared replacements remain preserved. Runtime/startup/cutover remain UNAUTHORIZED and INCOMPLETE."
+  ],
+  "runtime_state": "INCOMPLETE",
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "actual_id_review_modified": false,
+  "evidence_modified": false,
+  "pins_or_gates_modified": false,
+  "reviewer_native_operations": false,
+  "reviewer_credential_reads": false
+}

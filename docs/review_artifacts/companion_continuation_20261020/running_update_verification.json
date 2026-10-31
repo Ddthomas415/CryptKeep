@@ -1,0 +1,28 @@
+{
+  "active_role": "ENGINEER",
+  "candidate_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "concrete_native_assembly": "INCOMPLETE",
+  "environment": "VERIFIED_ENV for clean-environment synthetic tests only",
+  "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_companion_running_update.py tests/test_companion_running_storage.py tests/test_companion_running_backend.py tests/test_companion_installer.py tests/test_companion_metadata_diagnostics.py tests/test_companion_network_configuration.py tests/test_companion_existing_controller.py tests/test_companion_runtime_wiring.py tests/test_companion_runtime_adapter.py",
+  "exit_code": 0,
+  "passed": 502,
+  "duration_seconds": 3.14,
+  "full_suite_run": false,
+  "source_sha256": {
+    "scripts/research/companion_installer.py": "220dc99557b20ddfab55c2ce7d94db4cb4dc00e8fc18ec99b167c0fd15f9534f",
+    "scripts/research/companion_install_docker.py": "cc56d695180a1e47a531e0ade424297f505b01fe2a06111325a9af5fd73ff508",
+    "tests/test_companion_running_update.py": "f464f546dfc258e009432eac190247b3da23f37ef1826ec6c91c27bc935e1bfc",
+    "tests/test_companion_running_backend.py": "0e7494fdc16c770bfc685a0e88288508b3fa990443758ad09a326aa327b5cb40"
+  },
+  "intermediate_results": [
+    "71 passed in first integration/storage slice",
+    "201 passed in expanded parent slice before independent findings",
+    "After stricter recovery checks: 205 passed and one stale positive recovery expectation failed",
+    "That fixture was split: transient pre-start mismatch permits recovery proof; persistent corrupt observation forbids it. No acceptance gate was loosened."
+  ],
+  "native_calls": 0,
+  "credentials_read": false,
+  "runtime_changed": false,
+  "operational_cli_available": false,
+  "remaining": "User architecture choice and feasible independently reviewed replacement-ID provisioning; fresh native compatibility and separately authorized operation"
+}

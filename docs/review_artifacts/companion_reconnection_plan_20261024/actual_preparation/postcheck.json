@@ -1,0 +1,4284 @@
+{
+  "after": [
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "postgres"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": [
+        "docker-entrypoint.sh"
+      ],
+      "extra_hosts": [],
+      "flags": [
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_DB",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_USER",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "pg_isready -U copilot -d copilot"
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "7895bb197b94",
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "init": null,
+      "label_count": 12,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [
+        {
+          "Destination": "/docker-entrypoint-initdb.d",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/host_mnt/Users/baitus/Downloads/crypto-bot-pro/phase1_research_copilot/db/init",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "Name": "phase1_research_copilot_phase1_timescaledb_data",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/phase1_research_copilot_phase1_timescaledb_data/_data",
+          "Type": "volume"
+        }
+      ],
+      "name": "/phase1-timescaledb",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-timescaledb",
+            "timescaledb"
+          ],
+          "DNSNames": [
+            "phase1-timescaledb",
+            "timescaledb",
+            "7895bb197b94"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "2a7aac95e26c916fd094c9ee4e5bfae805eb88ad4d5af4d4982d4524d59d788b",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "172.23.0.2",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "56:36:74:98:24:5a",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "5432"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-20T12:10:30.80557325Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": "SIGINT",
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": ""
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "./entrypoint.sh"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": [],
+      "flags": [
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": null,
+      "hostname": "2b5b140608bb",
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "init": null,
+      "label_count": 18,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [
+        {
+          "Destination": "/qdrant/storage",
+          "Driver": "local",
+          "Mode": "rw",
+          "Name": "phase1_research_copilot_phase1_qdrant_data",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/phase1_research_copilot_phase1_qdrant_data/_data",
+          "Type": "volume"
+        }
+      ],
+      "name": "/phase1-qdrant",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-qdrant",
+            "qdrant"
+          ],
+          "DNSNames": [
+            "phase1-qdrant",
+            "qdrant",
+            "2b5b140608bb"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "4cf9ec1ae38dc777e8176c3cdaf61749e88afd70a5bf23175899c7b1119d793e",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "172.23.0.6",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "f2:4a:db:fb:cd:c7",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "6333/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "6333"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-20T12:10:31.415239375Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "0:0",
+      "workdir": "/qdrant"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "server",
+        "/data",
+        "--console-address",
+        ":9001"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": [
+        "/usr/bin/docker-entrypoint.sh"
+      ],
+      "extra_hosts": [],
+      "flags": [
+        {
+          "key": "MINIO_ROOT_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ROOT_USER",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": null,
+      "hostname": "a75c14f29235",
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "init": null,
+      "label_count": 30,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [
+        {
+          "Destination": "/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "Name": "phase1_research_copilot_phase1_minio_data",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/phase1_research_copilot_phase1_minio_data/_data",
+          "Type": "volume"
+        }
+      ],
+      "name": "/phase1-minio",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-minio",
+            "minio"
+          ],
+          "DNSNames": [
+            "phase1-minio",
+            "minio",
+            "a75c14f29235"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "fe432606b6194648221dcfb5f967c15402fa452a5a6b5ace8668ae1f3926ac78",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "172.23.0.4",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "4a:93:91:44:43:52",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "9000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "9000"
+          }
+        ],
+        "9001/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "9001"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-20T12:10:31.08949425Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": ""
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "sh",
+        "-c",
+        "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": [],
+      "flags": [
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": false
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8009/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "fbec9f31369f",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "init": null,
+      "label_count": 11,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [],
+      "name": "/phase1-audit-log",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-audit-log",
+            "audit-log"
+          ],
+          "DNSNames": [
+            "phase1-audit-log",
+            "audit-log",
+            "fbec9f31369f"
+          ],
+          "DriverOpts": {},
+          "EndpointID": "34663488b1a224ede97b09a84bd577832898d73da21b6d2c235c31e754955d27",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": {},
+          "IPAddress": "172.23.0.5",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "62:a3:06:91:78:7a",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8009/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8009"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-24T11:33:38.018371679Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "sh",
+        "-c",
+        "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": [],
+      "flags": [
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": false
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8008/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "b747cb34088f",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "init": null,
+      "label_count": 11,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [],
+      "name": "/phase1-risk-stub",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-risk-stub",
+            "risk-stub"
+          ],
+          "DNSNames": [
+            "phase1-risk-stub",
+            "risk-stub",
+            "b747cb34088f"
+          ],
+          "DriverOpts": {},
+          "EndpointID": "670676238fa7a35b4e8df53549d5cedc4bc923d6f096802c84917a672abc5743",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": {},
+          "IPAddress": "172.23.0.8",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "12:d6:14:bb:9c:4f",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8008/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8008"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-24T11:33:39.011225472Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "sh",
+        "-c",
+        "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": [],
+      "flags": [
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": false
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8007/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "869205e8c8cf",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "init": null,
+      "label_count": 11,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [],
+      "name": "/phase1-memory",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-memory",
+            "memory-retrieval"
+          ],
+          "DNSNames": [
+            "phase1-memory",
+            "memory-retrieval",
+            "869205e8c8cf"
+          ],
+          "DriverOpts": {},
+          "EndpointID": "6439c076cac74fa2ddb794d6c95fc275e033da3d2cbf90b08eda71ea06392294",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": {},
+          "IPAddress": "172.23.0.9",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "a6:5a:35:7e:f1:7d",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8007/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8007"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-24T11:33:39.958175847Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        true,
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "sh",
+        "-c",
+        "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": [],
+      "flags": [
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": false
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "bfaed7d1d651",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "init": null,
+      "label_count": 11,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [
+        {
+          "Destination": "/repo",
+          "Mode": "ro",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/Users/baitus/Downloads/crypto-bot-pro",
+          "Type": "bind"
+        }
+      ],
+      "name": "/phase1-orchestrator",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-orchestrator",
+            "orchestrator"
+          ],
+          "DNSNames": [
+            "phase1-orchestrator",
+            "orchestrator",
+            "bfaed7d1d651"
+          ],
+          "DriverOpts": {},
+          "EndpointID": "d6988b54b2a5b23b8f0b2412a1ff723a8fae5cc2a92fc2f8528f995f6ec9b0bf",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": {},
+          "IPAddress": "172.23.0.13",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "ae:2a:71:82:fa:3c",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8002/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8002"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-24T11:33:40.986008292Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "workerprep20261024v6e",
+      "auto_remove": false,
+      "command": [
+        "python",
+        "-m",
+        "uvicorn",
+        "audit_log.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8009"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": null,
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": null,
+      "flags": [
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_READ_ONLY_STARTUP",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8009/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "817da54d820e",
+      "id": "817da54d820e3da52885ed8d91e50c365096b6d0a9b8f87c55af63cf36c0b2b1",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "init": null,
+      "label_count": 12,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [],
+      "name": "/phase1-audit-log-staged-workerprep20261024v6e",
+      "nano_cpus": 0,
+      "network_mode": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-audit-log-staged-workerprep20261024v6e"
+          ],
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": ""
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8009/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8009"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "workerprep20261024v6e",
+      "auto_remove": false,
+      "command": [
+        "python",
+        "-m",
+        "uvicorn",
+        "risk_stub.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8008"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": null,
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": null,
+      "flags": [
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": true
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_READ_ONLY_STARTUP",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8008/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "b385c183feed",
+      "id": "b385c183feed69f56d1957cdd5c35d1301761e6c62c0705d80b8527ea14a612a",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "init": null,
+      "label_count": 12,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [],
+      "name": "/phase1-risk-stub-staged-workerprep20261024v6e",
+      "nano_cpus": 0,
+      "network_mode": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-risk-stub-staged-workerprep20261024v6e"
+          ],
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": ""
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8008/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8008"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "workerprep20261024v6e",
+      "auto_remove": false,
+      "command": [
+        "python",
+        "-m",
+        "uvicorn",
+        "memory_retrieval.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8007"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": null,
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": null,
+      "flags": [
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": true
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_READ_ONLY_STARTUP",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8007/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "551c464617c2",
+      "id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "image": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "init": null,
+      "label_count": 12,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [],
+      "name": "/phase1-memory-staged-workerprep20261024v6e",
+      "nano_cpus": 0,
+      "network_mode": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-memory-staged-workerprep20261024v6e"
+          ],
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": ""
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8007/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8007"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        true,
+        null
+      ],
+      "attempt": "workerprep20261024v6e",
+      "auto_remove": false,
+      "command": [
+        "python",
+        "-m",
+        "uvicorn",
+        "orchestrator.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8002"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": null,
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": null,
+      "flags": [
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_READ_ONLY_STARTUP",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "e7cf9e9d48fd",
+      "id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "init": null,
+      "label_count": 12,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [
+        {
+          "Destination": "/repo",
+          "Mode": "",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/Users/baitus/Downloads/crypto-bot-pro",
+          "Type": "bind"
+        }
+      ],
+      "name": "/phase1-orchestrator-staged-workerprep20261024v6e",
+      "nano_cpus": 0,
+      "network_mode": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-orchestrator-staged-workerprep20261024v6e"
+          ],
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": ""
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8002/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8002"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    }
+  ],
+  "before": [
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "postgres"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": [
+        "docker-entrypoint.sh"
+      ],
+      "extra_hosts": [],
+      "flags": [
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_DB",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_USER",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "pg_isready -U copilot -d copilot"
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "7895bb197b94",
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "init": null,
+      "label_count": 12,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [
+        {
+          "Destination": "/docker-entrypoint-initdb.d",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/host_mnt/Users/baitus/Downloads/crypto-bot-pro/phase1_research_copilot/db/init",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "Name": "phase1_research_copilot_phase1_timescaledb_data",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/phase1_research_copilot_phase1_timescaledb_data/_data",
+          "Type": "volume"
+        }
+      ],
+      "name": "/phase1-timescaledb",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-timescaledb",
+            "timescaledb"
+          ],
+          "DNSNames": [
+            "phase1-timescaledb",
+            "timescaledb",
+            "7895bb197b94"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "2a7aac95e26c916fd094c9ee4e5bfae805eb88ad4d5af4d4982d4524d59d788b",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "172.23.0.2",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "56:36:74:98:24:5a",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "5432"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-20T12:10:30.80557325Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": "SIGINT",
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": ""
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "./entrypoint.sh"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": [],
+      "flags": [
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": null,
+      "hostname": "2b5b140608bb",
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "init": null,
+      "label_count": 18,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [
+        {
+          "Destination": "/qdrant/storage",
+          "Driver": "local",
+          "Mode": "rw",
+          "Name": "phase1_research_copilot_phase1_qdrant_data",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/phase1_research_copilot_phase1_qdrant_data/_data",
+          "Type": "volume"
+        }
+      ],
+      "name": "/phase1-qdrant",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-qdrant",
+            "qdrant"
+          ],
+          "DNSNames": [
+            "phase1-qdrant",
+            "qdrant",
+            "2b5b140608bb"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "4cf9ec1ae38dc777e8176c3cdaf61749e88afd70a5bf23175899c7b1119d793e",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "172.23.0.6",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "f2:4a:db:fb:cd:c7",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "6333/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "6333"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-20T12:10:31.415239375Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "0:0",
+      "workdir": "/qdrant"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "server",
+        "/data",
+        "--console-address",
+        ":9001"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": [
+        "/usr/bin/docker-entrypoint.sh"
+      ],
+      "extra_hosts": [],
+      "flags": [
+        {
+          "key": "MINIO_ROOT_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ROOT_USER",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": null,
+      "hostname": "a75c14f29235",
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "init": null,
+      "label_count": 30,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [
+        {
+          "Destination": "/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "Name": "phase1_research_copilot_phase1_minio_data",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/phase1_research_copilot_phase1_minio_data/_data",
+          "Type": "volume"
+        }
+      ],
+      "name": "/phase1-minio",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-minio",
+            "minio"
+          ],
+          "DNSNames": [
+            "phase1-minio",
+            "minio",
+            "a75c14f29235"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "fe432606b6194648221dcfb5f967c15402fa452a5a6b5ace8668ae1f3926ac78",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "172.23.0.4",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "4a:93:91:44:43:52",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "9000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "9000"
+          }
+        ],
+        "9001/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "9001"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-20T12:10:31.08949425Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": ""
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "sh",
+        "-c",
+        "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": [],
+      "flags": [
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": false
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8009/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "fbec9f31369f",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "init": null,
+      "label_count": 11,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [],
+      "name": "/phase1-audit-log",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-audit-log",
+            "audit-log"
+          ],
+          "DNSNames": [
+            "phase1-audit-log",
+            "audit-log",
+            "fbec9f31369f"
+          ],
+          "DriverOpts": {},
+          "EndpointID": "34663488b1a224ede97b09a84bd577832898d73da21b6d2c235c31e754955d27",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": {},
+          "IPAddress": "172.23.0.5",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "62:a3:06:91:78:7a",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8009/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8009"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-24T11:33:38.018371679Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "sh",
+        "-c",
+        "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": [],
+      "flags": [
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": false
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8008/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "b747cb34088f",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "init": null,
+      "label_count": 11,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [],
+      "name": "/phase1-risk-stub",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-risk-stub",
+            "risk-stub"
+          ],
+          "DNSNames": [
+            "phase1-risk-stub",
+            "risk-stub",
+            "b747cb34088f"
+          ],
+          "DriverOpts": {},
+          "EndpointID": "670676238fa7a35b4e8df53549d5cedc4bc923d6f096802c84917a672abc5743",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": {},
+          "IPAddress": "172.23.0.8",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "12:d6:14:bb:9c:4f",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8008/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8008"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-24T11:33:39.011225472Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "sh",
+        "-c",
+        "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": [],
+      "flags": [
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": false
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8007/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "869205e8c8cf",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "init": null,
+      "label_count": 11,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [],
+      "name": "/phase1-memory",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-memory",
+            "memory-retrieval"
+          ],
+          "DNSNames": [
+            "phase1-memory",
+            "memory-retrieval",
+            "869205e8c8cf"
+          ],
+          "DriverOpts": {},
+          "EndpointID": "6439c076cac74fa2ddb794d6c95fc275e033da3d2cbf90b08eda71ea06392294",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": {},
+          "IPAddress": "172.23.0.9",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "a6:5a:35:7e:f1:7d",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8007/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8007"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-24T11:33:39.958175847Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        true,
+        null
+      ],
+      "attempt": "",
+      "auto_remove": false,
+      "command": [
+        "sh",
+        "-c",
+        "uvicorn ${SERVICE_MODULE}:app --host 0.0.0.0 --port ${SERVICE_PORT:-8000}"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": [],
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": [],
+      "flags": [
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": false
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "bfaed7d1d651",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "init": null,
+      "label_count": 11,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [
+        {
+          "Destination": "/repo",
+          "Mode": "ro",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/Users/baitus/Downloads/crypto-bot-pro",
+          "Type": "bind"
+        }
+      ],
+      "name": "/phase1-orchestrator",
+      "nano_cpus": 0,
+      "network_mode": "phase1_research_copilot_default",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-orchestrator",
+            "orchestrator"
+          ],
+          "DNSNames": [
+            "phase1-orchestrator",
+            "orchestrator",
+            "bfaed7d1d651"
+          ],
+          "DriverOpts": {},
+          "EndpointID": "d6988b54b2a5b23b8f0b2412a1ff723a8fae5cc2a92fc2f8528f995f6ec9b0bf",
+          "Gateway": "172.23.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": {},
+          "IPAddress": "172.23.0.13",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "ae:2a:71:82:fa:3c",
+          "NetworkID": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8002/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8002"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "2026-10-24T11:33:40.986008292Z",
+      "state": "running",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "workerprep20261024v6e",
+      "auto_remove": false,
+      "command": [
+        "python",
+        "-m",
+        "uvicorn",
+        "audit_log.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8009"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": null,
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": null,
+      "flags": [
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_READ_ONLY_STARTUP",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8009/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "817da54d820e",
+      "id": "817da54d820e3da52885ed8d91e50c365096b6d0a9b8f87c55af63cf36c0b2b1",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "init": null,
+      "label_count": 12,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [],
+      "name": "/phase1-audit-log-staged-workerprep20261024v6e",
+      "nano_cpus": 0,
+      "network_mode": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-audit-log-staged-workerprep20261024v6e"
+          ],
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": ""
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8009/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8009"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "workerprep20261024v6e",
+      "auto_remove": false,
+      "command": [
+        "python",
+        "-m",
+        "uvicorn",
+        "risk_stub.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8008"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": null,
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": null,
+      "flags": [
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": true
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_READ_ONLY_STARTUP",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8008/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "b385c183feed",
+      "id": "b385c183feed69f56d1957cdd5c35d1301761e6c62c0705d80b8527ea14a612a",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "init": null,
+      "label_count": 12,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [],
+      "name": "/phase1-risk-stub-staged-workerprep20261024v6e",
+      "nano_cpus": 0,
+      "network_mode": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-risk-stub-staged-workerprep20261024v6e"
+          ],
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": ""
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8008/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8008"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        null
+      ],
+      "attempt": "workerprep20261024v6e",
+      "auto_remove": false,
+      "command": [
+        "python",
+        "-m",
+        "uvicorn",
+        "memory_retrieval.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8007"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": null,
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": null,
+      "flags": [
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": true
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_READ_ONLY_STARTUP",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8007/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "551c464617c2",
+      "id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "image": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "init": null,
+      "label_count": 12,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [],
+      "name": "/phase1-memory-staged-workerprep20261024v6e",
+      "nano_cpus": 0,
+      "network_mode": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-memory-staged-workerprep20261024v6e"
+          ],
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": ""
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8007/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8007"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    },
+    {
+      "BASH_ENV_matches": [
+        null
+      ],
+      "ENV_matches": [
+        null
+      ],
+      "PYTHONPATH_matches": [
+        true,
+        null
+      ],
+      "attempt": "workerprep20261024v6e",
+      "auto_remove": false,
+      "command": [
+        "python",
+        "-m",
+        "uvicorn",
+        "orchestrator.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8002"
+      ],
+      "cpu_period": 0,
+      "cpu_quota": 0,
+      "cpu_shares": 0,
+      "dns": null,
+      "dns_options": [],
+      "dns_search": [],
+      "entrypoint": null,
+      "extra_hosts": null,
+      "flags": [
+        {
+          "key": "RISK_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "AUDIT_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "PYTHONDONTWRITEBYTECODE",
+          "ok": true
+        },
+        {
+          "key": "SERVICE_TOKEN",
+          "ok": true
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "ok": true
+        },
+        {
+          "key": "REQUEST_TIMEOUT_SECONDS",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_SERVICE_URL",
+          "ok": true
+        },
+        {
+          "key": "NO_TRADING",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_COLLECTION",
+          "ok": true
+        },
+        {
+          "key": "QDRANT_URL",
+          "ok": true
+        },
+        {
+          "key": "MINIO_BUCKET",
+          "ok": true
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "ok": true
+        },
+        {
+          "key": "MINIO_SECRET_KEY",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ENDPOINT",
+          "ok": true
+        },
+        {
+          "key": "MINIO_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "key": "MEMORY_READ_ONLY_STARTUP",
+          "ok": true
+        },
+        null
+      ],
+      "has_cap_add": false,
+      "has_cap_drop": false,
+      "has_device_requests": false,
+      "has_devices": false,
+      "has_log_options": false,
+      "has_security_options": false,
+      "has_sysctls": false,
+      "has_tmpfs": false,
+      "has_ulimits": false,
+      "healthcheck": {
+        "Interval": 10000000000,
+        "Retries": 10,
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/healthz', timeout=2).read()\""
+        ],
+        "Timeout": 5000000000
+      },
+      "hostname": "e7cf9e9d48fd",
+      "id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "init": null,
+      "label_count": 12,
+      "log_driver": "local",
+      "memory": 0,
+      "mounts": [
+        {
+          "Destination": "/repo",
+          "Mode": "",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/Users/baitus/Downloads/crypto-bot-pro",
+          "Type": "bind"
+        }
+      ],
+      "name": "/phase1-orchestrator-staged-workerprep20261024v6e",
+      "nano_cpus": 0,
+      "network_mode": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+      "networks": {
+        "phase1_research_copilot_default": {
+          "Aliases": [
+            "phase1-orchestrator-staged-workerprep20261024v6e"
+          ],
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": ""
+        }
+      },
+      "open_stdin": false,
+      "pids_limit": null,
+      "ports": {
+        "8002/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8002"
+          }
+        ]
+      },
+      "privileged": false,
+      "readonly_rootfs": false,
+      "restart_policy": "no",
+      "restarts": 0,
+      "shm_size": 67108864,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "stdin_once": false,
+      "stop_signal": null,
+      "stop_timeout": null,
+      "tty": false,
+      "user": "",
+      "workdir": "/app"
+    }
+  ],
+  "elapsed_seconds": 1.13,
+  "evidence_sha256": "49a95a20860e9e62d02a1ecc01884ecbd973e19c6b09d17575e89950f49ebc51",
+  "limits": [
+    "Selected source/configuration observations, not atomic immutability, loaded-code or runtime proof.",
+    "Postcheck is read-only, outside preparation controller budget; own120second cap.",
+    "No credential values, archive/body data, volume bytes, endpoint or database query."
+  ],
+  "manifest_sha256": "2075f3b98abc53be9e8336d425dd8d158aca4b1934a1b9da46c2ae9d3cd562d4",
+  "native_read_calls": 46,
+  "network_observation": [
+    {
+      "id": "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+      "name": "phase1_research_copilot_default"
+    }
+  ],
+  "observed_end_utc": "2026-10-25T01:49:18.215058+00:00",
+  "observed_start_utc": "2026-10-25T01:49:17.085100+00:00",
+  "originals_equal_baseline": true,
+  "role": "AUDITOR",
+  "schema": "companion-v6e-preparation-postcheck-v1",
+  "selected_metadata_equal_before_after": true,
+  "service_operations": 0,
+  "snapshots": [
+    {
+      "attempt": "",
+      "configured_metadata": "6bf915cc8f9d5d22b2167ff4d0d50327021190617699a825a193ab1cfab341b4",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "183874266013ae3c90e3ab4985755814e5a32081f1b7f1d04a7bd07ae7801732",
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "metadata": "93cdf0d7d6d20661a725759d50b301da4a66dc417420d8a94ce26980c0a41cb8",
+      "name": "phase1-timescaledb",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-20T12:10:30.80557325Z",
+      "state": "running"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "ba696e8f5d36fe053b13105b8aadd508856a36e1d94a540850a799fa7b32560f",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "5b3fce46958b16a4e74f06b7519760a502a847d0c7a08055618f5392895a938a",
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "metadata": "4f51ad0eddc6747c5ba8414c8aec7a7df7c4d514bd3b87d9df2f72287ca82d7b",
+      "name": "phase1-qdrant",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-20T12:10:31.415239375Z",
+      "state": "running"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "b1873d406edfc223025678c7038687ab5ead0423690708dbe132673e1d0693ca",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "142a998361c6c564a614def0e7c06f08f39191cebedaab245bf6765cd2815733",
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "metadata": "8ebdf954631024d01eae198e4482d7dc4c0fcf1b1d4fbf32f4c533903e85340c",
+      "name": "phase1-minio",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-20T12:10:31.08949425Z",
+      "state": "running"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "98d4b952379d6bb3efa917500deef4909b5e1dc201a6519281a8dc1ecfd5218c",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "64be30f8003a07dfb87c0f576672526d50c57d75a83fb66766137261389cb86d",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "metadata": "7165ede259c9db0f15870aa99dd7ec22c928287140a0b1ed39af773cf5605bf5",
+      "name": "phase1-audit-log",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-24T11:33:38.018371679Z",
+      "state": "running"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "b27c6a57b91bbebd16fd18230e237d624591bfdf7c7d61cb48056266415346e8",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "3494c978290e99588bc55971808ae95cf96459e48df1c69182fdfec92b1e43b1",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "metadata": "850d2ea795486e62ac60c5f8d7caaa461ff13c287a26b8ec50953f7c4b75799e",
+      "name": "phase1-risk-stub",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-24T11:33:39.011225472Z",
+      "state": "running"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "33f3683f5af749b02490cdbe30f32381dfe8d7ab488253b0d4733e1c93bde291",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "c876e4098a1eda99b081db42aed5a2e909986bb377deaf24472be6d6af6b9017",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "metadata": "83e8dbda5ec8b9a6ab8fdd26d55b4b09daabb40571e5de0c0d03869a34f9707d",
+      "name": "phase1-memory",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-24T11:33:39.958175847Z",
+      "state": "running"
+    },
+    {
+      "attempt": "",
+      "configured_metadata": "ddfb23881f9d8dfe01c98008a5f00e7f4b33bd22e446dd34ae2254fa529d5012",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "200136aa17daceafc5c39b1499bd8fb3299af672bf1cd0267f19947aa6f0f03f",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "metadata": "aa8bbf79903b3d1feb03d24d35e15559b0bfab0ac271c8c08093c18fccf7685a",
+      "name": "phase1-orchestrator",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "reported_id"
+        ]
+      ],
+      "networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "2026-10-24T11:33:40.986008292Z",
+      "state": "running"
+    },
+    {
+      "attempt": "workerprep20261024v6e",
+      "configured_metadata": "83864631393c5d710efb76bfbc596671262f4f26c51fe9e522d07233b5c8f704",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "7e8998c3635d350120e837782969ffb5d930172438385ca7aa8ffffc33d9839b",
+      "id": "817da54d820e3da52885ed8d91e50c365096b6d0a9b8f87c55af63cf36c0b2b1",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "metadata": "def8895ba4621b6785d6e453aa896dd32419fefcf305135eb5ef9e1fa9b6c11b",
+      "name": "phase1-audit-log-staged-workerprep20261024v6e",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ],
+      "networks": [
+        ""
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created"
+    },
+    {
+      "attempt": "workerprep20261024v6e",
+      "configured_metadata": "7955073d792ae90ec5839a1763f9fd0971add3bfe2d4cfa09e6b94dae8cf3c59",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "af814f25fcf68fb1c22bc2fc52424cb9097583233b2d4dc23cc3e5dca97219bb",
+      "id": "b385c183feed69f56d1957cdd5c35d1301761e6c62c0705d80b8527ea14a612a",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "metadata": "31b54afadf164a9c1ec151c6eefa554feff9b7cb3e3d6f3a6b25a25e0b9e959a",
+      "name": "phase1-risk-stub-staged-workerprep20261024v6e",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ],
+      "networks": [
+        ""
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created"
+    },
+    {
+      "attempt": "workerprep20261024v6e",
+      "configured_metadata": "382c4bab21d850d6e237a4a4d9e33f75c8ff758b456736d415b767cc577f31f0",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "5c0d96afc87aee5936a3cd88912571aadfcfa608f94f7ed981ee0884e590e64b",
+      "id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "image": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "metadata": "c383b7a7cd2f97b282810c978c138922b8ec77175fcbed3a8c22bdd2e181042b",
+      "name": "phase1-memory-staged-workerprep20261024v6e",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ],
+      "networks": [
+        ""
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created"
+    },
+    {
+      "attempt": "workerprep20261024v6e",
+      "configured_metadata": "5ef0634150f32d8252ce0353353cf01c40b7848578a7e4e44893f5107d7a4c2f",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "foundation": "ab356df32dff7b88e277ac584a0818621423cdf732553cc716504679011fb998",
+      "id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "metadata": "69f89a0159e82bda4ce6495f03f7acffa61333eea43de01f22fde8986d5371e2",
+      "name": "phase1-orchestrator-staged-workerprep20261024v6e",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ],
+      "networks": [
+        ""
+      ],
+      "policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created"
+    }
+  ],
+  "source_bodies_persisted": false,
+  "sources": [
+    {
+      "bytes": 25,
+      "container_id": "817da54d820e3da52885ed8d91e50c365096b6d0a9b8f87c55af63cf36c0b2b1",
+      "expected_sha256": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75",
+      "image_id_from_same_id_metadata": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/audit_log/__init__.py",
+      "path": "/app/audit_log/__init__.py",
+      "sha256": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75",
+      "target": "phase1-audit-log"
+    },
+    {
+      "bytes": 3177,
+      "container_id": "817da54d820e3da52885ed8d91e50c365096b6d0a9b8f87c55af63cf36c0b2b1",
+      "expected_sha256": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8",
+      "image_id_from_same_id_metadata": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/audit_log/main.py",
+      "path": "/app/audit_log/main.py",
+      "sha256": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8",
+      "target": "phase1-audit-log"
+    },
+    {
+      "bytes": 63,
+      "container_id": "817da54d820e3da52885ed8d91e50c365096b6d0a9b8f87c55af63cf36c0b2b1",
+      "expected_sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+      "image_id_from_same_id_metadata": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/__init__.py",
+      "path": "/app/shared/__init__.py",
+      "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+      "target": "phase1-audit-log"
+    },
+    {
+      "bytes": 1799,
+      "container_id": "817da54d820e3da52885ed8d91e50c365096b6d0a9b8f87c55af63cf36c0b2b1",
+      "expected_sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "image_id_from_same_id_metadata": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/audit.py",
+      "path": "/app/shared/audit.py",
+      "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "target": "phase1-audit-log"
+    },
+    {
+      "bytes": 3090,
+      "container_id": "817da54d820e3da52885ed8d91e50c365096b6d0a9b8f87c55af63cf36c0b2b1",
+      "expected_sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "image_id_from_same_id_metadata": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/config.py",
+      "path": "/app/shared/config.py",
+      "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "target": "phase1-audit-log"
+    },
+    {
+      "bytes": 1282,
+      "container_id": "817da54d820e3da52885ed8d91e50c365096b6d0a9b8f87c55af63cf36c0b2b1",
+      "expected_sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "image_id_from_same_id_metadata": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/db.py",
+      "path": "/app/shared/db.py",
+      "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "target": "phase1-audit-log"
+    },
+    {
+      "bytes": 1077,
+      "container_id": "817da54d820e3da52885ed8d91e50c365096b6d0a9b8f87c55af63cf36c0b2b1",
+      "expected_sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+      "image_id_from_same_id_metadata": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/logging.py",
+      "path": "/app/shared/logging.py",
+      "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+      "target": "phase1-audit-log"
+    },
+    {
+      "bytes": 1862,
+      "container_id": "817da54d820e3da52885ed8d91e50c365096b6d0a9b8f87c55af63cf36c0b2b1",
+      "expected_sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+      "image_id_from_same_id_metadata": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/models.py",
+      "path": "/app/shared/models.py",
+      "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+      "target": "phase1-audit-log"
+    },
+    {
+      "bytes": 2511,
+      "container_id": "817da54d820e3da52885ed8d91e50c365096b6d0a9b8f87c55af63cf36c0b2b1",
+      "expected_sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "image_id_from_same_id_metadata": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/probe.py",
+      "path": "/app/shared/probe.py",
+      "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "target": "phase1-audit-log"
+    },
+    {
+      "bytes": 54,
+      "container_id": "b385c183feed69f56d1957cdd5c35d1301761e6c62c0705d80b8527ea14a612a",
+      "expected_sha256": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411",
+      "image_id_from_same_id_metadata": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/risk_stub/__init__.py",
+      "path": "/app/risk_stub/__init__.py",
+      "sha256": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411",
+      "target": "phase1-risk-stub"
+    },
+    {
+      "bytes": 2172,
+      "container_id": "b385c183feed69f56d1957cdd5c35d1301761e6c62c0705d80b8527ea14a612a",
+      "expected_sha256": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6",
+      "image_id_from_same_id_metadata": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/risk_stub/main.py",
+      "path": "/app/risk_stub/main.py",
+      "sha256": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6",
+      "target": "phase1-risk-stub"
+    },
+    {
+      "bytes": 63,
+      "container_id": "b385c183feed69f56d1957cdd5c35d1301761e6c62c0705d80b8527ea14a612a",
+      "expected_sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+      "image_id_from_same_id_metadata": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/__init__.py",
+      "path": "/app/shared/__init__.py",
+      "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+      "target": "phase1-risk-stub"
+    },
+    {
+      "bytes": 1799,
+      "container_id": "b385c183feed69f56d1957cdd5c35d1301761e6c62c0705d80b8527ea14a612a",
+      "expected_sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "image_id_from_same_id_metadata": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/audit.py",
+      "path": "/app/shared/audit.py",
+      "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "target": "phase1-risk-stub"
+    },
+    {
+      "bytes": 3090,
+      "container_id": "b385c183feed69f56d1957cdd5c35d1301761e6c62c0705d80b8527ea14a612a",
+      "expected_sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "image_id_from_same_id_metadata": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/config.py",
+      "path": "/app/shared/config.py",
+      "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "target": "phase1-risk-stub"
+    },
+    {
+      "bytes": 1282,
+      "container_id": "b385c183feed69f56d1957cdd5c35d1301761e6c62c0705d80b8527ea14a612a",
+      "expected_sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "image_id_from_same_id_metadata": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/db.py",
+      "path": "/app/shared/db.py",
+      "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "target": "phase1-risk-stub"
+    },
+    {
+      "bytes": 1077,
+      "container_id": "b385c183feed69f56d1957cdd5c35d1301761e6c62c0705d80b8527ea14a612a",
+      "expected_sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+      "image_id_from_same_id_metadata": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/logging.py",
+      "path": "/app/shared/logging.py",
+      "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+      "target": "phase1-risk-stub"
+    },
+    {
+      "bytes": 1862,
+      "container_id": "b385c183feed69f56d1957cdd5c35d1301761e6c62c0705d80b8527ea14a612a",
+      "expected_sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+      "image_id_from_same_id_metadata": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/models.py",
+      "path": "/app/shared/models.py",
+      "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+      "target": "phase1-risk-stub"
+    },
+    {
+      "bytes": 2511,
+      "container_id": "b385c183feed69f56d1957cdd5c35d1301761e6c62c0705d80b8527ea14a612a",
+      "expected_sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "image_id_from_same_id_metadata": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/probe.py",
+      "path": "/app/shared/probe.py",
+      "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "target": "phase1-risk-stub"
+    },
+    {
+      "bytes": 37,
+      "container_id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "expected_sha256": "2402dc051be3f99818a1933b20b12a9a99db1823105e1068d015c0edc5b1d7fa",
+      "image_id_from_same_id_metadata": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/memory_retrieval/__init__.py",
+      "path": "/app/memory_retrieval/__init__.py",
+      "sha256": "2402dc051be3f99818a1933b20b12a9a99db1823105e1068d015c0edc5b1d7fa",
+      "target": "phase1-memory"
+    },
+    {
+      "bytes": 6397,
+      "container_id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "expected_sha256": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+      "image_id_from_same_id_metadata": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/memory_retrieval/article_view.py",
+      "path": "/app/memory_retrieval/article_view.py",
+      "sha256": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+      "target": "phase1-memory"
+    },
+    {
+      "bytes": 19176,
+      "container_id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "expected_sha256": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228",
+      "image_id_from_same_id_metadata": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/memory_retrieval/main.py",
+      "path": "/app/memory_retrieval/main.py",
+      "sha256": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228",
+      "target": "phase1-memory"
+    },
+    {
+      "bytes": 1424,
+      "container_id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "expected_sha256": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+      "image_id_from_same_id_metadata": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/memory_retrieval/question_query.py",
+      "path": "/app/memory_retrieval/question_query.py",
+      "sha256": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+      "target": "phase1-memory"
+    },
+    {
+      "bytes": 63,
+      "container_id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "expected_sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+      "image_id_from_same_id_metadata": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/__init__.py",
+      "path": "/app/shared/__init__.py",
+      "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+      "target": "phase1-memory"
+    },
+    {
+      "bytes": 1799,
+      "container_id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "expected_sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "image_id_from_same_id_metadata": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/audit.py",
+      "path": "/app/shared/audit.py",
+      "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "target": "phase1-memory"
+    },
+    {
+      "bytes": 3090,
+      "container_id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "expected_sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "image_id_from_same_id_metadata": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/config.py",
+      "path": "/app/shared/config.py",
+      "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "target": "phase1-memory"
+    },
+    {
+      "bytes": 1282,
+      "container_id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "expected_sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "image_id_from_same_id_metadata": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/db.py",
+      "path": "/app/shared/db.py",
+      "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "target": "phase1-memory"
+    },
+    {
+      "bytes": 1077,
+      "container_id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "expected_sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+      "image_id_from_same_id_metadata": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/logging.py",
+      "path": "/app/shared/logging.py",
+      "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+      "target": "phase1-memory"
+    },
+    {
+      "bytes": 1862,
+      "container_id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "expected_sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+      "image_id_from_same_id_metadata": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/models.py",
+      "path": "/app/shared/models.py",
+      "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+      "target": "phase1-memory"
+    },
+    {
+      "bytes": 2511,
+      "container_id": "551c464617c24c6831916a9997f33e2625e7520e815e18d9e336262ae2688778",
+      "expected_sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "image_id_from_same_id_metadata": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/probe.py",
+      "path": "/app/shared/probe.py",
+      "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "target": "phase1-memory"
+    },
+    {
+      "bytes": 28,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/orchestrator/__init__.py",
+      "path": "/app/orchestrator/__init__.py",
+      "sha256": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 31363,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/orchestrator/main.py",
+      "path": "/app/orchestrator/main.py",
+      "sha256": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 63,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/__init__.py",
+      "path": "/app/shared/__init__.py",
+      "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 11731,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/answer_metadata.py",
+      "path": "/app/shared/answer_metadata.py",
+      "sha256": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 1799,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/audit.py",
+      "path": "/app/shared/audit.py",
+      "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 3090,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/config.py",
+      "path": "/app/shared/config.py",
+      "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 1282,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/db.py",
+      "path": "/app/shared/db.py",
+      "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 2624,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/llm_client.py",
+      "path": "/app/shared/llm_client.py",
+      "sha256": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 1077,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/logging.py",
+      "path": "/app/shared/logging.py",
+      "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 1862,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/models.py",
+      "path": "/app/shared/models.py",
+      "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 2511,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/probe.py",
+      "path": "/app/shared/probe.py",
+      "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 1500,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/prompting.py",
+      "path": "/app/shared/prompting.py",
+      "sha256": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 1122,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/retry.py",
+      "path": "/app/shared/retry.py",
+      "sha256": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b",
+      "target": "phase1-orchestrator"
+    },
+    {
+      "bytes": 20174,
+      "container_id": "e7cf9e9d48fde2ec7359caf0dba5a556d7e16bb5dcd039bf206b69b411855a01",
+      "expected_sha256": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+      "image_id_from_same_id_metadata": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "local_and_manifest_match": true,
+      "local_source": "phase1_research_copilot/shared/tools.py",
+      "path": "/app/shared/tools.py",
+      "sha256": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+      "target": "phase1-orchestrator"
+    }
+  ],
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "stopped_replacements_equal_evidence": true
+}

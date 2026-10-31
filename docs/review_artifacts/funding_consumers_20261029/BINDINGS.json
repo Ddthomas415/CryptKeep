@@ -1,0 +1,33 @@
+{
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "sha256": {
+    "services/market_data/alternative_data.py": "8201f3f0c6e93b4c0f8dde7d4111eddad6d527814a58a4865a8ea0d14045e8e1",
+    "services/market_data/composite_ranker.py": "e4ee64eba34db7e54defce0a4d7017491507754911a2d6e8918fcedcb386aa13",
+    "dashboard/pages/40_Market_Intelligence.py": "644c49a3f9e66fc7bf073468eb44927800c2d91578dce1a90df8523225d7fa5a",
+    "tests/test_funding_provenance_boundary.py": "cfbbe2a3b85a38a57087bd6eea999d49f0df069c2102b55bf12b403c9c4495a0",
+    "tests/test_funding_consumers.py": "ca3ba44cd48cb4c42ed49a1c841198a9078d9e427f61786a97bb8bd5cc78eaaf",
+    "tests/test_funding_receipts.py": "a34af4bbc93627206715793fd2ec3ea3a1283df081ff017e9b633e7dcb97895d",
+    "tests/test_funding_store_bridge.py": "4ebf48d7f43f9d288be0c980e682d83ae6d5849e7cf8449ae4b48361334812cb",
+    "tests/test_synthetic_funding_observations.py": "4313f45ee21f8955c2ab586e940f6b95f3a23b6dbd688f4e0b14dfaafbe5d3fb",
+    "tests/test_crypto_edge_store_sqlite.py": "98dc12bd148690e7271aa38f9ea216d6b4a24ed659cfc89db429e9d9a7f65ecd",
+    "docs/research/funding_consumers_20261029.md": "e57bfb9aeced0efd50f7bfb8b19d8880adc4eaf3ff75019b9ed715b2946bf122",
+    "docs/review_artifacts/funding_consumers_20261029/before/alternative_data.py": "0148c665381a2691ddd5717bb76c3b7b178d6ac78d3b0fcc7e71c2a926edabff",
+    "docs/review_artifacts/funding_consumers_20261029/before/composite_ranker.py": "932bcb2d782d93bff459655c6c1e69a65d09211bbab126a9bb8093f7d49f20d8",
+    "docs/review_artifacts/funding_consumers_20261029/before/40_Market_Intelligence.py": "95cedc1f6786e2f6cb02e634539c454d97bc74b3833a409b738eb70cafa4af97",
+    "docs/review_artifacts/funding_consumers_20261029/before/test_funding_provenance_boundary.py": "c8d791ae425e40a9ac0a9b0c0e4ed7a82c531568fafec683b03476a669693347",
+    "docs/review_artifacts/funding_consumers_20261029/applied.patch": "650941304ccce6bcd29874b90e43ce55cdbcc330471c8aee17ddfe0191807b95",
+    "services/analytics/funding_observations.py": "7ef9c79149898ff67627ff6620f42632beb447c10512e19172169d7f91843ca8",
+    "storage/crypto_edge_store_sqlite.py": "9b56b09bd592d3163392ee8bfa75e03014e9a2bcae1970176076ed0649bbf8da",
+    "services/analytics/crypto_edge_collector.py": "202d06fad214b426d12a8626b1579590484ab2d786b7f7600081cfa0e6a076b4",
+    "services/analytics/crypto_edge_collector_service.py": "eb2a3d61d2ffcd7d3a0682a26f75f59144f9e00f9bda58fccd1d36250431681f",
+    "services/strategies/funding_extreme.py": "b60ecd07eb706c3d546d3dfafdde9a529b79d5e90b51253ca7fa867470741ab5",
+    ".venv/lib/python3.12/site-packages/ccxt/binance.py": "dca5e07ad147d9a70da76a2d28704a1a5ae28419f7a18a5d845a5404d573e594",
+    "services/analytics/crypto_edges.py": "f82753927a2bb8a55141bfc8fb59c0d97a8523524685db37cb9e8f46b72c6bb2",
+    "services/market_data/market_intelligence.py": "8dbba5dcb646ba966af54c79debe767f95c4260d6b19d70d2f420139caf052b5",
+    "services/market_data/rotation_engine.py": "bb65f8b2a9e74a9e9a95af0a0a5b6ffb058383185ab85f9a21842f74610f4f45",
+    "scripts/research/synthetic_funding_observations.py": "e884234f22607b551fa81d662d192ad9bb9e4b72e0a7466825114c6d44a7df89",
+    "docs/review_artifacts/funding_store_bridge_20261029/before/crypto_edge_store_sqlite.py": "35095d8deccd786e5867240d7e45db748d50ca4c96460b7f7b72eb6fee00d540",
+    "docs/review_artifacts/funding_receipts_20261029/before/crypto_edge_collector.py": "6a62baf4d5b6904e133caa4c437fad7ddc02aba1133e0c18e13b4a2ebc263cbf",
+    "docs/review_artifacts/funding_receipts_20261029/before/crypto_edge_collector_service.py": "c50cbe71ebf68f63beaccc1b32f350d4c3abdac29273fd6c0bb2ef9a8506c91a"
+  }
+}

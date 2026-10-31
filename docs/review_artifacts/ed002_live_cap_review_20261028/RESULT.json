@@ -1,0 +1,109 @@
+{
+  "scope": "selected actual gate methods with invented limits/DB; no production module import",
+  "classification": "SHOWN: selected gate does not enforce its position cap",
+  "independent_review": false,
+  "gate_line": 167,
+  "caller_line": 405,
+  "position_cap_referenced_by_check_live": false,
+  "caller_intent_fields": [
+    "qty",
+    "price",
+    "symbol"
+  ],
+  "synthetic_cap_usd": 50,
+  "cases": [
+    {
+      "synthetic_current_position_usd": 40,
+      "side": "buy",
+      "order_notional_usd": 25,
+      "post_trade_position_if_full_fill_usd": 65,
+      "gate_allowed": true,
+      "reason": "OK"
+    },
+    {
+      "synthetic_current_position_usd": 50,
+      "side": "buy",
+      "order_notional_usd": 25,
+      "post_trade_position_if_full_fill_usd": 75,
+      "gate_allowed": true,
+      "reason": "OK"
+    },
+    {
+      "synthetic_current_position_usd": null,
+      "side": "buy",
+      "order_notional_usd": 25,
+      "post_trade_position_if_full_fill_usd": null,
+      "gate_allowed": true,
+      "reason": "OK"
+    },
+    {
+      "synthetic_current_position_usd": 65,
+      "side": "sell",
+      "order_notional_usd": 25,
+      "post_trade_position_if_full_fill_usd": 40,
+      "gate_allowed": true,
+      "reason": "OK"
+    },
+    {
+      "synthetic_current_position_usd": 0,
+      "side": "buy",
+      "order_notional_usd": 26,
+      "post_trade_position_if_full_fill_usd": 26,
+      "gate_allowed": false,
+      "reason": "MAX_NOTIONAL_PER_TRADE_EXCEEDED"
+    }
+  ],
+  "synthetic_daily_sequence": [
+    {
+      "previous_daily_trades": 0,
+      "gate_allowed": true,
+      "reason": "OK",
+      "counterfactual_exposure_if_full_fill_usd": 25
+    },
+    {
+      "previous_daily_trades": 1,
+      "gate_allowed": true,
+      "reason": "OK",
+      "counterfactual_exposure_if_full_fill_usd": 50
+    },
+    {
+      "previous_daily_trades": 2,
+      "gate_allowed": true,
+      "reason": "OK",
+      "counterfactual_exposure_if_full_fill_usd": 75
+    },
+    {
+      "previous_daily_trades": 3,
+      "gate_allowed": true,
+      "reason": "OK",
+      "counterfactual_exposure_if_full_fill_usd": 100
+    },
+    {
+      "previous_daily_trades": 4,
+      "gate_allowed": true,
+      "reason": "OK",
+      "counterfactual_exposure_if_full_fill_usd": 125
+    },
+    {
+      "previous_daily_trades": 5,
+      "gate_allowed": false,
+      "reason": "MAX_TRADES_PER_DAY_EXCEEDED",
+      "counterfactual_exposure_if_full_fill_usd": 150
+    }
+  ],
+  "per_trade_and_kill_positive_controls_passed": true,
+  "limit": "does not prove live mode, real holdings, fill, loss or absence of all downstream protections",
+  "network_account_config_or_db_access": false,
+  "source_sha256": {
+    "services/risk/live_risk_gates.py": "dd0bfb31ba2f06e0295dba079b42c3ef1b3658a3f6523369a4ab282da7f182d0",
+    "services/markets/math_utils.py": "fb84fa59c7f6905f5190ce4d50cafe2873237f3a29508cd6a4b3d8a9d566b649",
+    "services/execution/_executor_submit.py": "3da665c81162e08dde3b188d99a92c38192bef878953ce2537bde352ca5c09ba"
+  },
+  "probe_sha256": "6fdb2ae1e7df0f49a17795e0c604a606657ca8fae158a8d48b13ad5ec1218773",
+  "additional_source_sha256": {
+    "services/execution/risk_gates.py": "98e1ba15e02dff0aaaeee0aef6d1f62b2ea1bd8ce42e5f182d36449057909e2a",
+    "services/execution/exchange_client.py": "bb9d82ab62d88bf68da76a2690ceae343d72105168cc28bfe3841a4e598637db",
+    "services/bot/start_manager.py": "54f6167bde273842dcdc0262a6e5982c1c4e4209c6386962fa2b0ad8fcf218b7",
+    "tests/test_live_risk_gates.py": "731f6cdbc1dcaef20e7d04c93be92701980a8929b0337f92d2ec6d8f89a0f477"
+  }
+}

@@ -1,0 +1,47 @@
+--- v1/scripts/research/synthetic_live_position_cap.py
++++ v2/scripts/research/synthetic_live_position_cap.py
+@@ -192,6 +192,8 @@
+                     or (not reserved["terminal"] and filled + remaining != original)):
+                 raise EvidenceError("corrupt_reservation")
+             observed = orders.get(order_id)
++            if observed is None and number(snapshot["included_fills"].get(order_id, "0")) != filled:
++                raise EvidenceError("retained_fill_baseline_unresolved")
+             if observed is not None:
+                 observed["bound"] = packed(max(old_bound, unpacked(observed["bound"])))
+                 if (unpacked(observed["original"]) != original
+--- v1/tests/test_synthetic_live_position_cap.py
++++ v2/tests/test_synthetic_live_position_cap.py
+@@ -322,3 +322,33 @@
+     thread.join(timeout=4)
+     assert not thread.is_alive() and len(outputs) == 1
+     assert outputs[0]["reason"] == "stale_future_or_skewed_evidence"
++
++
++@pytest.mark.parametrize("terminal", [False, True])
++@pytest.mark.parametrize("coverage", ["missing", "regressed"])
++def test_retained_fill_baseline_required_when_order_disappears(database, terminal, coverage):
++    assert run(database)["cap_allows"]
++    filled = "10" if terminal else "6"
++    snap = snapshot("45" if terminal else "41", 2,
++        [order(filled=filled, remaining="0" if terminal else "4",
++               status="filled" if terminal else "submitted")], {"one": filled})
++    assert run(database, snap=snap, prop=proposal("denied", "20"))["reason"] == "position_cap"
++    before = stored(database)
++    included = {} if coverage == "missing" else {"one": str(int(filled) - 1)}
++    result = run(database, snap=snapshot("35", 3, included=included), prop=proposal("later"))
++    assert not result["cap_allows"]
++    assert result["reason"] == "retained_fill_baseline_unresolved"
++    assert stored(database) == before
++
++
++@pytest.mark.parametrize("terminal", [False, True])
++def test_legitimate_holding_reduction_keeps_known_fill_coverage(database, terminal):
++    assert run(database)["cap_allows"]
++    filled = "10" if terminal else "6"
++    snap = snapshot("45" if terminal else "41", 2,
++        [order(filled=filled, remaining="0" if terminal else "4",
++               status="filled" if terminal else "submitted")], {"one": filled})
++    assert not run(database, snap=snap, prop=proposal("denied", "20"))["cap_allows"]
++    result = run(database, snap=snapshot("30", 3, included={"one": filled}), prop=proposal("later"))
++    assert result["cap_allows"]
++    assert Fraction(*result["projected_usd"]) == (40 if terminal else 44)

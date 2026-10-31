@@ -1,0 +1,33 @@
+{
+  "recorded_at": "2026-10-29T20:50:21.982305+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "exact local synchronous Coinbase observation-replay source repair",
+  "reviewer_agent": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1896b-133d-7032-871e-db14e0d476d3",
+  "verified_inputs": 31,
+  "patch_outputs_reconstructed": 7,
+  "changed_production_definitions": [
+    "place_order",
+    "_enforce_balance_preflight_sync"
+  ],
+  "source_sha256": "3f72a35698f63f4b745a2d06bf3eb9314584672c3fb5737554585402c15e695a",
+  "independent_tests": {
+    "passed": 154,
+    "seconds": 7.42,
+    "exit_code": 0,
+    "command_file": "TEST_RESULT.json"
+  },
+  "other_source_AST_preserved": true,
+  "test_projection_reviewed": true,
+  "earlier_order_type_forwarding_preserved": true,
+  "account_calls_or_live_orders_performed": false,
+  "activation_authorized": false,
+  "remaining_risks": [
+    "one observation may miss a later balance decline",
+    "replay not atomic/authenticated/paginated/reserved account truth",
+    "production paging scope and transport policy still unresolved",
+    "live-cap wiring still incomplete"
+  ],
+  "submitted_checkpoint_status_note": "submitted checkpoint frozen before review; this separate GATE disposition and current task index supersede pending-review status"
+}

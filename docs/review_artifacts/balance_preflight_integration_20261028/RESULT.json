@@ -1,0 +1,32 @@
+{
+  "qualification": "SHOWN selected source and fake client, not current runtime impact",
+  "cases": [
+    {
+      "case": "sync_funding_control",
+      "result": "funding_control_passed",
+      "async_balance_awaited": false,
+      "async_permissions_awaited": false
+    },
+    {
+      "case": "async_balance",
+      "result": "AttributeError_on_unawaited_result",
+      "async_balance_awaited": false,
+      "async_permissions_awaited": false
+    },
+    {
+      "case": "async_permissions",
+      "result": "AttributeError_on_unawaited_result",
+      "async_balance_awaited": false,
+      "async_permissions_awaited": false
+    }
+  ],
+  "unawaited_preflight_calls_in_async_entry": [
+    "enforce_coinbase_quote_account_available",
+    "_enforce_funding_gate"
+  ],
+  "source_sha256": {
+    "services/execution/place_order.py": "f7337e9885026b430aab89d53f2ba6f24e402f814c5f57ad4097b71e775d5119",
+    "services/execution/coinbase_portfolio_guard.py": "e865a09d2a96828143b1b29ef07e6a710744e8a7f94134548d1a96f657c77352"
+  },
+  "orders_or_private_requests": false
+}

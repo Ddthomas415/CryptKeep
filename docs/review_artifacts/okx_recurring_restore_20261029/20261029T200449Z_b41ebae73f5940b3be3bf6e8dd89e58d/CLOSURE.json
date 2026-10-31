@@ -1,0 +1,38 @@
+{
+  "recorded_at": "2026-10-29T20:11:43.027504+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "dated recurring restoration and first-cycle persisted evidence",
+  "reviewer_agent": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a18948-54e4-7872-b8c4-84c1e6361158",
+  "verified_inputs": 118,
+  "independent_checks": [
+    "immutable read-only new snapshot; no WAL/journal",
+    "all baseline prefix fingerprints/counts preserved",
+    "exact appended IDs/source/native identities",
+    "canonical raw key/body/receipts/recomputed policy matches FIRST_STATUS",
+    "snapshot hash unchanged"
+  ],
+  "snapshot_sha256": "baf78412223c3b67d4da9683b96f4847483632753f8fa3b0620087fe36938637",
+  "capture_attested_only": [
+    "10.604s startup/zeroerrors/sixchecks",
+    "dated five-family cadence",
+    "owned PID21851 alive after launching tool exited"
+  ],
+  "owned_pid": 21851,
+  "configured_interval_seconds": 300,
+  "interval_semantics": "sleep after each collection, not exact wall-clock schedule",
+  "ongoing_collection": "intentionally left running under recurring authorization",
+  "financial_authority": false,
+  "new_scheduled_job": false,
+  "trading_changed": false,
+  "data_directory": "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_recurring_restore_20261029/20261029T200449Z_b41ebae73f5940b3be3bf6e8dd89e58d",
+  "post_review_status_refresh": "FINAL_HOST_STATUS.json is a later capture, not part of independent118inputreview",
+  "limitations": [
+    "not perpetual liveness or sustained-cycle proof",
+    "no automatic reboot restart or alert installation",
+    "binary authenticity/origin/clocks/fundingsemantics/financial qualification/economicedge unverified",
+    "no original/backupSQL/tests/network/lifecycle by reviewer"
+  ],
+  "submitted_checkpoint_status_note": "frozen submitted checkpoint predates review; this GATE record/current task index supersede pending status"
+}

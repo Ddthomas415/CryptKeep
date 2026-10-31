@@ -1,0 +1,13 @@
+{
+  "bindings_checked": 141,
+  "operation_tripwire_calls": [],
+  "published_output_bindings": 9,
+  "pure_real_load_inputs": true,
+  "replacements": 4,
+  "review_sha256": "9af970e42f7d1b6e16e0890fbd81cbd5da40abfe312f5b7e189df1907117efd5",
+  "reviewed_input_bindings": 132,
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6i-real-published-input-validation-v1",
+  "source_pins": 132,
+  "subjects": 7
+}

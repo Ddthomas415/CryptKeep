@@ -1,0 +1,94 @@
+{
+  "captured_at_utc": "2026-10-29T16:55:13.654521+00:00",
+  "active_role": "AUDITOR",
+  "saved_status": [
+    {
+      "path": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/health/crypto_edge_collector.json",
+      "sha256": "b32a86f731eeb59bdcfdf3fc49b5edd580187f608f64dc531623ff60d97140ed",
+      "mtime_utc": "2026-10-29T14:34:05.724409+00:00",
+      "metadata": {
+        "pid": 2741,
+        "status": "running",
+        "ts": "2026-10-29T14:34:05.723678+00:00",
+        "plan_file": "sample_data/crypto_edges/live_collector_plan.json",
+        "poll_interval_sec": 300.0,
+        "source": "live_public",
+        "loops": 4407,
+        "writes": 4402,
+        "errors": 5,
+        "last_ok": true,
+        "last_reason": "collected"
+      }
+    },
+    {
+      "path": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/health/crypto_edge_collector.pid.json",
+      "sha256": "41d4af0414abc9876c8b2640fb32ef06ed5cbf763435ee7a6b00bc4f338d5499",
+      "mtime_utc": "2026-10-12T12:36:41.888605+00:00",
+      "metadata": {
+        "pid": 2741,
+        "started_ts": "2026-10-12T12:36:41.887908+00:00",
+        "plan_file": "sample_data/crypto_edges/live_collector_plan.json",
+        "poll_interval_sec": 300.0,
+        "source": "live_public"
+      }
+    }
+  ],
+  "database_file_metadata": [
+    {
+      "path": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite",
+      "bytes": 31879168,
+      "uid": 501,
+      "gid": 20,
+      "mode": "0o644",
+      "mtime_utc": "2026-10-29T14:33:54.809750+00:00",
+      "contents_opened": false
+    },
+    {
+      "path": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-wal",
+      "bytes": 82432,
+      "uid": 501,
+      "gid": 20,
+      "mode": "0o644",
+      "mtime_utc": "2026-10-29T14:34:05.420545+00:00",
+      "contents_opened": false
+    },
+    {
+      "path": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-shm",
+      "bytes": 32768,
+      "uid": 501,
+      "gid": 20,
+      "mode": "0o644",
+      "mtime_utc": "2026-10-29T14:34:05.414521+00:00",
+      "contents_opened": false
+    }
+  ],
+  "inspection_process_state_override": null,
+  "process_checks": {
+    "sandbox_ps": "operation not permitted",
+    "outside_sandbox_ps_pid_2741": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    "outside_sandbox_pgrep_known_script": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    "scope": "no matching recorded PID/script observed in available host inspection; not all possible processes/hosts"
+  },
+  "open_file_check": {
+    "tool": "lsof -n -P -Fpcuafn, exact3DB paths,10s bound",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "",
+    "scope": "no matching handles observed; not a permanent exclusivity or DB-health guarantee"
+  },
+  "matching_launch_agent_filenames": [
+    "com.cryptkeep.ed002.public-inputs.plist"
+  ],
+  "other_launch_mechanisms_and_remote_host": "UNVERIFIED",
+  "operations_changed": false,
+  "database_connection_opened": false,
+  "activation_authorized": false
+}

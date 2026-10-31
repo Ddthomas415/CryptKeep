@@ -1,0 +1,129 @@
+{
+  "schema": "companion-v6c-offline-handoff-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Offline fixed v6c handoff implementation and exact accepted-input binding only. No execution, credential read, preparation, runtime policy change or service operation authorized.",
+  "runtime_status": "INCOMPLETE",
+  "blocking_findings": [],
+  "material_assumptions": [],
+  "source_and_artifact_sha256": {
+    "docs/checkpoints/companion_v6c_execution_handoff_20261023.md": "4c58c98337c77b8af6b0f0f153f17b402076e4d8256dbf5bff13987ef9191866",
+    "docs/review_artifacts/companion_worker_preparation_20261023/execute_reviewed_v6c.py": "6908501b0cf0c0c26c70f72b6d8e14ef8492cd6536a8bf2ef3822360e0eb2393",
+    "tests/test_companion_v6c_handoff.py": "81785505e39f40c9b36fa7c98ebc0bbafcd3957b0516387ca7f72d9e7defe958",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/handoff_inert_validation.json": "91c6e302b2e2480eb28b939c8f40fcec03cf787b56ca4757f5e94cd4945dceaa",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/inert_validation_receipt.json": "0767f631cd59f9656322b963a185b23c19d528260fc8a42ba1def98e3a8b18cf",
+    "docs/review_artifacts/companion_worker_preparation_20261023/execute_reviewed_v6b.py": "f9362e808538fa9d3fdbe7dc29b8bb947283bbd2ae720771963df1b8d4b37dfe",
+    "docs/review_artifacts/companion_continuation_20261021/execute_reviewed_cutover.py": "5c319350681e2fb4fdac363e29b829947e0348678fdcc8ecabc84820713adf12",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/independent_review.json": "313af3aa86100b223ed10da2cd0fbe16ca417cb7bc3fbde07dd7bc0de5c2beb2",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/scope_review.json": "76f3e5f8f8a788f2b683bc01be58c42a0489e413476120abd062aa28c6927935",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/runtime_review.json": "f916471d3618eb5a44bc8bf00ac6421aa3e941febab431b8a1c49fd65daddb74",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/phase1-timescaledb.json": "9ab97d232e89e36212235eabc8a155bf8d984ea9aa204a5bc5ecf191c1336698",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/phase1-qdrant.json": "ee3aad7c05bfca6ca27399f4267b198c40aa010212583143ed7cb29ca515d0a7",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/phase1-minio.json": "d041993caa0ec0ca1daf1183594e2dd86f7fdb5561cad41c3d85dbc9d9083661",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/phase1-audit-log.json": "f8790ba8f4b49c87ebaba175920c2db3a172ba754c7dc6228f5772ef22091d89",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/phase1-risk-stub.json": "5b941260319d76aab9abd11d3f4f2b0f44fe451cc3b9e794fddc149ecc655826",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/phase1-memory.json": "fc0f4e80ee34fad2bb6bb42dcf88d8abfbdd3beb8740e98e4ee7ae9aed3150e8",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/phase1-orchestrator.json": "4fb380ddc5ce38463a658ba611ca1e91697aa311541152006476ae142289d6ab",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/reviewed_preparation_manifest.json": "e20775accd2ea02ac16d258ead2fb58e5ba1b6d26ff003ba10492dc6d442b6b9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/preparation_evidence.json": "9f52a511c6b86f3009712f88515087cf20bd117534877e71ec5ebeae6b80dfb9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/actual_id_review.json": "f2b926136e5503d9310ec88b0f881c82c8292a92dc4ffcb5e78c97cfac54946e",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/subjects.draft.json": "56954ea0f2484c012579adff4aa9584c7948397243fa3d76f2c106d803f3dd11",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/staged_metadata.derived.json": "c44711bf215f395fca2483fade7af43ae4075e2823faed057110adbd76282704",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45"
+  },
+  "current_consumer_sha256": {
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "4c684b1766fcb2e21b3dc1c03cbe5aa607694f63b9d64c512a19ad6c11792b17",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "dcc33a6d454c7d6f9970103ad331d97cd88f2a8023f321cd381a729d2e05f7c7",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+  },
+  "table_reference": {
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/subjects.draft.json",
+    "sha256": "56954ea0f2484c012579adff4aa9584c7948397243fa3d76f2c106d803f3dd11",
+    "subjects": 7,
+    "source_pins": 132,
+    "limit": "Referenced hash-bound table only; pins/witnesses are not duplicated or recaptured. Its existing 43 direct v6c/89 inherited provenance and all policy limits remain intact."
+  },
+  "binding_review": {
+    "classification": "SHOWN",
+    "hash_pinned_generic_helper": "5c319350681e2fb4fdac363e29b829947e0348678fdcc8ecabc84820713adf12",
+    "helper_import": "Bytes checked before exec/compile into a non-main module name. Only generic checked_json/parse_inputs/source_format/parse_token/handoff are called; old inputs(), old execute() and the v6b wrapper are not invoked.",
+    "comparison_with_v6b": "helpers(), execute() and validate_only() match the frozen v6b versions exactly after v6c-to-v6b label substitution. Changes are packet/record/attempt constants and validated(): scope-referenced subject table, V2 schema/network agreement, accepted review/receipt cross-binding and inert receipt argv instead of a full command prefix.",
+    "accepted_record_binding": "Pinned receipt/review/scope/runtime; exact seven-subject table hash; thirteen current consumer hashes; actual cutover.load_inputs binds accepted v6c plan, preparation evidence/review, seven child hashes, topical record and staged rows. Every child/runtime reviewer embeds the exact scope digest. Worker-mode attempt, CLI hash, 132 source pins and exact network bindings are required.",
+    "default_inertness": "No execution flag invokes validate_only and the existing default CLI only. Independent tests forbid native transport/backend/token/lock/reservation calls and exercise actual accepted inputs. Saved default stdout is inert and equals the accepted inert receipt stdout.",
+    "future_pre_token_refusal": "validated() completes before any token source read. Existing cutover attempt path is rejected with lexists, including a dangling symlink; CLI verification must pass before the one source inspect.",
+    "future_token_source": {
+      "name": "phase1-orchestrator",
+      "container_id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image_id": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "required_state": "running",
+      "only_field": "SERVICE_TOKEN",
+      "binding": "Exact identity/image comes from the hash-bound accepted original baseline, not the replacement orchestrator. Source-format checks ID/image/running before emitting only the named service-token entry."
+    },
+    "future_private_handoff": "One bounded source inspect, strict single-row JSON SERVICE_TOKEN parser, 1..4096 printable ASCII characters without spaces, then one anonymous-pipe transfer to unchanged cutover.main. No resend/fallback or token argv/env/file/log/hash export. Writer closes; read-descriptor ownership transfers to the existing entrypoint, which consumes/closes it. Core dumps disabled before the future execution branch. Exceptions/source payloads are not printed; failure marker is generic."
+  },
+  "verification": {
+    "environment": "VERIFIED_ENV for isolated local synthetic tests only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6c_handoff.py",
+    "exit_code": 0,
+    "passed": 23,
+    "elapsed_seconds": 0.29,
+    "parent_result": "CLAIMED in checkpoint: 23 passed in 0.31s; independently confirmed the same twenty-three cases.",
+    "cases": "Accepted-input/default inertness, helper/record/consumer drift, contradictory receipt/scope/subjects/network/argv, occupied directory/dangling-symlink refusal before source, CLI refusal, one synthetic source/private-pipe handoff, bad token payloads and sanitized native exceptions.",
+    "actual_default_module_invocation": "Parent-attributed saved stdout only. Reviewer independently exercised validate_only through the synthetic no-native test, not a separate module command.",
+    "reviewer_native_operations": 0,
+    "reviewer_live_credentials": 0,
+    "reviewer_service_or_lifecycle_actions": 0,
+    "full_suite_run": false
+  },
+  "remaining_limits": [
+    {
+      "classification": "SHOWN",
+      "detail": "Pre-token lexists is advisory/non-atomic. Two concurrent wrappers could both reach token sourcing; only the unchanged controller lock/exclusive reservation controls once-only mutation. No cross-process single credential-read guarantee is claimed."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "CLI verification has a separate 10-second bound and token-source inspect a separate 10-second bound. The existing controller has 600 seconds including 180 seconds recovery reserve; file validation and pre-controller work are not covered by a whole-wrapper 600-second deadline. The existing pipe reader has its own timeout."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "Reference clearing is not secure memory zeroization. Handoff-entered means the helper boundary was attempted, not successful reservation, mutation, startup or query. Pipe ownership assumptions are inherited unchanged, not a new memory-sanitization guarantee."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "detail": "No actual CLI/token-source formatting, live imports/SDK startup, service health, final aliases/attachment, clock coherency, installed pidfd/worker ownership, acknowledgement/cancellation/recovery or successful cited query was verified here. Final configuration remains MODELLED until actual fail-closed checks."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "detail": "Bounded rollback attempts do not guarantee healthy originals, byte-exact/data-volume restoration or reversal of logs, audit/client initialization and all persistent effects. No profitability or general model-readiness claim follows."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "The v6c preparation is consumed and must not rerun/reset. Old wrappers/attempts are not rebound or reused. Future runtime invocation requires separate explicit operator approval; this review neither starts an operation nor grants permission."
+    }
+  ],
+  "operational_authorized": false,
+  "runtime_execution_authorized": false,
+  "credential_or_token_handoff_authorized": false,
+  "preparation_or_retry_authorized": false,
+  "reservation_reset_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "trading_authorized": false,
+  "automatic_follow_on_execution": false,
+  "reviewer_changes": [
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/handoff_independent_review.json"
+  ],
+  "frozen_sources_tests_checkpoints_packet_and_old_wrapper_modified": false
+}

@@ -1,0 +1,18 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "exact offline opt-in funding receipt source integration only",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission": "01a1866d-5e65-7463-b230-16d958c1fd33",
+  "verified_bindings": 18,
+  "independent_result": "100 passed in 0.93s; documented command once",
+  "patch_sha256": "04f4545e45ef0da52e39e8baff1f13b6d8477bfbf0a6ce73b7d33ccee3db7729",
+  "limits": [
+    "raw mode not activated",
+    "no real schema operation or deployment authorization",
+    "native-to-unified lineage unverified",
+    "provider/clock authenticity unverified",
+    "HTTP budgets and runtime unverified",
+    "default legacy funding and alternative_data not repaired",
+    "original Fix3 incomplete"
+  ]
+}

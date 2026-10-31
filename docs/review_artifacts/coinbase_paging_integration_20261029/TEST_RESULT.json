@@ -1,0 +1,10 @@
+{
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B docs/review_artifacts/coinbase_paging_integration_20261029/verify_offline.py",
+  "passed": 211,
+  "seconds": 12.88,
+  "exit_code": 0,
+  "new_cases": 49,
+  "existing_cases": 162,
+  "files": 8,
+  "scope": "offline only, no enabled policy or actual credential/account/HTTP calls"
+}

@@ -1,0 +1,22 @@
+{
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "Dated, sanitized one-time Coinbase permissions and portfolio metadata observation only.",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "preflight_submission": "01a18998-be4f-7721-ab26-2540bc28a2ab",
+  "result_submission": "01a1899d-351e-72c3-887b-686f2d21897b",
+  "source_pins_rechecked": 10,
+  "result_pins_rechecked": 8,
+  "independent_offline_tests_passed": 40,
+  "result": "Two HTTP200 metadata receipts; view/trade true, transfer false, one DEFAULT portfolio matching the assigned key hash.",
+  "can_trade_is_not_operator_authorization": true,
+  "account_wide_coverage": "UNVERIFIED",
+  "execution_authority": false,
+  "attempt_consumed": true,
+  "automatic_retry": false,
+  "limits": [
+    "Execution and endpoint responses are capture-attested, not independently replayed.",
+    "One visible portfolio does not establish whole-account coverage.",
+    "No balances, spendability, paging or trading qualification.",
+    "Outer child deadline used; initial/final local work and native Popen are not interruptibly timed."
+  ]
+}

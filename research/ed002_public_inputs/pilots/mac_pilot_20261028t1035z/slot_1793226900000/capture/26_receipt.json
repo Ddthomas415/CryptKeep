@@ -1,0 +1,14 @@
+{
+  "bytes": 169,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "26_XRP.bin",
+  "http_date": "Wed, 28 Oct 2026 22:35:05 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793226905633,
+  "request_started_ms": 1793226905548,
+  "sha256": "3cb767b7de367dc66244ea7d6af6e3182ad91f5b57fab1d3440569193cc00bbb",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/XRP-USD/candles?granularity=3600&start=2026-10-28T20%3A00%3A00%2B00%3A00&end=2026-10-28T22%3A00%3A00%2B00%3A00"
+}

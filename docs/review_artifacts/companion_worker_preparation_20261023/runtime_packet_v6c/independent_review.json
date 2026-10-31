@@ -1,0 +1,91 @@
+{
+  "schema": "companion-v6c-runtime-packet-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Exact seven-subject 132-pin V2 source/configured restricted-policy applicability only; independently scoped derivative records, not a live runtime acceptance or execution grant.",
+  "derivation_decision": "ACCEPTED",
+  "runtime_status": "INCOMPLETE",
+  "blocking_findings": [],
+  "material_assumptions": [],
+  "bindings": {
+    "checkpoint": {
+      "path": "docs/checkpoints/companion_v6c_runtime_packet_20261023.md",
+      "sha256": "eaf73e58cc6a65b89ece5ac19f1da4afefa67b49cdf1eb212a9b4e9251090dcf"
+    },
+    "producer": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/assemble_runtime_packet_v6c.py",
+      "sha256": "319153a8c64cb5666d046c0f7031146eaf50deeab14d8d49451fe810734b80fd"
+    },
+    "tests": {
+      "path": "tests/test_companion_v6c_runtime_packet.py",
+      "sha256": "46ced3fff47f013bb4181eb57cb0de3b03a86b76982abc5432d54847a414ce55"
+    },
+    "provenance": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/provenance.json",
+      "sha256": "21a41decd5339054239cc09374848e422164a2c5dc62a5e5e4d4e2bc17fec55b",
+      "meaning": "Hash-bound ten input records, thirteen current consumers, prior seven child hashes and provenance table; incorporated without duplication."
+    },
+    "subjects": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/subjects.draft.json",
+      "sha256": "56954ea0f2484c012579adff4aa9584c7948397243fa3d76f2c106d803f3dd11"
+    },
+    "scope": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/scope_review.json",
+      "sha256": "76f3e5f8f8a788f2b683bc01be58c42a0489e413476120abd062aa28c6927935"
+    },
+    "runtime": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/runtime_review.json",
+      "sha256": "f916471d3618eb5a44bc8bf00ac6421aa3e941febab431b8a1c49fd65daddb74",
+      "schema": "companion-runtime-pins-v2",
+      "child_records": 7,
+      "child_hash_binding": "dependency_reviews maps exact immutable image IDs to the seven new accepted child byte hashes."
+    }
+  },
+  "shown": [
+    "All twelve draft outputs reproduce byte-for-byte in an independent in-memory reconstruction; fourteen producer/loader synthetic cases pass. Draft decisions/reviewers/policy flags remain INCOMPLETE/blank/UNVERIFIED and were not edited.",
+    "Exact storage subjects, seven image IDs and every source map remain unchanged. Only four application IDs and preservation pins change; V2 binds the accepted configured-network-v1 contract and exact plan network bindings. Actual v6c stopped preparation and 43 direct application witnesses already have independent acceptance.",
+    "Prior child/scope hashes and retained source-assessment/support hashes match. The per-subject restricted policy rationale, risks and support are retained verbatim, with explicit new-ID applicability reasoning. All three policy meanings and seven preserved limits remain verbatim; no policy verdict is inferred solely from structural loading.",
+    "Current policy scope binds thirteen current consumer hashes. The four differences from prior scope are exactly the accepted active-network correction; raw storage/inventory comparisons and legacy scope are not replaced.",
+    "Scope hash is embedded in every accepted child and V2 runtime reviewer field. Existing schemas are preserved; children change only decision/reviewer/policies from drafts, and runtime changes only decision/reviewer/dependency hashes. Scope incorporates subject and witness tables by hash rather than duplicating them."
+  ],
+  "source_provenance": {
+    "total_pins": 132,
+    "direct_v6c_application_witnesses": 43,
+    "inherited_same_image_or_storage_pins": 89,
+    "inherited_historical_launcher_pins": 4,
+    "prior_scope_historical_direct": "43 application entries plus four launcher captures were direct for old v6b IDs only. For v6c, the four launcher pins join the 85 older inherited pins; none is a fresh v6c launcher capture.",
+    "table_bindings": "Exact 132-pin table is subjects.draft.json; exact 43 new-ID witnesses are source_files in the pinned actual_c/postcheck.json. Per-subject source counts and preserved rationale are in the hash-bound new scope."
+  },
+  "verification": {
+    "environment": "VERIFIED_ENV for isolated local synthetic tests only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6c_runtime_packet.py",
+    "exit_code": 0,
+    "passed": 14,
+    "elapsed_seconds": 0.46,
+    "exact_drafts_reconstructed": 12,
+    "current_consumers_checked": 13,
+    "prior_children_checked": 7,
+    "source_maps_preserved": 7,
+    "reviewer_native_operations": 0,
+    "reviewer_credential_access": 0,
+    "full_suite_run": false,
+    "actual_accepted_default_CLI_run": false
+  },
+  "remaining_limits": [
+    "All four final alias/attachment predictions remain MODELLED. Extra daemon aliases are not guessed equivalent; created-only blank NetworkID is configuration evidence, not attachment. Actual recipient/namespace/storage/source/health/lineage/archive/citation gates remain mandatory and not marked passed.",
+    "Source/static startup characterization is not live module-origin/callable binding, SDK initialization, successful imports/startup, liveness, shutdown/recovery, a cited answer, data/volume integrity, profitability or general model readiness. Clock coherency, installed pidfd and worker/acknowledgement/cancellation assumptions remain unverified.",
+    "Policy words retain their restricted meanings: zero transport/application retries is not zero physical connections, address fallback or pool reassignment; characterized effects are not effect-free startup; same image is not unrestricted-image approval.",
+    "Consumed v6c preparation must not rerun/reset. No old execution wrapper is rebound. A separate bounded handoff and explicit operator authorization remain necessary before runtime interruption/startup/query."
+  ],
+  "operational_authorized": false,
+  "runtime_execution_authorized": false,
+  "credential_or_token_handoff_authorized": false,
+  "preparation_or_retry_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "trading_authorized": false,
+  "automatic_follow_on_execution": false,
+  "write_scope": "Only this independent review and nine accepted_policy_records files. No frozen sources/tests/drafts/checkpoint/old records/worklog modified."
+}

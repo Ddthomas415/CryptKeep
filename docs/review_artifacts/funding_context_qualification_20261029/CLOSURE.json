@@ -1,0 +1,18 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "exact offline context qualification/read-only correction and legacy model labels",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "initial_submission": "01a18730-4366-75e2-84f7-704f83140197",
+  "initial_review": "INCOMPLETE due truncated independent test output; source/bindings verified",
+  "recovery_submission": "01a18734-270f-7ae0-a687-6a562cfb6e5f",
+  "verified_bindings": 32,
+  "independent_result": "one authorized rerun:252passed2.49s,exit0",
+  "patch_sha256": "9b7363d6ceab471e1f655d911844989cb919ba88b651dbc64cedc87c8879e0ac",
+  "limits": [
+    "supplied-store effects and WAL/shm coordination not excluded",
+    "legacy model APIs not globally qualification gated",
+    "no positive normalizer qualification",
+    "no actual host/provider/runtime proof",
+    "no whole Fix3/deploy/trading acceptance"
+  ]
+}

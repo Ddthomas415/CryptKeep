@@ -1,0 +1,26 @@
+{
+  "schema": "companion-fixed-handoff-inert-proof-v1",
+  "execution_lane": "Actual default module via runpy, never --execute-once; all execution resources blocked",
+  "entrypoint": "docs.review_artifacts.companion_integration_inputs_v6f_20261025.execute_reviewed_v6f",
+  "exit_code": 0,
+  "stdout": {
+    "state": "READY_FOR_INDEPENDENT_REVIEW",
+    "actions_executed": false,
+    "startup_authorized": false,
+    "input_bindings_validated": true,
+    "manifest_sha256": "a7854b1660ae2c321f8edb62d3ac2b7ab60350deb62df91bdde774e8c2ea1588",
+    "attempt": "workerprep20261025v6f",
+    "controller_budget_seconds": 600,
+    "recovery_reserve_seconds": 180
+  },
+  "tripwire_calls": 0,
+  "cutover_marker_absent_before_after": true,
+  "source_sha256": "1153fd7650bb0eec2c01049fca12b5afe8c6078cd71b3975e881cb180ece3044",
+  "tests_sha256": "adff3210801a506bda9e261d40e01aa8726be251f55fa6698f2d53334dda375a",
+  "packet_inert_receipt_sha256": "1d1fe0ccb5e3e44a50ffd69ed56c479317f30690f2b2a37aae77c6336f74f241",
+  "parent_focused_tests": {
+    "passed": 29,
+    "seconds": 0.31,
+    "full_suite": false
+  }
+}

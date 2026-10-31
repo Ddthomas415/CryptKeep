@@ -1,0 +1,38 @@
+{
+  "active_role": "AUDITOR",
+  "inspection_time_utc": "2026-10-20T22:22:20Z to 2026-10-20T22:23:11Z",
+  "scope": "Read-only checks after user-reported laptop restart",
+  "files_preserved": "SHOWN: all seven frozen implementation/test hashes match staged_update_verification.json",
+  "boot_time": {
+    "shown": "Exposed host sysctl reports Mon Oct 12 08:28:40 2026 local time, epoch1791808120",
+    "full_os_restart_today": "UNVERIFIED"
+  },
+  "docker_cli": {
+    "sha256": "678271184175b40dfc4bd6f4582be00ae1538b0d1e031181f52ceedfae9af5fb",
+    "signature": "SHOWN valid by codesign --verify --strict outside sandbox, exit0",
+    "sandbox_limitation": "Sandbox signature check failed; unrestricted read-only verification passed. No repair requirement inferred."
+  },
+  "research_targets": {
+    "phase1-timescaledb": "running", "phase1-qdrant": "running", "phase1-minio": "running",
+    "phase1-audit-log": "running", "phase1-risk-stub": "running", "phase1-memory": "running",
+    "phase1-orchestrator": "running"
+  },
+  "container_health_or_explanation_verified": false,
+  "market_context_collector": {
+    "status_command_exit": 0, "pid": 2741, "pid_exists": true,
+    "process_start_local": "Mon Oct 12 08:36:41 2026", "status": "running",
+    "last_status_utc": "2026-10-20T20:42:43.501376+00:00",
+    "last_capture_utc": "2026-10-20T20:42:43+00:00",
+    "fresh_collection": "UNVERIFIED: about100minutes stale despite live PID"
+  },
+  "paper_collector": {
+    "status_command_exit": 0, "pid": 2737, "pid_exists": true,
+    "process_start_local": "Mon Oct 12 08:36:41 2026", "status": "idle",
+    "reason": "waiting_for_next_day", "last_completed_day": "2026-10-20",
+    "last_status_utc": "2026-10-20T20:42:12.421376+00:00",
+    "fresh_heartbeat": "UNVERIFIED: about100minutes stale"
+  },
+  "services_or_collectors_started_stopped": false,
+  "credentials_accessed": false,
+  "query_attempted": false
+}

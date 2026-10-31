@@ -1,0 +1,19 @@
+{
+  "recorded_at_utc": "2026-10-28T14:26:50.678293+00:00",
+  "reviewer_agent_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "review_submission_id": "01a182e5-2440-7243-adad-fdc83bb36f82",
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "exact synthetic callback-only pager",
+  "independent_tests": {
+    "passed": 45,
+    "seconds": 0.22
+  },
+  "inputs_sha256": {
+    "scripts/research/synthetic_coinbase_balance_paging.py": "6d5bb2cbb7d833cb7188432ebd62859db74371d36cb4b71372a0288383944bed",
+    "tests/test_synthetic_coinbase_balance_paging.py": "b9b3d29ba33e24ea612bf4eadf95cbc69e2f0f675cbc7bf64ba387905123dd16",
+    "services/execution/place_order.py": "f7337e9885026b430aab89d53f2ba6f24e402f814c5f57ad4097b71e775d5119"
+  },
+  "updated_checkpoint_sha256": "53124bc3690bee0f4363fea55c6b0b849274f57cc8c4cddffc6453cb2109e051",
+  "production_integration_complete": false,
+  "operational_authority_granted": false
+}

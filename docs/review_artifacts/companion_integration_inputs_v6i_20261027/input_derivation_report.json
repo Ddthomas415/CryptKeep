@@ -1,0 +1,26 @@
+{
+  "default_validator_run": false,
+  "hashes": {
+    "docs/checkpoints/companion_current_inputs_v6i_20261027.md": "f6c7258ead0266c84f8e5a44781b7d9ed5a8ce0d07f78bd2d2bcf98f293acdf4",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/candidate_manifest.json": "9cedf2ac59eeaa90426b437a4f863360ccc1faf913f89eac8babe0d977e377d6",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/derive_inputs.diff": "23969b503de5fff48309a1a8232d2c14903f13f576aa50fff48a9d6c7e1056f3",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/derive_inputs.py": "3935f241502d352fd80aabbd447f3cba52a7cbc3bdd3f4ae00c83edc6c32fb2f",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/provenance.json": "a3555d20e26d2fd885b852373ce6a25705caf84f5c6839f337e30973ea45356b",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/validate_default.py": "6d8af3b6f66fd2124df5dcc0578719f693f391af7ac7c8020eb5f286159ba85a",
+    "tests/test_companion_v6i_current_inputs.py": "1c0fa8f64343e10fdcaa21e18e55e5a188e32e28729b3aef0b45f3dfe72a14a8"
+  },
+  "operations_authorized": false,
+  "passed": 27,
+  "prior_run": {
+    "failed": 1,
+    "passed": 26,
+    "reason": "synthetic flag mutation assumed dict; corrected test only"
+  },
+  "risk": "HIGH",
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6i-input-derivation-report-v1",
+  "seconds": 0.45,
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "test_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6i_current_inputs.py",
+  "warnings": 0
+}

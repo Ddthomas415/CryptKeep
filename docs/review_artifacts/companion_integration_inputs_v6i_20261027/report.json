@@ -1,0 +1,24 @@
+{
+  "baseline_observed": false,
+  "native_or_service_operations": false,
+  "parent_verification": {
+    "default_exit_code": 0,
+    "full_suite_run": false,
+    "passed": 25,
+    "seconds": 0.42,
+    "warnings": 0
+  },
+  "role": "ENGINEER",
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6i-source-proposal-parent-report-v1",
+  "sha256": {
+    "docs/checkpoints/companion_restoration_plan_v6i_20261027.md": "ac5f9dd633f8f5a39f6e28edc26bb9282cf9863e17dfc29a25604ea799a922fb",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/capture_baseline.py": "52c675194141902d6e931eefbd0351022dfa37a5048b51c7a183aeed74c5a25b",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/capture_baseline.py": "0b6d17adc9c683805e92877b55cbde8b4da5281f775fc8bff265754ce5a0f9eb",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/inert_default.json": "8c60e93f5340ca3789b2057ac1c29829bdfdd097b462c14b4944be1f57941ce5",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/refresh_sources.py": "6c05fb04346da379284311797e368f76eae88e1b0bbc5d29d93cad863c669e5a",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/source_refresh.json": "019828a73d68d3e04e0283eb4f3d33063d9c4972a502a6a84979bbc6e1def9ff",
+    "tests/test_companion_v6i_restoration_plan.py": "74fd8a6cfdcd184945af739c6b433fcf60306d970ebb0084aa5118da082590f1"
+  },
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

@@ -1,0 +1,731 @@
+{
+  "identity_authenticity_verified": false,
+  "qualification": "PUBLIC_CAPTURE_NOT_STUDY_OR_IDENTITY_APPROVAL",
+  "records": [
+    {
+      "bytes": 356323,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "01_products.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:14 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175374285,
+      "request_started_ms": 1793175374219,
+      "sha256": "6843159e9ffa0960d2fd143b22163b788eca179d6b8bb8916df9951ac0bd3707",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products"
+    },
+    {
+      "bytes": 563029,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "02_currencies.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:14 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175374361,
+      "request_started_ms": 1793175374286,
+      "sha256": "f838353e69507517c87565178d91296709c65d55c454d90208b78160346cc62a",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/currencies"
+    },
+    {
+      "bytes": 181,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "03_ADA.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:14 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175374430,
+      "request_started_ms": 1793175374368,
+      "sha256": "12ffbc90e4760f336842d17b9f86e58cefe32049d107e96b67aed753d339e9b7",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/ADA-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 148,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "04_APT.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:14 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175374492,
+      "request_started_ms": 1793175374432,
+      "sha256": "cb914674a4c818a517ae22ab9217724bc84417f2e5166bd75883b75280a6abb5",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/APT-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 162,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "05_ARB.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:14 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175374570,
+      "request_started_ms": 1793175374495,
+      "sha256": "86b7153e70124aee091d95707fbfe674d761e932f823d2f9af930e8b9b13403b",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/ARB-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 146,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "06_ATOM.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:14 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175374662,
+      "request_started_ms": 1793175374572,
+      "sha256": "a1d61de6488ed43993eb8624c8a2556e19bdbc5d17f393adb3505f43effbc24c",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/ATOM-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 153,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "07_AVAX.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:14 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175374759,
+      "request_started_ms": 1793175374664,
+      "sha256": "76bfa277a638e88495518d36187ad4959369aab422868102718f24e174bd8884",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/AVAX-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 148,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "08_BNB.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:14 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175374831,
+      "request_started_ms": 1793175374762,
+      "sha256": "d1647a987e04c52e7fbc26b89ef022cfc7bce84dc1bfffad60f463dfe30bb771",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/BNB-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 204,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "09_BONK.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:14 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175374905,
+      "request_started_ms": 1793175374832,
+      "sha256": "39e27d7a5effeeb5c65e139d9a87bdefa9a8502da46396a6ea0ddee85321438c",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/BONK-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 182,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "10_BTC.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:14 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175374974,
+      "request_started_ms": 1793175374906,
+      "sha256": "eddeb2fdf7f65e66dd45066825671995afc9e6f5070ada3e463bb0714781970c",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 155,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "11_DOGE.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:15 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175375049,
+      "request_started_ms": 1793175374977,
+      "sha256": "3c72acb7b37e1eddd2d0cef2553d1c047071424035121e612e14627ed15638c0",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/DOGE-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 170,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "12_DOT.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:15 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175375113,
+      "request_started_ms": 1793175375051,
+      "sha256": "d9167d4e9cbbec124e298e5c1b7492878d308a606f4fd133587dbdc85bb2e393",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/DOT-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 174,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "13_ETH.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:15 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175375192,
+      "request_started_ms": 1793175375114,
+      "sha256": "a45a737e20578ee56ed5e797d9db53ba585c17b3267893b2a6344b75fc45498b",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 150,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "14_FIL.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:15 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175375257,
+      "request_started_ms": 1793175375194,
+      "sha256": "f6b14707f40a6212fff88a2df73f984b0e227ac704e11d9ac52d6bac6127f9a1",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/FIL-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 134,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "15_INJ.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:15 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175375328,
+      "request_started_ms": 1793175375258,
+      "sha256": "5d057b9af6946e95502dceec17d73021ca0d3fcc5ed1f1dd5a5e25a00ee3c6a6",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/INJ-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 141,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "16_JTO.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:15 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175375403,
+      "request_started_ms": 1793175375330,
+      "sha256": "985537f9d2b6266ef054a078f16a6fdbff6181676cd54d271a0c2de08922e25b",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/JTO-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 147,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "17_LINK.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:15 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175375472,
+      "request_started_ms": 1793175375404,
+      "sha256": "3a1eed769be935ef26136d0c091c36cb208b1075d578179d381250e99f845cb2",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/LINK-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 162,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "18_LTC.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:15 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175375540,
+      "request_started_ms": 1793175375473,
+      "sha256": "550e1d83e1a5fa49f135b5fafc1812e61247d390e4d910fb3185513729177799",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/LTC-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 163,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "19_OP.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:15 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175375611,
+      "request_started_ms": 1793175375543,
+      "sha256": "125198683825c377cdddea0f785ffe503b426ce61e70fe04b629332b4f1b4540",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/OP-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 208,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "20_PEPE.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:15 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175375706,
+      "request_started_ms": 1793175375613,
+      "sha256": "d43a5be90aa64ce3b5cb8c3eaa4e0a72a594a7a99b02d8c7ad63c25d671c7626",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/PEPE-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 157,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "21_PYTH.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:15 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175375790,
+      "request_started_ms": 1793175375709,
+      "sha256": "baa9a45f7fac32b99222ddd3923bf22dd5f9cae5e210609ba3cedc6af3dc1943",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/PYTH-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 163,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "22_SOL.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:15 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175375869,
+      "request_started_ms": 1793175375792,
+      "sha256": "85162f5674fc76fb18de8ad3d63e63dde1fafd17b1c8890300b955c4203a885b",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 149,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "23_SUI.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:16 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175376029,
+      "request_started_ms": 1793175375872,
+      "sha256": "93d0da27bda4beac6b467e679fae4ae33c8effe59319884673d1cfc53d7fccab",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/SUI-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 159,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "24_UNI.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:16 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175376090,
+      "request_started_ms": 1793175376031,
+      "sha256": "495c6b4241219af92a6ce08d42237ad3364a3c9af06a0aeb06bfee3009703e95",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/UNI-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 159,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "25_WIF.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:16 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175376192,
+      "request_started_ms": 1793175376093,
+      "sha256": "3aed51abb0c367cd03edf416e03abe5b85c60a346d9ffb39a1ab6a4ccbbc043d",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/WIF-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    },
+    {
+      "bytes": 164,
+      "content_type": "application/json; charset=utf-8",
+      "error_class": null,
+      "file": "26_XRP.bin",
+      "http_date": "Wed, 28 Oct 2026 08:16:16 GMT",
+      "http_status": 200,
+      "method": "GET",
+      "received_at_ms": 1793175376269,
+      "request_started_ms": 1793175376193,
+      "sha256": "6c1b92b3970e96d49be04308dc4c81faf562983b6882c5d503e5989821a4ae50",
+      "truncated": false,
+      "url": "https://api.exchange.coinbase.com/products/XRP-USD/candles?granularity=3600&start=2026-10-28T06%3A00%3A00%2B00%3A00&end=2026-10-28T08%3A00%3A00%2B00%3A00"
+    }
+  ],
+  "scoring_authorized": false,
+  "status": "COMPLETE",
+  "stored_payload_bytes": 923231,
+  "symbols": {
+    "ADA": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "ADA"
+      }
+    },
+    "APT": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "APT"
+      }
+    },
+    "ARB": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "ARB"
+      }
+    },
+    "ATOM": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "ATOM"
+      }
+    },
+    "AVAX": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "AVAX"
+      }
+    },
+    "BNB": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "BNB"
+      }
+    },
+    "BONK": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "BONK"
+      }
+    },
+    "BTC": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "BTC"
+      }
+    },
+    "DOGE": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "DOGE"
+      }
+    },
+    "DOT": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "DOT"
+      }
+    },
+    "ETH": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "ETH"
+      }
+    },
+    "FIL": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "FIL"
+      }
+    },
+    "INJ": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "INJ"
+      }
+    },
+    "JTO": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "JTO"
+      }
+    },
+    "LINK": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "LINK"
+      }
+    },
+    "LTC": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "LTC"
+      }
+    },
+    "MATIC": {
+      "candle_capture_required": false,
+      "latest_bar_received_within_one_hour": false,
+      "metadata_eligible_under_model": false,
+      "metadata_reason": "known_ineligible",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [
+          1793167200000,
+          1793170800000
+        ],
+        "observed_complete_hours": 0,
+        "status": "INCOMPLETE",
+        "symbol": "MATIC"
+      }
+    },
+    "OP": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "OP"
+      }
+    },
+    "PEPE": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "PEPE"
+      }
+    },
+    "PYTH": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "PYTH"
+      }
+    },
+    "SOL": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "SOL"
+      }
+    },
+    "SUI": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "SUI"
+      }
+    },
+    "UNI": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "UNI"
+      }
+    },
+    "WIF": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "WIF"
+      }
+    },
+    "XRP": {
+      "candle_capture_required": true,
+      "latest_bar_received_within_one_hour": true,
+      "metadata_eligible_under_model": true,
+      "metadata_reason": "eligible_under_model",
+      "window_coverage": {
+        "capture_errors": [],
+        "conflicts": [],
+        "missing_or_conflicting_hours": [],
+        "observed_complete_hours": 2,
+        "status": "COMPLETE",
+        "symbol": "XRP"
+      }
+    }
+  },
+  "transport_calls_started": 26,
+  "window_end_ms": 1793174400000,
+  "window_start_ms": 1793167200000
+}

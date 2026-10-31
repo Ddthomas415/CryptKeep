@@ -1,0 +1,63 @@
+{
+  "schema": "companion-readonly-signal-evidence-v1",
+  "observed_at_utc": "2026-10-23T01:12:15.313655+00:00",
+  "active_role": "AUDITOR",
+  "environment_confidence": "VERIFIED_ENV",
+  "cli_sha256": "678271184175b40dfc4bd6f4582be00ae1538b0d1e031181f52ceedfae9af5fb",
+  "container": {
+    "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+    "name": "/phase1-orchestrator",
+    "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+    "running": true,
+    "started": "2026-10-20T12:10:32.027633251Z",
+    "restarts": 0
+  },
+  "observation": {
+    "schema": "companion-signal-observation-v1",
+    "container_pid1": {
+      "pid": 1,
+      "ppid": 0,
+      "recognized_name": "sh",
+      "term_caught": false,
+      "term_ignored": false,
+      "term_blocked_main_thread": false
+    },
+    "direct_children": [
+      {
+        "pid": 7,
+        "ppid": 1,
+        "recognized_name": "uvicorn",
+        "term_caught": true,
+        "term_ignored": false,
+        "term_blocked_main_thread": false
+      }
+    ],
+    "signals_sent": false,
+    "environment_read": false,
+    "cmdline_read": false
+  },
+  "selected_metadata_unchanged": true,
+  "method": {
+    "native_command_count": 3,
+    "commands": [
+      "container inspect --format <id/name/image/running/started/restarts JSON only> <exact ID>",
+      "container exec <exact ID> python -B -c <fixed read-only proc status probe>",
+      "container inspect --format <same selected fields> <exact ID>"
+    ],
+    "probe_reads": ["/proc/1/status", "/proc/1/task/1/children", "/proc/7/status"],
+    "projection": "Allowlisted Name, Pid, PPid and SIGTERM bits from SigCgt/SigIgn/SigBlk only; no arbitrary status text printed",
+    "per_command_timeout_seconds": 15,
+    "docker_config": "New empty temporary directory; removed automatically",
+    "docker_endpoint": "unix:///Users/baitus/.docker/run/docker.sock",
+    "environment": {"PATH": "/usr/bin:/bin"},
+    "side_effects": "One temporary exec process plus Docker execution events; no persistent service or configuration changes requested",
+    "capture": "Sanitized tool stdout transcribed into this artifact; not an independently repeated observation"
+  },
+  "limitations": [
+    "Current signal dispositions are not historical signal-delivery or shutdown proof",
+    "Only the orchestrator was inspected, not other application process trees or storage contents",
+    "Mask observation does not inspect handler implementations or forwarding code",
+    "Selected metadata equality is not a full configuration or volume comparison",
+    "No credentials, service request, signal, stop, restart, preparation or cutover retry"
+  ]
+}

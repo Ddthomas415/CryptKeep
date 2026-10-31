@@ -1,0 +1,182 @@
+{
+  "cases": [
+    {
+      "combined_offline_fixture_pass": true,
+      "evidence_fixture_checks": {
+        "article_view_mapping": true,
+        "causal_limits": true,
+        "content_hash": true,
+        "persisted_identity": true,
+        "topical_support": true
+      },
+      "fixture_kind": "controlled_archive_backed_not_live_replay",
+      "foreign_asset_rejected": false,
+      "lexical_document_ids": [
+        7
+      ],
+      "name": "registered_btc_witness",
+      "selected_provider": "fallback",
+      "transport_identity_and_safety_fixture": true
+    },
+    {
+      "combined_offline_fixture_pass": false,
+      "evidence_fixture_checks": {
+        "article_view_mapping": false,
+        "causal_limits": false,
+        "content_hash": false,
+        "persisted_identity": false,
+        "topical_support": false
+      },
+      "fixture_kind": "controlled_archive_backed_not_live_replay",
+      "foreign_asset_rejected": false,
+      "lexical_document_ids": [
+        47
+      ],
+      "name": "btc_only_unapproved_citation",
+      "selected_provider": "fallback",
+      "transport_identity_and_safety_fixture": true
+    },
+    {
+      "combined_offline_fixture_pass": false,
+      "evidence_fixture_checks": {
+        "article_view_mapping": true,
+        "causal_limits": true,
+        "content_hash": true,
+        "persisted_identity": true,
+        "topical_support": true
+      },
+      "fixture_kind": "controlled_archive_backed_not_live_replay",
+      "foreign_asset_rejected": true,
+      "lexical_document_ids": [
+        5,
+        7
+      ],
+      "name": "mixed_asset_with_registered_witness",
+      "selected_provider": "dashboard_fallback",
+      "transport_identity_and_safety_fixture": false
+    },
+    {
+      "combined_offline_fixture_pass": false,
+      "evidence_fixture_checks": {
+        "article_view_mapping": false,
+        "causal_limits": false,
+        "content_hash": false,
+        "persisted_identity": false,
+        "topical_support": false
+      },
+      "fixture_kind": "controlled_archive_backed_not_live_replay",
+      "foreign_asset_rejected": true,
+      "lexical_document_ids": [
+        5,
+        47
+      ],
+      "name": "matched_archive_citations_without_witness",
+      "selected_provider": "dashboard_fallback",
+      "transport_identity_and_safety_fixture": false
+    }
+  ],
+  "limits": [
+    "No historical response prose or typed protocol fields were retained; this is not replay.",
+    "Hash matches identify compatible saved IDs/URLs, not the missing response titles or body text.",
+    "Original document-ID types are unknown; decimal-string and integer IDs hash alike.",
+    "Three of five recorded ID hashes have no match in this 55-document archive.",
+    "Fixture retrieval selections are explicit, not SQL/vector ranking or historical top-k proof.",
+    "Disabled-risk responses are explicit synthetic fixtures, not observations of a running risk service.",
+    "Pure function extraction and stub envelopes do not test full service imports or HTTP.",
+    "Saved original rows substitute for live DB reads; no current persistence proof.",
+    "A combined offline pass proves neither runtime readiness, causal explanation nor profitability."
+  ],
+  "question": "What news explains Bitcoin liquidations?",
+  "receipt_archive_correlation": [
+    {
+      "archive_matches": [],
+      "recorded_hashes": {
+        "document_id_sha256": "bdd2d3af3a5a1213497d4f1f7bfcda898274fe9cb5401bbc0190885664708fc2",
+        "id_sha256": "005109e9ad884eef965442614220d475b0fbb2d20a4f853106fba4fc809f776d",
+        "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"
+      }
+    },
+    {
+      "archive_matches": [
+        {
+          "archived_document_id": 5,
+          "asset_tags": [
+            "BTC",
+            "ETH"
+          ],
+          "body_verified": true,
+          "citation_id_matches": [
+            "keyword_5"
+          ],
+          "title": "Bitcoin (BTC) and ether (ETH) liquidity rebounds a year after $19 billion crypto flash crash",
+          "url_hash_matches": true
+        }
+      ],
+      "recorded_hashes": {
+        "document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+        "id_sha256": "825276fb323c14aef5c371e7dc39b1158c25e4a7b9976e286a347ccf297922e5",
+        "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"
+      }
+    },
+    {
+      "archive_matches": [
+        {
+          "archived_document_id": 47,
+          "asset_tags": [
+            "BTC"
+          ],
+          "body_verified": true,
+          "citation_id_matches": [
+            "keyword_47"
+          ],
+          "title": "Crypto Liquidations Cross $1 Billion in 24 Hours as Bitcoin Dips to $80,350",
+          "url_hash_matches": true
+        }
+      ],
+      "recorded_hashes": {
+        "document_id_sha256": "31489056e0916d59fe3add79e63f095af3ffb81604691f21cad442a85c7be617",
+        "id_sha256": "49341020decbee6f365158982a614e5ae37ff18d068bda1a5a45f554e1ebeab6",
+        "url_sha256": "905a2486b2d6798bd88b20752f70caf1c26aaa888b8d0e140725b211fe2d43a1"
+      }
+    },
+    {
+      "archive_matches": [],
+      "recorded_hashes": {
+        "document_id_sha256": "fc95ce176603e9e1d1ffee39023b31dd856e00ad030526902604ed2a68a12c4b",
+        "id_sha256": "94587d9b898f590a8230c11090a6a90f32de5c8cf0a5122220125d1bc3222144",
+        "url_sha256": "f0d15e070f5e86963a94b509fae303bde30a6b5f6bd981baeb43653400ec1769"
+      }
+    },
+    {
+      "archive_matches": [],
+      "recorded_hashes": {
+        "document_id_sha256": "02e6295d8f522840f09b5194b3f023799ad6ed3306d9296005787e792224df20",
+        "id_sha256": "947c4f24610e0afd195f267195fddc938be21ea9e91ed3d6a78fd823d0258d87",
+        "url_sha256": "e062cb076c9212cffcac2e85f20e83fee102b70d318a3fb24f70b117bc914625"
+      }
+    }
+  ],
+  "registered_witness_document_id": 7,
+  "role": "ENGINEER",
+  "runtime_status": "INCOMPLETE",
+  "schema": "companion-offline-archive-contract-v1",
+  "source_sha256": {
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+    "dashboard/services/views/_shared_signals.py": "098f3c879199deadfbb5aa22ce90194d0adfb0bab9bb5ebba0e3ef622999a654",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/receipt.jsonl": "0ca55ea24bf18b7ff5442d974267497de00f2f3a5e2af1c372459f35aa43b1a9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+    "phase1_research_copilot/memory_retrieval/article_view.py": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+    "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "phase1_research_copilot/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+    "research/companion_article_body_v1_20261011_gd1abqx9/derived_article_body_v1.json": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+    "research/companion_article_body_v1_20261011_gd1abqx9/manifest.json": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "tests/test_companion_archive_contract.py": "9c8d9e427ed54f4fad765386284ce2131e077f4213781e46ad9676a3ef2de404",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f",
+    "tests/test_explain_diagnostics.py": "508e912012fd08e4fca5d858e215046dec66b220677f9997b72ffc8b6912ffd3"
+  }
+}

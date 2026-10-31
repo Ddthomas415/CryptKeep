@@ -1,0 +1,14 @@
+{
+  "bytes": 356323,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "01_products.bin",
+  "http_date": "Thu, 29 Oct 2026 02:35:04 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793241305014,
+  "request_started_ms": 1793241304881,
+  "sha256": "167f589a0d293354fa7ffbaa64ab07bf17384e1894a7c359f832546bcc52df3b",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products"
+}

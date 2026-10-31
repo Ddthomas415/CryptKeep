@@ -1,0 +1,283 @@
+{
+  "recorded_at": "2026-10-29T18:42:27.438051+00:00",
+  "active_role": "AUDITOR",
+  "folder": "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_full_collector_rollout_20261029/20261029T184226Z_d0e8c4098be64399ab5235943459370e",
+  "original_files_before": {
+    "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite": {
+      "exists": true,
+      "bytes": 31879168,
+      "mtime_ns": 1793284434809750239,
+      "sha256": "755b5cfe3d608158d09a327a1a24ac233a22eb6f7d7e38d6ffd2c242bf4adb8e"
+    },
+    "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-wal": {
+      "exists": true,
+      "bytes": 82432,
+      "mtime_ns": 1793284445420545381,
+      "sha256": "a88b517dd958409ea2b23ecb6d5f71da38b439d196cf188b7b97a9845f68f015"
+    },
+    "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-shm": {
+      "exists": true,
+      "bytes": 32768,
+      "mtime_ns": 1793284445414520632,
+      "sha256": "7f49198ed64e1216c796e4b8cda8ca4cebda51f4243320481c5c66afb13ee13e"
+    }
+  },
+  "original_files_after": {
+    "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite": {
+      "exists": true,
+      "bytes": 31879168,
+      "mtime_ns": 1793284434809750239,
+      "sha256": "755b5cfe3d608158d09a327a1a24ac233a22eb6f7d7e38d6ffd2c242bf4adb8e"
+    },
+    "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-wal": {
+      "exists": true,
+      "bytes": 82432,
+      "mtime_ns": 1793284445420545381,
+      "sha256": "a88b517dd958409ea2b23ecb6d5f71da38b439d196cf188b7b97a9845f68f015"
+    },
+    "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-shm": {
+      "exists": true,
+      "bytes": 32768,
+      "mtime_ns": 1793284445414520632,
+      "sha256": "7f49198ed64e1216c796e4b8cda8ca4cebda51f4243320481c5c66afb13ee13e"
+    }
+  },
+  "original_bytes_and_metadata_unchanged": true,
+  "before": {
+    "schema": {
+      "basis_snapshots": {
+        "type": "table",
+        "table": "basis_snapshots",
+        "sql_sha256": "7328d207c4f2aff3680f72af2af9240ad4f6585175b33de64866b77bfda34a12"
+      },
+      "funding_snapshots": {
+        "type": "table",
+        "table": "funding_snapshots",
+        "sql_sha256": "c00524d2248e5e43d0ccd0c38e5bf0955c0cc3a044133a97f477575beb7cb4ae"
+      },
+      "idx_basis_snapshots_capture_ts": {
+        "type": "index",
+        "table": "basis_snapshots",
+        "sql_sha256": "a8e47cc2e78c9298bdbe11dcfb831b1a76e97ed9bf277b56c5d6318568afae11"
+      },
+      "idx_basis_snapshots_snapshot_id": {
+        "type": "index",
+        "table": "basis_snapshots",
+        "sql_sha256": "1501a2e5e2e95d07e737fbc4dddffed82c9c16b4dc27f4c5e5a3d571f0cf5e44"
+      },
+      "idx_funding_snapshots_capture_ts": {
+        "type": "index",
+        "table": "funding_snapshots",
+        "sql_sha256": "00d978a338314846e95945b3f916ec85369670b4af58e86893b234532d48ca31"
+      },
+      "idx_funding_snapshots_snapshot_id": {
+        "type": "index",
+        "table": "funding_snapshots",
+        "sql_sha256": "27260d91dc6d1809008c5f4688ba3bd0592a5fa780c5b15e0daeba368d6a9393"
+      },
+      "idx_open_interest_snapshots_capture_ts": {
+        "type": "index",
+        "table": "open_interest_snapshots",
+        "sql_sha256": "6eb9c1ccacd89b97cca0a2de4eab359d17eb6ce85033f167188da3a416fa68dc"
+      },
+      "idx_open_interest_snapshots_snapshot_id": {
+        "type": "index",
+        "table": "open_interest_snapshots",
+        "sql_sha256": "3b3cca8292fac3a5a3a311f8d6fcd656167144bb0aefecf85a54bd10c37bcc0d"
+      },
+      "idx_order_book_snapshots_capture_ts": {
+        "type": "index",
+        "table": "order_book_snapshots",
+        "sql_sha256": "246d577d68643f0ec7c69f0db745ef594ef762c580514132300d18725960c5ae"
+      },
+      "idx_order_book_snapshots_snapshot_id": {
+        "type": "index",
+        "table": "order_book_snapshots",
+        "sql_sha256": "0df496bd45f3baaa38453423ac1de2f4b9270949b6551c7e6521a0e1db731c90"
+      },
+      "idx_quote_snapshots_capture_ts": {
+        "type": "index",
+        "table": "quote_snapshots",
+        "sql_sha256": "8e2509d4ce86ce24cefc83141abed99b7536912c6d6a895ca4d5487bd761c317"
+      },
+      "idx_quote_snapshots_snapshot_id": {
+        "type": "index",
+        "table": "quote_snapshots",
+        "sql_sha256": "e47849eff70c77d33f7d9bd3bba84c943a03e706c2c893db720ab7b220017130"
+      },
+      "open_interest_snapshots": {
+        "type": "table",
+        "table": "open_interest_snapshots",
+        "sql_sha256": "5e72190d91653735084a52cf065dd4a9a929b5b85eb1803fdae28602a38783db"
+      },
+      "order_book_snapshots": {
+        "type": "table",
+        "table": "order_book_snapshots",
+        "sql_sha256": "8f026ab4077d64d44eaf74727917da6aac5542ee8350af0fb8a38316af57418a"
+      },
+      "quote_snapshots": {
+        "type": "table",
+        "table": "quote_snapshots",
+        "sql_sha256": "ad1de6c5fb944a65695760b1d4ff01573e5a8c077dfd695ddfda4d4ed8bd9763"
+      }
+    },
+    "tables": {
+      "funding_snapshots": {
+        "rows": 16631,
+        "row_fingerprint": "e4dfa48f3945f0fbd7f4784ab6b626f5730f574c284b5fee94c10275eec2b7c0"
+      },
+      "open_interest_snapshots": {
+        "rows": 13296,
+        "row_fingerprint": "cc827c26504430df560e00834a990ae25f7feb9ed06012caf722c79c1f8e653b"
+      },
+      "basis_snapshots": {
+        "rows": 16628,
+        "row_fingerprint": "32c7102d2caad21ea52414fe01de8ef3e3cef92809565d39ac1b01e46c0532a7"
+      },
+      "quote_snapshots": {
+        "rows": 33810,
+        "row_fingerprint": "8245edd59b59b595385196c901d09599d18ebcc0d2d3c14ff4204a079a7893bd"
+      },
+      "order_book_snapshots": {
+        "rows": 13296,
+        "row_fingerprint": "fa271bff04d96d8c1c33a1610a380e8f503edaae9a2b3982ca62d0134b8afd78"
+      }
+    },
+    "quick_check": [
+      "ok"
+    ]
+  },
+  "after": {
+    "schema": {
+      "basis_snapshots": {
+        "type": "table",
+        "table": "basis_snapshots",
+        "sql_sha256": "7328d207c4f2aff3680f72af2af9240ad4f6585175b33de64866b77bfda34a12"
+      },
+      "funding_snapshots": {
+        "type": "table",
+        "table": "funding_snapshots",
+        "sql_sha256": "c00524d2248e5e43d0ccd0c38e5bf0955c0cc3a044133a97f477575beb7cb4ae"
+      },
+      "idx_basis_snapshots_capture_ts": {
+        "type": "index",
+        "table": "basis_snapshots",
+        "sql_sha256": "a8e47cc2e78c9298bdbe11dcfb831b1a76e97ed9bf277b56c5d6318568afae11"
+      },
+      "idx_basis_snapshots_snapshot_id": {
+        "type": "index",
+        "table": "basis_snapshots",
+        "sql_sha256": "1501a2e5e2e95d07e737fbc4dddffed82c9c16b4dc27f4c5e5a3d571f0cf5e44"
+      },
+      "idx_funding_snapshots_capture_ts": {
+        "type": "index",
+        "table": "funding_snapshots",
+        "sql_sha256": "00d978a338314846e95945b3f916ec85369670b4af58e86893b234532d48ca31"
+      },
+      "idx_funding_snapshots_snapshot_id": {
+        "type": "index",
+        "table": "funding_snapshots",
+        "sql_sha256": "27260d91dc6d1809008c5f4688ba3bd0592a5fa780c5b15e0daeba368d6a9393"
+      },
+      "idx_open_interest_snapshots_capture_ts": {
+        "type": "index",
+        "table": "open_interest_snapshots",
+        "sql_sha256": "6eb9c1ccacd89b97cca0a2de4eab359d17eb6ce85033f167188da3a416fa68dc"
+      },
+      "idx_open_interest_snapshots_snapshot_id": {
+        "type": "index",
+        "table": "open_interest_snapshots",
+        "sql_sha256": "3b3cca8292fac3a5a3a311f8d6fcd656167144bb0aefecf85a54bd10c37bcc0d"
+      },
+      "idx_order_book_snapshots_capture_ts": {
+        "type": "index",
+        "table": "order_book_snapshots",
+        "sql_sha256": "246d577d68643f0ec7c69f0db745ef594ef762c580514132300d18725960c5ae"
+      },
+      "idx_order_book_snapshots_snapshot_id": {
+        "type": "index",
+        "table": "order_book_snapshots",
+        "sql_sha256": "0df496bd45f3baaa38453423ac1de2f4b9270949b6551c7e6521a0e1db731c90"
+      },
+      "idx_quote_snapshots_capture_ts": {
+        "type": "index",
+        "table": "quote_snapshots",
+        "sql_sha256": "8e2509d4ce86ce24cefc83141abed99b7536912c6d6a895ca4d5487bd761c317"
+      },
+      "idx_quote_snapshots_snapshot_id": {
+        "type": "index",
+        "table": "quote_snapshots",
+        "sql_sha256": "e47849eff70c77d33f7d9bd3bba84c943a03e706c2c893db720ab7b220017130"
+      },
+      "idx_raw_funding_source_capture": {
+        "type": "index",
+        "table": "raw_funding_observations",
+        "sql_sha256": "1254d56f19356823a1b51c4b20e628f12ede6cd02dd1d8791afa45cd2c9c97a5"
+      },
+      "open_interest_snapshots": {
+        "type": "table",
+        "table": "open_interest_snapshots",
+        "sql_sha256": "5e72190d91653735084a52cf065dd4a9a929b5b85eb1803fdae28602a38783db"
+      },
+      "order_book_snapshots": {
+        "type": "table",
+        "table": "order_book_snapshots",
+        "sql_sha256": "8f026ab4077d64d44eaf74727917da6aac5542ee8350af0fb8a38316af57418a"
+      },
+      "quote_snapshots": {
+        "type": "table",
+        "table": "quote_snapshots",
+        "sql_sha256": "ad1de6c5fb944a65695760b1d4ff01573e5a8c077dfd695ddfda4d4ed8bd9763"
+      },
+      "raw_funding_observations": {
+        "type": "table",
+        "table": "raw_funding_observations",
+        "sql_sha256": "bb164bc5d869508eddfc80414db91fc76766dca300011d2f67f9c27f207a2056"
+      }
+    },
+    "tables": {
+      "funding_snapshots": {
+        "rows": 16631,
+        "row_fingerprint": "e4dfa48f3945f0fbd7f4784ab6b626f5730f574c284b5fee94c10275eec2b7c0"
+      },
+      "open_interest_snapshots": {
+        "rows": 13296,
+        "row_fingerprint": "cc827c26504430df560e00834a990ae25f7feb9ed06012caf722c79c1f8e653b"
+      },
+      "basis_snapshots": {
+        "rows": 16628,
+        "row_fingerprint": "32c7102d2caad21ea52414fe01de8ef3e3cef92809565d39ac1b01e46c0532a7"
+      },
+      "quote_snapshots": {
+        "rows": 33810,
+        "row_fingerprint": "8245edd59b59b595385196c901d09599d18ebcc0d2d3c14ff4204a079a7893bd"
+      },
+      "order_book_snapshots": {
+        "rows": 13296,
+        "row_fingerprint": "fa271bff04d96d8c1c33a1610a380e8f503edaae9a2b3982ca62d0134b8afd78"
+      },
+      "raw_funding_observations": {
+        "rows": 0,
+        "row_fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "quick_check": [
+      "ok"
+    ]
+  },
+  "existing_schema_unchanged": true,
+  "existing_rows_unchanged": true,
+  "added_schema_objects": [
+    "idx_raw_funding_source_capture",
+    "raw_funding_observations"
+  ],
+  "sqlite_connections_only_to_copy": [
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_full_collector_rollout_20261029/20261029T184226Z_d0e8c4098be64399ab5235943459370e/archive_copy.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_full_collector_rollout_20261029/20261029T184226Z_d0e8c4098be64399ab5235943459370e/archive_copy.sqlite",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_full_collector_rollout_20261029/20261029T184226Z_d0e8c4098be64399ab5235943459370e/archive_copy.sqlite"
+  ],
+  "original_sqlite_connection": false,
+  "network_requests": 0,
+  "collector_started": false,
+  "rehearsal_ok": true
+}

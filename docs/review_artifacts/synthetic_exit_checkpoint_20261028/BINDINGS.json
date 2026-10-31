@@ -1,0 +1,21 @@
+{
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "isolated-KV disposable SQLite exit checkpoint prototype; no production integration",
+  "bindings": {
+    "scripts/research/synthetic_exit_checkpoint.py": "9d3953dbc397d600f11d00ca873c5492023287431e6fc5a79d2350474315677c",
+    "tests/test_synthetic_exit_checkpoint.py": "db7f77c333457325397ff3b2620a1107c04f33ed2a4baa7040525dbe9bd1cf48",
+    "docs/research/synthetic_exit_checkpoint_20261028.md": "3166edd22350654c76fc328893badda9e37deab3505ee46ff572aa270e5f8711",
+    "services/execution/exit_deferral.py": "22dd6c99b34a0cdf011aea601bb46a878e8aa012e962e2d29f25e5bbdb446679",
+    "storage/live_intent_queue_sqlite.py": "83d363a854b88b4d230cacc179c1de206a2b813b3b16a678cbfa410a64e06740",
+    "services/execution/place_order.py": "8d04313c13b8e9ab8683a4c77d7dd5c63a49049ff9cbf44e862e5aec4849242a",
+    "scripts/research/synthetic_live_position_cap.py": "1776524826aa38a102e95013a6dee3ec657175ee8708740b1fe78aae0f8ecd26",
+    "services/execution/coinbase_account_pages.py": "a6324aac4d78a2b9f0ab486e36279bca93be521541725336b69572b241db11a7"
+  },
+  "source_diff_sha256": "b5c1088d2c9e12319490c8b90446e9d84defffc74f348d67b84a362c99e03437",
+  "author_verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_synthetic_exit_checkpoint.py",
+    "passed": 23,
+    "seconds": 0.39,
+    "exit_code": 0
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "captured_at_utc": "2026-10-28T14:11:52.164486+00:00",
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "finding": "SYNTHETIC-CAP-01",
+  "v1_verdict": "REJECTED",
+  "before_probe": {
+    "failed": 4,
+    "passed": 2,
+    "deselected": 47
+  },
+  "after_tests": {
+    "passed": 53,
+    "seconds": 0.66
+  },
+  "inputs_sha256": {
+    "scripts/research/synthetic_live_position_cap.py": "1776524826aa38a102e95013a6dee3ec657175ee8708740b1fe78aae0f8ecd26",
+    "tests/test_synthetic_live_position_cap.py": "48d7d315eb832657bf7b26f41b66727e06479c73510c1b2854e3e8c4231c7652"
+  },
+  "original_archive_sha256": "75df1ab02bfadf006a4810fda41574622c646fb05d0805bd880919443b53660a",
+  "correction_diff_sha256": "eb11a5b172515f951dbc871e2c048edd54bc3032c41fc4a3ba82b4ab9bc0c9e3",
+  "production_integration": false
+}

@@ -1,0 +1,411 @@
+{
+  "schema": "companion-v6i-saved-baseline-independent-review-v1",
+  "date": "2026-10-27",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Only the exact saved V6i paired sanitized metadata and its bounded reconciliation against the fixed historical V6h manifest. Not current service health, continuity, complete rollback, installed sources/SDKs or operational authority.",
+  "runtime_state": "INCOMPLETE",
+  "operations_authorized": false,
+  "preparation_authorized": false,
+  "build_authorized": false,
+  "deployment_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "retry_or_reset_authorized": false,
+  "blocking_findings": [],
+  "findings": [],
+  "material_assumptions": [],
+  "counts": {
+    "raw_files": 2,
+    "rows_per_file": 7,
+    "raw_records": 14,
+    "receipt_observation_rows": 14,
+    "exact_names_IDs_images": 7,
+    "matching_preservation_metadata": 7,
+    "matching_foundation_metadata": 7,
+    "matching_configured_metadata": 7,
+    "storage_snapshots_exact": 3,
+    "application_snapshots_started_only_delta": 4,
+    "unexplained_selected_metadata_differences": 0
+  },
+  "artifact_checks": {
+    "classification": "SHOWN saved local bytes and strict JSON parsing",
+    "raw_pair_byte_equal": true,
+    "raw_byte_count_each": 16719,
+    "receipt_observations_equal_parsed_pair": true,
+    "receipt_raw_hash_fields_match": true,
+    "duplicate_keys_rejected": true,
+    "nonfinite_JSON_rejected": true,
+    "source_refresh_binding_valid": true,
+    "source_refresh_sha256": "019828a73d68d3e04e0283eb4f3d33063d9c4972a502a6a84979bbc6e1def9ff",
+    "accepted_source_proposal_review_sha256": "bbf1eb378ce016986b04740e4c5f659b3364e7796fb5418045547a03ab590ca0",
+    "historical_manifest_sha256": "d11fccb5e4f7c46e7d726704c9b75c400a1482eab5d1b840027d876a5837f047",
+    "cli_digest_record_matches_manifest": true,
+    "actual_CLI_binary_read_or_verified_by_reviewer": false,
+    "receipt_schema": "companion-paired-baseline-v1",
+    "receipt_state": "READY_FOR_INDEPENDENT_REVIEW"
+  },
+  "reconciliation": {
+    "classification": "SHOWN pure selected-metadata comparison, not native observation",
+    "method": "Compile only existing pure fingerprint functions/RECREATION_FIELDS and configured-network validate/project functions from their hash-bound source AST. Reconstruct the same selected Snapshot fields from each saved row and compare every field to the fixed historical baseline. No capture/runtime module import, runner, backend, CLI or application function is invoked.",
+    "compiled_pure_functions": [
+      "scripts/research/companion_runtime_adapter.py::legacy_preservation_digest",
+      "scripts/research/companion_runtime_adapter.py::preservation_digest",
+      "scripts/research/companion_runtime_adapter.py::_canonical",
+      "scripts/research/companion_network_configuration.py::validate_bindings",
+      "scripts/research/companion_network_configuration.py::project"
+    ],
+    "expected_targets": "Exact ordered seven names/IDs from source_refresh.expected_original_targets equal historical manifest baseline; all saved images match historical baseline, not new repaired images.",
+    "snapshots": [
+      {
+        "name": "phase1-timescaledb",
+        "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+        "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+        "state": "running",
+        "started": "2026-10-20T12:10:30.80557325Z",
+        "restarts": 0,
+        "policy": "no",
+        "metadata": "93cdf0d7d6d20661a725759d50b301da4a66dc417420d8a94ce26980c0a41cb8",
+        "foundation": "183874266013ae3c90e3ab4985755814e5a32081f1b7f1d04a7bd07ae7801732",
+        "networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "attempt": "",
+        "configured_metadata": "6bf915cc8f9d5d22b2167ff4d0d50327021190617699a825a193ab1cfab341b4",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      },
+      {
+        "name": "phase1-qdrant",
+        "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+        "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+        "state": "running",
+        "started": "2026-10-20T12:10:31.415239375Z",
+        "restarts": 0,
+        "policy": "no",
+        "metadata": "4f51ad0eddc6747c5ba8414c8aec7a7df7c4d514bd3b87d9df2f72287ca82d7b",
+        "foundation": "5b3fce46958b16a4e74f06b7519760a502a847d0c7a08055618f5392895a938a",
+        "networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "attempt": "",
+        "configured_metadata": "ba696e8f5d36fe053b13105b8aadd508856a36e1d94a540850a799fa7b32560f",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      },
+      {
+        "name": "phase1-minio",
+        "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+        "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+        "state": "running",
+        "started": "2026-10-20T12:10:31.08949425Z",
+        "restarts": 0,
+        "policy": "no",
+        "metadata": "8ebdf954631024d01eae198e4482d7dc4c0fcf1b1d4fbf32f4c533903e85340c",
+        "foundation": "142a998361c6c564a614def0e7c06f08f39191cebedaab245bf6765cd2815733",
+        "networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "attempt": "",
+        "configured_metadata": "b1873d406edfc223025678c7038687ab5ead0423690708dbe132673e1d0693ca",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      },
+      {
+        "name": "phase1-audit-log",
+        "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+        "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+        "state": "running",
+        "started": "2026-10-26T22:56:28.819378085Z",
+        "restarts": 0,
+        "policy": "no",
+        "metadata": "7165ede259c9db0f15870aa99dd7ec22c928287140a0b1ed39af773cf5605bf5",
+        "foundation": "64be30f8003a07dfb87c0f576672526d50c57d75a83fb66766137261389cb86d",
+        "networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "attempt": "",
+        "configured_metadata": "98d4b952379d6bb3efa917500deef4909b5e1dc201a6519281a8dc1ecfd5218c",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      },
+      {
+        "name": "phase1-risk-stub",
+        "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+        "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+        "state": "running",
+        "started": "2026-10-26T22:56:29.776411794Z",
+        "restarts": 0,
+        "policy": "no",
+        "metadata": "850d2ea795486e62ac60c5f8d7caaa461ff13c287a26b8ec50953f7c4b75799e",
+        "foundation": "3494c978290e99588bc55971808ae95cf96459e48df1c69182fdfec92b1e43b1",
+        "networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "attempt": "",
+        "configured_metadata": "b27c6a57b91bbebd16fd18230e237d624591bfdf7c7d61cb48056266415346e8",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      },
+      {
+        "name": "phase1-memory",
+        "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+        "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+        "state": "running",
+        "started": "2026-10-26T22:56:30.760505336Z",
+        "restarts": 0,
+        "policy": "no",
+        "metadata": "83e8dbda5ec8b9a6ab8fdd26d55b4b09daabb40571e5de0c0d03869a34f9707d",
+        "foundation": "c876e4098a1eda99b081db42aed5a2e909986bb377deaf24472be6d6af6b9017",
+        "networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "attempt": "",
+        "configured_metadata": "33f3683f5af749b02490cdbe30f32381dfe8d7ab488253b0d4733e1c93bde291",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      },
+      {
+        "name": "phase1-orchestrator",
+        "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+        "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+        "state": "running",
+        "started": "2026-10-26T22:56:31.842770503Z",
+        "restarts": 0,
+        "policy": "no",
+        "metadata": "aa8bbf79903b3d1feb03d24d35e15559b0bfab0ac271c8c08093c18fccf7685a",
+        "foundation": "200136aa17daceafc5c39b1499bd8fb3299af672bf1cd0267f19947aa6f0f03f",
+        "networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "attempt": "",
+        "configured_metadata": "ddfb23881f9d8dfe01c98008a5f00e7f4b33bd22e446dd34ae2254fa529d5012",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "reported_id"
+          ]
+        ]
+      }
+    ],
+    "differences_and_flag_observations": [
+      {
+        "name": "phase1-timescaledb",
+        "diff": {},
+        "false_flags": []
+      },
+      {
+        "name": "phase1-qdrant",
+        "diff": {},
+        "false_flags": []
+      },
+      {
+        "name": "phase1-minio",
+        "diff": {},
+        "false_flags": []
+      },
+      {
+        "name": "phase1-audit-log",
+        "diff": {
+          "started": {
+            "historical": "2026-10-26T20:37:05.615888964Z",
+            "saved_capture": "2026-10-26T22:56:28.819378085Z"
+          }
+        },
+        "false_flags": [
+          "REQUEST_TIMEOUT_SECONDS"
+        ]
+      },
+      {
+        "name": "phase1-risk-stub",
+        "diff": {
+          "started": {
+            "historical": "2026-10-26T20:37:06.534901839Z",
+            "saved_capture": "2026-10-26T22:56:29.776411794Z"
+          }
+        },
+        "false_flags": [
+          "REQUEST_TIMEOUT_SECONDS"
+        ]
+      },
+      {
+        "name": "phase1-memory",
+        "diff": {
+          "started": {
+            "historical": "2026-10-26T20:37:07.442325506Z",
+            "saved_capture": "2026-10-26T22:56:30.760505336Z"
+          }
+        },
+        "false_flags": [
+          "REQUEST_TIMEOUT_SECONDS"
+        ]
+      },
+      {
+        "name": "phase1-orchestrator",
+        "diff": {
+          "started": {
+            "historical": "2026-10-26T20:37:08.46605384Z",
+            "saved_capture": "2026-10-26T22:56:31.842770503Z"
+          }
+        },
+        "false_flags": [
+          "REQUEST_TIMEOUT_SECONDS"
+        ]
+      }
+    ],
+    "no_silent_drift_adoption": true,
+    "network_limit": "All selected configured/network IDs, aliases and stable network configuration fingerprints agree. Ephemeral endpoint/IP/MAC details excluded by the reviewed preservation algorithm are not compared to unavailable historical raw values, and are not connectivity proof.",
+    "private_configuration_limit": "Secret-bearing fields are presence/comparison booleans only. Equal fingerprints do not establish equality or continuity of secret values, every label value, mounted file contents or all unexported configuration."
+  },
+  "restart_interpretation": {
+    "classification": "SHOWN timestamp differences; rollback attribution is consistency, not unique causal proof",
+    "storage": "All three storage Snapshots match the historical V6h baseline exactly, including their 2026-10-20 started timestamps.",
+    "applications": "Audit/risk/memory/orchestrator retain historical identities, images, selected configuration/preservation/foundation/network fingerprints, running state, policy=no and integer restart counter=0. Only started changes from 2026-10-26T20:37:05..08Z to 2026-10-26T22:56:28..31Z; full exact values are listed in the differences.",
+    "explanation": "Later app start timestamps are consistent with the disclosed four-original-app rollback restarts while storage was left running. This is the expected bounded metadata delta and is not evidence of unexplained identity/image/configuration drift.",
+    "limit": "The records do not uniquely attribute those starts to the prior attempt, certify uninterrupted operation since capture, or show successful health checks/full restoration. A zero Docker restart counter does not mean no manual stop/start occurred."
+  },
+  "existing_false_flags": {
+    "classification": "SHOWN in both raw captures; historical selected fingerprint unchanged",
+    "field": "REQUEST_TIMEOUT_SECONDS",
+    "applications": [
+      "phase1-audit-log",
+      "phase1-risk-stub",
+      "phase1-memory",
+      "phase1-orchestrator"
+    ],
+    "count": 4,
+    "interpretation": "Captured comparison flag is false in all four originals. Equal preservation/foundation/configured fingerprints show no new change in these selected comparison results. Do not describe all configuration flags as passing or infer the actual setting/value from this boolean.",
+    "acceptance_limit": "Nonblocking for saved-metadata reconciliation only; not renewed runtime-policy or configuration acceptance."
+  },
+  "acquisition_attribution": {
+    "classification": "CLAIMED actual invocation/authorization history to reviewer; SHOWN receipt content",
+    "user_report": "Operator approved exactly two read-only sanitized inspections; approved module invoked once, exit zero. Reviewer did not observe or repeat native execution.",
+    "receipt_reported_native_inspections": 2,
+    "selected_observations_equal": true,
+    "metadata_complete_for_selected_fields": true,
+    "observed_start_utc": "2026-10-27T04:56:22.932664+00:00",
+    "observed_end_utc": "2026-10-27T04:56:23.440586+00:00",
+    "recorded_monotonic_elapsed_seconds": 0.5079389580059797,
+    "recorded_wallclock_interval_seconds": 0.507922,
+    "timing_limit": "Saved timestamps/elapsed are internally coherent and attributed to acquisition code/parent, not independently measured by this reviewer. Sequential equal observations are not an atomic snapshot or current-state guarantee."
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for read-only local files and pure AST reconciliation; current native/service environment remains UNVERIFIED.",
+    "operations_tripwire_calls": [],
+    "tripwire_scope": "Local Python proof refuses socket/create_connection/getaddrinfo and subprocess entry points; no capture or runtime helpers imported/executed.",
+    "tests_run": false,
+    "full_suite_run": false,
+    "no_test_reason": "No implementation change; bounded saved-file/hash/pure reconciliation checks only.",
+    "native_or_Docker_calls": 0,
+    "CLI_commands": 0,
+    "real_token_or_credentials_read": 0,
+    "network_requests": 0,
+    "application_or_DB_queries": 0,
+    "service_operations": 0,
+    "SDK_initializations": 0,
+    "additional_agents": 0
+  },
+  "hash_algorithm": "SHA256",
+  "path_base": "/Users/baitus/Downloads/crypto-bot-pro",
+  "hashes": {
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_baseline/baseline_observation.json": "ee934eec73fd0b09e82d9c9a8631f298c53c56622fb6a60a40989e994fb9dbb7",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_baseline/capture_1.jsonl": "3a1b9d5ad54b039dfe8b08b050bd66cb210dd1997078f386bcc43ad7b4084dd2",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_baseline/capture_2.jsonl": "3a1b9d5ad54b039dfe8b08b050bd66cb210dd1997078f386bcc43ad7b4084dd2",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/source_refresh.json": "019828a73d68d3e04e0283eb4f3d33063d9c4972a502a6a84979bbc6e1def9ff",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/independent_review.json": "bbf1eb378ce016986b04740e4c5f659b3364e7796fb5418045547a03ab590ca0",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/reviewed_preparation_manifest.json": "d11fccb5e4f7c46e7d726704c9b75c400a1482eab5d1b840027d876a5837f047",
+    "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/refresh_sources.py": "6c05fb04346da379284311797e368f76eae88e1b0bbc5d29d93cad863c669e5a",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/capture_baseline.py": "0b6d17adc9c683805e92877b55cbde8b4da5281f775fc8bff265754ce5a0f9eb",
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a"
+  },
+  "historical_source_plan_checkpoint": {
+    "path": "docs/checkpoints/companion_restoration_plan_v6i_20261027.md",
+    "precloseout_sha256": "ac5f9dd633f8f5a39f6e28edc26bb9282cf9863e17dfc29a25604ea799a922fb",
+    "current_equality_claimed": false
+  },
+  "read_scope": {
+    "complete_saved_artifacts": [
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_baseline/baseline_observation.json",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_baseline/capture_1.jsonl",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_baseline/capture_2.jsonl"
+    ],
+    "parse_note": "All three complete files were read and parsed locally. The initial pretty receipt display was truncated; every embedded observation was subsequently checked against both complete raw files, including all keys/values, not just the displayed subset.",
+    "parsed_bindings": [
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/source_refresh.json",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/independent_review.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/reviewed_preparation_manifest.json"
+    ],
+    "selected_pure_source": [
+      "scripts/research/collect_companion_recreation_metadata.py:108-180 (reconciliation formula context, not executed)",
+      "scripts/research/companion_runtime_adapter.py:99-216 (pure fingerprint functions/constants only compiled)",
+      "scripts/research/companion_network_configuration.py:1-155 (pure projection/validation only compiled)"
+    ],
+    "hash_only": "Current V6i refresh/capture wrapper and metadata-source hashes checked against accepted source-plan bindings; no actual helper invocation. Closed source checkpoint digest remains historical, not asserted current.",
+    "not_read_or_executed": "No Docker/CLI/native inspection, private environment/token, application/settings, DB/service/SDK, installed source stream, prior failed-runtime receipt, or broad source audit."
+  },
+  "limits": [
+    "Acceptance is of the fixed saved selected metadata, not actual preparation-manifest derivation or authority to act on these originals.",
+    "Saved running states do not prove health, endpoint/recipient reachability, storage/volume contents, full rollback or uninterrupted continuity.",
+    "Original memory image remains the historical original sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d. This capture does not show the accepted repair installed/running, a new image, source-copy evidence or SDK applicability.",
+    "Equal sanitized presence/comparison flags do not prove secret values/configuration unchanged; no secret values were read.",
+    "Network projection validates selected configuration only; it does not independently verify current attachment/namespace/recipient behavior.",
+    "Source proposal remains a source-only INCOMPLETE draft with no new image/replacement IDs. Later derivation/input review and any preparation/runtime action remain separate boundaries.",
+    "No retry/reset, old consumed-attempt reuse, preparation, build, deployment, token action, startup, cutover or query is authorized. Runtime remains INCOMPLETE."
+  ],
+  "write_scope": "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_baseline/independent_review.json only. Saved raw/receipt/source proposal/reviews/manifest/checkpoint/worklog and all other artifacts unchanged."
+}

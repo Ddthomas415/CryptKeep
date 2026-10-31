@@ -1,0 +1,31 @@
+{
+  "active_role": "GATE",
+  "reviewer": "Hegel",
+  "agent_id": "01a15187-d8bb-71c1-8bfb-095bd45e4bac",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "corrected offline running-storage installation/rollback component only",
+  "prior_blockers_closed": [
+    "Unacknowledged lifecycle command no longer confirms interruption ownership",
+    "Current prerequisite drift prevents dependent rollback restarts"
+  ],
+  "independent_synthetic_reproductions": "Both prior blocker reproductions now refuse as required",
+  "independent_tests": {"passed": 316, "duration_seconds": 2.14, "exit_code": 0, "command_binding": "running_storage_verification_v2.json"},
+  "diff_check_exit_code": 0,
+  "verified_source_sha256": {
+    "scripts/research/companion_installer.py": "3055a30388270ff58f983f81ad4c72fb2bb61f328a70f59d644082b6dd7cfa56",
+    "scripts/research/companion_install_docker.py": "f167063a16bd06192d1b0719babc6230f2651133f8e7afeb592d7def6277185a",
+    "tests/test_companion_running_storage.py": "ac7960d978f3c935951827dcfb053906fa521e68671b886b246403b1d7363d4e",
+    "tests/test_companion_running_backend.py": "15ab915607073b3e2716f41cbe33a386e2f109fd1261cf6435fba20f793644dc"
+  },
+  "retained_limits": [
+    "Synthetic/local component proof, not full-system or native lifecycle proof",
+    "CLI v4 apply refusal remains required",
+    "Actual engine/builder compatibility, native rollback and service health remain unverified",
+    "Shared installation/startup/query integration remains incomplete",
+    "No operational approval or credential authorization"
+  ],
+  "reviewer_native_calls": 0,
+  "reviewer_credentials_read": false,
+  "reviewer_edits": false,
+  "source": "separate GATE response in this Codex conversation"
+}

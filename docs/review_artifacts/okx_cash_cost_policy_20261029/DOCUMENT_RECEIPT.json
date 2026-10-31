@@ -1,0 +1,23 @@
+{
+  "url": "https://www.okx.com/docs-v5/en/",
+  "saved_at": "2026-10-29T10:50:41.348103+00:00",
+  "http_status": 200,
+  "document_bytes": 5280636,
+  "document_sha256": "a9a4deb54a6a7cfbb8ea1332b069f359787f8a29991d31956f8ccddd074c55ec",
+  "sections": [
+    {
+      "file": "public-data-rest-api-get-funding-rate.html",
+      "start_byte": 3732180,
+      "end_byte_exclusive": 3743229,
+      "sha256": "7dc177f338a759e3f48a10b6b973bbf1f3787f5138cc9322863b41da674d585f"
+    },
+    {
+      "file": "public-data-rest-api-get-funding-rate-history.html",
+      "start_byte": 3743229,
+      "end_byte_exclusive": 3752092,
+      "sha256": "aa15176482528f97569e095f34d289f09254098cc65e3d54fc08fda748d8d2a1"
+    }
+  ],
+  "retrieval": "one public documentation GET;curl no retry/redirect/proxy;15s;16MiB cap;no API/account/market request",
+  "full_document_location": "temporary file only; extracted byte ranges retained"
+}

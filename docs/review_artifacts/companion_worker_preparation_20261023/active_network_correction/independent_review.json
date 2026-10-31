@@ -1,0 +1,126 @@
+{
+  "schema": "companion-active-network-correction-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Offline active-network correction implementation and historical MODELLED derivation only; not installed policy applicability, preparation readiness, or operational authorization.",
+  "runtime_status": "INCOMPLETE",
+  "blocking_findings": [],
+  "material_assumptions": [],
+  "source_and_artifact_sha256": {
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_runtime_adapter.py": "dcc33a6d454c7d6f9970103ad331d97cd88f2a8023f321cd381a729d2e05f7c7",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_installer.py": "4c684b1766fcb2e21b3dc1c03cbe5aa607694f63b9d64c512a19ad6c11792b17",
+    "tests/test_companion_active_network_contract.py": "4efaffccc5ac6f611f1e2bf3649f6422a7972756c9ecda31cf42b0ca645a6e25",
+    "tests/test_companion_running_update.py": "6080974d4eb2ea917077fd64d85190cb23f49c2d40ac3d87f27607aa9eb8740c",
+    "docs/review_artifacts/companion_worker_preparation_20261023/derive_active_network_proposal.py": "4ecaf11cf5cff76c0b40fd1dab13e5e56c9ec5a7216e7f50e1c1a783e71b2eae",
+    "docs/review_artifacts/companion_worker_preparation_20261023/active_network_correction/historical_counterfactual.json": "16be0551161056533bb3cceecf2acb6e2c9913df15504b7a34ea2d3873daf6e6",
+    "docs/checkpoints/companion_active_network_correction_20261023.md": "1a55e0be5e68bcc3076070d7cac0a70365c318a4de51a149f21bd8b86745d435",
+    "tests/test_companion_network_configuration.py": "83e5dea37145496cda901db03cc89b62e10c701922f8bbf5fbbad5bf22aac77a",
+    "tests/test_companion_cutover_inputs.py": "69522fff1a44d2c3e2b633c95e4bba1bd136102bd3fe553bd1066ab21c79d6bb",
+    "tests/test_companion_staged_composition.py": "6d918ed2b748abd0489e6288b3dab39dfb5128b17562ff2c2dbc2e973a854c9f",
+    "tests/test_companion_runtime_adapter.py": "3ca8318be5ecda58f5ea6e758ba18720f6ed23e2adc6dcf4b3765e50d85f8c8b",
+    "docs/review_artifacts/companion_worker_preparation_20261023/assemble_runtime_packet.py": "d9324398722f85bdb285ca1695c1de24ab3ec184d9784715539a63a3c9982d2d",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/runtime_review.json": "47dbeebdbdbd3cd978156f9a25d8b07027f34023ab6b0ff541f2d05cfc1ca3e6",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6b/independent_review.json": "6544e658ad89ef2aea7e1a7124c03905640c920926ac9d7dfb5b2fe5195599a0",
+    "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/reviewed_preparation_manifest.json": "67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/staged_metadata.derived.json": "ca7101c34446f7b04cc0e1c08dcfcba2026e197d3cecbedb8de13e3cf70118e8",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/subjects.draft.json": "0e6cfcc5bdf823659cf6d1f17aab0a961267d9d881e317b62dfa280141402107"
+  },
+  "scope_distinction": {
+    "method": "Direct inspection of the correction, prior reviewed hashes, and in-memory reverse transformations; no broad dirty-worktree diff or architecture re-audit.",
+    "verified_reverse_sha256": {
+      "scripts/research/companion_network_configuration.py": "c3824743fb08098a35af6966ee9e3345a63e6500f18a5fdd84a02d1114bf39d7",
+      "scripts/research/companion_cutover.py": "8740d65d31eade3d94cd849710aa2b1cf00a67ca560e385fd5a54ff4a20aaf4e",
+      "scripts/research/companion_installer.py": "de1a969fdd522b069cc0bca03c4d714e7b80e8842ac167ec9d4ffcb8f8a1b334"
+    },
+    "adapter": "V2 branch, review binding, digest dispatch, diagnostic envelope and unchanged raw inventory/preservation paths inspected directly; no whole-file reverse-hash proof claimed.",
+    "frozen_hash_checks": "Old assembler, accepted v6b runtime review, historical failure review, and three historical producer inputs retain their prior hashes. These old acceptances are not reissued or made applicable to changed consumers."
+  },
+  "shown": [
+    {
+      "claim": "Exact V2 opt-in binding",
+      "evidence": "companion-runtime-pins-v2 requires exactly the manifest fields including network_configuration; configuration requires exactly contract/bindings, configured-network-v1 and validated immutable bindings. Manifest bytes, subjects, dependency records and topical approval digest remain externally hash-bound. Loader requires the reviewed bindings to equal the preparation plan."
+    },
+    {
+      "claim": "Producer and loader use the same final-model contract",
+      "evidence": "final_subject delegates to final_model and configured project; loader uses final_model and the same project for V2 application preservation pins. Declared aliases replace the predicted set exactly. Extra observed aliases are not stripped. Alias order/deduplication follows the pre-existing preservation algorithm."
+    },
+    {
+      "claim": "Narrow configured digest, not a raw inventory rewrite",
+      "evidence": "Only V2 application pin comparisons in compatibility and _target use configured project. inventory(), installer snapshot comparisons, legacy/raw preservation functions, staged raw comparisons and storage pin digests remain raw. V1 policy checks retain their original field set and boolean-map compatibility return shape."
+    },
+    {
+      "claim": "Configured-only observation is restricted and not attachment proof",
+      "evidence": "Blank observed NetworkID is permitted for V2 application pin comparison only in created state with never-started timestamp, zero exact-int restarts and restart policy no. Wrong IDs, unknown network names and contradictory endpoint/address evidence refuse. Configured recipient checks retain fresh network identity verification and existing ports/DNS/volume/alias-exclusivity checks. Post-start recipient_checks still requires real attachment before application health/query HTTP."
+    },
+    {
+      "claim": "IPAM and aliases remain fail closed",
+      "evidence": "Only null and empty-dict IPAM representations are equivalent. Nonempty static IPAM remains fingerprinted. Unexpected aliases, including daemon-generated names or IDs not explicitly declared, produce a mismatch rather than an equivalence assumption."
+    },
+    {
+      "claim": "Sanitized diagnostics precede refusal/cleanup",
+      "evidence": "V2 early-precondition failures expose an allowlisted category and optional selected target alongside checks. Installer independently filters category/target and serializes only allowlisted keys as literal boolean success values. False is explicitly labelled not_established_or_not_evaluated. Exceptions/timeouts yield a fixed marker without exception text. Tests verify publication ordering and synthetic private-value exclusion. complete means the early-precondition path completed, not that every check passed."
+    },
+    {
+      "claim": "Historical output is inert and reproducible",
+      "evidence": "Three frozen input hashes verified. Independent JavaScript translation of the inspected Python preservation/projection algorithms reconstructs the saved historical counterfactual byte-for-byte, including final newline, SHA256 16be0551161056533bb3cceecf2acb6e2c9913df15504b7a34ea2d3873daf6e6. Seven subjects retained; three storage subjects unchanged, all identities/images/source maps unchanged, only four application preservation digests replaced. Output explicitly MODELLED, INCOMPLETE, historical_removed_ids_only, runtime_authorized=false, policy_approval_created=false."
+    }
+  ],
+  "verification": {
+    "environment": "VERIFIED_ENV for this local isolated synthetic pytest subset only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_active_network_contract.py tests/test_companion_network_configuration.py tests/test_companion_cutover_inputs.py tests/test_companion_staged_composition.py tests/test_companion_runtime_adapter.py::test_install_schema_cannot_authorize_runtime_even_with_other_valid_fields tests/test_companion_runtime_adapter.py::test_compatibility_derives_flags_and_compares_exact_sources tests/test_companion_runtime_adapter.py::test_hash_shapes_or_changed_unbound_records_are_not_policy_proof tests/test_companion_runtime_adapter.py::test_missing_topical_review_or_token_aborts_preflight tests/test_companion_running_update.py::test_compatibility_diagnostics_precede_cleanup_and_discard_private_values tests/test_companion_running_update.py::test_v2_diagnostic_envelope_is_allowlisted_before_cleanup tests/test_companion_running_update.py::test_compatibility_exception_is_recorded_without_exception_text_before_cleanup tests/test_companion_running_update.py::test_false_acceptance_gate_rolls_back_without_retry",
+    "exit_code": 0,
+    "passed": 109,
+    "failed": 0,
+    "elapsed_seconds": 1.33,
+    "coverage": "New active-network tests; saved network projection and loader regressions; synthetic real-adapter/installer composition; selected legacy policy-binding, empty-review and diagnostic-before-cleanup regressions.",
+    "excluded": "No full suite, Docker/native container operations, credential reads, service/process lifecycle actions or live network requests. The existing bash subprocess test and unrelated adapter tests were not selected.",
+    "parent_result": {
+      "classification": "CLAIMED by parent and recorded in checkpoint; not independently rerun",
+      "passed": 434,
+      "elapsed_seconds": 2.82
+    },
+    "artifact_reproduction": "Independent in-memory reconstruction, not a native capture and not a second producer command."
+  },
+  "remaining_limits": [
+    {
+      "classification": "UNVERIFIED",
+      "detail": "Lost activated v6b rows do not establish their complete alias set or the exact historical failing predicate. The correction does not upgrade candidate causation to observed causation."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "detail": "Complete declared alias set remains MODELLED. Future genuinely fresh prepared IDs need actual alias-configuration evidence and independent exact-ID/policy review before an operational packet is accepted. An unexpected daemon alias will intentionally fail closed."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "detail": "No live daemon lifecycle, attachment, startup, recovery, health, citation/query or economic behavior was verified by this review. Configured equivalence is not connectivity or liveness."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "Historical candidate IDs are consumed/removed and cannot be reused. Changed source hashes invalidate prior current-consumer bindings; old runtime and policy records confer no refreshed applicability or operation authority."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "Diagnostic booleans are bounded gate outcomes, not a complete evaluation trace. False may mean unevaluated; exception/timeout markers do not disclose the exact underlying predicate."
+    }
+  ],
+  "authorization": {
+    "runtime_policy_acceptances_authored": false,
+    "preparation_authorized": false,
+    "build_authorized": false,
+    "credential_access_authorized": false,
+    "container_create_authorized": false,
+    "startup_authorized": false,
+    "cutover_authorized": false,
+    "query_authorized": false,
+    "trading_authorized": false,
+    "retry_authorized": false,
+    "reservation_reset_authorized": false
+  },
+  "changes_by_reviewer": [
+    "docs/review_artifacts/companion_worker_preparation_20261023/active_network_correction/independent_review.json"
+  ],
+  "frozen_sources_tests_checkpoint_and_records_modified": false
+}

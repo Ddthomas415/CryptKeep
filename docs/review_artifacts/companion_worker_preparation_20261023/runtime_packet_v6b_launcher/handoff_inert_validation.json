@@ -1,0 +1,21 @@
+{
+  "schema": "companion-v6b-handoff-default-validation-v1",
+  "environment_confidence": "VERIFIED_ENV",
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m docs.review_artifacts.companion_worker_preparation_20261023.execute_reviewed_v6b",
+  "exit_code": 0,
+  "wrapper_sha256": "f9362e808538fa9d3fdbe7dc29b8bb947283bbd2ae720771963df1b8d4b37dfe",
+  "stdout": {
+    "state": "READY_FOR_INDEPENDENT_REVIEW",
+    "actions_executed": false,
+    "startup_authorized": false,
+    "input_bindings_validated": true,
+    "manifest_sha256": "67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e",
+    "attempt": "workerprep20261023v6b",
+    "controller_budget_seconds": 600,
+    "recovery_reserve_seconds": 180
+  },
+  "native_operations": 0,
+  "credential_accesses": 0,
+  "execution_reservations": 0,
+  "runtime_authorized": false
+}

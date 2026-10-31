@@ -1,0 +1,24 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "corrected v2 atomic initial/error submit claims and acknowledgement failure recovery; EXCHANGE-CLAIM-01 closure",
+  "closed_finding": "EXCHANGE-CLAIM-01",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1845f-9244-7a72-9669-93a08858298b",
+  "independent_verification": {
+    "passed": 46,
+    "seconds": 1.4,
+    "input_bindings": 15,
+    "unchanged_dependencies": 4
+  },
+  "source_hashes": {
+    "services/execution/exchange_client.py": "7845b042a91d061b3310da35d2f2478a5ea9ddf278fb2ef5eeaf987a8c4ff996",
+    "storage/order_dedupe_store_sqlite.py": "8e4982ab499af8277c671809de2e1305640c188b11ae6c435d316d55b4acb5e9"
+  },
+  "submission_bindings_sha256": "7f5ecafe19b429d8681b4ec40cf368dbe39ab0da24614d816f9d84ad63227fda",
+  "submitted_checkpoint_sha256": "d1d9c716364b065bf88b36ae7c91eba5c431b33172bf5d473d123070d0aaa085",
+  "checkpoint_sha256": "0165581fc9e9f6bf52ac8d2cd843e4aa0d10ea82e228a28d10be34d8d633f427",
+  "reviewed_code_changed": false,
+  "rejected_v1_preserved": true,
+  "deployment_or_trading_authorized": false,
+  "full_fix2": "INCOMPLETE"
+}

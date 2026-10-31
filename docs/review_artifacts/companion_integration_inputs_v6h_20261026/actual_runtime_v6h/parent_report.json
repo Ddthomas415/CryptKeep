@@ -1,0 +1,23 @@
+{
+  "actual_invocations": 1,
+  "additional_native_calls": 0,
+  "execution_session": 33805,
+  "exit_code": 1,
+  "parent_offline_tests": {
+    "full_suite_run": false,
+    "passed": 2,
+    "seconds": 0.24
+  },
+  "role": "ENGINEER",
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6h-runtime-parent-report-v1",
+  "sha256": {
+    "docs/checkpoints/companion_runtime_attempt_v6h_20261026.md": "d8e08019b106aeecd6d9cdb91c71f6f3be886f9391be82521b5d11734b94d9e9",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/diagnose_saved_result.py": "9fe3666c2ae9d81fc5ac4a32e0fa54432fba045117da6fe84d16f0aa54511473",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/diagnosis.json": "86ad4a85ffc6895a41f3d8451d02a830650a414d42dde7a4a82be1ae67cdb0e8",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/outcome.json": "22b048282b1e974358251ec1486b8c496b1fdc146677eef5ddc28f56f8d19243",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/receipt.jsonl": "ab587bb2fa1a56818b2c70f45cafc29b543e4ae3efba83c006ac696021d91b4a",
+    "tests/test_companion_v6h_market_contract_diagnosis.py": "5756985793d08b23b8167dc87f13a8bfdd1e928ee67d49c6de38c25567193710"
+  },
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

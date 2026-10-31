@@ -1,0 +1,46 @@
+{
+  "state": "INCOMPLETE",
+  "environment": "VERIFIED_ENV for fixed localhost health requests and pinned native Docker source reads only",
+  "health_observed_at": "2026-10-20T16:10:14.370262+00:00",
+  "health": {
+    "orchestrator": {"http_status": 200, "service_identity_matches": true, "ok": true, "no_trading": true, "openai_enabled": false},
+    "memory": {"http_status": 200, "service_identity_matches": true, "ok": true, "db": true, "qdrant": true, "minio": true, "memory_read_only_startup": null}
+  },
+  "health_limits": "Self-reported health/connectivity, not namespace contents, persisted citation identity, retrieval relevance or query correctness",
+  "source_observed_at": "2026-10-20T16:10:48.867029+00:00",
+  "sources": [
+    {
+      "container": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "state": "running",
+      "started_at": "2026-10-20T12:10:32.027633251Z",
+      "path": "/app/orchestrator/main.py",
+      "sha256": "c617205830376da3d6e5b4d8a33e88c5f3d16bed34ce8fee20319e951162a05b",
+      "matches_saved_oct16_source_by_sha256": true,
+      "matches_repository_source_by_sha256": false,
+      "legacy_route": "No reviewed probe_active/get_probe_tool_results branch; ordinary route emits audit events"
+    },
+    {
+      "container": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "state": "running",
+      "started_at": "2026-10-20T12:10:31.259394334Z",
+      "path": "/app/memory_retrieval/main.py",
+      "sha256": "c9efd5ff807427ec6c89e09782a0c931902c1aa024ee0b7ec85ffa7d666a3436",
+      "matches_saved_oct16_source_by_sha256": true,
+      "matches_repository_source_by_sha256": false
+    }
+  ],
+  "diagnostic_correction": "The initial in-memory source reader reported false for saved-source equality because its generated filename used single underscores between path segments. Direct shasum verification against the actual saved filenames establishes identical hashes for both live sources. No source file was changed.",
+  "scope_limits": "Two public Python files sampled; not whole-image, writable-layer, dependency or all-service compatibility proof. Missing read-only-startup health field is not proof of its effective value.",
+  "credentials_read": false,
+  "explanation_requests": 0,
+  "health_requests": 2,
+  "health_retries": 0,
+  "lifecycle_commands": 0,
+  "container_exec_commands": 0,
+  "runtime_changes": false,
+  "next_boundary": "Separately authorized update/reconnection planning for the running legacy application stack. Do not reuse the consumed all-stopped installer or submit a credentialed explanation under the unsupported reviewed probe profile."
+}

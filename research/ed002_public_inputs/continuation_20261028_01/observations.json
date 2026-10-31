@@ -1,0 +1,2264 @@
+{
+  "as_of_ms": 1793179336541,
+  "capture_evidence": [
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "ADA-USD",
+      "received_at_ms": 1793179334734,
+      "returned_rows": 6,
+      "source_sha256": "eec1dda7b98249be4e9481f5ae97ad2ea5ce3ea8c4d54582f2484d2476c17b30",
+      "status": "COMPLETE",
+      "symbol": "ADA",
+      "url": "https://api.exchange.coinbase.com/products/ADA-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "APT-USD",
+      "received_at_ms": 1793179334826,
+      "returned_rows": 6,
+      "source_sha256": "e57e9e5b7d61f71032ef8350288a45f43409ea151ea3ee3b476a196c3dc496c6",
+      "status": "COMPLETE",
+      "symbol": "APT",
+      "url": "https://api.exchange.coinbase.com/products/APT-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "ARB-USD",
+      "received_at_ms": 1793179334903,
+      "returned_rows": 6,
+      "source_sha256": "ea78bc7bea93a0fca540a56ea0e680e99f7a2d9041479a83d6175151439c8b9a",
+      "status": "COMPLETE",
+      "symbol": "ARB",
+      "url": "https://api.exchange.coinbase.com/products/ARB-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "ATOM-USD",
+      "received_at_ms": 1793179334982,
+      "returned_rows": 6,
+      "source_sha256": "0616d55114eb0e0443589ca656f7bd240a3e73cd99c6464b2600b04c9ace69f1",
+      "status": "COMPLETE",
+      "symbol": "ATOM",
+      "url": "https://api.exchange.coinbase.com/products/ATOM-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "AVAX-USD",
+      "received_at_ms": 1793179335059,
+      "returned_rows": 6,
+      "source_sha256": "328c5bfb113526b2378136029b8ba4463a2fd3b2b289f08382afe21966c0a48f",
+      "status": "COMPLETE",
+      "symbol": "AVAX",
+      "url": "https://api.exchange.coinbase.com/products/AVAX-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "BNB-USD",
+      "received_at_ms": 1793179335146,
+      "returned_rows": 6,
+      "source_sha256": "c943799550f1976b0f40f754f87878ebca2d42add9e77cba554d26583d6afd72",
+      "status": "COMPLETE",
+      "symbol": "BNB",
+      "url": "https://api.exchange.coinbase.com/products/BNB-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "BONK-USD",
+      "received_at_ms": 1793179335229,
+      "returned_rows": 6,
+      "source_sha256": "ff2487876216657e75b7b73b65e260a4456a2ab84179ae97f2684352e7c115c6",
+      "status": "COMPLETE",
+      "symbol": "BONK",
+      "url": "https://api.exchange.coinbase.com/products/BONK-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "BTC-USD",
+      "received_at_ms": 1793179335289,
+      "returned_rows": 6,
+      "source_sha256": "a7dca1468842029620268e5716ce96eb9155501f87edc6d34c3396b665267a9b",
+      "status": "COMPLETE",
+      "symbol": "BTC",
+      "url": "https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "DOGE-USD",
+      "received_at_ms": 1793179335380,
+      "returned_rows": 6,
+      "source_sha256": "c00483642d96bec8e064cf81c297f958f75c87f51fec5909025734e75b09486d",
+      "status": "COMPLETE",
+      "symbol": "DOGE",
+      "url": "https://api.exchange.coinbase.com/products/DOGE-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "DOT-USD",
+      "received_at_ms": 1793179335477,
+      "returned_rows": 6,
+      "source_sha256": "0a4debad558d39f87fcf6ec95fe12e4943bb234a93b56e930123b1b1a4a1a790",
+      "status": "COMPLETE",
+      "symbol": "DOT",
+      "url": "https://api.exchange.coinbase.com/products/DOT-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "ETH-USD",
+      "received_at_ms": 1793179335540,
+      "returned_rows": 6,
+      "source_sha256": "423dc35cd29626e0f03b064a86ea274306d1b1972333dde7bcb7ae13ba46642f",
+      "status": "COMPLETE",
+      "symbol": "ETH",
+      "url": "https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "FIL-USD",
+      "received_at_ms": 1793179335620,
+      "returned_rows": 6,
+      "source_sha256": "6dbe1a047e4695f100e53ca9159e9e9539eab0bf7f184dfc1ff0adb4ab082967",
+      "status": "COMPLETE",
+      "symbol": "FIL",
+      "url": "https://api.exchange.coinbase.com/products/FIL-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "INJ-USD",
+      "received_at_ms": 1793179335711,
+      "returned_rows": 6,
+      "source_sha256": "cd3d649db88fa21ba6bea2a25f4547bc12571e14082d342cd8aa4f6005874cce",
+      "status": "COMPLETE",
+      "symbol": "INJ",
+      "url": "https://api.exchange.coinbase.com/products/INJ-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "JTO-USD",
+      "received_at_ms": 1793179335797,
+      "returned_rows": 6,
+      "source_sha256": "efa3f861441b54627477419945c56a7fbbe32239620f9a70c9d7821967d7a78b",
+      "status": "COMPLETE",
+      "symbol": "JTO",
+      "url": "https://api.exchange.coinbase.com/products/JTO-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "LINK-USD",
+      "received_at_ms": 1793179335871,
+      "returned_rows": 6,
+      "source_sha256": "a3e8f4b6ceae4390c15ad3379d1d8b1bb16658051a96ea442c9db470532ca091",
+      "status": "COMPLETE",
+      "symbol": "LINK",
+      "url": "https://api.exchange.coinbase.com/products/LINK-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "LTC-USD",
+      "received_at_ms": 1793179335950,
+      "returned_rows": 6,
+      "source_sha256": "cffc2a10964a63947d97070e2857337f40f03cccc94f52df55caec2059a19fd6",
+      "status": "COMPLETE",
+      "symbol": "LTC",
+      "url": "https://api.exchange.coinbase.com/products/LTC-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "OP-USD",
+      "received_at_ms": 1793179336011,
+      "returned_rows": 6,
+      "source_sha256": "f2537461acf9d692361d9cac311740740dd6ad5cb7393bfdfebe4c5631f2220e",
+      "status": "COMPLETE",
+      "symbol": "OP",
+      "url": "https://api.exchange.coinbase.com/products/OP-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "PEPE-USD",
+      "received_at_ms": 1793179336074,
+      "returned_rows": 6,
+      "source_sha256": "2e37f067b58fa6a1fa3f507f98ab8b233fb20f0e69166e34009c15e77e512530",
+      "status": "COMPLETE",
+      "symbol": "PEPE",
+      "url": "https://api.exchange.coinbase.com/products/PEPE-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "PYTH-USD",
+      "received_at_ms": 1793179336143,
+      "returned_rows": 6,
+      "source_sha256": "365e3838433f7bc0b706beadd194d1d33ca580438d8c6a010482af6ea95f9e97",
+      "status": "COMPLETE",
+      "symbol": "PYTH",
+      "url": "https://api.exchange.coinbase.com/products/PYTH-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "SOL-USD",
+      "received_at_ms": 1793179336288,
+      "returned_rows": 6,
+      "source_sha256": "b65bfbbf34f94f9fe6b3dbbcff2c2371b1acb70d9630660f34525e4b92f4df45",
+      "status": "COMPLETE",
+      "symbol": "SOL",
+      "url": "https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "SUI-USD",
+      "received_at_ms": 1793179336349,
+      "returned_rows": 6,
+      "source_sha256": "ffc544f40fee2ca49520cffadd8ad0fb506dfe296dcc53bc095a247b65f06098",
+      "status": "COMPLETE",
+      "symbol": "SUI",
+      "url": "https://api.exchange.coinbase.com/products/SUI-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "UNI-USD",
+      "received_at_ms": 1793179336411,
+      "returned_rows": 6,
+      "source_sha256": "ed25a07f3122e116b53419af7a27545144b02a899db1f31a923472cb060d5b1d",
+      "status": "COMPLETE",
+      "symbol": "UNI",
+      "url": "https://api.exchange.coinbase.com/products/UNI-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "WIF-USD",
+      "received_at_ms": 1793179336469,
+      "returned_rows": 6,
+      "source_sha256": "35c8a440635d4a7565b2c8c6148fea61163f934d1de9acc053efb4eff731e713",
+      "status": "COMPLETE",
+      "symbol": "WIF",
+      "url": "https://api.exchange.coinbase.com/products/WIF-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    },
+    {
+      "http_status": 200,
+      "method": "GET",
+      "product_id": "XRP-USD",
+      "received_at_ms": 1793179336539,
+      "returned_rows": 6,
+      "source_sha256": "012fb6b8c5ff9f3d93489411be2436171b22b346309c741455436ac246bee149",
+      "status": "COMPLETE",
+      "symbol": "XRP",
+      "url": "https://api.exchange.coinbase.com/products/XRP-USD/candles?granularity=3600&start=2026-10-28T00%3A00%3A00%2B00%3A00&end=2026-10-28T05%3A59%3A59%2B00%3A00"
+    }
+  ],
+  "coverage": [
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "ADA"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "APT"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "ARB"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "ATOM"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "AVAX"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "BNB"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "BONK"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "BTC"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "DOGE"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "DOT"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "ETH"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "FIL"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "INJ"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "JTO"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "LINK"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "LTC"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [
+        1793145600000,
+        1793149200000,
+        1793152800000,
+        1793156400000,
+        1793160000000,
+        1793163600000
+      ],
+      "observed_complete_hours": 0,
+      "status": "INCOMPLETE",
+      "symbol": "MATIC"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "OP"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "PEPE"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "PYTH"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "SOL"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "SUI"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "UNI"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "WIF"
+    },
+    {
+      "capture_errors": [],
+      "conflicts": [],
+      "missing_or_conflicting_hours": [],
+      "observed_complete_hours": 6,
+      "status": "COMPLETE",
+      "symbol": "XRP"
+    }
+  ],
+  "end_ms": 1793167200000,
+  "ignored_counts": {},
+  "observations": {
+    "ADA": [
+      {
+        "known_at_ms": 1793179334734,
+        "row": [
+          1793145600000,
+          0.20563,
+          0.20577,
+          0.20494,
+          0.20571,
+          791420.74462657
+        ],
+        "source_sha256": "eec1dda7b98249be4e9481f5ae97ad2ea5ce3ea8c4d54582f2484d2476c17b30"
+      },
+      {
+        "known_at_ms": 1793179334734,
+        "row": [
+          1793149200000,
+          0.20571,
+          0.20693,
+          0.20512,
+          0.20676,
+          1008959.8475408
+        ],
+        "source_sha256": "eec1dda7b98249be4e9481f5ae97ad2ea5ce3ea8c4d54582f2484d2476c17b30"
+      },
+      {
+        "known_at_ms": 1793179334734,
+        "row": [
+          1793152800000,
+          0.20678,
+          0.20784,
+          0.20614,
+          0.2064,
+          1540926.68972318
+        ],
+        "source_sha256": "eec1dda7b98249be4e9481f5ae97ad2ea5ce3ea8c4d54582f2484d2476c17b30"
+      },
+      {
+        "known_at_ms": 1793179334734,
+        "row": [
+          1793156400000,
+          0.2063,
+          0.20826,
+          0.20615,
+          0.207,
+          720178.36443432
+        ],
+        "source_sha256": "eec1dda7b98249be4e9481f5ae97ad2ea5ce3ea8c4d54582f2484d2476c17b30"
+      },
+      {
+        "known_at_ms": 1793179334734,
+        "row": [
+          1793160000000,
+          0.20702,
+          0.20716,
+          0.20555,
+          0.20634,
+          1011280.7738726
+        ],
+        "source_sha256": "eec1dda7b98249be4e9481f5ae97ad2ea5ce3ea8c4d54582f2484d2476c17b30"
+      },
+      {
+        "known_at_ms": 1793179334734,
+        "row": [
+          1793163600000,
+          0.20631,
+          0.20653,
+          0.20565,
+          0.20585,
+          510311.93035547
+        ],
+        "source_sha256": "eec1dda7b98249be4e9481f5ae97ad2ea5ce3ea8c4d54582f2484d2476c17b30"
+      }
+    ],
+    "APT": [
+      {
+        "known_at_ms": 1793179334826,
+        "row": [
+          1793145600000,
+          0.6944,
+          0.6973,
+          0.6932,
+          0.6959,
+          39324.411
+        ],
+        "source_sha256": "e57e9e5b7d61f71032ef8350288a45f43409ea151ea3ee3b476a196c3dc496c6"
+      },
+      {
+        "known_at_ms": 1793179334826,
+        "row": [
+          1793149200000,
+          0.6952,
+          0.7003,
+          0.693,
+          0.6997,
+          94869.749
+        ],
+        "source_sha256": "e57e9e5b7d61f71032ef8350288a45f43409ea151ea3ee3b476a196c3dc496c6"
+      },
+      {
+        "known_at_ms": 1793179334826,
+        "row": [
+          1793152800000,
+          0.6987,
+          0.7027,
+          0.6978,
+          0.6992,
+          48273.877
+        ],
+        "source_sha256": "e57e9e5b7d61f71032ef8350288a45f43409ea151ea3ee3b476a196c3dc496c6"
+      },
+      {
+        "known_at_ms": 1793179334826,
+        "row": [
+          1793156400000,
+          0.6988,
+          0.7024,
+          0.6962,
+          0.6973,
+          29271.36
+        ],
+        "source_sha256": "e57e9e5b7d61f71032ef8350288a45f43409ea151ea3ee3b476a196c3dc496c6"
+      },
+      {
+        "known_at_ms": 1793179334826,
+        "row": [
+          1793160000000,
+          0.6976,
+          0.6976,
+          0.6918,
+          0.694,
+          54329.578
+        ],
+        "source_sha256": "e57e9e5b7d61f71032ef8350288a45f43409ea151ea3ee3b476a196c3dc496c6"
+      },
+      {
+        "known_at_ms": 1793179334826,
+        "row": [
+          1793163600000,
+          0.694,
+          0.6965,
+          0.6931,
+          0.6934,
+          14832.398
+        ],
+        "source_sha256": "e57e9e5b7d61f71032ef8350288a45f43409ea151ea3ee3b476a196c3dc496c6"
+      }
+    ],
+    "ARB": [
+      {
+        "known_at_ms": 1793179334903,
+        "row": [
+          1793145600000,
+          0.16695,
+          0.1686,
+          0.16658,
+          0.168,
+          98269.22
+        ],
+        "source_sha256": "ea78bc7bea93a0fca540a56ea0e680e99f7a2d9041479a83d6175151439c8b9a"
+      },
+      {
+        "known_at_ms": 1793179334903,
+        "row": [
+          1793149200000,
+          0.16785,
+          0.16963,
+          0.16746,
+          0.16931,
+          156845.42
+        ],
+        "source_sha256": "ea78bc7bea93a0fca540a56ea0e680e99f7a2d9041479a83d6175151439c8b9a"
+      },
+      {
+        "known_at_ms": 1793179334903,
+        "row": [
+          1793152800000,
+          0.16965,
+          0.1707,
+          0.16901,
+          0.16935,
+          430387.14
+        ],
+        "source_sha256": "ea78bc7bea93a0fca540a56ea0e680e99f7a2d9041479a83d6175151439c8b9a"
+      },
+      {
+        "known_at_ms": 1793179334903,
+        "row": [
+          1793156400000,
+          0.16955,
+          0.17066,
+          0.16875,
+          0.16968,
+          126738.79
+        ],
+        "source_sha256": "ea78bc7bea93a0fca540a56ea0e680e99f7a2d9041479a83d6175151439c8b9a"
+      },
+      {
+        "known_at_ms": 1793179334903,
+        "row": [
+          1793160000000,
+          0.16972,
+          0.17021,
+          0.16815,
+          0.1695,
+          98662.73
+        ],
+        "source_sha256": "ea78bc7bea93a0fca540a56ea0e680e99f7a2d9041479a83d6175151439c8b9a"
+      },
+      {
+        "known_at_ms": 1793179334903,
+        "row": [
+          1793163600000,
+          0.16951,
+          0.16985,
+          0.16827,
+          0.16827,
+          78497.62
+        ],
+        "source_sha256": "ea78bc7bea93a0fca540a56ea0e680e99f7a2d9041479a83d6175151439c8b9a"
+      }
+    ],
+    "ATOM": [
+      {
+        "known_at_ms": 1793179334982,
+        "row": [
+          1793145600000,
+          1.6248,
+          1.6329,
+          1.6248,
+          1.6315,
+          8463.9
+        ],
+        "source_sha256": "0616d55114eb0e0443589ca656f7bd240a3e73cd99c6464b2600b04c9ace69f1"
+      },
+      {
+        "known_at_ms": 1793179334982,
+        "row": [
+          1793149200000,
+          1.6315,
+          1.6432,
+          1.629,
+          1.6423,
+          28884.44
+        ],
+        "source_sha256": "0616d55114eb0e0443589ca656f7bd240a3e73cd99c6464b2600b04c9ace69f1"
+      },
+      {
+        "known_at_ms": 1793179334982,
+        "row": [
+          1793152800000,
+          1.6417,
+          1.6491,
+          1.6402,
+          1.6438,
+          8209.02
+        ],
+        "source_sha256": "0616d55114eb0e0443589ca656f7bd240a3e73cd99c6464b2600b04c9ace69f1"
+      },
+      {
+        "known_at_ms": 1793179334982,
+        "row": [
+          1793156400000,
+          1.6456,
+          1.6556,
+          1.645,
+          1.6471,
+          39382.65
+        ],
+        "source_sha256": "0616d55114eb0e0443589ca656f7bd240a3e73cd99c6464b2600b04c9ace69f1"
+      },
+      {
+        "known_at_ms": 1793179334982,
+        "row": [
+          1793160000000,
+          1.6435,
+          1.6435,
+          1.6363,
+          1.6383,
+          2825.34
+        ],
+        "source_sha256": "0616d55114eb0e0443589ca656f7bd240a3e73cd99c6464b2600b04c9ace69f1"
+      },
+      {
+        "known_at_ms": 1793179334982,
+        "row": [
+          1793163600000,
+          1.6371,
+          1.6394,
+          1.6294,
+          1.6294,
+          1629.15
+        ],
+        "source_sha256": "0616d55114eb0e0443589ca656f7bd240a3e73cd99c6464b2600b04c9ace69f1"
+      }
+    ],
+    "AVAX": [
+      {
+        "known_at_ms": 1793179335059,
+        "row": [
+          1793145600000,
+          8.944,
+          8.97,
+          8.928,
+          8.957,
+          14110.75812836
+        ],
+        "source_sha256": "328c5bfb113526b2378136029b8ba4463a2fd3b2b289f08382afe21966c0a48f"
+      },
+      {
+        "known_at_ms": 1793179335059,
+        "row": [
+          1793149200000,
+          8.956,
+          9.026,
+          8.932,
+          9.01,
+          17031.11279907
+        ],
+        "source_sha256": "328c5bfb113526b2378136029b8ba4463a2fd3b2b289f08382afe21966c0a48f"
+      },
+      {
+        "known_at_ms": 1793179335059,
+        "row": [
+          1793152800000,
+          9.015,
+          9.064,
+          8.994,
+          9.013,
+          12428.3714037
+        ],
+        "source_sha256": "328c5bfb113526b2378136029b8ba4463a2fd3b2b289f08382afe21966c0a48f"
+      },
+      {
+        "known_at_ms": 1793179335059,
+        "row": [
+          1793156400000,
+          9.012,
+          9.07,
+          9,
+          9.018,
+          11179.23000828
+        ],
+        "source_sha256": "328c5bfb113526b2378136029b8ba4463a2fd3b2b289f08382afe21966c0a48f"
+      },
+      {
+        "known_at_ms": 1793179335059,
+        "row": [
+          1793160000000,
+          9.016,
+          9.022,
+          8.968,
+          8.99,
+          8485.66075081
+        ],
+        "source_sha256": "328c5bfb113526b2378136029b8ba4463a2fd3b2b289f08382afe21966c0a48f"
+      },
+      {
+        "known_at_ms": 1793179335059,
+        "row": [
+          1793163600000,
+          8.988,
+          9.022,
+          8.966,
+          8.988,
+          6846.65456485
+        ],
+        "source_sha256": "328c5bfb113526b2378136029b8ba4463a2fd3b2b289f08382afe21966c0a48f"
+      }
+    ],
+    "BNB": [
+      {
+        "known_at_ms": 1793179335146,
+        "row": [
+          1793145600000,
+          743.99,
+          743.99,
+          740.92,
+          742.31,
+          209.88692
+        ],
+        "source_sha256": "c943799550f1976b0f40f754f87878ebca2d42add9e77cba554d26583d6afd72"
+      },
+      {
+        "known_at_ms": 1793179335146,
+        "row": [
+          1793149200000,
+          742.24,
+          745.28,
+          741.26,
+          744.36,
+          25.01541
+        ],
+        "source_sha256": "c943799550f1976b0f40f754f87878ebca2d42add9e77cba554d26583d6afd72"
+      },
+      {
+        "known_at_ms": 1793179335146,
+        "row": [
+          1793152800000,
+          744.32,
+          746.33,
+          742.99,
+          744.58,
+          47.65574
+        ],
+        "source_sha256": "c943799550f1976b0f40f754f87878ebca2d42add9e77cba554d26583d6afd72"
+      },
+      {
+        "known_at_ms": 1793179335146,
+        "row": [
+          1793156400000,
+          744.24,
+          747.82,
+          743.92,
+          746.28,
+          39.35576
+        ],
+        "source_sha256": "c943799550f1976b0f40f754f87878ebca2d42add9e77cba554d26583d6afd72"
+      },
+      {
+        "known_at_ms": 1793179335146,
+        "row": [
+          1793160000000,
+          746.3,
+          746.34,
+          744.93,
+          745.29,
+          44.5844
+        ],
+        "source_sha256": "c943799550f1976b0f40f754f87878ebca2d42add9e77cba554d26583d6afd72"
+      },
+      {
+        "known_at_ms": 1793179335146,
+        "row": [
+          1793163600000,
+          745.08,
+          745.29,
+          744.1,
+          744.3,
+          10.18538
+        ],
+        "source_sha256": "c943799550f1976b0f40f754f87878ebca2d42add9e77cba554d26583d6afd72"
+      }
+    ],
+    "BONK": [
+      {
+        "known_at_ms": 1793179335229,
+        "row": [
+          1793145600000,
+          3.06e-06,
+          3.07e-06,
+          3.05e-06,
+          3.06e-06,
+          3696833080
+        ],
+        "source_sha256": "ff2487876216657e75b7b73b65e260a4456a2ab84179ae97f2684352e7c115c6"
+      },
+      {
+        "known_at_ms": 1793179335229,
+        "row": [
+          1793149200000,
+          3.06e-06,
+          3.1e-06,
+          3.05e-06,
+          3.09e-06,
+          56027280151
+        ],
+        "source_sha256": "ff2487876216657e75b7b73b65e260a4456a2ab84179ae97f2684352e7c115c6"
+      },
+      {
+        "known_at_ms": 1793179335229,
+        "row": [
+          1793152800000,
+          3.09e-06,
+          3.1e-06,
+          3.07e-06,
+          3.08e-06,
+          24936672956
+        ],
+        "source_sha256": "ff2487876216657e75b7b73b65e260a4456a2ab84179ae97f2684352e7c115c6"
+      },
+      {
+        "known_at_ms": 1793179335229,
+        "row": [
+          1793156400000,
+          3.08e-06,
+          3.11e-06,
+          3.08e-06,
+          3.09e-06,
+          20710413997
+        ],
+        "source_sha256": "ff2487876216657e75b7b73b65e260a4456a2ab84179ae97f2684352e7c115c6"
+      },
+      {
+        "known_at_ms": 1793179335229,
+        "row": [
+          1793160000000,
+          3.1e-06,
+          3.1e-06,
+          3.08e-06,
+          3.08e-06,
+          4538242682
+        ],
+        "source_sha256": "ff2487876216657e75b7b73b65e260a4456a2ab84179ae97f2684352e7c115c6"
+      },
+      {
+        "known_at_ms": 1793179335229,
+        "row": [
+          1793163600000,
+          3.07e-06,
+          3.09e-06,
+          3.07e-06,
+          3.07e-06,
+          6878554648
+        ],
+        "source_sha256": "ff2487876216657e75b7b73b65e260a4456a2ab84179ae97f2684352e7c115c6"
+      }
+    ],
+    "BTC": [
+      {
+        "known_at_ms": 1793179335289,
+        "row": [
+          1793145600000,
+          80799.5,
+          80799.5,
+          80580.34,
+          80633.87,
+          201.34822417
+        ],
+        "source_sha256": "a7dca1468842029620268e5716ce96eb9155501f87edc6d34c3396b665267a9b"
+      },
+      {
+        "known_at_ms": 1793179335289,
+        "row": [
+          1793149200000,
+          80633.88,
+          80873.5,
+          80493.55,
+          80826.38,
+          159.37951113
+        ],
+        "source_sha256": "a7dca1468842029620268e5716ce96eb9155501f87edc6d34c3396b665267a9b"
+      },
+      {
+        "known_at_ms": 1793179335289,
+        "row": [
+          1793152800000,
+          80826.39,
+          81030.69,
+          80737.03,
+          80817.5,
+          123.58582072
+        ],
+        "source_sha256": "a7dca1468842029620268e5716ce96eb9155501f87edc6d34c3396b665267a9b"
+      },
+      {
+        "known_at_ms": 1793179335289,
+        "row": [
+          1793156400000,
+          80817.5,
+          81110.26,
+          80778.66,
+          81038.15,
+          131.81205378
+        ],
+        "source_sha256": "a7dca1468842029620268e5716ce96eb9155501f87edc6d34c3396b665267a9b"
+      },
+      {
+        "known_at_ms": 1793179335289,
+        "row": [
+          1793160000000,
+          81023.78,
+          81032.11,
+          80795.18,
+          80873.63,
+          60.0711512
+        ],
+        "source_sha256": "a7dca1468842029620268e5716ce96eb9155501f87edc6d34c3396b665267a9b"
+      },
+      {
+        "known_at_ms": 1793179335289,
+        "row": [
+          1793163600000,
+          80873.62,
+          80878.2,
+          80777.27,
+          80781.1,
+          52.75338477
+        ],
+        "source_sha256": "a7dca1468842029620268e5716ce96eb9155501f87edc6d34c3396b665267a9b"
+      }
+    ],
+    "DOGE": [
+      {
+        "known_at_ms": 1793179335380,
+        "row": [
+          1793145600000,
+          0.07895,
+          0.07899,
+          0.07866,
+          0.0789,
+          3979659
+        ],
+        "source_sha256": "c00483642d96bec8e064cf81c297f958f75c87f51fec5909025734e75b09486d"
+      },
+      {
+        "known_at_ms": 1793179335380,
+        "row": [
+          1793149200000,
+          0.07892,
+          0.07924,
+          0.07866,
+          0.07916,
+          2491521.6
+        ],
+        "source_sha256": "c00483642d96bec8e064cf81c297f958f75c87f51fec5909025734e75b09486d"
+      },
+      {
+        "known_at_ms": 1793179335380,
+        "row": [
+          1793152800000,
+          0.07915,
+          0.07943,
+          0.07892,
+          0.07935,
+          4793614.1
+        ],
+        "source_sha256": "c00483642d96bec8e064cf81c297f958f75c87f51fec5909025734e75b09486d"
+      },
+      {
+        "known_at_ms": 1793179335380,
+        "row": [
+          1793156400000,
+          0.07935,
+          0.08017,
+          0.07921,
+          0.07968,
+          3811712.2
+        ],
+        "source_sha256": "c00483642d96bec8e064cf81c297f958f75c87f51fec5909025734e75b09486d"
+      },
+      {
+        "known_at_ms": 1793179335380,
+        "row": [
+          1793160000000,
+          0.0797,
+          0.07971,
+          0.07935,
+          0.07961,
+          1713448.9
+        ],
+        "source_sha256": "c00483642d96bec8e064cf81c297f958f75c87f51fec5909025734e75b09486d"
+      },
+      {
+        "known_at_ms": 1793179335380,
+        "row": [
+          1793163600000,
+          0.07956,
+          0.07972,
+          0.07943,
+          0.07947,
+          495170.6
+        ],
+        "source_sha256": "c00483642d96bec8e064cf81c297f958f75c87f51fec5909025734e75b09486d"
+      }
+    ],
+    "DOT": [
+      {
+        "known_at_ms": 1793179335477,
+        "row": [
+          1793145600000,
+          0.9991,
+          1.0029,
+          0.9964,
+          1.0029,
+          73118.63584355
+        ],
+        "source_sha256": "0a4debad558d39f87fcf6ec95fe12e4943bb234a93b56e930123b1b1a4a1a790"
+      },
+      {
+        "known_at_ms": 1793179335477,
+        "row": [
+          1793149200000,
+          1.0027,
+          1.0064,
+          0.9984,
+          1.005,
+          60999.0662972
+        ],
+        "source_sha256": "0a4debad558d39f87fcf6ec95fe12e4943bb234a93b56e930123b1b1a4a1a790"
+      },
+      {
+        "known_at_ms": 1793179335477,
+        "row": [
+          1793152800000,
+          1.0054,
+          1.0108,
+          1.0017,
+          1.0021,
+          50697.4967549
+        ],
+        "source_sha256": "0a4debad558d39f87fcf6ec95fe12e4943bb234a93b56e930123b1b1a4a1a790"
+      },
+      {
+        "known_at_ms": 1793179335477,
+        "row": [
+          1793156400000,
+          1.0016,
+          1.0113,
+          0.9983,
+          1.004,
+          86085.27669759
+        ],
+        "source_sha256": "0a4debad558d39f87fcf6ec95fe12e4943bb234a93b56e930123b1b1a4a1a790"
+      },
+      {
+        "known_at_ms": 1793179335477,
+        "row": [
+          1793160000000,
+          1.0047,
+          1.0075,
+          0.9985,
+          1.0036,
+          23165.31971135
+        ],
+        "source_sha256": "0a4debad558d39f87fcf6ec95fe12e4943bb234a93b56e930123b1b1a4a1a790"
+      },
+      {
+        "known_at_ms": 1793179335477,
+        "row": [
+          1793163600000,
+          1.0035,
+          1.006,
+          0.9976,
+          0.9976,
+          22262.12373107
+        ],
+        "source_sha256": "0a4debad558d39f87fcf6ec95fe12e4943bb234a93b56e930123b1b1a4a1a790"
+      }
+    ],
+    "ETH": [
+      {
+        "known_at_ms": 1793179335540,
+        "row": [
+          1793145600000,
+          2346.9,
+          2347.31,
+          2340.76,
+          2343.31,
+          3007.8727573
+        ],
+        "source_sha256": "423dc35cd29626e0f03b064a86ea274306d1b1972333dde7bcb7ae13ba46642f"
+      },
+      {
+        "known_at_ms": 1793179335540,
+        "row": [
+          1793149200000,
+          2343.24,
+          2356,
+          2337.44,
+          2351.94,
+          2318.61191524
+        ],
+        "source_sha256": "423dc35cd29626e0f03b064a86ea274306d1b1972333dde7bcb7ae13ba46642f"
+      },
+      {
+        "known_at_ms": 1793179335540,
+        "row": [
+          1793152800000,
+          2351.94,
+          2366.37,
+          2350.01,
+          2353.66,
+          2950.15458083
+        ],
+        "source_sha256": "423dc35cd29626e0f03b064a86ea274306d1b1972333dde7bcb7ae13ba46642f"
+      },
+      {
+        "known_at_ms": 1793179335540,
+        "row": [
+          1793156400000,
+          2353.66,
+          2363.98,
+          2352.14,
+          2356.99,
+          1825.82312433
+        ],
+        "source_sha256": "423dc35cd29626e0f03b064a86ea274306d1b1972333dde7bcb7ae13ba46642f"
+      },
+      {
+        "known_at_ms": 1793179335540,
+        "row": [
+          1793160000000,
+          2357.14,
+          2357.14,
+          2348.59,
+          2352.14,
+          1651.94031352
+        ],
+        "source_sha256": "423dc35cd29626e0f03b064a86ea274306d1b1972333dde7bcb7ae13ba46642f"
+      },
+      {
+        "known_at_ms": 1793179335540,
+        "row": [
+          1793163600000,
+          2352.14,
+          2353.66,
+          2348.37,
+          2348.44,
+          1339.76259329
+        ],
+        "source_sha256": "423dc35cd29626e0f03b064a86ea274306d1b1972333dde7bcb7ae13ba46642f"
+      }
+    ],
+    "FIL": [
+      {
+        "known_at_ms": 1793179335620,
+        "row": [
+          1793145600000,
+          0.9057,
+          0.9112,
+          0.9032,
+          0.9104,
+          22088.823
+        ],
+        "source_sha256": "6dbe1a047e4695f100e53ca9159e9e9539eab0bf7f184dfc1ff0adb4ab082967"
+      },
+      {
+        "known_at_ms": 1793179335620,
+        "row": [
+          1793149200000,
+          0.9097,
+          0.9205,
+          0.9064,
+          0.9205,
+          43476.792
+        ],
+        "source_sha256": "6dbe1a047e4695f100e53ca9159e9e9539eab0bf7f184dfc1ff0adb4ab082967"
+      },
+      {
+        "known_at_ms": 1793179335620,
+        "row": [
+          1793152800000,
+          0.9207,
+          0.9212,
+          0.9131,
+          0.9144,
+          17838.92
+        ],
+        "source_sha256": "6dbe1a047e4695f100e53ca9159e9e9539eab0bf7f184dfc1ff0adb4ab082967"
+      },
+      {
+        "known_at_ms": 1793179335620,
+        "row": [
+          1793156400000,
+          0.9136,
+          0.92,
+          0.9118,
+          0.915,
+          13167.297
+        ],
+        "source_sha256": "6dbe1a047e4695f100e53ca9159e9e9539eab0bf7f184dfc1ff0adb4ab082967"
+      },
+      {
+        "known_at_ms": 1793179335620,
+        "row": [
+          1793160000000,
+          0.9154,
+          0.9158,
+          0.9088,
+          0.9131,
+          17126.134
+        ],
+        "source_sha256": "6dbe1a047e4695f100e53ca9159e9e9539eab0bf7f184dfc1ff0adb4ab082967"
+      },
+      {
+        "known_at_ms": 1793179335620,
+        "row": [
+          1793163600000,
+          0.9113,
+          0.9136,
+          0.9061,
+          0.9071,
+          8728.104
+        ],
+        "source_sha256": "6dbe1a047e4695f100e53ca9159e9e9539eab0bf7f184dfc1ff0adb4ab082967"
+      }
+    ],
+    "INJ": [
+      {
+        "known_at_ms": 1793179335711,
+        "row": [
+          1793145600000,
+          7.953,
+          8.013,
+          7.911,
+          8.007,
+          46888.23
+        ],
+        "source_sha256": "cd3d649db88fa21ba6bea2a25f4547bc12571e14082d342cd8aa4f6005874cce"
+      },
+      {
+        "known_at_ms": 1793179335711,
+        "row": [
+          1793149200000,
+          8.007,
+          8.032,
+          7.952,
+          8.009,
+          9348.4
+        ],
+        "source_sha256": "cd3d649db88fa21ba6bea2a25f4547bc12571e14082d342cd8aa4f6005874cce"
+      },
+      {
+        "known_at_ms": 1793179335711,
+        "row": [
+          1793152800000,
+          8.014,
+          8.052,
+          7.913,
+          7.913,
+          20579.44
+        ],
+        "source_sha256": "cd3d649db88fa21ba6bea2a25f4547bc12571e14082d342cd8aa4f6005874cce"
+      },
+      {
+        "known_at_ms": 1793179335711,
+        "row": [
+          1793156400000,
+          7.912,
+          7.996,
+          7.886,
+          7.975,
+          7517.69
+        ],
+        "source_sha256": "cd3d649db88fa21ba6bea2a25f4547bc12571e14082d342cd8aa4f6005874cce"
+      },
+      {
+        "known_at_ms": 1793179335711,
+        "row": [
+          1793160000000,
+          7.976,
+          8.048,
+          7.933,
+          7.99,
+          12870.8
+        ],
+        "source_sha256": "cd3d649db88fa21ba6bea2a25f4547bc12571e14082d342cd8aa4f6005874cce"
+      },
+      {
+        "known_at_ms": 1793179335711,
+        "row": [
+          1793163600000,
+          7.99,
+          7.992,
+          7.927,
+          7.936,
+          7404.82
+        ],
+        "source_sha256": "cd3d649db88fa21ba6bea2a25f4547bc12571e14082d342cd8aa4f6005874cce"
+      }
+    ],
+    "JTO": [
+      {
+        "known_at_ms": 1793179335797,
+        "row": [
+          1793145600000,
+          0.4318,
+          0.4337,
+          0.4316,
+          0.4333,
+          6181.6
+        ],
+        "source_sha256": "efa3f861441b54627477419945c56a7fbbe32239620f9a70c9d7821967d7a78b"
+      },
+      {
+        "known_at_ms": 1793179335797,
+        "row": [
+          1793149200000,
+          0.4328,
+          0.4364,
+          0.4313,
+          0.4364,
+          1838.7
+        ],
+        "source_sha256": "efa3f861441b54627477419945c56a7fbbe32239620f9a70c9d7821967d7a78b"
+      },
+      {
+        "known_at_ms": 1793179335797,
+        "row": [
+          1793152800000,
+          0.4356,
+          0.4371,
+          0.4336,
+          0.4336,
+          1593.8
+        ],
+        "source_sha256": "efa3f861441b54627477419945c56a7fbbe32239620f9a70c9d7821967d7a78b"
+      },
+      {
+        "known_at_ms": 1793179335797,
+        "row": [
+          1793156400000,
+          0.4333,
+          0.4357,
+          0.4329,
+          0.4339,
+          1519.2
+        ],
+        "source_sha256": "efa3f861441b54627477419945c56a7fbbe32239620f9a70c9d7821967d7a78b"
+      },
+      {
+        "known_at_ms": 1793179335797,
+        "row": [
+          1793160000000,
+          0.4317,
+          0.433,
+          0.4312,
+          0.4314,
+          6425.4
+        ],
+        "source_sha256": "efa3f861441b54627477419945c56a7fbbe32239620f9a70c9d7821967d7a78b"
+      },
+      {
+        "known_at_ms": 1793179335797,
+        "row": [
+          1793163600000,
+          0.4317,
+          0.4319,
+          0.4279,
+          0.428,
+          13557.9
+        ],
+        "source_sha256": "efa3f861441b54627477419945c56a7fbbe32239620f9a70c9d7821967d7a78b"
+      }
+    ],
+    "LINK": [
+      {
+        "known_at_ms": 1793179335871,
+        "row": [
+          1793145600000,
+          11.562,
+          11.578,
+          11.535,
+          11.57,
+          8708.56
+        ],
+        "source_sha256": "a3e8f4b6ceae4390c15ad3379d1d8b1bb16658051a96ea442c9db470532ca091"
+      },
+      {
+        "known_at_ms": 1793179335871,
+        "row": [
+          1793149200000,
+          11.571,
+          11.651,
+          11.544,
+          11.641,
+          10636.24
+        ],
+        "source_sha256": "a3e8f4b6ceae4390c15ad3379d1d8b1bb16658051a96ea442c9db470532ca091"
+      },
+      {
+        "known_at_ms": 1793179335871,
+        "row": [
+          1793152800000,
+          11.645,
+          11.768,
+          11.638,
+          11.66,
+          21764.09
+        ],
+        "source_sha256": "a3e8f4b6ceae4390c15ad3379d1d8b1bb16658051a96ea442c9db470532ca091"
+      },
+      {
+        "known_at_ms": 1793179335871,
+        "row": [
+          1793156400000,
+          11.657,
+          11.811,
+          11.644,
+          11.733,
+          27543.89
+        ],
+        "source_sha256": "a3e8f4b6ceae4390c15ad3379d1d8b1bb16658051a96ea442c9db470532ca091"
+      },
+      {
+        "known_at_ms": 1793179335871,
+        "row": [
+          1793160000000,
+          11.742,
+          11.76,
+          11.683,
+          11.734,
+          10919.63
+        ],
+        "source_sha256": "a3e8f4b6ceae4390c15ad3379d1d8b1bb16658051a96ea442c9db470532ca091"
+      },
+      {
+        "known_at_ms": 1793179335871,
+        "row": [
+          1793163600000,
+          11.733,
+          11.752,
+          11.695,
+          11.701,
+          10280.46
+        ],
+        "source_sha256": "a3e8f4b6ceae4390c15ad3379d1d8b1bb16658051a96ea442c9db470532ca091"
+      }
+    ],
+    "LTC": [
+      {
+        "known_at_ms": 1793179335950,
+        "row": [
+          1793145600000,
+          57.136,
+          57.162,
+          56.911,
+          57.149,
+          2753.37194643
+        ],
+        "source_sha256": "cffc2a10964a63947d97070e2857337f40f03cccc94f52df55caec2059a19fd6"
+      },
+      {
+        "known_at_ms": 1793179335950,
+        "row": [
+          1793149200000,
+          57.168,
+          57.39,
+          56.988,
+          57.353,
+          3178.64557411
+        ],
+        "source_sha256": "cffc2a10964a63947d97070e2857337f40f03cccc94f52df55caec2059a19fd6"
+      },
+      {
+        "known_at_ms": 1793179335950,
+        "row": [
+          1793152800000,
+          57.354,
+          57.586,
+          57.247,
+          57.442,
+          5014.45077146
+        ],
+        "source_sha256": "cffc2a10964a63947d97070e2857337f40f03cccc94f52df55caec2059a19fd6"
+      },
+      {
+        "known_at_ms": 1793179335950,
+        "row": [
+          1793156400000,
+          57.425,
+          57.684,
+          57.318,
+          57.462,
+          2911.68000923
+        ],
+        "source_sha256": "cffc2a10964a63947d97070e2857337f40f03cccc94f52df55caec2059a19fd6"
+      },
+      {
+        "known_at_ms": 1793179335950,
+        "row": [
+          1793160000000,
+          57.462,
+          57.576,
+          57.267,
+          57.441,
+          3028.19867655
+        ],
+        "source_sha256": "cffc2a10964a63947d97070e2857337f40f03cccc94f52df55caec2059a19fd6"
+      },
+      {
+        "known_at_ms": 1793179335950,
+        "row": [
+          1793163600000,
+          57.43,
+          57.56,
+          57.243,
+          57.257,
+          1387.62184279
+        ],
+        "source_sha256": "cffc2a10964a63947d97070e2857337f40f03cccc94f52df55caec2059a19fd6"
+      }
+    ],
+    "MATIC": [],
+    "OP": [
+      {
+        "known_at_ms": 1793179336011,
+        "row": [
+          1793145600000,
+          0.11172,
+          0.11219,
+          0.11148,
+          0.11216,
+          197148.99
+        ],
+        "source_sha256": "f2537461acf9d692361d9cac311740740dd6ad5cb7393bfdfebe4c5631f2220e"
+      },
+      {
+        "known_at_ms": 1793179336011,
+        "row": [
+          1793149200000,
+          0.11216,
+          0.11324,
+          0.11173,
+          0.11305,
+          196982.33
+        ],
+        "source_sha256": "f2537461acf9d692361d9cac311740740dd6ad5cb7393bfdfebe4c5631f2220e"
+      },
+      {
+        "known_at_ms": 1793179336011,
+        "row": [
+          1793152800000,
+          0.11305,
+          0.11365,
+          0.11264,
+          0.11321,
+          373891.04
+        ],
+        "source_sha256": "f2537461acf9d692361d9cac311740740dd6ad5cb7393bfdfebe4c5631f2220e"
+      },
+      {
+        "known_at_ms": 1793179336011,
+        "row": [
+          1793156400000,
+          0.11314,
+          0.11374,
+          0.11281,
+          0.11307,
+          194935.24
+        ],
+        "source_sha256": "f2537461acf9d692361d9cac311740740dd6ad5cb7393bfdfebe4c5631f2220e"
+      },
+      {
+        "known_at_ms": 1793179336011,
+        "row": [
+          1793160000000,
+          0.11305,
+          0.11323,
+          0.11234,
+          0.11274,
+          79353.1
+        ],
+        "source_sha256": "f2537461acf9d692361d9cac311740740dd6ad5cb7393bfdfebe4c5631f2220e"
+      },
+      {
+        "known_at_ms": 1793179336011,
+        "row": [
+          1793163600000,
+          0.11264,
+          0.11276,
+          0.1119,
+          0.11196,
+          130610.56
+        ],
+        "source_sha256": "f2537461acf9d692361d9cac311740740dd6ad5cb7393bfdfebe4c5631f2220e"
+      }
+    ],
+    "PEPE": [
+      {
+        "known_at_ms": 1793179336074,
+        "row": [
+          1793145600000,
+          4.59e-06,
+          4.6e-06,
+          4.56e-06,
+          4.59e-06,
+          21718723450
+        ],
+        "source_sha256": "2e37f067b58fa6a1fa3f507f98ab8b233fb20f0e69166e34009c15e77e512530"
+      },
+      {
+        "known_at_ms": 1793179336074,
+        "row": [
+          1793149200000,
+          4.59e-06,
+          4.95e-06,
+          4.58e-06,
+          4.91e-06,
+          320902266560
+        ],
+        "source_sha256": "2e37f067b58fa6a1fa3f507f98ab8b233fb20f0e69166e34009c15e77e512530"
+      },
+      {
+        "known_at_ms": 1793179336074,
+        "row": [
+          1793152800000,
+          4.91e-06,
+          4.99e-06,
+          4.82e-06,
+          4.84e-06,
+          281904619755
+        ],
+        "source_sha256": "2e37f067b58fa6a1fa3f507f98ab8b233fb20f0e69166e34009c15e77e512530"
+      },
+      {
+        "known_at_ms": 1793179336074,
+        "row": [
+          1793156400000,
+          4.82e-06,
+          5.01e-06,
+          4.8e-06,
+          4.91e-06,
+          101608362833
+        ],
+        "source_sha256": "2e37f067b58fa6a1fa3f507f98ab8b233fb20f0e69166e34009c15e77e512530"
+      },
+      {
+        "known_at_ms": 1793179336074,
+        "row": [
+          1793160000000,
+          4.9e-06,
+          4.91e-06,
+          4.82e-06,
+          4.82e-06,
+          62972369978
+        ],
+        "source_sha256": "2e37f067b58fa6a1fa3f507f98ab8b233fb20f0e69166e34009c15e77e512530"
+      },
+      {
+        "known_at_ms": 1793179336074,
+        "row": [
+          1793163600000,
+          4.83e-06,
+          4.83e-06,
+          4.75e-06,
+          4.77e-06,
+          10600371491
+        ],
+        "source_sha256": "2e37f067b58fa6a1fa3f507f98ab8b233fb20f0e69166e34009c15e77e512530"
+      }
+    ],
+    "PYTH": [
+      {
+        "known_at_ms": 1793179336143,
+        "row": [
+          1793145600000,
+          0.07292,
+          0.07353,
+          0.07292,
+          0.07348,
+          54140.9
+        ],
+        "source_sha256": "365e3838433f7bc0b706beadd194d1d33ca580438d8c6a010482af6ea95f9e97"
+      },
+      {
+        "known_at_ms": 1793179336143,
+        "row": [
+          1793149200000,
+          0.07322,
+          0.07349,
+          0.0731,
+          0.07346,
+          34480.2
+        ],
+        "source_sha256": "365e3838433f7bc0b706beadd194d1d33ca580438d8c6a010482af6ea95f9e97"
+      },
+      {
+        "known_at_ms": 1793179336143,
+        "row": [
+          1793152800000,
+          0.07356,
+          0.07392,
+          0.07309,
+          0.0731,
+          96063.5
+        ],
+        "source_sha256": "365e3838433f7bc0b706beadd194d1d33ca580438d8c6a010482af6ea95f9e97"
+      },
+      {
+        "known_at_ms": 1793179336143,
+        "row": [
+          1793156400000,
+          0.07304,
+          0.07327,
+          0.07292,
+          0.07292,
+          75624.7
+        ],
+        "source_sha256": "365e3838433f7bc0b706beadd194d1d33ca580438d8c6a010482af6ea95f9e97"
+      },
+      {
+        "known_at_ms": 1793179336143,
+        "row": [
+          1793160000000,
+          0.07299,
+          0.07333,
+          0.0726,
+          0.07269,
+          193494.7
+        ],
+        "source_sha256": "365e3838433f7bc0b706beadd194d1d33ca580438d8c6a010482af6ea95f9e97"
+      },
+      {
+        "known_at_ms": 1793179336143,
+        "row": [
+          1793163600000,
+          0.0726,
+          0.07276,
+          0.07216,
+          0.07216,
+          9727.4
+        ],
+        "source_sha256": "365e3838433f7bc0b706beadd194d1d33ca580438d8c6a010482af6ea95f9e97"
+      }
+    ],
+    "SOL": [
+      {
+        "known_at_ms": 1793179336288,
+        "row": [
+          1793145600000,
+          101.2,
+          101.22,
+          101.02,
+          101.15,
+          9908.68010872
+        ],
+        "source_sha256": "b65bfbbf34f94f9fe6b3dbbcff2c2371b1acb70d9630660f34525e4b92f4df45"
+      },
+      {
+        "known_at_ms": 1793179336288,
+        "row": [
+          1793149200000,
+          101.17,
+          101.64,
+          100.9,
+          101.54,
+          11857.55651554
+        ],
+        "source_sha256": "b65bfbbf34f94f9fe6b3dbbcff2c2371b1acb70d9630660f34525e4b92f4df45"
+      },
+      {
+        "known_at_ms": 1793179336288,
+        "row": [
+          1793152800000,
+          101.54,
+          101.88,
+          101.36,
+          101.52,
+          11362.08193558
+        ],
+        "source_sha256": "b65bfbbf34f94f9fe6b3dbbcff2c2371b1acb70d9630660f34525e4b92f4df45"
+      },
+      {
+        "known_at_ms": 1793179336288,
+        "row": [
+          1793156400000,
+          101.5,
+          102.28,
+          101.4,
+          101.88,
+          16600.03179244
+        ],
+        "source_sha256": "b65bfbbf34f94f9fe6b3dbbcff2c2371b1acb70d9630660f34525e4b92f4df45"
+      },
+      {
+        "known_at_ms": 1793179336288,
+        "row": [
+          1793160000000,
+          101.88,
+          102.1,
+          101.56,
+          101.87,
+          13759.06619172
+        ],
+        "source_sha256": "b65bfbbf34f94f9fe6b3dbbcff2c2371b1acb70d9630660f34525e4b92f4df45"
+      },
+      {
+        "known_at_ms": 1793179336288,
+        "row": [
+          1793163600000,
+          101.86,
+          101.95,
+          101.65,
+          101.68,
+          5355.18365158
+        ],
+        "source_sha256": "b65bfbbf34f94f9fe6b3dbbcff2c2371b1acb70d9630660f34525e4b92f4df45"
+      }
+    ],
+    "SUI": [
+      {
+        "known_at_ms": 1793179336349,
+        "row": [
+          1793145600000,
+          0.9318,
+          0.9318,
+          0.9286,
+          0.9315,
+          148750.5
+        ],
+        "source_sha256": "ffc544f40fee2ca49520cffadd8ad0fb506dfe296dcc53bc095a247b65f06098"
+      },
+      {
+        "known_at_ms": 1793179336349,
+        "row": [
+          1793149200000,
+          0.931,
+          0.9379,
+          0.9277,
+          0.9367,
+          264951.6
+        ],
+        "source_sha256": "ffc544f40fee2ca49520cffadd8ad0fb506dfe296dcc53bc095a247b65f06098"
+      },
+      {
+        "known_at_ms": 1793179336349,
+        "row": [
+          1793152800000,
+          0.9369,
+          0.9415,
+          0.9337,
+          0.9372,
+          655881.7
+        ],
+        "source_sha256": "ffc544f40fee2ca49520cffadd8ad0fb506dfe296dcc53bc095a247b65f06098"
+      },
+      {
+        "known_at_ms": 1793179336349,
+        "row": [
+          1793156400000,
+          0.9371,
+          0.9442,
+          0.936,
+          0.9402,
+          317086.2
+        ],
+        "source_sha256": "ffc544f40fee2ca49520cffadd8ad0fb506dfe296dcc53bc095a247b65f06098"
+      },
+      {
+        "known_at_ms": 1793179336349,
+        "row": [
+          1793160000000,
+          0.9402,
+          0.9411,
+          0.935,
+          0.9368,
+          542934.5
+        ],
+        "source_sha256": "ffc544f40fee2ca49520cffadd8ad0fb506dfe296dcc53bc095a247b65f06098"
+      },
+      {
+        "known_at_ms": 1793179336349,
+        "row": [
+          1793163600000,
+          0.9368,
+          0.9383,
+          0.9321,
+          0.9325,
+          144826.5
+        ],
+        "source_sha256": "ffc544f40fee2ca49520cffadd8ad0fb506dfe296dcc53bc095a247b65f06098"
+      }
+    ],
+    "UNI": [
+      {
+        "known_at_ms": 1793179336411,
+        "row": [
+          1793145600000,
+          7.0715,
+          7.0985,
+          7.0321,
+          7.0865,
+          23438.417687
+        ],
+        "source_sha256": "ed25a07f3122e116b53419af7a27545144b02a899db1f31a923472cb060d5b1d"
+      },
+      {
+        "known_at_ms": 1793179336411,
+        "row": [
+          1793149200000,
+          7.086,
+          7.1328,
+          7.0464,
+          7.1195,
+          25301.224107
+        ],
+        "source_sha256": "ed25a07f3122e116b53419af7a27545144b02a899db1f31a923472cb060d5b1d"
+      },
+      {
+        "known_at_ms": 1793179336411,
+        "row": [
+          1793152800000,
+          7.1213,
+          7.1591,
+          7.0944,
+          7.112,
+          8572.983207
+        ],
+        "source_sha256": "ed25a07f3122e116b53419af7a27545144b02a899db1f31a923472cb060d5b1d"
+      },
+      {
+        "known_at_ms": 1793179336411,
+        "row": [
+          1793156400000,
+          7.1089,
+          7.1511,
+          7.1026,
+          7.121,
+          5011.113895
+        ],
+        "source_sha256": "ed25a07f3122e116b53419af7a27545144b02a899db1f31a923472cb060d5b1d"
+      },
+      {
+        "known_at_ms": 1793179336411,
+        "row": [
+          1793160000000,
+          7.119,
+          7.2201,
+          7.0985,
+          7.1829,
+          28559.696788
+        ],
+        "source_sha256": "ed25a07f3122e116b53419af7a27545144b02a899db1f31a923472cb060d5b1d"
+      },
+      {
+        "known_at_ms": 1793179336411,
+        "row": [
+          1793163600000,
+          7.182,
+          7.1996,
+          7.1508,
+          7.166,
+          20676.092893
+        ],
+        "source_sha256": "ed25a07f3122e116b53419af7a27545144b02a899db1f31a923472cb060d5b1d"
+      }
+    ],
+    "WIF": [
+      {
+        "known_at_ms": 1793179336469,
+        "row": [
+          1793145600000,
+          0.17968,
+          0.17975,
+          0.17879,
+          0.17931,
+          6019.53
+        ],
+        "source_sha256": "35c8a440635d4a7565b2c8c6148fea61163f934d1de9acc053efb4eff731e713"
+      },
+      {
+        "known_at_ms": 1793179336469,
+        "row": [
+          1793149200000,
+          0.17931,
+          0.18201,
+          0.17903,
+          0.18181,
+          53925.83
+        ],
+        "source_sha256": "35c8a440635d4a7565b2c8c6148fea61163f934d1de9acc053efb4eff731e713"
+      },
+      {
+        "known_at_ms": 1793179336469,
+        "row": [
+          1793152800000,
+          0.18198,
+          0.18263,
+          0.18143,
+          0.18147,
+          40828.78
+        ],
+        "source_sha256": "35c8a440635d4a7565b2c8c6148fea61163f934d1de9acc053efb4eff731e713"
+      },
+      {
+        "known_at_ms": 1793179336469,
+        "row": [
+          1793156400000,
+          0.18147,
+          0.18304,
+          0.18135,
+          0.18175,
+          70542.3
+        ],
+        "source_sha256": "35c8a440635d4a7565b2c8c6148fea61163f934d1de9acc053efb4eff731e713"
+      },
+      {
+        "known_at_ms": 1793179336469,
+        "row": [
+          1793160000000,
+          0.18178,
+          0.18198,
+          0.18077,
+          0.18107,
+          52702.42
+        ],
+        "source_sha256": "35c8a440635d4a7565b2c8c6148fea61163f934d1de9acc053efb4eff731e713"
+      },
+      {
+        "known_at_ms": 1793179336469,
+        "row": [
+          1793163600000,
+          0.18106,
+          0.18106,
+          0.17989,
+          0.17989,
+          3521.48
+        ],
+        "source_sha256": "35c8a440635d4a7565b2c8c6148fea61163f934d1de9acc053efb4eff731e713"
+      }
+    ],
+    "XRP": [
+      {
+        "known_at_ms": 1793179336539,
+        "row": [
+          1793145600000,
+          1.3295,
+          1.3296,
+          1.3243,
+          1.3269,
+          1042235.67334
+        ],
+        "source_sha256": "012fb6b8c5ff9f3d93489411be2436171b22b346309c741455436ac246bee149"
+      },
+      {
+        "known_at_ms": 1793179336539,
+        "row": [
+          1793149200000,
+          1.3272,
+          1.3378,
+          1.3236,
+          1.3366,
+          3471132.227994
+        ],
+        "source_sha256": "012fb6b8c5ff9f3d93489411be2436171b22b346309c741455436ac246bee149"
+      },
+      {
+        "known_at_ms": 1793179336539,
+        "row": [
+          1793152800000,
+          1.3368,
+          1.3424,
+          1.3309,
+          1.3334,
+          2964241.818394
+        ],
+        "source_sha256": "012fb6b8c5ff9f3d93489411be2436171b22b346309c741455436ac246bee149"
+      },
+      {
+        "known_at_ms": 1793179336539,
+        "row": [
+          1793156400000,
+          1.3334,
+          1.3424,
+          1.3312,
+          1.3351,
+          2399270.424128
+        ],
+        "source_sha256": "012fb6b8c5ff9f3d93489411be2436171b22b346309c741455436ac246bee149"
+      },
+      {
+        "known_at_ms": 1793179336539,
+        "row": [
+          1793160000000,
+          1.3351,
+          1.3353,
+          1.3264,
+          1.3269,
+          1143235.169531
+        ],
+        "source_sha256": "012fb6b8c5ff9f3d93489411be2436171b22b346309c741455436ac246bee149"
+      },
+      {
+        "known_at_ms": 1793179336539,
+        "row": [
+          1793163600000,
+          1.327,
+          1.3278,
+          1.3235,
+          1.3237,
+          658243.114252
+        ],
+        "source_sha256": "012fb6b8c5ff9f3d93489411be2436171b22b346309c741455436ac246bee149"
+      }
+    ]
+  },
+  "qualification": "SUPPLIED_RECEIPTS_NOT_AUTHENTICITY_OR_EXECUTION_PROOF",
+  "scoring_authorized": false,
+  "source_authenticity_verified": false,
+  "start_ms": 1793145600000,
+  "status": "INCOMPLETE"
+}

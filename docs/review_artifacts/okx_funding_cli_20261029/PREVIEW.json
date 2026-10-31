@@ -1,0 +1,35 @@
+{
+  "ok": true,
+  "configuration_valid": true,
+  "will_start": false,
+  "funding_pairs": [
+    {
+      "venue": "okx",
+      "symbol": "BTC/USDT:USDT",
+      "inst_id": "BTC-USDT-SWAP"
+    }
+  ],
+  "funding_capture_limits": {
+    "max_requests": 2,
+    "total_timeout_seconds": 30,
+    "request_timeout_seconds": 10,
+    "max_response_bytes": 1048576
+  },
+  "other_stream_row_counts": {
+    "open_interest": 1,
+    "basis": 1,
+    "quotes": 2,
+    "order_books": 1
+  },
+  "other_streams_outside_funding_budget": true,
+  "raw_journal_limits": {
+    "rows": 1,
+    "bytes": 4194304
+  },
+  "plan_sha256": "538bbf1d2bd5824d057fcde96c0f7e60acda024905bcdedcd542117e4de2e79e",
+  "options_sha256": "daf5c2fa8dcfb5fbb8cb51f0bfbf38f5a56d0a94c8bbb6b8487d271152ac70db",
+  "database_path_explicit": true,
+  "database_ownership": "UNVERIFIED",
+  "runtime_state": "UNVERIFIED",
+  "execution_enabled": false
+}

@@ -1,0 +1,141 @@
+{
+  "schema": "companion-cited-precedent-repair-independent-review-v1",
+  "date": "2026-10-25",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "REJECTED",
+  "acceptance_scope": "New offline guard repair only. Rejected against its stated strict citation-binding contract; previous unrelated acceptances are not reopened.",
+  "runtime_state": "INCOMPLETE",
+  "runtime_execution_authorized": false,
+  "source_or_service_fix_performed": false,
+  "blocking_findings": [
+    {
+      "id": "CPR-01",
+      "severity": "P2",
+      "classification": "SHOWN static and reproduced offline",
+      "file": "/Users/baitus/Downloads/crypto-bot-pro/dashboard/services/views/_shared_signals.py",
+      "lines": [
+        423,
+        434,
+        435,
+        436
+      ],
+      "title": "Missing or malformed timestamps satisfy the new binding check",
+      "detail": "Binding equality uses citation.get(key) == row.get(key), but existing _explain_archived_headline_context does not validate keyword timestamps. Removing timestamp from both the keyword_5 and matching past_1 citations yields None == None and exempts the mixed BTC/ETH precedent. Setting both timestamps to [] also exempts it. Both malformed payloads pass the real client normalizer and preserve the precedent, whereas the exact prechange guard rejects them. This contradicts the checkpoint's strict timestamp binding and missing/wrongly typed citation refusal contract.",
+      "reproduction": "Use existing cited fixture for past; remove timestamp from keyword_match document_id 5 and past citation, or set both to []. Current refused(raw,'BTC') is false and normal provider is fallback with the field preserved. Unchanged checks.evaluate rejects both payloads.",
+      "impact_limit": "This is a new malformed-input exemption at client classification, not proof of provenance or runtime trading fail-open. The unchanged evidence verifier remains fail-closed for these cases.",
+      "required_next_proof": "Require explicit presence and appropriate timestamp shape on both sides before applying the new exemption, with negatives for missing, null/non-string and mismatched types/values. No fix performed."
+    },
+    {
+      "id": "CPR-02",
+      "severity": "P2",
+      "classification": "SHOWN static and reproduced offline",
+      "file": "/Users/baitus/Downloads/crypto-bot-pro/dashboard/services/views/_shared_signals.py",
+      "lines": [
+        425,
+        426,
+        427,
+        430
+      ],
+      "title": "Citation uniqueness is checked by type, not citation ID",
+      "detail": "The implementation requires one row with type past/future but never checks whether past_1/future_1 is duplicated elsewhere in evidence. Appending a copy of the bound past citation with the same id past_1 and type news leaves one past-kind row, so the new exemption still applies. The real normalizer accepts this duplicate-ID payload; the exact prechange guard rejects it and the unchanged evidence verifier rejects it. Existing duplicate test appends the same type and therefore misses this cross-type duplicate.",
+      "reproduction": "Use cited past fixture; append {**deepcopy(past_citation), 'type':'news'} retaining id past_1. Current guard returns false, client preserves the mixed-title past field, and evidence_all_true is false.",
+      "impact_limit": "No general foreign-text waiver or accepted end-to-end runtime execution was demonstrated. The gap is against the advertised unambiguous-citation/duplicate-refusal normalization contract.",
+      "required_next_proof": "Establish uniqueness of the selected citation ID across the full evidence collection before exemption and add cross-type duplicate-ID negative coverage. No fix performed."
+    }
+  ],
+  "shown_preservation": {
+    "diff_matches_exact_prechange": true,
+    "prechange_guard_sha256": "d003edac94edbb7d7886901784674e23ed9accae2d42bd69c0a7f6fbc0c9e381",
+    "note": "Parsed exact source member from prechange.tar without extraction; independently regenerated unified diff and matched repair.diff byte-for-byte. Archive also has a macOS AppleDouble metadata member, not another reviewed source delta.",
+    "positive_behavior": "Valid exact repeated archived title now passes both client and unchanged pure verifier in synthetic fixtures. Existing foreign-only title, added narrative, mismatched binding and absent context negatives in requested slice pass.",
+    "unchanged_boundaries": "Only supplied guard source delta reviewed. No verifier, archive/body/witness, retrieval, producer or route change was accepted or performed by this reviewer. Verifier and caller hashes recorded below."
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for local offline tests and pure adversarial fixtures only",
+    "focused_command": "env PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_explain_cited_precedent.py tests/test_explain_headline_context.py tests/test_explain_asset_guard.py tests/test_explain_diagnostics.py tests/test_companion_evidence_checks.py",
+    "focused_result": {
+      "classification": "SHOWN",
+      "passed": 292,
+      "seconds": 11.24,
+      "exit_code": 0,
+      "full_suite_run": false
+    },
+    "adversarial_reproduction": {
+      "classification": "SHOWN",
+      "method": "Invoked existing cited fixture under its socket/subprocess tripwires using pytest.MonkeyPatch. Tested valid control and three malformed variants through current guard, real market_view normalizer and unchanged pure evidence evaluator. Separately compiled only the two original guard functions from exact tar source into an in-memory namespace to compare before/after; no file/source restoration.",
+      "cases": [
+        {
+          "case": "valid",
+          "before_rejected": true,
+          "after_rejected": false,
+          "evidence_all_true": true
+        },
+        {
+          "case": "both_timestamps_missing",
+          "before_rejected": true,
+          "after_rejected": false,
+          "evidence_all_true": false
+        },
+        {
+          "case": "both_timestamps_wrong_type",
+          "before_rejected": true,
+          "after_rejected": false,
+          "evidence_all_true": false
+        },
+        {
+          "case": "duplicate_id_other_kind",
+          "before_rejected": true,
+          "after_rejected": false,
+          "evidence_all_true": false
+        }
+      ],
+      "normalizer_result_for_malformed": "provider fallback and original mixed-title field preserved for all three malformed variants."
+    },
+    "parent_before_patch": {
+      "classification": "CLAIMED in checkpoint; full prechange pytest run not rerun",
+      "result": "2 failed / 58 passed; positive past/future cases"
+    },
+    "tests_do_not_establish": "Actual missing runtime prose replay, installed source, live DB lineage, causal relevance, service readiness or operational safety.",
+    "native_operations": 0,
+    "network_operations": 0,
+    "credential_access": 0,
+    "service_operations": 0
+  },
+  "hashes": {
+    "dashboard/services/views/_shared_signals.py": "faca0d7de8e59d3b847068f4060a44bc70a49394793573d551e7ccdc8a7b0ec3",
+    "tests/test_explain_cited_precedent.py": "d69e30d34bad3772fcf98136c905d56ef6c59efed8496b38fdf5c1936c34314b",
+    "docs/checkpoints/companion_cited_precedent_repair_20261025.md": "b4a7f8efd90860f83a4526743c1333d7ab6e3fa6fdeff146e41a6fecccd694b0",
+    "docs/review_artifacts/companion_cited_precedent_repair_20261025/prechange.tar": "6863ea10e5d098c260e94bf41dc905f2db5f6e76451f683f3ac9408c21c20a4f",
+    "docs/review_artifacts/companion_cited_precedent_repair_20261025/repair.diff": "51e642ec30d04d9ba8395eb3a066cfe34c02d27048991f1462cf0b50ff728e81",
+    "tests/test_explain_headline_context.py": "1d397d9ab00ace5d477da8f357dcdcea52c7dec325ca845194a9f3edeb4c738b",
+    "tests/test_explain_asset_guard.py": "b2136972cc253d10bf14cf76f3b074c468f6f7066f2d943182cae07e16e68f62",
+    "tests/test_explain_diagnostics.py": "508e912012fd08e4fca5d858e215046dec66b220677f9997b72ffc8b6912ffd3",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75"
+  },
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "read_scope": {
+    "complete": [
+      "docs/checkpoints/companion_cited_precedent_repair_20261025.md",
+      "docs/review_artifacts/companion_cited_precedent_repair_20261025/repair.diff",
+      "tests/test_explain_cited_precedent.py"
+    ],
+    "selected_current_context": [
+      "dashboard/services/views/_shared_signals.py:366-441 existing labelled-context helper and changed guard",
+      "dashboard/services/views/market_view.py explain normalizer (unchanged caller, reviewed in immediately preceding failure review)",
+      "scripts/research/companion_evidence_checks.py:94-120 citation shape/timestamp checks",
+      "tests/conftest.py configuration/collection behavior"
+    ],
+    "prior_source": "Exact complete _shared_signals.py tar member read for diff comparison; only two relevant original functions evaluated in memory. Older dirty edits not treated as part of this repair."
+  },
+  "limitations": [
+    "These findings concern classification's promised narrow input contract, not a claim that the financial/runtime verifier can be bypassed. All malformed challenges were rejected by that separate verifier.",
+    "Archived-original and no-market fixtures remain substitutes for DB and live-market state; saved citation selection 5,47,18,5,26 is synthetic construction, not reconstruction of missing response prose. Existing witness approvals are unchanged.",
+    "Old hash-bound guard packets/diagnostic snapshots do not bind this changed source and remain unsuitable as current executable inputs. No packet, reservation, receipt, policy or identity refreshed/reset.",
+    "Only this independent_review.json written. No source/test/doc/worklog changes, repairs, market-data runs or follow-on runtime actions."
+  ],
+  "next_gate": "Resolve the two strict-binding gaps and obtain a new bounded independent review before accepting this high-risk offline repair. No runtime approval follows."
+}

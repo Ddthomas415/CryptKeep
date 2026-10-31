@@ -1,0 +1,38 @@
+{
+  "schema": "companion-engine-compatibility-review-v1",
+  "reviewed_at_utc": "2026-10-21T01:47:26Z",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Offline exact-engine allowlist delta only; previously reviewed backend changes excluded",
+  "findings": [],
+  "reviewed_sha256": {
+    "scripts/research/companion_install_docker.py": "ca2e74fcf9d3869f7c3ed27e69721cd12615f41cc2687ea0844b314250814220",
+    "tests/test_companion_installer.py": "a302a1136e4392bbd7cca3f33b10f936ca14ba5066d3f3c624361450a48b9ab2",
+    "docs/review_artifacts/companion_continuation_20261020/engine_build_probe_20261020/report.json": "df295bbeee773f6b951e3c0bde6aab2405ae191ef56bfa1dd6045abc5e50a810"
+  },
+  "shown": [
+    "Removing only the added comment/REVIEWED_ENGINES tuple and restoring the prior equality guard reproduces previously reviewed backend SHA256 5202088f6a7a79ddbc6df7a6b9cf6be9b28419cb422f7bd92822342713614038",
+    "Only exact version/commit dictionaries 29.8.2/8af9fe3 and 29.9.1/b26fb77 pass the builder gate; missing/extra fields, swapped commits, unreviewed versions and malformed response shapes refuse",
+    "Engine verification still precedes private preparation and build; enabled/child-context, CLI identity, endpoint, empty config and transport restrictions are unchanged",
+    "Both exact pairs pass the synthetic minimal-context/no-RUN build test",
+    "Previously accepted native evidence for the added pair covers one local base and one public COPY layer only"
+  ],
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_installer.py -k 'source_only_build_uses_minimal_context_and_no_run or unreviewed_engine_refused_before_private_prepare_or_build or install_transport_forces_legacy_builder_without_host_environment or missing_local_parent_stops_before_build_and_any_tag'",
+    "exit_code": 0,
+    "result": "17 passed, 91 deselected in 0.41s",
+    "diff_check_command": "git diff --check -- scripts/research/companion_install_docker.py tests/test_companion_installer.py",
+    "diff_check_exit_code": 0,
+    "source_and_test_hashes_rechecked_after_tests": true
+  },
+  "limitations": [
+    "Additional engine support deliberately widens only the exact engine identity gate; it does not grant operational authorization",
+    "Full native installer, multi-source/multi-base builds, SDK/import behavior, replacement metadata, storage preservation and cutover remain UNVERIFIED by this review",
+    "Synthetic tests are not additional native compatibility evidence",
+    "No candidate packet is approved and no preparation, startup, build rerun or cutover is authorized by this receipt"
+  ],
+  "reviewer_native_operations": false,
+  "reviewer_credential_reads": false,
+  "reviewed_source_or_tests_edited": false
+}

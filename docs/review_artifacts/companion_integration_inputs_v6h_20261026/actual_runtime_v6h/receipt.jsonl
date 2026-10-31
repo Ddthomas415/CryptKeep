@@ -1,0 +1,98 @@
+{"installation_evidence": {"manifest_sha256": "d11fccb5e4f7c46e7d726704c9b75c400a1482eab5d1b840027d876a5837f047", "preparation_evidence_sha256": "950b09d049a7f6a01f91352cb8ff12e1edecedfcf523c13fc75d39e9f25b805d", "preparation_review_sha256": "fc18b363eb94a324e3d91500b967a7709ad70fa6635a100b2ab2bb1fda30a79f", "runtime_review_sha256": "ed4b60bf40c7d55fe8f603a4d92c3211902b6f47340403211b0c04cfb63d2f1c"}, "phase": "cutover_inputs_bound"}
+{"installation_evidence": {"deferred_startup_policies": ["sdk_startup_compatible", "source_imports_frozen"], "network_connectivity_verified": false, "network_contract": "configured-network-v1", "startup_authorized": true}, "phase": "installation_reserved"}
+{"installation_evidence": {"operation": "staged_checks"}, "phase": "runtime_operation_intended"}
+{"installation_evidence": {"operation": "storage_checks"}, "phase": "runtime_operation_intended"}
+{"phase": "quiesce_intended", "target": "phase1-orchestrator"}
+{"installation_evidence": {"command_acknowledged": true, "command_attempted": true, "confirmed": true, "schema": "companion-quiesce-report-v1", "stage": "exit_verified"}, "phase": "quiesce_diagnostic", "target": "phase1-orchestrator"}
+{"phase": "quiesce_confirmed", "target": "phase1-orchestrator"}
+{"phase": "quiesce_intended", "target": "phase1-memory"}
+{"installation_evidence": {"command_acknowledged": true, "command_attempted": true, "confirmed": true, "schema": "companion-quiesce-report-v1", "stage": "exit_verified"}, "phase": "quiesce_diagnostic", "target": "phase1-memory"}
+{"phase": "quiesce_confirmed", "target": "phase1-memory"}
+{"phase": "quiesce_intended", "target": "phase1-risk-stub"}
+{"installation_evidence": {"command_acknowledged": true, "command_attempted": true, "confirmed": true, "schema": "companion-quiesce-report-v1", "stage": "exit_verified"}, "phase": "quiesce_diagnostic", "target": "phase1-risk-stub"}
+{"phase": "quiesce_confirmed", "target": "phase1-risk-stub"}
+{"phase": "quiesce_intended", "target": "phase1-audit-log"}
+{"installation_evidence": {"command_acknowledged": true, "command_attempted": true, "confirmed": true, "schema": "companion-quiesce-report-v1", "stage": "exit_verified"}, "phase": "quiesce_diagnostic", "target": "phase1-audit-log"}
+{"phase": "quiesce_confirmed", "target": "phase1-audit-log"}
+{"phase": "rename_intended", "target": "phase1-audit-log"}
+{"phase": "detach_intended", "target": "phase1-audit-log"}
+{"phase": "disconnect_staged_intended", "target": "phase1-audit-log"}
+{"phase": "rename_staged_intended", "target": "phase1-audit-log"}
+{"phase": "connect_staged_intended", "target": "phase1-audit-log"}
+{"installation_evidence": {"checks": {"attempt_matches": true, "created": true, "image_matches": true, "metadata_matches": true, "network_ids_match": true, "never_started": true, "new_identity": true, "present": true, "restart_disabled": true, "zero_restarts": true}}, "phase": "replacement_checks", "target": "phase1-audit-log"}
+{"phase": "rename_intended", "target": "phase1-risk-stub"}
+{"phase": "detach_intended", "target": "phase1-risk-stub"}
+{"phase": "disconnect_staged_intended", "target": "phase1-risk-stub"}
+{"phase": "rename_staged_intended", "target": "phase1-risk-stub"}
+{"phase": "connect_staged_intended", "target": "phase1-risk-stub"}
+{"installation_evidence": {"checks": {"attempt_matches": true, "created": true, "image_matches": true, "metadata_matches": true, "network_ids_match": true, "never_started": true, "new_identity": true, "present": true, "restart_disabled": true, "zero_restarts": true}}, "phase": "replacement_checks", "target": "phase1-risk-stub"}
+{"phase": "rename_intended", "target": "phase1-memory"}
+{"phase": "detach_intended", "target": "phase1-memory"}
+{"phase": "disconnect_staged_intended", "target": "phase1-memory"}
+{"phase": "rename_staged_intended", "target": "phase1-memory"}
+{"phase": "connect_staged_intended", "target": "phase1-memory"}
+{"installation_evidence": {"checks": {"attempt_matches": true, "created": true, "image_matches": true, "metadata_matches": true, "network_ids_match": true, "never_started": true, "new_identity": true, "present": true, "restart_disabled": true, "zero_restarts": true}}, "phase": "replacement_checks", "target": "phase1-memory"}
+{"phase": "rename_intended", "target": "phase1-orchestrator"}
+{"phase": "detach_intended", "target": "phase1-orchestrator"}
+{"phase": "disconnect_staged_intended", "target": "phase1-orchestrator"}
+{"phase": "rename_staged_intended", "target": "phase1-orchestrator"}
+{"phase": "connect_staged_intended", "target": "phase1-orchestrator"}
+{"installation_evidence": {"checks": {"attempt_matches": true, "created": true, "image_matches": true, "metadata_matches": true, "network_ids_match": true, "never_started": true, "new_identity": true, "present": true, "restart_disabled": true, "zero_restarts": true}}, "phase": "replacement_checks", "target": "phase1-orchestrator"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"installation_evidence": {"operation": "configured_compatibility"}, "phase": "runtime_operation_intended"}
+{"installation_evidence": {"checks": {"effective_config": true, "entrypoint_side_effects": true, "installed_source": true, "no_model": true, "no_proxy_redirect": true, "no_trading": true, "read_only_startup": true, "recipient_bindings": true, "zero_retries": true}, "false_meaning": "not_established_or_not_evaluated", "precondition": {"predicate": "complete", "target": null}, "recipient_diagnostic": null, "shape_valid": true}, "phase": "runtime_compatibility_checks"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"installation_evidence": {"operation": "storage_checks"}, "phase": "runtime_operation_intended"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"phase": "replacement_start_intended", "target": "phase1-audit-log"}
+{"installation_evidence": {"operation": "start"}, "phase": "runtime_operation_intended"}
+{"phase": "replacement_start_confirmed", "target": "phase1-audit-log"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"phase": "replacement_start_intended", "target": "phase1-risk-stub"}
+{"installation_evidence": {"operation": "start"}, "phase": "runtime_operation_intended"}
+{"phase": "replacement_start_confirmed", "target": "phase1-risk-stub"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"phase": "replacement_start_intended", "target": "phase1-memory"}
+{"installation_evidence": {"operation": "start"}, "phase": "runtime_operation_intended"}
+{"phase": "replacement_start_confirmed", "target": "phase1-memory"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"phase": "replacement_start_intended", "target": "phase1-orchestrator"}
+{"installation_evidence": {"operation": "start"}, "phase": "runtime_operation_intended"}
+{"phase": "replacement_start_confirmed", "target": "phase1-orchestrator"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"installation_evidence": {"operation": "recipient_checks"}, "phase": "runtime_operation_intended"}
+{"installation_evidence": {"operation": "health_checks"}, "phase": "runtime_operation_intended"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"phase": "query_intended"}
+{"installation_evidence": {"operation": "explain"}, "phase": "runtime_operation_intended"}
+{"installation_evidence": {"events": [{"http_status": null, "outcome": "invalid_envelope", "route": "primary", "stage": "normalization"}, {"http_status": 200, "outcome": "json_received", "response": {"citation_hashes": [{"document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d", "id_sha256": "825276fb323c14aef5c371e7dc39b1158c25e4a7b9976e286a347ccf297922e5", "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"}, {"document_id_sha256": "31489056e0916d59fe3add79e63f095af3ffb81604691f21cad442a85c7be617", "id_sha256": "49341020decbee6f365158982a614e5ae37ff18d068bda1a5a45f554e1ebeab6", "url_sha256": "905a2486b2d6798bd88b20752f70caf1c26aaa888b8d0e140725b211fe2d43a1"}, {"document_id_sha256": "4ec9599fc203d176a301536c2e091a19bc852759b255bd6818810a42c5fed14a", "id_sha256": "baf4de69ae88907bd367263971763358552c0629455442e1851ed807dc22c2ff", "url_sha256": "bfabd7b098affda17a79049561d66a17b9ceca608c86750a78e6d2cd68ee94c6"}, {"document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d", "id_sha256": "94587d9b898f590a8230c11090a6a90f32de5c8cf0a5122220125d1bc3222144", "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"}, {"document_id_sha256": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca", "id_sha256": "947c4f24610e0afd195f267195fddc938be21ea9e91ed3d6a78fd823d0258d87", "url_sha256": "2b23da7df1f127f8bd59c2b526d09a60fd9b7f20eb855589321f2a0adb08e8a0"}], "evidence_count": 5, "execution_disabled": true, "fields_present": ["current_cause", "past_precedent", "future_catalyst", "evidence", "assistant_status", "execution_disabled"], "provider": "fallback", "shape": "object"}, "route": "companion", "stage": "transport"}, {"http_status": null, "outcome": "accepted", "response": {"citation_hashes": [{"document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d", "id_sha256": "825276fb323c14aef5c371e7dc39b1158c25e4a7b9976e286a347ccf297922e5", "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"}, {"document_id_sha256": "31489056e0916d59fe3add79e63f095af3ffb81604691f21cad442a85c7be617", "id_sha256": "49341020decbee6f365158982a614e5ae37ff18d068bda1a5a45f554e1ebeab6", "url_sha256": "905a2486b2d6798bd88b20752f70caf1c26aaa888b8d0e140725b211fe2d43a1"}, {"document_id_sha256": "4ec9599fc203d176a301536c2e091a19bc852759b255bd6818810a42c5fed14a", "id_sha256": "baf4de69ae88907bd367263971763358552c0629455442e1851ed807dc22c2ff", "url_sha256": "bfabd7b098affda17a79049561d66a17b9ceca608c86750a78e6d2cd68ee94c6"}, {"document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d", "id_sha256": "94587d9b898f590a8230c11090a6a90f32de5c8cf0a5122220125d1bc3222144", "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"}, {"document_id_sha256": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca", "id_sha256": "947c4f24610e0afd195f267195fddc938be21ea9e91ed3d6a78fd823d0258d87", "url_sha256": "2b23da7df1f127f8bd59c2b526d09a60fd9b7f20eb855589321f2a0adb08e8a0"}], "evidence_count": 5, "execution_disabled": true, "fields_present": ["current_cause", "past_precedent", "future_catalyst", "evidence", "assistant_status", "execution_disabled"], "provider": "fallback", "shape": "object"}, "route": "companion", "stage": "normalization"}]}, "phase": "query_diagnostics"}
+{"installation_evidence": {"operation": "verify_evidence_diagnostic"}, "phase": "runtime_operation_intended"}
+{"installation_evidence": {"checks": {"article_view_mapping": false, "causal_limits": false, "content_hash": false, "persisted_identity": false, "topical_support": false}, "diagnostic": {"code": "rejected", "stage": "bundle_market"}, "false_meaning": "not_established_or_not_evaluated", "outcome": "complete", "shape_valid": true}, "phase": "evidence_verification_checks"}
+{"installation_evidence": {"stage": "runtime_verification"}, "phase": "installation_failed"}
+{"installation_evidence": {"events": [{"http_status": null, "outcome": "invalid_envelope", "route": "primary", "stage": "normalization"}, {"http_status": 200, "outcome": "json_received", "response": {"citation_hashes": [{"document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d", "id_sha256": "825276fb323c14aef5c371e7dc39b1158c25e4a7b9976e286a347ccf297922e5", "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"}, {"document_id_sha256": "31489056e0916d59fe3add79e63f095af3ffb81604691f21cad442a85c7be617", "id_sha256": "49341020decbee6f365158982a614e5ae37ff18d068bda1a5a45f554e1ebeab6", "url_sha256": "905a2486b2d6798bd88b20752f70caf1c26aaa888b8d0e140725b211fe2d43a1"}, {"document_id_sha256": "4ec9599fc203d176a301536c2e091a19bc852759b255bd6818810a42c5fed14a", "id_sha256": "baf4de69ae88907bd367263971763358552c0629455442e1851ed807dc22c2ff", "url_sha256": "bfabd7b098affda17a79049561d66a17b9ceca608c86750a78e6d2cd68ee94c6"}, {"document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d", "id_sha256": "94587d9b898f590a8230c11090a6a90f32de5c8cf0a5122220125d1bc3222144", "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"}, {"document_id_sha256": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca", "id_sha256": "947c4f24610e0afd195f267195fddc938be21ea9e91ed3d6a78fd823d0258d87", "url_sha256": "2b23da7df1f127f8bd59c2b526d09a60fd9b7f20eb855589321f2a0adb08e8a0"}], "evidence_count": 5, "execution_disabled": true, "fields_present": ["current_cause", "past_precedent", "future_catalyst", "evidence", "assistant_status", "execution_disabled"], "provider": "fallback", "shape": "object"}, "route": "companion", "stage": "transport"}, {"http_status": null, "outcome": "accepted", "response": {"citation_hashes": [{"document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d", "id_sha256": "825276fb323c14aef5c371e7dc39b1158c25e4a7b9976e286a347ccf297922e5", "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"}, {"document_id_sha256": "31489056e0916d59fe3add79e63f095af3ffb81604691f21cad442a85c7be617", "id_sha256": "49341020decbee6f365158982a614e5ae37ff18d068bda1a5a45f554e1ebeab6", "url_sha256": "905a2486b2d6798bd88b20752f70caf1c26aaa888b8d0e140725b211fe2d43a1"}, {"document_id_sha256": "4ec9599fc203d176a301536c2e091a19bc852759b255bd6818810a42c5fed14a", "id_sha256": "baf4de69ae88907bd367263971763358552c0629455442e1851ed807dc22c2ff", "url_sha256": "bfabd7b098affda17a79049561d66a17b9ceca608c86750a78e6d2cd68ee94c6"}, {"document_id_sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d", "id_sha256": "94587d9b898f590a8230c11090a6a90f32de5c8cf0a5122220125d1bc3222144", "url_sha256": "0b7fc67feaca8525f343cc139bab993176ec08356f4df1806ae5107e617ab94d"}, {"document_id_sha256": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca", "id_sha256": "947c4f24610e0afd195f267195fddc938be21ea9e91ed3d6a78fd823d0258d87", "url_sha256": "2b23da7df1f127f8bd59c2b526d09a60fd9b7f20eb855589321f2a0adb08e8a0"}], "evidence_count": 5, "execution_disabled": true, "fields_present": ["current_cause", "past_precedent", "future_catalyst", "evidence", "assistant_status", "execution_disabled"], "provider": "fallback", "shape": "object"}, "route": "companion", "stage": "normalization"}]}, "phase": "query_failure_diagnostics"}
+{"phase": "replacement_quiesce_intended", "target": "phase1-orchestrator"}
+{"phase": "remove_stopped_replacement_intended", "target": "phase1-orchestrator"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"phase": "restore_name_intended", "target": "phase1-orchestrator"}
+{"phase": "restore_network_intended", "target": "phase1-orchestrator"}
+{"phase": "replacement_quiesce_intended", "target": "phase1-memory"}
+{"phase": "remove_stopped_replacement_intended", "target": "phase1-memory"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"phase": "restore_name_intended", "target": "phase1-memory"}
+{"phase": "restore_network_intended", "target": "phase1-memory"}
+{"phase": "replacement_quiesce_intended", "target": "phase1-risk-stub"}
+{"phase": "remove_stopped_replacement_intended", "target": "phase1-risk-stub"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"phase": "restore_name_intended", "target": "phase1-risk-stub"}
+{"phase": "restore_network_intended", "target": "phase1-risk-stub"}
+{"phase": "replacement_quiesce_intended", "target": "phase1-audit-log"}
+{"phase": "remove_stopped_replacement_intended", "target": "phase1-audit-log"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"phase": "restore_name_intended", "target": "phase1-audit-log"}
+{"phase": "restore_network_intended", "target": "phase1-audit-log"}
+{"phase": "restart_original_intended", "target": "phase1-audit-log"}
+{"phase": "restart_original_intended", "target": "phase1-risk-stub"}
+{"phase": "restart_original_intended", "target": "phase1-memory"}
+{"phase": "restart_original_intended", "target": "phase1-orchestrator"}
+{"installation_evidence": {"operation": "inventory"}, "phase": "runtime_operation_intended"}
+{"installation_evidence": {"configuration_restored": true, "exact_baseline_restored": false, "network_connectivity_verified": false}, "phase": "rollback_checks_completed"}

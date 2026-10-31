@@ -1,0 +1,16 @@
+--- installed.plist
++++ proposed.plist
+@@ -33,11 +33,11 @@
+ 	<key>RunAtLoad</key>
+ 	<false/>
+ 	<key>StandardErrorPath</key>
+-	<string>/Users/baitus/Downloads/crypto-bot-pro/research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/scheduler.stderr.log</string>
++	<string>/Users/baitus/Library/Logs/CryptKeep/ed002_public_inputs_mac_pilot_20261028t1035z/scheduler.stderr.log</string>
+ 	<key>StandardInPath</key>
+ 	<string>/dev/null</string>
+ 	<key>StandardOutPath</key>
+-	<string>/Users/baitus/Downloads/crypto-bot-pro/research/ed002_public_inputs/pilots/mac_pilot_20261028t1035z/scheduler.stdout.log</string>
++	<string>/Users/baitus/Library/Logs/CryptKeep/ed002_public_inputs_mac_pilot_20261028t1035z/scheduler.stdout.log</string>
+ 	<key>StartCalendarInterval</key>
+ 	<array>
+ 		<dict>

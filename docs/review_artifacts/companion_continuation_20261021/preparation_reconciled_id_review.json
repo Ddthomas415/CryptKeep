@@ -1,0 +1,7 @@
+{
+  "schema": "companion-preparation-review-v1",
+  "decision": "ACCEPTED_WITH_RISK",
+  "reviewer": "Codex independent GATE, exact modeled-expectation reconciliation 2026-10-21; no operational authorization",
+  "manifest_sha256": "b9594f55b7d409d5815ea318de68c0391943dcafe919326ebedb143821627b11",
+  "evidence_sha256": "a8ba9af67beb156b292fd133ad23155a1ad9443889aec4e003f4841f0a7357b8"
+}

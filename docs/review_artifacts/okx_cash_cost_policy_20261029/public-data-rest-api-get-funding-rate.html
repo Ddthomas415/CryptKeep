@@ -1,0 +1,157 @@
+<h3 id='public-data-rest-api-get-funding-rate'>Get funding rate</h3>
+<p>Retrieve funding rate.</p>
+<h4 id='public-data-rest-api-get-funding-rate-rate-limit-10-requests-per-2-seconds'>Rate Limit: 10 requests per 2 seconds</h4><h4 id='public-data-rest-api-get-funding-rate-rate-limit-rule-ip-instrument-id'>Rate limit rule: IP + Instrument ID</h4><h4 id='public-data-rest-api-get-funding-rate-http-request'>HTTP Request</h4>
+<p><code>GET /api/v5/public/funding-rate</code></p>
+
+<blockquote>
+<p>Request Example</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>GET /api/v5/public/funding-rate?instId<span class="o">=</span>BTC-USD-SWAP
+</code></pre></div><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">okx.PublicData</span> <span class="k">as</span> <span class="n">PublicData</span>
+
+<span class="n">flag</span> <span class="o">=</span> <span class="s">"0"</span>  <span class="c1"># Production trading: 0, Demo trading: 1
+</span>
+<span class="n">publicDataAPI</span> <span class="o">=</span> <span class="n">PublicData</span><span class="p">.</span><span class="n">PublicAPI</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="n">flag</span><span class="p">)</span>
+
+<span class="c1"># Retrieve funding rate
+</span><span class="n">result</span> <span class="o">=</span> <span class="n">publicDataAPI</span><span class="p">.</span><span class="n">get_funding_rate</span><span class="p">(</span>
+    <span class="n">instId</span><span class="o">=</span><span class="s">"BTC-USD-SWAP"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</code></pre></div><h4 id='public-data-rest-api-get-funding-rate-request-parameters'>Request Parameters</h4>
+<table><thead>
+<tr>
+<th style="text-align: left">Parameter</th>
+<th style="text-align: left">Type</th>
+<th style="text-align: left">Required</th>
+<th style="text-align: left">Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left">instId</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Yes</td>
+<td style="text-align: left">Instrument ID, e.g. <code>BTC-USD-SWAP</code> or X-Perps futures instId, or <code>ANY</code> to return the funding rate info of all perpetual and X-Perps futures contracts<br>Applicable to <code>SWAP</code> and X-Perps <code>FUTURES</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response Example</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"formulaType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"noRate"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"fundingRate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0000182221218054"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"fundingTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1743609600000"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"impactValue"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"instId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BTC-USDT-SWAP"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"instType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SWAP"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"interestRate"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"maxFundingRate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.00375"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"current_period"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"minFundingRate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-0.00375"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"nextFundingRate"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"nextFundingTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1743638400000"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"premium"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0000910113652644"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"settFundingRate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0000145824401745"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"settState"</span><span class="p">:</span><span class="w"> </span><span class="s2">"settled"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"ts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1743588686291"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"msg"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div><h4 id='public-data-rest-api-get-funding-rate-response-parameters'>Response Parameters</h4>
+<table><thead>
+<tr>
+<th style="text-align: left"><strong>Parameter</strong></th>
+<th style="text-align: left"><strong>Type</strong></th>
+<th style="text-align: left"><strong>Description</strong></th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left">instType</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Instrument type<br><code>SWAP</code>: Perpetual futures<br><code>FUTURES</code>: X-Perps futures</td>
+</tr>
+<tr>
+<td style="text-align: left">instId</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Instrument ID, e.g. <code>BTC-USD-SWAP</code> or <code>ANY</code></td>
+</tr>
+<tr>
+<td style="text-align: left">method</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Funding rate mechanism <br><code>current_period</code> <del><br><code>next_period</code></del>(no longer supported)</td>
+</tr>
+<tr>
+<td style="text-align: left">formulaType</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Formula type<br><code>noRate</code>: old funding rate formula<br><code>withRate</code>: new funding rate formula</td>
+</tr>
+<tr>
+<td style="text-align: left">fundingRate</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Predicted funding rate for the upcoming settlement period. Sign: positive = long positions pay short positions at the next <code>fundingTime</code>; negative = short positions pay long positions. This is a forecast — the final settled rate may differ. See <code>settFundingRate</code> for the last settled rate. Note: the settlement interval is typically 8 hours but may be adjusted; use the difference between <code>fundingTime</code> and <code>nextFundingTime</code> to determine the actual interval.</td>
+</tr>
+<tr>
+<td style="text-align: left">nextFundingRate</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left"><del>Forecasted funding rate for the next period <br>The nextFundingRate will be &quot;&quot; if the method is <code>current_period</code></del>(no longer supported)</td>
+</tr>
+<tr>
+<td style="text-align: left">fundingTime</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Settlement time, Unix timestamp format in milliseconds, e.g. <code>1597026383085</code></td>
+</tr>
+<tr>
+<td style="text-align: left">nextFundingTime</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Forecasted funding time for the next period , Unix timestamp format in milliseconds, e.g. <code>1597026383085</code></td>
+</tr>
+<tr>
+<td style="text-align: left">minFundingRate</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">The lower limit of the funding rate</td>
+</tr>
+<tr>
+<td style="text-align: left">maxFundingRate</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">The upper limit of the funding rate</td>
+</tr>
+<tr>
+<td style="text-align: left">interestRate</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Interest rate</td>
+</tr>
+<tr>
+<td style="text-align: left">impactValue</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Depth weighted amount (in the unit of quote currency)</td>
+</tr>
+<tr>
+<td style="text-align: left">settState</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Settlement state of funding rate <br><code>processing</code> <br><code>settled</code></td>
+</tr>
+<tr>
+<td style="text-align: left">settFundingRate</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">If settState = <code>processing</code>, it is the funding rate that is being used for current settlement cycle. <br>If settState = <code>settled</code>, it is the funding rate that is being used for previous settlement cycle</td>
+</tr>
+<tr>
+<td style="text-align: left">premium</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Premium index<br> formula: [Max (0, Impact bid price – Index price) – Max (0, Index price – Impact ask price)] / Index price</td>
+</tr>
+<tr>
+<td style="text-align: left">ts</td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Data return time, Unix timestamp format in milliseconds, e.g. <code>1597026383085</code></td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+For some altcoins perpetual swaps with significant fluctuations in funding rates, OKX will closely monitor market changes. When necessary, the funding rate collection frequency, currently set at 8 hours, may be adjusted to higher frequencies such as 6 hours, 4 hours, 2 hours, or 1 hour. Thus, users should focus on the difference between `fundingTime` and `nextFundingTime` fields to determine the funding fee interval of a contract.
+</aside>

@@ -1,0 +1,857 @@
+{
+  "schema": "companion-v6c-actual-stopped-preparation-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Actual v6c stopped preparation evidence, exact IDs/images, saved snapshots, current temporary aliases and 43 application source witnesses only. Not runtime policy applicability or permission to operate.",
+  "runtime_status": "INCOMPLETE",
+  "blocking_findings": [],
+  "material_assumptions": [],
+  "source_and_artifact_sha256": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/operation_outcome.json": "9c89588464d0e307aee72170ab209cad6176bdcbcac43bbe711b32cd8821cbbc",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/preparation_evidence.json": "9f52a511c6b86f3009712f88515087cf20bd117534877e71ec5ebeae6b80dfb9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/preparation_receipt.jsonl": "f4ddc5d5b5bd089cf22bbb5e5ef9d74f662d666f80aadd07f3e076a23af1835c",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/postcheck.json": "33c14d296ba35227d4ed3299f7a4f1731394b0c72332b1aaefaa7efc0aa7108e",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/staged_metadata.json": "c44711bf215f395fca2483fade7af43ae4075e2823faed057110adbd76282704",
+    "docs/checkpoints/companion_v6c_preparation_result_20261023.md": "366e5dba87e6c93d57429f465ce13e3bf24097691d7d957e03c6e29902eb7635",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/reviewed_preparation_manifest.json": "e20775accd2ea02ac16d258ead2fb58e5ba1b6d26ff003ba10492dc6d442b6b9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/independent_review.json": "6bcf752e347ecae8ebfa42f8863701195025a9bed0e7e2ffadae04e4d64584ad",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/provenance.json": "b2d6496eff557543b3b7464bb0d0ebc044a502445a80c1d585f5e1c1e871ef1b",
+    "docs/review_artifacts/companion_worker_preparation_20261023/active_network_correction/independent_review.json": "0484cdde9dec89b2a22f91aa4082cbe2782caa10318b5ad027363a6feac9bacc",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/subjects.draft.json": "0e6cfcc5bdf823659cf6d1f17aab0a961267d9d881e317b62dfa280141402107"
+  },
+  "consumer_sha256": {
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "4c684b1766fcb2e21b3dc1c03cbe5aa607694f63b9d64c512a19ad6c11792b17",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "dcc33a6d454c7d6f9970103ad331d97cd88f2a8023f321cd381a729d2e05f7c7",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+  },
+  "attempt": {
+    "id": "workerprep20261023v6c",
+    "status": "Consumed by the single saved successful preparation invocation. Must not rerun or reset.",
+    "recorded_invocations": 1,
+    "recorded_session_id": 93011,
+    "recorded_exit_code": 0,
+    "automatic_retry": false,
+    "preparation_complete": true,
+    "services_started": false,
+    "originals_interrupted": false,
+    "startup_authorized": false
+  },
+  "verification": {
+    "evidence_classification": "SHOWN from saved artifacts and independent pure recomputation; not reviewer-native verification",
+    "checkpoint_read_completely": true,
+    "frozen_artifact_hashes_verified": 5,
+    "consumer_hashes_verified": 13,
+    "selected_rows_before_after_equal": 11,
+    "original_snapshots_equal_accepted_baseline": 7,
+    "stage_snapshots_equal_preparation_evidence": 4,
+    "staged_metadata_rows_equal_selected_capture_rows": 4,
+    "original_snapshots": [
+      {
+        "name": "phase1-timescaledb",
+        "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+        "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+        "snapshot_equals_accepted_baseline": true,
+        "raw_metadata_sha256": "93cdf0d7d6d20661a725759d50b301da4a66dc417420d8a94ce26980c0a41cb8",
+        "configured_metadata_sha256": "6bf915cc8f9d5d22b2167ff4d0d50327021190617699a825a193ab1cfab341b4",
+        "foundation_sha256": "183874266013ae3c90e3ab4985755814e5a32081f1b7f1d04a7bd07ae7801732"
+      },
+      {
+        "name": "phase1-qdrant",
+        "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+        "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+        "snapshot_equals_accepted_baseline": true,
+        "raw_metadata_sha256": "4f51ad0eddc6747c5ba8414c8aec7a7df7c4d514bd3b87d9df2f72287ca82d7b",
+        "configured_metadata_sha256": "ba696e8f5d36fe053b13105b8aadd508856a36e1d94a540850a799fa7b32560f",
+        "foundation_sha256": "5b3fce46958b16a4e74f06b7519760a502a847d0c7a08055618f5392895a938a"
+      },
+      {
+        "name": "phase1-minio",
+        "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+        "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+        "snapshot_equals_accepted_baseline": true,
+        "raw_metadata_sha256": "8ebdf954631024d01eae198e4482d7dc4c0fcf1b1d4fbf32f4c533903e85340c",
+        "configured_metadata_sha256": "b1873d406edfc223025678c7038687ab5ead0423690708dbe132673e1d0693ca",
+        "foundation_sha256": "142a998361c6c564a614def0e7c06f08f39191cebedaab245bf6765cd2815733"
+      },
+      {
+        "name": "phase1-audit-log",
+        "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+        "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+        "snapshot_equals_accepted_baseline": true,
+        "raw_metadata_sha256": "7165ede259c9db0f15870aa99dd7ec22c928287140a0b1ed39af773cf5605bf5",
+        "configured_metadata_sha256": "98d4b952379d6bb3efa917500deef4909b5e1dc201a6519281a8dc1ecfd5218c",
+        "foundation_sha256": "64be30f8003a07dfb87c0f576672526d50c57d75a83fb66766137261389cb86d"
+      },
+      {
+        "name": "phase1-risk-stub",
+        "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+        "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+        "snapshot_equals_accepted_baseline": true,
+        "raw_metadata_sha256": "850d2ea795486e62ac60c5f8d7caaa461ff13c287a26b8ec50953f7c4b75799e",
+        "configured_metadata_sha256": "b27c6a57b91bbebd16fd18230e237d624591bfdf7c7d61cb48056266415346e8",
+        "foundation_sha256": "3494c978290e99588bc55971808ae95cf96459e48df1c69182fdfec92b1e43b1"
+      },
+      {
+        "name": "phase1-memory",
+        "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+        "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+        "snapshot_equals_accepted_baseline": true,
+        "raw_metadata_sha256": "83e8dbda5ec8b9a6ab8fdd26d55b4b09daabb40571e5de0c0d03869a34f9707d",
+        "configured_metadata_sha256": "33f3683f5af749b02490cdbe30f32381dfe8d7ab488253b0d4733e1c93bde291",
+        "foundation_sha256": "c876e4098a1eda99b081db42aed5a2e909986bb377deaf24472be6d6af6b9017"
+      },
+      {
+        "name": "phase1-orchestrator",
+        "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+        "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+        "snapshot_equals_accepted_baseline": true,
+        "raw_metadata_sha256": "aa8bbf79903b3d1feb03d24d35e15559b0bfab0ac271c8c08093c18fccf7685a",
+        "configured_metadata_sha256": "ddfb23881f9d8dfe01c98008a5f00e7f4b33bd22e446dd34ae2254fa529d5012",
+        "foundation_sha256": "200136aa17daceafc5c39b1499bd8fb3299af672bf1cd0267f19947aa6f0f03f"
+      }
+    ],
+    "stages": [
+      {
+        "application": "phase1-audit-log",
+        "attempt": "workerprep20261023v6c",
+        "configured_metadata": "d4a4aecef054cd9eaa9865e4c4e86b6ff6a046779bcbc7aec421c779271d1963",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "foundation": "7e8998c3635d350120e837782969ffb5d930172438385ca7aa8ffffc33d9839b",
+        "id": "089f253c32d8dd9d308956cf5613f3b638d2e1d96a6c2ab20f0251692cc8341d",
+        "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+        "metadata": "4d7639f42fe1d70627566887e90c28843f9cfff8771234ec5a63424e808675a3",
+        "name": "phase1-audit-log-staged-workerprep20261023v6c",
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "configured_only"
+          ]
+        ],
+        "networks": [
+          ""
+        ],
+        "policy": "no",
+        "restarts": 0,
+        "started": "0001-01-01T00:00:00Z",
+        "state": "created",
+        "snapshot_equals_saved_evidence": true,
+        "direct_command": [
+          "python",
+          "-m",
+          "uvicorn",
+          "audit_log.main:app",
+          "--host",
+          "0.0.0.0",
+          "--port",
+          "8009"
+        ],
+        "entrypoint": null,
+        "observed_aliases": {
+          "phase1_research_copilot_default": [
+            "phase1-audit-log-staged-workerprep20261023v6c"
+          ]
+        },
+        "observed_alias_scope": "Current temporary stage name only; not final application aliases",
+        "source_witnesses": [
+          {
+            "name": "phase1-audit-log",
+            "container_id": "089f253c32d8dd9d308956cf5613f3b638d2e1d96a6c2ab20f0251692cc8341d",
+            "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+            "path": "/app/audit_log/__init__.py",
+            "local": "phase1_research_copilot/audit_log/__init__.py",
+            "sha256": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75"
+          },
+          {
+            "name": "phase1-audit-log",
+            "container_id": "089f253c32d8dd9d308956cf5613f3b638d2e1d96a6c2ab20f0251692cc8341d",
+            "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+            "path": "/app/audit_log/main.py",
+            "local": "phase1_research_copilot/audit_log/main.py",
+            "sha256": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8"
+          },
+          {
+            "name": "phase1-audit-log",
+            "container_id": "089f253c32d8dd9d308956cf5613f3b638d2e1d96a6c2ab20f0251692cc8341d",
+            "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+            "path": "/app/shared/__init__.py",
+            "local": "phase1_research_copilot/shared/__init__.py",
+            "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+          },
+          {
+            "name": "phase1-audit-log",
+            "container_id": "089f253c32d8dd9d308956cf5613f3b638d2e1d96a6c2ab20f0251692cc8341d",
+            "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+            "path": "/app/shared/audit.py",
+            "local": "phase1_research_copilot/shared/audit.py",
+            "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+          },
+          {
+            "name": "phase1-audit-log",
+            "container_id": "089f253c32d8dd9d308956cf5613f3b638d2e1d96a6c2ab20f0251692cc8341d",
+            "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+            "path": "/app/shared/config.py",
+            "local": "phase1_research_copilot/shared/config.py",
+            "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+          },
+          {
+            "name": "phase1-audit-log",
+            "container_id": "089f253c32d8dd9d308956cf5613f3b638d2e1d96a6c2ab20f0251692cc8341d",
+            "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+            "path": "/app/shared/db.py",
+            "local": "phase1_research_copilot/shared/db.py",
+            "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+          },
+          {
+            "name": "phase1-audit-log",
+            "container_id": "089f253c32d8dd9d308956cf5613f3b638d2e1d96a6c2ab20f0251692cc8341d",
+            "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+            "path": "/app/shared/logging.py",
+            "local": "phase1_research_copilot/shared/logging.py",
+            "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+          },
+          {
+            "name": "phase1-audit-log",
+            "container_id": "089f253c32d8dd9d308956cf5613f3b638d2e1d96a6c2ab20f0251692cc8341d",
+            "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+            "path": "/app/shared/models.py",
+            "local": "phase1_research_copilot/shared/models.py",
+            "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+          },
+          {
+            "name": "phase1-audit-log",
+            "container_id": "089f253c32d8dd9d308956cf5613f3b638d2e1d96a6c2ab20f0251692cc8341d",
+            "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+            "path": "/app/shared/probe.py",
+            "local": "phase1_research_copilot/shared/probe.py",
+            "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+          }
+        ],
+        "modelled_final": {
+          "container_id": "089f253c32d8dd9d308956cf5613f3b638d2e1d96a6c2ab20f0251692cc8341d",
+          "evidence": "MODELLED",
+          "modelled_final_aliases": [
+            "phase1-audit-log",
+            "audit-log"
+          ],
+          "name": "phase1-audit-log",
+          "observed_stage_aliases": {
+            "phase1_research_copilot_default": [
+              "phase1-audit-log-staged-workerprep20261023v6c"
+            ]
+          },
+          "predicted_configured_metadata": "3fa88c5201bb049e73965bd38e280e0d3613cb5be8451f468065d1c940eb48f7"
+        }
+      },
+      {
+        "application": "phase1-risk-stub",
+        "attempt": "workerprep20261023v6c",
+        "configured_metadata": "9bf7217775dedf63bf9baa063b090efc3570aabc3d69567b4dc07237eb175fb8",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "foundation": "af814f25fcf68fb1c22bc2fc52424cb9097583233b2d4dc23cc3e5dca97219bb",
+        "id": "b63860984f1895cc78e9939d0480dc825dc931e7e5abdaa7aa930c218a1d4f78",
+        "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+        "metadata": "d6668c329a89e5a0b981d2e4092e2c6b3d582448fb7f955d6b3e2cc4f33cba13",
+        "name": "phase1-risk-stub-staged-workerprep20261023v6c",
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "configured_only"
+          ]
+        ],
+        "networks": [
+          ""
+        ],
+        "policy": "no",
+        "restarts": 0,
+        "started": "0001-01-01T00:00:00Z",
+        "state": "created",
+        "snapshot_equals_saved_evidence": true,
+        "direct_command": [
+          "python",
+          "-m",
+          "uvicorn",
+          "risk_stub.main:app",
+          "--host",
+          "0.0.0.0",
+          "--port",
+          "8008"
+        ],
+        "entrypoint": null,
+        "observed_aliases": {
+          "phase1_research_copilot_default": [
+            "phase1-risk-stub-staged-workerprep20261023v6c"
+          ]
+        },
+        "observed_alias_scope": "Current temporary stage name only; not final application aliases",
+        "source_witnesses": [
+          {
+            "name": "phase1-risk-stub",
+            "container_id": "b63860984f1895cc78e9939d0480dc825dc931e7e5abdaa7aa930c218a1d4f78",
+            "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+            "path": "/app/risk_stub/__init__.py",
+            "local": "phase1_research_copilot/risk_stub/__init__.py",
+            "sha256": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411"
+          },
+          {
+            "name": "phase1-risk-stub",
+            "container_id": "b63860984f1895cc78e9939d0480dc825dc931e7e5abdaa7aa930c218a1d4f78",
+            "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+            "path": "/app/risk_stub/main.py",
+            "local": "phase1_research_copilot/risk_stub/main.py",
+            "sha256": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6"
+          },
+          {
+            "name": "phase1-risk-stub",
+            "container_id": "b63860984f1895cc78e9939d0480dc825dc931e7e5abdaa7aa930c218a1d4f78",
+            "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+            "path": "/app/shared/__init__.py",
+            "local": "phase1_research_copilot/shared/__init__.py",
+            "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+          },
+          {
+            "name": "phase1-risk-stub",
+            "container_id": "b63860984f1895cc78e9939d0480dc825dc931e7e5abdaa7aa930c218a1d4f78",
+            "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+            "path": "/app/shared/audit.py",
+            "local": "phase1_research_copilot/shared/audit.py",
+            "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+          },
+          {
+            "name": "phase1-risk-stub",
+            "container_id": "b63860984f1895cc78e9939d0480dc825dc931e7e5abdaa7aa930c218a1d4f78",
+            "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+            "path": "/app/shared/config.py",
+            "local": "phase1_research_copilot/shared/config.py",
+            "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+          },
+          {
+            "name": "phase1-risk-stub",
+            "container_id": "b63860984f1895cc78e9939d0480dc825dc931e7e5abdaa7aa930c218a1d4f78",
+            "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+            "path": "/app/shared/db.py",
+            "local": "phase1_research_copilot/shared/db.py",
+            "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+          },
+          {
+            "name": "phase1-risk-stub",
+            "container_id": "b63860984f1895cc78e9939d0480dc825dc931e7e5abdaa7aa930c218a1d4f78",
+            "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+            "path": "/app/shared/logging.py",
+            "local": "phase1_research_copilot/shared/logging.py",
+            "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+          },
+          {
+            "name": "phase1-risk-stub",
+            "container_id": "b63860984f1895cc78e9939d0480dc825dc931e7e5abdaa7aa930c218a1d4f78",
+            "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+            "path": "/app/shared/models.py",
+            "local": "phase1_research_copilot/shared/models.py",
+            "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+          },
+          {
+            "name": "phase1-risk-stub",
+            "container_id": "b63860984f1895cc78e9939d0480dc825dc931e7e5abdaa7aa930c218a1d4f78",
+            "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+            "path": "/app/shared/probe.py",
+            "local": "phase1_research_copilot/shared/probe.py",
+            "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+          }
+        ],
+        "modelled_final": {
+          "container_id": "b63860984f1895cc78e9939d0480dc825dc931e7e5abdaa7aa930c218a1d4f78",
+          "evidence": "MODELLED",
+          "modelled_final_aliases": [
+            "phase1-risk-stub",
+            "risk-stub"
+          ],
+          "name": "phase1-risk-stub",
+          "observed_stage_aliases": {
+            "phase1_research_copilot_default": [
+              "phase1-risk-stub-staged-workerprep20261023v6c"
+            ]
+          },
+          "predicted_configured_metadata": "7dbed9dcdd2ef8265caafd3f062d8d96ac2f4b85012f3c34856bdd3aaebeddc7"
+        }
+      },
+      {
+        "application": "phase1-memory",
+        "attempt": "workerprep20261023v6c",
+        "configured_metadata": "bcf699f7cd971ed88043b4d5ac4120981cae262750edd1e67017d412ca12be51",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "foundation": "5c0d96afc87aee5936a3cd88912571aadfcfa608f94f7ed981ee0884e590e64b",
+        "id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+        "image": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+        "metadata": "c9f89bfe20c3a9c55c48679deee41af9440b46cdbfbf7924d5cb03b4cd465e76",
+        "name": "phase1-memory-staged-workerprep20261023v6c",
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "configured_only"
+          ]
+        ],
+        "networks": [
+          ""
+        ],
+        "policy": "no",
+        "restarts": 0,
+        "started": "0001-01-01T00:00:00Z",
+        "state": "created",
+        "snapshot_equals_saved_evidence": true,
+        "direct_command": [
+          "python",
+          "-m",
+          "uvicorn",
+          "memory_retrieval.main:app",
+          "--host",
+          "0.0.0.0",
+          "--port",
+          "8007"
+        ],
+        "entrypoint": null,
+        "observed_aliases": {
+          "phase1_research_copilot_default": [
+            "phase1-memory-staged-workerprep20261023v6c"
+          ]
+        },
+        "observed_alias_scope": "Current temporary stage name only; not final application aliases",
+        "source_witnesses": [
+          {
+            "name": "phase1-memory",
+            "container_id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+            "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+            "path": "/app/memory_retrieval/__init__.py",
+            "local": "phase1_research_copilot/memory_retrieval/__init__.py",
+            "sha256": "2402dc051be3f99818a1933b20b12a9a99db1823105e1068d015c0edc5b1d7fa"
+          },
+          {
+            "name": "phase1-memory",
+            "container_id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+            "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+            "path": "/app/memory_retrieval/article_view.py",
+            "local": "phase1_research_copilot/memory_retrieval/article_view.py",
+            "sha256": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767"
+          },
+          {
+            "name": "phase1-memory",
+            "container_id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+            "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+            "path": "/app/memory_retrieval/main.py",
+            "local": "phase1_research_copilot/memory_retrieval/main.py",
+            "sha256": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228"
+          },
+          {
+            "name": "phase1-memory",
+            "container_id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+            "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+            "path": "/app/memory_retrieval/question_query.py",
+            "local": "phase1_research_copilot/memory_retrieval/question_query.py",
+            "sha256": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07"
+          },
+          {
+            "name": "phase1-memory",
+            "container_id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+            "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+            "path": "/app/shared/__init__.py",
+            "local": "phase1_research_copilot/shared/__init__.py",
+            "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+          },
+          {
+            "name": "phase1-memory",
+            "container_id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+            "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+            "path": "/app/shared/audit.py",
+            "local": "phase1_research_copilot/shared/audit.py",
+            "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+          },
+          {
+            "name": "phase1-memory",
+            "container_id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+            "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+            "path": "/app/shared/config.py",
+            "local": "phase1_research_copilot/shared/config.py",
+            "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+          },
+          {
+            "name": "phase1-memory",
+            "container_id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+            "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+            "path": "/app/shared/db.py",
+            "local": "phase1_research_copilot/shared/db.py",
+            "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+          },
+          {
+            "name": "phase1-memory",
+            "container_id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+            "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+            "path": "/app/shared/logging.py",
+            "local": "phase1_research_copilot/shared/logging.py",
+            "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+          },
+          {
+            "name": "phase1-memory",
+            "container_id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+            "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+            "path": "/app/shared/models.py",
+            "local": "phase1_research_copilot/shared/models.py",
+            "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+          },
+          {
+            "name": "phase1-memory",
+            "container_id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+            "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+            "path": "/app/shared/probe.py",
+            "local": "phase1_research_copilot/shared/probe.py",
+            "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+          }
+        ],
+        "modelled_final": {
+          "container_id": "babebb6aa4f436333960c17d9584fb60bac7ea316f965d4f91d8f3f727b34aa0",
+          "evidence": "MODELLED",
+          "modelled_final_aliases": [
+            "phase1-memory",
+            "memory-retrieval"
+          ],
+          "name": "phase1-memory",
+          "observed_stage_aliases": {
+            "phase1_research_copilot_default": [
+              "phase1-memory-staged-workerprep20261023v6c"
+            ]
+          },
+          "predicted_configured_metadata": "0f74da099f317ec793e8a853b461ca3645b325741124984166132c53915dad63"
+        }
+      },
+      {
+        "application": "phase1-orchestrator",
+        "attempt": "workerprep20261023v6c",
+        "configured_metadata": "744380ab78d5520d9935a1f58edad3d469ff59d75aaa6d176a1a2d0945d7d513",
+        "configured_networks": [
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+        ],
+        "foundation": "ab356df32dff7b88e277ac584a0818621423cdf732553cc716504679011fb998",
+        "id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+        "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+        "metadata": "51fc9f3aab396d214aac4a9efa2e5a051406cbdac816114e0a7cfb609f7b40fc",
+        "name": "phase1-orchestrator-staged-workerprep20261023v6c",
+        "network_evidence": [
+          [
+            "phase1_research_copilot_default",
+            "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+            "configured_only"
+          ]
+        ],
+        "networks": [
+          ""
+        ],
+        "policy": "no",
+        "restarts": 0,
+        "started": "0001-01-01T00:00:00Z",
+        "state": "created",
+        "snapshot_equals_saved_evidence": true,
+        "direct_command": [
+          "python",
+          "-m",
+          "uvicorn",
+          "orchestrator.main:app",
+          "--host",
+          "0.0.0.0",
+          "--port",
+          "8002"
+        ],
+        "entrypoint": null,
+        "observed_aliases": {
+          "phase1_research_copilot_default": [
+            "phase1-orchestrator-staged-workerprep20261023v6c"
+          ]
+        },
+        "observed_alias_scope": "Current temporary stage name only; not final application aliases",
+        "source_witnesses": [
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/orchestrator/__init__.py",
+            "local": "phase1_research_copilot/orchestrator/__init__.py",
+            "sha256": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/orchestrator/main.py",
+            "local": "phase1_research_copilot/orchestrator/main.py",
+            "sha256": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/shared/__init__.py",
+            "local": "phase1_research_copilot/shared/__init__.py",
+            "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/shared/answer_metadata.py",
+            "local": "phase1_research_copilot/shared/answer_metadata.py",
+            "sha256": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/shared/audit.py",
+            "local": "phase1_research_copilot/shared/audit.py",
+            "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/shared/config.py",
+            "local": "phase1_research_copilot/shared/config.py",
+            "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/shared/db.py",
+            "local": "phase1_research_copilot/shared/db.py",
+            "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/shared/llm_client.py",
+            "local": "phase1_research_copilot/shared/llm_client.py",
+            "sha256": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/shared/logging.py",
+            "local": "phase1_research_copilot/shared/logging.py",
+            "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/shared/models.py",
+            "local": "phase1_research_copilot/shared/models.py",
+            "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/shared/probe.py",
+            "local": "phase1_research_copilot/shared/probe.py",
+            "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/shared/prompting.py",
+            "local": "phase1_research_copilot/shared/prompting.py",
+            "sha256": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/shared/retry.py",
+            "local": "phase1_research_copilot/shared/retry.py",
+            "sha256": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b"
+          },
+          {
+            "name": "phase1-orchestrator",
+            "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+            "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+            "path": "/app/shared/tools.py",
+            "local": "phase1_research_copilot/shared/tools.py",
+            "sha256": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469"
+          }
+        ],
+        "modelled_final": {
+          "container_id": "519460f3d022f181ed7dd4cf4d21df0fad36a23d4fbd177a81654a07fd383eb5",
+          "evidence": "MODELLED",
+          "modelled_final_aliases": [
+            "phase1-orchestrator",
+            "orchestrator"
+          ],
+          "name": "phase1-orchestrator",
+          "observed_stage_aliases": {
+            "phase1_research_copilot_default": [
+              "phase1-orchestrator-staged-workerprep20261023v6c"
+            ]
+          },
+          "predicted_configured_metadata": "fccb06da766f455f4908f4c4b0ed2c10607ab843691e4905da6202cf2ddebcb7"
+        }
+      }
+    ],
+    "new_ids_disjoint_originals_and_consumed_v6b": true,
+    "images_equal_previous_v6b": true,
+    "image_limit": "Reuse of the same immutable cached image IDs is permitted; no image novelty, rebuild-without-cache or startup proof is asserted.",
+    "source_witnesses_count": 43,
+    "source_witnesses_match_exact_new_id_image_and_manifest": true,
+    "local_source_hashes_rechecked": true,
+    "current_temporary_aliases_exact": true,
+    "network_identity_inspect_matches_manifest": true,
+    "configured_only_blank_network_ids_not_attachment": true,
+    "final_predictions_recomputed": 4,
+    "final_prediction_evidence": "MODELLED",
+    "recomputation": "Independent in-memory JavaScript reconstruction of the accepted raw preservation/configured projection algorithms. Original absent/null attempt labels normalize to empty string in snapshots; actual stage ownership remains the exact v6c attempt. Raw captured rows themselves were not rewritten.",
+    "tests_run": false,
+    "test_limit": "No code or tests changed; no pytest or suite run was needed or requested.",
+    "reviewer_native_operations": 0,
+    "reviewer_credential_values_read": false,
+    "reviewer_lifecycle_or_service_actions": 0
+  },
+  "receipt_review": {
+    "classification": "SHOWN",
+    "event_count": 7,
+    "all_events_inspected": true,
+    "sequence": [
+      {
+        "line": 1,
+        "phase": "staged_preparation_reserved"
+      },
+      {
+        "line": 2,
+        "phase": "create_staged_intended",
+        "target": "phase1-audit-log"
+      },
+      {
+        "line": 3,
+        "phase": "create_staged_intended",
+        "target": "phase1-risk-stub"
+      },
+      {
+        "line": 4,
+        "phase": "create_staged_intended",
+        "target": "phase1-memory"
+      },
+      {
+        "line": 5,
+        "phase": "create_staged_intended",
+        "target": "phase1-orchestrator"
+      },
+      {
+        "line": 6,
+        "phase": "staged_preparation_complete"
+      },
+      {
+        "line": 7,
+        "phase": "preparation_evidence_published"
+      }
+    ],
+    "reservation_startup_authorized": false,
+    "creation_intents_exact_four_apps": true,
+    "completion_embeds_exact_public_preparation_evidence": true,
+    "published_sha256_equals_public_evidence_bytes": true,
+    "manifest_and_attempt_bindings_match": true,
+    "raw_trace_limit": "These are controller receipt events, not a complete native command, credential-copy or image-build trace. No completed native substep is inferred solely from its intent event.",
+    "private_copy_limit": "Checkpoint reports byte-for-byte private-to-public evidence/receipt copies. Reviewer verified public bytes and their receipt/outcome bindings, not private configuration or private files."
+  },
+  "postcheck": {
+    "classification": "SHOWN as saved parent observations",
+    "native_commands_reported": 46,
+    "elapsed_seconds_reported": 2.858253375045024,
+    "overall_bound_seconds": 120,
+    "per_command_bound_seconds": 10,
+    "command_scope": "One network identity inspect, two selected eleven-ID inspects, forty-three source-copy streams. Controller operation commands are separate.",
+    "before_after_full_selected_equality_independently_verified": true,
+    "container_exec_reported": false,
+    "container_lifecycle_reported": false,
+    "credential_value_reads_reported": false,
+    "reviewer_repeated_capture": false
+  },
+  "actual_id_review": {
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/actual_id_review.json",
+    "sha256": "f2b926136e5503d9310ec88b0f881c82c8292a92dc4ffcb5e78c97cfac54946e",
+    "schema": "companion-preparation-review-v1",
+    "exact_fields": [
+      "schema",
+      "decision",
+      "reviewer",
+      "manifest_sha256",
+      "evidence_sha256"
+    ],
+    "encoding": "UTF-8 compact sorted canonical JSON with one final LF",
+    "acceptance_scope": "Preparation evidence only. Parent may perform its separately described inert ReviewedPreparation load; this record is not an execution grant."
+  },
+  "remaining_limits": [
+    {
+      "classification": "UNVERIFIED",
+      "detail": "Actual final application aliases and attachment remain unobserved. Only temporary stage aliases were captured. The four planned final projections are MODELLED and require later fail-closed verification; extra daemon aliases cannot be guessed equivalent."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "detail": "Created/never-started status and source hashes do not prove startup/import/SDK behavior, health, actual recipient connectivity, worker shutdown/recovery, cited retrieval or profitability. Originals health and volume bytes were not tested."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "Equality is limited to the eleven selected saved metadata rows during the read-only postcheck and the seven approved original snapshots. It is not whole-daemon inventory, equality of unrelated older stages, full unselected metadata equality, or continuous monitoring."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "The operation used approved private credential copying; cache, receipt, private configuration and logs can persist. This review neither reads credential values nor claims absence of all build/configuration effects."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "detail": "The pre-operation twenty-three-binding/native CLI signature checks and actual once-only process execution are parent-attributed checkpoint/outcome evidence. Reviewer did not repeat native verification or observe service operations directly."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "detail": "Prior worker clock coherency/installed pidfd limits and the exact consumed v6b failure predicate are not resolved by stopped preparation evidence."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "No runtime policy acceptance is created or inherited for these new IDs. Future offline V2 packet assembly, policy applicability review and separate explicit bounded operational approval remain distinct. No automatic cutover, retry or follow-on operation is authorized."
+    }
+  ],
+  "authorization": {
+    "preparation_rerun": false,
+    "reservation_reset": false,
+    "new_build_or_create": false,
+    "credential_access": false,
+    "runtime_policy_acceptance": false,
+    "startup": false,
+    "original_interruption": false,
+    "cutover": false,
+    "query": false,
+    "trading": false,
+    "automatic_follow_on": false
+  },
+  "reviewer_changes": [
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/independent_review.json",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/actual_id_review.json"
+  ],
+  "frozen_sources_tests_checkpoint_evidence_and_previous_records_modified": false
+}

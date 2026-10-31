@@ -1,0 +1,15 @@
+{
+  "started_at": "2026-10-29T21:41:40.738177+00:00",
+  "command": [
+    "/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python",
+    "-B",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/coinbase_scope_probe_20261029/probe.py",
+    "--output",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/coinbase_scope_probe_20261029/attempt_01/scope.json"
+  ],
+  "timeout_seconds": 30,
+  "cleanup_reserve_seconds": 10,
+  "attempts": 1,
+  "ok": false,
+  "exit_code": null
+}

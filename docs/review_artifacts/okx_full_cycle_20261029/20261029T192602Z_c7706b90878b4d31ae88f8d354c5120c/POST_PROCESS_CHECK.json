@@ -1,0 +1,42 @@
+{
+  "recorded_at": "2026-10-29T19:52:47.101842+00:00",
+  "checks": [
+    {
+      "command": [
+        "/bin/ps",
+        "-p",
+        "20675",
+        "-o",
+        "pid=,ppid=,lstart=,comm="
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/pgrep",
+        "-f",
+        "scripts/data/run_crypto_edge_[c]ollector_loop.py"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/sbin/lsof",
+        "-n",
+        "-P",
+        "-Fpcuafn",
+        "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite",
+        "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-wal",
+        "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-shm"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "scope": "no owned PID, known-script match or exact archive handles observed; not global descendant/host proof"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "local legacy submitter created-claim ownership and post-ack persistence recovery; not full retry closure",
+  "bindings": {
+    "services/execution/exchange_client.py": "cea67dfcaa255b37e4c56077bd87223ce2ca16760af231b6fd02af40050690a9",
+    "tests/test_exchange_client_retry_flow.py": "26ab43f328e561591e95f2d3fca4661d9034a87c6050783ccb785026e4645a09",
+    "tests/test_exchange_client_claim_owner.py": "c635eec1ef33ab5a3247fab26c1b0bc2601f5c38230363ddbdf1e6eb12ab29fd",
+    "docs/research/exchange_claim_owner_20261028.md": "cb3d638b11a355c1a415e2c39dfc94f67fce134550d17722af1f0a50b8375f49",
+    "docs/review_artifacts/exchange_claim_owner_20261028/exchange_client_original.py": "bb9d82ab62d88bf68da76a2690ceae343d72105168cc28bfe3841a4e598637db",
+    "docs/review_artifacts/exchange_claim_owner_20261028/test_exchange_client_retry_flow_before.py": "d786f9897d59cf43037c08c6569688cfcf5a4dc19c404b72383e77011d78f633",
+    "storage/order_dedupe_store_sqlite.py": "27c5cbe206e9b815b3bfb840672fc1cfe756b7fb9516feef1f5015fa608737ac",
+    "services/execution/order_reconciliation.py": "054ec4fbd3b28db319c0f47e156c5e229e9e7e93153f6e9f5c965332aeffac61",
+    "tests/test_order_dedupe_store.py": "8622a0db7213ece0292aced6fa64cec1fc7a16c39223c848f1cf2c042a003965",
+    "tests/test_order_dedupe_unknown.py": "81f96c1d85059575a51d8f64f76a6271d2ea4cc83169f48809f1c3eee822da1d",
+    "tests/test_retry_reconciliation_regression.py": "d010f026fced66b6775b15c129c11adf62b0ca7d59ac187a0220f43d442944ac"
+  },
+  "unchanged_dependencies": {
+    "services/execution/place_order.py": "137a3e7260381eec79982c63a716928446f6acc6909df37db92e91a0ce80664b",
+    "services/markets/rules.py": "250321c190f327750e7170fa7ff2be5126979bf208b6b5ffa1c2a34e77ba4c0f",
+    "services/execution/exit_deferral.py": "22dd6c99b34a0cdf011aea601bb46a878e8aa012e962e2d29f25e5bbdb446679",
+    "scripts/research/synthetic_exit_checkpoint.py": "9d3953dbc397d600f11d00ca873c5492023287431e6fc5a79d2350474315677c"
+  },
+  "applied_patch_sha256": "8231e4738d40f3e767bf05ef80e1551b6cfa6f1a34ca26c331f81276c4b33ad4",
+  "tests_diff_sha256": "d07434f9f7eef3ee2b6c2745e127aacb586b3284ca71b083ca7fa56dcaf0637c",
+  "author_verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_exchange_client_claim_owner.py tests/test_exchange_client_retry_flow.py tests/test_order_dedupe_store.py tests/test_order_dedupe_unknown.py tests/test_retry_reconciliation_regression.py",
+    "passed": 36,
+    "seconds": 1.45,
+    "exit_code": 0
+  }
+}

@@ -1,0 +1,1 @@
+{"collection_started": true, "finished_at_ms": 1793230508771, "manifest_sha256": "cb013d17a9cddf7c43e321e2d64ffb9c319e3e51569a1576cb4ea2308f5b289a", "owned_group_cleanup_failed": false, "reason": "capture_completed", "slot_ms": 1793230500000, "status": "COMPLETE", "stored_payload_bytes": 925109, "transport_calls_started": 26}

@@ -1,0 +1,15 @@
+{
+  "after": null,
+  "before": null,
+  "commands": 1,
+  "credentials_accessed": false,
+  "elapsed_seconds": 0.065,
+  "error": "Refused",
+  "files": [],
+  "input_sha256": "c505e4c6c3b2be5cd1054ac976fd69a503d0fcf2b2304cc6e6583ef1b1decb06",
+  "recorded_utc": "2026-10-22T01:08:56.026746+00:00",
+  "schema": "companion-missing-runtime-sources-v1",
+  "services_started": false,
+  "state": "INCOMPLETE",
+  "transfer_bytes": 0
+}

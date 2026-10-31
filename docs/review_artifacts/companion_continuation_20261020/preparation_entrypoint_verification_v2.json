@@ -1,0 +1,28 @@
+{
+  "active_role": "ENGINEER",
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "runtime": "INCOMPLETE",
+  "environment": "VERIFIED_ENV for isolated synthetic tests and temporary filesystem only",
+  "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_companion_prepare_entrypoint.py tests/test_companion_staged_update.py tests/test_companion_staged_cli_boundary.py tests/test_companion_staged_backend.py",
+  "exit_code": 0,
+  "passed": 206,
+  "duration_seconds": 1.85,
+  "full_suite_run": false,
+  "diff_check_exit_code": 0,
+  "source_sha256": {
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "tests/test_companion_prepare_entrypoint.py": "251e1a6ee4afa971a2bd00bde1c351f12b292695bf246aab8e272ac845a29a27"
+  },
+  "prior_evidence_retained": ["preparation_entrypoint_verification.json", "preparation_entrypoint_review_r1.json"],
+  "corrections": [
+    "Allowlisted failure phases/stages and unresolved resource names exposed in stdout and final receipt",
+    "Every new state-directory ancestor has parent fsync before descent, prior to backend construction"
+  ],
+  "new_regressions": "Lost create acknowledgment; cleanup failure before/after effect; parent inode fsync ordering; refusal on all four ancestor/attempt barrier failures",
+  "accepted_dependencies_changed": false,
+  "fresh_native_manifest_generated": false,
+  "native_calls": 0,
+  "credentials_read": false,
+  "services_changed": false,
+  "independent_review": "Corrected frozen entry point submitted for bounded re-review; disposition separate"
+}

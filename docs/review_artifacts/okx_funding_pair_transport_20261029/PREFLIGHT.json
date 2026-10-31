@@ -1,0 +1,43 @@
+{
+  "recorded_at": "2026-10-29T14:57:35.044637+00:00",
+  "scope": "read-only preflight for user-authorized one-shot two-GET check",
+  "producer_invocations": 0,
+  "network_requests": 0,
+  "old_curl_sha256": "625cd93eb0043214d5f74974d34f0b4d748977473e236a2e7f4704ecc2b95950",
+  "current_curl_sha256": "b6f8c43b623b760e2fa95910e3f62bb518257c48b4ef54ed09285e49d6d1b85f",
+  "preflight_outcome": "author-added historical binary hash equality assertion stopped before producer import/invocation",
+  "current_signature_verification": {
+    "exit_code": 1,
+    "output": "/usr/bin/curl: CSSMERR_TP_NOT_TRUSTED; In architecture: arm64e.x1"
+  },
+  "control_signature_verification": {
+    "path": "/usr/bin/true",
+    "exit_code": 1,
+    "output": "CSSMERR_TP_NOT_TRUSTED; In architecture: arm64e.x1"
+  },
+  "signature_metadata": {
+    "identifier": "com.apple.curl",
+    "format": "Mach-O universal (x86_64 arm64e arm64e.x1)",
+    "authority": "unavailable",
+    "team_identifier": "not set",
+    "cdhash": "3c9242b9dddd97319356db4ab033366eb314cce6"
+  },
+  "file_metadata": {
+    "bytes": 829680,
+    "owner": "root:wheel",
+    "flags": "restricted,compressed",
+    "modified": "2026-10-22 19:10:43"
+  },
+  "execution_environment": {
+    "reported_os": "macOS27.2 build26B123",
+    "sip": "enabled",
+    "authenticated_root_check": {
+      "exit_code": 71,
+      "output": "No macOS installations found"
+    },
+    "physical_laptop_equivalence": "not independently established by these tool outputs"
+  },
+  "curl_version_output": "curl8.7.1(x86_64-apple-darwin26.0), libcurl8.7.1 SecureTransport LibreSSL3.3.6; HTTPS/HTTP2; same reported version/features as earlier capture",
+  "assessment": "Hash differs; cause unresolved. Shared trust error does not prove curl-specific tampering, valid trust, or an OS update. No repair/replacement/trust bypass performed. Producer source unchanged; TLS would remain enabled.",
+  "proposal": "Assess residual environment risk for SAME already-authorized single producer invocation, at most2fixedpublicGETs/10seconds each/30second capture budget/new evidence files only. No replacement, source edit, account, DB, collector, scheduler or trading change. No assumption signature trust is fixed."
+}

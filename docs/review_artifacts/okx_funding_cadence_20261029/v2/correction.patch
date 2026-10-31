@@ -1,0 +1,111 @@
+--- v1/services/analytics/edge_cadence.py
++++ v2/services/analytics/edge_cadence.py
+@@ -173,6 +173,7 @@
+ 
+ 
+ def _paired_funding_meta(conn, scope, ref):
++    from services.analytics.funding_observations import encoded, identity, observation
+     from services.analytics.okx_funding_contract import _finite_json_float, _object, _reject_nonfinite
+     from services.analytics.okx_funding_journal import CONTRACT, _stored_pair
+ 
+@@ -202,6 +203,17 @@
+                                     parse_constant=_reject_nonfinite, parse_float=_finite_json_float)
+                 if type(record) is not dict:
+                     raise ValueError("raw_object_required")
++                # Attribution is untrusted until the complete envelope/key/index agree.
++                rebuilt = observation(
++                    venue=record["venue"], symbol=record["symbol"], captured_at=record["captured_at"],
++                    payload=record["raw_payload"], plan_interval_hours=record["plan_interval_hours_unverified"],
++                    receipt=({key: record["receipt"][key] for key in (
++                        "request_started_at", "received_at", "requested_symbol", "fetch_method")}
++                        if "receipt" in record else None))
++                capture = _parse_ts(record["captured_at"])
++                if (encoded(record) != encoded(rebuilt) or identity(record) != row["observation_key"]
++                        or capture is None or row["capture_ts"] != capture.isoformat()):
++                    raise ValueError("raw_envelope_invalid")
+                 inst = record.get("symbol")
+                 if type(inst) is not str:
+                     raise ValueError("raw_identity_required")
+@@ -213,9 +225,6 @@
+                     found[inst]["status"] = "not_a_successful_pair"
+                     continue
+                 _stored_pair(record, row["observation_key"])
+-                capture = _parse_ts(record["captured_at"])
+-                if capture is None or row["capture_ts"] != capture.isoformat():
+-                    raise ValueError("raw_capture_index_mismatch")
+                 if capture > ref:
+                     found[inst]["status"] = "capture_in_future"
+                     continue
+--- v1/tests/test_okx_funding_cadence.py
++++ v2/tests/test_okx_funding_cadence.py
+@@ -213,7 +213,9 @@
+ def test_total_byte_budget_bounds_unrelated_rows(db, record):
+     # Each row fits individually; the third exceeds the aggregate decoding cap.
+     for number in range(3):
+-        put(db, record, key=str(number), payload=json.dumps({"symbol": "UNRELATED", "padding": "x" * 3000000}))
++        unrelated = observation(venue="okx", symbol="UNRELATED", captured_at=(CAPTURE - timedelta(seconds=number)).isoformat(),
++                                payload={"padding": "x" * 3000000})
++        put(db, unrelated)
+     out = check(db)
+     assert out["ok"] is False
+     assert out["paired_funding"]["scanned"] == 3
+@@ -234,6 +236,28 @@
+     attempt = observation(venue="okx", symbol=BTC, captured_at=CAPTURE.isoformat(), payload={"contract": "attempt"})
+     put(db, attempt)
+     put(db, record)
++    assert check(db)["ok"] is True
++
++
++@pytest.mark.parametrize("kind", ["attempt", "pair"])
++def test_corrupt_newer_attribution_cannot_resurrect_an_older_success(db, record, kind):
++    put(db, record)
++    newer = (observation(venue="okx", symbol=BTC, captured_at=NOW.isoformat(),
++                         payload={"contract": "okx_public_pair_attempt_v1", "reason": "failed"})
++             if kind == "attempt" else other_record(record, inst=BTC, delay_seconds=0.2))
++    key = identity(newer)
++    newer["symbol"] = ETH
++    put(db, newer, key=key)
++    out = check(db)
++    assert out["ok"] is False and out["missing"] == ["funding"]
++    assert out["paired_funding"]["diagnostics"] == ["unusable_raw_evidence"]
++
++
++def test_legitimate_newer_unrelated_row_does_not_hide_required_pair(db, record):
++    put(db, record)
++    unrelated = observation(venue="okx", symbol=ETH, captured_at=NOW.isoformat(),
++                            payload={"contract": "okx_public_pair_attempt_v1", "reason": "failed"})
++    put(db, unrelated)
+     assert check(db)["ok"] is True
+ 
+ 
+--- v1/docs/research/okx_funding_cadence_20261029.md
++++ v2/docs/research/okx_funding_cadence_20261029.md
+@@ -20,7 +20,9 @@
+ Reuse the accepted journal's canonical stored-pair validator, including strict
+ JSON hooks. Read via SQLite mode=ro; do not construct the writer or initialize
+ tables. Source filtering is exact. A source row's journal append ID defines
+-recency, not its untrusted timestamp. For each requested native identity, only
++recency. Every encountered envelope/key/index is validated BEFORE its symbol
++can be used to discard or attribute it; unrelated-but-valid rows can be skipped.
++For each requested native identity, only
+ the newest encountered row can satisfy the check; a failed attempt cannot be
+ hidden by an older success. All required identities must validate. The oldest
+ valid capture determines aggregate freshness under unchanged age thresholds.
+@@ -56,9 +58,15 @@
+ env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_okx_funding_cadence.py tests/test_edge_cadence.py tests/test_okx_funding_cli.py tests/test_run_crypto_edge_collector_loop.py tests/test_okx_funding_service.py tests/test_okx_funding_pair_producer.py tests/test_okx_funding_journal.py tests/test_okx_cash_cost.py tests/test_okx_funding_contract.py tests/test_synthetic_funding_observations.py tests/test_funding_receipts.py tests/test_funding_store_bridge.py tests/test_crypto_edge_collector_service.py
+ ```
+ 
+-SHOWN:351passed,8known slow-marker warnings,2.90s,exit0. Includes36new paired
++SHOWN final v2:354passed,8known slow-marker warnings,3.00s,exit0. Includes39new paired
+ cadence cases,11existing cadence cases and304previously reviewed source cases.
+-Initial focused run before final boundary additions:41passed0.60s. No full-suite,
++Initial v1:351passed2.90s; independent review REJECTED it as OKX-CADENCE-01
++because unvalidated symbol attribution could discard a newer corrupt attempt
++and let an older success report healthy. Rejected source/diff/hashes are saved
++under v1. Two new regression cases fail against that saved v1 (expected test
++exit1;2failed37deselected0.27s), then pass after canonical envelope/key/index
++validation is moved before attribution. Legitimate unrelated rows still work.
++Focused corrected slice:50passed0.88s. No full-suite,
+ real archive, collector restart, live freshness or financial-validation claim.
+ git diff --check passed for changed source/test/operator-doc paths.
+ 

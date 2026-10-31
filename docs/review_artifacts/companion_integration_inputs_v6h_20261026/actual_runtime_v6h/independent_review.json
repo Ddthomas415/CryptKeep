@@ -1,0 +1,460 @@
+{
+  "schema": "companion-v6h-actual-runtime-saved-failure-independent-review-v1",
+  "date": "2026-10-26",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Saved actual V6h failed-attempt evidence, exact receipt copy, fixed diagnostic interpretation and bounded source-only counterexample only. Not repaired service, live root-cause proof, runtime success, startup or retry authorization.",
+  "runtime_state": "INCOMPLETE",
+  "operations_authorized": false,
+  "runtime_execution_authorized": false,
+  "startup_authorized": false,
+  "retry_authorized": false,
+  "reset_authorized": false,
+  "query_authorized": false,
+  "blocking_findings": [],
+  "findings": [
+    {
+      "id": "V6H-DIAG-01",
+      "severity": "P2",
+      "classification": "SHOWN static reachability limitation; historical payload UNVERIFIED",
+      "title": "Default-snapshot counterexample does not establish the strict probe's runtime market shape",
+      "references": [
+        {
+          "path": "phase1_research_copilot/shared/tools.py",
+          "line": 197
+        },
+        {
+          "path": "phase1_research_copilot/shared/tools.py",
+          "line": 215
+        },
+        {
+          "path": "phase1_research_copilot/orchestrator/main.py",
+          "line": 628
+        },
+        {
+          "path": "phase1_research_copilot/orchestrator/main.py",
+          "line": 633
+        },
+        {
+          "path": "phase1_research_copilot/orchestrator/main.py",
+          "line": 327
+        },
+        {
+          "path": "phase1_research_copilot/memory_retrieval/main.py",
+          "line": 192
+        },
+        {
+          "path": "tests/test_companion_v6h_market_contract_diagnosis.py",
+          "line": 25
+        }
+      ],
+      "detail": "The real _default_market_snapshot and bundle builder demonstrably produce/retain a shape the verifier rejects. However, the configured strict probe branch calls get_probe_tool_results, which returns only get_signal_summary/get_risk_summary and does not call get_market_snapshot or _default_market_snapshot. Its bundle normally takes market from the signal and leaves market_snapshot empty. The two-case test injects the standalone default snapshot into a controlled raw bundle; it is not an actual handler/probe replay. Hence the checkpoint's plausible-cause language must remain a general incompatibility candidate, not evidence that this specific shape was on the failed path.",
+      "impact": "A repair limited to accepting/rewriting standalone default-snapshot fields could leave the actual strict-probe failure unchanged. Source shows the signal's _compute_market_summary has a no-row/no-market shape and a distinct populated-row shape; the latter has ok=true/prices and latest_ts/latest_source fields outside the strict verifier's no-market contract. Neither actual row availability nor either actual live shape is known.",
+      "disposition": "Nonblocking for saved-evidence acceptance; blocks promotion of the standalone counterexample into a unique historical cause or sufficient repair. First reproduce the strict signal-to-bundle producer path offline with synthetic absent/present market rows, preserving the no-price/no-market-evidence and all other acceptance gates. No live read or implementation change authorized."
+    }
+  ],
+  "saved_attempt": {
+    "classification": "CLAIMED to reviewer from explicit user/parent attribution; saved records independently inspected",
+    "session": 33805,
+    "parent_reported_invocations": 1,
+    "exit_code": 1,
+    "outcome": {
+      "provenance": "Parent transcription of execution session 33805 tool result; not independently captured process output",
+      "exit_code": 1,
+      "state": "INCOMPLETE",
+      "failure_phase": "cutover",
+      "actions_executed": true,
+      "attempt_reserved": true,
+      "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_cutovers/workerprep20261026v6h/receipt.jsonl",
+      "running_update_complete": false,
+      "query_attempted": true,
+      "query_passed": false,
+      "receipt_complete": true,
+      "rollback_verified": true,
+      "rollback_exact_baseline": false,
+      "services_started": true,
+      "prepared_ids_preserved": false,
+      "preparation_consumed": true,
+      "unresolved_quiesce": [],
+      "unresolved_restart": [],
+      "unresolved_replacement_start": [],
+      "unresolved_replacement_cleanup": [],
+      "unresolved_creation": [],
+      "controller_failure_stage": "runtime_verification"
+    },
+    "limit": "Reviewer did not observe native acquisition/process output or independently certify the single-invocation history. outcome.json explicitly identifies parent transcription."
+  },
+  "receipt_review": {
+    "classification": "SHOWN saved bytes and static interpretation",
+    "public_path": "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/receipt.jsonl",
+    "state_path": ".cbp_state/runtime/companion_cutovers/workerprep20261026v6h/receipt.jsonl",
+    "sha256": "ab587bb2fa1a56818b2c70f45cafc29b543e4ae3efba83c006ac696021d91b4a",
+    "events": 98,
+    "all_events_read": true,
+    "bytecopy_exact": true,
+    "duplicate_key_strict_parse": true,
+    "key_line_ranges": [
+      {
+        "lines": "1-4",
+        "meaning": "Manifest/evidence/actual-ID/runtime-review bindings and startup reservation; planned initial checks."
+      },
+      {
+        "lines": "5-40",
+        "meaning": "Four original quiesce confirmations; staged promotion intents and four all-true replacement-check records."
+      },
+      {
+        "lines": "41-65",
+        "meaning": "Inventory/configured compatibility attestation, four replacement start confirmations, planned recipient/health checks."
+      },
+      {
+        "lines": "66-70",
+        "meaning": "Query intended, explain operation, sanitized query diagnostics, exactly one diagnostic verifier operation, complete closed bundle_market/rejected result."
+      },
+      {
+        "lines": "71-98",
+        "meaning": "Runtime verification failure, duplicate saved failure diagnostics, replacement cleanup/original restoration intents and final limited rollback attestation."
+      }
+    ],
+    "operation_counts": {
+      "explain": 1,
+      "verify_evidence_diagnostic": 1,
+      "legacy_verify_evidence": 0
+    },
+    "result": "Actual success contract did not pass. Receipt complete is not query/service success."
+  },
+  "diagnostic_interpretation": {
+    "classification": "SHOWN saved closed envelope and current fixed-code mapping",
+    "verifier_result": {
+      "checks": {
+        "article_view_mapping": false,
+        "causal_limits": false,
+        "content_hash": false,
+        "persisted_identity": false,
+        "topical_support": false
+      },
+      "diagnostic": {
+        "code": "rejected",
+        "stage": "bundle_market"
+      },
+      "false_meaning": "not_established_or_not_evaluated",
+      "outcome": "complete",
+      "shape_valid": true
+    },
+    "first_failed_group": "bundle_market",
+    "exact_failed_predicate_and_live_value": "UNVERIFIED",
+    "five_false_meaning": "Not established or not evaluated; _failed returns all five false for a group rejection. Not five independent negative predicate results.",
+    "reference": "scripts/research/companion_evidence_checks.py:269-284 and :390-396; diagnostic_result_valid :78-85",
+    "before_group_limit": "Reaching this group is not completed end-to-end persisted identity/content/topical/causal verification; later groups are not established.",
+    "primary_invalid_envelope": "Recorded primary normalization rejection is followed by accepted companion normalization. It is not a sufficient account of this later verifier rejection.",
+    "transport": {
+      "companion_http_status": 200,
+      "evidence_count": 5,
+      "execution_disabled": true,
+      "normalization": "accepted",
+      "provider": "fallback",
+      "recorded_static_dashboard_fallback": false,
+      "recorded_foreign_asset_rejection": false
+    },
+    "provider_limit": "Provider fallback is the expected deterministic research fallback in the reviewed strict-probe source, not a proven LLM response or static dashboard fallback. HTTP/client normalization success is not overall explanation acceptance.",
+    "prior_V6g_root_cause": "UNVERIFIED"
+  },
+  "citation_correlation": {
+    "classification": "SHOWN saved ID/URL hash correlation only",
+    "archive_path": "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json",
+    "archive_sha256": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "pairs": [
+      {
+        "document_id": 5,
+        "url_hash_matches": true
+      },
+      {
+        "document_id": 47,
+        "url_hash_matches": true
+      },
+      {
+        "document_id": 18,
+        "url_hash_matches": true
+      },
+      {
+        "document_id": 5,
+        "url_hash_matches": true
+      },
+      {
+        "document_id": 26,
+        "url_hash_matches": true
+      }
+    ],
+    "limit": "Lookup used actual frozen IDs, not positional/consecutive assumptions. Matching five document-ID/URL hash pairs [5,47,18,5,26] does not prove raw bodies, persisted rows, content verification, topical support or causal truth."
+  },
+  "source_only_counterexample": {
+    "classification": "SHOWN offline incompatibility, not historical replay",
+    "producer": {
+      "path": "phase1_research_copilot/shared/tools.py",
+      "line": 145
+    },
+    "builder": {
+      "path": "phase1_research_copilot/orchestrator/main.py",
+      "line": 327
+    },
+    "consumer": {
+      "path": "scripts/research/companion_evidence_checks.py",
+      "lines": "269-284"
+    },
+    "exact_shape": {
+      "asset": "BTC",
+      "symbol": "BTC/USDT",
+      "source": "unavailable",
+      "ok": false,
+      "as_of": null,
+      "price": null,
+      "bid": null,
+      "ask": null,
+      "volume": null,
+      "reason": "market_service_unavailable"
+    },
+    "field_whitelist_difference": [
+      "as_of",
+      "ask",
+      "asset",
+      "bid",
+      "source",
+      "symbol",
+      "volume"
+    ],
+    "reason_difference": {
+      "producer": "market_service_unavailable",
+      "consumer": "no_market_data"
+    },
+    "interpretation": "The complete synthetic snapshot fails the field whitelist at line 274; its reason string also differs from the allowed literal at line 280. This is not a claim that both were evaluated as independent runtime failures. The controlled omitted-snapshot fixture passes, and real pure bundle-builder retention plus snapshot injection rejects at bundle_market.",
+    "scope_limit": "Current pure functions are compiled from AST without importing app/Settings/SDK. The two cases do not replay the handler, runtime raw payload, signal DB rows or unknown actual field values; see V6H-DIAG-01."
+  },
+  "recovery": {
+    "classification": "SHOWN controller saved attestation, not independent present-state observation",
+    "reported_rollback": {
+      "configuration_restored": true,
+      "exact_baseline_restored": false,
+      "network_connectivity_verified": false
+    },
+    "outcome_empty_tracked_lists": true,
+    "prepared_ids_preserved": false,
+    "preparation_consumed": true,
+    "receipt_interpretation": "Lines 73-98 record owned replacement quiesce/removal, original name/network restoration and four original restart intents; final configuration_restored=true/exact_baseline_restored=false/network_connectivity_verified=false.",
+    "source_reference": "scripts/research/companion_installer.py:618-664 and :804-837",
+    "limit": "Configuration/running-state checks and empty tracked unresolved lists do not establish current health, connectivity, exact baseline timestamps, volume bytes, or absence of untracked effects. No separate native postcheck. services_started=true describes effects, not health. No successful recovery/healthy or exact-restoration claim.",
+    "consumed_inputs": "Attempt and prepared replacement IDs are not reusable approvals for another attempt. No marker reset, preparation, retry, new packet or source-policy approval issued."
+  },
+  "integrity": {
+    "current_runtime_consumers_checked": 20,
+    "current_application_entries_checked": 43,
+    "all_current_maps_match_accepted_sources": true,
+    "acceptance_criteria_or_production_source_changes": false,
+    "archive_witness_dataset_question_changes": false,
+    "accepted_packet_records_unchanged": true,
+    "historical_checkpoint_exceptions": [
+      {
+        "reference": "packet reviewed_inputs",
+        "path": "docs/checkpoints/companion_runtime_packet_v6h_20261026.md",
+        "historical_precloseout_sha256": "8a15aa0523cbaf4f95c4d68006c5107afcf1ab05b3a67a34f67b286c2ba78291",
+        "current_sha256": "8cb0aeffaf20c1138b43490818766af520f00f9f04896cd8c1abb408178c5840"
+      },
+      {
+        "reference": "handoff hashes",
+        "path": "docs/checkpoints/companion_v6h_execution_handoff_20261026.md",
+        "historical_precloseout_sha256": "9c881581218ae2d76ca3981116131d7f0fdf8009dbc001a76c015581a09c6544",
+        "current_sha256": "8360d8caf1bec54d5b037356a5639c4de049891d3794f10b513a1d26d5f2c19b"
+      }
+    ],
+    "exception_limit": "Only disclosed docs-only pre-closeout checkpoint hashes are historical. No exception for production sources, tests, approved policy records, archive, witnesses or executable inputs.",
+    "hash_algorithm": "SHA256",
+    "path_base": "/Users/baitus/Downloads/crypto-bot-pro",
+    "reviewed_sha256": {
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/parent_report.json": "f8af2d9eb931283e78d7f5c3be1ea93dd701cb0415a37aab47438108717cb41d",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/diagnosis.json": "86ad4a85ffc6895a41f3d8451d02a830650a414d42dde7a4a82be1ae67cdb0e8",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/outcome.json": "22b048282b1e974358251ec1486b8c496b1fdc146677eef5ddc28f56f8d19243",
+      "docs/checkpoints/companion_runtime_attempt_v6h_20261026.md": "d8e08019b106aeecd6d9cdb91c71f6f3be886f9391be82521b5d11734b94d9e9",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/diagnose_saved_result.py": "9fe3666c2ae9d81fc5ac4a32e0fa54432fba045117da6fe84d16f0aa54511473",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/receipt.jsonl": "ab587bb2fa1a56818b2c70f45cafc29b543e4ae3efba83c006ac696021d91b4a",
+      "tests/test_companion_v6h_market_contract_diagnosis.py": "5756985793d08b23b8167dc87f13a8bfdd1e928ee67d49c6de38c25567193710",
+      ".cbp_state/runtime/companion_cutovers/workerprep20261026v6h/receipt.jsonl": "ab587bb2fa1a56818b2c70f45cafc29b543e4ae3efba83c006ac696021d91b4a",
+      "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+      "phase1_research_copilot/shared/tools.py": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+      "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+      "scripts/research/companion_evidence_checks.py": "25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5",
+      "scripts/research/companion_installer.py": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b",
+      "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/independent_review.json": "943c0dd91fc3cfb26ed2984b997a5788cf9043cf56b33d243033a34e0d3039f0",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/scope_review.json": "1ede90d017d8f59b99497073610c3161365652f52bbb9d79633a37617ca29aa2",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/handoff_independent_review.json": "7b008031d3cddc3c5edaafc4b43116714e0ccb7fe7190bce61678901c57d4779",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/reviewed_preparation_manifest.json": "d11fccb5e4f7c46e7d726704c9b75c400a1482eab5d1b840027d876a5837f047",
+      "dashboard/services/view_data.py": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51",
+      "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+      "dashboard/services/views/_shared.py": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202",
+      "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+      "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+      "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+      "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+      "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+      "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+      "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+      "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+      "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+      "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+      "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+      "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659",
+      "phase1_research_copilot/audit_log/__init__.py": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75",
+      "phase1_research_copilot/audit_log/main.py": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8",
+      "phase1_research_copilot/shared/__init__.py": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+      "phase1_research_copilot/shared/audit.py": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "phase1_research_copilot/shared/config.py": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "phase1_research_copilot/shared/db.py": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "phase1_research_copilot/shared/logging.py": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+      "phase1_research_copilot/shared/models.py": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+      "phase1_research_copilot/shared/probe.py": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "phase1_research_copilot/risk_stub/__init__.py": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411",
+      "phase1_research_copilot/risk_stub/main.py": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6",
+      "phase1_research_copilot/memory_retrieval/__init__.py": "2402dc051be3f99818a1933b20b12a9a99db1823105e1068d015c0edc5b1d7fa",
+      "phase1_research_copilot/memory_retrieval/article_view.py": "b9543070bbfa3d75999a3cf980d5fba58e880a6cd093c9165305a5124a70cd8f",
+      "phase1_research_copilot/memory_retrieval/main.py": "28dc4f1b496437be2d3e1273b4910515b8342a0d57b939f849a6a49da09322d1",
+      "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+      "phase1_research_copilot/orchestrator/__init__.py": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1",
+      "phase1_research_copilot/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+      "phase1_research_copilot/shared/llm_client.py": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84",
+      "phase1_research_copilot/shared/prompting.py": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903",
+      "phase1_research_copilot/shared/retry.py": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-audit-log.json": "56526fada84ae1142fe74198049fcf78d5f26a4a7e692f6e220a6965faf8045f",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-memory.json": "1b007132b549c1fa97e6cea57f3f5980fc3b1dbcb1368ba6f56844538faf1d00",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-minio.json": "149feb0f72ed0bad7c106040916521902baf58b9e760e5f39b7d35fdb4e7fc0f",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-orchestrator.json": "02643435e416191096663298dd4d809ab9bcdb4a9398b3803cb6350579ffa3d3",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-qdrant.json": "a43b3ff1cd817b28ec39675db4943bd8fd10b308f6916fccf85f952eec7dc5d1",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-risk-stub.json": "258723f7defea219df22fb70cd8b49d956693d46538872be13900f828b49fddb",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-timescaledb.json": "f6c5799394ed533a73622d4f2a8369424aa4c62fc197b30922b8b50486e5d6d4",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/runtime_review.json": "ed4b60bf40c7d55fe8f603a4d92c3211902b6f47340403211b0c04cfb63d2f1c",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-timescaledb.draft.json": "1e035dab00cd1657450ce4c7d71e15e4161d183572f7cf08206a299ddf3128fc",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-qdrant.draft.json": "d910fd7ea7633d534942584c481cb5d94c3d49dc74037fb53fe2bd8297b2ed17",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-minio.draft.json": "2538a00fcc75cbcc1ddc45e7207021cb716f792ec39c60e678507a755d60ac2c",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-audit-log.draft.json": "a7ee62fc5cac7ff2bbeed103d485df9eaee829d2fe80431b46bff842e3c279eb",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-risk-stub.draft.json": "44cddcd0aaac44b34b1ad280dce403976e7fec368b652b656f138cb05aac9bda",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-memory.draft.json": "bcd1874415b86f40e6798dd9e4e91811ff567bd7adb07f80e4ab6777f2f24a69",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-orchestrator.draft.json": "de2bc594670b079021b2379654898dfa5f9bb5e20895d549ff5de2e07585ea22",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/runtime_review.draft.json": "caecd33834b1c1ef2d8b5c4978253772eb2ff8a89bad891770991fc94281c00f",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/subjects.draft.json": "311688b7e64cd1f8931a54ac38694e01a3dfb9d90e6ef4d20351eb8c554e9b10",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/staged_metadata.derived.json": "ed24d414eb8a12afce0d4756686dbf40d8baa649672fbcc5dfc3cdb29a4909d7",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/provenance.json": "6645cef0b870325a30668c8018761beac5ec5c30f06d99b5ed14455539103dfc",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/preparation_evidence.json": "950b09d049a7f6a01f91352cb8ff12e1edecedfcf523c13fc75d39e9f25b805d",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/actual_id_review.json": "fc18b363eb94a324e3d91500b967a7709ad70fa6635a100b2ab2bb1fda30a79f",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/independent_review.json": "e3c97007d3ea3bd1fb6d2363c4989f226604b01457660c93e6da7e3c448dd9ca",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/provenance.json": "e60cbfad2f7af46acdf47c018cb345621fa9304a4cf97a6b12fcce5bf36a0ef0",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/runtime_review.json": "df2ec5e24ebe4e4d6acc605056ec49d3821c535199cea489417a75c46f52be60",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/scope_review.json": "f01d70a7f459a1a2d4f34b32af1f688ac94d3b153a5c9b0fd641fefa9632612d",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/staged_metadata.derived.json": "7b22b5af03146c99e7628e2c3a054fa7f07615448219e90b1ec9892498ee0a93",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/provenance.json": "ef824d5ba5a98af870d9ae369cae4331a5f2fd888589e2e62af8bbe17d51c4da",
+      "docs/review_artifacts/companion_verifier_diagnostics_20261026/independent_review_v2.json": "ca5664535df5109539a51747ebf10683d939e2adaa0d7ae147f991f9d350b35b",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/assemble_runtime_packet.py": "16c8616f9152fec3e004ad54e1bd81795323cb88827ff6ccaf2f3933a8d36453",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-timescaledb.json": "e0eaf1fcb78cac0cdab27b147bec4ef2232fd45133c2e1860a3f87823bea5591",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-qdrant.json": "a7005404c9a4ade6afbbc85a8de72e7b72e752ea01d68602f6838972655afbe0",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-minio.json": "100feb8e4a17d5f8f36125b40056fe2cac90ab5a8fef1e7b30685ee219d4a066",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-audit-log.json": "089122369f41ff0131f44837da2f19ca13caf51d6487b835b29b94fc34b17985",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-risk-stub.json": "e839c32c9bd918550bbffb563a0f82326ce3b3e1851416822f55bfe95ab3c93f",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-memory.json": "b3d17207ea8d9375432091f3c9b486f4824337523b548cdbdac2342d6dc2af62",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-orchestrator.json": "6e6e744bc06453f58f87079db651880429f7551350e109d83cf7017591a48b46",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/reviewed_preparation_manifest.json": "33e6633229e9399ec695be2f8e743930212b9ed926277235fd071e675fcf2e26",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/assemble_runtime_packet.py": "96f64ae1bac1b56de2ce535fbb6d1b8297b5c9509ecf36fa2df86877723f9d1f",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/assemble_runtime_packet.py": "7cd122444425b333a4c1daacf1adc54089a0d21994ecf5f0c7a5acb97c8c0145",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/source_delta.diff": "d09b2381b1134ac3fc4ae16823b108e0282b1bada861fb34f3ecc0411d66242f",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/parent_report.json": "54cd9d124bcc7d2d32405591e32668cd010cfe4e083693d5ffab145f1b5a4ec9",
+      "docs/checkpoints/companion_runtime_packet_v6h_20261026.md": "8cb0aeffaf20c1138b43490818766af520f00f9f04896cd8c1abb408178c5840",
+      "tests/test_companion_v6h_runtime_packet.py": "6560d0f905e81ed4994bb226dea0c76606a9d22548c52387d83e19496b8efff1",
+      "docs/review_artifacts/companion_verifier_diagnostics_20261026/prechange.tar": "7696af91811c97ea72ba212622558162a38c730516f1ea42e897169969e7bdef",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/handoff_parent_report.json": "41178db308837bc5dc68ac3b484802bbfc08f70f585199cd6a1e94bc300ed013",
+      "docs/checkpoints/companion_v6h_execution_handoff_20261026.md": "8360d8caf1bec54d5b037356a5639c4de049891d3794f10b513a1d26d5f2c19b",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/execute_reviewed_v6h.py": "e0ecdd3f791507f6b930104dd46ee11dd79115424be7606f4fe4f46bb2f9eaa2",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/handoff_default_proof.json": "e4ea09aefbaa1e7570e037f5973bee90ce36710000068b9c56080b9090def483",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/verify_handoff_default.py": "fe123cd9c85762c07858f44f5864c4b632e9d3e9662ecd0de551bbf6899a9012",
+      "tests/test_companion_v6h_handoff.py": "712550d8942c279a1892ee082a5f3d3b28fe1d7bd68a85838f04494e3b5e041b",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/handoff_independent_review.json": "c3df4a6f24f8ea21ce0a29464f4d7739aa20091fa2489b28f722b1018a115b16",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/execute_reviewed_v6g.py": "f07d6bc90f0d2d2e578da1f03d8d73ee2dac0cdc465e7535491ad29afe4554f4",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/verify_handoff_default.py": "bc511aff5b6beb25c58c705e38170571ed4fe733e525373ec1cd96c33454123f",
+      "docs/review_artifacts/companion_continuation_20261021/execute_reviewed_cutover.py": "5c319350681e2fb4fdac363e29b829947e0348678fdcc8ecabc84820713adf12",
+      "tests/test_companion_v6c_handoff.py": "81785505e39f40c9b36fa7c98ebc0bbafcd3957b0516387ca7f72d9e7defe958",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/inert_validation_receipt.json": "927c5c493c065a563be57539edd82290588d235a4387fe3c942abc085e9be15c",
+      "tests/test_companion_evidence_checks.py": "b4459d52cfdf540364de133b3594dfc6a54552876e5bcc7fd029412d4af4415c"
+    }
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for offline saved files, pure AST functions and synthetic tests; no live service/state confidence inferred.",
+    "diagnosis_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - ; runpy.run_module('docs.review_artifacts.companion_integration_inputs_v6h_20261026.actual_runtime_v6h.diagnose_saved_result', run_name='__main__') under operation/import tripwires; compare parsed stdout to diagnosis.json",
+    "diagnosis_runs": 1,
+    "saved_diagnosis_object_exact": true,
+    "diagnosis_stderr_empty": true,
+    "tripwires": "socket/create_connection/getaddrinfo, subprocess entry points, system/popen/fork/spawn refused; application/shared/Settings/DB/HTTP/SDK and adapter/installer/transport imports refused during diagnosis. No tripwire call.",
+    "operation_tripwire_calls": [],
+    "test_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6h_market_contract_diagnosis.py",
+    "tests": {
+      "focused_runs": 1,
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 0.22,
+      "full_suite_run": false
+    },
+    "parent_test_timing": {
+      "classification": "CLAIMED",
+      "passed": 2,
+      "seconds": 0.24
+    },
+    "native_operations": 0,
+    "real_token_or_credentials_read": 0,
+    "service_operations": 0,
+    "DB_queries": 0,
+    "SDK_initializations": 0,
+    "market_runs": 0,
+    "scheduler_or_trading_actions": 0,
+    "additional_agents": 0
+  },
+  "privacy_limits": [
+    "Read sanitized receipt, explicit parent outcome and frozen local archive only; no actual raw response/market payload/live DB row reconstruction, native state query or credential access.",
+    "Closed diagnostic fields contain fixed stage/code/booleans, not private values or exception text. Saved response data retains provider/field presence and citation hashes, not narrative/market payload.",
+    "Hashes remain correlatable to frozen public archive IDs/URLs; this is not anonymity or proof that all unretained process memory/stderr/logs were secret-free.",
+    "Source counterexample null values/identity fields are generated purely from source, not observed actual market data."
+  ],
+  "read_scope": {
+    "complete": [
+      "docs/checkpoints/companion_runtime_attempt_v6h_20261026.md",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/receipt.jsonl (all 98 events)",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/outcome.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/diagnose_saved_result.py",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/diagnosis.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/parent_report.json",
+      "tests/test_companion_v6h_market_contract_diagnosis.py"
+    ],
+    "selected_source": [
+      "phase1_research_copilot/shared/tools.py:130-155",
+      "phase1_research_copilot/shared/tools.py:180-240",
+      "phase1_research_copilot/orchestrator/main.py:290-342",
+      "phase1_research_copilot/orchestrator/main.py:468-495",
+      "phase1_research_copilot/orchestrator/main.py:610-648",
+      "phase1_research_copilot/memory_retrieval/main.py:192-218",
+      "phase1_research_copilot/memory_retrieval/main.py:330-356",
+      "scripts/research/companion_evidence_checks.py:69-94",
+      "scripts/research/companion_evidence_checks.py:202-217",
+      "scripts/research/companion_evidence_checks.py:245-287",
+      "scripts/research/companion_evidence_checks.py:377-399",
+      "scripts/research/companion_installer.py:618-664",
+      "scripts/research/companion_installer.py:804-837",
+      "tests/test_companion_evidence_checks.py:1-112"
+    ],
+    "parsed_or_hash_bound": "Existing state receipt bytes and frozen archive read for equality/correlation; current packet/scope/runtime/child/manifest/handoff records reused from prior reviews and rehashed. App/host source maps rechecked for unchanged bytes; no broad old SDK or semantic audit of every hashed file.",
+    "not_read_or_observed": "No private configuration, token, current native metadata, live DB, response body, actual market payload, raw query reconstruction, or new service state."
+  },
+  "material_assumptions": [],
+  "recommendation": {
+    "scope": "One narrow OFFLINE strict-probe market-contract diagnosis/disposition before any proposed repair or runtime action.",
+    "next": "Test real signal-market producer shapes and strict tool-result/bundle assembly with synthetic no-row and populated-row cases. Decide how the approved no-market-evidence profile should represent unavailable/excluded market data without accepting prices or broadening evidence criteria. Preserve identity, null-price/no-market-evidence, archive, witness, five-Boolean and deadline gates. Treat standalone default snapshot compatibility separately unless its runtime reachability is established.",
+    "not_authorized": "No implementation, verifier whitelist widening, acceptance relaxation, live payload capture, DB read, source/policy change or new runtime attempt is authorized by this review."
+  },
+  "write_scope": "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/independent_review.json only. Reviewed sources/tests/receipt/outcome/diagnosis/report/docs/worklog and existing acceptance records preserved."
+}

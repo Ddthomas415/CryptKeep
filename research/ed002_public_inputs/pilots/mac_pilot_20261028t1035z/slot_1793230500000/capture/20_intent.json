@@ -1,0 +1,6 @@
+{
+  "method": "GET",
+  "phase": "ABOUT_TO_CALL_TRANSPORT_NOT_SENT_PROOF",
+  "sent_clock_ms": 1793230507858,
+  "url": "https://api.exchange.coinbase.com/products/PEPE-USD/candles?granularity=3600&start=2026-10-28T21%3A00%3A00%2B00%3A00&end=2026-10-28T23%3A00%3A00%2B00%3A00"
+}

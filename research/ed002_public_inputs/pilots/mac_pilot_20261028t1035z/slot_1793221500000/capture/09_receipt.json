@@ -1,0 +1,14 @@
+{
+  "bytes": 204,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "09_BONK.bin",
+  "http_date": "Wed, 28 Oct 2026 21:05:03 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793221503601,
+  "request_started_ms": 1793221503521,
+  "sha256": "bddb0d312fbc27208f7f7cc8abb6f64ad68d0aec8e0ad51f42eb0c9076a622d5",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/BONK-USD/candles?granularity=3600&start=2026-10-28T19%3A00%3A00%2B00%3A00&end=2026-10-28T21%3A00%3A00%2B00%3A00"
+}

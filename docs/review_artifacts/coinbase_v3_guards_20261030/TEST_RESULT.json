@@ -1,0 +1,15 @@
+{
+  "command": "env PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B docs/review_artifacts/coinbase_v3_guards_20261030/verify_offline.py",
+  "exit_code": 0,
+  "passed": 245,
+  "seconds_reported": 14.3,
+  "before_new_suite": {
+    "failed": 19,
+    "passed": 11
+  },
+  "intermediate_prior_slice": {
+    "failed": 2,
+    "passed": 209
+  },
+  "scope": "offline invented data and actual SDK dispatch/parser with request stub; disposable SQL only; no real credentials, signing or HTTP"
+}

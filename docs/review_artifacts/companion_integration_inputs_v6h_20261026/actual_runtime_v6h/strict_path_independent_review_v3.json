@@ -1,0 +1,169 @@
+{
+  "schema": "companion-v6h-strict-path-harness-correction-independent-review-v3",
+  "date": "2026-10-26",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Final narrow V6H-STRICT-02 dependency/guard-identity/synthetic-negative harness correction only. Bounded harness proof closed; no production implementation or operational acceptance.",
+  "bounded_harness_proof_closed": true,
+  "blocking_findings": [],
+  "findings": [],
+  "runtime_state": "INCOMPLETE",
+  "operations_authorized": false,
+  "implementation_approved": false,
+  "startup_authorized": false,
+  "retry_authorized": false,
+  "unique_live_cause_established": false,
+  "resolved_findings": [
+    {
+      "id": "V6H-STRICT-02",
+      "classification": "SHOWN exact delta, runtime fixture identity observations and synthetic negative test",
+      "status": "Resolved for the explicitly bounded guarded interval",
+      "references": [
+        {
+          "path": "tests/test_companion_v6h_strict_probe_contract.py",
+          "line": 19
+        },
+        {
+          "path": "tests/test_companion_v6h_strict_probe_contract.py",
+          "line": 36
+        },
+        {
+          "path": "tests/test_companion_v6h_strict_probe_contract.py",
+          "line": 40
+        },
+        {
+          "path": "tests/test_companion_v6h_strict_probe_contract.py",
+          "line": 49
+        }
+      ],
+      "detail": "no_native now explicitly depends on loaded, so its counting guards are installed after loaded's replacements. It yields the native/HTTP function identities. The dedicated identity test checks all six actual hooks, and a read-only reviewer hook confirmed those same identities in all five test cases. The guarded-path counters were empty and teardown passed.",
+      "negative_proof": "The added test AST-compiles only no_native into SimpleNamespace socket/process/HTTP objects, removes the fixture decorator and supplies a fake setattr seam. It calls fake_socket.connect, deliberately catches that fake guard's AssertionError, then requires resuming the generator to raise the post-yield assertion. No real socket or I/O is used.",
+      "scope": "This closes the previously observed composition/counter gap, not importer/setup/all-effects accounting."
+    }
+  ],
+  "verified_preserved_boundaries": [
+    "Risk audit remains stubbed to the shared synthetic audit seam and expected risk/orchestrator audit hook calls remain asserted.",
+    "The three existing absent/positive/zero signal-market diagnosis cases are AST-identical to archived v2.",
+    "The no_native fixture is AST-identical to v2 after normalizing only its new loaded argument and yielded hook mapping.",
+    "New test delta consists only of supporting AST/Path/SimpleNamespace imports, that dependency/mapping and two identity/negative tests.",
+    "Checkpoint explicitly limits counting to after loaded setup; import/setup before counting hooks is excluded. Historical zero-attempt withdrawal and prior rejected closure remain preserved."
+  ],
+  "integrity": {
+    "algorithm": "SHA256",
+    "path_base": "/Users/baitus/Downloads/crypto-bot-pro",
+    "reviewed_inputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_harness_v3_report.json": "a0c8d04e34281d627f511c9fd8f8fc734cdc5a3d48961b4038cf848998e50699",
+      "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md": "92b0e1283120f1db955ff51157a0d156b5107b59e046d7ed747dbbf404fb501c",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_harness_v2.tar": "0ef9c447e7b59603f2a3e5cf407a16872c38c8478bddfad1eb38a2cb0c8f53d1",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review_v2.json": "f321e8d9c8fa85da096e063b4dfae140ad5ff65f19bb191c8dbce3fcf3495464",
+      "tests/test_companion_v6h_strict_probe_contract.py": "ea4049ccf827b8dfd2b416b89fb977eae9594dfd6a5fe37d0492968a0f0a28a4"
+    },
+    "preserved_archive_members": [
+      "tests/test_companion_v6h_strict_probe_contract.py",
+      "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md"
+    ],
+    "preserved_member_sha256": {
+      "tests/test_companion_v6h_strict_probe_contract.py": "686d6c9d005f355d7b303a6d85c441d6704d8429612855e3c77ce6fea4b5f92a",
+      "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md": "52adcdfe09e7f10204094ef613438580a6015d66c2ce61b9108b0c857a84b7dc"
+    },
+    "archive_read_without_extraction": true,
+    "prior_v2_review_sha256": "f321e8d9c8fa85da096e063b4dfae140ad5ff65f19bb191c8dbce3fcf3495464",
+    "prior_v2_review_unchanged": true,
+    "prior_v2_rejected_status_not_rewritten": true,
+    "existing_diagnosis_case_AST_identical": true,
+    "fixture_only_dependency_and_yield_mapping_changed": true,
+    "no_production_file_edited_by_reviewer": true,
+    "production_change_claim": "Parent/user report no production changes; this review intentionally does not repeat a broad production-source audit."
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for one isolated synthetic module run and runtime guard identity inspection; not installed/runtime state",
+    "test_module_runs": 1,
+    "base_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6h_strict_probe_contract.py",
+    "actual_invocation": "Same clean environment/pytest arguments invoked once via pytest.main with a read-only pytest_runtest_call hook. It compares the six effective hook functions to no_native's yielded functions and observes the guarded counter; it neither changes guards nor calls them.",
+    "result": {
+      "classification": "SHOWN",
+      "exit_code": 0,
+      "passed": 5,
+      "seconds": 0.7,
+      "warnings": 10,
+      "warning_type": "Existing FastAPI on_event deprecations",
+      "full_suite_run": false
+    },
+    "runtime_guard_observations": [
+      {
+        "case": "test_counting_hooks_survive_fixture_composition",
+        "all_six_effective_guard_identities_match": true,
+        "guarded_path_counted_attempts": []
+      },
+      {
+        "case": "test_composed_guard_detects_swallowed_socket_error_on_synthetic_objects",
+        "all_six_effective_guard_identities_match": true,
+        "guarded_path_counted_attempts": []
+      },
+      {
+        "case": "test_strict_signal_to_bundle_with_synthetic_market_rows[absent]",
+        "all_six_effective_guard_identities_match": true,
+        "guarded_path_counted_attempts": []
+      },
+      {
+        "case": "test_strict_signal_to_bundle_with_synthetic_market_rows[positive]",
+        "all_six_effective_guard_identities_match": true,
+        "guarded_path_counted_attempts": []
+      },
+      {
+        "case": "test_strict_signal_to_bundle_with_synthetic_market_rows[zero]",
+        "all_six_effective_guard_identities_match": true,
+        "guarded_path_counted_attempts": []
+      }
+    ],
+    "active_guarded_path_forbidden_attempts": 0,
+    "synthetic_negative_expected": true,
+    "negative_scope": "Intentional fake-object counter increment is local to the AST-compiled negative fixture; it is not a real socket/network attempt and is separate from the active guarded-path counters.",
+    "parent_result": {
+      "classification": "CLAIMED timing; result count independently reproduced",
+      "passed": 5,
+      "seconds": 1.16,
+      "warnings": 10,
+      "active_path_forbidden_attempts": 0
+    },
+    "real_native_Docker_calls": 0,
+    "real_token_reads": 0,
+    "real_network_requests": 0,
+    "real_DB_queries": 0,
+    "real_service_operations": 0,
+    "real_SDK_initializations": 0,
+    "market_runs": 0,
+    "additional_agents": 0,
+    "other_test_modules_run": 0,
+    "prior_98_event_receipt_or_diagnosis_reread": false,
+    "prior_runtime_tests_rerun": false
+  },
+  "diagnosis_and_proposal": {
+    "status": "Unchanged, not reopened or upgraded.",
+    "shown": "Under controlled strict-path source/ASGI/DB seams, absent market rows pass and populated positive/zero rows reject; ordinary/default market path is not substituted.",
+    "unverified": "Actual historical payload/row availability, exact historical predicate, unique live cause and present service health remain unknown.",
+    "proposal": "A truthful archival-profile market-exclusion contract remains a separate unimplemented decision. Ordinary research, no-price/identity/archive/witness/citation gates and all-five-true acceptance must remain preserved.",
+    "not_approved": "No production marker/verifier implementation, criteria widening, packet refresh, token operation, service/startup, retry or runtime attempt approved."
+  },
+  "read_scope": {
+    "complete": [
+      "tests/test_companion_v6h_strict_probe_contract.py",
+      "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_harness_v3_report.json"
+    ],
+    "archive": "Exact test/checkpoint members of strict_path_harness_v2.tar read in memory, compared to known v2 hashes and complete diffs inspected.",
+    "prior_review": "v2 review bytes hashed for preservation, not a new review of its old runtime context.",
+    "not_reread": "No whole fixture/source/SDK audit, prior 98-event receipt/diagnosis reread, new native probe or extra test module.",
+    "context": "Existing fixture semantics reused from prior bounded review, with guard composition independently observed in this single current run."
+  },
+  "limitations": [
+    "Counter proof covers the six named hooks only during the interval after loaded fixture setup; it is not exhaustive importer/setup/teardown/process-wide effect or every possible I/O API proof.",
+    "All diagnosis evidence remains synthetic/local and is not an installed SDK, real DB, remote verifier/timer or live-service proof.",
+    "The fake-object negative proves swallowed-error detection at the tested guard seam, not that real network failures or runtime recovery were exercised.",
+    "Prior v2 rejection remains valid for its earlier hash-bound source; this acceptance applies only to the current v3 hashes.",
+    "Runtime remains INCOMPLETE, and no exact restoration, repaired service, unique historical cause or operational authority is inferred."
+  ],
+  "material_assumptions": [],
+  "write_scope": "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review_v3.json only. No fixes or edits to reviewed sources/tests/checkpoint/report/archive, prior review/receipt/diagnosis, worklog or approval records."
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "companion-v6c-preparation-operation-v1",
+  "invocations": 1,
+  "session_id": 93011,
+  "exit_code": 0,
+  "argv": ["env", "-i", "PATH=/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE=1", "./.venv/bin/python", "-B", "-m", "scripts.research.companion_prepare", "--manifest", "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/reviewed_preparation_manifest.json", "--reviewed-manifest-sha256", "e20775accd2ea02ac16d258ead2fb58e5ba1b6d26ff003ba10492dc6d442b6b9", "--execute-preparation"],
+  "stdout": {
+    "state": "READY_FOR_INDEPENDENT_REVIEW",
+    "preparation_complete": true,
+    "actions_executed": true,
+    "startup_authorized": false,
+    "services_started": false,
+    "originals_interrupted": false,
+    "attempt_reserved": true,
+    "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261023v6c/receipt.jsonl",
+    "evidence": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261023v6c/evidence.json",
+    "evidence_sha256": "9f52a511c6b86f3009712f88515087cf20bd117534877e71ec5ebeae6b80dfb9",
+    "manifest_sha256": "e20775accd2ea02ac16d258ead2fb58e5ba1b6d26ff003ba10492dc6d442b6b9"
+  },
+  "automatic_retry": false,
+  "cutover_authorized": false,
+  "runtime_status": "INCOMPLETE"
+}

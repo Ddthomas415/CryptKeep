@@ -1,0 +1,475 @@
+{
+  "applications": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "uvicorn",
+        "audit_log.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8009"
+      ],
+      "create_options": [
+        "--workdir",
+        "/app",
+        "--log-driver",
+        "local",
+        "--publish",
+        "127.0.0.1:8009:8009/tcp",
+        "--health-cmd",
+        "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8009/healthz', timeout=2).read()\"",
+        "--health-interval",
+        "10000000000ns",
+        "--health-timeout",
+        "5000000000ns",
+        "--health-retries",
+        "10"
+      ],
+      "name": "phase1-audit-log",
+      "network_options": [
+        "--alias",
+        "phase1-audit-log",
+        "--alias",
+        "audit-log"
+      ],
+      "replacement_configured_metadata": "3fa88c5201bb049e73965bd38e280e0d3613cb5be8451f468065d1c940eb48f7",
+      "sources": [
+        {
+          "destination": "/app/audit_log/__init__.py",
+          "local": "phase1_research_copilot/audit_log/__init__.py",
+          "sha256": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75"
+        },
+        {
+          "destination": "/app/audit_log/main.py",
+          "local": "phase1_research_copilot/audit_log/main.py",
+          "sha256": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8"
+        },
+        {
+          "destination": "/app/shared/__init__.py",
+          "local": "phase1_research_copilot/shared/__init__.py",
+          "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+        },
+        {
+          "destination": "/app/shared/audit.py",
+          "local": "phase1_research_copilot/shared/audit.py",
+          "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+        },
+        {
+          "destination": "/app/shared/config.py",
+          "local": "phase1_research_copilot/shared/config.py",
+          "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+        },
+        {
+          "destination": "/app/shared/db.py",
+          "local": "phase1_research_copilot/shared/db.py",
+          "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+        },
+        {
+          "destination": "/app/shared/logging.py",
+          "local": "phase1_research_copilot/shared/logging.py",
+          "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+        },
+        {
+          "destination": "/app/shared/models.py",
+          "local": "phase1_research_copilot/shared/models.py",
+          "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+        },
+        {
+          "destination": "/app/shared/probe.py",
+          "local": "phase1_research_copilot/shared/probe.py",
+          "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+        }
+      ]
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "uvicorn",
+        "risk_stub.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8008"
+      ],
+      "create_options": [
+        "--workdir",
+        "/app",
+        "--log-driver",
+        "local",
+        "--publish",
+        "127.0.0.1:8008:8008/tcp",
+        "--health-cmd",
+        "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8008/healthz', timeout=2).read()\"",
+        "--health-interval",
+        "10000000000ns",
+        "--health-timeout",
+        "5000000000ns",
+        "--health-retries",
+        "10"
+      ],
+      "name": "phase1-risk-stub",
+      "network_options": [
+        "--alias",
+        "phase1-risk-stub",
+        "--alias",
+        "risk-stub"
+      ],
+      "replacement_configured_metadata": "7dbed9dcdd2ef8265caafd3f062d8d96ac2f4b85012f3c34856bdd3aaebeddc7",
+      "sources": [
+        {
+          "destination": "/app/risk_stub/__init__.py",
+          "local": "phase1_research_copilot/risk_stub/__init__.py",
+          "sha256": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411"
+        },
+        {
+          "destination": "/app/risk_stub/main.py",
+          "local": "phase1_research_copilot/risk_stub/main.py",
+          "sha256": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6"
+        },
+        {
+          "destination": "/app/shared/__init__.py",
+          "local": "phase1_research_copilot/shared/__init__.py",
+          "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+        },
+        {
+          "destination": "/app/shared/audit.py",
+          "local": "phase1_research_copilot/shared/audit.py",
+          "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+        },
+        {
+          "destination": "/app/shared/config.py",
+          "local": "phase1_research_copilot/shared/config.py",
+          "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+        },
+        {
+          "destination": "/app/shared/db.py",
+          "local": "phase1_research_copilot/shared/db.py",
+          "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+        },
+        {
+          "destination": "/app/shared/logging.py",
+          "local": "phase1_research_copilot/shared/logging.py",
+          "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+        },
+        {
+          "destination": "/app/shared/models.py",
+          "local": "phase1_research_copilot/shared/models.py",
+          "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+        },
+        {
+          "destination": "/app/shared/probe.py",
+          "local": "phase1_research_copilot/shared/probe.py",
+          "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+        }
+      ]
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "uvicorn",
+        "memory_retrieval.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8007"
+      ],
+      "create_options": [
+        "--workdir",
+        "/app",
+        "--log-driver",
+        "local",
+        "--publish",
+        "127.0.0.1:8007:8007/tcp",
+        "--health-cmd",
+        "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8007/healthz', timeout=2).read()\"",
+        "--health-interval",
+        "10000000000ns",
+        "--health-timeout",
+        "5000000000ns",
+        "--health-retries",
+        "10"
+      ],
+      "name": "phase1-memory",
+      "network_options": [
+        "--alias",
+        "phase1-memory",
+        "--alias",
+        "memory-retrieval"
+      ],
+      "replacement_configured_metadata": "0f74da099f317ec793e8a853b461ca3645b325741124984166132c53915dad63",
+      "sources": [
+        {
+          "destination": "/app/memory_retrieval/__init__.py",
+          "local": "phase1_research_copilot/memory_retrieval/__init__.py",
+          "sha256": "2402dc051be3f99818a1933b20b12a9a99db1823105e1068d015c0edc5b1d7fa"
+        },
+        {
+          "destination": "/app/memory_retrieval/article_view.py",
+          "local": "phase1_research_copilot/memory_retrieval/article_view.py",
+          "sha256": "b9543070bbfa3d75999a3cf980d5fba58e880a6cd093c9165305a5124a70cd8f"
+        },
+        {
+          "destination": "/app/memory_retrieval/main.py",
+          "local": "phase1_research_copilot/memory_retrieval/main.py",
+          "sha256": "28dc4f1b496437be2d3e1273b4910515b8342a0d57b939f849a6a49da09322d1"
+        },
+        {
+          "destination": "/app/memory_retrieval/question_query.py",
+          "local": "phase1_research_copilot/memory_retrieval/question_query.py",
+          "sha256": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07"
+        },
+        {
+          "destination": "/app/shared/__init__.py",
+          "local": "phase1_research_copilot/shared/__init__.py",
+          "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+        },
+        {
+          "destination": "/app/shared/audit.py",
+          "local": "phase1_research_copilot/shared/audit.py",
+          "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+        },
+        {
+          "destination": "/app/shared/config.py",
+          "local": "phase1_research_copilot/shared/config.py",
+          "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+        },
+        {
+          "destination": "/app/shared/db.py",
+          "local": "phase1_research_copilot/shared/db.py",
+          "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+        },
+        {
+          "destination": "/app/shared/logging.py",
+          "local": "phase1_research_copilot/shared/logging.py",
+          "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+        },
+        {
+          "destination": "/app/shared/models.py",
+          "local": "phase1_research_copilot/shared/models.py",
+          "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+        },
+        {
+          "destination": "/app/shared/probe.py",
+          "local": "phase1_research_copilot/shared/probe.py",
+          "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+        }
+      ]
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "uvicorn",
+        "orchestrator.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8002"
+      ],
+      "create_options": [
+        "--workdir",
+        "/app",
+        "--log-driver",
+        "local",
+        "--publish",
+        "127.0.0.1:8002:8002/tcp",
+        "--mount",
+        "type=bind,source=/Users/baitus/Downloads/crypto-bot-pro,target=/repo,readonly,bind-propagation=rprivate",
+        "--health-cmd",
+        "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/healthz', timeout=2).read()\"",
+        "--health-interval",
+        "10000000000ns",
+        "--health-timeout",
+        "5000000000ns",
+        "--health-retries",
+        "10"
+      ],
+      "name": "phase1-orchestrator",
+      "network_options": [
+        "--alias",
+        "phase1-orchestrator",
+        "--alias",
+        "orchestrator"
+      ],
+      "replacement_configured_metadata": "fccb06da766f455f4908f4c4b0ed2c10607ab843691e4905da6202cf2ddebcb7",
+      "sources": [
+        {
+          "destination": "/app/orchestrator/__init__.py",
+          "local": "phase1_research_copilot/orchestrator/__init__.py",
+          "sha256": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1"
+        },
+        {
+          "destination": "/app/orchestrator/main.py",
+          "local": "phase1_research_copilot/orchestrator/main.py",
+          "sha256": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6"
+        },
+        {
+          "destination": "/app/shared/__init__.py",
+          "local": "phase1_research_copilot/shared/__init__.py",
+          "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+        },
+        {
+          "destination": "/app/shared/answer_metadata.py",
+          "local": "phase1_research_copilot/shared/answer_metadata.py",
+          "sha256": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d"
+        },
+        {
+          "destination": "/app/shared/audit.py",
+          "local": "phase1_research_copilot/shared/audit.py",
+          "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+        },
+        {
+          "destination": "/app/shared/config.py",
+          "local": "phase1_research_copilot/shared/config.py",
+          "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+        },
+        {
+          "destination": "/app/shared/db.py",
+          "local": "phase1_research_copilot/shared/db.py",
+          "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+        },
+        {
+          "destination": "/app/shared/llm_client.py",
+          "local": "phase1_research_copilot/shared/llm_client.py",
+          "sha256": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84"
+        },
+        {
+          "destination": "/app/shared/logging.py",
+          "local": "phase1_research_copilot/shared/logging.py",
+          "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+        },
+        {
+          "destination": "/app/shared/models.py",
+          "local": "phase1_research_copilot/shared/models.py",
+          "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+        },
+        {
+          "destination": "/app/shared/probe.py",
+          "local": "phase1_research_copilot/shared/probe.py",
+          "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+        },
+        {
+          "destination": "/app/shared/prompting.py",
+          "local": "phase1_research_copilot/shared/prompting.py",
+          "sha256": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903"
+        },
+        {
+          "destination": "/app/shared/retry.py",
+          "local": "phase1_research_copilot/shared/retry.py",
+          "sha256": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b"
+        },
+        {
+          "destination": "/app/shared/tools.py",
+          "local": "phase1_research_copilot/shared/tools.py",
+          "sha256": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469"
+        }
+      ]
+    }
+  ],
+  "baseline": null,
+  "baseline_status": "MISSING_POST_V6F_ROLLBACK_PAIRED_CAPTURE",
+  "consumer_sha256": {
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "e9fd8a144de54bf277e2c5812110dda9cc8cf0a7d1bb6fc85707b188f3174d38",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+  },
+  "cutover_authorized": false,
+  "decision": "INCOMPLETE",
+  "expected_original_targets": [
+    {
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "name": "phase1-timescaledb"
+    },
+    {
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "name": "phase1-qdrant"
+    },
+    {
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "name": "phase1-minio"
+    },
+    {
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "name": "phase1-audit-log"
+    },
+    {
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "name": "phase1-risk-stub"
+    },
+    {
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "name": "phase1-memory"
+    },
+    {
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "name": "phase1-orchestrator"
+    }
+  ],
+  "historical_checkpoint_binding": {
+    "current_equality_claimed": false,
+    "path": "docs/checkpoints/companion_cited_precedent_repair_20261025.md",
+    "pre_closeout_sha256": "f63a411fa2a07f49caebcca357142f5923e8e72906c33dfebba7fd09aa5177ad"
+  },
+  "input_sha256": {
+    "docs/review_artifacts/companion_cited_precedent_repair_20261025/independent_review_v2.json": "bebb73297e47f784a1d43ff9ab1a2755cef6ad29348716145ea0bd4688259732",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_runtime_v6f/outcome.json": "c074d27caa3a16f94fc6bf28a2875d8640ac30d6a6f5ae9dda1a7d85caf4e267",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_runtime_v6f/receipt.jsonl": "9fdc6a9823d45777e591a25b108be4da7bfeadea296daeb50492481cb3acf555",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/provenance.json": "b8c685aac89efc0661a2635e97855b997e8fc77cbd9ab2b029b667f4da3377a7",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/reviewed_preparation_manifest.json": "a7854b1660ae2c321f8edb62d3ac2b7ab60350deb62df91bdde774e8c2ea1588",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/scope_review.json": "a165d3db68fe6dd139e44d5052049b162bbc7214d8df0d213974f2d4e2e58ef7",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/refresh_sources.py": "d89f8bb6ba2672b287d9757a699e2ec3ace5770862737f5ecccee2844228212b"
+  },
+  "new_container_ids": null,
+  "new_image_ids": null,
+  "preparation_authorized": false,
+  "proposed_attempt": "workerprep20261025v6g",
+  "query_authorized": false,
+  "reviewer": "",
+  "runtime_consumer_sha256": {
+    "dashboard/services/view_data.py": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51",
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+    "dashboard/services/views/_shared.py": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202",
+    "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+    "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "e9fd8a144de54bf277e2c5812110dda9cc8cf0a7d1bb6fc85707b188f3174d38",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+  },
+  "schema": "companion-source-refresh-only-v1",
+  "scope": "Source-only refresh, not a Plan or an approval. Original targets are historical constraints, not current observations. No source, identity, model, installed-code or current health equivalence is inferred.",
+  "source_deltas": [
+    {
+      "after": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+      "before": "d003edac94edbb7d7886901784674e23ed9accae2d42bd69c0a7f6fbc0c9e381",
+      "lane": "host_runtime_consumer_only",
+      "path": "dashboard/services/views/_shared_signals.py"
+    }
+  ],
+  "startup_authorized": false
+}

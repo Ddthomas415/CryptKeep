@@ -1,0 +1,11 @@
+--- accepted_funding_snapshot
++++ current_existing_order
+@@ -686,7 +686,7 @@
+ 
+     try:
+         from services.markets.rules import validate as mr_validate  # type: ignore
+-        vres = mr_validate(exec_db, venue, symbol, qty=amount_f, notional=notional, ttl_s=ttl_s)
++        vres = mr_validate(exec_db, venue, symbol, qty=amount_f, notional=notional, ttl_s=ttl_s, order_type=order_type)
+         ok = bool(getattr(vres, "ok", False))
+         if not ok:
+             code = str(getattr(vres, "code", "MARKET_RULES_FAIL"))

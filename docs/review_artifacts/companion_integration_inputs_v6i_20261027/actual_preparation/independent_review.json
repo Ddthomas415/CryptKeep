@@ -1,0 +1,399 @@
+{
+  "schema": "companion-v6i-actual-stopped-preparation-independent-review-v1",
+  "date": "2026-10-27",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Exact saved V6i stopped-preparation evidence and four actual IDs/images only, bound to accepted input manifest and real pure preparation contracts. Not current-state, image-parent/layer/source, SDK-policy, startup or operational acceptance.",
+  "runtime_state": "INCOMPLETE",
+  "operations_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "token_or_capture_authorized": false,
+  "retry_or_reset_authorized": false,
+  "blocking_findings": [],
+  "findings": [],
+  "counts": {
+    "actual_IDs": 4,
+    "app_entries": 43,
+    "prep_tools": 13,
+    "runtime_consumers": 20
+  },
+  "assessment": [
+    {
+      "classification": "SHOWN saved byte equality",
+      "subject": "All seven receipt events and state copies",
+      "detail": "Public receipt/evidence exactly equal the two existing controller state files. Strict duplicate-key parsing confirms reservation startup=false, four ordered create intents, complete embedded evidence equal to public evidence and published SHA equal to actual evidence hash."
+    },
+    {
+      "classification": "SHOWN saved output consistency; acquisition not independently observed",
+      "subject": "Exact tool result and outcome",
+      "detail": "tool_result.json contains saved session 53316/exit0/output and parsed stdout. outcome.json equals that output plus explicit source/session/exit metadata. Saved result reports preparation/actions complete, services_started=false, originals_interrupted=false, startup_authorized=false and attempt_reserved=true. No reviewer native operation or separate postcheck occurred."
+    },
+    {
+      "classification": "SHOWN pure loader and hash binding",
+      "subject": "Accepted input export",
+      "detail": "Input review 90728d085a259a9cd7757de02431f5a42dc772f2c466b733d7b96ada423e05af is fixed. Manifest 3c8066b43cf924374f2338907f306aadec25fdb599a2ef28a068ab0a21632a33 exactly equals original candidate with only the independently specified decision/reviewer substitutions and canonical-plus-LF serialization. Plan.load and evidence manifest/attempt hashes agree."
+    },
+    {
+      "classification": "SHOWN saved attestation plus real pure contract validation",
+      "subject": "Owned created identities",
+      "detail": "Real _rows accepts four unique actual IDs, disjoint from seven originals and prior V6h staged IDs. Ordered staged names/attempt, valid image IDs, created state, never-started timestamps, literal zero integer restarts and restart policy no all agree. Configured-only single-network evidence matches the accepted network contract. No native ownership/current state assertion beyond the saved controller attestation."
+    },
+    {
+      "classification": "SHOWN current local hash maps only",
+      "subject": "Source/consumer binding",
+      "detail": "43 per-app entries, 13 preparation tools and 20 runtime consumers match current local bytes. Existing complete preparation path checks labels/copied app sources/private environment equality and rechecks originals/stages before complete evidence. These are at-creation controller attestations, not newly recaptured source streams or image/library proof."
+    },
+    {
+      "classification": "SHOWN pure model consistency, explicitly MODELLED",
+      "subject": "Four model predictions",
+      "detail": "Use the already input-bound historical V6e model rows as templates, substituting actual ID/name/hostname/attempt/staged alias and each actual image from saved evidence. Existing pure Snapshot/preservation/network helpers reproduce all four saved rows exactly and final configured digests equal manifest. Actual image substitution is a modeling input, not evidence of that image's parent/layers/libraries. No raw V6i stage capture or model-to-native observation is claimed."
+    }
+  ],
+  "actual_replacements": [
+    {
+      "name": "phase1-audit-log-staged-workerprep20261027v6i",
+      "id": "c1b91732a755ba3dd0c6a449784df6a1b9c8d3ed600dd0e92800dddac7d30d10",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "policy": "no",
+      "metadata": "072b535c72408ed586c0c30fcc6fdd31a0f84558374d4975fae00a68d1c19c20",
+      "foundation": "7e8998c3635d350120e837782969ffb5d930172438385ca7aa8ffffc33d9839b",
+      "networks": [
+        ""
+      ],
+      "attempt": "workerprep20261027v6i",
+      "configured_metadata": "3b66294ef550044e5d107b9d00390467b6e253c92f8f1b748533c07d861fefde",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ]
+    },
+    {
+      "name": "phase1-risk-stub-staged-workerprep20261027v6i",
+      "id": "e94f1a3651ac49e9ccb3a0c876c475523c30451f9217fbdb71cf055b277a58a0",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "policy": "no",
+      "metadata": "09da436012808edb296d33b0750eae3f339586ebdf8402c9bacb0ca7de584d08",
+      "foundation": "af814f25fcf68fb1c22bc2fc52424cb9097583233b2d4dc23cc3e5dca97219bb",
+      "networks": [
+        ""
+      ],
+      "attempt": "workerprep20261027v6i",
+      "configured_metadata": "705db64c0669906681928abc67bc8528064181dc30ded7b95d02b7474a9f79d2",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ]
+    },
+    {
+      "name": "phase1-memory-staged-workerprep20261027v6i",
+      "id": "50998076e44610503e9e72d5e9135541ebbfc0d0abd3980d8b90a6dc32f4a8e6",
+      "image": "sha256:989471c8465a31e06f6a6765a919422a36d3f96f67f799cbaeebee6c3ab75e05",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "policy": "no",
+      "metadata": "167b2c5da91434dfd0458502cfab98a0e0c691a5528b8a1f3f78ed7e68c73937",
+      "foundation": "5c0d96afc87aee5936a3cd88912571aadfcfa608f94f7ed981ee0884e590e64b",
+      "networks": [
+        ""
+      ],
+      "attempt": "workerprep20261027v6i",
+      "configured_metadata": "67b1523773b5c3b559e3e0da166dc88293068b12ef876c5f3b40e613d1189de3",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ]
+    },
+    {
+      "name": "phase1-orchestrator-staged-workerprep20261027v6i",
+      "id": "184db4ebae46f11b97cff8316ca11e7f7216a385f82ac99ccb620b15a768490d",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "policy": "no",
+      "metadata": "8d56c354ac670491bfc5813f2e94d7320a3f7bc827d76afe6d2bd1888334abc3",
+      "foundation": "ab356df32dff7b88e277ac584a0818621423cdf732553cc716504679011fb998",
+      "networks": [
+        ""
+      ],
+      "attempt": "workerprep20261027v6i",
+      "configured_metadata": "0aec914367e0c16148e19d8f2a2781fa9e81e0f06632700a1576296fd82a3c0e",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ]
+    }
+  ],
+  "model_evidence": {
+    "lane": "MODELLED_TEMPLATE_MATCHED_TO_CONTROLLER_ATTESTATION",
+    "raw_v6i_stage_capture": false,
+    "independent_source_streams_recaptured": 0,
+    "template_path": "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/staged_metadata.derived.json",
+    "template_sha256": "bee8dccb784344ae8627040b86d076ee26f0c9911312b0f34e8549a3bd8fc2cd",
+    "allowed_model_substitutions": [
+      "id",
+      "name",
+      "hostname",
+      "attempt",
+      "temporary alias",
+      "image from actual saved preparation evidence"
+    ],
+    "checks": [
+      {
+        "application": "phase1-audit-log",
+        "modelled_Snapshot_equals_saved_attestation": true,
+        "final_configured_digest_matches_manifest": true,
+        "same_image_as_V6h": true,
+        "prior_image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+        "actual_image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270"
+      },
+      {
+        "application": "phase1-risk-stub",
+        "modelled_Snapshot_equals_saved_attestation": true,
+        "final_configured_digest_matches_manifest": true,
+        "same_image_as_V6h": true,
+        "prior_image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+        "actual_image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1"
+      },
+      {
+        "application": "phase1-memory",
+        "modelled_Snapshot_equals_saved_attestation": true,
+        "final_configured_digest_matches_manifest": true,
+        "same_image_as_V6h": false,
+        "prior_image": "sha256:6dca2b97c7ab0c0d0bb1b7476ef83b063afd5c17c7120234d15645ef4f8f4aea",
+        "actual_image": "sha256:989471c8465a31e06f6a6765a919422a36d3f96f67f799cbaeebee6c3ab75e05"
+      },
+      {
+        "application": "phase1-orchestrator",
+        "modelled_Snapshot_equals_saved_attestation": true,
+        "final_configured_digest_matches_manifest": true,
+        "same_image_as_V6h": true,
+        "prior_image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+        "actual_image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83"
+      }
+    ],
+    "image_limit": "Three image digests equal prior V6h; memory digest differs. Equal digests do not establish which builds used cache, and a new image value inserted into a pure model cannot prove SDK/source inheritance."
+  },
+  "new_memory_image_proof": {
+    "decision": "INCOMPLETE",
+    "evidence_classification": "UNVERIFIED",
+    "actual_image": "sha256:989471c8465a31e06f6a6765a919422a36d3f96f67f799cbaeebee6c3ab75e05",
+    "prior_V6h_image": "sha256:6dca2b97c7ab0c0d0bb1b7476ef83b063afd5c17c7120234d15645ef4f8f4aea",
+    "missing": [
+      "Actual original-parent/image linkage",
+      "Actual layer prefix/count and source-only overlay/COPY evidence",
+      "Source/installed-byte/SDK library evidence applicable to this exact changed image",
+      "Separate image/SDK/source-policy applicability judgment"
+    ],
+    "scope": "Missing proof does not block saved actual-ID acceptance. It does block assuming new memory SDK/image/source-policy applicability or carrying old memory image approvals forward. Preparation success, copied-app attestation and unchanged builder bytes do not fill this gap.",
+    "next_missing_proof": "Use the existing separately authorized evidence path to bind the new memory image to its actual parent/layers/source-only overlay and source/SDK provenance, then perform bounded applicability review. No new infrastructure is indicated, and this review authorizes no such capture/native operation."
+  },
+  "receipt": {
+    "public_path": "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/receipt.jsonl",
+    "state_path": ".cbp_state/runtime/companion_preparations/workerprep20261027v6i/receipt.jsonl",
+    "sha256": "5bd4ff43665bfdbe9a0ece3cc4c91a9934501468e39ccfe7830674619a002533",
+    "events": 7,
+    "all_events_read": true,
+    "state_copy_byte_equal": true,
+    "evidence_public_path": "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/preparation_evidence.json",
+    "evidence_state_path": ".cbp_state/runtime/companion_preparations/workerprep20261027v6i/evidence.json",
+    "evidence_sha256": "6b307618be50d7e6179106fbcfc837ac5ec0695a12aaa9888b34fed54e8d2fcf"
+  },
+  "actual_ID_review": {
+    "path": "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/actual_id_review.json",
+    "schema": "companion-preparation-review-v1",
+    "decision": "ACCEPTED_WITH_RISK",
+    "sha256": "f50dc3ecdd7a6271138640c9ac7d873c20377edc0b98311fc63324d70d13efbb",
+    "fields": 5,
+    "authority_limit": "Reviewer-authored external five-field record binds these saved real IDs/evidence/manifest for later offline input composition only; not startup, source-policy or operation approval.",
+    "real_ReviewedPreparation_load": true
+  },
+  "hash_algorithm": "SHA256",
+  "path_base": "/Users/baitus/Downloads/crypto-bot-pro",
+  "hashes": {
+    "reviewed_inputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/receipt.jsonl": "5bd4ff43665bfdbe9a0ece3cc4c91a9934501468e39ccfe7830674619a002533",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/preparation_evidence.json": "6b307618be50d7e6179106fbcfc837ac5ec0695a12aaa9888b34fed54e8d2fcf",
+      ".cbp_state/runtime/companion_preparations/workerprep20261027v6i/receipt.jsonl": "5bd4ff43665bfdbe9a0ece3cc4c91a9934501468e39ccfe7830674619a002533",
+      ".cbp_state/runtime/companion_preparations/workerprep20261027v6i/evidence.json": "6b307618be50d7e6179106fbcfc837ac5ec0695a12aaa9888b34fed54e8d2fcf",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/tool_result.json": "c3756044fa54fc1bf183442869bb220984b5ca844bc5a5e3dc34f0b4f6cef909",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/outcome.json": "3d51727145d54b131ce035b845323a1770c3675e377eaa275a9f09f6d8907cb6",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_input_review.json": "90728d085a259a9cd7757de02431f5a42dc772f2c466b733d7b96ada423e05af",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/reviewed_preparation_manifest.json": "3c8066b43cf924374f2338907f306aadec25fdb599a2ef28a068ab0a21632a33",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/candidate_manifest.json": "9cedf2ac59eeaa90426b437a4f863360ccc1faf913f89eac8babe0d977e377d6",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/provenance.json": "a3555d20e26d2fd885b852373ce6a25705caf84f5c6839f337e30973ea45356b",
+      "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+      "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+      "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+      "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+      "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+      "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+      "scripts/research/companion_installer.py": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b",
+      "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+      "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+      "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d",
+      "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659",
+      "dashboard/services/view_data.py": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51",
+      "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+      "dashboard/services/views/_shared.py": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202",
+      "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+      "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+      "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+      "scripts/research/companion_evidence_checks.py": "9c58b8128d6ff9fd6a140ef7b107323497886f1640aac69e357eb79bff684461",
+      "phase1_research_copilot/audit_log/__init__.py": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75",
+      "phase1_research_copilot/audit_log/main.py": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8",
+      "phase1_research_copilot/shared/__init__.py": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+      "phase1_research_copilot/shared/audit.py": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "phase1_research_copilot/shared/config.py": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "phase1_research_copilot/shared/db.py": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "phase1_research_copilot/shared/logging.py": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+      "phase1_research_copilot/shared/models.py": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+      "phase1_research_copilot/shared/probe.py": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "phase1_research_copilot/risk_stub/__init__.py": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411",
+      "phase1_research_copilot/risk_stub/main.py": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6",
+      "phase1_research_copilot/memory_retrieval/__init__.py": "2402dc051be3f99818a1933b20b12a9a99db1823105e1068d015c0edc5b1d7fa",
+      "phase1_research_copilot/memory_retrieval/article_view.py": "b9543070bbfa3d75999a3cf980d5fba58e880a6cd093c9165305a5124a70cd8f",
+      "phase1_research_copilot/memory_retrieval/main.py": "9f68fe4d09c00c11a659bb705f6c885939e717d70f9d7b1b43cd995e440b52cf",
+      "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+      "phase1_research_copilot/orchestrator/__init__.py": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1",
+      "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+      "phase1_research_copilot/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+      "phase1_research_copilot/shared/llm_client.py": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84",
+      "phase1_research_copilot/shared/prompting.py": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903",
+      "phase1_research_copilot/shared/retry.py": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b",
+      "phase1_research_copilot/shared/tools.py": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/input_derivation_report.json": "5d91a788b8aaf07ac644e0103b9c4a13e871579da11676e0ad6be9be7ad07c4b",
+      "docs/checkpoints/companion_current_inputs_v6i_20261027.md": "f488b8b905bab45c82147dc2f5326fccc13363d83fcdb4d37e4a3a8f4a7aed54",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/derive_inputs.diff": "23969b503de5fff48309a1a8232d2c14903f13f576aa50fff48a9d6c7e1056f3",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/derive_inputs.py": "3935f241502d352fd80aabbd447f3cba52a7cbc3bdd3f4ae00c83edc6c32fb2f",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/validate_default.py": "6d8af3b6f66fd2124df5dcc0578719f693f391af7ac7c8020eb5f286159ba85a",
+      "tests/test_companion_v6i_current_inputs.py": "1c0fa8f64343e10fdcaa21e18e55e5a188e32e28729b3aef0b45f3dfe72a14a8",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/derive_inputs.py": "7621957e474a9e0fe3dc4284396b11fb36c8adfd35f25256d3086e6ca33047fb",
+      "docs/review_artifacts/companion_archival_market_exclusion_20261026/independent_review.json": "167cfa9ca11965368faa054e1a3ad050bd41b05049f6ea202a4da2cde12c763d",
+      "docs/review_artifacts/companion_archival_market_exclusion_20261026/report.json": "71868bd2fa6632448eb1eb930f12b5afde1c6cfa3e68ef27e0912369d1a845eb",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/independent_review.json": "a79199bed7c7fbd3212313d98055e4154d2faf73c424ca3dc9d291df9e649df9",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/outcome.json": "22b048282b1e974358251ec1486b8c496b1fdc146677eef5ddc28f56f8d19243",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/receipt.jsonl": "ab587bb2fa1a56818b2c70f45cafc29b543e4ae3efba83c006ac696021d91b4a",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/provenance.json": "e60cbfad2f7af46acdf47c018cb345621fa9304a4cf97a6b12fcce5bf36a0ef0",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/reviewed_preparation_manifest.json": "d11fccb5e4f7c46e7d726704c9b75c400a1482eab5d1b840027d876a5837f047",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_baseline/baseline_observation.json": "ee934eec73fd0b09e82d9c9a8631f298c53c56622fb6a60a40989e994fb9dbb7",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_baseline/capture_1.jsonl": "3a1b9d5ad54b039dfe8b08b050bd66cb210dd1997078f386bcc43ad7b4084dd2",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_baseline/capture_2.jsonl": "3a1b9d5ad54b039dfe8b08b050bd66cb210dd1997078f386bcc43ad7b4084dd2",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_baseline/independent_review.json": "c61d5a331bd19aac2cb3fd59a8e811bb21f028ee3bc1b8d44474362cf7e30b1f",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/capture_baseline.py": "0b6d17adc9c683805e92877b55cbde8b4da5281f775fc8bff265754ce5a0f9eb",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/independent_review.json": "bbf1eb378ce016986b04740e4c5f659b3364e7796fb5418045547a03ab590ca0",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/refresh_sources.py": "6c05fb04346da379284311797e368f76eae88e1b0bbc5d29d93cad863c669e5a",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/source_refresh.json": "019828a73d68d3e04e0283eb4f3d33063d9c4972a502a6a84979bbc6e1def9ff",
+      "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/staged_metadata.derived.json": "bee8dccb784344ae8627040b86d076ee26f0c9911312b0f34e8549a3bd8fc2cd",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/validate_default.py": "6d8af3b6f66fd2124df5dcc0578719f693f391af7ac7c8020eb5f286159ba85a",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/preparation_evidence.json": "950b09d049a7f6a01f91352cb8ff12e1edecedfcf523c13fc75d39e9f25b805d",
+      "docs/checkpoints/companion_actual_preparation_v6i_20261027.md": "bd50787db01cd1e9d5ee052c4df0d4430692a4fe0914a0397391a60d2a86477f"
+    },
+    "published_outputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/actual_id_review.json": "f50dc3ecdd7a6271138640c9ac7d873c20377edc0b98311fc63324d70d13efbb"
+    }
+  },
+  "historical_checkpoint_exceptions": [
+    {
+      "path": "docs/checkpoints/companion_current_inputs_v6i_20261027.md",
+      "historical_precloseout_sha256": "f6c7258ead0266c84f8e5a44781b7d9ed5a8ce0d07f78bd2d2bcf98f293acdf4",
+      "current_sha256": "f488b8b905bab45c82147dc2f5326fccc13363d83fcdb4d37e4a3a8f4a7aed54"
+    }
+  ],
+  "verification": {
+    "environment": "VERIFIED_ENV for local saved/state bytes, pure loaders/model calculations and hashes; no present native/service-state proof.",
+    "state_copies_byte_equal": true,
+    "tool_output_equals_parsed_outcome": true,
+    "manifest_export_exact": true,
+    "pure_contracts": [
+      "Plan.load",
+      "companion_staged_update._rows",
+      "ReviewedPreparation.load",
+      "preservation_digest",
+      "network.project/final_model"
+    ],
+    "pure_ReviewedPreparation_load": true,
+    "preparation_marker_present": true,
+    "cutover_marker_present": false,
+    "marker_limit": "Local path checks only; consumed preparation/cutover absence does not atomically reserve or authorize later action.",
+    "tests_run": false,
+    "full_suite_run": false,
+    "test_reason": "No implementation change or demonstrated contract gap; saved-record/pure validation sufficient for this scope.",
+    "operation_tripwires": "socket/create_connection/getaddrinfo, subprocess entry points, Installer/staged prepare/adapter construction/token reader refuse during reviewer pure validation.",
+    "operation_tripwire_calls": [],
+    "native_Docker_or_CLI_commands": 0,
+    "real_token_or_credentials_read": 0,
+    "real_network_DB_or_application_queries": 0,
+    "SDK_initializations": 0,
+    "service_operations": 0,
+    "new_capture_or_source_streams": 0,
+    "additional_agents": 0
+  },
+  "limits": [
+    "Saved tool/result/state-file consistency does not make this reviewer an independent observer of execution history, approval, physical command count or daemon state.",
+    "Controller at-creation ownership/source/configuration/private environment/original-preservation checks are attestations. No separate native postcheck or raw stage source/SDK/image-layer capture was performed.",
+    "Created/never-started/restart0/no-policy fields are saved selected metadata, not continuous stopped-state or future health guarantees.",
+    "Configured-only networks are not runtime attachment, connectivity or recipient identity proof.",
+    "Equal three old images do not prove cache behavior; changed memory image has no automatic old SDK/image-policy inheritance.",
+    "Selected private-configuration equality was checked by controller, not independently recaptured. No secret values read and no secure-zeroization claim.",
+    "Controller budget 300 seconds includes 120 recovery; cache/config/log effects may persist, cleanup is not guaranteed, and this review does not turn it into a whole-wrapper guarantee.",
+    "Preparation is consumed. No reset/retry, startup/cutover/query, new packet/policy or use of old consumed attempts follows.",
+    "No present original/storage health, exact baseline/volume restoration or earlier runtime root-cause resolution is asserted. Runtime remains INCOMPLETE."
+  ],
+  "read_scope": {
+    "complete": [
+      "docs/checkpoints/companion_actual_preparation_v6i_20261027.md",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/receipt.jsonl",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/preparation_evidence.json",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/tool_result.json",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/outcome.json"
+    ],
+    "state_copies": "Both exact existing preparation state files read for byte equality only.",
+    "input_context": "Accepted current input review/export/candidate/provenance parsed and bound. All 68 input-review bindings rehashed with only its explicitly historical docs-only input checkpoint exception; no executable exception. App/consumer maps checked by hash, not broad SDK/source audit.",
+    "models": "Fixed historical V6e model data read only for pure predictions; prior V6h preparation evidence read only for old ID/image comparison.",
+    "selected_source": [
+      "scripts/research/companion_staged_update.py:15-75",
+      "scripts/research/companion_staged_update.py:136-180",
+      "scripts/research/companion_install_docker.py:573-590"
+    ],
+    "not_performed": "No stale helper/capture/controller operation, old runtime-cause review, broad SDK audit, actual native/postcheck/token/DB/app/source-stream or service command."
+  },
+  "material_assumptions": [],
+  "write_scope": "docs/review_artifacts/companion_integration_inputs_v6i_20261027/actual_preparation/independent_review.json and strict five-field actual_id_review.json only. Reviewed sources/tests/evidence/outcome/tool/checkpoint/worklog and all existing artifacts preserved."
+}

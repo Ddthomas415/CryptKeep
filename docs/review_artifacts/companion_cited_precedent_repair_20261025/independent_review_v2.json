@@ -1,0 +1,172 @@
+{
+  "schema": "companion-cited-precedent-repair-independent-review-v2",
+  "date": "2026-10-25",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Corrected offline guard implementation only: exactly CPR-01/CPR-02 and preservation of the previously reviewed positive boundary. No runtime, startup, deployment, token, query or other operational authority.",
+  "runtime_state": "INCOMPLETE",
+  "runtime_execution_authorized": false,
+  "blocking_findings": [],
+  "resolved_findings": [
+    {
+      "id": "CPR-01",
+      "classification": "SHOWN static and reproduced offline",
+      "status": "Resolved in current hash-bound source",
+      "evidence": "_shared_signals.py:437-446 requires selected timestamp's exact type str, length 1..128, successful datetime.fromisoformat after Z replacement and non-null tzinfo before the unchanged equality-to-keyword binding. Therefore missing, null, collection, boolean, numeric, empty, overlong, invalid and timezone-naive shared values do not grant exemption. Explicit equality to the keyword timestamp remains required. Replayed original missing/list cases now refuse for both past/future and select dashboard_fallback in the real client."
+    },
+    {
+      "id": "CPR-02",
+      "classification": "SHOWN static and reproduced offline",
+      "status": "Resolved in current hash-bound source",
+      "evidence": "_shared_signals.py:431-435 counts selected citation ID across all dictionary evidence rows, regardless of type, and requires exactly one occurrence. Cross-type duplicate selected IDs now refuse; added tests include news, other, past and future duplicate kinds. Original copied-past-as-news challenge now selects dashboard_fallback, with analogous future check also reproduced."
+    }
+  ],
+  "positive_boundary": {
+    "classification": "SHOWN in focused slice and independent fixture checks",
+    "detail": "Valid past/future mixed-title fixtures still pass the exact client normalizer and all five unchanged pure verifier checks. The saved citation-selection fixture 5,47,18,5,26 also passes in the requested slice with existing hash-bound approvals. Exact single labelled current context, exact whole-field title equality, validated keyword integer identity/source/URL and remaining field scanning are unchanged. No general foreign-asset waiver or new evidence approval introduced."
+  },
+  "integrity": {
+    "preserved_rejected_review_decision": "REJECTED",
+    "preserved_rejected_members_match_review_hashes": true,
+    "both_diffs_match_backups": true,
+    "method": "Read original and rejected source from tar without extraction. Rejected source/tests/checkpoint hashes exactly match prior rejection ledger. Regenerated original-to-rejected and original-to-current diffs, byte-equal to rejected_repair.diff and final repair.diff. Rejected-to-current production diff contains only datetime import, global selected-ID uniqueness check and bounded aware-timestamp validation.",
+    "prior_review_unchanged": true
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for local offline tests, parsing/hashing and fixture checks only",
+    "command": "env PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_explain_cited_precedent.py tests/test_explain_headline_context.py tests/test_explain_asset_guard.py tests/test_explain_diagnostics.py tests/test_companion_evidence_checks.py",
+    "focused_runs_this_review": 1,
+    "result": {
+      "classification": "SHOWN",
+      "exit_code": 0,
+      "passed": 320,
+      "seconds": 11.7,
+      "full_suite_run": false
+    },
+    "independent_regression_checks": {
+      "classification": "SHOWN",
+      "method": "Under existing socket/subprocess-tripwired fixture, compared exact rejected guard functions compiled only in memory with corrected current guard. Original malformed timestamps and duplicate-ID cases challenged through real client; valid controls checked through unchanged verifier.",
+      "cases": [
+        {
+          "kind": "past",
+          "case": "valid",
+          "rejected_version_refuses": false,
+          "corrected_version_refuses": false,
+          "client_provider": "fallback",
+          "evidence_all_true": true
+        },
+        {
+          "kind": "past",
+          "case": "missing_timestamps",
+          "rejected_version_refuses": false,
+          "corrected_version_refuses": true,
+          "client_provider": "dashboard_fallback",
+          "evidence_all_true": false
+        },
+        {
+          "kind": "past",
+          "case": "malformed_timestamps",
+          "rejected_version_refuses": false,
+          "corrected_version_refuses": true,
+          "client_provider": "dashboard_fallback",
+          "evidence_all_true": false
+        },
+        {
+          "kind": "past",
+          "case": "duplicate_id_other_type",
+          "rejected_version_refuses": false,
+          "corrected_version_refuses": true,
+          "client_provider": "dashboard_fallback",
+          "evidence_all_true": false
+        },
+        {
+          "kind": "future",
+          "case": "valid",
+          "rejected_version_refuses": false,
+          "corrected_version_refuses": false,
+          "client_provider": "fallback",
+          "evidence_all_true": true
+        },
+        {
+          "kind": "future",
+          "case": "missing_timestamps",
+          "rejected_version_refuses": false,
+          "corrected_version_refuses": true,
+          "client_provider": "dashboard_fallback",
+          "evidence_all_true": false
+        },
+        {
+          "kind": "future",
+          "case": "malformed_timestamps",
+          "rejected_version_refuses": false,
+          "corrected_version_refuses": true,
+          "client_provider": "dashboard_fallback",
+          "evidence_all_true": false
+        },
+        {
+          "kind": "future",
+          "case": "duplicate_id_other_type",
+          "rejected_version_refuses": false,
+          "corrected_version_refuses": true,
+          "client_provider": "dashboard_fallback",
+          "evidence_all_true": false
+        }
+      ]
+    },
+    "parent_red_probe": {
+      "classification": "CLAIMED in checkpoint; not independently rerun",
+      "added_cases": 28,
+      "result": "26 failed / 2 passed / 61 deselected in 0.58 seconds"
+    },
+    "parent_final_result": {
+      "classification": "CLAIMED timing; independently reproduced passing count",
+      "result": "320 passed in 11.54 seconds"
+    },
+    "native_operations": 0,
+    "network_operations": 0,
+    "credential_access": 0,
+    "service_operations": 0,
+    "market_data_runs": 0
+  },
+  "hashes": {
+    "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+    "tests/test_explain_cited_precedent.py": "f9705a8dc2a8e62a1bfdd87406d3e0fad052dffac287ce2a28eb6f00f6015cb5",
+    "docs/checkpoints/companion_cited_precedent_repair_20261025.md": "f63a411fa2a07f49caebcca357142f5923e8e72906c33dfebba7fd09aa5177ad",
+    "docs/review_artifacts/companion_cited_precedent_repair_20261025/prechange.tar": "6863ea10e5d098c260e94bf41dc905f2db5f6e76451f683f3ac9408c21c20a4f",
+    "docs/review_artifacts/companion_cited_precedent_repair_20261025/rejected_source.tar": "3ba69d891ec273b3922215cd69fdcfe5d53ae8fe056053d332900c32586561aa",
+    "docs/review_artifacts/companion_cited_precedent_repair_20261025/rejected_repair.diff": "51e642ec30d04d9ba8395eb3a066cfe34c02d27048991f1462cf0b50ff728e81",
+    "docs/review_artifacts/companion_cited_precedent_repair_20261025/repair.diff": "04f00c5755f7f619a074f6ba05d351fe26c071b4c5678d637f49a0dff961763e",
+    "docs/review_artifacts/companion_cited_precedent_repair_20261025/independent_review.json": "ae9018c67414d8b9b2b27f241848836e45e92248ba0fc22c65208d6a08034199",
+    "tests/test_explain_headline_context.py": "1d397d9ab00ace5d477da8f357dcdcea52c7dec325ca845194a9f3edeb4c738b",
+    "tests/test_explain_asset_guard.py": "b2136972cc253d10bf14cf76f3b074c468f6f7066f2d943182cae07e16e68f62",
+    "tests/test_explain_diagnostics.py": "508e912012fd08e4fca5d858e215046dec66b220677f9997b72ffc8b6912ffd3",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75"
+  },
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "risks_and_limits": [
+    "This is a normalization/classification boundary, not verification of citation truth, archive provenance, topical support or causal relevance. The independent archive/body/lineage/witness verifier remains necessary and unchanged.",
+    "Fixture positives substitute archived original rows and no-market-data inputs. Neither the saved-selection fixture nor the malformed challenges replay missing actual runtime prose or establish a unique historical failure cause.",
+    "No fresh installed source, SDK/import/startup, DB/service, health, recipient, live query or economic evidence supplied. Runtime remains INCOMPLETE.",
+    "Changed guard hash invalidates old guard-bound packet/diagnostic executability. No packet, policy, receipt, reservation or prepared identity refreshed/reset; future actual inputs require separate review and authorization.",
+    "Re-review is limited to the two reported corrections and their positive boundary, not an expanded security/SDK/repository audit.",
+    "Prior independent_review.json remains REJECTED for its rejected source version. This v2 acceptance does not rewrite historical evidence or imply that rejected artifacts were accepted."
+  ],
+  "read_scope": {
+    "complete": [
+      "current repair.diff",
+      "rejected_repair.diff",
+      "current checkpoint contract/proof/limits",
+      "current tests/test_explain_cited_precedent.py"
+    ],
+    "backup_comparison": [
+      "prechange.tar source member",
+      "rejected_source.tar exact source/tests/checkpoint members"
+    ],
+    "selected_source": "Current labelled-context helper/guard, specifically added datetime import and lines 431-446; unchanged real caller and evidence-check boundary as tested."
+  },
+  "write_scope": "Only docs/review_artifacts/companion_cited_precedent_repair_20261025/independent_review_v2.json written. No source/test/artifact/doc/worklog edits or runtime actions."
+}

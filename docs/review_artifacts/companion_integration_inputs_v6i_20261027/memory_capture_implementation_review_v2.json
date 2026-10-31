@@ -1,0 +1,142 @@
+{
+  "schema": "companion-v6i-memory-capture-implementation-independent-review-v2",
+  "date": "2026-10-27",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Exact R2 capture implementation SHA351879131ca4db8541c0cd7dbd888eda3d89ca075827b391ae7a6522febb6e01, by focused closure of V6I-MEMCAP-01 with all unaffected R1 scope/limits retained. No native capture authority or SDK-policy acceptance.",
+  "runtime_state": "INCOMPLETE",
+  "operations_authorized": false,
+  "native_capture_authorized": false,
+  "SDK_policy_accepted": false,
+  "blocking_findings": [],
+  "findings": [],
+  "resolved_findings": [
+    {
+      "id": "V6I-MEMCAP-01",
+      "classification": "SHOWN exact whole-source delta, one focused test run and one pure clock challenge",
+      "status": "Resolved in the exact R2 source",
+      "file": "docs/review_artifacts/companion_integration_inputs_v6i_20261027/capture_memory_image.py",
+      "line": 98,
+      "detail": "command_deadline is hard deadline minus ten seconds for ordinary work and full hard deadline for final inventory. CLI verification and both remaining-time calculations now use the same selected cutoff. Ordinary CLI hashing no longer intentionally receives the reserved final window.",
+      "independent_challenge": {
+        "ordinary_and_final_CLI_deadlines": [
+          110,
+          120
+        ],
+        "simulated_hash_cost_seconds": 119,
+        "fake_verifier_honors_supplied_deadline": true,
+        "ordinary_command_refused": "capture_budget_or_cli",
+        "final_inventory_timeout_available": 10,
+        "commands_attempted": 1,
+        "real_IO": false,
+        "command_AST_only": true,
+        "challenge_runs": 1
+      },
+      "interpretation": "A simulated 119-second verifier honoring the supplied cutoff stops ordinary work at second 110; final inventory receives deadline 120 and timeout 10. This verifies the controller's logical reserve, not absolute interruption of filesystem/kernel operations."
+    }
+  ],
+  "integrity": {
+    "hash_algorithm": "SHA256",
+    "path_base": "/Users/baitus/Downloads/crypto-bot-pro",
+    "whole_source_only_exact_deadline_fix": true,
+    "method": "Compare rejected source bytes from memory_capture_rejected_r1.tar to current source after exactly one asserted replacement of the nested command deadline fragment. Whole-file byte equality after that substitution; no other capture source changes.",
+    "source_sha256": "351879131ca4db8541c0cd7dbd888eda3d89ca075827b391ae7a6522febb6e01",
+    "prior_source_sha256": "9d5f9538895c0204ef8923447619b4f3f77c72bca5598b6aeab4dd6bc3eb1786",
+    "archive_members": [
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/capture_memory_image.py",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/memory_capture_implementation_report.json",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/memory_capture_implementation_review.json",
+      "tests/test_companion_v6i_memory_image_capture.py",
+      "docs/checkpoints/companion_memory_image_capture_v6i_20261027.md"
+    ],
+    "archive_preservation": {
+      "archived_report_review_equal_preserved_R1": true,
+      "archived_R1_checkpoint_verified": true
+    },
+    "prior_review_unchanged": true,
+    "prior_rejection_remains_valid_for_R1": true,
+    "test_delta": "Exactly one slow-CLI verification regression added to the prior 15 cases.",
+    "checkpoint_delta": "Adds R1 rejection attribution and R2 correction/proof/limits; prior scope retained."
+  },
+  "hashes": {
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/memory_capture_implementation_report_v2.json": "871db2faaf823ab79cc08a2b86a054df1d0b921eb178cb296d410e473e7215bb",
+    "docs/checkpoints/companion_memory_image_capture_v6i_20261027.md": "42afbe16b6ebd2112a7e34438a1fa58df62eb60a36aad98776b2ead41577dbe3",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/capture_memory_image.py": "351879131ca4db8541c0cd7dbd888eda3d89ca075827b391ae7a6522febb6e01",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/memory_capture_implementation_report.json": "4bfb755952898fb2992d1a9faa3e466defe467b171c5eea9617e5231e7965bf8",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/memory_capture_implementation_review.json": "f9ac9556119dc2dd5d2d869ea8e59ad59d84a0a3082e6544e30c74a46e57c999",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/memory_capture_rejected_r1.tar": "c070e91ae7c3cfcecb4e9b264b31c187a9eedc53a3a377fa862fe6ccf5234804",
+    "tests/test_companion_v6i_memory_image_capture.py": "e031eea20800dbb57bedb0b833b8e213316edfa8ef2f8a1d8d3e8c7b7ee551c9"
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for isolated synthetic tests, exact local byte comparison and fake-clock command-AST challenge only; current native state UNKNOWN_ENV.",
+    "focused_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6i_memory_image_capture.py",
+    "focused_result": {
+      "classification": "SHOWN",
+      "runs": 1,
+      "exit_code": 0,
+      "passed": 16,
+      "seconds": 0.38,
+      "warnings": 0,
+      "full_suite_run": false
+    },
+    "pure_clock_challenge": {
+      "ordinary_and_final_CLI_deadlines": [
+        110,
+        120
+      ],
+      "simulated_hash_cost_seconds": 119,
+      "fake_verifier_honors_supplied_deadline": true,
+      "ordinary_command_refused": "capture_budget_or_cli",
+      "final_inventory_timeout_available": 10,
+      "commands_attempted": 1,
+      "real_IO": false,
+      "command_AST_only": true,
+      "challenge_runs": 1
+    },
+    "challenge_method": "Compile only the exact current nested command() AST into fake clock/CLI verifier/transport/report objects. Simulated hash cost 119 seconds, honoring the supplied deadline. No filesystem capture, actual CLI read, process or network call.",
+    "parent_result": {
+      "classification": "CLAIMED timing and separate archived-R1 red run; current passing count independently reproduced",
+      "passed": 16,
+      "seconds": 0.37,
+      "new_test_failed_archived_R1": true,
+      "archived_R1_test_not_rerun_by_reviewer": true
+    },
+    "actual_capture_run": false,
+    "native_Docker_or_CLI_commands": 0,
+    "real_token_or_credentials_read": 0,
+    "real_network_DB_or_application_queries": 0,
+    "SDK_initializations": 0,
+    "service_operations": 0,
+    "additional_agents": 0
+  },
+  "retained_scope": {
+    "targets": "Only the two fixed original/stopped memory containers and two images from accepted saved inputs.",
+    "selection": "Exactly 48 fixed policy paths (11 app + 37 SDK/launcher); only expected memory main digest differs. No broader path or dependency audit/selection added.",
+    "command_limit": "At most 51 native commands, ten-second subprocess caps within the 120-second deadline, corrected ordinary CLI-hash cutoff and ten-second final window.",
+    "byte_limit": "8MiB aggregate file/tar charge; failed transfer conservatively charges requested limit plus overflow byte then stops ordinary work. Metadata separately limited to three 64KiB commands. No budget change in R2.",
+    "state_behavior": "Exclusive output, no retry/reset, before/final selected metadata, regular-file-only tar validation and no source import/execution remain unchanged by exact diff."
+  },
+  "limits": [
+    "Initial local preflight and file persistence are not an absolute interruptible whole-process guarantee. Logical deadline enforcement is not a guarantee against every blocking kernel/filesystem operation.",
+    "Final inventory remains attempted only within remaining deadline; timeout is not proof the daemon cancelled an in-flight read.",
+    "Read commands may have daemon/log effects and local capture artifacts may persist; no zero-physical-effects claim.",
+    "Layer prefix/+11 count is evidence, not full COPY-content proof. Actual 48-file hashes and image lineage require subsequent independent evidence/applicability review.",
+    "Old memory SDK policy does not automatically transfer to the changed image; no complete dependency/import closure, SDK initialization, service health, configuration continuity, successful explanation or profitability is inferred.",
+    "Default inertness/fixed-input selection and unaffected budget controls retain the prior R1 source review and current 16-case regression support; no broad SDK/runtime reaudit repeated.",
+    "Exact new source hash and this implementation acceptance are prerequisites for a later separate operator decision, not native capture permission. No --execute-capture invocation performed or authorized.",
+    "Runtime remains INCOMPLETE. No preparation/build/startup/cutover/query/trading/retry authority."
+  ],
+  "read_scope": {
+    "complete_current_delta_context": [
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/memory_capture_implementation_report_v2.json",
+      "current nested command deadline fragment",
+      "full R1-to-R2 source/test/checkpoint diffs"
+    ],
+    "whole_file_comparison": "Entire rejected/current capture source compared byte-for-byte after exact deadline-fragment substitution.",
+    "preservation": "R1 source/test/checkpoint/report/review archive read locally without extraction; preserved report/rejection byte equality verified.",
+    "not_reopened": "No old SDK semantics, runtime failure, dependency audit, actual capture or additional experiments beyond the requested single pure clock challenge and 16-case run."
+  },
+  "material_assumptions": [],
+  "write_scope": "docs/review_artifacts/companion_integration_inputs_v6i_20261027/memory_capture_implementation_review_v2.json only. R1 rejection/report/archive, reviewed source/tests/checkpoint/state and all other artifacts preserved."
+}

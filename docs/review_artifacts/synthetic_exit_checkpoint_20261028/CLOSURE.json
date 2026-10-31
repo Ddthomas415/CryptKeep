@@ -1,0 +1,19 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "isolated-KV disposable SQLite exit checkpoint prototype; no production integration",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1843b-45ae-76d1-a482-3e6515fbef65",
+  "independent_verification": {
+    "passed": 23,
+    "seconds": 0.36,
+    "material_blockers": 0
+  },
+  "source_sha256": "9d3953dbc397d600f11d00ca873c5492023287431e6fc5a79d2350474315677c",
+  "tests_sha256": "db7f77c333457325397ff3b2620a1107c04f33ed2a4baa7040525dbe9bd1cf48",
+  "submission_bindings_sha256": "dc48841c8caaf506d5effa738349ca574161cced0c6e2aa73ef9e7aa2f396024",
+  "submitted_checkpoint_sha256": "3166edd22350654c76fc328893badda9e37deab3505ee46ff572aa270e5f8711",
+  "checkpoint_sha256": "ff1a5af33d4d83f467a55ef6677be0b81ed2fabe801305c3366df1bae10b5d29",
+  "reviewed_code_changed": false,
+  "runtime_wiring": false,
+  "production_integration": "INCOMPLETE"
+}

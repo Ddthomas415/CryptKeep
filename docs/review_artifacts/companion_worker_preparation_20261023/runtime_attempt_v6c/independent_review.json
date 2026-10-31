@@ -1,0 +1,105 @@
+{
+  "schema": "companion-v6c-runtime-outcome-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Saved receipt/outcome/postcheck fidelity and bounded interpretation only; not runtime success, cause confirmation or operational permission.",
+  "runtime_status": "INCOMPLETE",
+  "cause_status": "UNVERIFIED",
+  "blocking_findings_for_record_fidelity": [],
+  "source_and_artifact_sha256": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6c/outcome.json": "f93ae73cc94e5a4ab1576fda0274b32dbf099eb554bfe7ab2ee117442e7bbe3e",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6c/receipt.jsonl": "a993c16b9c61a483b60700daf5ceb8b6180356ee138f14a6d55ac669c7aa0981",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6c/postcheck.json": "45bca12b4f5a03c1dab991681013f84c9177362aa624845871b459481063d478",
+    "scripts/research/companion_runtime_adapter.py": "dcc33a6d454c7d6f9970103ad331d97cd88f2a8023f321cd381a729d2e05f7c7",
+    "scripts/research/companion_installer.py": "4c684b1766fcb2e21b3dc1c03cbe5aa607694f63b9d64c512a19ad6c11792b17",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/reviewed_preparation_manifest.json": "e20775accd2ea02ac16d258ead2fb58e5ba1b6d26ff003ba10492dc6d442b6b9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/preparation_evidence.json": "9f52a511c6b86f3009712f88515087cf20bd117534877e71ec5ebeae6b80dfb9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/actual_id_review.json": "f2b926136e5503d9310ec88b0f881c82c8292a92dc4ffcb5e78c97cfac54946e",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/runtime_review.json": "f916471d3618eb5a44bc8bf00ac6421aa3e941febab431b8a1c49fd65daddb74"
+  },
+  "receipt_review": {
+    "classification": "SHOWN from all 62 saved events",
+    "public_receipt_equals_consumed_attempt_receipt": true,
+    "quiesce_confirmed": 4,
+    "activated_replacement_check_groups_all_true": 4,
+    "compatibility_event_line": 43,
+    "shape_valid": true,
+    "precondition": {
+      "predicate": "complete",
+      "target": null
+    },
+    "only_false_reported_check": "recipient_bindings",
+    "other_eight_reported_checks": true,
+    "failure_stage": "runtime_verification",
+    "replacement_start_intents": 0,
+    "cited_query_intents": 0,
+    "original_restart_intents": 4,
+    "final_rollback_checks": {
+      "configuration_restored": true,
+      "exact_baseline_restored": false,
+      "network_connectivity_verified": false
+    }
+  },
+  "interpretation": [
+    "complete means the early identity/image/preservation preconditions passed and the compatibility map was returned, not that recipient policy or runtime succeeded. In this path recipient_bindings was evaluated; the general false-means-not-established-or-unevaluated label does not make this particular check unevaluated.",
+    "_configured_bindings combines network-inspect identity/shape, configured-only eligibility/projection and recipient-policy checks; its broad exception handler also returns false. No specific internal predicate or exception category is recorded. Its inspection includes non-target inventory rows, so a seven-target-only explanation would be insufficient.",
+    "Installer refuses on that false compatibility result before the later storage/start/recipient-health/query sequence. Earlier storage checks were already intended at receipt line 4; absence of a cited query is not absence of every storage read, request or permitted side effect.",
+    "The eight true compatibility flags retain their restricted source/configuration meanings. They are not observations of successful SDK startup, endpoint connectivity, a cited answer or profitability.",
+    "services_started=true is consistent with restarting originals during recovery, not replacement startup. Outcome reports rollback_verified=true, rollback_exact_baseline=false, prepared_ids_preserved=false and preparation_consumed=true, with all unresolved lists empty. These do not establish healthy or byte-exact rollback.",
+    "Receipt removal/restore events are intents; controller completion/output supplies the recovery verdict. The postcheck selects seven originals only and does not independently enumerate removal of the four replacement IDs. Their reported cleanup/unavailability does not identify the earlier binding failure or contradict their recorded activation."
+  ],
+  "postcheck_review": {
+    "classification": "SHOWN as saved parent-native comparison evidence, not reviewer-native observation",
+    "captured_at_utc": "2026-10-24T02:42:47.119755+00:00",
+    "selected_original_ids_cross_bound_to_accepted_baseline": 7,
+    "reported_running_same_names_images_network_ids_restart_policy_and_counts": 7,
+    "storage_started_at_reported_unchanged": 3,
+    "application_started_at_reported_changed": 4,
+    "reported_docker_health": {
+      "healthy": [
+        "phase1-timescaledb",
+        "phase1-audit-log",
+        "phase1-risk-stub",
+        "phase1-memory",
+        "phase1-orchestrator"
+      ],
+      "null": [
+        "phase1-qdrant",
+        "phase1-minio"
+      ]
+    },
+    "health_limit": "Docker-reported health is not a parent-issued endpoint request or a cited query; null is not evidence of unhealthy state. Existing automatic health checks are not ruled out.",
+    "capture_attempts": "Saved report records three bounded native read attempts: first seven-ID optional-Health template failed; one-ID diagnostic succeeded; optional-field-safe seven-ID capture succeeded. These are metadata reads, not cutover retries.",
+    "stderr_limit": "First failed template stderr was not retained, so its exact error cause is unverified; success of the later safe template does not reconstruct it.",
+    "comparison_limit": "Artifact contains parent-generated comparison booleans and reported health, not complete raw metadata for independent image/configuration/start-time digest recomputation. IDs/names can be cross-bound directly. No full-daemon, unselected-stage, endpoint, volume-byte or byte-exact restoration proof."
+  },
+  "causation_limit": "The failed activated-row inventory and internal network/recipient subpredicate result were not retained. The saved original-only postcheck cannot reconstruct them. No exact subcause, alias defect, wrong endpoint or specific unrelated-container interference is established.",
+  "smallest_next_diagnostic_contract": {
+    "scope": "Prospective offline-only recommendation, not implementation or capture authorization in this cycle.",
+    "contract": "If separately requested, retain the first failed allowlisted _configured_bindings subpredicate and selected/non-selected role, with a bounded exception category rather than raw exception text. Keep the existing full-inventory alias/ownership and attachment guards and the boolean fail-closed result unchanged. No raw environment, token or payload export.",
+    "not_performed": true
+  },
+  "verification": {
+    "tests_run": false,
+    "reviewer_native_operations": 0,
+    "reviewer_credential_reads": 0,
+    "reviewer_service_or_lifecycle_actions": 0,
+    "method": "Full saved receipt/outcome/postcheck read, exact hashes, accepted record/source binding checks and pure comparison of saved selected IDs and typed result fields only."
+  },
+  "attempt_status": "workerprep20261023v6c consumed by the one reported invocation, exit 1. Must not retry, reset or reuse removed prepared IDs.",
+  "operational_authorized": false,
+  "runtime_pass": false,
+  "retry_authorized": false,
+  "reset_authorized": false,
+  "new_preparation_authorized": false,
+  "diagnostic_capture_authorized": false,
+  "source_repair_authorized": false,
+  "startup_or_cutover_authorized": false,
+  "query_authorized": false,
+  "trading_authorized": false,
+  "reviewer_changes": [
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6c/independent_review.json"
+  ],
+  "frozen_artifacts_and_reviewed_code_modified": false
+}

@@ -1,0 +1,11 @@
+{
+  "docs/research/okx_funding_pair_transport_20261029.md": "174c35c5a60e35423ac47db6c976755849cb61b154d3ab8710c7074064ff7f62",
+  "docs/review_artifacts/okx_funding_pair_producer_20261029/BINDINGS.json": "426fd99e596026e6bcb1a55341c0ef5456dea807bcf6f6d878cf5e3d6378f612",
+  "docs/review_artifacts/okx_funding_pair_producer_20261029/CLOSURE.json": "f7b920a20c7ec82d1bc0deae9b0f3cacd333ca52cff5666ce323909908346331",
+  "docs/review_artifacts/okx_funding_pair_transport_20261029/20261029T145936Z_eddbeac2a3134ea68bc7f2b649d64b1a/MANIFEST.json": "776b2dcffd5a96d2c9a1d8e3d9c3f169174fcd173c6a9692a662c75a5f5696e2",
+  "docs/review_artifacts/okx_funding_pair_transport_20261029/20261029T145936Z_eddbeac2a3134ea68bc7f2b649d64b1a/current.body": "67e1f1cf89d1efd8fa9c01b47e3b225931bc5a40b270bcd3fb88223679d5c1a9",
+  "docs/review_artifacts/okx_funding_pair_transport_20261029/20261029T145936Z_eddbeac2a3134ea68bc7f2b649d64b1a/history.body": "c05eea259a2dbcea394be84dbd7907dd7df4a5ed5380e315dca834af0fe0077d",
+  "docs/review_artifacts/okx_funding_pair_transport_20261029/PREFLIGHT.json": "8678fb6801f66ee580a72df89b4fd86e5b288eead8f7b0724bdc0ba73dc494fd",
+  "docs/review_artifacts/okx_funding_pair_transport_20261029/PREFLIGHT_DISPOSITION.json": "13f11b02e91c599887cb2f275ce12ecce388b28765f22011e61b3fad93eac4e0",
+  "services/analytics/okx_funding_pair_producer.py": "83dcd0fe851d9f00bd9c2632f21765c3051945df74fdf6f6981b6b4c78eb8eb9"
+}

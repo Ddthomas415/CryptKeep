@@ -1,0 +1,16 @@
+{
+  "schema": "companion-signal-interpretation-review-v1",
+  "capture": "Parent transcription of separate reviewer final response; not independent live reobservation",
+  "reviewer_agent_id": "01a16652-af26-7cf0-9364-9089c606cc27",
+  "active_role": "AUDITOR",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Diagnosis interpretation only",
+  "reviewed_sha256": {
+    "docs/checkpoints/companion_signal_diagnosis_20261022.md": "6203990188961475806cdd99c9f63c91a33d9782b14b0858a84deb30003ad704",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/orchestrator_signal_observation.json": "aa9f95f009ba13041ee8f55395b9546e65b3dc3eb549977bf4f0ca376ee4b8ba"
+  },
+  "findings": [],
+  "reviewer_response": "AUDITOR - ACCEPTED_WITH_RISK, diagnosis interpretation only. No material findings. Both supplied SHA-256 hashes match. SHOWN: The packet records PID1 sh without a TERM handler, direct child PID7 uvicorn with one, and unchanged selected metadata. This supports the current shutdown-target mismatch, not identification of the historical failure substep. UNVERIFIED: Historical signal delivery/acknowledgment, handler behavior, successful graceful shutdown, and completion within ten seconds. The diagnosis preserves these limits correctly. Repair direction: Reviewed exec launch for replacements and identity-verified, race-protected worker targeting for unchanged originals are reasonable directions, not proven fixes. The prohibition on hardcoded PID7 and blind retries is appropriate. Source/manifest assertions were not independently checked here; their SHOWN labels remain dependent on the parent's inspection. Runtime/explanation remains INCOMPLETE. No implementation or operational authorization; no writes, tests, or native commands performed.",
+  "runtime_state": "INCOMPLETE",
+  "operational_authorized": false
+}

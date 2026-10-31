@@ -1,0 +1,79 @@
+{
+  "schema": "companion-four-app-capability-observation-v1",
+  "capture": "Sanitized native tool stdout transcribed without a repeated live observation",
+  "observed_at_utc": "2026-10-23T12:49:10.996726+00:00",
+  "active_role": "AUDITOR",
+  "environment_confidence": "VERIFIED_ENV",
+  "probe_sha256": "8229704e4d9f7bf24e5ebee1449005363c929780ad48bd17c5e7da1c3cc768e6",
+  "worker_source_sha256": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659",
+  "cli_sha256": "678271184175b40dfc4bd6f4582be00ae1538b0d1e031181f52ceedfae9af5fb",
+  "originals": [
+    {"id":"7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b","name":"/phase1-timescaledb","image":"sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43","running":true,"started":"2026-10-20T12:10:30.80557325Z","restarts":0},
+    {"id":"2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4","name":"/phase1-qdrant","image":"sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636","running":true,"started":"2026-10-20T12:10:31.415239375Z","restarts":0},
+    {"id":"a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15","name":"/phase1-minio","image":"sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa","running":true,"started":"2026-10-20T12:10:31.08949425Z","restarts":0},
+    {"id":"fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe","name":"/phase1-audit-log","image":"sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad","running":true,"started":"2026-10-20T12:10:41.41813213Z","restarts":0},
+    {"id":"b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213","name":"/phase1-risk-stub","image":"sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa","running":true,"started":"2026-10-20T12:10:52.43953176Z","restarts":0},
+    {"id":"869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071","name":"/phase1-memory","image":"sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d","running":true,"started":"2026-10-20T12:10:31.259394334Z","restarts":0},
+    {"id":"bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4","name":"/phase1-orchestrator","image":"sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7","running":true,"started":"2026-10-20T12:10:32.027633251Z","restarts":0}
+  ],
+  "results": [
+    {
+      "schema":"companion-worker-readonly-capability-v1", "name":"phase1-audit-log",
+      "capabilities":{"pidfd_open_api":true,"pidfd_send_signal_api":true,"self_pidfd_kernel_open":true},
+      "exact_worker_validation_passed":true,"failure_stage":null,
+      "observation":{"worker_pid":7,"worker_pidfd_opened":true,"signal_operation_replaced_by_read":true},
+      "python_version":[3,11,17],"signals_sent":false,"environment_read":false,"arguments_exported":false,
+      "host_request_utc":"2026-10-23T12:49:10.608342+00:00","host_received_utc":"2026-10-23T12:49:10.697563+00:00",
+      "roundtrip_seconds":0.089228,"remote_minus_host_offset_interval_seconds":[-0.010483,0.078738],
+      "host_wall_vs_monotonic_elapsed_difference_seconds":-0.000007
+    },
+    {
+      "schema":"companion-worker-readonly-capability-v1", "name":"phase1-risk-stub",
+      "capabilities":{"pidfd_open_api":true,"pidfd_send_signal_api":true,"self_pidfd_kernel_open":true},
+      "exact_worker_validation_passed":true,"failure_stage":null,
+      "observation":{"worker_pid":7,"worker_pidfd_opened":true,"signal_operation_replaced_by_read":true},
+      "python_version":[3,11,17],"signals_sent":false,"environment_read":false,"arguments_exported":false,
+      "host_request_utc":"2026-10-23T12:49:10.698071+00:00","host_received_utc":"2026-10-23T12:49:10.787943+00:00",
+      "roundtrip_seconds":0.089872,"remote_minus_host_offset_interval_seconds":[-0.009573,0.080299],
+      "host_wall_vs_monotonic_elapsed_difference_seconds":0.0
+    },
+    {
+      "schema":"companion-worker-readonly-capability-v1", "name":"phase1-memory",
+      "capabilities":{"pidfd_open_api":true,"pidfd_send_signal_api":true,"self_pidfd_kernel_open":true},
+      "exact_worker_validation_passed":true,"failure_stage":null,
+      "observation":{"worker_pid":7,"worker_pidfd_opened":true,"signal_operation_replaced_by_read":true},
+      "python_version":[3,11,17],"signals_sent":false,"environment_read":false,"arguments_exported":false,
+      "host_request_utc":"2026-10-23T12:49:10.788063+00:00","host_received_utc":"2026-10-23T12:49:10.871623+00:00",
+      "roundtrip_seconds":0.083561,"remote_minus_host_offset_interval_seconds":[-0.008602,0.074958],
+      "host_wall_vs_monotonic_elapsed_difference_seconds":-0.000002
+    },
+    {
+      "schema":"companion-worker-readonly-capability-v1", "name":"phase1-orchestrator",
+      "capabilities":{"pidfd_open_api":true,"pidfd_send_signal_api":true,"self_pidfd_kernel_open":true},
+      "exact_worker_validation_passed":true,"failure_stage":null,
+      "observation":{"worker_pid":7,"worker_pidfd_opened":true,"signal_operation_replaced_by_read":true},
+      "python_version":[3,11,17],"signals_sent":false,"environment_read":false,"arguments_exported":false,
+      "host_request_utc":"2026-10-23T12:49:10.871725+00:00","host_received_utc":"2026-10-23T12:49:10.966587+00:00",
+      "roundtrip_seconds":0.094863,"remote_minus_host_offset_interval_seconds":[-0.009681,0.085181],
+      "host_wall_vs_monotonic_elapsed_difference_seconds":-0.000001
+    }
+  ],
+  "selected_original_metadata_unchanged":true,
+  "native_command_count":6,"signals_sent":false,"service_requests":false,
+  "method": {
+    "commands":"One sanitized seven-ID inspect, four fixed read-only Python exec probes, same seven-ID inspect",
+    "per_command_timeout_seconds":15,"overall_command_budget_seconds":90,
+    "probe_identity_budget_seconds":10,
+    "program_reconstruction":"Approved companion_worker_shutdown.WORKER_SOURCE plus exact worker_capability_probe_suffix.txt bytes",
+    "environment":{"PATH":"/usr/bin:/bin"},"docker_config":"Empty temporary directory, removed automatically",
+    "endpoint":"unix:///Users/baitus/.docker/run/docker.sock",
+    "side_effects":"Four temporary exec processes; kernel pidfds opened/closed; Docker execution events"
+  },
+  "limitations":[
+    "Signal API existence is not kernel delivery/permission proof; the real send API was never called, including signal zero",
+    "One bracketed time sample per app, not exact offset or future clock guarantee",
+    "Original worker validator used with signal operation replaced by fdinfo read",
+    "Temporary exec processes and kernel handles only; no service lifecycle changes",
+    "Selected metadata equality is not a full configuration, persistent-record or volume-content audit"
+  ]
+}

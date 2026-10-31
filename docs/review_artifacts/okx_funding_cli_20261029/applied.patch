@@ -1,0 +1,410 @@
+diff --git a/docs/review_artifacts/okx_funding_cli_20261029/before/run_crypto_edge_collector_loop.py b/scripts/data/run_crypto_edge_collector_loop.py
+index c326f8c39..b96d0ce68 100644
+--- a/docs/review_artifacts/okx_funding_cli_20261029/before/run_crypto_edge_collector_loop.py
++++ b/scripts/data/run_crypto_edge_collector_loop.py
+@@ -12,7 +12,12 @@ except ModuleNotFoundError:
+ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+ 
+ import argparse
++import hashlib
+ import json
++import math
++
++from services.analytics.okx_funding_pair_batch import validate_okx_pair_plan
++from services.analytics.okx_funding_contract import _finite_json_float, _object, _reject_nonfinite
+ 
+ from services.analytics.crypto_edge_collector_service import (
+     CryptoEdgeCollectorServiceCfg,
+@@ -22,7 +27,16 @@ from services.analytics.crypto_edge_collector_service import (
+ )
+ 
+ 
+-def main() -> int:
++def _read_object(path):
++    body = Path(path).read_bytes()
++    value = json.loads(body, object_pairs_hook=_object, parse_constant=_reject_nonfinite,
++                       parse_float=_finite_json_float)
++    if type(value) is not dict:
++        raise ValueError("configuration_object_required")
++    return value, hashlib.sha256(body).hexdigest()
++
++
++def main(argv=None) -> int:
+     ap = argparse.ArgumentParser(description="Run the read-only live crypto structural edge collector loop.")
+     ap.add_argument("--plan-file", default="sample_data/crypto_edges/live_collector_plan.json", help="JSON collection plan")
+     ap.add_argument("--db-path", default="", help="Optional sqlite path override")
+@@ -31,7 +45,61 @@ def main() -> int:
+     ap.add_argument("--max-loops", type=int, default=0, help="Optional loop limit for test/manual use")
+     ap.add_argument("--stop", action="store_true", help="Request stop for the running collector loop")
+     ap.add_argument("--status", action="store_true", help="Show managed collector runtime status")
+-    args = ap.parse_args()
++    ap.add_argument("--okx-pairs", action="store_true", help="Opt into raw paired OKX funding; requires explicit settings")
++    ap.add_argument("--okx-pair-options-file", help="JSON file with the four funding batch limits")
++    ap.add_argument("--raw-funding-max-rows", type=int, help="Explicit journal row budget per cycle")
++    ap.add_argument("--raw-funding-max-bytes", type=int, help="Explicit encoded journal byte budget per cycle")
++    ap.add_argument("--check-config", action="store_true", help="Validate paired configuration and print a no-start preview")
++    args = ap.parse_args(argv)
++
++    paired_arguments = (args.okx_pair_options_file is not None
++                        or args.raw_funding_max_rows is not None or args.raw_funding_max_bytes is not None)
++    if (args.okx_pairs or args.check_config or paired_arguments) and (args.stop or args.status):
++        ap.error("paired configuration cannot be combined with stop/status")
++    if (args.check_config or paired_arguments) and not args.okx_pairs:
++        ap.error("paired options/check-config require --okx-pairs")
++    pair_options, preview = None, None
++    if args.okx_pairs:
++        if (not args.okx_pair_options_file or not args.db_path.strip()
++                or not args.source or args.source != args.source.strip()
++                or args.raw_funding_max_rows is None or args.raw_funding_max_rows <= 0
++                or args.raw_funding_max_bytes is None or args.raw_funding_max_bytes <= 0
++                or not math.isfinite(args.interval_sec) or args.interval_sec <= 0
++                or args.max_loops < 0):
++            ap.error("paired mode requires explicit plan/options/store/source and positive budgets/interval")
++        stage = "plan_file"
++        try:
++            plan, plan_hash = _read_object(args.plan_file)
++            stage = "pair_options_file"
++            pair_options, options_hash = _read_object(args.okx_pair_options_file)
++            stage = "pair_plan_limits"
++            rows, pair_options = validate_okx_pair_plan(plan.get("funding"), pair_options)
++            if len(rows) > args.raw_funding_max_rows:
++                raise ValueError("pair_plan_exceeds_row_budget")
++            stage = "other_stream_lists"
++            counts = {}
++            for name in ("open_interest", "basis", "quotes", "order_books"):
++                items = plan.get(name, [])
++                if type(items) is not list or any(type(item) is not dict for item in items):
++                    raise ValueError("nonfunding_plan_list_required")
++                counts[name] = len(items)
++        except (OSError, ValueError, TypeError, OverflowError, RecursionError) as exc:
++            ap.error("invalid paired configuration at " + stage + ": " + type(exc).__name__)
++        preview = {
++            "ok": True, "configuration_valid": True, "will_start": False,
++            "funding_pairs": [{"venue": row["venue"], "symbol": row["symbol"], "inst_id": row["inst_id"]}
++                              for row in rows],
++            "funding_capture_limits": pair_options, "other_stream_row_counts": counts,
++            "other_streams_outside_funding_budget": True,
++            "raw_journal_limits": {"rows": args.raw_funding_max_rows, "bytes": args.raw_funding_max_bytes},
++            "plan_sha256": plan_hash, "options_sha256": options_hash,
++            "database_path_explicit": True, "database_ownership": "UNVERIFIED",
++            "runtime_state": "UNVERIFIED", "execution_enabled": False,
++        }
++
++    if args.check_config:
++        print(json.dumps(preview, indent=2))
++        return 0
+ 
+     if args.stop:
+         print(json.dumps(request_stop(), indent=2, default=str))
+@@ -45,10 +113,19 @@ def main() -> int:
+         poll_interval_sec=float(args.interval_sec or 300.0),
+         db_path=str(args.db_path or ""),
+         source=str(args.source or "live_public"),
++        raw_funding_only=args.okx_pairs,
++        raw_funding_max_rows=args.raw_funding_max_rows,
++        raw_funding_max_bytes=args.raw_funding_max_bytes,
++        okx_pair_options=pair_options,
+     )
+     out = run_forever(cfg, max_loops=(int(args.max_loops) if int(args.max_loops or 0) > 0 else None))
++    if args.okx_pairs:
++        last = out.get("last_result")
++        succeeded = (out.get("ok") is True and out.get("reason") != "already_running"
++                     and out.get("errors") == 0 and isinstance(last, dict) and last.get("ok") is True)
++        out = {**out, "ok": succeeded, "paired_run_succeeded": succeeded}
+     print(json.dumps(out, indent=2, default=str))
+-    return 0
++    return 0 if not args.okx_pairs or succeeded else 1
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/docs/review_artifacts/okx_funding_cli_20261029/before/okx_funding_pair_batch.py b/services/analytics/okx_funding_pair_batch.py
+index c0bcc7bc8..492a85ecb 100644
+--- a/docs/review_artifacts/okx_funding_cli_20261029/before/okx_funding_pair_batch.py
++++ b/services/analytics/okx_funding_pair_batch.py
+@@ -9,8 +9,8 @@ from services.analytics.okx_funding_journal import pair_journal_inputs
+ from services.analytics.okx_funding_pair_producer import _seconds, _utc, collect_okx_funding_pair
+ 
+ 
+-def collect_okx_pair_batch(plan_rows, options, *, run=None, utc=None, monotonic=None):
+-    """Prevalidate all identities/options before any capture; preserve failures."""
++def validate_okx_pair_plan(plan_rows, options):
++    """Return validated copies without clocks, capture, storage or side effects."""
+     keys = {"max_requests", "total_timeout_seconds", "request_timeout_seconds", "max_response_bytes"}
+     if type(plan_rows) is not list or not plan_rows or type(options) is not dict or set(options) != keys:
+         raise ValueError("explicit_pair_plan_and_options_required")
+@@ -32,6 +32,12 @@ def collect_okx_pair_batch(plan_rows, options, *, run=None, utc=None, monotonic=
+             or type(options["max_response_bytes"]) is not int
+             or not 0 < options["max_response_bytes"] <= 1048576):
+         raise ValueError("explicit_whole_batch_request_and_time_budgets_required")
++    return rows, options
++
++
++def collect_okx_pair_batch(plan_rows, options, *, run=None, utc=None, monotonic=None):
++    """Prevalidate all identities/options before any capture; preserve failures."""
++    rows, options = validate_okx_pair_plan(plan_rows, options)
+     utc = _utc if utc is None else utc
+     monotonic = time.monotonic if monotonic is None else monotonic
+     if not callable(utc) or not callable(monotonic) or (run is not None and not callable(run)):
+diff --git a/docs/review_artifacts/okx_funding_cli_20261029/before/COLLECTOR_CONTROL.md b/docs/COLLECTOR_CONTROL.md
+index 165c96f99..0c19a56e2 100644
+--- a/docs/review_artifacts/okx_funding_cli_20261029/before/COLLECTOR_CONTROL.md
++++ b/docs/COLLECTOR_CONTROL.md
+@@ -23,3 +23,62 @@ Hard boundary:
+ - this collector is read-only research infrastructure
+ - dashboard controls require OPERATOR role
+ - missing script paths must fail closed as `missing_script:<path>`
++
++## Paired OKX Funding: Operator Preview
++
++The existing CLI supports explicit `--okx-pairs`; ordinary commands retain
++legacy behavior. No existing plan, job or dashboard default is switched.
++`--okx-pair-options-file` supplies four funding batch limits; explicit DB path,
++journal row/byte limits and valid native `inst_id` values are required.
++Options without the opt-in are errors, not silently ignored.
++
++From the repository root, this command only validates local configuration:
++
++```sh
++./.venv/bin/python -B scripts/data/run_crypto_edge_collector_loop.py \
++  --okx-pairs \
++  --plan-file config/templates/crypto_edge_okx_pairs_plan.json \
++  --okx-pair-options-file config/templates/crypto_edge_okx_pair_options.json \
++  --db-path /private/tmp/cryptkeep-preview-only-20261029.sqlite \
++  --source rollout_public \
++  --raw-funding-max-rows 1 --raw-funding-max-bytes 4194304 \
++  --max-loops 1 --check-config
++```
++
++`--check-config` performs no network, lifecycle, status-file or database
++operation. JSON reports file hashes, native identities, funding limits and
++other-stream counts. `configuration_valid` is structural validation, not runtime
++readiness, freshness, tradability or startup permission. Database ownership and
++current runtime are explicitly UNVERIFIED.
++
++The plan template preserves every current sample-plan family and adds only
++the BTC native identifier. Its 8h plan value is not a verified interval or
++fallback. Options budget two funding requests,30s shared capture checks,10s
++per child communication and1MiB per body. Other families are OUTSIDE those
++funding limits; a full-family run is not globally bounded by30s. Journal byte
++limits include base64, receipts and metadata, not just response body size.
++
++## First Run and Recovery Boundary
++
++Before a separately authorized first run, establish the actual execution host,
++existing collector ownership/liveness, authoritative state root and intended
++DB. Process listing failed in the current tool namespace; do not assume the
++laptop collector is stopped or duplicate-safe. Status/PID files alone do not
++prove ownership. The October29 transport binary-trust limitation is unresolved.
++
++Review preview hashes and exact intended plan/target. The service rereads its
++plan each cycle: preview does not freeze files against edits. Only after
++authorization, use an operator-verified DB/source with `--max-loops 1`.
++Omitting `--check-config` STARTS the real loop and may initialize schema/write
++evidence. This document authorizes no real invocation. `--max-loops 0` is an
++unbounded loop; funding limits are per cycle.
++
++Paired CLI exit1 reports failed or unverified collection, including
++already_running or errors in the bounded run. Loop-control ok=True alone does
++not establish paired success. Legacy CLI exit behavior is unchanged.
++
++On failure, do not automatically restart/refetch. Preserve results/receipts/DB
++evidence: persistence may be unknown after commit. Removing the opt-in or
++restoring an authorized launch command does NOT undo DB/DDL/status writes.
++Do not delete rows, reset another collector's flag, kill an unowned PID or
++replace a DB as assumed rollback. Service/job changes still need authorization.
+diff --git a/tests/test_okx_funding_cli.py b/tests/test_okx_funding_cli.py
+new file mode 100644
+index 000000000..0fb1cc641
+--- /dev/null
++++ b/tests/test_okx_funding_cli.py
+@@ -0,0 +1,154 @@
++from copy import deepcopy
++import hashlib
++import json
++from pathlib import Path
++import socket
++import sqlite3
++import subprocess
++
++import pytest
++
++from scripts import run_crypto_edge_collector_loop as cli
++from services.analytics import crypto_edge_collector_service as svc
++from services.analytics.okx_funding_pair_batch import validate_okx_pair_plan
++from storage import crypto_edge_store_sqlite as storage
++
++
++ROOT = Path(__file__).resolve().parents[1]
++PLAN = ROOT / "config/templates/crypto_edge_okx_pairs_plan.json"
++OPTIONS = ROOT / "config/templates/crypto_edge_okx_pair_options.json"
++
++
++@pytest.fixture(autouse=True)
++def offline(monkeypatch, tmp_path):
++    def refuse(*args, **kwargs):
++        raise AssertionError("external/control boundary forbidden")
++    connect = sqlite3.connect
++    def temporary(database, *args, **kwargs):
++        assert Path(database).resolve().is_relative_to(tmp_path.resolve())
++        return connect(database, *args, **kwargs)
++    monkeypatch.setattr(socket, "create_connection", refuse)
++    monkeypatch.setattr(socket, "getaddrinfo", refuse)
++    monkeypatch.setattr(socket.socket, "connect", refuse)
++    monkeypatch.setattr(subprocess, "run", refuse)
++    monkeypatch.setattr(sqlite3, "connect", temporary)
++    monkeypatch.setattr(storage, "ensure_dirs", refuse)
++    monkeypatch.setattr(cli, "run_forever", refuse)
++    monkeypatch.setattr(cli, "request_stop", refuse)
++    monkeypatch.setattr(cli, "load_runtime_status", refuse)
++
++
++def args(tmp_path):
++    return ["--okx-pairs", "--plan-file", str(PLAN),
++            "--okx-pair-options-file", str(OPTIONS), "--db-path", str(tmp_path / "not-created.sqlite"),
++            "--source", "fixture", "--raw-funding-max-rows", "1",
++            "--raw-funding-max-bytes", "4194304", "--max-loops", "1"]
++
++
++def test_preview_has_hashes_and_no_lifecycle_or_database_side_effect(tmp_path, capsys):
++    assert cli.main(args(tmp_path) + ["--check-config"]) == 0
++    out = json.loads(capsys.readouterr().out)
++    assert out["configuration_valid"] is True and out["will_start"] is False
++    assert out["runtime_state"] == out["database_ownership"] == "UNVERIFIED"
++    assert out["plan_sha256"] == hashlib.sha256(PLAN.read_bytes()).hexdigest()
++    assert out["options_sha256"] == hashlib.sha256(OPTIONS.read_bytes()).hexdigest()
++    assert out["funding_capture_limits"]["max_requests"] == 2
++    assert out["other_stream_row_counts"] == {"open_interest": 1, "basis": 1, "quotes": 2, "order_books": 1}
++    assert out["other_streams_outside_funding_budget"] is True
++    assert out["execution_enabled"] is False and not (tmp_path / "not-created.sqlite").exists()
++
++
++def test_template_preserves_original_families_with_only_native_id_added():
++    original = json.loads((ROOT / "sample_data/crypto_edges/live_collector_plan.json").read_bytes())
++    template = json.loads(PLAN.read_bytes())
++    assert template["funding"][0].pop("inst_id") == "BTC-USDT-SWAP"
++    assert template == original
++
++
++def test_shared_validator_copies_critical_configuration_without_capture():
++    plan = json.loads(PLAN.read_bytes())["funding"]
++    options = json.loads(OPTIONS.read_bytes())
++    original = deepcopy(plan), deepcopy(options)
++    rows, limits = validate_okx_pair_plan(plan, options)
++    rows[0]["inst_id"], limits["max_requests"] = "OTHER-USDT-SWAP", 999
++    assert (plan, options) == original
++
++
++def test_cli_to_real_service_with_fake_transport_and_disposable_store(monkeypatch, tmp_path, capsys):
++    path = ROOT / "docs/review_artifacts/okx_funding_pair_transport_20261029/20261029T145936Z_eddbeac2a3134ea68bc7f2b649d64b1a"
++    calls = []
++    def transport(command, **kwargs):
++        calls.append(command)
++        name = "history" if "funding-rate-history?" in command[-1] else "current"
++        return subprocess.CompletedProcess(command, 0, (path / (name + ".body")).read_bytes() + b"\n200", b"")
++    monkeypatch.setattr(svc, "_now_iso", lambda: "2026-10-29T14:59:37Z")
++    def other(plan, **kwargs):
++        assert plan["funding"] == [] and len(plan["quotes"]) == 2
++        return {"funding_rows": [], "funding_observations": [], "checks": []}
++    monkeypatch.setattr(svc, "collect_live_crypto_edge_snapshot", other)
++    def lifecycle(cfg, *, max_loops):
++        assert max_loops == 1 and cfg.raw_funding_only is True
++        assert cfg.okx_pair_options["max_requests"] == 2
++        result = svc.collect_once(cfg, pair_run=transport)
++        return {"ok": True, "reason": "max_loops", "errors": 0, "last_result": result}
++    monkeypatch.setattr(cli, "run_forever", lifecycle)
++    assert cli.main(args(tmp_path)) == 0
++    out = json.loads(capsys.readouterr().out)
++    assert out["paired_run_succeeded"] is True and len(calls) == 2
++    assert out["last_result"]["funding_pair_capture"]["successful_pairs"] == 1
++    assert out["last_result"]["execution_enabled"] is False
++    assert (tmp_path / "not-created.sqlite").is_file()
++
++
++@pytest.mark.parametrize("result", [
++    {"ok": True, "reason": "already_running"},
++    {"ok": True, "reason": "max_loops", "errors": 1, "last_result": {"ok": False}},
++    {"ok": True, "reason": "max_loops", "errors": 0, "last_result": {}},
++    {"ok": False, "errors": 0, "last_result": {"ok": True}},
++])
++def test_pair_exit_status_does_not_claim_failed_or_unverified_run_succeeded(monkeypatch, tmp_path, capsys, result):
++    monkeypatch.setattr(cli, "run_forever", lambda *a, **kw: deepcopy(result))
++    assert cli.main(args(tmp_path)) == 1
++    out = json.loads(capsys.readouterr().out)
++    assert out["ok"] is False and out["paired_run_succeeded"] is False
++
++
++@pytest.mark.parametrize("extra", [["--stop"], ["--status"], ["--stop", "--check-config"]])
++def test_control_conflicts_refuse_before_lifecycle(tmp_path, extra):
++    with pytest.raises(SystemExit) as exc:
++        cli.main(args(tmp_path) + extra)
++    assert exc.value.code == 2
++
++
++@pytest.mark.parametrize("change", [
++    ["--db-path", ""], ["--raw-funding-max-rows", "0"], ["--raw-funding-max-bytes", "0"],
++    ["--interval-sec", "nan"], ["--max-loops", "-1"],
++])
++def test_invalid_execution_settings_refuse_before_start(tmp_path, change):
++    with pytest.raises(SystemExit) as exc:
++        cli.main(args(tmp_path) + change)
++    assert exc.value.code == 2
++
++
++@pytest.mark.parametrize("body", [
++    b'{"max_requests":2,"max_requests":4}',
++    b'{"max_requests":2,"total_timeout_seconds":NaN}',
++    b'{"max_requests":2,"total_timeout_seconds":1e309}',
++    b'{"extra":' + b'[' * 2000 + b'0' + b']' * 2000 + b'}',
++    b'{"private-looking-config-value":',
++])
++def test_bad_configuration_is_sanitized_and_never_starts(tmp_path, capsys, body):
++    path = tmp_path / "options.json"
++    path.write_bytes(body)
++    with pytest.raises(SystemExit) as exc:
++        cli.main(args(tmp_path) + ["--okx-pair-options-file", str(path), "--check-config"])
++    assert exc.value.code == 2
++    assert "private-looking-config-value" not in capsys.readouterr().err
++    assert not (tmp_path / "not-created.sqlite").exists()
++
++
++@pytest.mark.parametrize("argv", [["--check-config"], ["--raw-funding-max-rows", "1"]])
++def test_pair_arguments_require_opt_in(argv):
++    with pytest.raises(SystemExit) as exc:
++        cli.main(argv)
++    assert exc.value.code == 2
+diff --git a/config/templates/crypto_edge_okx_pair_options.json b/config/templates/crypto_edge_okx_pair_options.json
+new file mode 100644
+index 000000000..f62a65b61
+--- /dev/null
++++ b/config/templates/crypto_edge_okx_pair_options.json
+@@ -0,0 +1,6 @@
++{
++  "max_requests": 2,
++  "total_timeout_seconds": 30,
++  "request_timeout_seconds": 10,
++  "max_response_bytes": 1048576
++}
+diff --git a/config/templates/crypto_edge_okx_pairs_plan.json b/config/templates/crypto_edge_okx_pairs_plan.json
+new file mode 100644
+index 000000000..cfadfa8fb
+--- /dev/null
++++ b/config/templates/crypto_edge_okx_pairs_plan.json
+@@ -0,0 +1,18 @@
++{
++  "funding": [
++    {"venue": "okx", "symbol": "BTC/USDT:USDT", "inst_id": "BTC-USDT-SWAP", "interval_hours": 8.0}
++  ],
++  "open_interest": [
++    {"venue": "okx", "symbol": "BTC/USDT:USDT"}
++  ],
++  "basis": [
++    {"venue": "okx", "spot_symbol": "BTC/USDT", "perp_symbol": "BTC/USDT:USDT", "days_to_expiry": 7}
++  ],
++  "quotes": [
++    {"venue": "coinbase", "symbol": "BTC/USD", "orderbook_limit": 5},
++    {"venue": "kraken", "symbol": "BTC/USD", "orderbook_limit": 5}
++  ],
++  "order_books": [
++    {"venue": "coinbase", "symbol": "BTC/USD", "depth": 5}
++  ]
++}

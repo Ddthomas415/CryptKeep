@@ -1,0 +1,17 @@
+{
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "sha256": {
+    "storage/crypto_edge_store_sqlite.py": "362f529f71bb6cf6eab1d7a09eb0ea4c0629a7e671e9c052b211b499e2a62e93",
+    "services/analytics/funding_observations.py": "e884234f22607b551fa81d662d192ad9bb9e4b72e0a7466825114c6d44a7df89",
+    "tests/test_funding_store_bridge.py": "99f0bda903e47957ce4c38f0e19581536f9312061f025b8ac09f853c29fbc6db",
+    "tests/test_synthetic_funding_observations.py": "4313f45ee21f8955c2ab586e940f6b95f3a23b6dbd688f4e0b14dfaafbe5d3fb",
+    "tests/test_crypto_edge_store_sqlite.py": "98dc12bd148690e7271aa38f9ea216d6b4a24ed659cfc89db429e9d9a7f65ecd",
+    "docs/research/funding_store_bridge_20261029.md": "e384f776b1925906b9a20dbd76f6b5d539311cd140f1c3661f909b4d0f187c92",
+    "docs/review_artifacts/funding_store_bridge_20261029/before/crypto_edge_store_sqlite.py": "35095d8deccd786e5867240d7e45db748d50ca4c96460b7f7b72eb6fee00d540",
+    "docs/review_artifacts/funding_store_bridge_20261029/before/synthetic_funding_observations.py": "e884234f22607b551fa81d662d192ad9bb9e4b72e0a7466825114c6d44a7df89",
+    "docs/review_artifacts/funding_store_bridge_20261029/applied.patch": "6d6a302619aa933ca7b5c3a0b5f982580dbbe25356c59ef3a08d0964cd331e7f",
+    "services/analytics/crypto_edge_collector.py": "6a62baf4d5b6904e133caa4c437fad7ddc02aba1133e0c18e13b4a2ebc263cbf",
+    "services/market_data/alternative_data.py": "0148c665381a2691ddd5717bb76c3b7b178d6ac78d3b0fcc7e71c2a926edabff",
+    "services/analytics/crypto_edges.py": "f82753927a2bb8a55141bfc8fb59c0d97a8523524685db37cb9e8f46b72c6bb2"
+  }
+}

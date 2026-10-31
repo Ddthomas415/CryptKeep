@@ -1,0 +1,14 @@
+{
+  "bytes": 170,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "12_DOT.bin",
+  "http_date": "Wed, 28 Oct 2026 15:35:07 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793201707256,
+  "request_started_ms": 1793201707128,
+  "sha256": "924c0a18fd9f720756737e783ed699d3206b52f82df84ea6cc4084404795af4b",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/DOT-USD/candles?granularity=3600&start=2026-10-28T13%3A00%3A00%2B00%3A00&end=2026-10-28T15%3A00%3A00%2B00%3A00"
+}

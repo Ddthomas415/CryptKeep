@@ -1,0 +1,256 @@
+{
+  "schema": "companion-v6b-runtime-packet-independent-review-v1",
+  "review_date": "2026-10-23",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "decision": "INCOMPLETE",
+  "derivation_decision": "ACCEPTED",
+  "policy_applicability_decision": "INCOMPLETE",
+  "reviewer": "Independent GATE: bounded v6b offline derivation and restricted-policy applicability review",
+  "scope": "Exact twelve-output offline derivation and applicability of existing restricted policies to the new IDs/direct-module launch commands only; no operation or full import-closure audit",
+  "runtime_state": "INCOMPLETE",
+  "findings": [
+    {
+      "id": "R1",
+      "type": "missing_material_policy_evidence",
+      "acceptance_blocking": true,
+      "affected_subjects": [
+        {
+          "name": "phase1-audit-log",
+          "container_id": "6ed099d9dc9871eaa1ea701eeda488c5b47b5d954dbbca920e527a2397b795e3",
+          "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270"
+        },
+        {
+          "name": "phase1-risk-stub",
+          "container_id": "6ecdea955efebb6afa265f7f620d18bb119d78a6e19030cece9f9a8294f41fa6",
+          "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1"
+        },
+        {
+          "name": "phase1-memory",
+          "container_id": "a0f4a77087bd33167692c5326a1a8183774c099a5128e93fa8268554cfab2c49",
+          "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee"
+        },
+        {
+          "name": "phase1-orchestrator",
+          "container_id": "c672b553761f4c780881be0a4e50de6a2c2c9c139473bf85202a8e54dfa358c1",
+          "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83"
+        }
+      ],
+      "affected_policy": "entrypoint_side_effects",
+      "shown": "The four frozen commands use python -m uvicorn. All 128 source pins match the prior records; application pins include /usr/local/bin/uvicorn and uvicorn/main.py, config.py, importer.py, server.py and lifespan/on.py, but no uvicorn/__main__.py. The linked startup/source-policy reviews inspected here do not supply a hash-bound module-launcher equivalence assessment.",
+      "unverified": "The exact package-module launcher selected by the new commands and its delegation/startup effects. This is not a finding that the launcher is unsafe or that runtime startup has failed.",
+      "why_material": "The old restricted acceptance explicitly characterizes the exact configured Uvicorn startup. Module execution adds the package __main__ entry path; a reviewed console script and uvicorn/main.py alone do not characterize the unreviewed module shim. That shim could alter invocation or perform effects before reaching the already-reviewed CLI. Unchanged image identity makes archived same-image evidence reusable, but does not substitute for the missing source/semantic bridge.",
+      "minimum_missing_evidence": "Hash-bound readable bytes of the resolved Uvicorn package launcher, normally /usr/local/lib/python3.11/site-packages/uvicorn/__main__.py, tied to all four exact image/subject bindings or demonstrated immutable/source-only lineage. Narrow static review must establish its delegation to the already-pinned CLI and characterize any added startup effects/settings. If source-origin resolution is ambiguous under the saved workdir/PYTHONPATH, resolve only that ambiguity with bounded non-secret configuration/source evidence.",
+      "minimum_readonly_capture_requirement": "Reuse suitable existing saved exact-image bytes if available. Otherwise, under separate explicit authorization, capture only this fixed launcher file from the four accepted stopped containers as bounded read-only source bytes with container ID, image ID, path, size and SHA256. Identical payloads may be deduplicated only with evidence for each binding/lineage. No launcher execution, imports, startup, service calls, credentials, broad filesystem search or complete dependency-closure capture is required.",
+      "closure_boundary": "This review performs no capture and authors no accepted policy/runtime derivatives. Once this narrow bridge is supplied, reassess applicability to the exact commands under the unchanged restricted meanings; do not silently promote every image operation to SHOWN."
+    }
+  ],
+  "shown": {
+    "classification": "SHOWN for offline artifact derivation only",
+    "all_twelve_outputs_independently_reconstructed_and_exact_bytes_match": true,
+    "literal_producer_input_pins_match_provenance": true,
+    "input_pin_count": 11,
+    "all_input_hashes_match": true,
+    "current_consumer_count": 13,
+    "all_current_consumer_hashes_match": true,
+    "all_seven_prior_child_record_hashes_and_subjects_match": true,
+    "subject_count": 7,
+    "total_source_pins": 128,
+    "all_seven_images_and_all_source_maps_unchanged": true,
+    "storage_three_subjects_exactly_unchanged": true,
+    "application_subject_delta_only_container_id_and_MODELLED_final_preservation_sha256": true,
+    "accepted_actual_staged_snapshots_reconstruct": true,
+    "saved_eleven_older_rows_preserved": true,
+    "direct_new_ID_source_witnesses_checked": 43,
+    "all_direct_witnesses_match_manifest_old_source_pins_and_current_local_bytes": true,
+    "remaining_source_pin_provenance": "Other 85 pins retain prior same-image/storage archival provenance, not new-ID source captures.",
+    "final_alias_and_preservation_projection": "MODELLED only; not applied or observed final configuration/attachment.",
+    "all_seven_policy_proposals_and_runtime_proposal_INCOMPLETE_blank_reviewer": true,
+    "all_policy_proposal_verdicts_UNVERIFIED": true,
+    "preserved_restricted_policy_meanings_and_limits_exactly_equal_prior_scope": true,
+    "producer_creates_no_policy_acceptance_or_operational_authority": true
+  },
+  "policy_applicability": {
+    "storage_three": "Exact IDs/images/preservation/source maps unchanged; the prior restricted already-running-storage meanings remain reusable evidence. No fresh daemon-wide or effect-free claims are introduced and no derivative records are authored in this incomplete combined policy disposition.",
+    "application_four": "Images and downstream client/source pins are unchanged and all 43 application entries have direct new-ID witnesses. The old scoped client retry/proxy evidence is not rejected; however full application policy-record acceptance is withheld until the new module-launcher startup bridge is shown.",
+    "consumer_scope": "Thirteen current hashes match the packet provenance. Prior accepted repair scope is reused; this pass does not reopen old architecture or assert a new full consumer/dependency audit.",
+    "old_policy_scope_sha256": "271c1c2c204f1493fd36caf0db57b5af464aba4c920526e2e77fd019ce24790d",
+    "policy_meanings": {
+      "entrypoint_side_effects": "The applicable startup/client effects are characterized and permitted within this profile, not asserted nonexistent. Only four applications are startup targets; the three existing storage daemons remain running.",
+      "no_proxy_redirect": "Reviewed fixed-recipient HTTP clients and explicitly listed restricted storage/client commands in this profile; not arbitrary unrestricted image/daemon operations.",
+      "zero_retries": "Original fixed-loopback HTTP transport and reviewed restricted application-call retry controls. Not zero physical socket attempts, DNS/address results, all pool assignments or all daemon operations. Distinct planned health/read calls are not retries of each other."
+    },
+    "preserved_limits": [
+      "Acceptance is source/configuration policy proof for the listed hash-bound profile, not observed startup, SDK initialization, endpoint success or a citation result.",
+      "HTTPcore pool reassignment and Psycopg address fallback remain disclosed. No blanket absence of duplicate business effects or lower-layer connection attempts is asserted; no duplicate execution was observed by this review.",
+      "Only planned client checks against already-running storage are assessed; no storage daemon-wide no-retry, background-effect or effect-free-entrypoint claim is made.",
+      "Four app source bindings include accepted preparation-controller attestations; older matching-image SDK captures and new-memory source-only inheritance retain their stated provenance distinctions. The policy accepts the specified bytes, not an unverified future installation.",
+      "Existing fresh identity/image/configuration/installed-source/namespace/recipient/lineage/archive/citation gates are not waived, replaced by this packet or declared passed.",
+      "No general market/news/model capability is removed or accepted as ready. No current-market causal truth, profitability, trading eligibility or production deployment is inferred.",
+      "Records remain meaningful only with this scope, the reviewed consumers and exact subjects/source pins; arbitrary use of the same images is outside acceptance."
+    ]
+  },
+  "hashes": {
+    "checkpoint": {
+      "path": "docs/checkpoints/companion_v6b_runtime_packet_20261023.md",
+      "sha256": "4282df1fb3d31a2703c2a3f9fe99f0646e50068eed41af92970e0fe99b7fc08b"
+    },
+    "producer": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/assemble_runtime_packet.py",
+      "sha256": "d9324398722f85bdb285ca1695c1de24ab3ec184d9784715539a63a3c9982d2d"
+    },
+    "test_file": {
+      "path": "tests/test_companion_v6b_runtime_packet.py",
+      "sha256": "2fbc644784dbf95d575dcb74e5a4a216898be2ce04fa9e639e4ee2b64b1184c3"
+    },
+    "draft_outputs": {
+      "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/phase1-audit-log.draft.json": "6bcdde004296e71bb99d3cee793c0bc2daf35d4e009873975fde1e1dd9884288",
+      "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/phase1-memory.draft.json": "589d70545736471140e0749934c9cdad8ae9a4e656c924f332c4b90804337ed8",
+      "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/phase1-minio.draft.json": "2538a00fcc75cbcc1ddc45e7207021cb716f792ec39c60e678507a755d60ac2c",
+      "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/phase1-orchestrator.draft.json": "edb43425bc27697406367ca905f9fa9fd2a237ada588dd92e0b2580b88934ca0",
+      "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/phase1-qdrant.draft.json": "d910fd7ea7633d534942584c481cb5d94c3d49dc74037fb53fe2bd8297b2ed17",
+      "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/phase1-risk-stub.draft.json": "4cff8e4a3633f437dee28d836611e68cb684fc29b8f7110844975c521cdf9e47",
+      "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/phase1-timescaledb.draft.json": "1e035dab00cd1657450ce4c7d71e15e4161d183572f7cf08206a299ddf3128fc",
+      "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/provenance.json": "9fe33a809937cb746fd8ea699613dea4cb2cf25154fc1c45e986eae48772a96d",
+      "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/runtime_review.draft.json": "60dddd417092e51313f959d8912cc1f2bd82933f2779e67a2fb66e190aac68f1",
+      "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/staged_metadata.derived.json": "ca7101c34446f7b04cc0e1c08dcfcba2026e197d3cecbedb8de13e3cf70118e8",
+      "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/subjects.draft.json": "afadff45eafff21a102c0d4a9ba153e30b248d79f480540a976669f9b852d8dd",
+      "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45"
+    },
+    "inputs": {
+      "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/runtime_review.json": "64127a85c985be4e09c0c6df24f5a688d5faae5a38077a3ccd20af7e82d7d43b",
+      "docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/scope_review.json": "271c1c2c204f1493fd36caf0db57b5af464aba4c920526e2e77fd019ce24790d",
+      "docs/review_artifacts/companion_continuation_20261021/runtime_packet/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+      "docs/review_artifacts/companion_worker_preparation_20261023/actual_b/actual_id_review.json": "c8fd96dd96b12576a82494d079022f6571ef52dd8bbdade7a154a70d826bce96",
+      "docs/review_artifacts/companion_worker_preparation_20261023/actual_b/before_inventory.json": "ae05c9e33fe708c14d89afc9bfa9a56896c55e5e00a45c2338bac792b4889d5f",
+      "docs/review_artifacts/companion_worker_preparation_20261023/actual_b/post_inventory.json": "7d4a164c4e2638492f04d83e4aa70287e9801bf298cda0c489c2a7e8037f01f5",
+      "docs/review_artifacts/companion_worker_preparation_20261023/actual_b/preparation_evidence.json": "da7ee2de44a4e98990cceb6b4c53edc530fc717cc45c7c94d6b65994edfa35ef",
+      "docs/review_artifacts/companion_worker_preparation_20261023/actual_b/source_postcheck.json": "bd95a3481795597412d9214a574520812c350243e1aa0126b29232dc07f2e90f",
+      "docs/review_artifacts/companion_worker_preparation_20261023/actual_b/staged_metadata.json": "28256b005e8414a542f3f894cff1cc285b095d2b42cf9398980e8496f847d198",
+      "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/provenance.json": "c4bd70588ee5d695cd76fdec3f9380814edc2e833979f67418e60c5964a190ce",
+      "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/reviewed_preparation_manifest.json": "67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e"
+    },
+    "consumers": {
+      "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+      "scripts/research/companion_cutover.py": "8740d65d31eade3d94cd849710aa2b1cf00a67ca560e385fd5a54ff4a20aaf4e",
+      "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+      "scripts/research/companion_docker_transport.py": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5",
+      "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+      "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+      "scripts/research/companion_installer.py": "de1a969fdd522b069cc0bca03c4d714e7b80e8842ac167ec9d4ffcb8f8a1b334",
+      "scripts/research/companion_network_configuration.py": "c3824743fb08098a35af6966ee9e3345a63e6500f18a5fdd84a02d1114bf39d7",
+      "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+      "scripts/research/companion_runtime_adapter.py": "e7315cd9047f656afca0b3845be54629c46c80c9a20065d8646978dce20fce38",
+      "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+    },
+    "linked_launch_support_reviews": {
+      "docs/review_artifacts/companion_continuation_20261021/startup_profile/independent_review.json": "47e16c37c4f45ceb25dc1a3cf78ead34108e7294e13efc916ed78ff85d92c9f4",
+      "docs/review_artifacts/companion_continuation_20261021/startup_profile/assessment_v2.json": "8fe928ab2fdccb96d7e5b93f5942730d0bfc9f20ac656af912ce70944388a31c",
+      "docs/review_artifacts/companion_continuation_20261021/startup_profile/report.json": "3c49e4246f5b69864f3b3aedae8562dcb857926995f78591452de2af3836f3d9",
+      "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/source_policy_assessment.json": "b470a40466be1c4f316c715a3208d741a8e74e877eaa031543100893c0e2cc74",
+      "docs/review_artifacts/companion_continuation_20261021/runtime_packet/independent_review.json": "5afa2474008e26439e7a35f0af13b4b9ee6ee48746edf15d8f2d921ffb803bd9"
+    }
+  },
+  "reproducibility": {
+    "method": "Independent in-memory JavaScript reconstruction of the read producer and previously read pure preservation/network projections; canonical compact sorted-key JSON compared directly with all twelve published byte strings. The producer publishing main and Python test runner were not invoked.",
+    "checks": [
+      {
+        "name": "staged_metadata.derived.json",
+        "sha256": "ca7101c34446f7b04cc0e1c08dcfcba2026e197d3cecbedb8de13e3cf70118e8",
+        "exact_published_bytes": true
+      },
+      {
+        "name": "subjects.draft.json",
+        "sha256": "afadff45eafff21a102c0d4a9ba153e30b248d79f480540a976669f9b852d8dd",
+        "exact_published_bytes": true
+      },
+      {
+        "name": "topical_approvals.json",
+        "sha256": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+        "exact_published_bytes": true
+      },
+      {
+        "name": "phase1-timescaledb.draft.json",
+        "sha256": "1e035dab00cd1657450ce4c7d71e15e4161d183572f7cf08206a299ddf3128fc",
+        "exact_published_bytes": true
+      },
+      {
+        "name": "phase1-qdrant.draft.json",
+        "sha256": "d910fd7ea7633d534942584c481cb5d94c3d49dc74037fb53fe2bd8297b2ed17",
+        "exact_published_bytes": true
+      },
+      {
+        "name": "phase1-minio.draft.json",
+        "sha256": "2538a00fcc75cbcc1ddc45e7207021cb716f792ec39c60e678507a755d60ac2c",
+        "exact_published_bytes": true
+      },
+      {
+        "name": "phase1-audit-log.draft.json",
+        "sha256": "6bcdde004296e71bb99d3cee793c0bc2daf35d4e009873975fde1e1dd9884288",
+        "exact_published_bytes": true
+      },
+      {
+        "name": "phase1-risk-stub.draft.json",
+        "sha256": "4cff8e4a3633f437dee28d836611e68cb684fc29b8f7110844975c521cdf9e47",
+        "exact_published_bytes": true
+      },
+      {
+        "name": "phase1-memory.draft.json",
+        "sha256": "589d70545736471140e0749934c9cdad8ae9a4e656c924f332c4b90804337ed8",
+        "exact_published_bytes": true
+      },
+      {
+        "name": "phase1-orchestrator.draft.json",
+        "sha256": "edb43425bc27697406367ca905f9fa9fd2a237ada588dd92e0b2580b88934ca0",
+        "exact_published_bytes": true
+      },
+      {
+        "name": "runtime_review.draft.json",
+        "sha256": "60dddd417092e51313f959d8912cc1f2bd82933f2779e67a2fb66e190aac68f1",
+        "exact_published_bytes": true
+      },
+      {
+        "name": "provenance.json",
+        "sha256": "9fe33a809937cb746fd8ea699613dea4cb2cf25154fc1c45e986eae48772a96d",
+        "exact_published_bytes": true
+      }
+    ],
+    "test_evidence": "CLAIMED parent result: 7 passed in 0.18s. Test file was read; tests were not rerun in this review."
+  },
+  "prior_actual_ID_acceptance": {
+    "decision": "ACCEPTED_WITH_RISK",
+    "scope": "Actual stopped v6b preparation only",
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/actual_b/actual_id_review.json",
+    "sha256": "c8fd96dd96b12576a82494d079022f6571ef52dd8bbdade7a154a70d826bce96",
+    "unchanged": true,
+    "not_reopened_or_withdrawn": true
+  },
+  "provenance_limits": [
+    "Attempt label provenance remains accepted controller evidence, not an independently captured raw label.",
+    "Saved native/source witnesses are parent-performed observations; this reviewer did not independently operate Docker or inspect live containers.",
+    "Final names, aliases, links, network attachment and connectivity remain MODELLED or unverified.",
+    "Fresh installed-source/configuration/storage/recipient/lineage/archive/citation checks are not waived. Runtime SDK initialization, health, shutdown/ack, cancellation/recovery, future clock compatibility, a working cited explanation and profitability remain UNVERIFIED."
+  ],
+  "authority": {
+    "derivation_only_accepted": true,
+    "policy_acceptance_created": false,
+    "runtime_pin_acceptance_created": false,
+    "accepted_policy_records_authored": false,
+    "native_capture_authorized": false,
+    "preparation_or_retry_authorized": false,
+    "credentials_authorized": false,
+    "build_create_start_stop_exec_signal_authorized": false,
+    "service_query_authorized": false,
+    "cutover_authorized": false,
+    "trading_authorized": false
+  },
+  "review_boundaries": {
+    "one_bounded_pass": true,
+    "no_native_Docker_credentials_process_service_operations": true,
+    "no_tests_or_broad_suites_run": true,
+    "no_frozen_drafts_producer_tests_checkpoint_worklog_or_prior_acceptance_modified": true,
+    "only_authored_artifact": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/independent_review.json"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "recorded_at_utc": "2026-10-28T14:13:43.504892+00:00",
+  "reviewer_agent_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "review_submission_id": "01a182da-6106-73b1-bf81-13b3743c2373",
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "corrected synthetic prototype only",
+  "closed_finding": "SYNTHETIC-CAP-01",
+  "independent_test_run": {
+    "passed": 53,
+    "seconds": 0.62
+  },
+  "inputs_sha256": {
+    "scripts/research/synthetic_live_position_cap.py": "1776524826aa38a102e95013a6dee3ec657175ee8708740b1fe78aae0f8ecd26",
+    "tests/test_synthetic_live_position_cap.py": "48d7d315eb832657bf7b26f41b66727e06479c73510c1b2854e3e8c4231c7652"
+  },
+  "original_archive_sha256": "75df1ab02bfadf006a4810fda41574622c646fb05d0805bd880919443b53660a",
+  "correction_diff_sha256": "eb11a5b172515f951dbc871e2c048edd54bc3032c41fc4a3ba82b4ab9bc0c9e3",
+  "review_note_sha256": "6aa926a01e198153cd0427d87ef5d15395b121f593ec9a0e3eff0271f842f0d8",
+  "production_repair_complete": false,
+  "operational_authority_granted": false
+}

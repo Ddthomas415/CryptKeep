@@ -1,0 +1,118 @@
+{
+  "schema": "companion-s3-refresh-actual-id-disposition-v1",
+  "reviewed_at": "2026-10-21T22:07:27Z",
+  "role": "GATE",
+  "reviewer": "Independent Codex GATE: saved S3-refresh stopped actual-ID review, 2026-10-21",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Saved actual four stopped replacement IDs, evidence binding and bounded postcheck only. Not runtime/startup/cutover approval.",
+  "findings": [],
+  "material_assumptions": [],
+  "reviewed_sha256": {
+    "reviewed_preparation_manifest.json": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d",
+    "actual_preparation_evidence.json": "fe3569d39351d72766136aae7c58ae24f52f7b3a627edf760d999874f06c2f96",
+    "actual_preparation_receipt.jsonl": "99685442ac2837ac793ea04f0fa188e1486e16b68fcdf70383d82dda8b014677",
+    "actual_preparation_postcheck.json": "c505e4c6c3b2be5cd1054ac976fd69a503d0fcf2b2304cc6e6583ef1b1decb06",
+    "actual_memory_main.py.source.txt": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228"
+  },
+  "prior_capture": {
+    "path": "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/report.json",
+    "sha256": "7dbda2c14b68b58d372508eda0d34e232bc9e6548bd0b7ff5327b027abbdad2b"
+  },
+  "actual_id_review": {
+    "path": "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/actual_id_review.json",
+    "sha256": "b9723bdd60158e9f5f354eee34db097af6d6949a3bb113d8dd16a5c6980b931c",
+    "schema": "companion-preparation-review-v1",
+    "fields": [
+      "schema",
+      "decision",
+      "reviewer",
+      "manifest_sha256",
+      "evidence_sha256"
+    ]
+  },
+  "attempt": "s3refresh20261021c1eaae5a",
+  "saved_postcheck_observed_utc": "2026-10-21T22:06:33.393024+00:00",
+  "verification": {
+    "environment": "VERIFIED_ENV for offline saved-file checks only",
+    "native_commands_by_reviewer": 0,
+    "tests_repeated": 0,
+    "method": "Empty-environment python -B: hash saved inputs; Plan.load; staged._rows; validate every receipt phase/publication hash; compare saved postcheck before/after and earlier11 rows; reconstruct all4 snapshots using existing pure preservation/configured-network projection functions; change only aliases on offline clones; ReviewedPreparation.load using exact five-field review bytes.",
+    "result": "PASS: saved hashes, staged._rows, exact receipt ordering/publication,15stable subjects,11old unchanged,4full projected snapshots (attempt supplied from backend evidence),4logical-alias-only predictions,memory source digest,review loader",
+    "receipt_events": 7,
+    "receipt_order": [
+      "staged_preparation_reserved",
+      "create_staged_intended:phase1-audit-log",
+      "create_staged_intended:phase1-risk-stub",
+      "create_staged_intended:phase1-memory",
+      "create_staged_intended:phase1-orchestrator",
+      "staged_preparation_complete",
+      "preparation_evidence_published"
+    ]
+  },
+  "actual_replacements": [
+    {
+      "application": "phase1-audit-log",
+      "id": "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "staged_configured_metadata": "59a4d0ddc4f967e9edb92999998c0e2969fa2bb4cec7c40bb2198add4c8ee9a3",
+      "expected_final_configured_metadata": "9f53d7affd5e6f6d3148698a24c1e9a0fd9e74f07937c81ff19c85d18f1a1e91",
+      "logical_aliases_only_match": true,
+      "postcheck_includes_attempt_label": false
+    },
+    {
+      "application": "phase1-risk-stub",
+      "id": "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "staged_configured_metadata": "9605c5debece5a6589b777ae17ce009b213a980b44973ef1235028f74206548a",
+      "expected_final_configured_metadata": "fa012f643c0bc5568efc8d8792be48e743f897f3249490ef0d41adf92ee728fb",
+      "logical_aliases_only_match": true,
+      "postcheck_includes_attempt_label": false
+    },
+    {
+      "application": "phase1-memory",
+      "id": "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+      "image": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "staged_configured_metadata": "45026f6ba3325133d20f7d8b5ac73dead74fe7b3a31ea1646dc8486caf31552f",
+      "expected_final_configured_metadata": "fd35e631333e2f1d84823e273ac4b030ee593a33c747345f637d72478bc4d193",
+      "logical_aliases_only_match": true,
+      "postcheck_includes_attempt_label": false
+    },
+    {
+      "application": "phase1-orchestrator",
+      "id": "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "staged_configured_metadata": "5d783864dab65b9f62f37dd6c8979129c190c34127fe723b2da0494a077780c3",
+      "expected_final_configured_metadata": "ee00bed50a3c2638aa13aebf9b2696e352f01b37b75d14a9b3bb958fdbb53b05",
+      "logical_aliases_only_match": true,
+      "postcheck_includes_attempt_label": false
+    }
+  ],
+  "shown": [
+    "All five saved manifest/evidence/receipt/postcheck/memory-source hashes match; previous capture hash is unchanged.",
+    "Plan.load and staged._rows accept the exact manifest/evidence binding, correct staged names/order, four distinct nonbaseline IDs, image syntax, created state, never-started timestamp, zero restarts, restart policy no, attempt and configured network contract.",
+    "All7 receipt events parse; four creation-intent targets are in expected order; complete event embeds the exact evidence object; final publication marker binds the exact saved evidence hash. There are no extra failure/cleanup records in this receipt.",
+    "All15 selected saved rows are identical between postcheck endpoints. All7 originals plus old4 staged selected rows exactly equal the previous accepted capture. New4 IDs are distinct from those11.",
+    "All4 preservation/foundation/configured-network snapshots reconstruct exactly from saved postcheck metadata, except the attempt field which is taken from backend evidence because the postcheck format omits it.",
+    "All4 new rows are created and neverstarted with zero restarts and policy no. Their configured network has blank actual NetworkID/EndpointID/IP fields; configured_only evidence is not connected endpoint evidence.",
+    "For each app, replacing only network Aliases on an offline clone with its manifest logical aliases reproduces app.replacement_configured_metadata exactly. No DNS/extra_hosts normalization, criteria change or metadata reconciliation is needed.",
+    "Saved actual memory main bytes hash to the accepted c1eaae5a repair and are bound in the postcheck to new memory ID/image. Other3 image IDs equal their old staged image IDs; new memory image differs.",
+    "Existing accepted preparation control flow verifies each stage sources/labels/environment before the complete event, and publishes evidence before its receipt-confirmation marker."
+  ],
+  "claimed": [
+    "Parent reports operator-authorized preparation ran exactly once and exited0, and public evidence/receipt are byte-identical to private published output. This reviewer verified public hashes and receipt binding, not private operational paths or process execution.",
+    "Parent reports the postcheck used3 read-only native commands; saved postcheck records3. This reviewer issued none."
+  ],
+  "unverified_and_limits": [
+    "All43 staged source checks are reported through accepted backend/control-flow completion, not independently copied and rehashed from new containers in this review. Only memory main has a separate saved native file-byte postcheck.",
+    "Attempt/label/environment preservation is backend-attested. The separate sanitized postcheck has no attempt-label field and no credential values, so it is not an independent direct label or private-environment proof.",
+    "Postcheck before/after equality and comparison with the older capture are endpoint observations of selected metadata, not continuous observation, whole-filesystem/data equality, absence of transient effects, whole daemon inventory or proof of no other processes.",
+    "Configured metadata differs from final modeled metadata while aliases are staged; alias-only offline equality is a prediction, not observed future network attachment, DNS resolution, service health or runtime compatibility.",
+    "No private output, credentials, sockets, Docker/native/service/database/query operations or tests were accessed/run by reviewer. Saved artifacts and accepted code were not changed.",
+    "Never-started memory source presence is not import/startup/full-SDK execution proof. Both deferred startup policies remain false; runtime policy records and startup/cutover authority are not supplied by this actual-ID review.",
+    "Existing attempt remains consumed; this review authorizes no preparation replay, rebuild, resource adoption/removal, start or cutover. Later operations must use existing exact-ID/policy/freshness/deadline gates and separate operator authorization."
+  ],
+  "runtime_readiness": "INCOMPLETE",
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "additional_native_authorization": false
+}

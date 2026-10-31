@@ -1,0 +1,3 @@
+{"installation_evidence": {"startup_authorized": false}, "phase": "staged_preparation_reserved"}
+{"installation_evidence": {"stage": "preparation_build"}, "phase": "staged_preparation_failed"}
+{"installation_evidence": {"failure_phase": "preparation", "preparation_failure_stage": "preparation_build", "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261023v6a/receipt.jsonl", "unresolved_cleanup": [], "unresolved_creation": []}, "phase": "preparation_entrypoint_failed"}

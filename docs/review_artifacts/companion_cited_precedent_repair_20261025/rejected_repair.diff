@@ -1,0 +1,39 @@
+--- before/dashboard/services/views/_shared_signals.py
++++ after/dashboard/services/views/_shared_signals.py
+@@ -409,14 +409,32 @@
+     if "asset" in payload and payload["asset"] != asset_symbol:
+         return True
+     current = str(payload.get("current_cause") or "")
++    cited_fields = {field: str(payload.get(field) or "")
++                    for field in ("past_precedent", "future_catalyst")}
+     context = _explain_archived_headline_context(payload, asset_symbol)
+     if context and current.count(context) == 1:
+-        # Exclude only the exact labelled citation passage. All surrounding and
+-        # precedent/catalyst prose retains the original whole-token guard.
++        # Exclude the labelled passage and exact, citation-bound reuse of its
++        # titles, never added narrative or unrelated precedent/catalyst text.
+         start = current.index(context)
+         current = current[:start] + " " + current[start + len(context):]
+-    text = " ".join((current, str(payload.get("past_precedent") or ""),
+-                     str(payload.get("future_catalyst") or ""))).upper()
++        evidence = payload["evidence"]
++        keywords = [row for row in evidence
++                    if isinstance(row, dict) and row.get("type") == "keyword_match"]
++        binding_keys = ("document_id", "summary", "source", "url", "timestamp")
++        for field, kind in (("past_precedent", "past"), ("future_catalyst", "future")):
++            citations = [row for row in evidence
++                         if isinstance(row, dict) and row.get("type") == kind]
++            if len(citations) != 1:
++                continue
++            citation = citations[0]
++            if (citation.get("id") != f"{kind}_1"
++                    or type(citation.get("document_id")) is not int
++                    or cited_fields[field] != citation.get("summary")):
++                continue
++            if any(all(citation.get(key) == row.get(key) for key in binding_keys)
++                   for row in keywords):
++                cited_fields[field] = ""
++    text = " ".join((current, *cited_fields.values())).upper()
+     known_assets = {"BTC", "ETH", "SOL"}
+     # Match whole alphanumeric tokens; punctuation/underscores can separate market pairs.
+     tokens = set(re.findall(r"[^\W_]+", text))

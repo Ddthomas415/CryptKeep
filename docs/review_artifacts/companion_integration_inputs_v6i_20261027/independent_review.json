@@ -1,0 +1,258 @@
+{
+  "schema": "companion-v6i-source-input-capture-wrapper-independent-review-v1",
+  "date": "2026-10-27",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Exact offline V6i source-only proposal and bounded existing capture-wrapper reuse only. Not actual preparation inputs, installed-source/image/SDK applicability, current baseline, deployment or operations.",
+  "blocking_findings": [],
+  "findings": [],
+  "runtime_state": "INCOMPLETE",
+  "operations_authorized": false,
+  "capture_authorized": false,
+  "preparation_authorized": false,
+  "build_authorized": false,
+  "deployment_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "retry_or_reset_authorized": false,
+  "source_proposal": {
+    "classification": "SHOWN local bytes/pure comparisons",
+    "schema": "companion-source-refresh-only-v1",
+    "decision": "INCOMPLETE",
+    "reviewer": "",
+    "source_refresh_sha256": "019828a73d68d3e04e0283eb4f3d33063d9c4972a502a6a84979bbc6e1def9ff",
+    "baseline": null,
+    "baseline_status": "MISSING_POST_V6H_ROLLBACK_PAIRED_CAPTURE",
+    "new_container_ids": null,
+    "new_image_ids": null,
+    "source_deltas": [
+      {
+        "path": "phase1_research_copilot/memory_retrieval/main.py",
+        "before": "28dc4f1b496437be2d3e1273b4910515b8342a0d57b939f849a6a49da09322d1",
+        "after": "9f68fe4d09c00c11a659bb705f6c885939e717d70f9d7b1b43cd995e440b52cf",
+        "lanes": [
+          "application"
+        ],
+        "application": "phase1-memory",
+        "destination": "/app/memory_retrieval/main.py"
+      },
+      {
+        "path": "scripts/research/companion_evidence_checks.py",
+        "before": "25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5",
+        "after": "9c58b8128d6ff9fd6a140ef7b107323497886f1640aac69e357eb79bff684461",
+        "lanes": [
+          "runtime"
+        ]
+      }
+    ],
+    "counts": {
+      "application_entries": 43,
+      "preparation_tools": 13,
+      "runtime_consumers": 20
+    },
+    "preservation": "Full application objects equal the fixed V6h manifest after substituting only the one phase1-memory /app/memory_retrieval/main.py digest. All other source entries, destinations, commands, create/network options and replacement-configured-metadata recipes remain identical. Preparation map exactly equals prior map; runtime inventory identical with only verifier hash changed.",
+    "not_plan": "Existing Plan.load refuses the source-only proposal in the requested test. It is not promoted to a preparation manifest or accepted current baseline by this review.",
+    "historical_constraints": "Seven original IDs and configured-metadata recipes remain historical constraints, not newly observed native state or projected new IDs.",
+    "new_memory_image_policy": "UNVERIFIED until actual new image identity, original parent, source-only layer/COPY evidence and separate applicability review. Reuse of unchanged builder bytes or older SDK acceptance does not establish new image/SDK equivalence."
+  },
+  "assessment": [
+    {
+      "classification": "SHOWN",
+      "subject": "Accepted repair source binding",
+      "detail": "Fixed repair review 167cfa9ca11965368faa054e1a3ad050bd41b05049f6ea202a4da2cde12c763d and report are byte-bound. Required accepted/no-blocker/no-operation state is checked; report production_paths must be exactly memory main and host verifier. Every repair-review hash is checked except the one explicitly named historical pre-closeout repair checkpoint. No executable exception."
+    },
+    {
+      "classification": "SHOWN",
+      "subject": "Two-lane delta only",
+      "detail": "Application memory digest 28dc4f1b496437be2d3e1273b4910515b8342a0d57b939f849a6a49da09322d1 becomes 9f68fe4d09c00c11a659bb705f6c885939e717d70f9d7b1b43cd995e440b52cf exactly once in phase1-memory. Runtime verifier 25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5 becomes 9c58b8128d6ff9fd6a140ef7b107323497886f1640aac69e357eb79bff684461. No prep tool delta or new image/SDK acceptance is inferred."
+    },
+    {
+      "classification": "SHOWN",
+      "subject": "Current local drift refusal",
+      "detail": "All 43 per-app entries, 13 prep tools and 20 runtime consumers hash-match the proposal. Tests refuse fixed-evidence drift, accepted repair drift/state/blockers/authority errors, current app/consumer drift and consumed proposed labels."
+    },
+    {
+      "classification": "SHOWN historical file binding only",
+      "subject": "History not recast as current native state",
+      "detail": "V6h receipt is hash-bound, and limited fixed outcome/review state is checked for failed query/consumed preparation/not-preserved IDs and accepted saved-evidence review. The failed review's old hash map is not replayed as a current source map. Both old marker paths must exist; proposed marker paths must not. These are local advisory path checks, not native inventory, an atomic reservation or a reset."
+    },
+    {
+      "classification": "SHOWN source and synthetic tests",
+      "subject": "Capture reuse boundary",
+      "detail": "Entire new capture module equals the fixed V6h module after only ck-v6h-metadata- to ck-v6i-metadata- substitution. Function AST parity also passes. Package-local HERE/source bindings now resolve to V6i. Old module/helper is compared as bytes/AST, not executed as a capture."
+    },
+    {
+      "classification": "SHOWN source and synthetic tests",
+      "subject": "Default, two-read and failure behavior",
+      "detail": "Default prints actions_executed=false/state=INCOMPLETE without capture or Docker CLI read. Future separately approved flag selects two sanitized inspections of exactly seven historical IDs, private empty CLI configuration and no retry. Requested runner arguments retain per-call timeout <=10, remaining 30-second budget, stdin None, 1MiB returned-output limit and PATH-only environment. Exclusive output/raw writes preserve sanitized raw bytes before parse; malformed/transport/different/missing-flags cases stay incomplete, and existing output refuses."
+    }
+  ],
+  "capture_limits": {
+    "authorization": "No --capture-once or actual capture performed or authorized by this review. A CLI flag is not operator authorization.",
+    "timing": "30 seconds is measured from capture function entry. Initial source/CLI/file preflight is not interrupted by the alarm, though elapsed time is subtracted from remaining budget. Final observation persistence occurs after alarm cancellation. No whole-process wall-clock guarantee.",
+    "attempts": "Exactly two inspections on the successful acquisition path, no third/repeat. native_inspections counts attempted runner calls, not independent proof of completed inspections.",
+    "output": "Default runner rejects oversize returned stdout after subprocess capture; limit=1MiB is not claimed as a complete streaming/heap-memory cap.",
+    "shape": "READY_FOR_INDEPENDENT_REVIEW is only provisional pair evidence. The wrapper's limited shape/equality check is not full Snapshot/identity/image/config validation or accepted-baseline derivation.",
+    "state": "Sequential selected-field equality is not atomicity, continuous state, health, exact restoration or installed-byte proof.",
+    "reuse": "Inherited standalone SIGALRM/main-thread/error/persistence boundaries are retained, not a new broad cancellation/timer-composability audit.",
+    "next_inputs": "Actual paired metadata must be strictly reconciled offline and independently reviewed. Material unexplained drift must not be silently adopted; no prepared IDs or accepted Plan exists now."
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for local source hashes, pure proposal reproduction and isolated synthetic tests; UNKNOWN_ENV for current native state.",
+    "test_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6i_restoration_plan.py",
+    "test_result": {
+      "classification": "SHOWN",
+      "runs": 1,
+      "exit_code": 0,
+      "passed": 25,
+      "seconds": 0.58,
+      "warnings": 0,
+      "full_suite_run": false
+    },
+    "parent_result": {
+      "classification": "CLAIMED timing; count independently reproduced",
+      "passed": 25,
+      "seconds": 0.42,
+      "warnings": 0
+    },
+    "proposal_reproduced_byte_exact": true,
+    "recipe_equality_except_one_digest": true,
+    "capture_function_AST_equal_except_prefix": true,
+    "entire_capture_module_equal_after_prefix": true,
+    "advisory_marker_observations": {
+      "prior_preparation_present": true,
+      "prior_cutover_present": true,
+      "new_preparation_absent": true,
+      "new_cutover_absent": true
+    },
+    "actual_baseline_or_preparation_manifest_created": false,
+    "operation_tripwires": "Reviewer pure reproduction blocks socket/create_connection/getaddrinfo and subprocess entry points. Requested tests use the existing offline tripwires plus synthetic runner/CLI file substitutions; no real capture or CLI read by those synthetic cases.",
+    "operation_tripwire_calls": [],
+    "default_proof": "Requested test executes current capture module default via runpy with Docker CLI reads forbidden and asserts the inert response. Saved inert_default.json is the same two-field response; no extra operational path invoked.",
+    "real_native_Docker_calls": 0,
+    "real_token_or_credentials_read": 0,
+    "real_DB_queries": 0,
+    "real_service_operations": 0,
+    "real_SDK_initializations": 0,
+    "live_market_runs": 0,
+    "additional_agents": 0,
+    "old_stale_capture_or_runtime_helpers_executed": false,
+    "prior_runtime_event_log_semantically_reaudited": false
+  },
+  "hashes": {
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/report.json": "9d47545094bce8b8e26e9701a7c752fa5fa9b8dd9ea2079a895a076e9148e445",
+    "docs/checkpoints/companion_restoration_plan_v6i_20261027.md": "ac5f9dd633f8f5a39f6e28edc26bb9282cf9863e17dfc29a25604ea799a922fb",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/capture_baseline.py": "52c675194141902d6e931eefbd0351022dfa37a5048b51c7a183aeed74c5a25b",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/capture_baseline.py": "0b6d17adc9c683805e92877b55cbde8b4da5281f775fc8bff265754ce5a0f9eb",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/inert_default.json": "8c60e93f5340ca3789b2057ac1c29829bdfdd097b462c14b4944be1f57941ce5",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/refresh_sources.py": "6c05fb04346da379284311797e368f76eae88e1b0bbc5d29d93cad863c669e5a",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/source_refresh.json": "019828a73d68d3e04e0283eb4f3d33063d9c4972a502a6a84979bbc6e1def9ff",
+    "tests/test_companion_v6i_restoration_plan.py": "74fd8a6cfdcd184945af739c6b433fcf60306d970ebb0084aa5118da082590f1",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/reviewed_preparation_manifest.json": "d11fccb5e4f7c46e7d726704c9b75c400a1482eab5d1b840027d876a5837f047",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/provenance.json": "e60cbfad2f7af46acdf47c018cb345621fa9304a4cf97a6b12fcce5bf36a0ef0",
+    "docs/review_artifacts/companion_archival_market_exclusion_20261026/independent_review.json": "167cfa9ca11965368faa054e1a3ad050bd41b05049f6ea202a4da2cde12c763d",
+    "docs/review_artifacts/companion_archival_market_exclusion_20261026/report.json": "71868bd2fa6632448eb1eb930f12b5afde1c6cfa3e68ef27e0912369d1a845eb",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/outcome.json": "22b048282b1e974358251ec1486b8c496b1fdc146677eef5ddc28f56f8d19243",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/receipt.jsonl": "ab587bb2fa1a56818b2c70f45cafc29b543e4ae3efba83c006ac696021d91b4a",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/independent_review.json": "a79199bed7c7fbd3212313d98055e4154d2faf73c424ca3dc9d291df9e649df9",
+    "docs/review_artifacts/companion_archival_market_exclusion_20261026/prechange.tar": "ede01d9a5159c6003bf23ae129c7a07604aec420c864f8ebad5f271a17aa470b",
+    "docs/review_artifacts/companion_archival_market_exclusion_20261026/repair.diff": "8836bf556c5aa5fa6ab5cbccbdd777a492d99aeeaf66770b6dc24b99fea1954c",
+    "docs/checkpoints/companion_archival_market_exclusion_20261026.md": "c117d09071a1a2c829664a4a37020935621e7f21ac8829a49779ae41f80bb572",
+    "phase1_research_copilot/memory_retrieval/main.py": "9f68fe4d09c00c11a659bb705f6c885939e717d70f9d7b1b43cd995e440b52cf",
+    "scripts/research/companion_evidence_checks.py": "9c58b8128d6ff9fd6a140ef7b107323497886f1640aac69e357eb79bff684461",
+    "tests/test_companion_archival_market_exclusion.py": "500a45c048f9660c524ad1340dcd69b758bdc84cb8893f34a9087ae85f718ba0",
+    "tests/test_companion_v6h_strict_probe_contract.py": "24b88bf57b15a1949e8c692a5efc8828fef37b8ca1e3dc4d49a341898d6b99e1",
+    "tests/test_companion_verifier_diagnostics.py": "13b903d14e2914722677818a9dc1c5c90063d36d61500c0cbabf387c993e859f",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "tests/test_companion_evidence_checks.py": "b4459d52cfdf540364de133b3594dfc6a54552876e5bcc7fd029412d4af4415c",
+    "tests/test_companion_archive_probe_scope.py": "cfe38caf5eda06c28570e4e52bc003edfc6742920013c20dff090bffa267ebee",
+    "tests/test_companion_probe_policy.py": "2c9970e7822170aa695ea8e2775ac4fb650f35f0bbb4606837e1349eb9b91517",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review.json": "3ca2bc1bb2623d43f8e72ae5649927bf02f0a69e0659f0b0a699e5aec147c0e4",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review_v2.json": "f321e8d9c8fa85da096e063b4dfae140ad5ff65f19bb191c8dbce3fcf3495464",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review_v3.json": "6ec56cb19cca4f44262255adeedd3ff6c9dfee2ef93fa812d25a785a914e01f9",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_harness_v1.tar": "9841978b46bc826a60a42f148b0af89030f282c3b6dc2054111186729035b3b7",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_harness_v2.tar": "0ef9c447e7b59603f2a3e5cf407a16872c38c8478bddfad1eb38a2cb0c8f53d1",
+    "tests/test_companion_v6h_market_contract_diagnosis.py": "5756985793d08b23b8167dc87f13a8bfdd1e928ee67d49c6de38c25567193710",
+    "phase1_research_copilot/audit_log/__init__.py": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75",
+    "phase1_research_copilot/audit_log/main.py": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8",
+    "phase1_research_copilot/shared/__init__.py": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+    "phase1_research_copilot/shared/audit.py": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+    "phase1_research_copilot/shared/config.py": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+    "phase1_research_copilot/shared/db.py": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+    "phase1_research_copilot/shared/logging.py": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+    "phase1_research_copilot/shared/models.py": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+    "phase1_research_copilot/shared/probe.py": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+    "phase1_research_copilot/risk_stub/__init__.py": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411",
+    "phase1_research_copilot/risk_stub/main.py": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6",
+    "phase1_research_copilot/memory_retrieval/__init__.py": "2402dc051be3f99818a1933b20b12a9a99db1823105e1068d015c0edc5b1d7fa",
+    "phase1_research_copilot/memory_retrieval/article_view.py": "b9543070bbfa3d75999a3cf980d5fba58e880a6cd093c9165305a5124a70cd8f",
+    "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+    "phase1_research_copilot/orchestrator/__init__.py": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "phase1_research_copilot/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+    "phase1_research_copilot/shared/llm_client.py": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84",
+    "phase1_research_copilot/shared/prompting.py": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903",
+    "phase1_research_copilot/shared/retry.py": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b",
+    "phase1_research_copilot/shared/tools.py": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659",
+    "dashboard/services/view_data.py": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51",
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+    "dashboard/services/views/_shared.py": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202",
+    "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+    "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "tests/test_companion_archive_contract.py": "008ddcd18b823db98b1d64d57d85c90cb47a1e753cf7341bc4a4935e86e2900c"
+  },
+  "hash_algorithm": "SHA256",
+  "path_base": "/Users/baitus/Downloads/crypto-bot-pro",
+  "historical_checkpoint_exceptions": [
+    {
+      "path": "docs/checkpoints/companion_archival_market_exclusion_20261026.md",
+      "historical_precloseout_sha256": "c30c2129b6db2f07c40fbdb1bcc468fe219e5c78bddc9e82117c612b03ae99b6",
+      "current_sha256": "c117d09071a1a2c829664a4a37020935621e7f21ac8829a49779ae41f80bb572"
+    }
+  ],
+  "read_scope": {
+    "complete_new_text": [
+      "docs/checkpoints/companion_restoration_plan_v6i_20261027.md",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/refresh_sources.py",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/capture_baseline.py",
+      "tests/test_companion_v6i_restoration_plan.py"
+    ],
+    "complete_parsed_outputs": [
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/source_refresh.json",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/inert_default.json",
+      "docs/review_artifacts/companion_integration_inputs_v6i_20261027/report.json"
+    ],
+    "bound_input_scope": "Fixed prior manifest/provenance and accepted repair review/report parsed for lane/recipe/current-hash checks. Fixed V6h failure receipt bytes hashed and limited outcome/review state checked by refresh; no event-log/root-cause reaudit or old review hash-map promotion.",
+    "reuse_scope": "V6h capture module bytes/AST compared to current wrapper, never executed. Existing source maps hashed rather than broad source/SDK review.",
+    "selected_helper": "scripts/research/collect_companion_recreation_metadata.py:1-110 for unchanged runner/selected metadata projection boundary; its hash agrees with the prep/runtime maps.",
+    "not_performed": "No current native inventory, actual capture, original/restored service observation, SDK/source recapture, credentials, DB query, new image/build/preparation, policy approval or runtime action."
+  },
+  "limitations": [
+    "Acceptance covers a draft source-only proposal and wrapper reuse, not readiness of actual inputs. Baseline and new IDs/images remain absent/null.",
+    "New memory app bytes require new actual image/parent/layer/source evidence and separate policy applicability; no automatic transfer of old memory SDK/source-policy approval.",
+    "Historical V6h failure/copy/consumption files are evidence constraints only. Actual current state, start/config continuity, connectivity, exact baseline/volume restoration and prior unique runtime cause remain UNVERIFIED.",
+    "Only the declared repair-checkpoint digest is historical; all current source/executable bindings remain mandatory. No general stale-hash waiver.",
+    "Current marker absence is advisory and raceable; no reservation/reset was made. V6h consumed attempts/removed prepared IDs remain non-reusable.",
+    "No model/news/market capability is removed, no profitability or trading readiness inferred, and no service/trading/account/schedule change granted.",
+    "Future metadata acquisition, stopped preparation, actual-ID/image review, runtime packet, fixed handoff and runtime action each retain their separate proof and explicit authorization boundaries."
+  ],
+  "material_assumptions": [],
+  "write_scope": "docs/review_artifacts/companion_integration_inputs_v6i_20261027/independent_review.json only. Reviewed source/test/proposal/default/report/checkpoint, prior artifacts/worklog and all runtime/preparation/approval records preserved."
+}

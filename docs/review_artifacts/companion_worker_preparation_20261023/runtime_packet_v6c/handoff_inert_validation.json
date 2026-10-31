@@ -1,0 +1,1 @@
+{"state": "READY_FOR_INDEPENDENT_REVIEW", "actions_executed": false, "startup_authorized": false, "input_bindings_validated": true, "manifest_sha256": "e20775accd2ea02ac16d258ead2fb58e5ba1b6d26ff003ba10492dc6d442b6b9", "attempt": "workerprep20261023v6c", "controller_budget_seconds": 600, "recovery_reserve_seconds": 180}

@@ -1,0 +1,1 @@
+{"decision":"ACCEPTED_WITH_RISK","evidence_sha256":"49a95a20860e9e62d02a1ecc01884ecbd973e19c6b09d17575e89950f49ebc51","manifest_sha256":"2075f3b98abc53be9e8336d425dd8d158aca4b1934a1b9da46c2ae9d3cd562d4","reviewer":"Independent GATE: V6e actual stopped-preparation evidence only; no runtime policy, startup, cutover or query authority","schema":"companion-preparation-review-v1"}

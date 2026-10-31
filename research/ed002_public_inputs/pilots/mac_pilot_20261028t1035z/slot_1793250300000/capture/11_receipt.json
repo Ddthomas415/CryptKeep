@@ -1,0 +1,14 @@
+{
+  "bytes": 111,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "11_DOGE.bin",
+  "http_date": "Thu, 29 Oct 2026 05:05:03 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793250303837,
+  "request_started_ms": 1793250303767,
+  "sha256": "4296db88ccc1d75435031ab1e65dcdbd9ae3350ed8ca3604d86d57e50dc3594e",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/DOGE-USD/candles?granularity=3600&start=2026-10-29T03%3A00%3A00%2B00%3A00&end=2026-10-29T05%3A00%3A00%2B00%3A00"
+}

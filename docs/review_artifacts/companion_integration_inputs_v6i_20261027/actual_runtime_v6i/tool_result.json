@@ -1,0 +1,8 @@
+{
+  "chunk_id": "230d37",
+  "exit_code": 0,
+  "original_token_count": 166,
+  "output": "{\"state\": \"READY_FOR_INDEPENDENT_REVIEW\", \"actions_executed\": true, \"attempt_reserved\": true, \"receipt\": \"/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_cutovers/workerprep20261027v6i/receipt.jsonl\", \"running_update_complete\": true, \"query_attempted\": true, \"query_passed\": true, \"receipt_complete\": true, \"rollback_verified\": false, \"rollback_exact_baseline\": null, \"services_started\": true, \"prepared_ids_preserved\": true, \"preparation_consumed\": true, \"unresolved_quiesce\": [], \"unresolved_restart\": [], \"unresolved_replacement_start\": [], \"unresolved_replacement_cleanup\": [], \"unresolved_creation\": [], \"controller_failure_stage\": null}\n",
+  "session_id": 26515,
+  "wall_time_seconds": 51.409796333
+}

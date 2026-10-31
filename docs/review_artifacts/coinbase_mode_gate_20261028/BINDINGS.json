@@ -1,0 +1,38 @@
+{
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "local Coinbase mode retention/order-aware execution gate; no deployment or full Fix2 closure",
+  "bindings": {
+    "services/markets/fetch_coinbase_ccxt.py": "8fb7b9d0edf6d1c265d671183b51169746ab7ba303c02630b6f9f3b5e844d15f",
+    "services/markets/rules.py": "250321c190f327750e7170fa7ff2be5126979bf208b6b5ffa1c2a34e77ba4c0f",
+    "services/execution/place_order.py": "137a3e7260381eec79982c63a716928446f6acc6909df37db92e91a0ce80664b",
+    "tests/test_coinbase_exit_mode_gap.py": "7605954c39b44a2c509f10f950dc0cce4926b89977198d313cc26c03c41c4fdc",
+    "tests/test_proposed_async_balance_preflight.py": "8c59bc70daffe2941d3437aa379e1a78ae02a6c8aea0d3af8a9755d101ca53ce",
+    "tests/test_coinbase_paged_preflight_compatibility.py": "a6fedfb3950388ff31642948985210be9833668300eea27fb7cc36e3279174dc",
+    "tests/test_coinbase_market_mode_gate.py": "77b3b2027cc113dbeea66f8ea917ecef395475a77bcd010b6c78748c47a19db1",
+    "docs/research/coinbase_mode_gate_20261028.md": "70986a4c5a8f8f5d7c03f121aeabd977908fe08a3d8c94bb706f1cf3c89b31e2",
+    "docs/review_artifacts/coinbase_mode_gate_20261028/fetch_coinbase_ccxt.py": "d837c6e9272bc6702bb18938b1b8c276dfe68caa554985bc96e9c63b299c408b",
+    "docs/review_artifacts/coinbase_mode_gate_20261028/rules.py": "f1dfe39c9951490d593ffed8ccfe40039b23131126afd8b9890d199338f208d2",
+    "docs/review_artifacts/coinbase_mode_gate_20261028/place_order.py": "8d04313c13b8e9ab8683a4c77d7dd5c63a49049ff9cbf44e862e5aec4849242a",
+    "docs/review_artifacts/coinbase_mode_gate_20261028/test_coinbase_exit_mode_gap.py": "08577352cec3a03220b610dcbf1611226f468b1eceec8184ae730abcf0328b02",
+    "docs/review_artifacts/coinbase_mode_gate_20261028/test_proposed_async_balance_preflight.py": "030dfcf0e95daa6e308247d9a08d9d52c2b0a54a4a218674747a9bbde9feaec1",
+    "docs/review_artifacts/coinbase_mode_gate_20261028/test_coinbase_paged_preflight_compatibility.py": "a7d34c2ab5c39544878487deae08a3f9118657f1b9a1fc9d4bf2860e7b9190c2",
+    "tests/test_market_rules_validation.py": "f277c57cbe50ae444f46b62f163e34239c0075bd4b1c81dfc09a6cda4ee49d55",
+    "tests/test_market_rules_decimal_validation.py": "2c62fd60ea0d0970d2b5fd55a009a12e29b1d0271c95b90f4baf505538dfd115",
+    "tests/test_coinbase_account_pages.py": "4d1561955ad0181894038df06894cb8f55d89502a1b9b893efefb3a49b7c8e2a",
+    "services/markets/cache_sqlite.py": "f09476e7882f331ec161fb3b7b9842c32766942d466641e6617ffbf07d0e2c6a",
+    "services/markets/models.py": "f5666aaadabf5bb20b5331cfe7b0b702dd866634c8eb590368651cf97614db93"
+  },
+  "unchanged_prototypes": {
+    "services/execution/exit_deferral.py": "22dd6c99b34a0cdf011aea601bb46a878e8aa012e962e2d29f25e5bbdb446679",
+    "scripts/research/synthetic_exit_checkpoint.py": "9d3953dbc397d600f11d00ca873c5492023287431e6fc5a79d2350474315677c",
+    "scripts/research/synthetic_live_position_cap.py": "1776524826aa38a102e95013a6dee3ec657175ee8708740b1fe78aae0f8ecd26"
+  },
+  "applied_patch_sha256": "56e7e81413d5080ccd8dca08106a89eff68e8dcb750b5575f557a33030a85cbb",
+  "tests_diff_sha256": "e4ec9d1f5a16233ea89d49b9e0dcdf6aa2fcd3121c4ad4fb6c3815e668f004ab",
+  "author_verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_coinbase_market_mode_gate.py tests/test_coinbase_exit_mode_gap.py tests/test_market_rules_validation.py tests/test_market_rules_decimal_validation.py tests/test_coinbase_paged_preflight_compatibility.py tests/test_proposed_async_balance_preflight.py tests/test_coinbase_account_pages.py",
+    "passed": 126,
+    "seconds": 3.42,
+    "exit_code": 0
+  }
+}

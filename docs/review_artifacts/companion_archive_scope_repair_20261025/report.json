@@ -1,0 +1,51 @@
+{
+  "schema": "companion-archive-probe-scope-repair-v1",
+  "role": "ENGINEER",
+  "risk": "HIGH",
+  "decision": "READY_FOR_INDEPENDENT_REVIEW",
+  "runtime_state": "INCOMPLETE",
+  "native_operations": 0,
+  "credential_reads": 0,
+  "service_operations": 0,
+  "pre_change_source_sha256": {
+    "phase1_research_copilot/memory_retrieval/article_view.py": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+    "phase1_research_copilot/memory_retrieval/main.py": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228",
+    "scripts/research/companion_installer.py": "d0cfb0814b8884e790e794226e58629da1d587a797b4777b7dc4d3a54b232de7",
+    "tests/test_companion_probe_policy.py": "5f5e0f26eb0b304c23f615346e45c7405f164485da5bcf0d9c9e295f5dbc498e"
+  },
+  "source_and_input_sha256": {
+    "docs/review_artifacts/companion_reconnection_plan_20261024/actual_runtime_v6e/receipt.jsonl": "38727205015eca2902bb4cd891d5e9bfb5f45e9660532e060782f3a46f02b0b9",
+    "docs/review_artifacts/companion_reconnection_plan_20261024/actual_runtime_v6e/independent_review.json": "4fab5133e0878f210dc6521b1b1052c5536df24c040b8b5aa738c15d842e76a0",
+    "research/companion_article_body_v1_20261011_gd1abqx9/manifest.json": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "dashboard/services/views/_shared_signals.py": "d003edac94edbb7d7886901784674e23ed9accae2d42bd69c0a7f6fbc0c9e381",
+    "research/companion_article_body_v1_20261011_gd1abqx9/derived_article_body_v1.json": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+    "docs/review_artifacts/companion_evidence_packet_v2_20261024/topical_candidates.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+    "phase1_research_copilot/memory_retrieval/article_view.py": "b9543070bbfa3d75999a3cf980d5fba58e880a6cd093c9165305a5124a70cd8f",
+    "phase1_research_copilot/memory_retrieval/main.py": "28dc4f1b496437be2d3e1273b4910515b8342a0d57b939f849a6a49da09322d1",
+    "scripts/research/companion_installer.py": "e9fd8a144de54bf277e2c5812110dda9cc8cf0a7d1bb6fc85707b188f3174d38",
+    "tests/test_companion_probe_policy.py": "2c9970e7822170aa695ea8e2775ac4fb650f35f0bbb4606837e1349eb9b91517",
+    "tests/test_companion_archive_probe_scope.py": "cfe38caf5eda06c28570e4e52bc003edfc6742920013c20dff090bffa267ebee"
+  },
+  "preservation_artifacts": {
+    "pre_change_sources.tar": "a02dd1774b91a448335589bef015184b6fb64dfa718a71fd0baee151dd48b5d3",
+    "repair.diff": "dadea0055a3ab6475b2e5c5310e397d55fd633ed1b24e39295162bcf350b5634"
+  },
+  "verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_archive_probe_scope.py tests/test_companion_article_view.py tests/test_companion_probe_policy.py tests/test_companion_running_update.py tests/test_companion_evidence_checks.py",
+    "passed": 285,
+    "seconds": 13.29,
+    "warnings": 140,
+    "new_cases": 22,
+    "full_suite_run": false,
+    "before_behavior_probe": "2 failed / 1 passed: probe admitted live-only synthetic9001; evidence exception diagnostic absent. Separate3API-scaffolding failures also retained in tool history, not empirical proof."
+  },
+  "meaning": "Request-scoped archival proof aligns SQL candidate universe with unchanged frozen evidence verifier before ordering/limits. Ordinary CTE exactly matches prior source. Synthetic storage/ASGI only, no PostgreSQL or runtime proof. Boolean diagnostic does not identify remote first predicate; transport/exception failures remain grouped.",
+  "limitations": [
+    "Historical exact first failure remains UNVERIFIED; no missing raw response invented.",
+    "Three repaired source files invalidate prior runtime source/consumer hashes; no old approved packet or consumed operation may be reused.",
+    "Only bounded archival probe scope is restricted, not ordinary live research capability.",
+    "No archive/approval/ranking/cost/trading criterion changed, no new market experiment."
+  ]
+}

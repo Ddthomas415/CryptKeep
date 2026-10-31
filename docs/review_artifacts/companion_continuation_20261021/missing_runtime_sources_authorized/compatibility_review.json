@@ -1,0 +1,81 @@
+{
+  "schema": "companion-exact-source-pin-compatibility-review-v1",
+  "reviewed_at": "2026-10-22T01:16:26.572987+00:00",
+  "active_role": "GATE",
+  "reviewer": "Independent Codex GATE: additive exact-path compatibility and deterministic draft augmentation",
+  "decision": "ACCEPTED_WITH_RISK",
+  "objective": "Review only the five exact Uvicorn allowlist additions relative to the accepted98e94 baseline, the new12case path test, and the deterministic40pin draft augmentation.",
+  "scope": "Offline source-pin compatibility only, not installed policy semantics, startup authorization or full-system proof.",
+  "findings": [],
+  "material_assumptions": [],
+  "shown": [
+    "Reversing only the five literal Uvicorn additions in _FILES reproduces SHA25698e94faa02c87c38c2b1379bb5d909791d0077a994e7dba3d59b6a5d7bd96d17 exactly. AST comparison is identical outside that assignment. The broader git diff contains earlier network-inspect changes and is not attributed to this delta.",
+    "The new _FILES entries are exactly the five captured .py paths. No Uvicorn regex/package wildcard is added; existing _SDK/_SOURCE regexes, secret/traversal rejection, command grammar, lifecycle verbs, authorization guards and hash comparison behavior are unchanged.",
+    "The new test file contains five exact allow cases and seven rejection cases covering uncaptured __init__/lifespan-off, secrets, traversal, trailing components and pyc. The tests call the path validator only, not Docker or services.",
+    "Independent standard-library reconstruction validates all three augmentation input hashes, rehashes all40 selected files, checks image/subject bindings and duplicate refusal, and reproduces the canonical saved subjects.sources_v2.draft.json and source_augmentation.json byte-for-byte.",
+    "All88 old source mappings are preserved unchanged; exactly40 new unique container/path pins cover10 paths across the4 replacement subjects, yielding128 total pins. All7 subject identities and preservation hashes are unchanged, and the3 original storage subject objects are unchanged.",
+    "Original subjects.draft.json, staged_metadata.derived.json and topical_approvals.json remain at their prior recorded hashes. The historical capture_review.json remains unchanged and correctly binds the old transport hash; it is not rewritten as a review of the new transport.",
+    "Augmentation creates only an unapproved source-augmented draft/provenance object. It does not create policy approval, change topical evidence or authorize runtime operations."
+  ],
+  "verification": {
+    "environment": "VERIFIED_ENV for offline /usr/bin/python3 -B standard-library reconstruction, hash/size/identity assertions, AST comparison and static source/test inspection",
+    "command": "/usr/bin/python3 -B - <<'PY' (inline independent reconstruction; no project imports)",
+    "result": "PASS: reversing only the5 literal path additions reproduces98e94... exactly; AST unchanged outside_FILES; independent canonical derivation reproduces both augmentation artifacts byte-for-byte;88 existing pins preserved +40=128;7 identities/preservation metadata unchanged;storage3/topical/stagedmetadata and historical capture review unchanged",
+    "native_operations": 0,
+    "capture_repeats": 0,
+    "test_repeats": 0,
+    "installed_SDK_imports_or_execution": 0,
+    "baseline_reconstruction_sha256": "98e94faa02c87c38c2b1379bb5d909791d0077a994e7dba3d59b6a5d7bd96d17",
+    "reviewed_transport_sha256": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5",
+    "deterministic_artifacts_reproduced": 2,
+    "existing_source_pins": 88,
+    "added_source_pins": 40,
+    "total_source_pins": 128
+  },
+  "test_evidence": {
+    "classification": "CLAIMED execution result; SHOWN inspected12case test structure",
+    "parent_reported_command": "./.venv/bin/python -m pytest -q tests/test_companion_docker_transport.py tests/test_companion_captured_transport_paths.py tests/test_companion_uvicorn_source_pins.py",
+    "parent_reported_result": "134 passed in1.45s",
+    "command_note": "Three-file scope supplied by parent; exact invocation flags were not independently observed.",
+    "independently_repeated": false,
+    "source_coverage_and_path_gate": "Parent reports existing _path/_source_coverage pass. Reviewer independently checked the exact allowlist delta and canonical augmented source mappings, without importing/running the project verifier."
+  },
+  "exact_added_paths": [
+    "/usr/local/lib/python3.11/site-packages/uvicorn/config.py",
+    "/usr/local/lib/python3.11/site-packages/uvicorn/importer.py",
+    "/usr/local/lib/python3.11/site-packages/uvicorn/lifespan/on.py",
+    "/usr/local/lib/python3.11/site-packages/uvicorn/main.py",
+    "/usr/local/lib/python3.11/site-packages/uvicorn/server.py"
+  ],
+  "reviewed_delta": "--- reviewed98e94baseline\n+++ currenttransport\n@@ -34,7 +34,12 @@\n )\n _FILES = frozenset({\"/usr/bin/curl\", \"/bin/sh\", \"/bin/bash\", \"/usr/local/bin/uvicorn\",\n                     \"/usr/local/bin/docker-entrypoint.sh\",\n-                    \"/var/lib/postgresql/data/PG_VERSION\"})\n+                    \"/var/lib/postgresql/data/PG_VERSION\",\n+                    \"/usr/local/lib/python3.11/site-packages/uvicorn/main.py\",\n+                    \"/usr/local/lib/python3.11/site-packages/uvicorn/config.py\",\n+                    \"/usr/local/lib/python3.11/site-packages/uvicorn/importer.py\",\n+                    \"/usr/local/lib/python3.11/site-packages/uvicorn/server.py\",\n+                    \"/usr/local/lib/python3.11/site-packages/uvicorn/lifespan/on.py\"})\n \n \n def _refuse(reason):\n",
+  "reviewed_sha256": {
+    "scripts/research/companion_docker_transport.py": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5",
+    "docs/review_artifacts/companion_continuation_20261021/augment_runtime_sources.py": "5bae50dd496bcf7ede8fbf78a2289cabf5704e0eac2f4408347a2ebcee3ee81d",
+    "tests/test_companion_uvicorn_source_pins.py": "086b46ba5123b65b995430b152570274a769e9e1addf026316bda1abdb41153a",
+    "tests/test_companion_captured_transport_paths.py": "782584bcce37420464e8d8ba4fc091fa20d83806f41279f0bff4d02e6ef3f220",
+    "tests/test_companion_docker_transport.py": "91cc6110b6578ba18f44c82535dc01bbb3816d0b14ed588fbd32b8a34496e2f6",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/subjects.draft.json": "6215685a6dcd6fc35e3acf87fbb595acf995758ff4013c3c551919692a2c72e6",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/subjects.sources_v2.draft.json": "b99ccc38ce8942bd2bdfd601f30d3d734d1a7c1fed3037870199151a6fc673bc",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/source_augmentation.json": "74f70d84b5cf7a62ebb2f19b496ec050d53091fab3ebf29b7d63f307f3843c10",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/staged_metadata.derived.json": "98c186a31d78686bf7702eb46685c87a2d6487a680cad0e702a35244c7eed118",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/report.json": "7e0445af269135ea252e69da471098e884d71cb967ce261761f7c9c37cb44363",
+    "docs/review_artifacts/companion_continuation_20261021/missing_psycopg_attempt_sources/report.json": "d68eb1714c13b5379ad0904f46b83c800fa668530dd497945f17100854cc77fd",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/capture_review.json": "2b3ec522d02a597e6fe12202f5e065c788fc482ab677c5ae76e3c93aa7c80307",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/source_policy_assessment.json": "b470a40466be1c4f316c715a3208d741a8e74e877eaa031543100893c0e2cc74"
+  },
+  "hash_paths": "Repository-relative",
+  "limits": [
+    "Acceptance is confined to these hashes and this additive read-only source-pin compatibility delta, not unrelated dirty-worktree changes or future edits.",
+    "No native test, source capture, service start, SDK initialization, live source comparison or end-to-end execution was performed. Parent test outcome was not independently repeated.",
+    "Adding a file to the source-pin allowlist does not approve its semantics. HTTPcore pool reassignment, Psycopg multi-address attempts and effective Uvicorn startup/environment limits remain as recorded in source_policy_assessment.json.",
+    "New source hashes are capture observations, not proof of future installed bytes. Required exact installed-byte comparisons are not waived.",
+    "No whole import-closure audit or blanket seven-subject policy approval was attempted; original daemon semantics and already accepted components were not re-reviewed.",
+    "Only this compatibility review and the separately requested source-policy assessment were added in this supplemental review stage. Parent owns checkpoint/work-log publication.",
+    "Effective command/environment/profile evidence is the next boundary, not actual cutover."
+  ],
+  "runtime_policy_state": "INCOMPLETE",
+  "installed_policy_records_created": false,
+  "runtime_manifest_accepted": false,
+  "runtime_authorization_created": false
+}

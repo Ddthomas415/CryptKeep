@@ -1,0 +1,6 @@
+{
+  "method": "GET",
+  "phase": "ABOUT_TO_CALL_TRANSPORT_NOT_SENT_PROOF",
+  "sent_clock_ms": 1793193169346,
+  "url": "https://api.exchange.coinbase.com/products/APT-USD/candles?granularity=3600&start=2026-10-28T08%3A00%3A00%2B00%3A00&end=2026-10-28T10%3A59%3A59%2B00%3A00"
+}

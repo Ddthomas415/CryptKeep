@@ -1,0 +1,113 @@
+{
+  "schema": "companion-recipient-diagnostics-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Offline optional recipient-diagnostic implementation only. Not historical-cause confirmation, packet/policy rebinding, observation or runtime authorization.",
+  "runtime_status": "INCOMPLETE",
+  "historical_v6c_cause": "UNVERIFIED",
+  "blocking_findings": [],
+  "material_assumptions": [],
+  "source_and_artifact_sha256": {
+    "docs/checkpoints/companion_recipient_diagnostics_20261024.md": "74559d48876bba3fc2c688d581c2658e56f3e1bf65e7ccb05b1bf312c2e40172",
+    "scripts/research/companion_runtime_adapter.py": "4d32ab77c9183381f342f4202a9bd6bf1084de636e9d23b6ec30e7739a4fd248",
+    "scripts/research/companion_installer.py": "d0cfb0814b8884e790e794226e58629da1d587a797b4777b7dc4d3a54b232de7",
+    "tests/test_companion_recipient_diagnostics.py": "e255c9555ce4066fb4721d3621c3688505374dece6b9645cdc52cf60b0791a2a",
+    "tests/test_companion_active_network_contract.py": "4efaffccc5ac6f611f1e2bf3649f6422a7972756c9ecda31cf42b0ca645a6e25",
+    "tests/test_companion_staged_composition.py": "6d918ed2b748abd0489e6288b3dab39dfb5128b17562ff2c2dbc2e973a854c9f",
+    "tests/test_companion_running_update.py": "6080974d4eb2ea917077fd64d85190cb23f49c2d40ac3d87f27607aa9eb8740c",
+    "tests/test_companion_runtime_adapter.py": "3ca8318be5ecda58f5ea6e758ba18720f6ed23e2adc6dcf4b3765e50d85f8c8b"
+  },
+  "prior_accepted_source_sha256": {
+    "scripts/research/companion_runtime_adapter.py": "dcc33a6d454c7d6f9970103ad331d97cd88f2a8023f321cd381a729d2e05f7c7",
+    "scripts/research/companion_installer.py": "4c684b1766fcb2e21b3dc1c03cbe5aa607694f63b9d64c512a19ad6c11792b17"
+  },
+  "preserved_record_sha256": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6c/independent_review.json": "ef02af1091292fb1d1158951d2f5afff5a302e83645d643f052efe3a0582f134",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/independent_review.json": "313af3aa86100b223ed10da2cd0fbe16ca417cb7bc3fbde07dd7bc0de5c2beb2",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/scope_review.json": "76f3e5f8f8a788f2b683bc01be58c42a0489e413476120abd062aa28c6927935",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6c/accepted_policy_records/runtime_review.json": "f916471d3618eb5a44bc8bf00ac6421aa3e941febab431b8a1c49fd65daddb74",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6c/outcome.json": "f93ae73cc94e5a4ab1576fda0274b32dbf099eb554bfe7ab2ee117442e7bbe3e",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6c/receipt.jsonl": "a993c16b9c61a483b60700daf5ceb8b6180356ee138f14a6d55ac669c7aa0981",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6c/postcheck.json": "45bca12b4f5a03c1dab991681013f84c9177362aa624845871b459481063d478"
+  },
+  "shown": [
+    {
+      "claim": "Exact bounded diagnostic-only delta",
+      "evidence": "In-memory removal of only BINDING constants/helpers, optional diagnostic sinks/call sites, V2 report field, installer import/envelope sanitization and receipt field reproduces both complete accepted prior source byte hashes. Earlier dirty-worktree changes are not attributed to this patch."
+    },
+    {
+      "claim": "Refusal parity and full inventory retained",
+      "evidence": "After removing diagnostic calls/labels, _bindings and _configured_bindings comparisons match prior function bytes exactly. Every existing false return remains false. Full metadata traversal, selected network shape/created-only eligibility, projection, ports/DNS/mount/alias checks and unselected ownership scans remain. Legacy malformed raw-helper exceptions are not converted into successes; configured wrapper still fails closed."
+    },
+    {
+      "claim": "No added native work",
+      "evidence": "The patch introduces only in-memory labels, category checks, sanitization and existing receipt serialization. It adds no transport/native command, read/capture, socket, lifecycle request, source inspection or retry. Existing network-inspect sequence is retained."
+    },
+    {
+      "claim": "Secret-free bounded diagnostic domain",
+      "evidence": "Exact schema/field set, fixed predicate/category/role enums, approved seven selected names only, and null target for unselected/none. Type checks precede label set membership, including malformed/unhashable labels. Unknown fields/labels and invalid role/target combinations sanitize to null. No arbitrary network/container name, metadata, exception text/class name, token or environment value is copied."
+    },
+    {
+      "claim": "Legacy and receipt boundary compatibility",
+      "evidence": "Legacy compatibility remains a boolean map; prior two-field and new three-field V2 envelopes are accepted at the installer boundary. The optional field is sanitized independently before receipt. Existing compatibility booleans alone determine acceptance; dropping an invalid diagnostic cannot convert a false gate to true."
+    },
+    {
+      "claim": "Before-cleanup evidence without startup authority",
+      "evidence": "Valid sanitized reasons appear in runtime_compatibility_checks before refusal/owned cleanup. False compatibility reaches no replacement-start or cited-query call. Per-call V2 diagnostic dictionaries avoid stale reasons; successful reports emit null."
+    }
+  ],
+  "verification": {
+    "environment": "VERIFIED_ENV for the isolated local offline subset only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_recipient_diagnostics.py tests/test_companion_active_network_contract.py tests/test_companion_staged_composition.py tests/test_companion_running_update.py tests/test_companion_runtime_adapter.py -k 'not test_pinned_bash_mode_ignores_inherited_startup_file'",
+    "exit_code": 0,
+    "passed": 200,
+    "deselected": 1,
+    "elapsed_seconds": 1.8,
+    "new_diagnostic_cases_included": 35,
+    "deselection": "The existing unrelated test_pinned_bash_mode_ignores_inherited_startup_file launches native /bin/bash. It was explicitly deselected to obey the no-native constraint; no replacement test or second suite was run.",
+    "parent_result": "CLAIMED in checkpoint: complete five-file suite 201 passed in 1.94s. Reviewer confirmed 200 cases, not the deselected native-Bash case.",
+    "adapter_reverse_exact_prior_bytes": true,
+    "installer_reverse_exact_prior_bytes": true,
+    "binding_comparisons_exact_after_diagnostic_removal": true,
+    "reviewer_native_Docker_or_service_operations": 0,
+    "reviewer_real_credential_reads": 0,
+    "reviewer_live_network_requests": 0,
+    "full_suite_run": false
+  },
+  "remaining_limits": [
+    {
+      "classification": "UNVERIFIED",
+      "detail": "This patch does not reconstruct the lost activated v6c metadata or identify the historical recipient subcause. No new observed reason or runtime success is claimed."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "First failure follows current traversal order and is not a unique root cause. Later checks may be unevaluated. Combined predicates retain combined labels; malformed legacy-helper data may yield the broader recipient_policy/exception category. Timeout/refused/invalid_input/operation_error are bounded categories, not detailed traces."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "Successful calls emit null in the V2 report, and legacy boolean maps remain unchanged. Direct helper callers supplying their own diagnostic sink own that sink; no broader persistent diagnostic store or new observation framework is introduced."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "Current changed consumer hashes intentionally invalidate frozen wrapper/packet current-source bindings. No accepted policy, scope, packet, preparation or execution wrapper is rebound by this review; any future applicability refresh needs its separate exact binding review."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "detail": "Final alias/attachment behavior, live SDK/import/startup, recipient health, clock/pidfd/worker ownership, acknowledgement/recovery, cited retrieval, volume integrity and economics remain outside offline proof. Existing consumed attempts and removed stage IDs must not be retried/reset or adopted."
+    }
+  ],
+  "operational_authorized": false,
+  "diagnostic_capture_authorized": false,
+  "packet_or_policy_rebinding_authorized": false,
+  "preparation_or_retry_authorized": false,
+  "reservation_reset_authorized": false,
+  "credential_access_authorized": false,
+  "startup_or_cutover_authorized": false,
+  "query_authorized": false,
+  "trading_authorized": false,
+  "reviewer_changes": [
+    "docs/review_artifacts/companion_worker_preparation_20261023/recipient_diagnostics_review_20261024.json"
+  ],
+  "frozen_sources_tests_checkpoint_and_previous_records_modified": false
+}

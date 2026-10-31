@@ -1,0 +1,30 @@
+{
+  "native_or_service_operations": false,
+  "parent_verification": {
+    "full_suite_run": false,
+    "passed": 23,
+    "seconds": 0.4
+  },
+  "role": "ENGINEER",
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6h-runtime-packet-parent-report-v1",
+  "sha256": {
+    "docs/checkpoints/companion_runtime_packet_v6h_20261026.md": "8a15aa0523cbaf4f95c4d68006c5107afcf1ab05b3a67a34f67b286c2ba78291",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/assemble_runtime_packet.py": "7cd122444425b333a4c1daacf1adc54089a0d21994ecf5f0c7a5acb97c8c0145",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-audit-log.draft.json": "a7ee62fc5cac7ff2bbeed103d485df9eaee829d2fe80431b46bff842e3c279eb",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-memory.draft.json": "bcd1874415b86f40e6798dd9e4e91811ff567bd7adb07f80e4ab6777f2f24a69",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-minio.draft.json": "2538a00fcc75cbcc1ddc45e7207021cb716f792ec39c60e678507a755d60ac2c",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-orchestrator.draft.json": "de2bc594670b079021b2379654898dfa5f9bb5e20895d549ff5de2e07585ea22",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-qdrant.draft.json": "d910fd7ea7633d534942584c481cb5d94c3d49dc74037fb53fe2bd8297b2ed17",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-risk-stub.draft.json": "44cddcd0aaac44b34b1ad280dce403976e7fec368b652b656f138cb05aac9bda",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-timescaledb.draft.json": "1e035dab00cd1657450ce4c7d71e15e4161d183572f7cf08206a299ddf3128fc",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/provenance.json": "6645cef0b870325a30668c8018761beac5ec5c30f06d99b5ed14455539103dfc",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/runtime_review.draft.json": "caecd33834b1c1ef2d8b5c4978253772eb2ff8a89bad891770991fc94281c00f",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/source_delta.diff": "d09b2381b1134ac3fc4ae16823b108e0282b1bada861fb34f3ecc0411d66242f",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/staged_metadata.derived.json": "ed24d414eb8a12afce0d4756686dbf40d8baa649672fbcc5dfc3cdb29a4909d7",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/subjects.draft.json": "311688b7e64cd1f8931a54ac38694e01a3dfb9d90e6ef4d20351eb8c554e9b10",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+    "tests/test_companion_v6h_runtime_packet.py": "6560d0f905e81ed4994bb226dea0c76606a9d22548c52387d83e19496b8efff1"
+  },
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

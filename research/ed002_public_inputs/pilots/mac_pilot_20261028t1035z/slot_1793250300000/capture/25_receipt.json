@@ -1,0 +1,14 @@
+{
+  "bytes": 163,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "25_WIF.bin",
+  "http_date": "Thu, 29 Oct 2026 05:05:04 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793250304998,
+  "request_started_ms": 1793250304926,
+  "sha256": "fac3f8d66fcc964786c81851fc4bd30366b83264c907c8d056d72a24b932cca5",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/WIF-USD/candles?granularity=3600&start=2026-10-29T03%3A00%3A00%2B00%3A00&end=2026-10-29T05%3A00%3A00%2B00%3A00"
+}

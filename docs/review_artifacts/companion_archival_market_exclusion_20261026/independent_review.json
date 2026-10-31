@@ -1,0 +1,227 @@
+{
+  "schema": "companion-archival-market-exclusion-independent-review-v1",
+  "date": "2026-10-26",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "blocking_findings": [],
+  "findings": [],
+  "acceptance_scope": "Exact two-file offline implementation of the operator-approved probe-only market-exclusion contract and focused proof. Not source-policy/SDK/runtime/deployment acceptance or any operation authority.",
+  "runtime_state": "INCOMPLETE",
+  "operations_authorized": false,
+  "packet_refresh_authorized": false,
+  "preparation_authorized": false,
+  "deployment_authorized": false,
+  "startup_authorized": false,
+  "retry_authorized": false,
+  "query_authorized": false,
+  "assessment": [
+    {
+      "classification": "SHOWN source and synthetic handler verification",
+      "subject": "Authenticated probe-only producer boundary",
+      "detail": "memory retrieve_context retains authentication as its first existing operation, then captures probe_active. Strict context short-circuits the market_ticks fetch and emits fixed ok=false/reason=excluded_by_archival_probe/latest_price=null/change_pct=0.0/window_samples=0. This is an explicit evidence exclusion, not a claim about absent DB rows. Ordinary context executes the original SQL, parameters and _compute_market_summary.",
+      "references": [
+        "phase1_research_copilot/memory_retrieval/main.py:335",
+        "phase1_research_copilot/memory_retrieval/main.py:341"
+      ]
+    },
+    {
+      "classification": "SHOWN exact closed branch and adversarial tests",
+      "subject": "Narrow verifier extension",
+      "detail": "The marker is permitted only in the market slot, with exactly five fields, explicit single-cited-query-v1 in raw and assistant status, latest_price exactly None and type(window_samples) exactly int. Unchanged surrounding guards require literal ok=False and zero numeric change/samples, excluding booleans. Integer-zero samples follows from the int test plus retained numeric-zero guard. Snapshot-location markers, extra/missing fields, null substitutes such as latest_price=0, available/numeric ok, floats/bools for samples and bad/missing protocols refuse.",
+      "references": [
+        "scripts/research/companion_evidence_checks.py:269",
+        "scripts/research/companion_evidence_checks.py:280"
+      ]
+    },
+    {
+      "classification": "SHOWN exact AST and test preservation",
+      "subject": "No general evidence or ordinary-capability relaxation",
+      "detail": "After reversing only the three authorized producer statements, the entire memory module AST equals prechange. After replacing only the exact asserted single new verifier If with its original legacy else predicate, the entire verifier module AST equals prechange. This independently exceeds a predicate-inventory-only check. Auth, routes, document SQL/scoping, SOURCE_SQL, archive/body/witness/question, no-trading and timing behavior are unchanged outside the extension. Legacy no_market_data and its existing zero-placeholder rules remain; the new marker itself requires null latest_price.",
+      "references": [
+        "tests/test_companion_archival_market_exclusion.py:73",
+        "tests/test_companion_verifier_diagnostics.py:236"
+      ]
+    },
+    {
+      "classification": "SHOWN synthetic strict and ordinary handler cases",
+      "subject": "Capability and guard reachability",
+      "detail": "Three repaired strict cases with absent/positive/zero synthetic backing rows skip all market SQL and satisfy all five evidence checks in the controlled archive fixture. Three unmarked ordinary cases still issue one market query with original parameters and return the unchanged real summary, including populated/zero-row distinctions. The previously reviewed counting fixture, identity test and fake swallowed-error negative are AST-identical; risk/orchestrator audit stubs remain."
+    },
+    {
+      "classification": "SHOWN source/auth slice",
+      "subject": "Protocol and authorization refusal retained",
+      "detail": "The separate four-test slice passes unknown/duplicate profile refusal and memory missing/wrong-auth checks for ordinary and probe requests. No new authorization path or trust in unbound standalone markers is introduced."
+    },
+    {
+      "classification": "SHOWN artifact hashes and exact diff",
+      "subject": "Historical preservation",
+      "detail": "prechange.tar contains exact old two production files and two existing tests; their hashes match the report and known prior reviewed sources. Full repair.diff reproduces byte-exactly including the new test. Prior strict reviews, v1/v2 harness archives and standalone diagnosis test hashes remain unchanged. Prior runtime receipt/diagnosis was not reread or rerun."
+    }
+  ],
+  "integrity": {
+    "production_paths": [
+      "phase1_research_copilot/memory_retrieval/main.py",
+      "scripts/research/companion_evidence_checks.py"
+    ],
+    "before_sha256": {
+      "phase1_research_copilot/memory_retrieval/main.py": "28dc4f1b496437be2d3e1273b4910515b8342a0d57b939f849a6a49da09322d1",
+      "scripts/research/companion_evidence_checks.py": "25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5",
+      "tests/test_companion_v6h_strict_probe_contract.py": "ea4049ccf827b8dfd2b416b89fb977eae9594dfd6a5fe37d0492968a0f0a28a4",
+      "tests/test_companion_verifier_diagnostics.py": "5fd3781427e5e339a58aa0bff22b093d5162c692f76ab434bad976969d3e3a5e"
+    },
+    "archive_members": [
+      "phase1_research_copilot/memory_retrieval/main.py",
+      "scripts/research/companion_evidence_checks.py",
+      "tests/test_companion_v6h_strict_probe_contract.py",
+      "tests/test_companion_verifier_diagnostics.py"
+    ],
+    "archive_read_in_memory_without_extraction": true,
+    "exact_diff_reproduced": true,
+    "main_entire_AST_restored_after_exact_authorized_market_changes": true,
+    "verifier_entire_AST_restored_after_exact_single_branch": true,
+    "reviewed_counting_guards_and_tests_AST_unchanged": true,
+    "predicate_parity_method": "Production parity test first asserts the complete exact marker If AST and exactly one match, then substitutes only its original no_market_data else predicate before original predicates/SOURCE_SQL comparison. No broad predicate exemption. Reviewer additionally compared complete normalized modules to the new prechange archive.",
+    "frozen_original_snapshot_sha256": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "frozen_topical_approvals_sha256": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+    "hash_algorithm": "SHA256",
+    "path_base": "/Users/baitus/Downloads/crypto-bot-pro"
+  },
+  "hashes": {
+    "docs/review_artifacts/companion_archival_market_exclusion_20261026/report.json": "71868bd2fa6632448eb1eb930f12b5afde1c6cfa3e68ef27e0912369d1a845eb",
+    "docs/review_artifacts/companion_archival_market_exclusion_20261026/prechange.tar": "ede01d9a5159c6003bf23ae129c7a07604aec420c864f8ebad5f271a17aa470b",
+    "docs/review_artifacts/companion_archival_market_exclusion_20261026/repair.diff": "8836bf556c5aa5fa6ab5cbccbdd777a492d99aeeaf66770b6dc24b99fea1954c",
+    "docs/checkpoints/companion_archival_market_exclusion_20261026.md": "c30c2129b6db2f07c40fbdb1bcc468fe219e5c78bddc9e82117c612b03ae99b6",
+    "phase1_research_copilot/memory_retrieval/main.py": "9f68fe4d09c00c11a659bb705f6c885939e717d70f9d7b1b43cd995e440b52cf",
+    "scripts/research/companion_evidence_checks.py": "9c58b8128d6ff9fd6a140ef7b107323497886f1640aac69e357eb79bff684461",
+    "tests/test_companion_archival_market_exclusion.py": "500a45c048f9660c524ad1340dcd69b758bdc84cb8893f34a9087ae85f718ba0",
+    "tests/test_companion_v6h_strict_probe_contract.py": "24b88bf57b15a1949e8c692a5efc8828fef37b8ca1e3dc4d49a341898d6b99e1",
+    "tests/test_companion_verifier_diagnostics.py": "13b903d14e2914722677818a9dc1c5c90063d36d61500c0cbabf387c993e859f",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "tests/test_companion_evidence_checks.py": "b4459d52cfdf540364de133b3594dfc6a54552876e5bcc7fd029412d4af4415c",
+    "tests/test_companion_archive_probe_scope.py": "cfe38caf5eda06c28570e4e52bc003edfc6742920013c20dff090bffa267ebee",
+    "tests/test_companion_probe_policy.py": "2c9970e7822170aa695ea8e2775ac4fb650f35f0bbb4606837e1349eb9b91517",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review.json": "3ca2bc1bb2623d43f8e72ae5649927bf02f0a69e0659f0b0a699e5aec147c0e4",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review_v2.json": "f321e8d9c8fa85da096e063b4dfae140ad5ff65f19bb191c8dbce3fcf3495464",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review_v3.json": "6ec56cb19cca4f44262255adeedd3ff6c9dfee2ef93fa812d25a785a914e01f9",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_harness_v1.tar": "9841978b46bc826a60a42f148b0af89030f282c3b6dc2054111186729035b3b7",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_harness_v2.tar": "0ef9c447e7b59603f2a3e5cf407a16872c38c8478bddfad1eb38a2cb0c8f53d1",
+    "tests/test_companion_v6h_market_contract_diagnosis.py": "5756985793d08b23b8167dc87f13a8bfdd1e928ee67d49c6de38c25567193710"
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for isolated offline tests, AST comparisons and local artifact hashing; no installed/live environment proof.",
+    "repair_slice": {
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_archival_market_exclusion.py tests/test_companion_v6h_strict_probe_contract.py tests/test_companion_evidence_checks.py tests/test_companion_archive_probe_scope.py tests/test_companion_verifier_diagnostics.py",
+      "runs": 1,
+      "classification": "SHOWN",
+      "exit_code": 0,
+      "passed": 256,
+      "seconds": 19.87,
+      "warnings": 28,
+      "warning_type": "Existing FastAPI on_event deprecations"
+    },
+    "auth_slice": {
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_probe_policy.py -k 'unknown_or_duplicate_profile or (all_four_services_preserve_auth and memory_retrieval)'",
+      "runs": 1,
+      "classification": "SHOWN",
+      "exit_code": 0,
+      "passed": 4,
+      "deselected": 60,
+      "seconds": 0.5,
+      "warnings": 8,
+      "warning_type": "Existing FastAPI on_event deprecations"
+    },
+    "slices_nonoverlapping": true,
+    "nonoverlap_basis": "Auth module is not one of the five repair-slice test-file targets; imported fixture helpers do not constitute a second run of its selected cases.",
+    "marker_negatives": [
+      "raw_protocol_missing",
+      "status_protocol_missing",
+      "raw_protocol_wrong",
+      "snapshot_location",
+      "extra",
+      "missing",
+      "nonnull_price",
+      "zero_price",
+      "available",
+      "numeric_ok",
+      "positive_change",
+      "bool_change",
+      "positive_samples",
+      "float_samples",
+      "bool_samples",
+      "unknown_reason",
+      "asset",
+      "archive",
+      "witness",
+      "execution"
+    ],
+    "remote_positive": "Serialized diagnostic verifier path accepts the bound exclusion under synthetic module/DB/archive fixtures and performs the existing single SOURCE_SQL operation only; no new live query.",
+    "deadline_scope": "Requested slice includes permitted stdlib-only synthetic deadline children. Those are test processes, not native Docker/daemon/DB/service operations; existing remote 8-second hard exit/parent bounds are unchanged.",
+    "parent_results": {
+      "classification": "CLAIMED timing/red proof; final passing counts independently reproduced",
+      "red": {
+        "failed": 5,
+        "passed": 27,
+        "independently_rerun": false
+      },
+      "repair": {
+        "passed": 256,
+        "seconds": 20.31,
+        "warnings": 28
+      },
+      "auth": {
+        "passed": 4,
+        "seconds": 0.78,
+        "warnings": 8
+      }
+    },
+    "full_suite_run": false,
+    "real_native_Docker_calls": 0,
+    "real_token_or_credential_reads": 0,
+    "real_DB_queries": 0,
+    "real_service_operations": 0,
+    "real_SDK_initializations": 0,
+    "live_market_runs": 0,
+    "scheduler_or_trading_operations": 0,
+    "additional_agents": 0,
+    "prior_98_event_receipt_or_diagnosis_reread": false
+  },
+  "retained_limits": [
+    "This is an intentionally authorized exclusion extension, not a statement that no market rows exist. General/ordinary market-aware research remains available and is not approved as economically valid or production-ready.",
+    "New marker accepts no available price and no arbitrary market metadata; existing legacy no-market/zero-placeholder behavior is preserved, not silently strengthened or broadened.",
+    "Protocol strings bind the marker to the special response contract, not cryptographic provenance. Existing service authentication, identity, installed-source, persisted lineage and witness gates remain necessary.",
+    "Synthetic ASGI/DB/archive fixtures prove controlled source behavior, not actual SQL execution, current installed bytes, initialized SDKs, service health or a successful live explanation.",
+    "Only relevant exact archived deltas and selected callers/contracts were reviewed. No broad SDK/repository audit or full suite was run.",
+    "Counting-guard proof is limited to its six hooks after loaded setup, not every possible importer/process effect; the reviewed dependency/identity/fake-negative boundary is preserved.",
+    "Historical V6h raw market payload and unique first failed predicate/cause remain UNVERIFIED. This fixes a reachable controlled contract conflict, not a proven reconstruction or historical runtime repair."
+  ],
+  "stale_input_boundary": {
+    "old_source_bindings_stale": true,
+    "reason": "Memory application main and host verifier hashes changed. Old V6h source-bound manifests/images/packets/handoff approvals do not become applicable merely because this offline implementation is accepted.",
+    "consumed_attempt_reusable": false,
+    "authority": "No new image/build, source packet, baseline capture, preparation, handoff, deploy/startup, token operation, retry/reset or actual query is authorized. Consumed V6h attempt/IDs must not be reused or reset.",
+    "current_health": "UNVERIFIED; runtime remains INCOMPLETE."
+  },
+  "read_scope": {
+    "complete": [
+      "docs/checkpoints/companion_archival_market_exclusion_20261026.md",
+      "docs/review_artifacts/companion_archival_market_exclusion_20261026/report.json",
+      "docs/review_artifacts/companion_archival_market_exclusion_20261026/repair.diff",
+      "tests/test_companion_archival_market_exclusion.py",
+      "tests/test_companion_v6h_strict_probe_contract.py"
+    ],
+    "archived_comparison": "All four prechange.tar source/test members read in memory; complete source/test diff reproduced. Entire two production modules parsed for independent full-AST preservation checks.",
+    "selected_source": [
+      "phase1_research_copilot/memory_retrieval/main.py:325-385",
+      "scripts/research/companion_evidence_checks.py:185-220",
+      "scripts/research/companion_evidence_checks.py:262-300",
+      "tests/test_companion_verifier_diagnostics.py:233-292"
+    ],
+    "historical_hash_only": "Three prior strict reviews, v1/v2 harness archives and standalone market-diagnosis test hashed only for preservation; no runtime receipt/diagnosis reread or historical test rerun.",
+    "fixture_context": "Reused already reviewed synthetic fixture/auth/guard contracts. Supporting unchanged test files hashed, not a new broad fixture/SDK audit.",
+    "not_performed": "No native/container/token/credential/DB/live query, app lifespan/real SDK initialization, market experiment, service action or new approval record."
+  },
+  "material_assumptions": [],
+  "write_scope": "docs/review_artifacts/companion_archival_market_exclusion_20261026/independent_review.json only. No fixes or edits to reviewed source/tests/artifacts/checkpoint/worklog or prior records."
+}

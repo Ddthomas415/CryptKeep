@@ -1,0 +1,741 @@
+--- before/scripts/research/companion_evidence_checks.py
++++ after/scripts/research/companion_evidence_checks.py
+@@ -11,6 +11,11 @@
+ inside memory. Credentials stay there. Its private process has an eight-second
+ SIGALRM work cap (including DB teardown); an occupied timer is left untouched and
+ refused. Parent must still discard stderr and bound launch/output/transport.
++
++DIAGNOSTIC_EVIDENCE_SCRIPT additionally returns a closed stage/code envelope.
++Stages identify the first failing group, not a specific predicate or private
++value. A hard deadline identifies the stage interrupted, not a semantic verdict.
++Legacy evaluate()/EVIDENCE_SCRIPT retain the five-Boolean interface.
+ """
+ import hashlib
+ import inspect
+@@ -30,15 +35,59 @@
+ KEYS = ("persisted_identity", "article_view_mapping", "content_hash",
+         "topical_support", "causal_limits")
+ FAILURE_OUTPUT = (json.dumps(dict.fromkeys(KEYS, False), separators=(",", ":")) + "\n").encode("ascii")
++DIAGNOSTIC_STAGES = (
++    "timer", "input_read", "input_parse", "imports", "archive_load", "archive_index",
++    "db_connect", "db_transaction", "db_query", "source_lineage", "db_teardown", "timer_cleanup",
++    "input", "persisted_identity", "archive_envelope", "response_contract", "query_contract",
++    "citations", "bundle_contract", "bundle_market", "bundle_documents", "metadata", "narrative", "witnesses", "complete",
++)
++DIAGNOSTIC_CODES = ("ok", "rejected", "error", "deadline")
++DIAGNOSTIC_DEADLINES = {
++    stage: (json.dumps({"checks": dict.fromkeys(KEYS, False),
++                       "diagnostic": {"stage": stage, "code": "deadline"}},
++                      separators=(",", ":")) + "\n").encode("ascii")
++    for stage in DIAGNOSTIC_STAGES if stage != "complete"
++}
+ SOURCE_SQL = (
+     "SELECT id, content_hash, url, source, source_type, raw_object_key, "
+     "published_at, fetched_at FROM public.documents WHERE id = ANY(%s)"
+ )
+ 
+ 
++class _EvidenceRejected(ValueError):
++    pass
++
++
+ def _require(condition):
+     if not condition:
+-        raise ValueError("evidence_rejected")
++        raise _EvidenceRejected("evidence_rejected")
++
++
++def _stage(state, name):
++    if state is not None:
++        state["stage"] = name
++
++
++def diagnostic_valid(value):
++    return (type(value) is dict and set(value) == {"stage", "code"}
++            and type(value["stage"]) is str and value["stage"] in DIAGNOSTIC_STAGES
++            and type(value["code"]) is str and value["code"] in DIAGNOSTIC_CODES
++            and ((value["stage"] == "complete") == (value["code"] == "ok")))
++
++
++def diagnostic_result_valid(value):
++    if (type(value) is not dict or set(value) != {"checks", "diagnostic"}
++            or type(value["checks"]) is not dict or set(value["checks"]) != set(KEYS)
++            or any(type(v) is not bool for v in value["checks"].values())
++            or not diagnostic_valid(value["diagnostic"])):
++        return False
++    return (all(value["checks"].values()) if value["diagnostic"]["code"] == "ok"
++            else not any(value["checks"].values()))
++
++
++def _failed(state, error):
++    return {"checks": dict.fromkeys(KEYS, False), "diagnostic": {
++        "stage": state["stage"], "code": "rejected" if isinstance(error, _EvidenceRejected) else "error"}}
+ 
+ 
+ def _positive_id(value):
+@@ -122,11 +171,13 @@
+     return ident
+ 
+ 
+-def _evaluate(raw, view, actual, approvals):
++def _evaluate(raw, view, actual, approvals, state=None):
++    _stage(state, "input")
+     _require(type(raw) is dict and type(view) is dict)
+     # Bound pure calls too, and reject non-JSON/non-finite claim values.
+     _require(len(json.dumps({"raw": raw, "approvals": approvals},
+                             allow_nan=False).encode()) <= MAX_INPUT_BYTES)
++    _stage(state, "persisted_identity")
+     mapped = _indexed(view["rows"])
+     originals = view["original"]
+     _require(type(originals) is dict and all(_positive_id(i) for i in originals))
+@@ -147,8 +198,10 @@
+             _require(_time(live[ident][key]) == _time(prior[key])
+                      == _time(derived[key]))
+ 
++    _stage(state, "archive_envelope")
+     archive = raw["archive_view"]
+     _archive_envelope(archive, view)
++    _stage(state, "response_contract")
+     _require(raw.get("ok") is True and raw.get("asset") == "BTC"
+              and raw.get("question") == QUESTION)
+     status = raw["assistant_status"]
+@@ -170,6 +223,7 @@
+                "risk_note", "execution_disabled", "evidence", "evidence_bundle",
+                "answer_metadata", "risk_posture", "execution", "assistant_status", "probe_protocol"}
+     _require(not set(raw) - allowed)
++    _stage(state, "query_contract")
+     qe = raw["question_evidence"]
+     _require(type(qe) is dict and set(qe) == {
+         "method", "match_count", "status", "semantic_relevance_verified",
+@@ -184,6 +238,7 @@
+              and query["semantic_relevance_verified"] is False
+              and query["relative_time_interpreted"] is False)
+ 
++    _stage(state, "citations")
+     evidence = raw["evidence"]
+     _require(type(evidence) is list and 0 < len(evidence) <= 6)
+     citation_names, keyword_ids, cited = set(), [], set()
+@@ -203,6 +258,7 @@
+     _require(len(keyword_ids) == min(3, qe["match_count"]))
+     _require(all(item["type"] == "keyword_match" for item in evidence[:len(keyword_ids)]))
+ 
++    _stage(state, "bundle_contract")
+     bundle = raw["evidence_bundle"]
+     _require(type(bundle) is dict)
+     document_groups = ("recent_news", "past_context", "future_context", "vector_matches")
+@@ -210,6 +266,7 @@
+                  "latest_live_crypto_edges", "crypto_edge_changes", "crypto_edge_staleness",
+                  "crypto_edge_digest"}
+     _require(not set(bundle) - set(document_groups) - auxiliary)
++    _stage(state, "bundle_market")
+     for key in ("market", "market_snapshot"):
+         market = bundle.get(key, {})
+         _require(type(market) is dict)
+@@ -224,6 +281,7 @@
+         for field in ("change_pct", "window_samples"):
+             if field in market:
+                 _require(type(market[field]) in (int, float) and market[field] == 0)
++    _stage(state, "bundle_contract")
+     for key in auxiliary - {"market", "market_snapshot", "risk"}:
+         _require(bundle.get(key, {}) == {})
+     risk = bundle.get("risk", {})
+@@ -232,6 +290,7 @@
+     if risk:
+         _require(risk["allow_trading"] is False)
+     _require(raw.get("risk_posture", {}) == risk)
++    _stage(state, "bundle_documents")
+     for group in document_groups:
+         docs = bundle.get(group, [])
+         _require(type(docs) is list and len(docs) <= 3)
+@@ -255,6 +314,7 @@
+     confidence += 0.05 if edges.get("has_any_data") else 0
+     for key in ("confidence", "confidence_score"):
+         _require(type(raw.get(key)) in (int, float) and raw[key] == round(confidence, 3))
++    _stage(state, "metadata")
+     metadata = raw.get("answer_metadata", {})
+     _require(type(metadata) is dict)
+     if metadata:
+@@ -271,6 +331,7 @@
+         }
+         _require(metadata == expected_metadata and metadata["partial_provenance"] is True)
+ 
++    _stage(state, "narrative")
+     current = (
+         "Current market context for BTC is unavailable. No price direction or cause is established."
+         " Question-matched archived headlines (keyword overlap only): "
+@@ -288,6 +349,7 @@
+         _require(raw.get(key) == (docs[0]["title"] if docs else empty))
+     _require(raw.get("relevant_past_precedent") == raw["past_precedent"])
+ 
++    _stage(state, "witnesses")
+     _require(type(approvals) is list and 0 < len(approvals) <= 500)
+     approved_ids, witnesses = set(), set()
+     for approval in approvals:
+@@ -325,6 +387,15 @@
+         return dict.fromkeys(KEYS, False)
+ 
+ 
++def evaluate_diagnostic(raw, view, actual, approvals, state=None):
++    state = {"stage": "input"} if state is None else state
++    try:
++        checks = _evaluate(raw, view, actual, approvals, state)
++        return {"checks": checks, "diagnostic": {"stage": "complete", "code": "ok"}}
++    except BaseException as error:
++        return _failed(state, error)
++
++
+ def _unique_object(pairs):
+     result = {}
+     for key, value in pairs:
+@@ -342,29 +413,42 @@
+         os._exit(0)
+ 
+ 
+-def _remote_main():
++def _remote_main(diagnostic=False):
+     import contextlib
+     import signal
+     import sys
+     from pathlib import Path
+ 
+     result = dict.fromkeys(KEYS, False)
++    state = {"stage": "timer"}
++    envelope = None
+     handler_installed = False
+     previous_handler = None
+     try:
+         _require(signal.getitimer(signal.ITIMER_REAL) == (0.0, 0.0))
+         previous_handler = signal.getsignal(signal.SIGALRM)
+-        signal.signal(signal.SIGALRM, _deadline_exit)
++        def diagnostic_deadline(signum, frame):
++            # Fixed precomputed bytes only: no exception/payload formatting in
++            # the signal path, and hard exit still includes DB teardown.
++            try:
++                os.write(1, DIAGNOSTIC_DEADLINES[state["stage"]])
++            finally:
++                os._exit(0)
++
++        signal.signal(signal.SIGALRM, diagnostic_deadline if diagnostic else _deadline_exit)
+         handler_installed = True
+         signal.setitimer(signal.ITIMER_REAL, 8.0)
+         # Installed modules must not leak logs/config/records into stdout.
+         with contextlib.redirect_stdout(sys.stderr):
++            _stage(state, "input_read")
+             data = sys.stdin.buffer.read(MAX_INPUT_BYTES + 1)
++            _stage(state, "input_parse")
+             _require(len(data) <= MAX_INPUT_BYTES)
+             payload = json.loads(data, object_pairs_hook=_unique_object,
+                                  parse_constant=lambda _: _require(False))
+             _require(type(payload) is dict and set(payload) == {"raw", "approvals"})
+             _require(type(payload["raw"]) is dict and type(payload["approvals"]) is list)
++            _stage(state, "imports")
+             from shared.config import get_settings
+             from memory_retrieval.article_view import (
+                 APPROVED_MANIFEST_SHA256, read_archive, check_source_rows,
+@@ -372,44 +456,65 @@
+             import psycopg
+             from psycopg.rows import dict_row
+ 
++            _stage(state, "archive_load")
+             _require(_hash(APPROVED_MANIFEST_SHA256))
+             view = read_archive(Path("/app/memory_retrieval/article_archive"), required=True,
+                                 expected_manifest_sha256=APPROVED_MANIFEST_SHA256)
++            _stage(state, "archive_index")
+             mapped = _indexed(view["rows"])
+             _require(set(mapped) == set(view["original"])
+                      and all(_positive_id(i) for i in view["original"]))
++            _stage(state, "db_connect")
+             with psycopg.connect(get_settings().database_url, connect_timeout=2,
+                                   options="-c default_transaction_read_only=on -c statement_timeout=2000",
+                                   row_factory=dict_row, autocommit=True) as connection:
++                _stage(state, "db_transaction")
+                 with connection.transaction():
++                    _stage(state, "db_query")
+                     with connection.cursor() as cursor:
+                         cursor.execute("SET TRANSACTION READ ONLY")
+                         cursor.execute(SOURCE_SQL, (list(view["original"]),))
+                         actual = cursor.fetchmany(501)
++                        _stage(state, "db_teardown")
++                    _stage(state, "source_lineage")
+                     check_source_rows(view, actual)
+-                    result = evaluate(payload["raw"], view, actual, payload["approvals"])
+-    except BaseException:
++                    if diagnostic:
++                        envelope = evaluate_diagnostic(payload["raw"], view, actual, payload["approvals"], state)
++                        result = envelope["checks"]
++                    else:
++                        result = evaluate(payload["raw"], view, actual, payload["approvals"])
++                    _stage(state, "db_teardown")
++    except BaseException as error:
+         result = dict.fromkeys(KEYS, False)
++        if diagnostic and (envelope is None or envelope["diagnostic"]["code"] == "ok"):
++            envelope = _failed(state, error)
+     finally:
+         if handler_installed:
+             try:
++                _stage(state, "timer_cleanup")
+                 signal.setitimer(signal.ITIMER_REAL, 0.0)
+                 signal.signal(signal.SIGALRM, previous_handler)
+-            except BaseException:
++            except BaseException as error:
+                 result = dict.fromkeys(KEYS, False)
+-    sys.stdout.write(json.dumps(result, separators=(",", ":")) + "\n")
++                if diagnostic and (envelope is None or envelope["diagnostic"]["code"] == "ok"):
++                    envelope = _failed(state, error)
++    sys.stdout.write(json.dumps(envelope if diagnostic else result, separators=(",", ":")) + "\n")
+ 
+ 
+ # Only this module's reviewed helpers are serialized, never application source,
+ # approvals, configuration, credentials, or interpolated raw explanation data.
+-EVIDENCE_SCRIPT = (
++_SCRIPT = (
+     "import hashlib, json, os, re\nfrom datetime import datetime\n"
+     + "\n".join(f"{name} = {value!r}" for name, value in (
+         ("QUESTION", QUESTION), ("MAX_INPUT_BYTES", MAX_INPUT_BYTES),
+         ("QUERY_AUDIT", QUERY_AUDIT), ("FAILURE_OUTPUT", FAILURE_OUTPUT),
+-        ("KEYS", KEYS), ("SOURCE_SQL", SOURCE_SQL))) + "\n"
++        ("KEYS", KEYS), ("SOURCE_SQL", SOURCE_SQL), ("DIAGNOSTIC_STAGES", DIAGNOSTIC_STAGES),
++        ("DIAGNOSTIC_CODES", DIAGNOSTIC_CODES), ("DIAGNOSTIC_DEADLINES", DIAGNOSTIC_DEADLINES))) + "\n"
++    + inspect.getsource(_EvidenceRejected) + "\n"
+     + "\n".join(inspect.getsource(fn) for fn in (
+-        _require, _positive_id, _hash, _indexed, _time, _archive_envelope, _document, _evaluate,
+-        evaluate, _unique_object, _deadline_exit, _remote_main))
+-    + "\n_remote_main()\n"
++        _require, _stage, _failed, diagnostic_valid, diagnostic_result_valid,
++        _positive_id, _hash, _indexed, _time, _archive_envelope, _document, _evaluate,
++        evaluate, evaluate_diagnostic, _unique_object, _deadline_exit, _remote_main))
+ )
++EVIDENCE_SCRIPT = _SCRIPT + "\n_remote_main()\n"
++DIAGNOSTIC_EVIDENCE_SCRIPT = _SCRIPT + "\n_remote_main(True)\n"
+--- before/scripts/research/companion_installer.py
++++ after/scripts/research/companion_installer.py
+@@ -247,7 +247,7 @@
+         return self.executor.call(getattr(self.backend, method), args, min(60, remaining))
+ 
+     def _runtime_call(self, method, *args, cap=30, recovery=False):
+-        if method not in {"inventory", "compatibility", "configured_compatibility", "recipient_checks", "staged_checks", "storage_checks", "start", "health_checks", "explain", "verify_evidence"}:
++        if method not in {"inventory", "compatibility", "configured_compatibility", "recipient_checks", "staged_checks", "storage_checks", "start", "health_checks", "explain", "verify_evidence", "verify_evidence_diagnostic"}:
+             refuse()
+         self._record("runtime_operation_intended", evidence={"operation": method})
+         remaining = (self.end if recovery else self.work_end) - self.clock()
+@@ -415,14 +415,27 @@
+         self.query_diagnostics = sanitize_events(probe.get("diagnostics")) if isinstance(probe, dict) else []
+         self._record("query_diagnostics", evidence={"events": self.query_diagnostics})
+         core.explanation_gates(probe)
++        method = ("verify_evidence_diagnostic" if callable(getattr(self.runtime, "verify_evidence_diagnostic", None))
++                  else "verify_evidence")
+         try:
+-            evidence = self._runtime_call("verify_evidence", probe["raw"], cap=10)
++            evidence = self._runtime_call(method, probe["raw"], cap=10)
+         except Exception:
+             self._record("evidence_verification_checks", evidence={
+                 "outcome": "exception_or_timeout", "shape_valid": False,
+                 "checks": dict.fromkeys(sorted(core.EVIDENCE), False),
++                "diagnostic": {"stage": "parent_boundary", "code": "unavailable"},
+                 "false_meaning": "not_established_or_not_evaluated"})
+             raise
++        diagnostic = {"stage": "legacy_result", "code": "unavailable"}
++        if (method == "verify_evidence_diagnostic"
++                or (type(evidence) is dict and set(evidence) == {"checks", "diagnostic"})):
++            from scripts.research.companion_evidence_checks import diagnostic_result_valid
++            if diagnostic_result_valid(evidence):
++                diagnostic = dict(evidence["diagnostic"])
++                evidence = evidence["checks"]
++            else:
++                diagnostic = {"stage": "parent_boundary", "code": "invalid"}
++                evidence = None
+         shape_valid = (type(evidence) is dict and set(evidence) == core.EVIDENCE
+                        and all(type(v) is bool for v in evidence.values()))
+         checks = {key: evidence.get(key) is True if type(evidence) is dict else False
+@@ -430,6 +443,7 @@
+         self._record("evidence_verification_checks", evidence={
+             "outcome": "complete" if shape_valid else "invalid_shape",
+             "shape_valid": shape_valid, "checks": checks,
++            "diagnostic": diagnostic,
+             "false_meaning": "not_established_or_not_evaluated"})
+         if not core._all_true(evidence, core.EVIDENCE):
+             refuse()
+--- before/scripts/research/companion_runtime_adapter.py
++++ after/scripts/research/companion_runtime_adapter.py
+@@ -780,16 +780,30 @@
+         return controller.dashboard_probe(self._token)
+ 
+     def verify_evidence(self, raw):
++        """Preserve the five-Boolean contract used by the legacy controller."""
++        return self.verify_evidence_diagnostic(raw)["checks"]
++
++    def verify_evidence_diagnostic(self, raw):
++        """Return strict checks plus fixed diagnostics through the bounded IPC."""
+         self._require()
+-        from scripts.research.companion_evidence_checks import EVIDENCE_SCRIPT
++        from scripts.research.companion_evidence_checks import DIAGNOSTIC_EVIDENCE_SCRIPT, diagnostic_result_valid
+         if not self.pins.topical_approvals:
+-            return dict.fromkeys(controller.EVIDENCE, False)
++            return {"checks": dict.fromkeys(controller.EVIDENCE, False),
++                    "diagnostic": {"stage": "witnesses", "code": "rejected"}}
+         payload = json.dumps({"raw": raw, "approvals": list(self.pins.topical_approvals)}, allow_nan=False).encode()
+         if len(payload) > 65_536:
+             raise controller.Refused("oversized_evidence_request")
+         memory = self._pins()["phase1-memory"]
++        def unique(items):
++            result = {}
++            for key, value in items:
++                if key in result:
++                    raise controller.Refused("invalid_evidence_receipt")
++                result[key] = value
++            return result
+         result = json.loads(self._command(("container", "exec", "-i", memory.container_id,
+-                                         "/usr/local/bin/python", "-B", "-c", EVIDENCE_SCRIPT), data=payload, cap=10, limit=8192))
+-        if not isinstance(result, dict) or set(result) != set(controller.EVIDENCE) or any(type(v) is not bool for v in result.values()):
++                                         "/usr/local/bin/python", "-B", "-c", DIAGNOSTIC_EVIDENCE_SCRIPT), data=payload, cap=10, limit=8192),
++                            object_pairs_hook=unique)
++        if not diagnostic_result_valid(result):
+             raise controller.Refused("invalid_evidence_receipt")
+         return result
+--- before/tests/test_companion_evidence_checks.py
++++ after/tests/test_companion_evidence_checks.py
+@@ -284,7 +284,7 @@
+     refused(case)
+ 
+ 
+-def remote(monkeypatch, case, data=None, failure=None, timer=(0.0, 0.0), alarm_events=None):
++def remote(monkeypatch, case, data=None, failure=None, timer=(0.0, 0.0), alarm_events=None, diagnostic=False):
+     raw, view, actual, approvals = case
+     calls = []
+     events = alarm_events if alarm_events is not None else []
+@@ -309,6 +309,8 @@
+         events.append(("timer", seconds))
+         if failure == "arm" and seconds:
+             raise ValueError("private alarm setup error")
++        if failure == "cleanup" and not seconds:
++            raise ValueError("private alarm cleanup error")
+         return (0.0, 0.0)
+ 
+     monkeypatch.setattr(signal, "getitimer", getitimer)
+@@ -341,7 +343,7 @@
+             return self
+ 
+         def __exit__(self, *args):
+-            if failure == "teardown":
++            if failure == "teardown" or (failure == "late_teardown" and "lineage" in calls):
+                 raise RuntimeError("private cleanup error")
+             return False
+ 
+@@ -384,10 +386,13 @@
+     monkeypatch.setattr(sys, "stdin", SimpleNamespace(buffer=io.BytesIO(payload)))
+     monkeypatch.setattr(sys, "stdout", stdout)
+     monkeypatch.setattr(sys, "stderr", stderr)
+-    exec(checks.EVIDENCE_SCRIPT, {"__name__": "__main__"})
++    exec(checks.DIAGNOSTIC_EVIDENCE_SCRIPT if diagnostic else checks.EVIDENCE_SCRIPT, {"__name__": "__main__"})
+     output = stdout.getvalue()
+     result = json.loads(output)
+-    assert set(result) == set(checks.KEYS) and all(type(v) is bool for v in result.values())
++    if diagnostic:
++        assert checks.diagnostic_result_valid(result)
++    else:
++        assert set(result) == set(checks.KEYS) and all(type(v) is bool for v in result.values())
+     assert output == json.dumps(result, separators=(",", ":")) + "\n"
+     assert "private" not in output and "synthetic" not in output and "https" not in output
+     return result, calls
+--- before/tests/test_companion_runtime_adapter.py
++++ after/tests/test_companion_runtime_adapter.py
+@@ -55,6 +55,9 @@
+             assert args[3] == adapter.INSPECT_FORMAT
+             return b"\n".join(json.dumps(r).encode() for r in self.rows.values())
+         if args[:2] == ("container", "exec"):
++            if "FIXTURE_SCRIPT" in args:
++                return json.dumps({"checks": dict.fromkeys(core.EVIDENCE, True),
++                                   "diagnostic": {"stage": "complete", "code": "ok"}}).encode()
+             if adapter._PG_CHECK in args:
+                 assert input_bytes == adapter._SCHEMA_SQL.encode()
+                 return json.dumps(self.pg_result).encode()
+@@ -426,8 +429,10 @@
+     monkeypatch.setattr(core, "dashboard_probe", lambda token: {"token_supplied": token == "FIXTURE_ONLY"})
+     assert runtime.explain() == {"token_supplied": True}
+     # No actual query is sent by this fixture.
++    from scripts.research.companion_evidence_checks import diagnostic_result_valid
+     monkeypatch.setitem(__import__("sys").modules, "scripts.research.companion_evidence_checks",
+-                        SimpleNamespace(EVIDENCE_SCRIPT="FIXTURE_SCRIPT"))
++                        SimpleNamespace(DIAGNOSTIC_EVIDENCE_SCRIPT="FIXTURE_SCRIPT",
++                                        diagnostic_result_valid=diagnostic_result_valid))
+     assert all(runtime.verify_evidence({"asset": "BTC"}).values())
+     argv, cap, body = docker.calls[-1]
+     assert argv[:3] == ("container", "exec", "-i") and cap == 10
+--- before/tests/test_companion_verifier_diagnostics.py
++++ after/tests/test_companion_verifier_diagnostics.py
+@@ -0,0 +1,275 @@
++"""Synthetic-only diagnostic protocol, privacy and unchanged acceptance gates."""
++import ast
++from copy import deepcopy
++import json
++from pathlib import Path
++import subprocess
++import sys
++import tarfile
++import time
++
++import pytest
++
++from scripts.research import companion_evidence_checks as checks
++from scripts.research import companion_existing_controller as core
++from tests.test_companion_evidence_checks import case, offline, remote
++from tests.test_companion_runtime_adapter import setup as adapter_setup
++from tests.test_companion_running_update import harness, run as run_update
++
++
++@pytest.mark.parametrize("change,stage,code", [
++    ("input", "input", "rejected"), ("identity", "persisted_identity", "rejected"),
++    ("archive", "archive_envelope", "rejected"), ("response", "response_contract", "rejected"),
++    ("query", "query_contract", "rejected"), ("citation", "citations", "rejected"),
++    ("bundle", "bundle_contract", "rejected"), ("market", "bundle_market", "rejected"),
++    ("document", "bundle_documents", "rejected"), ("metadata", "metadata", "error"),
++    ("narrative", "narrative", "rejected"), ("witness", "witnesses", "rejected"),
++])
++def test_first_failed_group_without_payload_or_exception_text(case, change, stage, code):
++    raw, view, actual, approvals = deepcopy(case)
++    if change == "input": raw = []
++    elif change == "identity": actual[0]["content_hash"] = "f" * 64
++    elif change == "archive": raw["archive_view"]["status"] = "PRIVATE"
++    elif change == "response": raw["asset"] = "ETH"
++    elif change == "query": raw["question_evidence"]["method"] = "PRIVATE"
++    elif change == "citation": raw["evidence"][0]["url"] = "PRIVATE"
++    elif change == "bundle": raw["evidence_bundle"]["PRIVATE"] = "PRIVATE"
++    elif change == "market": raw["evidence_bundle"]["market"]["latest_price"] = 123
++    elif change == "document": raw["evidence_bundle"]["past_context"][0]["title"] = "PRIVATE"
++    elif change == "metadata": raw["answer_metadata"]["as_of"] = "PRIVATE"
++    elif change == "narrative": raw["current_cause"] = "PRIVATE"
++    else: approvals.clear()
++    result = checks.evaluate_diagnostic(raw, view, actual, approvals)
++    assert result["checks"] == checks.evaluate(raw, view, actual, approvals) == dict.fromkeys(checks.KEYS, False)
++    assert result["diagnostic"] == {"stage": stage, "code": code}
++    assert "PRIVATE" not in json.dumps(result)
++
++
++def test_diagnostic_success_preserves_pure_api(case):
++    result = checks.evaluate_diagnostic(*case)
++    assert result == {"checks": checks.evaluate(*case), "diagnostic": {"stage": "complete", "code": "ok"}}
++    assert all(result["checks"].values()) and checks.diagnostic_result_valid(result)
++
++
++@pytest.mark.parametrize("failure,stage", [
++    ("archive", "archive_load"), ("lineage", "source_lineage"),
++    ("query", "db_query"), ("teardown", "db_teardown"), ("arm", "timer"),
++    ("cleanup", "timer_cleanup")])
++def test_remote_operational_failure_codes_are_fixed(monkeypatch, case, failure, stage):
++    result, _ = remote(monkeypatch, case, failure=failure, diagnostic=True)
++    assert result["diagnostic"] == {"stage": stage, "code": "error"}
++    assert not any(result["checks"].values())
++
++
++def test_occupied_timer_reports_rejection_without_touching_it(monkeypatch, case):
++    events = []
++    result, calls = remote(monkeypatch, case, timer=(1.0, 0.0), alarm_events=events, diagnostic=True)
++    assert result["diagnostic"] == {"stage": "timer", "code": "rejected"}
++    assert not calls and events == ["getitimer"]
++
++
++def test_remote_diagnostic_keeps_single_readonly_query(monkeypatch, case):
++    result, calls = remote(monkeypatch, case, diagnostic=True)
++    assert result["diagnostic"] == {"stage": "complete", "code": "ok"}
++    assert calls == ["archive", "connect", "transaction", "cursor",
++                     ("SET TRANSACTION READ ONLY", None),
++                     (checks.SOURCE_SQL, ([1, 2, 3, 4],)), "lineage"]
++
++
++def test_first_evaluation_failure_survives_later_teardown_failure(monkeypatch, case):
++    case[0]["asset"] = "ETH"
++    result, _ = remote(monkeypatch, case, failure="late_teardown", diagnostic=True)
++    assert result["diagnostic"] == {"stage": "response_contract", "code": "rejected"}
++
++
++@pytest.mark.parametrize("data,code", [
++    (b"PRIVATE invalid json", "error"),
++    (b'{"raw":{},"raw":{},"approvals":[]}', "rejected"),
++    (b'{"raw":{},"approvals":[],"PRIVATE":"PRIVATE"}', "rejected"),
++])
++def test_input_failures_are_diagnosed_before_any_dependency(monkeypatch, case, data, code):
++    result, calls = remote(monkeypatch, case, data=data, diagnostic=True)
++    assert result["diagnostic"] == {"stage": "input_parse", "code": code} and not calls
++
++
++@pytest.mark.parametrize("stage,code", [("PRIVATE", "error"), ("input", "PRIVATE"),
++                                       ("complete", "error"), ("input", "ok"), ([], "error")])
++def test_unknown_or_inconsistent_diagnostics_fail_closed(adapter_setup, monkeypatch, stage, code):
++    _, _, runtime = adapter_setup
++    result = {"checks": dict.fromkeys(checks.KEYS, True), "diagnostic": {"stage": stage, "code": code}}
++    monkeypatch.setattr(runtime, "_command", lambda *_a, **_kw: json.dumps(result).encode())
++    with pytest.raises(core.Refused, match="invalid_evidence_receipt"):
++        runtime.verify_evidence({})
++
++
++def test_diagnostic_survives_real_bounded_process_json_channel():
++    value = {"checks": dict.fromkeys(checks.KEYS, False),
++             "diagnostic": {"stage": "citations", "code": "rejected"}}
++    assert core.ProcessExecutor().call(lambda: value, (), 2) == value
++
++
++def test_legacy_adapter_method_keeps_five_boolean_shape(adapter_setup, monkeypatch):
++    _, _, runtime = adapter_setup
++    value = {"checks": dict.fromkeys(checks.KEYS, True), "diagnostic": {"stage": "complete", "code": "ok"}}
++    monkeypatch.setattr(runtime, "_command", lambda *_a, **_kw: json.dumps(value).encode())
++    assert runtime.verify_evidence({}) == value["checks"]
++    assert runtime.verify_evidence_diagnostic({}) == value
++
++
++@pytest.mark.parametrize("duplicate", ["checks", "diagnostic", "check", "stage", "code"])
++def test_adapter_rejects_duplicate_wire_members_at_every_depth(adapter_setup, monkeypatch, duplicate):
++    _, _, runtime = adapter_setup
++    good_checks = json.dumps(dict.fromkeys(checks.KEYS, True))
++    good_diagnostic = '{"stage":"complete","code":"ok"}'
++    members = f'"checks":{good_checks},"diagnostic":{good_diagnostic}'
++    if duplicate == "checks":
++        members = f'"checks":{json.dumps(dict.fromkeys(checks.KEYS, False))},' + members
++    elif duplicate == "diagnostic":
++        members = '"diagnostic":{"stage":"input","code":"rejected"},' + members
++    elif duplicate == "check":
++        members = members.replace('"content_hash": true', '"content_hash": false,"content_hash": true')
++    elif duplicate == "stage":
++        members = members.replace('"stage":"complete"', '"stage":"input","stage":"complete"')
++    else:
++        members = members.replace('"code":"ok"', '"code":"error","code":"ok"')
++    wire = ("{" + members + "}").encode()
++    calls = []
++
++    def command(*args, **kwargs):
++        calls.append((args, kwargs))
++        return wire
++
++    monkeypatch.setattr(runtime, "_command", command)
++    with pytest.raises(core.Refused, match="invalid_evidence_receipt"):
++        runtime.verify_evidence_diagnostic({})
++    assert len(calls) == 1
++    assert calls[0][1]["cap"] == 10 and calls[0][1]["limit"] == 8192
++
++
++@pytest.mark.parametrize("value", [False, True])
++def test_diagnostic_method_cannot_downgrade_to_bare_checks(value):
++    h = harness()
++    calls = []
++
++    def diagnostic(_raw):
++        calls.append(True)
++        return dict.fromkeys(checks.KEYS, value)
++
++    h[-1].verify_evidence_diagnostic = diagnostic
++    h[-1].verify_evidence = lambda _raw: pytest.fail("must not retry via legacy")
++    result = run_update(h)
++    event = next(e["installation_evidence"] for e in h[2].events if e["phase"] == "evidence_verification_checks")
++    assert calls == [True] and not result["query_passed"]
++    assert event["shape_valid"] is False
++    assert event["diagnostic"] == {"stage": "parent_boundary", "code": "invalid"}
++
++
++def test_explicit_legacy_method_still_accepts_bare_checks():
++    h = harness()
++    assert not callable(getattr(h[-1], "verify_evidence_diagnostic", None))
++    h[-1].evidence_result = dict.fromkeys(checks.KEYS, True)
++    result = run_update(h)
++    event = next(e["installation_evidence"] for e in h[2].events if e["phase"] == "evidence_verification_checks")
++    assert result["query_passed"] and event["shape_valid"] is True
++    assert event["diagnostic"] == {"stage": "legacy_result", "code": "unavailable"}
++
++
++@pytest.mark.parametrize("failure", [False, True])
++def test_installer_selects_diagnostic_method_once_without_legacy_retry(failure):
++    h = harness()
++    calls = []
++
++    def diagnostic(raw):
++        calls.append(True)
++        if failure:
++            raise RuntimeError("PRIVATE")
++        return {"checks": dict.fromkeys(checks.KEYS, True), "diagnostic": {"stage": "complete", "code": "ok"}}
++
++    h[-1].verify_evidence_diagnostic = diagnostic
++    h[-1].verify_evidence = lambda _raw: pytest.fail("must not retry via legacy")
++    result = run_update(h)
++    assert result["query_passed"] is not failure and calls == [True]
++    event = next(e["installation_evidence"] for e in h[2].events if e["phase"] == "evidence_verification_checks")
++    assert event["diagnostic"] == ({"stage": "parent_boundary", "code": "unavailable"} if failure
++                                    else {"stage": "complete", "code": "ok"})
++    assert "PRIVATE" not in json.dumps(h[2].events)
++
++
++@pytest.mark.parametrize("success", [False, True])
++def test_installer_records_diagnostic_but_accepts_only_checks(success):
++    h = harness()
++    h[-1].evidence_result = {"checks": dict.fromkeys(checks.KEYS, success),
++        "diagnostic": {"stage": "complete" if success else "bundle_market", "code": "ok" if success else "rejected"}}
++    result = run_update(h)
++    event = next(e["installation_evidence"] for e in h[2].events if e["phase"] == "evidence_verification_checks")
++    assert event["diagnostic"] == h[-1].evidence_result["diagnostic"]
++    assert result["query_passed"] is success
++
++
++def test_installer_drops_malicious_diagnostic_and_never_approves():
++    h = harness()
++    h[-1].evidence_result = {"checks": dict.fromkeys(checks.KEYS, True),
++                            "diagnostic": {"stage": "PRIVATE", "code": "ok"}}
++    result = run_update(h)
++    event = next(e["installation_evidence"] for e in h[2].events if e["phase"] == "evidence_verification_checks")
++    assert not result["query_passed"] and event["outcome"] == "invalid_shape"
++    assert event["diagnostic"] == {"stage": "parent_boundary", "code": "invalid"}
++    assert "PRIVATE" not in json.dumps(h[2].events)
++
++
++@pytest.mark.parametrize("change", ["extra", "missing", "list", "numeric", "false_with_ok"])
++def test_diagnostic_envelope_cannot_hide_failed_or_invalid_checks(change):
++    h = harness()
++    payload = {"checks": dict.fromkeys(checks.KEYS, True),
++               "diagnostic": {"stage": "complete", "code": "ok"}}
++    if change == "extra": payload["PRIVATE"] = "PRIVATE"
++    elif change == "missing": payload["diagnostic"].pop("code")
++    elif change == "list": payload["diagnostic"] = ["PRIVATE"]
++    elif change == "numeric": payload["checks"]["content_hash"] = 1
++    else: payload["checks"]["content_hash"] = False
++    h[-1].evidence_result = payload
++    result = run_update(h)
++    assert not result["query_passed"]
++    assert "PRIVATE" not in json.dumps(h[2].events)
++
++
++def test_original_predicates_and_sql_are_unchanged():
++    root = Path(__file__).resolve().parents[1]
++    with tarfile.open(root / "docs/review_artifacts/companion_verifier_diagnostics_20261026/prechange.tar") as archive:
++        before = ast.parse(archive.extractfile("scripts/research/companion_evidence_checks.py").read())
++    after = ast.parse((root / "scripts/research/companion_evidence_checks.py").read_text())
++    names = {"_evaluate", "_document", "_archive_envelope", "_indexed", "_time", "_unique_object"}
++
++    def conditions(tree):
++        return {fn.name: [ast.dump(call.args[0]) for call in ast.walk(fn)
++                          if isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id == "_require"]
++                for fn in tree.body if isinstance(fn, ast.FunctionDef) and fn.name in names}
++
++    assert conditions(before) == conditions(after)
++    assert checks.SOURCE_SQL == next(ast.literal_eval(n.value) for n in before.body
++        if isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "SOURCE_SQL" for t in n.targets))
++
++
++def test_actual_private_child_deadline_has_only_fixed_diagnostic():
++    bootstrap = '''
++import builtins, socket, sys, time
++from types import SimpleNamespace
++original_import = builtins.__import__
++def forbidden(*args, **kwargs): raise AssertionError("offline child")
++def guarded(name, *args, **kwargs):
++    if name.split(".")[0] in {"shared", "memory_retrieval", "psycopg", "pydantic_settings"}: forbidden()
++    return original_import(name, *args, **kwargs)
++builtins.__import__ = guarded
++socket.socket = socket.create_connection = socket.getaddrinfo = forbidden
++class StalledInput:
++    def read(self, size): time.sleep(60)
++sys.stdin = SimpleNamespace(buffer=StalledInput())
++'''
++    started = time.monotonic()
++    completed = subprocess.run([sys.executable, "-I", "-S", "-B", "-c",
++        bootstrap + f"\nexec({checks.DIAGNOSTIC_EVIDENCE_SCRIPT!r})\n"],
++        env={}, capture_output=True, timeout=10, check=False)
++    assert completed.returncode == 0 and completed.stderr == b""
++    assert json.loads(completed.stdout) == {"checks": dict.fromkeys(checks.KEYS, False),
++        "diagnostic": {"stage": "input_read", "code": "deadline"}}
++    assert 7.5 <= time.monotonic() - started < 10

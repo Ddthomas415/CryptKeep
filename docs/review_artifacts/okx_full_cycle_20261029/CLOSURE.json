@@ -1,0 +1,45 @@
+{
+  "recorded_at": "2026-10-29T19:57:33.845945+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "one-shot full-family persisted/runtime evidence only",
+  "reviewer_agent": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1893a-5fef-7231-a204-73dc9a4aa036",
+  "verified_inputs": 103,
+  "independent_checks": [
+    "sealed snapshot immutable/read-only, no WAL/journal",
+    "all old table prefix counts/fingerprints preserved",
+    "deltas/IDs/source/native identities match",
+    "canonical raw key/body/receipts/recomputed policy matches CLI",
+    "snapshot hash unchanged"
+  ],
+  "capture_attested_only": [
+    "execution10.522s/one loop/zero errors",
+    "host process/control state",
+    "schema baseline checks",
+    "dated five-family cadence",
+    "funding request count2"
+  ],
+  "sdk_request_count": "not independently instrumented",
+  "snapshot_sha256": "7e8bb8fb4c8a590025a2938a8d1f69203f086afcccc1d268278c9a11982ddf7a",
+  "financial_authority": false,
+  "new_rows": {
+    "raw_funding": 1,
+    "open_interest": 1,
+    "basis": 1,
+    "quotes": 2,
+    "order_book": 1,
+    "legacy_funding": 0
+  },
+  "ongoing_collection": "stopped",
+  "operation_permission": "single cycle consumed; no automatic retry",
+  "recurring_restoration_state": "INCOMPLETE",
+  "next_decision": "Authorize restoring existing research-only collector at300s using tested full-family paired inputs; no new job/account/trading changes",
+  "limitations": [
+    "binary signature trust unverified",
+    "no sustained freshness/profit/economic edge proof",
+    "no original/backup SQL, tests, live calls or lifecycle by reviewer"
+  ],
+  "folder": "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_full_cycle_20261029/20261029T192602Z_c7706b90878b4d31ae88f8d354c5120c",
+  "submitted_checkpoint_status_note": "frozen submitted checkpoint predates review; this separate GATE disposition/current task index supersede pending-review status"
+}

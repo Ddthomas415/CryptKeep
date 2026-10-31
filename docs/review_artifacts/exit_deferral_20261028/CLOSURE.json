@@ -1,0 +1,20 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "pure unwired preservation-first exit planner, synthetic-only; no execution authority",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a18427-5a10-75d1-8e60-f55708926013",
+  "independent_verification": {
+    "passed": 41,
+    "seconds": 0.18,
+    "material_blockers": 0
+  },
+  "source_sha256": "22dd6c99b34a0cdf011aea601bb46a878e8aa012e962e2d29f25e5bbdb446679",
+  "tests_sha256": "a9f97e2562a5ac1cd1cb2949287bfb33fa54247cf8a6027b8159abcbb31c23b0",
+  "submitted_bindings_sha256": "42b1a28451ed90dda9aeb75abab18092a36be70ca5d4b44f83bd678ae004a7f3",
+  "submitted_checkpoint_sha256": "c2353649bc996086ff63d19e83af1d2bdef289bdff83085175005fd054b2f014",
+  "checkpoint_sha256": "06beab08f936d146c76a3056c9bdd60bc52812fc110ecde0f28c0190d2e5e089",
+  "reviewed_code_changed": false,
+  "runtime_wiring": false,
+  "original_fix2_runtime_repair": "INCOMPLETE",
+  "original_fix3_rate_provenance": "INCOMPLETE"
+}

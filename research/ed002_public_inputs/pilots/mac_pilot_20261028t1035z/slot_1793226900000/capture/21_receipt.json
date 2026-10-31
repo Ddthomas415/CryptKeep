@@ -1,0 +1,14 @@
+{
+  "bytes": 161,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "21_PYTH.bin",
+  "http_date": "Wed, 28 Oct 2026 22:35:05 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793226905196,
+  "request_started_ms": 1793226905121,
+  "sha256": "61ee6ba889c7623bc314ab3d1e40cc3d4e7dce25b36f323c586b1bd61e06dbe0",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/PYTH-USD/candles?granularity=3600&start=2026-10-28T20%3A00%3A00%2B00%3A00&end=2026-10-28T22%3A00%3A00%2B00%3A00"
+}

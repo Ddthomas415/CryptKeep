@@ -1,0 +1,60 @@
+{
+  "schema": "companion-consumer-binding-refresh-validation-v1",
+  "recorded_utc": "2026-10-23T00:21:28Z",
+  "operator_local_date": "2026-10-22",
+  "active_role": "AUDITOR",
+  "environment": "VERIFIED_ENV for local hashes and offline loader; no current native inventory",
+  "prior_scope_sha256": "271c1c2c204f1493fd36caf0db57b5af464aba4c920526e2e77fd019ce24790d",
+  "repair_review_sha256": "b018b127821f0a3c58d8a77000a31dc95063107f900751a1af2f7787898621fb",
+  "consumer_delta": {
+    "path": "scripts/research/companion_runtime_adapter.py",
+    "prior_sha256": "cf2d619320defd4904ba7bde595ad226d803818f5182f2bf27c3f73cdb0a4441",
+    "current_sha256": "e7315cd9047f656afca0b3845be54629c46c80c9a20065d8646978dce20fce38",
+    "change": "Optional Healthcheck lookup only: direct selector replaced with null-preserving map index."
+  },
+  "other_bound_consumers": {
+    "scripts/research/companion_cutover.py": "fcea6d3e181372e3db02882f70392f38a985067081a42c5c3e2a8bfd34a3a550",
+    "scripts/research/companion_docker_transport.py": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5",
+    "scripts/research/companion_install_docker.py": "ca2e74fcf9d3869f7c3ed27e69721cd12615f41cc2687ea0844b314250814220",
+    "scripts/research/companion_installer.py": "56d9b924d7d0b7e2660d68db62dcdd67252fdc5e01ad633a7e39f57ea866b16b",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18"
+  },
+  "verification": {
+    "argument_source": "docs/review_artifacts/companion_continuation_20261021/runtime_packet/inert_validation_receipt.json",
+    "argument_source_sha256": "a269cfdd5307724af5b67c414f4ad1d6e4e9009c1bbb2a3e1f0df47ff6b67f36",
+    "method": "Split the exact hash-checked recorded command using shlex; invoke existing companion_cutover.main with its arguments after the Python module prefix. Prohibit execute-cutover/token-fd. Popen, socket connect/connect_ex and getaddrinfo were patched to refuse during validation.",
+    "exit_code": 0,
+    "result": {
+      "state": "READY_FOR_INDEPENDENT_REVIEW",
+      "actions_executed": false,
+      "startup_authorized": false,
+      "input_bindings_validated": true,
+      "manifest_sha256": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d",
+      "attempt": "s3refresh20261021c1eaae5a",
+      "controller_budget_seconds": 600,
+      "recovery_reserve_seconds": 180
+    },
+    "old_launcher_inputs_result": "ValueError: reviewed_consumer_changed",
+    "consumed_attempt_file_hashes_unchanged": true,
+    "new_test_suite_runs": 0,
+    "native_operations": 0,
+    "credential_reads": 0,
+    "service_or_query_operations": 0
+  },
+  "operational_eligibility": {
+    "ready_to_execute": false,
+    "retry_authorized": false,
+    "consumed_attempt": "s3refresh20261021c1eaae5a",
+    "source_boundary": "companion_cutover._reserve creates an exclusive directory keyed by plan.attempt and refuses an existing attempt; main reserves before consuming token_fd. The separate handoff producer would retrieve the token before main, so do not invoke that launcher to test reservation.",
+    "remaining_requirement": "An independently reviewed, separately authorized continuation path must distinguish a new execution receipt from the preserved preparation identity, retain fresh exact-ID/configuration preflight, and preserve the failed reservation and evidence. No such change is implemented here.",
+    "not_authorized": ["Delete or rename consumed attempt", "Change preparation IDs/labels/evidence to evade reservation", "Recreate containers", "Run old launcher", "Read token", "Start a new runtime attempt"]
+  },
+  "limits": [
+    "This refresh binds a reviewed offline repair; it does not supersede historical exact-byte review records or make their original launcher accept new code.",
+    "Loader success is not reservation eligibility, current container state, health, connectivity, source-byte or explanation proof.",
+    "Prior post-failure state and native diagnostic observations remain historical, not refreshed in this turn."
+  ],
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "runtime_objective_state": "INCOMPLETE"
+}

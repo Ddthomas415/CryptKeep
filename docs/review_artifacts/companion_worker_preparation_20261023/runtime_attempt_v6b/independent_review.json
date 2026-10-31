@@ -1,0 +1,490 @@
+{
+  "schema": "companion-v6b-failed-runtime-independent-review-v1",
+  "review_date": "2026-10-23",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "decision_scope": "Bounded acceptance of failure-evidence interpretation and offline replay only; not acceptance of the failed runtime result or a corrected packet",
+  "failed_runtime_disposition": "INCOMPLETE",
+  "source_and_runtime_state": "INCOMPLETE",
+  "reviewer": "Independent GATE, one-pass v6b failure-evidence review",
+  "checkpoint": {
+    "path": "docs/checkpoints/companion_v6b_runtime_attempt_20261023.md",
+    "sha256": "7803ee7dd4da3d12a75ce3998b89eafcc0c75f16609941dc0af6abb35da8e13f",
+    "read_fully": true
+  },
+  "reviewed_artifact_sha256": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6b/operation_outcome.json": "1ce084cbf3b204254414549b2c0ae3befafd93edb6006f6f88096a45506d744f",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6b/receipt.jsonl": "63003bed13993c1d5d044ba16c271b4cd51d16209ebcb206dec16b4be2315d5a",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6b/post_inventory.json": "44602ff88a1d978fe5b6ae50d47becb71f6d135de32a526feda930a837cc4d40",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6b/offline_replay.json": "939dc97df6e1a223e7bc597bbe2e6c92003093704fff2990e49d9c76de7e8cae",
+    "docs/review_artifacts/companion_worker_preparation_20261023/replay_failed_runtime_packet.py": "daa054973e85bbe20aebe0f5084062a8cfe792e960c515eef9fca8e3c546d17b"
+  },
+  "all_five_checkpoint_hashes_match": true,
+  "replay_input_sha256": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_b/post_inventory.json": "7d4a164c4e2638492f04d83e4aa70287e9801bf298cda0c489c2a7e8037f01f5",
+    "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/reviewed_preparation_manifest.json": "67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6b/post_inventory.json": "44602ff88a1d978fe5b6ae50d47becb71f6d135de32a526feda930a837cc4d40",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6b/receipt.jsonl": "63003bed13993c1d5d044ba16c271b4cd51d16209ebcb206dec16b4be2315d5a",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/staged_metadata.derived.json": "ca7101c34446f7b04cc0e1c08dcfcba2026e197d3cecbedb8de13e3cf70118e8",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/subjects.draft.json": "0e6cfcc5bdf823659cf6d1f17aab0a961267d9d881e317b62dfa280141402107"
+  },
+  "all_six_replay_input_hashes_match": true,
+  "findings": [
+    {
+      "id": "F1",
+      "classification": "SHOWN",
+      "type": "packet_model_representation_defect",
+      "scope": "Four accepted application runtime preservation pins and their active-network prediction",
+      "evidence": "Each accepted pin exactly reproduces the final-alias-only staged model with raw NetworkID=\"\". Substituting only the already-reviewed immutable network ID changes all four preservation digests, while the configured-network projection remains unchanged. Independent in-memory recomputation matches the saved four replay entries.",
+      "producer_boundary": {
+        "path": "docs/review_artifacts/companion_worker_preparation_20261023/assemble_runtime_packet.py",
+        "sha256": "d9324398722f85bdb285ca1695c1de24ab3ec184d9784715539a63a3c9982d2d",
+        "lines": "103-108",
+        "behavior": "Clones the staged row, edits Aliases only, and computes preservation_digest(final)."
+      },
+      "loader_boundary": {
+        "path": "scripts/research/companion_cutover.py",
+        "sha256": "8740d65d31eade3d94cd849710aa2b1cf00a67ca560e385fd5a54ff4a20aaf4e",
+        "lines": "61-66 and 105-108",
+        "behavior": "Reconstructs the same aliases-only final model and requires the runtime pin to equal preservation_digest(model). Thus new runtime pins alone would be rejected or remain representation-incoherent; both producer and loader active-network predictions must be corrected together."
+      },
+      "runtime_comparison_boundary": {
+        "path": "scripts/research/companion_runtime_adapter.py",
+        "sha256": "e7315cd9047f656afca0b3845be54629c46c80c9a20065d8646978dce20fce38",
+        "lines": "508-509 and 536-542",
+        "behavior": "configured_compatibility enters _compatibility_checks, whose identity loop compares the raw preservation digest before the later configured-binding check."
+      },
+      "attribution": "A defect in the Codex-produced and reviewed packet/model boundary, not an operator, market or account defect. Prior structural/source/configuration acceptance did not establish active-state representation compatibility.",
+      "causal_confidence": "Concrete candidate explanation for the observed runtime_verification/configured_compatibility refusal, not a captured exact failed predicate. Activated replacement raw rows and per-predicate result/exception were not retained before rollback.",
+      "correction_status": "Not implemented or authorized by this review."
+    }
+  ],
+  "actual_attempt": {
+    "claim_status": "SHOWN from supplied sanitized outcome/receipt and saved postcheck, not independently repeated native observation",
+    "operator_approved_invocations": 1,
+    "recorded_exit_code": 1,
+    "attempt": "workerprep20261023v6b",
+    "attempt_consumed": true,
+    "automatic_retry": false,
+    "running_update_complete": false,
+    "query_attempted": false,
+    "query_passed": false,
+    "prepared_ids_preserved": false,
+    "receipt_complete_reported": true,
+    "rollback_verified_reported": true,
+    "rollback_exact_baseline_reported": false,
+    "services_started_reported": true,
+    "services_started_interpretation": "Original application restarts are recorded and corroborated by changed startup timestamps. This is not proof of replacement startup or application health.",
+    "unresolved_arrays": {
+      "unresolved_quiesce": [],
+      "unresolved_restart": [],
+      "unresolved_replacement_start": [],
+      "unresolved_replacement_cleanup": [],
+      "unresolved_creation": []
+    },
+    "native_internal_trace": "Controller native calls were not individually retained as a complete per-command/per-predicate trace."
+  },
+  "receipt_review": {
+    "record_count": 61,
+    "all_records_read": true,
+    "input_binding_event_matches_accepted_manifest_preparation_and_runtime": true,
+    "quiesce_exit_confirmed_targets": [
+      "phase1-orchestrator",
+      "phase1-memory",
+      "phase1-risk-stub",
+      "phase1-audit-log"
+    ],
+    "all_four_quiesce_diagnostics_acknowledged_confirmed_exit_verified": true,
+    "four_replacement_checks_all_true": true,
+    "replacement_check_lines": [
+      22,
+      28,
+      34,
+      40
+    ],
+    "last_runtime_operation_before_failure": {
+      "receipt_line": 42,
+      "operation": "configured_compatibility"
+    },
+    "failure": {
+      "receipt_line": 43,
+      "phase": "installation_failed",
+      "stage": "runtime_verification"
+    },
+    "replacement_start_intents": 0,
+    "query_intents": 0,
+    "recovery_target_sets": {
+      "remove_replacement_intended": [
+        "phase1-orchestrator",
+        "phase1-memory",
+        "phase1-risk-stub",
+        "phase1-audit-log"
+      ],
+      "restore_name_intended": [
+        "phase1-orchestrator",
+        "phase1-memory",
+        "phase1-risk-stub",
+        "phase1-audit-log"
+      ],
+      "restore_network_intended": [
+        "phase1-orchestrator",
+        "phase1-memory",
+        "phase1-risk-stub",
+        "phase1-audit-log"
+      ],
+      "restart_original_intended": [
+        "phase1-audit-log",
+        "phase1-risk-stub",
+        "phase1-memory",
+        "phase1-orchestrator"
+      ]
+    },
+    "final_rollback_check": {
+      "receipt_line": 61,
+      "configuration_restored": true,
+      "exact_baseline_restored": false,
+      "network_connectivity_verified": false
+    },
+    "last_overall_runtime_operation": "inventory",
+    "last_operation_interpretation": "The saved replay last_runtime_operation=inventory includes rollback inventory at line60. It must not be mistaken for the last pre-failure operation, which is configured_compatibility.",
+    "effect_limit": "Intent records alone are not independent command completion traces. Controller rollback output and the saved surviving-ID/running/configuration postcheck corroborate the recovery outcome. Earlier storage preflight effects and original restarts are not erased by the absence of replacement-start or cited-query intent.",
+    "public_private_receipt_limit": "Public receipt hash is independently checked. Byte identity to the private controller receipt is parent-reported; the private file was not read by this reviewer.",
+    "payload_limit": "Visible records contain sanitized phase/target labels, bindings, checks and result booleans; no raw token, credential, document or response payload is copied into this review."
+  },
+  "postcheck": {
+    "evidence_origin": "Parent-performed two-command read-only list/inspect capture; not repeated here",
+    "saved_rows": 11,
+    "all_seven_originals_running_same_ID_image_name": true,
+    "storage_three_startup_timestamps_unchanged": true,
+    "four_original_application_startup_timestamps_changed": true,
+    "all_eleven_configured_projections_match": true,
+    "old_four_stages_shared_captured_fields_unchanged": true,
+    "removed_four_v6b_IDs_absent_from_saved_postcheck": true,
+    "comparisons": [
+      {
+        "name": "/phase1-timescaledb",
+        "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+        "same_id_image_name": true,
+        "running": true,
+        "configured_metadata_matches": true,
+        "shared_fields_changed": [],
+        "fields_not_recaptured": [
+          "BASH_ENV_matches",
+          "ENV_matches",
+          "PYTHONPATH_matches",
+          "hostname",
+          "label_count"
+        ]
+      },
+      {
+        "name": "/phase1-qdrant",
+        "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+        "same_id_image_name": true,
+        "running": true,
+        "configured_metadata_matches": true,
+        "shared_fields_changed": [],
+        "fields_not_recaptured": [
+          "BASH_ENV_matches",
+          "ENV_matches",
+          "PYTHONPATH_matches",
+          "hostname",
+          "label_count"
+        ]
+      },
+      {
+        "name": "/phase1-minio",
+        "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+        "same_id_image_name": true,
+        "running": true,
+        "configured_metadata_matches": true,
+        "shared_fields_changed": [],
+        "fields_not_recaptured": [
+          "BASH_ENV_matches",
+          "ENV_matches",
+          "PYTHONPATH_matches",
+          "hostname",
+          "label_count"
+        ]
+      },
+      {
+        "name": "/phase1-audit-log",
+        "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+        "same_id_image_name": true,
+        "running": true,
+        "configured_metadata_matches": true,
+        "shared_fields_changed": [
+          "networks",
+          "started"
+        ],
+        "fields_not_recaptured": [
+          "BASH_ENV_matches",
+          "ENV_matches",
+          "PYTHONPATH_matches",
+          "hostname",
+          "label_count"
+        ]
+      },
+      {
+        "name": "/phase1-risk-stub",
+        "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+        "same_id_image_name": true,
+        "running": true,
+        "configured_metadata_matches": true,
+        "shared_fields_changed": [
+          "networks",
+          "started"
+        ],
+        "fields_not_recaptured": [
+          "BASH_ENV_matches",
+          "ENV_matches",
+          "PYTHONPATH_matches",
+          "hostname",
+          "label_count"
+        ]
+      },
+      {
+        "name": "/phase1-memory",
+        "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+        "same_id_image_name": true,
+        "running": true,
+        "configured_metadata_matches": true,
+        "shared_fields_changed": [
+          "networks",
+          "started"
+        ],
+        "fields_not_recaptured": [
+          "BASH_ENV_matches",
+          "ENV_matches",
+          "PYTHONPATH_matches",
+          "hostname",
+          "label_count"
+        ]
+      },
+      {
+        "name": "/phase1-orchestrator",
+        "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+        "same_id_image_name": true,
+        "running": true,
+        "configured_metadata_matches": true,
+        "shared_fields_changed": [
+          "networks",
+          "started"
+        ],
+        "fields_not_recaptured": [
+          "BASH_ENV_matches",
+          "ENV_matches",
+          "PYTHONPATH_matches",
+          "hostname",
+          "label_count"
+        ]
+      },
+      {
+        "name": "/phase1-audit-log-staged-f4e189b78ccc48acb8b92f20c4627f51",
+        "id": "bd12bc18068bc646b2726e047dc05166beba67c22b7b2afc03f0e791fed5111d",
+        "same_id_image_name": true,
+        "running": false,
+        "configured_metadata_matches": true,
+        "shared_fields_changed": [],
+        "fields_not_recaptured": [
+          "BASH_ENV_matches",
+          "ENV_matches",
+          "PYTHONPATH_matches",
+          "hostname",
+          "label_count"
+        ]
+      },
+      {
+        "name": "/phase1-risk-stub-staged-f4e189b78ccc48acb8b92f20c4627f51",
+        "id": "6a4b4246e6abf66dc186505e4f2eb00c85d19cc14bb8e41d8b1389468fbbb3d9",
+        "same_id_image_name": true,
+        "running": false,
+        "configured_metadata_matches": true,
+        "shared_fields_changed": [],
+        "fields_not_recaptured": [
+          "BASH_ENV_matches",
+          "ENV_matches",
+          "PYTHONPATH_matches",
+          "hostname",
+          "label_count"
+        ]
+      },
+      {
+        "name": "/phase1-memory-staged-f4e189b78ccc48acb8b92f20c4627f51",
+        "id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+        "same_id_image_name": true,
+        "running": false,
+        "configured_metadata_matches": true,
+        "shared_fields_changed": [],
+        "fields_not_recaptured": [
+          "BASH_ENV_matches",
+          "ENV_matches",
+          "PYTHONPATH_matches",
+          "hostname",
+          "label_count"
+        ]
+      },
+      {
+        "name": "/phase1-orchestrator-staged-f4e189b78ccc48acb8b92f20c4627f51",
+        "id": "05a288361742d9b3a26d6e0f69b7cf10d3e3e17672e01c61c9bfad072a7289ac",
+        "same_id_image_name": true,
+        "running": false,
+        "configured_metadata_matches": true,
+        "shared_fields_changed": [],
+        "fields_not_recaptured": [
+          "BASH_ENV_matches",
+          "ENV_matches",
+          "PYTHONPATH_matches",
+          "hostname",
+          "label_count"
+        ]
+      }
+    ],
+    "raw_flags_preserved": {
+      "old_stages_full_selected_rows_unchanged": false,
+      "original_preservation_mismatch_names": [
+        "/phase1-risk-stub",
+        "/phase1-memory",
+        "/phase1-orchestrator"
+      ]
+    },
+    "capture_schema_difference": {
+      "historical_fields_not_recaptured": [
+        "BASH_ENV_matches",
+        "ENV_matches",
+        "PYTHONPATH_matches",
+        "hostname",
+        "label_count"
+      ],
+      "meaning": "These five fields are unverified in the postcheck, not proven unchanged. Shared-field agreement does not turn unequal-schema full rows into byte-identical captures."
+    },
+    "IPAM_difference_proof": [
+      {
+        "name": "/phase1-risk-stub",
+        "raw_digest_mismatch": true,
+        "changing_only_IPAM_back_to_prior_restores_raw_digest": true
+      },
+      {
+        "name": "/phase1-memory",
+        "raw_digest_mismatch": true,
+        "changing_only_IPAM_back_to_prior_restores_raw_digest": true
+      },
+      {
+        "name": "/phase1-orchestrator",
+        "raw_digest_mismatch": true,
+        "changing_only_IPAM_back_to_prior_restores_raw_digest": true
+      }
+    ],
+    "IPAM_interpretation": "Risk-stub, memory and orchestrator changed from null to {} IPAMConfig. Replacing only current IPAMConfig with its saved prior representation restores each raw preservation digest; existing configured-network projection already normalizes that difference. Audit-log had {} both before and after.",
+    "health_verified": false,
+    "data_volume_contents_verified": false,
+    "byte_exact_restoration_claimed": false
+  },
+  "offline_replay": {
+    "claim_status": "SHOWN for deterministic representation mismatch, not actual runtime causation",
+    "method": "Verified all recipe input hashes, then independently recomputed the eleven comparisons and four fingerprint counterfactuals in memory using the previously read existing preservation/configuration projections. No Python replay driver, tests or native operations were run.",
+    "all_eleven_comparisons_equal_published_replay": true,
+    "all_four_model_entries_equal_published_replay": true,
+    "accepted_runtime_record": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/accepted_policy_records/runtime_review.json",
+      "sha256": "47dbeebdbdbd3cd978156f9a25d8b07027f34023ab6b0ff541f2d05cfc1ca3e6",
+      "subjects_match_replayed_draft": true
+    },
+    "models": [
+      {
+        "name": "phase1-audit-log",
+        "accepted_pin": "375f25a5b50b15b5896cf945b441db0a10ef3c87b39d179bbf8049f2f4025ef6",
+        "saved_model_network_ids": [
+          ""
+        ],
+        "accepted_pin_matches_saved_raw_model": true,
+        "known_network_binding_changes_preservation_digest": true,
+        "bound_network_model_digest": "311cb59801a7b34034408a583b62aa9dd960598cdd246622f89125fb2f6a644e",
+        "configured_projection_unchanged": true
+      },
+      {
+        "name": "phase1-risk-stub",
+        "accepted_pin": "87cd9776a0420e69c4dd07a07abff5a1f986835184c02a156ae2987868ac1bc0",
+        "saved_model_network_ids": [
+          ""
+        ],
+        "accepted_pin_matches_saved_raw_model": true,
+        "known_network_binding_changes_preservation_digest": true,
+        "bound_network_model_digest": "d83511eac8ac3a7e0196dfd611a9a23a5669fbc6b88ae5bb407e953e38c9b2f8",
+        "configured_projection_unchanged": true
+      },
+      {
+        "name": "phase1-memory",
+        "accepted_pin": "51764d6b7dbd0db3b3395f5bad99f26a39120537872a46c80d986b07f8bee297",
+        "saved_model_network_ids": [
+          ""
+        ],
+        "accepted_pin_matches_saved_raw_model": true,
+        "known_network_binding_changes_preservation_digest": true,
+        "bound_network_model_digest": "38162e4692ca026d9aa4afc3a1e5590d70d650bce488c1e9630ae41e5ab334d5",
+        "configured_projection_unchanged": true
+      },
+      {
+        "name": "phase1-orchestrator",
+        "accepted_pin": "057f8cb2a759c130ce4c3cdcb843309fbe8f2115bb47eacea3bb6f20ab256b33",
+        "saved_model_network_ids": [
+          ""
+        ],
+        "accepted_pin_matches_saved_raw_model": true,
+        "known_network_binding_changes_preservation_digest": true,
+        "bound_network_model_digest": "4a1d867d85bad80fa8345ab8b6a13ab321266041bc70a1c45511ae3dd22d0aee",
+        "configured_projection_unchanged": true
+      }
+    ],
+    "NetworkID_only_model_is_complete_corrected_fingerprint": false,
+    "IPAM_and_default_alias_limit": "IPAM null/{} differences are directly shown in restored-original rows. Default alias representation is an additional bounded final-model obligation, not a demonstrated activated-replacement alias mismatch: activated rows were not retained. Restored originals retain the same alias arrays in the supplied rows. No broader import audit follows from these network representation issues."
+  },
+  "minimum_next_offline_objective": {
+    "description": "Correct and narrowly verify the shared active-network prediction at BOTH the packet producer and companion_cutover.load_inputs, consistent with the runtime configured-compatibility representation. Do not merely swap the 132-pin records.",
+    "required_boundaries": [
+      "docs/review_artifacts/companion_worker_preparation_20261023/assemble_runtime_packet.py",
+      "scripts/research/companion_cutover.py::load_inputs",
+      "Relevant existing preservation/configured-network comparison contract; retain its strict intended identity/configuration/source predicates."
+    ],
+    "required_proof": [
+      "Use saved staged and post-rollback representations plus synthetic cases for blank/reported bound NetworkID, null/empty IPAMConfig, and explicitly characterized aliases/default-name/order/duplication behavior before any corrected fingerprint is proposed. The NetworkID-only counterfactual is not sufficient.",
+      "Show agreement across producer, strict loader and runtime compatibility for intended equivalent representations, while refusing wrong network identity, wrong container/image/source pins and materially unexpected configuration/aliases. Preserve legacy scope; do not replace strict validation with permissive matching or broadly discard alias/configuration fields.",
+      "If strictly necessary, preserve a bounded sanitized compatibility diagnostic identifying the stage/predicate class without tokens, raw environment or response/document payloads. Do not invent a historical trace for the removed activated containers.",
+      "Separate independent review of any future correction is required. The removed v6b IDs and consumed attempt cannot be reused; genuinely fresh preparation/IDs and explicit authorization would be required before any future operation."
+    ],
+    "implementation_authorized": false,
+    "new_preparation_authorized": false,
+    "native_capture_or_retry_authorized": false,
+    "new_framework_or_import_closure_audit_required": false
+  },
+  "retained_uncertainty": [
+    "The exact activated row and failed predicate/exception remain UNVERIFIED; the deterministic defect is evidence of a capable failure mechanism, not recovered causation.",
+    "Docker running status and configured-projection agreement are not health, business readiness, connectivity, volume-content preservation, byte-exact baseline restoration or profitability.",
+    "No replacement startup/health-loop/cited-query result is established. Existing process/clock/acknowledgment/cancellation/recovery limitations are not globally closed by four successful quiesce diagnostics in this attempt.",
+    "Prior acceptances remain historical and unedited. Their exact stopped IDs were consumed/removed, so the old packet is not an eligible future executable handoff."
+  ],
+  "verification": {
+    "tests_run": false,
+    "driver_executed": false,
+    "native_or_service_operations": false,
+    "credentials_read": false,
+    "reason": "Evidence/hash/static-representation review only; no source changed and no native re-observation was requested."
+  },
+  "authorization": {
+    "evidence_interpretation_only": true,
+    "source_change": false,
+    "correction_implementation": false,
+    "retry": false,
+    "marker_or_receipt_reset": false,
+    "preparation_or_build_or_create": false,
+    "health_query": false,
+    "credentials": false,
+    "startup_exec_signal_or_cutover": false,
+    "trading": false
+  },
+  "write_scope": {
+    "only_authored_artifact": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6b/independent_review.json",
+    "frozen_checkpoint_driver_evidence_worklog_old_acceptances_modified": false,
+    "one_bounded_pass": true
+  }
+}

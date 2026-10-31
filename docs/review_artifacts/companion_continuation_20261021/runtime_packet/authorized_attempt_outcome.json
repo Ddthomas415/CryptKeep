@@ -1,0 +1,55 @@
+{
+  "schema": "companion-authorized-attempt-outcome-v1",
+  "recorded_utc": "2026-10-22T02:59:16Z",
+  "attempt": "s3refresh20261021c1eaae5a",
+  "state": "INCOMPLETE",
+  "controller_output": {
+    "state": "INCOMPLETE",
+    "failure_phase": "cutover",
+    "actions_executed": true,
+    "attempt_reserved": true,
+    "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_cutovers/s3refresh20261021c1eaae5a/receipt.jsonl",
+    "running_update_complete": false,
+    "query_attempted": false,
+    "query_passed": false,
+    "receipt_complete": true,
+    "rollback_verified": false,
+    "rollback_exact_baseline": null,
+    "services_started": false,
+    "prepared_ids_preserved": false,
+    "preparation_consumed": false,
+    "unresolved_quiesce": [],
+    "unresolved_restart": [],
+    "unresolved_replacement_start": [],
+    "unresolved_replacement_cleanup": [],
+    "unresolved_creation": [],
+    "controller_failure_stage": "staged_preflight"
+  },
+  "receipt_sha256": "8ad9cd45e9754e2af84af7bdb1eba9ab5f0f1b37af4d153813f8fce3eab93c29",
+  "post_inventory_sha256": "2fa8fec71dc7879db92a9adb414765d0caafadce171c6013408882b041667c1b",
+  "post_inventory_matches_saved_selected_rows": true,
+  "selected_container_count": 15,
+  "diagnostics": {
+    "noncanonical_temp_fixture": "Local verify_cli refusal before native command; diagnostic mistake, not actual cutover cause. Actual cutover resolves its config path.",
+    "canonical_pg_version_read": {"passed": true, "elapsed_seconds": 0.081},
+    "frozen_source_hashes": {"matched": 128, "elapsed_seconds": 6.688},
+    "original_metadata_reader": {"result": "metadata_refused", "reason": "transport_command_failed", "elapsed_seconds": 0.266},
+    "original_template_error_extraction": {"inspect_exit_code": 1, "containers_selected": 27, "missing_allowlisted_fields": ["Healthcheck"], "unclassified_error": false}
+  },
+  "diagnostic_limits": [
+    "Raw stderr, source contents and credential values were not persisted by these diagnostics.",
+    "The original receipt did not capture a check-level result; a separate read-only diagnosis reproduced a failing command on its path.",
+    "The exact container lacking the optional field was not identified.",
+    "All 15 selected metadata rows matched; this is not a full-volume content audit.",
+    "No token was read again during diagnosis. No HTTP, SQL, lifecycle operation or controller retry was performed."
+  ],
+  "repair": {
+    "change": "Use (index .Config \"Healthcheck\") instead of .Config.Healthcheck, preserving null when absent.",
+    "adapter_sha256": "e7315cd9047f656afca0b3845be54629c46c80c9a20065d8646978dce20fce38",
+    "tests_sha256": "3ca8318be5ecda58f5ea6e758ba18720f6ed23e2adc6dcf4b3765e50d85f8c8b",
+    "targeted_result": "188 passed in 1.93s",
+    "runtime_tested": false,
+    "state": "READY_FOR_INDEPENDENT_REVIEW"
+  },
+  "next_boundary": "No automatic retry. Preserve consumed attempt and all prepared IDs. Repaired code requires independent review and refreshed code bindings before any separately authorized new operational attempt."
+}

@@ -1,0 +1,212 @@
+{
+  "schema": "companion-fresh-preparation-input-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Prospective v6c stopped-preparation plan input acceptance only. This accepts neither runtime policy nor execution, build, credential copy, container creation or service operation.",
+  "runtime_status": "INCOMPLETE",
+  "blocking_findings": [],
+  "material_assumptions": [],
+  "source_and_artifact_sha256": {
+    "docs/checkpoints/companion_fresh_preparation_v6c_20261023.md": "c77a09ec43850c86e937b0406e1e9bdc7274bd32432d19d175c5cd6d122e3e9a",
+    "docs/review_artifacts/companion_worker_preparation_20261023/derive_fresh_preparation.py": "bb5854132df93d2e055a98358e581fc4a8ab7c16db2f98e7048e51a29d63544e",
+    "tests/test_companion_fresh_preparation.py": "87559db1046343b45e90c2e93ee4c3e95d0e88afa2810254bf52c857d1af1d39",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/candidate_manifest.json": "481de681cd6f667c03e54d48ebb262ccb9c6cc5a22b21dda68bac7d7f9d853af",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/provenance.json": "b2d6496eff557543b3b7464bb0d0ebc044a502445a80c1d585f5e1c1e871ef1b",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_baseline_v6c_native/observation.json": "61ebef99a9053815450d1b2eab5e6f751b89c2a1f8d762f8210fe1b8ee8087b6",
+    "docs/review_artifacts/companion_worker_preparation_20261023/active_network_correction/independent_review.json": "0484cdde9dec89b2a22f91aa4082cbe2782caa10318b5ad027363a6feac9bacc",
+    "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/reviewed_preparation_manifest.json": "67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/provenance.json": "6438a9aa91a1cdc5dafcd266a0f66e00cd1ce08a401a23d63e955c3ee56852f9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b_launcher/staged_metadata.derived.json": "ca7101c34446f7b04cc0e1c08dcfcba2026e197d3cecbedb8de13e3cf70118e8"
+  },
+  "consumer_sha256": {
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "4c684b1766fcb2e21b3dc1c03cbe5aa607694f63b9d64c512a19ad6c11792b17",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "dcc33a6d454c7d6f9970103ad331d97cd88f2a8023f321cd381a729d2e05f7c7",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+  },
+  "inherited_correction": {
+    "review_sha256": "0484cdde9dec89b2a22f91aa4082cbe2782caa10318b5ad027363a6feac9bacc",
+    "bound_hashes_independently_checked": 19,
+    "scope": "Accepted offline correction only, with all prior limits; no runtime applicability or operational authority inherited."
+  },
+  "derivation": {
+    "classification": "SHOWN",
+    "input_hashes_verified": 5,
+    "consumer_hashes_verified": 13,
+    "consumer_changes_from_prior_packet": [
+      "scripts/research/companion_cutover.py",
+      "scripts/research/companion_installer.py",
+      "scripts/research/companion_network_configuration.py",
+      "scripts/research/companion_runtime_adapter.py"
+    ],
+    "consumer_change_constraint": "Only the four sources accepted in the active-network correction changed. All other consumer bindings unchanged.",
+    "local_application_source_entries_verified": 43,
+    "candidate_reproduced_exact_canonical_bytes": true,
+    "candidate_final_newline": false,
+    "manifest_changed_fields_from_previous": [
+      "attempt",
+      "decision",
+      "reviewer",
+      "baseline"
+    ],
+    "applications_unchanged": true,
+    "commands_options_policies_sources_predictions_unchanged": true,
+    "modeled_predictions_independently_recomputed": 4,
+    "baseline_rows_independently_reconstructed": 7,
+    "baseline_deltas": [
+      {
+        "changed_fields": [],
+        "name": "phase1-timescaledb"
+      },
+      {
+        "changed_fields": [],
+        "name": "phase1-qdrant"
+      },
+      {
+        "changed_fields": [],
+        "name": "phase1-minio"
+      },
+      {
+        "changed_fields": [
+          "started"
+        ],
+        "name": "phase1-audit-log"
+      },
+      {
+        "changed_fields": [
+          "started",
+          "metadata"
+        ],
+        "name": "phase1-risk-stub"
+      },
+      {
+        "changed_fields": [
+          "started",
+          "metadata"
+        ],
+        "name": "phase1-memory"
+      },
+      {
+        "changed_fields": [
+          "started",
+          "metadata"
+        ],
+        "name": "phase1-orchestrator"
+      }
+    ],
+    "original_ids_images_restart_counts_foundations_configured_hashes_preserved": true,
+    "full_selected_observations_equal": true,
+    "all_observed_network_ids_match_reviewed_binding": true,
+    "reproduction_method": "Independent in-memory JavaScript reconstruction of the previously inspected raw preservation and configured projection algorithms, plus canonical candidate comparison. The Python recipe is exercised only by the nine authorized synthetic tests.",
+    "old_removed_ids_adopted": false,
+    "new_container_ids": null,
+    "new_image_ids": null
+  },
+  "observation": {
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/fresh_baseline_v6c_native/observation.json",
+    "sha256": "61ebef99a9053815450d1b2eab5e6f751b89c2a1f8d762f8210fe1b8ee8087b6",
+    "observed_utc": "2026-10-23T19:23:45.869706+00:00",
+    "legacy_capture_state": "INCOMPLETE",
+    "legacy_baseline_ids_images_states_match": false,
+    "interpretation": "The legacy collector expected exited containers and remains INCOMPLETE. The new proposal checks each of the seven expected original IDs/images as running, with unchanged restart count, foundation and configured fingerprint. The original collector status and false aggregate are preserved, not converted to accepted runtime proof.",
+    "metadata_complete_for_selected_fields": true,
+    "two_full_selected_rows_equal": true,
+    "cli_sha256_recorded": "678271184175b40dfc4bd6f4582be00ae1538b0d1e031181f52ceedfae9af5fb",
+    "native_signature_check": "CLAIMED in the pinned checkpoint: native codesign verify strict exit 0 with unchanged CLI hash following sandbox signature/socket failures. Reviewer did not execute codesign, inspect Docker or independently reproduce native capture.",
+    "native_capture_attribution": "Actual selected metadata capture was performed by parent. This reviewer evaluated saved bytes only."
+  },
+  "attempt": {
+    "value": "workerprep20261023v6c",
+    "marker_paths_checked_absent": [
+      ".cbp_state/runtime/companion_preparations/workerprep20261023v6c",
+      ".cbp_state/runtime/companion_cutovers/workerprep20261023v6c"
+    ],
+    "reserved_by_reviewer": false,
+    "limit": "Read-only ledger-path absence is not reservation, container-name availability proof, or permission. Existing atomic reservation and fresh operational preflight remain mandatory. All consumed v6a/v6b records and removed IDs retain historical status."
+  },
+  "verification": {
+    "environment": "VERIFIED_ENV for isolated local synthetic tests only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_fresh_preparation.py",
+    "exit_code": 0,
+    "passed": 9,
+    "failed": 0,
+    "elapsed_seconds": 0.23,
+    "parent_result": {
+      "classification": "CLAIMED by parent and recorded in checkpoint; independently confirmed passing cases",
+      "passed": 9,
+      "elapsed_seconds": 0.25
+    },
+    "limits": "Only these nine cases ran. Tests forbid subprocess/native invocation and network connections. No broad suite, native capture, credentials, service/lifecycle action, generator main command or preparation CLI was executed by reviewer."
+  },
+  "accepted_derivative": {
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/reviewed_preparation_manifest.json",
+    "sha256": "e20775accd2ea02ac16d258ead2fb58e5ba1b6d26ff003ba10492dc6d442b6b9",
+    "from_candidate_sha256": "481de681cd6f667c03e54d48ebb262ccb9c6cc5a22b21dda68bac7d7f9d853af",
+    "semantic_changed_fields": [
+      "decision",
+      "reviewer"
+    ],
+    "decision": "ACCEPTED_WITH_RISK",
+    "reviewer": "Independent GATE; v6c preparation plan inputs only; no operation authorization",
+    "encoding": "UTF-8, lexicographically sorted compact canonical JSON, exactly one final LF. Frozen candidate has no final LF.",
+    "input_acceptance_only": true
+  },
+  "remaining_limits": [
+    {
+      "classification": "SHOWN",
+      "detail": "The evidence is a selected seven-original metadata snapshot at the stated time, not current continuous observation, a full-daemon census, collision-free future staging proof, or a reservation."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "detail": "Future image IDs, container IDs, copied source witnesses and complete actual alias configuration do not exist in this proposal. Replacement configured predictions remain MODELLED. Exact fresh-ID/image/source/alias review is required after any separately authorized stopped preparation."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "detail": "Docker running flags do not establish healthy services, stored-volume/data integrity, recipient connectivity, successful explanation/citations or economic behavior. No live verification was performed by reviewer."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "Sandbox signature/socket failures and the legacy capture INCOMPLETE status remain recorded. No daemon defect, permission repair or reviewer-native verification is inferred."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "detail": "Previously disclosed worker shutdown limits, including clock coherency and installed pidfd behavior, are not refreshed or waived by new metadata. Exact historical runtime-failure predicate remains unverified."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "Future stopped preparation retains the existing 300-second controller budget including 120-second recovery reserve, not a whole-command hard deadline. Build cache, private configuration or logs may persist even with owned-new-stage cleanup. No changed recovery or cleanup policy is accepted here."
+    },
+    {
+      "classification": "SHOWN",
+      "detail": "Fresh preflight, exact CLI/source/configuration checks, atomic unused-attempt reservation, explicit human operational approval and later exact-ID review remain required. No old approval, runtime policy or consumed attempt is refreshed by this derivative."
+    }
+  ],
+  "authorization": {
+    "runtime_policy_acceptance": false,
+    "preparation": false,
+    "build": false,
+    "credential_access_or_copy": false,
+    "container_create": false,
+    "startup": false,
+    "cutover": false,
+    "query": false,
+    "trading": false,
+    "retry": false,
+    "reservation_reset": false
+  },
+  "reviewer_changes": [
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/independent_review.json",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6c/reviewed_preparation_manifest.json"
+  ],
+  "frozen_inputs_sources_tests_checkpoint_and_old_records_modified": false
+}

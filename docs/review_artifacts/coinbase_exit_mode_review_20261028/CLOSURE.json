@@ -1,0 +1,19 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "offline original Fix2 source-gap evidence and correction of original Fix3 task identity; no production repair",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1841e-dd7f-7d73-89fe-5c9f1037dbc0",
+  "independent_verification": {
+    "passed": 8,
+    "seconds": 0.19,
+    "material_evidence_defects": 0
+  },
+  "tests_sha256": "08577352cec3a03220b610dcbf1611226f468b1eceec8184ae730abcf0328b02",
+  "submitted_bindings_sha256": "df14803a80ac6142ff0448a5c1ee0e4b7a497aa98d37c9d8730216e4d7c1467b",
+  "submitted_checkpoint_sha256": "d796fdea5d7f8c2bea79bbeef9792509382300e83c73fb46ff4397ae14292c9a",
+  "checkpoint_sha256": "c90ddbba2998d2c1a82308fbf6885165294947d72b08e0d814ac34a20c547130",
+  "production_source_changed": false,
+  "exit_policy_adopted": false,
+  "original_fix2_repair": "INCOMPLETE",
+  "original_fix3_funding_rate_repair": "INCOMPLETE"
+}

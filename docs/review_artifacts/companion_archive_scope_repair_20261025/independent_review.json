@@ -1,0 +1,89 @@
+{
+  "schema": "companion-archive-probe-scope-independent-review-v1",
+  "date": "2026-10-25",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Narrow offline implementation repair and synthetic regression proof only. No runtime acceptance, packet approval, attempt authorization, retry or operation authorization.",
+  "runtime_state": "INCOMPLETE",
+  "blocking_findings": [],
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "integrity": {
+    "classification": "SHOWN",
+    "method": "Read complete report and diff. Parsed tar members in memory without extraction; hashed each prior member and each of the 13 report-bound current inputs. Independently regenerated unified diff for all four prior files and the added test file; exact byte-text agreement with repair.diff.",
+    "backup_member_count": 4,
+    "backup_member_hashes_match_report": true,
+    "source_and_input_binding_count": 13,
+    "all_13_current_bindings_match_report": true,
+    "diff_exactly_matches_backup_to_current": true,
+    "artifacts": {
+      "docs/review_artifacts/companion_archive_scope_repair_20261025/report.json": "7ff14e8f8f46ee30aa17d526fe670c01bd952dd54155fdc517447d05207dfd6d",
+      "docs/review_artifacts/companion_archive_scope_repair_20261025/repair.diff": "dadea0055a3ab6475b2e5c5310e397d55fd633ed1b24e39295162bcf350b5634",
+      "docs/review_artifacts/companion_archive_scope_repair_20261025/pre_change_sources.tar": "a02dd1774b91a448335589bef015184b6fb64dfa718a71fd0baee151dd48b5d3"
+    },
+    "reviewed_changed_files_sha256": {
+      "phase1_research_copilot/memory_retrieval/article_view.py": "b9543070bbfa3d75999a3cf980d5fba58e880a6cd093c9165305a5124a70cd8f",
+      "phase1_research_copilot/memory_retrieval/main.py": "28dc4f1b496437be2d3e1273b4910515b8342a0d57b939f849a6a49da09322d1",
+      "scripts/research/companion_installer.py": "e9fd8a144de54bf277e2c5812110dda9cc8cf0a7d1bb6fc85707b188f3174d38",
+      "tests/test_companion_probe_policy.py": "2c9970e7822170aa695ea8e2775ac4fb650f35f0bbb4606837e1349eb9b91517",
+      "tests/test_companion_archive_probe_scope.py": "cfe38caf5eda06c28570e4e52bc003edfc6742920013c20dff090bffa267ebee"
+    },
+    "remaining_input_hash_ledger": "The eight other input paths and hashes, including unchanged verifier, archive, witness approvals, dashboard signals and prior runtime evidence, are bound by the exact report.json hash above; all were independently recomputed and matched. These are integrity checks, not a renewed content audit of those inputs."
+  },
+  "assessment": [
+    {
+      "classification": "SHOWN static and reproduced synthetically",
+      "subject": "Ordinary capability preserved",
+      "evidence": "article_view.py:10-40 factors the prior CTE into repair/live fragments. Byte-identical ordinary CTE is independently exercised by test_ordinary_sql_is_byte_identical_and_frozen_union_is_absent against the hash-bound prior source. Ordinary retrieval still uses the live UNION, and missing archive remains permitted when ordinary configuration does not require it. Exact backup comparison shows no changes to SQL predicates, ordering, limits, query parameters, article lineage/body checks, evidence verifier or witness criteria. The existing ASGI flow test remains and now supplies an archived synthetic fixture appropriate to the strict probe contract."
+    },
+    {
+      "classification": "SHOWN static and reproduced synthetically",
+      "subject": "Frozen SQL universe before document ranking and limits",
+      "evidence": "article_view.py:113-124 rejects non-bool scope values and selects FROZEN_CTE before wrapping the requested SELECT. main.py:355-386 fails closed on missing probe archive and routes recent, past, future, vector-hydration and lexical SQL through document_fetch. All five document SQL queries therefore select from the frozen relation before their own SQL ordering/limits. Same-statement lineage_ok still gates results, including empty results. Synthetic ASGI tests exercise all five routes, exclude live-only ID 9001, and pass the actual fallback response builder output through the unchanged pure evidence evaluator."
+    },
+    {
+      "classification": "SHOWN static and reproduced synthetically",
+      "subject": "Bounded secret-free diagnostic before acceptance",
+      "evidence": "companion_installer.py:418-440 records only fixed outcome codes, a shape boolean, five fixed-name literal booleans and fixed false-meaning text. No raw return values, extra keys or exception text enter the new diagnostic. Invalid result shape and false checks still fail the unchanged _all_true gate. Verification exceptions emit exception_or_timeout and re-raise; no retry is added. Diagnostic write failure prevents query success and triggers existing rollback; the synthetic regression confirms receipt_complete false and rollback_verified true. A diagnostic record means evaluation status, not acceptance of a successful explanation."
+    },
+    {
+      "classification": "SHOWN static; partial synthetic recovery coverage",
+      "subject": "Deadline, cancellation and rollback boundaries preserved",
+      "evidence": "Existing _runtime_call and _record share bounded remaining work time; the new receipt write does not extend work or recovery deadlines. ProcessExecutor retains child BaseException-to-fixed-failure conversion and its finally cleanup. Installer retains finally rollback for changed unsuccessful installs at lines 794-796. No new BaseException suppression, service operation, rollback predicate or health claim is added. External parent cancellation may still propagate without the new diagnostic; no fresh signal-injection or native cancellation proof was performed. Existing synthetic query-timeout/recovery tests passed in the independent slice."
+    }
+  ],
+  "nonblocking_limits": [
+    {
+      "classification": "SHOWN",
+      "subject": "Vector candidate limit is not archive-scoped at Qdrant",
+      "detail": "The unchanged Qdrant search limits vector candidates before frozen SQL hydration. All five document SQL queries are scoped before their SQL limits, but this must not be overstated as archive-filtered vector ranking or guaranteed frozen recall. Out-of-snapshot candidates can underfill vector results; frozen hydration excludes them. No ranking relaxation or relevance improvement is claimed."
+    },
+    {
+      "classification": "UNVERIFIED",
+      "subject": "Historical first failure and deployed repair",
+      "detail": "Synthetic success does not establish V6e's exact original first predicate, actual PostgreSQL execution, current installed source, operational health, connectivity, or a successful cited runtime explanation. The grouped exception_or_timeout outcome intentionally does not identify the exception or failing remote predicate."
+    }
+  ],
+  "proof": {
+    "environment": "VERIFIED_ENV for clean-environment local synthetic tests; not runtime verification",
+    "independent_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_archive_probe_scope.py tests/test_companion_probe_policy.py tests/test_companion_running_update.py",
+    "independent_result": {"classification": "SHOWN", "exit_code": 0, "passed": 124, "seconds": 2.91, "warnings": 140, "warning_type": "FastAPI on_event deprecation"},
+    "new_case_count": 22,
+    "parent_five_file_result": {"classification": "CLAIMED in hash-bound report; not independently rerun", "passed": 285, "seconds": 13.29},
+    "parent_red_probe": {"classification": "CLAIMED; not independently reproduced", "result": "2 failed / 1 passed; separate scaffolding failures not counted as behavioral proof"},
+    "test_boundaries": "Reviewed synthetic fixture replaces settings, storage and HTTP transport; no service lifespan started. New file blocks subprocess launch and network connections. No real DB, Docker, token, native CLI, service or runtime operations were performed. No full suite."
+  },
+  "read_scope": {
+    "complete": ["report.json", "repair.diff including all changed and added test hunks"],
+    "selected_current_context": ["phase1_research_copilot/memory_retrieval/main.py:330-545", "phase1_research_copilot/memory_retrieval/article_view.py:10-40,113-124", "scripts/research/companion_installer.py:250-288,405-445,775-800", "scripts/research/companion_existing_controller.py:85-180", "tests/test_companion_probe_policy.py:1-165", "tests/test_companion_running_update.py:1-105", "phase1_research_copilot/shared/probe.py (complete)"],
+    "backup": "All four tar member contents parsed and compared to current sources; unchanged source bodies not presented as a full semantic reaudit."
+  },
+  "constraints": {
+    "only_write": "docs/review_artifacts/companion_archive_scope_repair_20261025/independent_review.json",
+    "no_source_test_or_worklog_edits": true,
+    "no_old_sdk_reaudit": true,
+    "old_packets_invalidated": "The three changed production source hashes invalidate prior source/consumer-bound runtime packets. This review does not rebind them or permit reuse of a consumed attempt.",
+    "next_gate": "Any runtime proof requires a separately reviewed fresh packet and explicit authorization. Runtime remains INCOMPLETE; no operation follows from this offline acceptance."
+  }
+}

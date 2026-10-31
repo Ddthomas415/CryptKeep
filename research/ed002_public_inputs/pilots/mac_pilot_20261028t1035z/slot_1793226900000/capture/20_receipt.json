@@ -1,0 +1,14 @@
+{
+  "bytes": 208,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "20_PEPE.bin",
+  "http_date": "Wed, 28 Oct 2026 22:35:05 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793226905119,
+  "request_started_ms": 1793226905035,
+  "sha256": "8a86fa08c57d4b31744da069ec529747728ff95a3ca89ed7a84f45a092487cf4",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/PEPE-USD/candles?granularity=3600&start=2026-10-28T20%3A00%3A00%2B00%3A00&end=2026-10-28T22%3A00%3A00%2B00%3A00"
+}

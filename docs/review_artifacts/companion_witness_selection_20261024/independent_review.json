@@ -1,0 +1,81 @@
+{
+  "schema": "companion-witness-selection-independent-review-v1",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Offline witness-selection diagnosis only; no production correction or operation approval.",
+  "operational_authorized": false,
+  "runtime_status": "INCOMPLETE",
+  "source_and_artifact_sha256": {
+    "docs/review_artifacts/companion_witness_selection_20261024/report.json": "3c704f6047f830940d9f55644ab9e2cdd64befa22c1147d1150d5fa18cf52ad0",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/receipt.jsonl": "0ca55ea24bf18b7ff5442d974267497de00f2f3a5e2af1c372459f35aa43b1a9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+    "phase1_research_copilot/memory_retrieval/article_view.py": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+    "phase1_research_copilot/memory_retrieval/main.py": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228",
+    "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "phase1_research_copilot/shared/tools.py": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+    "research/companion_article_body_v1_20261011_gd1abqx9/derived_article_body_v1.json": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+    "research/companion_article_body_v1_20261011_gd1abqx9/manifest.json": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "research/companion_article_body_v1_20261011_gd1abqx9/query_comparison.json": "88bb8e5a79d711d4339807e34caed4f3b20d89308c3eb4eb13300e397911fb5b",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "tests/test_companion_archive_contract.py": "008ddcd18b823db98b1d64d57d85c90cb47a1e753cf7341bc4a4935e86e2900c",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f",
+    "tests/test_companion_witness_selection.py": "99c52a5e0b6448b09144a426cff5be1d1b30c24f83f6ca3178453f7be79ee68f"
+  },
+  "supplemental_executed_normalizer_sha256": {
+    "dashboard/services/views/_shared_signals.py": "d003edac94edbb7d7886901784674e23ed9accae2d42bd69c0a7f6fbc0c9e381",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556"
+  },
+  "verification": {
+    "classification": "SHOWN",
+    "report": "Pinned SHA256 matches request; report exactly reproduced as a JSON structure using existing synthetic fixtures.",
+    "bindings": "All 15 source/input pins verified. Saved manifest file_sha256.query_comparison.json binds the exact comparison bytes. Supplemental dashboard normalization hashes match the accepted corrected guard context.",
+    "tests": {
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -c 'import json, pytest; from pathlib import Path; from tests.test_companion_witness_selection import build_report\nwith pytest.MonkeyPatch.context() as mp:\n actual = build_report(mp)\n expected = json.loads(Path(\"docs/review_artifacts/companion_witness_selection_20261024/report.json\").read_text())\n assert actual == expected, \"report_not_reproducible\"\n print(\"Frozen report exactly reproduced (JSON structure)\", flush=True)\nraise SystemExit(pytest.main([\"--noconftest\", \"-c\", \"/dev/null\", \"-p\", \"no:cacheprovider\", \"-q\", \"tests/test_companion_witness_selection.py\"]))'",
+      "exit_code": 0,
+      "output": "Frozen report exactly reproduced (JSON structure)\n....                                                                     [100%]\n4 passed in 0.20s",
+      "environment": "VERIFIED_ENV for isolated offline fixtures: env cleared, bytecode/cache/conftest/plugin autoload disabled; fixture forbids sockets and subprocess operations. No Docker, HTTP, Settings, token, DB or application startup invoked."
+    }
+  },
+  "findings": [],
+  "shown": [
+    {
+      "claim": "Saved-order projection, not recomputed rank",
+      "detail": "The unique saved Bitcoin liquidations row orders [25,5,47,18,7]. Membership filtering against body_verified saved rows removes only25 and preserves [5,47,18,7]. Saved lexical ranks are copied, not recomputed."
+    },
+    {
+      "claim": "Probe request capacity and original question",
+      "detail": "The extracted existing coroutine with immediate fake transport sends original question What news explains Bitcoin liquidations?, BTC, lookback_minutes60 and limit3; it does not request a document ID. Risk is a synthetic disabled response, not a service observation.",
+      "source": "phase1_research_copilot/shared/tools.py:200-215"
+    },
+    {
+      "claim": "Independent builder clipping",
+      "detail": "Existing evidence and headline builders clip lexical inputs to first3. Supplying all4 projected rows still cites only[5,47,18], omitting witness7; combined fixture fails. Supplying only[7] passes as an existing positive control.",
+      "source": "phase1_research_copilot/orchestrator/main.py:156 and :456"
+    },
+    {
+      "claim": "No approval or production mutation demonstrated by this diagnosis",
+      "detail": "Bound production/query/evidence/approval/archive inputs match prior frozen hashes; the new diagnosis exercises existing helpers. Only this independent review is authored by the reviewer."
+    }
+  ],
+  "interpretation_limits": [
+    "The saved October11 normalized-query order is not current SQL, ts_rank_cd, temporal filtering or exact V6d ranking. The original-question probe request and normalized saved row are distinct evidence lanes.",
+    "The all-four fixture proves citation clipping when the tail witness is supplied; it does not show that live retrieval returned witness7 or that clipping caused the historical failure.",
+    "The first-three request limit alone is not a sufficient correction: builder citation/title clipping is a separate demonstrated boundary.",
+    "All-false evidence maps are the existing verifier refusal representation, not five independently diagnosed predicate failures.",
+    "AST extraction, immediate fake transport, synthetic risk responses and saved original rows do not establish full imports, HTTP, live persistence, startup or runtime readiness.",
+    "Historical response prose/types are absent; actual V6d cause and causal relevance remain UNVERIFIED. No profitability proof."
+  ],
+  "recommendation": {
+    "scope": "Next minimal offline contract/design step; not implementation authorization.",
+    "direction": "Define and test a consistent bounded retrieval-to-citation evidence-selection contract so a supplied support-bearing candidate is not silently lost solely to an independent citation cap. Reconcile retrieval and builder budgets and make unsupported/truncated outcomes explicit, retaining the unchanged topical/content/identity verifier. Do not force document7 into ranking, add approvals, or treat body verification/keyword rank as topical support.",
+    "required_proof": "Adversarial offline cases for support inside/outside the citation budget and no supported candidate; refusal must remain when retained citations lack approved support."
+  },
+  "parent_result": {
+    "classification": "CLAIMED",
+    "result": "36 passed in1.15s four-file slice; not independently repeated."
+  },
+  "remaining_authority": "No production source change, witness approval, preparation, runtime policy, retry, service, query, token or trading operation is granted."
+}

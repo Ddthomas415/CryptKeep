@@ -1,0 +1,180 @@
+{
+  "schema": "companion-v6b-uvicorn-launcher-independent-review-v1",
+  "review_date": "2026-10-23",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "decision": "INCOMPLETE",
+  "capture_evidence_decision": "ACCEPTED_WITH_RISK",
+  "R1_source_and_static_bridge_decision": "ACCEPTED_WITH_RISK",
+  "runtime_pin_integration_decision": "INCOMPLETE",
+  "scope": "Narrow review of the four authorized launcher-source captures and the R1 static startup bridge; exact-path runtime-pin support is identified separately, not implemented or approved for execution",
+  "runtime_state": "INCOMPLETE",
+  "checkpoint": {
+    "path": "docs/checkpoints/companion_uvicorn_launcher_capture_20261023.md",
+    "sha256": "92247d1eea1b15eaefa713940a67914aaa70626690b80736bb5fd223148c3a64",
+    "read_fully": true
+  },
+  "driver": {
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/capture_uvicorn_launcher.py",
+    "sha256": "b059e2b263b105b65fb3ca6bee9c682f26b4975d865c96384923dd649b336f7c",
+    "matches_checkpoint": true,
+    "executed_by_reviewer": false
+  },
+  "report": {
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/launcher_capture/report.json",
+    "sha256": "5e1f397376c0e2f4ff1617b5881accb70baf5202ef35bfe2b7bfdf2e58d36d32",
+    "matches_requested_hash": true,
+    "evidence_origin": "Parent-performed one-use native read-only capture; reviewer independently checked saved bytes, bindings, source and comparisons, not live Docker state",
+    "state": "READY_FOR_INDEPENDENT_REVIEW",
+    "commands_completed": 6,
+    "elapsed_seconds": 0.30296616698615253,
+    "overall_bound_seconds": 120,
+    "per_command_bound_seconds": 15,
+    "container_exec": false,
+    "container_lifecycle": false,
+    "credential_access": false,
+    "runtime_authorized": false
+  },
+  "input_sha256": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_b/staged_metadata.json": "28256b005e8414a542f3f894cff1cc285b095d2b42cf9398980e8496f847d198",
+    "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/reviewed_preparation_manifest.json": "67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/independent_review.json": "b8e72a553264b02357b6ccd569b82551fd016b0c4d3e1c151259bfe3be78e33a",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/subjects.draft.json": "afadff45eafff21a102c0d4a9ba153e30b248d79f480540a976669f9b852d8dd"
+  },
+  "all_four_input_hashes_match": true,
+  "payload_sha256": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/launcher_capture/phase1-audit-log.__main__.py.source.txt": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554",
+    "docs/review_artifacts/companion_worker_preparation_20261023/launcher_capture/phase1-risk-stub.__main__.py.source.txt": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554",
+    "docs/review_artifacts/companion_worker_preparation_20261023/launcher_capture/phase1-memory.__main__.py.source.txt": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554",
+    "docs/review_artifacts/companion_worker_preparation_20261023/launcher_capture/phase1-orchestrator.__main__.py.source.txt": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554"
+  },
+  "capture_checks": {
+    "claim_status": "SHOWN",
+    "four_separate_subject_bound_payloads": true,
+    "payloads_byte_identical": true,
+    "each_size_bytes": 62,
+    "each_sha256": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554",
+    "source_path": "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py",
+    "subject_checks": [
+      {
+        "name": "phase1-audit-log",
+        "container_id": "6ed099d9dc9871eaa1ea701eeda488c5b47b5d954dbbca920e527a2397b795e3",
+        "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+        "selected_before_after_and_prior_metadata_equal": true,
+        "created_never_started_zero_restarts": true,
+        "source_path": "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py",
+        "size_bytes": 62,
+        "sha256": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554"
+      },
+      {
+        "name": "phase1-risk-stub",
+        "container_id": "6ecdea955efebb6afa265f7f620d18bb119d78a6e19030cece9f9a8294f41fa6",
+        "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+        "selected_before_after_and_prior_metadata_equal": true,
+        "created_never_started_zero_restarts": true,
+        "source_path": "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py",
+        "size_bytes": 62,
+        "sha256": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554"
+      },
+      {
+        "name": "phase1-memory",
+        "container_id": "a0f4a77087bd33167692c5326a1a8183774c099a5128e93fa8268554cfab2c49",
+        "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+        "selected_before_after_and_prior_metadata_equal": true,
+        "created_never_started_zero_restarts": true,
+        "source_path": "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py",
+        "size_bytes": 62,
+        "sha256": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554"
+      },
+      {
+        "name": "phase1-orchestrator",
+        "container_id": "c672b553761f4c780881be0a4e50de6a2c2c9c139473bf85202a8e54dfa358c1",
+        "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+        "selected_before_after_and_prior_metadata_equal": true,
+        "created_never_started_zero_restarts": true,
+        "source_path": "/usr/local/lib/python3.11/site-packages/uvicorn/__main__.py",
+        "size_bytes": 62,
+        "sha256": "0d08b3cba9ca3f4cb084fa6708782644360831f72a64a544ccd2164198eab554"
+      }
+    ],
+    "before_after_selected_rows_identical": true,
+    "selected_rows_equal_prior_accepted_staged_rows": true,
+    "all_four_created_never_started_zero_restarts": true,
+    "tar_source_review": "Driver admits one regular fixed-basename __main__.py member, 1..65536 bytes, rejects links/additional nonzero members, reads bounded tar bytes in memory and never extracts a tar to disk. Raw tar streams were not independently recaptured or reparsed by this reviewer.",
+    "command_scope": "One fixed four-ID sanitized inspect, four fixed-path container cp reads, same inspect; explicit bounded _run calls with input_bytes=None, fixed endpoint, empty temporary Docker configuration and fixed PATH environment. No exec/start/import/signal/service command is present in that capture sequence.",
+    "runtime_guard_not_relaxed": "The existing transport file hash remains 817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5. This separate expressly authorized helper did not change _path or grant general transport authority."
+  },
+  "R1_resolution": {
+    "claim_status": "SHOWN for captured source and narrow static characterization only",
+    "prior_review_path": "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6b/independent_review.json",
+    "prior_review_sha256": "b8e72a553264b02357b6ccd569b82551fd016b0c4d3e1c151259bfe3be78e33a",
+    "prior_review_modified": false,
+    "missing_launcher_bytes_now_supplied_for_all_four_exact_ID_image_bindings": true,
+    "source": "import uvicorn\n\nif __name__ == \"__main__\":\n    uvicorn.main()\n",
+    "static_behavior": "The captured module imports the existing Uvicorn package and, under __main__, makes one call to its exported main with no explicit arguments. The shim contains no extra retry loop, proxy/redirect configuration, worker/reload/port override, environment access, subprocess or network operation of its own.",
+    "bridge_to_cached_scope": "The existing accepted captures characterize the Uvicorn CLI/configuration/importer/server/lifespan and restricted application/client profile. The pinned cached uvicorn/main.py itself already imports the same package. This small shim supplies the previously missing module-entry source; it does not introduce a separate implementation of the server or change the restricted policy meanings.",
+    "cached_CLI_source": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/2_uvicorn_main.py",
+      "sha256": "8afea9b600c19e4a345be5641ecd1edc8e14ac5effe6c119ae7b5034a24614d6",
+      "matches_prior_accepted_source_pin": true
+    },
+    "narrow_R1_source_evidence_gap_closed": true,
+    "further_source_capture_required_for_this_narrow_shim_review": false,
+    "limits": "No live import, module-origin resolution, callable binding, SDK initialization or startup was executed or proved. The statement that the shim calls uvicorn.main is source characterization, not an observed assertion that runtime attribute resolution succeeded. Existing fresh installed-source/namespace/configuration checks remain required. No exhaustive package/import-closure or effect-free-startup claim is made."
+  },
+  "remaining_integration_item": {
+    "id": "I1",
+    "claim_status": "SHOWN by the current static path predicates",
+    "scope": "Separate prospective offline exact-path transport/pin integration, not missing launcher capture",
+    "source_file": "scripts/research/companion_docker_transport.py",
+    "source_sha256": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5",
+    "evidence": "At _FILES lines35-42 the fixed Uvicorn files omit __main__.py. _SOURCE accepts only /app paths; _SDK lines30-33 enumerates other SDK packages and excludes uvicorn. Therefore _path lines54-58 refuses this exact site-packages launcher path.",
+    "consequence": "The captured source cannot yet be included in the normal mandatory installed-source verification flow without hitting the current fail-closed path guard. The old 128-pin draft does not bind it merely because this new capture exists.",
+    "minimal_prospective_delta": [
+      "Add only /usr/local/lib/python3.11/site-packages/uvicorn/__main__.py to the existing exact _FILES set, preserving all other path/secret/ID/limit/authorization gates; do not broaden _SDK to all Uvicorn files or bypass _path in the runtime flow.",
+      "Bind the captured hash at this path in each of the four application subjects and require those four entries in the refreshed v6b packet validation. This is four additional subject pins, 128 to132, not replacement or relabeling of the existing source evidence.",
+      "After separate offline implementation/verification/review, refresh the affected consumer hash and derived packet/dependency/scope bindings. Preserve the old frozen draft/review records rather than mutating historical approvals."
+    ],
+    "adapter_coverage_limit": "Current _source_coverage checks application files and certain SDK directory presence; it does not itself require this launcher file. No broad adapter rewrite is established as necessary: the refreshed v6b producer/packet must explicitly require these four new entries.",
+    "implemented_or_authorized": false,
+    "accepted_policy_or_runtime_derivative_records_authored": false
+  },
+  "preserved_evidence": {
+    "existing_subjects_sha256": "afadff45eafff21a102c0d4a9ba153e30b248d79f480540a976669f9b852d8dd",
+    "existing_subject_source_pin_count": 128,
+    "existing_43_source_witness_path": "docs/review_artifacts/companion_worker_preparation_20261023/actual_b/source_postcheck.json",
+    "existing_43_source_witness_sha256": "bd95a3481795597412d9214a574520812c350243e1aa0126b29232dc07f2e90f",
+    "existing_subject_and_source_witness_artifacts_unchanged": true,
+    "source_provenance": "Four new launcher-file observations augment, but do not retroactively change, the 43 direct application witnesses and 128 prior scoped source pins. Old archival/same-image evidence keeps its previous meaning.",
+    "prior_actual_stopped_preparation_acceptance": "Unchanged ACCEPTED_WITH_RISK for stopped preparation only; not reopened or expanded."
+  },
+  "actual_capabilities": {
+    "captured": "The supplied parent observation demonstrates readable fixed launcher bytes on all four exact stopped subject IDs/images, with selected metadata unchanged during that capture.",
+    "not_demonstrated": "Normal runtime transport acceptance of the new path, actual package import/main resolution, SDK startup, health, original shutdown/ack, cancellation/recovery, future clock compatibility, final network/citation response or profitability."
+  },
+  "verification": {
+    "tests_run": false,
+    "native_operations_run": false,
+    "source_executed_or_imported": false,
+    "method": "Local file/hash checks, exact payload and selected-row comparisons, narrow static driver/path-guard inspection and use of the existing cached policy/CLI evidence only.",
+    "parent_parser_assertions": "CLAIMED by checkpoint; not repeated or treated as startup proof."
+  },
+  "authorization": {
+    "native_capture": false,
+    "code_change": false,
+    "preparation_or_retry": false,
+    "build_create_start_stop_exec_signal": false,
+    "credentials": false,
+    "service_query": false,
+    "cutover": false,
+    "trading": false,
+    "policy_record_creation": false,
+    "automatic_follow_on_execution": false
+  },
+  "write_scope": {
+    "only_authored_artifact": "docs/review_artifacts/companion_worker_preparation_20261023/launcher_capture/independent_review.json",
+    "frozen_checkpoint_driver_payloads_report_old_review_and_worklog_modified": false,
+    "full_policy_record_set_authored": false,
+    "one_bounded_pass": true
+  }
+}

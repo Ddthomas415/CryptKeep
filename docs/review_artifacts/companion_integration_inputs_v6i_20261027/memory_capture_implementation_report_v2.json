@@ -1,0 +1,20 @@
+{
+  "actual_capture_run": false,
+  "closed_finding_candidate": "V6I-MEMCAP-01",
+  "hashes": {
+    "docs/checkpoints/companion_memory_image_capture_v6i_20261027.md": "42afbe16b6ebd2112a7e34438a1fa58df62eb60a36aad98776b2ead41577dbe3",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/capture_memory_image.py": "351879131ca4db8541c0cd7dbd888eda3d89ca075827b391ae7a6522febb6e01",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/memory_capture_implementation_report.json": "4bfb755952898fb2992d1a9faa3e466defe467b171c5eea9617e5231e7965bf8",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/memory_capture_implementation_review.json": "f9ac9556119dc2dd5d2d869ea8e59ad59d84a0a3082e6544e30c74a46e57c999",
+    "docs/review_artifacts/companion_integration_inputs_v6i_20261027/memory_capture_rejected_r1.tar": "c070e91ae7c3cfcecb4e9b264b31c187a9eedc53a3a377fa862fe6ccf5234804",
+    "tests/test_companion_v6i_memory_image_capture.py": "e031eea20800dbb57bedb0b833b8e213316edfa8ef2f8a1d8d3e8c7b7ee551c9"
+  },
+  "new_regression_rejects_archived_R1": true,
+  "operations_authorized": false,
+  "passed": 16,
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6i-memory-capture-implementation-proof-v2",
+  "seconds": 0.37,
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "warnings": 0
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "companion-quiesce-saved-state-replay-v1",
+  "mode": "OFFLINE_SAVED_ROW_REPLAY",
+  "native_operations": 0,
+  "source_bindings": {
+    "manifest_sha256": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d",
+    "saved_precleanup_inventory_sha256": "2fa8fec71dc7879db92a9adb414765d0caafadce171c6013408882b041667c1b",
+    "derived_staged_metadata_sha256": "98c186a31d78686bf7702eb46685c87a2d6487a680cad0e702a35244c7eed118"
+  },
+  "verification_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_quiesce_diagnostics.py -k saved_precleanup_state_replay",
+  "cases": [
+    {
+      "with_saved_prepared_rows": false,
+      "selected_inventory_count": 7,
+      "explicit_vs_default_extra_ids_equal": true,
+      "original_observation_equals_frozen_baseline": true,
+      "inspection_only_command_pairs": true
+    },
+    {
+      "with_saved_prepared_rows": true,
+      "selected_inventory_count": 11,
+      "explicit_vs_default_extra_ids_equal": true,
+      "original_observation_equals_frozen_baseline": true,
+      "inspection_only_command_pairs": true
+    }
+  ],
+  "interpretation": "No deterministic saved-metadata selection/placeholder refusal was reproduced. This does not establish the original quiesce failure cause.",
+  "limits": [
+    "Fake command responses use saved sanitized JSON; no native CLI or Go template engine executes.",
+    "Saved configuration rows do not reproduce transient historical timing, signal dispatch or acknowledgement.",
+    "Shell signal forwarding and the exact prior failed substep remain UNVERIFIED."
+  ]
+}

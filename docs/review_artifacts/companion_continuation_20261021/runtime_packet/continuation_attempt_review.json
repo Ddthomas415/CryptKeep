@@ -1,0 +1,101 @@
+{
+  "schema": "companion-continuation-attempt-review-v1",
+  "active_role": "AUDITOR",
+  "reviewer": "Independent Codex bounded operation-evidence reviewer; no implementation or operational grant",
+  "decision": "INCOMPLETE",
+  "bounded_review_complete": true,
+  "revision": {
+    "number": 2,
+    "scope": "Incremental review of retained_daemon_event_check only; no re-audit or change to source, other evidence assessments, operation disposition or conclusions.",
+    "reason": "Parent evidence-timing mistake: the outcome artifact was augmented while the initial review was finishing, after the bytes bound by that review had been read.",
+    "prior_outcome_sha256": "ecfb3f85fce2e4d7c782ecaeda630fd2643602469ef343ad2c170a42b13fdf12",
+    "preserved_review_path": "docs/review_artifacts/companion_continuation_20261021/runtime_packet/continuation_attempt_review_before_events_addendum.json",
+    "preserved_review_sha256": "337564af6272efa8a27614945c4f59cd59552dbc0f6c940cdd5a4dc6a165ddbd",
+    "preserved_review_bytes_verified": true,
+    "new_section_assessment": "SHOWN as a saved parent report, not an independently repeated native observation: command_succeeded=true, since=2026-10-23T00:46:50Z, until=2026-10-23T00:47:30Z, events=[]. Retention may be incomplete; absence proves neither non-dispatch nor lack of acknowledgment. Cause remains UNKNOWN and operation remains INCOMPLETE.",
+    "tests_or_native_calls_performed": false
+  },
+  "execution_id": "s3cutover20261022health01",
+  "preparation_attempt": "s3refresh20261021c1eaae5a",
+  "scope": "Saved outcome, complete saved selected-row comparison, receipt sequence, and quiesce/rollback/inventory source only. Not a policy re-audit or runtime authorization.",
+  "evidence_sha256": {
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/continuation_attempt_outcome.json": "298fc3b421d2bdb6cd336e0fea25d2e8156718680165941cd55dadd64ff97854",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/continuation_post_attempt_inventory.json": "b80c453502c678ad3e558149fd4f6042e0a807259989623cb970dc4e9ac0d55b",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/post_attempt_inventory.json": "2fa8fec71dc7879db92a9adb414765d0caafadce171c6013408882b041667c1b",
+    ".cbp_state/runtime/companion_cutovers/s3cutover20261022health01/receipt.jsonl": "cb486c19ea93001f7931dd5304c16676b5381c926faaebe2649677732edd139b",
+    ".cbp_state/runtime/companion_cutovers/s3refresh20261021c1eaae5a/receipt.jsonl": "8ad9cd45e9754e2af84af7bdb1eba9ab5f0f1b37af4d153813f8fce3eab93c29",
+    "docs/review_artifacts/companion_continuation_20261021/execute_reviewed_continuation.py": "015ced06462c79b442b0fb03f2cbf57869986e4d142de40ed6b5e6a8f3b7924d",
+    "scripts/research/companion_install_docker.py": "ca2e74fcf9d3869f7c3ed27e69721cd12615f41cc2687ea0844b314250814220",
+    "scripts/research/companion_installer.py": "56d9b924d7d0b7e2660d68db62dcdd67252fdc5e01ad633a7e39f57ea866b16b",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18"
+  },
+  "classification": {
+    "SHOWN": [
+      "Saved command/result records one authorized hash-bound launcher invocation, exit 1, failed at quiesce; services_started=false and query_attempted=false. This review did not observe or repeat execution.",
+      "Receipt contains exactly twelve records: inputs bound, reserved, staged checks intended, storage checks intended, orchestrator quiesce intended, failure at quiesce, four staged removal intents, inventory intended, rollback checks completed. There is no quiesce confirmation, replacement startup or query record.",
+      "Offline comparison of every complete saved row dictionary passed: prior selected count 15, post selected count 11, no new IDs, all eleven survivors identical. All seven original rows remain running, and all four older staged rows survive unchanged.",
+      "The missing ID set equals exactly the four reviewed prepared IDs. Removal intents and cleanup_unpromoted source support removal by owned staged cleanup, without implying originals required restoration.",
+      "The original four-record prestart receipt hash remains unchanged. The execution receipt and consumed preparation are not reset or reusable by this review.",
+      "quiesce_pending is set before calling the backend and cleared only after successful return plus stopped-original verification. Rollback deliberately leaves unresolved interruption ownership unverified, even when exact selected original-baseline equality holds.",
+      "Source sets a shared ten-second deadline before pre-observation, then conditionally issues container kill --signal=SIGTERM to the exact original ID and polls for verified exit. Pre-observation, command failure, post-observation refusal and deadline exhaustion can all prevent confirmation.",
+      "Saved diagnostic reports a later successful pre-signal observation and a sh parent of uvicorn, without sending another signal. This is later-state evidence, not proof of the original failing substep.",
+      "The added retained_daemon_event_check saves the parent report that the read-only event command succeeded for 2026-10-23T00:46:50Z through 2026-10-23T00:47:30Z and returned events=[]. SHOWN here means the report is present in the hash-bound artifact, not an independent native observation. Potentially incomplete retention makes absence nonproof of signal dispatch or acknowledgment."
+    ],
+    "CLAIMED": [],
+    "UNVERIFIED": [
+      "Exact original failure substep, whether SIGTERM was dispatched or acknowledged, and whether the deadline expired while polling.",
+      "Shell signal forwarding or handling as the cause. Parent/child names alone establish neither signal delivery nor causality.",
+      "Original pre-observation success while the four now-removed prepared containers were present.",
+      "Full rollback verification, volume-content equality, network connectivity, successful cutover or runtime cure."
+    ]
+  },
+  "inventory_path_analysis": {
+    "source_locations": [
+      "scripts/research/companion_install_docker.py:72",
+      "scripts/research/companion_install_docker.py:136",
+      "scripts/research/companion_install_docker.py:276",
+      "scripts/research/companion_installer.py:252"
+    ],
+    "finding": "_rows supplies known replacement IDs; _observe_original calls inventory with default extra_ids=(). For a staged plan, inventory also selects all expected staged names independently of extra_ids, so default extra_ids does not by itself exclude those stages. _placeholder_allowed depends on row state, identity, name, attempt, restart policy and started metadata, not the extra_ids argument. No exact defect is established merely by this call-site difference.",
+    "limit": "Inventory validates selected rows before returning the original. A later observation after stage removal cannot exclude an earlier stage-dependent refusal; no original-time row replay or exact substep evidence was available. Do not replace this uncertainty with a PID1 diagnosis."
+  },
+  "operation_disposition": {
+    "state": "INCOMPLETE",
+    "original_seven_running_selected_metadata_unchanged": true,
+    "four_owned_prepared_ids_removed": true,
+    "old_four_stages_unchanged": true,
+    "rollback_exact_baseline": true,
+    "rollback_verified": false,
+    "unresolved_quiesce": ["phase1-orchestrator"],
+    "cause": "UNKNOWN",
+    "manual_lifecycle_action_indicated_by_saved_inventory": false,
+    "operational_authorized": false,
+    "retry_authorized": false,
+    "fresh_preparation_authorized": false,
+    "marker_reset_authorized": false
+  },
+  "next_offline_proposal": {
+    "objective": "Make graceful-quiesce refusal substeps distinguishable without changing lifecycle policy or performing another runtime attempt.",
+    "proposed_proof": [
+      "Use saved sanitized pre-cleanup rows in a purely offline fixture to compare inventory/_observe_original selection and placeholder validation with and without the exact four owned stages; report any concrete refusal predicate.",
+      "Propose sanitized stage-specific diagnostics separating pre-observation refusal, signal-command acknowledgment failure, post-observation refusal and deadline exhaustion; exercise those paths using fake executor and clock only.",
+      "Keep shell-forwarding behavior a hypothesis unless independent evidence identifies it; do not change signals, add SIGKILL, extend deadlines or alter pending ownership semantics merely to obtain success."
+    ],
+    "implementation_performed": false,
+    "boundary": "Any high-risk implementation needs separate review. No fresh preparation, signal, retry, marker waiver or execution is granted. The four removed prepared IDs cannot be reused."
+  },
+  "review_verification": {
+    "environment_confidence": "VERIFIED_ENV",
+    "method": "Local read-only standard-library JSON parsing, complete saved-row equality assertions, SHA-256 checks and source inspection; no repository runtime imported.",
+    "result": "All executed offline comparison and hash assertions passed; twelve execution records and four unchanged original records verified.",
+    "tests_run": false,
+    "tests_reason": "No test rerun requested or needed for this evidence-only pass.",
+    "native_commands": 0,
+    "network_calls": 0,
+    "credentials_read": false,
+    "services_changed": false,
+    "markers_changed": false,
+    "material_assumptions": 0,
+    "limits": "Evidence review verifies saved artifacts and source consistency, not independent host attestation, complete event retention, transient historical state, or full filesystem/volume integrity. Only this review JSON is authored."
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "companion-v6c-runtime-outcome-v1",
+  "role": "ENGINEER",
+  "state": "INCOMPLETE",
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m docs.review_artifacts.companion_worker_preparation_20261023.execute_reviewed_v6c --execute-once",
+  "exit_code": 1,
+  "invocations": 1,
+  "stdout": {
+    "state": "INCOMPLETE",
+    "failure_phase": "cutover",
+    "actions_executed": true,
+    "attempt_reserved": true,
+    "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_cutovers/workerprep20261023v6c/receipt.jsonl",
+    "running_update_complete": false,
+    "query_attempted": false,
+    "query_passed": false,
+    "receipt_complete": true,
+    "rollback_verified": true,
+    "rollback_exact_baseline": false,
+    "services_started": true,
+    "prepared_ids_preserved": false,
+    "preparation_consumed": true,
+    "unresolved_quiesce": [],
+    "unresolved_restart": [],
+    "unresolved_replacement_start": [],
+    "unresolved_replacement_cleanup": [],
+    "unresolved_creation": [],
+    "controller_failure_stage": "runtime_verification"
+  },
+  "receipt_interpretation": {
+    "classification": "SHOWN",
+    "compatibility_precondition": "complete",
+    "only_false_reported_check": "recipient_bindings",
+    "replacement_start_intents": 0,
+    "query_attempts": 0,
+    "original_restart_intents": 4,
+    "limit": "services_started is also true when originals are restored; it does not establish replacement startup. Recovery configuration/running-state checks passed, not health, connectivity, exact baseline or volume-byte restoration."
+  },
+  "cause": "UNVERIFIED: recipient binding is a composite predicate; the receipt does not identify its failing subcondition or retain activated container metadata.",
+  "retry_authorized": false,
+  "reset_authorized": false,
+  "trading_authorized": false
+}

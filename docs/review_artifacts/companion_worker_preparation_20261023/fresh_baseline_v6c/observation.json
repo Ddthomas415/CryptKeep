@@ -1,0 +1,15 @@
+{
+  "cli_sha256": "678271184175b40dfc4bd6f4582be00ae1538b0d1e031181f52ceedfae9af5fb",
+  "commands": [
+    "selected container inspect of seven pinned IDs"
+  ],
+  "failure_category": "CaptureFailure",
+  "fingerprint_version": 2,
+  "installation_authorized": false,
+  "observed_utc": "2026-10-23T19:23:18.724825+00:00",
+  "sanitized_detail": "socket_permission_denied",
+  "schema": "companion-recreation-observation-v1",
+  "source_manifest_path": "docs/review_artifacts/companion_install_manifest_20261017/manifest.json",
+  "source_manifest_sha256": "bac2f4636753237279858c2119630be12531d8d27f6967868d72e9cbac940093",
+  "state": "INCOMPLETE"
+}

@@ -1,0 +1,15 @@
+{
+  "provenance": "Parent transcription of execution session 29014 tool result; not independently captured process output",
+  "exit_code": 0,
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "preparation_complete": true,
+  "actions_executed": true,
+  "startup_authorized": false,
+  "services_started": false,
+  "originals_interrupted": false,
+  "attempt_reserved": true,
+  "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261026v6h/receipt.jsonl",
+  "evidence": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261026v6h/evidence.json",
+  "evidence_sha256": "950b09d049a7f6a01f91352cb8ff12e1edecedfcf523c13fc75d39e9f25b805d",
+  "manifest_sha256": "d11fccb5e4f7c46e7d726704c9b75c400a1482eab5d1b840027d876a5837f047"
+}

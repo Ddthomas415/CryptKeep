@@ -1,0 +1,124 @@
+{
+  "schema": "companion-startup-profile-independent-review-v1",
+  "reviewed_at": "2026-10-22T01:47:55.496603+00:00",
+  "active_role": "GATE",
+  "reviewer": "Independent Codex GATE: exact saved startup-profile and corrected offline interpretation",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Accept the sanitized four-subject configured startup profile, preserved v1 diagnostic and corrected assessment_v2 only. This is not an installed-policy record or runtime manifest.",
+  "findings": [],
+  "material_assumptions": [],
+  "verification": {
+    "environment": "VERIFIED_ENV for offline /usr/bin/python3 -B standard-library assertions, pure predicate AST evaluation and source/test inspection only",
+    "command": "/usr/bin/python3 -B - <<'PY' (inline receipt/schema/identity/hash assertions and isolated pure-predicate comparison)",
+    "result": "PASS: exact4ID/image/stopped bindings, sanitized typed booleans,8inspect stable receipt, preservedv1 predicate false,false,false,true; corrected predicate all4true; unchanged format generators; assessment inputs/conclusions match; captured --app-dir default and sys.path.insert verified",
+    "native_operations": 0,
+    "native_capture_repeats": 0,
+    "test_suite_runs": 0,
+    "installed_SDK_execution": 0,
+    "original_v1_row_results": [
+      false,
+      false,
+      false,
+      true
+    ],
+    "corrected_row_results": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "raw_report_profile_matches": false,
+    "reported_capture_commands": 8,
+    "reported_capture_elapsed_seconds": 0.404,
+    "corrected_assessment_reproduced": true
+  },
+  "shown": [
+    "The receipt contains exactly the same four replacement IDs/images as the hash-pinned preparation postcheck. Both observations are equal in all returned fields; each subject is created, started timestamp zero, restarts0, restart policy no.",
+    "Every returned profile control has the expected boolean/null type, with no raw environment values in the saved rows. command_matches, entrypoint_empty and workdir_matches are true; each required module/port/PATH comparison is uniquely true. WEB_CONCURRENCY, FORWARDED_ALLOW_IPS, BASH_ENV, ENV and all UVICORN_* overrides are absent in these observations.",
+    "PYTHONPATH is absent for audit-log/risk-stub/memory and uniquely matches /app:/repo for the orchestrator. The corrected aggregation derives requires_repo_import_path only for the exact selected orchestrator name, preserving its requirement.",
+    "The archived v1 predicate required matching PYTHONPATH for every app, giving false,false,false,true and the preserved raw profile_matches=false. The current predicate permits absence for the first three and requires the repository path for the orchestrator, giving all4true. assessment_v2 reproduces those results without changing a saved observation.",
+    "The matches() and inspect_format() ASTs are identical in archived v1 and current code. Outside profile_ok and its aggregate call in capture(), the source AST is unchanged. This is an offline interpretation correction, not a new native capture.",
+    "Captured Uvicorn CLI defines --app-dir default='' and passes app_dir to run(), whose non-None branch inserts it at sys.path[0]. With saved working directory /app and no UVICORN_* overrides, the current-directory import path supports the three application packages without requiring repository PYTHONPATH.",
+    "For the inspected configuration, the literal command supplies only the expected app, host and port; no CLI reload, worker, env-file, log-config, fd or uds override is present. No UVICORN_* override or WEB_CONCURRENCY is observed. Captured Uvicorn defaults therefore select one worker/no reload, default logging, no environment file and the ordinary listener path under this configured profile.",
+    "The original adapter contract specifies fixed-loopback HTTP with zero transport retries and no proxies/redirects. It separates risk, connectivity, read-only startup and model-disabled checks. It does not require one physical socket or one DNS address. This review preserves that existing scope."
+  ],
+  "code_safety": {
+    "shown": "Both capture versions construct only eight selected-format container inspections (two per exact subject), with pinned CLI verification, fixed Unix endpoint, empty temporary Docker configuration, PATH-only child environment, at most10seconds per command, a60second command-scheduling budget and16384byte stdout cap per inspection. No exec/start/stop/build/query is constructed.",
+    "privacy": "The template exports fixed-field identities and booleans/nulls for selected comparisons; it does not emit .Config.Env, arbitrary environment strings, secret values or credential-field comparisons. The saved receipt independently conforms to that output schema.",
+    "limits": "Recorded execution timing/count and no-start flags are saved-receipt evidence, not independently replayed native observations. Budgets do not independently bound every local filesystem/cleanup step. The archived v1 is reviewed as preserved executed-source provenance supplied by the parent; the receipt itself contains no script-hash attestation."
+  },
+  "scoped_policy_disposition": {
+    "decision": "ACCEPTED_WITH_RISK",
+    "meaning": "The configured startup-control gap identified in the preceding bounded review is resolved for these four exact subjects at the saved observation time. No new technical blocker is identified in this profile correction.",
+    "zero_retries": "Keep the original restricted fixed-loopback HTTP transport/application-call retry scope. Captured HTTPcore retries=0 refuses a second backend connect call after a caught ConnectError/ConnectTimeout at that layer. Do not redefine this as a promise about DNS, TCP address selection or OS socket behavior.",
+    "no_proxy_redirect": "This profile review does not replace the separately reviewed restricted HTTP client controls. No UVICORN_* setting observed here changes those claims; neither proxy suppression nor redirect behavior is independently proven merely by a startup-profile match.",
+    "entrypoint_side_effects": "Characterized effects, not effect-free startup: ordinary imports/application initialization, logging, event-loop/signal setup, lifespan dispatch and listening remain disclosed effects. Configured single-worker/no-reload bounds the applicable branch; startup success is not observed.",
+    "psycopg": "Address selection and fallback in one connect API call are distinct from SQL resubmission and are not, by themselves, a violation of the existing HTTP zero-transport-retry contract.",
+    "schema_condition": "Any subsequent exact-image policy record using the existing trio must retain the restricted operation/profile meaning and characterized effects. It must not silently broaden SHOWN to all paths, all network behavior or zero side effects. This custom review intentionally is not a loader-consumable companion-installed-policy-review-v1 record.",
+    "seven_subjects": "No seven-policy-record approval is issued in this startup-profile task. That is a scope boundary, not rejection for a new DNS/TCP prerequisite. Existing adapter requirements remain actual independently accepted review-record bytes with matching hashes and exact image/subject/source bindings, plus the existing installed-byte/compatibility and separate authorization gates. No additional philosophical or universal-network requirement is imposed.",
+    "material_contract_decision_required": false
+  },
+  "test_evidence": {
+    "classification": "SHOWN inspected test structure; CLAIMED parent execution outcome",
+    "source": "tests/test_companion_startup_profile.py",
+    "parent_reported_result": "15 passed in0.19s",
+    "independently_repeated": false,
+    "coverage": "Default profile;11 parametrized mismatched/ambiguous controls; explicit worker count; absent PYTHONPATH accepted only when repository import path is not required; sanitized template checks.",
+    "historical_limit": "The earlier14 passing tests did not expose the overstrict PYTHONPATH requirement. Those results do not prove the old semantics correct; the raw false result and archived v1 remain preserved.",
+    "remaining_limit": "Tests do not execute Go template evaluation, Docker, shell/Uvicorn startup or actual imports. This review uses the saved typed rows and captured Uvicorn code, not native replay, for the scoped conclusion."
+  },
+  "limits": [
+    "Configured options are observed at the receipt timestamp, not continuously enforced or a claim about all process variables, mounts, import targets or daemon behavior.",
+    "No new source-closure, SDK-initialization, credentials, live DNS, SQL, explanation-query or native service investigation occurred. Earlier accepted components were not re-reviewed.",
+    "All4 corrected matches establish the specified profile controls, not native startup, general model readiness or full-system behavior.",
+    "Existing fresh installed-source comparison and compatibility gates are not waived. This review creates neither accepted per-image policy records nor an accepted runtime manifest.",
+    "Only startup_profile/independent_review.json is written. Parent owns work-log/checkpoint publication; report.json, executed v1, corrected source and assessment_v2 remain untouched."
+  ],
+  "subjects": [
+    {
+      "container_id": "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+      "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "requires_repo_import_path": false,
+      "profile_matches": true
+    },
+    {
+      "container_id": "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+      "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "requires_repo_import_path": false,
+      "profile_matches": true
+    },
+    {
+      "container_id": "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+      "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "requires_repo_import_path": false,
+      "profile_matches": true
+    },
+    {
+      "container_id": "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726",
+      "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "requires_repo_import_path": true,
+      "profile_matches": true
+    }
+  ],
+  "reviewed_sha256": {
+    "docs/review_artifacts/companion_continuation_20261021/capture_startup_profile.py": "a6f1318309d4f602eb86eda30b514a7100ccb1b43836acccae775c719169a2f1",
+    "docs/review_artifacts/companion_continuation_20261021/startup_profile/capture_startup_profile_v1.executed.py": "5b514d8b35359c8b8c5d1687b0bd588dd2ac7fd76ba8e2ae85a04742d0c711f3",
+    "docs/review_artifacts/companion_continuation_20261021/startup_profile/report.json": "3c49e4246f5b69864f3b3aedae8562dcb857926995f78591452de2af3836f3d9",
+    "docs/review_artifacts/companion_continuation_20261021/startup_profile/assessment_v2.json": "8fe928ab2fdccb96d7e5b93f5942730d0bfc9f20ac656af912ce70944388a31c",
+    "tests/test_companion_startup_profile.py": "19f16d32561499dc2444fa2648e8d4768282bf0a9707ff4fc583720399ab7a3a",
+    "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/actual_preparation_postcheck.json": "c505e4c6c3b2be5cd1054ac976fd69a503d0fcf2b2304cc6e6583ef1b1decb06",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/2_uvicorn_main.py": "8afea9b600c19e4a345be5641ecd1edc8e14ac5effe6c119ae7b5034a24614d6",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/3_uvicorn_config.py": "829b2e933b8915b5c144de7fa8e9cb1a210d98680a334162f9e649e86c0cd5d4",
+    "scripts/research/companion_docker_transport.py": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5",
+    "scripts/research/companion_runtime_adapter.py": "cf2d619320defd4904ba7bde595ad226d803818f5182f2bf27c3f73cdb0a4441",
+    "docs/checkpoints/companion_runtime_adapter_20261016.md": "905913f5b2e3a99ccade16935e2a353c236d6cf54c46a74f29aea8d60fdaed28"
+  },
+  "hash_paths": "Repository-relative",
+  "predicate_delta": "--- executed-v1\n+++ corrected-current\n@@ -45,12 +45,14 @@\n     return \"{\" + \",\".join(pieces) + \"}\"\n \n \n-def profile_ok(row):\n-    required = (\"SERVICE_MODULE\", \"SERVICE_PORT\", \"PYTHONPATH\", \"PATH\")\n+def profile_ok(row, *, requires_repo_import_path):\n+    required = (\"SERVICE_MODULE\", \"SERVICE_PORT\", \"PATH\")\n     optional = (\"WEB_CONCURRENCY\", \"FORWARDED_ALLOW_IPS\", \"BASH_ENV\", \"ENV\")\n     return (all(row[k] is True for k in (\"command_matches\", \"entrypoint_empty\", \"workdir_matches\"))\n         and all(row[k] == [True, None] for k in required)\n         and all(row[k] in ([None], [True, None]) for k in optional)\n+        and (row[\"PYTHONPATH\"] == [True, None] if requires_repo_import_path\n+             else row[\"PYTHONPATH\"] in ([None], [True, None]))\n         and row[\"uvicorn_overrides\"] == [None])\n \n \n@@ -91,7 +93,9 @@\n                     report[phase].append(row)\n             if report[\"before\"] != report[\"after\"]:\n                 raise ValueError(\"profile_changed\")\n-            report[\"profile_matches\"] = all(profile_ok(row) for row in report[\"after\"])\n+            report[\"profile_matches\"] = all(profile_ok(row, requires_repo_import_path=\n+                subject[\"name\"].startswith(\"/phase1-orchestrator-staged-\"))\n+                for row, subject in zip(report[\"after\"], selected))\n             report[\"state\"] = \"READY_FOR_INDEPENDENT_REVIEW\"\n     except Exception as exc:\n         report[\"error\"] = type(exc).__name__\n",
+  "runtime_policy_records_created": false,
+  "runtime_manifest_accepted": false,
+  "runtime_authorized": false,
+  "cutover_authorized": false,
+  "general_model_readiness_approved": false,
+  "runtime_objective_state": "INCOMPLETE"
+}

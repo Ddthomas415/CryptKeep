@@ -1,0 +1,29 @@
+{
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "active_role": "GATE",
+  "capture_attested_only": [
+    "quick_check execution",
+    "original-file byte preservation",
+    "host process observations",
+    "11-test execution"
+  ],
+  "independent_checks": [
+    "frozen hashes match",
+    "rehearsal internal schema/count/fingerprint consistency",
+    "cadence source and saved replay support legacy-only mismatch"
+  ],
+  "limitations": [
+    "current exclusivity/backup coherence/binary trust unverified",
+    "no independent DB/test/replay/network invocation",
+    "mutated rehearsal copy is not an untouched backup"
+  ],
+  "material_discrepancies": [],
+  "next_source_task": "repair raw-pair cadence compatibility; retain financial authority gates; independent review",
+  "operations_authorized": false,
+  "recorded_at": "2026-10-29T18:50:46.004312+00:00",
+  "reviewer_agent": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "rollout_state": "INCOMPLETE",
+  "scope": "preparation evidence only",
+  "submission_id": "01a188ff-0b0c-74b0-8adb-b15b7260f23c",
+  "verified_bindings": 14
+}

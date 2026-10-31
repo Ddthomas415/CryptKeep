@@ -1,0 +1,112 @@
+{
+  "actual_diagnostic_stages": [
+    {
+      "http_status": null,
+      "outcome": "invalid_envelope",
+      "route": "primary",
+      "stage": "normalization"
+    },
+    {
+      "http_status": 200,
+      "outcome": "json_received",
+      "route": "companion",
+      "stage": "transport"
+    },
+    {
+      "http_status": null,
+      "outcome": "foreign_asset",
+      "route": "companion",
+      "stage": "normalization"
+    },
+    {
+      "http_status": null,
+      "outcome": "static_fallback",
+      "route": "dashboard",
+      "stage": "selection"
+    }
+  ],
+  "citation_archive_correlation": [
+    {
+      "citation_id_candidates": [
+        "keyword_5"
+      ],
+      "document_id": 5,
+      "title": "Bitcoin (BTC) and ether (ETH) liquidity rebounds a year after $19 billion crypto flash crash",
+      "url_hash_matches": true
+    },
+    {
+      "citation_id_candidates": [
+        "keyword_47"
+      ],
+      "document_id": 47,
+      "title": "Crypto Liquidations Cross $1 Billion in 24 Hours as Bitcoin Dips to $80,350",
+      "url_hash_matches": true
+    },
+    {
+      "citation_id_candidates": [
+        "keyword_18"
+      ],
+      "document_id": 18,
+      "title": "Trump's Iran pledge underpins crypto gains as bitcoin (BTC) bears face liquidation pressure: Crypto Daily",
+      "url_hash_matches": true
+    },
+    {
+      "citation_id_candidates": [
+        "past_1"
+      ],
+      "document_id": 5,
+      "title": "Bitcoin (BTC) and ether (ETH) liquidity rebounds a year after $19 billion crypto flash crash",
+      "url_hash_matches": true
+    },
+    {
+      "citation_id_candidates": [
+        "future_1"
+      ],
+      "document_id": 26,
+      "title": "Saylor Again Teases Strategy Bitcoin Buying Ahead of Columbus Day",
+      "url_hash_matches": true
+    }
+  ],
+  "hashes": {
+    ".cbp_state/runtime/companion_cutovers/workerprep20261025v6f/receipt.jsonl": "9fdc6a9823d45777e591a25b108be4da7bfeadea296daeb50492481cb3acf555",
+    "dashboard/services/views/_shared_signals.py": "d003edac94edbb7d7886901784674e23ed9accae2d42bd69c0a7f6fbc0c9e381",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_runtime_v6f/diagnose_saved_attempt.py": "022b1c24065ffb6942369820136353380c533daa110bff436f88eae22ced8930",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_runtime_v6f/receipt.jsonl": "9fdc6a9823d45777e591a25b108be4da7bfeadea296daeb50492481cb3acf555",
+    "phase1_research_copilot/memory_retrieval/article_view.py": "b9543070bbfa3d75999a3cf980d5fba58e880a6cd093c9165305a5124a70cd8f",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "research/companion_article_body_v1_20261011_gd1abqx9/derived_article_body_v1.json": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+    "research/companion_article_body_v1_20261011_gd1abqx9/manifest.json": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "tests/test_companion_archive_contract.py": "008ddcd18b823db98b1d64d57d85c90cb47a1e753cf7341bc4a4935e86e2900c",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f"
+  },
+  "limits": [
+    "Raw runtime response prose and field types were not retained; fixtures are not a live-response replay.",
+    "ID/URL/citation-name hash matches support archive correlation, not response body or topical proof.",
+    "Past-precedent field is a demonstrated static/synthetic failure mechanism, not a proven unique runtime cause.",
+    "No native, service, token, network, database, startup or live query operation is performed.",
+    "Recovery receipt is not proof of post-recovery health, connectivity or volume-byte equality."
+  ],
+  "receipt_events": 96,
+  "role": "ENGINEER",
+  "runtime_status": "INCOMPLETE",
+  "schema": "companion-v6f-saved-attempt-diagnosis-v1",
+  "synthetic_guard_cases": [
+    {
+      "foreign_asset_rejected": false,
+      "labelled_current_context_recognized": true,
+      "name": "keyword_headlines_only"
+    },
+    {
+      "foreign_asset_rejected": true,
+      "labelled_current_context_recognized": true,
+      "name": "same_archived_mixed_title_as_past"
+    },
+    {
+      "foreign_asset_rejected": false,
+      "labelled_current_context_recognized": true,
+      "name": "btc_only_past_control"
+    }
+  ],
+  "verifier_result_event_count": 0
+}

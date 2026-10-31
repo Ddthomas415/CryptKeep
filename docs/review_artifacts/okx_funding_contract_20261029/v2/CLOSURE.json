@@ -1,0 +1,26 @@
+{
+  "recorded_at": "2026-10-29T10:46:43.103664+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "corrected offline endpoint-specific evidence prototype only",
+  "reviewer_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a18744-3e19-7180-82ae-20e37f399fbe",
+  "bindings_verified": 20,
+  "source_sha256": "94c0f8efca0d4064c5e414df1c92285d600e8682b64e4fc878ae263d06a9be47",
+  "independent_verification": {
+    "command": "documented isolated three-file command",
+    "passed": 112,
+    "seconds": 0.68,
+    "exit_code": 0,
+    "runs": 1
+  },
+  "closed_finding": "OKX-CONTRACT-01",
+  "remaining_limits": [
+    "caller input origin not authenticated",
+    "freshness/native semantics/effective interval/formula qualification unresolved",
+    "all normalization/strategy/execution flags remain false",
+    "no integration/capture/deployment/trading authorized"
+  ],
+  "original_fix3_state": "INCOMPLETE",
+  "frozen_checkpoint_note": "Checkpoint retains pre-review submission status; this later closure records actual independent acceptance."
+}

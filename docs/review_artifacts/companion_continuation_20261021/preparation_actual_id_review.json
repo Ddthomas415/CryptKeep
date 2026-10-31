@@ -1,0 +1,7 @@
+{
+  "schema": "companion-preparation-review-v1",
+  "decision": "ACCEPTED_WITH_RISK",
+  "reviewer": "Codex independent GATE, stopped actual-ID review 2026-10-21; not cutover authorization",
+  "manifest_sha256": "3b6f785ca1dd732e307aa83b30dcea2a5d2d9379d57af06a4afaa3774df94635",
+  "evidence_sha256": "78726c0b834778934368713e55a7496a91249d17323e3d43c9052895a5e4d8de"
+}

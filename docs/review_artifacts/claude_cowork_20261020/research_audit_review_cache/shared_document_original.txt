@@ -1,0 +1,602 @@
+CryptKeep research audit, revised brief and next experiments
+Oct 20, 2026 · @Damian Thomas
+No measurable, economically viable edge has been shown yet. This document audits 27 research families, reconciles the evidence, fits the brief to the actual trading system, and specifies two experiments for your review: E1 (maker vs taker execution cost) and UNLOCK-1 (token-unlock avoidance filter). Both have open items to settle before they can be frozen. An independent fact-check of my first draft found 10 errors and several omissions; all are corrected below. Producing this document required no experiment, data download or repository change.
+Review of your advisor's message
+The advisor's direction is right: plan before experimenting, classify every gap, separate return signals from risk filters, rank by evidence, and report incremental and total economics. Six of its working facts need correcting from the repo.
+Advisor's statement
+What the repo shows
+Effect
+About 690 configurations tested
+At least 747 by pass 2 of the ledger reconciliation (Oct 15). ENTR-CB-1 (1) and the low-value screens (3) since then make at least 751; VOLFC-1 is recorded separately, as its ledger supplement requires. My earlier 690 was stale.
+Slightly higher multiple-testing bar
+Loss-avoidance filters remain untested
+My error. E7 funding crash brake (FAIL), E9 no-trade band (failed its turnover criterion), E8 trend ensemble (FAIL), and the market-regime and volume/BTC filters on altcoin rules (FAIL) were all filters. Untested: supply-event avoidance (unlocks, fresh listings, hacked tokens) and a volatility-targeted hold.
+Filters are a partial gap, not an empty one
+Filter example: a momentum strategy selecting altcoins
+CryptKeep's only candidate holds BTC and ETH, which have no unlock schedules. An unlock filter needs an altcoin host, and every altcoin host so far lacks an edge.
+Main weakness of experiment 2, stated in its spec
+E1 should establish actual fill rates and adverse selection
+Impossible without real orders. The E1 design models fills from public trades and order books. Real micro-orders would be live trading, which needs your explicit approval.
+E1 measures modelled costs, not realized fills
+Liquidation data is available
+Only partly. A 2-hour sample and a 5-minute markout diagnostic exist; probes for 7- and 30-day-old records came back empty; public streams are partial.
+Liquidations rank 8 of 11
+Fixed costs should be judged on deployment
+Agreed, and already the rule: the 90-day plan decides the server on the whole research workload (E3), not one strategy.
+Both incremental and total economics are reported
+One point the advisor did not raise: the live risk caps configured today allow $25 per trade and $50 per position (config/trading.yaml), so any strategy's dollar result at live size is tiny. E1's best case at the candidate's measured turnover (9-13 times capital a year) is about 2.3-3.2% of capital a year, or $23-32 at $1,000. Its rank rests on evidence quality, not money.
+1. Coverage audit
+Of 27 research families, 7 were tested, 7 partially investigated, 4 deferred with a documented reason, 7 only discussed and 2 never identified. Three of the only-discussed lines had been recommended in our own documents and never pursued: supply-event avoidance (survey rank 3), a new funding hypothesis on the one unseen data segment, and venue event context (both named best candidates on Oct 18). Counts come from trial_ledger_reconciliation_20261015/trial_inventory.csv and pass2_family_counts_20261015.csv unless noted. Paths are under docs/research/ unless they start with docs/, research/ (repository root), config/ or REMAINING_TASKS.md.
+Cause codes: D = data limitation, P = permission constraint, I = implementation limitation, R = documented prioritization decision, G = gap in the research process.
+#
+Family
+Status
+What was done (IDs and configurations) and result
+Why it stops here
+Evidence
+1
+BTC+ETH slow trend
+Tested
+MAJORS (4), CORRECTED_COMPARISON, E8 (4), E9 (3), ES family. CANDIDATE: higher Sharpe than BTC and fixed mixes at 0.50% per side in every period, but fails the drawdown requirement in period A (51.9% vs 49.5%), so the exploratory verdict at 0.50% is keep_researching; registered REJECT at 1.2%. E8 and E9 FAIL. ES prospective trial ended with zero trades. Forward: v1 tracker day 7 at -4.44% vs BTC hold -2.00%; v2 has no records yet.
+History fully seen, so validation is forward-only (R)
+btc_eth_corrected_comparison_20261012/, stress_fee050_exploratory_20261011/README.md, docs/checkpoints/es_prospective_endpoint_result_2026_10_16.md, paper_btc_eth_trend_20261009/paper_state.json
+2
+Trend on other symbols
+Partial
+E10 (13), TOP10 (3), HYBRID (10). Versus hold: CANDIDATE ETH, AVAX, DOT; INCONCLUSIVE BTC, SOL, DOGE, ADA; REJECTED LTC, LINK, XRP. The 10-symbol portfolio was rejected vs BTC+ETH. 15 mandate symbols untested.
+No recorded decision on the 15 (G)
+multisymbol_trend_20261015/, research/symbol_coverage.csv
+3
+Cross-sectional momentum and factors
+Tested
+E6 (9) FAIL: $1,000 to $158 since 2018 as registered, $142.37 in the corrected rerun. HYBRID and DYNAMIC FAIL. Factor leads (trend factor, low volatility, factor zoo) only discussed.
+Survey: collapses for a long-only small account (R)
+xs_momentum_20261012/, integrity_audit_20261015/, research_scout/SEEN.csv
+4
+Altcoin price events
+Tested
+ALT_EVENT_SEARCH (448), RECOVERY (16), RECOVERY_REGIME (32), SHORT_HOLD (14), THREE_IDEAS (24), LEADER rules (19), REVERSAL (6), DIP (6, withdrawn), BLAST_VARA (18), on Coinbase and Binance data. All disproven after costs; the hourly leader rule as a single account turned $1,000 into $493, or $619 with a filter.
+Edge map: no more variants (R)
+edge_map_20261013.md A
+5
+Intraday technical rules
+Tested
+HORIZON_SCAN (40), MULTISYMBOL_OKX (15), FAILED_BREAKOUT (1; $1,000 to $158), EMA and breakout campaigns (at least 1 each). No promotion; EMA on Coinbase lost $2.32 over 8 trades; Gate and Binance runs unverified.
+Retail fees (R)
+trial_inventory.csv, edge_map_20261013.md A
+6
+Low-value and new top-100 coins
+Tested (exploratory)
+Low-value top-100 v1/v2 (3 screens): no executable edge, all paired intervals cross zero. ENTR-CB-1: STOP.
+Preregistration bars more entrant variants on this archive (R)
+low_value_top100_20261018/RESULTS_V2.md, coinbase_tradable_entrants_20261019/RESULTS_V1.md
+7
+Funding, basis and carry
+Tested
+FUNDING_SIGNALS (16): no candidate. Carry at $1,000: +$2 funding, -$5 after costs, -$25 after the server. E7 crash brake (5): FAIL. Open interest only collected (56 days with data).
+Capital too small; derivatives and shorting not authorized (P, D)
+funding_carry_feasibility_20261012.md, crash_brake_20261013/, derivatives_intraday_roadmap.md
+8
+Attention (CMC)
+Partial
+CMC_PROXY (20): FAIL. Trending log collecting forward since 2026-10-09; its planned inference method failed calibration (NO_CERTIFIED_SAMPLE), so primary scoring is blocked whatever the date.
+Method not certified; waiting on forward data (R)
+cmc_trending_log/, pass2_family_counts_20261015.csv, edge_map_20261013.md E
+9
+Order book and microstructure
+Partial
+FC01_R1 pilot: STOP. The context archive is BTC-only, with capture gaps up to 85.84 days.
+Data quality; retail fees (D, R)
+information_feasibility_20261018/README.md
+10
+Calendar effects
+Partial
+MONDAY_DIAGNOSTIC executed (1): 26 Mondays on 9 coins, "noise until registered".
+Survey: calendar rules dead or untestable (R)
+monday_market_diagnostic_20261012.md
+11
+Execution: maker vs taker
+Deferred
+E1 drafts v1 to v3, not run. Still inside its 90-day window (freeze by Nov 3, sample start by Nov 7).
+Product fees unverified, needs your evidence (P); order-book capture at arrival not built and its freshness tolerance unset (I)
+maker_taker_prereg_20261011/, research_budget_90d_20261011.md
+12
+Volatility forecasting
+Tested
+VOLFC-1: Chronos-2 vs EWMA and 60-day SD. FAIL, did not qualify.
+None needed
+trial_ledger_supplement_20261018/
+13
+Liquidations
+Partial
+Feasibility: 810 long-liquidation records over 2 hours; OKX route undocumented; 7- and 30-day-old probes empty; public streams partial. A 5-minute markout diagnostic: BTC rose after 14 of 17 selling minutes (+0.165% vs +0.054% unconditioned). Not in the trial ledger.
+No retained history; no spot hypothesis (D, R)
+liquidation_data_feasibility_20261012.md, liquidation_markout_diagnostic_20261012.md
+14
+Risk overlays on the candidate
+Partial
+E7 crash brake FAIL (redundant with trend); E9 band failed its turnover criterion but is forward-tracked; E8 ensemble FAIL. Volatility-targeted hold untested.
+That test was never scheduled (G)
+crash_brake_20261013/README.md, candidate_band_20261013/, edge_map_20261013.md F
+15
+Supply-event avoidance (unlocks, fresh listings, hacked tokens)
+Only discussed
+Survey rank 3: a BTC/ETH-dominant universe screened against microcaps, fresh listings, large upcoming unlocks and hacked tokens, "robust as negative screens". Scout topic T02. Never proposed or costed.
+No host while the candidate is BTC+ETH (R); unlock history is paid at the one vendor checked (D, P); not revisited when focus moved to lower-value coins on Oct 18-19, by me included (G)
+crypto_trading_edges_survey_20261013.md, research_scout/TOPICS.md
+16
+Coinbase listing events
+Partial
+THREE_IDEAS new-listing rule FAIL ($601 from $1,000 in test, on Binance data). Literature cited in our survey: returns accrue before day 0 and revert within 1-2 weeks. A historical Coinbase study is possible from data already in the repo; proposed Oct 19, not run.
+Not prioritized (R, G)
+altcoins_corrected_rerun_20261009.md, survey, research/coinbase_listing_stepB_20261019/listings_v2/listings.json
+17
+On-chain flows, holders, MVRV
+Only discussed
+Survey: MVRV weak (about 3 BTC cycles); on-chain signals mostly echo momentum; free sources such as Coin Metrics Community cover low-frequency needs. Holder-level point-in-time history not checked. Scout topic T01.
+Not costed; deprioritized from literature, not a repo test (R, G)
+survey, research_scout/TOPICS.md
+18
+Sentiment, social, news, search
+Only discussed
+Survey: Fear and Greed weak; scout topic T06; news copilot runs with no hypothesis; the market-intelligence service returns null placeholders.
+Implementation (I); literature (R)
+capability_disconnection_trace_20260929.md, edge_map_20261013.md E
+19
+ETF and stablecoin flows
+Only discussed
+Survey rank 5, ETF flows "mixed-moderate", data only since Jan 2024; scout topic T01.
+Never costed (R, G)
+survey, research_scout/TOPICS.md
+20
+Fundamentals and value factors (fees, users or addresses per market cap, developer activity)
+Only discussed
+Survey cites a value factor (active addresses relative to market cap); the Oct 19 scout report lists fee/TVL and user-based value factors and developer activity. Never proposed.
+Process gap (G)
+survey, research_scout/reports/2026-10-19_T04.md (uncommitted)
+21
+Contract and volume-quality screens (admin keys, mint or blacklist rights, wash trading)
+Never identified
+No document in docs/, research/ or scripts/. Probably low value for Coinbase-listed coins, since Coinbase reviews listings (CLAIMED, not checked).
+Process gap (G)
+Repo search
+22
+Sector and narrative rotation
+Never identified
+No document in docs/, research/ or scripts/.
+Process gap (G)
+Repo search
+23
+Cross-exchange, lead-lag, arbitrage
+Deferred
+Survey: arbitrage infeasible for this account (fiat rails, venues, latency); microstructure dead at retail fees. Coinbase and Kraken BTC quotes are being captured.
+R, P
+survey, information_feasibility_20261018/README.md, derivatives_intraday_roadmap.md
+24
+Multi-asset allocator (Module A, proposed E11)
+Deferred
+Draft preregistration exists as a Claude Doc; VOLFC-1 was run for its sizing (FAIL); a coverage test closed. Open parameters: 30% cap, top 10, 60-day lookback, +3% a year minimum effect.
+Waiting on your decision since Oct 18 (R)
+REMAINING_TASKS.md item 7, docs/checkpoints/claude_cowork_handoff_20261018.md, chronos_vol_forecast_20261018/PREREGISTRATION.md
+25
+New funding-rate hypothesis on unseen data
+Only discussed
+Named the best near-term candidate on Oct 18: Binance funding from late 2019 to Nov 2020 is the one unseen segment (E7 saw Dec 2020 onward).
+About 13-14 months of data; no hypothesis written (R, G)
+docs/checkpoints/claude_cowork_handoff_20261018.md, information_feasibility_20261018/README.md
+26
+Venue event and status context
+Only discussed
+Oct 18 assessment: "best-fitting first information-specific candidate". No structured incident ledger exists; event frequency unknown.
+Data not built (D, G)
+information_edge_assessment_20261018.md
+27
+Options and variance premium, DeFi liquidity provision and MEV, halving cycles, macro releases
+Deferred
+Survey: infeasible on Coinbase spot, dead at this fee level, or untestable.
+R
+survey, RESEARCH_BRIEF.md
+Why the untested areas were not pursued
+The largest cause is the research process itself: ideas were identified but never converted into ranked, costed proposals, and work followed whichever thread was requested next. Data cost and permissions explain specific families, not the pattern.
+Cause
+Families affected
+Evidence
+Data limitation
+Unlocks (history behind DefiLlama's $300/month Pro API, one revision date per protocol); liquidations (no retained history found); order book (BTC-only archive with gaps); open interest (56 days); venue events (no structured incident ledger)
+DefiLlama Pro endpoint list; liquidation_data_feasibility_20261012.md; information_feasibility_20261018/README.md; information_edge_assessment_20261018.md
+Permission constraint
+New data sources, spending and market-data runs need your approval; derivatives, shorting and leverage are not authorized; product fee evidence needs an authorized account read or your screenshot
+Standing rules; derivatives_intraday_roadmap.md; maker_taker_prereg_20261011/PREREGISTRATION_draft_v3.md section 3
+Implementation limitation
+E1's order-book capture at arrival is not built; the market-intelligence service returns null placeholders for sentiment and liquidation context; since Oct 16, restoring the research and explanation path was accepted as coming before new comparisons
+PREREGISTRATION_draft_v3.md section 4; capability_disconnection_trace_20260929.md; RESEARCH_BRIEF.md section 6
+Documented prioritization
+Survey (Oct 13) judged altcoin, derivatives, on-chain and sentiment signals unlikely to survive for this account; edge map said no more altcoin variants; the 90-day plan funded only E1 to E3, at most 2 at a time; Module A waits on your parameters
+crypto_trading_edges_survey_20261013.md; edge_map_20261013.md; research_budget_90d_20261011.md; REMAINING_TASKS.md item 7
+Gap in the research process
+See the five findings below
+As cited below
+Five process failures, in order of impact:
+1. No step turned identified ideas into decisions. The survey ranked supply-event avoidance third and called it robust. On Oct 18 a new funding hypothesis and venue event context were each named the best next candidate. None was proposed or costed. Scout leads land in research_scout/SEEN.csv as UNTESTED, with no triage step.
+2. Requests replaced the queue. E6 was registered as operator-requested after "find me a working edge" (xs_momentum_20261012/PREREGISTRATION.md). The low-value top-100 screens were an explicit request (RESEARCH_BRIEF.md, Oct 18 supplement), and ENTR-CB-1 followed from them. The 90-day plan put E1 first; E6 to E10 ran without a recorded re-ranking of that order.
+3. Changes of focus did not reopen old ideas. When your focus moved to lower-value coins (Oct 18-19), supply-event filters and listing events were not brought back into scope. I ran ENTR-CB-1 as a frozen test, which was correct, but I did not propose those filters as the next step.
+4. The record fell behind. The ES trial result is recorded in docs/checkpoints/ but its ledger row still says "not found". The liquidation markout diagnostic is not in the ledger. The low-value screens are named in a supplement but not as trial rows. research/symbol_coverage.csv lacks ENTR-CB-1's STOP. The Oct 19 scout report and SEEN rows are uncommitted.
+5. Two families were never assessed at all: contract and volume-quality screens, and sector rotation. They may be low value, but that was never shown.
+2. Evidence reconciliation
+The reconciled floor is at least 751 strategy configurations. BTC/ETH history is fully seen and most other datasets partly seen; clean evidence is limited to forward data since 2026-10-09 and a few unseen segments. I re-checked counts and statuses from the ledger files; I did not rerun any experiment.
+Item
+Value
+Status
+Source
+Executed configurations, Oct 15
+At least 747. Two families are lower bounds; colour-flip has no artifact. Superseded figures: about 576 (Oct 11), about 600 (edge map, Oct 13), at least 690 (pass 1).
+Pass 1 counted 16 of 42 sources by script; pass 2 added exact counts for 6 more families and lower bounds for 2; 4 discrepancies explained
+trial_ledger_reconciliation_20261015/pass2_findings_20261015.md, trial_inventory.csv
+Post-selection robustness settings
+118, reported separately and not in the 747
+VERIFIED (numeric total 808 minus 118 = 690, matching pass 1)
+count_reconciliation.md section 3
+Since Oct 15
+ENTR-CB-1: 1 plus 1 baseline. Low-value v1/v2: 3 screens, named in the ENTR-CB-1 supplement but not as trial rows. VOLFC-1: 1 plus 2 baselines, which its supplement says to record separately rather than add to the total.
+SHOWN
+Ledger supplements 20261018 and 20261019
+Current floor
+At least 751 strategy configurations, plus VOLFC-1 recorded separately
+My count from the rows above
+Rows above
+Distinct mechanisms / programs
+9 / about 35
+REPORTED
+count_reconciliation.md section 4
+Effective independent trials
+9 to 35
+Estimate; method never independently checked
+count_reconciliation.md section 5
+Selection-bias hurdle (deflated Sharpe)
+None valid; the hurdle table is a sensitivity input only
+Open
+count_reconciliation.md section 6
+Independent recomputation
+The candidate (blind reimplementation), E6 and E10 (blind implementations), E7 and E9 (re-execution), low-value v2 (independent match of 400 cycles), VOLFC-1, and ENTR-CB-1 (independent reviewer). Other verdicts rest on their own artifacts.
+SHOWN
+integrity_audit_20261015/, low_value_top100_20261018/RESULTS_V2.md, trial_ledger_supplement_20261018/README.md, docs/review_artifacts/claude_cowork_20261019/results_v1_review/
+Record gaps
+ES trial result exists (zero orders, fills or positions; efficacy INCOMPLETE) but its ledger row says not found; liquidation markout diagnostic missing from the ledger; Gate and Binance EMA campaigns unverified; server invoice not seen; v1 tracker models 0.60% fees while v2 models 0.50%
+Open
+docs/checkpoints/es_prospective_endpoint_result_2026_10_16.md; trial_inventory.csv; paper_btc_eth_trend_20261009/paper_state.json
+Holdout data
+13 historical datasets plus the prospective one. BTC/ETH daily: "FULLY SEEN". Others partly: Binance funding before Dec 2020 is unseen; the 492-product Coinbase set was seen for E6's top-20 universe and VOLFC-1's top 100; the E10 set for its 10 symbols. New data: trackers and CMC log since 2026-10-09.
+SHOWN
+trial_ledger_reconciliation_20261015/data_overlap.csv; ledger supplements
+Forward evidence so far
+v1 tracker after 7 days: -4.44% vs BTC hold -2.00%; v2: 0 records
+SHOWN; far too short to inform any decision
+paper_state.json; tracker v2 state folder
+Which conclusions can carry decisions
+Conclusion
+Strength
+Why
+Costs are first-order: the same rule moves from a registered REJECT at 1.2% per side to keep_researching at 0.50%
+Reliable
+Mechanical; the verdict changes with cost alone
+Long-only altcoin event and momentum rules lose after costs (Coinbase and Binance data)
+Reliable for the tested rules
+Many families, consistent, judged as single accounts
+Carry is too small at $1,000
+Reliable
+Arithmetic
+A funding crash brake adds nothing to the trend rule
+Moderate
+One registered test, re-executed; redundant with trend
+ENTR-CB-1 STOP
+Reliable for its frozen configuration
+Independent reviewer recomputed it
+BTC+ETH trend is better than simpler alternatives
+Weak
+History fully seen; picked among about 750 configurations; fails drawdown in period A at 0.50%; no valid deflated Sharpe; 7 days of forward data
+Per-symbol CANDIDATE labels (ETH, AVAX, DOT)
+Weak
+Beat hold on Sharpe and drawdown only; DOT's trend Sharpe in period H (2024-26) was -0.32; picked among 10
+Positive point estimates in the low-value screens
+Weak
+Intervals cross zero; concentrated in a few cycles
+On-chain and sentiment signals add nothing
+Not established
+Literature judgement, never tested here
+3. Revised brief: the trading system as it stands
+Every experiment is judged against the system below. Rows marked Confirm are assumptions I will not lock in without your answer.
+Parameter
+Current value
+Status
+Needs you?
+Venue
+Coinbase Advanced Trade, USD spot pairs; never the simple buy/sell flow
+SHOWN (RESEARCH_BRIEF.md section 2; edge map A)
+Confirm Coinbase is the only live venue
+Direction
+Long-only spot, 0-100% invested; no leverage, shorting or derivatives
+SHOWN (derivatives_intraday_roadmap.md)
+Confirm
+Capital
+Research convention: $1,000 per account or cycle. Live capital is not recorded anywhere.
+Unknown
+Confirm your live amount and whether it may grow
+Live risk gates
+Hard gates before any live order: $25 per trade, $50 per position, $25 daily loss, 5 trades a day; a general maximum drawdown of 10%. The $1,000 framing and E1's $500 model orders are 10-20 times above them.
+SHOWN (config/trading.yaml lines 35-49; risk_limit_change_review_20261005.md)
+Confirm whether these gates stay; they cap any strategy's dollar result
+Drawdown reference
+The candidate's worst historical drop: about 52% over full history, 44.8% in 2019-23, 32.8% in E7's 2020-23 window
+SHOWN (btc_eth_corrected_comparison_20261012/README.md; multisymbol_trend_20261015/README.md; crash_brake_20261013/README.md)
+Confirm the drawdown you will tolerate, maximum weight per asset and maximum number of positions
+Fees
+0.25% maker / 0.50% taker per side, account-level tier observed 2026-10-08 and 2026-10-11. Product-specific rates unverified; secondary sources say 0.40/0.60 or 0.50/0.90 (unverified).
+Partly SHOWN
+Confirm with a dated screenshot of BTC-USD and ETH-USD fees; this gates E1's freeze, not all research
+Spread and slippage
+Assumed, never measured: 0.05% per side in the BTC/ETH harness, 0.10% in E10, 0.25% in E6, the leader studies and the CMC-reference studies
+Assumption
+E1 measures it for BTC and ETH at the rebalance time
+Cost stress
+Each study reports a higher-cost tier: 1.2% per side in the original BTC/ETH stress and the altcoin studies, 0.90% in E7-E10
+SHOWN (RESEARCH_BRIEF.md section 5 names no level; levels from each study)
+Confirm one standard stress level for new studies
+Holding period
+Candidate: decide at the Sunday daily close, trade at the next open. Altcoin studies: 4-week cycles.
+SHOWN
+Confirm an allowed range; proposed 1-4 weeks, nothing intraday
+Turnover
+The candidate turns over about 9-13 times its capital a year (measured 9.2x in 2017/2019-23, 12.7x in 2024-26). Weekly full turnover would cost 26-52% a year.
+SHOWN (candidate_band_20261013/README.md; multisymbol_trend_20261015/; RESEARCH_BRIEF.md section 2)
+Confirm proposed cap: expected cost drag at most half the expected gross gain
+Fixed costs
+Server about $20/month, invoice not seen. Reported two ways: incremental (server already paid and shared) and total (server charged in full).
+CLAIMED
+Confirm whether the server stays regardless of research results
+Taxes
+Short-term gains taxed as ordinary income; Form 1099-DA reporting
+SHOWN as context (RESEARCH_BRIEF.md section 2)
+Confirm whether results should also be shown after tax
+Benchmarks
+Hold BTC; a fixed BTC/ETH/cash mix at comparable exposure (25/25/50 is the usual label); cash; the current candidate. My proposal: also an equal-weight Coinbase-tradable altcoin basket for altcoin work.
+SHOWN (RESEARCH_BRIEF.md section 5), plus one proposal
+Confirm the added altcoin benchmark
+Success standard
+One real account, net of all costs, beats the relevant benchmark on a metric frozen before the test. A positive result on seen data is exploratory until forward data confirms it.
+SHOWN (edge map lesson; research rules)
+None
+Execution model
+Decide at a close, trade at the next open; fills are modelled and labelled as modelled; missing candles are never filled in
+SHOWN (RESEARCH_BRIEF.md section 5)
+None
+Data policy
+BTC/ETH history fully seen; other datasets partly seen. Any unseen segment must be declared a holdout before anyone looks at it. Confirmation comes from forward data.
+SHOWN (data_overlap.csv; research rules)
+None
+New-experiment gate
+RESEARCH_BRIEF.md section 6 says new comparisons wait until the research and explanation path is usable. The last two studies ran as explicit requests.
+SHOWN
+Confirm whether this plan is authorized despite that gate
+Research focus
+Your standing direction: lower-value top-100 coins and new prospects over BTC/ETH. Every altcoin family tested so far has failed.
+SHOWN (research_scout/TOPICS.md)
+Confirm the plan should stay weighted to altcoins despite that record
+4. Bounded research plan
+Two experiments for this window, E1 and UNLOCK-1, chosen from eleven candidates scored on the seven criteria your advisor named. The scores are qualitative judgements from the cited evidence, so the order is argued below rather than computed. None of these experiments has been run.
+Rank
+Experiment
+Type and host
+Expected net improvement
+Drawdown effect
+Data
+Cost and time to result
+False-discovery risk
+Usable on Coinbase spot?
+1
+E1: maker vs taker execution
+Cost; the candidate
+At most 25 bps per side, about 2.3-3.2% of capital a year at measured turnover ($23-32 at $1,000; cents at the live caps). Also measures BTC/ETH slippage, assumed but never measured.
+None
+Free public order books and trades, collected forward (new data)
+$0; build a collector; about 66 days
+Low: a cost measurement with a frozen threshold
+Yes, directly
+2
+UNLOCK-1: token-unlock avoidance filter
+Risk filter; Coinbase-tradable altcoin basket
+Unknown. A market maker's study of 16,000+ unlocks reports declines starting about 30 days before.
+Could cut altcoin losses
+Unlock history is paid at DefiLlama ($300/month; other vendors unchecked) and likely lacks past schedule versions; prices already in the repo
+$0 feasibility check first, then $300 if approved; 2-3 weeks to an exploratory result
+Moderate, controlled by a placebo test
+Only if an altcoin sleeve is adopted
+3
+FUND-1: new funding-rate hypothesis
+Signal or overlay; the candidate
+Unknown; weak prior after E7 found funding redundant with trend
+Possibly
+In the repo; late 2019 to Nov 2020 is the only unseen historical segment
+$0; days; about 13-14 months of data, so low power
+Moderate
+Yes
+4
+FRESH-1: avoid freshly listed coins
+Risk filter; the same altcoin basket
+Small: a 30-day filter touches 110 of 4,209 picks (2.6%), in 60 of 100 cycles (my count from dates only, no returns)
+Small
+In the repo; no look-ahead
+$0; days
+Moderate; partly circular, since ENTR-CB-1 already showed entrants trailing the control
+Only if an altcoin sleeve is adopted
+5
+VOLTGT-1: candidate vs volatility-targeted hold
+Validation; the candidate
+Answers whether trend beats a simpler alternative
+Possibly similar
+History fully seen, so exploratory only; forward evidence slow
+Small code change; years for a firm answer
+Low to moderate
+Yes
+6
+E11: multi-asset allocator (Module A)
+Return signal and sizing
+Unknown; weak prior after E6 and E10 failed
+Unknown
+Partly seen
+Draft exists; needs your parameters
+Moderate
+Yes
+7
+VENUE-1: venue event and status context
+Information signal or filter
+Unknown
+Could avoid outage days
+No structured incident ledger; frequency unknown
+Build a ledger first; months
+Moderate
+Yes
+8
+LIQ-1: liquidation-cascade signal
+Signal or filter
+Unknown; a 2-hour diagnostic showed small rebounds
+Possibly
+No retained history; partial streams; forward-only
+Collector; months
+Moderate
+Indirect: derivatives data, spot trades
+9
+MANDATE-15: same trend rule on 15 untested symbols
+Return signal
+Low prior: the 10-symbol portfolio was rejected
+Unknown
+Free; partly unseen
+Low
+High: 15 symbols are 15 trials
+Yes
+10
+LOWVOL-1: low-volatility tilt in the top 100
+Return signal
+Unknown; literature mixed
+Lower volatility by design
+Free; already seen by E6 and VOLFC-1
+Low
+Moderate
+Yes
+11
+ONCHAIN-1: holder concentration as a risk screen
+Risk filter
+Unknown
+Possibly
+Holder-level point-in-time history not checked; likely paid
+High
+Moderate
+Only with an altcoin sleeve
+Why this order:
+• E1 first, on evidence quality, not money. It is the only candidate that uses new data, is not circular, and applies to the strategy closest to deployment. It also measures a cost every result assumes. Its weakness is size: about 2.3-3.2% of capital a year at best, and almost nothing at today's live caps.
+• UNLOCK-1 second, narrowly. It adds a variable never used in any study, sits in your stated altcoin focus, and can be tested on many events quickly. Against it: $300, a host basket with no edge (so even a pass leaves nothing deployable), and DefiLlama keeps only one revision date per protocol, so schedules as they were known at the time probably cannot be rebuilt. Its free feasibility check decides: if that fails, FUND-1 takes its place and I write FUND-1's full spec.
+• FUND-1 third: the only unseen historical segment in the repo, but short, with a weak prior.
+• FRESH-1 fourth. The fact-checker proposed it as cheaper than UNLOCK-1, and it is. But the count shows it can barely move the basket, its motivation partly comes from a result already seen, and ENTR-CB-1's preregistration may bar it.
+• E11 sixth: it waits on your parameters regardless, and its closest relatives (E6, E10) failed.
+Budget and rules for this window (to the 2027-01-09 review in the 90-day plan)
+• Experiments: at most 2 active (E1, UNLOCK-1 or its replacement), matching the plan's limit of 2 awaiting review. Anything else needs a recorded re-ranking first.
+• Hypotheses: 2 primary. Sensitivities only as declared in each frozen registration (E1 keeps its draft's; UNLOCK-1 declares 2); they are reported but never decide a verdict. Every hypothesis, variant and sensitivity goes into a trial-ledger supplement when registered and again when resolved.
+• Money: $0, except $300 for one month of unlock data if its feasibility check passes and you approve.
+• Data: E1 uses public Coinbase endpoints under its frozen contract. UNLOCK-1 pulls only unlock schedules and reuses price data already in the repo. No other new sources or downloads.
+• Stopping: a STOP or INCONCLUSIVE result ends that line on that data. No reruns and no new variants on the same history.
+• Record repair (needs your approval to edit files): update the ES_TRIAL ledger row, add the liquidation markout diagnostic and the low-value screens as trial rows, add ENTR-CB-1 to the symbol coverage file, and commit the Oct 19 scout report.
+5a. Experiment 1: E1, maker vs taker execution cost
+E1 asks whether a resting limit order at the touch, with a market-order fallback after 60 minutes, beats an immediate market order by more than 10 bps per side for BTC-USD and ETH-USD at the candidate's rebalance time. It follows the existing draft, maker_taker_prereg_20261011/PREREGISTRATION_draft_v3.md, without changing its constants.
+Field
+Specification
+Hypothesis
+At 00:00 UTC, a post-only limit order at the best bid (buy) or best ask (sell), left for 60 minutes and then completed with a market order, has lower all-in cost than an immediate market order of the same size, by more than 10 bps per side.
+Rationale
+The candidate's registered verdict is REJECT at 1.2% per side and keep_researching at 0.50%, so cost decides its fate. At its measured turnover of 9-13 times capital a year, each 10 bps per side is worth about 0.9-1.3 points a year; the maximum saving of 25 bps is about 2.3-3.2% of capital a year before missed fills. Separately, slippage has been assumed (0.05% to 0.25% per side across studies) and never measured; E1 measures BTC and ETH market-order cost at the real decision time.
+Data
+Coinbase public order book (Advanced Trade product book) at T0 = 00:00:30 UTC, at arrival A = T0 + 2 seconds, and at T1 = T0 + 60 minutes. Coinbase public trades with complete trade-ID coverage of the window. Product size and price increments. Product-specific fees from your dated screenshot. All public: no keys, no orders. All new forward data.
+Method
+Every day, 4 events: BTC and ETH, buy and sell, each sized q = $500 / mid-price at T0, rounded down to the product increment. Market baseline: walk the arrival book for q. Limit method: price at the T0 touch; fills under three scenarios (primary: a later trade through the limit price; secondary: queue-adjusted; optimistic: any trade at the limit); unfilled remainder completed at T1 with the taker fee. Cost per side in bps against the T0 mid, fees included. 3 validation days discarded, then a fixed 56-day sample (at most 224 events). Inference: circular day-block bootstrap, 10,000 resamples, 7-day blocks (3 and 14 as sensitivities), seed 20261011.
+Baseline
+Immediate market order at the same arrival time, same quantity, same reference price.
+Metrics
+Primary: mean D = limit-method cost minus market cost, bps per side, with 95% interval. Also: fill fraction per scenario; 95th-percentile limit-method cost; results by asset and side; exclusions and reasons; a modelled post-fill drift check for adverse selection; measured market-order cost against the assumed slippage. Any whole-strategy saving is computed separately on the candidate's actual weekly trades, never extrapolated from the daily panel.
+Success
+MAKER SUPPORTED: upper end of the 95% interval below -10 bps in the primary scenario, with at most 10% of events excluded.
+Failure
+MAKER NOT WORTH IT: lower end of the 95% interval above -10 bps. Anything else is INCONCLUSIVE. DEGRADED takes precedence: more than 10% exclusions is reported as DEGRADED, whatever the interval says, and changes nothing. No extensions or reruns.
+Your advisor's five checks
+Fee correctness: a gate before freeze. Fill rate: modelled under three scenarios only. Adverse selection: modelled post-fill drift, not realized. Missed fills: included, because the unfilled part is completed at T1 prices. Whole-strategy effect: computed on the candidate's actual weekly trades.
+Open items before freeze
+The arrival freshness tolerance is unset in draft v3. 56 days in 7-day blocks gives about 8 blocks, so intervals may be too narrow; the freeze reviewer must decide whether to keep that constant. Handling of empty resamples is an open clause.
+Limitations
+No real orders, so true fill probability and queue position stay unknown. 56 days covers one market regime. The balanced daily panel is not the strategy's real order flow. Model orders of $500 are 20 times the live $25-per-trade gate, so at live size the saving is cents per trade. A machine must be awake at 00:00 UTC every day; missed days count as exclusions.
+Cost
+$0 spend. Build: a collector with time-aligned order-book capture, an analysis script, tests and an independent review, about 3-4 working sessions (estimate). Calendar: 3 + 56 + about 7 days, about 66 days.
+Approvals needed
+1) Dated screenshot of BTC-USD and ETH-USD maker and taker fees. 2) Approval of the arrival order-book capture rule and its freshness tolerance (draft v3 section 4). 3) Where the collector runs: your Mac, awake from about 7:00 to 8:01 pm New York time (EST after Nov 1), or the server, which is a separate operational change. 4) Freeze after independent review. 5) Optional, not proposed now: tiny real limit orders to observe actual fills, which is live trading.
+What each result changes
+Supported: a separately approved second paper ledger using limit orders; the frozen weekly test is untouched. Not worth it: keep market orders and replace the assumed slippage with the measured cost. Inconclusive or degraded: no change.
+5b. Experiment 2: UNLOCK-1, token-unlock avoidance filter
+UNLOCK-1 asks whether dropping coins that face a large scheduled team or investor unlock improves a Coinbase-tradable altcoin basket. It is a risk filter, not a buy signal. It runs in phases with a stop after each, and its free feasibility check may well end it: the one vendor checked keeps only a single revision date per schedule.
+Field
+Specification
+Hypothesis
+In 4-week cycles of Coinbase-tradable top-100 altcoins, removing every coin with a scheduled team or investor unlock of at least 1% of its circulating supply, dated from entry to 30 days after exit, raises the basket's net return per $1,000 cycle by more than removing the same number of coins at random.
+Rationale
+New supply plus holders hedging ahead of it. Keyrock, a market maker that sells unlock-related services, reports negative price pressure in 90% of 16,000+ unlock events across 40 tokens, often starting 30 days before. That averages about 400 events per token, so most were small or linear. It found team unlocks the worst, investor unlocks "controlled" and ecosystem unlocks positive (+1.18%), normalised prices against ETH, and gave no significance or survivorship tests. Our survey ranked supply-event avoidance third. Unlock schedules have never been used in any repo study.
+Host basket
+The Coinbase-tradable altcoin control from ENTR-CB-1: all eligible top-100 altcoins listed on Coinbase at entry, equal weight, 100 four-week cycles 2019-2026, 4,209 selections; lower-bound mean +$17.16 per $1,000 cycle, median -$23.38, worst cycle -$419.82. Its per-coin returns were already seen in ENTR-CB-1 and the low-value screens; only the unlock data would be new.
+Data
+Unlock schedules: DefiLlama's Pro API (/api/emissions, /api/emission/{protocol}; $300 a month; one lastModified date per protocol). Other vendors not checked. Prices, selections and listing dates: already in the repo. Circulating supply derived as market cap divided by price from each CMC snapshot. No new price downloads.
+Phase 0: feasibility (no spend)
+Public documentation and any free sample only; no API calls without your yes. All five gates must pass or UNLOCK-1 ends as BLOCKED_DATA with nothing spent. a) Coverage: at least 70% of the 4,209 selections belong to tokens the source tracks (a tracked token with no unlock in the window counts as covered; an untracked token does not). b) Point-in-time: the source shows when each schedule entry was published or revised, so schedules can be rebuilt as known at each selection. c) Dead and delisted tokens are included. d) Recipient type is given. e) The licence allows research use. Likely outcome with DefiLlama: gate b) fails.
+Phase 1: method
+Registration frozen before any unlock data is pulled. Flag a selected coin if a team or investor unlock of at least 1% of circulating supply is dated from entry to 30 days after exit, using only schedule versions dated on or before the selection date. Filtered basket: equal weight across unflagged coins; cash when every coin is flagged. Same selection, entry, exit, costs and valuation rules as the host, using the same engine. Paired difference per cycle, filtered minus unfiltered, on jointly valued cycles only (no unresolved exit or missing entry in either basket).
+Inference
+4-cycle block bootstrap, 4,000 resamples, seed 20261020. Placebo: in each cycle, remove the same number of randomly chosen coins as the filter removed, 2,000 draws, seed 20261021.
+Baseline
+The unfiltered host basket and the random-removal placebo, on the same cycles. Hold BTC, the BTC/ETH/cash mix, cash and the candidate are reported for context.
+Metrics
+Primary: mean paired difference per $1,000 cycle and its bootstrap 95% interval. Also: the same with the largest cycle removed; the placebo's 95th percentile; share of selections removed; mean return of removed vs kept selections; worst cycle; compounded drawdown of both baskets; turnover change. Two declared sensitivities, reported but never deciding: unlocks of any recipient type, and a 0.5% threshold.
+Success
+Qualifies for forward confirmation only if all hold: bootstrap 95% lower bound of the paired mean above 0; paired mean above 0 without its largest cycle; paired mean above the placebo's 95th percentile; no more than 30% of selections removed; all Phase 0 gates passed. Labelled exploratory, because host prices were already seen.
+Failure
+Paired mean at or below 0: STOP the unlock filter on this host, record it, no threshold tuning. A positive mean that misses any other success condition: INCONCLUSIVE, no rerun.
+Phase 2 (later, separate approval)
+Log every large scheduled unlock on Coinbase-tradable coins from registration onward, and apply the frozen filter to new cycles.
+Limitations
+The host has no established edge, so a pass improves the basket against itself and leaves no deployable strategy on its own. Host prices were already seen. An unlock is not a sale. Unlocks may cluster with market-wide moves. Forward confirmation is slow: about 13 cycles a year.
+Cost
+Phase 0: about 1 working session, $0. If it passes and you approve: $300 for one month of data, 2-3 sessions for Phase 1 including tests, then an independent review; about 2-3 weeks to an exploratory result.
+Approvals needed
+1) Phase 0 using public documentation only (any vendor API call needs your yes). 2) The $300 spend and the new data source, only after Phase 0 passes. 3) Freeze after independent review. 4) Phase 2, later.
+What each result changes
+Pass: forward confirmation, and a separate decision on whether to design an altcoin sleeve with this filter. Fail: supply-event avoidance closed for this host. Blocked: FUND-1 becomes experiment 2 and I write its full spec.
+6. Process changes
+The fix is one ranked research queue that every idea enters, whoever raises it, and that I keep current and report from. Each change below targets one of the five process failures in section 1.
+1. One ranked queue. Every identified idea, including scout leads, survey ingredients, past recommendations and your suggestions, becomes a row. Each row carries: status (tested, partial, deferred, only discussed, new), the cause if not tested, the seven ranking criteria, cost, and the approval it needs. It is re-ranked after every result and at each window review. Fixes: ideas identified but never decided.
+2. Triage within a week. Scout leads are scored into the queue within 7 days of being found, or rejected with a reason. Nothing stays at UNTESTED without a decision. Fixes: survey and scout findings sitting idle.
+3. Your ideas get the same treatment. When you suggest something, I reply first with: whether it was already considered (files, IDs), why it was or was not pursued, what it adds, and where it ranks. Then it joins the queue or is merged with an existing row. Fixes: you having to find the next direction yourself.
+4. Requests change the ranking explicitly. If you ask for something outside the top of the queue, I record the re-ranking and what it displaces before starting, as the 90-day plan requires. Fixes: requests silently replacing the plan.
+5. Focus changes reopen the queue. When your focus shifts (for example to lower-value coins), every row touching the new area is re-scored that day. Fixes: supply-event filters not being reopened on Oct 18-19.
+6. The record is updated with each result, not afterwards. The trial ledger, symbol coverage file and edge map are updated in the same step as the result note. Fixes: missing and stale ledger rows.
+7. Every summary separates four things: tested, partially investigated, only discussed, and not yet identified. No idea is described as rejected unless it was tested.
+8. A standing data and spending envelope. You approve, once, a short list of sources and request budgets I may use without asking each time. Anything new or paid still comes to you with its cost and the expected value of the experiment it serves. Fixes: approvals stalling investigation.
+9. Independent fact-check before handover. Every audit, plan or result note is checked against the repo by a reviewer that did not write it. This document's first draft had 10 errors; they were caught that way. Fixes: confident errors reaching you.
+The aim stays narrow: decide whether a measurable, repeatable, economically viable edge exists, with the fewest experiments needed to know.
+Decisions needed from you
+Nothing in this plan starts until you answer. The first two items unblock the most.
+[ ] Confirm whether this plan is authorized despite the brief's rule that new comparisons wait for the research path to be restored (RESEARCH_BRIEF.md section 6).
+[ ] Send a dated screenshot of your BTC-USD and ETH-USD maker and taker fees. This gates E1's freeze.
+[ ] Answer the Confirm rows in section 3: live venue, direction, live capital, whether the live risk gates stay, drawdown tolerance, standard stress level, holding range, turnover cap, whether the server stays, after-tax reporting, the added altcoin benchmark, and whether to keep the altcoin focus.
+[ ] E1: approve the arrival order-book capture rule and its freshness tolerance, choose where the collector runs (your Mac or the server), and approve building it, then freezing after independent review.
+[ ] UNLOCK-1: approve Phase 0 using public documentation only. The $300 decision comes only if all five gates pass; if not, FUND-1 replaces it.
+[ ] Module A (E11): its parameters have waited on you since Oct 18. Decide them, or park it.
+[ ] Approve the record repairs listed in section 4.
+[ ] Approve saving this audit and plan into the repository once you and your advisor have reviewed it.
+[ ] Ask me to draft the standing data and spending envelope for your approval.
+Sources
+Repository evidence is cited inline (paths under docs/research/ unless noted) and was read on 2026-10-20. External pages opened for this document:
+• DefiLlama Pro API endpoint list: unlock endpoints, $300 a month
+• DefiLlama free API endpoint list: no unlock endpoints
+• Keyrock: From Locked to Liquidity, what 16,000+ token unlocks teach us

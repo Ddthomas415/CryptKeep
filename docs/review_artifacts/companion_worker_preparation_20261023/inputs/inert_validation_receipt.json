@@ -1,0 +1,23 @@
+{
+  "schema": "companion-worker-preparation-inert-validation-v1",
+  "environment_confidence": "VERIFIED_ENV",
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m scripts.research.companion_prepare --manifest docs/review_artifacts/companion_worker_preparation_20261023/inputs/reviewed_preparation_manifest.json --reviewed-manifest-sha256 35032e02db1bf1d569d7918ef9127562abc205154d68908455c3ec5bf3201d42",
+  "exit_code": 0,
+  "stdout": {
+    "state": "READY_FOR_INDEPENDENT_REVIEW",
+    "actions_executed": false,
+    "startup_authorized": false,
+    "manifest_sha256": "35032e02db1bf1d569d7918ef9127562abc205154d68908455c3ec5bf3201d42",
+    "attempt": "workerprep20261023v6a",
+    "output_directory": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261023v6a",
+    "controller_budget_seconds": 300,
+    "recovery_reserve_seconds": 120
+  },
+  "postcheck": {
+    "new_preparation_and_cutover_markers_absent": true,
+    "old_two_failed_operation_receipt_hashes_unchanged": true,
+    "reviewed_derivative_differs_only_decision_and_reviewer": true,
+    "native_operations": false
+  },
+  "limitations": "Default validation only; no runtime inventory, builder, image, credential, container, preparation, shutdown or query was exercised. Reported budgets describe the controller, not measured operational timing."
+}

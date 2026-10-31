@@ -1,0 +1,29 @@
+{
+  "schema": "companion-inert-validation-receipt-v1",
+  "role": "AUDITOR",
+  "environment": "VERIFIED_ENV for offline existing CLI only",
+  "recorded_utc": "2026-10-22 02:30:39 UTC",
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m scripts.research.companion_cutover \\\n --manifest docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/reviewed_preparation_manifest.json \\\n --reviewed-manifest-sha256 dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d \\\n --preparation-evidence docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/actual_preparation_evidence.json \\\n --preparation-review docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/actual_id_review.json \\\n --reviewed-preparation-review-sha256 b9723bdd60158e9f5f354eee34db097af6d6949a3bb113d8dd16a5c6980b931c \\\n --staged-metadata docs/review_artifacts/companion_continuation_20261021/runtime_packet/staged_metadata.derived.json \\\n --runtime-review docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/runtime_review.json \\\n --reviewed-runtime-review-sha256 64127a85c985be4e09c0c6df24f5a688d5faae5a38077a3ccd20af7e82d7d43b \\\n --topical-approvals docs/review_artifacts/companion_continuation_20261021/runtime_packet/topical_approvals.json \\\n --dependency-review docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-timescaledb.json \\\n --dependency-review docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-qdrant.json \\\n --dependency-review docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-minio.json \\\n --dependency-review docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-audit-log.json \\\n --dependency-review docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-risk-stub.json \\\n --dependency-review docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-memory.json \\\n --dependency-review docs/review_artifacts/companion_continuation_20261021/runtime_packet/accepted_policy_records/phase1-orchestrator.json",
+  "exit_code": 0,
+  "result": {
+    "state": "READY_FOR_INDEPENDENT_REVIEW",
+    "actions_executed": false,
+    "startup_authorized": false,
+    "input_bindings_validated": true,
+    "manifest_sha256": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d",
+    "attempt": "s3refresh20261021c1eaae5a",
+    "controller_budget_seconds": 600,
+    "recovery_reserve_seconds": 180
+  },
+  "reviewed_runtime_sha256": "64127a85c985be4e09c0c6df24f5a688d5faae5a38077a3ccd20af7e82d7d43b",
+  "reviewed_scope_sha256": "271c1c2c204f1493fd36caf0db57b5af464aba4c920526e2e77fd019ce24790d",
+  "native_operations": false,
+  "credentials_or_token_accessed": false,
+  "services_started": false,
+  "full_test_suite_run": false,
+  "limits": [
+    "Input binding validation is not current Docker inventory, installed-byte, health, namespace, DNS, retrieval or citation proof.",
+    "CLI READY_FOR_INDEPENDENT_REVIEW is its inert-mode status, not authorization to execute. Exact-image policy records have separate independent ACCEPTED_WITH_RISK disposition.",
+    "No execute-cutover flag or token descriptor supplied; no native calls or operational action authorized."
+  ]
+}

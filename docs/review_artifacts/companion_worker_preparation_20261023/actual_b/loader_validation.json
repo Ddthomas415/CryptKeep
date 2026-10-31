@@ -1,0 +1,18 @@
+{
+  "schema":"companion-v6b-reviewed-preparation-loader-validation-v1",
+  "environment_confidence":"VERIFIED_ENV",
+  "method":"Existing Plan.load and ReviewedPreparation.load called on exact public manifest/evidence/review bytes with the separately supplied independent review hash; no backend constructed",
+  "manifest_sha256":"67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e",
+  "evidence_sha256":"da7ee2de44a4e98990cceb6b4c53edc530fc717cc45c7c94d6b65994edfa35ef",
+  "review_sha256":"c8fd96dd96b12576a82494d079022f6571ef52dd8bbdade7a154a70d826bce96",
+  "reviewed_preparation_loader_passed":true,
+  "exact_new_ids":[
+    "6ed099d9dc9871eaa1ea701eeda488c5b47b5d954dbbca920e527a2397b795e3",
+    "6ecdea955efebb6afa265f7f620d18bb119d78a6e19030cece9f9a8294f41fa6",
+    "a0f4a77087bd33167692c5326a1a8183774c099a5128e93fa8268554cfab2c49",
+    "c672b553761f4c780881be0a4e50de6a2c2c9c139473bf85202a8e54dfa358c1"
+  ],
+  "native_operations":false,
+  "startup_authorized":false,
+  "limits":"Offline evidence-loader acceptance, not runtime startup, shutdown, query, connectivity or deployment proof"
+}

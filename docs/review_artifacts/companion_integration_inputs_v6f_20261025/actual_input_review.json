@@ -1,0 +1,208 @@
+{
+  "schema": "companion-v6f-actual-input-independent-review-v1",
+  "date": "2026-10-25",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Saved preparation INPUTS only, as selected-field sequential snapshot evidence. Not authority for build, configuration copy, create, start, cutover, query, allocation or any native operation.",
+  "input_state": "ACCEPTED_WITH_RISK",
+  "runtime_state": "INCOMPLETE",
+  "blocking_findings": [],
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "hashes": {
+    "capture_1.jsonl": "9f363da9f6ea2f802e775f0c5f39270002d26a6add79aa237f2d1055e3e8e0fb",
+    "capture_2.jsonl": "9f363da9f6ea2f802e775f0c5f39270002d26a6add79aa237f2d1055e3e8e0fb",
+    "baseline_observation.json": "4795ccaab3368196bfd85fa869ba61bbaaf5dc936f6db64c901222a3c7e0f81a",
+    "candidate_manifest.json": "7349a21872ebf6536ffadbfc459e935ea4f94a5bf1f9d5ff2608952112c4e311",
+    "provenance.json": "b8c685aac89efc0661a2635e97855b997e8fc77cbd9ab2b029b667f4da3377a7",
+    "derive_inputs.py": "a63572220edfef175873e09ca82647e69131b7a7534011c9b6c84593eb36ce22",
+    "independent_review.json": "188969cd3a5b439c5fb5d72026795b47808935b2475bb86a16e237d34fa3fabd",
+    "source_refresh.json": "241a0f23dee830bdcfe438083cab6065ce9ace482c97b47455d197546e44b780",
+    "initial_capture_failure.json": "6503effae1f4ef6a2f4cff7d5c1b7f0f1f4bf40835bf015205542c1e9d76f47c",
+    "reviewed_preparation_manifest.json": "a7854b1660ae2c321f8edb62d3ac2b7ab60350deb62df91bdde774e8c2ea1588"
+  },
+  "hash_path_base": "docs/review_artifacts/companion_integration_inputs_v6f_20261025",
+  "shown": [
+    {
+      "subject": "Raw pair and observation",
+      "detail": "Parsed both complete JSONL captures and the complete observation with duplicate-key rejection. Seven rows per capture; raw bytes equal, parsed rows exactly equal observations[0] and observations[1], and raw_capture_sha256 matches both files. This establishes local evidence consistency, not independent native observation."
+    },
+    {
+      "subject": "Helper and format scope",
+      "detail": "Three observation helper pins rehashed and matched. Read complete collect_companion_recreation_metadata.py and relevant adapter format and preservation helpers. Selected format exports fixed environment comparison/presence booleans, not credential values or raw environment. Command/entrypoint/health text are allowlisted before full metadata output; raw rows contain full selected metadata rather than reduced unrecognized-command fallback. No attempt field is expected in this capture format. No helper capture entrypoint or native CLI was invoked.",
+      "capture_format_sha256": "e90ef202f5eabd037f3638278f4b0f06934c2da2d0eb725111a03b2b8e20d077"
+    },
+    {
+      "subject": "Candidate and provenance derivation",
+      "detail": "Invoked accepted derive() offline with the supplied observation hash. Recomputed candidate canonical bytes exactly equal saved candidate_manifest.json; recomputed proof object exactly equals provenance.json. Existing network models and all source/consumer pins therefore passed the accepted derivation gates. No recomputed candidate was published or used operationally."
+    },
+    {
+      "subject": "Baseline identity and configuration",
+      "detail": "All seven old names, IDs, images, running states, restart counts (zero), restart policies (no), foundation and configured digests preserved under existing helpers. Three storage snapshots match old baseline completely; four application snapshots differ only in started. No newly assigned identity, image or attachment capability is inferred.",
+      "baseline_deltas": [
+        {
+          "name": "phase1-timescaledb",
+          "fields": []
+        },
+        {
+          "name": "phase1-qdrant",
+          "fields": []
+        },
+        {
+          "name": "phase1-minio",
+          "fields": []
+        },
+        {
+          "name": "phase1-audit-log",
+          "fields": [
+            "started"
+          ]
+        },
+        {
+          "name": "phase1-risk-stub",
+          "fields": [
+            "started"
+          ]
+        },
+        {
+          "name": "phase1-memory",
+          "fields": [
+            "started"
+          ]
+        },
+        {
+          "name": "phase1-orchestrator",
+          "fields": [
+            "started"
+          ]
+        }
+      ],
+      "selected_identity_rows": [
+        {
+          "name": "/phase1-timescaledb",
+          "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+          "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no"
+        },
+        {
+          "name": "/phase1-qdrant",
+          "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+          "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no"
+        },
+        {
+          "name": "/phase1-minio",
+          "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+          "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no"
+        },
+        {
+          "name": "/phase1-audit-log",
+          "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+          "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no"
+        },
+        {
+          "name": "/phase1-risk-stub",
+          "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+          "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no"
+        },
+        {
+          "name": "/phase1-memory",
+          "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+          "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no"
+        },
+        {
+          "name": "/phase1-orchestrator",
+          "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+          "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no"
+        }
+      ]
+    },
+    {
+      "subject": "Exact source and policy scope",
+      "detail": "43 app source entries and 13 consumers revalidated. Only memory_retrieval/article_view.py, memory_retrieval/main.py and installer consumer hashes change, exactly as accepted in the pinned repair. All application commands/create options/network options/replacement configured fingerprints, source local/destination mappings, policies and network contract remain inherited unchanged. Four historical replacement models reproduce configured fingerprints only; they do not prove new resource identity, installed code, namespace or liveness."
+    },
+    {
+      "subject": "Markers and output decision",
+      "detail": "Offline derivation verified old V6e preparation/cutover markers exist and new V6f markers are unused, without reserving, reading contents, deleting or creating markers. Reviewed manifest changes exactly decision and reviewer from saved candidate; existing Plan.load accepted actual emitted bytes using their SHA-256. Output keeps the consumer's companion-worker-staged-update-v6 schema and existing deferred startup policies. Acceptance is scoped by reviewer text and this report, not an execution grant."
+    }
+  ],
+  "nonblocking_findings": [
+    {
+      "classification": "SHOWN",
+      "subject": "Inherited comparison failures are not hidden",
+      "detail": "REQUEST_TIMEOUT_SECONDS comparison is false for each of the four application rows. These flags are already bound by unchanged foundation/configuration digests against accepted prior baseline; they are not a new delta. This input acceptance is not a claim all environment/runtime compatibility checks pass. Existing downstream compatibility and native identity preflights must still fail closed."
+    },
+    {
+      "classification": "SHOWN",
+      "subject": "Selected metadata and labels are deliberately incomplete operational proof",
+      "detail": "Capture carries label counts, not arbitrary label values or installation-attempt ownership evidence. Raw network addresses and startup fields are sequential observations, not current-state locks. No installed source, volume bytes, endpoint health, service connectivity, database content or successful explanation is established."
+    }
+  ],
+  "provenance_attribution": {
+    "classification": "CLAIMED for acquisition events; SHOWN for saved-byte consistency",
+    "operator_authorization": "Fresh explicit operator approval stated directly by user; not enlarged by this review.",
+    "capture_event": "Parent reports exactly two selected-ID read-only native inspections, elapsed 0.083 seconds, no exported secret values, application query or service change.",
+    "reported_start_utc": "2026-10-25T12:06:23.773515+00:00",
+    "reported_end_utc": "2026-10-25T12:06:23.856449+00:00",
+    "independent_native_observation": false,
+    "initial_failure": "Original failed one-read wrapper event remains in initial_capture_failure.json unchanged. Its discarded raw observation is not manufactured or included in the usable pair."
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for local offline parsing, hashing, derivation and Plan.load only",
+    "methods": [
+      "SHA-256 of all listed local artifacts and all hash-bound derivation/helper inputs",
+      "Duplicate-key rejecting parsing of complete raw captures and observation",
+      "Raw pair-to-observation comparison",
+      "Accepted derivation recomputation with exact candidate bytes and proof-object comparison",
+      "Old-to-current baseline and manifest semantic field comparison",
+      "Plan.load of reviewer-derived manifest using actual emitted-file hash"
+    ],
+    "tests": "No new pytest run: no source/test implementation change. Earlier independent implementation slice was 13 passed; it is not actual runtime proof.",
+    "no_native_or_service_operations": true
+  },
+  "outputs": {
+    "reviewed_manifest": "reviewed_preparation_manifest.json",
+    "decision": "ACCEPTED_WITH_RISK",
+    "changed_fields_only": [
+      "decision",
+      "reviewer"
+    ],
+    "reviewer": "Independent GATE actual-input review 2026-10-25; preparation inputs only; no execution authority; actual_input_review.json",
+    "preserved": [
+      "candidate_manifest.json",
+      "source_refresh.json",
+      "independent_review.json",
+      "provenance.json",
+      "initial_capture_failure.json",
+      "capture_1.jsonl",
+      "capture_2.jsonl",
+      "baseline_observation.json",
+      "old packets and attempts"
+    ]
+  },
+  "limitations": [
+    "Two equal sequential snapshots do not establish atomic state or a post-capture guarantee. All required fresh native preflights, reservation and resource identity checks remain necessary; none is performed or waived here.",
+    "Actual input readiness has progressed from missing baseline to bounded accepted saved inputs; runtime remains INCOMPLETE. No current deployment, operational health, successful recovery, exact restoration or explanation claim.",
+    "Parent may separately invoke default inert validation, but this review did not invoke CLI entrypoints or authorize native execution. No packet or attempt may be reused merely because this manifest has an accepted decision.",
+    "Only actual_input_review.json and reviewer-derived reviewed_preparation_manifest.json written. No source, tests, old review, shared docs/worklog or runtime state modified."
+  ]
+}

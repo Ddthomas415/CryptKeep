@@ -1,0 +1,78 @@
+{
+  "started_at_utc": "2026-10-28T12:50:30.787959+00:00",
+  "active_role": "ENGINEER",
+  "authorization": "Human approved exact existing-job log-path-only repair and one reload",
+  "status": "ACCEPTED_WITH_RISK",
+  "commands": [
+    {
+      "command": [
+        "/bin/launchctl",
+        "print",
+        "gui/501/com.cryptkeep.ed002.public-inputs"
+      ],
+      "returncode": 0,
+      "phase": "operation"
+    },
+    {
+      "command": [
+        "/usr/bin/plutil",
+        "-lint",
+        "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/ed002_pilot_log_repair_20261028/com.cryptkeep.ed002.public-inputs.plist"
+      ],
+      "returncode": 0,
+      "phase": "operation"
+    },
+    {
+      "command": [
+        "/bin/launchctl",
+        "bootout",
+        "gui/501/com.cryptkeep.ed002.public-inputs"
+      ],
+      "returncode": 0,
+      "phase": "operation"
+    },
+    {
+      "command": [
+        "/bin/launchctl",
+        "bootstrap",
+        "gui/501",
+        "/Users/baitus/Library/LaunchAgents/com.cryptkeep.ed002.public-inputs.plist"
+      ],
+      "returncode": 0,
+      "phase": "operation"
+    },
+    {
+      "command": [
+        "/bin/launchctl",
+        "print",
+        "gui/501/com.cryptkeep.ed002.public-inputs"
+      ],
+      "returncode": 0,
+      "phase": "operation"
+    }
+  ],
+  "no_forced_capture": true,
+  "no_window_extension": true,
+  "recovery_attempted": false,
+  "original_sha256": "d4ae5e578a2c5a11210d5493d267852ff9e14d0d922ccfed1c3b50ab8bc8faf2",
+  "proposed_sha256": "b05e609f9cc6b24fa1faf5b9ec274a61ad9c9b00477455cd0d701159a876251b",
+  "original_identity": [
+    16777230,
+    4217334666
+  ],
+  "pilot_end_ms_unchanged": 1793270100000,
+  "source_pins_verified": 10,
+  "log_directory_created": "/Users/baitus/Library/Logs/CryptKeep/ed002_public_inputs_mac_pilot_20261028t1035z",
+  "registered": true,
+  "postflight_state": [
+    "state = not running",
+    "runs = 0",
+    "last exit code = (never exited)"
+  ],
+  "installed_sha256": "b05e609f9cc6b24fa1faf5b9ec274a61ad9c9b00477455cd0d701159a876251b",
+  "installed_mode": "0o600",
+  "scope_result": "Approved log-path repair installed and exact job reloaded once; unattended capture remains INCOMPLETE",
+  "finished_at_utc": "2026-10-28T12:50:30.830003+00:00",
+  "elapsed_seconds": 0.042,
+  "temporary_path_remaining": null
+}

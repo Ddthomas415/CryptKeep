@@ -1,0 +1,58 @@
+{
+  "before_after_equal": true,
+  "classification": "SHOWN for saved configured profile, not native startup",
+  "corrected_profile_matches": true,
+  "correction": "Original diagnostic incorrectly required repository PYTHONPATH for all four apps. Captured CLI app-dir default inserts current directory; saved working directory is /app. Repository import path remains required for orchestrator. No container or saved observation changed.",
+  "inputs_sha256": {
+    "capture_startup_profile.py": "a6f1318309d4f602eb86eda30b514a7100ccb1b43836acccae775c719169a2f1",
+    "missing_runtime_sources_authorized/2_uvicorn_main.py": "8afea9b600c19e4a345be5641ecd1edc8e14ac5effe6c119ae7b5034a24614d6",
+    "startup_profile/capture_startup_profile_v1.executed.py": "5b514d8b35359c8b8c5d1687b0bd588dd2ac7fd76ba8e2ae85a04742d0c711f3",
+    "startup_profile/report.json": "3c49e4246f5b69864f3b3aedae8562dcb857926995f78591452de2af3836f3d9"
+  },
+  "limits": [
+    "Only fixed option matches/presence were returned; no raw environment values.",
+    "Default single-worker/no-reload profile is supported at observation time, not continuously enforced by this artifact.",
+    "No SDK initialization, DNS resolution, source rehash or explanation query occurred.",
+    "HTTPcore pool reassignment and Psycopg address fallback are not removed or generalized to zero network attempts."
+  ],
+  "native_operations_by_assessment": false,
+  "observed_utc": "2026-10-22T01:44:48.379014+00:00",
+  "original_profile_matches": false,
+  "profile_conclusions": {
+    "entrypoint_empty": true,
+    "forwarded_allow_ips_absent": true,
+    "literal_command_module_port_path_match": true,
+    "no_uvicorn_overrides": true,
+    "shell_startup_overrides_absent": true,
+    "web_concurrency_absent_default_one": true
+  },
+  "runtime_authorized": false,
+  "schema": "companion-startup-profile-assessment-v2",
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "subjects": [
+    {
+      "container_id": "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+      "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "profile_matches": true,
+      "requires_repo_import_path": false
+    },
+    {
+      "container_id": "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+      "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "profile_matches": true,
+      "requires_repo_import_path": false
+    },
+    {
+      "container_id": "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+      "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "profile_matches": true,
+      "requires_repo_import_path": false
+    },
+    {
+      "container_id": "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726",
+      "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "profile_matches": true,
+      "requires_repo_import_path": true
+    }
+  ]
+}

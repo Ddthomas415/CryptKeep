@@ -1,0 +1,51 @@
+{
+  "artifact_sha256": {
+    "docs/review_artifacts/companion_archival_market_exclusion_20261026/prechange.tar": "ede01d9a5159c6003bf23ae129c7a07604aec420c864f8ebad5f271a17aa470b",
+    "docs/review_artifacts/companion_archival_market_exclusion_20261026/repair.diff": "8836bf556c5aa5fa6ab5cbccbdd777a492d99aeeaf66770b6dc24b99fea1954c"
+  },
+  "before_sha256": {
+    "phase1_research_copilot/memory_retrieval/main.py": "28dc4f1b496437be2d3e1273b4910515b8342a0d57b939f849a6a49da09322d1",
+    "scripts/research/companion_evidence_checks.py": "25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5",
+    "tests/test_companion_v6h_strict_probe_contract.py": "ea4049ccf827b8dfd2b416b89fb977eae9594dfd6a5fe37d0492968a0f0a28a4",
+    "tests/test_companion_verifier_diagnostics.py": "5fd3781427e5e339a58aa0bff22b093d5162c692f76ab434bad976969d3e3a5e"
+  },
+  "frozen_input_sha256": {
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f"
+  },
+  "native_or_token_or_service_operations": false,
+  "production_paths": [
+    "phase1_research_copilot/memory_retrieval/main.py",
+    "scripts/research/companion_evidence_checks.py"
+  ],
+  "role": "ENGINEER",
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-archival-market-exclusion-repair-v1",
+  "source_sha256": {
+    "docs/checkpoints/companion_archival_market_exclusion_20261026.md": "c30c2129b6db2f07c40fbdb1bcc468fe219e5c78bddc9e82117c612b03ae99b6",
+    "phase1_research_copilot/memory_retrieval/main.py": "9f68fe4d09c00c11a659bb705f6c885939e717d70f9d7b1b43cd995e440b52cf",
+    "scripts/research/companion_evidence_checks.py": "9c58b8128d6ff9fd6a140ef7b107323497886f1640aac69e357eb79bff684461",
+    "tests/test_companion_archival_market_exclusion.py": "500a45c048f9660c524ad1340dcd69b758bdc84cb8893f34a9087ae85f718ba0",
+    "tests/test_companion_v6h_strict_probe_contract.py": "24b88bf57b15a1949e8c692a5efc8828fef37b8ca1e3dc4d49a341898d6b99e1",
+    "tests/test_companion_verifier_diagnostics.py": "13b903d14e2914722677818a9dc1c5c90063d36d61500c0cbabf387c993e859f"
+  },
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "verification": {
+    "auth_slice": {
+      "deselected": 60,
+      "passed": 4,
+      "seconds": 0.78,
+      "warnings": 8
+    },
+    "before_repair": {
+      "failed": 5,
+      "passed": 27
+    },
+    "full_suite_run": false,
+    "repair_slice": {
+      "passed": 256,
+      "seconds": 20.31,
+      "warnings": 28
+    }
+  }
+}

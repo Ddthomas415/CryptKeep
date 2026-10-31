@@ -1,0 +1,14 @@
+{
+  "bytes": 145,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "16_JTO.bin",
+  "http_date": "Wed, 28 Oct 2026 21:35:04 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793223304701,
+  "request_started_ms": 1793223304564,
+  "sha256": "f98463fc70f19e67c7e1bf3bf70003ba6b54caecd5c0b5cd3dd0aab27e05e5bf",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/JTO-USD/candles?granularity=3600&start=2026-10-28T19%3A00%3A00%2B00%3A00&end=2026-10-28T21%3A00%3A00%2B00%3A00"
+}

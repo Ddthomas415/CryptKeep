@@ -1,0 +1,3 @@
+{"base_image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad", "context_sha256": "e2fb1c2bd96a80c46bcea4884c87a9ccb9533ca53d6faf58f04882794f6ecac6", "network": "none", "no_run_instructions": true, "phase": "one_build_intended", "pull": false}
+{"image": "sha256:99e59b439903f0148e3d781467631fdea82a033c7d68e52572a87a064c2b0cac", "phase": "build_acknowledged"}
+{"phase": "probe_checks_complete", "seven_targets_unchanged": true, "state": "READY_FOR_INDEPENDENT_REVIEW"}

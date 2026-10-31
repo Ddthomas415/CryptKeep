@@ -1,0 +1,30 @@
+{
+  "schema": "companion-v6e-stopped-preparation-outcome-v1",
+  "role": "ENGINEER",
+  "invocations": 1,
+  "exec_session": 13470,
+  "exit_code": 0,
+  "stdout": {
+    "state": "READY_FOR_INDEPENDENT_REVIEW",
+    "preparation_complete": true,
+    "actions_executed": true,
+    "startup_authorized": false,
+    "services_started": false,
+    "originals_interrupted": false,
+    "attempt_reserved": true,
+    "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261024v6e/receipt.jsonl",
+    "evidence": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261024v6e/evidence.json",
+    "evidence_sha256": "49a95a20860e9e62d02a1ecc01884ecbd973e19c6b09d17575e89950f49ebc51",
+    "manifest_sha256": "2075f3b98abc53be9e8336d425dd8d158aca4b1934a1b9da46c2ae9d3cd562d4"
+  },
+  "runtime_status": "INCOMPLETE",
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "retry_authorized": false,
+  "limits": [
+    "Stopped-preparation completion is not endpoint, execution, citation or profitability proof.",
+    "Actual new identities require separate review; no prior ID or consumed attempt may be reused.",
+    "Image/cache/config/log side effects may persist; no volume-byte or full-state restoration claim."
+  ]
+}

@@ -1,0 +1,320 @@
+{
+  "schema": "companion-v6h-stopped-preparation-independent-review-v1",
+  "role": "GATE",
+  "review_date": "2026-10-26",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Saved V6h stopped-preparation evidence and its four actual replacement IDs only. No new source-policy, SDK, startup, runtime, or operations approval.",
+  "runtime_status": "INCOMPLETE",
+  "operations_authorized": false,
+  "startup_authorized": false,
+  "attempt": "workerprep20261026v6h",
+  "environment_confidence": "VERIFIED_ENV",
+  "environment_scope": "Local saved-file reads, hashes, and pure Python contracts only; no claim about present container or service state.",
+  "findings": [],
+  "blockers": [],
+  "proof": [
+    {
+      "classification": "SHOWN",
+      "claim": "All seven public receipt events were read. Receipt and evidence are byte-identical to the existing consumed preparation state files; published evidence hash and embedded complete evidence agree.",
+      "events": [
+        "staged_preparation_reserved",
+        "create_staged_intended:phase1-audit-log",
+        "create_staged_intended:phase1-risk-stub",
+        "create_staged_intended:phase1-memory",
+        "create_staged_intended:phase1-orchestrator",
+        "staged_preparation_complete",
+        "preparation_evidence_published"
+      ]
+    },
+    {
+      "classification": "SHOWN",
+      "claim": "Plan.load, _rows, and ReviewedPreparation.load accept the exact hash-bound saved manifest, evidence and reviewer-authored five-field review. Four unique replacement IDs are disjoint from baseline IDs and differ from V6g replacement IDs."
+    },
+    {
+      "classification": "SHOWN",
+      "claim": "Saved replacement rows satisfy created/never-started/policy-no/integer-zero-restarts/current-attempt contracts. Configured-only network bindings satisfy the real network contract; this is not connectivity proof."
+    },
+    {
+      "classification": "SHOWN",
+      "claim": "The accepted preparation manifest differs from the candidate only in decision/reviewer and matches the prior actual-input review's exact export binding."
+    },
+    {
+      "classification": "SHOWN",
+      "claim": "All 43 app recipe source entries and the four saved app image/foundation bindings agree with V6g. Current local hashes agree with all 13 preparation tools and 20 runtime consumers in the V6h bound source maps. App entry count includes shared files; unique local files are deduplicated in the hash ledger."
+    },
+    {
+      "classification": "SHOWN",
+      "claim": "In-memory projection of the hash-bound historical V6g MODELLED metadata template, changing only replacement ID/name/hostname/attempt/temporary alias, produces the exact four saved Snapshot rows and final configured-metadata hashes. This establishes model consistency, not independent V6h raw metadata acquisition.",
+      "models": [
+        {
+          "name": "phase1-audit-log",
+          "staged_template_prediction_equals_attestation": true,
+          "final_configured_model_matches": true
+        },
+        {
+          "name": "phase1-risk-stub",
+          "staged_template_prediction_equals_attestation": true,
+          "final_configured_model_matches": true
+        },
+        {
+          "name": "phase1-memory",
+          "staged_template_prediction_equals_attestation": true,
+          "final_configured_model_matches": true
+        },
+        {
+          "name": "phase1-orchestrator",
+          "staged_template_prediction_equals_attestation": true,
+          "final_configured_model_matches": true
+        }
+      ]
+    },
+    {
+      "classification": "SHOWN",
+      "claim": "The local preparation marker is present and cutover marker absent at review. This is a saved filesystem observation, not atomic reservation or authority."
+    },
+    {
+      "classification": "CLAIMED",
+      "claim": "One user-authorized preparation invocation, session 29014 exit zero, preparation_complete/actions_executed true, services_started/originals_interrupted/startup_authorized false. Outcome is explicitly a parent transcription, not reviewer-observed process output."
+    },
+    {
+      "classification": "SHOWN",
+      "claim": "Static preparation flow checks originals against baseline, verifies stopped owned stages, invokes verify_staged_sources, and rechecks originals/stages before emitting complete evidence. The backend path verifies app source copies, labels, and private environment equality. Saved success attests these checks; reviewer did not execute them.",
+      "references": [
+        "scripts/research/companion_staged_update.py:119",
+        "scripts/research/companion_staged_update.py:170",
+        "scripts/research/companion_staged_update.py:178",
+        "scripts/research/companion_install_docker.py:573"
+      ]
+    }
+  ],
+  "actual_replacements": [
+    {
+      "name": "phase1-audit-log-staged-workerprep20261026v6h",
+      "id": "4f6534593e7bcbdca96d3cc72e30519e007731c2dab464d55fb804575d404d87",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "policy": "no",
+      "metadata": "f251db4fedec1cf703457f34fcbfbfb7688f21407bcc5d5f979ec67a4345ffda",
+      "foundation": "7e8998c3635d350120e837782969ffb5d930172438385ca7aa8ffffc33d9839b",
+      "networks": [
+        ""
+      ],
+      "attempt": "workerprep20261026v6h",
+      "configured_metadata": "3f25852e2c860e82304a74dcc4f5831d8f31dc1b2ca3d93d7111c00393d279f3",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ]
+    },
+    {
+      "name": "phase1-risk-stub-staged-workerprep20261026v6h",
+      "id": "68145701924ebb7eab22c51542aeb80ab81b4cde5e054cd9b7ded3e10caafbfc",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "policy": "no",
+      "metadata": "8e032a87342a15ada908593f0f44fef590e75ad593a6ef7ee29de0e7283f4fee",
+      "foundation": "af814f25fcf68fb1c22bc2fc52424cb9097583233b2d4dc23cc3e5dca97219bb",
+      "networks": [
+        ""
+      ],
+      "attempt": "workerprep20261026v6h",
+      "configured_metadata": "7b7deb5f104a100e0928310d254a5d9297af31c0c8a526d010740a44ca6a4b8a",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ]
+    },
+    {
+      "name": "phase1-memory-staged-workerprep20261026v6h",
+      "id": "25a644f2ffe35ea87f994d01cc9af93dd9c8ed181ecedb437a1d0b6c9da4147d",
+      "image": "sha256:6dca2b97c7ab0c0d0bb1b7476ef83b063afd5c17c7120234d15645ef4f8f4aea",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "policy": "no",
+      "metadata": "a5f31110ad344b09d867934eff31fdad67d44c2737b82a57b5d86ac848945e03",
+      "foundation": "5c0d96afc87aee5936a3cd88912571aadfcfa608f94f7ed981ee0884e590e64b",
+      "networks": [
+        ""
+      ],
+      "attempt": "workerprep20261026v6h",
+      "configured_metadata": "f2274ac15274615c4ba93187128d164d5eba51d7e2d2274b2f21f76ae3c14741",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ]
+    },
+    {
+      "name": "phase1-orchestrator-staged-workerprep20261026v6h",
+      "id": "722e34f485fa1e17b73305d217cb1e8dd2f5369c16b474e9a027fb6a33d6193f",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "policy": "no",
+      "metadata": "06491c46dcb6766c58cce527f089f4440b0bb9cf3c21a5cc8b14a145f9762bfe",
+      "foundation": "ab356df32dff7b88e277ac584a0818621423cdf732553cc716504679011fb998",
+      "networks": [
+        ""
+      ],
+      "attempt": "workerprep20261026v6h",
+      "configured_metadata": "a0ba105a675468cb688b9e41428f31367fb565e4703f675f569dee0286ed8e04",
+      "configured_networks": [
+        "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56"
+      ],
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ]
+    }
+  ],
+  "hashes": {
+    "algorithm": "SHA256",
+    "path_base": "/Users/baitus/Downloads/crypto-bot-pro",
+    "reviewed_inputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/receipt.jsonl": "bc3e272960d0e5f001dae037b1066c19f7409dc9b93f07f419940e187bded250",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/preparation_evidence.json": "950b09d049a7f6a01f91352cb8ff12e1edecedfcf523c13fc75d39e9f25b805d",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/outcome.json": "ff93759f7af2d4492ad050c1e155f33aa95f94b9f1e822ec951931e3cd3aef67",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/reviewed_preparation_manifest.json": "d11fccb5e4f7c46e7d726704c9b75c400a1482eab5d1b840027d876a5837f047",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_input_review.json": "682cda344077502a8da5f1a54c6e93351781ac9c0485264d39a1680ffe082106",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/candidate_manifest.json": "0d30a09f3d5118ce2a9965b88fd43dc6800908557841c2c59680d5ccb35143ca",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/provenance.json": "e60cbfad2f7af46acdf47c018cb345621fa9304a4cf97a6b12fcce5bf36a0ef0",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/source_refresh.json": "6071ef75cf4d98b3f9dd211e03b70514fac43844d7ec0c2f1139c1cac7716d39",
+      "docs/checkpoints/companion_actual_preparation_v6h_20261026.md": "fabf6d03b20b84ed17429ace0970d4efe8c598fb6767bc4fe82743cb97b120fb",
+      ".cbp_state/runtime/companion_preparations/workerprep20261026v6h/receipt.jsonl": "bc3e272960d0e5f001dae037b1066c19f7409dc9b93f07f419940e187bded250",
+      ".cbp_state/runtime/companion_preparations/workerprep20261026v6h/evidence.json": "950b09d049a7f6a01f91352cb8ff12e1edecedfcf523c13fc75d39e9f25b805d",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_preparation/preparation_evidence.json": "d5dabf08f0c20cb5976f517b53d7492b3bac8361f1cc9dbb5c947172b29c7143",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/staged_metadata.derived.json": "7b22b5af03146c99e7628e2c3a054fa7f07615448219e90b1ec9892498ee0a93",
+      "phase1_research_copilot/audit_log/__init__.py": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75",
+      "phase1_research_copilot/audit_log/main.py": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8",
+      "phase1_research_copilot/shared/__init__.py": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+      "phase1_research_copilot/shared/audit.py": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "phase1_research_copilot/shared/config.py": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "phase1_research_copilot/shared/db.py": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "phase1_research_copilot/shared/logging.py": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+      "phase1_research_copilot/shared/models.py": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+      "phase1_research_copilot/shared/probe.py": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "phase1_research_copilot/risk_stub/__init__.py": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411",
+      "phase1_research_copilot/risk_stub/main.py": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6",
+      "phase1_research_copilot/memory_retrieval/__init__.py": "2402dc051be3f99818a1933b20b12a9a99db1823105e1068d015c0edc5b1d7fa",
+      "phase1_research_copilot/memory_retrieval/article_view.py": "b9543070bbfa3d75999a3cf980d5fba58e880a6cd093c9165305a5124a70cd8f",
+      "phase1_research_copilot/memory_retrieval/main.py": "28dc4f1b496437be2d3e1273b4910515b8342a0d57b939f849a6a49da09322d1",
+      "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+      "phase1_research_copilot/orchestrator/__init__.py": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1",
+      "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+      "phase1_research_copilot/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+      "phase1_research_copilot/shared/llm_client.py": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84",
+      "phase1_research_copilot/shared/prompting.py": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903",
+      "phase1_research_copilot/shared/retry.py": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b",
+      "phase1_research_copilot/shared/tools.py": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+      "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+      "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+      "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+      "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+      "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+      "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+      "scripts/research/companion_installer.py": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b",
+      "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+      "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+      "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d",
+      "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659",
+      "dashboard/services/view_data.py": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51",
+      "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+      "dashboard/services/views/_shared.py": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202",
+      "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+      "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+      "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+      "scripts/research/companion_evidence_checks.py": "25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/reviewed_preparation_manifest.json": "33e6633229e9399ec695be2f8e743930212b9ed926277235fd071e675fcf2e26",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/independent_review.json": "5d729d529c7c39d339e01d50d76f0baee5a4f4d93768dbda71493d96c6b54b17"
+    },
+    "published_outputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/actual_id_review.json": "fc18b363eb94a324e3d91500b967a7709ad70fa6635a100b2ab2bb1fda30a79f"
+    }
+  },
+  "read_scope": {
+    "complete_saved_records": [
+      "docs/checkpoints/companion_actual_preparation_v6h_20261026.md",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/receipt.jsonl",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/preparation_evidence.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/outcome.json"
+    ],
+    "parsed_and_hash_checked_records": "Manifest, candidate, prior actual-input review, provenance, source refresh, state byte copies, prior V6g manifest/evidence/model-template/review as listed in hashes.reviewed_inputs. Historical records used only for bounded binding/model comparisons.",
+    "source_body_scope": [
+      "scripts/research/companion_staged_update.py:1-185",
+      "scripts/research/companion_install_docker.py:560-595",
+      "scripts/research/companion_installer.py:102-125",
+      "scripts/research/companion_installer.py:195-240"
+    ],
+    "hash_only_scope": "App source bodies and other prep/runtime consumers were not broadly re-audited. Current bytes were hashed against existing accepted source maps.",
+    "not_reviewed": "No broad SDK, runtime packet, handoff, daemon, installed-file stream, service health, or full repository review."
+  },
+  "verification": {
+    "mode": "Offline local Python assertions and existing pure loader/model helpers; no pytest run and no implementation change.",
+    "contracts": [
+      "Plan.load(manifest_bytes, manifest_sha256)",
+      "_rows(plan, evidence)",
+      "ReviewedPreparation.load(evidence_bytes, reviewer_authored_review_bytes, review_sha256, plan)"
+    ],
+    "results": {
+      "receipt_events": 7,
+      "copies_equal": true,
+      "manifest_export_exact": true,
+      "counts": {
+        "app_entries": 43,
+        "prep_tools": 13,
+        "runtime_consumers": 20
+      },
+      "model_checks_passed": 4,
+      "reviewed_preparation_load": true
+    },
+    "tests_run": [],
+    "full_suite_run": false,
+    "prohibited_operations_performed": false,
+    "changes": "Only this review and actual_id_review.json."
+  },
+  "limitations": [
+    "Controller at-creation source-copy, ownership, private configuration equality, original-preservation and stopped-state checks are attestations. No independent fresh source stream, native metadata postcheck, private environment read, or continuous-state proof was obtained.",
+    "Equal V6g/V6h image digests do not establish cache provenance, which build work executed, direct SDK capture, or general SDK correctness.",
+    "Configured-only stopped networks do not establish reachability, recipient identity, storage connectivity, lineage, citation correctness, or evidence-verifier success.",
+    "Session exit/approval/acquisition history is attributed to parent/user records; not independently observed by this reviewer.",
+    "Historical template-derived metadata is MODELLED and is not relabelled as raw V6h stage capture.",
+    "The preparation controller budget is 300 seconds including 120 seconds recovery; cache/config/log effects may persist and cleanup is not guaranteed.",
+    "Existing preparation is consumed; no reset/retry, startup, cutover, query, runtime recovery, or successful restoration is approved or inferred.",
+    "Future operations retain all applicable fresh native/source/config/ownership/startup/recipient/storage/lineage/citation gates and require their own explicit authorization. This external ID review is an offline input, not that authority."
+  ],
+  "material_assumptions": [],
+  "unverified": [
+    "Present container state/health/connectivity and installed bytes after controller observation.",
+    "Exact build/cache execution provenance.",
+    "Runtime success and causal resolution of earlier verifier failures."
+  ],
+  "next_scope": "Any later runtime packet and applicability review is separate. No packet or operation grant is created here."
+}

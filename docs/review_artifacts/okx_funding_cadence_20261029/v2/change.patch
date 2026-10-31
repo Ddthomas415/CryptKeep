@@ -1,0 +1,650 @@
+--- a/services/analytics/edge_cadence.py
++++ b/services/analytics/edge_cadence.py
+@@ -2,6 +2,8 @@
+ 
+ import math
+ import os
++import json
++import re
+ import sqlite3
+ from dataclasses import dataclass
+ from datetime import datetime, timezone
+@@ -102,7 +104,10 @@
+             )
+             continue
+ 
+-        age = max(0.0, (ref - capture).total_seconds())
++        if capture > ref:
++            families.append(FamilyCadence(family, limit, capture.isoformat(), None, "missing", "capture_in_future"))
++            continue
++        age = (ref - capture).total_seconds()
+         if age > limit:
+             families.append(
+                 FamilyCadence(family, limit, capture.isoformat(), age, "stale", f"age_sec={age:.0f} max={limit:.0f}")
+@@ -154,16 +159,112 @@
+     }
+ 
+ 
+-def _latest_report_read_only(store_path: str | None = None) -> dict[str, Any]:
++def _paired_scope(source, inst_ids, scan_limit):
++    if source is None and inst_ids is None:
++        return None
++    if (type(source) is not str or not source or source != source.strip()
++            or type(inst_ids) not in (list, tuple) or not inst_ids
++            or any(type(item) is not str or re.fullmatch(r"[A-Z0-9]+-[A-Z0-9]+-SWAP", item) is None
++                   for item in inst_ids)
++            or len(set(inst_ids)) != len(inst_ids)
++            or type(scan_limit) is not int or not 1 <= scan_limit <= 1000):
++        raise ValueError("explicit_paired_source_native_ids_and_scan_limit_required")
++    return source, tuple(inst_ids), scan_limit
++
++
++def _paired_funding_meta(conn, scope, ref):
++    from services.analytics.funding_observations import encoded, identity, observation
++    from services.analytics.okx_funding_contract import _finite_json_float, _object, _reject_nonfinite
++    from services.analytics.okx_funding_journal import CONTRACT, _stored_pair
++
++    source, inst_ids, limit = scope
++    details = {"lane": "validated_okx_pair_capture", "source": source,
++               "scan_limit": limit, "scanned": 0, "scan_exhaustive": False,
++               "normalization_eligible": False, "strategy_eligible": False,
++               "execution_authority": False, "instruments": [], "diagnostics": []}
++    found = {}
++    if conn is not None and _table_exists(conn, "raw_funding_observations"):
++        # Bound fetched text and total decoded evidence, not just the row count.
++        rows = conn.execute(
++            "SELECT observation_key, capture_ts, length(CAST(payload_json AS BLOB)) AS size, "
++            "CASE WHEN length(CAST(payload_json AS BLOB)) <= 4194304 THEN payload_json END AS payload "
++            "FROM raw_funding_observations WHERE source=? ORDER BY id DESC LIMIT ?", (source, limit + 1))
++        used = 0
++        for row in rows:
++            if details["scanned"] >= limit:
++                break
++            details["scanned"] += 1
++            if row["payload"] is None or row["size"] is None or used + row["size"] > 8388608:
++                details["diagnostics"].append("raw_evidence_byte_budget_exceeded")
++                break
++            used += row["size"]
++            try:
++                record = json.loads(row["payload"], object_pairs_hook=_object,
++                                    parse_constant=_reject_nonfinite, parse_float=_finite_json_float)
++                if type(record) is not dict:
++                    raise ValueError("raw_object_required")
++                # Attribution is untrusted until the complete envelope/key/index agree.
++                rebuilt = observation(
++                    venue=record["venue"], symbol=record["symbol"], captured_at=record["captured_at"],
++                    payload=record["raw_payload"], plan_interval_hours=record["plan_interval_hours_unverified"],
++                    receipt=({key: record["receipt"][key] for key in (
++                        "request_started_at", "received_at", "requested_symbol", "fetch_method")}
++                        if "receipt" in record else None))
++                capture = _parse_ts(record["captured_at"])
++                if (encoded(record) != encoded(rebuilt) or identity(record) != row["observation_key"]
++                        or capture is None or row["capture_ts"] != capture.isoformat()):
++                    raise ValueError("raw_envelope_invalid")
++                inst = record.get("symbol")
++                if type(inst) is not str:
++                    raise ValueError("raw_identity_required")
++                if inst not in inst_ids or inst in found:
++                    continue
++                found[inst] = {"inst_id": inst, "status": "unusable_evidence", "capture_ts": None}
++                payload = record.get("raw_payload")
++                if type(payload) is not dict or payload.get("contract") != CONTRACT:
++                    found[inst]["status"] = "not_a_successful_pair"
++                    continue
++                _stored_pair(record, row["observation_key"])
++                if capture > ref:
++                    found[inst]["status"] = "capture_in_future"
++                    continue
++                found[inst].update(status="validated_capture", capture_ts=capture.isoformat(),
++                                   observation_key=row["observation_key"])
++            except (KeyError, TypeError, ValueError, OverflowError, RecursionError):
++                # Unattributable corruption cannot stand in for a missing instrument.
++                details["diagnostics"].append("unusable_raw_evidence")
++                break
++            if len(found) == len(inst_ids):
++                break
++        else:
++            details["scan_exhaustive"] = True
++        rows.close()
++    else:
++        details["scan_exhaustive"] = True
++    details["instruments"] = [found.get(inst, {"inst_id": inst, "status": "no_capture_in_scan",
++                                              "capture_ts": None}) for inst in inst_ids]
++    valid = [item for item in details["instruments"] if item["status"] == "validated_capture"]
++    if details["diagnostics"] or len(valid) != len(inst_ids):
++        return None, details
++    return {"capture_ts": min(item["capture_ts"] for item in valid), "source": source,
++            "row_count": len(valid), "evidence_lane": details["lane"]}, details
++
++
++def _latest_report_read_only(store_path: str | None = None, *, paired_scope=None, now=None) -> dict[str, Any]:
+     path = Path(store_path).expanduser() if store_path else _default_store_path()
+     if not path.exists():
+-        return {"store_path": str(path), "has_any_data": False}
++        report = {"store_path": str(path), "has_any_data": False}
++        if paired_scope is not None:
++            report["funding_meta"], report["paired_funding"] = _paired_funding_meta(None, paired_scope, now)
++        return report
+     conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+     conn.row_factory = sqlite3.Row
+     try:
+         report: dict[str, Any] = {"store_path": "redacted"}
+         for family, meta_key in META_KEYS.items():
+             report[meta_key] = _latest_snapshot_meta_read_only(conn, TABLES[family])
++        if paired_scope is not None:
++            report["funding_meta"], report["paired_funding"] = _paired_funding_meta(conn, paired_scope, now)
+         report["has_any_data"] = any(bool(report.get(meta_key)) for meta_key in META_KEYS.values())
+         return report
+     finally:
+@@ -175,9 +276,14 @@
+     store_path: str | None = None,
+     now: datetime | None = None,
+     max_age_sec: dict[str, float] | None = None,
++    paired_funding_source: str | None = None,
++    paired_funding_inst_ids: list[str] | tuple[str, ...] | None = None,
++    paired_funding_scan_limit: int = 100,
+ ) -> dict[str, Any]:
+     try:
+-        report = _latest_report_read_only(store_path=store_path)
++        ref = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
++        scope = _paired_scope(paired_funding_source, paired_funding_inst_ids, paired_funding_scan_limit)
++        report = _latest_report_read_only(store_path=store_path, paired_scope=scope, now=ref)
+     except Exception as exc:
+         return {
+             "ok": False,
+@@ -185,6 +291,9 @@
+             "stale": [],
+             "missing": list(META_KEYS.keys()),
+             "families": [],
+-            "store_error": f"{type(exc).__name__}: {exc}",
++            "store_error": type(exc).__name__,
+         }
+-    return evaluate_cadence(report, now=now, max_age_sec=max_age_sec)
++    result = evaluate_cadence(report, now=ref, max_age_sec=max_age_sec)
++    if "paired_funding" in report:
++        result["paired_funding"] = report["paired_funding"]
++    return result
+--- a/scripts/check_edge_cadence.py
++++ b/scripts/check_edge_cadence.py
+@@ -47,9 +47,22 @@
+     parser.add_argument("--store-path", default=None, help="override crypto-edge SQLite store path")
+     parser.add_argument("--json", action="store_true", help="print JSON result")
+     parser.add_argument("--alert", action="store_true", help="dispatch an alert on stale/missing cadence")
++    parser.add_argument("--paired-funding-source", help="check validated raw pairs from this exact source instead of legacy funding")
++    parser.add_argument("--paired-funding-inst-id", action="append", help="required native OKX instrument; repeat for each")
++    parser.add_argument("--paired-funding-scan-limit", type=int, help="maximum recent source rows to inspect (1-1000, default100)")
+     args = parser.parse_args(argv)
+ 
+-    result = check_edge_cadence(store_path=args.store_path)
++    paired = args.paired_funding_source is not None or args.paired_funding_inst_id is not None
++    if args.paired_funding_scan_limit is not None and not paired:
++        parser.error("paired scan limit requires an explicit source and native identities")
++    if paired:
++        result = check_edge_cadence(store_path=args.store_path,
++                                   paired_funding_source=args.paired_funding_source,
++                                   paired_funding_inst_ids=args.paired_funding_inst_id,
++                                   paired_funding_scan_limit=(100 if args.paired_funding_scan_limit is None
++                                                              else args.paired_funding_scan_limit))
++    else:
++        result = check_edge_cadence(store_path=args.store_path)
+     if args.json:
+         print(json.dumps(result, indent=2, sort_keys=True))
+     elif result["ok"]:
+--- a/docs/COLLECTOR_CONTROL.md
++++ b/docs/COLLECTOR_CONTROL.md
+@@ -69,10 +69,11 @@
+ 
+ Full-family rollout preparation is recorded in
+ `docs/checkpoints/okx_full_collector_rollout_20261029.md`. The archive-copy schema
+-rehearsal passed, but the existing cadence checker reads legacy funding only.
+-Raw-pair cadence compatibility must be addressed before claiming monitored
+-restoration. Successful source capture still does not qualify funding for
+-financial use. No restart or original-archive write is authorized by this note.
++rehearsal passed. The formerly legacy-only cadence checker now has explicit
++paired-source/native-ID support, documented below. That source change needs
++independent review before operational use. Successful source capture still does
++not qualify funding for financial use. No restart or original-archive write is
++authorized by this note.
+ 
+ Review preview hashes and exact intended plan/target. The service rereads its
+ plan each cycle: preview does not freeze files against edits. Only after
+@@ -90,3 +91,41 @@
+ restoring an authorized launch command does NOT undo DB/DDL/status writes.
+ Do not delete rows, reset another collector's flag, kill an unowned PID or
+ replace a DB as assumed rollback. Service/job changes still need authorization.
++
++## Paired Funding Cadence
++
++The default cadence command retains the legacy funding-table lane. To check
++paired capture instead, supply the exact collector source and every required
++native instrument. Repeat the instrument option for a multi-symbol plan:
++
++```sh
++./.venv/bin/python -B scripts/check_edge_cadence.py \
++  --store-path /operator/verified/archive.sqlite --json \
++  --paired-funding-source live_public \
++  --paired-funding-inst-id BTC-USDT-SWAP
++```
++
++This is an example, not an executed/authorized original-archive check; replace
++the path only after verifying the target and applicable operational permission.
++The command does not initialize the store. No alert is sent without --alert.
++Existing monitor jobs are NOT updated to this invocation automatically.
++
++JSON identifies the validated_okx_pair_capture lane and each required native
++identity. It checks the latest appended source row for each required identity,
++revalidates the saved canonical pair/receipt/body/key, and requires all identities.
++A latest failed attempt does not fall back to an older success. Corrupt evidence
++is retained and fails closed; it is not repaired or deleted. Legacy rows, SDK
++single-endpoint records and another source/instrument cannot substitute.
++
++The source-row scan defaults to100 and can be set to1-1000 with
++--paired-funding-scan-limit. Decoding is capped at4MiB per row/8MiB total.
++Unresolved identities outside those bounds remain missing, not healthy.
++scan_exhaustive=False is explicit when the scan stops early; this is a bounded
++evidence window, not an archive-wide certification or hard SQL time deadline.
++Timestamps in the future fail closed in both cadence lanes; ordinary thresholds
++are unchanged. For multiple valid identities the oldest capture determines
++family freshness. Disabled family checks remain disabled as configured.
++
++Cadence success means source capture freshness only. Financial normalization,
++strategy eligibility and execution authority remain false. It does not prove
++live price freshness, a verified historical funding interval or profitability.
+--- a/tests/test_okx_funding_cadence.py
++++ b/tests/test_okx_funding_cadence.py
+@@ -0,0 +1,303 @@
++"""Offline source-cadence checks, not funding qualification or market research."""
++
++import base64
++from copy import deepcopy
++from datetime import datetime, timedelta, timezone
++import hashlib
++import json
++from pathlib import Path
++import socket
++import sqlite3
++import subprocess
++
++import pytest
++
++from services.analytics import edge_cadence as ec
++from services.analytics.funding_observations import encoded, identity, observation
++from services.analytics.okx_funding_journal import pair_journal_inputs
++from storage import crypto_edge_store_sqlite as storage
++
++ROOT = Path(__file__).resolve().parents[1]
++CAPTURE = datetime(2026, 10, 29, 18, 20, 57, 504633, tzinfo=timezone.utc)
++NOW = CAPTURE + timedelta(seconds=1)
++BTC = "BTC-USDT-SWAP"
++ETH = "ETH-USDT-SWAP"
++
++
++@pytest.fixture(autouse=True)
++def offline(monkeypatch, tmp_path):
++    connect = sqlite3.connect
++    def scoped(database, *args, **kwargs):
++        path = str(database).removeprefix("file:").split("?", 1)[0]
++        assert Path(path).resolve().is_relative_to(tmp_path.resolve())
++        return connect(database, *args, **kwargs)
++    def refuse(*args, **kwargs):
++        raise AssertionError("network/process/default state forbidden")
++    monkeypatch.setattr(sqlite3, "connect", scoped)
++    monkeypatch.setattr(storage, "ensure_dirs", refuse)
++    monkeypatch.setattr(storage.CryptoEdgeStoreSQLite, "__init__", refuse)
++    monkeypatch.setattr(socket.socket, "connect", refuse)
++    monkeypatch.setattr(socket, "create_connection", refuse)
++    monkeypatch.setattr(socket, "getaddrinfo", refuse)
++    monkeypatch.setattr(subprocess, "run", refuse)
++    monkeypatch.setattr(subprocess, "Popen", refuse)
++
++
++@pytest.fixture
++def record():
++    path = ROOT / "docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/READBACK.json"
++    return json.loads(path.read_bytes())["raw"]["observations"][0]["observation"]
++
++
++@pytest.fixture
++def db(tmp_path):
++    path = tmp_path / "cadence.sqlite"
++    with sqlite3.connect(path) as conn:
++        conn.executescript(storage.DDL)
++        for table, fields, values in (
++            ("open_interest_snapshots", "open_interest,price_change_pct", (1, 0)),
++            ("basis_snapshots", "spot_px,perp_px,days_to_expiry", (1, 1, 7)),
++        ):
++            columns = "snapshot_id,capture_ts,source,symbol,venue,payload_json," + fields
++            data = ("synthetic", CAPTURE.isoformat(), "fixture", BTC, "okx", "{}") + values
++            conn.execute(f"INSERT INTO {table}({columns}) VALUES({','.join('?' for _ in data)})", data)
++    return path
++
++
++def put(db, record, *, source="fixture", payload=None, key=None, capture=None):
++    with sqlite3.connect(db) as conn:
++        conn.execute("INSERT INTO raw_funding_observations(source,observation_key,capture_ts,payload_json) VALUES(?,?,?,?)",
++                     (source, key or identity(record), capture or record["captured_at"],
++                      encoded(record) if payload is None else payload))
++
++
++def other_record(record, inst=ETH, delay_seconds=0):
++    pair = {"requested_inst_id": inst}
++    for name, response in record["raw_payload"]["responses"].items():
++        body = json.loads(base64.b64decode(response["body_base64"]))
++        for row in body["data"]:
++            row["instId"] = inst
++        body = json.dumps(body).encode()
++        receipt = deepcopy(response["receipt"])
++        for field in ("request_started_at", "received_at"):
++            receipt[field] = (datetime.fromisoformat(receipt[field]) + timedelta(seconds=delay_seconds)).isoformat()
++        receipt.update(url=receipt["url"].replace(BTC, inst), body_bytes=len(body),
++                       body_sha256=hashlib.sha256(body).hexdigest())
++        pair[name + "_body"], pair[name + "_receipt"] = body, receipt
++    return observation(**pair_journal_inputs(**pair))
++
++
++def check(db, **kwargs):
++    return ec.check_edge_cadence(store_path=str(db), now=NOW, paired_funding_source="fixture",
++                                paired_funding_inst_ids=[BTC], **kwargs)
++
++
++def test_valid_raw_pair_repairs_reproduced_gap_without_writes(db, record):
++    put(db, record)
++    before = hashlib.sha256(db.read_bytes()).hexdigest()
++    assert ec.check_edge_cadence(store_path=str(db), now=NOW)["missing"] == ["funding"]
++    out = check(db)
++    assert out["ok"] is True and not out["missing"]
++    assert out["paired_funding"]["lane"] == "validated_okx_pair_capture"
++    assert out["paired_funding"]["instruments"][0]["status"] == "validated_capture"
++    assert all(out["paired_funding"][key] is False for key in
++               ("strategy_eligible", "normalization_eligible", "execution_authority"))
++    assert hashlib.sha256(db.read_bytes()).hexdigest() == before
++    with sqlite3.connect(db) as conn:
++        assert conn.execute("SELECT COUNT(*) FROM funding_snapshots").fetchone()[0] == 0
++
++
++def test_exact_source_and_native_identity(db, record):
++    put(db, record, source="another")
++    put(db, other_record(record))
++    assert check(db)["missing"] == ["funding"]
++    put(db, record)
++    assert check(db)["ok"] is True
++
++
++def test_every_required_instrument_must_have_a_pair(db, record):
++    put(db, record)
++    args = dict(store_path=str(db), now=NOW, paired_funding_source="fixture", paired_funding_inst_ids=[BTC, ETH])
++    assert ec.check_edge_cadence(**args)["ok"] is False
++    put(db, other_record(record))
++    assert ec.check_edge_cadence(**args)["ok"] is True
++
++
++def test_latest_attempt_does_not_fall_back_to_previous_success(db, record):
++    put(db, record)
++    attempt = observation(venue="okx", symbol=BTC, captured_at=NOW.isoformat(),
++                          payload={"contract": "okx_public_pair_attempt_v1", "reason": "failed"})
++    put(db, attempt)
++    out = check(db)
++    assert out["ok"] is False and out["missing"] == ["funding"]
++    assert out["paired_funding"]["instruments"][0]["status"] == "not_a_successful_pair"
++
++
++@pytest.mark.parametrize("change", ["key", "body", "index", "naive_index", "wrapper", "interval"])
++def test_tampered_pair_never_satisfies_cadence(db, record, change):
++    options = {}
++    if change == "key":
++        options["key"] = "wrong"
++    elif change == "body":
++        record["raw_payload"]["responses"]["current"]["body_base64"] = "!invalid!"
++    elif change == "index":
++        options["capture"] = NOW.isoformat()
++    elif change == "naive_index":
++        options["capture"] = CAPTURE.replace(tzinfo=None).isoformat()
++    elif change == "interval":
++        record["interval_hours"] = 8
++    else:
++        record["venue"] = "other"
++    put(db, record, **options)
++    assert check(db)["ok"] is False
++
++
++@pytest.mark.parametrize("payload", ["{", "[]", '{"symbol":"BTC-USDT-SWAP","symbol":"ETH-USDT-SWAP"}',
++                                    '{"symbol":"BTC-USDT-SWAP","x":1e999}', '[' * 2000 + '0' + ']' * 2000])
++def test_malformed_overflow_duplicate_deep_rows_fail_closed(db, record, payload):
++    put(db, record, payload=payload)
++    out = check(db)
++    assert out["ok"] is False and "funding" in out["missing"]
++    assert out["paired_funding"]["diagnostics"] == ["unusable_raw_evidence"]
++
++
++def test_future_capture_cannot_hide_behind_an_older_other_instrument(db, record):
++    put(db, record)
++    put(db, other_record(record, delay_seconds=2))
++    out = ec.check_edge_cadence(store_path=str(db), now=NOW,
++                                paired_funding_source="fixture", paired_funding_inst_ids=[BTC, ETH])
++    assert out["ok"] is False and "funding" in out["missing"]
++    assert [row["status"] for row in out["paired_funding"]["instruments"]] == ["validated_capture", "capture_in_future"]
++
++
++def test_stale_pair_uses_existing_threshold(db, record):
++    put(db, record)
++    out = ec.check_edge_cadence(store_path=str(db), now=CAPTURE + timedelta(hours=13),
++                                paired_funding_source="fixture", paired_funding_inst_ids=[BTC])
++    assert "funding" in out["stale"] and out["ok"] is False
++
++
++def test_missing_database_and_table_do_not_initialize(tmp_path, db):
++    missing = tmp_path / "absent.sqlite"
++    assert check(missing)["missing"] == ["funding", "open_interest", "basis"]
++    assert not missing.exists()
++    with sqlite3.connect(db) as conn:
++        conn.execute("DROP TABLE raw_funding_observations")
++    assert check(db)["missing"] == ["funding"]
++
++
++def test_fresh_legacy_row_cannot_substitute_for_a_required_pair(db):
++    with sqlite3.connect(db) as conn:
++        conn.execute("INSERT INTO funding_snapshots(snapshot_id,capture_ts,source,symbol,venue,funding_rate,interval_hours,payload_json) VALUES(?,?,?,?,?,?,?,?)",
++                     ("fixture", CAPTURE.isoformat(), "fixture", BTC, "okx", 0.001, 8, "{}"))
++    assert ec.check_edge_cadence(store_path=str(db), now=NOW)["ok"] is True
++    assert check(db)["missing"] == ["funding"]
++
++
++def test_scan_limit_does_not_claim_unseen_identity_is_present(db, record):
++    put(db, record)
++    put(db, other_record(record))
++    out = check(db, paired_funding_scan_limit=1)
++    assert out["ok"] is False
++    assert out["paired_funding"]["scan_exhaustive"] is False
++    assert check(db, paired_funding_scan_limit=2)["ok"] is True
++
++
++def test_oversized_raw_row_is_not_loaded_as_valid(db, record):
++    put(db, record, payload='"' + "x" * 4194304 + '"')
++    out = check(db)
++    assert out["ok"] is False
++    assert out["paired_funding"]["diagnostics"] == ["raw_evidence_byte_budget_exceeded"]
++
++
++def test_total_byte_budget_bounds_unrelated_rows(db, record):
++    # Each row fits individually; the third exceeds the aggregate decoding cap.
++    for number in range(3):
++        unrelated = observation(venue="okx", symbol="UNRELATED", captured_at=(CAPTURE - timedelta(seconds=number)).isoformat(),
++                                payload={"padding": "x" * 3000000})
++        put(db, unrelated)
++    out = check(db)
++    assert out["ok"] is False
++    assert out["paired_funding"]["scanned"] == 3
++    assert out["paired_funding"]["diagnostics"] == ["raw_evidence_byte_budget_exceeded"]
++
++
++def test_25_distinct_instruments_have_no_single_symbol_shortcut(db, record):
++    ids = [f"COIN{number}-USDT-SWAP" for number in range(25)]
++    for inst in ids:
++        put(db, other_record(record, inst))
++    out = ec.check_edge_cadence(store_path=str(db), now=NOW, paired_funding_source="fixture",
++                                paired_funding_inst_ids=ids)
++    assert out["ok"] is True
++    assert len(out["paired_funding"]["instruments"]) == 25
++
++
++def test_recent_valid_row_wins_over_older_failure_but_not_other_way_round(db, record):
++    attempt = observation(venue="okx", symbol=BTC, captured_at=CAPTURE.isoformat(), payload={"contract": "attempt"})
++    put(db, attempt)
++    put(db, record)
++    assert check(db)["ok"] is True
++
++
++@pytest.mark.parametrize("kind", ["attempt", "pair"])
++def test_corrupt_newer_attribution_cannot_resurrect_an_older_success(db, record, kind):
++    put(db, record)
++    newer = (observation(venue="okx", symbol=BTC, captured_at=NOW.isoformat(),
++                         payload={"contract": "okx_public_pair_attempt_v1", "reason": "failed"})
++             if kind == "attempt" else other_record(record, inst=BTC, delay_seconds=0.2))
++    key = identity(newer)
++    newer["symbol"] = ETH
++    put(db, newer, key=key)
++    out = check(db)
++    assert out["ok"] is False and out["missing"] == ["funding"]
++    assert out["paired_funding"]["diagnostics"] == ["unusable_raw_evidence"]
++
++
++def test_legitimate_newer_unrelated_row_does_not_hide_required_pair(db, record):
++    put(db, record)
++    unrelated = observation(venue="okx", symbol=ETH, captured_at=NOW.isoformat(),
++                            payload={"contract": "okx_public_pair_attempt_v1", "reason": "failed"})
++    put(db, unrelated)
++    assert check(db)["ok"] is True
++
++
++@pytest.mark.parametrize("source,ids,limit", [(None, [BTC], 100), ("fixture", None, 100),
++    (" fixture", [BTC], 100), ("fixture", [], 100), ("fixture", [BTC, BTC], 100),
++    ("fixture", ["btc-usd"], 100), ("fixture", [BTC], True), ("fixture", [BTC], 0),
++    ("fixture", [BTC], 1001)])
++def test_invalid_scope_refuses_before_connect(monkeypatch, tmp_path, source, ids, limit):
++    def refuse(*args, **kwargs):
++        raise AssertionError("invalid configuration must not connect")
++    monkeypatch.setattr(sqlite3, "connect", refuse)
++    out = ec.check_edge_cadence(store_path=str(tmp_path / "missing.sqlite"),
++        paired_funding_source=source, paired_funding_inst_ids=ids, paired_funding_scan_limit=limit)
++    assert out["ok"] is False and out["store_error"] == "ValueError"
++
++
++def test_cli_routes_exact_scope_and_preserves_exit_codes(monkeypatch, capsys, db, record):
++    import scripts.check_edge_cadence as cli
++    put(db, record)
++    real = ec.check_edge_cadence
++    def fixed(**kwargs):
++        return real(**kwargs, now=NOW)
++    monkeypatch.setattr(cli, "check_edge_cadence", fixed)
++    args = ["--store-path", str(db), "--json", "--paired-funding-source", "fixture",
++            "--paired-funding-inst-id", BTC]
++    assert cli.main(args) == 0
++    assert json.loads(capsys.readouterr().out)["paired_funding"]["source"] == "fixture"
++    assert cli.main(args + ["--paired-funding-inst-id", ETH]) == 2
++    capsys.readouterr()
++    assert cli.main(args + ["--paired-funding-scan-limit", "0"]) == 2
++
++
++def test_cli_rejects_orphan_scan_limit():
++    import scripts.check_edge_cadence as cli
++    with pytest.raises(SystemExit) as exc:
++        cli.main(["--paired-funding-scan-limit", "2"])
++    assert exc.value.code == 2
++
++
++def test_legacy_future_time_is_not_clamped_to_fresh():
++    out = ec.evaluate_cadence({"funding_meta": {"capture_ts": (NOW + timedelta(seconds=1)).isoformat()}}, now=NOW)
++    row = next(item for item in out["families"] if item["family"] == "funding")
++    assert row["status"] == "missing" and row["reason"] == "capture_in_future"
+--- a/docs/research/okx_funding_cadence_20261029.md
++++ b/docs/research/okx_funding_cadence_20261029.md
+@@ -0,0 +1,89 @@
++# Paired Funding Cadence Repair
++
++2026-10-29. Active role: ENGINEER. Risk: HIGH (monitor fail-open behavior).
++Implementation: READY_FOR_INDEPENDENT_REVIEW. Operational rollout: INCOMPLETE.
++
++## Operator Outcome
++
++The existing cadence CLI can explicitly check raw paired funding capture using
++an exact source and all required OKX native IDs. It no longer needs synthetic
++legacy funding rates to recognize the new capture lane. No scheduled invocation
++is changed and no original archive is accessed by this implementation/tests.
++
++The default legacy table lane remains available. Future capture timestamps are
++now missing rather than clamped to zero age in either lane. Store-error output
++uses exception type only, not exception text/path/payload. Financial authority
++is unchanged and always false in paired-cadence diagnostics.
++
++## Design And Failure Matrix
++
++Reuse the accepted journal's canonical stored-pair validator, including strict
++JSON hooks. Read via SQLite mode=ro; do not construct the writer or initialize
++tables. Source filtering is exact. A source row's journal append ID defines
++recency. Every encountered envelope/key/index is validated BEFORE its symbol
++can be used to discard or attribute it; unrelated-but-valid rows can be skipped.
++For each requested native identity, only
++the newest encountered row can satisfy the check; a failed attempt cannot be
++hidden by an older success. All required identities must validate. The oldest
++valid capture determines aggregate freshness under unchanged age thresholds.
++
++- Valid canonical pair: explicit validated_okx_pair_capture lane; capture may
++  be fresh while financial normalization/strategy/execution remain false.
++- Another source/native ID or fresh legacy row: cannot substitute for a pair.
++- Missing DB/table/identity: missing; no initialization or implicit fallback.
++- Failed/latest SDK/partial attempt: not_a_successful_pair, not fresh.
++- Corrupt body/key/wrapper/index, duplicate JSON keys, exponent overflow or
++  excessive JSON nesting: diagnostic and fail closed; evidence untouched.
++- Unattributable corruption encountered before coverage is resolved: no green
++  result; explicit diagnostic. Corruption after the selected newest evidence
++  is outside this bounded check, not declared absent or repaired.
++- Future capture: fail closed even when another required ID has an older valid
++  capture. Canonical UTC index timestamps are checked against the record.
++- Stale capture: unchanged configured threshold; disabled checks remain disabled.
++- Bounded window: default100source rows, configurable1-1000; max4MiB per fetched
++  payload/8MiB aggregate decoding. Unseen identities remain missing and scan
++  exhaustion is disclosed. SQLite query execution is not hard-time-bounded.
++
++No DB connection, network, time-series experiment, process start, schedule,
++credential, account, capital, strategy or risk setting is needed for the repair.
++Tests use saved public parsing fixtures and disposable synthetic databases.
++Future operational read-only SQLite use is not a promise about OS-wide absence
++of all metadata/SHM side effects; the original archive was not opened here.
++
++## Verification
++
++VERIFIED_ENV consolidated command:
++
++```sh
++env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_okx_funding_cadence.py tests/test_edge_cadence.py tests/test_okx_funding_cli.py tests/test_run_crypto_edge_collector_loop.py tests/test_okx_funding_service.py tests/test_okx_funding_pair_producer.py tests/test_okx_funding_journal.py tests/test_okx_cash_cost.py tests/test_okx_funding_contract.py tests/test_synthetic_funding_observations.py tests/test_funding_receipts.py tests/test_funding_store_bridge.py tests/test_crypto_edge_collector_service.py
++```
++
++SHOWN final v2:354passed,8known slow-marker warnings,3.00s,exit0. Includes39new paired
++cadence cases,11existing cadence cases and304previously reviewed source cases.
++Initial v1:351passed2.90s; independent review REJECTED it as OKX-CADENCE-01
++because unvalidated symbol attribution could discard a newer corrupt attempt
++and let an older success report healthy. Rejected source/diff/hashes are saved
++under v1. Two new regression cases fail against that saved v1 (expected test
++exit1;2failed37deselected0.27s), then pass after canonical envelope/key/index
++validation is moved before attribution. Legitimate unrelated rows still work.
++Focused corrected slice:50passed0.88s. No full-suite,
++real archive, collector restart, live freshness or financial-validation claim.
++git diff --check passed for changed source/test/operator-doc paths.
++
++The accepted previous rollout replay remains preserved unchanged: it records
++the pre-repair legacy-only mismatch and is not overwritten to claim a rerun.
++Exact changes against saved before-files and hashes are in
++docs/review_artifacts/okx_funding_cadence_20261029/.
++
++## Remaining Boundary
++
++After independent acceptance, the operational next step is separately approved
++full-family foreground validation with the original archive and fresh backup,
++then a separate recurring decision, as recorded in
++docs/checkpoints/okx_full_collector_rollout_20261029.md. Existing monitor jobs need
++the explicit paired arguments when that rollout is authorized; no automatic
++job update or default flip is hidden in this patch.
++
++Assumptions: caller supplies the intended source/native universe; stored receipt
++clocks/public responses are evidence, not independently authenticated freshness
++or proof of financial semantics. No additional material assumption is needed.

@@ -1,0 +1,13 @@
+{
+  "actual_id_review_sha256": "f2b926136e5503d9310ec88b0f881c82c8292a92dc4ffcb5e78c97cfac54946e",
+  "hash_bindings_verified": 24,
+  "native_operations": false,
+  "original_records_matched": 7,
+  "review_sha256": "2bec57b4fdb612dc3f75627071c0beaf3274670bc3a648d2e16a8231f70dc092",
+  "reviewed_preparation_load_passed": true,
+  "runtime_authorized": false,
+  "scope": "actual stopped preparation evidence only",
+  "source_witness_records_matched": 43,
+  "stage_records_matched": 4,
+  "state": "ACCEPTED_WITH_RISK"
+}

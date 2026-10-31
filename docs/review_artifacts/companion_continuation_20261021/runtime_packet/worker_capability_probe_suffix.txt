@@ -1,0 +1,49 @@
+
+import json, os, signal, sys, time
+stage='initial'
+reads=[]
+observed={}
+def read_only(path):
+    global stage
+    pid,kind=path.split('/')[2],path.split('/')[-1]
+    stage=('pid1_' if pid=='1' else 'worker_')+kind
+    with open(path,'rb') as stream:
+        raw=stream.read(16385)
+    if len(raw)>16384: raise ValueError('bounded_probe_refused')
+    return raw
+class ObservationOnly:
+    SIGTERM=signal.SIGTERM
+    @staticmethod
+    def pidfd_send_signal(fd, sig, info, flags):
+        # This replaces the signal operation. It only reads the handle metadata.
+        assert sig==signal.SIGTERM and info is None and flags==0
+        data=read_only('/proc/self/fdinfo/'+str(fd))
+        fields=dict(line.split(b':',1) for line in data.splitlines() if b':' in line)
+        pid=int(fields[b'Pid'])
+        assert pid>1
+        observed.update(worker_pid=pid,worker_pidfd_opened=True,signal_operation_replaced_by_read=True)
+start=time.time()
+capabilities={'pidfd_open_api':callable(getattr(os,'pidfd_open',None)),
+              'pidfd_send_signal_api':callable(getattr(signal,'pidfd_send_signal',None))}
+if capabilities['pidfd_open_api']:
+    try:
+        fd=os.pidfd_open(os.getpid(),0)
+        os.close(fd)
+        capabilities['self_pidfd_kernel_open']=True
+    except OSError:
+        capabilities['self_pidfd_kernel_open']=False
+try:
+    assert all(capabilities.values())
+    terminate_worker(sys.argv[1],sys.argv[2],float(sys.argv[3]),float(sys.argv[4]),
+                     os,ObservationOnly,time,read_only)
+    identity_passed=True
+    failure_stage=None
+except Exception:
+    identity_passed=False
+    failure_stage=stage
+print(json.dumps({'schema':'companion-worker-readonly-capability-v1',
+                  'remote_utc_epoch':start,'capabilities':capabilities,
+                  'exact_worker_validation_passed':identity_passed,
+                  'failure_stage':failure_stage,'observation':observed,
+                  'python_version':list(sys.version_info[:3]),
+                  'signals_sent':False,'environment_read':False,'arguments_exported':False}))

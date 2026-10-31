@@ -1,0 +1,76 @@
+{
+  "schema": "companion-context-guard-independent-review-v1",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Offline subject/context guard correction and CG-1 separator re-review only.",
+  "operational_authorized": false,
+  "runtime_status": "INCOMPLETE",
+  "prior_review": {
+    "path": "docs/review_artifacts/companion_context_guard_20261024/independent_review.json",
+    "sha256": "14e7674136622fe281396165dfc9e5aefbd9fc799e3557f37bbce9caf27f9771",
+    "retained_unchanged": true
+  },
+  "source_and_artifact_sha256": {
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+    "dashboard/services/views/_shared_signals.py": "d003edac94edbb7d7886901784674e23ed9accae2d42bd69c0a7f6fbc0c9e381",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_attempt_v6d/receipt.jsonl": "0ca55ea24bf18b7ff5442d974267497de00f2f3a5e2af1c372459f35aa43b1a9",
+    "docs/review_artifacts/companion_worker_preparation_20261023/runtime_packet_v6d/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+    "phase1_research_copilot/memory_retrieval/article_view.py": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+    "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "phase1_research_copilot/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+    "research/companion_article_body_v1_20261011_gd1abqx9/derived_article_body_v1.json": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+    "research/companion_article_body_v1_20261011_gd1abqx9/manifest.json": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "tests/test_companion_archive_contract.py": "008ddcd18b823db98b1d64d57d85c90cb47a1e753cf7341bc4a4935e86e2900c",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f",
+    "tests/test_explain_diagnostics.py": "508e912012fd08e4fca5d858e215046dec66b220677f9997b72ffc8b6912ffd3",
+    "tests/test_explain_headline_context.py": "1d397d9ab00ace5d477da8f357dcdcea52c7dec325ca845194a9f3edeb4c738b",
+    "docs/review_artifacts/companion_context_guard_20261024/report_corrected.json": "4a6b83e046ec903e3b70dc4f489e13997a8214fb7d3667ba0dc86d51cd58508c",
+    "docs/review_artifacts/companion_context_guard_20261024/reviewed_candidate_sources.tar": "8e8347685076f339277d6ad1ea59275cece1a255146e762f8d74e5a16dca2fc4",
+    "docs/review_artifacts/companion_context_guard_20261024/independent_review.json": "14e7674136622fe281396165dfc9e5aefbd9fc799e3557f37bbce9caf27f9771",
+    "docs/review_artifacts/companion_context_guard_20261024/report.json": "feafa7f4e6d2d81d4c74c53c99b57c283120ada6b14a254e1ae30fee2dba3952"
+  },
+  "verification": {
+    "classification": "SHOWN",
+    "baseline_archive": {
+      "path": "docs/review_artifacts/companion_context_guard_20261024/reviewed_candidate_sources.tar",
+      "sha256": "8e8347685076f339277d6ad1ea59275cece1a255146e762f8d74e5a16dca2fc4",
+      "guard_member_sha256": "f4557ad3d9e2fb777b0b650dccccd69ee463e1a5721da8a80b47d684bbf16004",
+      "headline_tests_member_sha256": "961323bf423e8eca00ded6af41422f55a3b56f6e4fe897f1ccd13fbd4c832690"
+    },
+    "exact_delta": "Guard differs from preserved candidate only by adding one ASCII space between prefix and suffix. Tests add the context helper import and ETH/SOL boundary regression cases; prior cases unchanged.",
+    "bindings": "All 17 corrected-report source/input bindings verified. Report content differs from prior report only in corrected guard source hash. Prior independent review and report retain exact hashes.",
+    "tests": {
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_explain_headline_context.py tests/test_companion_archive_contract.py",
+      "exit_code": 0,
+      "output": "...............................................                          [100%]\n47 passed in 1.14s",
+      "environment": "VERIFIED_ENV: isolated env, no conftest/plugin autoload/bytecode/cache provider; synthetic fixtures forbid sockets and subprocess operations; no services invoked."
+    }
+  },
+  "cg_1": {
+    "classification": "SHOWN",
+    "disposition": "ACCEPTED",
+    "resolved": true,
+    "source_line": 417,
+    "reason": "Space replacement preserves lexical separation across the excluded passage: ETH/SOL + passage + demand becomes ETH/SOL demand, not ETH/SOLdemand.",
+    "proof": "Both new parameterized regressions assert foreign-asset refusal and dashboard_fallback selection through the actual normalizer. Included in the 47-pass single focused invocation."
+  },
+  "findings": [],
+  "preserved_boundaries": [
+    "Explicit wrong or malformed root asset refuses; malformed/spoofed context and foreign assertions outside the exact passage remain covered by the focused slice.",
+    "Recognition excludes only the exact single labelled passage; it is not provenance, causal or topical approval.",
+    "Unchanged evidence checker/witness7 still distinguishes [5,7] passing from [47] and [5,47] failing the combined evidence fixture.",
+    "No production source other than the single reviewed separator expression changed relative to the preserved reviewed candidate."
+  ],
+  "remaining_risks": [
+    "Saved archive rows and stub envelopes are offline fixtures, not live DB, retrieval ranking, HTTP, service or integration proof.",
+    "Historical live prose and typed protocol fields are unavailable; exact V6d runtime failure cause remains UNVERIFIED.",
+    "This bounded correction retains the existing whole-token known-asset guard and exact-context contract; it does not establish universal asset/entity recognition or truth of cited headlines.",
+    "No preparation, runtime policy, startup, retry, query, token, trading or other operation is authorized by this acceptance."
+  ],
+  "review_limits": "No broad source/55-row audit repeated. One 47-case focused test command; no runtime/native operations. Parent broader slice not relied upon."
+}

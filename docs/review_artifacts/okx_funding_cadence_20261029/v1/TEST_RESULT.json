@@ -1,0 +1,9 @@
+{
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_okx_funding_cadence.py tests/test_edge_cadence.py tests/test_okx_funding_cli.py tests/test_run_crypto_edge_collector_loop.py tests/test_okx_funding_service.py tests/test_okx_funding_pair_producer.py tests/test_okx_funding_journal.py tests/test_okx_cash_cost.py tests/test_okx_funding_contract.py tests/test_synthetic_funding_observations.py tests/test_funding_receipts.py tests/test_funding_store_bridge.py tests/test_crypto_edge_collector_service.py",
+  "exit_code": 0,
+  "passed": 351,
+  "new_cadence_cases": 36,
+  "warnings": 8,
+  "seconds": 2.9,
+  "scope": "targeted offline; capture-attested until independent rerun"
+}

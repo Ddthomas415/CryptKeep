@@ -1,0 +1,211 @@
+{
+  "schema": "companion-v6f-actual-runtime-failure-independent-review-v1",
+  "date": "2026-10-25",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Saved failure evidence and bounded offline diagnosis only. Not runtime success, repair approval, deployment acceptance or follow-on operation authority.",
+  "runtime_state": "INCOMPLETE",
+  "blocking_findings": [],
+  "runtime_execution_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "hashes": {
+    ".cbp_state/runtime/companion_cutovers/workerprep20261025v6f/receipt.jsonl": "9fdc6a9823d45777e591a25b108be4da7bfeadea296daeb50492481cb3acf555",
+    "dashboard/services/views/_shared_signals.py": "d003edac94edbb7d7886901784674e23ed9accae2d42bd69c0a7f6fbc0c9e381",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_runtime_v6f/diagnose_saved_attempt.py": "022b1c24065ffb6942369820136353380c533daa110bff436f88eae22ced8930",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_runtime_v6f/receipt.jsonl": "9fdc6a9823d45777e591a25b108be4da7bfeadea296daeb50492481cb3acf555",
+    "phase1_research_copilot/memory_retrieval/article_view.py": "b9543070bbfa3d75999a3cf980d5fba58e880a6cd093c9165305a5124a70cd8f",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "research/companion_article_body_v1_20261011_gd1abqx9/derived_article_body_v1.json": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f",
+    "research/companion_article_body_v1_20261011_gd1abqx9/manifest.json": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77",
+    "research/companion_article_body_v1_20261011_gd1abqx9/original_snapshot.json": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f",
+    "tests/test_companion_archive_contract.py": "008ddcd18b823db98b1d64d57d85c90cb47a1e753cf7341bc4a4935e86e2900c",
+    "tests/test_companion_evidence_checks.py": "7a8cb56e1052389fc21b5a6b616a52c27a586a8897d2efb827e5b1e77b48eb3f",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_runtime_v6f/outcome.json": "c074d27caa3a16f94fc6bf28a2875d8640ac30d6a6f5ae9dda1a7d85caf4e267",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_runtime_v6f/diagnosis.json": "4f6dfd15603b52b1c3cb2058e5f7c72eaaf7b115403db47efb101c3032e8b19c",
+    "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+    "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+    "scripts/research/companion_installer.py": "e9fd8a144de54bf277e2c5812110dda9cc8cf0a7d1bb6fc85707b188f3174d38",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3"
+  },
+  "receipt": {
+    "classification": "SHOWN saved bytes",
+    "events": 96,
+    "read_complete": true,
+    "source_copy_byte_identical": true,
+    "query_failure_diagnostics_equal": true,
+    "diagnostic_stages": [
+      {
+        "http_status": null,
+        "outcome": "invalid_envelope",
+        "route": "primary",
+        "stage": "normalization"
+      },
+      {
+        "http_status": 200,
+        "outcome": "json_received",
+        "route": "companion",
+        "stage": "transport"
+      },
+      {
+        "http_status": null,
+        "outcome": "foreign_asset",
+        "route": "companion",
+        "stage": "normalization"
+      },
+      {
+        "http_status": null,
+        "outcome": "static_fallback",
+        "route": "dashboard",
+        "stage": "selection"
+      }
+    ],
+    "verifier_result_events": 0,
+    "verifier_operation_intentions": 0
+  },
+  "assessment": [
+    {
+      "classification": "SHOWN in saved receipt; static control-flow interpretation",
+      "subject": "This failure is earlier than evidence verification",
+      "detail": "Companion transport records HTTP 200, five evidence items and execution_disabled true, then normalization records foreign_asset and dashboard selection records static_fallback. Installation fails at runtime_verification after query diagnostics. No verify_evidence operation intention or evidence_verification_checks event occurs anywhere in the complete receipt. Current installer calls explanation_gates before initiating the verifier; current normalizer rejects foreign-asset content before accepting companion output. This supports a pre-verifier failure path, not five failed verifier booleans. Primary invalid_envelope alone is not sufficient cause because the companion route returned JSON."
+    },
+    {
+      "classification": "SHOWN reproduced offline",
+      "subject": "Exact archive citation correlations",
+      "detail": "Hash-correlated document IDs in receipt order are 5,47,18,5,26. All five URLs match archived URL hashes, and citation-name candidates match keyword_5, keyword_47, keyword_18, past_1, future_1. Unlike the V6e out-of-snapshot correlation, every V6f hash has a saved archive counterpart. Hash matches identify compatible saved records, not actual response prose, field types or successful topical/causal verification.",
+      "correlations": [
+        {
+          "citation_id_candidates": [
+            "keyword_5"
+          ],
+          "document_id": 5,
+          "title": "Bitcoin (BTC) and ether (ETH) liquidity rebounds a year after $19 billion crypto flash crash",
+          "url_hash_matches": true
+        },
+        {
+          "citation_id_candidates": [
+            "keyword_47"
+          ],
+          "document_id": 47,
+          "title": "Crypto Liquidations Cross $1 Billion in 24 Hours as Bitcoin Dips to $80,350",
+          "url_hash_matches": true
+        },
+        {
+          "citation_id_candidates": [
+            "keyword_18"
+          ],
+          "document_id": 18,
+          "title": "Trump's Iran pledge underpins crypto gains as bitcoin (BTC) bears face liquidation pressure: Crypto Daily",
+          "url_hash_matches": true
+        },
+        {
+          "citation_id_candidates": [
+            "past_1"
+          ],
+          "document_id": 5,
+          "title": "Bitcoin (BTC) and ether (ETH) liquidity rebounds a year after $19 billion crypto flash crash",
+          "url_hash_matches": true
+        },
+        {
+          "citation_id_candidates": [
+            "future_1"
+          ],
+          "document_id": 26,
+          "title": "Saylor Again Teases Strategy Bitcoin Buying Ahead of Columbus Day",
+          "url_hash_matches": true
+        }
+      ]
+    },
+    {
+      "classification": "SHOWN static and synthetic; runtime unique cause UNVERIFIED",
+      "subject": "Mixed title in precedent field is a demonstrated mechanism",
+      "detail": "Current guard excludes only the exact recognized labelled archived-headline passage from current_cause; past_precedent and future_catalyst remain whole-token checked. Archived title 5 contains BTC and ETH. Three synthetic candidates built from saved archive functions yield rejection [false,true,false] when past is respectively the fixture default, mixed title 5, or BTC-only title 47; all recognize the labelled current passage. This demonstrates one possible contradiction between citation reuse and unlabelled precedent guarding. It does not replay actual response prose, prove title 5 was rendered verbatim in the actual past field, establish actual protocol/field types, or identify a unique runtime first predicate.",
+      "synthetic_cases": [
+        {
+          "foreign_asset_rejected": false,
+          "labelled_current_context_recognized": true,
+          "name": "keyword_headlines_only"
+        },
+        {
+          "foreign_asset_rejected": true,
+          "labelled_current_context_recognized": true,
+          "name": "same_archived_mixed_title_as_past"
+        },
+        {
+          "foreign_asset_rejected": false,
+          "labelled_current_context_recognized": true,
+          "name": "btc_only_past_control"
+        }
+      ],
+      "source_lines": [
+        "dashboard/services/views/_shared_signals.py:366-426",
+        "dashboard/services/views/market_view.py:253-337",
+        "scripts/research/companion_installer.py:410-440",
+        "scripts/research/companion_existing_controller.py:192-220"
+      ]
+    },
+    {
+      "classification": "SHOWN controller recovery attestation, not health",
+      "subject": "Configuration recovery is narrower than restoration",
+      "detail": "Final event records configuration_restored true, exact_baseline_restored false and network_connectivity_verified false. Current recovery code distinguishes configuration/running snapshot checks from exact baseline comparison and does not establish service health. Parent outcome's empty tracked-action lists indicate no unresolved tracked actions, not post-recovery endpoint health, volume-byte identity, atomic restoration or a current-state guarantee. Staged IDs were not preserved and preparation was consumed; consumed cutover/preparation markers remain present at local check. No retry or identity reuse follows."
+    }
+  ],
+  "proof": {
+    "environment": "VERIFIED_ENV for local saved-file reading, hashes, pure synthetic construction and guard checks only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m docs.review_artifacts.companion_integration_inputs_v6f_20261025.actual_runtime_v6f.diagnose_saved_attempt",
+    "classification": "SHOWN",
+    "exit_code": 0,
+    "diagnosis_object_exact": true,
+    "tripwires": "Reviewed script activates tests.test_companion_archive_contract.offline using pytest.MonkeyPatch: socket construction/create_connection/getaddrinfo and subprocess Popen/run/check_output/check_call/call are forbidden during main. Diagnostic completed without triggering an external-operation assertion. No native/backend/token/service operation invoked.",
+    "source_hashes": "Every diagnosis hash independently recomputed and matched; additional current normalizer, sanitizer, installer and explanation-gate source hashes recorded. Archive loader binds manifest and original/derived hashes.",
+    "tests": "Diagnostic assertions only; no broad pytest or full suite run, no implementation change.",
+    "privacy_and_overclaim_check": "No blocking overclaim found in bounded diagnosis when read with its explicit limitations. Titles in its report are recovered from saved archive, not missing runtime response."
+  },
+  "outcome_attribution": {
+    "classification": "CLAIMED parent transcription, not independent process/host observation",
+    "session": 80673,
+    "exit_code": 1,
+    "query_attempted": true,
+    "query_passed": false,
+    "receipt_complete": true,
+    "rollback_verified": true,
+    "rollback_exact_baseline": false,
+    "prepared_ids_preserved": false,
+    "preparation_consumed": true,
+    "all_unresolved_lists_empty": true,
+    "note": "Receipt sequence is consistent with outcome; services_started is historical activity, not recovery health."
+  },
+  "privacy_limits": [
+    "Sanitizer deliberately retains fixed route/stage/outcome, field-presence/provider/execution flags, evidence count and bounded hashes, not raw runtime response prose, arbitrary exceptions or credential values.",
+    "Hashing is not anonymization: small document-ID and citation-name spaces are correlatable against known archives. Positive integer document IDs and equal decimal strings hash alike; original ID types cannot be recovered from hashes.",
+    "Field presence is not proof of field type or exact text. No raw body was captured or reconstructed; synthetic current/past/future text is not actual-response replay.",
+    "The diagnostic imports pure archive/fixture helpers, not a running service or DB. Saved source hashes do not independently attest installed or executed module origin."
+  ],
+  "read_scope": {
+    "complete": [
+      "actual_runtime_v6f/receipt.jsonl (96 events)",
+      "actual_runtime_v6f/outcome.json",
+      "actual_runtime_v6f/diagnose_saved_attempt.py",
+      "actual_runtime_v6f/diagnosis.json",
+      "dashboard/services/views/_explain_diagnostics.py"
+    ],
+    "selected_context": [
+      "dashboard/services/views/_shared_signals.py archived context and foreign-asset guard",
+      "dashboard/services/views/market_view.py explain normalization/fallback",
+      "scripts/research/companion_installer.py explanation/verifier ordering and recovery completion predicates",
+      "scripts/research/companion_existing_controller.py explanation_gates",
+      "tests/test_companion_archive_contract.py offline and assembled helpers",
+      "orchestrator past-context title-to-precedent construction source search"
+    ],
+    "not_claimed": "No SDK, runtime policy, deployment, services or broader repo audit."
+  },
+  "limits": [
+    "No unique runtime root cause or successful explanation established.",
+    "No recovery health, current connectivity or exact restoration claim.",
+    "No source/service fixes, repair plan implementation or follow-on runtime approval.",
+    "Only this independent_review.json written; script, source, receipt, outcome, diagnosis, docs and worklog unchanged."
+  ]
+}

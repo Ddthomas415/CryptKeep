@@ -1,0 +1,503 @@
+--- a/services/execution/place_order.py
++++ b/services/execution/place_order.py
+@@ -697,6 +697,51 @@
+ 
+     return exec_db, notional, amount_f, price_f
+ 
++def _enforce_balance_preflight_sync(ex: Any, *, symbol: str, side: str,
++                                    amount: Any, price: Any | None, order_type: str) -> None:
++    exchange_id = str(getattr(ex, "id", "") or getattr(ex, "exchange_id", "") or "").lower().strip()
++    if exchange_id != "coinbase":
++        enforce_coinbase_quote_account_available(ex, symbol)
++        _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount,
++                              price=price, order_type=order_type)
++        return
++
++    def read(probe, reason):
++        try:
++            value = probe()
++        except Exception as error:
++            raise RuntimeError(f"CBP_ORDER_BLOCKED:{reason}:{type(error).__name__}") from None
++        if inspect.isawaitable(value):
++            if inspect.iscoroutine(value):
++                value.close()
++            raise RuntimeError(f"CBP_ORDER_BLOCKED:{reason}:async_result_requires_async_entry")
++        return value
++
++    permissions = read(lambda: ex.v3PrivateGetBrokerageKeyPermissions(), "portfolio_uuid_unavailable")
++    if (not isinstance(permissions, dict)
++            or not isinstance(permissions.get("portfolio_uuid"), str)
++            or not permissions["portfolio_uuid"].strip()):
++        raise RuntimeError("CBP_ORDER_BLOCKED:portfolio_uuid_unavailable")
++    balance = read(lambda: ex.fetch_balance(), "funding_probe_failed")
++    if not isinstance(balance, dict):
++        raise RuntimeError("CBP_ORDER_BLOCKED:funding_probe_failed:invalid_balance")
++
++    # Replay one local observation to both guards, as the async entry already does.
++    class ObservedPreflight:
++        id = exchange_id
++
++        def fetch_balance(self):
++            return balance
++
++        def v3PrivateGetBrokerageKeyPermissions(self):
++            return permissions
++
++    observed = ObservedPreflight()
++    enforce_coinbase_quote_account_available(observed, symbol)
++    _enforce_funding_gate(observed, symbol=symbol, side=side, amount=amount,
++                          price=price, order_type=order_type)
++
++
+ def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
+     symbol, side, amount, price, params, otype = _extract_create_order_args(args, kwargs)
+     exec_db, notional, amount_n, price_n = _enforce_fail_closed(
+@@ -709,8 +754,8 @@
+         order_type=otype,
+     )
+ 
+-    enforce_coinbase_quote_account_available(ex, symbol)
+-    _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount_n, price=price_n, order_type=otype)
++    _enforce_balance_preflight_sync(ex, symbol=symbol, side=side, amount=amount_n,
++                                   price=price_n, order_type=otype)
+ 
+     with _ORDER_SEMAPHORE:
+         o = ex.create_order(symbol, otype, side, amount_n, price_n, params)
+--- a/tests/test_coinbase_sync_preflight.py
++++ b/tests/test_coinbase_sync_preflight.py
+@@ -0,0 +1,180 @@
++"""Selected real preflight definitions, invented reads, no execution imports."""
++
++import ast
++from contextlib import nullcontext
++from copy import deepcopy
++from decimal import Decimal
++import inspect
++import itertools
++import logging
++import math
++from pathlib import Path
++import socket
++
++import pytest
++
++ROOT = Path(__file__).resolve().parents[1]
++CURRENT = ROOT / "services/execution/place_order.py"
++BEFORE = ROOT / "docs/review_artifacts/coinbase_sync_preflight_20261029/before/place_order.py"
++
++
++class SubmissionReached(Exception):
++    pass
++
++
++@pytest.fixture(autouse=True)
++def offline(monkeypatch):
++    def refuse(*args, **kwargs):
++        raise AssertionError("network forbidden")
++    monkeypatch.setattr(socket, "create_connection", refuse)
++    monkeypatch.setattr(socket, "getaddrinfo", refuse)
++    monkeypatch.setattr(socket.socket, "connect", refuse)
++
++
++def balance(*, portfolio="p-one", held=5, quote=True):
++    rows = [{"currency": {"code": "ETH"}, "portfolio_id": portfolio,
++             "balance": {"amount": str(held)}}]
++    if quote:
++        rows.append({"currency": {"code": "USD"}, "portfolio_id": portfolio,
++                     "balance": {"amount": "100"}})
++    return {"free": {"ETH": held, "USD": 100}, "info": {"data": rows}}
++
++
++class Client:
++    id = "coinbase"
++    def __init__(self, *, permissions=None, balances=None, asynchronous=None):
++        self.permissions = iter(permissions) if permissions is not None else itertools.repeat({"portfolio_uuid": "p-one"})
++        self.balances = iter(balances) if balances is not None else itertools.repeat(balance())
++        self.calls, self.coroutines = [], []
++        self.asynchronous = asynchronous
++    def value(self, kind, value):
++        self.calls.append(kind)
++        if isinstance(value, BaseException):
++            raise value
++        if self.asynchronous == kind:
++            async def result():
++                return deepcopy(value)
++            coroutine = result(); self.coroutines.append(coroutine)
++            return coroutine
++        return deepcopy(value)
++    def v3PrivateGetBrokerageKeyPermissions(self):
++        return self.value("permissions", next(self.permissions))
++    def fetch_balance(self):
++        return self.value("balance", next(self.balances))
++    def create_order(self, *args):
++        self.calls.append("submission")
++        raise SubmissionReached()
++
++
++def selected(path, names, namespace):
++    tree = ast.parse(path.read_bytes())
++    nodes = [node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in names]
++    module = ast.Module(body=[ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0), *nodes], type_ignores=[])
++    ast.fix_missing_locations(module); exec(compile(module, str(path), "exec"), namespace)
++
++
++def namespace(path=CURRENT, *, side="sell", risk_block=False):
++    ns = {"inspect": inspect, "math": math, "Decimal": Decimal, "_LOG": logging.getLogger("sync-preflight-test"),
++          "decimal_value": lambda value, **kwargs: Decimal(str(value)),
++          "_estimate_funding_required": lambda qty, price: Decimal(str(qty)) * Decimal(str(price)) * Decimal("1.005"),
++          "_ORDER_SEMAPHORE": nullcontext()}
++    selected(ROOT / "services/execution/coinbase_portfolio_guard.py",
++             {"_get_portfolio_uuid", "_get_portfolio_currencies", "_split_symbol", "enforce_coinbase_quote_account_available"}, ns)
++    selected(path, {"_float_or_none", "_split_symbol", "_coinbase_portfolio_uuid", "_coinbase_row_currency_code",
++                   "_coinbase_row_amount", "_coinbase_row_trade_spendable", "_coinbase_spendable_from_info_rows",
++                   "_extract_spendable_balance", "_parse_order_amount", "_parse_order_price", "_enforce_funding_gate",
++                   "_enforce_balance_preflight_sync", "place_order"}, ns)
++    ns["_extract_create_order_args"] = lambda *args: ("ETH/USD", side, 1, 10, {}, "limit")
++    def guard(*args, **kwargs):
++        if risk_block:
++            raise RuntimeError("existing_risk_block")
++        return "unused", Decimal(10), 1, 10
++    ns["_enforce_fail_closed"] = guard
++    return ns
++
++
++@pytest.mark.parametrize("side", ["buy", "sell"])
++def test_sync_order_uses_one_permission_and_one_balance(side):
++    client = Client()
++    with pytest.raises(SubmissionReached):
++        namespace(side=side)["place_order"](client)
++    assert client.calls == ["permissions", "balance", "submission"]
++
++
++def test_before_reproduces_mixed_portfolio_and_balance_allowance():
++    client = Client(permissions=[{"portfolio_uuid": "p-one"}, {"portfolio_uuid": "p-two"}],
++                    balances=[balance(held=0), balance(portfolio="p-two", held=5, quote=False)])
++    with pytest.raises(SubmissionReached):
++        namespace(BEFORE)["place_order"](client)
++    assert client.calls == ["permissions", "balance", "balance", "permissions", "submission"]
++
++
++def test_current_does_not_use_second_portfolio_to_justify_first_observation():
++    client = Client(permissions=[{"portfolio_uuid": "p-one"}, {"portfolio_uuid": "p-two"}],
++                    balances=[balance(held=0), balance(portfolio="p-two", held=5, quote=False)])
++    with pytest.raises(RuntimeError, match="insufficient_spendable_balance"):
++        namespace()["place_order"](client)
++    assert client.calls == ["permissions", "balance"]
++
++
++@pytest.mark.parametrize("permissions", [None, {}, {"portfolio_uuid": ""}, {"portfolio_uuid": " "}, {"portfolio_uuid": 12}, []])
++def test_invalid_permissions_refuse_before_balance(permissions):
++    client = Client(permissions=[permissions])
++    with pytest.raises(RuntimeError, match="portfolio_uuid_unavailable"):
++        namespace()["place_order"](client)
++    assert client.calls == ["permissions"]
++
++
++@pytest.mark.parametrize("kind", ["permissions", "balance"])
++def test_read_failure_has_no_sensitive_text_or_retry(kind):
++    options = {kind if kind == "permissions" else "balances": [RuntimeError("synthetic secret text")]}
++    client = Client(**options)
++    with pytest.raises(RuntimeError) as error:
++        namespace()["place_order"](client)
++    assert "secret" not in str(error.value)
++    assert "submission" not in client.calls and client.calls.count(kind) == 1
++
++
++@pytest.mark.parametrize("invalid", [None, [], "not-a-balance"])
++def test_malformed_balance_refuses(invalid):
++    client = Client(balances=[invalid])
++    with pytest.raises(RuntimeError, match="invalid_balance"):
++        namespace()["place_order"](client)
++    assert client.calls == ["permissions", "balance"]
++
++
++@pytest.mark.parametrize("kind", ["permissions", "balance"])
++def test_sync_entry_refuses_and_closes_owned_coroutine(kind):
++    client = Client(asynchronous=kind)
++    try:
++        with pytest.raises(RuntimeError, match="async_result_requires_async_entry"):
++            namespace()["place_order"](client)
++        assert all(inspect.getcoroutinestate(value) == inspect.CORO_CLOSED for value in client.coroutines)
++        assert "submission" not in client.calls
++    finally:
++        for value in client.coroutines:
++            value.close()
++
++
++@pytest.mark.parametrize("rows,match", [(balance(quote=False), "portfolio_account_unavailable"),
++    (balance(portfolio="p-other"), "portfolio_account_unavailable"), (balance(held=0), "insufficient_spendable_balance")])
++def test_existing_portfolio_and_funding_refusals_remain(rows, match):
++    client = Client(balances=[rows])
++    with pytest.raises(RuntimeError, match=match):
++        namespace()["place_order"](client)
++    assert "submission" not in client.calls
++
++
++def test_risk_block_still_precedes_all_private_reads():
++    client = Client()
++    with pytest.raises(RuntimeError, match="existing_risk_block"):
++        namespace(risk_block=True)["place_order"](client)
++    assert client.calls == []
++
++
++@pytest.mark.parametrize("side", ["buy", "sell"])
++def test_other_venues_keep_original_one_balance_path(side):
++    client = Client(); client.id = "kraken"
++    with pytest.raises(SubmissionReached):
++        namespace(side=side)["place_order"](client)
++    assert client.calls == ["balance", "submission"]
+--- a/tests/test_proposed_async_balance_preflight.py
++++ b/tests/test_proposed_async_balance_preflight.py
+@@ -146,22 +146,40 @@
+     assert ex.calls == ["permissions"]
+ 
+ 
+-def test_synchronous_definitions_only_change_reviewed_funding_and_order_context():
++def project_prior_sync_entry(tree):
++    helpers = [node for node in tree.body if isinstance(node, ast.FunctionDef)
++               and node.name == "_enforce_balance_preflight_sync"]
++    assert len(helpers) == 1
++    tree.body.remove(helpers[0])
++    order = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "place_order")
++    bridge = ast.parse("_enforce_balance_preflight_sync(ex, symbol=symbol, side=side, amount=amount_n, price=price_n, order_type=otype)").body[0]
++    prior = ast.parse("enforce_coinbase_quote_account_available(ex, symbol)\n_enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount_n, price=price_n, order_type=otype)").body
++    matches = [index for index, node in enumerate(order.body)
++               if ast.dump(node, include_attributes=False) == ast.dump(bridge, include_attributes=False)]
++    assert len(matches) == 1
++    order.body[matches[0]:matches[0] + 1] = prior
++    return tree
++
++
++def test_synchronous_definitions_preserve_prior_funding_and_order_context_outside_bridge():
+     def selected(path):
+-        return {node.name: ast.dump(node, include_attributes=False) for node in ast.parse(path.read_text()).body
++        tree = ast.parse(path.read_text())
++        if path == APPLICATION:
++            tree = project_prior_sync_entry(tree)
++        return {node.name: ast.dump(node, include_attributes=False) for node in tree.body
+                 if isinstance(node, ast.FunctionDef)}
+     before = selected(ORIGINAL); after = selected(APPLICATION)
+     assert {name for name in before if before[name] != after[name]} == {
+         "_coinbase_spendable_from_info_rows", "_extract_spendable_balance", "_enforce_fail_closed"}
+ 
+ 
+-def test_application_is_exact_reviewed_proposal():
++def test_application_preserves_exact_prior_proposal_outside_sync_bridge():
+     expected = ast.parse(PROPOSAL.read_bytes())
+     calls = [node for node in ast.walk(expected) if isinstance(node, ast.Call)
+              and isinstance(node.func, ast.Name) and node.func.id == "mr_validate"]
+     assert len(calls) == 1
+     calls[0].keywords.append(ast.keyword(arg="order_type", value=ast.Name(id="order_type", ctx=ast.Load())))
+-    assert ast.dump(ast.parse(APPLICATION.read_bytes()), include_attributes=False) == ast.dump(expected, include_attributes=False)
++    assert ast.dump(project_prior_sync_entry(ast.parse(APPLICATION.read_bytes())), include_attributes=False) == ast.dump(expected, include_attributes=False)
+ 
+ 
+ @pytest.mark.parametrize("asynchronous", [False, True])
+--- a/tests/test_coinbase_paged_preflight_compatibility.py
++++ b/tests/test_coinbase_paged_preflight_compatibility.py
+@@ -229,7 +229,22 @@
+     guards["_enforce_funding_gate"](ex, **args)
+ 
+ 
+-def test_proposal_changes_only_two_funding_helpers():
++def project_prior_sync_entry(tree):
++    helpers = [node for node in tree.body if isinstance(node, ast.FunctionDef)
++               and node.name == "_enforce_balance_preflight_sync"]
++    assert len(helpers) == 1
++    tree.body.remove(helpers[0])
++    order = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "place_order")
++    bridge = ast.parse("_enforce_balance_preflight_sync(ex, symbol=symbol, side=side, amount=amount_n, price=price_n, order_type=otype)").body[0]
++    prior = ast.parse("enforce_coinbase_quote_account_available(ex, symbol)\n_enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount_n, price=price_n, order_type=otype)").body
++    matches = [index for index, node in enumerate(order.body)
++               if ast.dump(node, include_attributes=False) == ast.dump(bridge, include_attributes=False)]
++    assert len(matches) == 1
++    order.body[matches[0]:matches[0] + 1] = prior
++    return tree
++
++
++def test_proposal_changes_only_two_funding_helpers_outside_current_sync_bridge():
+     original = ast.parse((PROPOSAL.parent / "place_order_original.py").read_bytes())
+     proposal = ast.parse(PROPOSAL.read_bytes())
+     def definitions(tree):
+@@ -244,4 +259,4 @@
+              and isinstance(node.func, ast.Name) and node.func.id == "mr_validate"]
+     assert len(calls) == 1
+     calls[0].keywords.append(ast.keyword(arg="order_type", value=ast.Name(id="order_type", ctx=ast.Load())))
+-    assert ast.dump(ast.parse(APPLICATION.read_bytes()), include_attributes=False) == ast.dump(expected, include_attributes=False)
++    assert ast.dump(project_prior_sync_entry(ast.parse(APPLICATION.read_bytes())), include_attributes=False) == ast.dump(expected, include_attributes=False)
+--- a/tests/test_place_order_fail_closed.py
++++ b/tests/test_place_order_fail_closed.py
+@@ -549,7 +549,7 @@
+ 
+     assert out["id"] == "oid-1"
+     assert ex.calls == [(("BTC/USD", "limit", "buy", 1.0, 10.01, {}), {})]
+-    assert seen["market_rules_kwargs"] == {"qty": 1.0, "notional": pytest.approx(10.01), "ttl_s": 21600.0}
++    assert seen["market_rules_kwargs"] == {"qty": 1.0, "notional": pytest.approx(10.01), "ttl_s": 21600.0, "order_type": "limit"}
+     assert seen["record_order_attempt"] == {"notional_usd": pytest.approx(10.01), "exec_db": "/tmp/execution.sqlite"}
+ 
+ 
+@@ -612,7 +612,7 @@
+ 
+     assert out["id"] == "oid-async-precision"
+     assert ex.calls == [(("BTC/USD", "limit", "buy", 1.0, 10.01, {}), {})]
+-    assert seen["market_rules_kwargs"] == {"qty": 1.0, "notional": pytest.approx(10.01), "ttl_s": 21600.0}
++    assert seen["market_rules_kwargs"] == {"qty": 1.0, "notional": pytest.approx(10.01), "ttl_s": 21600.0, "order_type": "limit"}
+     assert seen["record_order_attempt"] == {"notional_usd": pytest.approx(10.01), "exec_db": "/tmp/execution.sqlite"}
+ 
+ 
+--- a/docs/research/coinbase_sync_preflight_20261029.md
++++ b/docs/research/coinbase_sync_preflight_20261029.md
+@@ -0,0 +1,98 @@
++# Coherent Synchronous Coinbase Preflight
++
++2026-10-29. ENGINEER. HIGH-risk financial admission change.
++Source READY_FOR_INDEPENDENT_REVIEW. No account call or trading activation.
++
++## What Changed
++
++The synchronous common order boundary previously called portfolio and funding
++checks directly. For Coinbase, they obtained two balances and two permissions
++responses. The async entry already reused one permissions/balance observation.
++
++New _enforce_balance_preflight_sync obtains one permissions response and one
++balance, then replays them to both unchanged validators. place_order calls that
++helper in the same location after existing risk/market checks and before the
++submission semaphore. Other venues retain their existing direct funding path.
++The async entry, parser, portfolio/funding rules, market-order context, cap,
++thresholds and admission quantities are not changed.
++
++The new helper refuses malformed or missing permissions/balances, sanitizes
++read exceptions to type only, and refuses awaitables at the synchronous entry.
++Native coroutines returned by those reads are closed; other awaitables are not
++cancelled because ownership is unknown. BaseException cancellation propagates.
++
++## Shown Regression
++
++Three tests fail before the repair: buy/sell perform duplicate reads, and a sell
++can reach the submission marker by combining quote availability in p-one with
++holdings and a later permissions response from p-two. The corrected entry
++refuses that mixed-evidence case and performs one permissions/one balance read.
++The saved before-source still reproduces its earlier allowance as a control.
++No real order is submitted; the marker is an invented client's exception.
++
++23focused cases pass, including valid buys/sells, insufficient funds, missing
++quote/portfolio, malformed/read failures, coroutine refusal/close, prior risk
++blocks and unchanged other venues. The bridge still does NOT paginate balances.
++
++## Verification
++
++VERIFIED_ENV final combined offline slice:
++
++```sh
++env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B docs/review_artifacts/coinbase_sync_preflight_20261029/verify_offline.py
++```
++
++SHOWN:154passed7.48s,exit0. Includes23new selected-definition regressions,
++98existing paging/SDK/funding/async cases and33full-module order-unit cases.
++Full-module cases import actual place_order, with invented clients and existing
++unit dependency stubs; they are not signed HTTP, real fills or deployed proof.
++The wrapper blocks network/process entry points and permits SQLite only in its
++disposable state. pytest basetemp is explicitly under that same allowed root.
++No primary research or execution DB is opened by the tests.
++
++Earlier runs preserved in this record:
++- Initial red slice:3failed20deselected0.21s on current before-source.
++- First new slice:23passed0.34s; five-file selected slice121passed7.27s.
++- First broad isolation attempt:27failed/6passed because pytest's default tmp
++  directories lay outside our stricter SQLite allowlist. Corrected basetemp,
++  NOT the production health guard or the allowlist policy.
++- Corrected combined run:152passed/2failed7.64s. Both failures expected the old
++  market-rule keyword dictionary without order_type. The saved before-source
++  reproduces the same2failures/31passes0.26s in the full-module slice.
++- Updated only those two assertions to additionally require order_type=limit;
++  retained qty/notional/ttl assertions and archived the old test. No market-rule
++  source was changed. Final154result above supersedes neither baseline history
++  nor the broader repository suite, which was not run.
++
++Two existing structural harnesses now project out exactly the new helper and
++its exact call-site substitution before comparing the historical proposal AST.
++All previous unrelated definitions must still match, including the pre-existing
++order_type forwarding. Behavioral tests run the actual current definitions,
++not the projection. Old harness bytes are archived; no frozen study was altered.
++
++## Boundaries And Risks
++
++One local observation is coherent across these two guards, not an atomic or
++authenticated account/exchange snapshot. Permissions and balance are separate
++RPCs; concurrent fills/transfers or mutable responses can still invalidate it.
++Removing a second read changes observation timing and is not a promise that
++every time-varying refusal stays identical; a later balance decline previously
++seen on the second read may not be seen here. Existing async semantics already
++have this limit. This patch adds no freshness certification, lock or reservation.
++
++Assumptions: caller-owned responses are suitable native balance/permissions
++objects; their returned contents are not mutated concurrently while replayed.
++If either is false, local replay is not authoritative account truth. Existing
++portfolio/asset checks still refuse missing or mismatched evidence.
++
++Paging API/version/account scope and bounded transport policy remain unadopted
++for production caller integration. Full account exposure/pending reservations
++and live cap wiring remain INCOMPLETE. This repair does not silently choose
++budgets, turn a missing holding into zero, normalize V3 as V2, or enable trading.
++No credentials/account access, risk/capital config, deployed service, scheduler,
++collector or original ledger was changed by an operational command. Future
++imports of the locally edited source can load the change; no process was reloaded.
++
++Independent review must verify exact diff/structural harness changes, unchanged
++other source definitions and the final isolated command before source acceptance.
++Artifacts: docs/review_artifacts/coinbase_sync_preflight_20261029/.
+--- a/docs/review_artifacts/coinbase_sync_preflight_20261029/verify_offline.py
++++ b/docs/review_artifacts/coinbase_sync_preflight_20261029/verify_offline.py
+@@ -0,0 +1,52 @@
++"""Offline selected-source and full-module unit slice, with disposable state."""
++
++import os
++from pathlib import Path
++import socket
++import subprocess
++import sys
++import tempfile
++
++import pytest
++
++ROOT = Path(__file__).resolve().parents[3]
++os.chdir(ROOT)
++
++
++def main():
++    with tempfile.TemporaryDirectory(prefix="cbp-sync-unit-") as state:
++        os.environ["CBP_STATE_DIR"] = state
++
++        def no_network(*args, **kwargs):
++            raise AssertionError("offline unit tests: network forbidden")
++
++        def no_process(*args, **kwargs):
++            raise FileNotFoundError("offline unit tests: subprocess forbidden")
++
++        socket.create_connection = no_network
++        socket.getaddrinfo = no_network
++        socket.socket.connect = no_network
++        subprocess.Popen = no_process
++
++        def scoped_sql(event, args):
++            if event == "sqlite3.connect":
++                name = str(args[0])
++                assert name == ":memory:" or Path(name.removeprefix("file:").split("?", 1)[0]).resolve().is_relative_to(Path(state).resolve()), "non-disposable database forbidden"
++
++        sys.addaudithook(scoped_sql)
++        code = pytest.main([
++            "--noconftest", "-c", "/dev/null", "-p", "no:cacheprovider",
++            "--basetemp", str(Path(state) / "pytest"), "-q", "--tb=short",
++            "tests/test_coinbase_sync_preflight.py",
++            "tests/test_coinbase_account_pages_installed_sdk.py",
++            "tests/test_coinbase_paged_preflight_compatibility.py",
++            "tests/test_proposed_async_balance_preflight.py",
++            "tests/test_coinbase_account_pages.py",
++            "tests/test_place_order_fail_closed.py",
++        ])
++        print("offline_slice_exit=", int(code))
++        assert int(code) == 0
++
++
++if __name__ == "__main__":
++    main()

@@ -1,0 +1,208 @@
+{
+  "schema": "companion-captured-source-policy-assessment-v1",
+  "reviewed_at": "2026-10-22T01:13:20.239206+00:00",
+  "active_role": "GATE",
+  "reviewer": "Independent Codex GATE: bounded captured-source semantic assessment",
+  "decision": "ACCEPTED_WITH_RISK",
+  "decision_scope": "Acceptance of the narrow source conclusions below, not acceptance of runtime policies.",
+  "runtime_policy_state": "INCOMPLETE",
+  "objective": "Assess only newly captured HTTPcore async, Psycopg connection-attempt and Uvicorn startup delegations for the existing restricted single-query profile.",
+  "material_assumptions": [],
+  "verification": {
+    "environment": "VERIFIED_ENV for offline standard-library hashing/assertions and static test/source review",
+    "command": "/usr/bin/python3 -B - <<'PY' (inline offline hash, size, identity and receipt assertions)",
+    "result": "PASS: exact supplemental4x2 scope,8 hashes/sizes/IDs/images and stable stopped rows;32 source-chain files and4 historical connection.py source copies hash-bound;no SDK execution or test repeat",
+    "supplemental_capture_scope": "Separate8file/10command capture, not a repeat of the earlier32file capture.",
+    "supplemental_saved_bytes": 24456,
+    "supplemental_reported_elapsed_seconds": 0.544,
+    "supplemental_reported_transfer_bytes": 40848,
+    "capture_repeats": 0,
+    "native_operations": 0,
+    "test_repeats": 0,
+    "installed_SDK_imports_or_execution": 0
+  },
+  "supplemental_capture": {
+    "decision": "ACCEPTED_WITH_RISK",
+    "evidence_classification": "SHOWN",
+    "shown": "All8 saved files match receipt hashes/sizes and exact2paths x same4ID/image bindings. Before/after six-field rows equal the hash-pinned postcheck and earlier capture. All remain created, zero started timestamp, restarts0, policy no in those observations.",
+    "limit": "Receipt reports10commands and0.544seconds; reviewer did not independently witness/time native execution or inspect a saved supplemental invocation transcript. Read-only/no-start/no-credential scope is user-authorized and receipt-claimed, not newly replayed. This does not amend the historical32file capture review."
+  },
+  "policy_assessments": [
+    {
+      "claim": "HTTPcore async connection establishment retry boundary",
+      "classification": "SHOWN",
+      "disposition": "ACCEPTED_WITH_RISK",
+      "scope": "One AsyncHTTPConnection._connect invocation, retries=0, caught ConnectError/ConnectTimeout at this layer.",
+      "evidence": "AsyncConnectionPool stores retries and passes it to direct AsyncHTTPConnection. _connect copies self._retries; when a caught connection failure occurs with retries_left<=0 it raises before decrement/backoff/sleep. Thus zero permits no second backend connect call in that failure branch.",
+      "source_refs": [
+        "missing_runtime_sources_authorized/0_httpcore__async_connection_pool.py:109,163-178",
+        "missing_runtime_sources_authorized/1_httpcore__async_connection.py:105-165"
+      ],
+      "limit": "This is one backend invocation, not proof of one physical address/socket attempt inside an uncaptured network backend, nor blanket no-replay/no-reassignment across the pool. HTTPS/TLS failure is within the same caught retry boundary but the supplied tests cover synthetic HTTP connect failures, not actual TLS."
+    },
+    {
+      "claim": "Zero retries forbids all pool request reassignment",
+      "classification": "SHOWN",
+      "disposition": "REJECTED",
+      "evidence": "AsyncConnectionPool.handle_async_request loops, catches ConnectionNotAvailable, clears the assigned connection and tries assignment again independently of self._retries.",
+      "source_refs": [
+        "missing_runtime_sources_authorized/0_httpcore__async_connection_pool.py:199-249"
+      ],
+      "limit": "The captured pool proves reassignment exists; it does not prove a request was already transmitted or replayed. No such traffic or effect was observed. Do not equate reassignment with proven duplicate business execution."
+    },
+    {
+      "claim": "One SQL call or one Psycopg connect API invocation guarantees one underlying connection attempt",
+      "classification": "SHOWN",
+      "disposition": "REJECTED",
+      "evidence": "conninfo.py reexports _conninfo_attempts.conninfo_attempts and uses _conninfo_utils. split_attempts handles host/hostaddr lists. _resolve_hostnames returns one mapping per getaddrinfo result; one hostname may yield several address attempts. Captured synchronous Connection.connect iterates attempts, continues on selected connection exceptions and stops on success.",
+      "source_refs": [
+        "missing_runtime_sources_authorized/7_psycopg_conninfo.py:13-20",
+        "missing_psycopg_attempt_sources/0_psycopg__conninfo_attempts.py:24-99",
+        "missing_psycopg_attempt_sources/1_psycopg__conninfo_utils.py:19-88",
+        "installed_facts_capture/13_connection.py:95-121"
+      ],
+      "limit": "Multiple attempts are possible, not observed at runtime and not inevitable. Explicit hostaddr suppresses this helper's DNS expansion but split host lists and downstream behavior still need their own scoped facts. get_param may fall back to PG* environment defaults. No live DNS, credentials or DB call was made."
+    },
+    {
+      "claim": "Earlier filename exclusion for Psycopg delegated helpers",
+      "classification": "SHOWN",
+      "disposition": "REJECTED",
+      "evidence": "The prior statement that an assumed _conninfo_attempts.py filename would be wrong is superseded: the captured conninfo.py concretely imports _conninfo_attempts and _conninfo_utils. This supplemental review follows those actual delegations, rather than assuming module names.",
+      "limit": "Historical artifacts are preserved, not silently edited. The async helper is a different delegation and is outside this synchronous path assessment."
+    },
+    {
+      "claim": "Uvicorn loader/lifespan/listener order and effects",
+      "classification": "SHOWN",
+      "disposition": "ACCEPTED_WITH_RISK",
+      "evidence": "The ordinary single-worker Server path calls config.load(), constructs the lifespan implementation, then awaits startup. Config.load imports protocol classes, lifespan class and application through import_from_string (importlib.import_module plus attribute lookup), and may invoke the loaded object as a factory. LifespanOn schedules the application's lifespan callable and dispatches startup before ordinary listener creation. Logging, event-loop setup, signal handling, application initialization and listening are effects, not effect-free startup.",
+      "source_refs": [
+        "missing_runtime_sources_authorized/3_uvicorn_config.py:396-478",
+        "missing_runtime_sources_authorized/4_uvicorn_importer.py:9-34",
+        "missing_runtime_sources_authorized/5_uvicorn_server.py:62-180",
+        "missing_runtime_sources_authorized/6_uvicorn_lifespan_on.py:47-116"
+      ],
+      "limit": "For reload or workers>1, main.run binds a supervisor socket before running worker Server instances, so import/lifespan-before-listen is not universal. In lifespan=auto, an unsupported/erroring lifespan can be treated as unsupported rather than requiring exit; do not infer universal fail-closed startup. No whole import-closure audit or startup success is claimed."
+    },
+    {
+      "claim": "Effective Uvicorn startup profile is bound by the eight captured paths",
+      "classification": "UNVERIFIED",
+      "disposition": "INCOMPLETE",
+      "evidence": "main declares Click auto_envvar_prefix=UVICORN and UVICORN_APP. Config reads WEB_CONCURRENCY when workers is None, FORWARDED_ALLOW_IPS when unspecified and optional env_file. run selects reload/multiprocess/single-worker branches and can remove a configured UDS on exit. Logging configuration can read files and configure handlers. Captured paths explain branches but do not bind effective values.",
+      "source_refs": [
+        "missing_runtime_sources_authorized/2_uvicorn_main.py:60-61,101-123,566-593",
+        "missing_runtime_sources_authorized/3_uvicorn_config.py:273-390"
+      ],
+      "required_proof": "Bind the exact intended command plus non-secret effective values/presence controls for relevant UVICORN_* and WEB_CONCURRENCY inputs, reload/workers, app/factory, env-file/log-config, fd/uds and lifespan before a scoped entrypoint approval. Do not assume missing values are absent or change the reviewed contract to satisfy a loader.",
+      "limit": "This is an effective-profile evidence gap, not a request for actual startup, credential reads, unrestricted environment capture, exhaustive SDK closure or cutover."
+    }
+  ],
+  "test_assessment": {
+    "classification": "SHOWN for inspected test structure; CLAIMED for execution outcome",
+    "file": "tests/test_companion_captured_transport_paths.py",
+    "parent_reported_command_scope": "Focused pytest of this file",
+    "parent_reported_result": "5 passed in0.30s",
+    "independently_repeated": false,
+    "shown": "Three parametrized HTTPcore cases extract actual _connect/exponential_backoff ASTs and supply synthetic backend/Trace/exception dependencies; expected backend calls are1,2,2. Two Psycopg cases extract actual _resolve_hostnames and supply synthetic DNS results; expected attempt counts are2 without hostaddr and1 with it. All four copies of each selected method source are hash/size checked by the helper.",
+    "limits": "No installed SDK imports or real network calls are authored on these tested paths; socket is imported for constants and DNS is supplied through SimpleNamespace. There is no blanket process-wide socket prohibition established by this file. It does not execute pool reassignment, the full Connection.connect loop, _conninfo_utils env handling, Click parsing or Uvicorn startup. Passing results are parent-reported and were not rerun here."
+  },
+  "remaining_gaps": [
+    "Overall installed-policy approval remains INCOMPLETE: source semantics do not bind the effective startup environment/profile.",
+    "Zero retries is accepted only at the identified layer. No blanket one-SQL/one-connect or no-pool-reassignment record may be asserted.",
+    "The older connection.py files are reused hash-bound captures, not newly copied from all four replacements. In particular retain the disclosed new-memory image inheritance distinction and required fresh installed-byte checks.",
+    "No new proxy/redirect conclusion follows from these files; existing scoped evidence is neither reopened nor generalized to whole images.",
+    "The production runtime allowlist and policy comparison behavior are outside this assessment; any separately reviewed compatibility change must preserve exact-path scope.",
+    "No seven-subject approval, accepted runtime manifest, operational readiness, live observation or authorization follows."
+  ],
+  "subjects": [
+    {
+      "id": "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "restart_policy": "no"
+    },
+    {
+      "id": "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "restart_policy": "no"
+    },
+    {
+      "id": "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+      "image": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "restart_policy": "no"
+    },
+    {
+      "id": "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "restart_policy": "no"
+    }
+  ],
+  "reviewed_sha256": {
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/0_httpcore__async_connection_pool.py": "0ce210dacd9909ff6a7f0c61ccca6b4cf2ea08bf0ec465e2285eaa447c6f5726",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/1_httpcore__async_connection.py": "e8e70f5ea3047dcd01537f3ffa21d4343775bca4937365154f4f57a8d6ff04e9",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/2_uvicorn_main.py": "8afea9b600c19e4a345be5641ecd1edc8e14ac5effe6c119ae7b5034a24614d6",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/3_uvicorn_config.py": "829b2e933b8915b5c144de7fa8e9cb1a210d98680a334162f9e649e86c0cd5d4",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/4_uvicorn_importer.py": "9d1b74410deaa62dbae3e9ff991d25e790b675d33c9e8c133734f58ec59a6a6f",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/5_uvicorn_server.py": "31c0e6567d2c04854ecda0a82aba75d28c5a49c0f7b68b285a1b6c2f562574da",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/6_uvicorn_lifespan_on.py": "d4a62e14d37240e3488ed10784a640269f8e3a8908ca38fbe30a4608606fe259",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/7_psycopg_conninfo.py": "efb827f725975300bfef34710768c98f251eefa702048e15af2862f73372a768",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/8_httpcore__async_connection_pool.py": "0ce210dacd9909ff6a7f0c61ccca6b4cf2ea08bf0ec465e2285eaa447c6f5726",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/9_httpcore__async_connection.py": "e8e70f5ea3047dcd01537f3ffa21d4343775bca4937365154f4f57a8d6ff04e9",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/10_uvicorn_main.py": "8afea9b600c19e4a345be5641ecd1edc8e14ac5effe6c119ae7b5034a24614d6",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/11_uvicorn_config.py": "829b2e933b8915b5c144de7fa8e9cb1a210d98680a334162f9e649e86c0cd5d4",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/12_uvicorn_importer.py": "9d1b74410deaa62dbae3e9ff991d25e790b675d33c9e8c133734f58ec59a6a6f",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/13_uvicorn_server.py": "31c0e6567d2c04854ecda0a82aba75d28c5a49c0f7b68b285a1b6c2f562574da",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/14_uvicorn_lifespan_on.py": "d4a62e14d37240e3488ed10784a640269f8e3a8908ca38fbe30a4608606fe259",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/15_psycopg_conninfo.py": "efb827f725975300bfef34710768c98f251eefa702048e15af2862f73372a768",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/16_httpcore__async_connection_pool.py": "0ce210dacd9909ff6a7f0c61ccca6b4cf2ea08bf0ec465e2285eaa447c6f5726",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/17_httpcore__async_connection.py": "e8e70f5ea3047dcd01537f3ffa21d4343775bca4937365154f4f57a8d6ff04e9",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/18_uvicorn_main.py": "8afea9b600c19e4a345be5641ecd1edc8e14ac5effe6c119ae7b5034a24614d6",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/19_uvicorn_config.py": "829b2e933b8915b5c144de7fa8e9cb1a210d98680a334162f9e649e86c0cd5d4",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/20_uvicorn_importer.py": "9d1b74410deaa62dbae3e9ff991d25e790b675d33c9e8c133734f58ec59a6a6f",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/21_uvicorn_server.py": "31c0e6567d2c04854ecda0a82aba75d28c5a49c0f7b68b285a1b6c2f562574da",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/22_uvicorn_lifespan_on.py": "d4a62e14d37240e3488ed10784a640269f8e3a8908ca38fbe30a4608606fe259",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/23_psycopg_conninfo.py": "efb827f725975300bfef34710768c98f251eefa702048e15af2862f73372a768",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/24_httpcore__async_connection_pool.py": "0ce210dacd9909ff6a7f0c61ccca6b4cf2ea08bf0ec465e2285eaa447c6f5726",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/25_httpcore__async_connection.py": "e8e70f5ea3047dcd01537f3ffa21d4343775bca4937365154f4f57a8d6ff04e9",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/26_uvicorn_main.py": "8afea9b600c19e4a345be5641ecd1edc8e14ac5effe6c119ae7b5034a24614d6",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/27_uvicorn_config.py": "829b2e933b8915b5c144de7fa8e9cb1a210d98680a334162f9e649e86c0cd5d4",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/28_uvicorn_importer.py": "9d1b74410deaa62dbae3e9ff991d25e790b675d33c9e8c133734f58ec59a6a6f",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/29_uvicorn_server.py": "31c0e6567d2c04854ecda0a82aba75d28c5a49c0f7b68b285a1b6c2f562574da",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/30_uvicorn_lifespan_on.py": "d4a62e14d37240e3488ed10784a640269f8e3a8908ca38fbe30a4608606fe259",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/31_psycopg_conninfo.py": "efb827f725975300bfef34710768c98f251eefa702048e15af2862f73372a768",
+    "docs/review_artifacts/companion_continuation_20261021/missing_psycopg_attempt_sources/0_psycopg__conninfo_attempts.py": "b35ab33f325f2308cb13227d1322f14b0faa6d7174a1f452560e6a50ef01f0f7",
+    "docs/review_artifacts/companion_continuation_20261021/missing_psycopg_attempt_sources/1_psycopg__conninfo_utils.py": "d4f6b2971a730f2391d05e108bb8d1b5cc2fec2621f5e3079f2389d650b60c59",
+    "docs/review_artifacts/companion_continuation_20261021/missing_psycopg_attempt_sources/2_psycopg__conninfo_attempts.py": "b35ab33f325f2308cb13227d1322f14b0faa6d7174a1f452560e6a50ef01f0f7",
+    "docs/review_artifacts/companion_continuation_20261021/missing_psycopg_attempt_sources/3_psycopg__conninfo_utils.py": "d4f6b2971a730f2391d05e108bb8d1b5cc2fec2621f5e3079f2389d650b60c59",
+    "docs/review_artifacts/companion_continuation_20261021/missing_psycopg_attempt_sources/4_psycopg__conninfo_attempts.py": "b35ab33f325f2308cb13227d1322f14b0faa6d7174a1f452560e6a50ef01f0f7",
+    "docs/review_artifacts/companion_continuation_20261021/missing_psycopg_attempt_sources/5_psycopg__conninfo_utils.py": "d4f6b2971a730f2391d05e108bb8d1b5cc2fec2621f5e3079f2389d650b60c59",
+    "docs/review_artifacts/companion_continuation_20261021/missing_psycopg_attempt_sources/6_psycopg__conninfo_attempts.py": "b35ab33f325f2308cb13227d1322f14b0faa6d7174a1f452560e6a50ef01f0f7",
+    "docs/review_artifacts/companion_continuation_20261021/missing_psycopg_attempt_sources/7_psycopg__conninfo_utils.py": "d4f6b2971a730f2391d05e108bb8d1b5cc2fec2621f5e3079f2389d650b60c59",
+    "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/13_connection.py": "9d19e2b9db54b4ab32e1d8b1cb8d4df853beb4daa6ae1061931415252ce68654",
+    "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/27_connection.py": "9d19e2b9db54b4ab32e1d8b1cb8d4df853beb4daa6ae1061931415252ce68654",
+    "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/58_connection.py": "9d19e2b9db54b4ab32e1d8b1cb8d4df853beb4daa6ae1061931415252ce68654",
+    "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/72_connection.py": "9d19e2b9db54b4ab32e1d8b1cb8d4df853beb4daa6ae1061931415252ce68654",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/report.json": "7e0445af269135ea252e69da471098e884d71cb967ce261761f7c9c37cb44363",
+    "docs/review_artifacts/companion_continuation_20261021/missing_psycopg_attempt_sources/report.json": "d68eb1714c13b5379ad0904f46b83c800fa668530dd497945f17100854cc77fd",
+    "docs/review_artifacts/companion_continuation_20261021/missing_runtime_sources_authorized/capture_review.json": "2b3ec522d02a597e6fe12202f5e065c788fc482ab677c5ae76e3c93aa7c80307",
+    "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/actual_preparation_postcheck.json": "c505e4c6c3b2be5cd1054ac976fd69a503d0fcf2b2304cc6e6583ef1b1decb06",
+    "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/report.json": "7dbda2c14b68b58d372508eda0d34e232bc9e6548bd0b7ff5327b027abbdad2b",
+    "tests/test_companion_captured_transport_paths.py": "782584bcce37420464e8d8ba4fc091fa20d83806f41279f0bff4d02e6ef3f220"
+  },
+  "hash_paths": "Repository-relative; every source listed was independently rehashed without executing the source.",
+  "installed_policy_records_created": false,
+  "runtime_pin_approval_created": false,
+  "runtime_authorization_created": false,
+  "next_boundary": "Exact-profile/effective-environment evidence and independent scoped policy disposition, not actual cutover.",
+  "write_scope": "Only missing_runtime_sources_authorized/source_policy_assessment.json; parent owns work log and checkpoint."
+}

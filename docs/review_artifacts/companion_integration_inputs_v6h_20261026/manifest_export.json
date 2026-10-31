@@ -1,0 +1,14 @@
+{
+  "candidate_path": "docs/review_artifacts/companion_integration_inputs_v6h_20261026/candidate_manifest.json",
+  "candidate_sha256": "0d30a09f3d5118ce2a9965b88fd43dc6800908557841c2c59680d5ccb35143ca",
+  "changed_fields": [
+    "decision",
+    "reviewer"
+  ],
+  "export_path": "docs/review_artifacts/companion_integration_inputs_v6h_20261026/reviewed_preparation_manifest.json",
+  "export_sha256": "d11fccb5e4f7c46e7d726704c9b75c400a1482eab5d1b840027d876a5837f047",
+  "independent_review_path": "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_input_review.json",
+  "independent_review_sha256": "682cda344077502a8da5f1a54c6e93351781ac9c0485264d39a1680ffe082106",
+  "operations_authorized": false,
+  "schema": "companion-reviewed-input-export-v1"
+}

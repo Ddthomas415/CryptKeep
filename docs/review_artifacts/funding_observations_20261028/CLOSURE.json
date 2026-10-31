@@ -1,0 +1,19 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "exact unwired offline raw-observation prototype only",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission": "01a185b5-56af-77d1-99a8-bd89d5bec1dc",
+  "verified_bindings": 5,
+  "independent_result": "35 passed in 0.19s",
+  "source_sha256": "e884234f22607b551fa81d662d192ad9bb9e4b72e0a7466825114c6d44a7df89",
+  "tests_sha256": "4313f45ee21f8955c2ab586e940f6b95f3a23b6dbd688f4e0b14dfaafbe5d3fb",
+  "limitations": [
+    "raw inputs not authenticated",
+    "float derived values; raw JSON authoritative",
+    "arbitrary KV writers not fenced",
+    "production persistence and collector/reader integration incomplete",
+    "no concurrency or process-kill durability proof",
+    "venue/formula semantics unverified",
+    "original Fix3 production repair and normalized scoring not accepted"
+  ]
+}

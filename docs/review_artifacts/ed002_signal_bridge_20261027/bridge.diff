@@ -1,0 +1,662 @@
+--- /dev/null
++++ b/services/backtest/frozen_signal_bridge.py
+@@ -0,0 +1,259 @@
++"""Pure ED-002 signal adapters; no fetching, persistence or trading authority."""
++from bisect import bisect_right
++from copy import deepcopy
++from datetime import datetime, timezone
++from fractions import Fraction
++import hashlib
++import json
++import math
++import statistics
++
++from services.backtest import shared_cash_research as ledger
++from services.backtest.next_open_research import validate_bars
++from services.strategies.strategy_registry import compute_signal
++
++
++HOUR, DAY = 3600000, 86400000
++SNAPSHOT_SHA256 = "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc"
++POLICY = "ed002-event-close-weights-entry-1of25-v1"
++FAMILIES = {"breakout_default", "ema_cross_default", "mean_reversion_default"}
++
++
++def digest(value):
++    def exact(item):
++        if isinstance(item, Fraction):
++            return {"fraction": [item.numerator, item.denominator]}
++        raise TypeError("unsupported_fingerprint_type")
++    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"),
++        allow_nan=False, default=exact).encode()).hexdigest()
++
++
++def event_targets(context, actions, marks):
++    """Adopted close-weight policy, not exact-unit preservation at the next open."""
++    quantities = {s: ledger.number(q) for s, q in context["units"].items()}
++    if set(actions) != set(quantities) or any(a not in ("buy", "sell", "hold") for a in actions.values()):
++        raise ledger.Incomplete("invalid_strategy_actions")
++    cash = ledger.number(context["cash"])
++    if any(q and s not in marks for s, q in quantities.items()):
++        raise ledger.Incomplete("unknown_decision_valuation")
++    values = {s: q * ledger.number(marks[s], positive=True) if q else Fraction(0)
++              for s, q in quantities.items()}
++    nav = cash + sum(values.values())
++    if nav != context["marked_nav"]:
++        raise ledger.Incomplete("decision_nav_mismatch")
++    if not nav:
++        return None
++    sells = {s for s, q in quantities.items() if q and actions[s] == "sell"}
++    buys = {s for s, q in quantities.items() if not q and actions[s] == "buy"}
++    if not sells and not buys:
++        return None
++    target = {s: values[s] / nav if quantities[s] and s not in sells else Fraction(0)
++              for s in quantities}
++    remaining = 1 - sum(target.values())
++    allocation = min(Fraction(1, 25), remaining / len(buys)) if buys else Fraction(0)
++    if not sells and not allocation:
++        return None
++    for symbol in buys:
++        target[symbol] = allocation
++    return target
++
++
++class HourlyPanel:
++    """Copied caller records: {row: [ts,o,h,l,c,v], known_at_ms: int}."""
++
++    def __init__(self, observations, recent_listings=None):
++        self.rows, self.times = {}, {}
++        self.listings = deepcopy(recent_listings or {})
++        for symbol, records in deepcopy(observations).items():
++            ordered = sorted(records, key=lambda r: ledger.timestamp(r["row"][0]))
++            times = [ledger.timestamp(r["row"][0]) for r in ordered]
++            if len(times) != len(set(times)) or any(t % HOUR for t in times):
++                raise ValueError("duplicate_or_unaligned_panel_timestamp")
++            for record in ordered:
++                ledger.timestamp(record["known_at_ms"])
++            self.rows[symbol], self.times[symbol] = ordered, times
++
++    def window(self, symbol, close_ms, count):
++        last, first = close_ms - HOUR, close_ms - count * HOUR
++        times = self.times.get(symbol, [])
++        end = bisect_right(times, last)
++        records = self.rows.get(symbol, [])[max(0, end - count):end]
++        listing = self.listings.get(symbol)
++        if listing is not None:
++            listed = ledger.timestamp(listing["first_bar_ms"])
++            known = ledger.timestamp(listing["known_at_ms"])
++            if known <= close_ms and first < listed <= last:
++                first = listed
++        wanted = list(range(first, last + HOUR, HOUR))
++        records = [r for r in records if r["row"][0] >= first]
++        if [r["row"][0] for r in records] != wanted or any(r["known_at_ms"] > close_ms for r in records):
++            raise ledger.Incomplete("missing_or_unavailable_ohlcv:" + symbol)
++        rows = [deepcopy(r["row"]) for r in records]
++        try:
++            validate_bars(rows, interval_ms=HOUR)
++        except (ValueError, TypeError, IndexError):
++            raise ledger.Incomplete("invalid_ohlcv:" + symbol) from None
++        return rows if len(rows) == count else None
++
++    def prefix(self, cutoff):
++        return {"observations": {s: [r for r in rows if r["row"][0] + HOUR <= cutoff
++                and r["known_at_ms"] <= cutoff] for s, rows in self.rows.items()},
++            "listings": {s: r for s, r in self.listings.items() if r["known_at_ms"] <= cutoff}}
++
++
++class FrozenSignalBridge:
++    """State comes from actual ledger holdings; missed intents are never latched."""
++
++    def __init__(self, *, symbols, observations, rules, venue, quote,
++                 snapshot_bytes=None, family=None, incumbent=None,
++                 recent_listings=None, valuation_marks=None):
++        self.symbols = tuple(sorted(symbols))
++        if not self.symbols or len(set(self.symbols)) != len(self.symbols):
++            raise ValueError("explicit_unique_symbols_required")
++        self.panel = HourlyPanel(observations, recent_listings)
++        self.rules, self.marks = deepcopy(rules), deepcopy(valuation_marks or {})
++        self.venue, self.quote, self.trace = venue, quote, []
++        if incumbent is not None:
++            if family is not None or len(incumbent) != 2 or len(set(incumbent)) != 2 or set(incumbent) - set(self.symbols):
++                raise ValueError("explicit_incumbent_pair_required")
++            self.pair, self.config = tuple(incumbent), None
++            self.identity = {"policy": "incumbent-28d-vol30-sunday-v1", "pair": self.pair}
++        else:
++            if not isinstance(snapshot_bytes, bytes) or hashlib.sha256(snapshot_bytes).hexdigest() != SNAPSHOT_SHA256:
++                raise ValueError("frozen_snapshot_mismatch")
++            snapshot = json.loads(snapshot_bytes)
++            if set(snapshot["strategies"]) != FAMILIES or family not in FAMILIES:
++                raise ValueError("unknown_frozen_family")
++            self.pair = None
++            self.config = {"strategy": {**snapshot["strategies"][family], "emit_evidence": False}}
++            self.identity = {"policy": POLICY, "family": family, "snapshot_sha256": SNAPSHOT_SHA256}
++        self._config_digest = digest(self.config)
++
++    def binding(self, cutoff):
++        return digest({"identity": self.identity, "symbols": self.symbols,
++            "panel": self.panel.prefix(cutoff),
++            "rules": {s: [r for r in rows if r["known_at_ms"] <= cutoff] for s, rows in self.rules.items()},
++            "marks": {s: [m for m in rows if m["ts_ms"] <= cutoff and m["known_at_ms"] <= cutoff]
++                      for s, rows in self.marks.items()}})
++
++    def __call__(self, context):
++        close = ledger.timestamp(context["close_ms"])
++        frame = context["history"][-1]
++        if close != frame["ts_ms"] + HOUR or set(context["units"]) != set(self.symbols):
++            raise ledger.Incomplete("bridge_clock_or_universe_mismatch")
++        marks = ledger.marks_at(frame["close"], self.marks, self.symbols, close)
++        actions, readiness = {}, {}
++        if digest(self.config) != self._config_digest:
++            raise ValueError("frozen_strategy_config_changed")
++        if context["marked_nav"] == 0 and not context["cash"] and not any(context["units"].values()):
++            actions = dict.fromkeys(self.symbols, "hold")
++            readiness = dict.fromkeys(self.symbols, "exhausted_account")
++            target = None
++        elif self.pair is not None:
++            target = self._incumbent(close, frame)
++        else:
++            for symbol in self.symbols:
++                rule = ledger.rule_at(self.rules, symbol, close, close, self.venue, self.quote)
++                if not rule["eligible"]:
++                    actions[symbol], readiness[symbol] = "hold", "known_ineligible"
++                    continue
++                rows = self.panel.window(symbol, close, 300)
++                if rows is None:
++                    if context["units"][symbol]:
++                        raise ledger.Incomplete("held_symbol_not_signal_ready:" + symbol)
++                    actions[symbol], readiness[symbol] = "hold", "documented_recent_listing"
++                    continue
++                if (symbol not in frame["close"] or symbol not in frame["open"]
++                        or ledger.number(rows[-1][4]) != ledger.number(frame["close"][symbol])
++                        or ledger.number(rows[-1][1]) != ledger.number(frame["open"][symbol])):
++                    raise ledger.Incomplete("signal_execution_frame_mismatch:" + symbol)
++                try:
++                    signal = compute_signal(cfg=deepcopy(self.config), symbol=symbol, ohlcv=rows)
++                except (ValueError, TypeError, ArithmeticError):
++                    raise ledger.Incomplete("frozen_signal_error:" + symbol) from None
++                if not isinstance(signal, dict) or signal.get("ok") is not True or signal.get("action") not in ("buy", "sell", "hold"):
++                    raise ledger.Incomplete("invalid_frozen_signal:" + symbol)
++                try:
++                    json.dumps(signal, allow_nan=False)
++                except (ValueError, TypeError):
++                    raise ledger.Incomplete("invalid_frozen_signal_values:" + symbol) from None
++                actions[symbol], readiness[symbol] = signal["action"], "ready"
++            target = event_targets(context, actions, marks)
++        self.trace.append({"signal_bar_ts_ms": frame["ts_ms"], "actions": actions,
++            "readiness": readiness, "targets": deepcopy(target),
++            "held_without_sell": [] if self.pair is not None else
++                [s for s in self.symbols if context["units"][s] and actions.get(s) != "sell"]})
++        return target
++
++    def _incumbent(self, close, frame):
++        for symbol in self.pair:
++            if symbol not in frame["open"] and symbol not in frame["close"]:
++                continue
++            current = self.panel.window(symbol, close, 1)
++            if current is None:
++                raise ledger.Incomplete("missing_incumbent_current_bar:" + symbol)
++            if any(symbol in frame[side] and ledger.number(current[-1][column]) != ledger.number(frame[side][symbol])
++                   for side, column in (("open", 1), ("close", 4))):
++                raise ledger.Incomplete("signal_execution_frame_mismatch:" + symbol)
++        if close % DAY or datetime.fromtimestamp((close - DAY) / 1000, timezone.utc).weekday() != 6:
++            return None
++        target = dict.fromkeys(self.symbols, Fraction(0))
++        for symbol in self.pair:
++            rule = ledger.rule_at(self.rules, symbol, close, close, self.venue, self.quote)
++            if not rule["eligible"]:
++                continue
++            rows = self.panel.window(symbol, close, 61 * 24)
++            if rows is None:
++                raise ledger.Incomplete("insufficient_incumbent_history:" + symbol)
++            if (symbol not in frame["close"] or symbol not in frame["open"]
++                    or ledger.number(rows[-1][4]) != ledger.number(frame["close"][symbol])
++                    or ledger.number(rows[-1][1]) != ledger.number(frame["open"][symbol])):
++                raise ledger.Incomplete("signal_execution_frame_mismatch:" + symbol)
++            prices = [float(rows[i][4]) for i in range(23, len(rows), 24)]
++            if prices[-1] / prices[-29] - 1 > 0:
++                returns = [prices[i] / prices[i - 1] - 1 for i in range(len(prices) - 30, len(prices))]
++                vol = statistics.pstdev(returns) * math.sqrt(365)
++                if not math.isfinite(vol) or vol <= 0:
++                    raise ledger.Incomplete("undefined_incumbent_volatility:" + symbol)
++                target[symbol] = ledger.number(.5 * min(1, .5 / vol))
++        return target
++
++
++def simulate_bridge(frames, bridge, *, state=None, target_contract_id, **profile):
++    """Run the existing ledger; incomplete first-decision evidence has no state."""
++    if profile.get("interval_ms") != HOUR or tuple(sorted(profile["symbols"])) != bridge.symbols:
++        raise ValueError("bridge_profile_mismatch")
++    if profile["venue"] != bridge.venue or profile["quote"] != bridge.quote or profile["rules"] != bridge.rules:
++        raise ValueError("bridge_metadata_mismatch")
++    if (profile.get("valuation_marks") or {}) != bridge.marks:
++        raise ValueError("bridge_valuation_metadata_mismatch")
++    old_trace = []
++    if state is not None:
++        cutoff = state["last_ts"] + HOUR
++        old = state.get("signal_bridge")
++        if not old or old["binding"] != bridge.binding(cutoff):
++            raise ValueError("bridge_historical_inputs_or_policy_changed")
++        old_trace = deepcopy(old["decisions"])
++    bridge.trace = []
++    try:
++        result = ledger.simulate_shared_next_open(frames, bridge, state=state,
++            target_contract_id=target_contract_id + ":" + digest(bridge.identity), **profile)
++    except ledger.Incomplete as error:
++        if state is not None:
++            raise
++        return {"status": "INCOMPLETE", "reason": str(error), "state": None,
++            "qualification": ledger.QUALIFICATION, "bootstrap_failure": True}
++    combined = old_trace + deepcopy(bridge.trace)
++    result["state"]["signal_bridge"] = {"binding": bridge.binding(result["state"]["last_ts"] + HOUR),
++        "identity": deepcopy(bridge.identity), "decisions": combined}
++    triggers = {d["signal_bar_ts_ms"]: d for d in combined}
++    annotated = []
++    for trade in result["state"]["trades"]:
++        decision = triggers.get(trade["signal_bar_ts_ms"], {})
++        incidental = not trade["terminal"] and trade["symbol"] in decision.get("held_without_sell", [])
++        annotated.append({**trade, "incidental_rebalance": incidental,
++                          "raw_action": decision.get("actions", {}).get(trade["symbol"])})
++    result["bridge_trades"] = annotated
++    result["incidental_turnover_quote"] = sum((t["qty"] * t["raw_price"] for t in annotated
++                                               if t["incidental_rebalance"]), Fraction(0))
++    return result
+--- /dev/null
++++ b/tests/test_frozen_signal_bridge.py
+@@ -0,0 +1,397 @@
++"""Synthetic bridge contracts; saved strategy JSON is metadata, not price data."""
++import ast
++from copy import deepcopy
++from datetime import datetime, timezone
++from fractions import Fraction as F
++import math
++from pathlib import Path
++import socket
++import statistics
++import subprocess
++
++import pytest
++
++from services.backtest import frozen_signal_bridge as bridge
++from services.backtest import shared_cash_research as ledger
++from services.strategies.strategy_registry import compute_signal
++
++
++H = bridge.HOUR
++ROOT = Path(__file__).resolve().parents[1]
++SNAPSHOT = (ROOT / "research/multisymbol_baseline_v1/strategies.snapshot.json").read_bytes()
++
++
++@pytest.fixture(autouse=True)
++def offline(monkeypatch):
++    def forbidden(*args, **kwargs):
++        raise AssertionError("synthetic bridge attempted external work")
++    for name in ("socket", "create_connection", "getaddrinfo"):
++        monkeypatch.setattr(socket, name, forbidden)
++    for name in ("Popen", "run", "call", "check_output", "check_call"):
++        monkeypatch.setattr(subprocess, name, forbidden)
++
++
++def data(symbols=("A", "B"), count=305, start=0):
++    panel = {s: [{"row": [start+i*H, 100., 102., 98., 100., 1000.],
++                  "known_at_ms": start+(i+1)*H} for i in range(count)] for s in symbols}
++    return panel
++
++
++def rules(symbols=("A", "B")):
++    return {s: [{"known_at_ms": 0, "valid_from_ms": 0, "valid_until_ms": 9_999_999_999_999,
++        "venue": "SYNTHETIC", "quote": "USD", "eligible": True, "lot_step": ".000001",
++        "quote_step": ".000001", "minimum_qty": 0, "minimum_notional_gross": 0}] for s in symbols}
++
++
++def frames(panel, first=299, last=None):
++    symbols = tuple(panel)
++    last = len(panel[symbols[0]]) if last is None else last
++    return [{"ts_ms": panel[symbols[0]][i]["row"][0],
++             "open": {s: panel[s][i]["row"][1] for s in symbols},
++             "close": {s: panel[s][i]["row"][4] for s in symbols}} for i in range(first, last)]
++
++
++def runner(panel, *, family="ema_cross_default", permissions=None, recent_listings=None,
++           incumbent=None, **updates):
++    symbols = tuple(panel)
++    permissions = rules(symbols) if permissions is None else permissions
++    callback = bridge.FrozenSignalBridge(symbols=symbols, observations=panel,
++        rules=permissions, venue="SYNTHETIC", quote="USD", snapshot_bytes=SNAPSHOT,
++        family=None if incumbent else family, incumbent=incumbent, recent_listings=recent_listings)
++    profile = dict(symbols=symbols, rules=permissions, venue="SYNTHETIC", quote="USD",
++        interval_ms=H, initial_cash=1000, fee_bps=0, slippage_bps=0, target_contract_id="synthetic", **updates)
++    return callback, profile
++
++
++def context(units=None, cash=1000, marks=None):
++    units = units or {"A": 0, "B": 0}
++    marks = marks or dict.fromkeys(units, 100)
++    return {"units": units, "cash": cash, "marked_nav": cash+sum(q*marks[s] for s,q in units.items())}
++
++
++def test_simultaneous_entry_targets_use_fixed_25_denominator():
++    assert bridge.event_targets(context(), {"A": "buy", "B": "buy"}, {}) == {"A": F(1,25), "B": F(1,25)}
++
++
++def test_sell_proceeds_and_tiny_remaining_budget_are_shared():
++    c = context({"A": F(999,100), "B": 0, "C": 0}, cash=1)
++    t = bridge.event_targets(c, {"A": "hold", "B": "buy", "C": "buy"}, {"A": 100})
++    assert t == {"A": F(999,1000), "B": F(1,2000), "C": F(1,2000)}
++    t = bridge.event_targets(c, {"A": "sell", "B": "buy", "C": "buy"}, {"A": 100})
++    assert t == {"A": 0, "B": F(1,25), "C": F(1,25)}
++
++
++@pytest.mark.parametrize("actions", [{"A":"hold", "B":"hold"}, {"A":"buy", "B":"sell"},
++                                      {"A":"hold", "B":"buy"}])
++def test_no_event_or_zero_budget_means_no_rebalance(actions):
++    assert bridge.event_targets(context({"A": 10, "B": 0}, cash=0), actions, {"A":100}) is None
++
++
++def test_exhausted_account_does_not_divide_by_zero():
++    assert bridge.event_targets(context(cash=0), {"A":"buy", "B":"sell"}, {}) is None
++    callback, _ = runner({"A":[], "B":[]})
++    c = {**context(cash=0), "history":[{"ts_ms":300*H,"open":{},"close":{}}], "close_ms":301*H}
++    assert callback(c) is None
++    assert set(callback.trace[-1]["readiness"].values()) == {"exhausted_account"}
++
++
++@pytest.mark.parametrize("fault", ["action", "marks", "nav"])
++def test_unknown_signal_or_valuation_is_incomplete(fault):
++    c = context({"A": 1, "B": 0}, cash=900)
++    actions, marks = {"A":"hold", "B":"buy"}, {"A":100}
++    if fault == "action": actions["A"] = "unknown"
++    if fault == "marks": marks = {}
++    if fault == "nav": c["marked_nav"] += 1
++    with pytest.raises(ledger.Incomplete):
++        bridge.event_targets(c, actions, marks)
++
++
++def test_real_frozen_families_receive_identical_300_completed_rows():
++    panel = data(count=301)
++    for family in sorted(bridge.FAMILIES):
++        callback, profile = runner(panel, family=family)
++        result = bridge.simulate_bridge(frames(panel), callback, **profile)
++        assert result["status"] == "COMPLETE"
++        for decision in callback.trace:
++            i = decision["signal_bar_ts_ms"] // H
++            expected = compute_signal(cfg=deepcopy(callback.config), symbol="A",
++                ohlcv=[r["row"] for r in panel["A"][i-299:i+1]])
++            assert decision["actions"]["A"] == expected["action"]
++
++
++def test_gapped_or_late_available_input_stops_before_any_trade():
++    for fault in ("gap", "late"):
++        panel = data()
++        if fault == "gap": del panel["A"][100]
++        else: panel["A"][100]["known_at_ms"] = 400*H
++        callback, profile = runner(panel)
++        r = bridge.simulate_bridge(frames(data()), callback, **profile)
++        assert r["status"] == "INCOMPLETE" and r["state"] is None
++        assert "ohlcv" in r["reason"]
++
++
++def test_documented_listing_is_not_a_gap_or_an_executable_signal():
++    full = data()
++    short = deepcopy(full)
++    short["A"] = short["A"][290:]
++    listing = {"A": {"first_bar_ms": 290*H, "known_at_ms": 290*H}}
++    callback, profile = runner(short, recent_listings=listing)
++    r = bridge.simulate_bridge(frames(full), callback, **profile)
++    assert r["status"] == "COMPLETE"
++    assert callback.trace[0]["readiness"]["A"] == "documented_recent_listing"
++    assert callback.trace[0]["actions"]["A"] == "hold"
++    del short["A"][2]
++    callback, profile = runner(short, recent_listings=listing)
++    assert bridge.simulate_bridge(frames(full), callback, **profile)["status"] == "INCOMPLETE"
++
++
++def test_known_ineligible_without_candles_is_distinct_from_unknown_rules():
++    panel = data()
++    panel["A"] = []
++    permissions = rules()
++    permissions["A"][0]["eligible"] = False
++    callback, profile = runner(panel, permissions=permissions)
++    r = bridge.simulate_bridge(frames(data()), callback, **profile)
++    assert r["status"] == "COMPLETE" and callback.trace[0]["readiness"]["A"] == "known_ineligible"
++    del permissions["A"]
++    callback, profile = runner(panel, permissions=permissions)
++    assert bridge.simulate_bridge(frames(data()), callback, **profile)["status"] == "INCOMPLETE"
++
++
++def scripted(monkeypatch, actions):
++    def signal(*, cfg, symbol, ohlcv):
++        return {"ok": True, "action": actions.get((ohlcv[-1][0]//H, symbol), "hold")}
++    monkeypatch.setattr(bridge, "compute_signal", signal)
++
++
++def test_incidental_gap_resizing_and_no_all_hold_orders(monkeypatch):
++    panel = data(count=303)
++    for r in panel["A"][301:]:
++        r["row"][1:5] = [200., 202., 198., 200.]
++    scripted(monkeypatch, {(299,"A"):"buy", (300,"B"):"buy"})
++    callback, profile = runner(panel)
++    r = bridge.simulate_bridge(frames(panel), callback, **profile)
++    assert r["status"] == "COMPLETE"
++    assert all(t["ts_ms"] in (300*H,301*H) for t in r["bridge_trades"])
++    incidental = [t for t in r["bridge_trades"] if t["incidental_rebalance"]]
++    assert len(incidental) == 1 and incidental[0]["symbol"] == "A" and incidental[0]["raw_action"] == "hold"
++    assert r["incidental_turnover_quote"] > 0
++
++
++def test_missing_entry_open_is_not_latched(monkeypatch):
++    panel = data(count=303)
++    scripted(monkeypatch, {(299,"A"):"buy"})
++    f = frames(panel)
++    del f[1]["open"]["A"]
++    callback, profile = runner(panel)
++    r = bridge.simulate_bridge(f, callback, **profile)
++    assert r["status"] == "INCOMPLETE"  # cannot compute the next signal from a mismatched frame
++    assert r["state"]["trades"] == [] and r["state"]["units"]["A"] == 0
++
++
++def test_minimum_refusal_is_not_latched(monkeypatch):
++    panel = data(count=303)
++    scripted(monkeypatch, {(299,"A"):"buy"})
++    permissions = rules()
++    permissions["A"][0]["minimum_notional_gross"] = 50
++    callback, profile = runner(panel, permissions=permissions)
++    r = bridge.simulate_bridge(frames(panel), callback, **profile)
++    assert r["status"] == "COMPLETE" and r["state"]["trades"] == []
++    assert callback.trace[1]["targets"] is None
++
++
++def test_full_split_equality_and_changed_past_refusal(monkeypatch):
++    panel = data()
++    scripted(monkeypatch, {(299,"A"):"buy", (302,"A"):"sell"})
++    callback, profile = runner(panel)
++    full = bridge.simulate_bridge(frames(panel), callback, **profile)
++    callback, profile = runner(panel)
++    left = bridge.simulate_bridge(frames(panel, last=302), callback, **profile)
++    callback, profile = runner(panel)
++    right = bridge.simulate_bridge(frames(panel, first=302), callback, state=left["state"], **profile)
++    assert full["state"] == right["state"] and full["bridge_trades"] == right["bridge_trades"]
++    changed = deepcopy(panel)
++    changed["A"][100]["row"][5] += 1
++    callback, profile = runner(changed)
++    with pytest.raises(ValueError, match="historical_inputs"):
++        bridge.simulate_bridge(frames(changed, first=302), callback, state=left["state"], **profile)
++
++
++def test_future_perturbation_and_input_mutation_do_not_change_prefix(monkeypatch):
++    original = data()
++    changed = deepcopy(original)
++    for s in changed:
++        for r in changed[s][303:]:
++            r["row"][1:5] = [200., 202., 198., 200.]
++            r["row"][5] = 99999.
++    scripted(monkeypatch, {(299,"A"):"buy"})
++    a, profile = runner(original)
++    b, _ = runner(changed)
++    original["A"][0]["row"][5] = -1
++    left = bridge.simulate_bridge(frames(data(), last=303), a, **profile)
++    right = bridge.simulate_bridge(frames(changed, last=303), b, **profile)
++    assert left["state"] == right["state"]
++
++
++def test_universe25_has_one_shared_wallet(monkeypatch):
++    symbols = tuple("SYN-"+str(i) for i in range(25))
++    panel = data(symbols, count=301)
++    scripted(monkeypatch, {(299,s):"buy" for s in symbols})
++    callback, profile = runner(panel)
++    r = bridge.simulate_bridge(frames(panel), callback, **profile)
++    assert r["status"] == "COMPLETE" and r["state"]["cash"] == 0
++    assert len(r["state"]["trades"]) == 25 and r["marked_nav"] == 1000
++
++
++def test_frozen_configuration_and_snapshot_cannot_be_silently_replaced():
++    panel = data()
++    callback, profile = runner(panel)
++    callback.config["strategy"]["ema_fast"] = 1
++    with pytest.raises(ValueError, match="config_changed"):
++        bridge.simulate_bridge(frames(panel), callback, **profile)
++    with pytest.raises(ValueError, match="snapshot_mismatch"):
++        bridge.FrozenSignalBridge(symbols=("A",), observations=panel, rules=rules(),
++            venue="SYNTHETIC", quote="USD", snapshot_bytes=b"{}", family="ema_cross_default")
++
++
++@pytest.mark.parametrize("family", sorted(bridge.FAMILIES))
++def test_actual_frozen_family_future_prices_and_volume_do_not_change_prefix(family):
++    panel = data()
++    changed = deepcopy(panel)
++    for symbol in changed:
++        for r in changed[symbol][303:]:
++            r["row"][1:5] = [1000.,1002.,998.,1000.]
++            r["row"][5] = 1.
++    a, profile = runner(panel, family=family)
++    b, _ = runner(changed, family=family)
++    assert bridge.simulate_bridge(frames(panel,last=303),a,**profile)["state"] == \
++        bridge.simulate_bridge(frames(changed,last=303),b,**profile)["state"]
++
++
++def test_changed_family_refuses_carry_but_future_rule_addition_is_allowed(monkeypatch):
++    panel = data()
++    scripted(monkeypatch, {(299,"A"):"buy"})
++    callback, profile = runner(panel)
++    left = bridge.simulate_bridge(frames(panel,last=302), callback, **profile)
++    callback, profile = runner(panel, family="mean_reversion_default")
++    with pytest.raises(ValueError, match="historical_inputs"):
++        bridge.simulate_bridge(frames(panel,first=302), callback, state=left["state"], **profile)
++    updated = rules()
++    updated["A"].append({**updated["A"][0], "known_at_ms":303*H,"valid_from_ms":303*H,"lot_step":".001"})
++    callback, profile = runner(panel, permissions=updated)
++    r = bridge.simulate_bridge(frames(panel,first=302), callback, state=left["state"], **profile)
++    assert r["status"] == "COMPLETE"
++    assert r["state"]["trades"][:1] == left["state"]["trades"]
++
++
++def test_signal_cannot_mutate_copied_panel_or_configuration(monkeypatch):
++    panel = data()
++    callback, profile = runner(panel)
++    original = deepcopy(callback.panel.rows)
++    def mutating(*, cfg, symbol, ohlcv):
++        cfg["strategy"]["ema_fast"] = 1
++        ohlcv[-1][5] = -99
++        return {"ok": True,"action":"hold"}
++    monkeypatch.setattr(bridge,"compute_signal",mutating)
++    assert bridge.simulate_bridge(frames(panel),callback,**profile)["status"] == "COMPLETE"
++    assert callback.panel.rows == original and callback.config["strategy"]["ema_fast"] == 12
++
++
++@pytest.mark.parametrize("result", [{"ok":False,"action":"hold"}, {"ok":True,"action":"unknown"},
++    {"ok":True,"action":"buy","ind":{"bad":float("inf")}}, ZeroDivisionError()])
++def test_invalid_signal_or_arithmetic_failure_is_incomplete_not_hold(monkeypatch,result):
++    def invalid(**kwargs):
++        if isinstance(result,Exception):
++            raise result
++        return result
++    monkeypatch.setattr(bridge,"compute_signal",invalid)
++    callback,profile = runner(data())
++    report = bridge.simulate_bridge(frames(data()),callback,**profile)
++    assert report["status"] == "INCOMPLETE" and report["state"] is None
++    assert "signal" in report["reason"] and callback.trace == []
++
++
++def test_external_work_guard_is_not_swallowed_as_signal_failure(monkeypatch):
++    def forbidden(**kwargs):
++        raise AssertionError("guarded synthetic failure")
++    monkeypatch.setattr(bridge,"compute_signal",forbidden)
++    callback,profile = runner(data())
++    with pytest.raises(AssertionError,match="guarded synthetic failure"):
++        bridge.simulate_bridge(frames(data()),callback,**profile)
++
++
++def test_frame_and_valuation_contracts_must_match():
++    panel = data()
++    callback,profile = runner(panel)
++    f = frames(panel)
++    f[0]["close"]["A"] = 99.
++    assert bridge.simulate_bridge(f,callback,**profile)["status"] == "INCOMPLETE"
++    with pytest.raises(ValueError,match="valuation_metadata"):
++        bridge.simulate_bridge(frames(panel),callback,valuation_marks={"A":[]},**profile)
++
++
++def test_incumbent_rejects_zero_volatility_and_missing_daily_hour():
++    a = int(datetime(2026,1,5,tzinfo=timezone.utc).timestamp()*1000)
++    panel = data(count=61*24+1,start=a-61*bridge.DAY)
++    for symbol in panel:
++        for i,r in enumerate(panel[symbol]):
++            price = float(2**(i//24+1))
++            r["row"][1:5] = [price,price,price,price]
++    f = frames(panel,first=61*24-1)
++    c = {**context(),"history":[f[0]],"close_ms":a}
++    callback,_ = runner(panel,incumbent=("A","B"))
++    with pytest.raises(ledger.Incomplete,match="volatility"):
++        callback(c)
++    del panel["A"][100]
++    callback,_ = runner(panel,incumbent=("A","B"))
++    with pytest.raises(ledger.Incomplete,match="ohlcv"):
++        callback(c)
++
++
++def test_incumbent_sunday_utc_timing_and_frozen_target_parity():
++    a = int(datetime(2026,1,5,tzinfo=timezone.utc).timestamp()*1000)
++    panel = data(count=61*24+2, start=a-61*bridge.DAY)
++    for s in panel:
++        for i, record in enumerate(panel[s]):
++            p = 100 + i*.01 + math.sin(i/24)
++            record["row"][1:5] = [p, p+2, p-2, p]
++    callback, profile = runner(panel, incumbent=("A","B"))
++    f = frames(panel, first=61*24-1)
++    c = {**context(), "history": [f[0]], "close_ms": a}
++    target = callback(c)
++    daily = [panel["A"][i]["row"][4] for i in range(23,61*24,24)]
++    dr = [0.] + [daily[i]/daily[i-1]-1 for i in range(1,len(daily))]
++    vol = statistics.pstdev(dr[-30:])*math.sqrt(365)
++    source = ast.parse((ROOT/"docs/research/btc_eth_stress_test_20261009/stress_btc_eth.py").read_text())
++    function = next(n for n in source.body if isinstance(n, ast.FunctionDef) and n.name == "target")
++    ns = {"P": {s:daily for s in ("A","B")}, "VOL": {s:[vol]*61 for s in ("A","B")}}
++    exec(compile(ast.Module(body=[function], type_ignores=[]), "frozen_target_only", "exec"), ns)
++    expected = ns["target"]("rule",60,28,.5,("A","B"))
++    assert target == {s:ledger.number(w) for s,w in expected.items()}
++    assert callback({**c, "history":[f[1]], "close_ms":a+H}) is None
++    assert callback.trace[0]["held_without_sell"] == []
++
++
++@pytest.mark.parametrize("fault", ["open", "close", "missing_panel_hour"])
++def test_incumbent_checks_non_rebalance_execution_and_marking_frames(fault):
++    a = int(datetime(2026,1,5,tzinfo=timezone.utc).timestamp()*1000)
++    panel = data(count=61*24+3,start=a-61*bridge.DAY)
++    for symbol in panel:
++        for i,r in enumerate(panel[symbol]):
++            p = 100+i*.01+math.sin(i/24)
++            r["row"][1:5] = [p,p+2,p-2,p]
++    f = frames(panel,first=61*24-1)
++    callback,profile = runner(panel,incumbent=("A","B"))
++    baseline = bridge.simulate_bridge(f,callback,**profile)
++    assert baseline["status"] == "COMPLETE"
++    assert any(t["symbol"] == "A" and t["ts_ms"] == a for t in baseline["state"]["trades"])
++    if fault == "missing_panel_hour":
++        del panel["A"][61*24]
++    else:
++        f[1][fault]["A"] = 1. if fault == "open" else 1000.
++    callback,profile = runner(panel,incumbent=("A","B"))
++    invalid = bridge.simulate_bridge(f,callback,**profile)
++    assert invalid["status"] == "INCOMPLETE"
++    assert invalid["net_profit"] is None and invalid["marked_nav"] is None
++    assert invalid["state"]["valid"] is False
++    assert invalid["reason"].startswith(("signal_execution_frame_mismatch:","missing_or_unavailable_ohlcv:"))

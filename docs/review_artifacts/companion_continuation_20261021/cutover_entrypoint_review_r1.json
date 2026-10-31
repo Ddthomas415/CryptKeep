@@ -1,0 +1,95 @@
+{
+  "schema": "companion-cutover-entrypoint-review-v1",
+  "reviewed_at_utc": "2026-10-21T16:18:02Z",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "REJECTED",
+  "scope": "Frozen offline wrapper and its two test files only; accepted core interfaces inspected only to reproduce wrapper integration defects",
+  "reviewed_sha256": {
+    "scripts/research/companion_cutover.py": "3f33b2b2e9f9f88eb302db0fe19f3b95b6eb960ede69e76619299a8dd69cc3a0",
+    "tests/test_companion_cutover_inputs.py": "69522fff1a44d2c3e2b633c95e4bba1bd136102bd3fe553bd1066ab21c79d6bb",
+    "tests/test_companion_cutover_entrypoint.py": "ef5007612301aaa55c6bf66a8f413d8ea5bb34811a253d60d604ed0cbb00b9b4"
+  },
+  "unchanged_interface_sha256": {
+    "scripts/research/companion_installer.py": "56d9b924d7d0b7e2660d68db62dcdd67252fdc5e01ad633a7e39f57ea866b16b",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_runtime_adapter.py": "cf2d619320defd4904ba7bde595ad226d803818f5182f2bf27c3f73cdb0a4441"
+  },
+  "findings": [
+    {
+      "id": "R1-P1-recovery-handoff-signal",
+      "priority": "P1",
+      "classification": "SHOWN in deterministic offline reproduction",
+      "file": "scripts/research/companion_cutover.py",
+      "line": 248,
+      "title": "A first cancellation can bypass wrapper recovery after successful cutover effects",
+      "detail": "When provisional publication fails after Installer.run succeeds, runner.recovering remains false until the wrapper's exception suite sets it. A first SIGINT/SIGTERM delivered on entry to that suite invokes cancel(), which raises Refused out of the already-active except handler. No outer handler runs rollback or emits the sanitized summary. The finally block closes the runtime but does not restore the original services.",
+      "reproduction": "Use the real wrapper and real Installer.run over the existing synthetic entrypoint fixture. Force _publish to raise, then inject the installed cancellation callback at the first exception-suite line before recovering is set. Observed Refused escape, zero rollback calls, zero original apps running/four originals exited, four prepared apps still running, and no JSON summary.",
+      "shortest_correction": "Make the exception-to-recovery handoff itself cancellation-safe: latch/defer cancellation during failure handling, not only once runner.recovering is true. Ensure an initial signal at this handoff cannot escape owned recovery. Add a deterministic regression at this exact boundary without changing accepted core or resetting deadlines."
+    },
+    {
+      "id": "R1-P2-partial-initialize",
+      "priority": "P2",
+      "classification": "SHOWN in deterministic offline reproduction",
+      "file": "scripts/research/companion_cutover.py",
+      "line": 184,
+      "related_lines": [
+        248
+      ],
+      "title": "Cancellation and failure cleanup assume an already initialized runner",
+      "detail": "Installer.__init__ creates used=False but no recovering or ownership sets. Installer._initialize sets used=True before recovering and other fields. Cancellation after used=True but before recovering exists raises AttributeError in cancel(); the wrapper's cleanup condition then accesses the same missing attribute and raises again. Similar guard assumptions exist for quiesced/quiesce_pending during partial initialization.",
+      "reproduction": "Inject the installed SIGINT callback in _initialize immediately after used=True and before plan/images assignment. Observed uncaught AttributeError, no JSON summary and no rollback. All four originals remain running and no replacements have started, so this case is before effects.",
+      "shortest_correction": "Make cancellation and outer failure handling tolerate partial initialization; used alone is not proof that recovery/ownership fields exist. Keep this early failure sanitized and avoid invoking rollback before effects. Add an initialization-boundary regression."
+    }
+  ],
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV for offline/synthetic verification only",
+    "focused_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_cutover_inputs.py tests/test_companion_cutover_entrypoint.py tests/test_companion_staged_update.py tests/test_companion_staged_composition.py tests/test_companion_prepare_entrypoint.py tests/test_companion_runtime_adapter.py",
+    "focused_result": "240 passed in 2.40s",
+    "focused_exit_code": 0,
+    "synthetic_repro_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B - <<'PY'\nimport contextlib, inspect, io, json, os, signal, sys, tempfile\nfrom pathlib import Path\nimport pytest\nfrom tests.test_companion_cutover_entrypoint import setup, entry, install\nresults=[]\nfor scenario in (\"signal_during_initialize\", \"signal_entering_publication_failure_recovery\"):\n with tempfile.TemporaryDirectory(prefix=\"cutover-review-repro-\") as tmp, pytest.MonkeyPatch.context() as mp:\n  s=setup.__wrapped__(Path(tmp),mp)\n  fired=[]\n  if scenario==\"signal_entering_publication_failure_recovery\":\n   def publication_failure(*args): raise OSError(\"SYNTHETIC_PUBLICATION_FAILURE\")\n   mp.setattr(entry,\"_publish\",publication_failure)\n  filename=str(Path(entry.__file__).resolve())\n  initcode=install.Installer._initialize.__code__\n  lines,start=inspect.getsourcelines(install.Installer._initialize)\n  initline=start+next(i for i,line in enumerate(lines) if \"self.plan, self.images =\" in line)\n  source=Path(filename).read_text().splitlines()\n  exceptline=next(i for i,line in enumerate(source,1) if \"if runner is not None and runner.used\" in line)\n  def trace(frame,event,arg):\n   hit=(scenario==\"signal_during_initialize\" and frame.f_code is initcode and frame.f_lineno==initline\n        or scenario==\"signal_entering_publication_failure_recovery\" and frame.f_code.co_filename==filename and frame.f_lineno==exceptline)\n   if event==\"line\" and hit and not fired:\n    fired.append(True);sys.settrace(None)\n    s.handlers[signal.SIGINT](signal.SIGINT,None)\n   return trace\n  fd,writer=os.pipe();os.close(writer)\n  output=io.StringIO();escaped=None;exitcode=None\n  try:\n   with contextlib.redirect_stdout(output):\n    sys.settrace(trace)\n    exitcode=entry.main([*s.args,\"--execute-cutover\",\"--token-fd\",str(fd)])\n  except BaseException as e:\n   escaped=type(e).__name__\n  finally:\n   sys.settrace(None)\n   try:os.close(fd)\n   except OSError:pass\n  originals={r.id for r in s.plan.baseline[3:]}\n  replacements={r.id for r in s.prepared.replacements}\n  result={\"scenario\":scenario,\"injection_fired\":bool(fired),\"escaped_exception\":escaped,\"exit_code\":exitcode,\n   \"stdout_summary_present\":bool(output.getvalue()),\"rollback_calls\":len(s.rollbacks),\n   \"original_apps_running\":sum(r.id in originals and r.state==\"running\" for r in s.backend.rows.values()),\n   \"prepared_apps_running\":sum(r.id in replacements and r.state==\"running\" for r in s.backend.rows.values()),\n   \"original_apps_exited\":sum(r.id in originals and r.state==\"exited\" for r in s.backend.rows.values()),\n   \"runtime_closed\":s.closed==[True],\"native_operations\":False}\n  assert result[\"injection_fired\"] and not result[\"stdout_summary_present\"] and result[\"rollback_calls\"]==0\n  if scenario==\"signal_entering_publication_failure_recovery\":\n   assert result[\"original_apps_exited\"]==4 and result[\"prepared_apps_running\"]==4\n  results.append(result)\nprint(json.dumps({\"synthetic_only\":True,\"results\":results},indent=2))\nPY",
+    "synthetic_repro_exit_code": 0,
+    "synthetic_repro_results": [
+      {
+        "scenario": "signal_during_initialize",
+        "injection_fired": true,
+        "escaped_exception": "AttributeError",
+        "stdout_summary_present": false,
+        "rollback_calls": 0,
+        "original_apps_running": 4,
+        "prepared_apps_running": 0,
+        "original_apps_exited": 0,
+        "runtime_closed": true
+      },
+      {
+        "scenario": "signal_entering_publication_failure_recovery",
+        "injection_fired": true,
+        "escaped_exception": "Refused",
+        "stdout_summary_present": false,
+        "rollback_calls": 0,
+        "original_apps_running": 0,
+        "prepared_apps_running": 4,
+        "original_apps_exited": 4,
+        "runtime_closed": true
+      }
+    ],
+    "source_test_hashes_rechecked_after_verification": true
+  },
+  "shown_non_blocking_checks": [
+    "Default input validation is separate from token/lock/reservation/native construction, and uses existing Plan, ReviewedPreparation and runtime-policy schemas.",
+    "Saved metadata must reproduce the reviewed stopped Snapshots; only logical aliases are modeled and both the raw pre-start runtime pin and configured manifest fingerprint are cross-bound.",
+    "The focused tests cover synthetic real-controller success/recovery, token-reader stubbing, lock/marker durability and replay refusal, sanitation, ordinary publication/commit failures and signals delivered after recovery is already active."
+  ],
+  "limits": [
+    "Passing focused tests do not cover the two demonstrated asynchronous handoff boundaries and are not acceptance.",
+    "Reproductions use disposable temporary files, synthetic token reader/policy inputs, fake native/runtime state and installed callback injection; no OS signals were sent to native services and no real lifecycle or credential call occurred.",
+    "No real runtime policy/dependency/topical packet is approved or manufactured. Native SDK, alias, endpoint and full execution feasibility remain UNVERIFIED.",
+    "No accepted core source, reviewed wrapper/tests or previous evidence was edited. Review receipt and visible work log are the only reviewer edits."
+  ],
+  "runtime_state": "INCOMPLETE",
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "reviewer_native_operations": false,
+  "reviewer_credential_reads": false,
+  "source_or_test_edits": false
+}

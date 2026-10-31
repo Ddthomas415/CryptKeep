@@ -1,0 +1,18 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "exact reviewed local fix3 patch application and offline regressions; no runtime authorization",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a18415-f310-7420-883c-13d2bafa34bf",
+  "independent_verification": {
+    "passed": 72,
+    "seconds": 2.5,
+    "material_mismatch": false
+  },
+  "source_sha256": "8d04313c13b8e9ab8683a4c77d7dd5c63a49049ff9cbf44e862e5aec4849242a",
+  "submission_bindings_sha256": "3ed188a2c17236bb6de3784c9164e91bd003662c94b392d00b1f15468e7d0d13",
+  "submitted_checkpoint_sha256": "ab13000b3201bda871e131ce9b02816390eba2ef4741ed14ab33c535ad1a8d63",
+  "checkpoint_sha256": "6dc62720abe31a05159ec765b649e7f53fba55c19e85871bd108240f9849bc92",
+  "source_test_changed_after_review": false,
+  "live_integration": "INCOMPLETE",
+  "runtime_or_account_access_authorized": false
+}

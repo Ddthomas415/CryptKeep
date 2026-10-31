@@ -1,0 +1,346 @@
+{
+  "after": [
+    {
+      "BASH_ENV": [
+        null
+      ],
+      "ENV": [
+        null
+      ],
+      "FORWARDED_ALLOW_IPS": [
+        null
+      ],
+      "PATH": [
+        true,
+        null
+      ],
+      "PYTHONPATH": [
+        null
+      ],
+      "SERVICE_MODULE": [
+        true,
+        null
+      ],
+      "SERVICE_PORT": [
+        true,
+        null
+      ],
+      "WEB_CONCURRENCY": [
+        null
+      ],
+      "command_matches": true,
+      "entrypoint_empty": true,
+      "id": "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "uvicorn_overrides": [
+        null
+      ],
+      "workdir_matches": true
+    },
+    {
+      "BASH_ENV": [
+        null
+      ],
+      "ENV": [
+        null
+      ],
+      "FORWARDED_ALLOW_IPS": [
+        null
+      ],
+      "PATH": [
+        true,
+        null
+      ],
+      "PYTHONPATH": [
+        null
+      ],
+      "SERVICE_MODULE": [
+        true,
+        null
+      ],
+      "SERVICE_PORT": [
+        true,
+        null
+      ],
+      "WEB_CONCURRENCY": [
+        null
+      ],
+      "command_matches": true,
+      "entrypoint_empty": true,
+      "id": "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "uvicorn_overrides": [
+        null
+      ],
+      "workdir_matches": true
+    },
+    {
+      "BASH_ENV": [
+        null
+      ],
+      "ENV": [
+        null
+      ],
+      "FORWARDED_ALLOW_IPS": [
+        null
+      ],
+      "PATH": [
+        true,
+        null
+      ],
+      "PYTHONPATH": [
+        null
+      ],
+      "SERVICE_MODULE": [
+        true,
+        null
+      ],
+      "SERVICE_PORT": [
+        true,
+        null
+      ],
+      "WEB_CONCURRENCY": [
+        null
+      ],
+      "command_matches": true,
+      "entrypoint_empty": true,
+      "id": "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+      "image": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "uvicorn_overrides": [
+        null
+      ],
+      "workdir_matches": true
+    },
+    {
+      "BASH_ENV": [
+        null
+      ],
+      "ENV": [
+        null
+      ],
+      "FORWARDED_ALLOW_IPS": [
+        null
+      ],
+      "PATH": [
+        true,
+        null
+      ],
+      "PYTHONPATH": [
+        true,
+        null
+      ],
+      "SERVICE_MODULE": [
+        true,
+        null
+      ],
+      "SERVICE_PORT": [
+        true,
+        null
+      ],
+      "WEB_CONCURRENCY": [
+        null
+      ],
+      "command_matches": true,
+      "entrypoint_empty": true,
+      "id": "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "uvicorn_overrides": [
+        null
+      ],
+      "workdir_matches": true
+    }
+  ],
+  "before": [
+    {
+      "BASH_ENV": [
+        null
+      ],
+      "ENV": [
+        null
+      ],
+      "FORWARDED_ALLOW_IPS": [
+        null
+      ],
+      "PATH": [
+        true,
+        null
+      ],
+      "PYTHONPATH": [
+        null
+      ],
+      "SERVICE_MODULE": [
+        true,
+        null
+      ],
+      "SERVICE_PORT": [
+        true,
+        null
+      ],
+      "WEB_CONCURRENCY": [
+        null
+      ],
+      "command_matches": true,
+      "entrypoint_empty": true,
+      "id": "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+      "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "uvicorn_overrides": [
+        null
+      ],
+      "workdir_matches": true
+    },
+    {
+      "BASH_ENV": [
+        null
+      ],
+      "ENV": [
+        null
+      ],
+      "FORWARDED_ALLOW_IPS": [
+        null
+      ],
+      "PATH": [
+        true,
+        null
+      ],
+      "PYTHONPATH": [
+        null
+      ],
+      "SERVICE_MODULE": [
+        true,
+        null
+      ],
+      "SERVICE_PORT": [
+        true,
+        null
+      ],
+      "WEB_CONCURRENCY": [
+        null
+      ],
+      "command_matches": true,
+      "entrypoint_empty": true,
+      "id": "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+      "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "uvicorn_overrides": [
+        null
+      ],
+      "workdir_matches": true
+    },
+    {
+      "BASH_ENV": [
+        null
+      ],
+      "ENV": [
+        null
+      ],
+      "FORWARDED_ALLOW_IPS": [
+        null
+      ],
+      "PATH": [
+        true,
+        null
+      ],
+      "PYTHONPATH": [
+        null
+      ],
+      "SERVICE_MODULE": [
+        true,
+        null
+      ],
+      "SERVICE_PORT": [
+        true,
+        null
+      ],
+      "WEB_CONCURRENCY": [
+        null
+      ],
+      "command_matches": true,
+      "entrypoint_empty": true,
+      "id": "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+      "image": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "uvicorn_overrides": [
+        null
+      ],
+      "workdir_matches": true
+    },
+    {
+      "BASH_ENV": [
+        null
+      ],
+      "ENV": [
+        null
+      ],
+      "FORWARDED_ALLOW_IPS": [
+        null
+      ],
+      "PATH": [
+        true,
+        null
+      ],
+      "PYTHONPATH": [
+        true,
+        null
+      ],
+      "SERVICE_MODULE": [
+        true,
+        null
+      ],
+      "SERVICE_PORT": [
+        true,
+        null
+      ],
+      "WEB_CONCURRENCY": [
+        null
+      ],
+      "command_matches": true,
+      "entrypoint_empty": true,
+      "id": "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726",
+      "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "0001-01-01T00:00:00Z",
+      "state": "created",
+      "uvicorn_overrides": [
+        null
+      ],
+      "workdir_matches": true
+    }
+  ],
+  "commands": 8,
+  "elapsed_seconds": 0.404,
+  "environment_values_exported": false,
+  "error": null,
+  "input_sha256": "c505e4c6c3b2be5cd1054ac976fd69a503d0fcf2b2304cc6e6583ef1b1decb06",
+  "profile_matches": false,
+  "recorded_utc": "2026-10-22T01:44:48.379014+00:00",
+  "schema": "companion-sanitized-startup-profile-v1",
+  "services_started": false,
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

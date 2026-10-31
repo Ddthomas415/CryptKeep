@@ -1,0 +1,13 @@
+{
+  "code_inputs": {
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "scripts/research/capture_descriptive_inputs.py": "415d4e351b9c1c544bcf9fe4f84dab72280dd47ffed13353860a011bf5d0145e",
+    "services/backtest/descriptive_candles.py": "9425211207738f0395f28b3f8c02c8a292c9a2e80e5d8d4b203e5ec5ebf273de",
+    "services/backtest/descriptive_metadata.py": "9c98bba24ed52bcb99e73ecc8bcd0bfa51ccd5e60447aa5f2017ef8cbb1e4099",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc"
+  },
+  "phase": "PREPARED_NOT_REQUEST_PROOF",
+  "plan_sha256": "f4a310aa5c1bff6cce835145c9f6c00ee777cb725de8a8499323adadc721021e",
+  "recovery_wait_seconds": 5,
+  "worker_wait_seconds": 120
+}

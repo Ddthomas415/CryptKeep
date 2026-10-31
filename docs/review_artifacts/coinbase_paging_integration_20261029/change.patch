@@ -1,0 +1,605 @@
+--- a/services/execution/coinbase_balance_observation.py
++++ b/services/execution/coinbase_balance_observation.py
+@@ -0,0 +1,127 @@
++"""Opt-in paged balance observation; no client creation or account authority."""
++
++from copy import deepcopy
++from decimal import Decimal, InvalidOperation
++from fractions import Fraction
++import inspect
++import math
++from time import monotonic
++
++from services.execution.coinbase_account_pages import Pager, read_account_pages_async, read_account_pages_sync
++
++POLICY_KEY = "cbp_balance_paging"
++POLICY_FIELDS = {"version", "scope", "page_size", "max_pages", "max_rows", "max_json_bytes", "timeout_seconds"}
++
++
++class BalanceObservationError(RuntimeError):
++    pass
++
++
++def validate_balance_paging_policy(policy, *, venue):
++    if venue != "coinbase" or type(policy) is not dict or set(policy) != POLICY_FIELDS:
++        raise ValueError("explicit_coinbase_balance_paging_policy_required")
++    timeout = policy["timeout_seconds"]
++    if type(timeout) not in (int, float) or not math.isfinite(timeout) or timeout <= 0:
++        raise ValueError("positive_finite_paging_window_required")
++    settings = {key: deepcopy(value) for key, value in policy.items() if key != "timeout_seconds"}
++    Pager(**settings, deadline=1, clock=lambda: 0)
++    if settings["scope"][0] != "coinbase":
++        raise ValueError("coinbase_scope_required")
++    return deepcopy(policy)
++
++
++def _configured(client):
++    options = getattr(client, "options", None)
++    if not isinstance(options, dict) or POLICY_KEY not in options:
++        return None
++    venue = str(getattr(client, "id", "") or "").lower().strip()
++    return validate_balance_paging_policy(options[POLICY_KEY], venue=venue)
++
++
++def _budget(policy):
++    previous = None
++    def clock():
++        nonlocal previous
++        try:
++            now = monotonic()
++        except Exception as error:
++            raise BalanceObservationError(f"paging_clock_failed:{type(error).__name__}") from None
++        if (type(now) not in (int, float) or not math.isfinite(now)
++                or previous is not None and now < previous):
++            raise BalanceObservationError("invalid_paging_clock")
++        previous = now
++        return now
++    start = clock()
++    deadline = start + policy["timeout_seconds"]
++    settings = {key: deepcopy(value) for key, value in policy.items() if key != "timeout_seconds"}
++    settings.update(deadline=deadline, clock=clock)
++    Pager(**settings)  # Reject overflow before any balance endpoint is obtained.
++    return settings
++
++
++def _same_amounts(actual, expected):
++    if type(actual) is not dict or actual.keys() != expected.keys():
++        return False
++    for currency, value in actual.items():
++        if type(value) not in (str, int, float, Decimal):
++            return False
++        try:
++            number = Decimal(str(value))
++            if not number.is_finite() or number < 0 or Fraction(number) != Fraction(*expected[currency]):
++                return False
++        except (InvalidOperation, ValueError, TypeError, OverflowError):
++            return False
++    return True
++
++
++def _finish(client, result, settings):
++    if result.get("status") != "COMPLETE" or type(result.get("view")) is not dict:
++        raise BalanceObservationError("complete_supplied_pages_unavailable")
++    if settings["clock"]() >= settings["deadline"]:
++        raise BalanceObservationError("paging_window_expired")
++    view = result["view"]
++    try:
++        balance = client.parse_custom_balance(deepcopy(view["info"]), {"type": "spot"})
++    except Exception as error:
++        raise BalanceObservationError(f"balance_parser_failed:{type(error).__name__}") from None
++    if inspect.isawaitable(balance):
++        if inspect.iscoroutine(balance):
++            balance.close()
++        raise BalanceObservationError("synchronous_balance_parser_required")
++    if (type(balance) is not dict or balance.get("info") != view["info"]
++            or not _same_amounts(balance.get("total"), view["total"])
++            or result["version"] == "v3" and (
++                not _same_amounts(balance.get("free"), view["available"])
++                or not _same_amounts(balance.get("used"), view["used"]))):
++        raise BalanceObservationError("native_and_parsed_balance_disagree")
++    if settings["clock"]() >= settings["deadline"]:
++        raise BalanceObservationError("paging_window_expired")
++    if POLICY_KEY in balance:
++        raise BalanceObservationError("reserved_balance_key_collision")
++    balance[POLICY_KEY] = {
++        "all_supplied_pages_returned": True, "version": result["version"],
++        "scope": deepcopy(result["scope"]), "endpoint_method": result["endpoint_method"],
++        "page_callbacks_attempted": result["page_callbacks_attempted"],
++        "native_total_fractions": deepcopy(view["total"]),
++        "qualification": result["qualification"], "scope_authenticated": False,
++        "spendable_verified": False, "transport_limits_verified": False,
++        "execution_authority": False,
++    }
++    return balance
++
++
++def read_balance_sync(client):
++    policy = _configured(client)
++    if policy is None:
++        return client.fetch_balance()
++    settings = _budget(policy)
++    return _finish(client, read_account_pages_sync(client, **settings), settings)
++
++
++async def read_balance_async(client):
++    policy = _configured(client)
++    if policy is None:
++        balance = client.fetch_balance()
++        return await balance if inspect.isawaitable(balance) else balance
++    settings = _budget(policy)
++    return _finish(client, await read_account_pages_async(client, **settings), settings)
+--- a/services/execution/place_order.py
++++ b/services/execution/place_order.py
+@@ -722,7 +722,8 @@
+             or not isinstance(permissions.get("portfolio_uuid"), str)
+             or not permissions["portfolio_uuid"].strip()):
+         raise RuntimeError("CBP_ORDER_BLOCKED:portfolio_uuid_unavailable")
+-    balance = read(lambda: ex.fetch_balance(), "funding_probe_failed")
++    from services.execution.coinbase_balance_observation import read_balance_sync
++    balance = read(lambda: read_balance_sync(ex), "funding_probe_failed")
+     if not isinstance(balance, dict):
+         raise RuntimeError("CBP_ORDER_BLOCKED:funding_probe_failed:invalid_balance")
+ 
+@@ -788,7 +789,8 @@
+                 or not permissions["portfolio_uuid"].strip()):
+             raise RuntimeError("CBP_ORDER_BLOCKED:portfolio_uuid_unavailable")
+     try:
+-        balance = await read(ex.fetch_balance)
++        from services.execution.coinbase_balance_observation import read_balance_async
++        balance = await read_balance_async(ex)
+     except Exception as error:
+         raise RuntimeError(f"CBP_ORDER_BLOCKED:funding_probe_failed:{type(error).__name__}") from None
+     if not isinstance(balance, dict):
+--- a/services/execution/live_exchange_adapter.py
++++ b/services/execution/live_exchange_adapter.py
+@@ -12,9 +12,13 @@
+ from services.security.exchange_factory import make_exchange
+ 
+ class LiveExchangeAdapter:
+-    def __init__(self, venue: str, *, enable_rate_limit: bool = True, sandbox: bool = False) -> None:
++    def __init__(self, venue: str, *, enable_rate_limit: bool = True, sandbox: bool = False,
++                 balance_paging_policy: dict | None = None) -> None:
+         self.venue = normalize_venue(venue)
+         self.sandbox = bool(sandbox)
++        if balance_paging_policy is not None:
++            from services.execution.coinbase_balance_observation import validate_balance_paging_policy
++            balance_paging_policy = validate_balance_paging_policy(balance_paging_policy, venue=self.venue)
+         creds = load_exchange_credentials(self.venue)
+         self._creds_meta = {
+             k: creds.get(k)
+@@ -46,6 +50,7 @@
+             enable_rate_limit=enable_rate_limit,
+             sandbox=self.sandbox,
+             require_sandbox=self.sandbox,
++            **({"balance_paging_policy": balance_paging_policy} if balance_paging_policy is not None else {}),
+         )
+ 
+     def creds_meta(self) -> dict:
+@@ -59,7 +64,8 @@
+             pass  # suppressed: live_exchange_adapter.py
+ 
+     def fetch_balance(self) -> dict:
+-        return self.ex.fetch_balance()
++        from services.execution.coinbase_balance_observation import read_balance_sync
++        return read_balance_sync(self.ex)
+ 
+     def fetch_ticker(self, canonical_symbol: str) -> dict:
+         sym = map_symbol(self.venue, canonical_symbol)
+--- a/services/security/exchange_factory.py
++++ b/services/security/exchange_factory.py
+@@ -28,11 +28,16 @@
+     enable_rate_limit: bool = True,
+     sandbox: bool = False,
+     require_sandbox: bool = False,
++    balance_paging_policy: dict | None = None,
+ ) -> Any:
+     import ccxt  # type: ignore
+ 
+     ex_id = resolve_exchange_id(exchange_id)
+     require_binance_allowed(ex_id)
++
++    if balance_paging_policy is not None:
++        from services.execution.coinbase_balance_observation import validate_balance_paging_policy
++        balance_paging_policy = validate_balance_paging_policy(balance_paging_policy, venue=ex_id)
+ 
+     klass = getattr(ccxt, ex_id)
+ 
+@@ -41,6 +46,8 @@
+         "apiKey": creds.get("apiKey"),
+         "secret": creds.get("secret"),
+     }
++    if balance_paging_policy is not None:
++        cfg["options"] = {"cbp_balance_paging": balance_paging_policy}
+ 
+     # Some exchanges use a passphrase; CCXT calls it "password".
+     password = creds.get("password") or creds.get("passphrase")
+--- a/tests/test_coinbase_balance_observation.py
++++ b/tests/test_coinbase_balance_observation.py
+@@ -0,0 +1,192 @@
++"""Reachable paging integration with invented SDK responses and no private I/O."""
++
++import asyncio
++from copy import deepcopy
++
++import pytest
++
++from services.execution import coinbase_balance_observation as bridge
++from tests.test_coinbase_account_pages_installed_sdk import offline, pages, bind_dispatch
++
++
++def policy(version="v2"):
++    return {"version": version, "scope": ["coinbase", "invented-boundary"], "page_size": 100,
++            "max_pages": 3, "max_rows": 20, "max_json_bytes": 20000, "timeout_seconds": 10}
++
++
++def supplied_pages(version):
++    out = pages(version)
++    for page in out:
++        for row in page["data" if version == "v2" else "accounts"]:
++            row["portfolio_id" if version == "v2" else "retail_portfolio_id"] = "p-one"
++    return out
++
++
++def run(version, asynchronous, inspect_result, responses=None, mutate=None):
++    async def scenario():
++        import ccxt
++        import ccxt.async_support as async_sdk
++        cls = async_sdk.coinbase if asynchronous else ccxt.coinbase
++        client = cls({"apiKey": None, "secret": None, "enableRateLimit": False,
++                      "options": {bridge.POLICY_KEY: policy(version)}})
++        calls = []
++        bind_dispatch(client, version, supplied_pages(version) if responses is None else responses, calls, asynchronous)
++        if mutate is not None:
++            mutate(client)
++        try:
++            value = await bridge.read_balance_async(client) if asynchronous else bridge.read_balance_sync(client)
++            inspect_result(value, client, calls)
++        finally:
++            if asynchronous:
++                await client.close()
++    asyncio.run(scenario())
++
++
++@pytest.mark.parametrize("version", ["v2", "v3"])
++@pytest.mark.parametrize("asynchronous", [False, True])
++def test_paging_reaches_real_parser_without_creating_authority(version, asynchronous):
++    def check(balance, client, calls):
++        assert len(calls) == 2 and balance["total"]["SOL"] == 7
++        evidence = balance[bridge.POLICY_KEY]
++        assert evidence["all_supplied_pages_returned"] and evidence["native_total_fractions"]["ETH"] == [5, 1]
++        assert all(evidence[key] is False for key in ["scope_authenticated", "spendable_verified", "transport_limits_verified", "execution_authority"])
++        assert ("accounts" in balance["info"]) == (version == "v3")
++    run(version, asynchronous, check)
++
++
++@pytest.mark.parametrize("asynchronous", [False, True])
++def test_missing_policy_retains_exact_legacy_balance(asynchronous):
++    sentinel = {"legacy": "unchanged"}
++    def setup(client):
++        client.options.pop(bridge.POLICY_KEY)
++        client.fetch_balance = lambda: sentinel
++    def check(value, client, calls):
++        assert value is sentinel and calls == []
++    run("v2", asynchronous, check, mutate=setup)
++
++
++@pytest.mark.parametrize("version", ["v2", "v3"])
++@pytest.mark.parametrize("asynchronous", [False, True])
++@pytest.mark.parametrize("failure", ["page_two", "cursor", "parser", "raw_info", "precision", "metadata_collision"])
++def test_configured_failure_never_uses_legacy_fallback(version, asynchronous, failure):
++    responses = supplied_pages(version)
++    def setup(client):
++        if failure == "parser":
++            client.parse_custom_balance = lambda *args: {"secret": "invalid parser"}
++        if failure == "raw_info":
++            original = client.parse_custom_balance
++            def changed(*args):
++                result = original(*args); result["info"] = {}; return result
++            client.parse_custom_balance = changed
++        if failure == "metadata_collision":
++            original = client.parse_custom_balance
++            def collided(*args):
++                result = original(*args); result[bridge.POLICY_KEY] = {}; return result
++            client.parse_custom_balance = collided
++    if failure == "page_two":
++        responses[1] = RuntimeError("private detail must not leak")
++    elif failure == "cursor":
++        responses[1] = responses[0]
++    elif failure == "precision":
++        row = responses[1]["data" if version == "v2" else "accounts"][-1]
++        if version == "v2": row["balance"]["amount"] = "9007199254740993"
++        else:
++            row["available_balance"]["value"] = "9007199254740993"; row["hold"]["value"] = "0"
++    with pytest.raises(bridge.BalanceObservationError) as error:
++        run(version, asynchronous, lambda *args: pytest.fail("must withhold balance"), responses, setup)
++    assert "private detail" not in str(error.value)
++
++
++@pytest.mark.parametrize("bad", [None, {}, {"extra": 1}, {**policy(), "timeout_seconds": 0},
++                                {**policy(), "timeout_seconds": float("inf")}, {**policy(), "max_pages": True},
++                                {**policy(), "version": "guess"}, {**policy(), "scope": ["other", "x"]}])
++def test_present_invalid_policy_does_not_fall_back(bad):
++    def setup(client): client.options[bridge.POLICY_KEY] = bad
++    with pytest.raises(ValueError):
++        run("v2", False, lambda *args: pytest.fail("bad policy accepted"), mutate=setup)
++
++
++@pytest.mark.parametrize("asynchronous", [False, True])
++def test_parser_time_is_inside_result_acceptance_window(monkeypatch, asynchronous):
++    now = [1.0]; monkeypatch.setattr(bridge, "monotonic", lambda: now[0])
++    def setup(client):
++        original = client.parse_custom_balance
++        def slow(*args):
++            value = original(*args); now[0] = 20; return value
++        client.parse_custom_balance = slow
++    with pytest.raises(bridge.BalanceObservationError, match="paging_window_expired"):
++        run("v2", asynchronous, lambda *args: pytest.fail("late result"), mutate=setup)
++
++
++@pytest.mark.parametrize("asynchronous", [False, True])
++def test_regressing_clock_refuses_before_balance_endpoint(monkeypatch, asynchronous):
++    values = iter([1.0, 0.0]); monkeypatch.setattr(bridge, "monotonic", lambda: next(values))
++    with pytest.raises(bridge.BalanceObservationError):
++        run("v2", asynchronous, lambda *args: pytest.fail("regressed clock"))
++
++
++def test_async_cancel_is_not_transformed_to_balance_or_retried():
++    responses = supplied_pages("v3"); responses[1] = asyncio.CancelledError()
++    with pytest.raises(asyncio.CancelledError):
++        run("v3", True, lambda *args: pytest.fail("cancelled balance"), responses)
++
++
++@pytest.mark.parametrize("version", ["v2", "v3"])
++@pytest.mark.parametrize("asynchronous", [False, True])
++def test_common_order_preflight_uses_paged_observation_and_keeps_existing_guards(version, asynchronous):
++    async def scenario():
++        import ccxt
++        import ccxt.async_support as async_sdk
++        from tests.test_coinbase_sync_preflight import namespace, SubmissionReached
++        from tests.test_proposed_async_balance_preflight import namespace as async_namespace, APPLICATION, SubmissionReached as AsyncReached
++        client = (async_sdk.coinbase if asynchronous else ccxt.coinbase)(
++            {"apiKey": None, "secret": None, "options": {bridge.POLICY_KEY: policy(version)}})
++        calls, permissions = [], []
++        bind_dispatch(client, version, supplied_pages(version), calls, asynchronous)
++        def key_permissions():
++            permissions.append("read"); return {"portfolio_uuid": "p-one"}
++        client.v3PrivateGetBrokerageKeyPermissions = key_permissions
++        def submit(*args): raise SubmissionReached()
++        async def async_submit(*args): raise AsyncReached()
++        client.create_order = async_submit if asynchronous else submit
++        try:
++            error = RuntimeError if version == "v3" else (AsyncReached if asynchronous else SubmissionReached)
++            with pytest.raises(error) as caught:
++                if asynchronous:
++                    await async_namespace(APPLICATION, [], side="sell")["place_order_async"](client)
++                else:
++                    namespace()["place_order"](client)
++            if version == "v3": assert "portfolio_account_unavailable" in str(caught.value)
++            assert len(calls) == 2 and len(permissions) == 1
++        finally:
++            if asynchronous: await client.close()
++    asyncio.run(scenario())
++
++
++def test_preferred_factory_copies_policy_and_default_is_unchanged(monkeypatch):
++    from services.security.exchange_factory import make_exchange
++    monkeypatch.delenv("CBP_VENUE", raising=False)
++    chosen = policy(); client = make_exchange("coinbase", {}, balance_paging_policy=chosen)
++    chosen["scope"][1] = "mutated"
++    assert client.options[bridge.POLICY_KEY]["scope"][1] == "invented-boundary"
++    default = make_exchange("coinbase", {})
++    assert bridge.POLICY_KEY not in default.options
++    with pytest.raises(ValueError): make_exchange("kraken", {}, balance_paging_policy=policy())
++
++
++def test_preferred_adapter_forwards_explicit_policy_and_fetches_complete_view(monkeypatch, tmp_path):
++    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
++    import ccxt
++    import services.execution.live_exchange_adapter as module
++    client = ccxt.coinbase({"apiKey": None, "secret": None})
++    calls = []
++    bind_dispatch(client, "v2", supplied_pages("v2"), calls, False)
++    def factory(venue, creds, **kwargs):
++        client.options[bridge.POLICY_KEY] = deepcopy(kwargs["balance_paging_policy"])
++        return client
++    monkeypatch.setattr(module, "load_exchange_credentials", lambda venue: {"apiKey": "invented", "secret": "invented"})
++    monkeypatch.setattr(module, "make_exchange", factory)
++    adapter = module.LiveExchangeAdapter("coinbase", balance_paging_policy=policy())
++    assert adapter.fetch_balance()["total"]["SOL"] == 7 and len(calls) == 2
++    monkeypatch.setattr(module, "load_exchange_credentials", lambda *args: pytest.fail("invalid policy must precede credentials"))
++    with pytest.raises(ValueError): module.LiveExchangeAdapter("coinbase", balance_paging_policy={})
+--- a/tests/test_proposed_async_balance_preflight.py
++++ b/tests/test_proposed_async_balance_preflight.py
+@@ -158,6 +158,15 @@
+                if ast.dump(node, include_attributes=False) == ast.dump(bridge, include_attributes=False)]
+     assert len(matches) == 1
+     order.body[matches[0]:matches[0] + 1] = prior
++    asynchronous = next(node for node in tree.body if isinstance(node, ast.AsyncFunctionDef)
++                        and node.name == "_enforce_balance_preflight_async")
++    captures = [node for node in ast.walk(asynchronous) if isinstance(node, ast.Try)
++                and node.body and isinstance(node.body[0], ast.ImportFrom)
++                and node.body[0].module == "services.execution.coinbase_balance_observation"]
++    assert len(captures) == 1
++    expected = ast.parse("from services.execution.coinbase_balance_observation import read_balance_async\nbalance = await read_balance_async(ex)").body
++    assert [ast.dump(node, include_attributes=False) for node in captures[0].body] == [ast.dump(node, include_attributes=False) for node in expected]
++    captures[0].body = ast.parse("balance = await read(ex.fetch_balance)").body
+     return tree
+ 
+ 
+--- a/tests/test_coinbase_paged_preflight_compatibility.py
++++ b/tests/test_coinbase_paged_preflight_compatibility.py
+@@ -241,6 +241,15 @@
+                if ast.dump(node, include_attributes=False) == ast.dump(bridge, include_attributes=False)]
+     assert len(matches) == 1
+     order.body[matches[0]:matches[0] + 1] = prior
++    asynchronous = next(node for node in tree.body if isinstance(node, ast.AsyncFunctionDef)
++                        and node.name == "_enforce_balance_preflight_async")
++    captures = [node for node in ast.walk(asynchronous) if isinstance(node, ast.Try)
++                and node.body and isinstance(node.body[0], ast.ImportFrom)
++                and node.body[0].module == "services.execution.coinbase_balance_observation"]
++    assert len(captures) == 1
++    expected = ast.parse("from services.execution.coinbase_balance_observation import read_balance_async\nbalance = await read_balance_async(ex)").body
++    assert [ast.dump(node, include_attributes=False) for node in captures[0].body] == [ast.dump(node, include_attributes=False) for node in expected]
++    captures[0].body = ast.parse("balance = await read(ex.fetch_balance)").body
+     return tree
+ 
+ 
+--- a/docs/research/coinbase_paging_integration_20261029.md
++++ b/docs/research/coinbase_paging_integration_20261029.md
+@@ -0,0 +1,99 @@
++# Opt-In Coinbase Paging Integration
++
++2026-10-29. ENGINEER. HIGH-risk financial/configuration source change.
++Implementation READY_FOR_INDEPENDENT_REVIEW. Production policy/activation absent.
++
++## Delivered Source Path
++
++The accepted pager is now reachable through the existing sync/async common
++preflight and preferred LiveExchangeAdapter.fetch_balance. It is not another
++pager algorithm or order router. Reuses the existing client's native endpoint
++methods and installed parse_custom_balance. No new client is created by reading.
++
++New coinbase_balance_observation.py supplies read_balance_sync/read_balance_async.
++With no options.cbp_balance_paging key, legacy balance behavior is unchanged.
++When the key is present, every policy field is mandatory; None/invalid settings
++are errors, not permission to fall back. Page failure, bad continuation, parser
++failure, unknown/rounded totals, altered raw info, reserved-key collision or a
++late result withholds the entire observation. No configured-path fetch_balance
++fallback is used. Total holdings and V3 free/locked aggregates must agree exactly
++with the pager's rational amounts; raw native info is preserved.
++
++make_exchange and LiveExchangeAdapter accept optional balance_paging_policy;
++the adapter validates before credential loading and the factory copies it into
++client.options. Existing kwargs/configuration are unchanged when omitted.
++Legacy clients can already carry this key through their existing options dict;
++the common preflight recognizes it. Direct raw SDK.fetch_balance calls elsewhere
++are NOT monkeypatched or automatically paginated.
++
++## Explicit Policy, No Adopted Operator Values
++
++Required keys: version(v2/v3), scope(coinbase plus caller account marker),
++page_size(positive integer<=250), max_pages, max_rows, max_json_bytes and
++timeout_seconds(positive finite). Integer budgets reject booleans. No page,
++account, byte or duration default is invented. No existing config enables it.
++Changing this configuration in a real client is a separate operator decision.
++
++Each read derives a shared monotonic deadline and uses it across all pages and
++before/after parsing; backward/invalid clocks and late results are refused.
++These are cooperative result-acceptance checks, NOT interruptible HTTP timeouts,
++wire-byte limits, peak-memory caps or bounded SDK-internal retries/recipients.
++A blocked SDK method can outlive the window. No shared client transport settings
++are mutated to pretend to enforce a hard deadline.
++
++The existing portfolio/funding validators still decide funding permission.
++V3 native accounts are not relabelled as V2 info.data: current legacy portfolio
++checks therefore continue to refuse that incompatible path. V2 spendability
++is not certified by the SDK parser's free label. Rounding mismatches may refuse
++otherwise legitimate balances; the source does not silently manufacture precision.
++
++Returned paging evidence says all_supplied_pages_returned, not authenticated
++account coverage. scope_authenticated/spendable_verified/transport_limits_verified/
++execution_authority remain false. Scope is caller supplied. Currency aliases,
++other portfolios, pending manual orders, atomic snapshots and reservations are
++not established by paging. The account-wide position cap remains INCOMPLETE.
++
++## Verification
++
++49new cases use actual installed CCXT sync/async dispatch/parser with supplied
++request responses. Cover real read/parse flow, default preservation, V2/V3,
++page-two failure, cursors, parser/raw mismatch, precision, reserved metadata,
++invalid policy, clock regressions/late parser, cancellation, actual common
++preflight to synthetic submission marker, V3 guard refusal, factory copying and
++preferred adapter constructor/fetch routing. No real credentials or private I/O.
++
++VERIFIED_ENV final command:
++
++```sh
++env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B docs/review_artifacts/coinbase_paging_integration_20261029/verify_offline.py
++```
++
++SHOWN:211passed12.88s exit0 across8files:154prior cases+49new+8factory regressions.
++The wrapper blocks network/process entry points and allows SQLite only within
++disposable state, including pytest basetemp. Full-module cases use invented
++clients and unit dependency stubs, not real signed requests or observed orders.
++Intermediate new45cases passed5.60s and7file199passed12.48s; final adds collision
++checks and existing factory cases. No full repository suite or deployment proof.
++
++Existing structural tests project out only the exact new async import/read
++substitution before checking the previous proposal AST, in addition to the
++already reviewed sync bridge projection. Behavior tests execute current source.
++Old harness/source bytes are preserved; no frozen study or criterion changed.
++
++## Handoff And Boundaries
++
++Before-source copies, exact diff and hashes are in
++docs/review_artifacts/coinbase_paging_integration_20261029/.
++Independent review must verify all changed caller/factory paths and tests.
++No production paging policy, account call, secret lookup, cap value, trading
++activation, process reload, deployment, collector or scheduled job changed in
++this work. Tests use None-key SDK clients and invented adapter credentials;
++actual credential loading is stubbed before constructor invocation.
++
++Two assumptions: callers intentionally supply the client/policy scope; native
++responses follow the declared V2/V3 contracts. Neither grants account truth.
++No claim of live completeness, authenticated exposure, hard transport budgets,
++position-cap enforcement or profitability follows from this integration.
++
++Next boundary is an adopted operator paging/transport/account-scope policy,
++followed by separately authorized qualification; current source stays opt-in.
+--- a/docs/review_artifacts/coinbase_paging_integration_20261029/verify_offline.py
++++ b/docs/review_artifacts/coinbase_paging_integration_20261029/verify_offline.py
+@@ -0,0 +1,54 @@
++"""Offline paging integration and full-module unit slice, disposable state."""
++
++import os
++from pathlib import Path
++import socket
++import subprocess
++import sys
++import tempfile
++
++import pytest
++
++ROOT = Path(__file__).resolve().parents[3]
++os.chdir(ROOT)
++
++
++def main():
++    with tempfile.TemporaryDirectory(prefix="cbp-sync-unit-") as state:
++        os.environ["CBP_STATE_DIR"] = state
++
++        def no_network(*args, **kwargs):
++            raise AssertionError("offline unit tests: network forbidden")
++
++        def no_process(*args, **kwargs):
++            raise FileNotFoundError("offline unit tests: subprocess forbidden")
++
++        socket.create_connection = no_network
++        socket.getaddrinfo = no_network
++        socket.socket.connect = no_network
++        subprocess.Popen = no_process
++
++        def scoped_sql(event, args):
++            if event == "sqlite3.connect":
++                name = str(args[0])
++                assert name == ":memory:" or Path(name.removeprefix("file:").split("?", 1)[0]).resolve().is_relative_to(Path(state).resolve()), "non-disposable database forbidden"
++
++        sys.addaudithook(scoped_sql)
++        code = pytest.main([
++            "--noconftest", "-c", "/dev/null", "-p", "no:cacheprovider",
++            "--basetemp", str(Path(state) / "pytest"), "-q", "--tb=short",
++            "tests/test_coinbase_sync_preflight.py",
++            "tests/test_coinbase_balance_observation.py",
++            "tests/test_coinbase_account_pages_installed_sdk.py",
++            "tests/test_coinbase_paged_preflight_compatibility.py",
++            "tests/test_proposed_async_balance_preflight.py",
++            "tests/test_coinbase_account_pages.py",
++            "tests/test_place_order_fail_closed.py",
++            "tests/test_exchange_factory_resolution.py",
++        ])
++        print("offline_slice_exit=", int(code))
++        assert int(code) == 0
++
++
++if __name__ == "__main__":
++    main()

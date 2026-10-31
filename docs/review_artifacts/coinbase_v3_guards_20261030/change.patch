@@ -1,0 +1,416 @@
+--- a/services/execution/place_order.py
++++ b/services/execution/place_order.py
+@@ -103,6 +103,10 @@
+ def _coinbase_spendable_from_info_rows(balance: dict[str, Any], *, asset: str, portfolio_uuid: str | None) -> tuple[float | None, str]:
+     if not portfolio_uuid:
+         return None, "coinbase.portfolio_scope_unknown"
++    from services.execution.coinbase_v3_accounts import available_by_currency
++    native_v3 = available_by_currency(balance, portfolio_uuid)
++    if native_v3 is not None:
++        return native_v3.get(str(asset).upper(), 0.0), "coinbase.v3_available"
+     rows = (((balance or {}).get("info") or {}).get("data") or [])
+     if not isinstance(rows, list):
+         return None, "coinbase.info_rows_missing"
+--- a/services/execution/coinbase_portfolio_guard.py
++++ b/services/execution/coinbase_portfolio_guard.py
+@@ -10,6 +10,10 @@
+ 
+ def _get_portfolio_currencies(ex: Any, portfolio_uuid: str) -> set[str]:
+     bal = ex.fetch_balance()
++    from services.execution.coinbase_v3_accounts import available_by_currency
++    native_v3 = available_by_currency(bal, portfolio_uuid)
++    if native_v3 is not None:
++        return set(native_v3)
+     data = ((bal or {}).get("info") or {}).get("data") or []
+     out: set[str] = set()
+     for acct in data:
+--- a/tests/test_proposed_async_balance_preflight.py
++++ b/tests/test_proposed_async_balance_preflight.py
+@@ -188,6 +188,13 @@
+              and isinstance(node.func, ast.Name) and node.func.id == "mr_validate"]
+     assert len(calls) == 1
+     calls[0].keywords.append(ast.keyword(arg="order_type", value=ast.Name(id="order_type", ctx=ast.Load())))
++    funding = next(node for node in expected.body if isinstance(node, ast.FunctionDef)
++                   and node.name == "_coinbase_spendable_from_info_rows")
++    funding.body[1:1] = ast.parse('''from services.execution.coinbase_v3_accounts import available_by_currency
++native_v3 = available_by_currency(balance, portfolio_uuid)
++if native_v3 is not None:
++    return native_v3.get(str(asset).upper(), 0.0), "coinbase.v3_available"
++''').body
+     assert ast.dump(project_prior_sync_entry(ast.parse(APPLICATION.read_bytes())), include_attributes=False) == ast.dump(expected, include_attributes=False)
+ 
+ 
+--- a/tests/test_coinbase_paged_preflight_compatibility.py
++++ b/tests/test_coinbase_paged_preflight_compatibility.py
+@@ -268,4 +268,11 @@
+              and isinstance(node.func, ast.Name) and node.func.id == "mr_validate"]
+     assert len(calls) == 1
+     calls[0].keywords.append(ast.keyword(arg="order_type", value=ast.Name(id="order_type", ctx=ast.Load())))
++    funding = next(node for node in expected.body if isinstance(node, ast.FunctionDef)
++                   and node.name == "_coinbase_spendable_from_info_rows")
++    funding.body[1:1] = ast.parse('''from services.execution.coinbase_v3_accounts import available_by_currency
++native_v3 = available_by_currency(balance, portfolio_uuid)
++if native_v3 is not None:
++    return native_v3.get(str(asset).upper(), 0.0), "coinbase.v3_available"
++''').body
+     assert ast.dump(project_prior_sync_entry(ast.parse(APPLICATION.read_bytes())), include_attributes=False) == ast.dump(expected, include_attributes=False)
+--- /dev/null
++++ b/services/execution/coinbase_v3_accounts.py
+@@ -0,0 +1,75 @@
++"""Native v3 row compatibility, not account completeness or order authority."""
++
++from decimal import Decimal, InvalidOperation
++from fractions import Fraction
++import math
++
++
++def _invalid():
++    return RuntimeError("CBP_ORDER_BLOCKED:coinbase_v3_accounts_invalid")
++
++
++def _text(value):
++    if type(value) is not str or not value or value != value.strip():
++        raise _invalid()
++    return value
++
++
++def _amount(part, currency):
++    if type(part) is not dict or part.get("currency") != currency:
++        raise _invalid()
++    value = part.get("value")
++    if type(value) not in (str, int) or len(str(value)) > 128:
++        raise _invalid()
++    try:
++        number = Decimal(value)
++        if not number.is_finite() or number < 0 or abs(number.as_tuple().exponent) > 100:
++            raise _invalid()
++        return Fraction(number)
++    except (InvalidOperation, ValueError, OverflowError):
++        raise _invalid() from None
++
++
++def available_by_currency(balance, portfolio_uuid):
++    """Return conservative v3 available amounts, or None for an untouched v2 view."""
++    info = balance.get("info") if isinstance(balance, dict) else None
++    metadata = balance.get("cbp_balance_paging") if isinstance(balance, dict) else None
++    declared_v3 = isinstance(metadata, dict) and metadata.get("version") == "v3"
++    if not (isinstance(info, dict) and "accounts" in info) and not declared_v3:
++        return None
++    if (type(info) is not dict or "data" in info or type(info.get("accounts")) is not list
++            or info.get("error") or info.get("errors")):
++        raise _invalid()
++    portfolio_uuid = _text(portfolio_uuid)
++    identities, amounts = {}, {}
++    for row in info["accounts"]:
++        if type(row) is not dict:
++            raise _invalid()
++        identity = _text(row.get("uuid"))
++        if identity in identities:
++            if identities[identity] != row:
++                raise _invalid()
++            continue
++        identities[identity] = row
++        currency = _text(row.get("currency"))
++        if currency != currency.upper():
++            raise _invalid()
++        owner = _text(row.get("retail_portfolio_id"))
++        available = _amount(row.get("available_balance"), currency)
++        _amount(row.get("hold"), currency)  # Held funds never become available.
++        eligible = (row.get("active") is True and row.get("ready") is True
++                    and "deleted_at" in row and row["deleted_at"] in (None, "")
++                    and row.get("type") in ("FIAT", "CRYPTO", "ACCOUNT_TYPE_FIAT", "ACCOUNT_TYPE_CRYPTO")
++                    and not str(row.get("name") or "").strip().lower().startswith("staked "))
++        if owner == portfolio_uuid and eligible:
++            amounts[currency] = amounts.get(currency, Fraction(0)) + available
++    result = {}
++    for currency, amount in amounts.items():
++        value = float(amount)
++        if not math.isfinite(value):
++            raise _invalid()
++        # Funding compares Decimal(str(float)); never round that value above native evidence.
++        if Fraction(str(value)) > amount:
++            value = math.nextafter(value, 0.0)
++        result[currency] = value
++    return result
+--- /dev/null
++++ b/tests/test_coinbase_v3_guards.py
+@@ -0,0 +1,150 @@
++"""Native v3 portfolio/funding compatibility, invented observations only."""
++import asyncio
++from copy import deepcopy
++from fractions import Fraction
++
++import pytest
++
++from tests.test_coinbase_account_pages_installed_sdk import offline, bind_dispatch
++from tests.test_coinbase_balance_observation import policy
++from tests.test_coinbase_sync_preflight import namespace, SubmissionReached
++
++
++def row(asset="USD", value="100", *, identity="usd", portfolio="p-one", **changes):
++    return {"uuid": identity, "currency": asset, "retail_portfolio_id": portfolio,
++            "type": "ACCOUNT_TYPE_FIAT" if asset == "USD" else "ACCOUNT_TYPE_CRYPTO",
++            "active": True, "ready": True, "deleted_at": None,
++            "available_balance": {"value": value, "currency": asset},
++            "hold": {"value": "999", "currency": asset}} | changes
++
++
++def balance(rows=None):
++    return {"info": {"accounts": rows if rows is not None else [row(), row("ETH", "5", identity="eth")]},
++            "free": {"USD": 100, "ETH": 5}}
++
++
++def client(observation):
++    class Observed:
++        id = "coinbase"
++        def v3PrivateGetBrokerageKeyPermissions(self): return {"portfolio_uuid": "p-one"}
++        def fetch_balance(self): return observation
++    return Observed()
++
++
++def test_valid_v3_accounts_pass_both_guards():
++    ns = namespace()
++    b = balance(); ex = client(b)
++    ns["enforce_coinbase_quote_account_available"](ex, "ETH/USD")
++    assert ns["_extract_spendable_balance"](ex, b, "ETH") == (5, "coinbase.v3_available+free_min")
++    ns["_enforce_funding_gate"](ex, symbol="ETH/USD", side="sell", amount=1, price=10, order_type="limit")
++
++
++@pytest.mark.parametrize("asynchronous", [False, True])
++@pytest.mark.parametrize("side", ["buy", "sell"])
++def test_real_sdk_pages_reach_common_preflight(asynchronous, side):
++    async def scenario():
++        import ccxt
++        import ccxt.async_support as sdk_async
++        from tests.test_proposed_async_balance_preflight import namespace as async_ns, APPLICATION, SubmissionReached as AsyncReached
++        cls = sdk_async.coinbase if asynchronous else ccxt.coinbase
++        ex = cls({"apiKey": None, "secret": None, "options": {"cbp_balance_paging": policy("v3")}})
++        calls, perms = [], []
++        responses = [{"accounts": [row()], "has_next": True, "cursor": "next"},
++                     {"accounts": [row("ETH", "5", identity="eth")], "has_next": False, "cursor": ""}]
++        bind_dispatch(ex, "v3", responses, calls, asynchronous)
++        def permissions(): perms.append(1); return {"portfolio_uuid": "p-one"}
++        ex.v3PrivateGetBrokerageKeyPermissions = permissions
++        def submit(*args): raise SubmissionReached()
++        async def async_submit(*args): raise AsyncReached()
++        ex.create_order = async_submit if asynchronous else submit
++        try:
++            with pytest.raises(AsyncReached if asynchronous else SubmissionReached):
++                if asynchronous: await async_ns(APPLICATION, [], side=side)["place_order_async"](ex)
++                else: namespace(side=side)["place_order"](ex)
++            assert len(calls) == 2 and len(perms) == 1
++        finally:
++            if asynchronous: await ex.close()
++    asyncio.run(scenario())
++
++
++@pytest.mark.parametrize("changes", [{"active": False}, {"active": "true"}, {"ready": False},
++    {"ready": None}, {"deleted_at": "2026-01-01"}, {"type": "ACCOUNT_TYPE_STAKING"},
++    {"name": "Staked USD"}, {"retail_portfolio_id": "other"}])
++def test_ineligible_or_other_portfolio_cannot_fund_or_supply_quote(changes):
++    ns = namespace(); b = balance([row(**changes)])
++    with pytest.raises(RuntimeError, match="portfolio_account_unavailable"):
++        ns["enforce_coinbase_quote_account_available"](client(b), "ETH/USD")
++    value, _ = ns["_extract_spendable_balance"](client(b), b, "USD")
++    assert value == 0
++
++
++@pytest.mark.parametrize("field", ["active", "ready", "deleted_at"])
++def test_missing_eligibility_refuses_quote(field):
++    r = row(); r.pop(field); b = balance([r])
++    with pytest.raises(RuntimeError):
++        namespace()["enforce_coinbase_quote_account_available"](client(b), "ETH/USD")
++
++
++@pytest.mark.parametrize("changes", [{"retail_portfolio_id": None}, {"uuid": None}, {"currency": None},
++    {"available_balance": {"value": "NaN", "currency": "USD"}},
++    {"available_balance": {"value": "-1", "currency": "USD"}},
++    {"available_balance": {"value": "1e999999999", "currency": "USD"}},
++    {"available_balance": {"value": "1" * 129, "currency": "USD"}},
++    {"available_balance": {"value": True, "currency": "USD"}},
++    {"available_balance": {"value": "5", "currency": "EUR"}}, {"hold": {"value": "1", "currency": "EUR"}}])
++def test_invalid_native_evidence_refuses_without_aggregate_fallback(changes):
++    ns = namespace(); b = balance([row(**changes)])
++    with pytest.raises(RuntimeError): ns["_extract_spendable_balance"](client(b), b, "USD")
++
++
++def test_duplicate_identity_is_not_double_counted_and_conflict_refused():
++    ns = namespace(); r = row(value="3"); b = balance([r, deepcopy(r)])
++    assert ns["_extract_spendable_balance"](client(b), b, "USD")[0] == 3
++    b["info"]["accounts"][1]["available_balance"]["value"] = "4"
++    with pytest.raises(RuntimeError): ns["_extract_spendable_balance"](client(b), b, "USD")
++
++
++def test_held_and_other_portfolio_funds_not_counted_and_free_min_preserved():
++    ns = namespace(); b = balance([row(value="3"), row(value="900", identity="other", portfolio="other")])
++    b["free"]["USD"] = 2
++    assert ns["_extract_spendable_balance"](client(b), b, "USD")[0] == 2
++
++
++def test_native_decimal_sum_does_not_round_up():
++    ns = namespace(); b = balance([row(value="0.123456789123456789"), row(value="0.2", identity="two")])
++    value, _ = ns["_extract_spendable_balance"](client(b), b, "USD")
++    assert 0 < Fraction(str(value)) <= Fraction("0.123456789123456789") + Fraction("0.2")
++
++
++def test_mixed_native_versions_refuse():
++    ns = namespace(); b = balance(); b["info"]["data"] = []
++    with pytest.raises(RuntimeError): ns["_extract_spendable_balance"](client(b), b, "USD")
++
++
++def test_provider_error_and_missing_declared_accounts_refuse():
++    ns = namespace(); b = balance(); b["info"]["error"] = "invented rejection"
++    with pytest.raises(RuntimeError): ns["_extract_spendable_balance"](client(b), b, "USD")
++    b = {"info": {}, "cbp_balance_paging": {"version": "v3"}, "free": {"USD": 999}}
++    with pytest.raises(RuntimeError): ns["_extract_spendable_balance"](client(b), b, "USD")
++
++
++def test_exact_v2_function_body_preserved_outside_explicit_v3_branch():
++    import ast
++    from pathlib import Path
++    root = Path(__file__).resolve().parents[1]
++    base = root / "docs/review_artifacts/coinbase_v3_guards_20261030/before"
++    for filename, name in [("place_order.py", "_coinbase_spendable_from_info_rows"),
++                           ("coinbase_portfolio_guard.py", "_get_portfolio_currencies")]:
++        current = ast.parse((root / "services/execution" / filename).read_bytes())
++        before = ast.parse((base / filename).read_bytes())
++        def definitions(tree):
++            return {n.name: n for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
++        old, new = definitions(before), definitions(current)
++        assert old.keys() == new.keys()
++        assert {k for k in old if ast.dump(old[k]) != ast.dump(new[k])} == {name}
++        at = 1
++        assert isinstance(new[name].body[at], ast.ImportFrom)
++        assert new[name].body[at].module == "services.execution.coinbase_v3_accounts"
++        assert isinstance(new[name].body[at+1], ast.Assign) and isinstance(new[name].body[at+2], ast.If)
++        del new[name].body[at:at+3]
++        assert ast.dump(old[name]) == ast.dump(new[name])
+--- /dev/null
++++ b/docs/review_artifacts/coinbase_v3_guards_20261030/verify_offline.py
+@@ -0,0 +1,21 @@
++"""Reuse the accepted disposable-state runner with this repair's focused cases."""
++
++from pathlib import Path
++import runpy
++
++import pytest
++
++ROOT = Path(__file__).resolve().parents[3]
++
++
++def main():
++    original = pytest.main
++    def selected(args):
++        return original([*args, "tests/test_coinbase_v3_guards.py", "tests/test_coinbase_portfolio_guard.py"])
++    pytest.main = selected
++    existing = ROOT / "docs/review_artifacts/coinbase_paging_integration_20261029/verify_offline.py"
++    runpy.run_path(str(existing), run_name="__main__")
++
++
++if __name__ == "__main__":
++    main()
+--- /dev/null
++++ b/docs/research/coinbase_v3_guards_20261030.md
+@@ -0,0 +1,102 @@
++# Coinbase native-v3 guard compatibility
++
++2026-10-30. ENGINEER. HIGH risk, financial admission.
++State: READY_FOR_INDEPENDENT_REVIEW; not deployment or trading acceptance.
++
++## Outcome and scope
++
++The accepted balance pager preserves native v3 `info.accounts`, while the
++quote-account and funding guards previously consumed only v2 `info.data`.
++Eligible v3 observations therefore could not pass the common order preflight.
++This repair connects that existing path without rewriting v3 rows as v2 rows.
++It does not establish all-account exposure, reserve funds, or enable paging.
++
++Production changes are limited to a pure `coinbase_v3_accounts.py` helper and
++one explicit branch in each of `_get_portfolio_currencies` and
++`_coinbase_spendable_from_info_rows`. The rest of both existing files, including
++the v2 bodies, preflight orchestration, fees, market and risk checks, is retained.
++Native v3 input that formerly failed can now pass these two checks when the
++required evidence is present. That is an intentional admission change, not
++merely formatting. No process was reloaded or order submitted to test it.
++
++## Native evidence contract
++
++- Require the row's native `retail_portfolio_id` to match the permission result.
++  No inference from aggregate `free`, configuration scope labels, or the one
++  portfolio seen in yesterday's authorized check.
++- Validate native account identity, currency and both available/hold amounts.
++  Deduplicate identical account IDs; reject conflicting rows. Other portfolios'
++  funds and held amounts never count as available for this portfolio.
++- Count only explicitly active, ready, non-deleted fiat/crypto rows. Missing
++  eligibility fields withhold the row, including absent `deleted_at`; a null or
++  empty deletion value is required. Staked-name rows are also excluded. These
++  are conservative eligibility checks, not independent proof of tradability.
++- Reject malformed/mixed schemas, provider errors, missing native ownership,
++  currency disagreement, negative or non-finite amounts. Native values are
++  limited to string/integer representations of at most 128 characters and an
++  absolute Decimal exponent of at most 100 before rational conversion. Extreme
++  values are refused, not interpreted as zero.
++- Sum native amounts exactly as rationals, then ensure the float's decimal
++  representation cannot exceed that evidence. Keep the existing parsed-free
++  minimum. No aggregate fallback after a malformed v3 observation.
++- Ordinary v2 observations use their unchanged original code. Native-v3 support
++  also applies if an existing caller supplies that schema without paging;
++  no current client options, API version or paging policy were changed.
++
++Field/schema reference inspected for this implementation:
++[Coinbase List Accounts](https://docs.cdp.coinbase.com/api-reference/advanced-trade-api/rest-api/accounts/list-accounts).
++The reference documents the fields and notes that CDP keys use their permissioned
++portfolio. It does not establish that a returned available amount will fill an
++order or that this particular key sees all user portfolios. Installed-parser
++type/amount disagreement still causes the existing pager bridge to refuse.
++
++## Verification
++
++VERIFIED_ENV: repository Python 3.12 venv; invented observations/None-key SDK
++clients, request dispatch stubbed before signing, credentials or real HTTP.
++
++New cases against the before source: 19 failed, 11 passed in 2.21s. Five failures
++directly demonstrate valid-v3 rejection (both guards and four sync/async
++buy/sell cells); other failures cover new typed refusal and amount handling.
++The old source already withheld funds on malformed v3 inputs; those failures
++are not claims of prior unsafe submission. Initial repaired slice: 30 passed.
++
++Existing eight-file regression run: 209 passed, 2 structural-expectation failures.
++Those tests expected the old exact source. Their expected ASTs now include only
++the explicit four-line v3 branch; no behavior assertion or full-AST comparison
++was removed. Both older harnesses are preserved in the artifact `before/` folder.
++New structural checks additionally reproduce the current before source exactly
++after removal of only the declared branch in each production function.
++
++Final command, one consolidated guarded run:
++
++```sh
++env PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B docs/review_artifacts/coinbase_v3_guards_20261030/verify_offline.py
++```
++
++Result: **245 passed in 14.30s, exit 0**: prior 211 plus 32 new cases and the
++2 existing portfolio-guard cases. Reused the accepted offline runner, adding
++these two test files only. Network/process launches are blocked; SQLite is
++limited to disposable temporary state. This includes the existing full-module
++order unit slice, not the repository's full suite or a live execution test.
++
++## Limits and next boundary
++
++Two assumptions: caller observations originate from the intended client, and
++the supplied snapshot is not concurrently mutated during validation. Neither
++assumption is independent authentication or atomicity proof.
++
++No private request, credentials, account balance, server, collector, scheduler,
++trading setting, capital or live-order operation occurred in this repair.
++Yesterday's two-GET authorization remains consumed. Source imports in future
++processes can use these local changes; no deployment/reload was performed.
++
++All-account coverage remains UNVERIFIED. The operator's all-holdings-per-asset
++cap mandate is unchanged; a dedicated portfolio is not silently substituted
++for it. Production transport bounds, concurrent pending orders/reservations,
++cap enforcement and live qualification remain INCOMPLETE. No profitability or
++trading-readiness claim follows from these tests.
++
++Artifacts: `docs/review_artifacts/coinbase_v3_guards_20261030/` preserves before
++sources/harnesses, exact diff, source/dependency hashes and verification results.
++Separate GATE review is required; implementing thread does not self-approve.

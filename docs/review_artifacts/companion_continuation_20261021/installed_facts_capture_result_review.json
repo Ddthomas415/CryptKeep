@@ -1,0 +1,194 @@
+{
+  "schema": "companion-installed-facts-capture-result-review-v1",
+  "reviewed_at_utc": "2026-10-21T17:50:56Z",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Saved one-shot capture integrity, selected-subject equality, captured file identity and recorded read-only storage facts only; no SDK-policy or runtime approval",
+  "bindings": {
+    "capture_report": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/report.json",
+      "sha256": "7dbda2c14b68b58d372508eda0d34e232bc9e6548bd0b7ff5327b027abbdad2b"
+    },
+    "capture_recipe": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/capture_installed_facts.py",
+      "sha256": "a553e37e9bac1b5f6827fa8fe9ff40d520e7dc6005df4fc81064d03b6259eb76"
+    },
+    "accepted_preflight": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture_review_r2.json",
+      "sha256": "d486ef69039c2faa9cde7c9a54f86770f034fa9dafabb86db45d08f0dd7d8a70"
+    },
+    "manifest": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/preparation_reconciled_manifest.json",
+      "sha256": "b9594f55b7d409d5815ea318de68c0391943dcafe919326ebedb143821627b11"
+    },
+    "prepared_evidence": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/preparation_reconciled_evidence.json",
+      "sha256": "a8ba9af67beb156b292fd133ad23155a1ad9443889aec4e003f4841f0a7357b8"
+    }
+  },
+  "findings": [],
+  "shown": [
+    "All93 expected selected-file records are present, uniquely named and CAPTURED; no undeclared selection or missing output file. Every saved payload is regular/non-symlink, has exact declared size and SHA256, and binds the expected selected container ID/image/path.",
+    "All43 application source hashes independently match the frozen manifest (audit9/risk9/memory11/orchestrator14), not merely the report's matches_frozen booleans.",
+    "All11 unique selected subjects match expected IDs/images/state/start/restart history/policy plus raw, foundation and configured preservation digests/network provenance. Original7 remain running; prepared4 remain created/never-started/restart0. Full retained sanitized before/after payloads are exactly equal.",
+    "Captured memory manifest and all three archive data files match the approved local archive byte-for-byte, including all manifest-bound hashes. Archive availability at the exact stopped memory container paths is now evidenced at capture time despite no bind mount. The16-byte archive.required marker is captured.",
+    "Saved PG_VERSION bytes equal 16 newline. Report storage response has expected55/matched55, postgres/documents/audit_events true, MinIO bucket_head_200 true and Qdrant collection_status_ok true.",
+    "Saved file bytes total6923555 and reported transfer upper bound7094272 are within25MiB. Recorded98 Docker commands are consistent with93 copies, three selected inspections and two storage exec checks. Qdrant GET is a separate HTTP observation, not included in the Docker command count."
+  ],
+  "capture_summary": {
+    "recorded_utc": "2026-10-21T17:47:49.283840+00:00",
+    "elapsed_seconds_reported": 5.194,
+    "docker_commands_reported": 98,
+    "file_records_verified": 93,
+    "source_entries_verified": 43,
+    "selected_subjects_verified": 11,
+    "before_after_exact": true,
+    "saved_payload_bytes": 6923555,
+    "file_transfer_upper_bound_bytes": 7094272,
+    "error": null
+  },
+  "archive_facts": {
+    "derived_article_body_v1.json": {
+      "bytes": 207733,
+      "container_id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+      "saved_file": "86_derived_article_body_v1.json",
+      "sha256": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f"
+    },
+    "manifest.json": {
+      "bytes": 771,
+      "container_id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+      "saved_file": "84_manifest.json",
+      "sha256": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77"
+    },
+    "original_snapshot.json": {
+      "bytes": 503584,
+      "container_id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+      "saved_file": "85_original_snapshot.json",
+      "sha256": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f"
+    },
+    "query_comparison.json": {
+      "bytes": 14207,
+      "container_id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+      "saved_file": "87_query_comparison.json",
+      "sha256": "88bb8e5a79d711d4339807e34caed4f3b20d89308c3eb4eb13300e397911fb5b"
+    }
+  },
+  "storage_disposition": {
+    "classification": "SHOWN as saved aggregate response evidence from the reviewed read-only capture, not independently re-queried by reviewer",
+    "postgres": {
+      "observed": {
+        "audit_events": true,
+        "documents": true,
+        "expected": 55,
+        "matched": 55,
+        "postgres": true
+      },
+      "supported": "All55 archived expected IDs matched the pinned content_hash/source_type/source/url/raw_object_key/published_at/fetched_at predicates in the same read-only aggregate transaction; public.documents and public.audit_events were present in the selected PostgreSQL connection.",
+      "not_supported": "Not a total database document count, a database-content before/after proof, a content_text byte comparison, absence of other rows, or a current-state/endpoint guarantee."
+    },
+    "minio": {
+      "observed": {
+        "bucket_head_200": true
+      },
+      "supported": "Existing signed helper recorded HTTP200 for HEAD of raw-docs bucket.",
+      "not_supported": "No per-document raw-object existence/hash/content or complete object-store consistency proof."
+    },
+    "qdrant": {
+      "observed": {
+        "collection_status_ok": true
+      },
+      "supported": "Fixed localhost GET /collections/documents recorded HTTP200 and status ok.",
+      "not_supported": "No point-level identity/count/content, search result, cross-store consistency or general readiness proof."
+    }
+  },
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV for saved local file/hash/assertion checks only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - <<'PY'\nimport hashlib,json,runpy,stat\nfrom pathlib import Path,PurePosixPath\nfrom scripts.research import companion_runtime_adapter as adapter,companion_network_configuration as network\nroot=Path.cwd();base=root/\"docs/review_artifacts/companion_continuation_20261021\";out=base/\"installed_facts_capture\"\nreport_raw=(out/\"report.json\").read_bytes();report_sha=hashlib.sha256(report_raw).hexdigest()\nassert report_sha==\"7dbda2c14b68b58d372508eda0d34e232bc9e6548bd0b7ff5327b027abbdad2b\"\nsource=(base/\"capture_installed_facts.py\").read_bytes();assert hashlib.sha256(source).hexdigest()==\"a553e37e9bac1b5f6827fa8fe9ff40d520e7dc6005df4fc81064d03b6259eb76\"\npreflight_raw=(base/\"installed_facts_capture_review_r2.json\").read_bytes();preflight=json.loads(preflight_raw)\nassert hashlib.sha256(preflight_raw).hexdigest()==\"d486ef69039c2faa9cde7c9a54f86770f034fa9dafabb86db45d08f0dd7d8a70\"\nassert preflight[\"execution_preflight_accepted\"] is True\nmanifest_raw=(base/\"preparation_reconciled_manifest.json\").read_bytes()\nevidence_raw=(base/\"preparation_reconciled_evidence.json\").read_bytes()\nassert hashlib.sha256(manifest_raw).hexdigest()==\"b9594f55b7d409d5815ea318de68c0391943dcafe919326ebedb143821627b11\"\nassert hashlib.sha256(evidence_raw).hexdigest()==\"a8ba9af67beb156b292fd133ad23155a1ad9443889aec4e003f4841f0a7357b8\"\nm,e=json.loads(manifest_raw),json.loads(evidence_raw);r=json.loads(report_raw)\nrecipe=runpy.run_path(str(base/\"capture_installed_facts.py\"))\ntargets,selection=recipe[\"selection\"](m,e)\nassert len(targets)==11 and len(selection)==93\nassert r[\"before\"]==r[\"after\"] and len(r[\"before\"])==11\nassert len({v[\"id\"] for v in r[\"before\"]})==11\nassert {v[\"id\"] for v in r[\"before\"]}=={t[\"id\"] for t in targets.values()}\nfor raw_row in r[\"before\"]:\n expected=targets[raw_row[\"name\"].removeprefix(\"/\")]\n assert \"flags\" in raw_row\n for k,v in ((\"id\",\"id\"),(\"image\",\"image\"),(\"state\",\"state\"),(\"started\",\"started\"),(\"restarts\",\"restarts\"),(\"restart_policy\",\"policy\")):\n  assert raw_row[k]==expected[v]\n assert adapter.preservation_digest(raw_row)==expected[\"metadata\"]\n assert adapter.preservation_digest({**raw_row,\"networks\":{}})==expected[\"foundation\"]\n configured,ids,provenance=network.project(raw_row,m[\"network_contract\"][\"bindings\"])\n assert configured==expected[\"configured_metadata\"] and list(ids)==expected[\"configured_networks\"] and [list(x) for x in provenance]==expected[\"network_evidence\"]\nassert len(r[\"files\"])==93 and len({(f[\"name\"],f[\"path\"]) for f in r[\"files\"]})==93\nsaved_names=set();total=0;source_counts={a[\"name\"]:0 for a in m[\"applications\"]};archive_facts={};content_by_path={}\nfor row,(name,path,limit,frozen) in zip(r[\"files\"],selection):\n assert row[\"name\"]==name and row[\"path\"]==path and row[\"status\"]==\"CAPTURED\"\n assert row[\"container_id\"]==targets[name][\"id\"] and row[\"image_id\"]==targets[name][\"image\"]\n local=row[\"saved_file\"];assert PurePosixPath(local).name==local and local not in saved_names\n saved_names.add(local);p=out/local\n assert p.resolve(strict=True)==p and stat.S_ISREG(p.lstat().st_mode)\n content=p.read_bytes();sha=hashlib.sha256(content).hexdigest()\n assert len(content)==row[\"bytes\"]<=limit and sha==row[\"sha256\"]\n total+=len(content);content_by_path[(name,path)]=content\n if frozen:\n  assert sha==frozen and row[\"matches_frozen\"] is True\n  app=next(a for a in m[\"applications\"] if name.startswith(a[\"name\"]+\"-staged-\"))\n  source_counts[app[\"name\"]]+=1\n if \"/article_archive/\" in path:\n  archive_facts[PurePosixPath(path).name]={\"sha256\":sha,\"saved_file\":local,\"bytes\":len(content),\"container_id\":row[\"container_id\"]}\nassert sorted(p.name for p in out.iterdir())==sorted([\"report.json\",*saved_names])\nassert sum(source_counts.values())==43 and list(source_counts.values())==[9,9,11,14]\nassert total==r[\"captured_bytes\"]==6923555\nassert total<=r[\"file_transfer_upper_bound_bytes\"]==7094272<=25<<20\nmemory=e[\"replacements\"][2][\"name\"];archive_root=root/\"research/companion_article_body_v1_20261011_gd1abqx9\"\nfor name,fact in archive_facts.items():\n assert fact[\"sha256\"]==hashlib.sha256((archive_root/name).read_bytes()).hexdigest()\nassert len(archive_facts)==4 and archive_facts[\"manifest.json\"][\"sha256\"]==\"94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77\"\ninstalled_manifest=json.loads(content_by_path[(memory,\"/app/memory_retrieval/article_archive/manifest.json\")])\nfor name,sha in installed_manifest[\"file_sha256\"].items():assert archive_facts[name][\"sha256\"]==sha\nmarker=content_by_path[(memory,\"/app/memory_retrieval/article_archive.required\")]\nassert len(marker)==16\nassert content_by_path[(\"phase1-timescaledb\",\"/var/lib/postgresql/data/PG_VERSION\")]==b\"16\\n\"\nassert r[\"storage\"]=={\"postgres\":{\"postgres\":True,\"documents\":True,\"audit_events\":True,\"expected\":55,\"matched\":55},\"minio\":{\"bucket_head_200\":True},\"qdrant\":{\"collection_status_ok\":True}}\nassert r[\"commands\"]==len(selection)+3+2==98 and r[\"elapsed_seconds\"]<=240 and r[\"error\"] is None and r[\"inventory_preserved\"] is True\nassert r[\"state\"]==\"READY_FOR_INDEPENDENT_REVIEW\"\nassert hashlib.sha256((out/\"report.json\").read_bytes()).hexdigest()==report_sha\nprint(json.dumps({\"checks\":\"PASS\",\"report_sha256\":report_sha,\"recorded_utc\":r[\"recorded_utc\"],\"selected_subjects\":11,\"originals_running\":7,\"prepared_created_never_started\":4,\"captured_files_verified\":len(saved_names),\"source_counts\":source_counts,\"source_frozen_matches\":43,\"saved_bytes\":total,\"transfer_upper_bound_bytes\":r[\"file_transfer_upper_bound_bytes\"],\"commands_reported_and_count_consistent\":98,\"elapsed_seconds_reported\":r[\"elapsed_seconds\"],\"before_after_exact\":True,\"archive_facts\":archive_facts,\"archive_required_marker_bytes\":len(marker),\"pg_version\":\"16\",\"storage\":r[\"storage\"],\"native_calls\":False,\"tests_run\":False},sort_keys=True))\nPY",
+    "exit_code": 0,
+    "result": {
+      "archive_facts": {
+        "derived_article_body_v1.json": {
+          "bytes": 207733,
+          "container_id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+          "saved_file": "86_derived_article_body_v1.json",
+          "sha256": "06eceb7c27692f7fef8b58bfcec1e91b54591eb6568967754f46a8ccf4c1138f"
+        },
+        "manifest.json": {
+          "bytes": 771,
+          "container_id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+          "saved_file": "84_manifest.json",
+          "sha256": "94af84ec1096fc2edfb3757bbb49ee264a0f27f519709398f1b942253e12ab77"
+        },
+        "original_snapshot.json": {
+          "bytes": 503584,
+          "container_id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+          "saved_file": "85_original_snapshot.json",
+          "sha256": "ee2b0857c2d4f4a4a20951944299df01a05922758713078f77c7db8e1427a64f"
+        },
+        "query_comparison.json": {
+          "bytes": 14207,
+          "container_id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+          "saved_file": "87_query_comparison.json",
+          "sha256": "88bb8e5a79d711d4339807e34caed4f3b20d89308c3eb4eb13300e397911fb5b"
+        }
+      },
+      "archive_required_marker_bytes": 16,
+      "before_after_exact": true,
+      "captured_files_verified": 93,
+      "checks": "PASS",
+      "commands_reported_and_count_consistent": 98,
+      "elapsed_seconds_reported": 5.194,
+      "native_calls": false,
+      "originals_running": 7,
+      "pg_version": "16",
+      "prepared_created_never_started": 4,
+      "recorded_utc": "2026-10-21T17:47:49.283840+00:00",
+      "report_sha256": "7dbda2c14b68b58d372508eda0d34e232bc9e6548bd0b7ff5327b027abbdad2b",
+      "saved_bytes": 6923555,
+      "selected_subjects": 11,
+      "source_counts": {
+        "phase1-audit-log": 9,
+        "phase1-memory": 11,
+        "phase1-orchestrator": 14,
+        "phase1-risk-stub": 9
+      },
+      "source_frozen_matches": 43,
+      "storage": {
+        "minio": {
+          "bucket_head_200": true
+        },
+        "postgres": {
+          "audit_events": true,
+          "documents": true,
+          "expected": 55,
+          "matched": 55,
+          "postgres": true
+        },
+        "qdrant": {
+          "collection_status_ok": true
+        }
+      },
+      "tests_run": false,
+      "transfer_upper_bound_bytes": 7094272
+    },
+    "pytest_run": false,
+    "reviewer_native_calls": false
+  },
+  "limits": [
+    "Execution exit0, elapsed time and native command history are reported by the parent/capture. Reviewer recomputed saved-file evidence and internal count consistency, not native timing or external syscall telemetry.",
+    "Subject equality covers retained selected metadata at the two capture endpoints, not all transient events, arbitrary labels, filesystem contents or database writes. No broad zero-side-effect claim is made.",
+    "Installed archive bytes and55 lineage matches are point-in-time evidence. Existing runtime checks must still freshly verify required lineage, actual citations and source/image/ownership conditions; this is not an explanation endpoint result.",
+    "Hash identity of captured SDK/startup/helper/binary files does not establish retry, redirect, proxy, import, entrypoint or dynamic-registration policy semantics. No per-image policy record is generated; that separate review remains pending.",
+    "No health/query, application startup, cutover, storage repair or additional capture is authorized. The consumed one-shot output/evidence remain preserved; no reason to repeat the capture is inferred.",
+    "Runtime remains INCOMPLETE. Prepared services remain stopped; market truth, causation and profitability are outside scope."
+  ],
+  "runtime_policy_approved": false,
+  "runtime_state": "INCOMPLETE",
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "reviewer_native_operations": false,
+  "reviewer_database_calls": false,
+  "reviewer_credential_reads": false,
+  "capture_report_or_payloads_edited": false,
+  "source_or_test_edits": false
+}

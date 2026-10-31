@@ -1,0 +1,23 @@
+{
+  "recorded_at": "2026-10-29T10:38:45.013808+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "saved public evidence packet only; not normalization, strategy, deployment or economics",
+  "reviewer_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1873c-8cba-74b3-9fbe-9ddbcf78db6b",
+  "independent_checks": {
+    "bindings": 6,
+    "raw_body_hashes_and_lengths": 3,
+    "offline_command_exit_code": 0,
+    "additional_network_requests": 0
+  },
+  "findings": "No material blocker. Exact cross-field matches and eight-hour sample spacing confirmed. Capture controls confirmed; no whole-process filesystem deadline.",
+  "limitations": [
+    "Settlement/live-status semantics are claims by the public API, not independent account observation.",
+    "General interval/formula applicability, normalization, strategy eligibility, deployment and financial edge remain unverified.",
+    "No independent execution of the four synthetic capture cases; those remain author verification."
+  ],
+  "frozen_report": "docs/research/okx_funding_metadata_20261029.md",
+  "report_status_note": "Frozen report retains its pre-review handoff status. This later closure records the actual independent disposition.",
+  "original_fix3_state": "INCOMPLETE"
+}

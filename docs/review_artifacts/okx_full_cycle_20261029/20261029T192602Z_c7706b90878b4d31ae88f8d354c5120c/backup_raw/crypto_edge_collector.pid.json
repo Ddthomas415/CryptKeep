@@ -1,0 +1,7 @@
+{
+  "pid": 2741,
+  "plan_file": "sample_data/crypto_edges/live_collector_plan.json",
+  "poll_interval_sec": 300.0,
+  "source": "live_public",
+  "started_ts": "2026-10-12T12:36:41.887908+00:00"
+}

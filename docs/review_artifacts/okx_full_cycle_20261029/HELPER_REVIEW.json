@@ -1,0 +1,19 @@
+{
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "invocation helper and preparation evidence only",
+  "reviewer_agent": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a18921-9b2e-75a2-86d9-629cb3a78916",
+  "verified_bindings": 85,
+  "independent_tests": {
+    "passed": 4,
+    "seconds": 0.36,
+    "exit_code": 0
+  },
+  "helper_sha256": "5261df86357ad3c3bafefb97f36489f1537bc351747fc36912ab6e0144f012ba",
+  "authorization_supplied": false,
+  "limitations": [
+    "not a whole-process deadline",
+    "direct-child reaping not descendant-group proof",
+    "backup/exclusivity capture-attested, binary trust unverified"
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "recorded_at": "2026-10-29T19:26:03.395286+00:00",
+  "folder": "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_full_cycle_20261029/20261029T192602Z_c7706b90878b4d31ae88f8d354c5120c",
+  "source_bindings_verified": 79,
+  "original_files": {
+    "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite": {
+      "exists": true,
+      "bytes": 31879168,
+      "mtime_ns": 1793284434809750239,
+      "sha256": "755b5cfe3d608158d09a327a1a24ac233a22eb6f7d7e38d6ffd2c242bf4adb8e"
+    },
+    "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-wal": {
+      "exists": true,
+      "bytes": 82432,
+      "mtime_ns": 1793284445420545381,
+      "sha256": "a88b517dd958409ea2b23ecb6d5f71da38b439d196cf188b7b97a9845f68f015"
+    },
+    "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-shm": {
+      "exists": true,
+      "bytes": 32768,
+      "mtime_ns": 1793284445414520632,
+      "sha256": "7f49198ed64e1216c796e4b8cda8ca4cebda51f4243320481c5c66afb13ee13e"
+    }
+  },
+  "controls_before": {
+    ".cbp_state/runtime/health/crypto_edge_collector.json": {
+      "exists": true,
+      "bytes": 5633,
+      "mtime_ns": 1793284445724408780,
+      "sha256": "b32a86f731eeb59bdcfdf3fc49b5edd580187f608f64dc531623ff60d97140ed"
+    },
+    ".cbp_state/runtime/health/crypto_edge_collector.pid.json": {
+      "exists": true,
+      "bytes": 195,
+      "mtime_ns": 1791808601888605229,
+      "sha256": "41d4af0414abc9876c8b2640fb32ef06ed5cbf763435ee7a6b00bc4f338d5499"
+    },
+    ".cbp_state/runtime/flags/crypto_edge_collector.stop": {
+      "exists": false
+    },
+    "sample_data/crypto_edges/live_collector_plan.json": {
+      "exists": true,
+      "bytes": 670,
+      "mtime_ns": 1783283462154204699,
+      "sha256": "0180401228ccabb5ca8cbd7fef725caf1a2656693bff4c905219903a77702a9c"
+    }
+  },
+  "backup_method": "unchanged-file triple copy with no observed handles; verified only a separate copy via read-only SQLite",
+  "verification_quick_check": [
+    "ok"
+  ],
+  "baseline_tables": {
+    "funding_snapshots": {
+      "exists": true,
+      "rows": 16631,
+      "max_id": 16631,
+      "fingerprint": "d9672385a9d5fee3563fe42e0605f7c16a947243c17a292a869ef07437c8e5b4"
+    },
+    "open_interest_snapshots": {
+      "exists": true,
+      "rows": 13296,
+      "max_id": 13296,
+      "fingerprint": "761b5fd62a4e8cbb4e4533fc69ded4a4db8d08b3dc9f18a1b5f53684123fd893"
+    },
+    "basis_snapshots": {
+      "exists": true,
+      "rows": 16628,
+      "max_id": 16628,
+      "fingerprint": "eb829f96ebd322091afe7f683c6c27e1c43bba07b6c81da277761c0876730b04"
+    },
+    "quote_snapshots": {
+      "exists": true,
+      "rows": 33810,
+      "max_id": 33810,
+      "fingerprint": "9c797a7556e695339a861a46a537c2001d1a364a2614b4a7421ca837bfd96454"
+    },
+    "order_book_snapshots": {
+      "exists": true,
+      "rows": 13296,
+      "max_id": 13296,
+      "fingerprint": "c846630add4cc2a9f01a5fa3c88af1e0f91331ece49d066917e7e740c985a83e"
+    },
+    "raw_funding_observations": {
+      "exists": false
+    }
+  },
+  "original_bytes_and_metadata_unchanged": true,
+  "backup_raw_opened_by_sqlite": false,
+  "binary_signature_trust": "UNVERIFIED",
+  "permission": "one full-family foreground cycle; not recurring"
+}

@@ -1,0 +1,304 @@
+{
+  "schema": "companion-worker-preparation-input-review-v1",
+  "review_date": "2026-10-23",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "reviewer": "Independent GATE: prospective offline v6 preparation inputs only, 2026-10-23",
+  "decision_scope": "Prospective OFFLINE v6 stopped-preparation inputs only; not approval to execute preparation or any operation",
+  "runtime_state": "INCOMPLETE",
+  "blocking_findings": [],
+  "checkpoint": {
+    "path": "docs/checkpoints/companion_worker_preparation_inputs_20261023.md",
+    "sha256": "b6f3de32ae1455f24fb881c1e7b5524298d6d027562384e39684da1a76ae44cf",
+    "read_fully": true
+  },
+  "frozen_artifact_sha256": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/derive_inputs.py": "4bf42eb90156609123917f66eda98e444b41a8f9f8384ca6817724f966bf8b33",
+    "tests/test_companion_worker_preparation_inputs.py": "bb4886caae3e680d1f633d900565e37e6c571a27a8ba2efbc28d5d8d076799ce",
+    "docs/review_artifacts/companion_worker_preparation_20261023/inputs/candidate_manifest.json": "ce56f5f19ef6b1ff46d1710200bba093a09c0e7036071653af58e4b0da74bb98",
+    "docs/review_artifacts/companion_worker_preparation_20261023/inputs/provenance.json": "bee35607e261129c035dfc02740920eb6e12b100f76cb35df7534dbb10a9e521"
+  },
+  "previous_manifest": {
+    "path": "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/reviewed_preparation_manifest.json",
+    "sha256": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d",
+    "modified": false,
+    "executable_packet_reused": false
+  },
+  "reviewed_preparation_manifest": {
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/inputs/reviewed_preparation_manifest.json",
+    "sha256": "35032e02db1bf1d569d7918ef9127562abc205154d68908455c3ec5bf3201d42",
+    "canonical_body_sha256": "59fd16de2a5af5bafa102edeac07511a4019f5826c24e747b380244f5467f2ec",
+    "serialization": "UTF-8 canonical sorted-key compact JSON body plus exactly one final LF byte (0x0a)",
+    "changed_fields_from_frozen_candidate": [
+      "decision",
+      "reviewer"
+    ],
+    "decision": "ACCEPTED_WITH_RISK",
+    "reviewer": "Independent GATE: prospective offline v6 preparation inputs only, 2026-10-23",
+    "approval_scope": "Input content/shape acceptance only; separate execution authorization is still required"
+  },
+  "shown": {
+    "claim_status": "SHOWN",
+    "exact_12_changed_field_groups": [
+      "applications[0].command",
+      "applications[0].replacement_configured_metadata",
+      "applications[1].command",
+      "applications[1].replacement_configured_metadata",
+      "applications[2].command",
+      "applications[2].replacement_configured_metadata",
+      "applications[3].command",
+      "applications[3].replacement_configured_metadata",
+      "attempt",
+      "decision",
+      "reviewer",
+      "schema"
+    ],
+    "group_list_matches_provenance": true,
+    "baseline_snapshot_count": 7,
+    "full_saved_baseline_preserved": true,
+    "full_saved_baseline_reconstruction": "The authorized nine-test run executes the frozen derivation, reconstructs all seven saved original Snapshots with the existing projections, and reproduces the frozen candidate/provenance bytes.",
+    "selected_current_observation_scope": "The hash-bound 2026-10-23T12:49:10.996726+00:00 transcription corroborates selected original ID/name/image/start/restart/running fields only; it is not fresh full runtime metadata.",
+    "source_entry_count": 43,
+    "unique_application_source_paths": 22,
+    "source_entries_unchanged_and_current_hashes_match": true,
+    "support_binding_count": 13,
+    "all_support_hashes_match": true,
+    "six_pinned_evidence_hashes_match": true,
+    "separate_review_decisions_accepted_and_bound_hashes_match": true,
+    "network_bindings_creation_options_ports_and_policies_preserved": true,
+    "deferred_startup_policies_remain_false": true
+  },
+  "input_evidence_sha256": {
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/continuation_post_attempt_inventory.json": "b80c453502c678ad3e558149fd4f6042e0a807259989623cb970dc4e9ac0d55b",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/staged_metadata.derived.json": "98c186a31d78686bf7702eb46685c87a2d6487a680cad0e702a35244c7eed118",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/worker_capabilities_observation.json": "3d2e9f7556208861f2a419bdc2216dbf0acf6a09455da2a23e16d5bd21cf217a",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/worker_capabilities_review.json": "5fead98b283c16a936f0094f52a846b1e86f6f690e81c630dd1e4fbb6e0f1920",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/worker_shutdown_repair_review.json": "4386b6debb2e50fc2936d46ab9553ae92640bcba94c6aad19851c41ad5a7daab",
+    "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/reviewed_preparation_manifest.json": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d"
+  },
+  "support_sha256": {
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "470783aa8f126bb5c73b0dc8f7373a00069050ceb89ec08bc95cd66c15199f84",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "de1a969fdd522b069cc0bca03c4d714e7b80e8842ac167ec9d4ffcb8f8a1b334",
+    "scripts/research/companion_network_configuration.py": "c3824743fb08098a35af6966ee9e3345a63e6500f18a5fdd84a02d1114bf39d7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "e7315cd9047f656afca0b3845be54629c46c80c9a20065d8646978dce20fce38",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659",
+    "tests/test_companion_worker_shutdown.py": "edb49030f0cfc9883f03d192fd99fb15c67c1982cfd16dff8d60c0c0fa707f23"
+  },
+  "prediction_lineage": {
+    "evidence_label": "MODELLED",
+    "model_evidence_path": "docs/review_artifacts/companion_continuation_20261021/runtime_packet/staged_metadata.derived.json",
+    "method": "Use hash-bound saved staged rows and saved final aliases; verify every previous prediction first; change only the command in each reconstructed final configuration and recompute using existing network.project.",
+    "proof": "Frozen recipe source inspection plus the isolated reproducibility test executes this old-prediction-first check and command-only recomputation. Independent JSON comparisons also confirm the exact allowed delta and matching lineage.",
+    "predictions": [
+      {
+        "command": [
+          "python",
+          "-m",
+          "uvicorn",
+          "audit_log.main:app",
+          "--host",
+          "0.0.0.0",
+          "--port",
+          "8009"
+        ],
+        "evidence_label": "MODELLED",
+        "historical_basis_id": "fa45701415fd43e5cba052e48fe8419422eb7fa472a67e16e5fb8ebbd11b0744",
+        "historical_basis_removed": true,
+        "name": "phase1-audit-log",
+        "new_container_id": null,
+        "new_image_id": null,
+        "predicted_final_metadata": "3fa88c5201bb049e73965bd38e280e0d3613cb5be8451f468065d1c940eb48f7",
+        "previous_prediction": "9f53d7affd5e6f6d3148698a24c1e9a0fd9e74f07937c81ff19c85d18f1a1e91"
+      },
+      {
+        "command": [
+          "python",
+          "-m",
+          "uvicorn",
+          "risk_stub.main:app",
+          "--host",
+          "0.0.0.0",
+          "--port",
+          "8008"
+        ],
+        "evidence_label": "MODELLED",
+        "historical_basis_id": "6884536e5eeb7e573d457b16965b18279170b7877fc2641dd83cd9d43ce7d375",
+        "historical_basis_removed": true,
+        "name": "phase1-risk-stub",
+        "new_container_id": null,
+        "new_image_id": null,
+        "predicted_final_metadata": "7dbed9dcdd2ef8265caafd3f062d8d96ac2f4b85012f3c34856bdd3aaebeddc7",
+        "previous_prediction": "fa012f643c0bc5568efc8d8792be48e743f897f3249490ef0d41adf92ee728fb"
+      },
+      {
+        "command": [
+          "python",
+          "-m",
+          "uvicorn",
+          "memory_retrieval.main:app",
+          "--host",
+          "0.0.0.0",
+          "--port",
+          "8007"
+        ],
+        "evidence_label": "MODELLED",
+        "historical_basis_id": "a67d871efc1b6de8ed465c099bf09e77df16650b5f8387b1f351cc573e71933c",
+        "historical_basis_removed": true,
+        "name": "phase1-memory",
+        "new_container_id": null,
+        "new_image_id": null,
+        "predicted_final_metadata": "0f74da099f317ec793e8a853b461ca3645b325741124984166132c53915dad63",
+        "previous_prediction": "fd35e631333e2f1d84823e273ac4b030ee593a33c747345f637d72478bc4d193"
+      },
+      {
+        "command": [
+          "python",
+          "-m",
+          "uvicorn",
+          "orchestrator.main:app",
+          "--host",
+          "0.0.0.0",
+          "--port",
+          "8002"
+        ],
+        "evidence_label": "MODELLED",
+        "historical_basis_id": "18aad011791d4b53adff47e0ace7061504457bcc35e93949084ed35bdb01e726",
+        "historical_basis_removed": true,
+        "name": "phase1-orchestrator",
+        "new_container_id": null,
+        "new_image_id": null,
+        "predicted_final_metadata": "fccb06da766f455f4908f4c4b0ed2c10607ab843691e4905da6202cf2ddebcb7",
+        "previous_prediction": "ee00bed50a3c2638aa13aebf9b2696e352f01b37b75d14a9b3bb958fdbb53b05"
+      }
+    ],
+    "new_container_ids": null,
+    "new_image_ids": null,
+    "removed_model_ids_absent_from_saved_post_attempt_inventory_and_candidate_baseline": true,
+    "removed_model_ids_adoptable": false
+  },
+  "attempt": {
+    "value": "workerprep20261023v6a",
+    "marker_checks": [
+      {
+        "path": ".cbp_state/runtime/companion_preparations/workerprep20261023v6a",
+        "absent": true
+      },
+      {
+        "path": ".cbp_state/runtime/companion_cutovers/workerprep20261023v6a",
+        "absent": true
+      }
+    ],
+    "check_method": "Read-only lstat absence checks, which detect occupied paths including dangling symlinks; the recipe uses lexists and the tests simulate occupancy in both roots.",
+    "unreserved_at_review": true,
+    "reservation_created": false,
+    "absence_is_not_a_future_reservation_or_runtime_preflight_guarantee": true
+  },
+  "old_resources": {
+    "saved_inventory_path": "docs/review_artifacts/companion_continuation_20261021/runtime_packet/continuation_post_attempt_inventory.json",
+    "saved_original_count": 7,
+    "preserved_old_stage_count": 4,
+    "preserved_old_stages": [
+      {
+        "id": "bd12bc18068bc646b2726e047dc05166beba67c22b7b2afc03f0e791fed5111d",
+        "image": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+        "name": "/phase1-audit-log-staged-f4e189b78ccc48acb8b92f20c4627f51",
+        "state": "created"
+      },
+      {
+        "id": "6a4b4246e6abf66dc186505e4f2eb00c85d19cc14bb8e41d8b1389468fbbb3d9",
+        "image": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+        "name": "/phase1-risk-stub-staged-f4e189b78ccc48acb8b92f20c4627f51",
+        "state": "created"
+      },
+      {
+        "id": "2db66f6e38719cc8f2a435d718b2d9f3cd9614fd83076a4fd09182a9cdd49462",
+        "image": "sha256:39dd17add55c87f839faaad61f560d6c625e322835ae5cc4c16f653dce53e22a",
+        "name": "/phase1-memory-staged-f4e189b78ccc48acb8b92f20c4627f51",
+        "state": "created"
+      },
+      {
+        "id": "05a288361742d9b3a26d6e0f69b7cf10d3e3e17672e01c61c9bfad072a7289ac",
+        "image": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+        "name": "/phase1-orchestrator-staged-f4e189b78ccc48acb8b92f20c4627f51",
+        "state": "created"
+      }
+    ],
+    "ownership": "Neither the original seven nor the older four stages nor removed historical modeling IDs are adopted into this new attempt. Old receipts and consumed attempt records remain untouched."
+  },
+  "independent_test": {
+    "claim_status": "SHOWN",
+    "environment_confidence": "VERIFIED_ENV",
+    "working_directory": "/Users/baitus/Downloads/crypto-bot-pro",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_worker_preparation_inputs.py",
+    "exit_code": 0,
+    "result": "9 passed in 0.22s",
+    "scope": "Only the isolated new nine tests were run. Derivation is read-only; tests reject native subprocess/network work and exercise synthetic approval in memory, marker occupancy, hash drift, old evidence refusal and canonical reproduction.",
+    "broad_suite_or_previous_shutdown_tests_rerun": false
+  },
+  "remaining_limits": [
+    {
+      "claim_status": "UNVERIFIED",
+      "detail": "Current full runtime baseline, builder compatibility, empty inherited entrypoints and actual newly created IDs/images/fingerprints require fresh separately authorized preflight and actual-result review; no silent baseline refresh is accepted."
+    },
+    {
+      "claim_status": "UNVERIFIED",
+      "detail": "The older per-application clock observations remain one historical bracket each, not future synchronization, a current deadline guarantee or an approved new tolerance. Process trust assumptions remain unchanged."
+    },
+    {
+      "claim_status": "UNVERIFIED",
+      "detail": "MODELLED metadata is not observed replacement evidence. Any later authorized preparation must create genuinely new never-started replacements; removed historical IDs and old preparation evidence cannot be adopted."
+    },
+    {
+      "claim_status": "UNVERIFIED",
+      "detail": "Graceful shutdown, acknowledgement survival, cancellation/recovery and a working cited explanation are not established by this prospective-input review."
+    },
+    {
+      "claim_status": "SHOWN",
+      "detail": "The 13 support bindings are a selected pinned support set, not a newly audited complete Python dependency closure."
+    }
+  ],
+  "later_preparation_constraints": {
+    "authorization_granted": false,
+    "default_cli": "Parent may perform its stated default validation without --execute-preparation; this review did not invoke that CLI. No execution flag or automatic follow-on operation is approved here.",
+    "checkpoint_described_budget": {
+      "controller_seconds": 300,
+      "recovery_reserve_seconds": 120,
+      "verified_at_runtime": false,
+      "limit": "Existing controller scope only; pre-controller file I/O is not a whole-CLI hard wall-time guarantee."
+    },
+    "prospective_side_effects_not_authorized": "A later separately authorized run could reserve the attempt, create local COPY-only images and four new stopped containers, privately copy credentials into Docker configuration, and leave disk/cache/config/log/failed-attempt evidence. This review authorizes none of those effects.",
+    "required_post_result_review": "Independent actual new-ID/image/source/fingerprint review before any separately authorized cutover.",
+    "failure_boundary": "Retain consumed markers/receipts and unresolved ownership; only existing owned-new-stage cleanup is in the prospective plan. No old-stage/volume removal, original stop, force kill, retry, recreation or automatic execution."
+  },
+  "authorization": {
+    "prospective_inputs_accepted": true,
+    "preparation": false,
+    "build": false,
+    "private_configuration_copy": false,
+    "container_create": false,
+    "container_start": false,
+    "original_interruption": false,
+    "cutover": false,
+    "service_or_health_query": false,
+    "trading": false
+  },
+  "review_boundaries": {
+    "one_bounded_pass": true,
+    "code_reaudit": false,
+    "native_docker_network_credentials_services_signals": false,
+    "execution_scope": "Authorized isolated new nine-test command only",
+    "frozen_sources_test_checkpoint_candidate_provenance_and_old_records_modified": false,
+    "only_authored_artifacts": [
+      "docs/review_artifacts/companion_worker_preparation_20261023/inputs/preparation_plan_review.json",
+      "docs/review_artifacts/companion_worker_preparation_20261023/inputs/reviewed_preparation_manifest.json"
+    ]
+  }
+}

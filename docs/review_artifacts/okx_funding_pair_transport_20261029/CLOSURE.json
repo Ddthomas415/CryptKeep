@@ -1,0 +1,44 @@
+{
+  "recorded_at": "2026-10-29T15:03:31.335679+00:00",
+  "active_role": "GATE",
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "saved public transport evidence only",
+  "reviewer_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a1882e-53a3-72c0-bce8-3c726eb07bde",
+  "frozen_hashes_verified": 9,
+  "body_bytes": [
+    524,
+    943
+  ],
+  "recorded_http_statuses": [
+    "200",
+    "200"
+  ],
+  "api_codes": [
+    "0",
+    "0"
+  ],
+  "instrument": "BTC-USDT-SWAP",
+  "recorded_requests": 2,
+  "recorded_capture_seconds": 0.5143161660000715,
+  "observed_source_age_seconds": 21.059382,
+  "manifest_sha256": "776b2dcffd5a96d2c9a1d8e3d9c3f169174fcd173c6a9692a662c75a5f5696e2",
+  "findings": "No material inconsistency. Body hashes/lengths/identity and captured limits verified offline.",
+  "capture_attested_not_independently_reexecuted": [
+    "execution count",
+    "SQLite audit enforcement",
+    "post-operation binary pin check"
+  ],
+  "remaining_limits": [
+    "binary authenticity/signature trust UNVERIFIED",
+    "observed age is not freshness qualification",
+    "capture budget is not whole-process deadline",
+    "no real-journal/recurring collector/deployment/trading evidence"
+  ],
+  "authorization_consumed": {
+    "producer_invocations": 1,
+    "application_gets": 2
+  },
+  "original_fix3_state": "INCOMPLETE",
+  "checkpoint_note": "Frozen record retains submission status; this later closure records independent evidence acceptance. Historical252tests not rerun."
+}

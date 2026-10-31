@@ -1,0 +1,28 @@
+{
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "offline original Fix2 source-gap evidence and correction of original Fix3 task identity; no production repair",
+  "bindings": {
+    "tests/test_coinbase_exit_mode_gap.py": "08577352cec3a03220b610dcbf1611226f468b1eceec8184ae730abcf0328b02",
+    "docs/research/coinbase_exit_mode_review_20261028.md": "d796fdea5d7f8c2bea79bbeef9792509382300e83c73fb46ff4397ae14292c9a",
+    "docs/review_artifacts/claude_cowork_20261022/CODEX_HANDOFF_FIXES.md": "c5fcdbd3650cd7e219216ab962234761d1dc7c08170438fed7a72fbbb4a3a755",
+    "docs/checkpoints/claude_cowork_handoff_20261024.md": "0953871f8fd80ef01828bedda7dcede9aa4bd2accf6e078871a8b5275249e923",
+    "services/markets/fetch_coinbase_ccxt.py": "d837c6e9272bc6702bb18938b1b8c276dfe68caa554985bc96e9c63b299c408b",
+    "services/markets/rules.py": "f1dfe39c9951490d593ffed8ccfe40039b23131126afd8b9890d199338f208d2",
+    "services/markets/models.py": "f5666aaadabf5bb20b5331cfe7b0b702dd866634c8eb590368651cf97614db93",
+    "services/markets/math_utils.py": "fb84fa59c7f6905f5190ce4d50cafe2873237f3a29508cd6a4b3d8a9d566b649",
+    "services/execution/_executor_submit.py": "3da665c81162e08dde3b188d99a92c38192bef878953ce2537bde352ca5c09ba",
+    "services/execution/_executor_shared.py": "27c5bb1d385ccf8589b0df24cb69769cd36b4a37157cf950e6df3bdcf4e57f25",
+    "services/execution/exchange_client.py": "bb9d82ab62d88bf68da76a2690ceae343d72105168cc28bfe3841a4e598637db",
+    "storage/execution_store_sqlite.py": "98e444954ae85b6935c2999ee917b078991ba5df18ed70de01785f8bc853b538",
+    "services/backtest/descriptive_metadata.py": "9c98bba24ed52bcb99e73ecc8bcd0bfa51ccd5e60447aa5f2017ef8cbb1e4099",
+    "services/execution/place_order.py": "8d04313c13b8e9ab8683a4c77d7dd5c63a49049ff9cbf44e862e5aec4849242a",
+    "services/execution/coinbase_account_pages.py": "a6324aac4d78a2b9f0ab486e36279bca93be521541725336b69572b241db11a7"
+  },
+  "tests_diff_sha256": "723b315d8d0afaf4ac9028630bfd1836818bef5133930fbbcc0f55a02464720f",
+  "author_verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q --tb=short tests/test_coinbase_exit_mode_gap.py",
+    "passed": 8,
+    "seconds": 0.19,
+    "exit_code": 0
+  }
+}

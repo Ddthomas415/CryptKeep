@@ -1,0 +1,46 @@
+{
+  "status": "METADATA_OBSERVED",
+  "stage": "portfolios",
+  "observed_at": "2026-10-29T21:41:40.793827+00:00",
+  "requests_attempted": 2,
+  "receipts": [
+    {
+      "endpoint": "key_permissions",
+      "started_at": "2026-10-29T21:41:41.188132+00:00",
+      "http_status": 200,
+      "body_bytes": 138
+    },
+    {
+      "endpoint": "portfolios",
+      "started_at": "2026-10-29T21:41:41.987636+00:00",
+      "http_status": 200,
+      "body_bytes": 153
+    }
+  ],
+  "orders_submitted": false,
+  "raw_responses_saved": false,
+  "account_wide_coverage": "UNVERIFIED",
+  "execution_authority": false,
+  "credential_source": "keyring",
+  "permissions": {
+    "can_view": true,
+    "can_trade": true,
+    "can_transfer": false,
+    "portfolio_uuid_sha256": "fe3a1d6482ad1f9f9d5f032e5a83d89f6f0553b7e584444e35195d1526a50d71",
+    "portfolio_type": "DEFAULT"
+  },
+  "portfolio_observation": {
+    "returned_portfolio_rows": 1,
+    "unique_portfolio_count": 1,
+    "associated_portfolio_returned": true,
+    "portfolios": [
+      {
+        "uuid_sha256": "fe3a1d6482ad1f9f9d5f032e5a83d89f6f0553b7e584444e35195d1526a50d71",
+        "type": "DEFAULT",
+        "deleted": false
+      }
+    ],
+    "list_exhaustiveness": "UNVERIFIED",
+    "account_wide_coverage": "UNVERIFIED"
+  }
+}

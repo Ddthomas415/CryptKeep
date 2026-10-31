@@ -1,0 +1,176 @@
+{
+  "schema": "companion-readonly-recipient-observation-v1",
+  "role": "AUDITOR",
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "captured_at_utc": "2026-10-24T03:02:49.641134+00:00",
+  "source_review_sha256": "c3af782879cf4dce9ac85922871ed5409771009c3234427964ce92a636c6ea76",
+  "native_read_calls_attempted": 6,
+  "environment_fields_read": false,
+  "credential_reads": 0,
+  "lifecycle_operations": 0,
+  "full_compatibility_gate_executed": false,
+  "historical_cause_confirmed": false,
+  "inventory_stable": true,
+  "network_observation_stable": true,
+  "inventory_count": 23,
+  "selected_count": 7,
+  "selected_identity": [
+    {
+      "target": "phase1-timescaledb",
+      "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+      "matches_original_id": true,
+      "matches_original_image": true,
+      "state": "running"
+    },
+    {
+      "target": "phase1-qdrant",
+      "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+      "matches_original_id": true,
+      "matches_original_image": true,
+      "state": "running"
+    },
+    {
+      "target": "phase1-minio",
+      "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+      "matches_original_id": true,
+      "matches_original_image": true,
+      "state": "running"
+    },
+    {
+      "target": "phase1-audit-log",
+      "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+      "matches_original_id": true,
+      "matches_original_image": true,
+      "state": "running"
+    },
+    {
+      "target": "phase1-risk-stub",
+      "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+      "matches_original_id": true,
+      "matches_original_image": true,
+      "state": "running"
+    },
+    {
+      "target": "phase1-memory",
+      "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+      "matches_original_id": true,
+      "matches_original_image": true,
+      "state": "running"
+    },
+    {
+      "target": "phase1-orchestrator",
+      "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+      "matches_original_id": true,
+      "matches_original_image": true,
+      "state": "running"
+    }
+  ],
+  "recipient_binding_passed": false,
+  "diagnostic": {
+    "schema": "companion-recipient-diagnostic-v1",
+    "predicate": "configured_eligibility",
+    "role": "unselected",
+    "target": null,
+    "exception_category": "none"
+  },
+  "predicate_evidence": "current captured metadata replay only; not compatibility or runtime acceptance",
+  "unselected_on_reviewed_network_witnesses": [
+    {
+      "role": "unselected",
+      "reported_network_id_present": false,
+      "configured_network_id_matches": true,
+      "state_created": true,
+      "never_started": true,
+      "zero_restarts": true,
+      "restart_disabled": true,
+      "claims_reserved_alias": false
+    },
+    {
+      "role": "unselected",
+      "reported_network_id_present": false,
+      "configured_network_id_matches": true,
+      "state_created": true,
+      "never_started": true,
+      "zero_restarts": true,
+      "restart_disabled": true,
+      "claims_reserved_alias": false
+    },
+    {
+      "role": "unselected",
+      "reported_network_id_present": false,
+      "configured_network_id_matches": true,
+      "state_created": true,
+      "never_started": true,
+      "zero_restarts": true,
+      "restart_disabled": true,
+      "claims_reserved_alias": false
+    },
+    {
+      "role": "unselected",
+      "reported_network_id_present": false,
+      "configured_network_id_matches": true,
+      "state_created": true,
+      "never_started": true,
+      "zero_restarts": true,
+      "restart_disabled": true,
+      "claims_reserved_alias": false
+    },
+    {
+      "role": "unselected",
+      "reported_network_id_present": true,
+      "configured_network_id_matches": true,
+      "state_created": false,
+      "never_started": false,
+      "zero_restarts": true,
+      "restart_disabled": true,
+      "claims_reserved_alias": false
+    },
+    {
+      "role": "unselected",
+      "reported_network_id_present": true,
+      "configured_network_id_matches": true,
+      "state_created": false,
+      "never_started": false,
+      "zero_restarts": true,
+      "restart_disabled": true,
+      "claims_reserved_alias": false
+    },
+    {
+      "role": "unselected",
+      "reported_network_id_present": true,
+      "configured_network_id_matches": true,
+      "state_created": false,
+      "never_started": false,
+      "zero_restarts": true,
+      "restart_disabled": true,
+      "claims_reserved_alias": false
+    },
+    {
+      "role": "unselected",
+      "reported_network_id_present": true,
+      "configured_network_id_matches": true,
+      "state_created": false,
+      "never_started": false,
+      "zero_restarts": true,
+      "restart_disabled": true,
+      "claims_reserved_alias": false
+    },
+    {
+      "role": "unselected",
+      "reported_network_id_present": true,
+      "configured_network_id_matches": true,
+      "state_created": false,
+      "never_started": false,
+      "zero_restarts": true,
+      "restart_disabled": true,
+      "claims_reserved_alias": false
+    }
+  ],
+  "elapsed_seconds": 0.26202,
+  "limits": [
+    "No activated replacement rows from the consumed V6c attempt exist in this capture.",
+    "No environment/token or volume contents read. Names/addresses/raw metadata of unselected containers not saved.",
+    "Saved comparisons and value-free witnesses are not a full raw metadata archive or proof of historical cause.",
+    "No services changed; no query, compatibility approval, retry or preparation."
+  ]
+}

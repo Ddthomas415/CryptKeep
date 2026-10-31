@@ -1,0 +1,56 @@
+{
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "data_image_metadata": {
+    "access_mode": "u",
+    "allocated_bytes": 37095714816,
+    "contents_read": false,
+    "copied": false,
+    "device": 16777230,
+    "inode": 5037976,
+    "logical_bytes": 994662416384,
+    "modified": false,
+    "observed_open_pid": 2132,
+    "path": "~/Library/Containers/com.docker.docker/Data/vms/0/data/Docker.raw"
+  },
+  "initial_capture": {
+    "daemon_commands_executed": false,
+    "exit": 1,
+    "reason": "cli_identity_changed_no_commands_run"
+  },
+  "installed": {
+    "architecture": "arm64",
+    "cli_sha256": "678271184175b40dfc4bd6f4582be00ae1538b0d1e031181f52ceedfae9af5fb",
+    "desktop_version": "4.96.0",
+    "macos": "27.0.1",
+    "macos_build": "26A434"
+  },
+  "official_repair_reference": {
+    "checksum_source": "https://desktop.docker.com/mac/main/arm64/243774/checksums.txt",
+    "installer": "https://desktop.docker.com/mac/main/arm64/243774/Docker.dmg",
+    "installer_content_length": 599061934,
+    "installer_downloaded": false,
+    "installer_head_status": 200,
+    "installer_verified": false,
+    "published_installer_sha256": "d21bd8787e8761b22c2b1b78c34ffa99abb6c06219b43ba84b6b45087a35c9fe",
+    "release_date": "2026-10-19",
+    "release_notes": "https://docs.docker.com/desktop/release-notes/",
+    "version": "4.96.0"
+  },
+  "offline_verification": {
+    "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_collect_companion_recreation_metadata.py",
+    "exit": 0,
+    "full_suite": false,
+    "passed": 12
+  },
+  "recorded_at": "2026-10-20T12:13:46.972203+00:00",
+  "scope": "read-only investigation; no reinstall, Docker restart, lifecycle, credential or API call",
+  "signature_control": {
+    "conclusion": "sandbox signature reports do not establish Docker corruption; no reinstall recommended",
+    "native_apple_curl_exit": 0,
+    "native_docker_app_exit": 0,
+    "native_docker_cli_exit": 0,
+    "native_result": "valid on disk; satisfies Designated Requirement",
+    "sandbox_apple_curl_exit": 1,
+    "sandbox_apple_curl_result": "CSSMERR_TP_NOT_TRUSTED"
+  }
+}

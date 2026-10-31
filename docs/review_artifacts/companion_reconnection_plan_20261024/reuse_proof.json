@@ -1,0 +1,410 @@
+{
+  "application_scope": [
+    "phase1-audit-log",
+    "phase1-risk-stub",
+    "phase1-memory",
+    "phase1-orchestrator"
+  ],
+  "application_source_entries": [
+    {
+      "application": "phase1-audit-log",
+      "destination": "/app/audit_log/__init__.py",
+      "local": "phase1_research_copilot/audit_log/__init__.py",
+      "sha256": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75"
+    },
+    {
+      "application": "phase1-audit-log",
+      "destination": "/app/audit_log/main.py",
+      "local": "phase1_research_copilot/audit_log/main.py",
+      "sha256": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8"
+    },
+    {
+      "application": "phase1-audit-log",
+      "destination": "/app/shared/__init__.py",
+      "local": "phase1_research_copilot/shared/__init__.py",
+      "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+    },
+    {
+      "application": "phase1-audit-log",
+      "destination": "/app/shared/audit.py",
+      "local": "phase1_research_copilot/shared/audit.py",
+      "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+    },
+    {
+      "application": "phase1-audit-log",
+      "destination": "/app/shared/config.py",
+      "local": "phase1_research_copilot/shared/config.py",
+      "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+    },
+    {
+      "application": "phase1-audit-log",
+      "destination": "/app/shared/db.py",
+      "local": "phase1_research_copilot/shared/db.py",
+      "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+    },
+    {
+      "application": "phase1-audit-log",
+      "destination": "/app/shared/logging.py",
+      "local": "phase1_research_copilot/shared/logging.py",
+      "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+    },
+    {
+      "application": "phase1-audit-log",
+      "destination": "/app/shared/models.py",
+      "local": "phase1_research_copilot/shared/models.py",
+      "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+    },
+    {
+      "application": "phase1-audit-log",
+      "destination": "/app/shared/probe.py",
+      "local": "phase1_research_copilot/shared/probe.py",
+      "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+    },
+    {
+      "application": "phase1-risk-stub",
+      "destination": "/app/risk_stub/__init__.py",
+      "local": "phase1_research_copilot/risk_stub/__init__.py",
+      "sha256": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411"
+    },
+    {
+      "application": "phase1-risk-stub",
+      "destination": "/app/risk_stub/main.py",
+      "local": "phase1_research_copilot/risk_stub/main.py",
+      "sha256": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6"
+    },
+    {
+      "application": "phase1-risk-stub",
+      "destination": "/app/shared/__init__.py",
+      "local": "phase1_research_copilot/shared/__init__.py",
+      "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+    },
+    {
+      "application": "phase1-risk-stub",
+      "destination": "/app/shared/audit.py",
+      "local": "phase1_research_copilot/shared/audit.py",
+      "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+    },
+    {
+      "application": "phase1-risk-stub",
+      "destination": "/app/shared/config.py",
+      "local": "phase1_research_copilot/shared/config.py",
+      "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+    },
+    {
+      "application": "phase1-risk-stub",
+      "destination": "/app/shared/db.py",
+      "local": "phase1_research_copilot/shared/db.py",
+      "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+    },
+    {
+      "application": "phase1-risk-stub",
+      "destination": "/app/shared/logging.py",
+      "local": "phase1_research_copilot/shared/logging.py",
+      "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+    },
+    {
+      "application": "phase1-risk-stub",
+      "destination": "/app/shared/models.py",
+      "local": "phase1_research_copilot/shared/models.py",
+      "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+    },
+    {
+      "application": "phase1-risk-stub",
+      "destination": "/app/shared/probe.py",
+      "local": "phase1_research_copilot/shared/probe.py",
+      "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+    },
+    {
+      "application": "phase1-memory",
+      "destination": "/app/memory_retrieval/__init__.py",
+      "local": "phase1_research_copilot/memory_retrieval/__init__.py",
+      "sha256": "2402dc051be3f99818a1933b20b12a9a99db1823105e1068d015c0edc5b1d7fa"
+    },
+    {
+      "application": "phase1-memory",
+      "destination": "/app/memory_retrieval/article_view.py",
+      "local": "phase1_research_copilot/memory_retrieval/article_view.py",
+      "sha256": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767"
+    },
+    {
+      "application": "phase1-memory",
+      "destination": "/app/memory_retrieval/main.py",
+      "local": "phase1_research_copilot/memory_retrieval/main.py",
+      "sha256": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228"
+    },
+    {
+      "application": "phase1-memory",
+      "destination": "/app/memory_retrieval/question_query.py",
+      "local": "phase1_research_copilot/memory_retrieval/question_query.py",
+      "sha256": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07"
+    },
+    {
+      "application": "phase1-memory",
+      "destination": "/app/shared/__init__.py",
+      "local": "phase1_research_copilot/shared/__init__.py",
+      "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+    },
+    {
+      "application": "phase1-memory",
+      "destination": "/app/shared/audit.py",
+      "local": "phase1_research_copilot/shared/audit.py",
+      "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+    },
+    {
+      "application": "phase1-memory",
+      "destination": "/app/shared/config.py",
+      "local": "phase1_research_copilot/shared/config.py",
+      "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+    },
+    {
+      "application": "phase1-memory",
+      "destination": "/app/shared/db.py",
+      "local": "phase1_research_copilot/shared/db.py",
+      "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+    },
+    {
+      "application": "phase1-memory",
+      "destination": "/app/shared/logging.py",
+      "local": "phase1_research_copilot/shared/logging.py",
+      "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+    },
+    {
+      "application": "phase1-memory",
+      "destination": "/app/shared/models.py",
+      "local": "phase1_research_copilot/shared/models.py",
+      "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+    },
+    {
+      "application": "phase1-memory",
+      "destination": "/app/shared/probe.py",
+      "local": "phase1_research_copilot/shared/probe.py",
+      "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/orchestrator/__init__.py",
+      "local": "phase1_research_copilot/orchestrator/__init__.py",
+      "sha256": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/orchestrator/main.py",
+      "local": "phase1_research_copilot/orchestrator/main.py",
+      "sha256": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/shared/__init__.py",
+      "local": "phase1_research_copilot/shared/__init__.py",
+      "sha256": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/shared/answer_metadata.py",
+      "local": "phase1_research_copilot/shared/answer_metadata.py",
+      "sha256": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/shared/audit.py",
+      "local": "phase1_research_copilot/shared/audit.py",
+      "sha256": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/shared/config.py",
+      "local": "phase1_research_copilot/shared/config.py",
+      "sha256": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/shared/db.py",
+      "local": "phase1_research_copilot/shared/db.py",
+      "sha256": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/shared/llm_client.py",
+      "local": "phase1_research_copilot/shared/llm_client.py",
+      "sha256": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/shared/logging.py",
+      "local": "phase1_research_copilot/shared/logging.py",
+      "sha256": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/shared/models.py",
+      "local": "phase1_research_copilot/shared/models.py",
+      "sha256": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/shared/probe.py",
+      "local": "phase1_research_copilot/shared/probe.py",
+      "sha256": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/shared/prompting.py",
+      "local": "phase1_research_copilot/shared/prompting.py",
+      "sha256": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/shared/retry.py",
+      "local": "phase1_research_copilot/shared/retry.py",
+      "sha256": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b"
+    },
+    {
+      "application": "phase1-orchestrator",
+      "destination": "/app/shared/tools.py",
+      "local": "phase1_research_copilot/shared/tools.py",
+      "sha256": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469"
+    }
+  ],
+  "attempt_allocated": false,
+  "baseline": [
+    {
+      "changed_from_prior_preparation_baseline": [],
+      "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+      "name": "phase1-timescaledb",
+      "observed_id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b"
+    },
+    {
+      "changed_from_prior_preparation_baseline": [],
+      "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+      "name": "phase1-qdrant",
+      "observed_id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4"
+    },
+    {
+      "changed_from_prior_preparation_baseline": [],
+      "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+      "name": "phase1-minio",
+      "observed_id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15"
+    },
+    {
+      "changed_from_prior_preparation_baseline": [
+        "started"
+      ],
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "name": "phase1-audit-log",
+      "observed_id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe"
+    },
+    {
+      "changed_from_prior_preparation_baseline": [
+        "started"
+      ],
+      "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+      "name": "phase1-risk-stub",
+      "observed_id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213"
+    },
+    {
+      "changed_from_prior_preparation_baseline": [
+        "started"
+      ],
+      "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+      "name": "phase1-memory",
+      "observed_id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071"
+    },
+    {
+      "changed_from_prior_preparation_baseline": [
+        "started"
+      ],
+      "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+      "name": "phase1-orchestrator",
+      "observed_id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4"
+    }
+  ],
+  "candidate_witness_ids": [
+    7,
+    5,
+    47,
+    18
+  ],
+  "existing_budgets": {
+    "cutover_recovery_seconds": 180,
+    "cutover_seconds": 600,
+    "preparation_recovery_seconds": 120,
+    "preparation_seconds": 300
+  },
+  "limits": [
+    "Reuse checks bind local input bytes, not installed runtime applicability.",
+    "Running baseline is a saved observation, not a live preflight or accepted new manifest.",
+    "No new IDs, attempt, runtime policy, preparation or executable command is created.",
+    "Image cache availability and safe maintenance authorization remain unverified."
+  ],
+  "native_operations": 0,
+  "operational_authorized": false,
+  "preparation_consumer_sha256": {
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "d0cfb0814b8884e790e794226e58629da1d587a797b4777b7dc4d3a54b232de7",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+  },
+  "role": "DIRECTOR",
+  "runtime_status": "INCOMPLETE",
+  "schema": "companion-minimal-reconnection-plan-proof-v1",
+  "source_sha256": {
+    "docs/review_artifacts/companion_context_guard_20261024/independent_review_corrected.json": "9a8acc659bda7e7f53059b3297c714b63ace0b0531d7cafc5265bcb60a8c5819",
+    "docs/review_artifacts/companion_evidence_packet_v2_20261024/independent_review.json": "309d6079cc0aee852cba9678ccc0ea77d782d31503edabf53024f3a99ca7b6ef",
+    "docs/review_artifacts/companion_evidence_packet_v2_20261024/topical_candidates.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+    "docs/review_artifacts/companion_runtime_inventory_20261024/independent_review.json": "14dd83b985c1788d9bdba0854ce3cdef98543e0ff3760e0a1a35733fee2af846",
+    "docs/review_artifacts/companion_runtime_inventory_20261024/observation.json": "0a71483b1ee7e54874975647d0105b3f03bc44a9c2274e8a5350ed34bc950793",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6d/provenance.json": "450528ec555d61fca4d3bc6defb94bfaf08ef37b170f18db96f7f2fb94691857",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6d/reviewed_preparation_manifest.json": "629662e509e099be8601be1c9499d7139f03803f4f998f5b31fce15b2551b4a0",
+    "phase1_research_copilot/audit_log/__init__.py": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75",
+    "phase1_research_copilot/audit_log/main.py": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8",
+    "phase1_research_copilot/memory_retrieval/__init__.py": "2402dc051be3f99818a1933b20b12a9a99db1823105e1068d015c0edc5b1d7fa",
+    "phase1_research_copilot/memory_retrieval/article_view.py": "9ba354456ade0c74d0103e31557d5c5bd7031ad6aad5ed41e5593c9ebaf7b767",
+    "phase1_research_copilot/memory_retrieval/main.py": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228",
+    "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+    "phase1_research_copilot/orchestrator/__init__.py": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1",
+    "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+    "phase1_research_copilot/risk_stub/__init__.py": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411",
+    "phase1_research_copilot/risk_stub/main.py": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6",
+    "phase1_research_copilot/shared/__init__.py": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+    "phase1_research_copilot/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+    "phase1_research_copilot/shared/audit.py": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+    "phase1_research_copilot/shared/config.py": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+    "phase1_research_copilot/shared/db.py": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+    "phase1_research_copilot/shared/llm_client.py": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84",
+    "phase1_research_copilot/shared/logging.py": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+    "phase1_research_copilot/shared/models.py": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+    "phase1_research_copilot/shared/probe.py": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+    "phase1_research_copilot/shared/prompting.py": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903",
+    "phase1_research_copilot/shared/retry.py": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b",
+    "phase1_research_copilot/shared/tools.py": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "d0cfb0814b8884e790e794226e58629da1d587a797b4777b7dc4d3a54b232de7",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659",
+    "tests/test_companion_reconnection_plan.py": "3866a26465bf14d589d631339a8ccfcc061fe6c07f47e43ff1b4bbd827b064c6"
+  },
+  "state": "READY_FOR_INDEPENDENT_REVIEW",
+  "storage_scope": [
+    "phase1-timescaledb",
+    "phase1-qdrant",
+    "phase1-minio"
+  ]
+}

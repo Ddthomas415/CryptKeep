@@ -1,0 +1,77 @@
+{
+  "recorded_at": "2026-10-29T20:04:50.033161+00:00",
+  "folder": "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/okx_recurring_restore_20261029/20261029T200449Z_b41ebae73f5940b3be3bf6e8dd89e58d",
+  "verified_prior_inputs": 103,
+  "baseline_tables": {
+    "funding_snapshots": {
+      "rows": 16631,
+      "max_id": 16631,
+      "fingerprint": "d9672385a9d5fee3563fe42e0605f7c16a947243c17a292a869ef07437c8e5b4"
+    },
+    "raw_funding_observations": {
+      "rows": 1,
+      "max_id": 1,
+      "fingerprint": "fe1fe28baa76c4d46ab70ed1072f92c0cb5ee67c3b68ccf1696d72671f9f50fd"
+    },
+    "open_interest_snapshots": {
+      "rows": 13297,
+      "max_id": 13297,
+      "fingerprint": "4bc695a489123fb975814797b080654fd5339bc00558cc020c479c2471cf5ee8"
+    },
+    "basis_snapshots": {
+      "rows": 16629,
+      "max_id": 16629,
+      "fingerprint": "b7ac517426f21ee36eac92a9f69ba26136e99648c5e04ef4c4a2da0c82053019"
+    },
+    "quote_snapshots": {
+      "rows": 33812,
+      "max_id": 33812,
+      "fingerprint": "0314249b92ddb35712af3c4d27f09040a7f44f105e48e5d461a26144d5f40de8"
+    },
+    "order_book_snapshots": {
+      "rows": 13297,
+      "max_id": 13297,
+      "fingerprint": "840459a77048705f57816fad76e78911fd8a34b026935508cb5b7a83c110255c"
+    }
+  },
+  "prestart_backup_sha256": "7e8bb8fb4c8a590025a2938a8d1f69203f086afcccc1d268278c9a11982ddf7a",
+  "backup_quick_check": [
+    "ok"
+  ],
+  "controls_before": {
+    ".cbp_state/runtime/health/crypto_edge_collector.json": {
+      "exists": true,
+      "sha256": "9498405cdeac611a186b382bf40b0f2af0a9dbd1f2a9de37755e2a4f2e0e9523"
+    },
+    ".cbp_state/runtime/health/crypto_edge_collector.pid.json": {
+      "exists": false,
+      "sha256": null
+    },
+    ".cbp_state/runtime/flags/crypto_edge_collector.stop": {
+      "exists": false,
+      "sha256": null
+    },
+    "sample_data/crypto_edges/live_collector_plan.json": {
+      "exists": true,
+      "sha256": "0180401228ccabb5ca8cbd7fef725caf1a2656693bff4c905219903a77702a9c"
+    }
+  },
+  "original_files_before_launch": {
+    "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite": {
+      "exists": true,
+      "sha256": "d5305bdd08b7fe247417eee4e2743ba64b32ff2dba89466d5c828235275dee88"
+    },
+    "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-wal": {
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-shm": {
+      "exists": true,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+    }
+  },
+  "source": "live_public",
+  "interval_sec": 300,
+  "user_reply": "carry out the next steps",
+  "user_reply_context": "Response to explicit approval question restoring existing research-only300s collector with continuing archive/PID/status writes; no scheduled job/account/trading changes."
+}

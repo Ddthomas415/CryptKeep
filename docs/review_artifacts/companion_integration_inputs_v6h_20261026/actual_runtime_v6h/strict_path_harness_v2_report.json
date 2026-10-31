@@ -1,0 +1,19 @@
+{
+  "parent_test_result": {
+    "forbidden_attempts": 0,
+    "full_suite_run": false,
+    "passed": 3,
+    "seconds": 0.78,
+    "warnings": 6
+  },
+  "production_changes": false,
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-strict-path-harness-v2-parent-report-v1",
+  "sha256": {
+    "docs/checkpoints/companion_strict_probe_market_diagnosis_20261026.md": "52adcdfe09e7f10204094ef613438580a6015d66c2ce61b9108b0c857a84b7dc",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_harness_v1.tar": "9841978b46bc826a60a42f148b0af89030f282c3b6dc2054111186729035b3b7",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_runtime_v6h/strict_path_independent_review.json": "3ca2bc1bb2623d43f8e72ae5649927bf02f0a69e0659f0b0a699e5aec147c0e4",
+    "tests/test_companion_v6h_strict_probe_contract.py": "686d6c9d005f355d7b303a6d85c441d6704d8429612855e3c77ce6fea4b5f92a"
+  },
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

@@ -1,0 +1,50 @@
+{
+  "recorded_at": "2026-10-29T20:04:49.164696+00:00",
+  "checks": [
+    {
+      "command": [
+        "/bin/ps",
+        "-p",
+        "20675",
+        "-o",
+        "pid=,ppid=,lstart=,comm="
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/pgrep",
+        "-f",
+        "scripts/data/run_crypto_edge_[c]ollector_loop.py"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/sbin/lsof",
+        "-n",
+        "-P",
+        "-Fpcuafn",
+        "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite",
+        "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-wal",
+        "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/crypto_edge_research.sqlite-shm"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "saved_status": {
+    "status": "stopped",
+    "pid": 20675,
+    "ts": "2026-10-29T19:50:09.292586+00:00",
+    "loops": 1,
+    "errors": 0,
+    "source": "live_public"
+  },
+  "stop_flag_absent": true
+}

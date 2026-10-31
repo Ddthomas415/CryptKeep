@@ -1,0 +1,25 @@
+{
+  "actual_native_inspections": 2,
+  "other_native_actions": 0,
+  "parent_verification": {
+    "full_suite_run": false,
+    "passed": 11,
+    "seconds": 0.38
+  },
+  "role": "ENGINEER",
+  "runtime_state": "INCOMPLETE",
+  "schema": "companion-v6h-actual-inputs-parent-report-v1",
+  "sha256": {
+    "docs/checkpoints/companion_baseline_v6h_20261026.md": "cb8995a7cd9a814a4c05f981f6b48713cf329ea6a9d7a37a9d37d56242ca8331",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_baseline/baseline_observation.json": "685af8cea00eec5d7026afbf585d7e588620e0c69eb70a56a3393decf443d129",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_baseline/capture_1.jsonl": "476ac56111ba2e54d4fdad8de3c1e82a1a03fec923cc0a00c6528bae824e9a2a",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_baseline/capture_2.jsonl": "476ac56111ba2e54d4fdad8de3c1e82a1a03fec923cc0a00c6528bae824e9a2a",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/candidate_manifest.json": "0d30a09f3d5118ce2a9965b88fd43dc6800908557841c2c59680d5ccb35143ca",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/derive_inputs.py": "7621957e474a9e0fe3dc4284396b11fb36c8adfd35f25256d3086e6ca33047fb",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/independent_review.json": "4512304f9d9471ec312e293eb8076f0411ae0ab343be5a1119d492ede7679b4c",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/provenance.json": "e60cbfad2f7af46acdf47c018cb345621fa9304a4cf97a6b12fcce5bf36a0ef0",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/source_refresh.json": "6071ef75cf4d98b3f9dd211e03b70514fac43844d7ec0c2f1139c1cac7716d39",
+    "tests/test_companion_v6h_current_inputs.py": "eaefd7b8477e840c1129a5ff6bb8e67db7f0b37b93136cf799bf1c629b17fc36"
+  },
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

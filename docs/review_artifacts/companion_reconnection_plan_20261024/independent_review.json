@@ -1,0 +1,65 @@
+{
+  "schema": "companion-minimal-reconnection-plan-independent-review-v1",
+  "role": "GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Minimal offline update/reconnection design and saved-input reuse proof only; not preparation inputs, accepted runtime packet or operation.",
+  "operational_authorized": false,
+  "runtime_status": "INCOMPLETE",
+  "direct_sha256": {
+    "docs/review_artifacts/companion_reconnection_plan_20261024/plan.md": "c08e107aac535ca0ac700e9b3358c90b7098ca3a37a23f6695ecd2611be87b90",
+    "docs/review_artifacts/companion_reconnection_plan_20261024/reuse_proof.json": "776b4142a4b976c8408e3a401a5d841f1126ae609cf4e635934720adcd547820",
+    "tests/test_companion_reconnection_plan.py": "3866a26465bf14d589d631339a8ccfcc061fe6c07f47e43ff1b4bbd827b064c6",
+    "dashboard/services/views/_shared_signals.py": "d003edac94edbb7d7886901784674e23ed9accae2d42bd69c0a7f6fbc0c9e381",
+    "scripts/research/companion_evidence_checks.py": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8"
+  },
+  "bound_input_table": {
+    "path": "docs/review_artifacts/companion_reconnection_plan_20261024/reuse_proof.json",
+    "sha256": "776b4142a4b976c8408e3a401a5d841f1126ae609cf4e635934720adcd547820",
+    "json_field": "source_sha256",
+    "deduplicated_bindings": 43,
+    "all_local_bytes_verified": true,
+    "meaning": "Exact full binding table retained by hash, not duplicated. Includes prior manifest629662e509e099be8601be1c9499d7139f03803f4f998f5b31fce15b2551b4a0, provenance, accepted inventory/guard/evidence reviews, candidate list, current13consumers, selected application files and new test."
+  },
+  "verification": {
+    "classification": "SHOWN",
+    "proof_reproduction": "Exact sorted indented JSON bytes plus one LF reproduced.",
+    "reuse_counts": {
+      "preparation_consumers": 13,
+      "application_source_entries": 43,
+      "unique_application_source_files": 22,
+      "deduplicated_selected_binding_table": 43
+    },
+    "count_limit": "The two43counts are different sets. Neither is a whole SDK/dependency closure.",
+    "baseline": "Existing Plan.load, Snapshot, configured-network project and preservation digests reproduce all saved baseline comparisons. Four application started fields differ; three storage snapshots unchanged. IDs/images/restarts/foundation/configured/raw preservation comparisons otherwise agree.",
+    "host_guards": "Exact corrected dashboard guard d003edac...c9e381 and unchanged evidence verifier a35dc464...f614e8 independently rehashed; no weakening or activation is introduced.",
+    "tests": {
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -c 'import json, pytest; from pathlib import Path; from tests.test_companion_reconnection_plan import build_report; from tests.test_companion_archive_contract import offline\nwith pytest.MonkeyPatch.context() as mp:\n offline(mp)\n report=build_report()\n saved=Path(\"docs/review_artifacts/companion_reconnection_plan_20261024/reuse_proof.json\").read_bytes()\n assert saved==(json.dumps(report, indent=2, sort_keys=True)+\"\\n\").encode(), \"reuse proof not reproducible\"\n assert len(report[\"source_sha256\"])==43\n assert [r[\"changed_from_prior_preparation_baseline\"] for r in report[\"baseline\"]]==[[],[],[],[\"started\"],[\"started\"],[\"started\"],[\"started\"]]\n print(\"Reuse proof exactly reproduced; 43 deduplicated bindings, 43 application entries, 13 consumers; only four app start times differ.\", flush=True)\nraise SystemExit(pytest.main([\"--noconftest\", \"-c\", \"/dev/null\", \"-p\", \"no:cacheprovider\", \"-q\", \"tests/test_companion_reconnection_plan.py\"]))'",
+      "exit_code": 0,
+      "output": "Reuse proof exactly reproduced; 43 deduplicated bindings, 43 application entries, 13 consumers; only four app start times differ.\n..                                                                       [100%]\n2 passed in 0.14s",
+      "environment": "VERIFIED_ENV for isolated offline reuse assertions: cleared env; no conftest/plugin autoload/bytecode/cache provider; fixture forbids sockets/subprocess operations. No native, HTTP, DB, Settings, startup, build, private-config copy, credentials or reservation operations."
+    }
+  },
+  "design_assessment": {
+    "chosen_path": "Reuse existing four-application stopped-preparation, separate actual-ID review, separately reviewed full runtime packet/handoff, then separately authorized bounded cutover/query; no storage lifecycle or controller rewrite.",
+    "scope_fit": "Two sampled legacy main-file gaps justify treating source parity as unresolved; they are not evidence of four independent defects. Keeping the existing four-application unit avoids inventing a two-service lifecycle/recovery mechanism.",
+    "preserved_evidence_contract": "Original7 plus reviewed5,47,18 remain archived topical candidates with their prior restricted meanings. Guard, verifier, current3/3 retrieval/citation caps, no ordinary-route/static-dashboard acceptance and no forced witness are preserved.",
+    "separate_boundaries": "Fresh candidate remains a future independent-input-review stage. Unused attempt must be checked without allocation/reset. Stopped prep needs separate authorization; actual IDs/policies/handoff and maintenance authorization remain subsequent gates.",
+    "time_and_recovery": "Plan retains300/120preparation and600/180cutover budgets, separate pre-controller10s checks, no whole-wrapper deadline claim, no automatic retry/reset. Rollback limits and audit/data side effects are disclosed.",
+    "image_policy": "Cache/parent availability not assumed. Existing verified-cache or source-only network-disabled/no-pull path remains conditional on preflight; failure means stop, not host repair/fetch."
+  },
+  "findings": [],
+  "remaining_limits": [
+    "The reuse proof establishes local input equality and saved-baseline equivalence, not installed policy applicability, loaded source, present host state or full source/dependency compatibility.",
+    "Current source mismatch remains unresolved until separately authorized replacement and separately reviewed exact-ID/image/source evidence; this plan is not its remediation proof.",
+    "No image inventory/build or cache check was performed. Maintenance ownership, future baseline stability and namespace/current persisted data remain UNVERIFIED.",
+    "No new manifest, attempt, identity pin, executable operational command or reservation is created by this review. Consumed V6d history/IDs/receipts remain historical and cannot be reused/reset.",
+    "Later runtime acceptance still requires actual attachment, recipient/health gates, exactly one separately authorized frozen-question request and current stored identity/body/citation verification. Running containers and offline fixtures cannot substitute.",
+    "Rollback is bounded and not guaranteed; StartedAt cannot be restored and audit/data writes are not undone. Storage lifecycle and removal of unknown/original resources remain forbidden.",
+    "Archived topical acceptance is not market truth, current cause or profitability. No operation/source change is granted by design acceptance."
+  ],
+  "parent_result": {
+    "classification": "CLAIMED",
+    "result": "6 passed in0.65s including2new+4evidence-packet cases; reviewer ran only2new."
+  },
+  "disposition": "Accept offline plan with risks and existing review gates retained. Immediate next scoped stage is offline fresh-input derivation, not preparation/build/create/start/cutover/query."
+}

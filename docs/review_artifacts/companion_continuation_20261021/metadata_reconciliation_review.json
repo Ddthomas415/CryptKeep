@@ -1,0 +1,184 @@
+{
+  "schema": "companion-modeled-expectation-reconciliation-review-v1",
+  "reviewed_at_utc": "2026-10-21T15:55:05Z",
+  "role": "GATE",
+  "reviewer": "Codex independent GATE, exact modeled-expectation reconciliation 2026-10-21; no operational authorization",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Exact four modeled-expectation corrections and explicit derivative binding of existing stopped resources only; no normalization, source/gate change or operational approval",
+  "findings": [],
+  "closed_findings": [
+    {
+      "id": "P2-private-state-test-input",
+      "state": "CLOSED",
+      "shown": "Recipe reads the public byte-identical evidence fixture, which is not Git-ignored. All 26 focused cases pass with every Path.read_bytes access into .cbp_state forbidden. Existing draft SHA256 is unchanged; private source remains provenance only."
+    }
+  ],
+  "inputs": {
+    "diagnostic": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/staged_metadata_diagnostic.json",
+      "sha256": "03ffaa2dd4e4ee3c6d42383c41df4e04c3e797382416699134aa9661e3bf748e"
+    },
+    "draft": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/metadata_corrected_draft_r2.json",
+      "sha256": "53803e87f12755256edaf097234e3918d5c3997d27f90bb971f0ade1c8a5eb30"
+    },
+    "old_candidate": {
+      "path": "docs/review_artifacts/companion_continuation_20261020/fresh_v5_capture_20261020/candidate_manifest.json",
+      "sha256": "0ed18df8e95da122d2f00e31badeb17122fee2049609369c1dd819a832c6c108"
+    },
+    "old_evidence": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/prepared_evidence_public_copy.json",
+      "sha256": "78726c0b834778934368713e55a7496a91249d17323e3d43c9052895a5e4d8de"
+    },
+    "old_id_review": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/preparation_actual_id_review.json",
+      "sha256": "66f0ec73f6362fc97270901a1b6f9b2723100548503e8c33c9c3453bcde88fc7"
+    },
+    "old_manifest": {
+      "path": "docs/review_artifacts/companion_continuation_20261020/reviewed_preparation_manifest.json",
+      "sha256": "3b6f785ca1dd732e307aa83b30dcea2a5d2d9379d57af06a4afaa3774df94635"
+    },
+    "original_capture": {
+      "path": "docs/review_artifacts/companion_continuation_20261020/fresh_v5_capture_20261020/capture.json",
+      "sha256": "0fa450f65997a8ace714babc6b514270eab308cd22f623a6e06177ab3c09fa1b"
+    },
+    "original_recipe": {
+      "path": "docs/review_artifacts/companion_install_candidate_20261018/configured_v3/reviewed_configured_plan.json",
+      "sha256": "f5b044858c3d40881239b77745d0b404c4ac05d2f35a6d043fed8f6ba934bf5f"
+    },
+    "proposal": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/metadata_reconciliation_proposal_r2.json",
+      "sha256": "8cf2e073006b7aaf76d95bea56918506b4198267ec9e7d26a23436e40f3bfcad"
+    },
+    "recipe": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/reconcile_metadata_20261021.py",
+      "sha256": "9126f9b6c1a8f754a8a12473749e4c0a8d1ba302afd5dbe6ca22540f6e276015"
+    },
+    "tests": {
+      "path": "tests/test_companion_metadata_reconciliation.py",
+      "sha256": "aa2e4dc4bb7bb4b933071b05fa0b775384194e3368a51ec90191ca725d4d09df"
+    }
+  },
+  "unchanged_production_source_sha256": {
+    "scripts/research/companion_install_docker.py": "ca2e74fcf9d3869f7c3ed27e69721cd12615f41cc2687ea0844b314250814220",
+    "scripts/research/companion_installer.py": "56d9b924d7d0b7e2660d68db62dcdd67252fdc5e01ad633a7e39f57ea866b16b",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_network_configuration.py": "c3824743fb08098a35af6966ee9e3345a63e6500f18a5fdd84a02d1114bf39d7",
+    "scripts/research/companion_runtime_adapter.py": "cf2d619320defd4904ba7bde595ad226d803818f5182f2bf27c3f73cdb0a4441",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_docker_transport.py": "98e94faa02c87c38c2b1379bb5d909791d0077a994e7dba3d59b6a5d7bd96d17"
+  },
+  "outputs": {
+    "preparation_reconciled_evidence.json": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/preparation_reconciled_evidence.json",
+      "sha256": "a8ba9af67beb156b292fd133ad23155a1ad9443889aec4e003f4841f0a7357b8"
+    },
+    "preparation_reconciled_id_review.json": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/preparation_reconciled_id_review.json",
+      "sha256": "80532a1e65c447cc9e9e5fcdbeb63fc1ae321f3842ba0dd714867fb67bcce514"
+    },
+    "preparation_reconciled_manifest.json": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/preparation_reconciled_manifest.json",
+      "sha256": "b9594f55b7d409d5815ea318de68c0391943dcafe919326ebedb143821627b11"
+    }
+  },
+  "provenance": {
+    "native_preparation_executed_under_manifest_sha256": "3b6f785ca1dd732e307aa83b30dcea2a5d2d9379d57af06a4afaa3774df94635",
+    "native_preparation_original_evidence": {
+      "path": ".cbp_state/runtime/companion_preparations/f4e189b78ccc48acb8b92f20c4627f51/evidence.json",
+      "sha256": "78726c0b834778934368713e55a7496a91249d17323e3d43c9052895a5e4d8de",
+      "verification": "Previously independently verified; not reread in R2. Public fixture recomputed to the identical SHA256."
+    },
+    "native_preparation_original_receipt": {
+      "path": ".cbp_state/runtime/companion_preparations/f4e189b78ccc48acb8b92f20c4627f51/receipt.jsonl",
+      "sha256": "a9efa72fe64838c4f273e3b4a37b34ffe06b9de00bc7c8cbba436db73af0404e",
+      "verification": "Previously independently verified completion/publication receipt; not reread in R2."
+    },
+    "original_actual_id_review": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/preparation_actual_id_review.json",
+      "sha256": "66f0ec73f6362fc97270901a1b6f9b2723100548503e8c33c9c3453bcde88fc7"
+    },
+    "public_evidence_fixture": {
+      "path": "docs/review_artifacts/companion_continuation_20261021/prepared_evidence_public_copy.json",
+      "sha256": "78726c0b834778934368713e55a7496a91249d17323e3d43c9052895a5e4d8de"
+    },
+    "corrected_accepted_manifest_sha256": "b9594f55b7d409d5815ea318de68c0391943dcafe919326ebedb143821627b11",
+    "derivative_evidence_sha256": "a8ba9af67beb156b292fd133ad23155a1ad9443889aec4e003f4841f0a7357b8",
+    "derivative_actual_id_review_sha256": "80532a1e65c447cc9e9e5fcdbeb63fc1ae321f3842ba0dd714867fb67bcce514",
+    "attempt": "f4e189b78ccc48acb8b92f20c4627f51",
+    "same_four_actual_rows": true,
+    "derivative_evidence_changed_fields": [
+      "manifest_sha256"
+    ],
+    "new_manifest_changed_fields_vs_draft": [
+      "decision",
+      "reviewer"
+    ],
+    "native_preparation_performed_under_corrected_manifest": false,
+    "new_native_observation_claimed": false,
+    "preparation_repeated": false,
+    "consumed_attempt_preserved": true,
+    "statement": "This is an independently reviewed offline reconciliation of modeled final expectations and bindings. It does not assert that the old receipt was produced under the corrected manifest. Original execution evidence, receipt and reviews remain historical; no preparation replay, reservation, rebuild, recreation or native operation was performed."
+  },
+  "shown": [
+    "R2 recipe and proposal reproduce byte-for-byte from pinned public inputs; draft SHA256 equals the original R1 draft. Input/output JSON serialization keeps original compact content, with one terminating LF added to new accepted artifacts.",
+    "Independently recomputed all four corrections from actual saved null DNS/ExtraHosts rows, changing only network aliases on offline clones. Replacing nulls with [] reproduces the old expectations; no other criterion is adopted or changed.",
+    "Restoring the four old predictions and old review fields exactly reconstructs the old executed manifest. Baseline, attempt, source records, options, network bindings and all policies remain identical.",
+    "All 43 current source entries, covering 22 unique regular non-symlink files, match their frozen hashes. Eight production runtime/controller/helper source hashes remain unchanged.",
+    "Derivative evidence differs from original public evidence only in manifest_sha256; all four actual rows, attempt, schema and state are identical. New actual-ID review uses exactly the existing five-field schema.",
+    "Inert Plan.load/ReviewedPreparation.load accept the corrected manifest, derivative evidence and new review, with rows exactly equal to the old accepted binding. Four mixed old/new binding combinations refuse."
+  ],
+  "changes": [
+    {
+      "corrected_prediction": "9f53d7affd5e6f6d3148698a24c1e9a0fd9e74f07937c81ff19c85d18f1a1e91",
+      "name": "phase1-audit-log",
+      "old_prediction": "568009e848e00ff5471c2768712091d58a3bcb47b8014a44a416915038fa2462"
+    },
+    {
+      "corrected_prediction": "fa012f643c0bc5568efc8d8792be48e743f897f3249490ef0d41adf92ee728fb",
+      "name": "phase1-risk-stub",
+      "old_prediction": "b75f2b057456ff3ec0993cb7462d9446e445844a4860f43db49532ea4e8aa72d"
+    },
+    {
+      "corrected_prediction": "fd35e631333e2f1d84823e273ac4b030ee593a33c747345f637d72478bc4d193",
+      "name": "phase1-memory",
+      "old_prediction": "d3bfbd1aa8d235cf718a0e8e22ba53304c6bfaa7b6b3ffd02c110ac5b605082c"
+    },
+    {
+      "corrected_prediction": "ee00bed50a3c2638aa13aebf9b2696e352f01b37b75d14a9b3bb958fdbb53b05",
+      "name": "phase1-orchestrator",
+      "old_prediction": "f95a5f5ee0fa89c1fb5059f8b854c85d30dadf70e968a80c88604ffee6b01399"
+    }
+  ],
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV for offline hashes, public-file derivation, synthetic tests and inert loaders only",
+    "focused_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_metadata_reconciliation.py",
+    "focused_result": "26 passed in 0.28s",
+    "focused_exit_code": 0,
+    "independent_reconciliation_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - <<'PY'\nimport copy, hashlib, json, runpy, stat\nfrom pathlib import Path\nfrom scripts.research import companion_installer as install, companion_staged_update as staged\nfrom scripts.research import companion_network_configuration as network\nroot=Path.cwd();base=root/\"docs/review_artifacts/companion_continuation_20261021\"\npins={\n\"recipe\":(\"docs/review_artifacts/companion_continuation_20261021/reconcile_metadata_20261021.py\",\"9126f9b6c1a8f754a8a12473749e4c0a8d1ba302afd5dbe6ca22540f6e276015\"),\n\"tests\":(\"tests/test_companion_metadata_reconciliation.py\",\"aa2e4dc4bb7bb4b933071b05fa0b775384194e3368a51ec90191ca725d4d09df\"),\n\"draft\":(\"docs/review_artifacts/companion_continuation_20261021/metadata_corrected_draft_r2.json\",\"53803e87f12755256edaf097234e3918d5c3997d27f90bb971f0ade1c8a5eb30\"),\n\"proposal\":(\"docs/review_artifacts/companion_continuation_20261021/metadata_reconciliation_proposal_r2.json\",\"8cf2e073006b7aaf76d95bea56918506b4198267ec9e7d26a23436e40f3bfcad\"),\n\"old_manifest\":(\"docs/review_artifacts/companion_continuation_20261020/reviewed_preparation_manifest.json\",\"3b6f785ca1dd732e307aa83b30dcea2a5d2d9379d57af06a4afaa3774df94635\"),\n\"old_evidence\":(\"docs/review_artifacts/companion_continuation_20261021/prepared_evidence_public_copy.json\",\"78726c0b834778934368713e55a7496a91249d17323e3d43c9052895a5e4d8de\"),\n\"old_id_review\":(\"docs/review_artifacts/companion_continuation_20261021/preparation_actual_id_review.json\",\"66f0ec73f6362fc97270901a1b6f9b2723100548503e8c33c9c3453bcde88fc7\"),\n\"diagnostic\":(\"docs/review_artifacts/companion_continuation_20261021/staged_metadata_diagnostic.json\",\"03ffaa2dd4e4ee3c6d42383c41df4e04c3e797382416699134aa9661e3bf748e\"),\n\"original_capture\":(\"docs/review_artifacts/companion_continuation_20261020/fresh_v5_capture_20261020/capture.json\",\"0fa450f65997a8ace714babc6b514270eab308cd22f623a6e06177ab3c09fa1b\"),\n\"original_recipe\":(\"docs/review_artifacts/companion_install_candidate_20261018/configured_v3/reviewed_configured_plan.json\",\"f5b044858c3d40881239b77745d0b404c4ac05d2f35a6d043fed8f6ba934bf5f\"),\n\"old_candidate\":(\"docs/review_artifacts/companion_continuation_20261020/fresh_v5_capture_20261020/candidate_manifest.json\",\"0ed18df8e95da122d2f00e31badeb17122fee2049609369c1dd819a832c6c108\"),\n}\noriginal_read_bytes=Path.read_bytes\ndef public_read_bytes(path):\n if \".cbp_state\" in path.parts:raise AssertionError(\"private state read forbidden\")\n return original_read_bytes(path)\nPath.read_bytes=public_read_bytes\nraw={}\nfor k,(p,h) in pins.items():\n raw[k]=(root/p).read_bytes();assert hashlib.sha256(raw[k]).hexdigest()==h,k\nold=json.loads(raw[\"old_manifest\"]);draft=json.loads(raw[\"draft\"]);original_e=json.loads(raw[\"old_evidence\"]);diagnostic=json.loads(raw[\"diagnostic\"])\nassert draft[\"decision\"]==\"INCOMPLETE\" and draft[\"reviewer\"]==\"\"\nrestored=copy.deepcopy(draft);changes=[];count=0;unique=set()\nfor a,b,row in zip(old[\"applications\"],restored[\"applications\"],diagnostic[\"rows\"]):\n assert row[\"dns\"] is None and row[\"extra_hosts\"] is None\n final=copy.deepcopy(row)\n for n in final[\"networks\"].values():n[\"Aliases\"]=a[\"network_options\"][1::2]\n corrected=network.project(final,old[\"network_contract\"][\"bindings\"])[0]\n previous=copy.deepcopy(final);previous[\"dns\"]=previous[\"extra_hosts\"]=[]\n assert network.project(previous,old[\"network_contract\"][\"bindings\"])[0]==a[\"replacement_configured_metadata\"]\n assert corrected==b[\"replacement_configured_metadata\"]!=a[\"replacement_configured_metadata\"]\n changes.append({\"name\":a[\"name\"],\"old_prediction\":a[\"replacement_configured_metadata\"],\"corrected_prediction\":corrected})\n b[\"replacement_configured_metadata\"]=a[\"replacement_configured_metadata\"]\n for s in a[\"sources\"]:\n  p=root/s[\"local\"];assert p.resolve(strict=True)==p and stat.S_ISREG(p.lstat().st_mode)\n  assert hashlib.sha256(p.read_bytes()).hexdigest()==s[\"sha256\"];count+=1;unique.add(s[\"local\"])\nrestored[\"decision\"]=old[\"decision\"];restored[\"reviewer\"]=old[\"reviewer\"];assert restored==old\nassert count==43 and len(unique)==22 and len(changes)==4\nrecipe=runpy.run_path(str(root/pins[\"recipe\"][0]));derived,provenance=recipe[\"derive\"](recipe[\"inputs\"]())\nassert install.canonical(derived)==raw[\"draft\"]\nprovenance[\"draft_sha256\"]=pins[\"draft\"][1];assert install.canonical(provenance)==raw[\"proposal\"]\nreviewer=\"Codex independent GATE, exact modeled-expectation reconciliation 2026-10-21; no operational authorization\"\nassert raw[\"draft\"].count(b'\"decision\":\"INCOMPLETE\"')==1 and raw[\"draft\"].count(b'\"reviewer\":\"\"')==1\nnew_m=raw[\"draft\"].replace(b'\"decision\":\"INCOMPLETE\"',b'\"decision\":\"ACCEPTED_WITH_RISK\"').replace(b'\"reviewer\":\"\"',b'\"reviewer\":'+json.dumps(reviewer).encode())+b\"\\n\"\nnew_m_sha=hashlib.sha256(new_m).hexdigest()\nassert raw[\"old_evidence\"].count(pins[\"old_manifest\"][1].encode())==1\nnew_e=raw[\"old_evidence\"].replace(pins[\"old_manifest\"][1].encode(),new_m_sha.encode())+b\"\\n\"\nnew_e_sha=hashlib.sha256(new_e).hexdigest()\nnew_review={\"schema\":\"companion-preparation-review-v1\",\"decision\":\"ACCEPTED_WITH_RISK\",\"reviewer\":reviewer,\"manifest_sha256\":new_m_sha,\"evidence_sha256\":new_e_sha}\nnew_r=(json.dumps(new_review,indent=2)+\"\\n\").encode();new_r_sha=hashlib.sha256(new_r).hexdigest()\nassert {k for k in draft if draft[k]!=json.loads(new_m)[k]}=={\"decision\",\"reviewer\"}\nassert {k for k in original_e if original_e[k]!=json.loads(new_e)[k]}=={\"manifest_sha256\"}\nnewplan=install.Plan.load(new_m,new_m_sha);oldplan=install.Plan.load(raw[\"old_manifest\"],pins[\"old_manifest\"][1])\nnewbound=staged.ReviewedPreparation.load(new_e,new_r,new_r_sha,newplan)\noldbound=staged.ReviewedPreparation.load(raw[\"old_evidence\"],raw[\"old_id_review\"],pins[\"old_id_review\"][1],oldplan)\nassert newbound.replacements==oldbound.replacements\nrefusals=[]\nfor label,e,r,h,p in [\n (\"old_evidence_old_review_new_plan\",raw[\"old_evidence\"],raw[\"old_id_review\"],pins[\"old_id_review\"][1],newplan),\n (\"new_evidence_old_review_new_plan\",new_e,raw[\"old_id_review\"],pins[\"old_id_review\"][1],newplan),\n (\"old_evidence_new_review_new_plan\",raw[\"old_evidence\"],new_r,new_r_sha,newplan),\n (\"new_evidence_new_review_old_plan\",new_e,new_r,new_r_sha,oldplan),\n]:\n try:staged.ReviewedPreparation.load(e,r,h,p)\n except install.core.Refused:refusals.append(label)\n else:raise AssertionError(label)\nfor k,(p,h) in pins.items():assert hashlib.sha256((root/p).read_bytes()).hexdigest()==h,k\nartifacts={\n \"preparation_reconciled_manifest.json\":{\"text\":new_m.decode(),\"sha256\":new_m_sha},\n \"preparation_reconciled_evidence.json\":{\"text\":new_e.decode(),\"sha256\":new_e_sha},\n \"preparation_reconciled_id_review.json\":{\"text\":new_r.decode(),\"sha256\":new_r_sha},\n}\nprint(json.dumps({\"checks\":\"PASS\",\"source_entries\":count,\"unique_source_files\":len(unique),\"changes\":changes,\"old_binding_refusals\":refusals,\"all_originals_unchanged\":True,\"reviewer\":reviewer,\"pins\":pins,\"artifacts\":artifacts},sort_keys=True))\nPY",
+    "independent_reconciliation_result": "PASS; 43 source entries/22 files; exact four corrections; loaders pass; four stale-binding mixtures refuse; private operational reads forbidden",
+    "old_binding_refusals": [
+      "old_evidence_old_review_new_plan",
+      "new_evidence_old_review_new_plan",
+      "old_evidence_new_review_new_plan",
+      "new_evidence_new_review_old_plan"
+    ]
+  },
+  "limitations": [
+    "Accepted values are strict modeled expectations, not a general null/[] equivalence or permission to normalize unrelated fields. Every other preservation, source, policy and authorization gate remains unchanged.",
+    "Saved stopped observations do not demonstrate future native alias transitions, endpoint attachment, SDK/import compatibility, application startup, health, explanation/query delivery or storage-content preservation.",
+    "Both startup policy flags remain false. Separate current exact preflight, external runtime bindings/reviews and explicit operational authorization remain required.",
+    "Original private execution artifacts were not reread for R2; their historical hashes are explicitly retained, with the public evidence fixture independently matching the previously verified original hash.",
+    "No complete CI run is claimed. The focused public-fixture tests passed locally without private-state access; public artifacts still need inclusion in the handoff/checkout.",
+    "Prior R1 rejection and proposal remain preserved. No old preparation, successful operation, reviewer authority or runtime readiness is retrospectively manufactured."
+  ],
+  "runtime_state": "INCOMPLETE",
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "reviewer_native_operations": false,
+  "reviewer_credential_reads": false,
+  "private_operational_files_read_in_r2": false,
+  "production_sources_or_gates_modified": false,
+  "prior_evidence_modified": false
+}

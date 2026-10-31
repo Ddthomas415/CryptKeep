@@ -1,0 +1,19 @@
+{
+  "recorded_at_utc": "2026-10-28T14:49:57.706575+00:00",
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "scope": "operator-approved local source application and offline regressions",
+  "application_matches_reviewed_proposal": true,
+  "tests": {
+    "passed": 64,
+    "seconds": 0.51
+  },
+  "inputs_sha256": {
+    "services/execution/place_order.py": "a29ba48fb1f45b167c47817d91d25d7be3341ae18fa64999f7892866642072a6",
+    "services/execution/coinbase_portfolio_guard.py": "e865a09d2a96828143b1b29ef07e6a710744e8a7f94134548d1a96f657c77352",
+    "tests/test_proposed_async_balance_preflight.py": "6d892d423206a134c661a9e2b38a0113d56838a252fab44e548e74f4ca63c66a",
+    "tests/test_synthetic_coinbase_balance_paging.py": "b9b3d29ba33e24ea612bf4eadf95cbc69e2f0f675cbc7bf64ba387905123dd16",
+    "docs/review_artifacts/balance_preflight_integration_20261028/place_order_original.py": "f7337e9885026b430aab89d53f2ba6f24e402f814c5f57ad4097b71e775d5119"
+  },
+  "applied_diff_sha256": "e70249c0927cce552a02982dad7ab6db052b74edd21c9c2288f0c0e12dace8b4",
+  "real_account_or_deployment_test": false
+}

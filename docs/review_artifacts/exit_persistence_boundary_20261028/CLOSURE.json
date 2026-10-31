@@ -1,0 +1,18 @@
+{
+  "acceptance": "ACCEPTED_WITH_RISK",
+  "scope": "offline existing SQLite upsert persistence hazards; no durable implementation or production changes",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a18431-4031-7b02-a8d9-d8101fe92745",
+  "independent_verification": {
+    "passed": 4,
+    "seconds": 0.21,
+    "material_evidence_defects": 0
+  },
+  "tests_sha256": "cdd26f94b98e4bc317547a4f07687865b582747ac6e8f94caf93a6de3582a2e2",
+  "submission_bindings_sha256": "069c1d6fe2869fd418711d0b0695ac0f4dd560fe4dfdef17874084b227cbae8f",
+  "submitted_checkpoint_sha256": "33c8f9db157a7d990aa5a8240e07dec9abed8fa963a44b0cac784ee1a0ef59e3",
+  "checkpoint_sha256": "51df63d2f0ac04638a6bfd04d963bbd3d1bf2bb159ed47f37a74d38fc50931f5",
+  "production_source_changed": false,
+  "kv_design_adopted": false,
+  "durable_integration": "INCOMPLETE"
+}

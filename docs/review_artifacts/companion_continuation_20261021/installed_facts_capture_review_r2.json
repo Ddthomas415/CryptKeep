@@ -1,0 +1,85 @@
+{
+  "schema": "companion-installed-facts-capture-preflight-review-v2",
+  "reviewed_at_utc": "2026-10-21T17:46:42Z",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Bounded R2 closure of the R1 aggregate-byte defect only; preflight for the exact one-use read-only capture recipe, not captured-facts or runtime-policy acceptance",
+  "reviewed_sha256": {
+    "docs/review_artifacts/companion_continuation_20261021/capture_installed_facts.py": "a553e37e9bac1b5f6827fa8fe9ff40d520e7dc6005df4fc81064d03b6259eb76",
+    "tests/test_companion_installed_facts_capture.py": "c4fa5e138e7bfc389a5071784cf97facf3d19f1d863b34bb64678df28cd4eb42"
+  },
+  "prior_review": {
+    "path": "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture_review_r1.json",
+    "sha256": "f0e3b7878065b5a32c4e88d4df243a1b7fdae55885427fc83dcc43ca7d83a14f",
+    "decision": "REJECTED",
+    "preserved": true
+  },
+  "findings": [],
+  "closed_findings": [
+    {
+      "id": "R1-P2-cumulative-byte-bound",
+      "state": "CLOSED",
+      "classification": "SHOWN by source and whole-capture synthetic reproduction",
+      "proof": "A separate CaptureBudgetError escapes ordinary per-file handling. Each next transfer is capped by remaining cumulative allowance including tar overhead and the transport's one-byte overflow check. Successful archive bytes are counted; discarded failed output is conservatively charged cap+1. Exhaustion stops normal cp/storage/HTTP work, retaining final inventory and an INCOMPLETE partial report.",
+      "independent_result": {
+        "synthetic_only": true,
+        "budget_bytes": 26214400,
+        "simulated_file_bytes_received": 26214400,
+        "file_transfer_upper_bound_bytes": 26214400,
+        "persisted_file_bytes": 25165824,
+        "cp_attempts": 25,
+        "inventory_calls": 2,
+        "storage_calls": 0,
+        "http_calls": 0,
+        "error": "file_budget_exhausted",
+        "state": "INCOMPLETE",
+        "inventory_preserved": true,
+        "native_calls": false
+      }
+    }
+  ],
+  "verification": {
+    "environment_confidence": "VERIFIED_ENV for offline synthetic verification only",
+    "focused_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_installed_facts_capture.py -k aggregate_exhaustion_stops_work_preserves_final_inventory",
+    "focused_result": "2 passed, 10 deselected in 0.26s",
+    "focused_exit_code": 0,
+    "coverage": "The two new whole-capture regressions cover oversized successful transfers and discarded failed partial transfers, forbidding native and HTTP work.",
+    "independent_probe_command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B - <<'PY'\nimport io,json,socket,subprocess,tarfile,tempfile\nfrom pathlib import Path\nfrom unittest.mock import patch\nimport httpx\nfrom tests.test_companion_installed_facts_capture import capture\nfrom scripts.research import companion_docker_transport as transport\nroot=Path.cwd();base=root/\"docs/review_artifacts/companion_continuation_20261021\"\noriginal=json.loads((root/\"docs/review_artifacts/companion_continuation_20261020/fresh_v5_capture_20261020/capture.json\").read_bytes())[\"observations\"]\nstaged=json.loads((base/\"staged_metadata_diagnostic.json\").read_bytes())[\"rows\"]\nbody=b\"x\"*(1<<20);copied=[];inspected=[];storage=[];http=[];received=[0]\ndef forbidden(*args,**kwargs):raise AssertionError(\"native/network operation forbidden\")\ndef no_http(*args,**kwargs):http.append(True);raise AssertionError(\"HTTP after exhaustion\")\ndef fake_run(argv,**kw):\n args=argv[5:]\n if args[:2]==(\"container\",\"inspect\"):\n  inspected.append(True);return b\"\\n\".join(json.dumps(row).encode() for row in original+staged)\n if args[:2]==(\"container\",\"cp\"):\n  path=args[2].split(\":\",1)[1];copied.append(path);out=io.BytesIO()\n  with tarfile.open(fileobj=out,mode=\"w\") as t:\n   item=tarfile.TarInfo(Path(path).name);item.size=len(body);t.addfile(item,io.BytesIO(body))\n  data=out.getvalue();received[0]+=min(len(data),kw[\"limit\"]+1)\n  if len(data)>kw[\"limit\"]:raise transport.controller.Refused(\"transport_output_limit\")\n  return data\n if args[:2]==(\"container\",\"exec\"):\n  storage.append(True);raise AssertionError(\"storage work after exhaustion\")\n raise AssertionError(\"unexpected command\")\nwith tempfile.TemporaryDirectory(prefix=\"installed-facts-budget-r2-\") as tmp, patch.object(transport.DockerTransport,\"_verify_cli\",lambda *a,**k:True), patch.object(transport,\"_run\",forbidden), patch.object(subprocess,\"Popen\",forbidden), patch.object(socket.socket,\"connect\",forbidden), patch.object(socket.socket,\"connect_ex\",forbidden), patch.object(httpx,\"Client\",no_http):\n report=capture.capture(Path(tmp)/\"out\",runner=fake_run)\n result={\"synthetic_only\":True,\"budget_bytes\":capture.FILE_BUDGET,\"simulated_file_bytes_received\":received[0],\"file_transfer_upper_bound_bytes\":report[\"file_transfer_upper_bound_bytes\"],\"persisted_file_bytes\":report[\"captured_bytes\"],\"cp_attempts\":len(copied),\"inventory_calls\":len(inspected),\"storage_calls\":len(storage),\"http_calls\":len(http),\"error\":report[\"error\"],\"state\":report[\"state\"],\"inventory_preserved\":report[\"inventory_preserved\"],\"native_calls\":False}\n assert received[0]<=report[\"file_transfer_upper_bound_bytes\"]<=capture.FILE_BUDGET\n assert len(copied)<93 and len(inspected)==2 and not storage and not http\n assert report[\"error\"]==\"file_budget_exhausted\" and report[\"state\"]==\"INCOMPLETE\" and report[\"inventory_preserved\"]\n print(json.dumps(result,indent=2))\nPY",
+    "independent_probe_exit_code": 0,
+    "independent_probe_result": {
+      "synthetic_only": true,
+      "budget_bytes": 26214400,
+      "simulated_file_bytes_received": 26214400,
+      "file_transfer_upper_bound_bytes": 26214400,
+      "persisted_file_bytes": 25165824,
+      "cp_attempts": 25,
+      "inventory_calls": 2,
+      "storage_calls": 0,
+      "http_calls": 0,
+      "error": "file_budget_exhausted",
+      "state": "INCOMPLETE",
+      "inventory_preserved": true,
+      "native_calls": false
+    },
+    "frozen_hashes_rechecked_after_verification": true
+  },
+  "limits": [
+    "This closes the one R1 resource-bound blocker; accepted transport/core/read-only helpers were not broadly re-audited.",
+    "The 25MiB file-transfer allowance now accounts for tar bytes and conservative failed-output bounds, separate from metadata/storage response bounds. Synthetic evidence is not observed native byte telemetry.",
+    "Actual capture still must pass CLI/input/exact-identity checks and preserve its exclusive one-use output marker. No automatic repeat or missing-file repair follows from acceptance.",
+    "Existing filesystem-wall-time and daemon-cancellation limits remain: subprocess budgets do not guarantee arbitrary host I/O duration or daemon cancellation.",
+    "Operator's separate authorization and parent tool permission remain required for the one capture attempt. This receipt grants no new lifecycle, startup, data-write, credential-export or cutover authority.",
+    "No actual installed files, storage lineage, SDK policies, archive availability or endpoint outcome are accepted here. Capture results require their own bounded evidence review."
+  ],
+  "execution_preflight_accepted": true,
+  "capture_executed_by_reviewer": false,
+  "runtime_policy_approved": false,
+  "runtime_state": "INCOMPLETE",
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "reviewer_native_operations": false,
+  "reviewer_credential_reads": false,
+  "reviewed_source_or_tests_edited": false,
+  "prior_evidence_edited": false
+}

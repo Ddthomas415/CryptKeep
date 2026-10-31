@@ -1,0 +1,289 @@
+{
+  "schema": "companion-v6d-actual-stopped-preparation-independent-review-v1",
+  "role": "GATE",
+  "reviewer": "Independent bounded GATE",
+  "decision": "ACCEPTED_WITH_RISK",
+  "acceptance_scope": "Actual v6d stopped-preparation evidence only: exact new IDs/images, saved raw/configured snapshots, current temporary aliases and 43 application source witnesses. No runtime-policy applicability, packet rebinding or operation grant.",
+  "runtime_status": "INCOMPLETE",
+  "historical_v6c_cause": "UNVERIFIED",
+  "blocking_findings": [],
+  "material_assumptions": [],
+  "source_and_artifact_sha256": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/outcome.json": "77a85a5c6bf31dc1154d550e181100ad1672f061422b0cc1780f92b1ae55753b",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/preparation_evidence.json": "9441411ba4ad31194b4f53aa99e1705a46365a93a0ebd5527e1e23957f52d65e",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/preparation_receipt.jsonl": "0672601e4b9d8d2e687a966ff09f0fe2f9d51ea4eed72aa03ba0073fb29cbced",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/postcheck.json": "6c85eaf31ec66f89ba34114c1eb90c990436bf95929651b0d971074e5c06dec6",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/staged_metadata.json": "b571301e009d0005a7498076db63ccd91b72ef7a7bc9cc4bff9446f6f73722ec",
+    "docs/checkpoints/companion_actual_v6d_preparation_20261023.md": "9c2a5cd57345a06d3b92ea5ce6a4b812e7b6bec056facde2ab39211faafab82f",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6d/reviewed_preparation_manifest.json": "629662e509e099be8601be1c9499d7139f03803f4f998f5b31fce15b2551b4a0",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6d/independent_review.json": "9803ebe4242fba4910438d504f252e44aff3f7879bc766f7428284706b96dd6c",
+    "docs/review_artifacts/companion_worker_preparation_20261023/fresh_preparation_v6d/provenance.json": "450528ec555d61fca4d3bc6defb94bfaf08ef37b170f18db96f7f2fb94691857",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_c/preparation_evidence.json": "9f52a511c6b86f3009712f88515087cf20bd117534877e71ec5ebeae6b80dfb9"
+  },
+  "consumer_sha256": {
+    "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+    "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+    "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+    "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+    "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+    "scripts/research/companion_installer.py": "d0cfb0814b8884e790e794226e58629da1d587a797b4777b7dc4d3a54b232de7",
+    "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+    "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+    "scripts/research/companion_runtime_adapter.py": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+    "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+    "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+  },
+  "attempt": {
+    "id": "workerprep20261023v6d",
+    "reported_invocations": 1,
+    "reported_exit_code": 0,
+    "preparation_complete": true,
+    "actions_executed": true,
+    "startup_authorized": false,
+    "services_started": false,
+    "originals_interrupted": false,
+    "attempt_reserved": true,
+    "status": "Consumed; must not reset or rerun. No separate cutover invocation is authorized by this review."
+  },
+  "verification": {
+    "classification": "SHOWN from frozen saved artifacts and independent pure computations; not reviewer-native capture",
+    "frozen_artifact_hashes_match_checkpoint": 5,
+    "current_consumer_hashes_verified": 13,
+    "complete_receipt_events_inspected": 7,
+    "receipt_sequence": [
+      {
+        "line": 1,
+        "phase": "staged_preparation_reserved"
+      },
+      {
+        "line": 2,
+        "phase": "create_staged_intended",
+        "target": "phase1-audit-log"
+      },
+      {
+        "line": 3,
+        "phase": "create_staged_intended",
+        "target": "phase1-risk-stub"
+      },
+      {
+        "line": 4,
+        "phase": "create_staged_intended",
+        "target": "phase1-memory"
+      },
+      {
+        "line": 5,
+        "phase": "create_staged_intended",
+        "target": "phase1-orchestrator"
+      },
+      {
+        "line": 6,
+        "phase": "staged_preparation_complete"
+      },
+      {
+        "line": 7,
+        "phase": "preparation_evidence_published"
+      }
+    ],
+    "receipt_startup_authorized": false,
+    "receipt_completion_embeds_exact_public_evidence": true,
+    "published_evidence_hash_matches_bytes": true,
+    "outcome_evidence_manifest_and_attempt_bindings_match": true,
+    "original_complete_snapshots_equal_accepted_plan_baseline": 7,
+    "staged_complete_snapshots_equal_evidence": 4,
+    "selected_raw_rows_before_after_equal": 11,
+    "staged_metadata_rows_equal_selected_postcheck_rows": 4,
+    "created_never_started_exact_integer_zero_restart_and_policy_no": true,
+    "exact_temporary_names_aliases_and_ownership": true,
+    "direct_commands_and_empty_entrypoints_match": true,
+    "new_ids_disjoint_originals_and_historical_v6b_v6c": true,
+    "image_ids_match_previous_corresponding_images": true,
+    "source_witnesses_verified_against_id_target_destination_manifest_and_current_local_bytes": 43,
+    "source_witness_table": {
+      "path": "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/postcheck.json",
+      "sha256": "6c85eaf31ec66f89ba34114c1eb90c990436bf95929651b0d971074e5c06dec6",
+      "field": "sources",
+      "limit": "Application .py witnesses only; not whole-library/image/import-closure verification. Image binding is through the matching before/after stage metadata; source witness rows do not themselves contain image IDs."
+    },
+    "final_configured_predictions_recomputed": 4,
+    "final_configuration_evidence": "MODELLED",
+    "method": "Independent in-memory reconstruction of the previously reviewed raw-preservation/configured-projection/snapshot algorithms, not a second host capture or Python controller execution. Missing/null original attempt labels normalize to empty snapshot attempt; actual stage ownership is the exact v6d attempt.",
+    "tests_run": false,
+    "reviewer_native_Docker_or_lifecycle_operations": 0,
+    "reviewer_credential_value_reads": 0,
+    "reviewer_live_network_or_service_requests": 0
+  },
+  "consumed_source_copies": {
+    "evidence": {
+      "path": ".cbp_state/runtime/companion_preparations/workerprep20261023v6d/evidence.json",
+      "sha256": "9441411ba4ad31194b4f53aa99e1705a46365a93a0ebd5527e1e23957f52d65e",
+      "public_copy_byte_identical": true
+    },
+    "receipt": {
+      "path": ".cbp_state/runtime/companion_preparations/workerprep20261023v6d/receipt.jsonl",
+      "sha256": "0672601e4b9d8d2e687a966ff09f0fe2f9d51ea4eed72aa03ba0073fb29cbced",
+      "public_copy_byte_identical": true
+    },
+    "limit": "Only these explicitly requested evidence/receipt files were read from consumed state; no private configuration or credential file was read."
+  },
+  "stages": [
+    {
+      "application": "phase1-audit-log",
+      "container_id": "71e6fadd0c4f91aa357f7be5cbf370fbaa7e135d9df6205a328ce7a52883d5d5",
+      "image_id": "sha256:27753fce0270f4718cb4402163c801dfde65c4ef5dadc0a39338ddeae78f8270",
+      "stage_name": "phase1-audit-log-staged-workerprep20261023v6d",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "restart_policy": "no",
+      "attempt": "workerprep20261023v6d",
+      "raw_metadata_sha256": "0d297c1c99e469ac322a0775257b94ab7e5f69c034d3c44c9d3e741ba3066648",
+      "configured_metadata_sha256": "47057037ce5af91a0cc1a4373a83348795d0247cefc1711a9a1892d29ee54b99",
+      "foundation_sha256": "7e8998c3635d350120e837782969ffb5d930172438385ca7aa8ffffc33d9839b",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ],
+      "temporary_aliases": {
+        "phase1_research_copilot_default": [
+          "phase1-audit-log-staged-workerprep20261023v6d"
+        ]
+      },
+      "source_witness_count": 9
+    },
+    {
+      "application": "phase1-risk-stub",
+      "container_id": "420cde54fbce2b9bc1ca053cf484aa7490c4331821a1b41c8d7c3b9d847500a4",
+      "image_id": "sha256:b479fe20456d68fd03a2e169a19b1093bbc592b5ee9f2b5124b6cd21967788d1",
+      "stage_name": "phase1-risk-stub-staged-workerprep20261023v6d",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "restart_policy": "no",
+      "attempt": "workerprep20261023v6d",
+      "raw_metadata_sha256": "0eeb701527e503db764ab231147160542302a31d4a8630f3bb8496779e293b67",
+      "configured_metadata_sha256": "cb859b29b51f24a10aee7c29e84a71cf6a9f36a1564bce018d75b573a76406dc",
+      "foundation_sha256": "af814f25fcf68fb1c22bc2fc52424cb9097583233b2d4dc23cc3e5dca97219bb",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ],
+      "temporary_aliases": {
+        "phase1_research_copilot_default": [
+          "phase1-risk-stub-staged-workerprep20261023v6d"
+        ]
+      },
+      "source_witness_count": 9
+    },
+    {
+      "application": "phase1-memory",
+      "container_id": "065c59b4d712fdb46fcd747f9a9de0b88a4550d4114e78af4bbae8717da089c6",
+      "image_id": "sha256:e211fa891b8d7426090e7d53d78953424aa056e1195ec828b6868314ed6c3aee",
+      "stage_name": "phase1-memory-staged-workerprep20261023v6d",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "restart_policy": "no",
+      "attempt": "workerprep20261023v6d",
+      "raw_metadata_sha256": "9f6bc5dc9044cd5d897ae93af49481c9047389cd343ff1928a315cb1b201c143",
+      "configured_metadata_sha256": "fd301653623891f1d808dccfb16967a6fdc27843407a37770a00a985ad8caf89",
+      "foundation_sha256": "5c0d96afc87aee5936a3cd88912571aadfcfa608f94f7ed981ee0884e590e64b",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ],
+      "temporary_aliases": {
+        "phase1_research_copilot_default": [
+          "phase1-memory-staged-workerprep20261023v6d"
+        ]
+      },
+      "source_witness_count": 11
+    },
+    {
+      "application": "phase1-orchestrator",
+      "container_id": "35167f2524e93b2a89920a4135a9f2c5a143ced8c3f361ceea3736b2f234145f",
+      "image_id": "sha256:c3059654c3b3d128845a419f2730175c022b36049f2e7ff0ffc013596a053d83",
+      "stage_name": "phase1-orchestrator-staged-workerprep20261023v6d",
+      "state": "created",
+      "started": "0001-01-01T00:00:00Z",
+      "restarts": 0,
+      "restart_policy": "no",
+      "attempt": "workerprep20261023v6d",
+      "raw_metadata_sha256": "af55449afd1afbb2d5dfe9e64cc57e0779d89e365b0d1e2e0d2d066e6d027ec0",
+      "configured_metadata_sha256": "4374a598f684b3c03a96de27f849c8f4a6a243b1a03a4b02a2e19f83f3671c11",
+      "foundation_sha256": "ab356df32dff7b88e277ac584a0818621423cdf732553cc716504679011fb998",
+      "network_evidence": [
+        [
+          "phase1_research_copilot_default",
+          "dc3185b57a728053adc6a25d10baf81fcf9a271bd7cc86df6414807fc0fb2d56",
+          "configured_only"
+        ]
+      ],
+      "temporary_aliases": {
+        "phase1_research_copilot_default": [
+          "phase1-orchestrator-staged-workerprep20261023v6d"
+        ]
+      },
+      "source_witness_count": 14
+    }
+  ],
+  "postcheck": {
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/postcheck.json",
+    "sha256": "6c85eaf31ec66f89ba34114c1eb90c990436bf95929651b0d971074e5c06dec6",
+    "captured_at_utc": "2026-10-24T03:34:16.306594+00:00",
+    "reported_commands_completed": 46,
+    "reported_elapsed_seconds": 1.114517,
+    "reported_command_scope": "One known-network identity read, two selected eleven-ID metadata reads and 43 regular source-copy streams. Separate preparation-controller internal operations are not counted by these 46 reads.",
+    "reported_service_operations": 0,
+    "reported_private_credential_values_exported": false,
+    "limit": "Parent-native observations, not independent reviewer-native verification. Saved raw selected snapshots support the recomputations above; no extra fresh network-inspect response or whole-daemon verification is asserted."
+  },
+  "actual_id_review": {
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/actual_id_review.json",
+    "sha256": "e185f51ab00c1a719ebe541d22564289931335a2b46d729667b2d8271bfc32a2",
+    "schema": "companion-preparation-review-v1",
+    "exact_five_fields": [
+      "schema",
+      "decision",
+      "reviewer",
+      "manifest_sha256",
+      "evidence_sha256"
+    ],
+    "encoding": "UTF-8 sorted compact canonical JSON plus exactly one final LF",
+    "preparation_evidence_only": true
+  },
+  "remaining_limits": [
+    "Same immutable cached image IDs do not mean old container IDs were adopted, and do not prove a cache-free rebuild or SDK/startup behavior. Receipt intent events are not a complete native build/configuration-copy command trace.",
+    "Source reads are sequential regular-file hash witnesses. Equality of selected metadata before/after does not prove atomic or continuous source immutability; future installed-byte/preflight checks remain mandatory.",
+    "Blank staged NetworkID is explicitly configured-only evidence. Current temporary aliases are observed; final aliases/attachment are not activated or observed. Four final model projections reproduce the unchanged plan but remain MODELLED.",
+    "No full-daemon or older-stage equality, volume-byte/data integrity, service health, actual endpoint/cited query, import/SDK startup, clock/pidfd/worker/acknowledgement/recovery or economic proof follows. Historical v6c cause remains unverified.",
+    "Private configuration copying, cache/logs and consumed preparation records can persist as disclosed. No credential values were read by reviewer; no rollback or cleanup guarantee is inferred.",
+    "Acceptance supplies exact stopped-preparation inputs for possible separately scoped offline runtime-packet review only. Existing current-source changes invalidate older executable bindings; no policy record, handoff, consumed receipt or operation approval is refreshed here."
+  ],
+  "operational_authorized": false,
+  "runtime_policy_acceptance": false,
+  "packet_rebinding_authorized": false,
+  "preparation_rerun_or_reset_authorized": false,
+  "credential_access_authorized": false,
+  "startup_authorized": false,
+  "original_interruption_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "trading_authorized": false,
+  "automatic_follow_on_execution": false,
+  "reviewer_changes": [
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/independent_review.json",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual_d/actual_id_review.json"
+  ],
+  "frozen_inputs_current_code_tests_checkpoint_and_old_records_modified": false
+}

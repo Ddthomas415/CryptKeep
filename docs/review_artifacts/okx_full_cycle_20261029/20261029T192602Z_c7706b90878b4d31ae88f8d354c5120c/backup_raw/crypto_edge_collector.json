@@ -1,0 +1,206 @@
+{
+  "errors": 5,
+  "last_ok": true,
+  "last_reason": "collected",
+  "last_result": {
+    "basis_count": 1,
+    "basis_snapshot_id": "basis-a4b366696a87",
+    "checks": [
+      {
+        "kind": "funding",
+        "ok": true,
+        "symbol": "BTC/USDT:USDT",
+        "venue": "okx"
+      },
+      {
+        "kind": "open_interest",
+        "ok": true,
+        "symbol": "BTC/USDT:USDT",
+        "venue": "okx"
+      },
+      {
+        "kind": "basis",
+        "ok": true,
+        "perp_symbol": "BTC/USDT:USDT",
+        "spot_symbol": "BTC/USDT",
+        "venue": "okx"
+      },
+      {
+        "kind": "quotes",
+        "ok": true,
+        "symbol": "BTC/USD",
+        "venue": "coinbase"
+      },
+      {
+        "kind": "quotes",
+        "ok": true,
+        "symbol": "BTC/USD",
+        "venue": "kraken"
+      },
+      {
+        "kind": "order_books",
+        "ok": true,
+        "symbol": "BTC/USD",
+        "venue": "coinbase"
+      }
+    ],
+    "execution_enabled": false,
+    "funding_count": 1,
+    "funding_snapshot_id": "funding-ced50b600ee9",
+    "ok": true,
+    "open_interest_count": 1,
+    "open_interest_snapshot_id": "open-interest-2f977d397e60",
+    "order_book_count": 1,
+    "order_book_snapshot_id": "order-book-58a57120cb6e",
+    "quote_count": 2,
+    "quote_snapshot_id": "quotes-eec3fa89b8a8",
+    "reason": "collected",
+    "report": {
+      "basis": {
+        "avg_basis_bps": -4.021344056917485,
+        "count": 1,
+        "discount_ratio": 1.0,
+        "ok": true,
+        "premium_ratio": 0.0,
+        "rows": [
+          {
+            "annualized_basis_pct": -2.09684368682126,
+            "basis_bps": -4.021344056917485,
+            "basis_state": "discount",
+            "perp_px": 80786.25,
+            "spot_px": 80818.75,
+            "symbol": "BTC/USDT:USDT",
+            "venue": "okx"
+          }
+        ],
+        "widest_basis_bps": -4.021344056917485
+      },
+      "basis_meta": {
+        "capture_ts": "2026-10-29T14:34:05+00:00",
+        "row_count": 1,
+        "snapshot_id": "basis-a4b366696a87",
+        "source": "live_public"
+      },
+      "dislocations": {
+        "count": 1,
+        "ok": true,
+        "positive_count": 1,
+        "rows": [
+          {
+            "best_ask": 80723.8,
+            "best_ask_venue": "coinbase",
+            "best_bid": 80724.2,
+            "best_bid_venue": "kraken",
+            "dislocated": true,
+            "gross_cross_bps": 0.04955168116394164,
+            "symbol": "BTC/USD"
+          }
+        ],
+        "top_dislocation": {
+          "best_ask": 80723.8,
+          "best_ask_venue": "coinbase",
+          "best_bid": 80724.2,
+          "best_bid_venue": "kraken",
+          "dislocated": true,
+          "gross_cross_bps": 0.04955168116394164,
+          "symbol": "BTC/USD"
+        }
+      },
+      "execution_enabled": false,
+      "funding": {
+        "annualized_carry_pct": 10.593410904082951,
+        "avg_funding_rate": 9.67434785761e-05,
+        "count": 1,
+        "dominant_bias": "long_pays",
+        "last_funding_rate": 9.67434785761e-05,
+        "negative_ratio": 0.0,
+        "ok": true,
+        "positive_ratio": 1.0,
+        "rows": [
+          {
+            "funding_rate": 9.67434785761e-05,
+            "side_bias": "long_pays",
+            "symbol": "BTC/USDT:USDT",
+            "venue": "okx"
+          }
+        ]
+      },
+      "funding_meta": {
+        "capture_ts": "2026-10-29T14:34:05+00:00",
+        "row_count": 1,
+        "snapshot_id": "funding-ced50b600ee9",
+        "source": "live_public"
+      },
+      "has_any_data": true,
+      "ok": true,
+      "open_interest": {
+        "count": 1,
+        "max_open_interest": 3218466.2600000133,
+        "ok": true,
+        "rows": [
+          {
+            "open_interest": 3218466.2600000133,
+            "price_change_pct": 0.3649816391129132,
+            "symbol": "BTC/USDT:USDT",
+            "venue": "okx"
+          }
+        ],
+        "top_symbol": "BTC/USDT:USDT",
+        "total_open_interest": 3218466.2600000133
+      },
+      "open_interest_meta": {
+        "capture_ts": "2026-10-29T14:34:05+00:00",
+        "row_count": 1,
+        "snapshot_id": "open-interest-2f977d397e60",
+        "source": "live_public"
+      },
+      "order_book_meta": {
+        "capture_ts": "2026-10-29T14:34:05+00:00",
+        "row_count": 1,
+        "snapshot_id": "order-book-58a57120cb6e",
+        "source": "live_public"
+      },
+      "order_books": {
+        "buy_pressure_count": 0,
+        "count": 1,
+        "max_abs_imbalance": 0.5343234679494807,
+        "ok": true,
+        "rows": [
+          {
+            "ask_notional": 48679.9407788251,
+            "bid_notional": 14774.658978920299,
+            "depth": 5,
+            "imbalance": -0.5343234679494807,
+            "pressure": "sell_pressure",
+            "spread_bps": 0.0012389557925409794,
+            "symbol": "BTC/USD",
+            "venue": "coinbase"
+          }
+        ],
+        "sell_pressure_count": 1,
+        "top_symbol": "BTC/USD"
+      },
+      "quote_meta": {
+        "capture_ts": "2026-10-29T14:34:05+00:00",
+        "row_count": 2,
+        "snapshot_id": "quotes-eec3fa89b8a8",
+        "source": "live_public"
+      },
+      "research_only": true,
+      "source_filter": "live_public",
+      "store_path": "redacted"
+    },
+    "research_only": true,
+    "source": "live_public",
+    "store_path": "redacted"
+  },
+  "loops": 4407,
+  "ok": true,
+  "pid": 2741,
+  "plan_file": "sample_data/crypto_edges/live_collector_plan.json",
+  "poll_interval_sec": 300.0,
+  "source": "live_public",
+  "status": "running",
+  "ts": "2026-10-29T14:34:05.723678+00:00",
+  "writes": 4402
+}

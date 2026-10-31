@@ -1,0 +1,16 @@
+{
+  "actions_executed": true,
+  "attempt_reserved": true,
+  "evidence": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261027v6i/evidence.json",
+  "evidence_sha256": "6b307618be50d7e6179106fbcfc837ac5ec0695a12aaa9888b34fed54e8d2fcf",
+  "exit_code": 0,
+  "manifest_sha256": "3c8066b43cf924374f2338907f306aadec25fdb599a2ef28a068ab0a21632a33",
+  "originals_interrupted": false,
+  "preparation_complete": true,
+  "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_preparations/workerprep20261027v6i/receipt.jsonl",
+  "services_started": false,
+  "session_id": 53316,
+  "source": "parsed exact saved tool stdout, not independent runtime verification",
+  "startup_authorized": false,
+  "state": "READY_FOR_INDEPENDENT_REVIEW"
+}

@@ -1,0 +1,7 @@
+{
+  "decision": "ACCEPTED_WITH_RISK",
+  "evidence_sha256": "fe3569d39351d72766136aae7c58ae24f52f7b3a627edf760d999874f06c2f96",
+  "manifest_sha256": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d",
+  "reviewer": "Independent Codex GATE: saved S3-refresh stopped actual-ID review, 2026-10-21",
+  "schema": "companion-preparation-review-v1"
+}

@@ -1,0 +1,22 @@
+{
+  "capture_plan": "research/ed002_public_inputs/plans/pilot_two_hour_20261028.json",
+  "enabled": false,
+  "end_ms": null,
+  "inputs_sha256": {
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "research/ed002_public_inputs/plans/pilot_two_hour_20261028.json": "7b1a0e5e9600792d931439b2f6e7e0befe8c5345b07c22f46a1d31b8153162f6",
+    "scripts/__init__.py": "4f6c74a116e936a120e3e0bde4125140808ac8bf7a526194c2010e24d9cb5291",
+    "scripts/research/capture_descriptive_inputs.py": "415d4e351b9c1c544bcf9fe4f84dab72280dd47ffed13353860a011bf5d0145e",
+    "scripts/research/corrected_research_math.py": "d07ae7171e2293cbe60d15ae9bc0973d3ef8bd31b9c7b99105f928c029e29047",
+    "scripts/research/run_ed002_collection_slot.py": "242ccec28fcc00eaf2375c5b3a5ddaa902f75e3de1be4f63e2945a318676bc9f",
+    "services/__init__.py": "77f3924997e026cbe6dddf4be13332cb484a35b432481b04fb0fcdc3aeb3a1ea",
+    "services/backtest/descriptive_candles.py": "9425211207738f0395f28b3f8c02c8a292c9a2e80e5d8d4b203e5ec5ebf273de",
+    "services/backtest/descriptive_metadata.py": "9c98bba24ed52bcb99e73ecc8bcd0bfa51ccd5e60447aa5f2017ef8cbb1e4099",
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc"
+  },
+  "max_lateness_ms": 120000,
+  "max_slots": 48,
+  "pilot_id": "mac_pilot_v1",
+  "schema": "ed002-local-pilot-v1",
+  "start_ms": null
+}

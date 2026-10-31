@@ -1,0 +1,92 @@
+{
+  "schema": "companion-worker-capabilities-evidence-review-v1",
+  "review_date": "2026-10-23",
+  "active_role": "GATE",
+  "inspection_stage_role": "AUDITOR",
+  "decision": "ACCEPTED_WITH_RISK",
+  "decision_scope": "Bounded acceptance of the pinned, parent-transcribed read-only capability evidence at its observation time only",
+  "runtime_state": "INCOMPLETE",
+  "blocking_findings": [],
+  "reviewed_artifact_sha256": {
+    "docs/checkpoints/companion_worker_capabilities_20261023.md": "982508483c65c0a0706745bd3e0bf327aa47466f16e56a62c842a78358a3a315",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/worker_capabilities_observation.json": "3d2e9f7556208861f2a419bdc2216dbf0acf6a09455da2a23e16d5bd21cf217a",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/worker_capability_probe_suffix.txt": "6ba570d0a637e8f299074ecb3f29e1616241b3ed08f94e6fd2d8df1697204ee5"
+  },
+  "all_requested_hashes_match": true,
+  "reconstruction": {
+    "claim_status": "SHOWN",
+    "method": "Extract the raw WORKER_SOURCE literal from the previously accepted source retained in this review session and concatenate the exact pinned suffix; do not execute either program or reread broader sources",
+    "previously_accepted_source_sha256": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659",
+    "reconstructed_probe_sha256": "8229704e4d9f7bf24e5ebee1449005363c929780ad48bd17c5e7da1c3cc768e6",
+    "matches_observation_probe_sha256": true,
+    "probe_executed_by_reviewer": false
+  },
+  "shown_by_source_inspection": [
+    "The sole terminate_worker invocation supplies real os, ObservationOnly, time and read_only. The accepted source's signal_api.pidfd_send_signal call therefore reaches ObservationOnly.pidfd_send_signal, which reads /proc/self/fdinfo/<fd> and updates fixed observation fields only.",
+    "Real os.pidfd_open and os.close are used for the self and worker handles. Their zero arguments are pidfd flags, not a signal-zero invocation. The reconstructed program does not invoke real signal.pidfd_send_signal, os.kill or another real signal operation.",
+    "The suffix inspects real signal API presence with callable/getattr but does not call that API. API existence and successful pidfd opens do not establish send permission or delivery.",
+    "Identity command-line bytes are read internally through bounded read-only files. The only result print is an explicit JSON projection of time, capabilities, validation status, fixed failure stage, worker PID/handle status, Python version and fixed disclosure booleans; no argv or environment values are exported, and environment is not read."
+  ],
+  "captured_native_evidence": {
+    "origin": "Parent-performed native observation, sanitized stdout transcribed into the pinned JSON; accepted as supplied evidence, not independently repeated or authenticated against a separate raw transcript",
+    "observed_at_utc": "2026-10-23T12:49:10.996726+00:00",
+    "recorded_native_operation_count": 6,
+    "recorded_sequence": "Seven-original inspect, four application probes, same seven-original inspect",
+    "application_result_count": 4,
+    "all_four_record_identity_validation_and_worker_pidfd_open_success": true,
+    "all_four_record_pidfd_API_presence_and_self_open_success": true,
+    "all_four_record_python_version": [3, 11, 17],
+    "original_count": 7,
+    "original_ids_unique": true,
+    "all_seven_record_running": true,
+    "selected_metadata_equality_recorded": true,
+    "reviewer_repeated_native_observation": false
+  },
+  "clock_interpretation": {
+    "sample_count_per_app": 1,
+    "offset_definition": "Remote epoch sample minus host time: lower = remote - host response, upper = remote - host request, conditional on sampling order and clock behavior during the bracket",
+    "recorded_intervals_seconds": {
+      "phase1-audit-log": [-0.010483, 0.078738],
+      "phase1-risk-stub": [-0.009573, 0.080299],
+      "phase1-memory": [-0.008602, 0.074958],
+      "phase1-orchestrator": [-0.009681, 0.085181]
+    },
+    "all_intervals_include_zero": true,
+    "interval_widths_consistent_with_recorded_host_wall_brackets": true,
+    "recorded_monotonic_roundtrip_range_seconds": [0.083561, 0.094863],
+    "interpretation": "Each recorded bracket is compatible with zero offset and weighs against gross skew at that sample. It does not measure an exact zero offset, ongoing synchronization or a future deadline guarantee.",
+    "independent_arithmetic_limit": "The JSON omits the raw remote_utc_epoch values emitted by the suffix. Review checked interval ordering, inclusion of zero and widths against recorded host brackets, not recomputation of both endpoints from separately retained remote samples.",
+    "new_runtime_tolerance_or_threshold_selected": false
+  },
+  "nonblocking_provenance_limits": [
+    {
+      "claim_status": "CLAIMED",
+      "claim": "The parent reports interpreter isolation with -I -S -B. The three permitted artifacts do not retain an exact exec argv, and a program hash alone cannot prove launch flags. This review does not independently promote those invocation flags to SHOWN."
+    },
+    {
+      "claim_status": "SHOWN",
+      "claim": "The JSON records selected metadata equality and one original inventory, not two separate raw inspect payloads. Equality is a supplied capture result, not an independent before/after recomparison by this reviewer; it does not prove full configuration or persistent-data preservation."
+    }
+  ],
+  "remaining_unverified": [
+    "Actual pidfd signal permission and delivery, including successful graceful worker and shell/container exit.",
+    "Acknowledgement survival on PID1 exit and actual cancellation, transport-loss, pending ownership and recovery behavior.",
+    "Exact or future clock synchronization, ongoing clock compatibility and any approved deadline tolerance.",
+    "A real cited explanation response, historical failure substep, persistent-record contents and volume contents."
+  ],
+  "disclosed_parent_side_effects": [
+    "Four temporary exec processes and Docker execution events.",
+    "Kernel pidfd handles opened and closed without any real signal dispatch."
+  ],
+  "review_boundaries": {
+    "one_bounded_pass": true,
+    "new_source_reads_outside_three_pinned_artifacts": false,
+    "previously_accepted_WORKER_SOURCE_reused_from_session": true,
+    "native_commands_network_credentials_service_requests_signals_tests": false,
+    "sources_evidence_checkpoint_modified": false,
+    "only_authored_artifact": "docs/review_artifacts/companion_continuation_20261021/runtime_packet/worker_capabilities_review.json",
+    "implementation_reaudit": false,
+    "manifest_packet_or_preparation_creation_approved": false,
+    "operational_authorization": false
+  }
+}

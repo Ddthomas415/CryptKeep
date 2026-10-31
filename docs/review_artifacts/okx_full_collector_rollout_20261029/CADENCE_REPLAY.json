@@ -1,0 +1,65 @@
+{
+  "database_byte_preserved": true,
+  "diagnosis": "legacy_only_cadence_ignores_valid_raw_pair",
+  "input_sha256": "c5054ddb78417326fb16271d8185985cb6061f23f442727dba163519075238b8",
+  "recorded_at": "2026-10-29T18:47:50.615992+00:00",
+  "reference_time": "2026-10-29T18:20:57.504633+00:00",
+  "result": {
+    "checked": [
+      "funding",
+      "open_interest",
+      "basis"
+    ],
+    "families": [
+      {
+        "age_sec": null,
+        "capture_ts": null,
+        "family": "funding",
+        "max_age_sec": 43200.0,
+        "reason": "no_snapshot",
+        "status": "missing"
+      },
+      {
+        "age_sec": 0.0,
+        "capture_ts": "2026-10-29T18:20:57.504633+00:00",
+        "family": "open_interest",
+        "max_age_sec": 43200.0,
+        "reason": "fresh",
+        "status": "ok"
+      },
+      {
+        "age_sec": 0.0,
+        "capture_ts": "2026-10-29T18:20:57.504633+00:00",
+        "family": "basis",
+        "max_age_sec": 43200.0,
+        "reason": "fresh",
+        "status": "ok"
+      },
+      {
+        "age_sec": null,
+        "capture_ts": null,
+        "family": "quote",
+        "max_age_sec": 0.0,
+        "reason": "check_disabled",
+        "status": "disabled"
+      },
+      {
+        "age_sec": null,
+        "capture_ts": null,
+        "family": "order_book",
+        "max_age_sec": 0.0,
+        "reason": "check_disabled",
+        "status": "disabled"
+      }
+    ],
+    "missing": [
+      "funding"
+    ],
+    "ok": false,
+    "stale": []
+  },
+  "scope": "offline disposable replay, not a current runtime check",
+  "script_sha256": "b9efe807c4a32f7c09f0fba8235baf2fdf1f4370a06e2c704eda337c6bfd743c",
+  "source_sha256": "46fa71afdd758f51f738750ca90c015dc7fd00d48bbd573bbe71e0de10fca5e1",
+  "valid_saved_pair": true
+}

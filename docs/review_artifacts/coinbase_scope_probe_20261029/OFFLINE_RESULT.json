@@ -1,0 +1,8 @@
+{
+  "command": "./.venv/bin/python -B -m pytest -q -p no:cacheprovider docs/review_artifacts/coinbase_scope_probe_20261029/test_probe.py",
+  "exit_code": 0,
+  "passed": 40,
+  "elapsed_reported_seconds": 0.41,
+  "private_credentials_used": false,
+  "real_http_used": false
+}

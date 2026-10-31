@@ -1,0 +1,15 @@
+{
+  "role": "AUDITOR",
+  "acceptance": "READY_FOR_INDEPENDENT_REVIEW",
+  "production_repair": "INCOMPLETE",
+  "author_result": "8 passed in 0.19s; exit 0",
+  "sha256": {
+    "services/analytics/crypto_edge_collector.py": "6a62baf4d5b6904e133caa4c437fad7ddc02aba1133e0c18e13b4a2ebc263cbf",
+    "storage/crypto_edge_store_sqlite.py": "35095d8deccd786e5867240d7e45db748d50ca4c96460b7f7b72eb6fee00d540",
+    "services/market_data/alternative_data.py": "0148c665381a2691ddd5717bb76c3b7b178d6ac78d3b0fcc7e71c2a926edabff",
+    "services/analytics/crypto_edges.py": "f82753927a2bb8a55141bfc8fb59c0d97a8523524685db37cb9e8f46b72c6bb2",
+    "tests/test_funding_provenance_boundary.py": "c8d791ae425e40a9ac0a9b0c0e4ed7a82c531568fafec683b03476a669693347",
+    "docs/research/funding_provenance_boundary_20261028.md": "b49bbd5182ec500293a7574a292d8fd59f1346baac9ccceb8f9721a39414b15d",
+    "docs/review_artifacts/funding_provenance_boundary_20261028/tests.diff": "f68f01ecb46a28cfb770c1750061b6a77e2be0aa2078f5171ffc05810f14edb4"
+  }
+}

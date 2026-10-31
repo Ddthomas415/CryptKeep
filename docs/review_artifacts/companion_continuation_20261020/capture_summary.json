@@ -1,0 +1,78 @@
+{
+  "baseline_exited_state_matches": false,
+  "capture_sha256": "675c71f575a6555d0d23177492450f228c89ca5b478c9a29264e0702fe0ed32f",
+  "credential_values_read": false,
+  "explanation_checked": false,
+  "health_checked": false,
+  "lifecycle_commands_executed_by_this_thread": false,
+  "metadata_complete_for_selected_fields": true,
+  "ownership": "UNVERIFIED; operator asked",
+  "paired_observations_match": true,
+  "recorded_at": "2026-10-20T12:16:46.766532+00:00",
+  "services": [
+    {
+      "name": "phase1-timescaledb",
+      "original_id_matches": true,
+      "original_image_matches": true,
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-20T12:10:30.80557325Z",
+      "state": "running"
+    },
+    {
+      "name": "phase1-qdrant",
+      "original_id_matches": true,
+      "original_image_matches": true,
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-20T12:10:31.415239375Z",
+      "state": "running"
+    },
+    {
+      "name": "phase1-minio",
+      "original_id_matches": true,
+      "original_image_matches": true,
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-20T12:10:31.08949425Z",
+      "state": "running"
+    },
+    {
+      "name": "phase1-audit-log",
+      "original_id_matches": true,
+      "original_image_matches": true,
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-20T12:10:41.41813213Z",
+      "state": "running"
+    },
+    {
+      "name": "phase1-risk-stub",
+      "original_id_matches": true,
+      "original_image_matches": true,
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-20T12:10:52.43953176Z",
+      "state": "running"
+    },
+    {
+      "name": "phase1-memory",
+      "original_id_matches": true,
+      "original_image_matches": true,
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-20T12:10:31.259394334Z",
+      "state": "running"
+    },
+    {
+      "name": "phase1-orchestrator",
+      "original_id_matches": true,
+      "original_image_matches": true,
+      "restart_policy": "no",
+      "restarts": 0,
+      "started": "2026-10-20T12:10:32.027633251Z",
+      "state": "running"
+    }
+  ],
+  "services_started_by_this_thread": false
+}

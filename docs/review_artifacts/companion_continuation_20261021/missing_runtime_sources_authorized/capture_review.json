@@ -1,0 +1,84 @@
+{
+  "schema": "companion-missing-runtime-sources-capture-review-v1",
+  "reviewed_at": "2026-10-22T01:10:47Z",
+  "active_role": "GATE",
+  "reviewer": "Independent Codex GATE: bounded offline capture-integrity review",
+  "objective": "Review only the new read-only installed-source capture, not source semantics or previously accepted components.",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Exact saved capture script, successful receipt and 32 files. No installed-policy record, runtime-pin approval or operational authorization.",
+  "findings": [],
+  "material_assumptions": [],
+  "environment": "VERIFIED_ENV for local read-only /usr/bin/python3 -B standard-library assertions and static source inspection only",
+  "verification": {
+    "command": "/usr/bin/python3 -B - <<'PY' (inline offline standard-library assertions)",
+    "result": "PASS, exit 0: all32 file hashes/sizes and exact ordered 4x8 scope; accepted exact replacement IDs/images; stable selected before/after metadata; original incomplete receipt preserved; helper and script static review",
+    "saved_files_rehashed": 32,
+    "saved_bytes": 349376,
+    "distinct_source_paths": 8,
+    "subjects": 4,
+    "reported_commands": 34,
+    "reported_elapsed_seconds": 1.83,
+    "reported_transfer_bytes": 409488,
+    "reviewer_native_calls": 0,
+    "capture_repeats": 0,
+    "test_suite_runs": 0,
+    "captured_modules_imported_or_executed": false
+  },
+  "shown": [
+    "All32 regular non-symlink local files match every report entry's SHA256 and byte count. Filenames, container IDs, image IDs and absolute source paths match the exact ordered Cartesian product of four selected replacements and eight fixed paths. No additional capture file was present at review time.",
+    "The hash-pinned preparation postcheck and separately accepted preparation evidence bind the same four unique replacement ID/image pairs. Successful receipt before and after equal that saved baseline in all six selected fields: id, image, state, started, restarts and restart_policy.",
+    "All four selected records remain created, started=0001-01-01T00:00:00Z, restarts=0, restart_policy=no in the saved before and after observations. This is selected point-in-time metadata evidence, not continuous monitoring.",
+    "The earlier separate receipt remains INCOMPLETE with before=null, after=null, files=[], commands=1, transfer_bytes=0 and error=Refused. Its directory contains only report.json; the successful capture is in a separate exclusive output directory.",
+    "Static command construction permits only two selected-field container inspections and 32 container-to-stdout copies from the fixed eight source paths. No shell, exec, startup, stop, build, network request to a service, SQL, environment inspection or credential-path read is constructed. Docker daemon communication is required for the recorded reads.",
+    "The native command path uses the pinned absolute Docker CLI, fixed local Unix endpoint, empty temporary Docker configuration and PATH-only child environment. CLI verification occurs before every command. Each command uses stdin DEVNULL, stderr DEVNULL, shell=False and bounded stdout.",
+    "The script enforces at most34 commands, a120second monotonic command budget and at most10seconds per command from remaining budget; output limits are65536bytes per inspection and534528bytes per archive, with an18MiB aggregate received-byte budget. The archive helper accepts only a single regular basename-matching member, no link, size at most524288bytes and zero archive tail; it slices bytes without filesystem extraction.",
+    "Receipt state reaches READY_FOR_INDEPENDENT_REVIEW only after the final exact selected-metadata comparison. Failure leaves INCOMPLETE and reports only sanitized exception information. Output directory creation and exclusive file creation prevent ordinary overwrite of the earlier receipt."
+  ],
+  "claimed": [
+    "The saved receipt reports34commands,1.83seconds and409488transfer bytes. These are internally consistent with the reviewed script and saved outputs, not independently timed or replayed observations.",
+    "The user identifies the successful capture as separately explicitly escalated. The incomplete receipt's Refused value alone does not prove the exact sandbox denial cause, and the successful receipt alone is not an independent escalation audit trail."
+  ],
+  "limits": [
+    "Capture integrity and provenance consistency are accepted, not the semantics of HTTPcore, Uvicorn or Psycopg. Parent review owns those semantics; no full import closure, zero-retry policy or entrypoint-effect approval follows.",
+    "No native invocation was repeated or independently witnessed. Saved receipts are not tamper-proof command transcripts. No current Docker, image, container or CLI filesystem state was refreshed by this reviewer.",
+    "The script intentionally calls private _verify_cli/_run helpers directly rather than DockerTransport.command; its fixed local command construction is the bounded capture scope, not an extension of the production transport path allowlist or authorization guard. In particular Uvicorn remains outside the production transport SDK allowlist.",
+    "The120second budget bounds command scheduling and subprocess I/O waits, not every wall-clock step: local archive parsing, output/report writes, temporary-directory cleanup and the helper's final child kill/wait are not all independently deadline-bounded. Failure paths do not guarantee a final inventory. The successful saved capture completed both inventories.",
+    "Selected stable metadata does not prove whole-container metadata equality, absence of all daemon-side bookkeeping or an immutable filesystem throughout the interval. The four captured copies of each path are byte-identical, but no broader image equivalence is inferred.",
+    "The CLI hash is checked immediately before each launch, not through an immutable executable descriptor. No stronger anti-race guarantee is inferred.",
+    "Acceptance is confined to the reviewed hashes. No general future capture approval, policy record, startup, cutover, trading, credential access, query or runtime authorization is created.",
+    "Only capture_review.json was written, following the user's explicit bounded write scope; the shared work log and all existing accepted artifacts were left untouched."
+  ],
+  "reviewed_sha256": {
+    "capture_missing_runtime_sources.py": "c588c19179f7273a01a4e65bd94867eea01547827b5eae537a2d8ee8dad6d1bd",
+    "missing_runtime_sources_authorized/report.json": "7e0445af269135ea252e69da471098e884d71cb967ce261761f7c9c37cb44363",
+    "missing_runtime_sources/report.json": "170c8182e17d06cf95ec5a84efccfc2e66fe54b27ec583ab6363383826cd7e40",
+    "s3_source_refresh_plan/actual_preparation_postcheck.json": "c505e4c6c3b2be5cd1054ac976fd69a503d0fcf2b2304cc6e6583ef1b1decb06",
+    "s3_source_refresh_plan/actual_id_review.json": "b9723bdd60158e9f5f354eee34db097af6d6949a3bb113d8dd16a5c6980b931c",
+    "s3_source_refresh_plan/actual_preparation_evidence.json": "fe3569d39351d72766136aae7c58ae24f52f7b3a627edf760d999874f06c2f96",
+    "s3_source_refresh_plan/reviewed_preparation_manifest.json": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d",
+    "runtime_packet/independent_review.json": "5afa2474008e26439e7a35f0af13b4b9ee6ee48746edf15d8f2d921ffb803bd9",
+    "capture_installed_facts.py": "a553e37e9bac1b5f6827fa8fe9ff40d520e7dc6005df4fc81064d03b6259eb76",
+    "repo:scripts/research/companion_docker_transport.py": "98e94faa02c87c38c2b1379bb5d909791d0077a994e7dba3d59b6a5d7bd96d17",
+    "repo:docs/checkpoints/companion_runtime_packet_20261021.md": "b623dbc3504a3229df91c216af7f43de13aa5a77c07ca5032537e0df402597c1"
+  },
+  "hash_path_base": "docs/review_artifacts/companion_continuation_20261021; repo: keys are repository-relative",
+  "reviewed_source_hashes": [
+    {"path": "httpcore/_async/connection_pool.py", "sha256": "0ce210dacd9909ff6a7f0c61ccca6b4cf2ea08bf0ec465e2285eaa447c6f5726", "bytes": 17307, "verified_copies": 4},
+    {"path": "httpcore/_async/connection.py", "sha256": "e8e70f5ea3047dcd01537f3ffa21d4343775bca4937365154f4f57a8d6ff04e9", "bytes": 8449, "verified_copies": 4},
+    {"path": "uvicorn/main.py", "sha256": "8afea9b600c19e4a345be5641ecd1edc8e14ac5effe6c119ae7b5034a24614d6", "bytes": 16915, "verified_copies": 4},
+    {"path": "uvicorn/config.py", "sha256": "829b2e933b8915b5c144de7fa8e9cb1a210d98680a334162f9e649e86c0cd5d4", "bytes": 20849, "verified_copies": 4},
+    {"path": "uvicorn/importer.py", "sha256": "9d1b74410deaa62dbae3e9ff991d25e790b675d33c9e8c133734f58ec59a6a6f", "bytes": 1128, "verified_copies": 4},
+    {"path": "uvicorn/server.py", "sha256": "31c0e6567d2c04854ecda0a82aba75d28c5a49c0f7b68b285a1b6c2f562574da", "bytes": 13010, "verified_copies": 4},
+    {"path": "uvicorn/lifespan/on.py", "sha256": "d4a62e14d37240e3488ed10784a640269f8e3a8908ca38fbe30a4608606fe259", "bytes": 5184, "verified_copies": 4},
+    {"path": "psycopg/conninfo.py", "sha256": "efb827f725975300bfef34710768c98f251eefa702048e15af2862f73372a768", "bytes": 4502, "verified_copies": 4}
+  ],
+  "source_hash_binding": "Each path is beneath /usr/local/lib/python3.11/site-packages/. The reviewed successful report binds every one of the32 saved filenames to these hashes/sizes and its exact container/image pair; all32 were independently rehashed.",
+  "unverified": [
+    "Installed-source semantics and any resulting compatibility or policy conclusions",
+    "Future installed bytes, startup behavior and end-to-end runtime outcomes"
+  ],
+  "proof_required_next": "Separate exact-image source-semantic assessment by the parent; retain prior policy/runtime blockers unless independently resolved. This review authorizes no operation.",
+  "runtime_packet_state": "INCOMPLETE",
+  "policy_records_created": false,
+  "runtime_authorization_created": false
+}

@@ -1,0 +1,91 @@
+{
+  "schema": "companion-runtime-packet-draft-independent-review-v1",
+  "reviewed_at": "2026-10-21T22:15:09Z",
+  "role": "GATE",
+  "reviewer": "Independent Codex GATE: offline runtime packet derivation and bounded policy assessment",
+  "decision": "ACCEPTED_WITH_RISK",
+  "scope": "Acceptance of saved offline draft derivation/bindings only. Full runtime packet remains INCOMPLETE. This is not a companion-installed-policy-review-v1 record or companion-runtime-pins-v1 approval.",
+  "findings": [],
+  "material_assumptions": [],
+  "reviewed_sha256": {
+    "docs/review_artifacts/companion_continuation_20261021/assemble_runtime_packet.py": "d52814f3eff150448e95fdb31dcfaef53817d46cc1970ef2417e48e98c744bdf",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/staged_metadata.derived.json": "98c186a31d78686bf7702eb46685c87a2d6487a680cad0e702a35244c7eed118",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/subjects.draft.json": "6215685a6dcd6fc35e3acf87fbb595acf995758ff4013c3c551919692a2c72e6",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/topical_approvals.json": "f4de03c65058769eb434e5931065deaeb5795087983a92a3b2f54dacd8feff45",
+    "docs/review_artifacts/companion_continuation_20261021/runtime_packet/provenance.json": "3d14445432cffec436e9b94b0e767b5e83041100d4ee1a937792f76d990ebd69",
+    "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/reviewed_preparation_manifest.json": "dd7b537aa39d2f5cbccebf41a20fadc7e2ae8e22ebe20063daf7417286dddb6d",
+    "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/actual_preparation_evidence.json": "fe3569d39351d72766136aae7c58ae24f52f7b3a627edf760d999874f06c2f96",
+    "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/actual_preparation_postcheck.json": "c505e4c6c3b2be5cd1054ac976fd69a503d0fcf2b2304cc6e6583ef1b1decb06",
+    "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/actual_id_review.json": "b9723bdd60158e9f5f354eee34db097af6d6949a3bb113d8dd16a5c6980b931c",
+    "docs/review_artifacts/companion_continuation_20261021/installed_facts_capture/report.json": "7dbda2c14b68b58d372508eda0d34e232bc9e6548bd0b7ff5327b027abbdad2b",
+    "docs/review_artifacts/companion_continuation_20261021/topical_witness_candidate.json": "56aee572ae72837a859c81f0c5fa70d35ab9ac5dd71128754d57c1df98762cd1",
+    "docs/review_artifacts/companion_continuation_20261021/topical_witness_review.json": "2f787ebafbe0d435f4b528ae173d748e40f08fe82237a9cce12d5a0779936c45",
+    "docs/review_artifacts/companion_continuation_20261021/s3_source_refresh_plan/actual_memory_main.py.source.txt": "c1eaae5a5e1712ad926f556fdaf3195442a2b6e354059542748a429945a36228"
+  },
+  "verification": {
+    "environment": "VERIFIED_ENV for empty-environment offline Python -B assertions only",
+    "result": "PASS: deterministic four draft artifacts; all7 input hashes; all93 saved file hashes/sizes;7 subjects;43 app-source pins;actualIDs/staged snapshot equality;alias-only raw/finalconfigured models;unchanged topical witness;no policy approvals",
+    "captured_files_rehashed": 93,
+    "source_pin_entries": 88,
+    "application_source_entries": 43,
+    "subjects": 7,
+    "excluded_archive_paths": 5,
+    "tests_repeated": 0,
+    "native_operations": 0,
+    "method": "Imported assembler and called derive(), not its publishing main. Reproduced four artifact canonical bytes, verified seven input hashes and all93 capture file hashes/sizes; independently reconstructed prepared snapshots, final alias-only models and subject bindings with existing pure APIs. Existing _source_coverage and _topical_contract passed; no policy records were supplied or generated."
+  },
+  "shown": [
+    "Four draft artifacts reproduce byte-for-byte from the hash-bound inputs. Existing actual-ID review still binds the new4 stopped replacements; no old-stage adoption occurs.",
+    "Original3 storage subject IDs/images/preservation pins exactly match reviewed baseline. Four app subject IDs/images match ReviewedPreparation; final preservation hashes are raw saved metadata with logical aliases modeled only, retaining blank raw network IDs.",
+    "All43 application pin entries equal the reviewed preparation source entries; memory main pin is the separately saved new-ID c1eaae5a repair. The other application bytes are controller-attested for the new preparation, not independently recaptured43files.",
+    "Staged metadata artifact differs from saved postcheck rows only by adding the backend-attested attempt field. Attempt labels were not independently captured in the separate postcheck.",
+    "All93 saved capture file hashes and sizes match their accepted report.88 allowed runtime source-pin paths are selected;5 archive/marker paths are excluded from runtime source pins and remain separately evidenced. Historical old memory main is explicitly superseded.",
+    "Topical approvals object equals the independently reviewed archived witness. Its different serialized byte hash is recorded; no current-cause, live-citation or market-truth approval follows.",
+    "Draft source coverage/topical schema checks pass but are structural checks, not truth of per-image policies. Qdrant has no source-file pins; its subject is an existing-running storage binding, not reviewed daemon implementation.",
+    "No dependency-policy approvals or accepted runtime manifest are created by this assembler."
+  ],
+  "entrypoint_policy_interpretation": {
+    "meaning": "Characterized allowed effects, not absence of all effects. Native startup is not required merely to characterize reviewed source; eventual execution is a separate observed-outcome gate.",
+    "characterized_application_effects": [
+      "Reviewed application modules load settings and configure stdout logging; audit-log Database construction stores its DSN without connecting. Orchestrator constructs a lazy OpenAI wrapper; guarded probe route does not instantiate the model SDK.",
+      "Authored nonmemory modules have no startup hooks. Reviewed tools module adjusts sys.path at import; optional dashboard imports are lazy and not on the strict probe tool path.",
+      "Requests intentionally perform read-only retrieval/risk checks and audit-event inserts. These are allowed request effects, not a zero-write assertion or startup effect."
+    ],
+    "storage_scope": "Original3 remain running and are not started by the running-update application-start loop. Existing accepted client-side read-only checks and point-in-time saved storage observations apply; no assertion that daemon entrypoints or background storage work are effect-free.",
+    "not_approved": "No whole-entrypoint/import or per-image all-policy acceptance is inferred from only the launcher and selected module captures."
+  },
+  "specific_policy_evidence_limits": [
+    {
+      "claim": "zero_retries",
+      "shown": "Probe _request_json calls retry_async with retries=0; captured retry_async performs no second application call on failure. Shared audit and tools construct AsyncHTTPTransport(retries=0).",
+      "limit": "Captured HTTPcore files are _sync/connection_pool.py, whereas captured HTTPX default transport dispatches to AsyncConnectionPool. Installed _async/connection_pool.py and its _async/connection.py retry decision are not among captured sources. Configuration is shown, not complete downstream async retry implementation."
+    },
+    {
+      "claim": "no_proxy_redirect",
+      "shown": "Guarded client construction uses trust_env=False/follow_redirects=False; captured HTTPX proxy-map and async redirect branches honor these settings at that layer. Probe origins are explicitly restricted.",
+      "limit": "This is probe-call scope. Ordinary shared.audit defaults and configured urllib healthcheck commands are outside that guard. A whole-image policy must not silently include those paths as equally constrained."
+    },
+    {
+      "claim": "entrypoint_side_effects",
+      "shown": "Authored nonmemory initialization and lazy wrappers characterize the listed allowed effects without native startup.",
+      "limit": "Captured /usr/local/bin/uvicorn imports uvicorn.main.main; invoked installed uvicorn.main/configuration import-loader sources are not in the capture. The launcher alone cannot characterize that missing invoked chain. This is a specific source-evidence limit, not a demand for prior successful startup."
+    },
+    {
+      "claim": "storage and DB client scope",
+      "shown": "Saved PG_VERSION16,55lineage matches,tables,bucket HEAD and collection checks support point-in-time namespace/identity facts; accepted client controls remain separately reviewed.",
+      "limit": "ELF identities of curl/bash are not exhaustive binary semantics. psycopg connection.py delegates connection attempt selection to uncaptured conninfo_attempts; one application-level connect/query does not certify one underlying connection attempt. No storage daemon-wide zero-retry/no-proxy claim follows."
+    }
+  ],
+  "provenance_limits": [
+    "Nonmemory SDK captures came from earlier containers with matching image IDs; new memory SDK pins are inherited source-only image lineage, not direct new-ID SDK file copies. Existing fresh installed-source checks must still verify exact bytes before use.",
+    "No blanket full-import-closure assumption is made. Policy interpretations need explicit operation/path scope and exact source/control support before any existing-schema record asserts all3 SHOWN. Missing policy records are intentional in this draft, not an assembler defect.",
+    "Actual prepared snapshots are stopped/configured-only. Alias-only hash equality predicts the reviewed final configuration; no live attachment, startup health, bounded query or successful explanation is claimed.",
+    "Topical witness remains historical semantic suitability. Existing live identity/archive mapping/actual citation gates cannot be replaced by this draft.",
+    "All reviewed inputs are preserved. No native Docker, network, credential/private operational reads, builds, lifecycle or runtime queries occurred. No test suites repeated."
+  ],
+  "runtime_packet_state": "INCOMPLETE",
+  "installed_policy_approval_created": false,
+  "runtime_pin_approval_created": false,
+  "startup_authorized": false,
+  "cutover_authorized": false
+}

@@ -1,0 +1,16 @@
+{
+  "config/templates/crypto_edge_okx_pair_options.json": "daf5c2fa8dcfb5fbb8cb51f0bfbf38f5a56d0a94c8bbb6b8487d271152ac70db",
+  "config/templates/crypto_edge_okx_pairs_plan.json": "538bbf1d2bd5824d057fcde96c0f7e60acda024905bcdedcd542117e4de2e79e",
+  "docs/COLLECTOR_CONTROL.md": "7c22590f9e13c6e9b2a6cfb3cd786528dfc10644da830592877df3e327f22da2",
+  "docs/checkpoints/okx_full_collector_rollout_20261029.md": "e4bf434ada4457cb69691ad291e54e9eb09043b0e60c66b0d1fef800663c2ca5",
+  "docs/review_artifacts/okx_full_collector_rollout_20261029/20261029T184226Z_d0e8c4098be64399ab5235943459370e/REHEARSAL.json": "3b91581977c66f73b2671500664f6b8b267fa521ee088e45a265a2d5c23912db",
+  "docs/review_artifacts/okx_full_collector_rollout_20261029/CADENCE_REPLAY.json": "800d1c5247fbbcc468121be798a5f3d6079c2973049bd6f43ca0087279a4f36b",
+  "docs/review_artifacts/okx_full_collector_rollout_20261029/cadence_replay.py": "b9efe807c4a32f7c09f0fba8235baf2fdf1f4370a06e2c704eda337c6bfd743c",
+  "docs/review_artifacts/okx_funding_pilot_20261029/20261029T182056Z_5544cd086ad64e1f8787f2e44546edc3/READBACK.json": "c5054ddb78417326fb16271d8185985cb6061f23f442727dba163519075238b8",
+  "scripts/data/run_crypto_edge_collector_loop.py": "727b97a0db5aa849438f4796d521938d9ba88629a815e0f23b6a8b3869a1081e",
+  "services/analytics/crypto_edge_collector_service.py": "b4788e654618a3bd9370f54fa16b866b9c5a70eb77e7a0722e5158ddfd83e53b",
+  "services/analytics/edge_cadence.py": "46fa71afdd758f51f738750ca90c015dc7fd00d48bbd573bbe71e0de10fca5e1",
+  "services/analytics/okx_funding_journal.py": "1b97a70f3dd064fdea7551f2cf1991689456d91d2d16a3078bf6bad3a407e0b5",
+  "storage/crypto_edge_store_sqlite.py": "f782c8938222fe68f4e26a0165e15f03f8ccc7235748e0f4062fabeb5273863b",
+  "tests/test_edge_cadence.py": "9c588eb0a00c048ff0e1efadab022a268cec8f56e17883df79ce8334a3720c8f"
+}

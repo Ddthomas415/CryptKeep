@@ -1,0 +1,27 @@
+{
+  "active_role": "ENGINEER",
+  "component_state": "READY_FOR_INDEPENDENT_REVIEW",
+  "runtime_state": "INCOMPLETE",
+  "environment": "VERIFIED_ENV for clean-environment offline synthetic tests only",
+  "command": "env -i PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -m pytest -q --noconftest -c /dev/null -p no:cacheprovider tests/test_companion_running_storage.py tests/test_companion_running_backend.py tests/test_companion_installer.py tests/test_companion_metadata_diagnostics.py tests/test_companion_network_configuration.py tests/test_companion_existing_controller.py tests/test_companion_runtime_wiring.py",
+  "exit_code": 0,
+  "passed": 316,
+  "duration_seconds": 2.41,
+  "full_suite_run": false,
+  "diff_check_exit_code": 0,
+  "source_sha256": {
+    "scripts/research/companion_installer.py": "3055a30388270ff58f983f81ad4c72fb2bb61f328a70f59d644082b6dd7cfa56",
+    "scripts/research/companion_install_docker.py": "f167063a16bd06192d1b0719babc6230f2651133f8e7afeb592d7def6277185a",
+    "tests/test_companion_running_storage.py": "ac7960d978f3c935951827dcfb053906fa521e68671b886b246403b1d7363d4e",
+    "tests/test_companion_running_backend.py": "15ab915607073b3e2716f41cbe33a386e2f109fd1261cf6435fba20f793644dc"
+  },
+  "corrections": [
+    "No ownership confirmation after an unacknowledged native mutation, even if later observations match the desired state",
+    "Compare current snapshots of all rollback prerequisites before starting any dependent"
+  ],
+  "supersedes_for_current_code_only": "running_storage_verification.json; original308-test record and independent rejection retained",
+  "scope": "installation/rollback component only; CLI v4 apply refuses; startup/query integration incomplete",
+  "native_calls": 0,
+  "credentials_read": false,
+  "runtime_changed": false
+}

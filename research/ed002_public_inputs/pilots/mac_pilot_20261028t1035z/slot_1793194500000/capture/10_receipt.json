@@ -1,0 +1,14 @@
+{
+  "bytes": 183,
+  "content_type": "application/json; charset=utf-8",
+  "error_class": null,
+  "file": "10_BTC.bin",
+  "http_date": "Wed, 28 Oct 2026 13:35:06 GMT",
+  "http_status": 200,
+  "method": "GET",
+  "received_at_ms": 1793194506947,
+  "request_started_ms": 1793194506852,
+  "sha256": "27c5bf0cce967a2f740be2926584a36271e79cf168d38a057ce664fedf1f9095",
+  "truncated": false,
+  "url": "https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=3600&start=2026-10-28T11%3A00%3A00%2B00%3A00&end=2026-10-28T13%3A00%3A00%2B00%3A00"
+}

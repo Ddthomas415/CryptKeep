@@ -1,0 +1,466 @@
+{
+  "schema": "companion-v6h-runtime-packet-independent-review-v1",
+  "date": "2026-10-26",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "blocking_findings": [],
+  "blockers": [],
+  "findings": [],
+  "acceptance_scope": "Independent offline applicability of the exact seven V6h subjects/132 source pins and three restricted source/configuration policy meanings, bound to current consumers and scope. Not runtime readiness, a fixed handoff, operational authority or blanket SDK approval.",
+  "runtime_state": "INCOMPLETE",
+  "operations_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "credential_access_authorized": false,
+  "automatic_follow_on_execution": false,
+  "source_policy_decision": {
+    "classification": "SHOWN",
+    "scope_path": "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/scope_review.json",
+    "scope_sha256": "1ede90d017d8f59b99497073610c3161365652f52bbb9d79633a37617ca29aa2",
+    "rationale": "Independently assessed the diagnostic-only host delta, unchanged restricted application/storage/client bytes and commands/options, exact new-ID model projections and retained risks. Same images alone and old acceptance status alone are not sufficient; the new scope's per-subject applicability bases control.",
+    "policy_meanings_retained_literal": {
+      "entrypoint_side_effects": "The applicable startup/client effects are characterized and permitted within this profile, not asserted nonexistent. Only four applications are startup targets; the three existing storage daemons remain running.",
+      "no_proxy_redirect": "Reviewed fixed-recipient HTTP clients and explicitly listed restricted storage/client commands in this profile; not arbitrary unrestricted image/daemon operations.",
+      "zero_retries": "Original fixed-loopback HTTP transport and reviewed restricted application-call retry controls. Not zero physical socket attempts, DNS/address results, all pool assignments or all daemon operations. Distinct planned health/read calls are not retries of each other."
+    },
+    "seven_limits_retained_literal": [
+      "Acceptance is source/configuration policy proof for the listed hash-bound profile, not observed startup, SDK initialization, endpoint success or a citation result.",
+      "HTTPcore pool reassignment and Psycopg address fallback remain disclosed. No blanket absence of duplicate business effects or lower-layer connection attempts is asserted; no duplicate execution was observed by this review.",
+      "Only planned client checks against already-running storage are assessed; no storage daemon-wide no-retry, background-effect or effect-free-entrypoint claim is made.",
+      "Four app source bindings include accepted preparation-controller attestations; older matching-image SDK captures and new-memory source-only inheritance retain their stated provenance distinctions. The policy accepts the specified bytes, not an unverified future installation.",
+      "Existing fresh identity/image/configuration/installed-source/namespace/recipient/lineage/archive/citation gates are not waived, replaced by this packet or declared passed.",
+      "No general market/news/model capability is removed or accepted as ready. No current-market causal truth, profitability, trading eligibility or production deployment is inferred.",
+      "Records remain meaningful only with this scope, the reviewed consumers and exact subjects/source pins; arbitrary use of the same images is outside acceptance."
+    ],
+    "applicability_by_subject": [
+      {
+        "name": "phase1-timescaledb",
+        "basis": "Exact original storage ID/image/preservation/source pins remain unchanged from V6g. No daemon entrypoint is executed by this profile. The host diagnostic verifier still uses the same selected read-only SQL, connect/statement limits and one connection path; fixed diagnostic labels do not add a SQL retry.",
+        "source_pin_count": 2,
+        "source_provenance": {
+          "controller_attested_app_entries": 0,
+          "direct_recaptured_streams": 0,
+          "inherited_exact_prior_image_or_storage": 2,
+          "historical_common_parent_memory_library": 0
+        }
+      },
+      {
+        "name": "phase1-qdrant",
+        "basis": "Exact original storage ID/image/preservation remains unchanged from V6g, with intentionally zero daemon source pins. Host fixed-loopback health/collection checks are unchanged by the diagnostic decoder/envelope delta; no general daemon policy is inferred.",
+        "source_pin_count": 0,
+        "source_provenance": {
+          "controller_attested_app_entries": 0,
+          "direct_recaptured_streams": 0,
+          "inherited_exact_prior_image_or_storage": 0,
+          "historical_common_parent_memory_library": 0
+        }
+      },
+      {
+        "name": "phase1-minio",
+        "basis": "Exact original storage ID/image/preservation/source pins remain unchanged from V6g. The fixed readiness and owned-container HEAD commands, no-proxy/no-redirect/no-retry options and private credential handling are not changed by the diagnostic path.",
+        "source_pin_count": 2,
+        "source_provenance": {
+          "controller_attested_app_entries": 0,
+          "direct_recaptured_streams": 0,
+          "inherited_exact_prior_image_or_storage": 2,
+          "historical_common_parent_memory_library": 0
+        }
+      },
+      {
+        "name": "phase1-audit-log",
+        "basis": "Separately accepted new actual V6h stopped ID; same V6g image, source map and command/options; newly modelled final configured digest matches the V6h manifest. Nine app entries remain controller-at-creation attestations. The three host diagnostic deltas introduce no audit resend, recipient change or additional audit request; restricted application/audit source bytes are unchanged.",
+        "source_pin_count": 25,
+        "source_provenance": {
+          "controller_attested_app_entries": 9,
+          "direct_recaptured_streams": 0,
+          "inherited_exact_prior_image_or_storage": 16,
+          "historical_common_parent_memory_library": 0
+        }
+      },
+      {
+        "name": "phase1-risk-stub",
+        "basis": "Separately accepted new actual V6h stopped ID; same V6g image, source map and command/options; newly modelled final configured digest matches the V6h manifest. Nine app entries remain controller-at-creation attestations. Diagnostic receipt fields do not relax NO_TRADING, execution-disabled, health, evidence or restricted audit transport gates.",
+        "source_pin_count": 25,
+        "source_provenance": {
+          "controller_attested_app_entries": 9,
+          "direct_recaptured_streams": 0,
+          "inherited_exact_prior_image_or_storage": 16,
+          "historical_common_parent_memory_library": 0
+        }
+      },
+      {
+        "name": "phase1-memory",
+        "basis": "Separately accepted new actual V6h stopped ID; same V6g memory image and all 48 source pins. Eleven app entries remain controller-at-creation attestations; 37 library/launcher pins inherit the exact prior image while retaining historical common-original-parent/source-only-overlay origin. No SDK initialization/source stream was captured. The new host-generated fixed diagnostic script replaces one existing memory verifier invocation, retains archive/lineage/predicate/SQL and 8-second hard-exit/10-second transport bounds, and adds no SDK client path or retry.",
+        "source_pin_count": 48,
+        "source_provenance": {
+          "controller_attested_app_entries": 11,
+          "direct_recaptured_streams": 0,
+          "inherited_exact_prior_image_or_storage": 37,
+          "historical_common_parent_memory_library": 37
+        }
+      },
+      {
+        "name": "phase1-orchestrator",
+        "basis": "Separately accepted new actual V6h stopped ID; same V6g image/source pins/command/options; newly modelled final configured digest matches the V6h manifest. Fourteen app entries remain controller-at-creation attestations. The exact question/topical witnesses and deterministic archived probe are unchanged; diagnostics run after normalization, introduce no model call, tool resend or endpoint change, and do not establish runtime success.",
+        "source_pin_count": 30,
+        "source_provenance": {
+          "controller_attested_app_entries": 14,
+          "direct_recaptured_streams": 0,
+          "inherited_exact_prior_image_or_storage": 16,
+          "historical_common_parent_memory_library": 0
+        }
+      }
+    ],
+    "exact_three_host_delta": {
+      "accepted_review_path": "docs/review_artifacts/companion_verifier_diagnostics_20261026/independent_review_v2.json",
+      "accepted_review_sha256": "ca5664535df5109539a51747ebf10683d939e2adaa0d7ae147f991f9d350b35b",
+      "exact_changed_consumers": {
+        "scripts/research/companion_evidence_checks.py": {
+          "before": "a35dc46439f25ff8ebc6f4068c28bd1bdd268d7da623a11c3a0b0f02edf614e8",
+          "after": "25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5"
+        },
+        "scripts/research/companion_installer.py": {
+          "before": "e9fd8a144de54bf277e2c5812110dda9cc8cf0a7d1bb6fc85707b188f3174d38",
+          "after": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b"
+        },
+        "scripts/research/companion_runtime_adapter.py": {
+          "before": "4ecdb04d1109e6b70c2f0d439f8235e4344bc5c9b9a75206cfe685a30c60bbe3",
+          "after": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d"
+        }
+      },
+      "basis": [
+        "Checks module: closed fixed group/code diagnostic envelope serializes reviewed host code for the same owning memory target. Core predicate AST and SOURCE_SQL match the accepted V6g baseline; archive/witness checks and all-five-true acceptance are retained.",
+        "Adapter: one selected-container verifier command, cap 10 seconds/output 8192 bytes, strict duplicate-key rejection at every object depth; legacy verify_evidence returns five Booleans. No retry, fallback command, new endpoint or proxy/redirect behavior.",
+        "Installer: selected diagnostic method requires a strict envelope; malformed/bare/exception results refuse and record fixed sanitized failure. No error fallback or retry; legacy-only method compatibility is explicit. Receipt writes add closed codes/checks, not raw errors or secret values.",
+        "Remote work cap remains 8 seconds including teardown, with fixed precomputed deadline output and hard exit. Read-only SQL and 2-second connect/statement limits remain. Groups/deadlines do not identify a unique first predicate or prove the V6g root cause.",
+        "These deltas affect host verifier diagnostics, not seven subject source maps or four startup recipes. Prior restricted policy rationales remain applicable to those exact source/configuration subjects, with fresh gates mandatory."
+      ],
+      "gate_relaxation": false,
+      "runtime_first_failure_resolved": false
+    },
+    "guard_unchanged": {
+      "path": "dashboard/services/views/_shared_signals.py",
+      "sha256": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+      "unchanged_from_v6g": true,
+      "basis": "Exact accepted V6g guard bytes retained. Cited-title classification, aware timestamps and citation-ID uniqueness remain scoped; no new waiver of archive/body/witness gates.",
+      "only_changed_runtime_consumer": false
+    }
+  },
+  "shown_proof": [
+    "All twelve drafts reproduce byte-exactly from derive() without invoking the producer's output-writing main. The actual source_delta.diff reproduces byte-exactly against V6g assembler; parent_report bindings agree.",
+    "Current 20 runtime consumers differ from accepted V6g in exactly checks/installer/runtime_adapter. All three current hashes equal accepted diagnostic-review-v2 bindings; its prechange.tar members equal V6g consumer hashes. Guard unchanged.",
+    "All current 13 preparation tools and 43 per-application source entries match their bound maps. Four app recipe source lists/commands/network options equal the V6g accepted manifest; app images and all 132 subject source pins equal accepted V6g subject maps. Three storage subjects are identical.",
+    "Four new IDs exactly match the just-accepted actual-preparation evidence and strict five-field external review. The MODELLED rows reproduce the controller-at-creation Snapshot and final configured digest through existing helpers, without fabricating V6h raw captures.",
+    "Seven prior child records hash-match the accepted V6g runtime dependency table and exact source maps. Three literal policy meanings and seven literal limits are retained.",
+    "Core verifier _require predicate ASTs and SOURCE_SQL match diagnostic prechange baseline; selected diagnostic method remains strict, all five booleans must be true, and no error fallback/retry is added.",
+    "The requested isolated 23-test module passed once, including synthetic temporary loader composition and refusal cases for pinned-input drift, diagnostic lineage/review blockers and consumer/model contradictions.",
+    "Actual newly authored published records, not synthetic review substitutes, pass real pure load_inputs with exact current metadata model and evidence. Scope hash linkage in eight reviewer fields and <=200-character lengths checked. All 81 input hashes rechecked unchanged."
+  ],
+  "provenance_partition": {
+    "total_source_pins": 132,
+    "application_entries_controller_attested": 43,
+    "independent_file_streams_recaptured": 0,
+    "inherited_exact_prior_image_or_storage": 89,
+    "historical_origin": {
+      "prior_exact_image_or_storage": 52,
+      "prior_common_parent_memory_library": 37
+    },
+    "limit": "Counts are per-subject entries, not unique files. The 43 are controller at-creation app attestations; 89 are prior-image/storage inheritance, not new observations. Historical 37 memory pins remain common-parent/source-only-overlay origin, not upgraded to direct SDK capture."
+  },
+  "model_evidence": {
+    "lane": "MODELLED_TEMPLATE_MATCHED_TO_CONTROLLER_ATTESTATION",
+    "raw_v6h_capture": false,
+    "models_sha256": "ed24d414eb8a12afce0d4756686dbf40d8baa649672fbcc5dfc3cdb29a4909d7",
+    "prior_models_sha256": "7b22b5af03146c99e7628e2c3a054fa7f07615448219e90b1ec9892498ee0a93",
+    "allowed_changes": [
+      "id",
+      "name",
+      "hostname",
+      "attempt",
+      "temporary network alias"
+    ],
+    "basis": "Retained hash-bound V6g MODELLED rows project through existing Snapshot/network helpers to exact V6h preparation-controller attestations and manifest final configured digests. No raw V6h observation is manufactured."
+  },
+  "topical_approvals": {
+    "document_ids": [
+      7,
+      5,
+      47,
+      18
+    ],
+    "sha256": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+    "unchanged": true,
+    "question": "What news explains Bitcoin liquidations?"
+  },
+  "mandatory_fresh_gates": [
+    "CLI/engine and selected identity/image/configuration/ownership",
+    "Frozen local source and every pinned installed byte; SDK/import/callable/source-origin binding",
+    "Effective configuration and restricted read-only startup",
+    "Storage/namespace/archive/source-lineage",
+    "Real post-start network recipient binding and health",
+    "Exact citation/body/witness checks and final runtime evidence"
+  ],
+  "hashes": {
+    "algorithm": "SHA256",
+    "path_base": "/Users/baitus/Downloads/crypto-bot-pro",
+    "reviewed_inputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-timescaledb.draft.json": "1e035dab00cd1657450ce4c7d71e15e4161d183572f7cf08206a299ddf3128fc",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-qdrant.draft.json": "d910fd7ea7633d534942584c481cb5d94c3d49dc74037fb53fe2bd8297b2ed17",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-minio.draft.json": "2538a00fcc75cbcc1ddc45e7207021cb716f792ec39c60e678507a755d60ac2c",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-audit-log.draft.json": "a7ee62fc5cac7ff2bbeed103d485df9eaee829d2fe80431b46bff842e3c279eb",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-risk-stub.draft.json": "44cddcd0aaac44b34b1ad280dce403976e7fec368b652b656f138cb05aac9bda",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-memory.draft.json": "bcd1874415b86f40e6798dd9e4e91811ff567bd7adb07f80e4ab6777f2f24a69",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-orchestrator.draft.json": "de2bc594670b079021b2379654898dfa5f9bb5e20895d549ff5de2e07585ea22",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/runtime_review.draft.json": "caecd33834b1c1ef2d8b5c4978253772eb2ff8a89bad891770991fc94281c00f",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/subjects.draft.json": "311688b7e64cd1f8931a54ac38694e01a3dfb9d90e6ef4d20351eb8c554e9b10",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/staged_metadata.derived.json": "ed24d414eb8a12afce0d4756686dbf40d8baa649672fbcc5dfc3cdb29a4909d7",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/provenance.json": "6645cef0b870325a30668c8018761beac5ec5c30f06d99b5ed14455539103dfc",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/reviewed_preparation_manifest.json": "d11fccb5e4f7c46e7d726704c9b75c400a1482eab5d1b840027d876a5837f047",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/preparation_evidence.json": "950b09d049a7f6a01f91352cb8ff12e1edecedfcf523c13fc75d39e9f25b805d",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/actual_id_review.json": "fc18b363eb94a324e3d91500b967a7709ad70fa6635a100b2ab2bb1fda30a79f",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/actual_preparation/independent_review.json": "e3c97007d3ea3bd1fb6d2363c4989f226604b01457660c93e6da7e3c448dd9ca",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/provenance.json": "e60cbfad2f7af46acdf47c018cb345621fa9304a4cf97a6b12fcce5bf36a0ef0",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/runtime_review.json": "df2ec5e24ebe4e4d6acc605056ec49d3821c535199cea489417a75c46f52be60",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/scope_review.json": "f01d70a7f459a1a2d4f34b32af1f688ac94d3b153a5c9b0fd641fefa9632612d",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/staged_metadata.derived.json": "7b22b5af03146c99e7628e2c3a054fa7f07615448219e90b1ec9892498ee0a93",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/provenance.json": "ef824d5ba5a98af870d9ae369cae4331a5f2fd888589e2e62af8bbe17d51c4da",
+      "docs/review_artifacts/companion_verifier_diagnostics_20261026/independent_review_v2.json": "ca5664535df5109539a51747ebf10683d939e2adaa0d7ae147f991f9d350b35b",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/topical_approvals.json": "dc3f5678277fb14afb523d54acfc3ef9303627fb810ad075228702054d18505a",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/assemble_runtime_packet.py": "16c8616f9152fec3e004ad54e1bd81795323cb88827ff6ccaf2f3933a8d36453",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-timescaledb.json": "e0eaf1fcb78cac0cdab27b147bec4ef2232fd45133c2e1860a3f87823bea5591",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-qdrant.json": "a7005404c9a4ade6afbbc85a8de72e7b72e752ea01d68602f6838972655afbe0",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-minio.json": "100feb8e4a17d5f8f36125b40056fe2cac90ab5a8fef1e7b30685ee219d4a066",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-audit-log.json": "089122369f41ff0131f44837da2f19ca13caf51d6487b835b29b94fc34b17985",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-risk-stub.json": "e839c32c9bd918550bbffb563a0f82326ce3b3e1851416822f55bfe95ab3c93f",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-memory.json": "b3d17207ea8d9375432091f3c9b486f4824337523b548cdbdac2342d6dc2af62",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/runtime_packet_v6g/accepted_policy_records/phase1-orchestrator.json": "6e6e744bc06453f58f87079db651880429f7551350e109d83cf7017591a48b46",
+      "dashboard/services/view_data.py": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51",
+      "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+      "dashboard/services/views/_shared.py": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202",
+      "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+      "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+      "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+      "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+      "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+      "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+      "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+      "scripts/research/companion_evidence_checks.py": "25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5",
+      "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+      "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+      "scripts/research/companion_installer.py": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b",
+      "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+      "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+      "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d",
+      "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/reviewed_preparation_manifest.json": "33e6633229e9399ec695be2f8e743930212b9ed926277235fd071e675fcf2e26",
+      "phase1_research_copilot/audit_log/__init__.py": "8c92ad3791ee741abbac5806ab1b43901c1cf329ace5172430ee02a5afb52c75",
+      "phase1_research_copilot/audit_log/main.py": "12eb8190cfd9d1abfb8d3fa69c843174dcd5aa69ad3dad7fae7e6cf2cfe504e8",
+      "phase1_research_copilot/shared/__init__.py": "765a4b6bb96c9287a2efc075c9b1fb4c1c7049c6ab9d089d1662075cc0fb7f4e",
+      "phase1_research_copilot/shared/audit.py": "b740a13735ede10673d14d7f54d74f0cf73e5148c93b7a6a1982d39c5d120693",
+      "phase1_research_copilot/shared/config.py": "766988ac1391cfdf34485a2dc02dbabef3404723c3ec96b44df4f45b1f02608c",
+      "phase1_research_copilot/shared/db.py": "f61b64a64dcd821cb5ee689e167ceea03d3102e8b1fc61b4f38ba0702636b0a8",
+      "phase1_research_copilot/shared/logging.py": "815ea42e92e23dd3481db44bc01839a5bc3c1ea1fa561d30bf4e2c184e85ce03",
+      "phase1_research_copilot/shared/models.py": "4132a0ed3fa46756aed351fbb426e3367d43122483030628172075d8f0b6a1e5",
+      "phase1_research_copilot/shared/probe.py": "9f9251260009a63be1dc02918c5dd70b671e6a4428678ec4f55d75b7923e0228",
+      "phase1_research_copilot/risk_stub/__init__.py": "3d99740557b2bed1a1aa506a1df40d1e710658cf2ac14de34befc0168e468411",
+      "phase1_research_copilot/risk_stub/main.py": "f35dee411fb24db27dedeec365a4b7202ffa84f634f25070b6bb253707842dd6",
+      "phase1_research_copilot/memory_retrieval/__init__.py": "2402dc051be3f99818a1933b20b12a9a99db1823105e1068d015c0edc5b1d7fa",
+      "phase1_research_copilot/memory_retrieval/article_view.py": "b9543070bbfa3d75999a3cf980d5fba58e880a6cd093c9165305a5124a70cd8f",
+      "phase1_research_copilot/memory_retrieval/main.py": "28dc4f1b496437be2d3e1273b4910515b8342a0d57b939f849a6a49da09322d1",
+      "phase1_research_copilot/memory_retrieval/question_query.py": "89deacafa29d52d9f528b76134eacfe22c4d1f7c8d2015ac86aa1cdfa43d9a07",
+      "phase1_research_copilot/orchestrator/__init__.py": "04140e25e05c9b9fba1ea1010aac8df31afd53d86ce2fd533f384f9f377f30c1",
+      "phase1_research_copilot/orchestrator/main.py": "61661df65c1a6ecd710a41484bbe54f602053c1f7c6486977cd18dd40b6618a6",
+      "phase1_research_copilot/shared/answer_metadata.py": "720373636e7aa4883b1b864cc13a1ee9356d32ae9cf8d0b616cb5b8fcdbfe42d",
+      "phase1_research_copilot/shared/llm_client.py": "2dca9b5767d4d2bbaaf1c97bf16b3e398dbe11463cbe6d5b25d8adae33be6d84",
+      "phase1_research_copilot/shared/prompting.py": "2c776ddb274b88546081d98c7d06818ed54497682b01ad6b03c854f45b63e903",
+      "phase1_research_copilot/shared/retry.py": "0a2989c5e1916d133ec5e293913f8a2c7e8291fb3bbf04dcbe19aa0514ca2d2b",
+      "phase1_research_copilot/shared/tools.py": "a612f1a585c69a2c5fb7a5928605ef0dad006c0a0d51af493d37713d44ac1469",
+      "docs/review_artifacts/companion_integration_inputs_v6g_20261025/assemble_runtime_packet.py": "96f64ae1bac1b56de2ce535fbb6d1b8297b5c9509ecf36fa2df86877723f9d1f",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/assemble_runtime_packet.py": "7cd122444425b333a4c1daacf1adc54089a0d21994ecf5f0c7a5acb97c8c0145",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/source_delta.diff": "d09b2381b1134ac3fc4ae16823b108e0282b1bada861fb34f3ecc0411d66242f",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/parent_report.json": "54cd9d124bcc7d2d32405591e32668cd010cfe4e083693d5ffab145f1b5a4ec9",
+      "docs/checkpoints/companion_runtime_packet_v6h_20261026.md": "8a15aa0523cbaf4f95c4d68006c5107afcf1ab05b3a67a34f67b286c2ba78291",
+      "tests/test_companion_v6h_runtime_packet.py": "6560d0f905e81ed4994bb226dea0c76606a9d22548c52387d83e19496b8efff1",
+      "docs/review_artifacts/companion_verifier_diagnostics_20261026/prechange.tar": "7696af91811c97ea72ba212622558162a38c730516f1ea42e897169969e7bdef"
+    },
+    "published_outputs": {
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-audit-log.json": "56526fada84ae1142fe74198049fcf78d5f26a4a7e692f6e220a6965faf8045f",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-memory.json": "1b007132b549c1fa97e6cea57f3f5980fc3b1dbcb1368ba6f56844538faf1d00",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-minio.json": "149feb0f72ed0bad7c106040916521902baf58b9e760e5f39b7d35fdb4e7fc0f",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-orchestrator.json": "02643435e416191096663298dd4d809ab9bcdb4a9398b3803cb6350579ffa3d3",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-qdrant.json": "a43b3ff1cd817b28ec39675db4943bd8fd10b308f6916fccf85f952eec7dc5d1",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-risk-stub.json": "258723f7defea219df22fb70cd8b49d956693d46538872be13900f828b49fddb",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-timescaledb.json": "f6c5799394ed533a73622d4f2a8369424aa4c62fc197b30922b8b50486e5d6d4",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/runtime_review.json": "ed4b60bf40c7d55fe8f603a4d92c3211902b6f47340403211b0c04cfb63d2f1c",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/scope_review.json": "1ede90d017d8f59b99497073610c3161365652f52bbb9d79633a37617ca29aa2"
+    },
+    "current_runtime_consumers": {
+      "dashboard/services/view_data.py": "c6a672aa818ac18b5bb9d37c9d5c9f465a820cceb868d92655676b60450baa51",
+      "dashboard/services/views/_explain_diagnostics.py": "356a235a22f412460e902347e1d8eb489a9d4f0a528c7bd9ce127cb11e5d7556",
+      "dashboard/services/views/_shared.py": "92d24a74c55963f5dafdaf47763e427c55c287ca2c4513935d7d2d5679e70202",
+      "dashboard/services/views/_shared_http.py": "c4e5aaa1430ea8768062fb6ed60a0782a3938074defdc86ae77d3e0225ec95ae",
+      "dashboard/services/views/_shared_signals.py": "18bc1966511bc9d1e0a2b722b973be357672e2bb6b951721628eb98262f4dfec",
+      "dashboard/services/views/market_view.py": "4d24d894ad791db44dc3f37e84845a40355207930bba25d41f4ad36753d47d75",
+      "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+      "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+      "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+      "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+      "scripts/research/companion_evidence_checks.py": "25687ae5927f176ea0bd24c837582f4e2ceea0dc43a548e614eaa9179a8c7df5",
+      "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+      "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+      "scripts/research/companion_installer.py": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b",
+      "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+      "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+      "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d",
+      "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+    },
+    "current_preparation_consumers": {
+      "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+      "scripts/research/companion_cutover.py": "a9af9918fbde648911e640441ecac0540c932f0e6e7cf467a88af6b4f033cd74",
+      "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+      "scripts/research/companion_docker_transport.py": "5cbdf417a6b180bdd6e77cf7c9b85eba6649ebd15212f0836725f13301edcd81",
+      "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+      "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+      "scripts/research/companion_installer.py": "ffbeaf2b996bba7c01ab16782e7dbe871537017afd40804081f045b4180f3b9b",
+      "scripts/research/companion_network_configuration.py": "8b9949055152859636e51f2e2695f4388f77ef8e21d26cc535f879b4ee881bd7",
+      "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+      "scripts/research/companion_runtime_adapter.py": "23e177618ab15b627e74978fd54d91a62f697cd291c3973140a52e909cba056d",
+      "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659"
+    },
+    "scope_sha256": "1ede90d017d8f59b99497073610c3161365652f52bbb9d79633a37617ca29aa2"
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for isolated offline tests and pure saved-file composition, not current live environment",
+    "tests": {
+      "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6h_runtime_packet.py",
+      "focused_runs": 1,
+      "result": "23 passed in 0.44s",
+      "exit_code": 0,
+      "full_suite_run": false,
+      "boundary": "Tests use SYNTHETIC accepted review records only in their temporary composition fixtures; they are not the published acceptance basis by themselves."
+    },
+    "draft_reproduction": {
+      "drafts_byte_exact": 12,
+      "prior_children": 7,
+      "source_pins": 132,
+      "prep_tools": 13,
+      "runtime_consumers": 20,
+      "app_entries": 43,
+      "exact_diff": true,
+      "prechange_matches_prior_consumers": true,
+      "predicate_AST_and_SQL_equal": true,
+      "tripwire_hits": []
+    },
+    "published_record_composition": {
+      "published_outputs": {
+        "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-audit-log.json": "56526fada84ae1142fe74198049fcf78d5f26a4a7e692f6e220a6965faf8045f",
+        "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-memory.json": "1b007132b549c1fa97e6cea57f3f5980fc3b1dbcb1368ba6f56844538faf1d00",
+        "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-minio.json": "149feb0f72ed0bad7c106040916521902baf58b9e760e5f39b7d35fdb4e7fc0f",
+        "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-orchestrator.json": "02643435e416191096663298dd4d809ab9bcdb4a9398b3803cb6350579ffa3d3",
+        "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-qdrant.json": "a43b3ff1cd817b28ec39675db4943bd8fd10b308f6916fccf85f952eec7dc5d1",
+        "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-risk-stub.json": "258723f7defea219df22fb70cd8b49d956693d46538872be13900f828b49fddb",
+        "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-timescaledb.json": "f6c5799394ed533a73622d4f2a8369424aa4c62fc197b30922b8b50486e5d6d4",
+        "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/runtime_review.json": "ed4b60bf40c7d55fe8f603a4d92c3211902b6f47340403211b0c04cfb63d2f1c",
+        "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/scope_review.json": "1ede90d017d8f59b99497073610c3161365652f52bbb9d79633a37617ca29aa2"
+      },
+      "real_pure_consumer": "companion_cutover.load_inputs",
+      "result": "PASS",
+      "exact_inputs_rehashed": 81,
+      "reviewer_scope_links": 8,
+      "max_reviewer_chars": 151,
+      "actual_replacements": 4,
+      "subjects": 7,
+      "source_pins": 132,
+      "tripwire_hits": [],
+      "operations": false
+    },
+    "operation_tripwires": "Socket/create_connection/getaddrinfo, subprocess entry points, cutover backend construction/reservation and adapter token_from_pipe replaced by refusing functions during reviewer pure derivation/composition. No tripwire calls.",
+    "native_operations": 0,
+    "service_operations": 0,
+    "token_or_credential_reads": 0,
+    "live_DB_queries": 0,
+    "SDK_initializations": 0,
+    "market_runs": 0,
+    "additional_agents": 0,
+    "actual_default_CLI_run": false,
+    "default_CLI_limit": "Actual fixed handoff/default-CLI inert validation is not performed or accepted here; only the requested real pure input consumer is exercised."
+  },
+  "read_scope": {
+    "complete_current_text": [
+      "docs/checkpoints/companion_runtime_packet_v6h_20261026.md",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/assemble_runtime_packet.py",
+      "tests/test_companion_v6h_runtime_packet.py",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/source_delta.diff",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/parent_report.json"
+    ],
+    "complete_current_JSON_parsed": [
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-timescaledb.draft.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-qdrant.draft.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-minio.draft.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-audit-log.draft.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-risk-stub.draft.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-memory.draft.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/phase1-orchestrator.draft.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/runtime_review.draft.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/subjects.draft.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/topical_approvals.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/staged_metadata.derived.json",
+      "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/provenance.json"
+    ],
+    "prior_policy_records": "Complete V6g scope rationales/risks/limits and runtime plus seven child records parsed, hashed and compared as listed in reviewed_inputs. The unchanged memory rationale was read separately after display truncation. Their historical support filenames are references, not a claim of newly re-reading the old SDK audit.",
+    "actual_ID_context": "Reuse of this reviewer's immediately preceding V6h stopped-preparation review; exact manifest/evidence/ID-review/independent-review/provenance bytes reloaded under assembler fixed hashes. Parent session 29014 attribution is not independent native observation.",
+    "diagnostic_evidence": "Complete accepted independent_review_v2.json read. prechange.tar three production members compared in memory against accepted V6g; evaluator predicate AST/SOURCE_SQL equality checked. No archive extraction or source edits.",
+    "selected_source_sections": [
+      "scripts/research/companion_evidence_checks.py:1-105",
+      "scripts/research/companion_evidence_checks.py:377-520",
+      "scripts/research/companion_installer.py:399-453",
+      "scripts/research/companion_runtime_adapter.py:215-232",
+      "scripts/research/companion_runtime_adapter.py:504-571",
+      "scripts/research/companion_runtime_adapter.py:775-815",
+      "scripts/research/companion_cutover.py:1-200",
+      "docs/review_artifacts/companion_integration_inputs_v6f_20261025/assemble_runtime_packet.py:1-90",
+      "tests/test_companion_archive_contract.py:50-70",
+      "tests/test_companion_verifier_diagnostics.py:228-257"
+    ],
+    "hash_only_or_parsed_scope": "Other current app/consumer bodies are hash-checked, not broadly re-audited. Historical model/provenance, V6g manifest, V6h manifest/proof and all exact source maps are fully parsed for bounded comparisons.",
+    "not_performed": "No broad SDK/repository audit, installed-stream capture, native/container/DB/HTTP inspection, credential access, service action or actual execution/default handoff."
+  },
+  "limitations": [
+    "43 app-entry pins are controller at-creation attestations, not 43 independent file streams. 89 pins inherit exact prior-image/storage identity. Historical 52+37 provenance is retained; the 37 memory SDK/library/launcher pins remain common-parent/source-only-overlay origin, not new SDK capture. Zero file streams recaptured.",
+    "Current raw V6h stage metadata is absent; configuration is explicitly MODELLED_TEMPLATE_MATCHED_TO_CONTROLLER_ATTESTATION with raw_v6h_capture=false. Model equality is not independent observed current state/connectivity or private configuration acquisition.",
+    "Accepted saved preparation does not establish continuous ownership/state, present installed bytes, recipient/storage health, initialized SDK behavior, runtime citation/body/lineage or successful explanation.",
+    "Eight-second remote cap includes teardown; ten-second parent transport is separate. Group/error/deadline diagnostics remain fixed labels, not exact predicate/private values or a proven unique prior runtime root cause. Synthetic proof does not guarantee installed runtime success.",
+    "HTTPcore pool reassignment, Psycopg address fallback, private/version-sensitive S3 hooks and captured-binary semantics remain explicit risks, not globally zero physical attempts or effect-free startup.",
+    "V6g first failure and V6h runtime success remain UNVERIFIED. No previous consumed attempt is reset/reused, no fixed handoff is accepted and no startup/cutover/query/trading is authorized.",
+    "Preparation consumed/cutover unused is an advisory local marker observation at producer derivation, not atomic reservation. All fresh runtime gates and separate explicit authorization remain mandatory.",
+    "Historical source-policy support is inherited under exact hashes rather than a broad old SDK re-audit. Semantic topical approvals remain trusted external exact-question witnesses, not current-market causal or profit proof."
+  ],
+  "claim_classification": {
+    "SHOWN": "Offline byte/hash/AST/model/contract results and independently authored applicability judgment described above.",
+    "CLAIMED": "Historical acquisition/session/approval attribution retained from parent records; parent test timing 0.40s not independently adopted.",
+    "UNVERIFIED": "Present container or installed-byte state, native health/recipient/storage/SDK initialization, exact prior first-failure cause, future query success and runtime objective completion."
+  },
+  "material_assumptions": [],
+  "write_scope": [
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/independent_review.json",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-audit-log.json",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-memory.json",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-minio.json",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-orchestrator.json",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-qdrant.json",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-risk-stub.json",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/phase1-timescaledb.json",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/runtime_review.json",
+    "docs/review_artifacts/companion_integration_inputs_v6h_20261026/runtime_packet_v6h/accepted_policy_records/scope_review.json"
+  ],
+  "preservation": "No source/test/draft/parent-report/checkpoint/worklog/prior-record edits; no fixed handoff or operational approval records created."
+}

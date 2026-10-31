@@ -1,0 +1,30 @@
+{
+  "schema": "companion-actual-runtime-outcome-v1",
+  "attribution": "Parent transcription of execution session 10100 final tool result; public stdout only, not independent host observation.",
+  "execution_session": 10100,
+  "exit_code": 1,
+  "stdout": {
+    "state": "INCOMPLETE",
+    "failure_phase": "cutover",
+    "actions_executed": true,
+    "attempt_reserved": true,
+    "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_cutovers/workerprep20261024v6e/receipt.jsonl",
+    "running_update_complete": false,
+    "query_attempted": true,
+    "query_passed": false,
+    "receipt_complete": true,
+    "rollback_verified": true,
+    "rollback_exact_baseline": false,
+    "services_started": true,
+    "prepared_ids_preserved": false,
+    "preparation_consumed": true,
+    "unresolved_quiesce": [],
+    "unresolved_restart": [],
+    "unresolved_replacement_start": [],
+    "unresolved_replacement_cleanup": [],
+    "unresolved_creation": [],
+    "controller_failure_stage": "runtime_verification"
+  },
+  "automatic_retry_performed": false,
+  "runtime_status": "INCOMPLETE"
+}

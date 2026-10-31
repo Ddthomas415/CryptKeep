@@ -1,0 +1,19 @@
+{
+  "reviewer_id": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a18741-f451-7963-bf27-d4734f5ba6b8",
+  "acceptance_state": "REJECTED",
+  "finding": {
+    "id": "OKX-CONTRACT-01",
+    "severity": "P2",
+    "evidence": "SHOWN static; not dynamically reproduced by reviewer",
+    "description": "json.loads parse_constant does not reject numeric exponent overflow such as1e309; nested values require coverage."
+  },
+  "independent_tests": {
+    "passed": 107,
+    "seconds": 0.68,
+    "exit_code": 0
+  },
+  "bindings_verified": 16,
+  "source_sha256": "e5dd685a6de6a241fa5bc1a81c4e146d3f2dbfebb74d9641e552f57ddbd0ed19",
+  "limits": "No eligibility bypass claimed; no extra probe or operation."
+}

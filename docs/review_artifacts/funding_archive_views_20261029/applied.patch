@@ -1,0 +1,406 @@
+--- a/services/analytics/crypto_edges.py
++++ b/services/analytics/crypto_edges.py
+@@ -1,5 +1,6 @@
+ from __future__ import annotations
+ 
++from copy import deepcopy
+ from typing import Any, Dict, Iterable, List
+ 
+ 
+@@ -14,6 +15,26 @@
+     return str(value or "").strip()
+ 
+ 
++def funding_display(summary: dict[str, Any] | None) -> dict[str, str]:
++    """No persisted or cached numeric field alone qualifies an economic claim."""
++    return {"carry": "N/A", "bias": "Unknown", "reason": "Funding normalization unverified"}
++
++
++def summarize_unverified_funding(rows: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
++    items = [deepcopy(dict(row or {})) for row in rows]
++    return {
++        "ok": False, "reason": "funding_provenance_unverified" if items else "funding_missing",
++        "normalization_eligible": False, "count": len(items),
++        "rows": [{"symbol": _s(row.get("symbol")), "venue": _s(row.get("venue")),
++                  "funding_rate": row.get("funding_rate"), "interval_hours": row.get("interval_hours"),
++                  "side_bias": "unknown", "normalization_eligible": False,
++                  "raw_observation": row} for row in items],
++        "avg_funding_rate": None, "last_funding_rate": None, "annualized_carry_pct": None,
++        "positive_ratio": None, "negative_ratio": None, "dominant_bias": "unknown",
++    }
++
++
++# Retain historical uniform-interval model arithmetic, not archive qualification.
+ def summarize_funding_carry(
+     rows: Iterable[Dict[str, Any]],
+     *,
+@@ -280,7 +301,8 @@
+     order_book_rows: Iterable[Dict[str, Any]] | None = None,
+     funding_interval_hours: float = 8.0,
+ ) -> Dict[str, Any]:
+-    funding = summarize_funding_carry(funding_rows or [], interval_hours=float(funding_interval_hours))
++    # The legacy model interval argument cannot authenticate stored provenance.
++    funding = summarize_unverified_funding(funding_rows or [])
+     basis = summarize_basis_spread(basis_rows or [])
+     dislocations = summarize_cross_venue_dislocations(quote_rows or [])
+     open_interest = summarize_open_interest(open_interest_rows or [])
+--- a/storage/crypto_edge_store_sqlite.py
++++ b/storage/crypto_edge_store_sqlite.py
+@@ -679,9 +679,11 @@
+                     "source": str(meta["source"]),
+                     "snapshot_id": str(meta["snapshot_id"]),
+                     "row_count": int(meta["row_count"] or 0),
+-                    "annualized_carry_pct": float(summary.get("annualized_carry_pct") or 0.0),
+-                    "dominant_bias": str(summary.get("dominant_bias") or "flat"),
+-                    "positive_ratio": float(summary.get("positive_ratio") or 0.0),
++                    "annualized_carry_pct": None,
++                    "dominant_bias": "unknown",
++                    "positive_ratio": None,
++                    "normalization_eligible": False,
++                    "reason": str(summary["reason"]),
+                 }
+             )
+         return out
+--- a/dashboard/services/crypto_edge_research.py
++++ b/dashboard/services/crypto_edge_research.py
+@@ -4,6 +4,7 @@
+ from pathlib import Path
+ from typing import Any
+ 
++from services.analytics.crypto_edges import funding_display
+ 
+ def _parse_capture_ts(value: Any) -> datetime | None:
+     raw = str(value or "").strip()
+@@ -94,7 +95,7 @@
+     dislocations = dict(report.get("dislocations") or {})
+     top_symbol = str(((dislocations.get("top_dislocation") or {}).get("symbol") or "-"))
+     return (
+-        f"{origin_label} snapshot shows funding bias {str(funding.get('dominant_bias') or 'flat')}, "
++        f"{origin_label} snapshot shows funding bias {funding_display(funding)['bias']}, "
+         f"average basis {float(basis.get('avg_basis_bps') or 0.0):.2f} bps, "
+         f"{int(dislocations.get('positive_count') or 0)} positive venue dislocations, "
+         f"top symbol {top_symbol}, freshness {str(report.get('freshness_summary') or 'Unknown')}."
+@@ -223,15 +224,13 @@
+     rows: list[dict[str, Any]] = []
+ 
+     latest_funding = funding_history[0] if funding_history else None
+-    previous_funding = funding_history[1] if len(funding_history) > 1 else None
+-    carry_delta = _trend_value(latest_funding, previous_funding, "annualized_carry_pct")
+     if latest_funding:
+         rows.append(
+             {
+                 "theme": "funding",
+-                "current_state": str(latest_funding.get("dominant_bias") or "flat").replace("_", " ").title(),
+-                "latest": f"{float(latest_funding.get('annualized_carry_pct') or 0.0):.2f}%",
+-                "vs_prior": f"{carry_delta:+.2f} pts" if carry_delta is not None else "No prior snapshot",
++                "current_state": funding_display(latest_funding)["bias"],
++                "latest": funding_display(latest_funding)["carry"],
++                "vs_prior": "Unverified comparison",
+                 "capture_ts": str(latest_funding.get("capture_ts") or "-"),
+             }
+         )
+--- a/dashboard/services/digest/builders.py
++++ b/dashboard/services/digest/builders.py
+@@ -2,6 +2,7 @@
+ 
+ from typing import Any
+ 
++from services.analytics.crypto_edges import funding_display
+ from dashboard.services.crypto_edge_research import (
+     load_crypto_edge_collector_runtime,
+     load_crypto_edge_staleness_digest,
+@@ -933,7 +934,7 @@
+         "funding": {
+             "name": "Funding analytics",
+             "meta": dict(live_snapshot.get("funding_meta") or {}),
+-            "summary": f"Bias {str((live_snapshot.get('funding') or {}).get('dominant_bias') or 'flat').replace('_', ' ').title()} / carry {float(((live_snapshot.get('funding') or {}).get('annualized_carry_pct') or 0.0)):.2f}%"
++            "summary": f"Bias {funding_display(live_snapshot.get('funding'))['bias']} / carry {funding_display(live_snapshot.get('funding'))['carry']}"
+             if isinstance(live_snapshot.get("funding"), dict)
+             else None,
+         },
+--- a/dashboard/components/summary_panels.py
++++ b/dashboard/components/summary_panels.py
+@@ -5,6 +5,7 @@
+ 
+ import streamlit as st
+ 
++from services.analytics.crypto_edges import funding_display
+ from dashboard.components.badges import render_badge_row
+ 
+ 
+@@ -449,8 +450,8 @@
+         },
+         {
+             "label": "Funding Bias",
+-            "value": str(funding.get("dominant_bias") or "flat").replace("_", " ").title(),
+-            "delta": f"{float(funding.get('annualized_carry_pct') or 0.0):.2f}%",
++            "value": funding_display(funding)["bias"],
++            "delta": funding_display(funding)["carry"],
+         },
+         {
+             "label": "Average Basis",
+--- a/dashboard/pages/35_Research.py
++++ b/dashboard/pages/35_Research.py
+@@ -2,6 +2,7 @@
+ 
+ import streamlit as st
+ 
++from services.analytics.crypto_edges import funding_display
+ from dashboard.auth_gate import require_authenticated_role
+ from dashboard.components.cards import render_feature_hero, render_kpi_cards, render_prompt_actions
+ from dashboard.components.header import render_page_header
+@@ -227,8 +228,8 @@
+         [
+             {
+                 "label": "Funding Carry",
+-                "value": f"{float(funding.get('annualized_carry_pct') or 0.0):.2f}%",
+-                "delta": str(funding.get("dominant_bias") or "flat").replace("_", " ").title(),
++                "value": funding_display(funding)["carry"],
++                "delta": funding_display(funding)["bias"],
+             },
+             {
+                 "label": "Average Basis",
+@@ -276,7 +277,7 @@
+             {
+                 "source": str(live_snapshot.get("data_origin_label") or "Live Public"),
+                 "freshness": str(live_snapshot.get("freshness_summary") or "Unknown"),
+-                "funding_bias": str(((live_snapshot.get("funding") or {}).get("dominant_bias") or "flat")),
++                "funding_bias": funding_display(live_snapshot.get("funding"))["bias"],
+                 "avg_basis_bps": f"{float(((live_snapshot.get('basis') or {}).get('avg_basis_bps') or 0.0)):.2f}",
+                 "positive_dislocations": int(((live_snapshot.get("dislocations") or {}).get("positive_count") or 0)),
+                 "top_symbol": str((((live_snapshot.get("dislocations") or {}).get("top_dislocation") or {}).get("symbol") or "-")),
+--- a/dashboard/pages/60_Operations.py
++++ b/dashboard/pages/60_Operations.py
+@@ -4,6 +4,7 @@
+ 
+ import streamlit as st
+ 
++from services.analytics.crypto_edges import funding_display
+ from dashboard.auth_gate import require_authenticated_role
+ from dashboard.components.badges import render_badge_row
+ from dashboard.components.cards import (
+@@ -1010,8 +1011,8 @@
+             [
+                 {
+                     "label": "Funding Carry",
+-                    "value": f"{float(funding.get('annualized_carry_pct') or 0.0):.2f}%",
+-                    "delta": str(funding.get("dominant_bias") or "flat").replace("_", " ").title(),
++                    "value": funding_display(funding)["carry"],
++                    "delta": funding_display(funding)["bias"],
+                 },
+                 {
+                     "label": "Average Basis",
+--- a/tests/test_crypto_edge_store_sqlite.py
++++ b/tests/test_crypto_edge_store_sqlite.py
+@@ -114,8 +114,9 @@
+ 
+     assert len(funding_history) == 2
+     assert funding_history[0]["capture_ts"] == "2026-03-18T11:00:00+00:00"
+-    assert funding_history[0]["annualized_carry_pct"] > funding_history[1]["annualized_carry_pct"]
+-    assert funding_history[0]["dominant_bias"] == "long_pays"
++    assert all(row["annualized_carry_pct"] is None for row in funding_history)
++    assert funding_history[0]["dominant_bias"] == "unknown"
++    assert funding_history[0]["normalization_eligible"] is False
+ 
+     assert len(basis_history) == 2
+     assert basis_history[0]["capture_ts"] == "2026-03-18T11:05:00+00:00"
+--- a/tests/test_dashboard_crypto_edge_research.py
++++ b/tests/test_dashboard_crypto_edge_research.py
+@@ -81,7 +81,7 @@
+     assert payload["has_live_data"] is True
+     assert payload["data_origin_label"] == "Live Public"
+     assert payload["freshness_summary"] in {"Fresh", "Recent", "Aging", "Stale", "Unknown"}
+-    assert "funding bias long_pays" in payload["summary_text"]
++    assert "funding bias Unknown" in payload["summary_text"]
+ 
+ 
+ def test_load_crypto_edge_change_summary_uses_trend_rows(monkeypatch) -> None:
+--- a/tests/test_funding_provenance_boundary.py
++++ b/tests/test_funding_provenance_boundary.py
+@@ -127,7 +127,7 @@
+     assert 0.0001 * 24 * 365 == pytest.approx(0.0008 * 3 * 365)
+ 
+ 
+-def test_archive_summary_currently_ignores_per_row_interval():
++def test_legacy_uniform_interval_model_ignores_per_row_interval():
+     ns = selected("services/analytics/crypto_edges.py",
+                   {"_fnum", "_s", "summarize_funding_carry"}, {})
+     summary = ns["summarize_funding_carry"]
+--- /dev/null
++++ b/tests/test_funding_archive_views.py
+@@ -0,0 +1,175 @@
++from __future__ import annotations
++
++import ast
++from copy import deepcopy
++from pathlib import Path
++import socket
++import sqlite3
++
++import pytest
++
++from services.analytics import crypto_edges as edges
++from dashboard.services import crypto_edge_research as research
++from storage import crypto_edge_store_sqlite as storage
++
++
++ROOT = Path(__file__).resolve().parents[1]
++BEFORE = ROOT / "docs/review_artifacts/funding_archive_views_20261029/before"
++
++
++@pytest.fixture(autouse=True)
++def offline(monkeypatch, tmp_path):
++    def refuse(*args, **kwargs):
++        raise AssertionError("external boundary forbidden")
++    connect = sqlite3.connect
++    def temporary(database, *args, **kwargs):
++        assert Path(database).resolve().is_relative_to(tmp_path.resolve())
++        return connect(database, *args, **kwargs)
++    monkeypatch.setattr(socket, "create_connection", refuse)
++    monkeypatch.setattr(socket, "getaddrinfo", refuse)
++    monkeypatch.setattr(socket.socket, "connect", refuse)
++    monkeypatch.setattr(sqlite3, "connect", temporary)
++    monkeypatch.setattr(storage, "ensure_dirs", refuse)
++
++
++def test_legacy_archive_rate_does_not_become_verified_annualized_estimate():
++    report = edges.build_crypto_edge_report(
++        funding_rows=[{"symbol": "EXAMPLE", "venue": "okx",
++                       "funding_rate": 0.0001, "interval_hours": 8.0}])
++    assert report["funding"]["annualized_carry_pct"] is None
++    assert report["funding"]["dominant_bias"] == "unknown"
++
++
++@pytest.mark.parametrize("rows", [
++    [], [{"funding_rate": 0}], [{"funding_rate": None}],
++    [{"funding_rate": -0.0001, "interval_hours": 1}],
++    [{"funding_rate": 0.0004, "interval_hours": 4}, {"funding_rate": 0.0008, "interval_hours": 8}],
++    [{"funding_rate": 0.1, "normalization_eligible": True}],
++])
++def test_archive_reporting_never_qualifies_unknown_or_claimed_metadata(rows):
++    original = deepcopy(rows)
++    summary = edges.build_crypto_edge_report(funding_rows=rows, funding_interval_hours=1)["funding"]
++    assert summary["normalization_eligible"] is False
++    assert summary["count"] == len(rows) and summary["ok"] is False
++    for field in ("avg_funding_rate", "last_funding_rate", "annualized_carry_pct",
++                  "positive_ratio", "negative_ratio"):
++        assert summary[field] is None
++    assert summary["dominant_bias"] == "unknown"
++    assert [r["raw_observation"] for r in summary["rows"]] == original
++    assert rows == original
++
++
++def test_diagnostic_rows_own_their_raw_copy():
++    row = {"funding_rate": 0.001, "info": {"unverified": "value"}}
++    summary = edges.summarize_unverified_funding([row])
++    row["info"]["unverified"] = "changed"
++    assert summary["rows"][0]["raw_observation"]["info"]["unverified"] == "value"
++
++
++def test_archive_reads_preserve_exact_stored_rows_and_other_reports(tmp_path):
++    store = storage.CryptoEdgeStoreSQLite(path=str(tmp_path / "archive.sqlite"))
++    for index, rate in enumerate((0.0001, 0.0002), start=1):
++        store.append_funding_rows(
++            [{"symbol": "EXAMPLE", "venue": "okx", "funding_rate": rate, "interval_hours": 8}],
++            source="synthetic", capture_ts=f"2026-10-29T0{index}:00:00Z")
++    store.append_basis_rows([{"symbol": "EXAMPLE", "venue": "okx", "spot_px": 100, "perp_px": 101}],
++                            source="synthetic")
++    with sqlite3.connect(store.path) as conn:
++        before = conn.execute("SELECT * FROM funding_snapshots ORDER BY id").fetchall()
++    report = store.latest_report_for_source(source="synthetic")
++    history = store.recent_funding_history(limit=2)
++    assert report["funding"]["count"] == 1
++    assert report["funding"]["annualized_carry_pct"] is None
++    assert all(row["annualized_carry_pct"] is None and row["positive_ratio"] is None for row in history)
++    assert [r["capture_ts"] for r in history] == ["2026-10-29T02:00:00Z", "2026-10-29T01:00:00Z"]
++    assert report["basis"]["avg_basis_bps"] == pytest.approx(100)
++    assert len(store.latest_funding_rows_for_source(source="synthetic")) == 1
++    with sqlite3.connect(store.path) as conn:
++        assert conn.execute("SELECT * FROM funding_snapshots ORDER BY id").fetchall() == before
++
++
++@pytest.mark.parametrize("interval", [1, 4, 8])
++def test_frozen_uniform_interval_model_function_is_unchanged(interval):
++    before = ast.parse((BEFORE / "crypto_edges.py").read_bytes())
++    current = ast.parse((ROOT / "services/analytics/crypto_edges.py").read_bytes())
++    name = "summarize_funding_carry"
++    old_node = next(n for n in before.body if isinstance(n, ast.FunctionDef) and n.name == name)
++    new_node = next(n for n in current.body if isinstance(n, ast.FunctionDef) and n.name == name)
++    assert ast.dump(old_node, include_attributes=False) == ast.dump(new_node, include_attributes=False)
++    ns = dict(vars(edges))
++    exec(compile(ast.fix_missing_locations(ast.Module(body=[old_node], type_ignores=[])), str(BEFORE), "exec"), ns)
++    rows = [{"funding_rate": 0.0001}, {"funding_rate": -0.00005}]
++    assert edges.summarize_funding_carry(rows, interval_hours=interval) == ns[name](rows, interval_hours=interval)
++
++
++SUMMARIES = [None, {}, {"annualized_carry_pct": None},
++             {"annualized_carry_pct": 0, "dominant_bias": "flat"},
++             {"annualized_carry_pct": 12, "dominant_bias": "long_pays"},
++             {"annualized_carry_pct": 99, "normalization_eligible": True},
++             {"annualized_carry_pct": float("nan")}]
++
++
++@pytest.mark.parametrize("summary", SUMMARIES)
++def test_formatter_never_upgrades_cached_values_or_flags(summary):
++    view = edges.funding_display(summary)
++    assert view["carry"] == "N/A" and view["bias"] == "Unknown"
++
++
++@pytest.mark.parametrize("path", ["dashboard/pages/35_Research.py", "dashboard/pages/60_Operations.py"])
++@pytest.mark.parametrize("summary", SUMMARIES)
++def test_actual_page_funding_cards_show_missing_not_zero(path, summary):
++    tree = ast.parse((ROOT / path).read_bytes())
++    card = next(n for n in ast.walk(tree) if isinstance(n, ast.Dict) and any(
++        isinstance(k, ast.Constant) and k.value == "label" and isinstance(v, ast.Constant)
++        and v.value == "Funding Carry" for k, v in zip(n.keys, n.values)))
++    ns = {"funding": summary, "funding_display": edges.funding_display}
++    result = eval(compile(ast.fix_missing_locations(ast.Expression(body=card)), path, "eval"), ns)
++    assert result["value"] == "N/A" and result["delta"] == "Unknown"
++
++
++@pytest.mark.parametrize("summary", SUMMARIES)
++def test_summary_component_uses_the_same_guard(summary):
++    path = ROOT / "dashboard/components/summary_panels.py"
++    tree = ast.parse(path.read_bytes())
++    node = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "build_structural_edge_metrics")
++    ns = {"funding_display": edges.funding_display}
++    exec(compile(ast.fix_missing_locations(ast.Module(body=[node], type_ignores=[])), str(path), "exec"), ns)
++    rows = ns["build_structural_edge_metrics"]({"funding": summary, "basis": {"avg_basis_bps": 1.2}})
++    funding = next(row for row in rows if row["label"] == "Funding Bias")
++    assert funding["value"] == "Unknown" and funding["delta"] == "N/A"
++    assert next(row for row in rows if row["label"] == "Average Basis")["value"] == "1.20 bps"
++
++
++@pytest.mark.parametrize("summary", SUMMARIES)
++def test_digest_funding_expression_does_not_report_a_cached_yield(summary):
++    path = ROOT / "dashboard/services/digest/builders.py"
++    tree = ast.parse(path.read_bytes())
++    item = next(n for n in ast.walk(tree) if isinstance(n, ast.Dict) and any(
++        isinstance(k, ast.Constant) and k.value == "name" and isinstance(v, ast.Constant)
++        and v.value == "Funding analytics" for k, v in zip(n.keys, n.values)))
++    ns = {"live_snapshot": {"funding": summary}, "funding_display": edges.funding_display}
++    result = eval(compile(ast.fix_missing_locations(ast.Expression(body=item)), str(path), "eval"), ns)
++    if isinstance(summary, dict):
++        assert result["summary"] == "Bias Unknown / carry N/A"
++    else:
++        assert result["summary"] is None
++
++
++def test_cached_funding_trend_is_unverified_not_a_numeric_delta():
++    funding = [{"annualized_carry_pct": 12, "dominant_bias": "long_pays"},
++               {"annualized_carry_pct": 8, "dominant_bias": "long_pays"}]
++    rows = research._build_trend_rows(funding_history=funding,
++                                    basis_history=[{"avg_basis_bps": 6}, {"avg_basis_bps": 4}],
++                                    dislocation_history=[])
++    assert rows[0]["theme"] == "funding" and rows[0]["latest"] == "N/A"
++    assert rows[0]["vs_prior"] == "Unverified comparison"
++    assert rows[1]["theme"] == "basis" and rows[1]["latest"] == "6.00 bps"
++
++
++def test_old_archive_report_is_a_negative_control():
++    tree = ast.parse((BEFORE / "crypto_edges.py").read_bytes())
++    node = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "build_crypto_edge_report")
++    ns = dict(vars(edges))
++    exec(compile(ast.fix_missing_locations(ast.Module(body=[node], type_ignores=[])), str(BEFORE), "exec"), ns)
++    report = ns["build_crypto_edge_report"](funding_rows=[{"funding_rate": 0.0001}])
++    assert report["funding"]["annualized_carry_pct"] == pytest.approx(10.95)

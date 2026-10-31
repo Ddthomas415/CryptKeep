@@ -1,0 +1,14 @@
+{
+  "agent_id": "01a15187-d8bb-71c1-8bfb-095bd45e4bac",
+  "allows_credentials": false,
+  "allows_installation": false,
+  "allows_startup": false,
+  "decision": "ACCEPTED_WITH_RISK",
+  "independent_test_exit": 0,
+  "independent_tests_passed": 12,
+  "reviewed_collector_sha256": "988d317745800fa46e069c175dd0ec3fc7704742740c535f6e83796867dfc70c",
+  "reviewer": "Hegel",
+  "scope": "literal hash refresh in read-only selected metadata collector only",
+  "source": "independent reviewer response in this Codex conversation",
+  "verified_cli_sha256": "678271184175b40dfc4bd6f4582be00ae1538b0d1e031181f52ceedfae9af5fb"
+}

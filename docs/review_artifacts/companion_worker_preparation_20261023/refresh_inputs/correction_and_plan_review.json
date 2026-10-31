@@ -1,0 +1,292 @@
+{
+  "schema": "companion-worker-template-correction-and-plan-review-v1",
+  "review_date": "2026-10-23",
+  "active_role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "reviewer": "Independent GATE: one-expression correction and prospective offline v6b inputs only, 2026-10-23",
+  "decision_scope": "Combined bounded evidence review and acceptance of the single-expression offline correction and prospective refreshed inputs only; no retry or operation authorization",
+  "acceptances": {
+    "failed_actual_preparation": "INCOMPLETE",
+    "offline_template_correction": "ACCEPTED_WITH_RISK",
+    "prospective_refreshed_inputs": "ACCEPTED_WITH_RISK"
+  },
+  "runtime_state": "INCOMPLETE",
+  "blocking_findings": [],
+  "checkpoint": {
+    "path": "docs/checkpoints/companion_worker_preparation_failure_20261023.md",
+    "sha256": "4dd0701553628e895d7ef774711e3f6738a5896651b39ad328bf38390104c471",
+    "read_fully": true
+  },
+  "frozen_artifact_sha256": {
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual/before_inventory.json": "f494a090ed856dcded0f97d2d969f831de1d081e73724a0402fede15b20d67e3",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual/post_inventory.json": "2db7e158c5ba7e51e8102fae38d816aeef90158b94830694866cde5affbfc8f3",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual/readonly_diagnosis.json": "e8839d41019b3fdc7d8f0171ee9828f86bcfc3476324ff2e5bd0620ed612c01d",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual/preparation_receipt.jsonl": "cdd014f97777e42b7251fc4d8f1b899a368764ff843602160da3906f3889c3d5",
+    "docs/review_artifacts/companion_worker_preparation_20261023/actual/operation_outcome.json": "150ccdde9fa78e9a340966e9f0ab1f7d7665544f48299c08cf6dba1b153f51f9",
+    "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "tests/test_companion_worker_image_format.py": "7bd7ce3a1b73f14353d5f053a8fd93ec210996dcb0ea16db309030c765dd6ab1",
+    "docs/review_artifacts/companion_worker_preparation_20261023/derive_template_refresh.py": "d9f542b30eb8f5cb164f4eedf32c790e8e364beb5a64208b881a90b5b15eb85c",
+    "tests/test_companion_worker_template_refresh.py": "0c9885ee061d9c0b2150fbbf2dcd69f9763e92331dc153379650db139f1ac0f1",
+    "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/candidate_manifest.json": "7928e17e98eb63cd5e28933ddc16071c8de9b728e2df8cb2f456990fe7953047",
+    "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/provenance.json": "c4bd70588ee5d695cd76fdec3f9380814edc2e833979f67418e60c5964a190ce"
+  },
+  "all_11_checkpoint_artifact_hashes_match": true,
+  "actual_preparation": {
+    "claim_status": "SHOWN",
+    "evidence_origin": "Pinned parent-captured outcome, public receipt and read-only observation artifacts; not a repeated operation or independent full child trace",
+    "disposition": "INCOMPLETE",
+    "attempt": "workerprep20261023v6a",
+    "reviewed_manifest_sha256": "35032e02db1bf1d569d7918ef9127562abc205154d68908455c3ec5bf3201d42",
+    "recorded_command_invocations": 1,
+    "recorded_exit_code": 1,
+    "recorded_failure_stage": "preparation_build",
+    "cleanup_verified_reported": true,
+    "unresolved_creation": [],
+    "unresolved_cleanup": [],
+    "receipt_phases": [
+      "staged_preparation_reserved",
+      "staged_preparation_failed",
+      "preparation_entrypoint_failed"
+    ],
+    "receipt_create_intents_or_new_ids_recorded": false,
+    "attempt_named_stages_in_postcheck": [],
+    "new_actual_id_evidence_to_approve": false,
+    "attempt_consumed": true,
+    "failed_preparation_marker": {
+      "path": ".cbp_state/runtime/companion_preparations/workerprep20261023v6a",
+      "exists_at_review": true,
+      "modified_or_reset": false
+    },
+    "limits": [
+      "The preparation_build stage includes prerequisite prepare. Neither that stage label nor the three receipt events establishes the exact child command substep or whether image build/cache or credential-copy effects occurred.",
+      "cleanup_verified is a controller report, not proof of complete system recovery. Empty unresolved lists and no create intent/new ID are recorded; the postcheck shows no attempt-named stages at that observation.",
+      "Private/public receipt byte identity is asserted by the checkpoint; this reviewer did not read the private controller receipt.",
+      "No volume-content or image-cache comparison is available. No successful preparation, shutdown, cited explanation or profitability is established."
+    ]
+  },
+  "inventory_comparison": {
+    "claim_status": "SHOWN",
+    "before_count": 11,
+    "after_count": 11,
+    "original_count": 7,
+    "older_stage_count": 4,
+    "complete_saved_selected_metadata_rows_identical": true,
+    "row_array_JSON_serializations_identical": true,
+    "method": "Independent in-memory comparison of every saved row field, including nested values; timestamps/wrappers differ and the complete artifact bytes are not claimed identical.",
+    "boundary": "Equality covers the recorded selected metadata, not a full configuration, persistent-record or volume-content audit."
+  },
+  "readonly_diagnosis": {
+    "claim_status": "SHOWN",
+    "scope": "Review of the pinned sanitized diagnostic summary only; no diagnostic/native command was repeated",
+    "engine": {
+      "commit": "b26fb77",
+      "version": "29.9.1"
+    },
+    "engine_pair_matches_unchanged_reviewed_pair": true,
+    "recorded_bad_query": {
+      "fixed_missing_entrypoint_error": true,
+      "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+      "return_code": 1,
+      "stderr_disclosed": false
+    },
+    "recorded_alternative_template": "{\"id\":{{json .Id}},\"layers\":{{json .RootFS.Layers}},\"onbuild\":{{json (index .Config \"OnBuild\")}},\"entrypoint_empty\":{{not (index .Config \"Entrypoint\")}}}",
+    "alternative_template_matches_single_expression_correction": true,
+    "recorded_alternative_results": [
+      {
+        "entrypoint_empty": true,
+        "id_matches": true,
+        "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+        "layers_are_list": true,
+        "name": "phase1-audit-log",
+        "onbuild_empty": true
+      },
+      {
+        "entrypoint_empty": true,
+        "id_matches": true,
+        "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+        "layers_are_list": true,
+        "name": "phase1-risk-stub",
+        "onbuild_empty": true
+      },
+      {
+        "entrypoint_empty": true,
+        "id_matches": true,
+        "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+        "layers_are_list": true,
+        "name": "phase1-memory",
+        "onbuild_empty": true
+      },
+      {
+        "entrypoint_empty": true,
+        "id_matches": true,
+        "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+        "layers_are_list": true,
+        "name": "phase1-orchestrator",
+        "onbuild_empty": true
+      }
+    ],
+    "interpretation": "The current missing-Entrypoint query failure is a reproduced blocker consistent with the failed stage. The null-safe query succeeds for all four supplied parent-image observations. It is not a recovered historical child trace or broad runtime/builder proof.",
+    "side_effect_scope": "The diagnostic reports read-only image/engine inspection, no build/lifecycle command or credential read. Those diagnostic-only limits must not be attributed to the untraced preparation child.",
+    "reported_public_read_command_counts": {
+      "before": 1,
+      "postcheck": 2,
+      "diagnosis": 6,
+      "total": 9,
+      "controller_internal_calls": "Not exposed by the public command trace"
+    }
+  },
+  "source_correction": {
+    "claim_status": "SHOWN",
+    "path": "scripts/research/companion_install_docker.py",
+    "previous_sha256": "470783aa8f126bb5c73b0dc8f7373a00069050ceb89ec08bc95cd66c15199f84",
+    "current_sha256": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+    "symbol": "WORKER_IMAGE_FORMAT",
+    "previous_expression": "not .Config.Entrypoint",
+    "corrected_expression": "not (index .Config \"Entrypoint\")",
+    "corrected_expression_count": 1,
+    "previous_expression_count": 0,
+    "reversed_source_sha256": "470783aa8f126bb5c73b0dc8f7373a00069050ceb89ec08bc95cd66c15199f84",
+    "reverse_reconstructs_exact_previous_backend": true,
+    "consequence": "Use null-safe optional-key lookup while retaining the strict empty-entrypoint result check. Exact reverse hashing establishes that no signal, budget, ownership, creation or other backend source policy changed.",
+    "proof_limit": "The new string/hash regression tests do not execute the Docker Go-template engine. Compatibility with these four images rests on the separately supplied native read-only diagnosis."
+  },
+  "independent_test": {
+    "claim_status": "SHOWN",
+    "environment_confidence": "VERIFIED_ENV",
+    "working_directory": "/Users/baitus/Downloads/crypto-bot-pro",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_worker_template_refresh.py tests/test_companion_worker_image_format.py",
+    "exit_code": 0,
+    "result": "7 passed in 0.31s",
+    "selected_test_files": 2,
+    "old_broad_or_shutdown_tests_rerun": false,
+    "parent_194_pass_result": "CLAIMED by the checkpoint; not independently rerun in this scope",
+    "scope": "Only the two new offline test files; input derivation is read-only, uses synthetic in-memory approval, and performs no native Docker work."
+  },
+  "prospective_inputs": {
+    "disposition": "ACCEPTED_WITH_RISK",
+    "previous_attempt": "workerprep20261023v6a",
+    "proposed_attempt": "workerprep20261023v6b",
+    "candidate_path": "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/candidate_manifest.json",
+    "candidate_sha256": "7928e17e98eb63cd5e28933ddc16071c8de9b728e2df8cb2f456990fe7953047",
+    "exact_candidate_changed_fields_from_prior_manifest": [
+      "attempt",
+      "decision",
+      "reviewer"
+    ],
+    "all_applications_commands_sources_predictions_options_unchanged": true,
+    "baseline_network_policies_and_schema_unchanged": true,
+    "prediction_evidence_label": "MODELLED",
+    "new_container_ids": null,
+    "new_image_ids": null,
+    "source_entry_count": 43,
+    "all_application_source_hashes_match": true,
+    "support_binding_count": 13,
+    "all_support_hashes_match": true,
+    "exact_changed_support_bindings": [
+      {
+        "after": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+        "before": "470783aa8f126bb5c73b0dc8f7373a00069050ceb89ec08bc95cd66c15199f84",
+        "path": "scripts/research/companion_install_docker.py"
+      }
+    ],
+    "proposal_marked_fix_pending_independent_review_before_this_gate": true,
+    "all_seven_input_evidence_pins_match": true,
+    "input_evidence_sha256": {
+      "docs/review_artifacts/companion_worker_preparation_20261023/actual/before_inventory.json": "f494a090ed856dcded0f97d2d969f831de1d081e73724a0402fede15b20d67e3",
+      "docs/review_artifacts/companion_worker_preparation_20261023/actual/operation_outcome.json": "150ccdde9fa78e9a340966e9f0ab1f7d7665544f48299c08cf6dba1b153f51f9",
+      "docs/review_artifacts/companion_worker_preparation_20261023/actual/post_inventory.json": "2db7e158c5ba7e51e8102fae38d816aeef90158b94830694866cde5affbfc8f3",
+      "docs/review_artifacts/companion_worker_preparation_20261023/actual/preparation_receipt.jsonl": "cdd014f97777e42b7251fc4d8f1b899a368764ff843602160da3906f3889c3d5",
+      "docs/review_artifacts/companion_worker_preparation_20261023/actual/readonly_diagnosis.json": "e8839d41019b3fdc7d8f0171ee9828f86bcfc3476324ff2e5bd0620ed612c01d",
+      "docs/review_artifacts/companion_worker_preparation_20261023/inputs/preparation_plan_review.json": "a97d3f2226ac7ff3d99131e22afa5714c65b8430cd06d4745c80aa6975cd0cd6",
+      "docs/review_artifacts/companion_worker_preparation_20261023/inputs/reviewed_preparation_manifest.json": "35032e02db1bf1d569d7918ef9127562abc205154d68908455c3ec5bf3201d42"
+    },
+    "support_sha256": {
+      "scripts/research/collect_companion_recreation_metadata.py": "8105974ae7ad02f8c90bc0e0a1827a4a58b40838236b5125638785ada80daf9a",
+      "scripts/research/companion_cutover_continuation.py": "b9e0a01c7770156475fd764446aede4c45adebaada4b21a2820946399cfb1365",
+      "scripts/research/companion_docker_transport.py": "817c378c289093a7f7c5395f3eb28291e5af1c3a7ae8b09eed2bde5868d2ecc5",
+      "scripts/research/companion_existing_controller.py": "a3c67719299513cccd99a9303938b128362c29a9ed911b14e164d779403626a3",
+      "scripts/research/companion_install_docker.py": "fbe5c0abe9be35cd0765d98b6d31b29f0e075cf7ece2e4d541283bce2755b28c",
+      "scripts/research/companion_install_env.py": "845bf702766525a3afa2397e76dcff4ff1c784b8ec549ace658b5c2f0001b38b",
+      "scripts/research/companion_installer.py": "de1a969fdd522b069cc0bca03c4d714e7b80e8842ac167ec9d4ffcb8f8a1b334",
+      "scripts/research/companion_network_configuration.py": "c3824743fb08098a35af6966ee9e3345a63e6500f18a5fdd84a02d1114bf39d7",
+      "scripts/research/companion_prepare.py": "89b60b67a6204a83ad045edc91874b9e828c023fe0d094cda6d7c61c56e7bfd1",
+      "scripts/research/companion_runtime_adapter.py": "e7315cd9047f656afca0b3845be54629c46c80c9a20065d8646978dce20fce38",
+      "scripts/research/companion_staged_update.py": "f6a6878d8de760caaee757ed5ef570872c67efb74106fe2d6b0f8090ab697d18",
+      "scripts/research/companion_worker_shutdown.py": "2666d12f37b178a42e2f04fd869bc2a6768b4b070bcfd83bc70298d43a0cb659",
+      "tests/test_companion_worker_shutdown.py": "edb49030f0cfc9883f03d192fd99fb15c67c1982cfd16dff8d60c0c0fa707f23"
+    },
+    "new_attempt_marker_checks": [
+      {
+        "path": ".cbp_state/runtime/companion_preparations/workerprep20261023v6b",
+        "absent": true
+      },
+      {
+        "path": ".cbp_state/runtime/companion_cutovers/workerprep20261023v6b",
+        "absent": true
+      }
+    ],
+    "reservation_created": false,
+    "marker_absence_is_not_future_exclusivity": true,
+    "failed_attempt_and_old_records_preserved": true,
+    "old_removed_ids_or_prior_evidence_adoptable": false
+  },
+  "reviewed_preparation_manifest": {
+    "path": "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/reviewed_preparation_manifest.json",
+    "sha256": "67e29202a3bcd78f050f94b42bc87f91c7a50be90d3485ebd1fc0cfac0b7485e",
+    "canonical_body_sha256": "057bcbf674fd1d2344e882daa8104368f0cbf2cd4ad6d3b9a88a6c2e6cc186df",
+    "serialization": "UTF-8 canonical sorted-key compact JSON body plus exactly one final LF byte (0x0a)",
+    "byte_length": 16548,
+    "changed_fields_from_frozen_candidate": [
+      "decision",
+      "reviewer"
+    ],
+    "decision": "ACCEPTED_WITH_RISK",
+    "reviewer": "Independent GATE: one-expression correction and prospective offline v6b inputs only, 2026-10-23",
+    "scope": "Prospective input content/shape acceptance only. Does not authorize reservation, execution, preparation or retry."
+  },
+  "remaining_limits": [
+    {
+      "claim_status": "UNVERIFIED",
+      "detail": "Fresh full runtime preflight, actual new image/ID/source/fingerprint results, operational preparation success and recovery remain unproven. Existing seven originals and four older stages are outside new cleanup ownership."
+    },
+    {
+      "claim_status": "UNVERIFIED",
+      "detail": "Earlier clock evidence remains a historical one-sample bracket per app, not exact or future synchronization, deadline approval or a new tolerance. Process trust assumptions and acknowledgement/cancellation risks are unchanged."
+    },
+    {
+      "claim_status": "SHOWN",
+      "detail": "The prospective plan retains existing preparation-only 300-second controller and 120-second recovery-reserve budgets. Those budgets were not exercised by this review and do not establish a hard whole-CLI deadline for pre-controller file I/O."
+    },
+    {
+      "claim_status": "SHOWN",
+      "detail": "A later separately authorized preparation can have private configuration-copy, image/cache, disk/log and consumed-attempt side effects, and must use genuinely new never-started stages with owned-new-only cleanup. Independent actual-ID/image/source/fingerprint review is required before separately authorized cutover."
+    }
+  ],
+  "authorization": {
+    "offline_fix_and_prospective_input_acceptance_only": true,
+    "retry": false,
+    "attempt_reservation": false,
+    "preparation": false,
+    "build": false,
+    "credentials_or_private_configuration_copy": false,
+    "container_create": false,
+    "container_start": false,
+    "original_stop_or_signal": false,
+    "cutover": false,
+    "query": false,
+    "trading": false,
+    "automatic_follow_on_execution": false
+  },
+  "review_boundaries": {
+    "one_bounded_pass": true,
+    "old_architecture_reaudit": false,
+    "native_docker_network_credentials_services_signals": false,
+    "execution_scope": "Authorized isolated two-new-test-file command only",
+    "frozen_sources_tests_checkpoint_candidate_provenance_evidence_and_old_records_modified": false,
+    "only_authored_artifacts": [
+      "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/correction_and_plan_review.json",
+      "docs/review_artifacts/companion_worker_preparation_20261023/refresh_inputs/reviewed_preparation_manifest.json"
+    ]
+  }
+}

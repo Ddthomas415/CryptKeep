@@ -1,0 +1,82 @@
+{
+  "schema": "companion-continuation-attempt-outcome-v1",
+  "recorded_utc": "2026-10-23T00:49:48Z",
+  "operator_local_date": "2026-10-22",
+  "execution_id": "s3cutover20261022health01",
+  "preparation_attempt": "s3refresh20261021c1eaae5a",
+  "launcher_sha256": "015ced06462c79b442b0fb03f2cbf57869986e4d142de40ed6b5e6a8f3b7924d",
+  "handoff_review_sha256": "3e134045ff27c3aba1b34d656e3267c0202b52c5485c2d8d0c382a8a51c9230d",
+  "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ./.venv/bin/python -B -c 'import hashlib,sys; from pathlib import Path; p=Path(\"docs/review_artifacts/companion_continuation_20261021/execute_reviewed_continuation.py\").resolve(); raw=p.read_bytes(); assert hashlib.sha256(raw).hexdigest()==\"015ced06462c79b442b0fb03f2cbf57869986e4d142de40ed6b5e6a8f3b7924d\"; sys.argv=[str(p),\"--execute-once\"]; exec(compile(raw,str(p),\"exec\"),{\"__name__\":\"__main__\",\"__file__\":str(p)})'",
+  "exit_code": 1,
+  "result": {
+    "state": "INCOMPLETE",
+    "failure_phase": "cutover",
+    "actions_executed": true,
+    "attempt_reserved": true,
+    "receipt": "/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/companion_cutovers/s3cutover20261022health01/receipt.jsonl",
+    "running_update_complete": false,
+    "query_attempted": false,
+    "query_passed": false,
+    "receipt_complete": true,
+    "rollback_verified": false,
+    "rollback_exact_baseline": true,
+    "services_started": false,
+    "prepared_ids_preserved": false,
+    "preparation_consumed": true,
+    "unresolved_quiesce": ["phase1-orchestrator"],
+    "unresolved_restart": [],
+    "unresolved_replacement_start": [],
+    "unresolved_replacement_cleanup": [],
+    "unresolved_creation": [],
+    "controller_failure_stage": "quiesce"
+  },
+  "receipt_sha256": "cb486c19ea93001f7931dd5304c16676b5381c926faaebe2649677732edd139b",
+  "post_inventory_sha256": "b80c453502c678ad3e558149fd4f6042e0a807259989623cb970dc4e9ac0d55b",
+  "observations": {
+    "staged_checks_returned_before_quiesce": true,
+    "storage_checks_returned_before_quiesce": true,
+    "original_seven_present_running_and_exact_metadata_unchanged": true,
+    "all_eleven_surviving_selected_rows_unchanged": true,
+    "four_owned_prepared_replacements_removed_by_cleanup": true,
+    "old_four_stage_ids_survive_unchanged": true,
+    "query_attempted": false,
+    "manual_postfailure_lifecycle_actions": 0,
+    "automatic_retries": 0
+  },
+  "read_only_diagnosis": {
+    "mode": "READ_ONLY_QUIESCE_DIAGNOSIS_NO_SIGNAL_NO_TOKEN",
+    "original_observation": {"pre_signal_guard_passed": true, "state": "running"},
+    "top_succeeded": true,
+    "processes": [
+      {"pid": 1623, "ppid": 1597, "recognized_command": "sh"},
+      {"pid": 1674, "ppid": 1623, "recognized_command": "uvicorn"}
+    ],
+    "signal_sent": false,
+    "scope": "Existing bounded original observation only; one read-only top listing of recognized process names and PID/PPID, no command arguments/environment or signal."
+  },
+  "retained_daemon_event_check": {
+    "mode": "READ_ONLY_PAST_EVENT_WINDOW_NO_SIGNAL",
+    "command_succeeded": true,
+    "since": "2026-10-23T00:46:50Z",
+    "until": "2026-10-23T00:47:30Z",
+    "events": [],
+    "limit": "No retained recognized lifecycle event was returned. Event retention may be incomplete; absence does not establish that a signal was never sent."
+  },
+  "classification": {
+    "SHOWN": [
+      "One authorized attempt failed at quiesce; no replacement service start or archived query occurred.",
+      "Original seven services are running with exact selected metadata equality; only the four owned prepared IDs are absent, consistent with controller cleanup.",
+      "Current pre-signal observation passes. Current orchestrator has sh as parent of uvicorn.",
+      "Controller sends SIGTERM to the pinned original then waits at most ten seconds; its receipt does not distinguish command rejection, acknowledgement or termination timeout."
+    ],
+    "UNVERIFIED": [
+      "The exact failing substep inside quiesce and whether Docker acknowledged the original SIGTERM.",
+      "Whether shell signal forwarding/handling caused this failure; observed parent/worker structure is a plausible lead, not proof.",
+      "Full rollback acceptance: unresolved quiesce marker remains despite an exact original-baseline match.",
+      "Full volume-content equality, successful explanation, runtime cure or profitability."
+    ]
+  },
+  "credential_boundary": "The approved handoff used the existing internal service token in memory. No value was printed or persisted; diagnostics retrieved no token again.",
+  "next_boundary": "No retry, marker reset, recreation or further signal authorized. Diagnose graceful original-service shutdown and stage-specific acknowledgement/timeout reporting offline before proposing fresh preparation; the removed four prepared IDs cannot be reused.",
+  "state": "INCOMPLETE"
+}

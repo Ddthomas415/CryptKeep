@@ -1,0 +1,245 @@
+{
+  "schema": "companion-v6g-actual-input-independent-review-v1",
+  "date": "2026-10-25",
+  "role": "GATE",
+  "risk": "HIGH",
+  "decision": "ACCEPTED_WITH_RISK",
+  "blocking_findings": [],
+  "acceptance_scope": "Saved actual V6g preparation inputs and bounded capture/derivation implementation only. No preparation execution, configuration copy, build/create/start, cutover, query, credential or native operation authority.",
+  "input_state": "ACCEPTED_WITH_RISK",
+  "runtime_state": "INCOMPLETE",
+  "preparation_authorized": false,
+  "startup_authorized": false,
+  "cutover_authorized": false,
+  "query_authorized": false,
+  "root": "/Users/baitus/Downloads/crypto-bot-pro",
+  "paths_relative_to_root": true,
+  "hashes": {
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/capture_baseline.py": "2dec18158313327e95276535ebba9545d09a7fa2fdf558aa05c9da0f1a2243fb",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/derive_inputs.py": "a54396ef35a369161b8e437a99cc1f23c0700871c1fefe8d05553a5ff81e39e3",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/source_refresh.json": "3fd7e028d7bba8b9b012404f1eac0f91d3c7fa0016cc8d5cedffb604aa4882e1",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/independent_review.json": "0e284e50121f41a274694173d7dd4f5ef916cceb5e884714c504b5cb15665cc2",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/candidate_manifest.json": "75ecb17e2b417d40cceef110a33fe701e97812f69f56eb98ce1c1f70804d2a26",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/provenance.json": "6c571f3a7d1dfca3e46e64ac89dffd60eedda9df411cfb965df263790490bb22",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_baseline/capture_1.jsonl": "61f5f54701a327bab9eb19285c16ccdf1855b8373165e7fee7d716fbf8a9409a",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_baseline/capture_2.jsonl": "61f5f54701a327bab9eb19285c16ccdf1855b8373165e7fee7d716fbf8a9409a",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/actual_baseline/baseline_observation.json": "c93ce28c2454899f0a64f6e4df6cb8dbff4da89b0d30ecfbe39f5a781dacd861",
+    "tests/test_companion_v6g_baseline_capture.py": "ea1d6f2b3a196172391ecc1412b49fedd67240cdcc8f03f3bada4a6eaeca4558",
+    "tests/test_companion_v6g_current_inputs.py": "0e29a185b707a24a6179193fd9e47033857c301632db577df619773e2a6a97b7",
+    "docs/checkpoints/companion_actual_inputs_v6g_20261025.md": "88db8347837d4e9cd66e1cfa42fe77234433865391d8205db08025dacc6b16b1",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/reviewed_preparation_manifest.json": "a7854b1660ae2c321f8edb62d3ac2b7ab60350deb62df91bdde774e8c2ea1588",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/provenance.json": "b8c685aac89efc0661a2635e97855b997e8fc77cbd9ab2b029b667f4da3377a7",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/runtime_packet_v6f/accepted_policy_records/scope_review.json": "a165d3db68fe6dd139e44d5052049b162bbc7214d8df0d213974f2d4e2e58ef7",
+    "docs/review_artifacts/companion_cited_precedent_repair_20261025/independent_review_v2.json": "bebb73297e47f784a1d43ff9ab1a2755cef6ad29348716145ea0bd4688259732",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_runtime_v6f/outcome.json": "c074d27caa3a16f94fc6bf28a2875d8640ac30d6a6f5ae9dda1a7d85caf4e267",
+    "docs/review_artifacts/companion_integration_inputs_v6f_20261025/actual_runtime_v6f/receipt.jsonl": "9fdc6a9823d45777e591a25b108be4da7bfeadea296daeb50492481cb3acf555",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/refresh_sources.py": "d89f8bb6ba2672b287d9757a699e2ec3ace5770862737f5ecccee2844228212b",
+    "docs/review_artifacts/companion_reconnection_plan_20261024/runtime_packet_v6e/staged_metadata.derived.json": "bee8dccb784344ae8627040b86d076ee26f0c9911312b0f34e8549a3bd8fc2cd",
+    "docs/review_artifacts/companion_integration_inputs_v6g_20261025/reviewed_preparation_manifest.json": "33e6633229e9399ec695be2f8e743930212b9ed926277235fd071e675fcf2e26"
+  },
+  "shown_evidence": [
+    {
+      "classification": "SHOWN saved bytes",
+      "subject": "Complete saved pair",
+      "detail": "Read and parsed both complete JSONL captures and complete observation, with duplicate-key rejection in reviewer parsing. Each capture has seven selected original rows, both raw SHA-256 values match observation, both raw bytes agree, and both parsed arrays exactly match observations. Raw formatter has no attempt field; no assumed field was added. Environment evidence consists of fixed comparison/presence booleans, not raw environment values."
+    },
+    {
+      "classification": "SHOWN static scope; acquisition provenance CLAIMED",
+      "subject": "Capture wrapper and limits",
+      "detail": "Read complete capture_baseline.py. It refreshes pinned source constraints, checks existing CLI digest, exclusively creates output directory, uses an isolated private CLI config and exactly seven known IDs with accepted metadata.capture_format. Each of two calls has timeout min(10, remaining total30), bounded output and sanitized environment for CLI process. Exact raw bytes are exclusively saved before JSON parsing; parse/transport exceptions stop the loop without retry and retain report/failure category. UTC endpoints and monotonic elapsed are recorded. Default without exact --capture-once does not call capture. Native call count and timing are parent/code reports, not independent reviewer observation."
+    },
+    {
+      "classification": "SHOWN independently recomputed",
+      "subject": "Snapshot and identity constraints",
+      "detail": "Directly reconstructed all seven Snapshots from raw rows using existing preservation/network helpers and actual contract bindings; exact equality to candidate baseline. Derivation separately reproduces same baseline. All seven names, IDs, images, running state, zero restart count, restart policy no, foundation/configured digests satisfy accepted V6f constraints. Three storage snapshots unchanged; four app snapshots change only started.",
+      "baseline_deltas": [
+        {
+          "name": "phase1-timescaledb",
+          "changed_fields": []
+        },
+        {
+          "name": "phase1-qdrant",
+          "changed_fields": []
+        },
+        {
+          "name": "phase1-minio",
+          "changed_fields": []
+        },
+        {
+          "name": "phase1-audit-log",
+          "changed_fields": [
+            "started"
+          ]
+        },
+        {
+          "name": "phase1-risk-stub",
+          "changed_fields": [
+            "started"
+          ]
+        },
+        {
+          "name": "phase1-memory",
+          "changed_fields": [
+            "started"
+          ]
+        },
+        {
+          "name": "phase1-orchestrator",
+          "changed_fields": [
+            "started"
+          ]
+        }
+      ],
+      "identities": [
+        {
+          "name": "/phase1-timescaledb",
+          "id": "7895bb197b948f0fdfab5eb272b54452a8c71ed357c24b5777073410c055b63b",
+          "image": "sha256:068df316fc9dc448a80f1f39d808a06c08a54f35a66eb1d36b92636db78c3a43",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no",
+          "started": "2026-10-20T12:10:30.80557325Z"
+        },
+        {
+          "name": "/phase1-qdrant",
+          "id": "2b5b140608bb6491a3466d6658a7ca0a5519e9988dbc5482fabbf96807bde8b4",
+          "image": "sha256:241edb9d7778327516ef218f8c74e1bd61b5ea42cd4f193cb8d0896199705636",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no",
+          "started": "2026-10-20T12:10:31.415239375Z"
+        },
+        {
+          "name": "/phase1-minio",
+          "id": "a75c14f29235707e00ca1ca340d1eafb0a883015a3e2ae7ebaa9083e6f27ef15",
+          "image": "sha256:9535594ad4122b7a78c6632788a989b96d9199b483d3bd71a5ceae73a922cdfa",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no",
+          "started": "2026-10-20T12:10:31.08949425Z"
+        },
+        {
+          "name": "/phase1-audit-log",
+          "id": "fbec9f31369f833ff950307af30c974a48a9ee7fd63eaa4d09db6563225f68fe",
+          "image": "sha256:a9b205b41e2b7499497e346e49cde29890b36f4d4b1dfee89fb32f4f726953ad",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no",
+          "started": "2026-10-25T23:55:59.191973634Z"
+        },
+        {
+          "name": "/phase1-risk-stub",
+          "id": "b747cb34088f2cd334cfb3626fd2f51bac05cc55cdc4016e030fb89a72396213",
+          "image": "sha256:d56c35039ec0bce6b7be7deefa3bc1ec03681e3000dbc5320eb765f9d76905aa",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no",
+          "started": "2026-10-25T23:56:00.184624635Z"
+        },
+        {
+          "name": "/phase1-memory",
+          "id": "869205e8c8cf9c53bdf5563aebe9b50198fd64d57c340b84b88cdde0a02dd071",
+          "image": "sha256:276ce227380a64af3602a045e99b95100461070284dd15df75e07d72a857681d",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no",
+          "started": "2026-10-25T23:56:01.180714469Z"
+        },
+        {
+          "name": "/phase1-orchestrator",
+          "id": "bfaed7d1d6516e24151abb8c986f84c53099d05c26618789d8267c6005d017e4",
+          "image": "sha256:8fc35122fd4ae2dfbc9048e6951618c6599c425f45626e05e3e1f75ce3a72cc7",
+          "state": "running",
+          "restarts": 0,
+          "policy": "no",
+          "started": "2026-10-25T23:56:02.180032261Z"
+        }
+      ]
+    },
+    {
+      "classification": "SHOWN local source bindings",
+      "subject": "Source and model preservation",
+      "detail": "Accepted source-only review and exact refresh source/JSON hashes checked. All 43 app entries and 13 preparation tools retain prior hashes, paths, destinations, commands/options and models. Twenty runtime consumers retain exactly the separately accepted guard delta. Six fixed refresh inputs and all nonhistorical accepted guard-review bindings pass. Only explicitly historical pre-closeout checkpoint binding is excluded from current equality. Candidate policies and network contract equal accepted V6f manifest. Four historical models reproduce existing configured digests; model IDs are references, not new or adopted replacement identities."
+    },
+    {
+      "classification": "SHOWN exact reproduction",
+      "subject": "Candidate/proof and reviewer derivative",
+      "detail": "Accepted derivation called offline using actual observation SHA. Canonical candidate bytes and provenance bytes exactly equal saved artifacts. Top-level candidate changes relative to V6f are only attempt, baseline, decision and reviewer; applications equal prior table. Candidate remains INCOMPLETE with blank reviewer and cannot load as approved. Reviewer-created manifest changes only decision to ACCEPTED_WITH_RISK and reviewer to specific input-only acceptance. Plan.load passed using exact emitted-file hash. No candidate, proof, source refresh or prior review overwritten."
+    }
+  ],
+  "capture_provenance": {
+    "classification": "Parent/direct-user attribution, not independently observed native activity",
+    "approval": "User explicitly authorized exactly two sanitized read-only metadata inspections of seven known originals within 30 seconds total / 10 seconds per call; no automatic repeat or service changes.",
+    "reported_exit_code": 0,
+    "reported_native_inspections": 2,
+    "reported_elapsed_seconds": 0.14400258311070502,
+    "reported_start_utc": "2026-10-26T01:19:47.655124+00:00",
+    "reported_end_utc": "2026-10-26T01:19:47.799109+00:00",
+    "recorded_utc_interval_seconds": 0.143985,
+    "note": "Observation timing fields fall within declared bounds and are consistent with monotonic elapsed at rounding scale. They are not authenticated external timing or a current-state guarantee. Historical failed captures and consumed V6f attempts remain preserved."
+  },
+  "proof": {
+    "environment": "VERIFIED_ENV for local offline parsing, hashing, synthetic tests, direct snapshot reconstruction and Plan.load only",
+    "command": "env -i PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -B -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/test_companion_v6g_baseline_capture.py tests/test_companion_v6g_current_inputs.py",
+    "result": {
+      "classification": "SHOWN",
+      "exit_code": 0,
+      "passed": 16,
+      "seconds": 0.46,
+      "full_suite_run": false
+    },
+    "default_inert": {
+      "default_inert": {
+        "actions_executed": false,
+        "state": "INCOMPLETE"
+      },
+      "tripwire_calls": 0
+    },
+    "default_method": "Actual default module via runpy with argv lacking --capture-once. Metadata runner, subprocess, socket/network, temporary config and timer tripwires blocked; no capture operation attempted.",
+    "negative_scope": "Synthetic capture runners only; exact call count/IDs/timeouts, raw-before-parse, malformed/transport/different pair, existing-output refusal; saved derivation rejects identity/state/command/restart/storage-start/CLI/pair/raw-hash/deadline/source-refresh drift.",
+    "additional_checks": "Direct snapshot reconstruction; all provenance input hashes recomputed; current manifest derivative differs only in decision/reviewer and passes pure Plan.load.",
+    "native_operations": 0,
+    "network_operations": 0,
+    "credential_access": 0,
+    "service_operations": 0,
+    "additional_agents": 0
+  },
+  "reviewed_manifest": {
+    "path": "docs/review_artifacts/companion_integration_inputs_v6g_20261025/reviewed_preparation_manifest.json",
+    "sha256": "33e6633229e9399ec695be2f8e743930212b9ed926277235fd071e675fcf2e26",
+    "changed_fields_only": [
+      "decision",
+      "reviewer"
+    ],
+    "reviewer": "Independent GATE actual V6g saved-input review 2026-10-25; preparation inputs only; no execution authority; actual_input_review.json",
+    "meaning": "Existing consumer schema accepted for saved preparation inputs only; no operation permission."
+  },
+  "limitations": [
+    "Equal sequential metadata samples are not atomic state, continuous running evidence or a post-capture/current-state guarantee. Fresh required native identity/config/source and ownership preflights remain mandatory under separate authorization.",
+    "Current local hashes and source-only models do not establish installed bytes, SDK/import/startup compatibility, effective-config success, namespace, endpoint health, connectivity, volume bytes or cited explanation.",
+    "Reported read count/exit/time and approval provenance are attributed to parent/operator; reviewer performed no native/container inspection or independent credential/source capture.",
+    "Existing formatter sanitization is reused by exact bound helper; source review is narrow, not a new SDK/security/environment audit. No assertion all original environment comparison flags are true.",
+    "V6g proposed label is not a reservation; consumed preparation/cutover guards remain checked by refresh. New IDs/images remain unknown and no old staged identity adopted.",
+    "Source-only refresh retains baseline null historically; this actual-input acceptance does not rewrite it or previous INCOMPLETE evidence.",
+    "Tests and pure computation are local evidence only. No broad suite, DB/HTTP/token/service operation, market data or actual capture rerun performed."
+  ],
+  "read_scope": {
+    "complete": [
+      "docs/checkpoints/companion_actual_inputs_v6g_20261025.md",
+      "capture_baseline.py",
+      "derive_inputs.py",
+      "tests/test_companion_v6g_baseline_capture.py",
+      "tests/test_companion_v6g_current_inputs.py"
+    ],
+    "complete_parsed_inputs": [
+      "actual_baseline/capture_1.jsonl",
+      "actual_baseline/capture_2.jsonl",
+      "actual_baseline/baseline_observation.json",
+      "candidate_manifest.json",
+      "provenance.json"
+    ],
+    "binding_context": "Accepted source refresh/review and V6f manifest/tools; prior reviewed sanitizer/network preservation helpers reused with current hash checks. No broad SDK audit."
+  },
+  "write_scope": "Only actual_input_review.json and reviewer-derived reviewed_preparation_manifest.json. No source/tests/candidate/proof/old reviews/checkpoint/worklog or runtime state edited.",
+  "next_gate": "Any preparation or runtime action requires separate scoped authorization and fail-closed fresh preflights. Runtime remains INCOMPLETE."
+}
