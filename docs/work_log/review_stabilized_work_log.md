@@ -55443,3 +55443,14 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
   amendment; drawdowns up to 1.4 points larger than the per-exit figures first published) and a note that the default
   rule (c) is lenient for ETH and SOL, whose holding drawdowns were 55% and 59%.
 - PROJECT_STATE.md research item 1 progress line.
+
+## 2026-10-31T15:33:07Z Claude (Cowork): live-path audit session 1 (owner: "ok" to the stated next step)
+- `docs/research/bot_audit_20261031/README.md` (sha256 e3b1c0d4...): LP-01 to LP-07. Controls present: all exchange orders
+  via place_order.py (LP-01); retries cannot double-place (client order IDs, dedupe, ambiguous-submit reconciliation;
+  LP-02); dashboard login/MFA/roles, 127.0.0.1 default, resume needs OPERATOR + ceremony + guards (LP-04); reconciler
+  places nothing (LP-06, outline); copilot and live router place nothing (LP-07). New: LP-05 HIGH before live, no
+  exchange-side protection if bot/server/network stops while a live position is open (no prior record found); LP-03
+  MEDIUM before live, key scope (view+trade, no transfer) observed once 2026-10-29 (CLAIMED, Codex log) but not checked
+  at start. Known items not repeated (CP-09, D-1, CP-02, CP-14/H-06, BA-16, BA-05/decision 3 live, BA-10).
+- PROJECT_STATE.md research item 1 progress. Next: live path session 2 (live-enable ceremony and resume gate, live risk
+  gates/H-06, credentials in logs and errors, sizing and precision).

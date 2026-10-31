@@ -85,3 +85,31 @@ the alert configuration on the server; BA-18 and BA-20 were not reproduced by ru
 Must: BA-04 snapshot publisher running; BA-16 cooldown fix or alerting; BA-21 a watcher with a confirmed test alert;
 BA-19 restarts; BA-12 remove the debug line; the settings in the spec. Record, do not fix during the run: BA-01 mid
 fills (record bid and ask), BA-05/BA-18 lost intents, BA-08/BA-09 filters, BA-13 candle gaps.
+
+## Live path, session 1 (2026-10-31): order placement, retries, key scope, dashboard control, outages
+Scope: callers of `place_order`; `services/execution/exchange_client.py` (submission and retry); `services/security/`
+(credential loading, permission probes); `dashboard/auth_gate.py`, `dashboard/pages/60_Operations.py` (live control),
+`services/app/dashboard_launch.py`; `services/execution/live_reconciler.py` (outline); `services/live_router/router.py`;
+`services/ai_copilot/`. Read only; nothing run. Searches for earlier work: the capital-protection audit (CP-01 to CP-15),
+the work log for key permissions (found the 2026-10-29 scope probe), docs and code for an exchange-side stop (none).
+Already registered and not repeated here: CP-09 (entry limits block exits), D-1/CP-03, CP-02 (no strategy reaches live),
+CP-14 and H-06 (position limit), BA-16 (cooldown lockout), BA-05 and open decision 3 for live (refused exits not
+retried), BA-10 (a failed fetch skips exits).
+
+| ID | Finding | Evidence | Severity | Owner | Disposition |
+|---|---|---|---|---|---|
+| LP-01 | Every exchange order still goes through `place_order.py`: its callers are `exchange_client.py`, `live_exchange_adapter.py`, `order_router.py` and `order_manager.py` (async); `trading_runner/run_trader.py` uses a paper venue. | SHOWN by search | Control present | - | Consistent with CP-01 |
+| LP-02 | A retried live order cannot be placed twice by this path: each submission sends a client order ID to the exchange; a dedupe store refuses a second submission once one is recorded; an ambiguous error (for example a timeout) marks the order unknown and checks the exchange; a retry is allowed only when the exchange confirms the order was not placed. Tests exist (`tests/test_exchange_client_retry_flow.py`, the file Codex changed in group D). | SHOWN by reading (`exchange_client.py` 160-235); not run | Control present | - | Keep; fix the group D guard failure in that test file |
+| LP-03 | **The key's permissions were checked once, not enforced.** On 2026-10-29 one authorised read showed the Coinbase key can view and trade but not transfer funds (CLAIMED from Codex's log; artifact `docs/review_artifacts/coinbase_scope_probe_20261029/`). Nothing checks this when trading starts, so a key replaced by one that can transfer would trade without notice. | SHOWN by search (no permission check in `services/`); probe CLAIMED | MEDIUM before live | Codex | Before live: read the key's permissions at live start (one read request) and refuse to trade if it can transfer |
+| LP-04 | Dashboard live control: binds to 127.0.0.1 by default; login with password, MFA, lockout and roles (a bypass only with `APP_ENV=dev` and an explicit flag). "Halt" arms the kill switch and halts the system guard; "Resume" needs the OPERATOR role, a recent live-enable ceremony and passing guards. Not checked: the server's real bind address and user list. | SHOWN by reading (`auth_gate.py` 140-146; `60_Operations.py` 77, 1060-1120; `dashboard_launch.py` 61-95) | Control present; LOW: an operator, not only an admin, can resume live trading | Owner | Decide whether resuming live trading should be admin-only |
+| LP-05 | **No protection on the exchange.** Stops, trailing stops and time exits exist only inside the bot. If the server, the network or the bot stops while a live position is open, nothing closes it (BA-10, BA-19). | SHOWN by reading; no exchange-side stop in code or docs (search) | HIGH before live | Owner / Codex | Before live: decide on a backstop stop order on the exchange after each entry (wider than the bot's own stop, cancelled when the bot exits) and/or an outside alert with a written manual procedure |
+| LP-06 | Live reconciler: matches orders and fills by exchange and client order IDs; an order "not found" becomes final only after repeated observations; it places and cancels nothing. Read in outline only. | SHOWN by reading (outline) | Control present, not verified in depth | Codex | Review in depth at the live cutover |
+| LP-07 | The AI copilot and the live router place nothing: the copilot has no order, queue, arming or shell call; `live_router/router.py` only returns allow or deny to the consumers. | SHOWN by search | Control present | - | - |
+
+**Summary of the live path so far.** The machinery that places an order is careful: one gate, client order IDs,
+duplicate refusal, reconciliation of ambiguous submissions. The gaps are around it, and all matter only once a strategy
+can reach live (CP-02): exits blocked by entry limits (CP-09), refused exits not retried (decision 3, live), the
+cooldown lockout (BA-16), no backstop on the exchange (LP-05), key scope not enforced (LP-03), the position cap
+incomplete (CP-14, H-06).
+**Next session (live path 2):** the live-enable ceremony and resume gate (`services/admin/`), the live risk gates
+(`live_risk_gates.py`, H-06), credential handling in logs and errors, and the order sizing and precision path.
