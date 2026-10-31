@@ -22,3 +22,7 @@ owner's process checks of 2026-10-31, and the scheduled-task list read on 2026-1
 
 **What could overturn this:** system-level timers on the server (not listed); backups outside git (for example Time
 Machine) that this check cannot see; studies whose gap handling was not checked one by one.
+
+**Correction (2026-10-31, bot audit BA-22, omission O-14):** S4-05 is wrong that no scheduled run of the cadence check
+exists: `packaging/systemd/cbp-edge-cadence.timer` runs `scripts/check_edge_cadence.py --alert` hourly. Whether it is
+installed on the server is unknown. The original row is kept unchanged above.

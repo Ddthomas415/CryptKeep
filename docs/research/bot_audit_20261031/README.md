@@ -3,7 +3,7 @@
 Bot relation: audit of the bot's own code (not a strategy result).
 Owner direction 2026-10-31. Claude, read-only on the repository (probes run on a copy in the Linux shell's home with a
 temporary state directory). **Self-checked; Codex to verify.** Budget: three sessions for the simulation path;
-sessions 1 and 2 are below. Searches for earlier work: `capital_protection_audit_20261031/`, `exit_parity_audit_20261031/`,
+all three are below. The simulation-path audit is complete; the rest of `services/` is not audited. Searches for earlier work: `capital_protection_audit_20261031/`, `exit_parity_audit_20261031/`,
 `integrity_audit_20261015/`, the Hetzner paper tooling (`scripts/*paper*`), the July 2026 audit (chat summary).
 
 | Area | Status |
@@ -12,9 +12,9 @@ sessions 1 and 2 are below. Searches for earlier work: `capital_protection_audit
 | Paper runner (intent consumption) | Session 1: rejection handling done below |
 | Market data (candles, quotes, staleness) | Session 2: done below |
 | The three default strategies' signal code | Session 2: done below (exit filters already known: failure diagnosis) |
-| Restart and recovery on the paper path | Session 3 |
-| Monitoring and alerts | Session 3 |
-| Runner decisions and exits | Done in earlier audits (D-1, CP-09, C-06) |
+| Restart and recovery on the paper path | Session 3: done below |
+| Monitoring and alerts | Session 3: done below |
+| Runner decisions and exits | Done in earlier audits (D-1, CP-09, C-06); session 3 adds the kill cooldown (BA-16), which those audits missed |
 
 ## Session 1 findings
 | ID | Finding | Evidence | Severity (simulation) | Owner | Disposition |
@@ -57,3 +57,31 @@ Probes P-4 and P-5 are scripts, not tests, run on the existing archive `research
 **What could overturn this:** intra-hour volume is not even (it bunches around news and the hour), so BA-08's shares
 are indicative; Coinbase's real rate limit (BA-11); whether Coinbase returns the forming candle for every product
 (C-06 was shown on the runner's code path, not per product).
+
+## Session 3 findings: restart, recovery, monitoring and alerts
+Scope: `strategy_runner.py` (sha256 7006466d...) state keys, kill gate and lock (lines 256-290, 1077-1160, 1386-1510,
+1540-1660, 1668-1700); `services/risk/kill_conditions.py`, `performance_kill.py`; `storage/strategy_state_sqlite.py`,
+`intent_queue_sqlite.py`; `paper_runner.py`; `live_intent_consumer.py` (for comparison); `packaging/systemd/`;
+`scripts/check_dead_man.py`, `check_hetzner_paper_host_health.py`, `restore_paper_campaigns.py`, `run_paper_sim_monitor.py`;
+`services/alerts/alert_dispatcher.py`. Read only; nothing run in this session. Searches for earlier work: kill_cooldown,
+kill_until, cooldown, lockout, Restart=, heartbeat in `docs/` and `packaging/`; found `e01_paper_evidence_audit_20261002.md`
+item 7, `es_performance_kill_effect_20261007.md`, `cooldown_patch_current_base_review_20261007.md`,
+`cooldown_protective_combined_review_20261007.md`, `cooldown_exit_quantity_treatment_20261007.md`.
+
+| ID | Finding | Evidence | Severity (simulation) | Owner | Disposition |
+|---|---|---|---|---|---|
+| BA-16 | **A restart can lock an account out of trading for days** (known since 2026-10-02, not fixed, and missing from the engineering queue, the simulation spec and this audit's session 1). The kill cooldown is stored as an absolute loop number (`kill_until`), the loop counter starts at 0 in every process (line 1098), and `kill_until` is cleared only when an entry passes the risk check (line 1611). After a restart the account is blocked until the new process reaches the old loop number, about as long as the old process had run before the trigger. Signal changes during the block are used up (change-only entries), so entries are lost even after it. The kill gate also skips exits (line 1492-1509 runs after the exit decision). On the laptop this held the ES candidate out from 2026-07-09 to at least 2026-10-02. Patches 0001 (cooldown as a persisted count) and 0002 (protective exits during a cooldown) were reviewed 2026-10-07 (combined: ACCEPTED_WITH_RISK, deployment not authorised) and are not in the current runner. | SHOWN by reading (current code); the lockout SHOWN in practice by the 2026-10-02 audit | HIGH | Codex / owner | Before the start: apply the reviewed patches with tests that fail on the current code, or record and alert on every `kill_cooldown` status; add to the engineering queue |
+| BA-17 | Both cooldowns are counted in loops: 20 after repeated risk blocks, 50 after 3 losing exits or a 10-point drawdown on the running sum of trade results. At the default 1-second loop that is 20 and 50 seconds, which barely delays an hourly strategy. At the spec's 15-second loop it is 5 and 12.5 minutes. The spec's loop setting was written without checking this (O-13). | SHOWN by reading (`kill_conditions.py` 43, `performance_kill.py` 69, presets) | LOW (simulation); MEDIUM before live (the drawdown stop does not stop) | Owner / Codex | Record the wall-clock cooldowns in the run manifest; decide the intended pause separately |
+| BA-18 | **A crash between taking an intent and filling it strands the intent at `submitting`.** The paper path has no recovery for it (the live consumer has one: `_recover_stale_submitting`). The runner counts only `queued` and `submitted` as open, and treats the action as already sent, so a lost exit is not sent again while its condition lasts (as BA-05). | SHOWN by reading (`intent_queue_sqlite.py` 249-280; search for `submitting`) | MEDIUM (needs a crash in a short window) | Codex | Record intents at `submitting` older than one minute; alert |
+| BA-19 | **Nothing restarts the bot processes.** `packaging/systemd/` has units with `Restart=on-failure` for the live consumer, reconciler, collectors and dashboard, but none for the strategy runner, the paper runner or the snapshot publisher; the two trial units for the paper evidence collector (`packaging/systemd/trials/`, which starts all three) have no restart policy, and the server's two paper collectors run as plain processes. `scripts/restore_paper_campaigns.py --restore` restarts dead collectors without duplicating them, but no schedule for it was found. After a server reboot every account stays down until someone notices. | SHOWN by reading; owner's server check of 2026-10-31 | MEDIUM | Codex | Schedule the restore tool (or add units) and record every restart; with BA-16, a restart needs the cooldown fix |
+| BA-20 | A leftover lock is reclaimed only if its process number is no longer in use; if a reboot reuses that number, the runner refuses to start (fails closed; status `lock_exists`). | SHOWN by reading (`managed_component.py` 40-70) | LOW | - | Covered by BA-21's watcher |
+| BA-21 | **No alert would reach the owner if an account stops.** The bot processes write a status file every loop but no heartbeat; the dead-man check (systemd timer, every minute) watches only the live consumer and reconciler, by heartbeat. The paper simulation monitor records fills and profit and sends nothing. The paper processes alert on two events of their own: the evidence collector's campaign status changing into a stop or failure state (`campaign_events.py`, called from `paper_strategy_evidence_service.py` 117-135) and the evidence writer refusing or degrading (`paper_gate_events.py`). A process that dies or a server that reboots writes nothing, so neither fires then; neither covers a cooldown lockout, stale candles or a refused exit. All alerts go out only through `alert_dispatcher` (Slack webhook or email) when `alerts.enabled` is set in the server's configuration, which was not checked (no server access). | SHOWN by reading (search for `send_alert` callers) | HIGH for a 24/7 unattended run | Codex / owner | Before the start: one watcher over every account's status file (age over 10 minutes; notes `kill_cooldown`, `no_public_ohlcv`, stale snapshot, `lock_exists`; refused exits) that calls `send_alert`; send a test alert and confirm it arrives |
+| BA-22 | Correction to S4-05 (integrity checks): a systemd timer for the data-collector cadence check is in the repository (`packaging/systemd/cbp-edge-cadence.timer`, hourly, `--alert`); whether it is installed on the server is not known. S4-05 said none was found; its search did not cover `packaging/` (O-14). | SHOWN (file) | - | Owner / Codex | Check `systemctl list-timers` on the server |
+
+**What could overturn this:** the server may run supervision or timers outside the repository (not visible here);
+the alert configuration on the server; BA-18 and BA-20 were not reproduced by running.
+
+## Before the simulation starts (summary of all three sessions)
+Must: BA-04 snapshot publisher running; BA-16 cooldown fix or alerting; BA-21 a watcher with a confirmed test alert;
+BA-19 restarts; BA-12 remove the debug line; the settings in the spec. Record, do not fix during the run: BA-01 mid
+fills (record bid and ask), BA-05/BA-18 lost intents, BA-08/BA-09 filters, BA-13 candle gaps.

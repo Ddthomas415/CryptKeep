@@ -86,6 +86,10 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    bid/ask recorded at every fill, one command stops all, run manifest; reuse the managed paper-campaign tooling.
    Group B (ranker-picked coins, weekly, pre-registered in the spec) follows Group A once server memory allows or item 1
    lets one process serve 3 coins; the ranker runs as a separate weekly job, never imported by the runner.
+   Must be in place before the start (bot audit 2026-10-31): snapshot publisher (BA-04); the kill-cooldown restart
+   lockout fixed with the patches reviewed 2026-10-07 (0001, 0002) and failing-first tests, or alerted (BA-16, known
+   since 2026-10-02 and missing from this queue until now); automatic restarts (BA-19); a watcher that alerts the
+   owner, with a test alert received (BA-21); the debug line removed (BA-12).
    Independent review; owner approves the start. Does not depend on item 1; the owner may reorder.
 3. [safety] Position cap (fix 4) with complete balance reading (fix 1), wired into the live order path; independent review.
    INCOMPLETE (Codex, 2026-10-30): default-off paging and native-v3 funding/quote guards are separately accepted source work
@@ -122,8 +126,9 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    (candles, quotes, staleness), the three default strategies' signal code, the paper engine (fills, fees, cash,
    positions, profit), restart and recovery, monitoring and alerts; then the rest of `services/`. Every finding with
    owner, evidence, severity, disposition. Budget: three sessions for the simulation path. Stop when its checks are
-   done; report before the simulation starts. Sessions 1-2 done 2026-10-31 (`docs/research/bot_audit_20261031/`,
-   BA-01 to BA-15; spec updated: settings, flaws 9-13); session 3 (restart and recovery, monitoring) next.
+   done; report before the simulation starts. Sessions 1-3 done 2026-10-31 (`docs/research/bot_audit_20261031/`,
+   BA-01 to BA-22; spec flaws 9-16 and the before-start list). Simulation-path audit complete; the rest of `services/`
+   not audited.
 2. [handed back for cross-review 2026-10-31] [safety] Capital-protection audit (owner-approved 2026-10-31; read-only). Stage 1 delivered 2026-10-31,
    READY_FOR_INDEPENDENT_REVIEW (`docs/research/capital_protection_audit_20261031/`). Stage 2 delivered 2026-10-31
    (`docs/research/result_labels_20261031/`), started without waiting for Codex because it does not depend on stage 1
@@ -205,8 +210,11 @@ Found by: A = agent review on its own; R = agent during owner-requested work; O 
 | H-06 | E7 reused funding history treated as untouched; `check_live` never checks its position-notional limit | 2026-10-13 (E7); when the gate was written | Not recorded | Disclosure required; limit unenforced on that path | research method; implementation | E7 disclosure; position cap: engineering item 3 | Not recorded (reviewed corrections, 2026-10-20) | None for the gate yet | No |
 | H-07 | July 2026 codebase audit did not find the multi-symbol runner defect (CLAIMED from a chat summary) | 2026-07 | Claude | Defect persisted about 4 months | verification | D-1: engineering item 1 | R, Claude 2026-10-31 | Integration test (item 1) | No |
 | O-12 | Asked the owner to choose fixed coins (BTC, ETH, SOL) for the paper simulation without saying that the bot has no automatic coin selection: its market ranker is research-only and blocked from trading by design (`signal_discovery_classification.md`, 2026-07-03), and seven research families that picked the strongest coins failed after costs | 2026-10-31, when asking | Claude | The owner chose without that information; choice reopened | reporting | simulation scope: reopened; owner chose "do what's best": ranker group (Group B) added to the spec | O, owner 2026-10-31 | When offering choices, state what the system can and cannot do for each | No |
-Counts 2026-10-31: 12 omissions found since the register began (O-01 to O-12): caught by an agent unprompted 0; during
-owner-requested work 8; by the owner 4. Historical H-01 to H-07 (`omission_history_20261031/`): found by agent review 3,
+| O-13 | Set the simulation's loop interval to 15 s (BA-11) without checking what else counts loops: the kill cooldowns become 5 and 12.5 minutes instead of 20 and 50 seconds | 2026-10-31, when writing the setting | Claude | Spec setting; side effect now recorded | search not done for code that counts loops | spec `loop_interval_sec` row (corrected) | R, Claude 2026-10-31 (bot audit session 3) | Before proposing a setting, search the code for everything that reads it | No |
+| O-14 | Integrity check S4-05 said no scheduled run of the data-collector cadence check was found; a systemd timer for it is in the repository (`packaging/systemd/cbp-edge-cadence.timer`) | 2026-10-31, stage 4 | Claude | The proposal "schedule the check" was partly wrong (the timer exists; installation on the server unknown) | search scope: `packaging/` not searched | S4-05 (corrected by BA-22) | R, Claude 2026-10-31 (bot audit session 3) | Task cards list the search scope | No |
+| O-15 | The kill-cooldown restart lockout (found 2026-10-02, patches reviewed 2026-10-07, never applied) was missing from the engineering queue, the simulation spec, and bot audit session 1, which marked runner decisions and exits as done | 2026-10-31, when writing the spec and session 1 | Claude; the queue since 2026-10-07 | A HIGH defect for the simulation would have gone in unaddressed | findings do not propagate (as H-06, O-11); no prior-work search for the runner in session 1 | spec flaw 14 and engineering item 2 added; session 1 claim corrected | R, Claude 2026-10-31 (bot audit session 3) | Spec and audits check one open-defects list | No |
+Counts 2026-10-31: 15 omissions found since the register began (O-01 to O-15): caught by an agent unprompted 0; during
+owner-requested work 11; by the owner 4. Historical H-01 to H-07 (`omission_history_20261031/`): found by agent review 3,
 during owner-requested work 1, not recorded 3.
 Rework 2026-10-31 (accepted or closed work later corrected): 4 - failure diagnosis (closed 2026-10-30; C1-C4),
 25-symbol analysis (closed 2026-10-30; recommendation qualified), multisymbol baseline (2026-10-08; relabelled

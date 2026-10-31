@@ -26,7 +26,7 @@ inspection"), and the capital-protection audit. Reuse the managed paper-campaign
 | `paper_trading.slippage_bps` | 0, with bid and ask recorded at every fill (see below) | the engine fills market orders at the mid; spread is the real slippage |
 | `paper_trading.starting_cash_quote` | 1000 | owner decision |
 | order size | sized from the account's cash so a full position is about $1,000 (the default `qty` is 0.001 units) | otherwise positions are tiny and fees round oddly |
-| `strategy_runner.loop_interval_sec` | 15 | the default 1 s makes about one 300-candle request per second per process, near Coinbase's public limit with 9-18 processes (bot audit BA-11); 15 s delays an hourly decision by at most 15 s |
+| `strategy_runner.loop_interval_sec` | 15 | the default 1 s makes about one 300-candle request per second per process, near Coinbase's public limit with 9-18 processes (bot audit BA-11); 15 s delays an hourly decision by at most 15 s. Side effect: the kill cooldowns are counted in loops, so they become 5 and 12.5 minutes instead of 20 and 50 seconds (BA-17); record both in the run manifest |
 
 ## Known flaws to fix or record before the data is trusted
 1. **Market orders fill at the mid price** (`paper_engine.py` lines 396-401), not at the ask (buy) or bid (sell).
@@ -51,6 +51,14 @@ inspection"), and the capital-protection audit. Reuse the managed paper-campaign
     changes no decision) or rotate the file; alert when the disk is 80% full.
 13. **No freshness or gap check on candles** (BA-13): record the last candle's time and any missing hours at each
     decision; matters most for Group B's smaller coins.
+14. **A restart can lock an account out for days** (BA-16, known since 2026-10-02, unfixed): the kill cooldown is an
+    absolute loop number and the loop count restarts at 0. Before the start, apply the patches reviewed 2026-10-07
+    (0001, 0002) with tests that fail on the current code, or at least alert on every `kill_cooldown` status.
+15. **Nothing restarts a stopped account** (BA-19): schedule `scripts/restore_paper_campaigns.py --restore` (or add
+    units with a restart policy) and record every restart.
+16. **No alert reaches the owner today** (BA-21): one watcher over all accounts' status files (older than 10 minutes;
+    `kill_cooldown`, `no_public_ohlcv`, stale snapshot, `lock_exists`, refused exits, intents stuck at `submitting`
+    (BA-18)) that calls `send_alert`; a test alert must arrive before the start.
 
 ## Group B: coins picked by the bot's market ranker (pre-registered 2026-10-31; owner: "do what's best")
 The bot has no automatic coin selection: its ranker is research-only and blocked from trading until it passes a
@@ -100,6 +108,8 @@ time). Heartbeat per process every minute; an alert if any heartbeat is older th
 - **Operations:** uptime per process, gaps in decisions, restarts, stale quotes.
 
 ## Done when (engineering)
+Must be in place before the start: the snapshot publisher (6), the cooldown fix or alerting (14), restarts (15), the
+watcher with a confirmed test alert (16), the debug line removed (12) and the settings above.
 Group A's 9 accounts run on the server with the settings above, recording as specified; Group B's weekly ranking job
 and 9 accounts follow when capacity allows; a test shows each account's fills
 use the configured fee and record bid/ask; one command stops all nine; the run manifest (code hash, settings, start

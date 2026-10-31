@@ -55375,3 +55375,17 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
   pinned_run_inputs.py state-path guard, committed 933d7ea2f).
 - Documented in docs/checkpoints/commit_plan_20261031/README.md "Group D" with Codex's four required actions;
   PROJECT_STATE.md decision 1 progress. Committing D with these docs on backup/2026-10-31; owner pushes.
+
+## 2026-10-31T14:51:42Z Claude (Cowork): whole-bot audit session 3 (restart, recovery, monitoring, alerts); audit of the simulation path complete
+- `docs/research/bot_audit_20261031/README.md` (sha256 cb1ed476...): BA-16 to BA-22 and a before-start summary. HIGH: BA-16 kill
+  cooldown is an absolute loop number and the loop count restarts at 0, so a restart can lock an account out for days
+  (known since 2026-10-02 `e01_paper_evidence_audit_20261002.md` item 7; patches 0001/0002 reviewed 2026-10-07, not in
+  the runner); BA-21 no alert would reach the owner if an account stops (paper processes write no heartbeat; dead-man
+  watches live components only; paper sim monitor sends nothing; server alert config unverified). MEDIUM: BA-18 intents
+  stranded at `submitting` after a crash (no paper recovery); BA-19 nothing restarts bot processes (no units; restore
+  tool not scheduled). LOW: BA-17 cooldowns counted in loops; BA-20 stale lock with reused PID. BA-22 corrects S4-05.
+- Omissions registered, all found by Claude during the owner-requested audit (R): O-13 (15-s loop setting changes the
+  cooldowns), O-14 (cadence timer exists in packaging/), O-15 (BA-16 missing from queue, spec and session 1). Counts now
+  15: agent unprompted 0, during owner-requested work 11, owner 4.
+- Spec (sha256 5fe64190...): loop setting side effect; flaws 14-16; before-start list. PROJECT_STATE.md (sha256 b33f0d41...):
+  engineering item 2 before-start list, research item 1 complete, O-13 to O-15. integrity_checks README: correction note.
