@@ -6,6 +6,11 @@ approves the start. Earlier versions are in git history (last: commit f432a2bc3)
 v2 adds, from the owner's and advisor's review of 2026-10-31: eleven pre-start requirements with acceptance tests
 (section 6), evaluation rules for the fixed coins (section 7, for owner approval), outside monitoring and off-server
 backups (section 8, owner-approved), and the commissioning and approval procedure (section 9).
+**Final v2 amendments (owner, 2026-10-31, after a third review):** order lifecycle reconciliation (R8); stuck exits
+retried and stop-losses tested under all three known blockers (R12, R1); stale candles block new buys, never sells (R4);
+sample-size and extension rules with research-derived minimums (7.4); the drawdown limit left as a placeholder for the
+owner (7.5); a staged build order (section 12). **Design frozen 2026-10-31:** later changes only for a defect found
+during building or testing, each as a dated amendment here.
 Searches for earlier work: `scripts/plan_multi_symbol_paper_campaigns.py`, `plan_managed_paper_campaigns.py`,
 `restore_paper_campaigns.py`, `hetzner_paper_host_preflight.py`, `check_hetzner_paper_host_health.py`,
 `report_hetzner_paper_campaign_status.py`, `run_paper_strategy_evidence_collector.py`, `packaging/systemd/`,
@@ -18,7 +23,8 @@ Searches for earlier work: `scripts/plan_multi_symbol_paper_campaigns.py`, `plan
 Measure the bot as it is; improve only the reliability, recording and measurement around it. The bot's decision code
 (strategies, filters, presets, exit rules, sizing) does not change. The only code changes allowed, each listed in the
 run manifest:
-- two reliability fixes that restore intended behaviour: the cooldown lockout (R1) and the stray debug line (R5);
+- reliability fixes that restore intended or protective behaviour: the cooldown lockout (R1), stuck exits retried
+  (R12) and the stray debug line (R5);
 - recording that cannot change a decision (R6, R9), proven by a test that replays the same inputs with recording on
   and off and gets identical decisions;
 - the simulated exchange and the services around the bot (order expiry, monitoring, restarts, backups).
@@ -32,8 +38,11 @@ run manifest:
   re-read on the start day and recorded in the manifest.
 - 2026-10-31: outside heartbeat monitoring approved (an independent provider); encrypted off-server backups approved
   (a provider independent of Hetzner).
+- 2026-10-31 (owner, forwarding the advisor's final authorisation: "you can now proceed"): the stuck-exit rule
+  (open decision 3) applies to this simulation (R12); pass/fail is judged on bid/ask prices, midpoint reported beside it.
 - The 26-week clock has not started; it starts only by section 9.
-- **Open, owner, before the start:** the drawdown limit (7.5); choosing and opening the two provider accounts (8).
+- **Open, owner, before the start:** the minimum trade counts (7.4) and the drawdown limit (7.5); choosing and opening
+  the two provider accounts (8).
 
 ## 3. Accounts and settings (each account in its own state directory)
 | Setting | Value | Why |
@@ -66,8 +75,8 @@ test net of costs (`docs/research/signal_discovery_classification.md`, 2026-07-0
   their coin from it. The ranker is never imported by the runner or the paper path.
 - **Recorded each week:** every coin's score, the exact input candles and code identity of the ranking (as R6), the
   picks, and the picks' raw return over the following week against the universe average and BTC.
-- **Judged after at least 26 weeks over the same dates as Group A:** per strategy, the weekly net difference B minus A,
-  paired block bootstrap, Holm across the 3 strategies. The ranker earns a further step only if B beats A after fees for
+- **Judged after at least 26 weeks over the same dates as Group A:** per strategy, the weekly net difference B minus A
+  on the bid/ask basis (7.3), paired block bootstrap, Holm across the 3 strategies. The ranker earns a further step only if B beats A after fees for
   at least 2 of 3 strategies and its picks beat the universe average; otherwise it stays research-only. No early verdict.
   A further step never means live trading without a separate evaluation and the owner's approval.
 - **Capacity:** Group B starts when the server has room (Codex measures memory with Group A) or after the multi-coin
@@ -80,7 +89,7 @@ test net of costs (`docs/research/signal_discovery_classification.md`, 2026-07-0
 | C-06, BA-08 | Decisions use the still-forming hourly candle; the volume filter reads its part-hour volume, so signals mostly pass late in the hour | record the candles given to the strategy (R6) and the time to the second |
 | BA-09 | Entry filters remove most of the strategies' own sell signals | record the blocked sell signal and its filter |
 | C-06 | EMA invalidation exits are inert | record |
-| BA-05, BA-18 | A refused or lost order is not re-sent while its condition lasts | record and alert (R3, R8) |
+| BA-05, BA-18 | A refused or lost order is not re-sent while its condition lasts | exits: fixed by R12 (retried until filled or superseded); buys: recorded, alerted, expire (R8) |
 | BA-06 | Positions and cash are per state directory and symbol | one state directory per account |
 | BA-10 | A failed candle fetch skips the whole decision, exits included | record every skipped loop and its reason; alert (R3) |
 | BA-13 | No candle freshness or gap check in the bot | record and alert (R4) |
@@ -118,9 +127,14 @@ delayed over 2 minutes; an order sits at `submitting` over 1 minute; disk over 8
 
 **R4 Market data and freshness (BA-04, BA-10, BA-13).** The snapshot publisher runs (without it the engine refuses all
 orders). At each decision record: the last candle's open time and whether it is complete, missing hours in the window,
-quote age, bid/ask present, zero or invalid prices. Stale or gapped candles are recorded and alerted, not blocked, so
-the bot's decisions do not change; the engine's existing snapshot gate stays.
-- Stop the publisher: orders refused and alerted. Feed stale, gapped and zero-price data: each recorded and alerted.
+quote age, bid/ask present, zero or invalid prices. Two kinds of stale data, handled differently:
+- **Stale candles** (the current hour's candle missing for more than 5 minutes, or a missing hour in the 60-hour
+  window): the simulated exchange refuses new buys (reason recorded, alert); sells always go through and fill at the
+  fresh quote. The bot's own price comes from the candles, so a stop may trigger late while they are stale; recorded.
+- **Stale quotes** (the existing snapshot gate): nothing can fill without a valid price. Buys are refused and expire
+  (R8); a pending exit waits and fills automatically when fresh quotes return (R12); alert while it waits.
+- Stop the publisher: buys refused, a pending exit fills when it restarts, both alerted. Feed stale candles with fresh
+  quotes: a buy is refused, a sell fills. Feed gapped and zero-price data: recorded and alerted.
 
 **R5 Debug line removed (BA-12).** Delete the `/tmp/cbp_debug.txt` write (`strategy_runner.py` line 1208). Logs go to
 journald or rotated files with a size cap. The ledger and the decision archive are kept apart from logs.
@@ -143,15 +157,19 @@ manifest states the expected size for 26 weeks.
 **R7 Fixed-coin evaluation rules approved before the start.** Section 7, including the drawdown limit, approved by the
 owner and recorded in this file before the official start.
 
-**R8 Stale orders.** An entry (buy) order not filled within 120 seconds of creation is marked expired and never filled,
-with its creation time, expiry time and reason, and an alert. Exit (sell) orders do not expire: the runner never sends an
-exit again (BA-05), so expiring one would leave the position without protection; a late exit fills when the engine is
-back, with its delay recorded and an alert if over 2 minutes. Nothing is discarded silently.
+**R8 Order lifecycle and stale orders.** Every order records its creation time, the time the execution side picked it
+up, and its final state and time. Final states: a buy ends filled, refused or expired; a sell ends filled or superseded
+(the position was already closed by another exit, so it is closed without being sent; R12). A buy not filled within 120
+seconds of creation is expired and never filled, with its reason and an alert. Sells do not expire (R12). Nothing is
+discarded silently. **Continuous reconciliation** (the watcher, every 5 minutes): every order is either final or in
+flight within its limits (a buy under 120 seconds; a sell pending under 2 minutes, otherwise alerted); each account's
+holdings and cash agree with its fills and fees; any difference alerts at once and goes into the daily report.
 - Stop the paper runner, queue a buy, wait 3 minutes, restart: expired, not filled, alerted. Same with a sell: filled
   late, delay recorded, alerted.
 - The same order ID submitted twice: one fill (the engine refuses a second fill of a client order ID,
   `paper_engine.py` 241-243). Kill the paper runner just after a fill: no second fill on restart.
-- An order stranded at `submitting` (BA-18): alerted.
+- An order stranded at `submitting` (BA-18): alerted by the reconciliation and resolved to a final state.
+- An order deleted from the queue by hand in a test: the reconciliation reports it.
 - Each fill charges 50 bps on its notional and records bid, ask and mid with the quote's age and source.
 
 **R9 Every exit condition recorded.** While holding, record at each decision every exit condition and whether it is
@@ -164,6 +182,20 @@ the buy decision (`strategy_runner.py` line 1614), not the fill price.
   stop-loss acted on. Recording on and off give the same actions.
 
 **R10 Outside monitoring and off-server backups.** Section 8, with its tests.
+
+**R12 Stuck exits retried (owner decision 3, applied to this simulation 2026-10-31).** A sell for a protective or signal
+exit that is refused stays pending and is sent again at each decision until it fills, with every refusal and retry
+recorded and an alert once it has been pending for 2 minutes. It is never converted, repriced, marked filled or
+dropped. Before each send the account's current holding is read: the sell is for at most that quantity, and if the
+holding is already zero (closed by another exit) the pending sell is closed as superseded and not sent. A retry can
+never fill twice: each send carries the pending exit's identity, and the execution side refuses a second fill for it.
+- **A stop-loss fills under each known blocker** (each test fails on the current code):
+  - during a cooldown (also R1);
+  - after the exchange refused the first stop sell (a refusal injected once): sent again at the next decision and filled;
+  - while quotes are stale: pending, then filled automatically when fresh quotes return, with an alert while waiting.
+- The same three tests for a trailing stop.
+- A position closed by another exit while a sell is pending: the pending sell is superseded; no second sell.
+- The paper runner killed after a retry fills but before it is recorded: on restart no second fill, holding correct.
 
 **R11 72-hour commissioning.** Section 9, step 2.
 
@@ -188,13 +220,24 @@ and loss; closed trades; fees paid; time invested; turnover; monthly returns. Al
 price did afterwards (BA-09); the minute of the hour of entries (BA-08).
 
 **7.4 Classification, per strategy** (pooled over BTC, ETH and SOL; the coins move together, so the nine accounts are
-not nine independent tests and no single account can pass on its own):
-- **Inconclusive:** operational validity failed for any of its accounts, or fewer than 10 closed trades pooled.
-- **Fail:** pooled net return at or below zero on the bid/ask basis, or any of its accounts breaches the drawdown limit.
-- **Promising but unproven:** net above zero and no breach, but fewer than 30 closed trades or the test below not met.
-- **Pass:** net above zero, no breach, at least 30 closed trades, and mean net return per trade above zero with a
-  one-sided p below 0.05 after Holm correction across the 3 strategies (block bootstrap over calendar weeks, all coins of
-  a week resampled together, 10,000 resamples, seed fixed in the analysis script, which is written before the start).
+not nine independent tests and no single account can pass on its own).
+- **Minimum sample (research-derived; owner to approve):** 42 closed trades for breakout and EMA cross, 31 for mean
+  reversion. Derivation: the number of trades at which the test below has an 80% chance of detecting a true edge of 1%
+  per trade after costs (the size of the round-trip fee), given the spread of per-trade results in the replay (standard
+  deviation 2.16% for breakout and EMA cross, 1.87% for mean reversion; 7.6), one-sided, at 0.05/3. Below it, a real edge
+  of that size would usually be missed, so a result there is insufficient evidence. Expected counts in 26 weeks
+  (7.6): about 200, 79 and 36, so mean reversion is the one likely to need the extension.
+- **When judged:** at week 26 for each strategy with at least its minimum sample. A strategy below it continues under the
+  same frozen rules and is judged once, at week 52 only (judging it at both would give two chances at a false pass).
+- **Inconclusive:** operational validity failed for any of its accounts, or still below its minimum sample when judged.
+  Insufficient evidence is inconclusive, never a failure.
+- **Fail:** at least the minimum sample and pooled net return at or below zero on the bid/ask basis; or any of its
+  accounts breaches the drawdown limit at any time (a breach is evidence of risk, whatever the sample).
+- **Promising but unproven:** at least the minimum sample, net above zero, no breach, test not met.
+- **Pass:** at least the minimum sample, net above zero, no breach, and mean net return per trade above zero with a
+  one-sided p below 0.05/3 (Bonferroni across the 3 strategies, so each can be judged when ready), block bootstrap over
+  calendar weeks with all coins of a week resampled together, 10,000 resamples, seed fixed in the analysis script,
+  which Claude writes and freezes before the start.
 - Buy-and-hold is reported, not required: a strategy that holds the market less of the time can be useful without
   beating it. A Pass only allows the owner to consider a next step; it never authorises live trading.
 
@@ -210,7 +253,9 @@ each coin over the same 39 weeks (OKX hourly closes, 2026-01-01 to 2026-09-30):
 Options: (a) the bot's own setting, a 10-point drawdown on its running sum of trade results (the performance kill),
 which every replayed account exceeds; (b) a fixed limit of the owner's choosing, as a share of the account; (c) no
 worse than holding the coin over the same window; or (b) and (c) together. The limit is the owner's risk choice (open
-decision 2, capital); research gives the figures above, not the number.
+decision 2, capital); research gives the figures above, not the number. If the owner sets no number, (c) applies: it is
+a benchmark, not an invented figure.
+**Drawdown limit approved by the owner: ______ (date ______).**
 
 **7.6 Expectation registered before the start.** Replay of the bot's own rules (exit-parity audit, variant
 C_path_w60: 60-candle window, the bot's exit stack, completed OKX hourly candles, BTC/ETH/SOL, 2026-01-01 to 2026-09-30,
@@ -254,14 +299,15 @@ kept on the server in a root-only file outside the repository, never in code or 
 - Tests: a backup completes and verifies; a restore reproduces the ledger exactly; a failed backup alerts.
 
 ## 9. Commissioning and approval
-1. **Build and test.** R1 to R10 implemented; every acceptance test passes. Evidence pack: test outputs, versions,
+1. **Build and test.** R1 to R10 and R12 implemented; every acceptance test passes. Evidence pack: test outputs, versions,
    configuration hashes.
 2. **Commissioning, 72 hours,** all Group A accounts and services on the server with the version to be frozen. Codex
    runs the failure tests on the real set-up: kill an account process (including one holding a position; if none holds
    one, a commissioning test account seeded with a position); kill the paper runner just after a fill; reboot the
    server; cut the network for 10 minutes; stop the market-data publisher; submit a duplicate order; fill a test disk or
-   simulate a write failure. It passes when: every account recorded decisions in at least 99% of loops outside the
-   deliberate failures; data stayed fresh; each failure behaved as R1-R10 require and its alert reached the owner;
+   simulate a write failure; and the three stop-under-blocker cases of R12 (cooldown, refused stop sell, stale quotes)
+   on a commissioning test account. It passes when: every account recorded decisions in at least 99% of loops outside the
+   deliberate failures; data stayed fresh; each failure behaved as R1-R10 and R12 require and its alert reached the owner;
    ledgers reconcile to the cent; replay matched 100% of the 72 hours' decisions; a backup was restored; memory stayed
    under 70% and projected disk use for 26 weeks is under 60%. Commissioning trades are excluded from the evaluation.
    Any failure: fix it and restart commissioning from zero.
@@ -284,3 +330,20 @@ the reconciliation result. Weekly (Group B): the ranking record. Every restart, 
 ## 11. Done when
 Section 9, steps 1 to 3, complete; the owner's approval (step 4) starts the clock. Group B follows when capacity
 allows, through the same steps.
+
+## 12. Build order (staged; each stage ends with its acceptance tests passing and a short evidence note)
+0. **Owner, now (no code):** approve the minimum samples (7.4) and the drawdown limit (7.5); choose and open the
+   heartbeat and backup providers (8). Claude writes and freezes the evaluation script (7.4) and the weekly replay check.
+1. **Protective fixes:** R1 cooldown lockout and R12 stuck exits, with the stop-loss and trailing-stop tests under all
+   three blockers. First, because the other tests depend on stops working and both also protect live trading.
+2. **Recording without changing decisions:** R6 decision inputs and exact replay; R9 every exit condition; the
+   recording on/off test.
+3. **Orders and data:** R8 lifecycle, expiry and continuous reconciliation; R4 market-data program, freshness checks and
+   buys refused on stale candles.
+4. **Operations:** R5 debug line removed and log rotation; R2 restarts and stop-all (the restart tests stay mandatory);
+   R3 on-server watcher and alerts.
+5. **Outside the server:** R10 heartbeats and encrypted off-server backups, with a restore test.
+6. **Evidence pack, then R11:** the 72-hour commissioning on the server, including the failure tests and the three
+   stop-under-blocker cases.
+7. **Independent review** (section 9 step 3), then **the owner's approval** of the official start (step 4).
+Completing the stages is not approval to start.

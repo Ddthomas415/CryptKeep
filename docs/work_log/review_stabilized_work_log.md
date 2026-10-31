@@ -55407,3 +55407,27 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
 - Correction: in my reply on the advisor's review I cited runner line 1613 for the stop reference price; it is 1614.
 - PROJECT_STATE.md: decision 2 adds the drawdown limit; decided line for the owner's approvals; engineering item 2
   points to R1-R11 and section 9.
+
+## 2026-10-31T15:12:49Z Claude (Cowork): third review of the simulation plan audited (owner shared it with the advisor's reply)
+- The third review appears written without spec v2 (calls fixed-coin rules underspecified; asks for the 11 items to be
+  written in; both are in v2 sections 6-7). Mapped each point to v2 sections.
+- Gaps confirmed in v2: (1) stop tests under refused exits (BA-05) and stale data (BA-04) missing, only cooldown tested
+  (O-16, registered; my own earlier reply recommended all three); (2) continuous order reconciliation with a claimed time
+  and a final state for every order; (3) rule for extending the run if evidence is insufficient; (4) refusing new
+  entries on stale candles (v2 R4 was record-only); (5) build order for Codex.
+- Disagreement kept for the owner: classification basis bid/ask (v2) vs midpoint (reviews 1 and 3).
+- Checked: the three strategies read only OHLCV and settings (strategy_runner.py 664-667: context only for funding_extreme).
+
+## 2026-10-31T15:21:26Z Claude (Cowork): spec v2 final amendments; design frozen (owner: "you can now proceed")
+- Audited the advisor's final reply: agrees with the six corrections; one correction to it: thresholds are research
+  (Claude's lane), not Codex's, and must be derived, not invented: minimum samples 42/42/31 derived from the replay's
+  per-trade spread (80% power for a 1%-per-trade edge after costs, one-sided 0.05/3); drawdown stays the owner's choice,
+  default "no worse than holding" if unset.
+- Spec (sha256 b4f5c521...): header (final amendments, design frozen); section 1 adds R12; section 2 records the owner's
+  approvals (stuck-exit rule for the simulation; bid/ask decides); Group B judged on bid/ask; R4 stale candles vs stale
+  quotes; R8 lifecycle with picked-up time, final states (buys filled/refused/expired, sells filled/superseded) and
+  5-minute reconciliation; new R12 stuck exits with stop and trailing-stop tests under all three blockers (closes O-16);
+  7.4 minimum samples, week-52 extension judged once, Bonferroni per strategy, insufficient evidence inconclusive; 7.5
+  placeholder for the owner's limit; commissioning adds the three blocker cases; section 12 build order.
+- PROJECT_STATE.md: decision 3 approved for the simulation (live still open); decision 2 adds minimum samples; item 2
+  lists R1-R12 in build order.

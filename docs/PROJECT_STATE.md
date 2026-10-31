@@ -46,8 +46,12 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    merge; its test status and what Codex must fix are in the commit plan README, section "Group D". Open: push that
    commit (owner); large-data backup (owner); Codex's fixes before any merge.
 2. Capital: the amount the system is for, or "engineering project for now". Also sets the paper simulation's drawdown
-   limit (spec v2 section 7.5; research figures there), needed before the simulation starts.
+   limit (spec v2 section 7.5; research figures there; if no number is set, "no worse than holding the coin" applies) and
+   approves the minimum trade samples (7.4: 42, 42, 31, derived from the replay), needed before the simulation starts.
 3. Approve the stuck-exit rule: keep a rejected exit pending with a reason and an alert; never convert, reprice, mark filled, drop or cancel it.
+   Approved for the paper simulation 2026-10-31 (owner forwarded the advisor's final authorisation: "you can now
+   proceed"; spec v2 R12, with one exception: a pending sell is closed as superseded, unsent, when the holding is
+   already zero, so nothing is sold twice). Still open for the live path.
 - Blocking engineering item 3 (Codex note below): confirm whether the DEFAULT portfolio holds all your Coinbase coins and open orders.
 - Decided 2026-10-30: the 25-symbol comparison follows the active safety task (now item 5, after the multi-coin fix, the paper simulation, the position cap and exit logic); its collector runs on the
   server once the owner approves the actual monthly cost and a monitoring plan; the diversification study waits on its
@@ -91,11 +95,12 @@ Last updated: 2026-10-31 09:04Z by Claude Cowork (Codex status note on the posit
    bid/ask recorded at every fill, one command stops all, run manifest; reuse the managed paper-campaign tooling.
    Group B (ranker-picked coins, weekly, pre-registered in the spec) follows Group A once server memory allows or item 1
    lets one process serve 3 coins; the ranker runs as a separate weekly job, never imported by the runner.
-   Must be in place before the start: spec v2 section 6, R1-R11 with their acceptance tests (cooldown lockout fixed,
-   BA-16, known since 2026-10-02 and missing from this queue until 2026-10-31; automatic restarts; alerts received by
-   the owner; market data and freshness; debug line removed; every decision's inputs saved and replayed exactly;
-   evaluation rules approved; stale entry orders expire; every exit condition recorded; outside heartbeats and
-   off-server backups; 72-hour commissioning), then section 9 (review, owner approval, official start).
+   Must be in place before the start: spec v2 (design frozen 2026-10-31) section 6, R1-R12 with their acceptance tests,
+   built in the order of section 12: (1) cooldown lockout (BA-16, known since 2026-10-02 and missing from this queue
+   until 2026-10-31) and stuck exits retried, with stop-loss tests under all three blockers; (2) decision inputs and
+   exact replay, every exit condition recorded; (3) order lifecycle and reconciliation, market data with buys refused
+   on stale candles; (4) debug line, restarts, on-server alerts; (5) outside heartbeats and encrypted off-server
+   backups; (6) 72-hour commissioning; then section 9 (independent review, owner approval, official start).
    Independent review; owner approves the start. Does not depend on item 1; the owner may reorder.
 3. [safety] Position cap (fix 4) with complete balance reading (fix 1), wired into the live order path; independent review.
    INCOMPLETE (Codex, 2026-10-30): default-off paging and native-v3 funding/quote guards are separately accepted source work
@@ -219,8 +224,9 @@ Found by: A = agent review on its own; R = agent during owner-requested work; O 
 | O-13 | Set the simulation's loop interval to 15 s (BA-11) without checking what else counts loops: the kill cooldowns become 5 and 12.5 minutes instead of 20 and 50 seconds | 2026-10-31, when writing the setting | Claude | Spec setting; side effect now recorded | search not done for code that counts loops | spec `loop_interval_sec` row (corrected) | R, Claude 2026-10-31 (bot audit session 3) | Before proposing a setting, search the code for everything that reads it | No |
 | O-14 | Integrity check S4-05 said no scheduled run of the data-collector cadence check was found; a systemd timer for it is in the repository (`packaging/systemd/cbp-edge-cadence.timer`) | 2026-10-31, stage 4 | Claude | The proposal "schedule the check" was partly wrong (the timer exists; installation on the server unknown) | search scope: `packaging/` not searched | S4-05 (corrected by BA-22) | R, Claude 2026-10-31 (bot audit session 3) | Task cards list the search scope | No |
 | O-15 | The kill-cooldown restart lockout (found 2026-10-02, patches reviewed 2026-10-07, never applied) was missing from the engineering queue, the simulation spec, and bot audit session 1, which marked runner decisions and exits as done | 2026-10-31, when writing the spec and session 1 | Claude; the queue since 2026-10-07 | A HIGH defect for the simulation would have gone in unaddressed | findings do not propagate (as H-06, O-11); no prior-work search for the runner in session 1 | spec flaw 14 and engineering item 2 added; session 1 claim corrected | R, Claude 2026-10-31 (bot audit session 3) | Spec and audits check one open-defects list | No |
-Counts 2026-10-31: 15 omissions found since the register began (O-01 to O-15): caught by an agent unprompted 0; during
-owner-requested work 11; by the owner 4. Historical H-01 to H-07 (`omission_history_20261031/`): found by agent review 3,
+| O-16 | Spec v2 kept only the cooldown test for stops under known blockers, although Claude's own review reply the same day recommended a test that a stop-loss fills under each blocker (cooldown, refused exit not re-sent, stale data); on current code the last two would fail | 2026-10-31, when writing spec v2 | Claude | Spec v2 would have let the simulation start without proving stops work under BA-04/BA-05 | carried a recommendation into the spec incompletely; no check of the spec against the reply | spec v2 corrected 2026-10-31: R12 adds the stop and trailing-stop tests under all three blockers | O, owner 2026-10-31 (third review shared by the owner) | Check each adopted recommendation line by line against the written spec before reporting | No |
+Counts 2026-10-31: 16 omissions found since the register began (O-01 to O-16): caught by an agent unprompted 0; during
+owner-requested work 11; by the owner 5. Historical H-01 to H-07 (`omission_history_20261031/`): found by agent review 3,
 during owner-requested work 1, not recorded 3.
 Rework 2026-10-31 (accepted or closed work later corrected): 4 - failure diagnosis (closed 2026-10-30; C1-C4),
 25-symbol analysis (closed 2026-10-30; recommendation qualified), multisymbol baseline (2026-10-08; relabelled
