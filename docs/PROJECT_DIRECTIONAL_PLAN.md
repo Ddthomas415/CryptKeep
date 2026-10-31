@@ -128,3 +128,16 @@ Existing deterministic safety boundaries remain:
 - live execution remains gated;
 - paper and shadow evidence remain separate from live capital deployment;
 - promotion decisions require governed evidence and accepted operator review.
+
+## October 27 Descriptive Research Preparation
+
+ED002-DESCRIPTIVE-20261027: operator chose "Prepare descriptive comparison
+contract (Recommended)". Prepare the existing frozen-default, 25-symbol
+prospective comparison alongside unresolved statistical qualification, with
+explicitly descriptive modelled economics and no confidence/promotion claims.
+This changes preparation ordering, not platform scope or deterministic capital
+authority. Preserve the original confirmatory design, statistical work, frozen
+strategies, adopted model settings and existing evidence. The contract at
+`docs/research/ed002_defaults25_descriptive_contract_20261027.md` is
+READY_FOR_INDEPENDENT_REVIEW, not an activated study. No market-data run,
+collector, schedule, service, account, capital/risk or trading change follows.
