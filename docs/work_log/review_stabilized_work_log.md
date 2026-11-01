@@ -55514,3 +55514,11 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
   other pre-registered end dates: Coinbase USD confirmation 2026-10-10 to 2027-04-08 (checkpoint 2027-01-08); CMC
   trending first analysis 2027-02-15. Owner decision I01 (2026-10-11): restore the Phase 1 copilot.
 - O-22 registered (advice and questions given without this search; copilot advice contradicted I01).
+
+## 2026-11-01T12:18:39Z Claude (Cowork): GitHub Actions storage at 100% (owner email, 2026-11-01)
+- Cause found in the repo (workflow files; GitHub runs not visible to Claude): nightly.yml, daily 02:00 UTC on master,
+  macOS + Windows desktop builds uploaded as artifacts, no retention-days (default 90). Free while the repo was public;
+  since it became private on 2026-10-31, GitHub Free allows 500 MB artifact storage (existing artifacts count, hourly)
+  and $12/month compute (macOS about 10x Linux). Pushes of backup/2026-10-31 trigger only governance-smoke and
+  script_path_integrity (ubuntu, no artifacts). Source: docs.github.com billing for Actions (fetched 2026-11-01).
+- O-23 registered: the private-repo recommendation did not state the Actions billing consequence.
