@@ -55522,3 +55522,12 @@ protection audit as Claude's next item; 25-symbol comparison stays paused.
   and $12/month compute (macOS about 10x Linux). Pushes of backup/2026-10-31 trigger only governance-smoke and
   script_path_integrity (ubuntu, no artifacts). Source: docs.github.com billing for Actions (fetched 2026-11-01).
 - O-23 registered: the private-repo recommendation did not state the Actions billing consequence.
+
+## 2026-11-01T12:42:48Z Claude (Cowork): GitHub Actions storage, checked on GitHub (owner: "you do it")
+- Built-in browser (github.com allowed by the owner; not signed in to GitHub). Public API, read-only:
+  repository visibility public (settings updated 2026-11-01 12:21 UTC); 426 unexpired artifacts, 27.2 GB, of which
+  212 CryptoBotPro-PyInstaller-macos-latest (26.3 GB, 2026-08-13 to 2026-10-07, ci-pyinstaller.yml); nightly.yml and
+  build-desktop-app.yml disabled_manually (2026-11-01); all nightly runs failed, last 2026-10-22; the two pushes of
+  backup/2026-10-31 started six workflows each, four with 0 jobs (failure at once), governance-smoke and
+  script-path-integrity succeeded. Nothing changed on GitHub (not signed in; no deletion or disabling done).
+- O-24 registered: earlier cause (nightly) and "two checks" were wrong.
