@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 
 from services.audit.operator_event_journal import append_operator_event
 from services.os.app_paths import data_dir, runtime_dir
+from storage.sqlite_backup import integrity_ok as _integrity_ok, snapshot_sqlite as _snapshot_sqlite
 
 MANIFEST_NAME = "backup_manifest.json"
 MANIFEST_VERSION = 1
@@ -53,37 +54,6 @@ def _is_sqlite(path: Path) -> bool:
     try:
         with path.open("rb") as f:
             return f.read(16) == b"SQLite format 3\x00"
-    except Exception:
-        return False
-
-
-def _snapshot_sqlite(src: Path, dest: Path) -> None:
-    """Consistent point-in-time snapshot via the sqlite backup API. A plain
-    file copy of a live database tears pages under WAL/concurrent writes;
-    the backup API takes a transactionally consistent snapshot even while
-    writers are active."""
-    src_uri = f"{src.resolve().as_uri()}?mode=ro"
-    src_con = sqlite3.connect(src_uri, uri=True)
-    try:
-        src_con.execute("PRAGMA busy_timeout=5000")
-        dest_con = sqlite3.connect(dest)
-        try:
-            dest_con.execute("PRAGMA busy_timeout=5000")
-            src_con.backup(dest_con)
-        finally:
-            dest_con.close()
-    finally:
-        src_con.close()
-
-
-def _integrity_ok(path: Path) -> bool:
-    try:
-        con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
-        try:
-            row = con.execute("PRAGMA integrity_check").fetchone()
-            return bool(row) and row[0] == "ok"
-        finally:
-            con.close()
     except Exception:
         return False
 

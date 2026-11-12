@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import importlib
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -54,7 +55,7 @@ def _allow_submit_gates(monkeypatch, paper_engine):
 def _base_intent(intent_id: str, status: str = "queued", linked_order_id: str | None = None) -> dict:
     return {
         "intent_id": intent_id,
-        "created_ts": "2026-01-01T00:00:00+00:00",
+        "created_ts": datetime.now(timezone.utc).isoformat(),
         "ts": "2026-01-01T00:00:00+00:00",
         "source": "strategy",
         "strategy_id": "es_daily_trend_v1",

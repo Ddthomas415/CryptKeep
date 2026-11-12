@@ -10,6 +10,11 @@ from services.os.app_paths import runtime_dir, ensure_dirs
 from services.execution.intent_reconciler import reconcile_once
 from services.execution.state_authority import LiveStateContext, paper_queue_status
 from services.execution.paper_engine import PaperEngine
+from services.execution.paper_buy_policy import buy_age_verdict
+from services.execution.paper_buy_lifecycle import recover_paper_buys, finish_buy, record_buy_alert
+from services.execution.paper_exit_retry import (
+    has_exit_marker, consume_pending_paper_exit, _prepare,
+)
 from services.live_router.router import decide_order
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
@@ -101,7 +106,22 @@ async def _decide_batch(intents: list[dict]) -> list[tuple[dict, object]]:
     return list(zip(intents, results))
 
 
+def _hold_pending_failure(qdb, row, exc):
+    try:
+        qdb.paper_exit_transition(row["intent_id"], "held", event="recovery_error",
+                                 reason=type(exc).__name__)
+    except Exception as receipt_exc:
+        _LOG.warning("paper_exit_receipt_failed error_type=%s", type(receipt_exc).__name__)
+
+
+def _consumer_status(qdb, row, status, **kwargs):
+    paper_queue_status(qdb, row, status, **kwargs)
+    if str(row.get("side")).lower().strip() == "buy" and status == "rejected":
+        record_buy_alert(qdb, row, kwargs.get("last_error") or status, now_ts=_now())
+
+
 def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, limit: int = 20) -> dict:
+    recover_paper_buys(qdb, eng.db, clock=_now)
     queued = qdb.claim_next_queued(limit=int(limit))
     ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="paper_runner.consume_queued_intents_once")
     submitted = 0
@@ -116,15 +136,48 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
             "idempotent": 0,
         }
 
+    # Route the executable attempt size, not the immutable root size. Keep
+    # the original row for recovery/identity and recheck holdings in the engine.
+    routed = []
+    originals = {str(row["intent_id"]): row for row in queued}
+    recovered = []
+    for it in queued:
+        if str(it.get("side") or "").strip().lower() == "buy":
+            verdict = buy_age_verdict(it.get("created_ts"), _now())
+            if not verdict["ok"]:
+                finish_buy(qdb, it, "expired" if verdict["reason"].startswith("paper_buy_ttl:expired") else "rejected",
+                           verdict["reason"], now_ts=_now())
+                continue
+        if not has_exit_marker(it):
+            routed.append(it)
+            continue
+        try:
+            prepared = _prepare(eng.db, it)
+            if prepared["state"] == "ready":
+                routed.append({**it, "qty": prepared["qty"]})
+            else:
+                recovered.append((it, None))
+        except Exception as exc:
+            _hold_pending_failure(qdb, it, exc)
     try:
-        decisions = asyncio.run(_decide_batch(queued))
+        routed_quantities = {str(row["intent_id"]): row["qty"] for row in routed}
+        decisions = recovered + [
+            (originals[str(row["intent_id"])], decision)
+            for row, decision in asyncio.run(_decide_batch(routed))
+        ]
     except Exception as e:
         _LOG.exception("paper_runner.decide_batch_failed: %s", e)
         for it in queued:
             intent_id = str(it.get("intent_id") or "").strip()
             if not intent_id:
                 continue
-            paper_queue_status(
+            if has_exit_marker(it):
+                try:
+                    consume_pending_paper_exit(qdb, eng, it, e)
+                except Exception as exc:
+                    _hold_pending_failure(qdb, it, exc)
+                continue
+            _consumer_status(
                 qdb,
                 it,
                 "rejected",
@@ -147,8 +200,20 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
 
         client_order_id = str(it.get("client_order_id") or f"paper_intent_{intent_id}")
 
+        if has_exit_marker(it):
+            try:
+                result = consume_pending_paper_exit(
+                    qdb, eng, it, decision_or_exc,
+                    routed_qty=routed_quantities.get(str(it["intent_id"])),
+                )
+                submitted += result["submitted"]
+                idempotent += result["idempotent"]
+            except Exception as exc:
+                _hold_pending_failure(qdb, it, exc)
+            continue
+
         if isinstance(decision_or_exc, Exception):
-            paper_queue_status(
+            _consumer_status(
                 qdb,
                 it,
                 "rejected",
@@ -163,7 +228,7 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
         if not bool(getattr(decision, "allowed", False)):
             reason = str(getattr(decision, "reason", "blocked"))
             _LOG.info("paper_runner.decide_order_blocked intent_id=%s reason=%s", intent_id, reason)
-            paper_queue_status(
+            _consumer_status(
                 qdb,
                 it,
                 "rejected",
@@ -186,9 +251,20 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
                 ts=str(it.get("ts") or _now()),
                 strategy_id=it.get("strategy_id"),
                 meta=it.get("meta"),
+                **({"intent_created_ts": it.get("created_ts")} if str(it.get("side")).lower().strip() == "buy" else {}),
             )
         except Exception as e:
-            paper_queue_status(
+            if str(it.get("side")).lower().strip() == "buy":
+                # An exception may follow a durable order or fill. Recovery owns
+                # disposal; never report refusal while that order can execute.
+                try:
+                    qdb.record_paper_buy_event(intent_id, "submit_uncertain", reason=type(e).__name__)
+                except Exception as receipt_exc:
+                    _LOG.warning("paper_buy_receipt_failed error_type=%s", type(receipt_exc).__name__)
+                record_buy_alert(qdb, it, "paper_buy_submit_uncertain", now_ts=_now())
+                recover_paper_buys(qdb, eng.db, clock=_now)
+                continue
+            _consumer_status(
                 qdb,
                 it,
                 "rejected",
@@ -200,7 +276,13 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
             continue
 
         if not bool(resp.get("ok")):
-            paper_queue_status(
+            reason = str(resp.get("reason") or "paper_submit_failed")
+            if str(it.get("side")).lower().strip() == "buy" and reason.startswith("paper_buy_ttl:"):
+                finish_buy(qdb, it, "expired" if reason.startswith("paper_buy_ttl:expired") else "rejected",
+                           reason, now_ts=_now())
+                rejected += 1
+                continue
+            _consumer_status(
                 qdb,
                 it,
                 "rejected",
@@ -214,7 +296,7 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
         order = dict(resp.get("order") or {})
         order_id = str(order.get("order_id") or "").strip() or None
         reject_reason = order.get("reject_reason")
-        paper_queue_status(
+        _consumer_status(
             qdb,
             it,
             "submitted",

@@ -69,6 +69,7 @@ def write_local_ohlcv_snapshot(
         return None
     path = _ohlcv_snapshot_path(venue, symbol, timeframe)
     source_label = str(source or "unknown").strip() or "unknown"
+    identity = {"venue": venue, "symbol": symbol, "timeframe": timeframe}
     try:
         if path.exists():
             existing = json.loads(path.read_text(encoding="utf-8"))
@@ -76,13 +77,16 @@ def write_local_ohlcv_snapshot(
             existing_source = (
                 "unknown" if isinstance(existing, list) else str(existing.get("source") or "unknown")
             )
-            if existing_rows == clean_rows and existing_source == source_label:
+            if (existing_rows == clean_rows and existing_source == source_label
+                    and isinstance(existing, dict) and existing.get("version") == 3
+                    and all(existing.get(key) == value for key, value in identity.items())):
                 return path
     except Exception:
         pass
     payload = json.dumps(
         {
-            "version": 2,
+            "version": 3,
+            **identity,
             "source": source_label,
             "written_ts": datetime.now(timezone.utc).isoformat(),
             "candles": clean_rows,

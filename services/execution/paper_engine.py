@@ -11,6 +11,7 @@ from services.admin.config_editor import load_user_yaml
 from services.admin.master_read_only import is_master_read_only
 from services.execution.safety import load_gates, should_allow_order
 from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
+from services.market_data.paper_snapshot_quote import paper_quote_fill_price, read_paper_quote
 from services.risk.market_quality_guard import check as check_market_quality
 from services.risk.staleness_guard import is_snapshot_fresh
 from services.security.exchange_factory import make_exchange
@@ -100,6 +101,9 @@ def _cfg() -> dict:
         "use_ccxt_fallback": _bool_cfg("use_ccxt_fallback", True),
         "max_order_qty": _float_cfg("max_order_qty", 1e9),
         "strategy_id": str(p.get("strategy_id") or ""),
+        # Source capability only: actual activation requires separately approved setup.
+        "require_fresh_hourly_candles": p.get("require_fresh_hourly_candles", False),
+        "require_fresh_snapshot_quotes": p.get("require_fresh_snapshot_quotes", False),
     }
 
 class PaperEngine:
@@ -111,11 +115,7 @@ class PaperEngine:
         self._ensure_cash_initialized()
 
     def _ensure_cash_initialized(self) -> None:
-        v = self.db.get_state("cash_quote")
-        if v is None:
-            self.db.set_state("cash_quote", str(self.cfg["starting_cash_quote"]))
-        if self.db.get_state("realized_pnl") is None:
-            self.db.set_state("realized_pnl", "0.0")
+        self.db.initialize_account(self.cfg["starting_cash_quote"], self.cfg["quote_currency"])
 
     def cash_quote(self) -> float:
         v = self.db.get_state("cash_quote") or "0"
@@ -143,7 +143,13 @@ class PaperEngine:
             return q
         if not self.cfg["use_ccxt_fallback"]:
             return None
-        ex = make_exchange(str(venue).lower().strip(), {"apiKey": None, "secret": None}, enable_rate_limit=True)
+        # A symbol with no snapshot tick reaches this fetch routinely; a
+        # failed fetch means no price, not a crashed paper loop.
+        try:
+            ex = make_exchange(str(venue).lower().strip(), {"apiKey": None, "secret": None}, enable_rate_limit=True)
+        except Exception as exc:
+            _LOG.warning("paper price fetch unavailable for %s %s: %s", venue, symbol, type(exc).__name__)
+            return None
         try:
             t = ex.fetch_ticker(symbol)
             return {
@@ -152,6 +158,9 @@ class PaperEngine:
                 "ask": t.get("ask"),
                 "last": t.get("last"),
             }
+        except Exception as exc:
+            _LOG.warning("paper price fetch failed for %s %s: %s", venue, symbol, type(exc).__name__)
+            return None
         finally:
             try:
                 if hasattr(ex, "close"):
@@ -169,9 +178,20 @@ class PaperEngine:
         qty: float,
         limit_price: float | None,
     ) -> tuple[bool, str | None]:
-        fresh, stale_reason = is_snapshot_fresh()
-        if not fresh:
-            return False, f"staleness:{stale_reason}"
+        if side == "buy" and self.cfg.get("require_fresh_hourly_candles", False) is not False:
+            verdict = self._hourly_candle_verdict(venue, symbol)
+            if not verdict["ok"]:
+                return False, "candle_data:" + verdict["reason"]
+        quote = None
+        quote_policy = self.cfg.get("require_fresh_snapshot_quotes", False)
+        if quote_policy is not False:
+            quote, reason = self._guarded_quote(venue, symbol)
+            if quote is None:
+                return False, "quote_data:" + reason
+        else:
+            fresh, stale_reason = is_snapshot_fresh()
+            if not fresh:
+                return False, f"staleness:{stale_reason}"
 
         ro_state = is_master_read_only()
         ro_on = bool(ro_state[0]) if isinstance(ro_state, tuple) else bool(ro_state)
@@ -182,7 +202,9 @@ class PaperEngine:
         if not bool(mq.get("ok")):
             return False, f"market_quality:{str(mq.get('reason') or 'blocked')}"
 
-        reference_source = limit_price if limit_price is not None else mq.get("price_used")
+        reference_source = limit_price if limit_price is not None else (
+            quote["mid"] if quote is not None else mq.get("price_used")
+        )
         if reference_source is None:
             reference_source = mq.get("last")
         try:
@@ -224,6 +246,13 @@ class PaperEngine:
 
         return True, None
 
+    def _hourly_candle_verdict(self, venue, symbol):
+        from services.market_data.hourly_candle_quality import check_cached_hourly_candles
+        import storage.paper_trading_sqlite as ledger
+        if self.cfg.get("require_fresh_hourly_candles", False) is not True:
+            return {"ok": False, "reason": "invalid_policy", "policy_version": 1}
+        return check_cached_hourly_candles(venue, symbol, clock=self._clock, data_root=ledger.DB_PATH.parent)
+
     def submit_order(
         self,
         *,
@@ -237,9 +266,26 @@ class PaperEngine:
         ts: str | None = None,
         strategy_id: str | None = None,
         meta: dict | None = None,
+        intent_created_ts: str | None = None,
     ) -> dict:
+        from services.execution.paper_exit_retry import has_exit_marker
+        pending = has_exit_marker({"meta": meta})
+        prepared = None
+        if pending:
+            if side != "sell":
+                return {"ok": False, "reason": "pending_exit_sell_required"}
+            prepared = self.db.prepare_paper_exit(
+                client_order_id=client_order_id, exit_id=(meta or {}).get("paper_exit_id"),
+                venue=venue, symbol=symbol, order_type=order_type, qty=qty,
+                limit_price=limit_price, strategy_id=strategy_id, meta=meta, activate=False,
+            )
+            if prepared["state"] == "filled":
+                return {"ok": True, "idempotent": True, "order": prepared["order"]}
+            if prepared["state"] != "ready":
+                return {"ok": False, "reason": prepared.get("reason") or prepared["state"]}
+            qty = prepared["qty"]
         existing = self.db.get_order_by_client_id(client_order_id)
-        if existing:
+        if existing and not pending:
             return {"ok": True, "idempotent": True, "order": existing}
         side = str(side).lower().strip()
         order_type = str(order_type).lower().strip()
@@ -268,6 +314,26 @@ class PaperEngine:
         )
         if not gate_ok:
             return {"ok": False, "reason": str(gate_reason or "paper_submit_gate_blocked")}
+        if side == "buy":
+            from services.execution.paper_buy_policy import buy_age_verdict, PAPER_BUY_CREATED_TS
+            created = intent_created_ts if intent_created_ts is not None else self._clock()
+            verdict = buy_age_verdict(created, self._clock())
+            if not verdict["ok"]:
+                return {"ok": False, "reason": verdict["reason"]}
+            meta = {**(meta or {}), PAPER_BUY_CREATED_TS: created}
+        if pending:
+            prepared = self.db.prepare_paper_exit(
+                client_order_id=client_order_id, exit_id=(meta or {}).get("paper_exit_id"),
+                venue=venue, symbol=symbol, order_type=order_type, qty=qty,
+                limit_price=limit_price, strategy_id=strategy_id, meta=meta, activate=True,
+            )
+            if prepared["state"] == "filled":
+                return {"ok": True, "idempotent": True, "order": prepared["order"]}
+            if prepared["state"] != "ready":
+                return {"ok": False, "reason": prepared.get("reason") or prepared["state"]}
+            qty = prepared["qty"]
+            if prepared.get("order"):
+                return {"ok": True, "idempotent": True, "order": prepared["order"]}
         oid = str(uuid.uuid4())
         row = {
             "order_id": oid,
@@ -281,7 +347,7 @@ class PaperEngine:
             "limit_price": limit_price,
             "status": "new",
             "reject_reason": None,
-            "strategy_id": strategy_id or self.cfg.get("strategy_id"),
+            "strategy_id": strategy_id if pending else strategy_id or self.cfg.get("strategy_id"),
             "meta": meta,
         }
         self.db.insert_order(row)
@@ -321,7 +387,12 @@ class PaperEngine:
         self.db.update_order_status(o["order_id"], "canceled", None)
         return {"ok": True, "order": self.db.get_order_by_client_id(client_order_id)}
 
-    def _apply_fill(self, order: dict, price: float, qty: float) -> dict:
+    def _guarded_quote(self, venue, symbol):
+        if self.cfg.get("require_fresh_snapshot_quotes") is not True:
+            return None, "invalid_policy"
+        return read_paper_quote(venue, symbol, clock=self._clock)
+
+    def _apply_fill(self, order: dict, price: float, qty: float, *, quote_evidence=None) -> dict:
         fee_bps = float(self.cfg["fee_bps"])
         fee = (price * qty) * (fee_bps / 10000.0)
         fee_ccy = self.cfg["quote_currency"]
@@ -329,6 +400,12 @@ class PaperEngine:
         identity_extra = _fill_identity_extra(order, self.cfg)
         identity_kwargs = ({"execution_identity_evidence": identity_extra}
                            if identity_extra else {})
+        if self.cfg.get("require_fresh_hourly_candles", False) is not False:
+            identity_kwargs["hourly_candle_guard"] = self.cfg["require_fresh_hourly_candles"]
+        quote_policy = self.cfg.get("require_fresh_snapshot_quotes", False)
+        if quote_policy is not False:
+            identity_kwargs.update(snapshot_quote_guard=quote_policy, snapshot_quote=quote_evidence,
+                                   snapshot_slippage_bps=self.cfg["slippage_bps"])
         result = self.db.apply_fill(
             order=order,
             ts=fill_ts,
@@ -337,11 +414,16 @@ class PaperEngine:
             fee=float(fee),
             fee_currency=str(fee_ccy),
             **identity_kwargs,
+            clock=self._clock,
         )
         if not result.get("ok"):
             return result
         if result.get("idempotent"):
             return result
+        # Pending exits may be trimmed atomically if holdings changed after
+        # submission; evidence must describe the committed fill, not its plan.
+        qty = float(result.get("qty", qty))
+        fee = float(result.get("fee", fee))
 
         # Evidence logging — strategy-specific, best-effort
         try:
@@ -381,15 +463,51 @@ class PaperEngine:
         return result
 
     def evaluate_open_orders(self) -> dict:
+        from services.execution.paper_exit_retry import has_exit_marker
         orders = self.db.list_orders(limit=2000, status="new")
         n_filled = 0
         n_rejected = 0
         details = []
         for o in orders:
-            q = self._price(o["venue"], o["symbol"])
-            if not q:
+            if o["side"] == "buy":
+                receipt = self.db.expire_buy_order(o["client_order_id"], clock=self._clock)
+                if receipt["state"] != "new":
+                    details.append({"client_order_id": o["client_order_id"], "result": receipt})
+                    continue
+            quote_kwargs = {}
+            if self.cfg.get("require_fresh_snapshot_quotes", False) is not False:
+                q, reason = self._guarded_quote(o["venue"], o["symbol"])
+                if q is None:
+                    details.append({"client_order_id": o["client_order_id"], "result": {
+                        "ok": False, "reason": "quote_data:" + reason, "unresolved": True,
+                    }})
+                    continue
+                quote_kwargs["quote_evidence"] = q
+                px = paper_quote_fill_price(q, side=o["side"], order_type=o["order_type"],
+                                           limit=o["limit_price"], slippage_bps=self.cfg["slippage_bps"])
+                if px is not None:
+                    res = self._apply_fill(o, px, float(o["qty"]), **quote_kwargs)
+                    if res.get("ok"):
+                        n_filled += 1
+                    elif not res.get("unresolved"):
+                        n_rejected += 1
+                    details.append({"client_order_id": o["client_order_id"], "result": res})
                 continue
-            m = mid_price(q)
+            else:
+                if has_exit_marker(o) and not is_snapshot_fresh()[0]:
+                    continue
+                q = self._price(o["venue"], o["symbol"])
+                if not q:
+                    continue
+                if has_exit_marker(o):
+                    try:
+                        quote_ts = float(q.get("ts_ms")) / 1000.0
+                        age = datetime.now(timezone.utc).timestamp() - quote_ts
+                        if not math.isfinite(age) or not 0 <= age <= 5.0:
+                            continue
+                    except (TypeError, ValueError, OverflowError):
+                        continue
+                m = mid_price(q)
             if m is None:
                 continue
             slip_bps = float(self.cfg["slippage_bps"])
@@ -398,10 +516,10 @@ class PaperEngine:
                     px = m * (1.0 + slip_bps / 10000.0)
                 else:
                     px = m * (1.0 - slip_bps / 10000.0)
-                res = self._apply_fill(o, px, float(o["qty"]))
+                res = self._apply_fill(o, px, float(o["qty"]), **quote_kwargs)
                 if res.get("ok"):
                     n_filled += 1
-                else:
+                elif not res.get("unresolved"):
                     n_rejected += 1
                 details.append({"client_order_id": o["client_order_id"], "result": res})
                 continue
@@ -421,25 +539,64 @@ class PaperEngine:
                     should_fill = True
                     fill_px = max(lim, px_bid)
             if should_fill and fill_px is not None:
-                res = self._apply_fill(o, float(fill_px), float(o["qty"]))
+                res = self._apply_fill(o, float(fill_px), float(o["qty"]), **quote_kwargs)
                 if res.get("ok"):
                     n_filled += 1
-                else:
+                elif not res.get("unresolved"):
                     n_rejected += 1
                 details.append({"client_order_id": o["client_order_id"], "result": res})
         return {"ok": True, "open_orders_seen": len(orders), "filled": n_filled, "rejected": n_rejected, "details_sample": details[:20]}
 
     def mark_to_market(self, venue: str, symbol: str) -> dict:
-        q = self._price(venue, symbol)
-        m = mid_price(q) if q else None
-        cash = self.cash_quote()
-        realized = self.realized_pnl()
-        pos = self.db.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0, "realized_pnl": 0.0}
-        qty = float(pos["qty"])
-        avg = float(pos["avg_price"])
-        unreal = 0.0
-        if m is not None and qty != 0.0:
-            unreal = (float(m) - avg) * qty
-        equity = cash + (float(m) * qty if m is not None else 0.0)
+        result = {"ok": False, "valuation_status": "incomplete", "equity_recorded": False,
+                  "venue": venue, "symbol": symbol, "valuation_scope": "requested_symbol_plus_cash",
+                  "cash_quote": None, "equity_quote": None, "unrealized_pnl": None,
+                  "realized_pnl": None, "mid": None}
+
+        def number(value):
+            if isinstance(value, bool):
+                raise ValueError("boolean_number")
+            value = float(value)
+            if not math.isfinite(value):
+                raise ValueError("nonfinite_number")
+            return value
+
+        try:
+            cash = number(self.db.get_state("cash_quote"))
+            result["cash_quote"] = cash
+            realized = number(self.db.get_state("realized_pnl"))
+            result["realized_pnl"] = realized
+            pos = self.db.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0}
+            qty = number(pos["qty"])
+            avg = number(pos["avg_price"]) if qty else 0.0
+        except (KeyError, TypeError, ValueError, OverflowError):
+            return {**result, "reason": "invalid_valuation_state"}
+        m = None
+        reason = "missing_reference_price"
+        try:
+            q = self._price(venue, symbol)
+            if q:
+                reason = "invalid_reference_price"
+                bid, ask = q.get("bid"), q.get("ask")
+                if bid is not None and ask is not None:
+                    bid, ask = number(bid), number(ask)
+                    if not 0 < bid <= ask:
+                        raise ValueError("invalid_book")
+                    m = bid + (ask - bid) / 2
+                else:
+                    m = number(q.get("last"))
+                if m <= 0:
+                    raise ValueError("nonpositive_price")
+        except Exception:
+            m = None
+            reason = "invalid_reference_price"
+        if qty and m is None:
+            return {**result, "reason": reason}
+        unreal = (m - avg) * qty if qty else 0.0
+        equity = cash + m * qty if qty else cash
+        if not math.isfinite(unreal) or not math.isfinite(equity):
+            return {**result, "reason": "nonfinite_valuation"}
         self.db.insert_equity(_now(), cash, equity, unreal, realized)
-        return {"ok": True, "cash_quote": cash, "equity_quote": equity, "unrealized_pnl": unreal, "realized_pnl": realized, "mid": m}
+        return {**result, "ok": True, "reason": None, "equity_recorded": True,
+                "valuation_status": "complete" if qty else "cash_only",
+                "equity_quote": equity, "unrealized_pnl": unreal, "mid": m}

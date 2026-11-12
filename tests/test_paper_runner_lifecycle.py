@@ -3,6 +3,7 @@ import pytest
 
 import importlib
 import json
+from datetime import datetime, timezone
 
 
 def _reload_paper_runner():
@@ -96,7 +97,7 @@ def test_consume_queued_intents_once_submits_and_links_order(monkeypatch, tmp_pa
     qdb.upsert_intent(
         {
             "intent_id": "intent-1",
-            "created_ts": "2026-03-19T12:00:00Z",
+            "created_ts": datetime.now(timezone.utc).isoformat(),
             "ts": "2026-03-19T12:00:00Z",
             "source": "strategy",
             "strategy_id": "ema_cross",
@@ -117,23 +118,26 @@ def test_consume_queued_intents_once_submits_and_links_order(monkeypatch, tmp_pa
         }
     )
 
-    class FakeEngine:
-        def submit_order(self, **kwargs) -> dict:
-            assert kwargs["client_order_id"] == "paper_intent_intent-1"
-            return {
-                "ok": True,
-                "idempotent": False,
-                "order": {"order_id": "paper-order-1", "reject_reason": None},
-            }
-
-    out = paper_runner._consume_queued_intents_once(qdb=qdb, eng=FakeEngine(), limit=10)
+    import services.execution.paper_engine as engine_module
+    importlib.reload(engine_module)
+    monkeypatch.setattr(engine_module.PaperEngine, "_pre_submit_gate", lambda *a, **kw: (True, None))
+    monkeypatch.setattr(engine_module, "load_user_yaml", lambda: {"paper_trading": {"use_ccxt_fallback": False}})
+    async def allowed(**kwargs):
+        from types import SimpleNamespace
+        return SimpleNamespace(allowed=True)
+    monkeypatch.setattr(paper_runner, "decide_order", allowed)
+    eng = engine_module.PaperEngine()
+    out = paper_runner._consume_queued_intents_once(qdb=qdb, eng=eng, limit=10)
 
     assert out == {"queued_seen": 1, "submitted": 1, "rejected": 0, "idempotent": 0}
     row = qdb.get_intent("intent-1")
     assert row is not None
     assert row["status"] == "submitted"
     assert row["client_order_id"] == "paper_intent_intent-1"
-    assert row["linked_order_id"] == "paper-order-1"
+    order = eng.db.get_order_by_client_id("paper_intent_intent-1")
+    assert row["linked_order_id"] == order["order_id"]
+    assert order["qty"] == 0.5 and order["status"] == "new"
+    assert len(eng.db.list_orders()) == 1 and eng.db.list_fills() == []
 
 
 def test_paper_runner_acquire_lock_reclaims_stale_lock(monkeypatch, tmp_path):

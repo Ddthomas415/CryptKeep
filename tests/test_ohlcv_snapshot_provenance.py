@@ -40,7 +40,8 @@ def test_writer_records_source_in_envelope_and_reader_still_returns_rows(monkeyp
     assert path is not None
 
     raw = json.loads(path.read_text(encoding="utf-8"))
-    assert raw["version"] == 2
+    assert raw["version"] == 3
+    assert (raw["venue"], raw["symbol"], raw["timeframe"]) == ("coinbase", "BTC/USD", "1d")
     assert raw["source"] == "sample_ohlcv"
     assert raw["written_ts"]
     assert raw["candles"] == ROWS

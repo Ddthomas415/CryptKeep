@@ -1,5 +1,4 @@
 from __future__ import annotations
-from services.admin.config_editor import load_user_yaml
 
 VENUE_ALIASES = {
     "gate.io": "gateio",
@@ -24,6 +23,8 @@ def normalize_symbol(symbol: str) -> str:
     return s.upper()
 
 def _mapping_cfg() -> dict:
+    from services.admin.config_editor import load_user_yaml
+
     cfg = load_user_yaml()
     sr = cfg.get("symbol_router") if isinstance(cfg.get("symbol_router"), dict) else {}
     m = sr.get("map") if isinstance(sr.get("map"), dict) else {}

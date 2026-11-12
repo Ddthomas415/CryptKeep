@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import os
 import shutil
 import subprocess
@@ -524,6 +525,12 @@ class PaperSimMonitorCfg:
     poll_interval_sec: float = 300.0
     min_closed_trades_for_enough_evidence: int = 1
     desktop_notify: bool = True
+    account_reconciliation: bool = False
+
+    def __post_init__(self):
+        if self.account_reconciliation and (not math.isfinite(self.poll_interval_sec)
+                                           or not 0 < self.poll_interval_sec <= 300):
+            raise ValueError("account_reconciliation_requires_interval_at_most_300s")
 
 
 def _cfg_from_runtime_payload(payload: dict[str, Any]) -> PaperSimMonitorCfg:
@@ -536,6 +543,14 @@ def _cfg_from_runtime_payload(payload: dict[str, Any]) -> PaperSimMonitorCfg:
 
 def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
     ts = _now_iso()
+    if cfg.account_reconciliation:
+        from services.execution.paper_account_reconciliation import reconcile_account_once
+        result = reconcile_account_once(now=ts)
+        return {"ok": result["ok"], "ts": ts, "monitor_name": MONITOR_NAME,
+                "account_reconciliation_enabled": True, "account_reconciliation": result,
+                "recommendation": "continue" if result["ok"] else "investigate",
+                "recommendation_reason": "account_consistent" if result["ok"] else "account_reconciliation_fault",
+                "summary_text": f"Paper account check: {len(result['issues'])} issue(s); not a profitability assessment."}
     configured = _configured_strategy_runner()
     campaign = dict(load_campaign_runtime_status() or {})
     runner = _strategy_runner_status()
@@ -582,6 +597,16 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
     position_realized_pnl_total = _safe_float(position.get("realized_pnl"))
     equity_realized_pnl_total = _safe_float(latest_equity.get("realized_pnl"))
     unrealized_pnl = _safe_float(latest_equity.get("unrealized_pnl"))
+    marks = paper_engine.get("mtm")
+    current_mark = marks.get(symbol) if isinstance(marks, dict) else None
+    valuation_known = None
+    if isinstance(current_mark, dict):
+        if current_mark.get("ok") is False:
+            valuation_known = False
+            unrealized_pnl = None
+        elif (current_mark.get("ok") is True
+              and current_mark.get("valuation_status") in {"complete", "cash_only"}):
+            valuation_known = True
     promotion_progress = _promotion_progress_snapshot(
         strategy_id=strategy_preset,
         target_strategy=strategy_name,
@@ -600,6 +625,8 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
         latest_fill=latest_journal_fill or latest_paper_fill,
     )
     latest_fill = latest_journal_fill or latest_paper_fill
+    if valuation_known is False:
+        recommendation, recommendation_reason = "investigate", "paper_valuation_incomplete"
     return {
         "ok": True,
         "ts": ts,
@@ -624,6 +651,8 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
         "position_realized_pnl_total": position_realized_pnl_total,
         "equity_realized_pnl_total": equity_realized_pnl_total,
         "unrealized_pnl": unrealized_pnl,
+        "equity_valuation_known": valuation_known,
+        "current_valuation": current_mark,
         "paper_position": position,
         "latest_order": latest_order,
         "latest_paper_fill": latest_paper_fill,
@@ -889,7 +918,9 @@ def _signature_payload(snapshot: dict[str, Any]) -> dict[str, Any]:
         "round_trips_observed": _safe_int(snapshot.get("round_trips_observed")),
         "fills_observed": _safe_int(snapshot.get("fills_observed")),
         "current_window_realized_pnl": round(_safe_float(snapshot.get("current_window_realized_pnl")), 8),
-        "unrealized_pnl": round(_safe_float(snapshot.get("unrealized_pnl")), 8),
+        "unrealized_pnl": (None if snapshot.get("equity_valuation_known") is False
+                           else round(_safe_float(snapshot.get("unrealized_pnl")), 8)),
+        "equity_valuation_known": snapshot.get("equity_valuation_known"),
         "promotion_thresholds_applicable": bool(
             promotion_progress.get("applicable", True)
         ),
@@ -916,6 +947,7 @@ def _change_reasons(previous: dict[str, Any] | None, current: dict[str, Any]) ->
         "fills_observed": "fill_count_changed",
         "current_window_realized_pnl": "realized_pnl_changed",
         "unrealized_pnl": "unrealized_pnl_changed",
+        "equity_valuation_known": "equity_valuation_changed",
         "promotion_thresholds_applicable": "promotion_threshold_policy_changed",
         "promotion_thresholds_ready": "promotion_threshold_state_changed",
         "promotion_days_recorded": "promotion_day_count_changed",
@@ -936,6 +968,9 @@ def _terminal_monitor_reason(snapshot: dict[str, Any]) -> str:
 
 
 def _reconcile_stopped_runtime_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    if payload.get("account_reconciliation_enabled"):
+        # A status read must not run another reconciliation or dispatch alerts.
+        return payload
     if str(payload.get("status") or "").strip().lower() != "stopped" or bool(payload.get("pid_alive")):
         return payload
 
@@ -1072,6 +1107,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             "poll_interval_sec": float(cfg.poll_interval_sec),
             "min_closed_trades_for_enough_evidence": int(cfg.min_closed_trades_for_enough_evidence),
             "desktop_notify": bool(cfg.desktop_notify),
+            "account_reconciliation_enabled": cfg.account_reconciliation,
         }
     )
 
@@ -1103,6 +1139,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
     )
 
     while True:
+        cycle_started = time.monotonic()
         if stop_file().exists():
             final_watch_reports: list[dict[str, Any]] = []
             final_trigger_reasons = ["stop_requested"]
@@ -1240,4 +1277,5 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             _clear_pid_state()
             return out
 
-        time.sleep(max(0.1, float(cfg.poll_interval_sec)))
+        elapsed = time.monotonic() - cycle_started if cfg.account_reconciliation else 0
+        time.sleep(max(0.1, float(cfg.poll_interval_sec) - elapsed))

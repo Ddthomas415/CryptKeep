@@ -20,7 +20,8 @@ def test_staleness_guard_accepts_valid_snapshot_json(monkeypatch, tmp_path):
 
 
 
-def test_tick_reader_supports_venues_snapshot_shape(monkeypatch, tmp_path):
+def test_tick_reader_does_not_price_a_symbol_from_the_venue_level_row(monkeypatch, tmp_path):
+    # This row has no symbol identity; it cannot price an arbitrary request.
     snap = tmp_path / "system_status.latest.json"
     snap.write_text(
         json.dumps(
@@ -43,8 +44,7 @@ def test_tick_reader_supports_venues_snapshot_shape(monkeypatch, tmp_path):
 
     out = tick_reader.get_best_bid_ask_last("coinbase", "BTC/USD")
 
-    assert out == {"ts_ms": 123456, "bid": 100.0, "ask": 102.0, "last": 101.0}
-    assert tick_reader.mid_price(out) == 101.0
+    assert out is None
 
 
 

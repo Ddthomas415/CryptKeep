@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import math
 import os
 import time
 from datetime import datetime, timezone
@@ -10,6 +11,8 @@ from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
 from services.execution.state_authority import LiveStateContext, paper_queue_status
 from services.execution.outcome_logger import log_strategy_outcome
+from services.execution.paper_exit_retry import has_exit_marker, _prepare
+from services.execution.paper_buy_lifecycle import recover_paper_buys, record_buy_alert
 from services.os.file_utils import atomic_write
 from services.control.managed_component import clean_stale_lock_file
 
@@ -146,22 +149,62 @@ def reconcile_once(
     qdb = qdb or IntentQueueSQLite()
     pdb = pdb or PaperTradingSQLite()
     jdb = jdb or TradeJournalSQLite()
+    recovery = recover_paper_buys(qdb, pdb, clock=_now)
+    unresolved_buys = {fault["intent_id"] for fault in recovery["faults"] if "intent_id" in fault}
+    buy_inventory_unknown = any("intent_id" not in fault for fault in recovery["faults"]
+                                if fault.get("reason", "").startswith("buy_inventory_unreadable:"))
     submitted = qdb.list_intents(limit=int(max_intents), status="submitted")
-    intents_updated = 0
+    intents_updated = recovery["updated"]
     ctx = LiveStateContext(authority="RECONCILER", origin="intent_reconciler")
     fills_journaled = 0
 
     for it in submitted:
+        if str(it.get("side")).lower().strip() == "buy" and (
+                buy_inventory_unknown or it["intent_id"] in unresolved_buys):
+            continue
         order_id = (it.get("linked_order_id") or "").strip()
         if not order_id:
             continue
         order = pdb.get_order_by_order_id(order_id)
         if not order:
             continue
+        if str(it.get("side")).lower().strip() == "buy":
+            client = it.get("client_order_id") or "paper_intent_" + it["intent_id"]
+            canonical = pdb.get_order_by_client_id(client)
+            if (not canonical or canonical["order_id"] != order_id
+                    or not PaperTradingSQLite._paper_buy_order_matches(canonical, it)):
+                reason = "paper_buy_order_identity_mismatch"
+                recovery["faults"].append({"intent_id": it["intent_id"], "reason": reason})
+                record_buy_alert(qdb, it, reason, now_ts=_now())
+                continue
         st = str(order.get("status") or "").lower().strip()
+        if has_exit_marker(it):
+            try:
+                receipt = _prepare(pdb, it)
+                canonical = receipt.get("order")
+                linked_matches = canonical is not None and canonical.get("order_id") == order_id
+                valid = linked_matches and (
+                    (st == "filled" and receipt["state"] == "filled")
+                    or (st == "superseded" and receipt["state"] == "superseded")
+                    or (st in ("new", "rejected", "canceled") and receipt["state"] == "ready")
+                )
+                if not valid:
+                    qdb.paper_exit_transition(it["intent_id"], "held", event="reconcile_unresolved",
+                                              reason="canonical_receipt_mismatch")
+                    continue
+            except Exception as exc:
+                qdb.paper_exit_transition(it["intent_id"], "held", event="reconcile_unresolved",
+                                          reason=type(exc).__name__)
+                continue
         if st in ("new",):
             continue
-        if st in ("rejected", "canceled"):
+        if st in ("rejected", "canceled", "expired"):
+            if has_exit_marker(it):
+                qdb.paper_exit_transition(it["intent_id"], "held", event="refused",
+                                          reason=order.get("reject_reason") or st,
+                                          linked_order_id=order_id)
+                intents_updated += 1
+                continue
             paper_queue_status(
                 qdb,
                 it,
@@ -172,9 +215,32 @@ def reconcile_once(
                 linked_order_id=order_id,
             )
             intents_updated += 1
+            if order.get("side") == "buy":
+                record_buy_alert(qdb, it, order.get("reject_reason") or st, now_ts=_now())
+            continue
+        if st == "superseded" and has_exit_marker(it):
+            qdb.paper_exit_transition(it["intent_id"], "superseded", event="ledger_recovery",
+                                      reason="superseded", linked_order_id=order_id)
+            intents_updated += 1
             continue
         if st == "filled":
             fills = pdb.list_fills_for_order(order_id, limit=5000)
+            if str(it.get("side")).lower().strip() == "buy":
+                valid = len(fills) == 1
+                if valid:
+                    fill = fills[0]
+                    try:
+                        valid = (fill["order_id"] == order_id and float(fill["qty"]) == float(order["qty"])
+                                 and math.isfinite(float(fill["qty"])) and float(fill["qty"]) > 0
+                                 and math.isfinite(float(fill["price"])) and float(fill["price"]) > 0
+                                 and math.isfinite(float(fill["fee"])))
+                    except (KeyError, TypeError, ValueError, OverflowError):
+                        valid = False
+                if not valid:
+                    reason = "paper_buy_fill_receipt_mismatch"
+                    recovery["faults"].append({"intent_id": it["intent_id"], "reason": reason})
+                    record_buy_alert(qdb, it, reason, now_ts=_now())
+                    continue
             pos = pdb.get_position(order["symbol"]) or {"qty": None, "avg_price": None}
             meta = dict(it.get("meta") or {})
             try:
@@ -239,6 +305,7 @@ def reconcile_once(
         "intents_updated": int(intents_updated),
         "fills_journaled": int(fills_journaled),
         "journal_count": int(jdb.count()),
+        "buy_recovery_faults": recovery["faults"],
     }
 
 def run_forever() -> None:

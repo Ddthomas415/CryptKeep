@@ -31,6 +31,8 @@ def main() -> int:
     ap.add_argument("--status", action="store_true", help="Show paper sim monitor runtime status")
     ap.add_argument("--stop", action="store_true", help="Request stop for the running paper sim monitor")
     ap.add_argument("--once", action="store_true", help="Collect one paper sim snapshot without starting the loop")
+    ap.add_argument("--account-reconcile", action="store_true",
+                    help="Audit one isolated paper account instead of campaign analytics; interval must be <=300s")
     ap.add_argument("--list-watches", action="store_true", help="List persisted paper sim watches")
     ap.add_argument("--register-watch", default="", help="Persist a named watch")
     ap.add_argument("--watch-trigger", default="", help="Watch trigger for --register-watch")
@@ -76,6 +78,7 @@ def main() -> int:
         poll_interval_sec=float(args.interval_sec or 300.0),
         min_closed_trades_for_enough_evidence=int(args.min_closed_trades or 1),
         desktop_notify=not bool(args.no_desktop_notify),
+        account_reconciliation=bool(args.account_reconcile),
     )
     if args.once:
         print(json.dumps(collect_once(cfg), indent=2, default=str))

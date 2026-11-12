@@ -10,8 +10,10 @@ from __future__ import annotations
 
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 import re
+import sys
 import threading
 import time
 from typing import Any
@@ -129,6 +131,88 @@ def log_path() -> str:
 # ---------------------------------------------------------------------------
 
 _json_mode = str(os.environ.get("CBP_LOG_JSON", "")).strip().lower() in {"1", "true", "yes", "on"}
+COMPONENT_LOG_MAX_BYTES = 2 * 1024 * 1024
+COMPONENT_LOG_BACKUPS = 3
+_component_handlers = {}
+_component_handler_lock = threading.Lock()
+
+
+def _formatter(json_mode: bool) -> logging.Formatter:
+    return StructuredJsonFormatter() if json_mode else logging.Formatter(
+        "%(asctime)s %(levelname)s %(name)s: %(message)s"
+    )
+
+
+class _BoundedLogFormatter(logging.Formatter):
+    def __init__(self, *, json_mode: bool):
+        super().__init__()
+        self.json_mode = json_mode
+        self.omitted = '{"msg":"log_record_omitted_size_limit"}' if json_mode else "log_record_omitted_size_limit"
+
+    def format(self, record):
+        # No exception text, stack trace, arbitrary extras or correlation data.
+        message = _redact_text(record.getMessage())
+        name = _redact_text(record.name)
+        level = _redact_text(record.levelname)
+        stamp = self.formatTime(record)
+        if self.json_mode:
+            return json.dumps({"ts": stamp, "level": level, "logger": name, "msg": message},
+                              ensure_ascii=False)
+        return f"{stamp} {level} {name}: {message}"
+
+
+class _ComponentLogHandler(RotatingFileHandler):
+    def _open(self):
+        return open(self.baseFilename, "ab")
+
+    def emit(self, record):
+        try:
+            formatter = self.formatter
+            payload = (formatter.format(record) + "\n").encode("utf-8", errors="backslashreplace")
+            if len(payload) > self.maxBytes:
+                payload = (formatter.omitted + "\n").encode("ascii")
+            if len(payload) > self.maxBytes:
+                raise ValueError("component_log_limit_too_small")
+            if self.stream is None:
+                self.stream = self._open()
+            self.stream.seek(0, os.SEEK_END)
+            if self.stream.tell() + len(payload) > self.maxBytes:
+                self.doRollover()
+                if self.stream is None:
+                    self.stream = self._open()
+                self.stream.seek(0, os.SEEK_END)
+                if self.stream.tell() + len(payload) > self.maxBytes:
+                    raise OSError("component_log_rollover_incomplete")
+            if self.stream.write(payload) != len(payload):
+                raise OSError("component_log_short_write")
+            self.flush()
+        except Exception:
+            self.handleError(record)
+
+    def handleError(self, _record):
+        # logging.Handler.handleError can print the original template and args.
+        try:
+            sys.stderr.write("component_log_write_failed\n")
+        except Exception:
+            pass
+
+
+def _component_handler(component: str):
+    if not re.fullmatch(r"[a-z][a-z0-9_-]{0,39}", component):
+        raise ValueError("invalid_log_component")
+    target = app_paths.runtime_dir() / "logs" / f"{component}.bounded.log"
+    with _component_handler_lock:
+        handler = _component_handlers.get(target)
+        if handler is None:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            # One process owns this component path; its loggers share one writer.
+            handler = _ComponentLogHandler(
+                target, maxBytes=COMPONENT_LOG_MAX_BYTES, backupCount=COMPONENT_LOG_BACKUPS,
+                delay=True,
+            )
+            handler.setFormatter(_BoundedLogFormatter(json_mode=_json_mode))
+            _component_handlers[target] = handler
+        return handler
 
 
 def get_logger(name: str = "cbp") -> logging.Logger:
@@ -137,17 +221,15 @@ def get_logger(name: str = "cbp") -> logging.Logger:
         return logger
 
     logger.setLevel(logging.INFO)
+    component = os.environ.get("CBP_LOG_COMPONENT")
+    if component is not None:
+        logger.addHandler(_component_handler(component))
+        logger.propagate = False
+        return logger
 
     fh = logging.FileHandler(log_path())
     fh.addFilter(RedactingFilter())
-
-    if _json_mode:
-        fh.setFormatter(StructuredJsonFormatter())
-    else:
-        fh.setFormatter(logging.Formatter(
-            "%(asctime)s %(levelname)s %(name)s: %(message)s"
-        ))
-
+    fh.setFormatter(_formatter(_json_mode))
     logger.addHandler(fh)
     return logger
 
@@ -156,10 +238,11 @@ def configure_json_logging(*, enable: bool = True) -> None:
     """Switch all cbp loggers to JSON mode at runtime (e.g. from CLI flag)."""
     global _json_mode
     _json_mode = enable
-    fmt = StructuredJsonFormatter() if enable else logging.Formatter(
-        "%(asctime)s %(levelname)s %(name)s: %(message)s"
-    )
+    fmt = _formatter(enable)
     for name, lgr in logging.Logger.manager.loggerDict.items():
         if isinstance(lgr, logging.Logger):
             for handler in lgr.handlers:
-                handler.setFormatter(fmt)
+                if isinstance(handler, _ComponentLogHandler):
+                    handler.setFormatter(_BoundedLogFormatter(json_mode=enable))
+                else:
+                    handler.setFormatter(fmt)

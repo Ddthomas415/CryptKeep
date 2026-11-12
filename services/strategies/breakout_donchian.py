@@ -14,6 +14,7 @@ def signal_from_ohlcv(
     min_channel_width_pct: float | None = None,
     breakout_buffer_pct: float | None = None,
     require_directional_confirmation: bool = False,
+    observer=None,
 ) -> dict:
     if not ohlcv or len(ohlcv) < 5:
         return {"ok": False, "action": "hold", "reason": "insufficient_ohlcv"}
@@ -41,6 +42,11 @@ def signal_from_ohlcv(
         action = "sell"
         reason = "donchian_break_down"
 
+    if observer is not None:
+        try:
+            observer({"raw_action": action, "raw_reason": reason})
+        except Exception:
+            pass
     ctx = market_context(ohlcv=ohlcv, window=int(filter_window or max(donchian_len, 8)))
     channel_width_pct = pct_gap(upper_prev, lower_prev, base=c)
     ind = {

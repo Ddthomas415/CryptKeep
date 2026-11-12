@@ -23,6 +23,14 @@ def _reload_strategy_runner(monkeypatch, tmp_path):
     importlib.reload(paper_trading_sqlite)
     importlib.reload(strategy_state_sqlite)
     importlib.reload(runner)
+    # These unit doubles exercise decision policy, not the real pending-exit DB.
+    # R12 recovery is covered by the real-store integration harness instead.
+    monkeypatch.setattr(runner, "service_pending_paper_exits", lambda *_a, **_kw: False)
+    # These FakeDB tests do not represent durable accounting. Real SQLite
+    # recovery/counter proofs live in test_paper_exit_accounting.py.
+    from types import SimpleNamespace
+    monkeypatch.setattr(runner, "PaperExitAccounting", lambda *_a: SimpleNamespace(
+        refresh=lambda **_kw: {"unsettled": False, "applied": []}))
     return runner
 
 
@@ -606,6 +614,138 @@ def test_fetch_public_ohlcv_persists_sample_snapshot(monkeypatch, tmp_path):
     loaded = _load_local_ohlcv("coinbase", "BTC/USDT", timeframe="1d", limit=5000)
     assert loaded
     assert loaded[-1][4] == rows[-1][4]
+
+
+@pytest.mark.parametrize("capture", [False, True])
+@pytest.mark.parametrize("has_candles", [True, False])
+def test_hourly_runner_opt_in_observes_response_hook(monkeypatch, tmp_path, capture, has_candles):
+    from services.alerts.group_a_fetch_health import FILENAME, watcher_fetch_counts
+
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setenv("CBP_CAPTURE_GROUP_A_FETCH_HEALTH", "1" if capture else "0")
+    monkeypatch.delenv("CBP_USE_SAMPLE_OHLCV", raising=False)
+    monkeypatch.setattr(runner, "_cfg", lambda: {
+        **_breakout_runner_cfg(max_bars_hold=60), "signal_source": "public_ohlcv_1h", "symbols": ["BTC/USD"],
+    })
+    calls = []
+
+    class FakeExchange:
+        def on_rest_response(self, code, body):
+            return body
+
+        def fetch_ohlcv(self, symbol, *, timeframe, limit):
+            calls.append((symbol, timeframe, limit))
+            for _ in range(5):
+                assert self.on_rest_response(429, "body") == "body"
+            return [[i, 100, 100, 100, 100, 1] for i in range(1, 6)] if has_candles else []
+
+    monkeypatch.setattr(runner, "make_exchange", lambda *_a, **_kw: FakeExchange())
+    monkeypatch.setattr(runner, "map_symbol", lambda venue, symbol: symbol)
+    statuses = []
+
+    def stop(_):
+        statuses.append(json.loads(runner.STATUS_FILE.read_text()))
+        runner.STOP_FILE.write_text("stop")
+
+    monkeypatch.setattr(runner.time, "sleep", stop)
+    runner.run_forever()
+    assert calls == [("BTC/USD", "1h", 20)]
+    assert runner.IntentQueueSQLite().list_intents(limit=5) == []
+    path = runner.FLAGS / FILENAME
+    status, = statuses
+    assert "group_a_fetch_attempt" not in json.loads(runner.STATUS_FILE.read_text())
+    if capture:
+        assert status["group_a_fetch_attempt"] == 1
+        assert watcher_fetch_counts(
+            path, "BTC/USD", now_ms=runner.time.time_ns() // 1_000_000,
+            expected_writer=status["group_a_fetch_writer"], expected_sequence=status["group_a_fetch_attempt"],
+        ) == (
+            0 if has_candles else None, 5,
+        )
+    else:
+        assert not path.exists()
+        assert "group_a_fetch_writer" not in status
+
+
+def test_status_cannot_reuse_previous_fetch_attempt_after_symbol_mapping_failure(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setenv("CBP_CAPTURE_GROUP_A_FETCH_HEALTH", "1")
+    monkeypatch.setattr(runner, "_cfg", lambda: {
+        **_breakout_runner_cfg(max_bars_hold=60), "signal_source": "public_ohlcv_1h", "symbols": ["BTC/USD"],
+    })
+    turns = []
+
+    class Exchange:
+        def on_rest_response(self, code, body):
+            return body
+
+        def fetch_ohlcv(self, *_args, **_kwargs):
+            return [[i, 100, 100, 100, 100, 1] for i in range(1, 6)]
+
+    def map_symbol(venue, symbol):
+        if turns:
+            raise ValueError("synthetic symbol mapping failure")
+        return symbol
+
+    def stop_after_two(_):
+        turns.append(json.loads(runner.STATUS_FILE.read_text()))
+        if len(turns) == 2:
+            runner.STOP_FILE.write_text("stop")
+
+    monkeypatch.setattr(runner, "make_exchange", lambda *_a, **_kw: Exchange())
+    monkeypatch.setattr(runner, "map_symbol", map_symbol)
+    monkeypatch.setattr(runner.time, "sleep", stop_after_two)
+    runner.run_forever()
+    assert turns[0]["group_a_fetch_attempt"] == 1
+    assert turns[1]["note"] == "no_public_ohlcv"
+    assert turns[1].get("group_a_fetch_attempt") is None
+
+
+@pytest.mark.parametrize(("source", "min_bars"), [
+    ("public_ohlcv_1h", 1),
+    ("synthetic_mid_ohlcv", 1),
+    ("public_ohlcv_1h", 2),
+])
+def test_held_position_skips_unpriced_turn_and_resumes_with_fresh_price(monkeypatch, tmp_path, source, min_bars):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "_cfg", lambda: {
+        **_breakout_runner_cfg(max_bars_hold=60), "signal_source": source, "min_bars": min_bars,
+    })
+    runner.PaperTradingSQLite().upsert_position("BTC/USD", 1, 100, 0)
+    samples = iter([(100, 1000), None, (101, 2000)])
+    retry_checks = []
+    evaluated = []
+    real_select = runner.select_exit_decision
+
+    def retry(*_args, symbol):
+        retry_checks.append(symbol)
+        return False
+
+    def select(**kwargs):
+        evaluated.append((kwargs["current_price"], kwargs["pos_qty"]))
+        return real_select(**kwargs)
+
+    def fetch(*_args, **_kwargs):
+        sample = next(samples)
+        rows = [] if sample is None else [[sample[1], sample[0], sample[0], sample[0], sample[0], 1]]
+        return rows, {"source": "public_ohlcv", "env_sample_mode": False}
+
+    monkeypatch.setattr(runner, "service_pending_paper_exits", retry)
+    monkeypatch.setattr(runner, "select_exit_decision", select)
+    monkeypatch.setattr(runner, "_fetch_public_ohlcv", fetch)
+    monkeypatch.setattr(runner, "_fetch_mid", lambda *_: next(samples))
+    monkeypatch.setattr(runner, "_strategy_signal", lambda *_a, **_kw: {"ok": True, "action": "hold"})
+    monkeypatch.setattr(runner, "_registry_signal_with_context", lambda **_kw: {"ok": True, "action": "hold"})
+
+    def stop_after_third_turn(_):
+        if len(retry_checks) == 3:
+            runner.STOP_FILE.write_text("stop")
+
+    monkeypatch.setattr(runner.time, "sleep", stop_after_third_turn)
+    runner.run_forever()
+    assert retry_checks == ["BTC/USD"] * 3
+    assert evaluated == [(100, 1), (101, 1)]
+    assert runner.IntentQueueSQLite().list_intents(limit=5) == []
 
 
 def test_fetch_public_ohlcv_persists_live_snapshot(monkeypatch, tmp_path):

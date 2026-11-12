@@ -2,6 +2,7 @@ from __future__ import annotations
 import json
 from typing import Optional, Tuple
 from services.os.app_paths import runtime_dir
+from services.market_data.symbol_router import normalize_symbol
 
 LATEST = runtime_dir() / "snapshots" / "system_status.latest.json"
 
@@ -11,12 +12,13 @@ def _from_ticks_snapshot(snap: dict, venue: str, symbol: str) -> Optional[dict]:
     if not isinstance(ticks, list):
         return None
     v = str(venue).lower().strip()
-    s = str(symbol).strip()
+    # Same spelling rule the publisher writes ticks with (case, dash or slash).
+    s = normalize_symbol(str(symbol))
     best = None
     for t in ticks:
         if not isinstance(t, dict):
             continue
-        if str(t.get("venue", "")).lower().strip() == v and str(t.get("symbol", "")).strip() == s:
+        if str(t.get("venue", "")).lower().strip() == v and normalize_symbol(str(t.get("symbol", ""))) == s:
             best = t
     if not best:
         return None
@@ -28,29 +30,18 @@ def _from_ticks_snapshot(snap: dict, venue: str, symbol: str) -> Optional[dict]:
     }
 
 
-def _from_venues_snapshot(snap: dict, venue: str) -> Optional[dict]:
-    venues = snap.get("venues") if isinstance(snap, dict) else None
-    if not isinstance(venues, dict):
-        return None
-    row = venues.get(str(venue).lower().strip())
-    if not isinstance(row, dict):
-        return None
-    return {
-        "ts_ms": int(snap.get("ts_ms") or row.get("timestamp") or 0),
-        "bid": row.get("bid"),
-        "ask": row.get("ask"),
-        "last": row.get("last"),
-    }
-
 def get_best_bid_ask_last(venue: str, symbol: str) -> Optional[dict]:
+    """Latest snapshot quote for exactly this venue and symbol, or None.
+
+    The snapshot's venue-level row is the quote of whichever symbol was
+    fetched first for that venue. It is never returned here: a symbol with no
+    tick of its own has no quote.
+    """
     try:
         if not LATEST.exists():
             return None
         snap = json.loads(LATEST.read_text(encoding="utf-8"))
-        best = _from_ticks_snapshot(snap, venue, symbol)
-        if best is not None:
-            return best
-        return _from_venues_snapshot(snap, venue)
+        return _from_ticks_snapshot(snap, venue, symbol)
     except Exception:
         return None
 

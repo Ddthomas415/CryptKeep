@@ -91,6 +91,11 @@ def signal_from_ohlcv(ohlcv, ema_fast=12, ema_slow=26, **kwargs):
         action = "sell"
         reason = "ema_cross_down"
 
+    if kwargs.get("observer") is not None:
+        try:
+            kwargs["observer"]({"raw_action": action, "raw_reason": reason})
+        except Exception:
+            pass
     filter_window = kwargs.get("filter_window")
     ctx = market_context(ohlcv=ohlcv, window=int(filter_window or max(ema_slow, ema_fast, 8)))
     cross_gap_pct = pct_gap(ef_cur, es_cur, base=ctx["close"] or closes[-1])

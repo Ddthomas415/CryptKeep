@@ -149,6 +149,7 @@ def fetch_status() -> dict:
                     "venue": v,
                     "symbol": normalize_symbol(symbol),
                     "symbol_mapped": mapped,
+                    "source": "sample_ohlcv",
                     "bid": sample_tick.get("bid"),
                     "ask": sample_tick.get("ask"),
                     "last": sample_tick.get("last"),
@@ -182,11 +183,18 @@ def fetch_status() -> dict:
                 try:
                     t = ex.fetch_ticker(s)
                     fetch_ts_ms = int(time.time() * 1000)
+                    returned = t.get("symbol")
+                    returned = normalize_symbol(returned) if isinstance(returned, str) else ""
+                    if returned and returned != normalize_symbol(s):
+                        venue_error = "ticker_symbol_mismatch"
+                        continue
                     print(f"  Raw ticker response ({symbol}): {json.dumps(t, indent=2)}")
                     tick = {
                         "venue": v,
                         "symbol": normalize_symbol(symbol),
                         "symbol_mapped": s,
+                        "source": "public_ticker" if returned else "unverified_ticker",
+                        "ticker_symbol": returned or None,
                         "bid": t.get("bid"),
                         "ask": t.get("ask"),
                         "last": t.get("last"),

@@ -16,6 +16,7 @@ def signal_from_ohlcv(
     max_trend_efficiency: float | None = None,
     max_sma_distance_pct: float | None = None,
     require_reversal_confirmation: bool = False,
+    observer=None,
 ) -> dict:
     if not ohlcv or len(ohlcv) < 5:
         return {"ok": False, "action": "hold", "reason": "insufficient_ohlcv"}
@@ -39,6 +40,11 @@ def signal_from_ohlcv(
         action = "sell"
         reason = "rsi_overbought_above_sma"
 
+    if observer is not None:
+        try:
+            observer({"raw_action": action, "raw_reason": reason})
+        except Exception:
+            pass
     ctx = market_context(ohlcv=ohlcv, window=int(filter_window or max(sma_len, rsi_len, 8)))
     sma_distance_pct = pct_gap(c, m, base=c)
     ind = {

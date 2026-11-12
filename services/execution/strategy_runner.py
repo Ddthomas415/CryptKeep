@@ -8,6 +8,7 @@ import math
 import os
 import time
 import uuid
+from contextlib import nullcontext
 from datetime import datetime, timezone
 from typing import List, Optional
 
@@ -15,6 +16,8 @@ from services.admin.config_editor import ConfigLoadError, load_user_yaml
 from services.logging.app_logger import get_logger
 from services.market_data.multi_venue_view import best_venue
 from services.market_data.local_data_reader import write_local_ohlcv_snapshot
+from services.market_data.hourly_candle_quality import assess_hourly_candles
+from services.market_data.paper_snapshot_quote import observe_paper_quote
 from services.market_data.symbol_router import map_symbol, normalize_symbol, normalize_venue
 from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
 from services.os.app_paths import ensure_dirs, runtime_dir
@@ -25,6 +28,10 @@ from services.strategies.config_tools import build_strategy_block
 from services.strategies.presets import get_preset
 from services.strategies.strategy_registry import compute_signal
 from services.strategies.signal_input_capture import capture_es_inputs
+from services.execution.runner_decision import (
+    position_aware_signal_action, signal_transition, select_exit_decision,
+)
+from services.execution.paper_exit_accounting import PaperExitAccounting, make_event, scope_for
 from services.strategies.market_context_capture import capture_call, start_capture
 from services.strategies.strategy_selector import select_strategy
 from services.risk.exposure_controls import build_risk_limits, summarize_exposure, evaluate_entry
@@ -35,7 +42,8 @@ from services.validation.paper_multi_symbol_validation import collect_runtime_ro
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.strategy_state_sqlite import StrategyStateSQLite
-from services.execution.startup_guard import require_known_flat_or_override
+from services.execution.startup_guard import StartupGuardError, require_known_flat_or_override
+from services.execution.paper_exit_retry import POLICY as PAPER_EXIT_POLICY, service_pending_paper_exits
 from services.strategies.crypto_edge_context import (
     DEFAULT_CONTEXT_SOURCE,
     DEFAULT_FUNDING_MAX_AGE_SEC,
@@ -291,16 +299,49 @@ def request_stop() -> dict:
 
 
 def _position_aware_signal_action(signal: dict, *, strategy_id: str, position_qty: float) -> str:
-    action = str(signal.get("action") or "hold").lower().strip()
-    if action not in ("buy", "sell", "hold"):
-        return "hold"
-    # The daily adapter expresses FLAT as HOLD; only an existing long may exit.
-    if (strategy_id == "sma_200_trend" and position_qty > 0
-            and signal.get("ok") is True and action == "hold"
-            and signal.get("signal") == "flat"
-            and signal.get("reason") != "insufficient_history"):
-        return "sell"
-    return action
+    return position_aware_signal_action(signal, strategy_id=strategy_id, position_qty=position_qty)
+
+
+def _kill_remaining_loops(sdb, k_kill_remaining: str, k_kill_until: str, *, max_cooldown_loops: int) -> int:
+    """Persist blocked evaluations, not a process-local absolute loop number.
+
+    Reuse patch 0001's capped legacy conversion. Save the count before clearing
+    the old key so an interrupted conversion repeats rather than loses a block.
+    """
+    longest = max(1, int(max_cooldown_loops)) - 1
+    stored = max(0, int(str(sdb.get(k_kill_remaining) or "0").strip() or 0))
+    remaining = min(stored, longest)
+    legacy = int(str(sdb.get(k_kill_until) or "0").strip() or 0)
+    if legacy > 0:
+        remaining = max(remaining, min(legacy - 1, longest))
+    if remaining != stored:
+        sdb.set(k_kill_remaining, str(remaining))
+    if legacy > 0:
+        sdb.set(k_kill_until, "0")
+    return remaining
+
+
+def _open_strategy_intent_state(qdb, symbol: str) -> str:
+    """Return open/none/unknown without a newest-row window."""
+    try:
+        return "open" if qdb.has_open_strategy_intent(symbol) else "none"
+    except Exception:
+        return "unknown"
+
+
+def _cooldown_exit_quantity(cfg: dict, held: object) -> float | None:
+    """Authorize only a finite, positive position-reducing cooldown exception."""
+    proposed = held if bool(cfg.get("sell_full_position")) else cfg.get("qty")
+    if isinstance(held, bool) or isinstance(proposed, bool):
+        return None
+    try:
+        held_qty, qty = float(held), float(proposed)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if not (math.isfinite(held_qty) and math.isfinite(qty)
+            and 0.0 < qty <= held_qty):
+        return None
+    return qty
 
 
 def _safe_positive_float(value: object, *, default: float) -> float:
@@ -633,11 +674,19 @@ def _synth_ohlcv(prices: List[float], *, ts_ms: int | None = None) -> list[list[
     return rows
 
 
-def _strategy_signal(cfg: dict, prices: List[float], *, ts_ms: int | None = None) -> dict:
+def _strategy_signal(cfg: dict, prices: List[float], *, ts_ms: int | None = None, observer=None,
+                     input_observer=None) -> dict:
+    rows = _synth_ohlcv(prices, ts_ms=ts_ms)
+    if input_observer is not None:
+        try:
+            input_observer(rows)
+        except Exception:
+            pass
     return compute_signal(
+        **({"observer": observer} if observer is not None else {}),
         cfg={"strategy": dict(cfg.get("strategy") or {})},
         symbol=str(cfg.get("symbol") or ""),
-        ohlcv=_synth_ohlcv(prices, ts_ms=ts_ms),
+        ohlcv=rows,
     )
 
 
@@ -660,6 +709,7 @@ def _registry_signal_with_context(
     symbol: str,
     venue: str,
     ohlcv: list[list[float]],
+    observer=None,
 ) -> dict:
     strategy_name = str(strategy_block.get("name") or "").strip()
     context = None
@@ -691,6 +741,8 @@ def _registry_signal_with_context(
     }
     if context is not None:
         kwargs["context"] = context
+    if observer is not None:
+        kwargs["observer"] = observer
     signal = compute_signal(**kwargs)
     if isinstance(signal, dict) and capture_extra:
         signal.update(capture_extra)
@@ -810,7 +862,7 @@ class _PublicOHLCVClients:
                 _LOG.warning("ohlcv_client_close_failed", exc_info=True)
 
 
-def _fetch_public_ohlcv(cfg: dict, *, clients=None) -> tuple[list[list[float]], dict]:
+def _fetch_public_ohlcv(cfg: dict, *, clients=None, health=None) -> tuple[list[list[float]], dict]:
     """
     Fetch OHLCV rows and report the actual source that produced them.
 
@@ -858,8 +910,11 @@ def _fetch_public_ohlcv(cfg: dict, *, clients=None) -> tuple[list[list[float]], 
               make_exchange(cfg["venue"], {"apiKey": None, "secret": None}, enable_rate_limit=True))
         symbol = map_symbol(cfg["venue"], normalize_symbol(cfg["symbol"]))
         limit = max(int(cfg["min_bars"]), int(cfg["max_bars"]))
-        rows = ex.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
-        result = [list(row) for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
+        with (health.attempt(ex) if health is not None else nullcontext()) as observation:
+            rows = ex.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
+            result = [list(row) for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
+            if observation is not None:
+                observation.success = bool(result)
         if result:
             _persist_public_ohlcv_snapshot(cfg, timeframe, result, source="public_ohlcv")
             source_info.update({"source": "public_ohlcv", "row_count": len(result)})
@@ -1075,6 +1130,7 @@ def run_forever() -> None:
     qdb = IntentQueueSQLite()
     pdb = PaperTradingSQLite()
     sdb = StrategyStateSQLite()
+    exit_accounting = PaperExitAccounting(sdb, qdb)
     risk_limits = build_risk_limits(cfg)
     kill_limits = build_kill_limits(cfg)
     scaling_limits = build_scaling_limits(cfg)
@@ -1094,17 +1150,38 @@ def run_forever() -> None:
     cfg.setdefault("ema_invalidate_on_chop", True)
     cfg.setdefault("ema_invalidate_on_cross_gap_loss", True)
 
-    _write_status({"ok": True, "status": "running", "pid": os.getpid(), "cfg": cfg, "ts": _now()})
     loops = 0
     enqueued = 0
     checked_startup_pairs: set[tuple[str, str]] = set()
+    startup_precheck_complete = False
     public_clients = _PublicOHLCVClients()
+    fetch_health = None
+    fetch_writer = None
+    observed_attempt = None
+    if os.environ.get("CBP_CAPTURE_GROUP_A_FETCH_HEALTH") == "1" and len(symbols) == 1:
+        from services.alerts.group_a_fetch_health import CandleFetchHealth, FILENAME
+
+        fetch_writer = uuid.uuid4().hex
+        fetch_health = CandleFetchHealth(FLAGS / FILENAME, symbols[0], writer_id=fetch_writer)
+
+    def write_run_status(payload):
+        if fetch_writer is not None:
+            payload = {**payload, "group_a_fetch_writer": fetch_writer}
+            if payload.get("status") == "running" and observed_attempt is not None:
+                payload["group_a_fetch_attempt"] = observed_attempt
+        _write_status(payload)
+
+    write_run_status({"ok": True, "status": "running", "pid": os.getpid(), "cfg": cfg, "ts": _now()})
     context_capture = start_capture(cfg)
+    recording_enabled = os.environ.get("CBP_CAPTURE_RUNNER_DECISIONS") == "1"
+    recording_session = uuid.uuid4().hex if recording_enabled else None
+    recording_counts = {"written": 0, "failed": 0}
     try:
         while True:
             loops += 1
+            observed_attempt = None
             if STOP_FILE.exists():
-                _write_status(
+                write_run_status(
                     {
                         "ok": True,
                         "status": "stopping",
@@ -1132,401 +1209,450 @@ def run_forever() -> None:
                 time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
                 continue
 
-            for symbol in symbols:
-                selected_venue = _choose_venue_for_symbol(cfg, symbol, candidates=venue_candidates)
-                startup_pair = (selected_venue, symbol)
-                if startup_pair not in checked_startup_pairs:
-                    require_known_flat_or_override(venue=selected_venue, symbol=symbol)
-                    checked_startup_pairs.add(startup_pair)
+            if len(symbols) > 1 and not startup_precheck_complete:
+                # Preserve patch 0004's all-symbol startup check and round-robin
+                # service; no symbol trades before these checks have passed.
+                for startup_symbol in symbols:
+                    startup_pair = (_choose_venue_for_symbol(cfg, startup_symbol, candidates=venue_candidates), startup_symbol)
+                    if startup_pair not in checked_startup_pairs:
+                        require_known_flat_or_override(venue=startup_pair[0], symbol=startup_symbol)
+                        checked_startup_pairs.add(startup_pair)
+                startup_precheck_complete = True
+            symbol_turn = (loops - 1) % max(1, len(symbols))
+            persist_prices = ((loops - 1) // max(1, len(symbols)) + 1) % 5 == 0
 
-                signal = {"ok": True, "action": "hold", "reason": "no_signal"}
-                selection = {}
-                # Evidence label only. Empty means explicitly invalid identity;
-                # do not invent an executable/reporting fallback.
-                selected_strategy = str(cfg.get("strategy_id") or "")
-                identity_strategy = None
+            turn_state_ready = False
+            prices_loaded = False
+            pending_exit_serviced = False
+            record = None
+            try:
+                for symbol in symbols[symbol_turn:symbol_turn + 1]:
+                    if recording_enabled:
+                        record = {
+                            "version": 2, "session_id": recording_session, "loop": loops,
+                            "symbol": symbol, "venue": str(cfg["venue"]), "observed_at": _now(),
+                            "kind": "skipped", "pipeline_stage": "venue_selection",
+                            "settings": {"runner": dict(cfg), "strategy": dict(cfg.get("strategy") or {})},
+                            "ohlcv": [], "signal_computed": False, "raw_signal": {},
+                            "actual": {"outcome": "not_evaluated"},
+                        }
+                    fresh_market = None
+                    selected_venue = _choose_venue_for_symbol(cfg, symbol, candidates=venue_candidates)
+                    if record is not None:
+                        record["venue"] = selected_venue
+                        record["pipeline_stage"] = "load_state"
+                        record["quote_quality"] = observe_paper_quote(selected_venue, symbol, clock=_now)
+                    startup_pair = (selected_venue, symbol)
+                    if startup_pair not in checked_startup_pairs:
+                        require_known_flat_or_override(venue=selected_venue, symbol=symbol)
+                        checked_startup_pairs.add(startup_pair)
 
-                k_prices = f"prices:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_last_action = f"last_action:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_last_emitted_action = f"last_emitted_action:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_warm = f"warmed:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_entry_price = f"entry_price:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_trailing_peak = f"trailing_peak:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_bars_held = f"bars_held:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_last_held_bar_ts = f"last_held_bar_ts:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_kill_until = f"kill_until:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_risk_block_count = f"risk_block_count:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_scale_count = f"scale_count:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_loss_streak = f"loss_streak:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_cum_pnl = f"cum_pnl:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-                k_peak_pnl = f"peak_pnl:{selected_venue}:{symbol}:{cfg['strategy_id']}"
-
-                try:
-                    prices = json.loads(sdb.get(k_prices) or "[]")
-                    if not isinstance(prices, list):
-                        prices = []
-                    prices = [float(x) for x in prices if isinstance(x, (int, float)) and math.isfinite(float(x))]
-                except Exception:
-                    prices = []
-
-                warmed = (sdb.get(k_warm) or "") == "1"
-                last_action = str(sdb.get(k_last_action) or "hold").strip().lower()
-                if last_action not in ("buy", "sell", "hold"):
-                    last_action = "hold"
-                last_emitted_action = str(sdb.get(k_last_emitted_action) or "hold").strip().lower()
-                if last_emitted_action not in ("buy", "sell", "hold"):
-                    last_emitted_action = "hold"
-
-                sym_cfg = dict(cfg)
-                sym_cfg["symbol"] = symbol
-                sym_cfg["venue"] = selected_venue
-                evidence_extra: dict[str, object] = {}
-
-                timeframe = _public_ohlcv_timeframe(sym_cfg)
-                _LOG.debug(
-                    "signal_branch strategy=%s signal_source=%s using=%s",
-                    sym_cfg.get("name"), sym_cfg.get("signal_source"),
-                    f"public_ohlcv:{timeframe}" if timeframe else "tick_based",
-                )
-                if timeframe:
-                    ohlcv, ohlcv_source = _fetch_public_ohlcv(sym_cfg, clients=public_clients)
-                    ohlcv = ohlcv or []
-                    if not ohlcv:
-                        _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
-                        _LOG.warning(
-                            "ohlcv_fetch_empty strategy=%s symbol=%s timeframe=%s "
-                            "— signal evidence will not be written this loop. "
-                            "Check exchange connectivity.",
-                            sym_cfg.get("name"), sym_cfg.get("symbol"), timeframe,
-                        )
-                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                        continue
-                    prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]
-                    if loops % 5 == 0:
-                        sdb.set(k_prices, json.dumps(prices))
-
-                    __import__("pathlib").Path("/tmp/cbp_debug.txt").open("a").write(
-                        f"len(ohlcv)={len(ohlcv)} signal_source={sym_cfg.get('signal_source')} symbol={sym_cfg.get('symbol')}\n"
-                    )
-                    if len(ohlcv) < int(cfg["min_bars"]):
-                        _write_status(
-                            {
-                                "ok": True,
-                                "status": "running",
-                                "pid": os.getpid(),
-                                "ts": _now(),
-                                "mid": float(ohlcv[-1][4]),
-                                "bars": len(ohlcv),
-                                "note": "warming",
-                                "enqueued": enqueued,
-                                "strategy_id": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
-                                "strategy_source": cfg["signal_source"],
-                            }
-                        )
-                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                        continue
-                    ts_ms = int(ohlcv[-1][0] or (time.time() * 1000))
-                    m = float(ohlcv[-1][4])
-                    selection = select_strategy(
-                        default_strategy=str(cfg.get("strategy_id") or "ema_cross"),
-                        ohlcv=ohlcv[-int(cfg["min_bars"]):],
-                    )
-                    # Authority boundary: selector output is advisory, not an
-                    # executable fallback. Missing names already default in
-                    # _cfg(); empty here means explicitly invalid identity.
+                    signal = {"ok": True, "action": "hold", "reason": "no_signal"}
+                    selection = {}
+                    # Evidence label only. Empty means explicitly invalid identity;
+                    # do not invent an executable/reporting fallback.
                     selected_strategy = str(cfg.get("strategy_id") or "")
-                    try:
-                        raw_cfg = load_user_yaml(strict=True)
-                    except ConfigLoadError as exc:
-                        _write_config_load_failed_status(
-                            exc,
-                            status="running",
-                            loops=loops,
-                            enqueued=enqueued,
-                            cfg=cfg,
-                            venue=selected_venue,
-                            symbol=symbol,
-                        )
-                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                        continue
-                    raw_runner = raw_cfg.get("strategy_runner") if isinstance(raw_cfg.get("strategy_runner"), dict) else {}
-                    # Apply the same ownership rules as startup configuration.
-                    raw_strategy, _ = _strategy_block_from_runner_cfg(raw_runner)
+                    identity_strategy = None
 
-                    selected_block = _signal_strategy_block_from_selected_name(selected_strategy, raw_strategy)
-                    identity_strategy = selected_block
-                    evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe, ohlcv_source)
-                    if bool(evidence_extra.get("ohlcv_source_mismatch")):
-                        mismatch_note = (
-                            f"env_sample_mode={evidence_extra.get('ohlcv_sample_mode_env')} "
-                            f"actual_source={evidence_extra.get('market_data_source')}"
-                        )
-                        _LOG.error(
-                            "sample_mode_provenance_mismatch strategy=%s symbol=%s %s — holding signal fail-closed",
-                            sym_cfg.get("name"), sym_cfg.get("symbol"), mismatch_note,
-                        )
-                        _write_status({
-                            "ok": True,
-                            "status": "running",
-                            "pid": os.getpid(),
-                            "ts": _now(),
-                            "note": "sample_mode_provenance_mismatch",
-                            "detail": mismatch_note,
-                            "loops": loops,
-                            "enqueued": enqueued,
-                        })
+                    k_prices = f"prices:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_last_action = f"last_action:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_last_emitted_action = f"last_emitted_action:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_warm = f"warmed:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_entry_price = f"entry_price:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_trailing_peak = f"trailing_peak:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_bars_held = f"bars_held:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_last_held_bar_ts = f"last_held_bar_ts:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_kill_until = f"kill_until:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_kill_remaining = f"kill_remaining:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_risk_block_count = f"risk_block_count:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_scale_count = f"scale_count:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_loss_streak = f"loss_streak:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_cum_pnl = f"cum_pnl:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                    k_peak_pnl = f"peak_pnl:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+
+                    try:
+                        prices = json.loads(sdb.get(k_prices) or "[]")
+                        if not isinstance(prices, list):
+                            prices = []
+                        prices = [float(x) for x in prices if isinstance(x, (int, float)) and math.isfinite(float(x))]
+                        prices_loaded = True
+                    except Exception:
+                        prices = []
+
+                    warmed = (sdb.get(k_warm) or "") == "1"
+                    last_action = str(sdb.get(k_last_action) or "hold").strip().lower()
+                    if last_action not in ("buy", "sell", "hold"):
+                        last_action = "hold"
+                    last_emitted_action = str(sdb.get(k_last_emitted_action) or "hold").strip().lower()
+                    if last_emitted_action not in ("buy", "sell", "hold"):
+                        last_emitted_action = "hold"
+
+                    turn_state_ready = True
+
+                    sym_cfg = dict(cfg)
+                    sym_cfg["symbol"] = symbol
+                    sym_cfg["venue"] = selected_venue
+                    evidence_extra: dict[str, object] = {}
+
+                    accounting_report = exit_accounting.refresh(
+                        venue=selected_venue, symbol=symbol, strategy=str(cfg["strategy_id"]),
+                        limits=performance_limits,
+                    )
+                    if accounting_report["unsettled"]:
+                        _LOG.warning("paper_exit_accounting_unsettled symbol=%s error_type=%s", symbol,
+                                     accounting_report.get("error_type", "pending_evidence"))
+
+                    if service_pending_paper_exits(qdb, pdb, symbol=symbol):
+                        if record is not None:
+                            record.update(pipeline_stage="pending_exit", reason="pending_paper_exit")
+                        pending_exit_serviced = True
+                        write_run_status({"ok": True, "status": "running", "ts": _now(),
+                                       "note": "pending_paper_exit", "symbol": symbol,
+                                       "venue": selected_venue, "loops": loops})
                         time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
                         continue
-                    evidence_extra.update(_market_quality_evidence_extra(selected_venue, symbol))
-                    selected_block["evidence_extra"] = evidence_extra
-                    signal = _registry_signal_with_context(
-                        cfg=cfg,
-                        strategy_block=selected_block,
-                        symbol=symbol,
-                        venue=selected_venue,
-                        ohlcv=ohlcv[-int(cfg["min_bars"]):],
+
+                    timeframe = _public_ohlcv_timeframe(sym_cfg)
+                    if record is not None:
+                        record["pipeline_stage"] = "market_input"
+                        record["timeframe"] = timeframe or "synthetic_ticks_1s"
+                    _LOG.debug(
+                        "signal_branch strategy=%s signal_source=%s using=%s",
+                        sym_cfg.get("name"), sym_cfg.get("signal_source"),
+                        f"public_ohlcv:{timeframe}" if timeframe else "tick_based",
                     )
-                    bars = len(ohlcv)
-                else:
-                    tick = _fetch_mid(sym_cfg)
-                    if not tick:
-                        _write_status(
-                            {
+                    if timeframe:
+                        if fetch_health is not None and selected_venue == "coinbase" and timeframe == "1h":
+                            before_attempt = fetch_health.attempt_seq
+                            ohlcv, ohlcv_source = _fetch_public_ohlcv(sym_cfg, clients=public_clients, health=fetch_health)
+                            if fetch_health.attempt_seq > before_attempt:
+                                observed_attempt = fetch_health.attempt_seq
+                        else:
+                            ohlcv, ohlcv_source = _fetch_public_ohlcv(sym_cfg, clients=public_clients)
+                        ohlcv = ohlcv or []
+                        if record is not None:
+                            record["ohlcv"] = ohlcv[-int(cfg["min_bars"]):]
+                            record["reason"] = "no_public_ohlcv" if not ohlcv else "warming"
+                            record["candle_quality"] = assess_hourly_candles(ohlcv, now=_now(), timeframe=timeframe)
+                            if isinstance(ohlcv_source, dict):
+                                record["observed_ohlcv_source"] = ohlcv_source.get("source")
+                        if not ohlcv:
+                            write_run_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
+                            _LOG.warning(
+                                "ohlcv_fetch_empty strategy=%s symbol=%s timeframe=%s "
+                                "— signal evidence will not be written this loop. "
+                                "Check exchange connectivity.",
+                                sym_cfg.get("name"), sym_cfg.get("symbol"), timeframe,
+                            )
+                            time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                            continue
+                        prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]
+                        fresh_market = (
+                            float(ohlcv[-1][4]),
+                            int(ohlcv[-1][0] or (time.time() * 1000)),
+                            len(ohlcv),
+                        )
+                        if persist_prices and (len(symbols) == 1 or prices_loaded):
+                            sdb.set(k_prices, json.dumps(prices))
+
+                        if len(ohlcv) < int(cfg["min_bars"]):
+                            write_run_status(
+                                {
+                                    "ok": True,
+                                    "status": "running",
+                                    "pid": os.getpid(),
+                                    "ts": _now(),
+                                    "mid": float(ohlcv[-1][4]),
+                                    "bars": len(ohlcv),
+                                    "note": "warming",
+                                    "enqueued": enqueued,
+                                    "strategy_id": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                                    "strategy_source": cfg["signal_source"],
+                                }
+                            )
+                            time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                            continue
+                        ts_ms = int(ohlcv[-1][0] or (time.time() * 1000))
+                        m = float(ohlcv[-1][4])
+                        selection = select_strategy(
+                            default_strategy=str(cfg.get("strategy_id") or "ema_cross"),
+                            ohlcv=ohlcv[-int(cfg["min_bars"]):],
+                        )
+                        # Authority boundary: selector output is advisory, not an
+                        # executable fallback. Missing names already default in
+                        # _cfg(); empty here means explicitly invalid identity.
+                        selected_strategy = str(cfg.get("strategy_id") or "")
+                        try:
+                            raw_cfg = load_user_yaml(strict=True)
+                        except ConfigLoadError as exc:
+                            if record is not None:
+                                record.update(pipeline_stage="configuration", reason="config_load_failed")
+                            _write_config_load_failed_status(
+                                exc,
+                                status="running",
+                                loops=loops,
+                                enqueued=enqueued,
+                                cfg=cfg,
+                                venue=selected_venue,
+                                symbol=symbol,
+                            )
+                            time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                            continue
+                        raw_runner = raw_cfg.get("strategy_runner") if isinstance(raw_cfg.get("strategy_runner"), dict) else {}
+                        # Apply the same ownership rules as startup configuration.
+                        raw_strategy, _ = _strategy_block_from_runner_cfg(raw_runner)
+
+                        selected_block = _signal_strategy_block_from_selected_name(selected_strategy, raw_strategy)
+                        if record is not None:
+                            record["settings"]["strategy"] = dict(selected_block)
+                            record["pipeline_stage"] = "signal"
+                        identity_strategy = selected_block
+                        evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe, ohlcv_source)
+                        if bool(evidence_extra.get("ohlcv_source_mismatch")):
+                            if record is not None:
+                                record.update(pipeline_stage="provenance", reason="sample_mode_provenance_mismatch")
+                            mismatch_note = (
+                                f"env_sample_mode={evidence_extra.get('ohlcv_sample_mode_env')} "
+                                f"actual_source={evidence_extra.get('market_data_source')}"
+                            )
+                            _LOG.error(
+                                "sample_mode_provenance_mismatch strategy=%s symbol=%s %s — holding signal fail-closed",
+                                sym_cfg.get("name"), sym_cfg.get("symbol"), mismatch_note,
+                            )
+                            write_run_status({
                                 "ok": True,
                                 "status": "running",
                                 "pid": os.getpid(),
                                 "ts": _now(),
-                                "note": _no_fresh_tick_note(),
+                                "note": "sample_mode_provenance_mismatch",
+                                "detail": mismatch_note,
                                 "loops": loops,
                                 "enqueued": enqueued,
-                            }
+                            })
+                            time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                            continue
+                        evidence_extra.update(_market_quality_evidence_extra(selected_venue, symbol))
+                        selected_block["evidence_extra"] = evidence_extra
+                        if record is not None:
+                            record["pipeline_stage"] = "signal"
+                        signal = _registry_signal_with_context(
+                            **({"observer": record["raw_signal"].update} if record is not None else {}),
+                            cfg=cfg,
+                            strategy_block=selected_block,
+                            symbol=symbol,
+                            venue=selected_venue,
+                            ohlcv=ohlcv[-int(cfg["min_bars"]):],
                         )
-                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                        continue
-                    m, ts_ms = tick
-                    prices.append(float(m))
-                    if len(prices) > int(cfg["max_bars"]):
-                        prices = prices[-int(cfg["max_bars"]):]
-                    if loops % 5 == 0:
-                        sdb.set(k_prices, json.dumps(prices))
-                    if len(prices) < int(cfg["min_bars"]):
-                        _write_status(
-                            {
-                                "ok": True,
-                                "status": "running",
-                                "pid": os.getpid(),
-                                "ts": _now(),
-                                "mid": m,
-                                "bars": len(prices),
-                                "note": "warming",
-                                "enqueued": enqueued,
-                                "strategy_id": cfg["strategy_id"],
-                                "strategy_source": cfg["signal_source"],
-                            }
-                        )
-                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                        continue
-                    signal = _strategy_signal(sym_cfg, prices, ts_ms=ts_ms)
-                    bars = len(prices)
-            context_quote_id = None
-            if context_capture is not None:
-                context_quote_id = capture_call(context_capture, "quote", selected_venue, symbol, evidence_extra)
-            pos = pdb.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0}
-            decision = _position_aware_signal_action(
-                signal, strategy_id=str(cfg["strategy_id"]),
-                position_qty=float(pos.get("qty") or 0.0),
-            )
-            changed = False
-            note = None
-            if not warmed:
-                daily_position_exit = (
-                    cfg["strategy_id"] == "sma_200_trend" and decision == "sell"
-                    and float(pos.get("qty") or 0.0) > 0.0
+                        if record is not None:
+                            record["signal_computed"] = True
+                            record["signal"] = dict(signal)
+                        bars = len(ohlcv)
+                    else:
+                        tick = _fetch_mid(sym_cfg)
+                        if not tick:
+                            if record is not None:
+                                record["reason"] = _no_fresh_tick_note()
+                            write_run_status(
+                                {
+                                    "ok": True,
+                                    "status": "running",
+                                    "pid": os.getpid(),
+                                    "ts": _now(),
+                                    "note": _no_fresh_tick_note(),
+                                    "loops": loops,
+                                    "enqueued": enqueued,
+                                }
+                            )
+                            time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                            continue
+                        m, ts_ms = tick
+                        prices.append(float(m))
+                        if len(prices) > int(cfg["max_bars"]):
+                            prices = prices[-int(cfg["max_bars"]):]
+                        fresh_market = (float(m), ts_ms, len(prices))
+                        if record is not None:
+                            record["ohlcv"] = _synth_ohlcv(prices, ts_ms=ts_ms)
+                            record["reason"] = "warming"
+                        if persist_prices and (len(symbols) == 1 or prices_loaded):
+                            sdb.set(k_prices, json.dumps(prices))
+                        if len(prices) < int(cfg["min_bars"]):
+                            write_run_status(
+                                {
+                                    "ok": True,
+                                    "status": "running",
+                                    "pid": os.getpid(),
+                                    "ts": _now(),
+                                    "mid": m,
+                                    "bars": len(prices),
+                                    "note": "warming",
+                                    "enqueued": enqueued,
+                                    "strategy_id": cfg["strategy_id"],
+                                    "strategy_source": cfg["signal_source"],
+                                }
+                            )
+                            time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                            continue
+                        if record is not None:
+                            record["pipeline_stage"] = "signal"
+                        signal = _strategy_signal(sym_cfg, prices, ts_ms=ts_ms,
+                                                  **({"observer": record["raw_signal"].update,
+                                                      "input_observer": lambda rows: record.update(ohlcv=rows)}
+                                                     if record is not None else {}))
+                        if record is not None:
+                            record["signal_computed"] = True
+                            record["signal"] = dict(signal)
+                        bars = len(prices)
+                if pending_exit_serviced:
+                    continue
+                # Only this turn's market input can authorize price-based evaluation.
+                if fresh_market is None:
+                    m, ts_ms, bars = None, None, 0
+                    continue
+                m, ts_ms, bars = fresh_market
+                context_quote_id = None
+                if context_capture is not None:
+                    context_quote_id = capture_call(context_capture, "quote", selected_venue, symbol, evidence_extra)
+                pos = pdb.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0}
+                decision = _position_aware_signal_action(
+                    signal, strategy_id=str(cfg["strategy_id"]),
+                    position_qty=float(pos.get("qty") or 0.0),
                 )
-                if daily_position_exit or (decision in ("buy", "sell") and bool(cfg["allow_first_signal_trade"])):
-                    changed = True
-                sdb.set(k_last_action, decision)
-                sdb.set(k_warm, "1")
-                warmed = True
-                last_action = decision
-                note = "warmed_no_trade"
-            else:
-                changed = decision != last_action
-                if changed:
-                    last_action = decision
-                    sdb.set(k_last_action, decision)
-            action = None
-            scale_count = int(str(sdb.get(k_scale_count) or "0").strip() or 0)
-
-            all_positions = []
-            try:
-                if hasattr(pdb, "list_positions"):
-                    all_positions = list(pdb.list_positions() or [])
-                elif hasattr(pdb, "get_all_positions"):
-                    all_positions = list(pdb.get_all_positions() or [])
-                elif hasattr(pdb, "positions"):
-                    all_positions = list(pdb.positions() or [])
-            except Exception:
-                all_positions = []
-
-            all_positions, all_intents = collect_runtime_rows(
-                paper_db=pdb,
-                intent_db=qdb,
-            )
-
-            exposure = summarize_exposure(
-                positions=all_positions,
-                strategy_name=str(cfg.get("strategy_id") or ""),
-            )
-
-            multi_symbol_validation = validate_multi_symbol_state(
-                positions=all_positions,
-                intents=all_intents,
-                max_open_intents_per_symbol=int(risk_limits.get("max_open_intents_per_symbol", 1)),
-            )
-            pos_qty = float(pos.get("qty") or 0.0)
-
-            # Track entry/hold state for strategy-aware exit controls.
-            entry_price = float(sdb.get(k_entry_price) or 0.0)
-            trailing_peak_price = float(sdb.get(k_trailing_peak) or 0.0)
-            bars_held = int(sdb.get(k_bars_held) or 0)
-            last_held_bar_ts = int(sdb.get(k_last_held_bar_ts) or 0)
-
-            if pos_qty <= 0.0:
-                # No open position: clear runner-side exit state.
-                for k in (k_entry_price, k_trailing_peak, k_bars_held, k_last_held_bar_ts):
-                    try:
-                        sdb.delete(k)
-                    except Exception:
-                        pass
-                entry_price = 0.0
-                trailing_peak_price = 0.0
-                bars_held = 0
-                last_held_bar_ts = 0
-            else:
-                # Seed entry state from live paper position if missing.
-                if entry_price <= 0.0:
-                    avg_price = float(pos.get("avg_price") or 0.0)
-                    if avg_price > 0.0:
-                        entry_price = avg_price
-                        sdb.set(k_entry_price, str(entry_price))
-                # Public OHLCV repeats the latest candle between closes; count its
-                # timestamp once instead of treating every poll loop as a held bar.
-                bars_held, last_held_bar_ts, bar_advanced = _advance_held_bar_counter(
-                    bars_held=bars_held,
-                    last_bar_ts=last_held_bar_ts,
-                    current_bar_ts=int(ts_ms or 0),
-                )
-                sdb.set(k_last_held_bar_ts, str(last_held_bar_ts))
-                if bar_advanced:
-                    sdb.set(k_bars_held, str(bars_held))
-
-                cur_px = float(m)
-                if cur_px > 0.0:
-                    trailing_peak_price = max(float(trailing_peak_price or 0.0), cur_px)
-                    sdb.set(k_trailing_peak, str(trailing_peak_price))
-
-            # Strategy-aware exit stack takes priority over signal-change actioning.
-            exit_action = None
-            exit_reason = None
-            exit_out = {}
-
-            # ema_cross_v2: invalidate open long if the original setup degrades into
-            # low-vol / chop / collapsed cross-gap after entry.
-            sig_ind = signal.get("ind") or {}
-            if (
-                pos_qty > 0.0
-                and entry_price > 0.0
-                and str(cfg.get("strategy_id")) == "ema_cross"
-            ):
-                avg_range_pct = float(sig_ind.get("avg_range_pct") or 0.0)
-                trend_eff = float(sig_ind.get("trend_efficiency") or 0.0)
-                cross_gap_pct = float(sig_ind.get("cross_gap_pct") or 0.0)
-
-                min_vol = float(cfg.get("min_volatility_pct", 0.0) or 0.0)
-                min_trend = float(cfg.get("min_trend_efficiency", 0.0) or 0.0)
-                min_gap = float(cfg.get("min_cross_gap_pct", 0.0) or 0.0)
-
-                if bool(cfg.get("ema_invalidate_on_low_vol", True)) and avg_range_pct < min_vol:
-                    exit_action = "sell"
-                    exit_reason = "strategy_exit:ema_cross:low_volatility_invalidation"
-                elif bool(cfg.get("ema_invalidate_on_chop", True)) and trend_eff < min_trend:
-                    exit_action = "sell"
-                    exit_reason = "strategy_exit:ema_cross:chop_invalidation"
-                elif bool(cfg.get("ema_invalidate_on_cross_gap_loss", True)) and cross_gap_pct < min_gap:
-                    exit_action = "sell"
-                    exit_reason = "strategy_exit:ema_cross:cross_gap_invalidation"
-
-            if pos_qty > 0.0 and entry_price > 0.0 and not exit_action:
-                exit_out = evaluate_strategy_exit_stack(
-                    entry_price=entry_price,
-                    current_price=float(m),
-                    qty=float(pos_qty),
-                    side="long",
-                    strategy=str(cfg["strategy_id"]),
-                    stop_loss_pct=float(cfg.get("stop_loss_pct", 0.0) or 0.0),
-                    take_profit_pct=float(cfg.get("take_profit_pct", 0.0) or 0.0),
-                    trailing_peak_price=float(trailing_peak_price or 0.0) if trailing_peak_price > 0.0 else None,
-                    trailing_stop_pct=float(cfg.get("trailing_stop_pct", 0.0) or 0.0),
-                    bars_held=int(bars_held),
-                    max_bars_hold=int(cfg.get("max_bars_hold", 0) or 0) or None,
-                )
-                if str(exit_out.get("action") or "") == "exit":
-                    exit_action = "sell"
-                    exit_reason = str(exit_out.get("reason") or exit_out.get("stack_rule") or "strategy_exit")
-
-            if exit_action:
-                action = "sell"
-                note = exit_reason
                 changed = False
-            elif changed or (
-                cfg["strategy_id"] == "sma_200_trend" and decision == "sell"
-                and signal.get("action") == "hold" and pos_qty > 0.0
-            ):
-                if decision == "buy":
-                    if (not cfg["position_aware"]) or (pos_qty <= 0.0):
-                        action = "buy"
-                elif decision == "sell":
-                    if (not cfg["position_aware"]) or (pos_qty > 0.0):
-                        action = "sell"
-            kill_until_loop = int(str(sdb.get(k_kill_until) or "0").strip() or 0)
-            kill_gate = should_block_symbol(loops=loops, kill_until_loop=kill_until_loop)
-            if not bool(kill_gate.get("ok")):
-                _write_status(
-                    {
-                        "ok": True,
-                        "status": "running",
-                        "pid": os.getpid(),
-                        "ts": _now(),
-                        "venue": selected_venue,
-                        "symbol": symbol,
-                        "symbols": symbols,
-                        "strategy_id": cfg.get("strategy_id"),
-                        "note": "kill_cooldown",
-                        "kill_reason": kill_gate.get("reason"),
-                        "kill_remaining_loops": kill_gate.get("remaining_loops"),
-                    }
-                )
-                continue
-
-            if action and action == last_emitted_action:
+                note = None
+                transition_inputs = dict(strategy_id=cfg["strategy_id"], decision=decision,
+                                         pos_qty=float(pos.get("qty") or 0.0), warmed=warmed,
+                                         last_action=last_action, allow_first_signal_trade=cfg["allow_first_signal_trade"])
+                transition = signal_transition(**transition_inputs)
+                changed, note = transition["changed"], transition["note"]
+                if warmed and transition["write_last_action"]:
+                    # Preserve the existing checkpoint value if the following write fails.
+                    last_action = decision
+                if transition["write_last_action"]:
+                    sdb.set(k_last_action, decision)
+                if transition["write_warm"]:
+                    sdb.set(k_warm, "1")
+                warmed, last_action = transition["warmed"], transition["last_action"]
+                if record is not None:
+                    record.update(signal=dict(signal), transition_inputs=transition_inputs,
+                                  decision={"transition": transition}, pipeline_stage="exit_state")
                 action = None
-            if action:
-                intent_id = str(uuid.uuid4())
-                qty = float(cfg["qty"])
-                if action == "sell" and bool(cfg["sell_full_position"]) and pos_qty > 0.0:
-                    qty = pos_qty
+                scale_count = int(str(sdb.get(k_scale_count) or "0").strip() or 0)
 
-                # Keep exit-state in sync with newly emitted intents.
-                if action == "buy":
-                    position_summary = summarize_position_for_scaling(pos, float(m))
-                    scale_check = evaluate_scale_in(
-                        position_summary=position_summary,
-                        adds_used=scale_count,
-                        limits=scaling_limits,
+                all_positions = []
+                try:
+                    if hasattr(pdb, "list_positions"):
+                        all_positions = list(pdb.list_positions() or [])
+                    elif hasattr(pdb, "get_all_positions"):
+                        all_positions = list(pdb.get_all_positions() or [])
+                    elif hasattr(pdb, "positions"):
+                        all_positions = list(pdb.positions() or [])
+                except Exception:
+                    all_positions = []
+
+                all_positions, all_intents = collect_runtime_rows(
+                    paper_db=pdb,
+                    intent_db=qdb,
+                )
+
+                exposure = summarize_exposure(
+                    positions=all_positions,
+                    strategy_name=str(cfg.get("strategy_id") or ""),
+                )
+
+                multi_symbol_validation = validate_multi_symbol_state(
+                    positions=all_positions,
+                    intents=all_intents,
+                    max_open_intents_per_symbol=int(risk_limits.get("max_open_intents_per_symbol", 1)),
+                )
+                pos_qty = float(pos.get("qty") or 0.0)
+
+                # Track entry/hold state for strategy-aware exit controls.
+                entry_price = float(sdb.get(k_entry_price) or 0.0)
+                trailing_peak_price = float(sdb.get(k_trailing_peak) or 0.0)
+                bars_held = int(sdb.get(k_bars_held) or 0)
+                last_held_bar_ts = int(sdb.get(k_last_held_bar_ts) or 0)
+
+                if pos_qty <= 0.0:
+                    # No open position: clear runner-side exit state.
+                    for k in (k_entry_price, k_trailing_peak, k_bars_held, k_last_held_bar_ts):
+                        try:
+                            sdb.delete(k)
+                        except Exception:
+                            pass
+                    entry_price = 0.0
+                    trailing_peak_price = 0.0
+                    bars_held = 0
+                    last_held_bar_ts = 0
+                else:
+                    # Seed entry state from live paper position if missing.
+                    if entry_price <= 0.0:
+                        avg_price = float(pos.get("avg_price") or 0.0)
+                        if avg_price > 0.0:
+                            entry_price = avg_price
+                            sdb.set(k_entry_price, str(entry_price))
+                    # Public OHLCV repeats the latest candle between closes; count its
+                    # timestamp once instead of treating every poll loop as a held bar.
+                    bars_held, last_held_bar_ts, bar_advanced = _advance_held_bar_counter(
+                        bars_held=bars_held,
+                        last_bar_ts=last_held_bar_ts,
+                        current_bar_ts=int(ts_ms or 0),
                     )
-                    if bool(scale_check.get("is_scale")) and not bool(scale_check.get("ok")):
-                        _write_status(
+                    sdb.set(k_last_held_bar_ts, str(last_held_bar_ts))
+                    if bar_advanced:
+                        sdb.set(k_bars_held, str(bars_held))
+
+                    cur_px = float(m)
+                    if cur_px > 0.0:
+                        trailing_peak_price = max(float(trailing_peak_price or 0.0), cur_px)
+                        sdb.set(k_trailing_peak, str(trailing_peak_price))
+
+                exit_inputs = dict(cfg=cfg, signal=signal, decision=decision, changed=changed,
+                                   pos_qty=pos_qty, entry_price=entry_price,
+                                   trailing_peak_price=trailing_peak_price, bars_held=bars_held,
+                                   current_price=float(m))
+                exit_selection = select_exit_decision(**exit_inputs, exit_evaluator=evaluate_strategy_exit_stack)
+                action, changed = exit_selection["action"], exit_selection["changed"]
+                exit_action, exit_reason = exit_selection["exit_action"], exit_selection["exit_reason"]
+                exit_out = exit_selection["exit_out"]
+                if exit_action:
+                    note = exit_reason
+                if record is not None:
+                    record.update(kind="decision", pipeline_stage="gates", reason=None,
+                                  exit_inputs=exit_inputs)
+                    try:
+                        record["decision"]["exit"] = select_exit_decision(
+                            **exit_inputs, observe=True, raw_signal=record["raw_signal"],
+                            exit_evaluator=evaluate_strategy_exit_stack)
+                    except Exception as capture_exc:
+                        record["decision"]["exit"] = exit_selection
+                        record["observation_error"] = type(capture_exc).__name__
+                    record["actual"] = {"intended_action": action, "outcome": "no_intent", "gates": {}}
+                kill_remaining = _kill_remaining_loops(
+                    sdb, k_kill_remaining, k_kill_until,
+                    max_cooldown_loops=max(
+                        int(kill_limits.get("kill_cooldown_loops", 0) or 0),
+                        int(performance_limits.get("performance_kill_cooldown_loops", 0) or 0),
+                    ),
+                )
+                kill_gate = should_block_symbol(loops=0, kill_until_loop=kill_remaining)
+                if record is not None:
+                    record["actual"]["gates"]["kill"] = dict(kill_gate)
+                cooldown_exit_qty = None
+                if not bool(kill_gate.get("ok")):
+                    sdb.set(k_kill_remaining, str(kill_remaining - 1))
+                    cooldown_exit_qty = _cooldown_exit_quantity(cfg, pos.get("qty"))
+                    protective_exit = (
+                        action == "sell" and pos_qty > 0.0
+                        and cooldown_exit_qty is not None
+                        and action != last_emitted_action
+                        and _open_strategy_intent_state(qdb, symbol) == "none"
+                    )
+                    if record is not None:
+                        record["actual"]["gates"]["cooldown_protective_exit"] = protective_exit
+                    if not protective_exit:
+                        if record is not None:
+                            record["actual"]["outcome"] = "kill_cooldown"
+                        write_run_status(
                             {
                                 "ok": True,
                                 "status": "running",
@@ -1536,35 +1662,47 @@ def run_forever() -> None:
                                 "symbol": symbol,
                                 "symbols": symbols,
                                 "strategy_id": cfg.get("strategy_id"),
-                                "signal_action": action,
-                                "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
-                                "scale_reason": scale_check.get("reason"),
-                                "scale_count": scale_count,
-                                "position_summary": position_summary,
-                                "note": "scale_blocked_entry",
+                                "note": "kill_cooldown",
+                                "kill_reason": kill_gate.get("reason"),
+                                "kill_remaining_loops": kill_gate.get("remaining_loops"),
                             }
                         )
                         continue
 
-                    risk_check = evaluate_entry(
-                        symbol=symbol,
-                        strategy_name=str(cfg.get("strategy_id") or ""),
-                        limits=risk_limits,
-                        exposure=exposure,
-                        open_intents_for_symbol=0,
-                    )
-                    if not bool(risk_check.get("ok")):
-                        risk_block_count = int(str(sdb.get(k_risk_block_count) or "0").strip() or 0) + 1
-                        sdb.set(k_risk_block_count, str(risk_block_count))
+                if action and action == last_emitted_action:
+                    if record is not None:
+                        record["actual"]["outcome"] = "emission_latch"
+                    action = None
+                if action == "buy" and accounting_report["unsettled"]:
+                    if record is not None:
+                        record["actual"]["outcome"] = "exit_accounting_unsettled"
+                    write_run_status({"ok": True, "status": "running", "ts": _now(),
+                                   "symbol": symbol, "venue": selected_venue,
+                                   "note": "exit_accounting_unsettled", "loops": loops})
+                    continue
+                if action:
+                    intent_id = str(uuid.uuid4())
+                    exit_event = None
+                    intent_created_ts = _now()
+                    qty = cooldown_exit_qty if cooldown_exit_qty is not None else float(cfg["qty"])
+                    if action == "sell" and bool(cfg["sell_full_position"]) and pos_qty > 0.0:
+                        qty = pos_qty
 
-                        kill_eval = evaluate_risk_block_kill(
-                            loops=loops,
-                            consecutive_risk_blocks=risk_block_count,
-                            limits=kill_limits,
+                    # Keep exit-state in sync with newly emitted intents.
+                    if action == "buy":
+                        position_summary = summarize_position_for_scaling(pos, float(m))
+                        scale_check = evaluate_scale_in(
+                            position_summary=position_summary,
+                            adds_used=scale_count,
+                            limits=scaling_limits,
                         )
-                        if bool(kill_eval.get("triggered")):
-                            sdb.set(k_kill_until, str(int(kill_eval.get("kill_until_loop", 0))))
-                            _write_status(
+                        if record is not None:
+                            record["actual"]["gates"]["scaling"] = dict(scale_check)
+                        if bool(scale_check.get("is_scale")) and not bool(scale_check.get("ok")):
+                            if record is not None:
+                                record["actual"].update(outcome="scale_blocked_entry")
+                                record["actual"]["gates"]["scaling"] = dict(scale_check)
+                            write_run_status(
                                 {
                                     "ok": True,
                                     "status": "running",
@@ -1576,257 +1714,341 @@ def run_forever() -> None:
                                     "strategy_id": cfg.get("strategy_id"),
                                     "signal_action": action,
                                     "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
-                                    "risk_reason": risk_check.get("reason"),
-                                    "risk_exposure": exposure,
-                                    "paper_validation": multi_symbol_validation,
-                                    "risk_block_count": risk_block_count,
-                                    "kill_reason": kill_eval.get("reason"),
-                                    "kill_until_loop": kill_eval.get("kill_until_loop"),
-                                    "note": "kill_triggered_risk_blocks",
+                                    "scale_reason": scale_check.get("reason"),
+                                    "scale_count": scale_count,
+                                    "position_summary": position_summary,
+                                    "note": "scale_blocked_entry",
                                 }
                             )
-                        else:
-                            _write_status(
-                                {
-                                    "ok": True,
-                                    "status": "running",
-                                    "pid": os.getpid(),
-                                    "ts": _now(),
-                                    "venue": selected_venue,
-                                    "symbol": symbol,
-                                    "symbols": symbols,
-                                    "strategy_id": cfg.get("strategy_id"),
-                                    "signal_action": action,
-                                    "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
-                                    "risk_reason": risk_check.get("reason"),
-                                    "risk_exposure": exposure,
-                                    "paper_validation": multi_symbol_validation,
-                                    "risk_block_count": risk_block_count,
-                                    "note": "risk_blocked_entry",
-                                }
-                            )
-                        continue
+                            continue
 
-                    sdb.set(k_risk_block_count, "0")
-                    sdb.set(k_kill_until, "0")
-                    if bool(position_summary.get("has_position")):
-                        sdb.set(k_scale_count, str(scale_count + 1))
-                    sdb.set(k_entry_price, str(float(m)))
-                    sdb.set(k_trailing_peak, str(float(m)))
-                    sdb.set(k_bars_held, "0")
-                    sdb.set(k_last_held_bar_ts, str(int(ts_ms or 0)))
-                elif action == "sell":
-                    entry_price_val = float(str(sdb.get(k_entry_price) or "0").strip() or 0.0)
-                    exit_eval = evaluate_exit_outcome(
-                        entry_price=entry_price_val,
-                        exit_price=float(m),
-                    )
-                    if bool(exit_eval.get("ok")):
-                        prior_cum = float(str(sdb.get(k_cum_pnl) or "0").strip() or 0.0)
-                        prior_peak = float(str(sdb.get(k_peak_pnl) or "0").strip() or 0.0)
-                        dd_state = update_drawdown_state(
-                            cumulative_pnl_pct=prior_cum,
-                            peak_pnl_pct=prior_peak,
-                            trade_pnl_pct=float(exit_eval.get("pnl_pct", 0.0)),
+                        risk_check = evaluate_entry(
+                            symbol=symbol,
+                            strategy_name=str(cfg.get("strategy_id") or ""),
+                            limits=risk_limits,
+                            exposure=exposure,
+                            open_intents_for_symbol=0,
                         )
-                        sdb.set(k_cum_pnl, str(dd_state["cumulative_pnl_pct"]))
-                        sdb.set(k_peak_pnl, str(dd_state["peak_pnl_pct"]))
+                        if record is not None:
+                            record["actual"]["gates"]["risk"] = dict(risk_check)
+                        if not bool(risk_check.get("ok")):
+                            if record is not None:
+                                record["actual"].update(outcome="risk_blocked_entry")
+                                record["actual"]["gates"]["risk"] = dict(risk_check)
+                            risk_block_count = int(str(sdb.get(k_risk_block_count) or "0").strip() or 0) + 1
+                            sdb.set(k_risk_block_count, str(risk_block_count))
 
-                        loss_streak = int(str(sdb.get(k_loss_streak) or "0").strip() or 0)
-                        loss_streak = (loss_streak + 1) if bool(exit_eval.get("is_loss")) else 0
-                        sdb.set(k_loss_streak, str(loss_streak))
-
-                        perf_kill = evaluate_performance_kill(
-                            loops=loops,
-                            consecutive_losing_exits=loss_streak,
-                            drawdown_pct=float(dd_state.get("drawdown_pct", 0.0)),
-                            limits=performance_limits,
-                        )
-                        if bool(perf_kill.get("triggered")):
-                            sdb.set(k_kill_until, str(int(perf_kill.get("kill_until_loop", 0))))
-                            _write_status(
-                                {
-                                    "ok": True,
-                                    "status": "running",
-                                    "pid": os.getpid(),
-                                    "ts": _now(),
-                                    "venue": selected_venue,
-                                    "symbol": symbol,
-                                    "symbols": symbols,
-                                    "strategy_id": cfg.get("strategy_id"),
-                                    "signal_action": action,
-                                    "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
-                                    "performance_exit": exit_eval,
-                                    "performance_state": dd_state,
-                                    "loss_streak": loss_streak,
-                                    "kill_reason": perf_kill.get("reason"),
-                                    "kill_until_loop": perf_kill.get("kill_until_loop"),
-                                    "note": "kill_triggered_performance",
-                                }
+                            kill_eval = evaluate_risk_block_kill(
+                                loops=loops,
+                                consecutive_risk_blocks=risk_block_count,
+                                limits=kill_limits,
                             )
-                    for k in (k_entry_price, k_trailing_peak, k_bars_held, k_last_held_bar_ts):
-                        try:
-                            sdb.delete(k)
-                        except Exception:
-                            pass
+                            if bool(kill_eval.get("triggered")):
+                                sdb.set(k_kill_remaining, str(max(0, int(kill_eval.get("kill_until_loop", 0)) - loops - 1)))
+                                write_run_status(
+                                    {
+                                        "ok": True,
+                                        "status": "running",
+                                        "pid": os.getpid(),
+                                        "ts": _now(),
+                                        "venue": selected_venue,
+                                        "symbol": symbol,
+                                        "symbols": symbols,
+                                        "strategy_id": cfg.get("strategy_id"),
+                                        "signal_action": action,
+                                        "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                                        "risk_reason": risk_check.get("reason"),
+                                        "risk_exposure": exposure,
+                                        "paper_validation": multi_symbol_validation,
+                                        "risk_block_count": risk_block_count,
+                                        "kill_reason": kill_eval.get("reason"),
+                                        "kill_until_loop": kill_eval.get("kill_until_loop"),
+                                        "note": "kill_triggered_risk_blocks",
+                                    }
+                                )
+                            else:
+                                write_run_status(
+                                    {
+                                        "ok": True,
+                                        "status": "running",
+                                        "pid": os.getpid(),
+                                        "ts": _now(),
+                                        "venue": selected_venue,
+                                        "symbol": symbol,
+                                        "symbols": symbols,
+                                        "strategy_id": cfg.get("strategy_id"),
+                                        "signal_action": action,
+                                        "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                                        "risk_reason": risk_check.get("reason"),
+                                        "risk_exposure": exposure,
+                                        "paper_validation": multi_symbol_validation,
+                                        "risk_block_count": risk_block_count,
+                                        "note": "risk_blocked_entry",
+                                    }
+                                )
+                            continue
 
-                open_strategy_intent_exists = False
-                try:
-                    for row in qdb.list_intents(limit=200):
-                        if (
-                            row.get("source") == "strategy"
-                            and row.get("symbol") == symbol
-                            and row.get("status") in ("queued", "submitted")
-                        ):
-                            open_strategy_intent_exists = True
-                            break
-                except Exception:
+                        sdb.set(k_risk_block_count, "0")
+                        sdb.set(k_kill_until, "0")
+                        sdb.set(k_kill_remaining, "0")
+                        if bool(position_summary.get("has_position")):
+                            sdb.set(k_scale_count, str(scale_count + 1))
+                        sdb.set(k_entry_price, str(float(m)))
+                        sdb.set(k_trailing_peak, str(float(m)))
+                        sdb.set(k_bars_held, "0")
+                        sdb.set(k_last_held_bar_ts, str(int(ts_ms or 0)))
+                    elif action == "sell":
+                        entry_price_val = float(str(sdb.get(k_entry_price) or "0").strip() or 0.0)
+                        exit_event = make_event(
+                            scope=scope_for(selected_venue, symbol, str(cfg["strategy_id"])),
+                            entry_price=entry_price_val, current_price=float(m), created_ts=intent_created_ts,
+                        )
+                        # Preserve the existing stop-reset basis and point. This
+                        # repair changes accounting, not the unresolved stop policy.
+                        for k in (k_entry_price, k_trailing_peak, k_bars_held, k_last_held_bar_ts):
+                            try:
+                                sdb.delete(k)
+                            except Exception:
+                                pass
+
                     open_strategy_intent_exists = False
+                    try:
+                        for row in qdb.list_intents(limit=200):
+                            if (
+                                row.get("source") == "strategy"
+                                and row.get("symbol") == symbol
+                                and row.get("status") in ("queued", "submitted")
+                            ):
+                                open_strategy_intent_exists = True
+                                break
+                    except Exception:
+                        if record is not None:
+                            record["actual"]["gates"]["open_intent_lookup"] = "unknown_existing_fail_open"
+                        open_strategy_intent_exists = False
 
-                if open_strategy_intent_exists:
-                    _write_status({
-                        "ok": True,
-                        "status": "running",
-                        "pid": os.getpid(),
-                        "ts": _now(),
-                        "loops": loops,
-                        "enqueued_total": enqueued,
-                        "mid": m if 'm' in locals() else None,
-                        "venue": selected_venue,
-                        "symbol": symbol,
-                        "symbols": symbols,
-                        "strategy_id": cfg.get("strategy_id"),
-                        "selected_strategy": selected_strategy if 'selected_strategy' in locals() else cfg.get("strategy_id"),
-                        "selected_strategy_reason": selection.get("selected_strategy_reason") if 'selection' in locals() and isinstance(selection, dict) else None,
-                        "regime": selection.get("regime") if 'selection' in locals() and isinstance(selection, dict) else None,
-                        "signal_ok": signal.get("ok") if isinstance(signal, dict) else None,
-                        "signal_action": action,
-                        "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
-                        "signal_changed": bool(changed) if 'changed' in locals() else None,
-                        "note": "open_strategy_intent_exists",
-                    })
-                else:
-                    qdb.upsert_intent({
-                        "intent_id": intent_id,
-                        "created_ts": _now(),
-                        "ts": _now(),
-                        "source": "strategy",
-                        "strategy_id": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
-                        "venue": selected_venue,
-                        "symbol": symbol,
-                        "side": action,
-                        "order_type": cfg["order_type"],
-                        "qty": float(qty),
-                        "limit_price": None,
-                        "status": "queued",
-                        "last_error": None,
-                        "client_order_id": None,
-                        "linked_order_id": None,
-                        "meta": {
-                            "selected_strategy": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
-                            "strategy_preset": cfg.get("strategy_preset"),
+                    if record is not None and "open_intent_lookup" not in record["actual"]["gates"]:
+                        record["actual"]["gates"]["open_intent_lookup"] = "open" if open_strategy_intent_exists else "none"
+
+                    if open_strategy_intent_exists:
+                        if record is not None:
+                            record["actual"]["outcome"] = "open_strategy_intent_exists"
+                        write_run_status({
+                            "ok": True,
+                            "status": "running",
+                            "pid": os.getpid(),
+                            "ts": _now(),
+                            "loops": loops,
+                            "enqueued_total": enqueued,
+                            "mid": m if 'm' in locals() else None,
+                            "venue": selected_venue,
+                            "symbol": symbol,
+                            "symbols": symbols,
+                            "strategy_id": cfg.get("strategy_id"),
+                            "selected_strategy": selected_strategy if 'selected_strategy' in locals() else cfg.get("strategy_id"),
                             "selected_strategy_reason": selection.get("selected_strategy_reason") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "regime": selection.get("regime") if 'selection' in locals() and isinstance(selection, dict) else None,
-                            "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
-                            "volume_ratio": selection.get("volume_ratio") if 'selection' in locals() and isinstance(selection, dict) else None,
-                            "reference_price": float(m),
-                            "reference_price_source": "strategy_runner_signal_price",
+                            "signal_ok": signal.get("ok") if isinstance(signal, dict) else None,
+                            "signal_action": action,
                             "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
-                            "strategy_context_ok": signal.get("strategy_context_ok") if isinstance(signal, dict) else None,
-                            "strategy_context_reason": signal.get("strategy_context_reason") if isinstance(signal, dict) else None,
-                            "strategy_context_source": signal.get("strategy_context_source") if isinstance(signal, dict) else None,
-                            "strategy_context_symbol": signal.get("strategy_context_symbol") if isinstance(signal, dict) else None,
-                            "strategy_context_venue": signal.get("strategy_context_venue") if isinstance(signal, dict) else None,
-                            "strategy_context_capture_ts": signal.get("strategy_context_capture_ts") if isinstance(signal, dict) else None,
-                            "strategy_context_snapshot_id": signal.get("strategy_context_snapshot_id") if isinstance(signal, dict) else None,
-                            **({"exit_reason": exit_reason} if exit_reason else {}),
-                            **(
-                                {"exit_stack_rule": exit_out.get("stack_rule")}
-                                if exit_action and isinstance(exit_out, dict) and exit_out.get("stack_rule")
-                                else {}
-                            ),
-                            "ranked_candidates": selection.get("ranked_candidates") if 'selection' in locals() and isinstance(selection, dict) else None,
-                            "candidate_scores": selection.get("candidate_scores") if 'selection' in locals() and isinstance(selection, dict) else None,
-                            **evidence_extra,
-                            **_execution_identity_meta(
-                                cfg=cfg, strategy=identity_strategy, venue=selected_venue,
-                                symbol=symbol, provenance=evidence_extra,
-                            ),
-                        },
-                    })
-                    enqueued += 1
-                    if context_capture is not None:
-                        capture_call(context_capture, "entry",
-                            side=action, intent_id=intent_id, venue=selected_venue,
-                            symbol=symbol, strategy=selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
-                            qty=float(qty), quote_event_id=context_quote_id,
-                        )
-                    last_emitted_action = action
+                            "signal_changed": bool(changed) if 'changed' in locals() else None,
+                            "note": "open_strategy_intent_exists",
+                        })
+                    else:
+                        if record is not None:
+                            record["actual"].update(outcome="write_attempted", intent_id=intent_id,
+                                                    side=action, qty=float(qty))
+                        qdb.upsert_intent({
+                            "intent_id": intent_id,
+                            "created_ts": intent_created_ts,
+                            "ts": _now(),
+                            "source": "strategy",
+                            "strategy_id": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                            "venue": selected_venue,
+                            "symbol": symbol,
+                            "side": action,
+                            "order_type": cfg["order_type"],
+                            "qty": float(qty),
+                            "limit_price": None,
+                            "status": "queued",
+                            "last_error": None,
+                            "client_order_id": None,
+                            "linked_order_id": None,
+                            "meta": {
+                                **({"exit_event": exit_event} if exit_event is not None else {}),
+                                **({"paper_exit_policy": PAPER_EXIT_POLICY,
+                                    "paper_exit_id": intent_id} if action == "sell" else {}),
+                                "selected_strategy": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                                "strategy_preset": cfg.get("strategy_preset"),
+                                "selected_strategy_reason": selection.get("selected_strategy_reason") if 'selection' in locals() and isinstance(selection, dict) else None,
+                                "regime": selection.get("regime") if 'selection' in locals() and isinstance(selection, dict) else None,
+                                "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
+                                "volume_ratio": selection.get("volume_ratio") if 'selection' in locals() and isinstance(selection, dict) else None,
+                                "reference_price": float(m),
+                                "reference_price_source": "strategy_runner_signal_price",
+                                "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                                "strategy_context_ok": signal.get("strategy_context_ok") if isinstance(signal, dict) else None,
+                                "strategy_context_reason": signal.get("strategy_context_reason") if isinstance(signal, dict) else None,
+                                "strategy_context_source": signal.get("strategy_context_source") if isinstance(signal, dict) else None,
+                                "strategy_context_symbol": signal.get("strategy_context_symbol") if isinstance(signal, dict) else None,
+                                "strategy_context_venue": signal.get("strategy_context_venue") if isinstance(signal, dict) else None,
+                                "strategy_context_capture_ts": signal.get("strategy_context_capture_ts") if isinstance(signal, dict) else None,
+                                "strategy_context_snapshot_id": signal.get("strategy_context_snapshot_id") if isinstance(signal, dict) else None,
+                                **({"exit_reason": exit_reason} if exit_reason else {}),
+                                **(
+                                    {"exit_stack_rule": exit_out.get("stack_rule")}
+                                    if exit_action and isinstance(exit_out, dict) and exit_out.get("stack_rule")
+                                    else {}
+                                ),
+                                "ranked_candidates": selection.get("ranked_candidates") if 'selection' in locals() and isinstance(selection, dict) else None,
+                                "candidate_scores": selection.get("candidate_scores") if 'selection' in locals() and isinstance(selection, dict) else None,
+                                **evidence_extra,
+                                **_execution_identity_meta(
+                                    cfg=cfg, strategy=identity_strategy, venue=selected_venue,
+                                    symbol=symbol, provenance=evidence_extra,
+                                ),
+                            },
+                        })
+                        if record is not None:
+                            record["actual"]["outcome"] = "written"
+                        if exit_event is not None:
+                            accounting_report = exit_accounting.refresh(
+                                venue=selected_venue, symbol=symbol, strategy=str(cfg["strategy_id"]),
+                                limits=performance_limits,
+                            )
+                            for applied in accounting_report["applied"]:
+                                if applied["kill"]["triggered"]:
+                                    write_run_status({"ok": True, "status": "running", "ts": _now(),
+                                        "symbol": symbol, "venue": selected_venue, "loops": loops,
+                                        "note": "kill_triggered_performance", "exit_accounting_basis": applied["performance_exit"]["basis"],
+                                        "loss_streak": applied["loss_streak"], "performance_state": applied["performance_state"],
+                                        "kill_reason": applied["kill"]["reason"]})
+                        enqueued += 1
+                        if context_capture is not None:
+                            capture_call(context_capture, "entry",
+                                side=action, intent_id=intent_id, venue=selected_venue,
+                                symbol=symbol, strategy=selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                                qty=float(qty), quote_event_id=context_quote_id,
+                            )
+                        last_emitted_action = action
+                        sdb.set(k_last_emitted_action, last_emitted_action)
+                elif not exit_action and decision == "hold" and last_emitted_action != "hold":
+                    last_emitted_action = "hold"
                     sdb.set(k_last_emitted_action, last_emitted_action)
-            elif not exit_action and decision == "hold" and last_emitted_action != "hold":
-                last_emitted_action = "hold"
-                sdb.set(k_last_emitted_action, last_emitted_action)
-            _write_status({
-                "ok": True,
-                "status": "running",
-                "pid": os.getpid(),
-                "ts": _now(),
-                "loops": loops,
-                "enqueued_total": enqueued,
-                "market_context_capture": capture_call(context_capture, "status") if context_capture is not None else None,
-                "mid": m if 'm' in locals() else None,
-                "ts_ms": ts_ms if 'ts_ms' in locals() else None,
-                "bars": bars if 'bars' in locals() else len(prices),
-                "strategy_id": cfg["strategy_id"] if 'cfg' in locals() else None,
-                "selected_strategy": selected_strategy if 'selected_strategy' in locals() else None,
-                "selected_strategy_reason": selection.get("selected_strategy_reason") if 'selection' in locals() and isinstance(selection, dict) else None,
-                "regime": selection.get("regime") if 'selection' in locals() and isinstance(selection, dict) else None,
-                "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
-                "volume_ratio": selection.get("volume_ratio") if 'selection' in locals() and isinstance(selection, dict) else None,
-                "strategy_preset": cfg["strategy_preset"] if 'cfg' in locals() else None,
-                "signal_source": cfg["signal_source"] if 'cfg' in locals() else None,
-                "signal_action": decision if 'decision' in locals() else None,
-                "signal_reason": signal.get("reason") if 'signal' in locals() and isinstance(signal, dict) else None,
-                "strategy_context_ok": signal.get("strategy_context_ok") if 'signal' in locals() and isinstance(signal, dict) else None,
-                "strategy_context_reason": signal.get("strategy_context_reason") if 'signal' in locals() and isinstance(signal, dict) else None,
-                "strategy_context_source": signal.get("strategy_context_source") if 'signal' in locals() and isinstance(signal, dict) else None,
-                "strategy_context_symbol": signal.get("strategy_context_symbol") if 'signal' in locals() and isinstance(signal, dict) else None,
-                "strategy_context_venue": signal.get("strategy_context_venue") if 'signal' in locals() and isinstance(signal, dict) else None,
-                "strategy_context_capture_ts": signal.get("strategy_context_capture_ts") if 'signal' in locals() and isinstance(signal, dict) else None,
-                "strategy_context_snapshot_id": signal.get("strategy_context_snapshot_id") if 'signal' in locals() and isinstance(signal, dict) else None,
-                "symbols": symbols,
-                "symbol": symbol,
-                "signal_ok": bool(signal.get("ok", False)) if 'signal' in locals() and isinstance(signal, dict) else None,
-                "signal_changed": bool(changed) if 'changed' in locals() else None,
-                "signal_indicators": signal.get("ind") if 'signal' in locals() and isinstance(signal, dict) else None,
-                "pos_qty": pos_qty if 'pos_qty' in locals() else None,
-                "entry_price": entry_price if 'entry_price' in locals() else None,
-                "trailing_peak_price": trailing_peak_price if 'trailing_peak_price' in locals() else None,
-                "bars_held": bars_held if 'bars_held' in locals() else None,
-                "last_held_bar_ts": last_held_bar_ts if 'last_held_bar_ts' in locals() else None,
-                "exit_action": exit_action if 'exit_action' in locals() else None,
-                "exit_reason": exit_reason if 'exit_reason' in locals() else None,
-                "exit_stack_rule": exit_out.get("stack_rule") if 'exit_out' in locals() and isinstance(exit_out, dict) else None,
-                "exit_stack_action": exit_out.get("action") if 'exit_out' in locals() and isinstance(exit_out, dict) else None,
-                "action": action if 'action' in locals() else None,
-                "note": note if 'note' in locals() else None,
-            })
-            time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                write_run_status({
+                    "ok": True,
+                    "status": "running",
+                    "pid": os.getpid(),
+                    "ts": _now(),
+                    "loops": loops,
+                    "enqueued_total": enqueued,
+                    "market_context_capture": capture_call(context_capture, "status") if context_capture is not None else None,
+                    "mid": m if 'm' in locals() else None,
+                    "ts_ms": ts_ms if 'ts_ms' in locals() else None,
+                    "bars": bars if 'bars' in locals() else len(prices),
+                    "strategy_id": cfg["strategy_id"] if 'cfg' in locals() else None,
+                    "selected_strategy": selected_strategy if 'selected_strategy' in locals() else None,
+                    "selected_strategy_reason": selection.get("selected_strategy_reason") if 'selection' in locals() and isinstance(selection, dict) else None,
+                    "regime": selection.get("regime") if 'selection' in locals() and isinstance(selection, dict) else None,
+                    "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
+                    "volume_ratio": selection.get("volume_ratio") if 'selection' in locals() and isinstance(selection, dict) else None,
+                    "strategy_preset": cfg["strategy_preset"] if 'cfg' in locals() else None,
+                    "signal_source": cfg["signal_source"] if 'cfg' in locals() else None,
+                    "signal_action": decision if 'decision' in locals() else None,
+                    "signal_reason": signal.get("reason") if 'signal' in locals() and isinstance(signal, dict) else None,
+                    "strategy_context_ok": signal.get("strategy_context_ok") if 'signal' in locals() and isinstance(signal, dict) else None,
+                    "strategy_context_reason": signal.get("strategy_context_reason") if 'signal' in locals() and isinstance(signal, dict) else None,
+                    "strategy_context_source": signal.get("strategy_context_source") if 'signal' in locals() and isinstance(signal, dict) else None,
+                    "strategy_context_symbol": signal.get("strategy_context_symbol") if 'signal' in locals() and isinstance(signal, dict) else None,
+                    "strategy_context_venue": signal.get("strategy_context_venue") if 'signal' in locals() and isinstance(signal, dict) else None,
+                    "strategy_context_capture_ts": signal.get("strategy_context_capture_ts") if 'signal' in locals() and isinstance(signal, dict) else None,
+                    "strategy_context_snapshot_id": signal.get("strategy_context_snapshot_id") if 'signal' in locals() and isinstance(signal, dict) else None,
+                    "symbols": symbols,
+                    "symbol": symbol,
+                    "signal_ok": bool(signal.get("ok", False)) if 'signal' in locals() and isinstance(signal, dict) else None,
+                    "signal_changed": bool(changed) if 'changed' in locals() else None,
+                    "signal_indicators": signal.get("ind") if 'signal' in locals() and isinstance(signal, dict) else None,
+                    "pos_qty": pos_qty if 'pos_qty' in locals() else None,
+                    "entry_price": entry_price if 'entry_price' in locals() else None,
+                    "trailing_peak_price": trailing_peak_price if 'trailing_peak_price' in locals() else None,
+                    "bars_held": bars_held if 'bars_held' in locals() else None,
+                    "last_held_bar_ts": last_held_bar_ts if 'last_held_bar_ts' in locals() else None,
+                    "exit_action": exit_action if 'exit_action' in locals() else None,
+                    "exit_reason": exit_reason if 'exit_reason' in locals() else None,
+                    "exit_stack_rule": exit_out.get("stack_rule") if 'exit_out' in locals() and isinstance(exit_out, dict) else None,
+                    "exit_stack_action": exit_out.get("action") if 'exit_out' in locals() and isinstance(exit_out, dict) else None,
+                    "action": action if 'action' in locals() else None,
+                    "note": note if 'note' in locals() else None,
+                })
+                time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+            except StartupGuardError:
+                if record is not None:
+                    record.update(kind="error", reason="startup_guard")
+                # Newly selected venues retain the same fail-closed startup gate.
+                raise
+            except Exception as exc:
+                if record is not None:
+                    record.update(kind="error", error_type=type(exc).__name__)
+                    if record["actual"].get("outcome") == "write_attempted":
+                        record["actual"]["outcome"] = "write_failed_or_unknown"
+                if len(symbols) == 1:
+                    raise
+                # A symbol-local failure must not strand other symbols' exits.
+                _LOG.warning("symbol_turn_failed symbol=%s error_type=%s", symbol, type(exc).__name__)
+                write_run_status({
+                    "ok": False, "status": "running", "ts": _now(),
+                    "note": "symbol_turn_failed", "symbol": symbol,
+                    "error_type": type(exc).__name__, "loops": loops,
+                    "enqueued": enqueued,
+                })
+                time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+            finally:
+                if record is not None:
+                    try:
+                        from services.strategies.signal_input_capture import capture_runner_decision
+                        receipt = capture_runner_decision(record, runner_bindings={
+                            name: globals()[name] for name in (
+                                "run_forever", "_strategy_signal", "_registry_signal_with_context", "_synth_ohlcv",
+                                "_position_aware_signal_action", "position_aware_signal_action", "signal_transition",
+                                "select_exit_decision", "evaluate_strategy_exit_stack", "compute_signal",
+                                "PaperExitAccounting", "make_event", "scope_for", "assess_hourly_candles",
+                                "observe_paper_quote",
+                            )
+                        })
+                        recording_counts["written" if receipt.get("ok") else "failed"] += 1
+                        if not receipt.get("ok"):
+                            _LOG.warning("runner_decision_capture_failed error_type=%s", receipt.get("error_type", "unknown"))
+                    except Exception as capture_exc:
+                        recording_counts["failed"] += 1
+                        _LOG.warning("runner_decision_capture_failed error_type=%s", type(capture_exc).__name__)
+                if len(symbols) > 1 and turn_state_ready:
+                    # These keys and values all belong to this loaded turn.
+                    # Checkpoint even early-continue/error turns, never stale locals.
+                    try:
+                        if prices_loaded:
+                            sdb.set(k_prices, json.dumps(prices))
+                        sdb.set(k_last_action, last_action)
+                        sdb.set(k_last_emitted_action, last_emitted_action)
+                    except Exception as exc:
+                        _LOG.warning("symbol_checkpoint_failed symbol=%s error_type=%s",
+                                     symbol, type(exc).__name__)
+
     finally:
         public_clients.close()
         context_capture_status = capture_call(context_capture, "close") if context_capture is not None else {
             "enabled": False, "requested": os.environ.get("CBP_CAPTURE_MARKET_CONTEXT") == "1"
         }
-        try:
-            sdb.set(k_prices, json.dumps(prices))
-            sdb.set(k_last_action, last_action)
-            sdb.set(k_last_emitted_action, last_emitted_action)
-        except Exception:
-            pass
+        if len(symbols) == 1:
+            try:
+                sdb.set(k_prices, json.dumps(prices))
+                sdb.set(k_last_action, last_action)
+                sdb.set(k_last_emitted_action, last_emitted_action)
+            except Exception:
+                pass
         _release_lock()
-        _write_status({
+        write_run_status({
             "ok": True,
             "status": "stopped",
+            "runner_decision_capture": {"enabled": recording_enabled, **recording_counts},
             "pid": os.getpid(),
             "ts": _now(),
             "loops": loops,
@@ -1834,7 +2056,7 @@ def run_forever() -> None:
             "enqueued_total": enqueued,
             "mid": m if 'm' in locals() else None,
             "ts_ms": ts_ms if 'ts_ms' in locals() else None,
-            "bars": bars if 'bars' in locals() else len(prices),
+            "bars": bars if 'bars' in locals() else len(prices) if 'prices' in locals() else 0,
             "strategy_id": cfg["strategy_id"] if 'cfg' in locals() else None,
             "strategy_preset": cfg["strategy_preset"] if 'cfg' in locals() else None,
             "signal_source": cfg["signal_source"] if 'cfg' in locals() else None,

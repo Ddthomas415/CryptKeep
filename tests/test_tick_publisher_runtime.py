@@ -49,7 +49,7 @@ def test_fetch_status_includes_symbol_specific_ticks(monkeypatch) -> None:
 
         def fetch_ticker(self, symbol):
             assert symbol == "SUI/USD"
-            return {"bid": 1.0, "ask": 1.2, "last": 1.1, "timestamp": 111111}
+            return {"symbol": "sui-usd", "bid": 1.0, "ask": 1.2, "last": 1.1, "timestamp": 111111}
 
         def close(self):
             return None
@@ -70,6 +70,8 @@ def test_fetch_status_includes_symbol_specific_ticks(monkeypatch) -> None:
             "venue": "coinbase",
             "symbol": "SUI/USD",
             "symbol_mapped": "SUI/USD",
+            "source": "public_ticker",
+            "ticker_symbol": "SUI/USD",
             "bid": 1.0,
             "ask": 1.2,
             "last": 1.1,
@@ -103,6 +105,8 @@ def test_fetch_status_prefers_component_venue(monkeypatch) -> None:
     assert calls == ["coinbase"]
     assert out["venues"]["coinbase"]["ok"] is True
     assert out["ticks"][0]["symbol"] == "SUI/USD"
+    assert out["ticks"][0]["source"] == "unverified_ticker"
+    assert out["ticks"][0]["ticker_symbol"] is None
 
 
 def test_fetch_status_uses_sample_ohlcv_ticks_when_enabled(monkeypatch) -> None:
@@ -136,6 +140,7 @@ def test_fetch_status_uses_sample_ohlcv_ticks_when_enabled(monkeypatch) -> None:
             "venue": "coinbase",
             "symbol": "BTC/USDT",
             "symbol_mapped": "BTC/USDT",
+            "source": "sample_ohlcv",
             "bid": 44800.0,
             "ask": 44800.0,
             "last": 44800.0,

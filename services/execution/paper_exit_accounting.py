@@ -1,0 +1,156 @@
+"""Ordered provisional written-intent accounting, not realized/fill P&L.
+
+Reuses the October journal/outbox design. The queue row is written evidence;
+queue uncertainty is never interpreted as an unwritten or applied event.
+"""
+from __future__ import annotations
+
+import json
+import math
+
+from services.risk.performance_kill import (
+    evaluate_exit_outcome, evaluate_performance_kill, update_drawdown_state,
+)
+from storage.exit_event_journal import ExitEventJournal
+
+BASIS = "written_sell_intent_reference_price_v1"
+
+
+def scope_for(venue, symbol, strategy):
+    return f"{venue}:{symbol}:{strategy}"
+
+
+def counter_keys(scope):
+    return {name: f"{name}:{scope}" for name in
+            ("cum_pnl", "peak_pnl", "loss_streak", "kill_remaining")}
+
+
+def make_event(*, scope, entry_price, current_price, created_ts):
+    try:
+        entry, current = float(entry_price), float(current_price)
+    except (TypeError, ValueError, OverflowError):
+        return {"basis": BASIS, "scope": scope, "invalid": "invalid_reference_prices"}
+    if not all(math.isfinite(x) and x > 0 for x in (entry, current)):
+        return {"basis": BASIS, "scope": scope, "invalid": "invalid_reference_prices"}
+    result = evaluate_exit_outcome(entry_price=entry, exit_price=current)
+    if not result.get("ok") or not math.isfinite(result["pnl_pct"]):
+        return {"basis": BASIS, "scope": scope, "invalid": "invalid_reference_outcome"}
+    return dict(version=1, scope=scope, basis=BASIS, entry_price=entry, current_price=current,
+                pnl_pct=result["pnl_pct"], is_loss=result["is_loss"], created_ts=created_ts)
+
+
+def usable(event, scope):
+    try:
+        if (not isinstance(event, dict) or event.get("version") != 1 or event.get("basis") != BASIS
+                or event.get("scope") != scope or type(event.get("is_loss")) is not bool):
+            return False
+        expected = make_event(scope=scope, entry_price=event["entry_price"],
+                              current_price=event["current_price"], created_ts=event["created_ts"])
+        return "invalid" not in expected and expected == event
+    except (ValueError, TypeError, KeyError, OverflowError):
+        return False
+
+
+def reducer(keys, *, limits, scope, info):
+    def reduce(event, get):
+        if not usable(event, scope):
+            raise ValueError("invalid_exit_event")
+        prior = {name: float(get(keys[name]) or 0) for name in ("cum_pnl", "peak_pnl")}
+        loss = int(get(keys["loss_streak"]) or 0)
+        remaining = int(get(keys["kill_remaining"]) or 0)
+        if not all(math.isfinite(value) for value in prior.values()) or min(loss, remaining) < 0:
+            raise ValueError("invalid_exit_counters")
+        dd = update_drawdown_state(cumulative_pnl_pct=prior["cum_pnl"], peak_pnl_pct=prior["peak_pnl"],
+                                   trade_pnl_pct=event["pnl_pct"])
+        if not all(math.isfinite(value) for value in dd.values()):
+            raise ValueError("nonfinite_exit_counters")
+        loss = loss + 1 if event["is_loss"] else 0
+        if not math.isfinite(float(limits["max_strategy_drawdown_pct"])):
+            raise ValueError("invalid_exit_limits")
+        kill = evaluate_performance_kill(loops=0, consecutive_losing_exits=loss,
+                                         drawdown_pct=dd["drawdown_pct"], limits=limits)
+        updates = {keys["cum_pnl"]: str(dd["cumulative_pnl_pct"]),
+                   keys["peak_pnl"]: str(dd["peak_pnl_pct"]), keys["loss_streak"]: str(loss)}
+        if kill["triggered"]:
+            updates[keys["kill_remaining"]] = str(max(remaining, int(kill["kill_until_loop"]) - 1, 0))
+        info.update(performance_exit=event, performance_state=dd, loss_streak=loss, kill=kill)
+        return updates
+    return reduce
+
+
+class PaperExitAccounting:
+    def __init__(self, state, queue):
+        self.state, self.queue = state, queue
+        self.journal = ExitEventJournal()
+
+    def refresh(self, *, venue, symbol, strategy, limits):
+        scope = scope_for(venue, symbol, strategy)
+        result = {"unsettled": True, "applied": [], "basis": BASIS}
+        try:
+            self._recover(scope, symbol)
+            for _ in range(10_000):
+                pending = self.journal.unresolved(scope)
+                if not pending:
+                    break
+                head = pending[0]
+                if head["quarantined"] or not head["confirmed"]:
+                    break
+                if not usable(head["payload"], scope):
+                    self.journal.quarantine(scope, head["intent_id"], "invalid_exit_event")
+                    break
+                info = {}
+                if not self.journal.apply(scope, head["intent_id"],
+                        reduce=reducer(counter_keys(scope), limits=limits, scope=scope, info=info),
+                        allowed_keys=tuple(counter_keys(scope).values())):
+                    break
+                result["applied"].append(dict(intent_id=head["intent_id"], **info))
+            result["unsettled"] = self.journal.has_unresolved(scope)
+        except Exception as exc:
+            # Never suppress protective orders or log exception text/configuration.
+            result["error_type"] = type(exc).__name__
+        return result
+
+    def _recover(self, scope, symbol):
+        key = f"exit_reconciled_position:{scope}"
+        saved = str(self.state.get(key) or "")
+        try:
+            number, identity = saved.split("|", 1)
+            anchor = int(number)
+        except (ValueError, TypeError):
+            anchor, identity = 0, ""
+        rows = self.queue.strategy_sell_intents_after(symbol, max(anchor - 1, 0))
+        if anchor:
+            if rows and rows[0]["rowid"] == anchor and rows[0]["intent_id"] == identity:
+                rows = rows[1:]
+            else:
+                rows = self.queue.strategy_sell_intents_after(symbol, 0)
+        for row in rows:
+            if scope_for(row["venue"], row["symbol"], row["strategy_id"]) != scope:
+                continue
+            meta = row["meta"]
+            if meta is not None and not isinstance(meta, dict):
+                self.journal.quarantine_raw(scope, row["intent_id"], row["meta_raw"], "invalid_meta", confirmed=True)
+                continue
+            if meta is None:
+                if row["meta_raw"] is not None:
+                    self.journal.quarantine_raw(scope, row["intent_id"], row["meta_raw"], "unreadable_meta", confirmed=True)
+                continue
+            if "exit_event" not in meta:
+                continue  # Legacy sells were accounted by the legacy runner, not replayed.
+            event = meta["exit_event"]
+            if not usable(event, scope):
+                self.journal.quarantine_raw(scope, row["intent_id"], json.dumps(event), "invalid_exit_event", confirmed=True)
+                continue
+            # Repeated preparation verifies identity/payload even for already
+            # applied rows; a cursor reset must not silently trust changed evidence.
+            self.journal.prepare(scope, row["intent_id"], event)
+            known = self.journal.status_of(row["intent_id"])
+            if known["status"] == "unwritten":
+                # The queue proves a write; permanent legacy "unwritten" is
+                # contradictory evidence, never a reason to permit exposure.
+                raise ValueError("written_exit_marked_unwritten")
+            if known["status"] == "pending" and not known["confirmed"] and not known["quarantined"]:
+                self.journal.confirm(scope, row["intent_id"])
+        if rows:
+            last = rows[-1]
+            self.state.set(key, f"{last['rowid']}|{last['intent_id']}")
