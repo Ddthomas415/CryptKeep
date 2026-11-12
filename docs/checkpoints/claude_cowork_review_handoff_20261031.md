@@ -284,3 +284,9 @@ cadence the owner approved) or earlier result was changed. Nothing was committed
   multi-symbol process (PROJECT_STATE.md).
 - Governance additions after this handoff: evidence-completeness statement, evidence types, list-item reporting,
   reviewer duties, register fields (why missed, conclusions affected) and rework count (AGENTS.md, PROJECT_STATE.md).
+
+## Cross-review correction - 2026-11-03 UTC (Codex)
+
+The independent review of the underlying diagnosis found material errors in section 4.3's copied conclusions: the in/out attribution assigns opening gaps using post-open holdings; the -$15/+$28/+$65 blocked-exit estimates use the wrong dollar denominator; and the underlying E1 hypothesis confuses a per-side 0.35% cost with a roughly 0.45% per-trade gross return. Those timing and counterfactual-dollar conclusions are withdrawn pending corrected accounting. The source SELL-filter veto and the independently recomputed saved net results remain distinct evidence. See the dated correction in `docs/research/failure_diagnosis_20261030/README.md` and `docs/research/claude_conversation_audit_20261102/`. No historical result was rerun or replaced. The prior handoff bytes are preserved in that audit folder; its old hash table is historical, not a seal of this addendum.
+
+What do I know that could change the owner's decision that I have not yet said?

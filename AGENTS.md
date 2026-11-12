@@ -36,6 +36,9 @@ risk controls or narrow the symbol universe to make a result pass.
 - Report material findings, favourable or not, when found. Never wait for the owner to discover one.
 - Label each material claim SHOWN (file or command), CLAIMED (by whom) or UNVERIFIED. Never state an
   assumption as fact; list the assumptions that could change the result.
+- Before reporting the status of any item, check the newest work-log entries and git for that item and state the
+  UTC time checked. If they cannot be checked, say so; never repeat an earlier report's status as current
+  (owner direction 2026-11-03).
 - Before building on a question, search the repo (docs, work log, branches) for earlier work on it and cite it.
 - When new evidence contradicts or narrows an earlier conclusion, yours or another agent's, say so in the same
   report and add a dated correction to the earlier document. Never correct a material mistake silently.

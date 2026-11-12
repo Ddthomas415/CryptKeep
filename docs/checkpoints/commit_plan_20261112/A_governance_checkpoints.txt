@@ -1,0 +1,9 @@
+AGENTS.md
+docs/PROJECT_STATE.md
+docs/checkpoints/claude_cowork_review_handoff_20261031.md
+docs/checkpoints/commit_plan_20261112/A_governance_checkpoints.txt
+docs/checkpoints/commit_plan_20261112/B_research_text_public_results.txt
+docs/checkpoints/commit_plan_20261112/C_review_evidence.txt
+docs/checkpoints/commit_plan_20261112/D_source_tests_preservation.txt
+docs/checkpoints/commit_plan_20261112/README.md
+docs/work_log/review_stabilized_work_log.md
